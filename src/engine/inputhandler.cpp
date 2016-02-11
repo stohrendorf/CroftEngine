@@ -6,7 +6,6 @@
 #include "script/script.h"
 #include "world/character.h"
 
-#include <glm/glm.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/log/trivial.hpp>
 
@@ -48,9 +47,9 @@ InputHandler::InputHandler(Engine* engine, boost::property_tree::ptree& config)
 
 void InputHandler::primaryMouseDown()
 {
-    glm::float_t dbgR = 128.0;
-    glm::vec3 v = m_engine->m_camera.getPosition();
-    glm::vec3 dir = m_engine->m_camera.getViewDir();
+    irr::f32 dbgR = 128.0;
+    auto v = m_engine->m_camera.getPosition();
+    auto dir = m_engine->m_camera.getViewDir();
     btVector3 localInertia(0, 0, 0);
 
     btCollisionShape* cshape = new btSphereShape(dbgR);
@@ -58,7 +57,7 @@ void InputHandler::primaryMouseDown()
     //cshape = new btCapsuleShapeZ(50.0, 100.0);
     btTransform startTransform;
     startTransform.setIdentity();
-    glm::vec3 new_pos = v;
+    auto new_pos = v;
     startTransform.setOrigin(util::convert(new_pos));
     cshape->calculateLocalInertia(12.0, localInertia);
     btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
@@ -73,8 +72,8 @@ void InputHandler::primaryMouseDown()
 
 void InputHandler::secondaryMouseDown()
 {
-    glm::vec3 from = m_engine->m_camera.getPosition();
-    glm::vec3 to = from + m_engine->m_camera.getViewDir() * 32768.0f;
+    auto from = m_engine->m_camera.getPosition();
+    auto to = from + m_engine->m_camera.getViewDir() * 32768.0f;
 
     world::BulletObject* cam_cont = new world::BulletObject(&m_engine->m_world, m_engine->m_camera.getCurrentRoom());
 
@@ -84,7 +83,7 @@ void InputHandler::secondaryMouseDown()
     if(!cbc.hasHit())
         return;
 
-    glm::vec3 place = glm::mix(from, to, cbc.m_closestHitFraction);
+    auto place = glm::mix(from, to, cbc.m_closestHitFraction);
     m_engine->m_castRay[0] = place;
     m_engine->m_castRay[1] = m_engine->m_castRay[0] + 100.0f * util::convert(cbc.m_hitNormalWorld);
 

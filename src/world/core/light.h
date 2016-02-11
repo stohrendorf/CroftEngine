@@ -8,15 +8,15 @@ namespace core
 {
 struct Light
 {
-    glm::vec3 position;
-    glm::vec4 color;
+    irr::core::vector3df position;
+    irr::video::SColorf color;
 
-    glm::float_t inner;
-    glm::float_t outer;
-    glm::float_t length;
-    glm::float_t cutoff;
+    irr::f32 inner;
+    irr::f32 outer;
+    irr::f32 length;
+    irr::f32 cutoff;
 
-    glm::float_t falloff;
+    irr::f32 falloff;
 
     loader::LightType light_type;
 };

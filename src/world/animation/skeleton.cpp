@@ -6,9 +6,6 @@
 #include "world/entity.h"
 #include "world/ragdoll.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <stack>
 
 namespace world
@@ -43,8 +40,8 @@ void Skeleton::fromModel(const std::shared_ptr<SkeletalModel>& model)
         bone.body_part = meshReference.body_part;
 
         bone.position = meshReference.position;
-        bone.localTransform = glm::mat4(1.0f);
-        bone.globalTransform = glm::mat4(1.0f);
+        bone.localTransform = irr::core::matrix4();
+        bone.globalTransform = irr::core::matrix4();
 
         if(i > 0)
             bone.parent = &m_bones[i - 1];
@@ -280,13 +277,14 @@ const Animation& Skeleton::getCurrentAnimation() const
     return m_model->getAnimation(m_currentState.animation);
 }
 
-void Skeleton::updateTransform(const glm::mat4& entityTransform)
+void Skeleton::updateTransform(const irr::core::matrix4& entityTransform)
 {
-    const glm::mat4 inverseTransform = glm::inverse(entityTransform);
+    const irr::core::matrix4 inverseTransform;
+    entityTransform.getInverse(inverseTransform);
     for(Bone& bone : m_bones)
     {
-        glm::mat4 tr;
-        bone.bt_body->getWorldTransform().getOpenGLMatrix(glm::value_ptr(tr));
+        irr::core::matrix4 tr;
+        bone.bt_body->getWorldTransform().getOpenGLMatrix(tr.pointer());
         bone.globalTransform = inverseTransform * tr;
     }
 
@@ -322,7 +320,7 @@ void Skeleton::createGhosts(Entity& entity)
 
     for(world::animation::Bone& bone : m_bones)
     {
-        glm::vec3 box = GhostVolumeCollisionCoefficient * bone.mesh->m_boundingBox.getExtent();
+        irr::core::vector3df box = GhostVolumeCollisionCoefficient * bone.mesh->m_boundingBox.getExtent();
         bone.shape = std::make_shared<btBoxShape>(util::convert(box));
         bone.shape->setMargin(COLLISION_MARGIN_DEFAULT);
         bone.mesh->m_radius = std::min(std::min(box.x, box.y), box.z);
@@ -331,8 +329,8 @@ void Skeleton::createGhosts(Entity& entity)
 
         bone.ghostObject->setIgnoreCollisionCheck(bone.bt_body.get(), true);
 
-        glm::mat4 gltr = entity.m_transform * bone.globalTransform;
-        gltr[3] = glm::vec4(glm::mat3(gltr) * bone.mesh->m_center, 1.0f);
+        irr::core::matrix4 gltr = entity.m_transform * bone.globalTransform;
+        gltr[3] = gltr * bone.mesh->m_center, 1.0f;
 
         bone.ghostObject->getWorldTransform().setFromOpenGLMatrix(glm::value_ptr(gltr));
         bone.ghostObject->setCollisionFlags(bone.ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE |
@@ -347,7 +345,7 @@ void Skeleton::createGhosts(Entity& entity)
     m_hasGhosts = true;
 }
 
-void Skeleton::updateCurrentCollisions(const Entity& entity, const glm::mat4& transform)
+void Skeleton::updateCurrentCollisions(const Entity& entity, const irr::core::matrix4& transform)
 {
     if(!hasGhosts())
         return;
@@ -441,7 +439,7 @@ bool Skeleton::createRagdoll(const RagdollSetup& setup)
 
         if(!m_bones[i].parent)
         {
-            glm::float_t r = m_bones[i].mesh->m_boundingBox.getMinimumExtent();
+            irr::f32 r = m_bones[i].mesh->m_boundingBox.getMinimumExtent();
             m_bones[i].bt_body->setCcdMotionThreshold(0.8f * r);
             m_bones[i].bt_body->setCcdSweptSphereRadius(r);
         }
@@ -449,7 +447,7 @@ bool Skeleton::createRagdoll(const RagdollSetup& setup)
     return result;
 }
 
-void Skeleton::initCollisions(const glm::vec3& speed)
+void Skeleton::initCollisions(const irr::core::vector3df& speed)
 {
     for(animation::Bone& bone : m_bones)
     {
@@ -464,7 +462,7 @@ void Skeleton::initCollisions(const glm::vec3& speed)
     }
 }
 
-void Skeleton::updateRigidBody(const glm::mat4& transform)
+void Skeleton::updateRigidBody(const irr::core::matrix4& transform)
 {
     for(animation::Bone& bone : m_bones)
     {

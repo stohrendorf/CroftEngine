@@ -21,16 +21,16 @@ enum class TextureAnimationType
 */
 struct TextureAnimationKeyFrame
 {
-    glm::mat2 coordinateTransform;
-    glm::vec2 move;
+    irr::core::vector2df coordinateTransform[2];
+    irr::core::vector2df move;
     size_t textureIndex;
 };
 
 struct TextureAnimationSequence
 {
     bool uvrotate = false;   //!< UVRotate mode flag.
-    glm::float_t uvrotateSpeed;   // Speed of UVRotation, in seconds.
-    glm::float_t uvrotateMax;     // Reference value used to restart rotation.
+    irr::f32 uvrotateSpeed;   // Speed of UVRotation, in seconds.
+    irr::f32 uvrotateMax;     // Reference value used to restart rotation.
 
     bool frame_lock = false; //!< Single frame mode. Needed for TR4-5 compatible UVRotate.
 

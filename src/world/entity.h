@@ -119,26 +119,26 @@ public:
     mutable bool m_wasRendered = false;       // render once per frame trigger
     mutable bool m_wasRenderedLines = false; // same for debug lines
 
-    glm::float_t                        m_currentSpeed = 0;      // current linear speed from animation info
-    glm::vec3                           m_speed = { 0,0,0 };              // speed of the entity XYZ
-    glm::float_t                        m_vspeed_override = 0;
+    irr::f32 m_currentSpeed = 0;      // current linear speed from animation info
+    irr::core::vector3df m_speed = { 0,0,0 };              // speed of the entity XYZ
+    irr::f32 m_vspeed_override = 0;
 
     btScalar                            m_inertiaLinear = 0;     // linear inertia
     btScalar                            m_inertiaAngular[2] = { 0,0 }; // angular inertia - X and Y axes
 
     animation::Skeleton m_skeleton;
 
-    glm::vec3 m_angles = { 0,0,0 };
-    glm::mat4 m_transform{ 1.0f }; // GL transformation matrix
-    glm::vec3 m_scaling = { 1,1,1 };
+    irr::core::vector3df m_angles = { 0,0,0 };
+    irr::core::matrix4 m_transform; // GL transformation matrix
+    irr::core::vector3df m_scaling = { 1,1,1 };
 
     core::OrientedBoundingBox m_obb;
 
     const RoomSector* m_currentSector = nullptr;
     const RoomSector* m_lastSector = nullptr;
 
-    glm::vec3 m_activationOffset = { 0,256,0 };   // where we can activate object (dx, dy, dz)
-    glm::float_t m_activationRadius = 128;
+    irr::core::vector3df m_activationOffset = { 0,256,0 };   // where we can activate object (dx, dy, dz)
+    irr::f32 m_activationRadius = 128;
 
     explicit Entity(ObjectId id, World* world);
     ~Entity();
@@ -147,7 +147,7 @@ public:
     void disable();
 
     void ghostUpdate();
-    int getPenetrationFixVector(glm::vec3& reaction, bool hasMove);
+    int getPenetrationFixVector(irr::core::vector3df& reaction, bool hasMove);
     void checkCollisionCallbacks();
     bool wasCollisionBodyParts(uint32_t parts_flags) const;
     void updateRoomPos();
@@ -180,11 +180,11 @@ public:
     void doAnimCommand(const animation::AnimCommand& command);
     void processSector();
     void setAnimation(animation::AnimationId animation, int frame = 0);
-    void moveForward(glm::float_t dist);
-    void moveStrafe(glm::float_t dist);
-    void moveVertical(glm::float_t dist);
+    void moveForward(irr::f32 dist);
+    void moveStrafe(irr::f32 dist);
+    void moveVertical(irr::f32 dist);
 
-    glm::float_t findDistance(const Entity& entity_2);
+    irr::f32 findDistance(const Entity& entity_2);
 
     // Constantly updates some specific parameters to keep hair aligned to entity.
     virtual void updateHair()
@@ -194,17 +194,19 @@ public:
     bool createRagdoll(RagdollSetup* setup);
     bool deleteRagdoll();
 
-    virtual void fixPenetrations(const glm::vec3* move);
-    virtual glm::vec3 getRoomPos() const
+    virtual void fixPenetrations(const irr::core::vector3df* move);
+    virtual irr::core::vector3df getRoomPos() const
     {
-        return glm::vec3(m_transform * glm::vec4(m_skeleton.getBoundingBox().getCenter(), 1.0f));
+        auto res = m_skeleton.getBoundingBox().getCenter();
+        m_transform.transformVect(res);
+        return res;
     }
     virtual void transferToRoom(Room *room);
 
     virtual void processSectorImpl()
     {
     }
-    virtual void jump(glm::float_t /*vert*/, glm::float_t /*hor*/)
+    virtual void jump(irr::f32 /*vert*/, irr::f32 /*hor*/)
     {
     }
     virtual void kill()
@@ -215,18 +217,19 @@ public:
     }
     virtual std::shared_ptr<engine::BtEngineClosestConvexResultCallback> callbackForCamera() const;
 
-    virtual glm::vec3 camPosForFollowing(glm::float_t dz)
+    virtual irr::core::vector3df camPosForFollowing(irr::f32 dz)
     {
-        glm::vec4 cam_pos = m_transform * m_skeleton.getRootTransform()[3];
-        cam_pos[2] += dz;
-        return glm::vec3(cam_pos);
+        auto cam_pos = m_skeleton.getRootTransform().getTranslation();
+        m_transform.transformVect(cam_pos);
+        cam_pos.Z += dz;
+        return cam_pos;
     }
 
     virtual void updatePlatformPreStep()
     {
     }
 
-    glm::vec3 applyGravity(util::Duration time);
+    irr::core::vector3df applyGravity(util::Duration time);
 
     animation::Skeleton& getSkeleton()
     {
@@ -239,13 +242,13 @@ public:
     }
 
 private:
-    static glm::float_t getInnerBBRadius(const core::BoundingBox& bb)
+    static irr::f32 getInnerBBRadius(const core::BoundingBox& bb)
     {
         auto d = bb.max - bb.min;
-        return glm::min(d[0], glm::min(d[1], d[2]));
+        return std::min(d.X, std::min(d.Y, d.Z));
     }
 
-    bool getPenetrationFixVector(btPairCachingGhostObject& ghost, btManifoldArray& manifoldArray, glm::vec3& correction) const;
+    bool getPenetrationFixVector(btPairCachingGhostObject& ghost, btManifoldArray& manifoldArray, irr::core::vector3df& correction) const;
 };
 
 struct InventoryItem : public Entity
@@ -263,5 +266,4 @@ struct InventoryItem : public Entity
     ~InventoryItem();
 };
 
-int Ghost_GetPenetrationFixVector(btPairCachingGhostObject& ghost, btManifoldArray& manifoldArray, glm::vec3& correction);
 } // namespace world

@@ -11,7 +11,7 @@ namespace world
 {
 namespace core
 {
-bool Frustum::intersects(const glm::vec3& a, const glm::vec3& b) const
+bool Frustum::intersects(const irr::core::vector3df& a, const irr::core::vector3df& b) const
 {
     uint32_t aOutside = 0, bOutside = 0;
     for(size_t i = 0; i < m_planes.size(); ++i)
@@ -50,7 +50,7 @@ bool Frustum::isVisible(const Portal& portal) const
 
 bool Frustum::isVisible(const Polygon& polygon, const Camera& cam) const
 {
-    if(!polygon.isDoubleSided && glm::dot(polygon.plane.normal, cam.getPosition()) < 0.0)
+    if(!polygon.isDoubleSided && polygon.plane.normal.dotProduct(cam.getPosition()) < 0.0)
     {
         return false;
     }
@@ -58,9 +58,9 @@ bool Frustum::isVisible(const Polygon& polygon, const Camera& cam) const
     // iterate through all the planes of this frustum
     for(const util::Plane& plane : m_planes)
     {
-        for(const Vertex& vec : polygon.vertices)
+        for(const irr::video::S3DVertex& vec : polygon.vertices)
         {
-            if(plane.distance(vec.position) < 0)
+            if(plane.distance(vec.Pos) < 0)
                 return false;
         }
     }
@@ -68,12 +68,12 @@ bool Frustum::isVisible(const Polygon& polygon, const Camera& cam) const
     return true;
 }
 
-bool Frustum::isVisible(const std::vector<glm::vec3>& vertices) const
+bool Frustum::isVisible(const std::vector<irr::core::vector3df>& vertices) const
 {
     // iterate through all the planes of this frustum
     for(const util::Plane& plane : m_planes)
     {
-        for(const glm::vec3& vec : vertices)
+        for(const irr::core::vector3df& vec : vertices)
         {
             if(plane.distance(vec) > 0)
                 return true;
@@ -86,13 +86,13 @@ bool Frustum::isVisible(const std::vector<glm::vec3>& vertices) const
 bool Frustum::isVisible(const BoundingBox& bb) const
 {
     // see https://fgiesen.wordpress.com/2010/10/17/view-frustum-culling/, method 5
-    const glm::vec3 center = bb.getCenter();
-    const glm::vec3 extent = bb.getExtent();
+    const irr::core::vector3df center = bb.getCenter();
+    const irr::core::vector3df extent = bb.getExtent();
     for(const util::Plane& plane : m_planes)
     {
-        glm::vec3 signFlipped = center;
+        irr::core::vector3df signFlipped = center;
         for(int i = 0; i < 3; ++i)
-            signFlipped[i] += glm::sign(plane.normal[i]) * extent[i];
+            signFlipped[i] += std::sign(plane.normal[i]) * extent[i];
         if(plane.distance(signFlipped) >= 0)
             return true;
     }
@@ -104,7 +104,7 @@ bool Frustum::isVisible(const OrientedBoundingBox& obb, const Camera& cam) const
     bool inside = true;
     for(const Polygon& p : obb.polygons)
     {
-        glm::float_t t = p.plane.distance(cam.getPosition());
+        auto t = p.plane.distance(cam.getPosition());
         if(t <= 0)
             continue;
 

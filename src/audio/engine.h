@@ -233,7 +233,7 @@ private:
     std::vector<StreamTrack> m_tracks;      //!< Stream tracks.
     std::vector<uint8_t> m_trackMap;        //!< Stream track flag map.
 
-    glm::vec3 m_listenerPosition = { 0,0,0 };
+    irr::core::vector3df m_listenerPosition = { 0,0,0 };
 
     bool loadALbufferFromFile(ALuint buf_number, const std::string& fname);
 };

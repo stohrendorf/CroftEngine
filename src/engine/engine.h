@@ -45,7 +45,7 @@ struct EngineControlState
     float    m_freeLookSpeed = 0;
 
     bool     m_mouseLook = false;
-    glm::float_t m_camDistance = 800;
+    irr::f32 m_camDistance = 800;
     bool     m_noClip = false;
 
     float    m_lookAxisX = 0;                       // Unified look axis data.
@@ -185,8 +185,8 @@ public:
     SDL_Window* m_window = nullptr;
     void* m_glContext = nullptr;
 
-    glm::vec3 m_lightPosition = { 255.0, 255.0, 8.0 };
-    glm::vec3 m_castRay[2]{ {0,0,0}, {0,0,0} };
+    irr::core::vector3df m_lightPosition = { 255.0, 255.0, 8.0 };
+    irr::core::vector3df m_castRay[2]{ {0,0,0}, {0,0,0} };
 
 private:
     gui::TextLine system_fps;

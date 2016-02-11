@@ -3,8 +3,6 @@
 #include "util/helpers.h"
 #include "gui/common.h"
 
-#include <glm/glm.hpp>
-
 #include <cstdint>
 
 namespace engine
@@ -28,9 +26,9 @@ struct ScreenInfo
     int16_t     x = 50;
     int16_t     y = 20;
     int16_t     w = 800;
-    glm::float_t w_unit;   // Metering unit.
+    irr::f32 w_unit;   // Metering unit.
     int16_t     h = 600;
-    glm::float_t h_unit;   // Metering unit.
+    irr::f32 h_unit;   // Metering unit.
 
     float       fps;
     float       fov = 75.0f;

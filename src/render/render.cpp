@@ -27,9 +27,6 @@
 #include "world/staticmesh.h"
 #include "world/world.h"
 
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <boost/log/trivial.hpp>
 
 #include <SDL2/SDL.h>
@@ -94,16 +91,17 @@ void Render::renderSkyBox()
     if(m_drawSkybox && m_world != nullptr && m_world->m_skyBox != nullptr)
     {
         glDepthMask(GL_FALSE);
-        glm::mat4 tr = glm::translate(glm::mat4(1.0f), m_cam->getPosition() + m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().position);
-        tr *= glm::mat4_cast(m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().rotation);
-        const glm::mat4 fullView = m_cam->getViewProjection() * tr;
+        irr::core::matrix4 tr;
+        tr.setTranslation(m_cam->getPosition() + m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().position);
+        tr *= m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().rotation.getMatrix();
+        const irr::core::matrix4 fullView = m_cam->getViewProjection() * tr;
 
         UnlitTintedShaderDescription *shader = m_shaderManager->getStaticMeshShader();
         glUseProgram(shader->program);
-        glUniformMatrix4fv(shader->model_view_projection, 1, false, glm::value_ptr(fullView));
+        glUniformMatrix4fv(shader->model_view_projection, 1, false, fullView.pointer());
         glUniform1i(shader->sampler, 0);
-        glm::vec4 tint = { 1, 1, 1, 1 };
-        glUniform4fv(shader->tint_mult, 1, glm::value_ptr(tint));
+        irr::video::SColorf tint{ 1, 1, 1, 1 };
+        glUniform4fv(shader->tint_mult, 1, &tint.r);
 
         renderMesh(m_world->m_skyBox->getSkinnedBone(0).mesh_base);
         glDepthMask(GL_TRUE);
@@ -120,9 +118,9 @@ void Render::renderMesh(const std::shared_ptr<world::core::BaseMesh>& mesh) cons
         // Respecify the tex coord buffer
         glBindBuffer(GL_ARRAY_BUFFER, mesh->m_animatedVboTexCoordArray);
         // Tell OpenGL to discard the old values
-        glBufferData(GL_ARRAY_BUFFER, mesh->m_animatedVertices.size() * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, mesh->m_animatedVertices.size() * sizeof(irr::core::vector2df), nullptr, GL_STREAM_DRAW);
         // Get writable data (to avoid copy)
-        glm::vec2 *data = static_cast<glm::vec2*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        irr::core::vector2df* data = static_cast<irr::core::vector2df*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 
         size_t offset = 0;
         for(const world::core::Polygon& p : mesh->m_polygons)
@@ -136,13 +134,13 @@ void Render::renderMesh(const std::shared_ptr<world::core::BaseMesh>& mesh) cons
 
             size_t frame = (seq->currentFrame + p.startFrame) % seq->keyFrames.size();
             world::animation::TextureAnimationKeyFrame* tf = &seq->keyFrames[frame];
-            for(const world::core::Vertex& vert : p.vertices)
+            for(const irr::video::S3DVertex& vert : p.vertices)
             {
                 BOOST_ASSERT(offset < mesh->m_animatedVertices.size());
 
-                const auto& v = vert.tex_coord;
-                data[offset][0] = glm::dot(tf->coordinateTransform[0], v) + tf->move.x;
-                data[offset][1] = glm::dot(tf->coordinateTransform[1], v) + tf->move.y;
+                const auto& uv = vert.TCoords;
+                data[offset].X = tf->coordinateTransform[0].dotProduct(uv) + tf->move.X;
+                data[offset].Y = tf->coordinateTransform[1].dotProduct(uv) + tf->move.Y;
 
                 ++offset;
             }
@@ -218,9 +216,9 @@ void Render::renderPolygonTransparency(loader::BlendingMode currentTransparency,
         };
     }
 
-    glm::mat4 mvp = m_cam->getViewProjection() * bsp_ref.transform;
+    irr::core::matrix4 mvp = m_cam->getViewProjection() * bsp_ref.transform;
 
-    glUniformMatrix4fv(shader.model_view_projection, 1, false, glm::value_ptr(mvp));
+    glUniformMatrix4fv(shader.model_view_projection, 1, false, mvp.pointer());
 
     bsp_ref.polygon->used_vertex_array->bind();
     glBindTexture(GL_TEXTURE_2D, m_world->m_textures[bsp_ref.polygon->polygon->textureIndex]);
@@ -323,13 +321,13 @@ void Render::renderBSPBackToFront(loader::BlendingMode currentTransparency, cons
 /**
  * skeletal model drawing
  */
-void Render::renderSkeletalModel(const LitShaderDescription& shader, const world::animation::Skeleton& skeleton, const glm::mat4& mvMatrix, const glm::mat4& mvpMatrix)
+void Render::renderSkeletalModel(const LitShaderDescription& shader, const world::animation::Skeleton& skeleton, const irr::core::matrix4& mvMatrix, const irr::core::matrix4& mvpMatrix)
 {
     for(const world::animation::Bone& bone : skeleton.getBones())
     {
-        glUniformMatrix4fv(shader.model_view, 1, false, glm::value_ptr(mvMatrix * bone.globalTransform));
+        glUniformMatrix4fv(shader.model_view, 1, false, (mvMatrix * bone.globalTransform).pointer());
 
-        glUniformMatrix4fv(shader.model_view_projection, 1, false, glm::value_ptr(mvpMatrix * bone.globalTransform));
+        glUniformMatrix4fv(shader.model_view_projection, 1, false, (mvpMatrix * bone.globalTransform).pointer());
 
         renderMesh(bone.mesh);
         if(bone.mesh_slot)
@@ -339,22 +337,22 @@ void Render::renderSkeletalModel(const LitShaderDescription& shader, const world
     }
 }
 
-void Render::renderSkeletalModelSkin(const LitShaderDescription& shader, const world::Entity& ent, const glm::mat4& mvMatrix)
+void Render::renderSkeletalModelSkin(const LitShaderDescription& shader, const world::Entity& ent, const irr::core::matrix4& mvMatrix)
 {
-    glUniformMatrix4fv(shader.projection, 1, false, glm::value_ptr(m_cam->getProjection()));
+    glUniformMatrix4fv(shader.projection, 1, false, m_cam->getProjection().pointer());
 
     for(const world::animation::Bone& bone : ent.m_skeleton.getBones())
     {
-        glm::mat4 transforms[2];
+        irr::core::matrix4 transforms[2];
         transforms[0] = mvMatrix * bone.globalTransform;
 
         // Calculate parent transform
-        const glm::mat4& parentTransform = bone.parent ? bone.parent->globalTransform : ent.m_transform;
+        const irr::core::matrix4& parentTransform = bone.parent ? bone.parent->globalTransform : ent.m_transform;
 
-        glm::mat4 secondTransform = parentTransform * glm::translate(glm::mat4(1.0f), bone.position);
+        irr::core::matrix4 secondTransform = parentTransform * irr::core::matrix4().setTranslation(bone.position);
 
         transforms[1] = mvMatrix * secondTransform;
-        glUniformMatrix4fv(shader.model_view, 2, false, glm::value_ptr(transforms[0]));
+        glUniformMatrix4fv(shader.model_view, 2, false, transforms[0].pointer());
 
         if(bone.mesh_skin)
         {
@@ -365,28 +363,28 @@ void Render::renderSkeletalModelSkin(const LitShaderDescription& shader, const w
 
 void Render::renderDynamicEntitySkin(const LitShaderDescription& shader, const world::Entity& ent)
 {
-    glUniformMatrix4fv(shader.projection, 1, false, glm::value_ptr(m_cam->getProjection()));
+    glUniformMatrix4fv(shader.projection, 1, false, m_cam->getProjection().pointer());
 
     for(const world::animation::Bone& bone : ent.m_skeleton.getBones())
     {
-        glm::mat4 mvTransforms[2];
+        irr::core::matrix4 mvTransforms[2];
 
-        glm::mat4 tr0(1.0f);
-        bone.bt_body->getWorldTransform().getOpenGLMatrix(glm::value_ptr(tr0));
+        irr::core::matrix4 tr0;
+        bone.bt_body->getWorldTransform().getOpenGLMatrix(tr0.pointer());
 
         mvTransforms[0] = m_cam->getView() * tr0;
 
         // Calculate parent transform
-        glm::mat4 tr1;
+        irr::core::matrix4 tr1;
         if(bone.parent)
-            bone.parent->bt_body->getWorldTransform().getOpenGLMatrix(glm::value_ptr(tr1));
+            bone.parent->bt_body->getWorldTransform().getOpenGLMatrix(tr1.pointer());
         else
             tr1 = ent.m_transform;
 
-        glm::mat4 secondTransform = glm::translate(tr1, bone.position);
+        irr::core::matrix4 secondTransform = tr1 * irr::core::matrix4().setTranslation(bone.position);
         mvTransforms[1] = m_cam->getView() * secondTransform;
 
-        glUniformMatrix4fv(shader.model_view, 2, false, glm::value_ptr(mvTransforms[0]));
+        glUniformMatrix4fv(shader.model_view, 2, false, mvTransforms[0].pointer());
 
         if(bone.mesh_skin)
         {
@@ -409,22 +407,22 @@ const LitShaderDescription *Render::setupEntityLight(const world::Entity& entity
         return shader;
     }
 
-    glm::vec4 ambient_component(entity.getRoom()->getAmbientLighting(), 1.0f);
+    irr::video::SColorf ambient_component = entity.getRoom()->getAmbientLighting();
 
     if(entity.getRoom()->getFlags() & TR_ROOM_FLAG_WATER)
     {
         ambient_component *= m_engine->m_world.calculateWaterTint();
     }
 
-    std::array<glm::vec3, EntityShaderLightsLimit> positions;
+    std::array<irr::core::vector3df, EntityShaderLightsLimit> positions;
 
-    std::array<glm::vec4, EntityShaderLightsLimit> colors;
-    colors.fill(glm::vec4(0));
+    std::array<irr::video::SColorf, EntityShaderLightsLimit> colors;
+    colors.fill(irr::video::SColorf(0,0,0,0));
 
-    std::array<glm::float_t, EntityShaderLightsLimit> innerRadiuses;
+    std::array<irr::f32, EntityShaderLightsLimit> innerRadiuses;
     innerRadiuses.fill(0);
 
-    std::array<glm::float_t, EntityShaderLightsLimit> outerRadiuses;
+    std::array<irr::f32, EntityShaderLightsLimit> outerRadiuses;
     outerRadiuses.fill(0);
 
     GLenum current_light_number = 0;
@@ -432,16 +430,11 @@ const LitShaderDescription *Render::setupEntityLight(const world::Entity& entity
     {
         const world::core::Light& current_light = entity.getRoom()->getLights()[i];
 
-        glm::vec3 xyz = glm::vec3(entity.m_transform[3]) - current_light.position;
-        glm::float_t distance = glm::length(xyz);
+        irr::core::vector3df xyz = entity.m_transform.getTranslation() - current_light.position;
+        irr::f32 distance = xyz.getLength();
 
         // Find color
-        colors[current_light_number] = {
-            glm::clamp(current_light.color[0], 0.0f, 1.0f),
-            glm::clamp(current_light.color[1], 0.0f, 1.0f),
-            glm::clamp(current_light.color[2], 0.0f, 1.0f),
-            glm::clamp(current_light.color[3], 0.0f, 1.0f)
-        };
+        colors[current_light_number] = current_light.color;
 
         if(entity.getRoom()->getFlags() & TR_ROOM_FLAG_WATER)
         {
@@ -449,7 +442,7 @@ const LitShaderDescription *Render::setupEntityLight(const world::Entity& entity
         }
 
         // Find position
-        positions[current_light_number] = glm::vec3(m_cam->getView() * glm::vec4(current_light.position, 1.0f));
+        positions[current_light_number] = m_cam->getView() * current_light.position;
 
         // Find fall-off
         if(current_light.light_type == loader::LightType::Sun)
@@ -460,17 +453,17 @@ const LitShaderDescription *Render::setupEntityLight(const world::Entity& entity
         }
         else if(distance <= current_light.outer + 1024.0f && (current_light.light_type == loader::LightType::Point || current_light.light_type == loader::LightType::Shadow))
         {
-            innerRadiuses[current_light_number] = glm::abs(current_light.inner);
-            outerRadiuses[current_light_number] = glm::abs(current_light.outer);
+            innerRadiuses[current_light_number] = std::abs(current_light.inner);
+            outerRadiuses[current_light_number] = std::abs(current_light.outer);
             current_light_number++;
         }
     }
 
     const LitShaderDescription *shader = m_shaderManager->getEntityShader(current_light_number, skin);
     glUseProgram(shader->program);
-    glUniform4fv(shader->light_ambient, 1, glm::value_ptr(ambient_component));
-    glUniform4fv(shader->light_color, current_light_number, reinterpret_cast<const glm::float_t*>(colors.data()));
-    glUniform3fv(shader->light_position, current_light_number, reinterpret_cast<const glm::float_t*>(positions.data()));
+    glUniform4fv(shader->light_ambient, 1, &ambient_component.r);
+    glUniform4fv(shader->light_color, current_light_number, reinterpret_cast<const irr::f32*>(colors.data()));
+    glUniform3fv(shader->light_position, current_light_number, reinterpret_cast<const irr::f32*>(positions.data()));
     glUniform1fv(shader->light_inner_radius, current_light_number, innerRadiuses.data());
     glUniform1fv(shader->light_outer_radius, current_light_number, outerRadiuses.data());
     return shader;
@@ -499,9 +492,9 @@ void Render::renderEntity(const world::Entity& entity)
         }
         else
         {
-            glm::mat4 scaledTransform = glm::scale(entity.m_transform, entity.m_scaling);
-            glm::mat4 subModelView = m_cam->getView() * scaledTransform;
-            glm::mat4 subModelViewProjection = m_cam->getViewProjection() * scaledTransform;
+            irr::core::matrix4 scaledTransform = entity.m_transform * irr::core::matrix4().setScale(entity.m_scaling);
+            irr::core::matrix4 subModelView = m_cam->getView() * scaledTransform;
+            irr::core::matrix4 subModelViewProjection = m_cam->getViewProjection() * scaledTransform;
             renderSkeletalModel(*shader, entity.m_skeleton, subModelView, subModelViewProjection);
             if(entity.m_skeleton.getBones().front().mesh_skin)
             {
@@ -516,14 +509,14 @@ void Render::renderDynamicEntity(const LitShaderDescription& shader, const world
 {
     for(const world::animation::Bone& bone : entity.m_skeleton.getBones())
     {
-        glm::mat4 tr(1.0f);
-        bone.bt_body->getWorldTransform().getOpenGLMatrix(glm::value_ptr(tr));
-        glm::mat4 mvTransform = m_cam->getView() * tr;
+        irr::core::matrix4 tr;
+        bone.bt_body->getWorldTransform().getOpenGLMatrix(tr.pointer());
+        irr::core::matrix4 mvTransform = m_cam->getView() * tr;
 
-        glUniformMatrix4fv(shader.model_view, 1, false, glm::value_ptr(mvTransform));
+        glUniformMatrix4fv(shader.model_view, 1, false, mvTransform.pointer());
 
-        glm::mat4 mvpTransform = m_cam->getViewProjection() * tr;
-        glUniformMatrix4fv(shader.model_view_projection, 1, false, glm::value_ptr(mvpTransform));
+        irr::core::matrix4 mvpTransform = m_cam->getViewProjection() * tr;
+        glUniformMatrix4fv(shader.model_view_projection, 1, false, mvpTransform.pointer());
 
         renderMesh(bone.mesh);
         if(bone.mesh_slot)
@@ -545,12 +538,12 @@ void Render::renderHair(std::shared_ptr<world::Character> entity)
     for(const std::shared_ptr<world::Hair>& hair : entity->getHairs())
     {
         // First: Head attachment
-        glm::mat4 globalHead(entity->m_transform * entity->m_skeleton.getBones()[hair->m_ownerBody].globalTransform);
-        glm::mat4 globalAttachment = globalHead * hair->m_ownerBodyHairRoot;
+        irr::core::matrix4 globalHead(entity->m_transform * entity->m_skeleton.getBones()[hair->m_ownerBody].globalTransform);
+        irr::core::matrix4 globalAttachment = globalHead * hair->m_ownerBodyHairRoot;
 
         static constexpr int MatrixCount = 10;
 
-        glm::mat4 hairModelToGlobalMatrices[MatrixCount];
+        irr::core::matrix4 hairModelToGlobalMatrices[MatrixCount];
         hairModelToGlobalMatrices[0] = m_cam->getView() * globalAttachment;
 
         // Then: Individual hair pieces
@@ -581,15 +574,15 @@ void Render::renderHair(std::shared_ptr<world::Character> entity)
 
             btTransform hairWorldTransform;
             hairElement.body->getMotionState()->getWorldTransform(hairWorldTransform);
-            glm::mat4 globalFromHair(1.0f);
-            (hairWorldTransform * invOriginToHairModel).getOpenGLMatrix(glm::value_ptr(globalFromHair));
+            irr::core::matrix4 globalFromHair;
+            (hairWorldTransform * invOriginToHairModel).getOpenGLMatrix(globalFromHair.pointer());
 
             hairModelToGlobalMatrices[++i] = m_cam->getView() * globalFromHair;
         }
 
-        glUniformMatrix4fv(shader->model_view, static_cast<GLsizei>(hair->m_elements.size() + 1), GL_FALSE, glm::value_ptr(hairModelToGlobalMatrices[0]));
+        glUniformMatrix4fv(shader->model_view, static_cast<GLsizei>(hair->m_elements.size() + 1), GL_FALSE, hairModelToGlobalMatrices[0].pointer());
 
-        glUniformMatrix4fv(shader->projection, 1, GL_FALSE, glm::value_ptr(m_cam->getProjection()));
+        glUniformMatrix4fv(shader->projection, 1, GL_FALSE, m_cam->getProjection().pointer());
 
         renderMesh(hair->m_mesh);
     }
@@ -602,17 +595,17 @@ void Render::renderRoom(const world::Room& room)
 {
     if(!m_skipRoom && room.getMesh())
     {
-        glm::mat4 modelViewProjection = m_cam->getViewProjection() * room.getModelMatrix();
+        irr::core::matrix4 modelViewProjection = m_cam->getViewProjection() * room.getModelMatrix();
 
         UnlitTintedShaderDescription *shader = m_shaderManager->getRoomShader(room.getLightMode() == 1, room.getFlags() & TR_ROOM_FLAG_WATER);
 
-        glm::vec4 tint = m_engine->m_world.calculateWaterTint();
+        irr::video::SColorf tint = m_engine->m_world.calculateWaterTint();
         glUseProgram(shader->program);
 
-        glUniform4fv(shader->tint_mult, 1, glm::value_ptr(tint));
+        glUniform4fv(shader->tint_mult, 1, &tint.r);
         glUniform1f(shader->current_tick, static_cast<GLfloat>(SDL_GetTicks()));
         glUniform1i(shader->sampler, 0);
-        glUniformMatrix4fv(shader->model_view_projection, 1, false, glm::value_ptr(modelViewProjection));
+        glUniformMatrix4fv(shader->model_view_projection, 1, false, modelViewProjection.pointer());
         renderMesh(room.getMesh());
     }
 
@@ -631,17 +624,17 @@ void Render::renderRoom(const world::Room& room)
                 continue;
             }
 
-            glm::mat4 transform = m_cam->getViewProjection() * sm->transform;
-            glUniformMatrix4fv(m_shaderManager->getStaticMeshShader()->model_view_projection, 1, false, glm::value_ptr(transform));
+            irr::core::matrix4 transform = m_cam->getViewProjection() * sm->transform;
+            glUniformMatrix4fv(m_shaderManager->getStaticMeshShader()->model_view_projection, 1, false, transform.pointer());
 
-            glm::vec4 tint = sm->tint;
+            irr::video::SColorf tint = sm->tint;
 
             //If this static mesh is in a water room
             if(room.getFlags() & TR_ROOM_FLAG_WATER)
             {
                 tint *= m_engine->m_world.calculateWaterTint();
             }
-            glUniform4fv(m_shaderManager->getStaticMeshShader()->tint_mult, 1, glm::value_ptr(tint));
+            glUniform4fv(m_shaderManager->getStaticMeshShader()->tint_mult, 1, &tint.r);
             renderMesh(sm->mesh);
             sm->was_rendered = true;
         }
@@ -664,8 +657,8 @@ void Render::renderRoomSprites(const world::Room& room) const
     {
         SpriteShaderDescription *shader = m_shaderManager->getSpriteShader();
         glUseProgram(shader->program);
-        glUniformMatrix4fv(shader->model_view, 1, GL_FALSE, glm::value_ptr(m_cam->getView()));
-        glUniformMatrix4fv(shader->projection, 1, GL_FALSE, glm::value_ptr(m_cam->getProjection()));
+        glUniformMatrix4fv(shader->model_view, 1, GL_FALSE, m_cam->getView().pointer());
+        glUniformMatrix4fv(shader->projection, 1, GL_FALSE, m_cam->getProjection().pointer());
         glUniform1i(shader->sampler, 0);
 
         room.getSpriteBuffer()->data->bind();
@@ -835,7 +828,7 @@ void Render::drawList()
         UnlitTintedShaderDescription *shader = m_shaderManager->getRoomShader(false, false);
         glUseProgram(shader->program);
         glUniform1i(shader->sampler, 0);
-        glUniformMatrix4fv(shader->model_view_projection, 1, false, glm::value_ptr(m_cam->getViewProjection()));
+        glUniformMatrix4fv(shader->model_view_projection, 1, false, m_cam->getViewProjection().pointer());
         glDepthMask(GL_FALSE);
         glDisable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
@@ -862,8 +855,9 @@ void Render::drawListDebugLines()
      */
     if(m_drawNormals && m_world && m_world->m_skyBox)
     {
-        glm::mat4 tr = glm::translate(glm::mat4(1.0f), m_cam->getPosition() + m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().position);
-        tr *= glm::mat4_cast(m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().rotation);
+        irr::core::matrix4 tr;
+        tr.setTranslation(m_cam->getPosition() + m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().position);
+        tr *= m_world->m_skyBox->getAnimation(0).getInitialRootBonePose().rotation.getMatrix();
         m_world->m_engine->debugDrawer.drawMeshDebugLines(m_world->m_skyBox->getSkinnedBone(0).mesh_base, tr, *this);
     }
 
@@ -882,7 +876,7 @@ void Render::drawListDebugLines()
         UnlitShaderDescription *shader = m_shaderManager->getDebugLineShader();
         glUseProgram(shader->program);
         glUniform1i(shader->sampler, 0);
-        glUniformMatrix4fv(shader->model_view_projection, 1, false, glm::value_ptr(m_cam->getViewProjection()));
+        glUniformMatrix4fv(shader->model_view_projection, 1, false, m_cam->getViewProjection().pointer());
         glBindTexture(GL_TEXTURE_2D, m_engine->m_world.m_textures.back());
         glPointSize(6.0f);
         glLineWidth(3.0f);
@@ -1008,12 +1002,12 @@ void RenderDebugDrawer::reset()
     m_buffer.clear();
 }
 
-void RenderDebugDrawer::addLine(const glm::vec3& start, const glm::vec3& end)
+void RenderDebugDrawer::addLine(const irr::core::vector3df& start, const irr::core::vector3df& end)
 {
     addLine(start, m_color, end, m_color);
 }
 
-void RenderDebugDrawer::addLine(const glm::vec3& start, const glm::vec3& startColor, const glm::vec3& end, const glm::vec3& endColor)
+void RenderDebugDrawer::addLine(const irr::core::vector3df& start, const irr::video::SColorf& startColor, const irr::core::vector3df& end, const irr::video::SColorf& endColor)
 {
     m_buffer.emplace_back(start);
     m_buffer.emplace_back(startColor);
@@ -1021,9 +1015,9 @@ void RenderDebugDrawer::addLine(const glm::vec3& start, const glm::vec3& startCo
     m_buffer.emplace_back(endColor);
 }
 
-void RenderDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3 &color)
+void RenderDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-    addLine(util::convert(from), util::convert(color), util::convert(to), util::convert(color));
+    addLine(util::convert(from), {color.x(), color.y(), color.z()}, util::convert(to), {color.x(), color.y(), color.z()});
 }
 
 void RenderDebugDrawer::setDebugMode(int debugMode)
@@ -1055,8 +1049,8 @@ void RenderDebugDrawer::render()
         {
             glGenBuffers(1, &m_glbuffer);
             VertexArrayAttribute attribs[] = {
-                VertexArrayAttribute(UnlitShaderDescription::Position, 3, GL_FLOAT, false, m_glbuffer, sizeof(glm::vec3) * 2, 0),
-                VertexArrayAttribute(UnlitShaderDescription::Color,    3, GL_FLOAT, false, m_glbuffer, sizeof(glm::vec3) * 2, sizeof(glm::vec3))
+                VertexArrayAttribute(UnlitShaderDescription::Position, 3, GL_FLOAT, false, m_glbuffer, sizeof(irr::core::vector3df) * 2, 0),
+                VertexArrayAttribute(UnlitShaderDescription::Color,    3, GL_FLOAT, false, m_glbuffer, sizeof(irr::core::vector3df) * 2, sizeof(irr::core::vector3df))
             };
             m_vertexArray.reset(new VertexArray(0, 2, attribs));
         }
@@ -1064,7 +1058,7 @@ void RenderDebugDrawer::render()
         glBindBuffer(GL_ARRAY_BUFFER, m_glbuffer);
         glBufferData(GL_ARRAY_BUFFER, m_buffer.size() * sizeof(m_buffer[0]), nullptr, GL_STREAM_DRAW);
 
-        glm::vec3* data = static_cast<glm::vec3*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        irr::core::vector3df* data = static_cast<irr::core::vector3df*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
         std::copy(m_buffer.begin(), m_buffer.end(), data);
         glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -1072,33 +1066,33 @@ void RenderDebugDrawer::render()
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_buffer.size() / 2));
     }
 
-    m_color = { 0,0,0 };
+    m_color.set(1,0,0,0);
     m_buffer.clear();
 }
 
-void RenderDebugDrawer::drawAxis(glm::float_t r, const glm::mat4 &transform)
+void RenderDebugDrawer::drawAxis(irr::f32 r, const irr::core::matrix4& transform)
 {
-    glm::vec3 origin{ transform[3] };
+    auto origin = transform.getTranslation();
 
-    glm::vec4 v = transform[0] * r;
-    v += transform[3];
+    irr::core::vector3df v = transform[0] * r;
+    v += origin;
     m_buffer.push_back(origin);
     m_buffer.push_back({ 1.0, 0.0, 0.0 });
-    m_buffer.push_back({ v.x, v.y, v.z });
+    m_buffer.push_back({ v.X, v.Y, v.Z });
     m_buffer.push_back({ 1.0, 0.0, 0.0 });
 
     v = transform[1] * r;
-    v += transform[3];
+    v += origin;
     m_buffer.push_back(origin);
     m_buffer.push_back({ 0.0, 1.0, 0.0 });
-    m_buffer.push_back({ v.x, v.y, v.z });
+    m_buffer.push_back({ v.X, v.Y, v.Z });
     m_buffer.push_back({ 0.0, 1.0, 0.0 });
 
     v = transform[2] * r;
-    v += transform[3];
+    v += origin;
     m_buffer.push_back(origin);
     m_buffer.push_back({ 0.0, 0.0, 1.0 });
-    m_buffer.push_back({ v.x, v.y, v.z });
+    m_buffer.push_back({ v.X, v.Y, v.Z });
     m_buffer.push_back({ 0.0, 0.0, 1.0 });
 }
 
@@ -1111,7 +1105,7 @@ void RenderDebugDrawer::drawPortal(const world::Portal& p)
     addLine(p.vertices[1], p.vertices[3]);
 }
 
-void RenderDebugDrawer::drawBBox(const world::core::BoundingBox& boundingBox, const glm::mat4 *transform)
+void RenderDebugDrawer::drawBBox(const world::core::BoundingBox& boundingBox, const irr::core::matrix4* transform)
 {
     m_obb.rebuild(boundingBox);
     m_obb.transform = transform;
@@ -1122,39 +1116,39 @@ void RenderDebugDrawer::drawBBox(const world::core::BoundingBox& boundingBox, co
 void RenderDebugDrawer::drawOBB(const world::core::OrientedBoundingBox& obb)
 {
     const world::core::Polygon *p = obb.polygons.data();
-    addLine(p->vertices[0].position, (p + 1)->vertices[0].position);
-    addLine(p->vertices[1].position, (p + 1)->vertices[3].position);
-    addLine(p->vertices[2].position, (p + 1)->vertices[2].position);
-    addLine(p->vertices[3].position, (p + 1)->vertices[1].position);
+    addLine(p->vertices[0].Pos, (p + 1)->vertices[0].Pos);
+    addLine(p->vertices[1].Pos, (p + 1)->vertices[3].Pos);
+    addLine(p->vertices[2].Pos, (p + 1)->vertices[2].Pos);
+    addLine(p->vertices[3].Pos, (p + 1)->vertices[1].Pos);
 
     for(int i = 0; i < 2; i++, p++)
     {
         for(size_t j = 0; j < p->vertices.size() - 1; j++)
         {
-            addLine(p->vertices[j].position, p->vertices[j + 1].position);
+            addLine(p->vertices[j].Pos, p->vertices[j + 1].Pos);
         }
-        addLine(p->vertices.back().position, p->vertices.front().position);
+        addLine(p->vertices.back().Pos, p->vertices.front().Pos);
     }
 }
 
-void RenderDebugDrawer::drawMeshDebugLines(const std::shared_ptr<world::core::BaseMesh> &mesh, const glm::mat4& transform, const Render& render)
+void RenderDebugDrawer::drawMeshDebugLines(const std::shared_ptr<world::core::BaseMesh> &mesh, const irr::core::matrix4& transform, const Render& render)
 {
     if(!render.m_drawNormals)
         return;
 
     setColor(0.8f, 0.0f, 0.9f);
-    for(const world::core::Vertex& v : mesh->m_vertices)
+    for(const irr::video::S3DVertex& v : mesh->m_vertices)
     {
-        glm::vec4 tv = transform * glm::vec4(v.position, 1.0f);
-        m_buffer.push_back({ tv.x, tv.y, tv.z });
+        auto tv = transform * v.Pos;
+        m_buffer.push_back(tv);
         m_buffer.emplace_back(m_color);
-        tv += glm::vec4(glm::mat3(transform) * v.normal * 128.0f, 0);
-        m_buffer.push_back({ tv.x, tv.y, tv.z });
+        tv += transform * v.Normal * 128.0f;
+        m_buffer.push_back(tv);
         m_buffer.emplace_back(m_color);
     }
 }
 
-void RenderDebugDrawer::drawSkeletalModelDebugLines(const world::animation::Skeleton& skeleton, const glm::mat4& transform, const Render& render)
+void RenderDebugDrawer::drawSkeletalModelDebugLines(const world::animation::Skeleton& skeleton, const irr::core::matrix4& transform, const Render& render)
 {
     if(!render.m_drawNormals)
         return;
@@ -1193,8 +1187,8 @@ void RenderDebugDrawer::drawEntityDebugLines(const world::Entity& entity, const 
 void RenderDebugDrawer::drawSectorDebugLines(const world::RoomSector& rs)
 {
     world::core::BoundingBox bb;
-    bb.min = { rs.position[0] - world::MeteringSectorSize / 2.0f, rs.position[1] - world::MeteringSectorSize / 2.0f, static_cast<glm::float_t>(rs.floor) };
-    bb.max = { rs.position[0] + world::MeteringSectorSize / 2.0f, rs.position[1] + world::MeteringSectorSize / 2.0f, static_cast<glm::float_t>(rs.ceiling) };
+    bb.min = { rs.position.X - world::MeteringSectorSize / 2.0f, rs.position.Y - world::MeteringSectorSize / 2.0f, static_cast<irr::f32>(rs.floor) };
+    bb.max = { rs.position.X + world::MeteringSectorSize / 2.0f, rs.position.Y + world::MeteringSectorSize / 2.0f, static_cast<irr::f32>(rs.ceiling) };
 
     drawBBox(bb, nullptr);
 }
@@ -1271,7 +1265,7 @@ void RenderDebugDrawer::drawRoomDebugLines(const world::Room& room, const Render
  * @param size - the item size on the screen;
  * @param str - item description - shows near / under item model;
  */
-void renderItem(const world::animation::Skeleton& skeleton, glm::float_t size, const glm::mat4& mvMatrix, const glm::mat4& guiProjectionMatrix)
+void renderItem(const world::animation::Skeleton& skeleton, irr::f32 size, const irr::core::matrix4& mvMatrix, const irr::core::matrix4& guiProjectionMatrix)
 {
     const LitShaderDescription *shader = skeleton.getEntity()->getWorld()->m_engine->renderer.shaderManager()->getEntityShader(0, false);
     glUseProgram(shader->program);
@@ -1280,17 +1274,16 @@ void renderItem(const world::animation::Skeleton& skeleton, glm::float_t size, c
 
     if(size != 0.0)
     {
-        auto bb = skeleton.getBoundingBox().getExtent();
-        size /= glm::max(glm::max(bb[0], bb[1]), bb[2]);
+        size /= skeleton.getBoundingBox().getMaximumExtent();
         size *= 0.8f;
 
-        glm::mat4 scaledMatrix = glm::mat4(1.0f);
+        irr::core::matrix4 scaledMatrix;
         if(size < 1.0)          // only reduce items size...
         {
-            scaledMatrix = glm::scale(scaledMatrix, { size, size, size });
+            scaledMatrix.setScale(size);
         }
-        glm::mat4 scaledMvMatrix(mvMatrix * scaledMatrix);
-        glm::mat4 mvpMatrix = guiProjectionMatrix * scaledMvMatrix;
+        irr::core::matrix4 scaledMvMatrix(mvMatrix * scaledMatrix);
+        irr::core::matrix4 mvpMatrix = guiProjectionMatrix * scaledMvMatrix;
 
         // Render with scaled model view projection matrix
         // Use original modelview matrix, as that is used for normals whose size shouldn't change.
@@ -1298,7 +1291,7 @@ void renderItem(const world::animation::Skeleton& skeleton, glm::float_t size, c
     }
     else
     {
-        glm::mat4 mvpMatrix = guiProjectionMatrix * mvMatrix;
+        irr::core::matrix4 mvpMatrix = guiProjectionMatrix * mvMatrix;
         skeleton.getEntity()->getWorld()->m_engine->renderer.renderSkeletalModel(*shader, skeleton, mvMatrix, mvpMatrix/*, guiProjectionMatrix*/);
     }
 }
@@ -1310,15 +1303,15 @@ void Render::fillCrosshairBuffer()
 
     struct BufferEntry
     {
-        glm::vec2 position;
+        irr::core::vector2df position;
         uint8_t color[4];
     };
 
     BufferEntry crosshair_buf[4] = {
-        {{static_cast<glm::float_t>(m_engine->m_screenInfo.w / 2.0f - 5.f), (static_cast<glm::float_t>(m_engine->m_screenInfo.h) / 2.0f)}, {255, 0, 0, 255}},
-        {{static_cast<glm::float_t>(m_engine->m_screenInfo.w / 2.0f + 5.f), (static_cast<glm::float_t>(m_engine->m_screenInfo.h) / 2.0f)}, {255, 0, 0, 255}},
-        {{static_cast<glm::float_t>(m_engine->m_screenInfo.w / 2.0f), (static_cast<glm::float_t>(m_engine->m_screenInfo.h) / 2.0f - 5.f)}, {255, 0, 0, 255}},
-        {{static_cast<glm::float_t>(m_engine->m_screenInfo.w / 2.0f), (static_cast<glm::float_t>(m_engine->m_screenInfo.h) / 2.0f + 5.f)}, {255, 0, 0, 255}}
+        {{static_cast<irr::f32>(m_engine->m_screenInfo.w / 2.0f - 5.f), (static_cast<irr::f32>(m_engine->m_screenInfo.h) / 2.0f)}, {255, 0, 0, 255}},
+        {{static_cast<irr::f32>(m_engine->m_screenInfo.w / 2.0f + 5.f), (static_cast<irr::f32>(m_engine->m_screenInfo.h) / 2.0f)}, {255, 0, 0, 255}},
+        {{static_cast<irr::f32>(m_engine->m_screenInfo.w / 2.0f), (static_cast<irr::f32>(m_engine->m_screenInfo.h) / 2.0f - 5.f)}, {255, 0, 0, 255}},
+        {{static_cast<irr::f32>(m_engine->m_screenInfo.w / 2.0f), (static_cast<irr::f32>(m_engine->m_screenInfo.h) / 2.0f + 5.f)}, {255, 0, 0, 255}}
     };
 
     glBindBuffer(GL_ARRAY_BUFFER, m_crosshairBuffer);
@@ -1336,13 +1329,13 @@ void Render::drawCrosshair()
     GuiShaderDescription *shader = shaderManager()->getGuiShader(false);
 
     glUseProgram(shader->program);
-    glm::vec2 factor = {
+    irr::core::vector2df factor{
         2.0f / m_engine->m_screenInfo.w,
         2.0f / m_engine->m_screenInfo.h
     };
-    glUniform2fv(shader->factor, 1, glm::value_ptr(factor));
-    glm::vec2 offset = { -1.f, -1.f };
-    glUniform2fv(shader->offset, 1, glm::value_ptr(offset));
+    glUniform2fv(shader->factor, 1, &factor.X);
+    irr::core::vector2df offset{ -1.f, -1.f };
+    glUniform2fv(shader->offset, 1, &offset.X);
 
     m_crosshairArray->bind();
 

@@ -15,14 +15,14 @@ struct TextLine
     FontType  fontType = gui::FontType::Primary;
     FontStyle fontStyle = gui::FontStyle::MenuTitle;
 
-    glm::vec2 position = { 10.0, 10.0 };
-    mutable glm::vec2 offset;
+    irr::core::vector2df position{ 10, 10 };
+    mutable irr::core::vector2df offset;
 
     HorizontalAnchor Xanchor = gui::HorizontalAnchor::Right;
     VerticalAnchor   Yanchor = gui::VerticalAnchor::Bottom;
 
-    mutable glm::vec2 topLeft;
-    mutable glm::vec2 bottomRight;
+    mutable irr::core::vector2df topLeft;
+    mutable irr::core::vector2df bottomRight;
 
     bool show = true;
 
@@ -56,9 +56,9 @@ public:
     /**
      * Draws text using a FontType::Secondary.
      */
-    TextLine* drawText(glm::float_t x, glm::float_t y, const std::string& str);
+    TextLine* drawText(irr::f32 x, irr::f32 y, const std::string& str);
 
-    TextLine* drawText(glm::float_t x, glm::float_t y, const boost::format& str)
+    TextLine* drawText(irr::f32 x, irr::f32 y, const boost::format& str)
     {
         return drawText(x, y, str.str());
     }

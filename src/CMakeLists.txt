@@ -236,6 +236,7 @@ target_link_libraries(
     GLM
     Boost
     SndFile
+    Irrlicht
     # efence
 )
 

@@ -45,7 +45,7 @@ public:
 
         std::shared_ptr<core::BaseMesh> mesh_base; //!< pointer to the first mesh in array
         std::shared_ptr<core::BaseMesh> mesh_skin = nullptr; //!< base skinned mesh for TR4+
-        glm::vec3 position = { 0,0,0 }; //!< model position offset
+        irr::core::vector3df position = { 0,0,0 }; //!< model position offset
         StackOperation stackOperation = UsePredecessor;
         uint32_t                    body_part = 0;
         uint8_t                     replace_mesh = 0;                                   // flag for shoot / guns animations (0x00, 0x01, 0x02, 0x03)

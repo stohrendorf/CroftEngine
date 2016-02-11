@@ -12,8 +12,8 @@ const RoomSector* RoomSector::checkPortalPointerRaw(const World& world)
     if(portal_to_room)
     {
         std::shared_ptr<Room> r = world.m_rooms[*portal_to_room];
-        int ind_x = static_cast<int>((position[0] - r->getModelMatrix()[3][0]) / MeteringSectorSize);
-        int ind_y = static_cast<int>((position[1] - r->getModelMatrix()[3][1]) / MeteringSectorSize);
+        int ind_x = static_cast<int>((position.X - r->getModelMatrix().getTranslation().X) / MeteringSectorSize);
+        int ind_y = static_cast<int>((position.Y - r->getModelMatrix().getTranslation().Y) / MeteringSectorSize);
         if(ind_x >= 0 && static_cast<size_t>(ind_x) < r->getSectors().shape()[0] && ind_y >= 0 && static_cast<size_t>(ind_y) < r->getSectors().shape()[1])
         {
             return &r->getSectors()[ind_x][ind_y];
@@ -36,8 +36,8 @@ const RoomSector* RoomSector::checkPortalPointer(const World& world) const
         {
             r = r->getBaseRoom();
         }
-        int ind_x = static_cast<int>((position[0] - r->getModelMatrix()[3][0]) / MeteringSectorSize);
-        int ind_y = static_cast<int>((position[1] - r->getModelMatrix()[3][1]) / MeteringSectorSize);
+        int ind_x = static_cast<int>((position.X - r->getModelMatrix().getTranslation().X) / MeteringSectorSize);
+        int ind_y = static_cast<int>((position.Y - r->getModelMatrix().getTranslation().Y) / MeteringSectorSize);
         if(ind_x >= 0 && static_cast<size_t>(ind_x) < r->getSectors().shape()[0] && ind_y >= 0 && static_cast<size_t>(ind_y) < r->getSectors().shape()[1])
         {
             return &r->getSectors()[ind_x][ind_y];
@@ -52,8 +52,8 @@ const RoomSector* RoomSector::checkBaseRoom() const
     if(owner_room->getBaseRoom() != nullptr)
     {
         const Room* r = owner_room->getBaseRoom();
-        int ind_x = static_cast<int>((position[0] - r->getModelMatrix()[3][0]) / MeteringSectorSize);
-        int ind_y = static_cast<int>((position[1] - r->getModelMatrix()[3][1]) / MeteringSectorSize);
+        int ind_x = static_cast<int>((position.X - r->getModelMatrix().getTranslation().X) / MeteringSectorSize);
+        int ind_y = static_cast<int>((position.Y - r->getModelMatrix().getTranslation().Y) / MeteringSectorSize);
         if(ind_x >= 0 && static_cast<size_t>(ind_x) < r->getSectors().shape()[0] && ind_y >= 0 && static_cast<size_t>(ind_y) < r->getSectors().shape()[1])
         {
             return &r->getSectors()[ind_x][ind_y];
@@ -68,8 +68,8 @@ const RoomSector* RoomSector::checkAlternateRoom() const
     if(owner_room->getAlternateRoom() != nullptr)
     {
         const Room* r = owner_room->getAlternateRoom();
-        int ind_x = static_cast<int>((position[0] - r->getModelMatrix()[3][1]) / MeteringSectorSize);
-        int ind_y = static_cast<int>((position[1] - r->getModelMatrix()[3][1]) / MeteringSectorSize);
+        int ind_x = static_cast<int>((position.X - r->getModelMatrix().getTranslation().X) / MeteringSectorSize);
+        int ind_y = static_cast<int>((position.Y - r->getModelMatrix().getTranslation().Y) / MeteringSectorSize);
         if(ind_x >= 0 && static_cast<size_t>(ind_x) < r->getSectors().shape()[0] && ind_y >= 0 && static_cast<size_t>(ind_y) < r->getSectors().shape()[1])
         {
             return &r->getSectors()[ind_x][ind_y];
@@ -134,7 +134,7 @@ bool RoomSector::similarCeiling(const RoomSector* s2, bool ignore_doors) const
 
     for(int i = 0; i < 4; i++)
     {
-        if(ceiling_corners[i].z != s2->ceiling_corners[i].z)
+        if(ceiling_corners[i].Z != s2->ceiling_corners[i].Z)
             return false;
     }
 
@@ -154,19 +154,19 @@ bool RoomSector::similarFloor(const RoomSector* s2, bool ignore_doors) const
 
     for(int i = 0; i < 4; i++)
     {
-        if(floor_corners[i].z != s2->floor_corners[i].z)
+        if(floor_corners[i].Z != s2->floor_corners[i].Z)
             return false;
     }
 
     return true;
 }
 
-glm::vec3 RoomSector::getFloorPoint() const
+irr::core::vector3df RoomSector::getFloorPoint() const
 {
     return getLowestSector()->getHighestFloorCorner();
 }
 
-glm::vec3 RoomSector::getCeilingPoint() const
+irr::core::vector3df RoomSector::getCeilingPoint() const
 {
     return getHighestSector()->getLowestCeilingCorner();
 }

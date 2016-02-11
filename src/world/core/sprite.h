@@ -1,11 +1,11 @@
 #pragma once
 
+#include "render/vertex_array.h"
+
+#include <irrlicht.h>
+
 #include <memory>
 #include <vector>
-
-#include <glm/glm.hpp>
-
-#include "render/vertex_array.h"
 
 namespace render
 {
@@ -22,13 +22,13 @@ using SpriteId = uint32_t;
  */
 struct Sprite
 {
-    SpriteId            id;
-    size_t              texture;
-    glm::vec2           tex_coord[4];
-    glm::float_t        left;
-    glm::float_t        right;
-    glm::float_t        top;
-    glm::float_t        bottom;
+    SpriteId id;
+    size_t texture;
+    irr::core::vector2df tex_coord[4];
+    irr::f32 left;
+    irr::f32 right;
+    irr::f32 top;
+    irr::f32 bottom;
 };
 
 /*

@@ -199,24 +199,24 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
 
                     if(raw_x_slant > 0)
                     {
-                        sector.floor_corners[2][2] -= static_cast<glm::float_t>(raw_x_slant) * MeteringStep;
-                        sector.floor_corners[3][2] -= static_cast<glm::float_t>(raw_x_slant) * MeteringStep;
+                        sector.floor_corners[2].Z -= static_cast<irr::f32>(raw_x_slant) * MeteringStep;
+                        sector.floor_corners[3].Z -= static_cast<irr::f32>(raw_x_slant) * MeteringStep;
                     }
                     else if(raw_x_slant < 0)
                     {
-                        sector.floor_corners[0][2] -= glm::abs(static_cast<glm::float_t>(raw_x_slant)) * MeteringStep;
-                        sector.floor_corners[1][2] -= glm::abs(static_cast<glm::float_t>(raw_x_slant)) * MeteringStep;
+                        sector.floor_corners[0].Z -= std::abs(static_cast<irr::f32>(raw_x_slant)) * MeteringStep;
+                        sector.floor_corners[1].Z -= std::abs(static_cast<irr::f32>(raw_x_slant)) * MeteringStep;
                     }
 
                     if(raw_y_slant > 0)
                     {
-                        sector.floor_corners[0][2] -= static_cast<glm::float_t>(raw_y_slant) * MeteringStep;
-                        sector.floor_corners[3][2] -= static_cast<glm::float_t>(raw_y_slant) * MeteringStep;
+                        sector.floor_corners[0].Z -= static_cast<irr::f32>(raw_y_slant) * MeteringStep;
+                        sector.floor_corners[3].Z -= static_cast<irr::f32>(raw_y_slant) * MeteringStep;
                     }
                     else if(raw_y_slant < 0)
                     {
-                        sector.floor_corners[1][2] -= glm::abs(static_cast<glm::float_t>(raw_y_slant)) * MeteringStep;
-                        sector.floor_corners[2][2] -= glm::abs(static_cast<glm::float_t>(raw_y_slant)) * MeteringStep;
+                        sector.floor_corners[1].Z -= std::abs(static_cast<irr::f32>(raw_y_slant)) * MeteringStep;
+                        sector.floor_corners[2].Z -= std::abs(static_cast<irr::f32>(raw_y_slant)) * MeteringStep;
                     }
 
                     entry++;
@@ -234,24 +234,24 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
 
                     if(raw_x_slant > 0)
                     {
-                        sector.ceiling_corners[3][2] += static_cast<glm::float_t>(raw_x_slant) * MeteringStep;
-                        sector.ceiling_corners[2][2] += static_cast<glm::float_t>(raw_x_slant) * MeteringStep;
+                        sector.ceiling_corners[3].Z += static_cast<irr::f32>(raw_x_slant) * MeteringStep;
+                        sector.ceiling_corners[2].Z += static_cast<irr::f32>(raw_x_slant) * MeteringStep;
                     }
                     else if(raw_x_slant < 0)
                     {
-                        sector.ceiling_corners[1][2] += glm::abs(static_cast<glm::float_t>(raw_x_slant)) * MeteringStep;
-                        sector.ceiling_corners[0][2] += glm::abs(static_cast<glm::float_t>(raw_x_slant)) * MeteringStep;
+                        sector.ceiling_corners[1].Z += std::abs(static_cast<irr::f32>(raw_x_slant)) * MeteringStep;
+                        sector.ceiling_corners[0].Z += std::abs(static_cast<irr::f32>(raw_x_slant)) * MeteringStep;
                     }
 
                     if(raw_y_slant > 0)
                     {
-                        sector.ceiling_corners[1][2] += static_cast<glm::float_t>(raw_y_slant) * MeteringStep;
-                        sector.ceiling_corners[2][2] += static_cast<glm::float_t>(raw_y_slant) * MeteringStep;
+                        sector.ceiling_corners[1].Z += static_cast<irr::f32>(raw_y_slant) * MeteringStep;
+                        sector.ceiling_corners[2].Z += static_cast<irr::f32>(raw_y_slant) * MeteringStep;
                     }
                     else if(raw_y_slant < 0)
                     {
-                        sector.ceiling_corners[0][2] += glm::abs(static_cast<glm::float_t>(raw_y_slant)) * MeteringStep;
-                        sector.ceiling_corners[3][2] += glm::abs(static_cast<glm::float_t>(raw_y_slant)) * MeteringStep;
+                        sector.ceiling_corners[0].Z += std::abs(static_cast<irr::f32>(raw_y_slant)) * MeteringStep;
+                        sector.ceiling_corners[3].Z += std::abs(static_cast<irr::f32>(raw_y_slant)) * MeteringStep;
                     }
 
                     entry++;
@@ -770,10 +770,10 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
                     {
                         sector.floor_diagonal_type = DiagonalType::NW;
 
-                        sector.floor_corners[0][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t12) * MeteringStep;
-                        sector.floor_corners[1][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t13) * MeteringStep;
-                        sector.floor_corners[2][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t10) * MeteringStep;
-                        sector.floor_corners[3][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t11) * MeteringStep;
+                        sector.floor_corners[0].Z -= overall_adjustment - static_cast<irr::f32>(slope_t12) * MeteringStep;
+                        sector.floor_corners[1].Z -= overall_adjustment - static_cast<irr::f32>(slope_t13) * MeteringStep;
+                        sector.floor_corners[2].Z -= overall_adjustment - static_cast<irr::f32>(slope_t10) * MeteringStep;
+                        sector.floor_corners[3].Z -= overall_adjustment - static_cast<irr::f32>(slope_t11) * MeteringStep;
 
                         if(function == TR_FD_FUNC_FLOORTRIANGLE_NW_PORTAL_SW)
                         {
@@ -794,10 +794,10 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
                     {
                         sector.floor_diagonal_type = DiagonalType::NE;
 
-                        sector.floor_corners[0][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t12) * MeteringStep;
-                        sector.floor_corners[1][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t13) * MeteringStep;
-                        sector.floor_corners[2][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t10) * MeteringStep;
-                        sector.floor_corners[3][2] -= overall_adjustment - static_cast<glm::float_t>(slope_t11) * MeteringStep;
+                        sector.floor_corners[0].Z -= overall_adjustment - static_cast<irr::f32>(slope_t12) * MeteringStep;
+                        sector.floor_corners[1].Z -= overall_adjustment - static_cast<irr::f32>(slope_t13) * MeteringStep;
+                        sector.floor_corners[2].Z -= overall_adjustment - static_cast<irr::f32>(slope_t10) * MeteringStep;
+                        sector.floor_corners[3].Z -= overall_adjustment - static_cast<irr::f32>(slope_t11) * MeteringStep;
 
                         if(function == TR_FD_FUNC_FLOORTRIANGLE_NE_PORTAL_NW)
                         {
@@ -818,10 +818,10 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
                     {
                         sector.ceiling_diagonal_type = DiagonalType::NW;
 
-                        sector.ceiling_corners[0][2] += overall_adjustment - static_cast<glm::float_t>(slope_t11 * MeteringStep);
-                        sector.ceiling_corners[1][2] += overall_adjustment - static_cast<glm::float_t>(slope_t10 * MeteringStep);
-                        sector.ceiling_corners[2][2] += overall_adjustment - static_cast<glm::float_t>(slope_t13 * MeteringStep);
-                        sector.ceiling_corners[3][2] += overall_adjustment - static_cast<glm::float_t>(slope_t12 * MeteringStep);
+                        sector.ceiling_corners[0].Z += overall_adjustment - static_cast<irr::f32>(slope_t11 * MeteringStep);
+                        sector.ceiling_corners[1].Z += overall_adjustment - static_cast<irr::f32>(slope_t10 * MeteringStep);
+                        sector.ceiling_corners[2].Z += overall_adjustment - static_cast<irr::f32>(slope_t13 * MeteringStep);
+                        sector.ceiling_corners[3].Z += overall_adjustment - static_cast<irr::f32>(slope_t12 * MeteringStep);
 
                         if(function == TR_FD_FUNC_CEILINGTRIANGLE_NW_PORTAL_SW)
                         {
@@ -842,10 +842,10 @@ int TR_Sector_TranslateFloorData(World& world, RoomSector& sector, const loader:
                     {
                         sector.ceiling_diagonal_type = DiagonalType::NE;
 
-                        sector.ceiling_corners[0][2] += overall_adjustment - static_cast<glm::float_t>(slope_t11 * MeteringStep);
-                        sector.ceiling_corners[1][2] += overall_adjustment - static_cast<glm::float_t>(slope_t10 * MeteringStep);
-                        sector.ceiling_corners[2][2] += overall_adjustment - static_cast<glm::float_t>(slope_t13 * MeteringStep);
-                        sector.ceiling_corners[3][2] += overall_adjustment - static_cast<glm::float_t>(slope_t12 * MeteringStep);
+                        sector.ceiling_corners[0].Z += overall_adjustment - static_cast<irr::f32>(slope_t11 * MeteringStep);
+                        sector.ceiling_corners[1].Z += overall_adjustment - static_cast<irr::f32>(slope_t10 * MeteringStep);
+                        sector.ceiling_corners[2].Z += overall_adjustment - static_cast<irr::f32>(slope_t13 * MeteringStep);
+                        sector.ceiling_corners[3].Z += overall_adjustment - static_cast<irr::f32>(slope_t12 * MeteringStep);
 
                         if(function == TR_FD_FUNC_CEILINGTRIANGLE_NE_PORTAL_NW)
                         {
@@ -888,8 +888,8 @@ void Res_Sector_FixHeights(RoomSector& sector)
 
     for(size_t i = 0; i < 4; i++)
     {
-        if(sector.ceiling_corners[i][2] == sector.floor_corners[i][2])
-            sector.ceiling_corners[i][2] += LaraHangVerticalEpsilon;
+        if(sector.ceiling_corners[i].Z == sector.floor_corners[i].Z)
+            sector.ceiling_corners[i].Z += LaraHangVerticalEpsilon;
     }
 }
 
@@ -1054,9 +1054,9 @@ void TR_GenCameras(World& world, const std::unique_ptr<loader::Level>& tr)
     for(size_t i = 0; i < tr->m_cameras.size(); i++)
     {
         world.m_camerasAndSinks.emplace_back();
-        world.m_camerasAndSinks[i].position.x = tr->m_cameras[i].x;
-        world.m_camerasAndSinks[i].position.y = tr->m_cameras[i].z;
-        world.m_camerasAndSinks[i].position.z = -tr->m_cameras[i].y;
+        world.m_camerasAndSinks[i].position.X = tr->m_cameras[i].x;
+        world.m_camerasAndSinks[i].position.Y = tr->m_cameras[i].z;
+        world.m_camerasAndSinks[i].position.Z = -tr->m_cameras[i].y;
         world.m_camerasAndSinks[i].room_or_strength = tr->m_cameras[i].room;
         world.m_camerasAndSinks[i].flag_or_zone = tr->m_cameras[i].unknown1;
     }
@@ -1105,7 +1105,7 @@ void Res_GenSpritesBuffer(World& world)
 
 void TR_GenTextures(World& world, const std::unique_ptr<loader::Level>& tr)
 {
-    int border_size = glm::clamp(world.m_engine->renderer.settings().texture_border, 0, 64);
+    int border_size = irr::core::clamp(world.m_engine->renderer.settings().texture_border, 0, 64);
 
     world.m_textureAtlas.reset(new BorderedTextureAtlas(border_size,
                                                         world.m_engine->renderer.settings().save_texture_memory,
@@ -1224,7 +1224,7 @@ void TR_GenAnimTextures(World& world, const std::unique_ptr<loader::Level>& tr)
             // if scrolling is completed or not.
             seq->keyFrames.resize(8);
             seq->uvrotateMax = world.m_textureAtlas->getTextureHeight(seq->textureIndices[0]) / 2;
-            seq->uvrotateSpeed = seq->uvrotateMax / static_cast<glm::float_t>(seq->keyFrames.size());
+            seq->uvrotateSpeed = seq->uvrotateMax / static_cast<irr::f32>(seq->keyFrames.size());
             seq->textureIndices.resize(8);
 
             if(uvrotate_script > 0)
@@ -1244,23 +1244,23 @@ void TR_GenAnimTextures(World& world, const std::unique_ptr<loader::Level>& tr)
 
                 ///@PARANOID: texture transformation may be not only move
 
-                glm::mat2 textureSize0;
-                textureSize0[0] = uvCoord0.vertices[1].tex_coord - uvCoord0.vertices[0].tex_coord;
-                textureSize0[1] = uvCoord0.vertices[2].tex_coord - uvCoord0.vertices[0].tex_coord;
+                irr::core::vector2df textureSize0[2];
+                textureSize0[0] = uvCoord0.vertices[1].TCoords - uvCoord0.vertices[0].TCoords;
+                textureSize0[1] = uvCoord0.vertices[2].TCoords - uvCoord0.vertices[0].TCoords;
 
-                glm::mat2 textureSizeJ;
-                textureSizeJ[0] = uvCoordJ.vertices[1].tex_coord - uvCoordJ.vertices[0].tex_coord;
-                textureSizeJ[1] = uvCoordJ.vertices[2].tex_coord - uvCoordJ.vertices[0].tex_coord;
+                irr::core::vector2df textureSizeJ[2];
+                textureSizeJ[0] = uvCoordJ.vertices[1].TCoords - uvCoordJ.vertices[0].TCoords;
+                textureSizeJ[1] = uvCoordJ.vertices[2].TCoords - uvCoordJ.vertices[0].TCoords;
 
-                glm::float_t d = glm::determinant(textureSize0);
+                irr::f32 d = textureSize0[0].X*textureSize0[1].Y - textureSize0[0].Y*textureSize0[1].X;
 
-                seq->keyFrames[j].coordinateTransform[0][0] = (textureSizeJ[0][0] * textureSize0[1][1] - textureSize0[0][1] * textureSizeJ[1][0]) / d;
-                seq->keyFrames[j].coordinateTransform[1][0] = -(textureSizeJ[0][1] * textureSize0[1][1] - textureSize0[0][1] * textureSizeJ[1][1]) / d;
-                seq->keyFrames[j].coordinateTransform[0][1] = -(textureSize0[0][0] * textureSizeJ[1][0] - textureSizeJ[0][0] * textureSize0[1][0]) / d;
-                seq->keyFrames[j].coordinateTransform[1][1] = (textureSize0[0][0] * textureSizeJ[1][1] - textureSizeJ[0][1] * textureSize0[1][0]) / d;
+                seq->keyFrames[j].coordinateTransform[0].X = (textureSizeJ[0].X * textureSize0[1].Y - textureSize0[0].Y * textureSizeJ[1].X) / d;
+                seq->keyFrames[j].coordinateTransform[1].X = -(textureSizeJ[0].Y * textureSize0[1].Y - textureSize0[0].Y * textureSizeJ[1].Y) / d;
+                seq->keyFrames[j].coordinateTransform[0].Y = -(textureSize0[0].X * textureSizeJ[1].X - textureSizeJ[0].X * textureSize0[1].X) / d;
+                seq->keyFrames[j].coordinateTransform[1].Y = (textureSize0[0].X * textureSizeJ[1].Y - textureSizeJ[0].Y * textureSize0[1].X) / d;
 
-                seq->keyFrames[j].move.x = uvCoordJ.vertices[0].tex_coord[0] - glm::dot(uvCoord0.vertices[0].tex_coord, seq->keyFrames[j].coordinateTransform[0]);
-                seq->keyFrames[j].move.y = uvCoordJ.vertices[0].tex_coord[1] - glm::dot(uvCoord0.vertices[0].tex_coord, seq->keyFrames[j].coordinateTransform[1]);
+                seq->keyFrames[j].move.X = uvCoordJ.vertices[0].TCoords.X - uvCoord0.vertices[0].TCoords.dotProduct(seq->keyFrames[j].coordinateTransform[0]);
+                seq->keyFrames[j].move.Y = uvCoordJ.vertices[0].TCoords.Y - uvCoord0.vertices[0].TCoords.dotProduct(seq->keyFrames[j].coordinateTransform[1]);
             }
         }
         else
@@ -1273,23 +1273,23 @@ void TR_GenAnimTextures(World& world, const std::unique_ptr<loader::Level>& tr)
 
                 ///@PARANOID: texture transformation may be not only move
 
-                glm::mat2 textureSize0;
-                textureSize0[0] = uvCoord0.vertices[1].tex_coord - uvCoord0.vertices[0].tex_coord;
-                textureSize0[1] = uvCoord0.vertices[2].tex_coord - uvCoord0.vertices[0].tex_coord;
+                irr::core::vector2df textureSize0[2];
+                textureSize0[0] = uvCoord0.vertices[1].TCoords - uvCoord0.vertices[0].TCoords;
+                textureSize0[1] = uvCoord0.vertices[2].TCoords - uvCoord0.vertices[0].TCoords;
 
-                glm::mat2 textureSizeJ;
-                textureSizeJ[0] = uvCoordJ.vertices[1].tex_coord - uvCoordJ.vertices[0].tex_coord;
-                textureSizeJ[1] = uvCoordJ.vertices[2].tex_coord - uvCoordJ.vertices[0].tex_coord;
+                irr::core::vector2df textureSizeJ[2];
+                textureSizeJ[0] = uvCoordJ.vertices[1].TCoords - uvCoordJ.vertices[0].TCoords;
+                textureSizeJ[1] = uvCoordJ.vertices[2].TCoords - uvCoordJ.vertices[0].TCoords;
 
-                glm::float_t d = glm::determinant(textureSize0);
+                irr::f32 d = textureSize0[0].X*textureSize0[1].Y - textureSize0[0].Y*textureSize0[1].X;
 
-                seq->keyFrames[j].coordinateTransform[0][0] = (textureSizeJ[0][0] * textureSize0[1][1] - textureSize0[0][1] * textureSizeJ[1][0]) / d;
-                seq->keyFrames[j].coordinateTransform[1][0] = -(textureSizeJ[0][1] * textureSize0[1][1] - textureSize0[0][1] * textureSizeJ[1][1]) / d;
-                seq->keyFrames[j].coordinateTransform[0][1] = -(textureSize0[0][0] * textureSizeJ[1][0] - textureSizeJ[0][0] * textureSize0[1][0]) / d;
-                seq->keyFrames[j].coordinateTransform[1][1] = (textureSize0[0][0] * textureSizeJ[1][1] - textureSizeJ[0][1] * textureSize0[1][0]) / d;
+                seq->keyFrames[j].coordinateTransform[0].X = (textureSizeJ[0].X * textureSize0[1].Y - textureSize0[0].Y * textureSizeJ[1].X) / d;
+                seq->keyFrames[j].coordinateTransform[1].X = -(textureSizeJ[0].Y * textureSize0[1].Y - textureSize0[0].Y * textureSizeJ[1].Y) / d;
+                seq->keyFrames[j].coordinateTransform[0].Y = -(textureSize0[0].X * textureSizeJ[1].X - textureSizeJ[0].X * textureSize0[1].X) / d;
+                seq->keyFrames[j].coordinateTransform[1].Y = (textureSize0[0].X * textureSizeJ[1].Y - textureSizeJ[0].Y * textureSize0[1].X) / d;
 
-                seq->keyFrames[j].move.x = uvCoordJ.vertices[0].tex_coord[0] - glm::dot(uvCoord0.vertices[0].tex_coord, seq->keyFrames[j].coordinateTransform[0]);
-                seq->keyFrames[j].move.y = uvCoordJ.vertices[0].tex_coord[1] - glm::dot(uvCoord0.vertices[0].tex_coord, seq->keyFrames[j].coordinateTransform[1]);
+                seq->keyFrames[j].move.X = uvCoordJ.vertices[0].TCoords.X - uvCoord0.vertices[0].TCoords.dotProduct(seq->keyFrames[j].coordinateTransform[0]);
+                seq->keyFrames[j].move.Y = uvCoordJ.vertices[0].TCoords.Y - uvCoord0.vertices[0].TCoords.dotProduct(seq->keyFrames[j].coordinateTransform[1]);
             }
         }
     }
@@ -1340,7 +1340,7 @@ void tr_copyNormals(core::Polygon& polygon, const core::BaseMesh& mesh, const ui
 {
     for(size_t i = 0; i < polygon.vertices.size(); ++i)
     {
-        polygon.vertices[i].normal = mesh.m_vertices[mesh_vertex_indices[i]].normal;
+        polygon.vertices[i].Normal = mesh.m_vertices[mesh_vertex_indices[i]].Normal;
     }
 }
 
@@ -1350,13 +1350,13 @@ void tr_accumulateNormals(const loader::Mesh& tr_mesh, core::BaseMesh& mesh, int
 
     for(int i = 0; i < numCorners; i++)
     {
-        p.vertices[i].position = util::convert(tr_mesh.vertices[vertex_indices[i]]);
+        p.vertices[i].Pos = util::convert(tr_mesh.vertices[vertex_indices[i]]);
     }
     p.updateNormal();
 
     for(int i = 0; i < numCorners; i++)
     {
-        mesh.m_vertices[vertex_indices[i]].normal += p.plane.normal;
+        mesh.m_vertices[vertex_indices[i]].Normal += p.plane.normal;
     }
 }
 
@@ -1364,19 +1364,17 @@ void tr_setupColoredFace(const loader::Mesh& tr_mesh, const std::unique_ptr<load
 {
     for(size_t i = 0; i < p.vertices.size(); i++)
     {
-        p.vertices[i].color[0] = tr->m_palette->color[color].r / 255.0f;
-        p.vertices[i].color[1] = tr->m_palette->color[color].g / 255.0f;
-        p.vertices[i].color[2] = tr->m_palette->color[color].b / 255.0f;
+        p.vertices[i].Color.set( tr->m_palette->color[color].r, tr->m_palette->color[color].g, tr->m_palette->color[color].b, 255 );
         if(tr_mesh.lights.size() == tr_mesh.vertices.size())
         {
-            p.vertices[i].color[0] = p.vertices[i].color[0] * 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
-            p.vertices[i].color[1] = p.vertices[i].color[1] * 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
-            p.vertices[i].color[2] = p.vertices[i].color[2] * 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
+            irr::u32 r( std::max(0.0f, std::min(255.0f, p.vertices[i].Color.getRed() - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255)) );
+            irr::u32 g( std::max(0.0f, std::min(255.0f, p.vertices[i].Color.getGreen() - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255)) );
+            irr::u32 b( std::max(0.0f, std::min(255.0f, p.vertices[i].Color.getBlue() - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255)) );
+            p.vertices[i].Color.set( r, g, b, 255 );
         }
-        p.vertices[i].color[3] = 1.0f;
 
-        p.vertices[i].tex_coord[0] = (i & 2) ? 1.0f : 0.0f;
-        p.vertices[i].tex_coord[1] = i >= 2 ? 1.0f : 0.0f;
+        p.vertices[i].TCoords.X = (i & 2) ? 1.0f : 0.0f;
+        p.vertices[i].TCoords.Y = i >= 2 ? 1.0f : 0.0f;
     }
     mesh.m_usesVertexColors = true;
 }
@@ -1387,14 +1385,16 @@ void tr_setupTexturedFace(const loader::Mesh& tr_mesh, core::BaseMesh& mesh, con
     {
         if(tr_mesh.lights.size() != tr_mesh.vertices.size())
         {
-            p.vertices[i].color = { 1,1,1,1 };
+            p.vertices[i].Color = { 1,1,1,1 };
             continue;
         }
 
-        p.vertices[i].color[0] = 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
-        p.vertices[i].color[1] = 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
-        p.vertices[i].color[2] = 1.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f;
-        p.vertices[i].color[3] = 1.0f;
+        p.vertices[i].Color.set(
+                    255.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255,
+                    255.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255,
+                    255.0f - tr_mesh.lights[vertex_indices[i]] / 8192.0f * 255,
+                    255
+                );
 
         mesh.m_usesVertexColors = true;
     }
@@ -1420,9 +1420,9 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
      */
 
     const loader::Mesh& tr_mesh = tr->m_meshes[mesh_index];
-    mesh->m_center[0] = tr_mesh.centre.x;
-    mesh->m_center[1] = -tr_mesh.centre.z;
-    mesh->m_center[2] = tr_mesh.centre.y;
+    mesh->m_center.X = tr_mesh.centre.x;
+    mesh->m_center.Y = -tr_mesh.centre.z;
+    mesh->m_center.Z = tr_mesh.centre.y;
     mesh->m_radius = tr_mesh.collision_size;
     mesh->m_texturePageCount = world.m_textureAtlas->getNumAtlasPages() + 1;
 
@@ -1430,8 +1430,8 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
     auto vertex = mesh->m_vertices.data();
     for(size_t i = 0; i < mesh->m_vertices.size(); i++, vertex++)
     {
-        vertex->position = util::convert(tr_mesh.vertices[i]);
-        vertex->normal = { 0,0,0 };                                          // paranoid
+        vertex->Pos = util::convert(tr_mesh.vertices[i]);
+        vertex->Normal = { 0,0,0 };                                          // paranoid
     }
 
     mesh->updateBoundingBox();
@@ -1538,9 +1538,9 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
     /*
      * let us normalise normales %)
      */
-    for(core::Vertex& v : mesh->m_vertices)
+    for(irr::video::S3DVertex& v : mesh->m_vertices)
     {
-        v.normal = glm::normalize(v.normal);
+        v.Normal.normalize();
     }
 
     /*
@@ -1581,15 +1581,16 @@ void tr_setupRoomVertices(World& world, const std::unique_ptr<loader::Level>& tr
 
     for(int i = 0; i < numCorners; i++)
     {
-        p.vertices[i].position = util::convert(tr_room.vertices[vertices[i]].vertex);
+        p.vertices[i].Pos = util::convert(tr_room.vertices[vertices[i]].vertex);
     }
     p.updateNormal();
 
     for(int i = 0; i < numCorners; i++)
     {
-        mesh->m_vertices[vertices[i]].normal += p.plane.normal;
-        p.vertices[i].normal = p.plane.normal;
-        p.vertices[i].color = util::convert(tr_room.vertices[vertices[i]].colour);
+        mesh->m_vertices[vertices[i]].Normal += p.plane.normal;
+        p.vertices[i].Normal = p.plane.normal;
+        const auto tmp = util::convert(tr_room.vertices[vertices[i]].colour);
+        p.vertices[i].Color.set(tmp.r*255, tmp.g*255, tmp.b*255, 255);
     }
 
     loader::ObjectTexture *tex = &tr->m_objectTextures[masked_texture];
@@ -1722,9 +1723,9 @@ void TR_GenSkeletalModel(const World& world, size_t model_num, animation::Skelet
         BOOST_ASSERT(animatedModel->boneTreeIndex + k * 4 <= tr->m_boneTrees.size());
         const int32_t *boneTreeData = &tr->m_boneTrees[ animatedModel->boneTreeIndex + (k - 1) * 4 ];
         skinnedBone.stackOperation = static_cast<animation::SkeletalModel::SkinnedBone::StackOperation>(boneTreeData[0]);
-        skinnedBone.position[0] = static_cast<float>(boneTreeData[1]);
-        skinnedBone.position[1] = static_cast<float>(boneTreeData[3]);
-        skinnedBone.position[2] = -static_cast<float>(boneTreeData[2]);
+        skinnedBone.position.X = static_cast<float>(boneTreeData[1]);
+        skinnedBone.position.Y = static_cast<float>(boneTreeData[3]);
+        skinnedBone.position.Z = -static_cast<float>(boneTreeData[2]);
 
         model.addSkinnedBone(skinnedBone);
     }
@@ -1794,12 +1795,8 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
     {
         loader::Item *tr_item = &tr->m_items[i];
         std::shared_ptr<Entity> entity = tr_item->object_id == 0 ? std::make_shared<Character>(i, &world) : std::make_shared<Entity>(i, &world);
-        entity->m_transform[3][0] = tr_item->position.x;
-        entity->m_transform[3][1] = -tr_item->position.z;
-        entity->m_transform[3][2] = tr_item->position.y;
-        entity->m_angles[0] = tr_item->rotation;
-        entity->m_angles[1] = 0;
-        entity->m_angles[2] = 0;
+        entity->m_transform.setTranslation({tr_item->position.x, -tr_item->position.z, tr_item->position.y});
+        entity->m_angles = {tr_item->rotation, 0, 0};
         entity->updateTransform();
         if(tr_item->room >= 0 && static_cast<uint32_t>(tr_item->room) < world.m_rooms.size())
         {
@@ -1844,7 +1841,7 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
             core::Sprite* sp = world.getSpriteByID(tr_item->object_id);
             if(sp && entity->getRoom())
             {
-                entity->getRoom()->addSprite(sp, glm::vec3(entity->m_transform[3]));
+                entity->getRoom()->addSprite(sp, entity->m_transform.getTranslation());
             }
 
             continue;                                                           // that entity has no model. may be it is a some trigger or look at object

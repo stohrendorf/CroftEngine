@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <algorithm>
+
+#include <irrlicht.h>
 
 class btCollisionShape;
 
@@ -11,42 +12,46 @@ namespace core
 {
 struct BoundingBox
 {
-    glm::vec3 min = { 0,0,0 };
-    glm::vec3 max = { 0,0,0 };
+    irr::core::vector3df min = { 0,0,0 };
+    irr::core::vector3df max = { 0,0,0 };
 
-    glm::vec3 getCenter() const noexcept
+    irr::core::vector3df getCenter() const noexcept
     {
         return (min + max) * 0.5f;
     }
 
-    glm::vec3 getExtent() const noexcept
+    irr::core::vector3df getExtent() const noexcept
     {
         return max - min;
     }
 
-    void adjust(const glm::vec3& v, glm::float_t r = 0) noexcept
+    void adjust(const irr::core::vector3df& v, irr::f32 r = 0) noexcept
     {
+        const irr::f32* f = &v.X;
+        irr::f32* mi = &min.X;
+        irr::f32* ma = &max.X;
         for(int i = 0; i < 3; ++i)
         {
-            if(min[i] > v[i] - r)
-                min[i] = v[i] - r;
-            if(max[i] < v[i] + r)
-                max[i] = v[i] + r;
+            if(mi[i] > f[i] - r)
+                mi[i] = f[i] - r;
+            if(ma[i] < f[i] + r)
+                ma[i] = f[i] + r;
         }
     }
 
-    bool contains(const glm::vec3& v) const
+    bool contains(const irr::core::vector3df& v) const
     {
-        return v[0] >= min[0] && v[0] <= max[0] &&
-            v[1] >= min[1] && v[1] <= max[1] &&
-            v[2] >= min[2] && v[2] <= max[2];
+        return
+            v.X >= min.X && v.X <= max.X &&
+            v.Y >= min.Y && v.Y <= max.Y &&
+            v.Z >= min.Z && v.Z <= max.Z;
     }
 
     bool overlaps(const BoundingBox& b) const
     {
-        if(min[0] >= b.max[0] || max[0] <= b.min[0] ||
-           min[1] >= b.max[1] || max[1] <= b.min[1] ||
-           min[2] >= b.max[2] || max[2] <= b.min[2])
+        if(min.X >= b.max.X || max.X <= b.min.X ||
+           min.Y >= b.max.Y || max.Y <= b.min.Y ||
+           min.Z >= b.max.Z || max.Z <= b.min.Z)
         {
             return false;
         }
@@ -54,16 +59,16 @@ struct BoundingBox
         return true;
     }
 
-    glm::float_t getMinimumExtent() const
+    irr::f32 getMinimumExtent() const
     {
-        glm::vec3 d = getExtent();
-        return std::min(d[0], std::min(d[1], d[2]));
+        auto d = getExtent();
+        return std::min(d.Y, std::min(d.Y, d.Z));
     }
 
-    glm::float_t getMaximumExtent() const
+    irr::f32 getMaximumExtent() const
     {
-        glm::vec3 d = getExtent();
-        return std::max(d[0], std::max(d[1], d[2]));
+        auto d = getExtent();
+        return std::max(d.X, std::max(d.Y, d.Z));
     }
 };
 

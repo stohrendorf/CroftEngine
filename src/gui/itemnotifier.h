@@ -3,7 +3,7 @@
 #include "util/helpers.h"
 #include "world/object.h"
 
-#include <glm/glm.hpp>
+#include <irrlicht.h>
 
 namespace engine
 {
@@ -24,9 +24,9 @@ public:
     void    animate();
     void    draw() const;
 
-    void    setPos(glm::float_t X, glm::float_t Y);
-    void    setRotation(glm::float_t X, glm::float_t Y);
-    void    setSize(glm::float_t size);
+    void    setPos(irr::f32 X, irr::f32 Y);
+    void    setRotation(irr::f32 X, irr::f32 Y);
+    void    setSize(irr::f32 size);
     void    setRotateTime(util::Duration time);
 
 private:
@@ -35,18 +35,18 @@ private:
     bool    m_active = false;
     world::ObjectId m_item = 0;
 
-    glm::vec2 m_absPos;
+    irr::core::vector2df m_absPos;
 
-    glm::float_t   m_posY;
-    glm::float_t   m_startPosX;
-    glm::float_t   m_endPosX;
-    glm::float_t   m_currPosX;
+    irr::f32   m_posY;
+    irr::f32   m_startPosX;
+    irr::f32   m_endPosX;
+    irr::f32   m_currPosX;
 
-    glm::vec2 m_rotation{ 0,0 };
-    glm::vec2 m_currentAngle{ 0,0 };
-    glm::float_t m_radPerSecond = 0;
+    irr::core::vector2df m_rotation{ 0,0 };
+    irr::core::vector2df m_currentAngle{ 0,0 };
+    irr::f32 m_radPerSecond = 0;
 
-    glm::float_t m_size;
+    irr::f32 m_size;
 
     util::Duration m_showTime;
     util::Duration m_currTime;

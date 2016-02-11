@@ -19,42 +19,22 @@ struct BoundingBox;
 class Frustum
 {
 private:
-    enum
-    {
-        Right,
-        Left,
-        Top,
-        Bottom,
-        Near,
-        Far,
-        PlaneCount
-    };
-    static_assert(PlaneCount == 6, "Frustum plane constants wrong");
-
-    std::array<util::Plane, PlaneCount> m_planes; //!< clip planes
+    irr::scene::SViewFrustum m_frustum;
 
 public:
-    void setFromMatrix(const glm::mat4& mv)
+    void setFromMatrix(const irr::core::matrix4& mv)
     {
-        // Extract frustum planes from matrix
-
-        const auto m = glm::transpose(mv);
-        // assign in order: right, left, top, bottom, near, far
-        for(int i = 0; i < 3; ++i)
-        {
-            m_planes[2 * i + 0].assign(m[3] - m[i]);
-            m_planes[2 * i + 1].assign(m[3] + m[i]);
-        }
+        m_frustum.setFrom(mv);
     }
 
     bool isVisible(const Polygon &polygon, const Camera& cam) const;
-    bool isVisible(const std::vector<glm::vec3>& vertices) const;
+    bool isVisible(const std::vector<irr::core::vector3df>& vertices) const;
     bool isVisible(const BoundingBox& bb) const;
     bool isVisible(const OrientedBoundingBox &obb, const Camera& cam) const;
     bool isVisible(const Portal &portal) const;
 
     //! Check if a line intersects with the frustum
-    bool intersects(const glm::vec3& a, const glm::vec3& b) const;
+    bool intersects(const irr::core::vector3df& a, const irr::core::vector3df& b) const;
 };
 } // namespace core
 } // namespace world

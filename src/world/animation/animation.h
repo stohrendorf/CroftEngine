@@ -20,9 +20,9 @@ namespace animation
  */
 struct AnimatedVertex
 {
-    glm::vec3 position;
-    glm::vec4 color;
-    glm::vec3 normal;
+    irr::core::vector3df position;
+    irr::video::SColorf color;
+    irr::core::vector3df normal;
 };
 
 /**

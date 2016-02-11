@@ -25,22 +25,19 @@ struct OrientedBoundingBox
 {
     std::array<Polygon, 6> base_polygons;           // bv base surface
     std::array<Polygon, 6> polygons;                // bv world coordinate surface
-    const glm::mat4* transform = nullptr;          // Object transform matrix
-    glm::float_t radius;
+    const irr::core::matrix4* transform = nullptr;          // Object transform matrix
+    irr::f32 radius;
 
-    glm::vec3 base_centre;
-    glm::vec3 center;
-    glm::vec3 extent;
+    irr::core::vector3df base_centre;
+    irr::core::vector3df center;
+    irr::core::vector3df extent;
 
     void doTransform();
     void rebuild(const BoundingBox &boundingBox);
 };
 
-namespace
-{
-constexpr glm::float_t DefaultTestOverlap = 1.2f;
-}
+constexpr irr::f32 DefaultTestOverlap = 1.2f;
 
-bool testOverlap(const Entity &e1, const Entity &e2, glm::float_t overlap = DefaultTestOverlap);
+bool testOverlap(const Entity &e1, const Entity &e2, irr::f32 overlap = DefaultTestOverlap);
 } // namespace core
 } // namespace world

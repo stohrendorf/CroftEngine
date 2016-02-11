@@ -2,8 +2,7 @@
 
 #include "audio.h"
 
-#include <AL/al.h>
-#include <glm/glm.hpp>
+#include <irrlicht.h>
 
 namespace audio
 {
@@ -12,7 +11,7 @@ struct Emitter
 {
     size_t      emitter_index;  // Unique emitter index.
     SoundId     soundId;
-    glm::vec3   position;    // Vector coordinate.
+    irr::core::vector3df position;    // Vector coordinate.
     uint16_t    flags;          // Flags - MEANING UNKNOWN!!!
 };
 } // namespace audio

@@ -13,9 +13,6 @@
 
 #include <boost/log/trivial.hpp>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 namespace world
 {
 Room::~Room()
@@ -58,7 +55,7 @@ Room::~Room()
     }
 }
 
-void Room::addSprite(core::Sprite* sprite, const glm::vec3& pos)
+void Room::addSprite(core::Sprite* sprite, const irr::core::vector3df& pos)
 {
     RoomSprite sp;
     sp.sprite = sprite;
@@ -154,15 +151,15 @@ bool Room::overlaps(Room* r1)
     return !isJoined(r1);
 }
 
-const RoomSector* Room::getSectorRaw(const glm::vec3& pos) const
+const RoomSector* Room::getSectorRaw(const irr::core::vector3df& pos) const
 {
     if(!m_active)
     {
         return nullptr;
     }
 
-    int x = static_cast<int>(pos[0] - m_modelMatrix[3][0]) / 1024;
-    int y = static_cast<int>(pos[1] - m_modelMatrix[3][1]) / 1024;
+    int x = static_cast<int>(pos.X - m_modelMatrix(0,3)) / 1024;
+    int y = static_cast<int>(pos.Y - m_modelMatrix(1,3)) / 1024;
     if(x < 0 || static_cast<size_t>(x) >= m_sectors.shape()[0] || y < 0 || static_cast<size_t>(y) >= m_sectors.shape()[1])
     {
         return nullptr;
@@ -174,7 +171,7 @@ const RoomSector* Room::getSectorRaw(const glm::vec3& pos) const
     return &m_sectors[x][y];
 }
 
-const RoomSector* Room::getSectorXYZ(const glm::vec3& pos) const
+const RoomSector* Room::getSectorXYZ(const irr::core::vector3df& pos) const
 {
     const Room* room = checkFlip();
 
@@ -183,8 +180,8 @@ const RoomSector* Room::getSectorXYZ(const glm::vec3& pos) const
         return nullptr;
     }
 
-    int x = static_cast<int>(pos[0] - room->m_modelMatrix[3][0]) / 1024;
-    int y = static_cast<int>(pos[1] - room->m_modelMatrix[3][1]) / 1024;
+    int x = static_cast<int>(pos.X - room->m_modelMatrix(0,3)) / 1024;
+    int y = static_cast<int>(pos.Y - room->m_modelMatrix(0,3)) / 1024;
     if(x < 0 || static_cast<size_t>(x) >= room->m_sectors.shape()[0] || y < 0 || static_cast<size_t>(y) >= room->m_sectors.shape()[1])
     {
         return nullptr;
@@ -197,12 +194,12 @@ const RoomSector* Room::getSectorXYZ(const glm::vec3& pos) const
 
     //resolve Z overlapped neighboard rooms. room below has more priority.
 
-    if(ret->sector_below && ret->sector_below->ceiling >= pos[2])
+    if(ret->sector_below && ret->sector_below->ceiling >= pos.Z)
     {
         return ret->sector_below->checkFlip();
     }
 
-    if(ret->sector_above && ret->sector_above->floor <= pos[2])
+    if(ret->sector_above && ret->sector_above->floor <= pos.Z)
     {
         return ret->sector_above->checkFlip();
     }
@@ -413,8 +410,8 @@ void Room::genMesh(const std::unique_ptr<loader::Level>& tr)
     auto vertex = m_mesh->m_vertices.data();
     for(size_t i = 0; i < m_mesh->m_vertices.size(); i++, vertex++)
     {
-        vertex->position = util::convert(tr_room.vertices[i].vertex);
-        vertex->normal = { 0,0,0 };                                          // paranoid
+        vertex->Pos = util::convert(tr_room.vertices[i].vertex);
+        vertex->Normal = { 0,0,0 };                                          // paranoid
     }
 
     m_mesh->updateBoundingBox();
@@ -443,9 +440,9 @@ void Room::genMesh(const std::unique_ptr<loader::Level>& tr)
     /*
     * let us normalise normales %)
     */
-    for(core::Vertex& v : m_mesh->m_vertices)
+    for(irr::video::S3DVertex& v : m_mesh->m_vertices)
     {
-        v.normal = glm::normalize(v.normal);
+        v.Normal.normalize();
     }
 
     /*
@@ -583,8 +580,8 @@ btCollisionShape *BT_CSfromHeightmap(const Room::SectorArray& heightmap, const s
 
             case TweenType::TwoTriangles:
             {
-                glm::float_t t = glm::abs((tween.ceiling_corners[2][2] - tween.ceiling_corners[3][2]) /
-                                          (tween.ceiling_corners[0][2] - tween.ceiling_corners[1][2]));
+                auto t = std::abs((tween.ceiling_corners[2].Z - tween.ceiling_corners[3].Z) /
+                                  (tween.ceiling_corners[0].Z - tween.ceiling_corners[1].Z));
                 t = 1.0f / (1.0f + t);
                 btVector3 o;
                 o.setInterpolate3(util::convert(tween.ceiling_corners[0]), util::convert(tween.ceiling_corners[2]), t);
@@ -634,8 +631,8 @@ btCollisionShape *BT_CSfromHeightmap(const Room::SectorArray& heightmap, const s
 
             case TweenType::TwoTriangles:
             {
-                glm::float_t t = glm::abs((tween.floor_corners[2][2] - tween.floor_corners[3][2]) /
-                                          (tween.floor_corners[0][2] - tween.floor_corners[1][2]));
+                auto t = std::abs((tween.floor_corners[2].Z - tween.floor_corners[3].Z) /
+                                  (tween.floor_corners[0].Z - tween.floor_corners[1].Z));
                 t = 1.0f / (1.0f + t);
                 btVector3 o;
                 o.setInterpolate3(util::convert(tween.floor_corners[0]), util::convert(tween.floor_corners[2]), t);
@@ -699,10 +696,11 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     m_waterScheme = tr->m_rooms[getId()].water_scheme;
     m_alternateGroup = tr->m_rooms[getId()].alternate_group;
 
-    m_modelMatrix = glm::translate(glm::mat4(1.0f), { tr->m_rooms[getId()].offset.x, -tr->m_rooms[getId()].offset.z, tr->m_rooms[getId()].offset.y });
-    m_ambientLighting[0] = tr->m_rooms[getId()].light_colour.r * 2;
-    m_ambientLighting[1] = tr->m_rooms[getId()].light_colour.g * 2;
-    m_ambientLighting[2] = tr->m_rooms[getId()].light_colour.b * 2;
+    m_modelMatrix.makeIdentity().setTranslation({ tr->m_rooms[getId()].offset.x, -tr->m_rooms[getId()].offset.z, tr->m_rooms[getId()].offset.y });
+    m_ambientLighting.set(1,
+                          tr->m_rooms[getId()].light_colour.r * 2,
+                          tr->m_rooms[getId()].light_colour.g * 2,
+                          tr->m_rooms[getId()].light_colour.b * 2);
     setRoom(this);
     m_nearRooms.clear();
     m_overlappedRooms.clear();
@@ -728,34 +726,36 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         std::shared_ptr<StaticMesh> r_static = m_staticMeshes.back();
         r_static->setRoom(this);
         r_static->mesh = getWorld()->m_meshes[tr->m_meshIndices[tr_static->mesh]];
-        r_static->tint[0] = tr_room->static_meshes[i].tint.r * 2;
-        r_static->tint[1] = tr_room->static_meshes[i].tint.g * 2;
-        r_static->tint[2] = tr_room->static_meshes[i].tint.b * 2;
-        r_static->tint[3] = tr_room->static_meshes[i].tint.a * 2;
+        r_static->tint.set(
+                    tr_room->static_meshes[i].tint.a * 2,
+                    tr_room->static_meshes[i].tint.r * 2,
+                    tr_room->static_meshes[i].tint.g * 2,
+                    tr_room->static_meshes[i].tint.b * 2
+                    );
 
-        r_static->collisionBoundingBox.min[0] = tr_static->collision_box[0].x;
-        r_static->collisionBoundingBox.min[1] = -tr_static->collision_box[0].z;
-        r_static->collisionBoundingBox.min[2] = tr_static->collision_box[1].y;
-        r_static->collisionBoundingBox.max[0] = tr_static->collision_box[1].x;
-        r_static->collisionBoundingBox.max[1] = -tr_static->collision_box[1].z;
-        r_static->collisionBoundingBox.max[2] = tr_static->collision_box[0].y;
+        r_static->collisionBoundingBox.min.X = tr_static->collision_box[0].x;
+        r_static->collisionBoundingBox.min.Y = -tr_static->collision_box[0].z;
+        r_static->collisionBoundingBox.min.Z = tr_static->collision_box[1].y;
+        r_static->collisionBoundingBox.max.X = tr_static->collision_box[1].x;
+        r_static->collisionBoundingBox.max.Y = -tr_static->collision_box[1].z;
+        r_static->collisionBoundingBox.max.Z = tr_static->collision_box[0].y;
 
-        r_static->visibleBoundingBox.min[0] = tr_static->visibility_box[0].x;
-        r_static->visibleBoundingBox.min[1] = -tr_static->visibility_box[0].z;
-        r_static->visibleBoundingBox.min[2] = tr_static->visibility_box[1].y;
+        r_static->visibleBoundingBox.min.X = tr_static->visibility_box[0].x;
+        r_static->visibleBoundingBox.min.Y = -tr_static->visibility_box[0].z;
+        r_static->visibleBoundingBox.min.Z = tr_static->visibility_box[1].y;
 
-        r_static->visibleBoundingBox.max[0] = tr_static->visibility_box[1].x;
-        r_static->visibleBoundingBox.max[1] = -tr_static->visibility_box[1].z;
-        r_static->visibleBoundingBox.max[2] = tr_static->visibility_box[0].y;
+        r_static->visibleBoundingBox.max.X = tr_static->visibility_box[1].x;
+        r_static->visibleBoundingBox.max.Y = -tr_static->visibility_box[1].z;
+        r_static->visibleBoundingBox.max.Z = tr_static->visibility_box[0].y;
 
         r_static->obb.transform = &m_staticMeshes[i]->transform;
         r_static->obb.radius = m_staticMeshes[i]->mesh->m_radius;
 
-        glm::vec3 position{ tr_room->static_meshes[i].position.x, -tr_room->static_meshes[i].position.z, tr_room->static_meshes[i].position.y};
+        irr::core::vector3df position{ tr_room->static_meshes[i].position.x, -tr_room->static_meshes[i].position.z, tr_room->static_meshes[i].position.y};
 
-        r_static->transform = glm::mat4(1.0f);
-        r_static->transform = glm::rotate(r_static->transform, glm::radians(tr_room->static_meshes[i].rotation), { 0,0,1 });
-        r_static->transform = glm::translate(r_static->transform, position);
+        r_static->transform.makeIdentity();
+        r_static->transform.setRotationAxisRadians(irr::core::degToRad(tr_room->static_meshes[i].rotation), { 0,0,1 });
+        r_static->transform.setTranslation(position);
 
         r_static->was_rendered = false;
         r_static->obb.rebuild(r_static->visibleBoundingBox);
@@ -817,7 +817,7 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
             continue;
 
         btTransform startTransform;
-        startTransform.setFromOpenGLMatrix(glm::value_ptr(r_static->transform));
+        startTransform.setFromOpenGLMatrix(r_static->transform.pointer());
         btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
         btVector3 localInertia(0, 0, 0);
         r_static->bt_body = new btRigidBody(0.0, motionState, cshape, localInertia);
@@ -836,7 +836,7 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
 
         m_sprites[i].sprite = &getWorld()->m_sprites[tr_room->sprites[i].texture];
         m_sprites[i].pos = util::convert(tr_room->vertices[tr_room->sprites[i].vertex].vertex);
-        m_sprites[i].pos += glm::vec3(getModelMatrix()[3]);
+        m_sprites[i].pos += getModelMatrix().getTranslation();
     }
 
     /*
@@ -865,9 +865,9 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         sector.index_x = indexX;
         sector.index_y = indexY;
 
-        sector.position[0] = getModelMatrix()[3][0] + sector.index_x * MeteringSectorSize + 0.5f * MeteringSectorSize;
-        sector.position[1] = getModelMatrix()[3][1] + sector.index_y * MeteringSectorSize + 0.5f * MeteringSectorSize;
-        sector.position[2] = 0.5f * (tr_room->y_bottom + tr_room->y_top);
+        sector.position.X = getModelMatrix()(0,3) + sector.index_x * MeteringSectorSize + 0.5f * MeteringSectorSize;
+        sector.position.Y = getModelMatrix()(1,3) + sector.index_y * MeteringSectorSize + 0.5f * MeteringSectorSize;
+        sector.position.Z = 0.5f * (tr_room->y_bottom + tr_room->y_top);
 
         sector.owner_room = this;
 
@@ -925,21 +925,21 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         // copied into heightmap cells Y coordinates. As result, we receive flat
         // heightmap cell, which will be operated later with floordata.
 
-        sector.ceiling_corners[0][0] = sector.index_x * MeteringSectorSize;
-        sector.ceiling_corners[0][1] = sector.index_y * MeteringSectorSize + MeteringSectorSize;
-        sector.ceiling_corners[0][2] = sector.ceiling;
+        sector.ceiling_corners[0].X = sector.index_x * MeteringSectorSize;
+        sector.ceiling_corners[0].Y = sector.index_y * MeteringSectorSize + MeteringSectorSize;
+        sector.ceiling_corners[0].Z = sector.ceiling;
 
-        sector.ceiling_corners[1][0] = sector.index_x * MeteringSectorSize + MeteringSectorSize;
-        sector.ceiling_corners[1][1] = sector.index_y * MeteringSectorSize + MeteringSectorSize;
-        sector.ceiling_corners[1][2] = sector.ceiling;
+        sector.ceiling_corners[1].X = sector.index_x * MeteringSectorSize + MeteringSectorSize;
+        sector.ceiling_corners[1].Y = sector.index_y * MeteringSectorSize + MeteringSectorSize;
+        sector.ceiling_corners[1].Z = sector.ceiling;
 
-        sector.ceiling_corners[2][0] = sector.index_x * MeteringSectorSize + MeteringSectorSize;
-        sector.ceiling_corners[2][1] = sector.index_y * MeteringSectorSize;
-        sector.ceiling_corners[2][2] = sector.ceiling;
+        sector.ceiling_corners[2].X = sector.index_x * MeteringSectorSize + MeteringSectorSize;
+        sector.ceiling_corners[2].Y = sector.index_y * MeteringSectorSize;
+        sector.ceiling_corners[2].Z = sector.ceiling;
 
-        sector.ceiling_corners[3][0] = sector.index_x * MeteringSectorSize;
-        sector.ceiling_corners[3][1] = sector.index_y * MeteringSectorSize;
-        sector.ceiling_corners[3][2] = sector.ceiling;
+        sector.ceiling_corners[3].X = sector.index_x * MeteringSectorSize;
+        sector.ceiling_corners[3].Y = sector.index_y * MeteringSectorSize;
+        sector.ceiling_corners[3].Z = sector.ceiling;
 
         // BUILDING FLOOR HEIGHTMAP.
 
@@ -958,21 +958,21 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
             sector.floor_penetration_config = PenetrationConfig::Solid;
         }
 
-        sector.floor_corners[0][0] = sector.index_x * MeteringSectorSize;
-        sector.floor_corners[0][1] = sector.index_y * MeteringSectorSize + MeteringSectorSize;
-        sector.floor_corners[0][2] = sector.floor;
+        sector.floor_corners[0].X = sector.index_x * MeteringSectorSize;
+        sector.floor_corners[0].Y = sector.index_y * MeteringSectorSize + MeteringSectorSize;
+        sector.floor_corners[0].Z = sector.floor;
 
-        sector.floor_corners[1][0] = sector.index_x * MeteringSectorSize + MeteringSectorSize;
-        sector.floor_corners[1][1] = sector.index_y * MeteringSectorSize + MeteringSectorSize;
-        sector.floor_corners[1][2] = sector.floor;
+        sector.floor_corners[1].X = sector.index_x * MeteringSectorSize + MeteringSectorSize;
+        sector.floor_corners[1].Y = sector.index_y * MeteringSectorSize + MeteringSectorSize;
+        sector.floor_corners[1].Z = sector.floor;
 
-        sector.floor_corners[2][0] = sector.index_x * MeteringSectorSize + MeteringSectorSize;
-        sector.floor_corners[2][1] = sector.index_y * MeteringSectorSize;
-        sector.floor_corners[2][2] = sector.floor;
+        sector.floor_corners[2].X = sector.index_x * MeteringSectorSize + MeteringSectorSize;
+        sector.floor_corners[2].Y = sector.index_y * MeteringSectorSize;
+        sector.floor_corners[2].Z = sector.floor;
 
-        sector.floor_corners[3][0] = sector.index_x * MeteringSectorSize;
-        sector.floor_corners[3][1] = sector.index_y * MeteringSectorSize;
-        sector.floor_corners[3][2] = sector.floor;
+        sector.floor_corners[3].X = sector.index_x * MeteringSectorSize;
+        sector.floor_corners[3].Y = sector.index_y * MeteringSectorSize;
+        sector.floor_corners[3].Z = sector.floor;
     }
 
     /*
@@ -985,23 +985,27 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         core::Light lgt;
         lgt.light_type = tr_room->lights[i].getLightType();
 
-        lgt.position[0] = tr_room->lights[i].position.x;
-        lgt.position[1] = -tr_room->lights[i].position.z;
-        lgt.position[2] = tr_room->lights[i].position.y;
+        lgt.position.X = tr_room->lights[i].position.x;
+        lgt.position.Y = -tr_room->lights[i].position.z;
+        lgt.position.Z = tr_room->lights[i].position.y;
 
         if(lgt.light_type == loader::LightType::Shadow)
         {
-            lgt.color[0] = -(tr_room->lights[i].color.r / 255.0f) * tr_room->lights[i].intensity;
-            lgt.color[1] = -(tr_room->lights[i].color.g / 255.0f) * tr_room->lights[i].intensity;
-            lgt.color[2] = -(tr_room->lights[i].color.b / 255.0f) * tr_room->lights[i].intensity;
-            lgt.color[3] = 1.0f;
+            lgt.color.set(
+                        1.0f,
+                        -(tr_room->lights[i].color.r / 255.0f) * tr_room->lights[i].intensity,
+                        -(tr_room->lights[i].color.g / 255.0f) * tr_room->lights[i].intensity,
+                        -(tr_room->lights[i].color.b / 255.0f) * tr_room->lights[i].intensity
+                        );
         }
         else
         {
-            lgt.color[0] = tr_room->lights[i].color.r / 255.0f * tr_room->lights[i].intensity;
-            lgt.color[1] = tr_room->lights[i].color.g / 255.0f * tr_room->lights[i].intensity;
-            lgt.color[2] = tr_room->lights[i].color.b / 255.0f * tr_room->lights[i].intensity;
-            lgt.color[3] = 1.0f;
+            lgt.color.set(
+                        1.0f,
+                        (tr_room->lights[i].color.r / 255.0f) * tr_room->lights[i].intensity,
+                        (tr_room->lights[i].color.g / 255.0f) * tr_room->lights[i].intensity,
+                        (tr_room->lights[i].color.b / 255.0f) * tr_room->lights[i].intensity
+                        );
         }
 
         lgt.inner = tr_room->lights[i].r_inner;
@@ -1026,13 +1030,13 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     /*
      * room borders calculation
      */
-    m_boundingBox.min[2] = tr_room->y_bottom;
-    m_boundingBox.max[2] = tr_room->y_top;
+    m_boundingBox.min.Z = tr_room->y_bottom;
+    m_boundingBox.max.Z = tr_room->y_top;
 
-    m_boundingBox.min[0] = getModelMatrix()[3][0] + MeteringSectorSize;
-    m_boundingBox.min[1] = getModelMatrix()[3][1] + MeteringSectorSize;
-    m_boundingBox.max[0] = getModelMatrix()[3][0] + MeteringSectorSize * m_sectors.shape()[0] - MeteringSectorSize;
-    m_boundingBox.max[1] = getModelMatrix()[3][1] + MeteringSectorSize * m_sectors.shape()[1] - MeteringSectorSize;
+    m_boundingBox.min.X = getModelMatrix().getTranslation().X + MeteringSectorSize;
+    m_boundingBox.min.Y = getModelMatrix().getTranslation().Y + MeteringSectorSize;
+    m_boundingBox.max.X = getModelMatrix().getTranslation().X + MeteringSectorSize * m_sectors.shape()[0] - MeteringSectorSize;
+    m_boundingBox.max.Y = getModelMatrix().getTranslation().Y + MeteringSectorSize * m_sectors.shape()[1] - MeteringSectorSize;
 
     /*
      * alternate room pointer calculation if one exists.
@@ -1064,23 +1068,23 @@ std::vector<SectorTween> Room::generateTweens() const
             bool joined_ceilings = false;
 
             /* XY corners coordinates must be calculated from native room sector */
-            room_tween->floor_corners[0][1] = current_heightmap->floor_corners[0][1];
-            room_tween->floor_corners[1][1] = room_tween->floor_corners[0][1];
-            room_tween->floor_corners[2][1] = room_tween->floor_corners[0][1];
-            room_tween->floor_corners[3][1] = room_tween->floor_corners[0][1];
-            room_tween->floor_corners[0][0] = current_heightmap->floor_corners[0][0];
-            room_tween->floor_corners[1][0] = room_tween->floor_corners[0][0];
-            room_tween->floor_corners[2][0] = current_heightmap->floor_corners[1][0];
-            room_tween->floor_corners[3][0] = room_tween->floor_corners[2][0];
+            room_tween->floor_corners[0].Y = current_heightmap->floor_corners[0].Y;
+            room_tween->floor_corners[1].Y = room_tween->floor_corners[0].Y;
+            room_tween->floor_corners[2].Y = room_tween->floor_corners[0].Y;
+            room_tween->floor_corners[3].Y = room_tween->floor_corners[0].Y;
+            room_tween->floor_corners[0].X = current_heightmap->floor_corners[0].X;
+            room_tween->floor_corners[1].X = room_tween->floor_corners[0].X;
+            room_tween->floor_corners[2].X = current_heightmap->floor_corners[1].X;
+            room_tween->floor_corners[3].X = room_tween->floor_corners[2].X;
 
-            room_tween->ceiling_corners[0][1] = current_heightmap->ceiling_corners[0][1];
-            room_tween->ceiling_corners[1][1] = room_tween->ceiling_corners[0][1];
-            room_tween->ceiling_corners[2][1] = room_tween->ceiling_corners[0][1];
-            room_tween->ceiling_corners[3][1] = room_tween->ceiling_corners[0][1];
-            room_tween->ceiling_corners[0][0] = current_heightmap->ceiling_corners[0][0];
-            room_tween->ceiling_corners[1][0] = room_tween->ceiling_corners[0][0];
-            room_tween->ceiling_corners[2][0] = current_heightmap->ceiling_corners[1][0];
-            room_tween->ceiling_corners[3][0] = room_tween->ceiling_corners[2][0];
+            room_tween->ceiling_corners[0].Y = current_heightmap->ceiling_corners[0].Y;
+            room_tween->ceiling_corners[1].Y = room_tween->ceiling_corners[0].Y;
+            room_tween->ceiling_corners[2].Y = room_tween->ceiling_corners[0].Y;
+            room_tween->ceiling_corners[3].Y = room_tween->ceiling_corners[0].Y;
+            room_tween->ceiling_corners[0].X = current_heightmap->ceiling_corners[0].X;
+            room_tween->ceiling_corners[1].X = room_tween->ceiling_corners[0].X;
+            room_tween->ceiling_corners[2].X = current_heightmap->ceiling_corners[1].X;
+            room_tween->ceiling_corners[3].X = room_tween->ceiling_corners[2].X;
 
             if(w > 0)
             {
@@ -1088,10 +1092,10 @@ std::vector<SectorTween> Room::generateTweens() const
                 {
                     if(Res_Sector_IsWall(*getWorld(), next_heightmap, current_heightmap))
                     {
-                        room_tween->floor_corners[0][2] = current_heightmap->floor_corners[0][2];
-                        room_tween->floor_corners[1][2] = current_heightmap->ceiling_corners[0][2];
-                        room_tween->floor_corners[2][2] = current_heightmap->ceiling_corners[1][2];
-                        room_tween->floor_corners[3][2] = current_heightmap->floor_corners[1][2];
+                        room_tween->floor_corners[0].Z = current_heightmap->floor_corners[0].Z;
+                        room_tween->floor_corners[1].Z = current_heightmap->ceiling_corners[0].Z;
+                        room_tween->floor_corners[2].Z = current_heightmap->ceiling_corners[1].Z;
+                        room_tween->floor_corners[3].Z = current_heightmap->floor_corners[1].Z;
                         room_tween->setFloorConfig();
                         room_tween->ceiling_tween_type = TweenType::None;
                         joined_floors = true;
@@ -1099,10 +1103,10 @@ std::vector<SectorTween> Room::generateTweens() const
                     }
                     else if(Res_Sector_IsWall(*getWorld(), current_heightmap, next_heightmap))
                     {
-                        room_tween->floor_corners[0][2] = next_heightmap->floor_corners[3][2];
-                        room_tween->floor_corners[1][2] = next_heightmap->ceiling_corners[3][2];
-                        room_tween->floor_corners[2][2] = next_heightmap->ceiling_corners[2][2];
-                        room_tween->floor_corners[3][2] = next_heightmap->floor_corners[2][2];
+                        room_tween->floor_corners[0].Z = next_heightmap->floor_corners[3].Z;
+                        room_tween->floor_corners[1].Z = next_heightmap->ceiling_corners[3].Z;
+                        room_tween->floor_corners[2].Z = next_heightmap->ceiling_corners[2].Z;
+                        room_tween->floor_corners[3].Z = next_heightmap->floor_corners[2].Z;
                         room_tween->setFloorConfig();
                         room_tween->ceiling_tween_type = TweenType::None;
                         joined_floors = true;
@@ -1119,19 +1123,19 @@ std::vector<SectorTween> Room::generateTweens() const
                             {
                                 if(current_heightmap->floor_penetration_config == PenetrationConfig::Solid || next_heightmap->floor_penetration_config == PenetrationConfig::Solid)
                                 {
-                                    room_tween->floor_corners[0][2] = current_heightmap->floor_corners[0][2];
-                                    room_tween->floor_corners[1][2] = next_heightmap->floor_corners[3][2];
-                                    room_tween->floor_corners[2][2] = next_heightmap->floor_corners[2][2];
-                                    room_tween->floor_corners[3][2] = current_heightmap->floor_corners[1][2];
+                                    room_tween->floor_corners[0].Z = current_heightmap->floor_corners[0].Z;
+                                    room_tween->floor_corners[1].Z = next_heightmap->floor_corners[3].Z;
+                                    room_tween->floor_corners[2].Z = next_heightmap->floor_corners[2].Z;
+                                    room_tween->floor_corners[3].Z = current_heightmap->floor_corners[1].Z;
                                     room_tween->setFloorConfig();
                                     joined_floors = true;
                                 }
                                 if(current_heightmap->ceiling_penetration_config == PenetrationConfig::Solid || next_heightmap->ceiling_penetration_config == PenetrationConfig::Solid)
                                 {
-                                    room_tween->ceiling_corners[0][2] = current_heightmap->ceiling_corners[0][2];
-                                    room_tween->ceiling_corners[1][2] = next_heightmap->ceiling_corners[3][2];
-                                    room_tween->ceiling_corners[2][2] = next_heightmap->ceiling_corners[2][2];
-                                    room_tween->ceiling_corners[3][2] = current_heightmap->ceiling_corners[1][2];
+                                    room_tween->ceiling_corners[0].Z = current_heightmap->ceiling_corners[0].Z;
+                                    room_tween->ceiling_corners[1].Z = next_heightmap->ceiling_corners[3].Z;
+                                    room_tween->ceiling_corners[2].Z = next_heightmap->ceiling_corners[2].Z;
+                                    room_tween->ceiling_corners[3].Z = current_heightmap->ceiling_corners[1].Z;
                                     room_tween->setCeilingConfig();
                                     joined_ceilings = true;
                                 }
@@ -1181,10 +1185,10 @@ std::vector<SectorTween> Room::generateTweens() const
 
                     if(valid && current_heightmap->floor_penetration_config != PenetrationConfig::Wall && next_heightmap->floor_penetration_config != PenetrationConfig::Wall)
                     {
-                        room_tween->floor_corners[0][2] = current_heightmap->floor_corners[0][2];
-                        room_tween->floor_corners[1][2] = next_heightmap->floor_corners[3][2];
-                        room_tween->floor_corners[2][2] = next_heightmap->floor_corners[2][2];
-                        room_tween->floor_corners[3][2] = current_heightmap->floor_corners[1][2];
+                        room_tween->floor_corners[0].Z = current_heightmap->floor_corners[0].Z;
+                        room_tween->floor_corners[1].Z = next_heightmap->floor_corners[3].Z;
+                        room_tween->floor_corners[2].Z = next_heightmap->floor_corners[2].Z;
+                        room_tween->floor_corners[3].Z = current_heightmap->floor_corners[1].Z;
                         room_tween->setFloorConfig();
                     }
                 }
@@ -1230,10 +1234,10 @@ std::vector<SectorTween> Room::generateTweens() const
 
                     if(valid && current_heightmap->floor_penetration_config != PenetrationConfig::Wall && next_heightmap->floor_penetration_config != PenetrationConfig::Wall)
                     {
-                        room_tween->ceiling_corners[0][2] = current_heightmap->ceiling_corners[0][2];
-                        room_tween->ceiling_corners[1][2] = next_heightmap->ceiling_corners[3][2];
-                        room_tween->ceiling_corners[2][2] = next_heightmap->ceiling_corners[2][2];
-                        room_tween->ceiling_corners[3][2] = current_heightmap->ceiling_corners[1][2];
+                        room_tween->ceiling_corners[0].Z = current_heightmap->ceiling_corners[0].Z;
+                        room_tween->ceiling_corners[1].Z = next_heightmap->ceiling_corners[3].Z;
+                        room_tween->ceiling_corners[2].Z = next_heightmap->ceiling_corners[2].Z;
+                        room_tween->ceiling_corners[3].Z = current_heightmap->ceiling_corners[1].Z;
                         room_tween->setCeilingConfig();
                     }
                 }
@@ -1247,23 +1251,23 @@ std::vector<SectorTween> Room::generateTweens() const
             room_tween = &result.back();
             current_heightmap = &m_sectors[w][h];
             next_heightmap = &m_sectors[w + 1][h];
-            room_tween->floor_corners[0][0] = current_heightmap->floor_corners[1][0];
-            room_tween->floor_corners[1][0] = room_tween->floor_corners[0][0];
-            room_tween->floor_corners[2][0] = room_tween->floor_corners[0][0];
-            room_tween->floor_corners[3][0] = room_tween->floor_corners[0][0];
-            room_tween->floor_corners[0][1] = current_heightmap->floor_corners[1][1];
-            room_tween->floor_corners[1][1] = room_tween->floor_corners[0][1];
-            room_tween->floor_corners[2][1] = current_heightmap->floor_corners[2][1];
-            room_tween->floor_corners[3][1] = room_tween->floor_corners[2][1];
+            room_tween->floor_corners[0].X = current_heightmap->floor_corners[1].X;
+            room_tween->floor_corners[1].X = room_tween->floor_corners[0].X;
+            room_tween->floor_corners[2].X = room_tween->floor_corners[0].X;
+            room_tween->floor_corners[3].X = room_tween->floor_corners[0].X;
+            room_tween->floor_corners[0].Y = current_heightmap->floor_corners[1].Y;
+            room_tween->floor_corners[1].Y = room_tween->floor_corners[0].Y;
+            room_tween->floor_corners[2].Y = current_heightmap->floor_corners[2].Y;
+            room_tween->floor_corners[3].Y = room_tween->floor_corners[2].Y;
 
-            room_tween->ceiling_corners[0][0] = current_heightmap->ceiling_corners[1][0];
-            room_tween->ceiling_corners[1][0] = room_tween->ceiling_corners[0][0];
-            room_tween->ceiling_corners[2][0] = room_tween->ceiling_corners[0][0];
-            room_tween->ceiling_corners[3][0] = room_tween->ceiling_corners[0][0];
-            room_tween->ceiling_corners[0][1] = current_heightmap->ceiling_corners[1][1];
-            room_tween->ceiling_corners[1][1] = room_tween->ceiling_corners[0][1];
-            room_tween->ceiling_corners[2][1] = current_heightmap->ceiling_corners[2][1];
-            room_tween->ceiling_corners[3][1] = room_tween->ceiling_corners[2][1];
+            room_tween->ceiling_corners[0].X = current_heightmap->ceiling_corners[1].X;
+            room_tween->ceiling_corners[1].X = room_tween->ceiling_corners[0].X;
+            room_tween->ceiling_corners[2].X = room_tween->ceiling_corners[0].X;
+            room_tween->ceiling_corners[3].X = room_tween->ceiling_corners[0].X;
+            room_tween->ceiling_corners[0].Y = current_heightmap->ceiling_corners[1].Y;
+            room_tween->ceiling_corners[1].Y = room_tween->ceiling_corners[0].Y;
+            room_tween->ceiling_corners[2].Y = current_heightmap->ceiling_corners[2].Y;
+            room_tween->ceiling_corners[3].Y = room_tween->ceiling_corners[2].Y;
 
             joined_floors = false;
             joined_ceilings = false;
@@ -1275,10 +1279,10 @@ std::vector<SectorTween> Room::generateTweens() const
                     // Init Y-plane tween  [ - ]
                     if(Res_Sector_IsWall(*getWorld(), next_heightmap, current_heightmap))
                     {
-                        room_tween->floor_corners[0][2] = current_heightmap->floor_corners[1][2];
-                        room_tween->floor_corners[1][2] = current_heightmap->ceiling_corners[1][2];
-                        room_tween->floor_corners[2][2] = current_heightmap->ceiling_corners[2][2];
-                        room_tween->floor_corners[3][2] = current_heightmap->floor_corners[2][2];
+                        room_tween->floor_corners[0].Z = current_heightmap->floor_corners[1].Z;
+                        room_tween->floor_corners[1].Z = current_heightmap->ceiling_corners[1].Z;
+                        room_tween->floor_corners[2].Z = current_heightmap->ceiling_corners[2].Z;
+                        room_tween->floor_corners[3].Z = current_heightmap->floor_corners[2].Z;
                         room_tween->setFloorConfig();
                         room_tween->ceiling_tween_type = TweenType::None;
                         joined_floors = true;
@@ -1286,10 +1290,10 @@ std::vector<SectorTween> Room::generateTweens() const
                     }
                     else if(Res_Sector_IsWall(*getWorld(), current_heightmap, next_heightmap))
                     {
-                        room_tween->floor_corners[0][2] = next_heightmap->floor_corners[0][2];
-                        room_tween->floor_corners[1][2] = next_heightmap->ceiling_corners[0][2];
-                        room_tween->floor_corners[2][2] = next_heightmap->ceiling_corners[3][2];
-                        room_tween->floor_corners[3][2] = next_heightmap->floor_corners[3][2];
+                        room_tween->floor_corners[0].Z = next_heightmap->floor_corners[0].Z;
+                        room_tween->floor_corners[1].Z = next_heightmap->ceiling_corners[0].Z;
+                        room_tween->floor_corners[2].Z = next_heightmap->ceiling_corners[3].Z;
+                        room_tween->floor_corners[3].Z = next_heightmap->floor_corners[3].Z;
                         room_tween->setFloorConfig();
                         room_tween->ceiling_tween_type = TweenType::None;
                         joined_floors = true;
@@ -1306,19 +1310,19 @@ std::vector<SectorTween> Room::generateTweens() const
                             {
                                 if(current_heightmap->floor_penetration_config == PenetrationConfig::Solid || next_heightmap->floor_penetration_config == PenetrationConfig::Solid)
                                 {
-                                    room_tween->floor_corners[0][2] = current_heightmap->floor_corners[1][2];
-                                    room_tween->floor_corners[1][2] = next_heightmap->floor_corners[0][2];
-                                    room_tween->floor_corners[2][2] = next_heightmap->floor_corners[3][2];
-                                    room_tween->floor_corners[3][2] = current_heightmap->floor_corners[2][2];
+                                    room_tween->floor_corners[0].Z = current_heightmap->floor_corners[1].Z;
+                                    room_tween->floor_corners[1].Z = next_heightmap->floor_corners[0].Z;
+                                    room_tween->floor_corners[2].Z = next_heightmap->floor_corners[3].Z;
+                                    room_tween->floor_corners[3].Z = current_heightmap->floor_corners[2].Z;
                                     room_tween->setFloorConfig();
                                     joined_floors = true;
                                 }
                                 if(current_heightmap->ceiling_penetration_config == PenetrationConfig::Solid || next_heightmap->ceiling_penetration_config == PenetrationConfig::Solid)
                                 {
-                                    room_tween->ceiling_corners[0][2] = current_heightmap->ceiling_corners[1][2];
-                                    room_tween->ceiling_corners[1][2] = next_heightmap->ceiling_corners[0][2];
-                                    room_tween->ceiling_corners[2][2] = next_heightmap->ceiling_corners[3][2];
-                                    room_tween->ceiling_corners[3][2] = current_heightmap->ceiling_corners[2][2];
+                                    room_tween->ceiling_corners[0].Z = current_heightmap->ceiling_corners[1].Z;
+                                    room_tween->ceiling_corners[1].Z = next_heightmap->ceiling_corners[0].Z;
+                                    room_tween->ceiling_corners[2].Z = next_heightmap->ceiling_corners[3].Z;
+                                    room_tween->ceiling_corners[3].Z = current_heightmap->ceiling_corners[2].Z;
                                     room_tween->setCeilingConfig();
                                     joined_ceilings = true;
                                 }
@@ -1368,10 +1372,10 @@ std::vector<SectorTween> Room::generateTweens() const
 
                     if(valid && current_heightmap->floor_penetration_config != PenetrationConfig::Wall && next_heightmap->floor_penetration_config != PenetrationConfig::Wall)
                     {
-                        room_tween->floor_corners[0][2] = current_heightmap->floor_corners[1][2];
-                        room_tween->floor_corners[1][2] = next_heightmap->floor_corners[0][2];
-                        room_tween->floor_corners[2][2] = next_heightmap->floor_corners[3][2];
-                        room_tween->floor_corners[3][2] = current_heightmap->floor_corners[2][2];
+                        room_tween->floor_corners[0].Z = current_heightmap->floor_corners[1].Z;
+                        room_tween->floor_corners[1].Z = next_heightmap->floor_corners[0].Z;
+                        room_tween->floor_corners[2].Z = next_heightmap->floor_corners[3].Z;
+                        room_tween->floor_corners[3].Z = current_heightmap->floor_corners[2].Z;
                         room_tween->setFloorConfig();
                     }
                 }
@@ -1417,10 +1421,10 @@ std::vector<SectorTween> Room::generateTweens() const
 
                     if(valid && current_heightmap->floor_penetration_config != PenetrationConfig::Wall && next_heightmap->floor_penetration_config != PenetrationConfig::Wall)
                     {
-                        room_tween->ceiling_corners[0][2] = current_heightmap->ceiling_corners[1][2];
-                        room_tween->ceiling_corners[1][2] = next_heightmap->ceiling_corners[0][2];
-                        room_tween->ceiling_corners[2][2] = next_heightmap->ceiling_corners[3][2];
-                        room_tween->ceiling_corners[3][2] = current_heightmap->ceiling_corners[2][2];
+                        room_tween->ceiling_corners[0].Z = current_heightmap->ceiling_corners[1].Z;
+                        room_tween->ceiling_corners[1].Z = next_heightmap->ceiling_corners[0].Z;
+                        room_tween->ceiling_corners[2].Z = next_heightmap->ceiling_corners[3].Z;
+                        room_tween->ceiling_corners[3].Z = current_heightmap->ceiling_corners[2].Z;
                         room_tween->setCeilingConfig();
                     }
                 }
@@ -1453,7 +1457,7 @@ void Room::generateCollisionShape()
 
     btVector3 localInertia(0, 0, 0);
     btTransform tr;
-    tr.setFromOpenGLMatrix(glm::value_ptr(getModelMatrix()));
+    tr.setFromOpenGLMatrix(getModelMatrix().pointer());
     btDefaultMotionState* motionState = new btDefaultMotionState(tr);
     m_btBody.reset(new btRigidBody(0.0, motionState, cshape, localInertia));
     getWorld()->m_engine->m_bullet.dynamicsWorld->addRigidBody(m_btBody.get(), COLLISION_GROUP_ALL, COLLISION_MASK_ALL);
@@ -1468,64 +1472,64 @@ namespace
 {
 bool TR_IsSectorsIn2SideOfPortal(const RoomSector& s1, const RoomSector& s2, const Portal& p)
 {
-    if(util::fuzzyEqual(s1.position[0], s2.position[0]) && !util::fuzzyEqual(s1.position[1], s2.position[1]) && glm::abs(p.normal[1]) > 0.99)
+    if(util::fuzzyEqual(s1.position.X, s2.position.X) && !util::fuzzyEqual(s1.position.Y, s2.position.Y) && std::abs(p.normal.Y) > 0.99)
     {
-        glm::float_t min_x, max_x, min_y, max_y;
-        max_x = min_x = p.vertices.front().x;
+        irr::f32 min_x, max_x, min_y, max_y;
+        max_x = min_x = p.vertices.front().X;
         for(const auto& v : p.vertices)
         {
-            if(v.x > max_x)
+            if(v.X > max_x)
             {
-                max_x = v.x;
+                max_x = v.X;
             }
-            if(v.x < min_x)
+            if(v.X < min_x)
             {
-                min_x = v.x;
+                min_x = v.X;
             }
         }
-        if(s1.position[1] > s2.position[1])
+        if(s1.position.Y > s2.position.Y)
         {
-            min_y = s2.position[1];
-            max_y = s1.position[1];
+            min_y = s2.position.Y;
+            max_y = s1.position.Y;
         }
         else
         {
-            min_y = s1.position[1];
-            max_y = s2.position[1];
+            min_y = s1.position.Y;
+            max_y = s2.position.Y;
         }
 
-        if(s1.position[0] < max_x && s1.position[0] > min_x && p.center[1] < max_y && p.center[1] > min_y)
+        if(s1.position.X < max_x && s1.position.X > min_x && p.center.Y < max_y && p.center.Y > min_y)
         {
             return true;
         }
     }
-    else if(!util::fuzzyEqual(s1.position[0], s2.position[0]) && util::fuzzyEqual(s1.position[1], s2.position[1]) && glm::abs(p.normal[0]) > 0.99)
+    else if(!util::fuzzyEqual(s1.position.X, s2.position.X) && util::fuzzyEqual(s1.position.Y, s2.position.Y) && std::abs(p.normal.X) > 0.99)
     {
-        glm::float_t min_x, max_x, min_y, max_y;
-        max_y = min_y = p.vertices.front().y;
+        irr::f32 min_x, max_x, min_y, max_y;
+        max_y = min_y = p.vertices.front().Y;
         for(const auto& v : p.vertices)
         {
-            if(v.y > max_y)
+            if(v.Y > max_y)
             {
-                max_y = v.y;
+                max_y = v.Y;
             }
-            if(v.y < min_y)
+            if(v.Y < min_y)
             {
-                min_y = v.y;
+                min_y = v.Y;
             }
         }
-        if(s1.position[0] > s2.position[0])
+        if(s1.position.X > s2.position.X)
         {
-            min_x = s2.position[0];
-            max_x = s1.position[0];
+            min_x = s2.position.X;
+            max_x = s1.position.X;
         }
         else
         {
-            min_x = s1.position[0];
-            max_x = s2.position[0];
+            min_x = s1.position.X;
+            max_x = s2.position.X;
         }
 
-        if(p.center[0] < max_x && p.center[0] > min_x && s1.position[1] < max_y && s1.position[1] > min_y)
+        if(p.center.X < max_x && p.center.X > min_x && s1.position.Y < max_y && s1.position.Y > min_y)
         {
             return true;
         }
@@ -1584,7 +1588,7 @@ void Room::initVerticalSectorRelations(const loader::Room& tr)
 
         for(const Portal& p : m_portals)
         {
-            if(!util::fuzzyZero(p.normal[2]))
+            if(!util::fuzzyZero(p.normal.Z))
                 continue;
 
             const RoomSector* dst = p.destination ? p.destination->getSectorRaw(sector.position) : nullptr;
@@ -1627,7 +1631,7 @@ void Room::generateSpritesBuffer()
     // First collect indices on a per-texture basis
     std::vector<std::vector<uint16_t>> elements_for_texture(highestTexturePageFound + 1);
 
-    std::vector<glm::float_t> spriteData(actualSpritesFound * 4 * 7, 0);
+    std::vector<irr::f32> spriteData(actualSpritesFound * 4 * 7, 0);
 
     int writeIndex = 0;
     for(const RoomSprite& room_sprite : getSprites())
@@ -1637,32 +1641,32 @@ void Room::generateSpritesBuffer()
 
         int vertexStart = writeIndex;
         // top right
-        std::copy_n(glm::value_ptr(room_sprite.pos), 3, &spriteData[writeIndex * 7 + 0]);
-        std::copy_n(glm::value_ptr(room_sprite.sprite->tex_coord[0]), 2, &spriteData[writeIndex * 7 + 3]);
+        std::copy_n(&room_sprite.pos.X, 3, &spriteData[writeIndex * 7 + 0]);
+        std::copy_n(&room_sprite.sprite->tex_coord[0].X, 2, &spriteData[writeIndex * 7 + 3]);
         spriteData[writeIndex * 7 + 5] = room_sprite.sprite->right;
         spriteData[writeIndex * 7 + 6] = room_sprite.sprite->top;
 
         writeIndex += 1;
 
         // top left
-        std::copy_n(glm::value_ptr(room_sprite.pos), 3, &spriteData[writeIndex * 7 + 0]);
-        std::copy_n(glm::value_ptr(room_sprite.sprite->tex_coord[1]), 2, &spriteData[writeIndex * 7 + 3]);
+        std::copy_n(&room_sprite.pos.X, 3, &spriteData[writeIndex * 7 + 0]);
+        std::copy_n(&room_sprite.sprite->tex_coord[1].X, 2, &spriteData[writeIndex * 7 + 3]);
         spriteData[writeIndex * 7 + 5] = room_sprite.sprite->left;
         spriteData[writeIndex * 7 + 6] = room_sprite.sprite->top;
 
         writeIndex += 1;
 
         // bottom left
-        std::copy_n(glm::value_ptr(room_sprite.pos), 3, &spriteData[writeIndex * 7 + 0]);
-        std::copy_n(glm::value_ptr(room_sprite.sprite->tex_coord[2]), 2, &spriteData[writeIndex * 7 + 3]);
+        std::copy_n(&room_sprite.pos.X, 3, &spriteData[writeIndex * 7 + 0]);
+        std::copy_n(&room_sprite.sprite->tex_coord[2].X, 2, &spriteData[writeIndex * 7 + 3]);
         spriteData[writeIndex * 7 + 5] = room_sprite.sprite->left;
         spriteData[writeIndex * 7 + 6] = room_sprite.sprite->bottom;
 
         writeIndex += 1;
 
         // bottom right
-        std::copy_n(glm::value_ptr(room_sprite.pos), 3, &spriteData[writeIndex * 7 + 0]);
-        std::copy_n(glm::value_ptr(room_sprite.sprite->tex_coord[3]), 2, &spriteData[writeIndex * 7 + 3]);
+        std::copy_n(&room_sprite.pos.X, 3, &spriteData[writeIndex * 7 + 0]);
+        std::copy_n(&room_sprite.sprite->tex_coord[3].X, 2, &spriteData[writeIndex * 7 + 3]);
         spriteData[writeIndex * 7 + 5] = room_sprite.sprite->right;
         spriteData[writeIndex * 7 + 6] = room_sprite.sprite->bottom;
 

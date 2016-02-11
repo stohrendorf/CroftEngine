@@ -5,8 +5,6 @@
 #include "render/render.h"
 #include "engine/engine.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace gui
 {
 void TextLine::move(float scaleFactor)
@@ -21,7 +19,7 @@ TextLineManager::TextLineManager(engine::Engine* engine)
 
 void TextLineManager::renderLine(const TextLine& line)
 {
-    glm::float_t real_x = 0.0, real_y = 0.0;
+    irr::f32 real_x = 0.0, real_y = 0.0;
 
     FontTexture* gl_font = m_engine->m_gui.m_fontManager.getFont(line.fontType);
     FontStyleData* style = m_engine->m_gui.m_fontManager.getFontStyle(line.fontStyle);
@@ -36,35 +34,32 @@ void TextLineManager::renderLine(const TextLine& line)
     switch(line.Xanchor)
     {
         case HorizontalAnchor::Left:
-            real_x = line.offset.x;   // Used with center and right alignments.
+            real_x = line.offset.X;   // Used with center and right alignments.
             break;
         case HorizontalAnchor::Right:
-            real_x = static_cast<float>(m_engine->m_screenInfo.w) - (line.bottomRight.x - line.topLeft.x) - line.offset.x;
+            real_x = static_cast<float>(m_engine->m_screenInfo.w) - (line.bottomRight.X - line.topLeft.X) - line.offset.X;
             break;
         case HorizontalAnchor::Center:
-            real_x = m_engine->m_screenInfo.w / 2.0f - (line.bottomRight.x - line.topLeft.x) / 2.0f + line.offset.x;  // Absolute center.
+            real_x = m_engine->m_screenInfo.w / 2.0f - (line.bottomRight.X - line.topLeft.X) / 2.0f + line.offset.X;  // Absolute center.
             break;
     }
 
     switch(line.Yanchor)
     {
         case VerticalAnchor::Bottom:
-            real_y += line.offset.y;
+            real_y += line.offset.Y;
             break;
         case VerticalAnchor::Top:
-            real_y = static_cast<float>(m_engine->m_screenInfo.h) - (line.bottomRight.y - line.topLeft.y) - line.offset.y;
+            real_y = static_cast<float>(m_engine->m_screenInfo.h) - (line.bottomRight.Y - line.topLeft.Y) - line.offset.Y;
             break;
         case VerticalAnchor::Center:
-            real_y = m_engine->m_screenInfo.h / 2.0f + (line.bottomRight.y - line.topLeft.y) - line.offset.y;          // Consider the baseline.
+            real_y = m_engine->m_screenInfo.h / 2.0f + (line.bottomRight.Y - line.topLeft.Y) - line.offset.Y;          // Consider the baseline.
             break;
     }
 
     if(style->shadowed)
     {
-        gl_font->gl_font_color[0] = 0.0f;
-        gl_font->gl_font_color[1] = 0.0f;
-        gl_font->gl_font_color[2] = 0.0f;
-        gl_font->gl_font_color[3] = style->color[3] * FontShadowTransparency;// Derive alpha from base color.
+        gl_font->gl_font_color.set(style->color.getAlpha() * FontShadowTransparency, 0,0,0); // Derive alpha from base color.
         glf_render_str(gl_font,
                        real_x + FontShadowHorizontalShift,
                        real_y + FontShadowVerticalShift,
@@ -79,7 +74,7 @@ void TextLineManager::renderLine(const TextLine& line)
  * For simple temporary lines rendering.
  * Really all strings will be rendered in Gui_Render() function.
  */
-TextLine* TextLineManager::drawText(glm::float_t x, glm::float_t y, const std::string& str)
+TextLine* TextLineManager::drawText(irr::f32 x, irr::f32 y, const std::string& str)
 {
     m_tempLines.emplace_back();
     TextLine* line = &m_tempLines.back();
@@ -88,7 +83,7 @@ TextLine* TextLineManager::drawText(glm::float_t x, glm::float_t y, const std::s
     line->fontType = FontType::Secondary;
     line->fontStyle = FontStyle::Generic;
 
-    line->position = { x, y };
+    line->position = irr::core::vector2df{ x, y };
     line->Xanchor = HorizontalAnchor::Left;
     line->Yanchor = VerticalAnchor::Bottom;
 
@@ -117,11 +112,11 @@ void TextLineManager::renderStrings()
 
     render::TextShaderDescription *shader = m_engine->renderer.shaderManager()->getTextShader();
     glUseProgram(shader->program);
-    glm::vec2 screenSize{
-        static_cast<glm::float_t>(m_engine->m_screenInfo.w),
-        static_cast<glm::float_t>(m_engine->m_screenInfo.h)
+    irr::core::vector2df screenSize{
+        static_cast<irr::f32>(m_engine->m_screenInfo.w),
+        static_cast<irr::f32>(m_engine->m_screenInfo.h)
     };
-    glUniform2fv(shader->screenSize, 1, glm::value_ptr(screenSize));
+    glUniform2fv(shader->screenSize, 1, &screenSize.X);
     glUniform1i(shader->sampler, 0);
 
     for(const TextLine* l : m_baseLines)

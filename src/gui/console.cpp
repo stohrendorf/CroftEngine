@@ -18,10 +18,12 @@ using namespace gui;
 Console::Console(engine::Engine* engine, boost::property_tree::ptree& config)
     : m_engine(engine)
 {
-    m_backgroundColor[0] = util::getSetting(config, "backgroundColor.r", 0.0f);
-    m_backgroundColor[1] = util::getSetting(config, "backgroundColor.g", 0.0f);
-    m_backgroundColor[2] = util::getSetting(config, "backgroundColor.b", 0.0f);
-    m_backgroundColor[3] = util::getSetting(config, "backgroundColor.a", 0.8f);
+    m_backgroundColor.set(
+                util::getSetting(config, "backgroundColor.a", 200),
+                util::getSetting(config, "backgroundColor.r", 0),
+                util::getSetting(config, "backgroundColor.g", 0),
+                util::getSetting(config, "backgroundColor.b", 0)
+                );
 
     setShowCursorPeriod(util::MilliSeconds( util::getSetting(config, "blinkPeriod", 500) ));
 
@@ -89,7 +91,7 @@ void Console::draw()
     size_t n = 0;
     for(const Line& line : m_lines)
     {
-        const glm::vec4& col = m_engine->m_gui.m_fontManager.getFontStyle(line.styleId)->real_color;
+        const irr::video::SColor& col = m_engine->m_gui.m_fontManager.getFontStyle(line.styleId)->real_color;
         y += m_lineHeight;
         m_font->gl_font_color = col;
         glf_render_str(m_font, static_cast<GLfloat>(x), static_cast<GLfloat>(y), line.text.c_str());
@@ -97,7 +99,7 @@ void Console::draw()
         if(n >= m_visibleLines)
             break;
     }
-    const glm::vec4& col = m_engine->m_gui.m_fontManager.getFontStyle(FontStyle::ConsoleInfo)->real_color;
+    const irr::video::SColor& col = m_engine->m_gui.m_fontManager.getFontStyle(FontStyle::ConsoleInfo)->real_color;
     m_font->gl_font_color = col;
     glf_render_str(m_font, static_cast<GLfloat>(x), static_cast<GLfloat>(m_cursorY) + m_lineHeight, m_editingLine.c_str());
 }
@@ -107,13 +109,13 @@ void Console::drawBackground()
     /*
          * Draw console background to see the text
          */
-    m_engine->m_gui.drawRect(0.0, m_cursorY + m_lineHeight - 8, m_engine->m_screenInfo.w, m_engine->m_screenInfo.h, m_backgroundColor, m_backgroundColor, m_backgroundColor, m_backgroundColor, loader::BlendingMode::Screen);
+    m_engine->m_gui.drawRect(0, m_cursorY + m_lineHeight - 8, m_engine->m_screenInfo.w, m_engine->m_screenInfo.h, m_backgroundColor, m_backgroundColor, m_backgroundColor, m_backgroundColor, loader::BlendingMode::Screen);
 
     /*
          * Draw finalise line
          */
-    glm::vec4 white{ 1, 1, 1, 0.7f };
-    m_engine->m_gui.drawRect(0.0, m_cursorY + m_lineHeight - 8, m_engine->m_screenInfo.w, 2, white, white, white, white, loader::BlendingMode::Screen);
+    irr::video::SColor white{ 200, 255, 255, 255 };
+    m_engine->m_gui.drawRect(0, m_cursorY + m_lineHeight - 8, m_engine->m_screenInfo.w, 2, white, white, white, white, loader::BlendingMode::Screen);
 }
 
 void Console::drawCursor()
@@ -132,7 +134,7 @@ void Console::drawCursor()
 
     if(m_showCursor)
     {
-        glm::vec4 white{ 1, 1, 1, 0.7f };
+        irr::video::SColor white{ 255, 255, 255, 180 };
         m_engine->m_gui.drawRect(m_cursorX,
                                 y + m_lineHeight * 0.9f,
                                 1,

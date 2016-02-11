@@ -5,8 +5,6 @@
 #include "room.h"
 
 #include <boost/log/trivial.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/euler_angles.hpp>
 
 namespace world
 {
@@ -31,7 +29,7 @@ void Entity::disable()
 /**
  * It is from bullet_character_controller
  */
-bool Entity::getPenetrationFixVector(btPairCachingGhostObject& ghost, btManifoldArray& manifoldArray, glm::vec3& correction) const
+bool Entity::getPenetrationFixVector(btPairCachingGhostObject& ghost, btManifoldArray& manifoldArray, irr::core::vector3df& correction) const
 {
     // Here we must refresh the overlapping paircache as the penetrating movement itself or the
     // previous recovery iteration might have used setWorldTransform and pushed us into an object
@@ -82,12 +80,11 @@ bool Entity::getPenetrationFixVector(btPairCachingGhostObject& ghost, btManifold
             for(int k = 0; k < manifold->getNumContacts(); k++)
             {
                 const btManifoldPoint&pt = manifold->getContactPoint(k);
-                glm::float_t dist = pt.getDistance();
+                auto dist = pt.getDistance();
 
                 if(dist < 0.0)
                 {
-                    glm::vec3 t = -util::convert(pt.m_normalWorldOnB) * dist;
-                    correction += t;
+                    correction -= util::convert(pt.m_normalWorldOnB) * dist;
                     ret = true;
                 }
             }
@@ -107,9 +104,10 @@ void Entity::ghostUpdate()
         for(const animation::Bone& bone : m_skeleton.getBones())
         {
             auto tr = m_transform * bone.globalTransform;
-            bone.ghostObject->getWorldTransform().setFromOpenGLMatrix(glm::value_ptr(tr));
-            auto pos = tr * glm::vec4(bone.mesh->m_center, 1);
-            bone.ghostObject->getWorldTransform().setOrigin(util::convert(glm::vec3(pos)));
+            bone.ghostObject->getWorldTransform().setFromOpenGLMatrix(tr.pointer());
+            auto pos = bone.mesh->m_center;
+            tr.transformVect(pos);
+            bone.ghostObject->getWorldTransform().setOrigin(util::convert(pos));
         }
     }
     else
@@ -124,7 +122,7 @@ void Entity::ghostUpdate()
 }
 
 ///@TODO: make experiment with convexSweepTest with spheres: no more iterative cycles;
-int Entity::getPenetrationFixVector(glm::vec3& reaction, bool hasMove)
+int Entity::getPenetrationFixVector(irr::core::vector3df& reaction, bool hasMove)
 {
     reaction = { 0,0,0 };
     if(!m_skeleton.hasGhosts() || m_skeleton.getModel()->m_noFixAll)
@@ -142,39 +140,39 @@ int Entity::getPenetrationFixVector(glm::vec3& reaction, bool hasMove)
         }
 
         // antitunneling condition for main body parts, needs only in move case: ((move != NULL) && (btag->body_part & (BODY_PART_BODY_LOW | BODY_PART_BODY_UPPER)))
-        glm::vec3 from;
+        irr::core::vector3df from;
         if(!bone.parent || (hasMove && (bone.body_part & (BODY_PART_BODY_LOW | BODY_PART_BODY_UPPER))))
         {
             BOOST_ASSERT(bone.ghostObject);
             from = util::convert(bone.ghostObject->getWorldTransform().getOrigin());
-            from += glm::vec3(m_transform[3] - orig_pos);
+            from += irr::core::vector3df(m_transform[3] - orig_pos);
         }
         else
         {
-            glm::vec4 parent_from = bone.parent->globalTransform * glm::vec4(bone.parent->mesh->m_center, 1);
-            from = glm::vec3(m_transform * parent_from);
+            auto parent_from = bone.parent->globalTransform * bone.parent->mesh->m_center;
+            from = irr::core::vector3df(m_transform * parent_from);
         }
 
         auto tr = m_transform * bone.globalTransform;
-        auto to = glm::vec3(tr * glm::vec4(bone.mesh->m_center, 1.0f));
+        auto to = tr * bone.mesh->m_center;
         auto curr = from;
         auto move = to - from;
-        auto move_len = move.length();
+        auto move_len = move.getLength();
         if(boneIndex == 0 && move_len > 1024.0)                                 ///@FIXME: magick const 1024.0!
         {
             break;
         }
         int iter = static_cast<int>(4.0 * move_len / bone.mesh->m_radius + 1);     ///@FIXME (not a critical): magick const 4.0!
-        move /= static_cast<glm::float_t>(iter);
+        move /= static_cast<irr::f32>(iter);
 
         for(int j = 0; j <= iter; j++)
         {
-            tr[3] = glm::vec4(curr, 1.0f);
-            bone.ghostObject->getWorldTransform().setFromOpenGLMatrix(glm::value_ptr(tr));
-            glm::vec3 tmp;
+            tr.setTranslation(curr);
+            bone.ghostObject->getWorldTransform().setFromOpenGLMatrix(tr.pointer());
+            irr::core::vector3df tmp;
             if(getPenetrationFixVector(*bone.ghostObject, m_skeleton.manifoldArray(), tmp))
             {
-                m_transform[3] += glm::vec4(tmp, 0);
+                m_transform.setTranslation(m_transform.getTranslation() + tmp);
                 curr += tmp;
                 from += tmp;
                 ret++;
@@ -182,13 +180,13 @@ int Entity::getPenetrationFixVector(glm::vec3& reaction, bool hasMove)
             curr += move;
         }
     }
-    reaction = glm::vec3(m_transform[3] - orig_pos);
+    reaction = irr::core::vector3df(m_transform[3] - orig_pos);
     m_transform[3] = orig_pos;
 
     return ret;
 }
 
-void Entity::fixPenetrations(const glm::vec3* move)
+void Entity::fixPenetrations(const irr::core::vector3df* move)
 {
     if(!m_skeleton.hasGhosts())
         return;
@@ -204,9 +202,9 @@ void Entity::fixPenetrations(const glm::vec3* move)
         return;
     }
 
-    glm::vec3 reaction;
+    irr::core::vector3df reaction;
     getPenetrationFixVector(reaction, move != nullptr);
-    m_transform[3] += glm::vec4(reaction, 0);
+    m_transform.setTranslation( m_transform.getTranslation() + reaction);
 
     ghostUpdate();
 }
@@ -275,7 +273,7 @@ bool Entity::wasCollisionBodyParts(uint32_t parts_flags) const
 
 void Entity::updateRoomPos()
 {
-    glm::vec3 pos = getRoomPos();
+    irr::core::vector3df pos = getRoomPos();
     auto new_room = getWorld()->Room_FindPosCogerrence(pos, getRoom());
     if(!new_room)
     {
@@ -305,7 +303,7 @@ void Entity::updateRigidBody(bool force)
 {
     if(m_typeFlags & ENTITY_TYPE_DYNAMIC)
     {
-        m_skeleton.getBones()[0].bt_body->getWorldTransform().getOpenGLMatrix(glm::value_ptr(m_transform));
+        m_skeleton.getBones()[0].bt_body->getWorldTransform().getOpenGLMatrix(m_transform.pointer());
         updateRoomPos();
         m_skeleton.updateTransform(m_transform);
         updateGhostRigidBody();
@@ -329,44 +327,40 @@ void Entity::updateRigidBody(bool force)
 
 void Entity::updateTransform()
 {
-    m_angles[0] = util::wrapAngle(m_angles[0]);
-    m_angles[1] = util::wrapAngle(m_angles[1]);
-    m_angles[2] = util::wrapAngle(m_angles[2]);
+    m_angles.X = util::wrapAngle(m_angles.X);
+    m_angles.Y = util::wrapAngle(m_angles.Y);
+    m_angles.Z = util::wrapAngle(m_angles.Z);
 
-    glm::vec3 ang = glm::radians(m_angles);
-
-    auto pos = m_transform[3];
-    m_transform = glm::yawPitchRoll(ang[2], ang[1], ang[0]);
-    m_transform[3] = pos;
+    m_transform.setRotationDegrees({m_angles.Z, m_angles.Y, m_angles.X});
 }
 
 void Entity::updateCurrentSpeed(bool zeroVz)
 {
-    glm::float_t t = m_currentSpeed * animation::AnimationFrameRate;
-    glm::float_t vz = zeroVz ? 0.0f : m_speed[2];
+    irr::f32 t = m_currentSpeed * animation::AnimationFrameRate;
+    irr::f32 vz = zeroVz ? 0.0f : m_speed.Z;
 
     if(m_moveDir == MoveDirection::Forward)
     {
-        m_speed = glm::vec3(m_transform[1]) * t;
+        m_speed = irr::core::vector3df(m_transform[1]) * t;
     }
     else if(m_moveDir == MoveDirection::Backward)
     {
-        m_speed = glm::vec3(m_transform[1]) * -t;
+        m_speed = irr::core::vector3df(m_transform[1]) * -t;
     }
     else if(m_moveDir == MoveDirection::Left)
     {
-        m_speed = glm::vec3(m_transform[0]) * -t;
+        m_speed = irr::core::vector3df(m_transform[0]) * -t;
     }
     else if(m_moveDir == MoveDirection::Right)
     {
-        m_speed = glm::vec3(m_transform[0]) * t;
+        m_speed = irr::core::vector3df(m_transform[0]) * t;
     }
     else
     {
         m_speed = { 0,0,0 };
     }
 
-    m_speed[2] = vz;
+    m_speed.Z = vz;
 }
 
 void Entity::addOverrideAnim(const std::shared_ptr<animation::SkeletalModel>& model)
@@ -377,9 +371,9 @@ void Entity::addOverrideAnim(const std::shared_ptr<animation::SkeletalModel>& mo
     m_skeleton.setModel(model);
 }
 
-glm::float_t Entity::findDistance(const Entity& other)
+irr::f32 Entity::findDistance(const Entity& other)
 {
-    return glm::distance(m_transform[3], other.m_transform[3]);
+    return m_transform.getTranslation().getDistanceFrom(other.m_transform.getTranslation());
 }
 
 /**
@@ -393,21 +387,21 @@ void Entity::doAnimCommand(const animation::AnimCommand& command)
         case animation::AnimCommandOpcode::SetPosition:    // (tr_x, tr_y, tr_z)
         {
             // x=x, y=z, z=-y
-            const glm::float_t x = glm::float_t(command.param[0]);
-            const glm::float_t y = glm::float_t(command.param[2]);
-            const glm::float_t z = -glm::float_t(command.param[1]);
-            glm::vec3 ofs(x, y, z);
-            m_transform[3] += glm::vec4(glm::mat3(m_transform) * ofs, 0);
+            const irr::f32 x = irr::f32(command.param[0]);
+            const irr::f32 y = irr::f32(command.param[2]);
+            const irr::f32 z = -irr::f32(command.param[1]);
+            irr::core::vector3df ofs(x, y, z);
+            m_transform.setTranslation(m_transform.getTranslation() + m_transform * ofs);
         }
         break;
 
         case animation::AnimCommandOpcode::SetVelocity:    // (float vertical, float horizontal)
         {
-            glm::float_t vert;
-            const glm::float_t horiz = glm::float_t(command.param[1]);
+            irr::f32 vert;
+            const irr::f32 horiz = irr::f32(command.param[1]);
             if(btFuzzyZero(m_vspeed_override))
             {
-                vert = -glm::float_t(command.param[0]);
+                vert = -irr::f32(command.param[0]);
             }
             else
             {
@@ -466,11 +460,11 @@ void Entity::doAnimCommand(const animation::AnimCommand& command)
             if(effect_id == 0)  // rollflip
             {
                 // FIXME: wrapping angles are bad for quat lerp:
-                m_angles[0] += 180.0;
+                m_angles.X += 180.0;
 
                 if(m_moveType == MoveType::Underwater)
                 {
-                    m_angles[1] = -m_angles[1];                         // for underwater case
+                    m_angles.Y = -m_angles.Y;                         // for underwater case
                 }
                 if(m_moveDir == MoveDirection::Backward)
                 {
@@ -645,7 +639,7 @@ void Entity::checkActivators()
     if(getRoom() == nullptr)
         return;
 
-    glm::vec4 ppos = m_transform[3] + m_transform[1] * m_skeleton.getBoundingBox().max[1];
+    irr::core::vector3df ppos = m_transform.getTranslation() + m_transform[1] * m_skeleton.getBoundingBox().max.Y;
     auto containers = getRoom()->getObjects();
     for(Object* object : containers)
     {
@@ -666,13 +660,13 @@ void Entity::checkActivators()
         }
         else if(e->m_typeFlags & ENTITY_TYPE_PICKABLE)
         {
-            glm::float_t r = e->m_activationRadius;
+            irr::f32 r = e->m_activationRadius;
             r *= r;
-            const glm::vec4& v = e->m_transform[3];
+            const auto v = e->m_transform.getTranslation();
             if(e != this
-               && (v[0] - ppos[0]) * (v[0] - ppos[0]) + (v[1] - ppos[1]) * (v[1] - ppos[1]) < r
-               && v[2] + 32.0 > m_transform[3][2] + m_skeleton.getBoundingBox().min[2]
-               && v[2] - 32.0 < m_transform[3][2] + m_skeleton.getBoundingBox().max[2])
+               && (v.X - ppos.X) * (v.X - ppos.X) + (v.Y - ppos.Y) * (v.Y - ppos.Y) < r
+               && v.Y + 32.0 > m_transform.getTranslation().Z + m_skeleton.getBoundingBox().min.Z
+               && v.Z - 32.0 < m_transform.getTranslation().Z + m_skeleton.getBoundingBox().max.Z)
             {
                 getWorld()->m_engine->m_scriptEngine.execEntity(ENTITY_CALLBACK_ACTIVATE, e->getId(), getId());
             }
@@ -680,17 +674,17 @@ void Entity::checkActivators()
     }
 }
 
-void Entity::moveForward(glm::float_t dist)
+void Entity::moveForward(irr::f32 dist)
 {
     m_transform[3] += m_transform[1] * dist;
 }
 
-void Entity::moveStrafe(glm::float_t dist)
+void Entity::moveStrafe(irr::f32 dist)
 {
     m_transform[3] += m_transform[0] * dist;
 }
 
-void Entity::moveVertical(glm::float_t dist)
+void Entity::moveVertical(irr::f32 dist)
 {
     m_transform[3] += m_transform[2] * dist;
 }
@@ -762,7 +756,7 @@ bool Entity::createRagdoll(RagdollSetup* setup)
         }
         btTransform localA;
         localA.getBasis().setEulerZYX(setup->joint_setup[i].body1_angle[0], setup->joint_setup[i].body1_angle[1], setup->joint_setup[i].body1_angle[2]);
-        localA.setOrigin(util::convert(glm::vec3(btB->localTransform[3])));
+        localA.setOrigin(util::convert(irr::core::vector3df(btB->localTransform[3])));
 
         btTransform localB;
         localB.getBasis().setEulerZYX(setup->joint_setup[i].body2_angle[0], setup->joint_setup[i].body2_angle[1], setup->joint_setup[i].body2_angle[2]);
@@ -847,11 +841,11 @@ bool Entity::deleteRagdoll()
     // To make them static again, additionally call setEntityBodyMass script function.
 }
 
-glm::vec3 Entity::applyGravity(util::Duration time)
+irr::core::vector3df Entity::applyGravity(util::Duration time)
 {
-    const glm::vec3 gravityAccelleration = util::convert(getWorld()->m_engine->m_bullet.dynamicsWorld->getGravity());
-    const glm::vec3 gravitySpeed = gravityAccelleration * util::toSeconds(time);
-    glm::vec3 move = (m_speed + gravitySpeed*0.5f) * util::toSeconds(time);
+    const auto gravityAccelleration = util::convert(getWorld()->m_engine->m_bullet.dynamicsWorld->getGravity());
+    const auto gravitySpeed = gravityAccelleration * util::toSeconds(time);
+    auto move = (m_speed + gravitySpeed*0.5f) * util::toSeconds(time);
     m_speed += gravitySpeed;
     return move;
 }

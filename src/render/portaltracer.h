@@ -10,14 +10,14 @@ struct PortalTracer
 {
     std::vector<const world::Portal*> portals;
 
-    bool checkVisibility(const world::Portal* portal, const glm::vec3& cameraPosition, const world::core::Frustum& frustum)
+    bool checkVisibility(const world::Portal* portal, const irr::core::vector3df& cameraPosition, const world::core::Frustum& frustum)
     {
         if(!portal->destination || !portal->destination->isActive())
         {
             return false; // no relevant destination
         }
 
-        if(glm::dot(portal->normal, portal->center - cameraPosition) >= 0)
+        if(portal->normal.dotProduct(portal->center - cameraPosition) >= 0)
         {
             return false; // wrong orientation (normals point usually into the source room)
         }
@@ -61,19 +61,21 @@ struct PortalTracer
     }
 
 private:
-    static bool testIntersectionFwd(const glm::vec3& camPos, const world::Portal& a, const world::Portal& b)
+    static bool testIntersectionFwd(const irr::core::vector3df& camPos, const world::Portal& a, const world::Portal& b)
     {
+        irr::core::triangle3df t{b.vertices[0], b.vertices[1], b.vertices[3]};
+        irr::core::vector3df dummy;
         // test if the ray from the camera to a's vertices crosses b's triangles
-        for(const glm::vec3& v : a.vertices)
+        for(const irr::core::vector3df& v : a.vertices)
         {
-            if(util::intersectRayRectangle(camPos, v - camPos, b.vertices[0], b.vertices[1], b.vertices[3]))
+            if(t.getIntersectionWithLine(camPos, v-camPos, dummy))
                 return true;
         }
 
         return false;
     }
 
-    static bool testIntersection(const glm::vec3& camPos, const world::Portal& a, const world::Portal& b)
+    static bool testIntersection(const irr::core::vector3df& camPos, const world::Portal& a, const world::Portal& b)
     {
         if(testIntersectionFwd(camPos, a, b))
             return true;

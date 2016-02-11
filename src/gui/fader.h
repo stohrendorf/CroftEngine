@@ -3,8 +3,8 @@
 #include "loader/datatypes.h"
 #include "util/helpers.h"
 
-#include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <irrlicht.h>
 
 #include <cstdint>
 
@@ -101,15 +101,15 @@ private:
 
     engine::Engine* m_engine;
 
-    glm::vec4 m_topLeftColor{ 0 };       // All colors are defined separately, for
-    glm::vec4 m_topRightColor{ 0 };      // further possibility of advanced full
-    glm::vec4 m_bottomLeftColor{ 0 };    // screen effects with gradients.
-    glm::vec4 m_bottomRightColor{ 0 };
+    irr::video::SColor m_topLeftColor{ 0 };       // All colors are defined separately, for
+    irr::video::SColor m_topRightColor{ 0 };      // further possibility of advanced full
+    irr::video::SColor m_bottomLeftColor{ 0 };    // screen effects with gradients.
+    irr::video::SColor m_bottomRightColor{ 0 };
 
     loader::BlendingMode m_blendingMode = loader::BlendingMode::Opaque;     // Fader's blending mode.
 
-    glm::float_t m_currentAlpha = 0;          // Current alpha value.
-    glm::float_t m_maxAlpha{ 1 };              // Maximum reachable alpha value.
+    irr::u32 m_currentAlpha = 0;          // Current alpha value.
+    irr::u32 m_maxAlpha{ 255 };              // Maximum reachable alpha value.
     util::Duration m_speed = util::MilliSeconds(500);                 // Fade speed.
     util::Duration m_speedSecondary = util::MilliSeconds(200);        // Secondary speed - used with TIMED type.
 

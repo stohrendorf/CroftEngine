@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
-
-#include <glm/glm.hpp>
 
 #include "util/helpers.h"
 #include "world/core/frustum.h"
 
+#include <irrlicht.h>
+
+#include <memory>
 /*
   ======================
         CAM TARGET
@@ -43,7 +43,7 @@ enum class CameraTarget
 
 namespace
 {
-const glm::float_t CameraRotationSpeed = glm::radians(1.0f);
+const irr::f32 CameraRotationSpeed = irr::core::degToRad(1.0f);
 } // anonymous namespace
 
 constexpr float MaxShakeDistance = 8192;
@@ -52,40 +52,42 @@ constexpr float DefaultShakePower = 100;
 class Camera
 {
 private:
-    glm::vec3 m_position{ 0,0,0 };
-    glm::mat3 m_axes = glm::mat3(1.0f);       // coordinate system axes
+    irr::core::vector3df m_position{ 0,0,0 };
+    irr::core::vector3df m_viewDir;
+    irr::core::vector3df m_rightDir;
+    irr::core::vector3df m_upDir;
 
-    glm::vec3 m_prevPos{ 0,0,0 };            // previous camera position
+    irr::core::vector3df m_prevPos{ 0,0,0 };            // previous camera position
 
-    glm::mat4 m_view = glm::mat4(1.0f);
-    glm::mat4 m_projection = glm::mat4(1.0f);
-    glm::mat4 m_viewProjection = glm::mat4(1.0f);
+    irr::core::matrix4 m_view;
+    irr::core::matrix4 m_projection;
+    irr::core::matrix4 m_viewProjection;
 
     core::Frustum m_frustum;
 
-    glm::float_t m_nearClipping = 1;
-    glm::float_t m_farClipping = 65536;
+    irr::f32 m_nearClipping = 1;
+    irr::f32 m_farClipping = 65536;
 
-    glm::float_t m_fov = 75;
-    glm::float_t m_width;
-    glm::float_t m_height;
+    irr::f32 m_fov = 75;
+    irr::f32 m_width;
+    irr::f32 m_height;
 
-    glm::float_t m_shakeValue = 0;
+    irr::f32 m_shakeValue = 0;
     util::Duration m_shakeTime{ 0 };
 
     CameraTarget m_targetDir = CameraTarget::Front; //Target rotation direction
 
     Room* m_currentRoom = nullptr;
 
-    glm::vec3 m_angles{ 0,0,0 };
+    irr::core::vector3df m_angles{ 0,0,0 };
 
 public:
-    const glm::vec3& getPosition() const noexcept
+    const irr::core::vector3df& getPosition() const noexcept
     {
         return m_position;
     }
 
-    glm::vec3 getMovement() const noexcept
+    irr::core::vector3df getMovement() const noexcept
     {
         return m_position - m_prevPos;
     }
@@ -95,37 +97,37 @@ public:
         m_prevPos = m_position;
     }
 
-    void setPosition(const glm::vec3& pos) noexcept
+    void setPosition(const irr::core::vector3df& pos) noexcept
     {
         m_position = pos;
     }
 
-    const glm::vec3& getViewDir() const noexcept
+    const irr::core::vector3df& getViewDir() const noexcept
     {
-        return m_axes[1];
+        return m_viewDir;
     }
 
-    const glm::vec3& getRightDir() const noexcept
+    const irr::core::vector3df& getRightDir() const noexcept
     {
-        return m_axes[0];
+        return m_rightDir;
     }
 
-    const glm::vec3& getUpDir() const noexcept
+    const irr::core::vector3df& getUpDir() const noexcept
     {
-        return m_axes[2];
+        return m_upDir;
     }
 
-    const glm::mat4& getProjection() const noexcept
+    const irr::core::matrix4& getProjection() const noexcept
     {
         return m_projection;
     }
 
-    const glm::mat4& getView() const noexcept
+    const irr::core::matrix4& getView() const noexcept
     {
         return m_view;
     }
 
-    const glm::mat4& getViewProjection() const noexcept
+    const irr::core::matrix4& getViewProjection() const noexcept
     {
         return m_viewProjection;
     }
@@ -160,7 +162,7 @@ public:
         m_targetDir = target;
     }
 
-    glm::float_t getShakeValue() const noexcept
+    irr::f32 getShakeValue() const noexcept
     {
         return m_shakeValue;
     }
@@ -175,16 +177,16 @@ public:
         m_shakeTime = d;
     }
 
-    const glm::vec3& getAngles() const noexcept
+    const irr::core::vector3df& getAngles() const noexcept
     {
         return m_angles;
     }
 
-    void shake(glm::float_t currentAngle, glm::float_t targetAngle, const util::Duration& frameTime)
+    void shake(irr::f32 currentAngle, irr::f32 targetAngle, const util::Duration& frameTime)
     {
-        constexpr glm::float_t RotationSpeed = 2.0; //Speed of rotation
+        constexpr irr::f32 RotationSpeed = 2.0; //Speed of rotation
 
-        glm::float_t d_angle = m_angles[0] - targetAngle;
+        irr::f32 d_angle = m_angles.X - targetAngle;
         if(d_angle > util::Rad90)
         {
             d_angle -= CameraRotationSpeed;
@@ -193,7 +195,7 @@ public:
         {
             d_angle += CameraRotationSpeed;
         }
-        m_angles[0] = glm::mod(m_angles[0] + glm::atan(glm::sin(currentAngle - d_angle), glm::cos(currentAngle + d_angle)) * util::toSeconds(frameTime) * RotationSpeed, util::Rad360);
+        m_angles.X = std::fmod(m_angles.X + std::atan2(std::sin(currentAngle - d_angle), std::cos(currentAngle + d_angle)) * util::toSeconds(frameTime) * RotationSpeed, util::Rad360);
     }
 
     Camera();
@@ -201,20 +203,20 @@ public:
     Camera& operator=(const Camera&) = delete;
 
     void apply();
-    void setFovAspect(glm::float_t fov, glm::float_t aspect);
-    void moveAlong(glm::float_t dist);
-    void moveStrafe(glm::float_t dist);
-    void moveVertical(glm::float_t dist);
-    void move(const glm::vec3& v)
+    void setFovAspect(irr::f32 fov, irr::f32 aspect);
+    void moveAlong(irr::f32 dist);
+    void moveStrafe(irr::f32 dist);
+    void moveVertical(irr::f32 dist);
+    void move(const irr::core::vector3df& v)
     {
-        moveAlong(v.z);
-        moveStrafe(v.x);
-        moveVertical(v.y);
+        moveAlong(v.Z);
+        moveStrafe(v.X);
+        moveVertical(v.Y);
     }
 
-    void shake(glm::float_t power, util::Duration time);
+    void shake(irr::f32 power, util::Duration time);
     void applyRotation();
-    void rotate(const glm::vec3& v)
+    void rotate(const irr::core::vector3df& v)
     {
         m_angles += v;
     }
@@ -229,7 +231,7 @@ public:
 
 struct StatCameraSink
 {
-    glm::vec3 position;
+    irr::core::vector3df position;
     uint16_t room_or_strength;   // Room for camera, strength for sink.
     uint16_t flag_or_zone;       // Flag for camera, zone for sink.
 };
@@ -238,12 +240,12 @@ struct StatCameraSink
 
 struct FlybyCamera
 {
-    glm::vec3 position;
-    glm::vec3 rotation;
+    irr::core::vector3df position;
+    irr::core::vector3df rotation;
 
-    glm::float_t fov;
-    glm::float_t roll;
-    glm::float_t speed;
+    irr::f32 fov;
+    irr::f32 roll;
+    irr::f32 speed;
 
     uint32_t    sequence;   // Sequence number to which camera belongs
     uint32_t    index;      // Index in sequence

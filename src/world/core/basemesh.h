@@ -6,6 +6,7 @@
 #include "world/animation/animation.h"
 
 #include <vector>
+#include <irrlicht.h>
 
 namespace render
 {
@@ -30,7 +31,7 @@ public:
     std::vector<GLuint> m_elements;
     size_t m_alphaElements;
 
-    std::vector<Vertex> m_vertices;
+    std::vector<irr::video::S3DVertex> m_vertices;
 
     size_t m_animatedElementCount;
     size_t m_alphaAnimatedElementCount;
@@ -39,9 +40,9 @@ public:
 
     std::vector<render::TransparentPolygonReference> m_transparentPolygons;
 
-    glm::vec3 m_center; //!< geometry center of mesh
+    irr::core::vector3df m_center; //!< geometry center of mesh
     BoundingBox m_boundingBox; //!< AABB bounding volume
-    glm::float_t m_radius; //!< radius of the bounding sphere
+    irr::f32 m_radius; //!< radius of the bounding sphere
 
 #pragma pack(push,1)
     struct MatrixIndex
@@ -78,10 +79,10 @@ public:
     void updateBoundingBox();
     void genVBO();
     void genFaces();
-    size_t addVertex(const Vertex& v);
-    size_t addAnimatedVertex(const Vertex& v);
+    size_t addVertex(const irr::video::S3DVertex& v);
+    size_t addAnimatedVertex(const irr::video::S3DVertex& v);
     void polySortInMesh(const world::World& world);
-    Vertex* findVertex(const glm::vec3& v);
+    irr::video::S3DVertex* findVertex(const irr::core::vector3df& v);
 };
 
 btCollisionShape* BT_CSfromMesh(const std::shared_ptr<BaseMesh> &mesh, bool useCompression, bool buildBvh, bool is_static = true);

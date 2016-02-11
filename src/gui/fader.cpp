@@ -19,7 +19,7 @@ Fader::Fader(engine::Engine* engine)
 
 void Fader::setAlpha(uint8_t alpha)
 {
-    m_maxAlpha = static_cast<glm::float_t>(alpha) / 255;
+    m_maxAlpha = alpha;
 }
 
 void Fader::setScaleMode(FaderScale mode)
@@ -34,7 +34,7 @@ void Fader::setColor(uint8_t R, uint8_t G, uint8_t B, FaderCorner corner)
     // it is completely optional - if you won't specify corner, color will be
     // set for the whole fader.
 
-    glm::vec4* dest;
+    irr::video::SColor* dest;
 
     switch(corner)
     {
@@ -55,9 +55,7 @@ void Fader::setColor(uint8_t R, uint8_t G, uint8_t B, FaderCorner corner)
             break;
 
         default:
-            m_topRightColor[0] = static_cast<glm::float_t>(R) / 255;
-            m_topRightColor[1] = static_cast<glm::float_t>(G) / 255;
-            m_topRightColor[2] = static_cast<glm::float_t>(B) / 255;
+            m_topRightColor.set(m_topRightColor.getAlpha(),R,G,B);
 
             // Copy top right corner color to all other corners.
 
@@ -69,9 +67,7 @@ void Fader::setColor(uint8_t R, uint8_t G, uint8_t B, FaderCorner corner)
 
     BOOST_ASSERT(dest != nullptr);
 
-    (*dest)[0] = static_cast<glm::float_t>(R) / 255;
-    (*dest)[1] = static_cast<glm::float_t>(G) / 255;
-    (*dest)[2] = static_cast<glm::float_t>(B) / 255;
+    dest->set(dest->getAlpha(), R,G,B);
 }
 
 void Fader::setBlendingMode(loader::BlendingMode mode)
@@ -289,10 +285,10 @@ void Fader::show()
 
     // Apply current alpha value to all vertices.
 
-    m_topLeftColor[3] = m_currentAlpha;
-    m_topRightColor[3] = m_currentAlpha;
-    m_bottomLeftColor[3] = m_currentAlpha;
-    m_bottomRightColor[3] = m_currentAlpha;
+    m_topLeftColor.setAlpha(m_currentAlpha);
+    m_topRightColor.setAlpha(m_currentAlpha);
+    m_bottomLeftColor.setAlpha(m_currentAlpha);
+    m_bottomRightColor.setAlpha(m_currentAlpha);
 
     // Draw the rectangle.
     // We draw it from the very top left corner to the end of the screen.
@@ -300,7 +296,7 @@ void Fader::show()
     if(m_texture)
     {
         // Texture is always modulated with alpha!
-        glm::vec4 tex_color{ m_currentAlpha, m_currentAlpha, m_currentAlpha, m_currentAlpha };
+        irr::video::SColor tex_color{ m_currentAlpha, m_currentAlpha, m_currentAlpha, m_currentAlpha };
 
         if(m_textureScaleMode == FaderScale::LetterBox)
         {

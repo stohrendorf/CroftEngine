@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
 #include <boost/log/trivial.hpp>
 #include <boost/type_index.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -22,7 +19,7 @@
 
 namespace util
 {
-inline glm::float_t wrapAngle(const glm::float_t value)
+inline irr::f32 wrapAngle(const irr::f32 value)
 {
     int i = static_cast<int>(value / 360.0);
     i = value < 0.0 ? i - 1 : i;
@@ -32,7 +29,7 @@ inline glm::float_t wrapAngle(const glm::float_t value)
 template<typename T>
 inline bool fuzzyZero(T value) noexcept
 {
-    return glm::abs(value) <= glm::epsilon<T>();
+    return std::abs(value) <= std::numeric_limits<T>::epsilon();
 }
 
 template<typename T>

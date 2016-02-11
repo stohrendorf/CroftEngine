@@ -12,7 +12,6 @@
 
 #include <chrono>
 
-#include <glm/gtc/type_ptr.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -374,7 +373,7 @@ void Engine::updateSources()
         return;
     }
 
-    alGetListenerfv(AL_POSITION, glm::value_ptr(m_listenerPosition));
+    alGetListenerfv(AL_POSITION, &m_listenerPosition.X);
 
     for(uint32_t i = 0; i < m_emitters.size(); i++)
     {
@@ -548,14 +547,14 @@ Error Engine::kill(audio::SoundId soundId, EmitterType entityType, const boost::
 
 bool Engine::isInRange(EmitterType entityType, const boost::optional<world::ObjectId>& entityId, float range, float gain)
 {
-    glm::vec3 vec;
+    irr::core::vector3df vec;
     switch(entityType)
     {
         case EmitterType::Entity:
             BOOST_ASSERT(entityId.is_initialized());
             if(std::shared_ptr<world::Entity> ent = m_engine->m_world.getEntityByID(*entityId))
             {
-                vec = glm::vec3(ent->m_transform[3]);
+                vec = ent->m_transform.getTranslation();
             }
             else
             {
@@ -579,7 +578,7 @@ bool Engine::isInRange(EmitterType entityType, const boost::optional<world::Obje
             return false;
     }
 
-    glm::float_t dist = glm::distance(m_listenerPosition, vec);
+    irr::f32 dist = m_listenerPosition.getDistanceFrom(vec);
     dist *= dist;
 
     // We add 1/4 of overall distance to fix up some issues with
@@ -916,7 +915,7 @@ void Engine::load(const world::World& world, const std::unique_ptr<loader::Level
     {
         m_emitters[i].emitter_index = i;
         m_emitters[i].soundId = tr->m_soundSources[i].sound_id;
-        m_emitters[i].position = glm::vec3(tr->m_soundSources[i].x, tr->m_soundSources[i].z, -tr->m_soundSources[i].y);
+        m_emitters[i].position = {tr->m_soundSources[i].x, tr->m_soundSources[i].z, -tr->m_soundSources[i].y};
         m_emitters[i].flags = tr->m_soundSources[i].flags;
     }
 }

@@ -20,7 +20,7 @@ bool Polygon::isBroken() const
         return true;
     }
 
-    glm::float_t dif0 = glm::dot(plane.normal, plane.normal);
+    irr::f32 dif0 = plane.normal.dotProduct(plane.normal);
     if(dif0 < 0.999 || dif0 > 1.001)
     {
         return true;
@@ -29,8 +29,8 @@ bool Polygon::isBroken() const
     auto curr_v = &vertices.back();
     for(const auto& v : vertices)
     {
-        glm::vec3 dif = v.position - curr_v->position;
-        if(glm::dot(dif, dif) < 0.0001)
+        auto dif = v.Pos - curr_v->Pos;
+        if(dif.dotProduct(dif) < 0.0001)
         {
             return true;
         }
@@ -43,81 +43,81 @@ bool Polygon::isBroken() const
 
 void Polygon::updateNormal()
 {
-    auto v1 = vertices[0].position - vertices[1].position;
-    auto v2 = vertices[2].position - vertices[1].position;
+    auto v1 = vertices[0].Pos - vertices[1].Pos;
+    auto v2 = vertices[2].Pos - vertices[1].Pos;
     plane.assign(v1, v2, { 0,0,0 });
 }
 
-void Polygon::move(const glm::vec3& move)
+void Polygon::move(const irr::core::vector3df& move)
 {
     for(auto& v : vertices)
     {
-        v.position += move;
+        v.Pos += move;
     }
-    plane.moveTo(vertices[0].position);
+    plane.moveTo(vertices[0].Pos);
 }
 
-void Polygon::copyMoved(const Polygon& src, const glm::vec3& move)
+void Polygon::copyMoved(const Polygon& src, const irr::core::vector3df& move)
 {
     for(size_t i = 0; i < src.vertices.size(); i++)
     {
-        vertices[i].position = src.vertices[i].position + move;
+        vertices[i].Pos = src.vertices[i].Pos + move;
     }
 
     plane = src.plane;
-    plane.moveTo(vertices[0].position);
+    plane.moveTo(vertices[0].Pos);
 }
 
-void Polygon::transform(const glm::mat4& tr)
+void Polygon::transform(const irr::core::matrix4& tr)
 {
-    plane.normal = glm::mat3(tr) * plane.normal;
-    for(Vertex& vp : vertices)
+    tr.rotateVect(plane.normal);
+    for(irr::video::S3DVertex& vp : vertices)
     {
-        vp.position = glm::vec3(tr * glm::vec4(vp.position, 1.0f));
-        vp.normal = glm::mat3(tr) * vp.normal;
+        tr.transformVect(vp.Pos);
+        tr.rotateVect(vp.Normal);
     }
 
-    plane.moveTo(vertices[0].position);
+    plane.moveTo(vertices[0].Pos);
 }
 
-void Polygon::copyTransformed(const Polygon& src, const glm::mat4& tr, bool copyNormals)
+void Polygon::copyTransformed(const Polygon& src, const irr::core::matrix4& tr, bool copyNormals)
 {
-    plane.normal = glm::mat3(tr) * src.plane.normal;
+    tr.rotateVect(plane.normal, src.plane.normal);
     for(size_t i = 0; i < src.vertices.size(); i++)
     {
-        vertices[i].position = glm::vec3(tr * glm::vec4(src.vertices[i].position, 1));
+        tr.transformVect(vertices[i].Pos, src.vertices[i].Pos);
         if(copyNormals)
-            vertices[i].normal = glm::mat3(tr) * src.vertices[i].normal;
+            tr.rotateVect(vertices[i].Normal, src.vertices[i].Normal);
     }
 
-    plane.moveTo(vertices[0].position);
+    plane.moveTo(vertices[0].Pos);
 }
 
-bool Polygon::rayIntersect(const glm::vec3& rayDir, const glm::vec3& dot, glm::float_t& lambda) const
+bool Polygon::rayIntersect(const irr::core::vector3df& rayDir, const irr::core::vector3df& dot, irr::f32& lambda) const
 {
-    glm::float_t u = glm::dot(plane.normal, rayDir);
-    if(glm::abs(u) < 0.001 /*|| vec3_plane_dist(plane, dot) < -0.001*/)          // FIXME: magick
+    irr::f32 u = plane.normal.dotProduct(rayDir);
+    if(std::abs(u) < 0.001 /*|| vec3_plane_dist(plane, dot) < -0.001*/)          // FIXME: magick
     {
         return false;    // plane is parallel to the ray - no intersection
     }
     lambda = -plane.distance(dot) / u;
 
-    auto vp = &vertices.front();           // current polygon pointer
-    glm::vec3 T = dot - vp[0].position;
+    const irr::video::S3DVertex* vp = &vertices.front();           // current polygon pointer
+    irr::core::vector3df T = dot - vp[0].Pos;
 
-    glm::vec3 E2 = vp[1].position - vp[0].position;
+    irr::core::vector3df E2 = vp[1].Pos - vp[0].Pos;
     for(size_t i = 0; i < vertices.size() - 2; i++, vp++)
     {
-        glm::vec3 E1 = E2;                           // PREV
-        E2 = vp[2].position - vertices[0].position;  // NEXT
+        irr::core::vector3df E1 = E2;                           // PREV
+        E2 = vp[2].Pos - vertices[0].Pos;  // NEXT
 
-        glm::vec3 P = glm::cross(rayDir, E2);
-        glm::vec3 Q = glm::cross(T, E1);
+        irr::core::vector3df P = rayDir.crossProduct(E2);
+        irr::core::vector3df Q = T.crossProduct(E1);
 
-        glm::float_t tt = glm::dot(P, E1);
-        u = glm::dot(P, T);
+        irr::f32 tt = P.dotProduct(E1);
+        u = P.dotProduct(T);
         u /= tt;
-        glm::float_t v = glm::dot(Q, rayDir);
+        irr::f32 v = Q.dotProduct(rayDir);
         v /= tt;
         tt = 1.0f - u - v;
         if(u <= 1.0 && u >= 0.0 && v <= 1.0 && v >= 0.0 && tt <= 1.0 && tt >= 0.0)
@@ -135,36 +135,36 @@ bool Polygon::intersectPolygon(const Polygon& p2)
         return false;  // quick check
     }
 
-    std::vector<glm::vec3> result_buf;
+    std::vector<irr::core::vector3df> result_buf;
 
     /*
      * intersection of polygon p1 and plane p2
      */
-    const Vertex* prev_v = &vertices.back();
-    const Vertex* curr_v = &vertices.front();
-    glm::float_t dist0 = p2.plane.distance(prev_v->position);
+    const irr::video::S3DVertex* prev_v = &vertices.back();
+    const irr::video::S3DVertex* curr_v = &vertices.front();
+    irr::f32 dist0 = p2.plane.distance(prev_v->Pos);
     for(size_t i = 0; i < vertices.size(); i++)
     {
-        glm::float_t dist1 = p2.plane.distance(curr_v->position);
+        irr::f32 dist1 = p2.plane.distance(curr_v->Pos);
         if(dist1 > SplitEpsilon)
         {
             if(dist0 < -SplitEpsilon)
             {
-                result_buf.emplace_back(p2.plane.rayIntersect(prev_v->position,
-                                                              curr_v->position - prev_v->position));
+                result_buf.emplace_back(p2.plane.rayIntersect(prev_v->Pos,
+                                                              curr_v->Pos - prev_v->Pos));
             }
         }
         else if(dist1 < -SplitEpsilon)
         {
             if(dist0 > SplitEpsilon)
             {
-                result_buf.emplace_back(p2.plane.rayIntersect(prev_v->position,
-                                                              curr_v->position - prev_v->position));
+                result_buf.emplace_back(p2.plane.rayIntersect(prev_v->Pos,
+                                                              curr_v->Pos - prev_v->Pos));
             }
         }
         else
         {
-            result_buf.emplace_back(curr_v->position);
+            result_buf.emplace_back(curr_v->Pos);
         }
 
         if(result_buf.size() >= 2)
@@ -181,29 +181,29 @@ bool Polygon::intersectPolygon(const Polygon& p2)
      */
     prev_v = &p2.vertices.back();
     curr_v = &p2.vertices.front();
-    dist0 = plane.distance(prev_v->position);
+    dist0 = plane.distance(prev_v->Pos);
     for(size_t i = 0; i < p2.vertices.size(); i++)
     {
-        glm::float_t dist1 = plane.distance(curr_v->position);
+        irr::f32 dist1 = plane.distance(curr_v->Pos);
         if(dist1 > SplitEpsilon)
         {
             if(dist0 < -SplitEpsilon)
             {
-                result_buf.emplace_back(plane.rayIntersect(prev_v->position,
-                                                           curr_v->position - prev_v->position));
+                result_buf.emplace_back(plane.rayIntersect(prev_v->Pos,
+                                                           curr_v->Pos - prev_v->Pos));
             }
         }
         else if(dist1 < -SplitEpsilon)
         {
             if(dist0 > SplitEpsilon)
             {
-                result_buf.emplace_back(plane.rayIntersect(prev_v->position,
-                                                           curr_v->position - prev_v->position));
+                result_buf.emplace_back(plane.rayIntersect(prev_v->Pos,
+                                                           curr_v->Pos - prev_v->Pos));
             }
         }
         else
         {
-            result_buf.emplace_back(curr_v->position);
+            result_buf.emplace_back(curr_v->Pos);
         }
 
         if(result_buf.size() >= 4)
@@ -215,11 +215,11 @@ bool Polygon::intersectPolygon(const Polygon& p2)
         curr_v++;
     }
 
-    auto dir = glm::cross(plane.normal, p2.plane.normal);  // vector of two planes intersection line
-    glm::float_t t = glm::abs(dir[0]);
-    dist0 = glm::abs(dir[1]);
-    glm::float_t dist1 = glm::abs(dir[2]);
-    glm::float_t dist2 = 0;
+    auto dir = plane.normal.crossProduct(p2.plane.normal);  // vector of two planes intersection line
+    irr::f32 t = std::abs(dir.X);
+    dist0 = std::abs(dir.Y);
+    irr::f32 dist1 = std::abs(dir.Z);
+    irr::f32 dist2 = 0;
     int pn = PLANE_X;
     if(t < dist0)
     {
@@ -231,24 +231,25 @@ bool Polygon::intersectPolygon(const Polygon& p2)
         pn = PLANE_Z;
     }
 
+    //! @todo Use vector operations here.
     switch(pn)
     {
         case PLANE_X:
-            dist0 = (result_buf[1][0] - result_buf[0][0]) / dir[0];
-            dist1 = (result_buf[2][0] - result_buf[0][0]) / dir[0];
-            dist2 = (result_buf[3][0] - result_buf[0][0]) / dir[0];
+            dist0 = (result_buf[1].X - result_buf[0].X) / dir.X;
+            dist1 = (result_buf[2].Y - result_buf[0].X) / dir.Y;
+            dist2 = (result_buf[3].Z - result_buf[0].X) / dir.Z;
             break;
 
         case PLANE_Y:
-            dist0 = (result_buf[1][1] - result_buf[0][1]) / dir[1];
-            dist1 = (result_buf[2][1] - result_buf[0][1]) / dir[1];
-            dist2 = (result_buf[3][1] - result_buf[0][1]) / dir[1];
+            dist0 = (result_buf[1].Y - result_buf[0].Y) / dir.Y;
+            dist1 = (result_buf[2].Y - result_buf[0].Y) / dir.Y;
+            dist2 = (result_buf[3].Y - result_buf[0].Y) / dir.Y;
             break;
 
         case PLANE_Z:
-            dist0 = (result_buf[1][2] - result_buf[0][2]) / dir[2];
-            dist1 = (result_buf[2][2] - result_buf[0][2]) / dir[2];
-            dist2 = (result_buf[3][2] - result_buf[0][2]) / dir[2];
+            dist0 = (result_buf[1].Z - result_buf[0].Z) / dir.Z;
+            dist1 = (result_buf[2].Z - result_buf[0].Z) / dir.Z;
+            dist2 = (result_buf[3].Z - result_buf[0].Z) / dir.Z;
             break;
     };
 
@@ -264,7 +265,7 @@ SplitType Polygon::splitClassify(const util::Plane& plane) const
     size_t positive = 0, negative = 0;
     for(const auto& v : vertices)
     {
-        auto dist = plane.distance(v.position);
+        auto dist = plane.distance(v.Pos);
         if(dist > SplitEpsilon)
         {
             positive++;
@@ -313,28 +314,31 @@ void Polygon::split(const util::Plane& n, Polygon& front, Polygon& back)
     auto curr_v = &vertices.front();
     auto prev_v = &vertices.back();
 
-    auto dist0 = n.distance(prev_v->position);
+    auto dist0 = n.distance(prev_v->Pos);
     for(size_t i = 0; i < vertices.size(); ++i)
     {
-        auto dist1 = n.distance(curr_v->position);
+        auto dist1 = n.distance(curr_v->Pos);
 
         if(dist1 > SplitEpsilon)
         {
             if(dist0 < -SplitEpsilon)
             {
-                auto dir = curr_v->position - prev_v->position;
-                glm::float_t t;
-                Vertex tv;
-                tv.position = n.rayIntersect(prev_v->position, dir, t);
-                tv.normal = glm::normalize(glm::mix(prev_v->normal, curr_v->normal, t));
+                auto dir = curr_v->Pos - prev_v->Pos;
+                irr::f32 t;
+                irr::video::S3DVertex tv;
+                tv.Pos = n.rayIntersect(prev_v->Pos, dir, t);
+                tv.Normal.interpolate(prev_v->Normal, curr_v->Normal, t).normalize();
 
-                tv.color[0] = prev_v->color[0] + t * (curr_v->color[0] - prev_v->color[0]);
-                tv.color[1] = prev_v->color[1] + t * (curr_v->color[1] - prev_v->color[1]);
-                tv.color[2] = prev_v->color[2] + t * (curr_v->color[2] - prev_v->color[2]);
-                tv.color[3] = prev_v->color[3] + t * (curr_v->color[3] - prev_v->color[3]);
+                //! @todo Interpolate using member function
+                tv.Color.set(
+                            prev_v->Color.getAlpha() + t * (curr_v->Color.getAlpha() - prev_v->Color.getAlpha()),
+                            prev_v->Color.getRed() + t * (curr_v->Color.getRed() - prev_v->Color.getRed()),
+                            prev_v->Color.getGreen() + t * (curr_v->Color.getGreen() - prev_v->Color.getGreen()),
+                            prev_v->Color.getBlue() + t * (curr_v->Color.getBlue() - prev_v->Color.getBlue())
+                            );
 
-                tv.tex_coord[0] = prev_v->tex_coord[0] + t * (curr_v->tex_coord[0] - prev_v->tex_coord[0]);
-                tv.tex_coord[1] = prev_v->tex_coord[1] + t * (curr_v->tex_coord[1] - prev_v->tex_coord[1]);
+                tv.TCoords.X = prev_v->TCoords.X + t * (curr_v->TCoords.X - prev_v->TCoords.X);
+                tv.TCoords.Y = prev_v->TCoords.Y + t * (curr_v->TCoords.Y - prev_v->TCoords.Y);
 
                 front.vertices.emplace_back(tv);
                 back.vertices.emplace_back(tv);
@@ -345,19 +349,22 @@ void Polygon::split(const util::Plane& n, Polygon& front, Polygon& back)
         {
             if(dist0 > SplitEpsilon)
             {
-                auto dir = curr_v->position - prev_v->position;
-                glm::float_t t;
-                Vertex tv;
-                tv.position = n.rayIntersect(prev_v->position, dir, t);
-                tv.normal = glm::normalize(glm::mix(prev_v->normal, curr_v->normal, t));
+                auto dir = curr_v->Pos - prev_v->Pos;
+                irr::f32 t;
+                irr::video::S3DVertex tv;
+                tv.Pos = n.rayIntersect(prev_v->Pos, dir, t);
+                tv.Normal.interpolate(prev_v->Normal, curr_v->Normal, t).normalize();
 
-                tv.color[0] = prev_v->color[0] + t * (curr_v->color[0] - prev_v->color[0]);
-                tv.color[1] = prev_v->color[1] + t * (curr_v->color[1] - prev_v->color[1]);
-                tv.color[2] = prev_v->color[2] + t * (curr_v->color[2] - prev_v->color[2]);
-                tv.color[3] = prev_v->color[3] + t * (curr_v->color[3] - prev_v->color[3]);
+                //! @todo Interpolate using member function
+                tv.Color.set(
+                            prev_v->Color.getAlpha() + t * (curr_v->Color.getAlpha() - prev_v->Color.getAlpha()),
+                            prev_v->Color.getRed() + t * (curr_v->Color.getRed() - prev_v->Color.getRed()),
+                            prev_v->Color.getGreen() + t * (curr_v->Color.getGreen() - prev_v->Color.getGreen()),
+                            prev_v->Color.getBlue() + t * (curr_v->Color.getBlue() - prev_v->Color.getBlue())
+                            );
 
-                tv.tex_coord[0] = prev_v->tex_coord[0] + t * (curr_v->tex_coord[0] - prev_v->tex_coord[0]);
-                tv.tex_coord[1] = prev_v->tex_coord[1] + t * (curr_v->tex_coord[1] - prev_v->tex_coord[1]);
+                tv.TCoords.X = prev_v->TCoords.X + t * (curr_v->TCoords.X - prev_v->TCoords.X);
+                tv.TCoords.Y = prev_v->TCoords.Y + t * (curr_v->TCoords.Y - prev_v->TCoords.Y);
 
                 front.vertices.emplace_back(tv);
                 back.vertices.emplace_back(tv);
@@ -380,7 +387,7 @@ bool Polygon::isInsideBBox(const BoundingBox& bb) const
 {
     for(const auto& v : vertices)
     {
-        if(!bb.contains(v.position))
+        if(!bb.contains(v.Pos))
             return false;
     }
 
@@ -391,8 +398,8 @@ bool Polygon::isInsideBQuad(const BoundingBox& bb) const
 {
     for(const auto& v : vertices)
     {
-        if(v.position[0] < bb.min[0] || v.position[0] > bb.max[0] ||
-           v.position[1] < bb.min[1] || v.position[1] > bb.max[1])
+        if(v.Pos.X < bb.min.X || v.Pos.X > bb.max.X ||
+           v.Pos.Y < bb.min.Y || v.Pos.Y > bb.max.Y)
         {
             return false;
         }

@@ -114,7 +114,7 @@ struct Movement final
             z = MovementWalk::None;
     }
 
-    glm::float_t getDistanceX(glm::float_t dist) const noexcept
+    irr::f32 getDistanceX(irr::f32 dist) const noexcept
     {
         switch(x)
         {
@@ -127,7 +127,7 @@ struct Movement final
         }
     }
 
-    glm::float_t getDistanceY(glm::float_t dist) const noexcept
+    irr::f32 getDistanceY(irr::f32 dist) const noexcept
     {
         switch(y)
         {
@@ -140,7 +140,7 @@ struct Movement final
         }
     }
 
-    glm::float_t getDistanceZ(glm::float_t dist) const noexcept
+    irr::f32 getDistanceZ(irr::f32 dist) const noexcept
     {
         switch(z)
         {
@@ -153,7 +153,7 @@ struct Movement final
         }
     }
 
-    glm::vec3 getDistance(glm::float_t dist) const noexcept
+    irr::core::vector3df getDistance(irr::f32 dist) const noexcept
     {
         return{
             getDistanceX(dist),
@@ -165,7 +165,7 @@ struct Movement final
 
 struct CharacterCommand
 {
-    glm::vec3 rot = { 0, 0, 0 };
+    irr::core::vector3df rot{ 0, 0, 0 };
     Movement move;
 
     bool roll = false;
@@ -208,22 +208,22 @@ struct HeightInfo
     struct HitObject final
     {
         bool hasHit = false;
-        glm::vec3 hitNormal;
-        glm::vec3 hitPoint = { 0, 0, 0 };
+        irr::core::vector3df hitNormal;
+        irr::core::vector3df hitPoint{ 0, 0, 0 };
         const btCollisionObject* collisionObject = nullptr;
 
-        explicit HitObject(glm::float_t normalZComponent) noexcept
+        explicit HitObject(irr::f32 normalZComponent) noexcept
             : hitNormal{ 0,0,normalZComponent }
         {
         }
 
-        void assign(const btCollisionWorld::ClosestRayResultCallback& cb, const glm::vec3& from, const glm::vec3& to)
+        void assign(const btCollisionWorld::ClosestRayResultCallback& cb, const irr::core::vector3df& from, const irr::core::vector3df& to)
         {
             hasHit = cb.hasHit();
             if(hasHit)
             {
                 hitNormal = util::convert(cb.m_hitNormalWorld);
-                hitPoint = glm::mix(from, to, cb.m_closestHitFraction);
+                hitPoint.interpolate(from, to, cb.m_closestHitFraction);
                 collisionObject = cb.m_collisionObject;
             }
         }
@@ -232,7 +232,7 @@ struct HeightInfo
     HitObject floor{ 1 };
     HitObject ceiling{ -1 };
 
-    glm::float_t transition_level = 0;
+    irr::f32 transition_level = 0;
     bool water = false;
     QuicksandPosition quicksand = QuicksandPosition::None;
 };
@@ -311,20 +311,20 @@ struct ClimbInfo
     StepType height_info = StepType::Horizontal;
     bool can_hang = false;
 
-    glm::vec3 point;
-    glm::vec3 n;
-    glm::vec3 right;
-    glm::vec3 up;
-    glm::float_t floor_limit;
-    glm::float_t ceiling_limit;
-    glm::float_t next_z_space = 0;
+    irr::core::vector3df point;
+    irr::core::vector3df n;
+    irr::core::vector3df right;
+    irr::core::vector3df up;
+    irr::f32 floor_limit;
+    irr::f32 ceiling_limit;
+    irr::f32 next_z_space = 0;
 
     ClimbType wall_hit = ClimbType::None;
     bool edge_hit = false;
-    glm::vec3 edge_point;
-    glm::vec3 edge_normale;
-    glm::vec3 edge_tan_xy;
-    glm::float_t edge_z_ang;
+    irr::core::vector3df edge_point;
+    irr::core::vector3df edge_normale;
+    irr::core::vector3df edge_tan_xy;
+    irr::f32 edge_z_ang;
     btCollisionObject* edge_obj = nullptr;
 };
 
@@ -356,18 +356,18 @@ private:
     WeaponState m_currentWeaponState = WeaponState::Hide;
 
     int8_t m_camFollowCenter = 0;
-    glm::float_t m_minStepUpHeight = DEFAULT_MIN_STEP_UP_HEIGHT;
-    glm::float_t m_maxStepUpHeight = DEFAULT_MAX_STEP_UP_HEIGHT;
-    glm::float_t m_maxClimbHeight = DEFAULT_CLIMB_UP_HEIGHT;
-    glm::float_t m_fallDownHeight = DEFAULT_FALL_DOWN_HEIGHT;
-    glm::float_t m_criticalSlantZComponent = DEFAULT_CRITICAL_SLANT_Z_COMPONENT;
-    glm::float_t m_criticalWallComponent = DEFAULT_CRITICAL_WALL_COMPONENT;
+    irr::f32 m_minStepUpHeight = DEFAULT_MIN_STEP_UP_HEIGHT;
+    irr::f32 m_maxStepUpHeight = DEFAULT_MAX_STEP_UP_HEIGHT;
+    irr::f32 m_maxClimbHeight = DEFAULT_CLIMB_UP_HEIGHT;
+    irr::f32 m_fallDownHeight = DEFAULT_FALL_DOWN_HEIGHT;
+    irr::f32 m_criticalSlantZComponent = DEFAULT_CRITICAL_SLANT_Z_COMPONENT;
+    irr::f32 m_criticalWallComponent = DEFAULT_CRITICAL_WALL_COMPONENT;
 
-    glm::float_t m_climbR = DEFAULT_CHARACTER_CLIMB_R;       // climbing sensor radius
-    glm::float_t m_forwardSize = 48;                         // offset for climbing calculation
-    glm::float_t m_height = CHARACTER_BASE_HEIGHT;           // base character height
-    glm::float_t m_wadeDepth = DEFAULT_CHARACTER_WADE_DEPTH; // water depth that enable wade walk
-    glm::float_t m_swimDepth = DEFAULT_CHARACTER_SWIM_DEPTH; // depth offset for starting to swim
+    irr::f32 m_climbR = DEFAULT_CHARACTER_CLIMB_R;       // climbing sensor radius
+    irr::f32 m_forwardSize = 48;                         // offset for climbing calculation
+    irr::f32 m_height = CHARACTER_BASE_HEIGHT;           // base character height
+    irr::f32 m_wadeDepth = DEFAULT_CHARACTER_WADE_DEPTH; // water depth that enable wade walk
+    irr::f32 m_swimDepth = DEFAULT_CHARACTER_SWIM_DEPTH; // depth offset for starting to swim
 
     std::unique_ptr<btSphereShape> m_sphere{ new btSphereShape(CHARACTER_BASE_RADIUS) }; // needs to height calculation
     std::unique_ptr<btSphereShape> m_climbSensor;
@@ -451,7 +451,7 @@ public:
 
     void saveGame(std::ostream& f) const;
 
-    void setHeight(glm::float_t height) noexcept
+    void setHeight(irr::f32 height) noexcept
     {
         m_height = height;
     }
@@ -459,16 +459,16 @@ public:
     void applyControls(engine::EngineControlState& controlState, const Movement& moveLogic);
     void applyJoystickMove(float dx, float dy)
     {
-        m_command.rot[0] += glm::degrees(-2 * dx);
-        m_command.rot[1] += glm::degrees(-2 * dy);
+        m_command.rot.X += irr::core::degToRad(-2 * dx);
+        m_command.rot.Y += irr::core::degToRad(-2 * dy);
     }
 
-    int checkNextPenetration(const glm::vec3& move);
+    int checkNextPenetration(const irr::core::vector3df& move);
 
     void doWeaponFrame(util::Duration time);
 
-    void fixPenetrations(const glm::vec3* move) override;
-    glm::vec3 getRoomPos() const override;
+    void fixPenetrations(const irr::core::vector3df* move) override;
+    irr::core::vector3df getRoomPos() const override;
     void transferToRoom(Room* /*room*/) override
     {
     }
@@ -477,7 +477,7 @@ public:
     void frame(util::Duration time) override;
 
     void processSectorImpl() override;
-    void jump(glm::float_t vert, glm::float_t v_horizontal) override;
+    void jump(irr::f32 vert, irr::f32 v_horizontal) override;
     void kill() override
     {
         m_response.killed = true;
@@ -493,26 +493,26 @@ public:
     {
         return m_convexCb;
     }
-    glm::vec3 camPosForFollowing(glm::float_t dz) override;
+    irr::core::vector3df camPosForFollowing(irr::f32 dz) override;
 
     size_t addItem(ObjectId item_id, size_t count);    // returns items count after in the function's end
     size_t removeItem(ObjectId item_id, size_t count); // returns items count after in the function's end
     void removeAllItems();
     size_t getItemsCount(ObjectId item_id); // returns items count
 
-    void getHeightInfo(const glm::vec3& pos, HeightInfo* fc, glm::float_t v_offset = 0.0) const;
-    StepType checkNextStep(const glm::vec3& offset, HeightInfo* nfc) const;
+    void getHeightInfo(const irr::core::vector3df& pos, HeightInfo* fc, irr::f32 v_offset = 0.0) const;
+    StepType checkNextStep(const irr::core::vector3df& offset, HeightInfo* nfc) const;
     bool hasStopSlant(const HeightInfo& next_fc);
-    ClimbInfo checkClimbability(const glm::vec3& offset, HeightInfo* nfc, glm::float_t test_height);
+    ClimbInfo checkClimbability(const irr::core::vector3df& offset, HeightInfo* nfc, irr::f32 test_height);
     ClimbInfo checkWallsClimbability();
 
     void updateCurrentHeight();
     void updatePlatformPreStep() override;
     void updatePlatformPostStep();
 
-    void lean(glm::float_t max_lean);
-    glm::float_t inertiaLinear(glm::float_t max_speed, glm::float_t accel, bool command);
-    glm::float_t inertiaAngular(glm::float_t max_angle, glm::float_t accel, uint8_t axis);
+    void lean(irr::f32 max_lean);
+    irr::f32 inertiaLinear(irr::f32 max_speed, irr::f32 accel, bool command);
+    irr::f32 inertiaAngular(irr::f32 max_angle, irr::f32 accel, uint8_t axis);
 
     void moveOnFloor();
     int freeFalling();

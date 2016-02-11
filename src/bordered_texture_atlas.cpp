@@ -178,7 +178,7 @@ BorderedTextureAtlas::BorderedTextureAtlas(int border,
         for(const loader::ObjectTexture& t : object_textures)
             areaSum += t.x_size * t.y_size;
         for(const loader::SpriteTexture& t : sprite_textures)
-            areaSum += glm::abs((t.x1 - t.x0) * (t.y1 - t.y0));
+            areaSum += std::abs((t.x1 - t.x0) * (t.y1 - t.y0));
 
         m_resultPageWidth = std::min(max_texture_edge_length, static_cast<GLint>(NextPowerOf2(static_cast<GLuint>(std::sqrt(areaSum)*1.41))));
     }
@@ -376,12 +376,12 @@ void BorderedTextureAtlas::getCoordinates(size_t texture,
 
         size_t index = reverse ? poly.vertices.size() - i - 1 : i;
 
-        poly.vertices[index].tex_coord[0] = static_cast<glm::float_t>(x_coord) / static_cast<glm::float_t>(m_resultPageWidth);
-        poly.vertices[index].tex_coord[1] = static_cast<glm::float_t>(y_coord) / static_cast<glm::float_t>(m_resultPageHeights[canonical.new_page]);
+        poly.vertices[index].TCoords.X = static_cast<irr::f32>(x_coord) / static_cast<irr::f32>(m_resultPageWidth);
+        poly.vertices[index].TCoords.Y = static_cast<irr::f32>(y_coord) / static_cast<irr::f32>(m_resultPageHeights[canonical.new_page]);
     }
 }
 
-void BorderedTextureAtlas::getSpriteCoordinates(size_t sprite_texture, size_t &outPage, glm::vec2* coordinates) const
+void BorderedTextureAtlas::getSpriteCoordinates(size_t sprite_texture, size_t &outPage, irr::core::vector2df* coordinates) const
 {
     BOOST_ASSERT(sprite_texture < m_canonicalTexturesForSpriteTextures.size());
 
@@ -410,8 +410,8 @@ void BorderedTextureAtlas::getSpriteCoordinates(size_t sprite_texture, size_t &o
 
     for(int i = 0; i < 4; i++)
     {
-        coordinates[i][0] = static_cast<glm::float_t>(pixel_coordinates[i * 2 + 0]) / static_cast<glm::float_t>(m_resultPageWidth);
-        coordinates[i][1] = static_cast<glm::float_t>(pixel_coordinates[i * 2 + 1]) / static_cast<glm::float_t>(m_resultPageHeights[canonical.new_page]);
+        coordinates[i].X = static_cast<irr::f32>(pixel_coordinates[i * 2 + 0]) / static_cast<irr::f32>(m_resultPageWidth);
+        coordinates[i].Y = static_cast<irr::f32>(pixel_coordinates[i * 2 + 1]) / static_cast<irr::f32>(m_resultPageHeights[canonical.new_page]);
     }
 }
 

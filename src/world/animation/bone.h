@@ -34,10 +34,10 @@ struct Bone
     std::shared_ptr<core::BaseMesh> mesh_skin;
     std::shared_ptr<core::BaseMesh> mesh_slot; //!< Optional additional mesh
 
-    glm::vec3 position{ 0 };
+    irr::core::vector3df position{ 0, 0, 0 };
 
-    glm::mat4 localTransform{ 1 };
-    glm::mat4 globalTransform{ 1 };
+    irr::core::matrix4 localTransform;
+    irr::core::matrix4 globalTransform;
 
     uint32_t body_part = 0; //!< flag: BODY, LEFT_LEG_1, RIGHT_HAND_2, HEAD...
 

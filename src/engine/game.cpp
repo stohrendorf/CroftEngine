@@ -22,8 +22,6 @@
 #include "world/room.h"
 #include "world/world.h"
 
-#include <glm/gtc/random.hpp>
-
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptors.hpp>
 
@@ -364,7 +362,7 @@ void Game_ApplyControls(Engine& engine)
 
     // APPLY CONTROLS
 
-    engine.m_camera.rotate(lookLogic.getDistance(glm::radians(2.2f) * engine.getFrameTimeSecs()));
+    engine.m_camera.rotate(lookLogic.getDistance(irr::core::degToRad(2.2f) * engine.getFrameTimeSecs()));
 
     // FIXME: Duplicate code - do we need cam control with no world??
     if(!engine.renderer.world())
@@ -379,7 +377,7 @@ void Game_ApplyControls(Engine& engine)
         }
 
         engine.renderer.camera()->applyRotation();
-        glm::float_t dist = engine.m_controlState.m_stateWalk
+        irr::f32 dist = engine.m_controlState.m_stateWalk
             ? engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs() * 0.3f
             : engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs();
         engine.renderer.camera()->move(moveLogic.getDistance(dist));
@@ -398,7 +396,7 @@ void Game_ApplyControls(Engine& engine)
 
     if(engine.m_controlState.m_freeLook || !engine.m_world.m_character)
     {
-        glm::float_t dist = engine.m_controlState.m_stateWalk
+        irr::f32 dist = engine.m_controlState.m_stateWalk
             ? engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs() * 0.3f
             : engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs();
         engine.renderer.camera()->applyRotation();
@@ -407,7 +405,7 @@ void Game_ApplyControls(Engine& engine)
     }
     else if(engine.m_controlState.m_noClip)
     {
-        glm::float_t dist = engine.m_controlState.m_stateWalk
+        irr::f32 dist = engine.m_controlState.m_stateWalk
             ? engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs() * 0.3f
             : engine.m_controlState.m_freeLookSpeed * engine.getFrameTimeSecs();
         engine.renderer.camera()->applyRotation();
@@ -436,7 +434,7 @@ bool Cam_HasHit(Engine& engine, std::shared_ptr<BtEngineClosestConvexResultCallb
     return cb->hasHit();
 }
 
-void Cam_FollowEntity(Engine& engine, world::Camera *cam, glm::float_t dx, glm::float_t dz)
+void Cam_FollowEntity(Engine& engine, world::Camera *cam, irr::f32 dx, irr::f32 dz)
 {
     btTransform cameraFrom = btTransform::getIdentity();
     btTransform cameraTo = btTransform::getIdentity();
@@ -448,8 +446,8 @@ void Cam_FollowEntity(Engine& engine, world::Camera *cam, glm::float_t dx, glm::
     ///@INFO Basic camera override, completely placeholder until a system classic-like is created
     if(!engine.m_controlState.m_mouseLook)//If mouse look is off
     {
-        glm::float_t currentAngle = engine.m_camera.getAngles()[0];  //Current is the current cam angle
-        glm::float_t targetAngle = glm::radians(engine.m_world.m_character->m_angles[0]); //Target is the target angle which is the entity's angle itself
+        irr::f32 currentAngle = engine.m_camera.getAngles()[0];  //Current is the current cam angle
+        irr::f32 targetAngle = glm::radians(engine.m_world.m_character->m_angles[0]); //Target is the target angle which is the entity's angle itself
 
         ///@FIXME
         //If Lara is in a specific state we want to rotate -75 deg or +75 deg depending on camera collision
@@ -551,10 +549,10 @@ void Cam_FollowEntity(Engine& engine, world::Camera *cam, glm::float_t dx, glm::
         cameraFrom.setOrigin(util::convert(cam_pos));
 
         {
-            glm::float_t cos_ay = glm::cos(engine.m_camera.getAngles()[1]);
-            glm::float_t cam_dx = glm::sin(engine.m_camera.getAngles()[0]) * cos_ay;
-            glm::float_t cam_dy = -glm::cos(engine.m_camera.getAngles()[0]) * cos_ay;
-            glm::float_t cam_dz = -glm::sin(engine.m_camera.getAngles()[1]);
+            irr::f32 cos_ay = std::cos(engine.m_camera.getAngles()[1]);
+            irr::f32 cam_dx = std::sin(engine.m_camera.getAngles()[0]) * cos_ay;
+            irr::f32 cam_dy = -std::cos(engine.m_camera.getAngles()[0]) * cos_ay;
+            irr::f32 cam_dz = -std::sin(engine.m_camera.getAngles()[1]);
             cam_pos[0] += cam_dx * engine.m_controlState.m_camDistance;
             cam_pos[1] += cam_dy * engine.m_controlState.m_camDistance;
             cam_pos[2] += cam_dz * engine.m_controlState.m_camDistance;

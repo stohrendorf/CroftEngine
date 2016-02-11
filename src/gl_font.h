@@ -7,12 +7,12 @@
  * Created on January 16, 2015, 10:46 PM
  */
 
-#include <glm/glm.hpp>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 #include <GL/glew.h>
+
+#include <irrlicht.h>
 
 #include <cstdint>
 #include <memory>
@@ -47,7 +47,7 @@ struct FontTexture
     std::vector<GLuint>      gl_tex_indexes;
     GLint                    gl_max_tex_width;
     GLint                    gl_tex_width;
-    glm::vec4                gl_font_color;
+    irr::video::SColor       gl_font_color;
 
     ~FontTexture()
     {
@@ -66,7 +66,7 @@ void glf_reface(FontTexture* glf, const char *file_name, uint16_t font_size);
 float    glf_get_string_len(FontTexture* glf, const char *text, int n);
 float    glf_get_ascender(FontTexture* glf);
 uint16_t glf_get_font_size(FontTexture* glf);
-void     glf_get_string_bb(FontTexture* glf, const char *text, int n, glm::vec2& topLeft, glm::vec2& bottomRight);
+void     glf_get_string_bb(FontTexture* glf, const char *text, int n, irr::core::vector2df& topLeft, irr::core::vector2df& bottomRight);
 
 void     glf_render_str(FontTexture* glf, GLfloat x, GLfloat y, const char *text);     // UTF-8
 

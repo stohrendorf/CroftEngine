@@ -6,7 +6,6 @@
 #include "world/camera.h"
 #include "world/room.h"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <boost/log/trivial.hpp>
 
 namespace audio
@@ -127,18 +126,18 @@ FxManager::FxManager(Engine* engine)
 void FxManager::updateListener(world::Camera& cam)
 {
     ALfloat v[6] = {
-        cam.getViewDir()[0], cam.getViewDir()[1], cam.getViewDir()[2],
-        cam.getUpDir()[0], cam.getUpDir()[1], cam.getUpDir()[2]
+        cam.getViewDir().X, cam.getViewDir().Y, cam.getViewDir().Z,
+        cam.getUpDir().X, cam.getUpDir().Y, cam.getUpDir().Z
     };
 
     alListenerfv(AL_ORIENTATION, v);
     DEBUG_CHECK_AL_ERROR();
 
-    alListenerfv(AL_POSITION, glm::value_ptr(cam.getPosition()));
+    alListenerfv(AL_POSITION, &cam.getPosition().X);
     DEBUG_CHECK_AL_ERROR();
 
-    glm::vec3 v2 = cam.getMovement() / m_engine->getEngine()->getFrameTimeSecs();
-    alListenerfv(AL_VELOCITY, glm::value_ptr(v2));
+    irr::core::vector3df v2 = cam.getMovement() / m_engine->getEngine()->getFrameTimeSecs();
+    alListenerfv(AL_VELOCITY, &v2.X);
     DEBUG_CHECK_AL_ERROR();
     cam.resetMovement();
 

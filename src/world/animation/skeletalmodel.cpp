@@ -35,18 +35,18 @@ void SkeletalModel::fillSkinnedBoneMap()
         }
 
         bone.mesh_skin->m_matrixIndices.clear();
-        for(core::Vertex& v : bone.mesh_skin->m_vertices)
+        for(irr::video::S3DVertex& v : bone.mesh_skin->m_vertices)
         {
-            if(const core::Vertex* rv = bone.mesh_base->findVertex(v.position))
+            if(const core::Vertex* rv = bone.mesh_base->findVertex(v.Pos))
             {
                 bone.mesh_skin->m_matrixIndices.emplace_back(0, 0);
-                v.position = rv->position;
-                v.normal = rv->normal;
+                v.Pos = rv->position;
+                v.Normal = rv->normal;
                 continue;
             }
 
             bone.mesh_skin->m_matrixIndices.emplace_back(0, 1);
-            glm::vec3 tv = v.position + bone.position;
+            auto tv = v.Pos + bone.position;
             for(const SkinnedBone& prevBone : m_skinnedBones)
             {
                 const core::Vertex* rv = prevBone.mesh_base->findVertex(tv);
@@ -54,8 +54,8 @@ void SkeletalModel::fillSkinnedBoneMap()
                     continue;
 
                 bone.mesh_skin->m_matrixIndices.emplace_back(1, 1);
-                v.position = rv->position - bone.position;
-                v.normal = rv->normal;
+                v.Pos = rv->position - bone.position;
+                v.Normal = rv->normal;
                 break;
             }
         }
@@ -439,10 +439,10 @@ void SkeletalModel::loadAnimations(const loader::Level& level, size_t moveable)
                     l++;
                     temp1 = level.m_poseData[poseDataOffset + l];
                     l++;
-                    glm::vec3 rot;
-                    rot[0] = static_cast<float>((temp1 & 0x3ff0) >> 4);
-                    rot[2] = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
-                    rot[1] = static_cast<float>(temp2 & 0x03ff);
+                    irr::core::vector3df rot;
+                    rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
+                    rot.Z = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+                    rot.Y = static_cast<irr::f32>(temp2 & 0x03ff);
                     rot *= 360.0 / 1024.0;
                     bonePose->rotation = util::trRotationToQuat(rot);
                 }
@@ -478,10 +478,10 @@ void SkeletalModel::loadAnimations(const loader::Level& level, size_t moveable)
                         default:
                         {        // all three
                             temp2 = level.m_poseData[poseDataOffset + l];
-                            glm::vec3 rot;
-                            rot[0] = static_cast<float>((temp1 & 0x3ff0) >> 4);
-                            rot[2] = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
-                            rot[1] = static_cast<float>(temp2 & 0x03ff);
+                            irr::core::vector3df rot;
+                            rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
+                            rot.Z = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+                            rot.Y = static_cast<irr::f32>(temp2 & 0x03ff);
                             rot *= 360.0 / 1024.0;
                             bonePose->rotation = util::trRotationToQuat(rot);
                             l++;

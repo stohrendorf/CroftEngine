@@ -10,8 +10,6 @@
 #include "render/render.h"
 #include "script/script.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace world
 {
 bool Hair::create(HairSetup *setup, const Entity& parent_entity)
@@ -43,7 +41,7 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
 
     // Setup initial position / angles.
 
-    glm::mat4 owner_body_transform = parent_entity.m_transform * parent_entity.m_skeleton.getBones()[m_ownerBody].globalTransform;
+    irr::core::matrix4 owner_body_transform = parent_entity.m_transform * parent_entity.m_skeleton.getBones()[m_ownerBody].globalTransform;
     // Number of elements (bodies) is equal to number of hair meshes.
 
     m_elements.clear();
@@ -59,8 +57,8 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
     // Weight step is needed to determine the weight of each hair body.
     // It is derived from root body weight and tail body weight.
 
-    glm::float_t weight_step = (setup->m_rootWeight - setup->m_tailWeight) / m_elements.size();
-    glm::float_t current_weight = setup->m_rootWeight;
+    irr::f32 weight_step = (setup->m_rootWeight - setup->m_tailWeight) / m_elements.size();
+    irr::f32 current_weight = setup->m_rootWeight;
 
     for(size_t i = 0; i < m_elements.size(); i++)
     {
@@ -84,7 +82,7 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
         // Initialize motion state for body.
 
         btTransform startTransform;
-        startTransform.setFromOpenGLMatrix(glm::value_ptr(owner_body_transform));
+        startTransform.setFromOpenGLMatrix(owner_body_transform.pointer());
         btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
 
         // Make rigid body.
@@ -131,22 +129,22 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
 
     for(size_t i = 0; i < m_elements.size(); i++)
     {
-        glm::float_t body_length;
+        irr::f32 body_length;
         btTransform localA; localA.setIdentity();
         btTransform localB; localB.setIdentity();
 
-        glm::float_t joint_x = 0.0;
-        glm::float_t joint_y = 0.0;
+        irr::f32 joint_x = 0.0;
+        irr::f32 joint_y = 0.0;
 
         std::shared_ptr<btRigidBody> prev_body;
         if(i == 0)  // First joint group
         {
             // Adjust pivot point A to parent body.
 
-            localA.setOrigin(util::convert(setup->m_headOffset + glm::vec3(joint_x, 0.0, joint_y)));
-            localA.getBasis().setEulerZYX(setup->m_rootAngle[0], setup->m_rootAngle[1], setup->m_rootAngle[2]);
+            localA.setOrigin(util::convert(setup->m_headOffset + irr::core::vector3df(joint_x, 0.0, joint_y)));
+            localA.getBasis().setEulerZYX(setup->m_rootAngle.X, setup->m_rootAngle.Y, setup->m_rootAngle.Z);
             // Stealing this calculation because I need it for drawing
-            localA.getOpenGLMatrix(glm::value_ptr(m_ownerBodyHairRoot));
+            localA.getOpenGLMatrix(m_ownerBodyHairRoot.pointer());
 
             localB.setOrigin(btVector3(joint_x, 0.0, joint_y));
             localB.getBasis().setEulerZYX(0, -SIMD_HALF_PI, 0);
@@ -157,7 +155,7 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
         {
             // Adjust pivot point A to previous mesh's length, considering mesh overlap multiplier.
 
-            body_length = glm::abs(m_elements[i - 1].mesh->m_boundingBox.max[1] - m_elements[i - 1].mesh->m_boundingBox.min[1]) * setup->m_jointOverlap;
+            body_length = std::abs(m_elements[i - 1].mesh->m_boundingBox.max.Y - m_elements[i - 1].mesh->m_boundingBox.min.Y) * setup->m_jointOverlap;
 
             localA.setOrigin(btVector3(joint_x, body_length, joint_y));
             localA.getBasis().setEulerZYX(0, SIMD_HALF_PI, 0);
@@ -207,7 +205,7 @@ bool Hair::create(HairSetup *setup, const Entity& parent_entity)
             m_joints[curr_joint]->setAngularUpperLimit(btVector3(SIMD_HALF_PI*0.5, 0., SIMD_HALF_PI*0.5));
         }
 
-        m_joints[curr_joint]->setDbgDrawSize(glm::float_t(5.0f));    // Draw constraint axes.
+        m_joints[curr_joint]->setDbgDrawSize(5.0f);    // Draw constraint axes.
 
         // Add constraint to the world.
 
@@ -304,7 +302,7 @@ void Hair::createHairMesh(const animation::SkeletalModel& model)
         {
             m_mesh->m_matrixIndices.emplace_back();
             BOOST_ASSERT(m_mesh->m_matrixIndices.size() > verticesStart + j);
-            if(original->m_vertices[j].position[1] <= 0)
+            if(original->m_vertices[j].Pos.Y <= 0)
             {
                 m_mesh->m_matrixIndices[verticesStart + j].i = i;
                 m_mesh->m_matrixIndices[verticesStart + j].j = i + 1;
@@ -316,14 +314,14 @@ void Hair::createHairMesh(const animation::SkeletalModel& model)
             }
 
             // Now move all the hair vertices
-            m_mesh->m_vertices[verticesStart + j].position += m_elements[i].position;
+            m_mesh->m_vertices[verticesStart + j].Pos += m_elements[i].position;
 
             // If the normal isn't fully in y direction, cancel its y component
             // This is perhaps a bit dubious.
-            if(m_mesh->m_vertices[verticesStart + j].normal[0] != 0 || m_mesh->m_vertices[verticesStart + j].normal[2] != 0)
+            if(m_mesh->m_vertices[verticesStart + j].Normal.X != 0 || m_mesh->m_vertices[verticesStart + j].Normal.Z != 0)
             {
-                m_mesh->m_vertices[verticesStart + j].normal[1] = 0;
-                m_mesh->m_vertices[verticesStart + j].normal = glm::normalize(m_mesh->m_vertices[verticesStart + j].normal);
+                m_mesh->m_vertices[verticesStart + j].Normal.X = 0;
+                m_mesh->m_vertices[verticesStart + j].Normal.normalize();
             }
         }
     }
@@ -339,16 +337,16 @@ void HairSetup::getSetup(world::World& world, int hair_entry_index)
 
     m_model = res["model"].to<animation::ModelId>();
     m_linkBody = res["link_body"].to<animation::BoneId>();
-    m_rootWeight = res["props"]["root_weight"].to<glm::float_t>();
-    m_tailWeight = res["props"]["tail_weight"].to<glm::float_t>();
-    m_hairInertia = res["props"]["hair_inertia"].to<glm::float_t>();
-    m_hairFriction = res["props"]["hair_friction"].to<glm::float_t>();
-    m_hairRestitution = res["props"]["hair_bouncing"].to<glm::float_t>();
-    m_jointOverlap = res["props"]["joint_overlap"].to<glm::float_t>();
-    m_jointCfm = res["props"]["joint_cfm"].to<glm::float_t>();
-    m_jointErp = res["props"]["joint_erp"].to<glm::float_t>();
-    m_hairDamping[0] = res["props"]["hair_damping"][1].to<glm::float_t>();
-    m_hairDamping[1] = res["props"]["hair_damping"][2].to<glm::float_t>();
+    m_rootWeight = res["props"]["root_weight"].to<irr::f32>();
+    m_tailWeight = res["props"]["tail_weight"].to<irr::f32>();
+    m_hairInertia = res["props"]["hair_inertia"].to<irr::f32>();
+    m_hairFriction = res["props"]["hair_friction"].to<irr::f32>();
+    m_hairRestitution = res["props"]["hair_bouncing"].to<irr::f32>();
+    m_jointOverlap = res["props"]["joint_overlap"].to<irr::f32>();
+    m_jointCfm = res["props"]["joint_cfm"].to<irr::f32>();
+    m_jointErp = res["props"]["joint_erp"].to<irr::f32>();
+    m_hairDamping[0] = res["props"]["hair_damping"][1].to<irr::f32>();
+    m_hairDamping[1] = res["props"]["hair_damping"][2].to<irr::f32>();
     m_headOffset = { res["offset"][1].toFloat(), res["offset"][2].toFloat(), res["offset"][3].toFloat() };
     m_rootAngle = { res["root_angle"][1].toFloat(), res["root_angle"][2].toFloat(), res["root_angle"][3].toFloat() };
 }

@@ -16,12 +16,12 @@ struct StaticMesh : public Object
     bool was_rendered = false;
     bool was_rendered_lines = false;
     bool hide = true;
-    glm::vec4 tint = { 0,0,0,0 };
+    irr::video::SColorf tint{ 0,0,0,0 };
 
     core::BoundingBox visibleBoundingBox;
     core::BoundingBox collisionBoundingBox;
 
-    glm::mat4 transform{ 1.0f };
+    irr::core::matrix4 transform;
     core::OrientedBoundingBox obb;
 
     std::shared_ptr<core::BaseMesh> mesh = nullptr;

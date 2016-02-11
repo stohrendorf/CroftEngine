@@ -24,9 +24,9 @@ void DynamicBSP::addPolygon(std::unique_ptr<BSPNode>& root, const BSPFaceRef& fa
     size_t positive = 0;
     size_t negative = 0;
     size_t in_plane = 0;
-    for(const world::core::Vertex& v : transformed.vertices)
+    for(const irr::video::S3DVertex& v : transformed.vertices)
     {
-        const auto dist = root->plane.distance(v.position);
+        const auto dist = root->plane.distance(v.Pos);
         if(dist > world::core::SplitEpsilon)
             positive++;
         else if(dist < -world::core::SplitEpsilon)
@@ -45,7 +45,7 @@ void DynamicBSP::addPolygon(std::unique_ptr<BSPNode>& root, const BSPFaceRef& fa
     }
     else //((positive == 0) && (negative == 0))             // SPLIT_IN_PLANE
     {
-        if(glm::dot(transformed.plane.normal, root->plane.normal) > 0.9)
+        if(transformed.plane.normal.dotProduct(root->plane.normal) > 0.9)
         {
             root->polygons_front.insert(root->polygons_front.end(), face);
         }
@@ -56,7 +56,7 @@ void DynamicBSP::addPolygon(std::unique_ptr<BSPNode>& root, const BSPFaceRef& fa
     }
 }
 
-void DynamicBSP::addNewPolygonList(const std::vector<TransparentPolygonReference>& p, const glm::mat4& transform, const world::Camera& cam)
+void DynamicBSP::addNewPolygonList(const std::vector<TransparentPolygonReference>& p, const irr::core::matrix4& transform, const world::Camera& cam)
 {
     for(const render::TransparentPolygonReference& pp : p)
     {

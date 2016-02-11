@@ -3,7 +3,7 @@
 #include "gui/common.h"
 #include "util/helpers.h"
 
-#include <glm/glm.hpp>
+#include <irrlicht.h>
 
 namespace engine
 {
@@ -45,13 +45,13 @@ class ProgressBar
 public:
     explicit ProgressBar(engine::Engine* engine);  // Bar constructor.
 
-    void show(glm::float_t value);    // Main show bar procedure.
+    void show(irr::f32 value);    // Main show bar procedure.
     void resize();
 
     void setColor(BarColorType colType, uint8_t R, uint8_t G, uint8_t B, uint8_t alpha);
-    void setSize(glm::float_t width, glm::float_t height, glm::float_t borderSize);
-    void setPosition(HorizontalAnchor anchor_X, glm::float_t offset_X, VerticalAnchor anchor_Y, glm::float_t offset_Y);
-    void setValues(glm::float_t maxValue, glm::float_t warnValue);
+    void setSize(irr::f32 width, irr::f32 height, irr::f32 borderSize);
+    void setPosition(HorizontalAnchor anchor_X, irr::f32 offset_X, VerticalAnchor anchor_Y, irr::f32 offset_Y);
+    void setValues(irr::f32 maxValue, irr::f32 warnValue);
     void setBlink(util::Duration interval);
     void setExtrude(bool enabled, uint8_t depth);
     void setAutoshow(bool enabled, util::Duration delay, bool fade, util::Duration fadeDelay);
@@ -84,30 +84,30 @@ private:
     float         m_absHeight;           // Absolute height.
     float         m_absBorderSize;       // Absolute border size (horizontal).
 
-    glm::vec4 m_baseMainColor;    // Color at the min. of bar.
-    glm::float_t m_baseMainColorAlpha;
-    glm::vec4 m_baseFadeColor;    // Color at the max. of bar.
-    glm::float_t m_baseFadeColorAlpha;
-    glm::vec4 m_altMainColor;     // Alternate main color.
-    glm::float_t m_altMainColorAlpha;
-    glm::vec4 m_altFadeColor;     // Alternate fade color.
-    glm::float_t m_altFadeColorAlpha;
-    glm::vec4 m_backMainColor;    // Background main color.
-    glm::float_t m_backMainColorAlpha;
-    glm::vec4 m_backFadeColor;    // Background fade color.
-    glm::float_t m_backFadeColorAlpha;
-    glm::vec4 m_borderMainColor;  // Border main color.
-    glm::float_t m_borderMainColorAlpha;
-    glm::vec4 m_borderFadeColor;  // Border fade color.
-    glm::float_t m_borderFadeColorAlpha;
+    irr::video::SColor m_baseMainColor;    // Color at the min. of bar.
+    irr::u32 m_baseMainColorAlpha;
+    irr::video::SColor m_baseFadeColor;    // Color at the max. of bar.
+    irr::u32 m_baseFadeColorAlpha;
+    irr::video::SColor m_altMainColor;     // Alternate main color.
+    irr::u32 m_altMainColorAlpha;
+    irr::video::SColor m_altFadeColor;     // Alternate fade color.
+    irr::u32 m_altFadeColorAlpha;
+    irr::video::SColor m_backMainColor;    // Background main color.
+    irr::u32 m_backMainColorAlpha;
+    irr::video::SColor m_backFadeColor;    // Background fade color.
+    irr::u32 m_backFadeColorAlpha;
+    irr::video::SColor m_borderMainColor;  // Border main color.
+    irr::u32 m_borderMainColorAlpha;
+    irr::video::SColor m_borderFadeColor;  // Border fade color.
+    irr::u32 m_borderFadeColorAlpha;
 
     bool m_extrude;             // Extrude effect.
-    glm::vec4 m_extrudeDepth;     // Extrude effect depth.
-    glm::float_t m_extrudeDepthAlpha;
+    irr::video::SColor m_extrudeDepth;     // Extrude effect depth.
+    irr::u32 m_extrudeDepthAlpha;
 
-    glm::float_t m_maxValue;            // Maximum possible value.
-    glm::float_t m_warnValue;           // Warning value, at which bar begins to blink.
-    glm::float_t m_lastValue;           // Last value back-up for autoshow on change event.
+    irr::f32 m_maxValue;            // Maximum possible value.
+    irr::f32 m_warnValue;           // Warning value, at which bar begins to blink.
+    irr::f32 m_lastValue;           // Last value back-up for autoshow on change event.
 
     bool m_blink;               // Warning state (blink) flag.
     util::Duration m_blinkInterval;       // Blink interval (speed).
@@ -120,8 +120,8 @@ private:
     util::Duration m_autoShowFadeDelay;   // Fade length.
     util::Duration m_autoShowFadeLength;     // Fade progress counter.
 
-    glm::float_t m_rangeUnit;           // Range unit used to set base bar size.
-    glm::float_t m_baseSize;            // Base bar size.
-    glm::float_t m_baseRatio;           // Max. / actual value ratio.
+    irr::f32 m_rangeUnit;           // Range unit used to set base bar size.
+    irr::f32 m_baseSize;            // Base bar size.
+    irr::f32 m_baseRatio;           // Max. / actual value ratio.
 };
 } // namespace gui

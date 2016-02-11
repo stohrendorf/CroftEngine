@@ -2,8 +2,6 @@
 
 #include "world/core/boundingbox.h"
 
-#include <glm/gtc/quaternion.hpp>
-
 #include <vector>
 
 namespace loader
@@ -22,8 +20,8 @@ namespace animation
 */
 struct BonePose
 {
-    glm::vec3 position;
-    glm::quat rotation;
+    irr::core::vector3df position;
+    irr::core::quaternion rotation;
 };
 
 /**
@@ -32,7 +30,7 @@ struct BonePose
 struct SkeletonPose
 {
     std::vector<BonePose> bonePoses;
-    glm::vec3 position = { 0,0,0 };
+    irr::core::vector3df position = { 0,0,0 };
     core::BoundingBox boundingBox;
 
     void load(const loader::Level& level, size_t poseDataOffset);

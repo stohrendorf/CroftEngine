@@ -7,9 +7,6 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_events.h>
 
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #if defined(__MACOSX__)
 #include "mac/FindConfigFile.h"
 #endif
@@ -49,7 +46,7 @@ namespace engine
 {
 namespace
 {
-std::vector<glm::float_t> frame_vertex_buffer;
+std::vector<irr::f32> frame_vertex_buffer;
 size_t frame_vertex_buffer_size_left = 0;
 }
 
@@ -283,7 +280,7 @@ void Engine::resize(int nominalW, int nominalH, int pixelsW, int pixelsH)
 
     m_gui.resize();
 
-    m_camera.setFovAspect(m_screenInfo.fov, static_cast<glm::float_t>(nominalW) / static_cast<glm::float_t>(nominalH));
+    m_camera.setFovAspect(m_screenInfo.fov, static_cast<irr::f32>(nominalW) / static_cast<irr::f32>(nominalH));
     m_camera.apply();
 
     glViewport(0, 0, pixelsW, pixelsH);
@@ -307,7 +304,7 @@ void Engine::showDebugInfo()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glLineWidth(2.0);
-    glVertexPointer(3, GL_FLOAT, 0, glm::value_ptr(m_castRay[0]));
+    glVertexPointer(3, GL_FLOAT, 0, &m_castRay[0].X);
     glColorPointer(3, GL_FLOAT, 0, color_array);
     glDrawArrays(GL_LINES, 0, 2);
 
@@ -498,7 +495,7 @@ void Engine::registerInputHandlers()
     });
 
     m_inputHandler.registerJoystickLookHandler([self](float dx, float dy){
-        glm::vec3 rotation(dx, dy, 0);
+        irr::core::vector3df rotation(dx, dy, 0);
         rotation *= -world::CameraRotationSpeed * self->getFrameTimeSecs();
         self->m_camera.rotate(rotation);
     });
@@ -509,7 +506,7 @@ void Engine::registerInputHandlers()
         self->m_controlState.m_moveBackward = dy > 0;
 
         self->m_world.m_character->applyJoystickMove(self->getFrameTimeSecs() * dx, self->getFrameTimeSecs() * dy);
-        glm::vec3 rotation(dx, dy, 0);
+        irr::core::vector3df rotation(dx, dy, 0);
         rotation *= -world::CameraRotationSpeed * self->getFrameTimeSecs();
         self->m_camera.rotate(rotation);
     });

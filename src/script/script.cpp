@@ -27,7 +27,6 @@
 #include "world/world.h"
 
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -288,12 +287,12 @@ bool lua_DropEntity(engine::Engine& engine, world::ObjectId id, float time, lua:
         return false;
     }
 
-    glm::vec3 move = ent->applyGravity(util::MilliSeconds(static_cast<int>(time * 1000)));
+    irr::core::vector3df move = ent->applyGravity(util::MilliSeconds(static_cast<int>(time * 1000)));
 
     engine::BtEngineClosestRayResultCallback cb(ent.get());
-    glm::vec3 from = glm::vec3(ent->m_transform * glm::vec4(ent->m_skeleton.getBoundingBox().getCenter(), 1.0f));
-    from[2] = ent->m_transform[3][2];
-    glm::vec3 to = from + move;
+    irr::core::vector3df from = ent->m_transform * ent->m_skeleton.getBoundingBox().getCenter();
+    from.Z = ent->m_transform(2,3);
+    irr::core::vector3df to = from + move;
     //to[2] -= (ent->m_bf.bb_max[2] - ent->m_bf.bb_min[2]);
     engine.m_bullet.dynamicsWorld->rayTest(util::convert(from), util::convert(to), cb);
 
@@ -303,8 +302,8 @@ bool lua_DropEntity(engine::Engine& engine, world::ObjectId id, float time, lua:
 
         if(!only_room.is<lua::Boolean>() || !only_room.to<bool>() || (only_room.to<bool>() && dynamic_cast<world::Room*>(object)))
         {
-            move = glm::mix(from, to, cb.m_closestHitFraction);
-            ent->m_transform[3][2] = move[2];
+            move.interpolate(from, to, cb.m_closestHitFraction);
+            ent->m_transform(2,3) = move.Z;
 
             ent->updateRigidBody(true);
             return true;
@@ -317,7 +316,7 @@ bool lua_DropEntity(engine::Engine& engine, world::ObjectId id, float time, lua:
     }
     else
     {
-        ent->m_transform[3] += glm::vec4(move, 0);
+        ent->m_transform.setTranslation(move);
         ent->updateRigidBody(true);
         return false;
     }
@@ -343,9 +342,9 @@ lua::Any lua_GetEntityActivationOffset(engine::Engine& engine, world::ObjectId i
         return{};
 
     return std::make_tuple(
-        ent->m_activationOffset[0],
-        ent->m_activationOffset[1],
-        ent->m_activationOffset[2],
+        ent->m_activationOffset.X,
+        ent->m_activationOffset.Y,
+        ent->m_activationOffset.Z,
         ent->m_activationRadius);
 }
 
@@ -360,7 +359,7 @@ void lua_SetEntityActivationOffset(engine::Engine& engine, world::ObjectId id, f
 
     ent->m_activationOffset = { x,y,z };
     if(r.is<lua::Number>())
-        ent->m_activationRadius = r.to<glm::float_t>();
+        ent->m_activationRadius = r.to<irr::f32>();
 }
 
 lua::Any lua_GetCharacterParam(engine::Engine& engine, world::ObjectId id, int parameter)
@@ -680,7 +679,7 @@ void lua_PrintItems(engine::Engine& engine, world::ObjectId entity_id)
 
 lua::Any lua_SpawnEntity(engine::Engine& engine, world::animation::ModelId model_id, float x, float y, float z, float ax, float ay, float az, world::ObjectId room_id, lua::Value ov_id)
 {
-    glm::vec3 position{ x,y,z }, ang{ ax,ay,az };
+    irr::core::vector3df position{ x,y,z }, ang{ ax,ay,az };
 
     boost::optional<world::ObjectId> object;
     if(ov_id.is<world::ObjectId>())
@@ -722,9 +721,9 @@ lua::Any lua_GetEntityVector(engine::Engine& engine, world::ObjectId id1, world:
     }
 
     return std::make_tuple(
-        e2->m_transform[3][0] - e1->m_transform[3][0],
-        e2->m_transform[3][1] - e1->m_transform[3][1],
-        e2->m_transform[3][2] - e1->m_transform[3][2]
+        e2->m_transform(0,3) - e1->m_transform(0,3),
+        e2->m_transform(1,3) - e1->m_transform(1,3),
+        e2->m_transform(2,3) - e1->m_transform(2,3)
         );
 }
 
@@ -796,12 +795,12 @@ lua::Any lua_GetEntityPosition(engine::Engine& engine, world::ObjectId id)
 
     return std::make_tuple
         (
-            ent->m_transform[3][0],
-            ent->m_transform[3][1],
-            ent->m_transform[3][2],
-            ent->m_angles[0],
-            ent->m_angles[1],
-            ent->m_angles[2],
+            ent->m_transform.getTranslation().X,
+            ent->m_transform.getTranslation().Y,
+            ent->m_transform.getTranslation().Z,
+            ent->m_angles.X,
+            ent->m_angles.Y,
+            ent->m_angles.Z,
             ent->getRoom()->getId()
             );
 }
@@ -817,9 +816,9 @@ lua::Any lua_GetEntityAngles(engine::Engine& engine, world::ObjectId id)
     }
 
     return std::make_tuple(
-        ent->m_angles[0],
-        ent->m_angles[1],
-        ent->m_angles[2]
+        ent->m_angles.X,
+        ent->m_angles.Y,
+        ent->m_angles.Z
         );
 }
 
@@ -834,9 +833,9 @@ lua::Any lua_GetEntityScaling(engine::Engine& engine, int id)
     }
 
     return std::make_tuple(
-        ent->m_scaling[0],
-        ent->m_scaling[1],
-        ent->m_scaling[2]
+        ent->m_scaling.X,
+        ent->m_scaling.Y,
+        ent->m_scaling.Z
         );
 }
 
@@ -850,9 +849,9 @@ lua::Any lua_SimilarSector(engine::Engine& engine, world::ObjectId id, float dx,
         return{};
     }
 
-    glm::vec3 next_pos = glm::vec3(ent->m_transform[3] + (dx * ent->m_transform[0] + dy * ent->m_transform[1] + dz * ent->m_transform[2]));
+    irr::core::vector3df next_pos = irr::core::vector3df(ent->m_transform[3] + (dx * ent->m_transform[0] + dy * ent->m_transform[1] + dz * ent->m_transform[2]));
 
-    const world::RoomSector* curr_sector = ent->getRoom()->getSectorRaw(glm::vec3(ent->m_transform[3]));
+    const world::RoomSector* curr_sector = ent->getRoom()->getSectorRaw(irr::core::vector3df(ent->m_transform[3]));
     const world::RoomSector* next_sector = ent->getRoom()->getSectorRaw(next_pos);
 
     curr_sector = curr_sector->checkPortalPointer(engine.m_world);
@@ -883,13 +882,13 @@ lua::Any lua_GetSectorHeight(engine::Engine& engine, world::ObjectId id, lua::Va
     if(dx.is<lua::Number>() && dy.is<lua::Number>() && dz.is<lua::Number>())
         position += dx.toFloat() * ent->m_transform[0] + dy.toFloat() * ent->m_transform[1] + dz.toFloat() * ent->m_transform[2];
 
-    const world::RoomSector* curr_sector = ent->getRoom()->getSectorRaw(glm::vec3(position));
+    const world::RoomSector* curr_sector = ent->getRoom()->getSectorRaw(irr::core::vector3df(position));
     curr_sector = curr_sector->checkPortalPointer(engine.m_world);
-    glm::vec3 point = ceiling.is<lua::Boolean>() && ceiling.to<bool>()
+    irr::core::vector3df point = ceiling.is<lua::Boolean>() && ceiling.to<bool>()
         ? curr_sector->getCeilingPoint()
         : curr_sector->getFloorPoint();
 
-    return point[2];
+    return point.Z;
 }
 
 void lua_SetEntityPosition(engine::Engine& engine, world::ObjectId id, float x, float y, float z, lua::Value ax, lua::Value ay, lua::Value az)
@@ -900,7 +899,7 @@ void lua_SetEntityPosition(engine::Engine& engine, world::ObjectId id, float x, 
         engine.m_gui.getConsole().warning(SYSWARN_NO_ENTITY, id);
         return;
     }
-    ent->m_transform[3] = { x,y,z,0 };
+    ent->m_transform.setTranslation({x,y,z});
     if(ax.is<lua::Number>() && ay.is<lua::Number>() && az.is<lua::Number>())
         ent->m_angles = { ax.toNumber(), ay.toNumber(), az.toNumber() };
     ent->updateTransform();
@@ -918,7 +917,7 @@ void lua_SetEntityAngles(engine::Engine& engine, world::ObjectId id, float x, lu
     else
     {
         if(!y.is<lua::Number>() || !z.is<lua::Number>())
-            ent->m_angles[0] = x;
+            ent->m_angles.X = x;
         else
             ent->m_angles = { x, y.toNumber(), z.toNumber() };
         ent->updateTransform();
@@ -961,9 +960,9 @@ void lua_MoveEntityGlobal(engine::Engine& engine, world::ObjectId id, float x, f
         engine.m_gui.getConsole().warning(SYSWARN_NO_ENTITY, id);
         return;
     }
-    ent->m_transform[3][0] += x;
-    ent->m_transform[3][1] += y;
-    ent->m_transform[3][2] += z;
+    ent->m_transform(0,3) += x;
+    ent->m_transform(1,3) += y;
+    ent->m_transform(2,3) += z;
 
     ent->updateRigidBody(true);
     ent->ghostUpdate();
@@ -979,7 +978,7 @@ void lua_MoveEntityLocal(engine::Engine& engine, world::ObjectId id, float dx, f
         return;
     }
 
-    ent->m_transform = glm::translate(ent->m_transform, glm::vec3(dx, dy, dz));
+    ent->m_transform *= irr::core::matrix4().setTranslation({dx, dy, dz});
 
     ent->updateRigidBody(true);
     ent->ghostUpdate();
@@ -993,29 +992,27 @@ void lua_MoveEntityToSink(engine::Engine& engine, world::ObjectId id, int sink_i
         return;
     world::StatCameraSink* sink = &engine.m_world.m_camerasAndSinks[sink_index];
 
-    glm::vec3 ent_pos;  ent_pos[0] = ent->m_transform[3][0];
-    ent_pos[1] = ent->m_transform[3][1];
-    ent_pos[2] = ent->m_transform[3][2];
+    irr::core::vector3df ent_pos = ent->m_transform.getTranslation();
 
-    glm::vec3 sink_pos = sink->position + glm::vec3(0, 0, 256.0f);
+    irr::core::vector3df sink_pos = sink->position + irr::core::vector3df(0, 0, 256.0f);
 
     BOOST_ASSERT(ent->m_currentSector != nullptr);
     const world::RoomSector* ls = ent->m_currentSector->getLowestSector();
     BOOST_ASSERT(ls != nullptr);
     const world::RoomSector* hs = ent->m_currentSector->getHighestSector();
     BOOST_ASSERT(hs != nullptr);
-    if(sink_pos[2] > hs->ceiling || sink_pos[2] < ls->floor)
+    if(sink_pos.Z > hs->ceiling || sink_pos.Z < ls->floor)
     {
-        sink_pos[2] = ent_pos[2];
+        sink_pos.Z = ent_pos.Z;
     }
 
-    glm::float_t dist = glm::distance(ent_pos, sink_pos);
+    irr::f32 dist = ent_pos.getDistanceFrom(sink_pos);
     if(util::fuzzyZero(dist))
         dist = 1.0; // Prevents division by zero.
 
-    glm::vec3 speed = (sink_pos - ent_pos) / dist * (sink->room_or_strength * 1.5f);
+    irr::core::vector3df speed = (sink_pos - ent_pos) / dist * (sink->room_or_strength * 1.5f);
 
-    ent->m_transform[3] += glm::vec4(speed, 0.0f);
+    ent->m_transform *= irr::core::matrix4().setTranslation(speed);
 
     ent->updateRigidBody(true);
     ent->ghostUpdate();
@@ -1026,24 +1023,20 @@ void lua_MoveEntityToEntity(engine::Engine& engine, world::ObjectId id1, world::
     std::shared_ptr<world::Entity> ent1 = engine.m_world.getEntityByID(id1);
     std::shared_ptr<world::Entity> ent2 = engine.m_world.getEntityByID(id2);
 
-    glm::vec3 ent1_pos; ent1_pos[0] = ent1->m_transform[3][0];
-    ent1_pos[1] = ent1->m_transform[3][1];
-    ent1_pos[2] = ent1->m_transform[3][2];
+    irr::core::vector3df ent1_pos = ent1->m_transform.getTranslation();
 
-    glm::vec3 ent2_pos; ent2_pos[0] = ent2->m_transform[3][0];
-    ent2_pos[1] = ent2->m_transform[3][1];
-    ent2_pos[2] = ent2->m_transform[3][2];
+    irr::core::vector3df ent2_pos = ent2->m_transform.getTranslation();
 
-    glm::float_t dist = glm::distance(ent1_pos, ent2_pos);
+    irr::f32 dist = ent1_pos.getDistanceFrom(ent2_pos);
     if(util::fuzzyZero(dist))
         dist = 1.0; // Prevents division by zero.
 
-    glm::vec3 speed = (ent2_pos - ent1_pos) / dist * speed_mult; // FIXME!
+    irr::core::vector3df speed = (ent2_pos - ent1_pos) / dist * speed_mult; // FIXME!
 
-    ent1->m_transform[3][0] += speed[0];
-    ent1->m_transform[3][1] += speed[1];
+    auto z = ent1->m_transform.getTranslation().Z;
     if(!ignore_z.is<lua::Boolean>() || !ignore_z.toBool())
-        ent1->m_transform[3][2] += speed[2];
+        z += speed.Z;
+    ent1->m_transform.setTranslation(speed);
     ent1->updatePlatformPreStep();
     ent1->updateRigidBody(true);
 }
@@ -1059,9 +1052,9 @@ void lua_RotateEntity(engine::Engine& engine, world::ObjectId id, float rx, lua:
     else
     {
         if(!ry.is<lua::Number>() || !rz.is<lua::Number>())
-            ent->m_angles += glm::vec3{ rx, 0, 0 };
+            ent->m_angles += irr::core::vector3df{ rx, 0, 0 };
         else
-            ent->m_angles += glm::vec3{ rx, ry.toNumber(), rz.toNumber() };
+            ent->m_angles += irr::core::vector3df{ rx, ry.toNumber(), rz.toNumber() };
 
         ent->updateTransform();
         ent->updateRigidBody(true);
@@ -1083,44 +1076,44 @@ void lua_RotateEntityToEntity(engine::Engine& engine, world::ObjectId id1, world
     }
     else
     {
-        glm::vec3 ent1_pos(ent1->m_transform[3]);
-        glm::vec3 ent2_pos(ent2->m_transform[3]);
-        glm::vec3 facing(ent1_pos - ent2_pos);
+        irr::core::vector3df ent1_pos(ent1->m_transform[3]);
+        irr::core::vector3df ent2_pos(ent2->m_transform[3]);
+        irr::core::vector3df facing(ent1_pos - ent2_pos);
 
-        glm::float_t *targ_angle = nullptr;
-        glm::float_t  theta = 0;
+        irr::f32 *targ_angle = nullptr;
+        irr::f32  theta = 0;
 
         switch(axis)
         {
             case 0:
-                targ_angle = &ent1->m_angles.x;
-                theta = glm::atan(-facing.x, facing.y);
+                targ_angle = &ent1->m_angles.X;
+                theta = std::atan2(-facing.X, facing.Y);
                 break;
             case 1:
-                targ_angle = &ent1->m_angles.y;
-                theta = glm::atan(facing.z, facing.y);
+                targ_angle = &ent1->m_angles.Y;
+                theta = std::atan2(facing.Z, facing.Y);
                 break;
             case 2:
-                targ_angle = &ent1->m_angles.z;
-                theta = glm::atan(facing.x, facing.z);
+                targ_angle = &ent1->m_angles.Z;
+                theta = std::atan2(facing.X, facing.Z);
                 break;
         }
 
         BOOST_ASSERT(targ_angle != nullptr);
 
-        theta = glm::degrees(theta);
+        theta = irr::core::radToDeg(theta);
         if(add_angle_.is<lua::Number>())
-            theta += add_angle_.to<glm::float_t>();
+            theta += add_angle_.to<irr::f32>();
 
-        glm::float_t delta = *targ_angle - theta;
+        irr::f32 delta = *targ_angle - theta;
 
         if(ceil(delta) != 180.0)
         {
             if(speed_.is<lua::Number>())
             {
-                glm::float_t speed = speed_.to<glm::float_t>();
+                irr::f32 speed = speed_.to<irr::f32>();
 
-                if(glm::abs(delta) > speed)
+                if(std::abs(delta) > speed)
                 {
                     // Solve ~0-360 rotation cases.
 
@@ -1150,7 +1143,7 @@ void lua_RotateEntityToEntity(engine::Engine& engine, world::ObjectId id1, world
                     }
                 }
 
-                if(glm::abs(delta) + speed >= 180.0)
+                if(std::abs(delta) + speed >= 180.0)
                     *targ_angle = floor(theta) + 180.0f;
             }
             else
@@ -1175,15 +1168,15 @@ lua::Any lua_GetEntityOrientation(engine::Engine& engine, world::ObjectId id1, w
         return{};
     }
 
-    glm::vec3 ent1_pos(ent1->m_transform[3]);
-    glm::vec3 ent2_pos(ent2->m_transform[3]);
-    glm::vec3 facing(ent2_pos - ent1_pos);
+    irr::core::vector3df ent1_pos(ent1->m_transform.getTranslation());
+    irr::core::vector3df ent2_pos(ent2->m_transform.getTranslation());
+    irr::core::vector3df facing(ent2_pos - ent1_pos);
 
-    glm::float_t theta = glm::degrees(glm::atan(-facing.x, facing.y));
+    irr::f32 theta = irr::core::radToDeg(std::atan2(-facing.X, facing.Y));
     if(add_angle_.is<lua::Number>())
-        theta += add_angle_.to<glm::float_t>();
+        theta += add_angle_.to<irr::f32>();
 
-    return util::wrapAngle(ent2->m_angles[0] - theta);
+    return util::wrapAngle(ent2->m_angles.X - theta);
 }
 
 lua::Any lua_GetEntitySpeed(engine::Engine& engine, world::ObjectId id)
@@ -1197,9 +1190,9 @@ lua::Any lua_GetEntitySpeed(engine::Engine& engine, world::ObjectId id)
     }
 
     return std::make_tuple(
-        ent->m_speed[0],
-        ent->m_speed[1],
-        ent->m_speed[2]
+        ent->m_speed.X,
+        ent->m_speed.Y,
+        ent->m_speed.Z
         );
 }
 
@@ -1213,7 +1206,7 @@ lua::Any lua_GetEntitySpeedLinear(engine::Engine& engine, world::ObjectId id)
         return{};
     }
 
-    return glm::length(ent->m_speed);
+    return ent->m_speed.getLength();
 }
 
 void lua_SetEntitySpeed(engine::Engine& engine, world::ObjectId id, float vx, lua::Value vy, lua::Value vz)
@@ -1227,7 +1220,7 @@ void lua_SetEntitySpeed(engine::Engine& engine, world::ObjectId id, float vx, lu
     else
     {
         if(!vy.is<lua::Number>() || !vz.is<lua::Number>())
-            ent->m_speed[0] = vx;
+            ent->m_speed.X = vx;
         else
             ent->m_speed = { vx, vy.toNumber(), vz.toNumber() };
         ent->updateCurrentSpeed();
@@ -1313,21 +1306,21 @@ bool lua_CanTriggerEntity(engine::Engine& engine, world::ObjectId id1, world::Ob
         return false;
     }
 
-    glm::float_t r;
+    irr::f32 r;
     if(!rv.is<lua::Number>() || rv.toNumber() < 0)
         r = e2->m_activationRadius;
     else
-        r = rv.to<glm::float_t>();
+        r = rv.to<irr::f32>();
 
-    glm::vec3 offset;
+    irr::core::vector3df offset;
     if(ofsX.is<lua::Number>() && ofsY.is<lua::Number>() && ofsZ.is<lua::Number>())
         offset = { ofsX.toNumber(), ofsY.toNumber(), ofsZ.toNumber() };
     else
         offset = e2->m_activationOffset;
 
-    glm::vec3 position = glm::vec3(e2->m_transform * glm::vec4(offset, 1.0f));
+    irr::core::vector3df position = e2->m_transform * offset;
     if(glm::dot(e1->m_transform[1], e2->m_transform[1]) > 0.75 &&
-       glm::distance(glm::vec3(e1->m_transform[3]), position) < r)
+       e1->m_transform.getTranslation().getDistanceFrom(position) < r)
     {
         return true;
     }
@@ -1911,10 +1904,10 @@ void lua_PushEntityBody(engine::Engine& engine, world::ObjectId id, size_t body_
        && ent->m_skeleton.getBones()[body_number].bt_body != nullptr
        && (ent->m_typeFlags & ENTITY_TYPE_DYNAMIC) != 0)
     {
-        glm::float_t t = glm::radians(ent->m_angles[0]);
+        irr::f32 t = irr::core::degToRad(ent->m_angles.X);
 
-        glm::float_t ang1 = glm::sin(t);
-        glm::float_t ang2 = glm::cos(t);
+        irr::f32 ang1 = std::sin(t);
+        irr::f32 ang2 = std::cos(t);
 
         btVector3 angle(-ang1 * h_force, ang2 * h_force, v_force);
 
@@ -1956,9 +1949,9 @@ int lua_SetEntityBodyMass(lua_State *lua)
         {
             btVector3 inertia(0.0, 0.0, 0.0);
 
-            glm::float_t mass = 0;
+            irr::f32 mass = 0;
             if(top >= argn)
-                mass = static_cast<glm::float_t>(lua_tonumber(lua, argn));
+                mass = static_cast<irr::f32>(lua_tonumber(lua, argn));
             argn++;
 
             world::animation::Bone& bone = ent->m_skeleton.bone(i);
@@ -2028,17 +2021,17 @@ void lua_LockEntityBodyLinearFactor(engine::Engine& engine, world::ObjectId id, 
        && ent->m_skeleton.getBones()[body_number].bt_body != nullptr
        && (ent->m_typeFlags & ENTITY_TYPE_DYNAMIC) != 0)
     {
-        glm::float_t t = glm::float_t(ent->m_angles[0]);
-        glm::float_t ang1 = glm::sin(t);
-        glm::float_t ang2 = glm::cos(t);
-        glm::float_t ang3 = 1.0;
+        irr::f32 t = ent->m_angles.X;
+        irr::f32 ang1 = std::sin(t);
+        irr::f32 ang2 = std::cos(t);
+        irr::f32 ang3 = 1.0;
 
-        if(vfactor.is<lua::Number>())
+        if(vfactor.is<irr::f32>())
         {
-            ang3 = glm::min(glm::abs(vfactor.to<float>()), 1.0f);
+            ang3 = std::min(std::abs(vfactor.to<irr::f32>()), 1.0f);
         }
 
-        ent->m_skeleton.getBones()[body_number].bt_body->setLinearFactor(btVector3(glm::abs(ang1), glm::abs(ang2), ang3));
+        ent->m_skeleton.getBones()[body_number].bt_body->setLinearFactor(btVector3(std::abs(ang1), std::abs(ang2), ang3));
     }
     else
     {
@@ -2097,9 +2090,9 @@ void lua_CamShake(engine::Engine& engine, float power, float time, lua::Value id
     {
         std::shared_ptr<world::Entity> ent = engine.m_world.getEntityByID(id.to<world::ObjectId>());
 
-        glm::vec3 cam_pos = engine.renderer.camera()->getPosition();
+        irr::core::vector3df cam_pos = engine.renderer.camera()->getPosition();
 
-        glm::float_t dist = glm::distance(glm::vec3(ent->m_transform[3]), cam_pos);
+        irr::f32 dist = ent->m_transform.getTranslation().getDistanceFrom(cam_pos);
         dist = dist > world::MaxShakeDistance ? 0 : 1.0f - dist / world::MaxShakeDistance;
 
         power *= dist;
@@ -2398,18 +2391,18 @@ void lua_genUVRotateAnimation(engine::Engine& engine, world::animation::ModelId 
     seq->currentFrame = 0;           // Reset current frame to zero.
     seq->textureIndices[0] = 0;
 
-    glm::float_t v_min, v_max;
-    v_min = v_max = firstPolygon.vertices[0].tex_coord[1];
+    irr::f32 v_min, v_max;
+    v_min = v_max = firstPolygon.vertices[0].TCoords.Y;
 
     for(size_t j = 1; j<firstPolygon.vertices.size(); j++)
     {
-        if(firstPolygon.vertices[j].tex_coord[1] > v_max)
+        if(firstPolygon.vertices[j].TCoords.Y > v_max)
         {
-            v_max = firstPolygon.vertices[j].tex_coord[1];
+            v_max = firstPolygon.vertices[j].TCoords.Y;
         }
-        if(firstPolygon.vertices[j].tex_coord[1] < v_min)
+        if(firstPolygon.vertices[j].TCoords.Y < v_min)
         {
-            v_min = firstPolygon.vertices[j].tex_coord[1];
+            v_min = firstPolygon.vertices[j].TCoords.Y;
         }
     }
 
@@ -2419,18 +2412,18 @@ void lua_genUVRotateAnimation(engine::Engine& engine, world::animation::ModelId 
     for(size_t j = 0; j < seq->keyFrames.size(); j++)
     {
         seq->keyFrames[j].textureIndex = firstPolygon.textureIndex;
-        seq->keyFrames[j].coordinateTransform = glm::mat2(1.0f);
-        seq->keyFrames[j].move.x = 0.0;
-        seq->keyFrames[j].move.y = -seq->uvrotateSpeed * j;
+        seq->keyFrames[j].coordinateTransform[0] = irr::core::vector2df{1.0f, 0.0f};
+        seq->keyFrames[j].coordinateTransform[0] = irr::core::vector2df{0.0f, 1.0f};
+        seq->keyFrames[j].move = irr::core::vector2df{0.0f, -seq->uvrotateSpeed * j};
     }
 
     for(world::core::Polygon& p : model->getSkinnedBone(0).mesh_base->m_transparencyPolygons)
     {
         BOOST_ASSERT(!engine.m_world.m_textureAnimations.empty());
         p.textureAnimationId = engine.m_world.m_textureAnimations.size() - 1;
-        for(world::core::Vertex& v : p.vertices)
+        for(irr::video::S3DVertex& v : p.vertices)
         {
-            v.tex_coord[1] = v_min + 0.5f * (v.tex_coord[1] - v_min) + seq->uvrotateMax;
+            v.TCoords.Y = v_min + 0.5f * (v.TCoords.Y - v_min) + seq->uvrotateMax;
         }
     }
 

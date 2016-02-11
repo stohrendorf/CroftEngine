@@ -21,7 +21,7 @@ private:
     Entity* m_entity;
 
     std::vector<Bone> m_bones{};
-    glm::vec3 m_position = { 0, 0, 0 };
+    irr::core::vector3df m_position = { 0, 0, 0 };
     core::BoundingBox m_boundingBox{};
 
     bool m_hasSkin = false; //!< whether any skinned meshes need rendering
@@ -132,7 +132,7 @@ public:
         return m_boundingBox;
     }
 
-    const glm::mat4& getRootTransform() const
+    const irr::core::matrix4& getRootTransform() const
     {
         BOOST_ASSERT(!m_bones.empty());
         return m_bones.front().globalTransform;
@@ -198,7 +198,7 @@ public:
         return m_manifoldArray;
     }
 
-    void updateTransform(const glm::mat4& entityTransform);
+    void updateTransform(const irr::core::matrix4& entityTransform);
 
     void updateBoundingBox();
 
@@ -223,10 +223,10 @@ public:
         }
     }
 
-    void updateCurrentCollisions(const Entity& entity, const glm::mat4& transform);
+    void updateCurrentCollisions(const Entity& entity, const irr::core::matrix4& transform);
     bool createRagdoll(const RagdollSetup& setup);
-    void initCollisions(const glm::vec3& speed);
-    void updateRigidBody(const glm::mat4& transform);
+    void initCollisions(const irr::core::vector3df& speed);
+    void updateRigidBody(const irr::core::matrix4& transform);
     btCollisionObject* getRemoveCollisionBodyParts(uint32_t parts_flags, uint32_t& curr_flag);
     void genRigidBody(Entity& entity);
     void enableCollision();

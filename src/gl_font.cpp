@@ -16,7 +16,7 @@
 
 #include "gl_font_buffer.h"
 
-#define vec4_copy(x, y) {(x)[0] = (y)[0]; (x)[1] = (y)[1]; (x)[2] = (y)[2]; (x)[3] = (y)[3];}
+#define vec4_copy(x, y) {(x)[0] = (y).getRed()/255.0f; (x)[1] = (y).getGreen()/255.0f; (x)[2] = (y).getBlue()/255.0f; (x)[3] = (y).getAlpha()/255.0f;}
 
 std::shared_ptr<FontTexture> glf_create_font(FT_Library ft_library, const char *file_name, uint16_t font_size)
 {
@@ -37,10 +37,7 @@ std::shared_ptr<FontTexture> glf_create_font(FT_Library ft_library, const char *
         glf->gl_tex_width = glf->gl_max_tex_width;
         glf->gl_tex_indexes.clear();
         glf->gl_real_tex_indexes_count = 0;
-        glf->gl_font_color[0] = 0.0;
-        glf->gl_font_color[1] = 0.0;
-        glf->gl_font_color[2] = 0.0;
-        glf->gl_font_color[3] = 1.0;
+        glf->gl_font_color.set(255,0,0,0);
 
         glf_resize(glf.get(), font_size);
         FT_Select_Charmap(glf->ft_face.get(), FT_ENCODING_UNICODE);
@@ -102,9 +99,9 @@ static __inline GLuint NextPowerOf2(GLuint in)
 }
 
 static inline void bbox_add(float *x0, float *x1, float *y0, float *y1,
-                            glm::vec2& topLeft, glm::vec2& bottomRight)
+                            irr::core::vector2df& topLeft, irr::core::vector2df& bottomRight)
 {
-    glm::float_t min, max;
+    irr::f32 min, max;
 
     if(*x0 > *x1)
     {
@@ -117,13 +114,13 @@ static inline void bbox_add(float *x0, float *x1, float *y0, float *y1,
         max = *x1;
     }
 
-    if(topLeft.x > min)
+    if(topLeft.X > min)
     {
-        topLeft.x = min;
+        topLeft.X = min;
     }
-    if(bottomRight.x < max)
+    if(bottomRight.Y < max)
     {
-        bottomRight.x = max;
+        bottomRight.Y = max;
     }
 
     if(*y0 > *y1)
@@ -137,13 +134,13 @@ static inline void bbox_add(float *x0, float *x1, float *y0, float *y1,
         max = *y1;
     }
 
-    if(topLeft.y > min)
+    if(topLeft.Y > min)
     {
-        topLeft.y = min;
+        topLeft.Y = min;
     }
-    if(bottomRight.y < max)
+    if(bottomRight.Y < max)
     {
-        bottomRight.y = max;
+        bottomRight.Y = max;
     }
 }
 
@@ -342,10 +339,10 @@ float glf_get_string_len(FontTexture *glf, const char *text, int n)
     return x;
 }
 
-void glf_get_string_bb(FontTexture *glf, const char *text, int n, glm::vec2& topLeft, glm::vec2& bottomRight)
+void glf_get_string_bb(FontTexture *glf, const char *text, int n, irr::core::vector2df& topLeft, irr::core::vector2df& bottomRight)
 {
-    topLeft = { 0, 0 };
-    bottomRight = { 0, 0 };
+    topLeft = irr::core::vector2df{ 0, 0 };
+    bottomRight = irr::core::vector2df{ 0, 0 };
 
     if(glf != nullptr && glf->ft_face != nullptr)
     {

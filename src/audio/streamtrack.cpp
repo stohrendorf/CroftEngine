@@ -346,7 +346,7 @@ void StreamTrack::update()
             m_dampedVolume += StreamDampSpeed;
 
             // Clamp volume.
-            m_dampedVolume = glm::clamp(m_dampedVolume, 0.0f, StreamDampLevel);
+            m_dampedVolume = irr::core::clamp(m_dampedVolume, 0.0f, StreamDampLevel);
             change_gain = true;
         }
         else if(!damp_active && m_dampedVolume > 0)    // If damp is not active, but it's still at low, restore it.
@@ -354,7 +354,7 @@ void StreamTrack::update()
             m_dampedVolume -= StreamDampSpeed;
 
             // Clamp volume.
-            m_dampedVolume = glm::clamp(m_dampedVolume, 0.0f, StreamDampLevel);
+            m_dampedVolume = irr::core::clamp(m_dampedVolume, 0.0f, StreamDampLevel);
             change_gain = true;
         }
     }
@@ -416,7 +416,7 @@ void StreamTrack::update()
             }
 
             // Clamp volume.
-            m_currentVolume = glm::clamp(m_currentVolume, 0.0f, 1.0f);
+            m_currentVolume = irr::core::clamp(m_currentVolume, 0.0f, 1.0f);
             change_gain = true;
         }
     }

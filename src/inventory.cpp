@@ -9,8 +9,6 @@
 #include "engine/engine.h"
 #include "world/entity.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
 
@@ -20,7 +18,7 @@
 InventoryManager::InventoryManager(engine::Engine* engine)
     : m_engine(engine)
 {
-    m_labelTitle.position = { 0, 30 };
+    m_labelTitle.position = irr::core::vector2df{ 0, 30 };
     m_labelTitle.Xanchor = gui::HorizontalAnchor::Center;
     m_labelTitle.Yanchor = gui::VerticalAnchor::Top;
 
@@ -28,7 +26,7 @@ InventoryManager::InventoryManager(engine::Engine* engine)
     m_labelTitle.fontStyle = gui::FontStyle::MenuTitle;
     m_labelTitle.show = false;
 
-    m_labelItemName.position = { 0, 50 };
+    m_labelItemName.position = irr::core::vector2df{ 0, 50 };
     m_labelItemName.Xanchor = gui::HorizontalAnchor::Center;
     m_labelItemName.Yanchor = gui::VerticalAnchor::Bottom;
 
@@ -413,15 +411,15 @@ void InventoryManager::render()
             continue;
         }
 
-        glm::mat4 matrix(1.0f);
-        matrix = glm::translate(matrix, { 0, 0, -m_baseRingRadius * 2.0f });
+        irr::core::matrix4 matrix;
+        matrix.setTranslation({ 0, 0, -m_baseRingRadius * 2.0f });
         //Mat4_RotateX(matrix, 25.0);
-        matrix = glm::rotate(matrix, glm::radians(25.0f), { 1,0,0 });
-        glm::float_t ang = m_ringAngleStep * (-m_itemsOffset + num) + m_ringAngle;
-        matrix = glm::rotate(matrix, glm::radians(ang), { 0,1,0 });
-        matrix = glm::translate(matrix, { 0, m_verticalOffset, m_ringRadius });
-        matrix = glm::rotate(matrix, -util::Rad90, { 1,0,0 });
-        matrix = glm::rotate(matrix, util::Rad90, { 0,0,1 });
+        matrix.setRotationAxisRadians(irr::core::degToRad(25.0f), { 1,0,0 });
+        irr::f32 ang = m_ringAngleStep * (-m_itemsOffset + num) + m_ringAngle;
+        matrix *= irr::core::matrix4().setRotationAxisRadians(irr::core::degToRad(ang), { 0,1,0 });
+        matrix *= irr::core::matrix4().setTranslation({ 0, m_verticalOffset, m_ringRadius });
+        matrix *= irr::core::matrix4().setRotationAxisRadians(-util::Rad90, { 1,0,0 });
+        matrix *= irr::core::matrix4().setRotationAxisRadians(util::Rad90, { 0,0,1 });
         if(num == m_itemsOffset)
         {
             if(bi->name[0])
@@ -433,16 +431,16 @@ void InventoryManager::render()
                     m_labelItemName.text = (boost::format(m_engine->m_scriptEngine.getString(STR_GEN_MASK_INVHEADER)) % bi->name % i.second.count).str();
                 }
             }
-            matrix = glm::rotate(matrix, glm::radians(90.0f + m_itemAngle - ang), { 0,0,1 });
+            matrix *= irr::core::matrix4().setRotationAxisRadians(irr::core::degToRad(90.0f + m_itemAngle - ang), { 0,0,1 });
             bi->getSkeleton().itemFrame(util::Duration(0));                            // here will be time != 0 for using items animation
         }
         else
         {
-            matrix = glm::rotate(matrix, glm::radians(90.0f - ang), { 0,0,1 });
+            matrix *= irr::core::matrix4().setRotationAxisRadians(irr::core::degToRad(90.0f - ang), { 0,0,1 });
             bi->getSkeleton().itemFrame(util::Duration(0));
         }
-        matrix = glm::translate(matrix, -0.5f * bi->getSkeleton().getBoundingBox().getCenter());
-        matrix = glm::scale(matrix, { 0.7f, 0.7f, 0.7f });
+        matrix *= irr::core::matrix4().setTranslation(-0.5f * bi->getSkeleton().getBoundingBox().getCenter());
+        matrix *= irr::core::matrix4().setScale({ 0.7f, 0.7f, 0.7f });
         render::renderItem(bi->getSkeleton(), 0.0f, matrix, m_engine->m_gui.m_guiProjectionMatrix);
 
         num++;

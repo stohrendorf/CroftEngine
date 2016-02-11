@@ -27,7 +27,7 @@ public:
     ItemNotifier m_notifier;
     TextLineManager m_textlineManager;
     FontManager m_fontManager;
-    glm::mat4 m_guiProjectionMatrix = glm::mat4(1.0f);
+    irr::core::matrix4 m_guiProjectionMatrix;
 
     Console& getConsole()
     {
@@ -71,10 +71,10 @@ public:
      *  Draw simple rectangle.
      *  Only state it changes is the blend mode, according to blendMode value.
      */
-    void drawRect(glm::float_t x, glm::float_t y,
-                  glm::float_t width, glm::float_t height,
-                  const glm::vec4& colorUpperLeft, const glm::vec4& colorUpperRight,
-                  const glm::vec4& colorLowerLeft, const glm::vec4& colorLowerRight,
+    void drawRect(irr::f32 x, irr::f32 y,
+                  irr::f32 width, irr::f32 height,
+                  const irr::video::SColor& colorUpperLeft, const irr::video::SColor& colorUpperRight,
+                  const irr::video::SColor& colorLowerLeft, const irr::video::SColor& colorLowerRight,
                   const loader::BlendingMode blendMode,
                   const GLuint texture = 0);
 

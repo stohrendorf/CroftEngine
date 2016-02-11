@@ -12,10 +12,10 @@
 
 // glew must be included BEFORE btIDebugDraw.h
 #include <GL/glew.h>
+#include <irrlicht.h>
 
 #include <LinearMath/btIDebugDraw.h>
 
-#include <glm/glm.hpp>
 #include "bsp_tree.h"
 
 namespace world
@@ -77,13 +77,13 @@ class RenderDebugDrawer : public btIDebugDraw
     engine::Engine* m_engine;
     uint32_t m_debugMode = 0;
 
-    glm::vec3 m_color = { 0,0,0 };
-    std::vector<glm::vec3> m_buffer;
+    irr::video::SColor m_color{ 0,0,0,0 };
+    std::vector<irr::core::vector3df> m_buffer;
 
     world::core::OrientedBoundingBox m_obb;
 
-    void addLine(const glm::vec3& start, const glm::vec3& end);
-    void addLine(const glm::vec3& start, const glm::vec3& startColor, const glm::vec3& end, const glm::vec3& endColor);
+    void addLine(const irr::core::vector3df& start, const irr::core::vector3df& end);
+    void addLine(const irr::core::vector3df& start, const irr::video::SColorf& startColor, const irr::core::vector3df& end, const irr::video::SColorf& endColor);
 
     std::unique_ptr<VertexArray> m_vertexArray{};
     GLuint m_glbuffer = 0;
@@ -98,24 +98,22 @@ public:
     }
     void reset();
     void render();
-    void setColor(glm::float_t r, glm::float_t g, glm::float_t b)
+    void setColor(irr::u32 r, irr::u32 g, irr::u32 b)
     {
-        m_color[0] = r;
-        m_color[1] = g;
-        m_color[2] = b;
+        m_color.set(m_color.getAlpha(), r,g,b);
     }
-    void drawAxis(glm::float_t r, const glm::mat4& transform);
+    void drawAxis(irr::f32 r, const irr::core::matrix4& transform);
     void drawPortal(const world::Portal &p);
-    void drawBBox(const world::core::BoundingBox &boundingBox, const glm::mat4 *transform);
+    void drawBBox(const world::core::BoundingBox &boundingBox, const irr::core::matrix4 *transform);
     void drawOBB(const world::core::OrientedBoundingBox& obb);
-    void drawMeshDebugLines(const std::shared_ptr<world::core::BaseMesh> &mesh, const glm::mat4& transform, const Render& render);
-    void drawSkeletalModelDebugLines(const world::animation::Skeleton &skeleton, const glm::mat4& transform, const Render& render);
+    void drawMeshDebugLines(const std::shared_ptr<world::core::BaseMesh> &mesh, const irr::core::matrix4& transform, const Render& render);
+    void drawSkeletalModelDebugLines(const world::animation::Skeleton &skeleton, const irr::core::matrix4& transform, const Render& render);
     void drawEntityDebugLines(const world::Entity& entity, const Render& render);
     void drawSectorDebugLines(const world::RoomSector& rs);
     void drawRoomDebugLines(const world::Room& room, const Render& render);
 
     // bullet's debug interface
-    virtual void   drawLine(const btVector3& from, const btVector3& to, const btVector3 &color) override;
+    virtual void   drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
     virtual void   drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;
     virtual void   reportErrorWarning(const char* warningString) override;
     virtual void   draw3dText(const btVector3& location, const char* textString) override;
@@ -142,7 +140,7 @@ struct RenderSettings
     int       z_depth = 16;
 
     bool      fog_enabled = true;
-    glm::vec4 fog_color = { 0,0,0,1 };
+    irr::video::SColor fog_color = { 255,0,0,0 };
     float     fog_start_depth = 10000;
     float     fog_end_depth = 16000;
 
@@ -160,10 +158,12 @@ struct RenderSettings
         save_texture_memory = util::getSetting(config, "saveTextureMemory", false);
         z_depth = util::getSetting(config, "zDepth", 16);
         fog_enabled = util::getSetting(config, "fogEnabled", true);
-        fog_color.r = util::getSetting(config, "fogColor.r", 0.0f);
-        fog_color.g = util::getSetting(config, "fogColor.g", 0.0f);
-        fog_color.b = util::getSetting(config, "fogColor.b", 0.0f);
-        fog_color.a = util::getSetting(config, "fogColor.a", 1.0f);
+        fog_color.set(
+                    util::getSetting(config, "fogColor.a", 0),
+                    util::getSetting(config, "fogColor.r", 0),
+                    util::getSetting(config, "fogColor.g", 0),
+                    util::getSetting(config, "fogColor.b", 0)
+                    );
         fog_start_depth = util::getSetting(config, "fogStartDepth", 10000.0f);
         fog_end_depth = util::getSetting(config, "fogEndDepth", 16000.0f);
         use_gl3 = util::getSetting(config, "useGl3", false);
@@ -304,8 +304,8 @@ public:
     void renderEntity(const world::Entity& entity);
     void renderDynamicEntity(const LitShaderDescription& shader, const world::Entity& entity);
     void renderDynamicEntitySkin(const LitShaderDescription& shader, const world::Entity& ent);
-    void renderSkeletalModel(const LitShaderDescription& shader, const world::animation::Skeleton& bframe, const glm::mat4 &mvMatrix, const glm::mat4 &mvpMatrix);
-    void renderSkeletalModelSkin(const LitShaderDescription& shader, const world::Entity& ent, const glm::mat4 &mvMatrix);
+    void renderSkeletalModel(const LitShaderDescription& shader, const world::animation::Skeleton& bframe, const irr::core::matrix4& mvMatrix, const irr::core::matrix4& mvpMatrix);
+    void renderSkeletalModelSkin(const LitShaderDescription& shader, const world::Entity& ent, const irr::core::matrix4& mvMatrix);
     void renderHair(std::shared_ptr<world::Character> entity);
     void renderSkyBox();
     void renderMesh(const std::shared_ptr<world::core::BaseMesh> &mesh) const;
@@ -327,5 +327,5 @@ private:
     std::unique_ptr<VertexArray> m_crosshairArray = nullptr;
 };
 
-void renderItem(const world::animation::Skeleton& skeleton, glm::float_t size, const glm::mat4& mvMatrix, const glm::mat4& guiProjectionMatrix);
+void renderItem(const world::animation::Skeleton& skeleton, irr::f32 size, const irr::core::matrix4& mvMatrix, const irr::core::matrix4& guiProjectionMatrix);
 } // namespace render

@@ -20,7 +20,7 @@ SkeletonPose Animation::getInterpolatedPose(size_t frame) const
     if(subOffset == 0)
         return first; // no need to interpolate
 
-    const glm::float_t lerp = static_cast<glm::float_t>(subOffset) / static_cast<glm::float_t>(m_stretchFactor);
+    const irr::f32 lerp = static_cast<irr::f32>(subOffset) / static_cast<irr::f32>(m_stretchFactor);
 
     SkeletonPose result;
     result.position = glm::mix(first.position, second.position, lerp);

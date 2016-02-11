@@ -232,34 +232,34 @@ enum class TweenType
 
 struct SectorTween
 {
-    glm::vec3 floor_corners[4];
+    irr::core::vector3df floor_corners[4];
     TweenType floor_tween_type = TweenType::None;
 
-    glm::vec3 ceiling_corners[4];
+    irr::core::vector3df ceiling_corners[4];
     TweenType ceiling_tween_type = TweenType::None;
 
     void setCeilingConfig()
     {
-        if(ceiling_corners[0][2] > ceiling_corners[1][2])
+        if(ceiling_corners[0].Z > ceiling_corners[1].Z)
         {
-            std::swap(ceiling_corners[0][2], ceiling_corners[1][2]);
-            std::swap(ceiling_corners[2][2], ceiling_corners[3][2]);
+            std::swap(ceiling_corners[0].Z, ceiling_corners[1].Z);
+            std::swap(ceiling_corners[2].Z, ceiling_corners[3].Z);
         }
 
-        if(ceiling_corners[3][2] > ceiling_corners[2][2])
+        if(ceiling_corners[3].Z > ceiling_corners[2].Z)
         {
             ceiling_tween_type = TweenType::TwoTriangles;            // like a butterfly
         }
-        else if(ceiling_corners[0][2] != ceiling_corners[1][2] &&
-                ceiling_corners[2][2] != ceiling_corners[3][2])
+        else if(ceiling_corners[0].Z != ceiling_corners[1].Z &&
+                ceiling_corners[2].Z != ceiling_corners[3].Z)
         {
             ceiling_tween_type = TweenType::Quad;
         }
-        else if(ceiling_corners[0][2] != ceiling_corners[1][2])
+        else if(ceiling_corners[0].Z != ceiling_corners[1].Z)
         {
             ceiling_tween_type = TweenType::TriangleLeft;
         }
-        else if(ceiling_corners[2][2] != ceiling_corners[3][2])
+        else if(ceiling_corners[2].Z != ceiling_corners[3].Z)
         {
             ceiling_tween_type = TweenType::TriangleRight;
         }
@@ -271,26 +271,26 @@ struct SectorTween
 
     void setFloorConfig()
     {
-        if(floor_corners[0][2] > floor_corners[1][2])
+        if(floor_corners[0].Z > floor_corners[1].Z)
         {
-            std::swap(floor_corners[0][2], floor_corners[1][2]);
-            std::swap(floor_corners[2][2], floor_corners[3][2]);
+            std::swap(floor_corners[0].Z, floor_corners[1].Z);
+            std::swap(floor_corners[2].Z, floor_corners[3].Z);
         }
 
-        if(floor_corners[3][2] > floor_corners[2][2])
+        if(floor_corners[3].Z > floor_corners[2].Z)
         {
             floor_tween_type = TweenType::TwoTriangles;              // like a butterfly
         }
-        else if(floor_corners[0][2] != floor_corners[1][2] &&
-                floor_corners[2][2] != floor_corners[3][2])
+        else if(floor_corners[0].Z != floor_corners[1].Z &&
+                floor_corners[2].Z != floor_corners[3].Z)
         {
             floor_tween_type = TweenType::Quad;
         }
-        else if(floor_corners[0][2] != floor_corners[1][2])
+        else if(floor_corners[0].Z != floor_corners[1].Z)
         {
             floor_tween_type = TweenType::TriangleLeft;
         }
-        else if(floor_corners[2][2] != floor_corners[3][2])
+        else if(floor_corners[2].Z != floor_corners[3].Z)
         {
             floor_tween_type = TweenType::TriangleRight;
         }
@@ -304,7 +304,7 @@ struct SectorTween
 struct RoomSprite
 {
     core::Sprite* sprite = nullptr;
-    glm::vec3 pos{ 0,0,0 };
+    irr::core::vector3df pos{ 0,0,0 };
     mutable bool was_rendered = false;
 };
 
@@ -354,7 +354,7 @@ public:
     std::vector<int16_t> m_animCommands;
 
     void updateAnimTextures();
-    glm::vec4 calculateWaterTint() const;
+    irr::video::SColorf calculateWaterTint() const;
 
     void addEntity(std::shared_ptr<Entity> entity);
     bool createInventoryItem(ObjectId item_id, animation::ModelId model_id, animation::ModelId world_model_id, MenuItemType type, size_t count, const std::string &name);
@@ -365,19 +365,19 @@ public:
     void prepare();
     void empty();
 
-    std::shared_ptr<Entity> spawnEntity(animation::ModelId model_id, ObjectId room_id, const glm::vec3 *pos, const glm::vec3 *ang, boost::optional<ObjectId> id);
+    std::shared_ptr<Entity> spawnEntity(animation::ModelId model_id, ObjectId room_id, const irr::core::vector3df* pos, const irr::core::vector3df* ang, boost::optional<ObjectId> id);
     bool deleteEntity(ObjectId id);
 
     std::shared_ptr<Entity> getEntityByID(ObjectId id) const;
     std::shared_ptr<Character> getCharacterByID(ObjectId id);
 
     std::shared_ptr<InventoryItem> getBaseItemByID(ObjectId id);
-    std::shared_ptr<Room> findRoomByPosition(const glm::vec3& pos) const;
+    std::shared_ptr<Room> findRoomByPosition(const irr::core::vector3df& pos) const;
     std::shared_ptr<Room> getByID(ObjectId ID);
 
-    Room* Room_FindPosCogerrence(const glm::vec3& new_pos, Room* room) const;
+    Room* Room_FindPosCogerrence(const irr::core::vector3df& new_pos, Room* room) const;
 
-    const Room* Room_FindPosCogerrence(const glm::vec3& new_pos, const Room *room) const
+    const Room* Room_FindPosCogerrence(const irr::core::vector3df& new_pos, const Room *room) const
     {
         return Room_FindPosCogerrence(new_pos, const_cast<Room*>(room));
     }

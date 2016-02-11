@@ -86,10 +86,10 @@ bool FontManager::addFont(const FontType index, const uint32_t size, const char*
     return true;
 }
 
-bool FontManager::addFontStyle(const FontStyle index, const glm::vec4& color,
+bool FontManager::addFontStyle(const FontStyle index, const irr::video::SColor& color,
                                const bool shadow, const bool fading,
-                               const bool rect, const glm::float_t rect_border,
-                               const glm::vec4& rectCol,
+                               const bool rect, const irr::f32 rect_border,
+                               const irr::video::SColor& rectCol,
                                const bool hide)
 {
     FontStyleData* desired_style = getFontStyle(index);
@@ -186,16 +186,16 @@ void FontManager::update()
 
     for(FontStyleData& current_style : m_styles)
     {
-        const auto alpha = current_style.real_color.a;
+        const auto alpha = current_style.real_color.getAlpha();
         if(current_style.fading)
         {
-            current_style.real_color = current_style.color * m_fadeValue;
+            current_style.real_color = current_style.color.getInterpolated({0,0,0,0}, 1-m_fadeValue);
         }
         else
         {
             current_style.real_color = current_style.color;
         }
-        current_style.real_color.a = alpha;
+        current_style.real_color.setAlpha( alpha );
     }
 }
 

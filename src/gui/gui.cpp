@@ -14,8 +14,6 @@
 #include "world/camera.h"
 #include "world/character.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include <SDL2/SDL_video.h>
 
 namespace gui
@@ -104,16 +102,16 @@ void Gui::switchGLMode(bool is_gui)
 {
     if(is_gui)                                                             // set gui coordinate system
     {
-        const glm::float_t far_dist = 4096.0f;
-        const glm::float_t near_dist = -1.0f;
+        const irr::f32 far_dist = 4096.0f;
+        const irr::f32 near_dist = -1.0f;
 
-        m_guiProjectionMatrix = glm::mat4(1.0f);                                        // identity matrix
-        m_guiProjectionMatrix[0][0] = 2.0f / static_cast<glm::float_t>(m_engine->m_screenInfo.w);
-        m_guiProjectionMatrix[1][1] = 2.0f / static_cast<glm::float_t>(m_engine->m_screenInfo.h);
-        m_guiProjectionMatrix[2][2] = -2.0f / (far_dist - near_dist);
-        m_guiProjectionMatrix[3][0] = -1.0f;
-        m_guiProjectionMatrix[3][1] = -1.0f;
-        m_guiProjectionMatrix[3][2] = -(far_dist + near_dist) / (far_dist - near_dist);
+        m_guiProjectionMatrix.makeIdentity();
+        m_guiProjectionMatrix(0,0) = 2.0f / static_cast<irr::f32>(m_engine->m_screenInfo.w);
+        m_guiProjectionMatrix(1,1) = 2.0f / static_cast<irr::f32>(m_engine->m_screenInfo.h);
+        m_guiProjectionMatrix(2,2) = -2.0f / (far_dist - near_dist);
+        m_guiProjectionMatrix(0,3) = -1.0f;
+        m_guiProjectionMatrix(1,3) = -1.0f;
+        m_guiProjectionMatrix(2,3) = -(far_dist + near_dist) / (far_dist - near_dist);
     }
     else                                                                        // set camera coordinate system
     {
@@ -146,10 +144,10 @@ void Gui::drawInventory()
 
     // Background
 
-    glm::vec4 upper_color{ 0, 0, 0, 0.45f };
-    glm::vec4 lower_color{ 0, 0, 0, 0.75f };
+    irr::video::SColor upper_color{ 0, 0, 0, 120 };
+    irr::video::SColor lower_color{ 0, 0, 0, 200 };
 
-    drawRect(0.0, 0.0, static_cast<glm::float_t>(m_engine->m_screenInfo.w), static_cast<glm::float_t>(m_engine->m_screenInfo.h),
+    drawRect(0.0, 0.0, static_cast<irr::f32>(m_engine->m_screenInfo.w), static_cast<irr::f32>(m_engine->m_screenInfo.h),
              upper_color, upper_color, lower_color, lower_color,
              loader::BlendingMode::Opaque);
 
@@ -190,10 +188,10 @@ void Gui::drawLoadScreen(int value)
 /**
  * Draws simple colored rectangle with given parameters.
  */
-void Gui::drawRect(glm::float_t x, glm::float_t y,
-                   glm::float_t width, glm::float_t height,
-                   const glm::vec4& colorUpperLeft, const glm::vec4& colorUpperRight,
-                   const glm::vec4& colorLowerLeft, const glm::vec4& colorLowerRight,
+void Gui::drawRect(irr::f32 x, irr::f32 y,
+                   irr::f32 width, irr::f32 height,
+                   const irr::video::SColor& colorUpperLeft, const irr::video::SColor& colorUpperRight,
+                   const irr::video::SColor& colorLowerLeft, const irr::video::SColor& colorLowerRight,
                    const loader::BlendingMode blendMode,
                    const GLuint texture)
 {
@@ -220,7 +218,7 @@ void Gui::drawRect(glm::float_t x, glm::float_t y,
     {
         glGenBuffers(1, &m_rectanglePositionBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, m_rectanglePositionBuffer);
-        static const glm::vec2 rectCoords[4]{
+        static const irr::core::vector2df rectCoords[4]{
             {0, 0},
             {1, 0},
             {1, 1},
@@ -231,23 +229,23 @@ void Gui::drawRect(glm::float_t x, glm::float_t y,
         glGenBuffers(1, &m_rectangleColorBuffer);
 
         render::VertexArrayAttribute attribs[] = {
-            render::VertexArrayAttribute(render::GuiShaderDescription::position, 2, GL_FLOAT, false, m_rectanglePositionBuffer, sizeof(glm::vec2), 0),
-            render::VertexArrayAttribute(render::GuiShaderDescription::color, 4, GL_FLOAT, false, m_rectangleColorBuffer, sizeof(glm::vec4), 0),
+            render::VertexArrayAttribute(render::GuiShaderDescription::position, 2, GL_FLOAT, false, m_rectanglePositionBuffer, sizeof(irr::core::vector2df), 0),
+            render::VertexArrayAttribute(render::GuiShaderDescription::color, 4, GL_FLOAT, false, m_rectangleColorBuffer, sizeof(irr::video::SColorf), 0),
         };
         m_rectangleArray.reset(new render::VertexArray(0, 2, attribs));
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_rectangleColorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * 4, nullptr, GL_STREAM_DRAW);
-    glm::vec4* rectColors = static_cast<glm::vec4*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+    glBufferData(GL_ARRAY_BUFFER, sizeof(irr::video::SColorf) * 4, nullptr, GL_STREAM_DRAW);
+    irr::video::SColorf* rectColors = static_cast<irr::video::SColorf*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
     rectColors[0] = colorLowerLeft;
     rectColors[1] = colorLowerRight;
     rectColors[2] = colorUpperRight;
     rectColors[3] = colorUpperLeft;
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
-    const glm::vec2 offset{ x / (m_engine->m_screenInfo.w*0.5f) - 1.f, y / (m_engine->m_screenInfo.h*0.5f) - 1.f };
-    const glm::vec2 factor{ width / m_engine->m_screenInfo.w * 2.0f, height / m_engine->m_screenInfo.h * 2.0f };
+    const irr::core::vector2df offset{ x / (m_engine->m_screenInfo.w*0.5f) - 1.f, y / (m_engine->m_screenInfo.h*0.5f) - 1.f };
+    const irr::core::vector2df factor{ width / m_engine->m_screenInfo.w * 2.0f, height / m_engine->m_screenInfo.h * 2.0f };
 
     render::GuiShaderDescription *shader = m_engine->renderer.shaderManager()->getGuiShader(texture != 0);
     glUseProgram(shader->program);
@@ -257,8 +255,8 @@ void Gui::drawRect(glm::float_t x, glm::float_t y,
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
     }
-    glUniform2fv(shader->offset, 1, glm::value_ptr(offset));
-    glUniform2fv(shader->factor, 1, glm::value_ptr(factor));
+    glUniform2fv(shader->offset, 1, &offset.X);
+    glUniform2fv(shader->factor, 1, &factor.X);
 
     m_rectangleArray->bind();
 

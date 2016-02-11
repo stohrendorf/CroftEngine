@@ -6,6 +6,7 @@
 #include <AL/al.h>
 
 #include <boost/optional.hpp>
+#include <irrlicht.h>
 
 #include <cstdint>
 
@@ -112,7 +113,7 @@ private:
     uint32_t    m_sampleCount = 0;   // How many buffers to use, beginning with sample_index.
 
     void linkEmitter(const world::World& world);                             // Link source to parent emitter.
-    void setPosition(const ALfloat pos_vector[]);   // Set source position.
-    void setVelocity(const ALfloat vel_vector[]);   // Set source velocity (speed).
+    void setPosition(const irr::core::vector3df& position);   // Set source position.
+    void setVelocity(const irr::core::vector3df& velocity);   // Set source velocity (speed).
 };
 } // namespace audio

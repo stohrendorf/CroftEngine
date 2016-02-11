@@ -22,10 +22,10 @@ struct TransparentPolygonReference;
 
 struct BSPFaceRef
 {
-    glm::mat4 transform;
+    irr::core::matrix4 transform;
     const TransparentPolygonReference* polygon;
 
-    BSPFaceRef(const glm::mat4& matrix, const TransparentPolygonReference* polygon)
+    BSPFaceRef(const irr::core::matrix4& matrix, const TransparentPolygonReference* polygon)
         : transform(matrix)
         , polygon(polygon)
     {
@@ -51,7 +51,7 @@ private:
     void addPolygon(std::unique_ptr<BSPNode> &root, const BSPFaceRef &p, const struct world::core::Polygon &transformed);
 
 public:
-    void addNewPolygonList(const std::vector<TransparentPolygonReference> &p, const glm::mat4 &transform, const world::Camera& cam);
+    void addNewPolygonList(const std::vector<TransparentPolygonReference> &p, const irr::core::matrix4& transform, const world::Camera& cam);
 
     const std::unique_ptr<BSPNode>& root() const
     {

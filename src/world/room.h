@@ -58,9 +58,9 @@ private:
     std::vector<world::Object*> m_objects;
 
     core::BoundingBox m_boundingBox;
-    glm::mat4 m_modelMatrix;
+    irr::core::matrix4 m_modelMatrix;
 
-    glm::vec3 m_ambientLighting;
+    irr::video::SColorf m_ambientLighting;
 
     std::vector<core::Light> m_lights;
 
@@ -102,12 +102,12 @@ public:
         return m_mesh;
     }
 
-    const glm::mat4& getModelMatrix() const noexcept
+    const irr::core::matrix4& getModelMatrix() const noexcept
     {
         return m_modelMatrix;
     }
 
-    const glm::vec3& getAmbientLighting() const noexcept
+    const irr::video::SColorf& getAmbientLighting() const noexcept
     {
         return m_ambientLighting;
     }
@@ -177,7 +177,7 @@ public:
         return m_spriteBuffer;
     }
 
-    void addSprite(core::Sprite* sprite, const glm::vec3& pos);
+    void addSprite(core::Sprite* sprite, const irr::core::vector3df& pos);
 
     void load(const std::unique_ptr<loader::Level>& tr);
     std::vector<SectorTween> generateTweens() const;
@@ -209,13 +209,13 @@ public:
     bool removeEntity(Entity *entity);
     void addToNearRoomsList(Room* r);
 
-    bool contains(const glm::vec3& dot) const
+    bool contains(const irr::core::vector3df& dot) const
     {
         return m_boundingBox.contains(dot);
     }
 
-    const RoomSector* getSectorRaw(const glm::vec3 &pos) const;
-    const RoomSector* getSectorXYZ(const glm::vec3 &pos) const;
+    const RoomSector* getSectorRaw(const irr::core::vector3df& pos) const;
+    const RoomSector* getSectorXYZ(const irr::core::vector3df& pos) const;
 
     void genMesh(const std::unique_ptr<loader::Level>& tr);
 

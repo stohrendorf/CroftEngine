@@ -10,6 +10,8 @@
 #include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <irrlicht.h>
+
 namespace gui
 {
 class Console
@@ -45,7 +47,7 @@ class Console
 
     FontTexture *m_font = nullptr;                       // Texture font renderer
 
-    glm::vec4 m_backgroundColor{0};
+    irr::video::SColor m_backgroundColor{0};
 
     //! Current log position plus one
     //! @note It's off-by-one, because line 0 is a virtual empty line.
@@ -194,10 +196,7 @@ public:
 
     void setBackgroundColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
     {
-        m_backgroundColor[0] = r;
-        m_backgroundColor[1] = g;
-        m_backgroundColor[2] = b;
-        m_backgroundColor[3] = a;
+        m_backgroundColor.set(a*255, r*255, g*255, b*255);
     }
 
     void setCompletionItems(const std::vector<std::string>& items)

@@ -4,6 +4,8 @@
 #include "render/shader_description.h"
 #include "world/animation/texture.h"
 
+#include <irrlicht.h>
+
 namespace world
 {
 namespace core
@@ -48,10 +50,10 @@ void BaseMesh::updateBoundingBox()
 {
     if(!m_vertices.empty())
     {
-        m_boundingBox.min = m_boundingBox.max = m_vertices.front().position;
-        for(const auto& v : m_vertices)
+        m_boundingBox.min = m_boundingBox.max = {m_vertices.front().Pos.X, m_vertices.front().Pos.Y, m_vertices.front().Pos.Z};
+        for(const irr::video::S3DVertex& v : m_vertices)
         {
-            m_boundingBox.adjust(v.position);
+            m_boundingBox.adjust(v.Pos);
         }
 
         m_center = m_boundingBox.getCenter();
@@ -62,11 +64,15 @@ void BaseMesh::genVBO()
 {
     if(m_vboIndexArray || m_vboVertexArray || m_vboSkinArray)
         return;
-
-    /// now, begin VBO filling!
-    glGenBuffers(1, &m_vboVertexArray);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboVertexArray);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), GL_STATIC_DRAW);
+    
+    irr::scene::SMesh* mesh = nullptr; // FIXME
+    irr::scene::SMeshBuffer* buf = new irr::scene::SMeshBuffer();
+    mesh->addMeshBuffer(buf);
+    buf->drop();
+    
+    buf->Vertices.set_used(m_vertices.size());
+    for(size_t i=0; i<m_vertices.size(); ++i)
+        buf->Vertices[i] = m_vertices[i];
 
     // Store additional skinning information
     if(!m_matrixIndices.empty())
@@ -141,11 +147,11 @@ void BaseMesh::genVBO()
     }
 }
 
-Vertex* BaseMesh::findVertex(const glm::vec3& v)
+irr::video::S3DVertex* BaseMesh::findVertex(const irr::core::vector3df& v)
 {
-    for(Vertex& mv : m_vertices)
+    for(irr::video::S3DVertex& mv : m_vertices)
     {
-        if(glm::distance(v, mv.position) < 2.0)
+        if(v.getDistanceFrom(mv.Pos) < 2.0)
         {
             return &mv;
         }
@@ -157,14 +163,14 @@ Vertex* BaseMesh::findVertex(const glm::vec3& v)
 /*
 * FACES FUNCTIONS
 */
-size_t BaseMesh::addVertex(const Vertex& vertex)
+size_t BaseMesh::addVertex(const irr::video::S3DVertex& vertex)
 {
-    Vertex* v = m_vertices.data();
+    irr::video::S3DVertex* v = m_vertices.data();
 
     for(size_t ind = 0; ind < m_vertices.size(); ind++, v++)
     {
-        if(v->position[0] == vertex.position[0] && v->position[1] == vertex.position[1] && v->position[2] == vertex.position[2] &&
-           v->tex_coord[0] == vertex.tex_coord[0] && v->tex_coord[1] == vertex.tex_coord[1])
+        if(v->Pos.X == vertex.Pos.X && v->Pos.Y == vertex.Pos.Y && v->Pos.Z == vertex.Pos.Z &&
+           v->TCoords.X == vertex.TCoords.X && v->TCoords.Y == vertex.TCoords.Y)
             ///@QUESTION: color check?
         {
             return ind;
@@ -174,16 +180,15 @@ size_t BaseMesh::addVertex(const Vertex& vertex)
     m_vertices.emplace_back();
 
     v = &m_vertices.back();
-    v->position = vertex.position;
-    v->normal = vertex.normal;
-    v->color = vertex.color;
-    v->tex_coord[0] = vertex.tex_coord[0];
-    v->tex_coord[1] = vertex.tex_coord[1];
+    v->Pos = vertex.Pos;
+    v->Normal = vertex.Normal;
+    v->Color = vertex.Color;
+    v->TCoords = vertex.TCoords;
 
     return m_vertices.size() - 1;
 }
 
-size_t BaseMesh::addAnimatedVertex(const Vertex& vertex)
+size_t BaseMesh::addAnimatedVertex(const irr::video::S3DVertex& vertex)
 {
     // Skip search for equal vertex; tex coords may differ but aren't stored in
     // animated_vertex_s

@@ -83,12 +83,6 @@ target_include_directories(Bullet INTERFACE ${BULLET_INCLUDE_DIRS})
 target_link_libraries(Bullet INTERFACE ${BULLET_LIBRARIES})
 
 
-# Dependency: Freetype
-ot_find_dependency_alt(freetype Freetype)
-target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(freetype INTERFACE ${FREETYPE_LIBRARIES})
-
-
 # Dependency: OpenGL
 find_package(OpenGL REQUIRED)
 add_library(OpenGL INTERFACE)
@@ -166,6 +160,15 @@ ot_find_dependency(Vorbis) # requires OGG
 ot_find_dependency(SndFile) # requires OGG and Vorbis
 target_include_directories(SndFile INTERFACE ${SNDFILE_INCLUDE_DIR})
 target_link_libraries(SndFile INTERFACE ${SNDFILE_LIBRARIES} ${OGG_LIBRARIES} ${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES})
+
+
+# Dependency: Freetype
+ot_find_dependency_alt(freetype Freetype)
+target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(freetype INTERFACE ${FREETYPE_LIBRARIES})
+
+find_package(Irrlicht REQUIRED)
+
 
 if(MSVC)
     # C4503: Name too long

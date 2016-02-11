@@ -40,72 +40,46 @@ void ProgressBar::resize()
 void ProgressBar::setColor(BarColorType colType,
                            uint8_t R, uint8_t G, uint8_t B, uint8_t A)
 {
-    glm::float_t maxColValue = 255.0;
-
     switch(colType)
     {
         case BarColorType::BaseMain:
-            m_baseMainColor[0] = static_cast<float>(R) / maxColValue;
-            m_baseMainColor[1] = static_cast<float>(G) / maxColValue;
-            m_baseMainColor[2] = static_cast<float>(B) / maxColValue;
-            m_baseMainColor[3] = static_cast<float>(A) / maxColValue;
-            m_baseMainColorAlpha = m_baseMainColor[3];
+            m_baseMainColor.set(A,R,G,B);
+            m_baseMainColorAlpha = A;
             break;
         case BarColorType::BaseFade:
-            m_baseFadeColor[0] = static_cast<float>(R) / maxColValue;
-            m_baseFadeColor[1] = static_cast<float>(G) / maxColValue;
-            m_baseFadeColor[2] = static_cast<float>(B) / maxColValue;
-            m_baseFadeColor[3] = static_cast<float>(A) / maxColValue;
-            m_baseFadeColorAlpha = m_baseFadeColor[3];
+            m_baseFadeColor.set(A,R,G,B);
+            m_baseFadeColorAlpha = A;
             break;
         case BarColorType::AltMain:
-            m_altMainColor[0] = static_cast<float>(R) / maxColValue;
-            m_altMainColor[1] = static_cast<float>(G) / maxColValue;
-            m_altMainColor[2] = static_cast<float>(B) / maxColValue;
-            m_altMainColor[3] = static_cast<float>(A) / maxColValue;
-            m_altMainColorAlpha = m_altMainColor[3];
+            m_altMainColor.set(A,R,G,B);
+            m_altMainColorAlpha = A;
             break;
         case BarColorType::AltFade:
-            m_altFadeColor[0] = static_cast<float>(R) / maxColValue;
-            m_altFadeColor[1] = static_cast<float>(G) / maxColValue;
-            m_altFadeColor[2] = static_cast<float>(B) / maxColValue;
-            m_altFadeColor[3] = static_cast<float>(A) / maxColValue;
-            m_altFadeColorAlpha = m_altFadeColor[3];
+            m_altFadeColor.set(A,R,G,B);
+            m_altFadeColorAlpha = A;
             break;
         case BarColorType::BackMain:
-            m_backMainColor[0] = static_cast<float>(R) / maxColValue;
-            m_backMainColor[1] = static_cast<float>(G) / maxColValue;
-            m_backMainColor[2] = static_cast<float>(B) / maxColValue;
-            m_backMainColor[3] = static_cast<float>(A) / maxColValue;
-            m_backMainColorAlpha = m_backMainColor[3];
+            m_backMainColor.set(A,R,G,B);
+            m_backMainColorAlpha = A;
             break;
         case BarColorType::BackFade:
-            m_backFadeColor[0] = static_cast<float>(R) / maxColValue;
-            m_backFadeColor[1] = static_cast<float>(G) / maxColValue;
-            m_backFadeColor[2] = static_cast<float>(B) / maxColValue;
-            m_backFadeColor[3] = static_cast<float>(A) / maxColValue;
-            m_backFadeColorAlpha = m_backFadeColor[3];
+            m_backFadeColor.set(A,R,G,B);
+            m_backFadeColorAlpha = A;
             break;
         case BarColorType::BorderMain:
-            m_borderMainColor[0] = static_cast<float>(R) / maxColValue;
-            m_borderMainColor[1] = static_cast<float>(G) / maxColValue;
-            m_borderMainColor[2] = static_cast<float>(B) / maxColValue;
-            m_borderMainColor[3] = static_cast<float>(A) / maxColValue;
-            m_borderMainColorAlpha = m_borderMainColor[3];
+            m_borderMainColor.set(A,R,G,B);
+            m_borderMainColorAlpha = A;
             break;
         case BarColorType::BorderFade:
-            m_borderFadeColor[0] = static_cast<float>(R) / maxColValue;
-            m_borderFadeColor[1] = static_cast<float>(G) / maxColValue;
-            m_borderFadeColor[2] = static_cast<float>(B) / maxColValue;
-            m_borderFadeColor[3] = static_cast<float>(A) / maxColValue;
-            m_borderFadeColorAlpha = m_borderFadeColor[3];
+            m_borderFadeColor.set(A,R,G,B);
+            m_borderFadeColorAlpha = A;
             break;
         default:
             break;
     }
 }
 
-void ProgressBar::setPosition(HorizontalAnchor anchor_X, glm::float_t offset_X, VerticalAnchor anchor_Y, glm::float_t offset_Y)
+void ProgressBar::setPosition(HorizontalAnchor anchor_X, irr::f32 offset_X, VerticalAnchor anchor_Y, irr::f32 offset_Y)
 {
     m_xAnchor = anchor_X;
     m_yAnchor = anchor_Y;
@@ -116,7 +90,7 @@ void ProgressBar::setPosition(HorizontalAnchor anchor_X, glm::float_t offset_X, 
 }
 
 // Set bar size
-void ProgressBar::setSize(glm::float_t width, glm::float_t height, glm::float_t borderSize)
+void ProgressBar::setSize(irr::f32 width, irr::f32 height, irr::f32 borderSize)
 {
     // Absolute values are needed to recalculate actual bar size according to resolution.
     m_absWidth = width;
@@ -175,7 +149,7 @@ void ProgressBar::recalculatePosition()
 }
 
 // Set maximum and warning state values.
-void ProgressBar::setValues(glm::float_t maxValue, glm::float_t warnValue)
+void ProgressBar::setValues(irr::f32 maxValue, irr::f32 warnValue)
 {
     m_maxValue = maxValue;
     m_warnValue = warnValue;
@@ -194,9 +168,8 @@ void ProgressBar::setBlink(util::Duration interval)
 void ProgressBar::setExtrude(bool enabled, uint8_t depth)
 {
     m_extrude = enabled;
-    m_extrudeDepth = glm::vec4(0.0f);    // Set all colors to 0.
-    m_extrudeDepth[3] = static_cast<glm::float_t>(depth) / 255.0f;        // We need only alpha transparency.
-    m_extrudeDepthAlpha = m_extrudeDepth[3];
+    m_extrudeDepth.set(depth, 0, 0, 0);    // Set all colors to 0.
+    m_extrudeDepthAlpha = depth;
 }
 
 // Set autoshow and fade parameters.
@@ -216,10 +189,10 @@ void ProgressBar::setAutoshow(bool enabled, util::Duration delay, bool fade, uti
 // Main bar show procedure.
 // Draws a bar with a given value. Please note that it also accepts float,
 // so effectively you can create bars for floating-point parameters.
-void ProgressBar::show(glm::float_t value)
+void ProgressBar::show(irr::f32 value)
 {
     // Initial value limiters (to prevent bar overflow).
-    value = glm::clamp(value, 0.0f, m_maxValue);
+    value = irr::core::clamp(value, 0.0f, m_maxValue);
 
     // Enable blink mode, if value is gone below warning value.
     m_blink = value <= m_warnValue;
@@ -298,15 +271,15 @@ void ProgressBar::show(glm::float_t value)
         } // end if(!Visible)
 
         // Multiply all layers' alpha by current fade counter.
-        m_baseMainColor[3] = m_baseMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_baseFadeColor[3] = m_baseFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_altMainColor[3] = m_altMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_altFadeColor[3] = m_altFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_backMainColor[3] = m_backMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_backFadeColor[3] = m_backFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_borderMainColor[3] = m_borderMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_borderFadeColor[3] = m_borderFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
-        m_extrudeDepth[3] = m_extrudeDepthAlpha * m_autoShowFadeLength / m_autoShowFadeDelay;
+        m_baseMainColor.setAlpha( m_baseMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_baseFadeColor.setAlpha( m_baseFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_altMainColor.setAlpha( m_altMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_altFadeColor.setAlpha( m_altFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_backMainColor.setAlpha( m_backMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_backFadeColor.setAlpha( m_backFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_borderMainColor.setAlpha( m_borderMainColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_borderFadeColor.setAlpha( m_borderFadeColorAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
+        m_extrudeDepth.setAlpha( m_extrudeDepthAlpha * m_autoShowFadeLength / m_autoShowFadeDelay );
     }
     else
     {
@@ -355,29 +328,29 @@ void ProgressBar::show(glm::float_t value)
     m_baseSize = m_rangeUnit * value;
     m_baseRatio = value / m_maxValue;
 
-    glm::float_t RectAnchor;           // Anchor to stick base bar rect, according to Invert flag.
-    glm::vec4 RectFirstColor;    // Used to recalculate gradient, according to current value.
-    glm::vec4 RectSecondColor;
+    irr::f32 rectAnchor;           // Anchor to stick base bar rect, according to Invert flag.
+    irr::video::SColor rectFirstColor;    // Used to recalculate gradient, according to current value.
+    irr::video::SColor rectSecondColor;
 
     // If invert decrease direction style flag is set, we position bar in a way
     // that it seems like it's decreasing to another side, and also swap main / fade colours.
     if(m_invert)
     {
-        RectFirstColor = m_alternate ? m_altMainColor : m_baseMainColor;
+        rectFirstColor = m_alternate ? m_altMainColor : m_baseMainColor;
 
         // Main-fade gradient is recalculated according to current / maximum value ratio.
-        RectSecondColor = m_alternate
-            ? m_baseRatio * m_altFadeColor + (1 - m_baseRatio) * m_altMainColor
-            : m_baseRatio * m_baseFadeColor + (1 - m_baseRatio) * m_baseMainColor;
+        rectSecondColor = m_alternate
+            ? m_altFadeColor.getInterpolated(m_altMainColor, m_baseRatio)
+            : m_baseFadeColor.getInterpolated(m_baseMainColor, m_baseRatio);
     }
     else
     {
-        RectSecondColor = m_alternate ? m_altMainColor : m_baseMainColor;
+        rectSecondColor = m_alternate ? m_altMainColor : m_baseMainColor;
 
         // Main-fade gradient is recalculated according to current / maximum value ratio.
-        RectFirstColor = m_alternate
-            ? m_baseRatio * m_altFadeColor + (1 - m_baseRatio) * m_altMainColor
-            : m_baseRatio * m_baseFadeColor + (1 - m_baseRatio) * m_baseMainColor;
+          rectSecondColor = m_alternate
+              ? m_altFadeColor.getInterpolated(m_altMainColor, m_baseRatio)
+              : m_baseFadeColor.getInterpolated(m_baseMainColor, m_baseRatio);
     } // end if(Invert)
 
     // We need to reset Alternate flag each frame, cause behaviour is immediate.
@@ -387,18 +360,18 @@ void ProgressBar::show(glm::float_t value)
     // If vertical style flag is set, we draw bar base top-bottom, else we draw it left-right.
     if(m_vertical)
     {
-        RectAnchor = (m_invert ? m_y + m_height - m_baseSize : m_y) + m_borderHeight;
+        rectAnchor = (m_invert ? m_y + m_height - m_baseSize : m_y) + m_borderHeight;
 
         // Draw actual bar base.
-        m_engine->m_gui.drawRect(m_x + m_borderWidth, RectAnchor,
+        m_engine->m_gui.drawRect(m_x + m_borderWidth, rectAnchor,
                                 m_width, m_baseSize,
-                                RectFirstColor, RectFirstColor,
-                                RectSecondColor, RectSecondColor,
+                                rectFirstColor, rectFirstColor,
+                                rectSecondColor, rectSecondColor,
                                 loader::BlendingMode::Opaque);
 
         // Draw background rect.
         m_engine->m_gui.drawRect(m_x + m_borderWidth,
-                                m_invert ? m_y + m_borderHeight : RectAnchor + m_baseSize,
+                                m_invert ? m_y + m_borderHeight : rectAnchor + m_baseSize,
                                 m_width, m_height - m_baseSize,
                                 m_backMainColor, m_backFadeColor,
                                 m_backMainColor, m_backFadeColor,
@@ -406,14 +379,14 @@ void ProgressBar::show(glm::float_t value)
 
         if(m_extrude)    // Draw extrude overlay, if flag is set.
         {
-            glm::vec4 transparentColor{ 0.0f };  // Used to set counter-shade to transparent.
+            irr::video::SColor transparentColor{ 0, 0, 0, 0 };  // Used to set counter-shade to transparent.
 
-            m_engine->m_gui.drawRect(m_x + m_borderWidth, RectAnchor,
+            m_engine->m_gui.drawRect(m_x + m_borderWidth, rectAnchor,
                                     m_width / 2, m_baseSize,
                                     m_extrudeDepth, transparentColor,
                                     m_extrudeDepth, transparentColor,
                                     loader::BlendingMode::Opaque);
-            m_engine->m_gui.drawRect(m_x + m_borderWidth + m_width / 2, RectAnchor,
+            m_engine->m_gui.drawRect(m_x + m_borderWidth + m_width / 2, rectAnchor,
                                     m_width / 2, m_baseSize,
                                     transparentColor, m_extrudeDepth,
                                     transparentColor, m_extrudeDepth,
@@ -422,17 +395,17 @@ void ProgressBar::show(glm::float_t value)
     }
     else
     {
-        RectAnchor = (m_invert ? m_x + m_width - m_baseSize : m_x) + m_borderWidth;
+        rectAnchor = (m_invert ? m_x + m_width - m_baseSize : m_x) + m_borderWidth;
 
         // Draw actual bar base.
-        m_engine->m_gui.drawRect(RectAnchor, m_y + m_borderHeight,
+        m_engine->m_gui.drawRect(rectAnchor, m_y + m_borderHeight,
                                 m_baseSize, m_height,
-                                RectSecondColor, RectFirstColor,
-                                RectSecondColor, RectFirstColor,
+                                rectSecondColor, rectFirstColor,
+                                rectSecondColor, rectFirstColor,
                                 loader::BlendingMode::Opaque);
 
         // Draw background rect.
-        m_engine->m_gui.drawRect(m_invert ? m_x + m_borderWidth : RectAnchor + m_baseSize,
+        m_engine->m_gui.drawRect(m_invert ? m_x + m_borderWidth : rectAnchor + m_baseSize,
                                 m_y + m_borderHeight,
                                 m_width - m_baseSize, m_height,
                                 m_backMainColor, m_backMainColor,
@@ -441,14 +414,14 @@ void ProgressBar::show(glm::float_t value)
 
         if(m_extrude)    // Draw extrude overlay, if flag is set.
         {
-            glm::vec4 transparentColor{ 0.0f };  // Used to set counter-shade to transparent.
+            irr::video::SColor transparentColor{ 0, 0, 0, 0 };  // Used to set counter-shade to transparent.
 
-            m_engine->m_gui.drawRect(RectAnchor, m_y + m_borderHeight,
+            m_engine->m_gui.drawRect(rectAnchor, m_y + m_borderHeight,
                                     m_baseSize, m_height / 2,
                                     transparentColor, transparentColor,
                                     m_extrudeDepth, m_extrudeDepth,
                                     loader::BlendingMode::Opaque);
-            m_engine->m_gui.drawRect(RectAnchor, m_y + m_borderHeight + m_height / 2,
+            m_engine->m_gui.drawRect(rectAnchor, m_y + m_borderHeight + m_height / 2,
                                     m_baseSize, m_height / 2,
                                     m_extrudeDepth, m_extrudeDepth,
                                     transparentColor, transparentColor,

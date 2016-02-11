@@ -130,7 +130,7 @@ bool World::deleteEntity(ObjectId id)
     }
 }
 
-std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId room_id, const glm::vec3* pos, const glm::vec3* ang, boost::optional<ObjectId> id)
+std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId room_id, const irr::core::vector3df* pos, const irr::core::vector3df* ang, boost::optional<ObjectId> id)
 {
     std::shared_ptr<animation::SkeletalModel> model = getModelByID(model_id);
     if(!model)
@@ -144,7 +144,7 @@ std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId
     {
         if(pos != nullptr)
         {
-            ent->m_transform[3] = glm::vec4(*pos, 1.0f);
+            ent->m_transform.setTranslation(*pos);
         }
         if(ang != nullptr)
         {
@@ -154,7 +154,7 @@ std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId
         if(room_id < m_rooms.size())
         {
             ent->setRoom(m_rooms[room_id].get());
-            ent->m_currentSector = ent->getRoom()->getSectorRaw(glm::vec3(ent->m_transform[3]));
+            ent->m_currentSector = ent->getRoom()->getSectorRaw(ent->m_transform.getTranslation());
         }
         else
         {
@@ -179,7 +179,7 @@ std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId
 
     if(pos != nullptr)
     {
-        ent->m_transform[3] = glm::vec4(*pos, 1.0f);
+        ent->m_transform.setTranslation(*pos);
     }
     if(ang != nullptr)
     {
@@ -189,7 +189,7 @@ std::shared_ptr<Entity> World::spawnEntity(animation::ModelId model_id, ObjectId
     if(room_id < m_rooms.size())
     {
         ent->setRoom(m_rooms[room_id].get());
-        ent->m_currentSector = ent->getRoom()->getSectorRaw(glm::vec3(ent->m_transform[3]));
+        ent->m_currentSector = ent->getRoom()->getSectorRaw(ent->m_transform.getTranslation());
     }
     else
     {
@@ -251,7 +251,7 @@ std::shared_ptr<InventoryItem> World::getBaseItemByID(ObjectId id)
         return it->second;
 }
 
-std::shared_ptr<Room> World::findRoomByPosition(const glm::vec3& pos) const
+std::shared_ptr<Room> World::findRoomByPosition(const irr::core::vector3df& pos) const
 {
     for(auto r : m_rooms)
     {
@@ -263,7 +263,7 @@ std::shared_ptr<Room> World::findRoomByPosition(const glm::vec3& pos) const
     return nullptr;
 }
 
-Room* World::Room_FindPosCogerrence(const glm::vec3 &new_pos, Room* room) const
+Room* World::Room_FindPosCogerrence(const irr::core::vector3df& new_pos, Room* room) const
 {
     if(room == nullptr)
     {
@@ -271,14 +271,14 @@ Room* World::Room_FindPosCogerrence(const glm::vec3 &new_pos, Room* room) const
     }
 
     if(room->isActive() &&
-       new_pos[0] >= room->getBoundingBox().min[0] && new_pos[0] < room->getBoundingBox().max[0] &&
-       new_pos[1] >= room->getBoundingBox().min[1] && new_pos[1] < room->getBoundingBox().max[1])
+       new_pos.X >= room->getBoundingBox().min.X && new_pos.X < room->getBoundingBox().max.X &&
+       new_pos.Y >= room->getBoundingBox().min.Y && new_pos.Y < room->getBoundingBox().max.Y)
     {
-        if(new_pos[2] >= room->getBoundingBox().min[2] && new_pos[2] < room->getBoundingBox().max[2])
+        if(new_pos.Z >= room->getBoundingBox().min.Z && new_pos.Z < room->getBoundingBox().max.Z)
         {
             return room;
         }
-        else if(new_pos[2] >= room->getBoundingBox().max[2])
+        else if(new_pos.Z >= room->getBoundingBox().max.Z)
         {
             const RoomSector* orig_sector = room->getSectorRaw(new_pos);
             if(orig_sector->sector_above != nullptr)
@@ -286,7 +286,7 @@ Room* World::Room_FindPosCogerrence(const glm::vec3 &new_pos, Room* room) const
                 return orig_sector->sector_above->owner_room->checkFlip();
             }
         }
-        else if(new_pos[2] < room->getBoundingBox().min[2])
+        else if(new_pos.Z < room->getBoundingBox().min.Z)
         {
             const RoomSector* orig_sector = room->getSectorRaw(new_pos);
             if(orig_sector->sector_below != nullptr)
@@ -442,19 +442,19 @@ void World::updateAnimTextures()                                                
     }
 }
 
-glm::vec4 World::calculateWaterTint() const
+irr::video::SColorf World::calculateWaterTint() const
 {
     if(m_engineVersion < loader::Engine::TR4)  // If water room and level is TR1-3
     {
         if(m_engineVersion < loader::Engine::TR3)
         {
             // Placeholder, color very similar to TR1 PSX ver.
-            return{ 0.585f, 0.9f, 0.9f, 1.0f };
+            return { 1.0f, 0.585f, 0.9f, 0.9f };
         }
         else
         {
             // TOMB3 - closely matches TOMB3
-            return{ 0.275f, 0.45f, 0.5f, 1.0f };
+            return { 1.0f, 0.275f, 0.45f, 0.5f };
         }
     }
     else

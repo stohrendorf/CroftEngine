@@ -2,8 +2,6 @@
 
 #include "util/helpers.h"
 
-#include <glm/glm.hpp>
-
 #include <boost/signals2/signal.hpp>
 
 struct _SDL_Haptic;
@@ -156,8 +154,8 @@ private:
         bool invertY = false;
         int xAxis = 0;
         int yAxis = 0;
-        glm::vec2 position = { 0, 0 };
-        glm::vec2 prevPosition = { 0, 0 };
+        irr::core::vector2df position = { 0, 0 };
+        irr::core::vector2df prevPosition = { 0, 0 };
 
         boost::signals2::signal<MovementHandler> handler;
 
@@ -184,11 +182,11 @@ private:
         }
 
     private:
-        bool handleImpl(glm::float_t& position, int axisValue, bool invert)
+        bool handleImpl(irr::f32& position, int axisValue, bool invert)
         {
             if(axisValue < -deadzone || axisValue > deadzone)
             {
-                glm::float_t p = axisValue / (32767.0f / sensitivity); // 32767 is the max./min. axis value.
+                irr::f32 p = axisValue / (32767.0f / sensitivity); // 32767 is the max./min. axis value.
                 if(invert)
                 {
                     position = -p;
@@ -221,7 +219,7 @@ private:
     Engine* m_engine;
 
     float m_mouseSensitivity = 25.0f;
-    glm::vec2 m_mouseScale = { 0.01f, 0.01f };
+    irr::core::vector2df m_mouseScale = { 0.01f, 0.01f };
 
     JoystickAxisConfig m_joystickLookConfig;
     JoystickAxisConfig m_joystickMoveConfig;

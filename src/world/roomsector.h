@@ -3,7 +3,7 @@
 #include "object.h"
 
 #include <boost/optional.hpp>
-#include <glm/glm.hpp>
+#include <irrlicht.h>
 
 #include <cstdint>
 
@@ -32,13 +32,13 @@ struct RoomSector
 
     size_t index_x;
     size_t index_y;
-    glm::vec3 position;
+    irr::core::vector3df position;
 
-    glm::vec3                   ceiling_corners[4];
+    irr::core::vector3df        ceiling_corners[4];
     DiagonalType                ceiling_diagonal_type;
     PenetrationConfig           ceiling_penetration_config;
 
-    glm::vec3                   floor_corners[4];
+    irr::core::vector3df        floor_corners[4];
     DiagonalType                floor_diagonal_type;
     PenetrationConfig           floor_penetration_config;
 
@@ -55,23 +55,23 @@ struct RoomSector
     bool is2SidePortals(const World& world, const RoomSector* s2) const;
     bool similarCeiling(const RoomSector* s2, bool ignore_doors) const;
     bool similarFloor(const RoomSector* s2, bool ignore_doors) const;
-    glm::vec3 getFloorPoint() const;
-    glm::vec3 getCeilingPoint() const;
+    irr::core::vector3df getFloorPoint() const;
+    irr::core::vector3df getCeilingPoint() const;
 
-    glm::vec3 getHighestFloorCorner() const
+    irr::core::vector3df getHighestFloorCorner() const
     {
-        glm::vec3 r1 = floor_corners[0][2] > floor_corners[1][2] ? floor_corners[0] : floor_corners[1];
-        glm::vec3 r2 = floor_corners[2][2] > floor_corners[3][2] ? floor_corners[2] : floor_corners[3];
+        auto r1 = floor_corners[0].Z > floor_corners[1].Z ? floor_corners[0] : floor_corners[1];
+        auto r2 = floor_corners[2].Z > floor_corners[3].Z ? floor_corners[2] : floor_corners[3];
 
-        return r1[2] > r2[2] ? r1 : r2;
+        return r1.Z > r2.Z ? r1 : r2;
     }
 
-    glm::vec3 getLowestCeilingCorner() const
+    irr::core::vector3df getLowestCeilingCorner() const
     {
-        glm::vec3 r1 = ceiling_corners[0][2] > ceiling_corners[1][2] ? ceiling_corners[1] : ceiling_corners[0];
-        glm::vec3 r2 = ceiling_corners[2][2] > ceiling_corners[3][2] ? ceiling_corners[3] : ceiling_corners[2];
+        auto r1 = ceiling_corners[0].Z > ceiling_corners[1].Z ? ceiling_corners[1] : ceiling_corners[0];
+        auto r2 = ceiling_corners[2].Z > ceiling_corners[3].Z ? ceiling_corners[3] : ceiling_corners[2];
 
-        return r1[2] > r2[2] ? r2 : r1;
+        return r1.Z > r2.Z ? r2 : r1;
     }
 };
 

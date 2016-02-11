@@ -5,8 +5,7 @@
 
 #include <LinearMath/btVector3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include <irrlicht.h>
 
 #define PLANE_X        1
 #define PLANE_Y        2
@@ -22,42 +21,43 @@ constexpr const float Rad360 = static_cast<float>(2 * SIMD_PI);
 
 struct Plane
 {
-    glm::vec3 normal = { 0,0,0 };   // The plane's normal
-    glm::float_t dot = 0;   // The plane's distance to the origin
+    irr::core::vector3df normal = { 0,0,0 };   // The plane's normal
+    irr::f32 dot = 0;   // The plane's distance to the origin
 
     // Calculates the normalized distance of an arbitrary point in terms of the normal
     // @param pos The point
     // @return The distance in multiples of the normal (if >0, @a pos is in the direction of the normal)
 
-    glm::float_t distance(const glm::vec3& position) const
+    irr::f32 distance(const irr::core::vector3df& position) const
     {
-        return glm::dot(normal, position) + dot;
+        return normal.dotProduct(position) + dot;
     }
 
-    glm::vec3 rayIntersect(const glm::vec3& rayStart, const glm::vec3& rayDir, glm::float_t& lambda) const
+    irr::core::vector3df rayIntersect(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir, irr::f32& lambda) const
     {
-        lambda = dot + glm::dot(normal, rayStart);
-        lambda /= glm::dot(normal, rayDir);
+        lambda = dot + normal.dotProduct(rayStart);
+        lambda /= normal.dotProduct(rayDir);
         return rayStart - lambda * rayDir;
     }
 
-    glm::vec3 rayIntersect(const glm::vec3& rayStart, const glm::vec3& rayDir) const
+    irr::core::vector3df rayIntersect(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir) const
     {
-        glm::float_t t;
+        irr::f32 t;
         return rayIntersect(rayStart, rayDir, t);
     }
 
-    void assign(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& position)
+    void assign(const irr::core::vector3df& v1, const irr::core::vector3df& v2, const irr::core::vector3df& position)
     {
-        normal = glm::normalize(glm::cross(v1, v2));
-        dot = glm::dot(normal, position);
+        normal = v1.crossProduct(v2);
+        normal.normalize();
+        dot = normal.dotProduct(position);
     }
 
-    void assign(const glm::vec4& n)
+    void assign(const irr::core::vector3df& n, irr::f32 w)
     {
-        const glm::float_t len = glm::length(glm::vec3(n));
-        dot = n[3] / len;
-        normal = glm::vec3(n) / len;
+        const irr::f32 len = n.getLength();
+        dot = w / len;
+        normal = n/len;
     }
 
     void mirrorNormal()
@@ -66,72 +66,65 @@ struct Plane
         dot = -dot;
     }
 
-    void moveTo(const glm::vec3& where)
+    void moveTo(const irr::core::vector3df& where)
     {
         ///@TODO: Project the (where--0) onto the normal before calculating the dot
-        dot = glm::dot(normal, where);
+        dot = normal.dotProduct(where);
     }
 };
 
-inline glm::quat trRotationToQuat(const glm::vec3& rotation)
+inline irr::core::quaternion trRotationToQuat(const irr::core::vector3df& rotation)
 {
-    glm::quat v = glm::quat(1, 0, 0, 0);
-    v = glm::rotate(v, glm::radians(rotation[2]), { 0,0,1 });
-    v = glm::rotate(v, glm::radians(rotation[0]), { 1,0,0 });
-    v = glm::rotate(v, glm::radians(rotation[1]), { 0,1,0 });
+    irr::core::quaternion v;
+    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.Z), {0,0,1});
+    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.X), {1,0,0});
+    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.Y), {0,1,0});
     return v;
 }
 
-inline glm::vec3 convert(const btVector3& v)
+inline irr::core::vector3df convert(const btVector3& v)
 {
-    return glm::vec3(v[0], v[1], v[2]);
+    return {v[0], v[1], v[2]};
 }
 
-inline btVector3 convert(const glm::vec3& v)
+inline btVector3 convert(const irr::core::vector3df& v)
 {
-    return btVector3(v[0], v[1], v[2]);
+    return btVector3(v.X, v.Y, v.Z);
 }
 
-inline glm::vec3 convert(const loader::Vertex& tr_v)
+inline irr::core::vector3df convert(const loader::Vertex& tr_v)
 {
-    glm::vec3 v;
-    v[0] = tr_v.x;
-    v[1] = -tr_v.z;
-    v[2] = tr_v.y;
-    return v;
+    return {tr_v.x, -tr_v.z, tr_v.y};
 }
 
-inline glm::vec4 convert(const loader::FloatColor& tr_c)
+inline irr::video::SColorf convert(const loader::FloatColor& tr_c)
 {
-    glm::vec4 v;
-    v[0] = tr_c.r * 2;
-    v[1] = tr_c.g * 2;
-    v[2] = tr_c.b * 2;
-    v[3] = tr_c.a * 2;
-    return v;
+    return {tr_c.a*2, tr_c.r*2, tr_c.g*2, tr_c.b*2};
 }
 
-inline bool intersectRayTriangle(const glm::vec3& rayStart, const glm::vec3& rayDir, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+#if 0
+inline bool intersectRayTriangle(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir, const irr::core::vector3df& v0, const irr::core::vector3df& v1, const irr::core::vector3df& v2)
 {
-    BOOST_ASSERT(!fuzzyZero(glm::length(rayDir)));
+    BOOST_ASSERT(!fuzzyZero(rayDir.getLength()));
     // Check for intersection with each of the portal's 2 front triangles
     // Solve line-plane intersection using parametric form
-    glm::vec3 tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
+    irr::core::vector3df tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
     if(tuv.y >= 0 && tuv.y <= 1 && tuv.z >= 0 && tuv.z <= 1 && tuv.y + tuv.z <= 1)
         return true;
     else
         return false;
 }
 
-inline bool intersectRayRectangle(const glm::vec3& rayStart, const glm::vec3& rayDir, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+inline bool intersectRayRectangle(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir, const irr::core::vector3df& v0, const irr::core::vector3df& v1, const irr::core::vector3df& v2)
 {
-    BOOST_ASSERT(!fuzzyZero(glm::length(rayDir)));
-    BOOST_ASSERT(fuzzyZero(glm::dot(v1 - v0, v2 - v0))); // test if the vertices are perpendicular
+    BOOST_ASSERT(!fuzzyZero(rayDir.getLength()));
+    BOOST_ASSERT(fuzzyZero((v1 - v0).dotProduct(v2 - v0))); // test if the vertices are perpendicular
     // Solve line-plane intersection using parametric form
-    glm::vec3 tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
+    irr::core::vector3df tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
     if(tuv.y >= 0 && tuv.y <= 1 && tuv.z >= 0 && tuv.z <= 1)
         return true;
     else
         return false;
 }
+#endif
 } // namespace util

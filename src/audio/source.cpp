@@ -7,8 +7,6 @@
 #include "util/helpers.h"
 #include "world/entity.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace audio
 {
 Source::Source(audio::Engine* engine)
@@ -220,14 +218,14 @@ void Source::setLooping(ALboolean is_looping)
 
 void Source::setGain(ALfloat gain_value)
 {
-    alSourcef(m_sourceIndex, AL_GAIN, glm::clamp(gain_value, 0.0f, 1.0f) * m_audioEngine->getSettings().sound_volume);
+    alSourcef(m_sourceIndex, AL_GAIN, irr::core::clamp(gain_value, 0.0f, 1.0f) * m_audioEngine->getSettings().sound_volume);
     DEBUG_CHECK_AL_ERROR();
 }
 
 void Source::setPitch(ALfloat pitch_value)
 {
     // Clamp pitch value, as OpenAL tends to hang with incorrect ones.
-    alSourcef(m_sourceIndex, AL_PITCH, glm::clamp(pitch_value, 0.1f, 2.0f));
+    alSourcef(m_sourceIndex, AL_PITCH, irr::core::clamp(pitch_value, 0.1f, 2.0f));
     DEBUG_CHECK_AL_ERROR();
 }
 
@@ -240,15 +238,15 @@ void Source::setRange(ALfloat range_value)
     DEBUG_CHECK_AL_ERROR();
 }
 
-void Source::setPosition(const ALfloat pos_vector[])
+void Source::setPosition(const irr::core::vector3df& position)
 {
-    alSourcefv(m_sourceIndex, AL_POSITION, pos_vector);
+    alSourcefv(m_sourceIndex, AL_POSITION, &position.X);
     DEBUG_CHECK_AL_ERROR();
 }
 
-void Source::setVelocity(const ALfloat vel_vector[])
+void Source::setVelocity(const irr::core::vector3df& velocity)
 {
-    alSourcefv(m_sourceIndex, AL_VELOCITY, vel_vector);
+    alSourcefv(m_sourceIndex, AL_VELOCITY, &velocity.X);
     DEBUG_CHECK_AL_ERROR();
 }
 
@@ -313,13 +311,13 @@ void Source::linkEmitter(const world::World& world)
         case EmitterType::Entity:
             if(std::shared_ptr<world::Entity> ent = world.getEntityByID(*m_emitterId))
             {
-                setPosition(glm::value_ptr(ent->m_transform[3]));
-                setVelocity(glm::value_ptr(ent->m_speed));
+                setPosition(ent->m_transform.getTranslation());
+                setVelocity(ent->m_speed);
             }
             break;
 
         case EmitterType::SoundSource:
-            setPosition(glm::value_ptr(m_audioEngine->getEmitter(*m_emitterId).position));
+            setPosition(m_audioEngine->getEmitter(*m_emitterId).position);
             break;
     }
 }
