@@ -27,6 +27,7 @@
 #include "tr5level.h"
 
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
 
 using namespace loader;
 
@@ -84,7 +85,7 @@ void Level::readPoseDataAndModels(io::SDLReader& reader)
             // Disable unused skybox polygons.
             if(gameToEngine(m_gameVersion) == Engine::TR3 && model->object_id == 355)
             {
-                m_meshes[m_meshIndices[model->firstMesh]].coloured_triangles.resize(16);
+                m_meshes[m_meshIndices[model->firstMesh]].colored_triangles.resize(16);
             }
         }
         else
@@ -276,6 +277,15 @@ StaticMesh *Level::findStaticMeshById(uint32_t object_id)
     return nullptr;
 }
 
+int Level::findMeshIndexByObjectId(uint32_t object_id) const
+{
+    for(size_t i = 0; i < m_staticMeshes.size(); i++)
+        if(m_staticMeshes[i].object_id == object_id)
+            return m_meshIndices[m_staticMeshes[i].mesh];
+    
+    return -1;
+}
+
 Item *Level::findItemById(int32_t object_id)
 {
     for(size_t i = 0; i < m_items.size(); i++)
@@ -294,6 +304,74 @@ AnimatedModel* Level::findModelById(uint32_t object_id)
     return nullptr;
 }
 
+std::vector<irr::video::ITexture*> Level::createTextures(irr::video::IVideoDriver* drv)
+{
+    BOOST_ASSERT(!m_textures.empty());
+    std::vector<irr::video::ITexture*> textures;
+    for(int i=0; i<m_textures.size(); ++i)
+    {
+        DWordTexture& texture = m_textures[i];
+        textures.emplace_back(texture.toTexture(drv, i));
+    }
+    return textures;
+}
+
+void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
+{
+    std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
+    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials;
+    const auto texMask = gameToEngine(m_gameVersion)==Engine::TR4 ? TextureIndexMaskTr4 : TextureIndexMask;
+    for(UVTexture& uvTexture : m_uvTextures)
+    {
+        const auto& key = uvTexture.textureKey;
+        if(materials.find(key) != materials.end())
+            continue;
+        
+        materials[key] = UVTexture::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
+    }
+    std::vector<irr::video::SMaterial> coloredMaterials;
+    std::vector<irr::scene::SMesh*> staticMeshes;
+    for(size_t i=0; i<m_meshes.size(); ++i)
+    {
+        staticMeshes.emplace_back(m_meshes[i].createMesh(mgr, i, m_uvTextures, materials, coloredMaterials));
+    }
+
+    irr::core::vector3df cpos;
+    for(size_t i=0; i<m_rooms.size(); ++i)
+    {
+        irr::scene::IMeshSceneNode* n = m_rooms[i].createSceneNode(mgr, i, *this, materials, staticMeshes);
+        if(i==0)
+            cpos = n->getAbsolutePosition();
+    }
+    
+    irr::SKeyMap keyMap[7];
+    keyMap[0].Action = irr::EKA_MOVE_FORWARD;
+    keyMap[0].KeyCode = irr::KEY_KEY_W;
+
+    keyMap[1].Action = irr::EKA_MOVE_BACKWARD;
+    keyMap[1].KeyCode = irr::KEY_KEY_S;
+
+    keyMap[2].Action = irr::EKA_STRAFE_LEFT;
+    keyMap[2].KeyCode = irr::KEY_KEY_A;
+
+    keyMap[3].Action = irr::EKA_STRAFE_RIGHT;
+    keyMap[3].KeyCode = irr::KEY_KEY_D;
+
+    keyMap[4].Action = irr::EKA_JUMP_UP;
+    keyMap[4].KeyCode = irr::KEY_SPACE;
+
+    keyMap[5].Action = irr::EKA_CROUCH;
+    keyMap[5].KeyCode = irr::KEY_SHIFT;
+    keyMap[6].Action = irr::EKA_CROUCH;
+    keyMap[6].KeyCode = irr::KEY_CONTROL;
+
+    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNodeFPS(nullptr, 50.f, 10.0f, -1, keyMap, 7, false, 10.0f);
+    camera->setNearValue(1);
+    camera->setFarValue(2e5);
+    
+    camera->setPosition(cpos);
+}
+
 void Level::convertTexture(ByteTexture & tex, Palette & pal, DWordTexture & dst)
 {
     for(int y = 0; y < 256; y++)
@@ -301,11 +379,11 @@ void Level::convertTexture(ByteTexture & tex, Palette & pal, DWordTexture & dst)
         for(int x = 0; x < 256; x++)
         {
             int col = tex.pixels[y][x];
-
+            
             if(col > 0)
-                dst.pixels[y][x] = static_cast<int>(pal.color[col].r) | (static_cast<int>(pal.color[col].g) << 8) | (static_cast<int>(pal.color[col].b) << 16) | (0xff << 24);
+                dst.pixels[y][x].set(0xff, pal.color[col].r, pal.color[col].g, pal.color[col].b);
             else
-                dst.pixels[y][x] = 0x00000000;
+                dst.pixels[y][x].set(0);
         }
     }
 }
@@ -317,11 +395,19 @@ void Level::convertTexture(WordTexture & tex, DWordTexture & dst)
         for(int x = 0; x < 256; x++)
         {
             int col = tex.pixels[y][x];
-
+            
             if(col & 0x8000)
-                dst.pixels[y][x] = ((col & 0x00007c00) >> 7) | (((col & 0x000003e0) >> 2) << 8) | (((col & 0x0000001f) << 3) << 16) | 0xff000000;
+            {
+                const uint32_t a = 0xff;
+                const uint32_t r = ((col & 0x00007c00) >> 7);
+                const uint32_t g = ((col & 0x000003e0) >> 2);
+                const uint32_t b = ((col & 0x0000001f) << 3);
+                dst.pixels[y][x].set(a,r,g,b);
+            }
             else
-                dst.pixels[y][x] = 0x00000000;
+            {
+                dst.pixels[y][x].set(0);
+            }
         }
     }
 }

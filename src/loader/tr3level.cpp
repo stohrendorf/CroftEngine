@@ -25,7 +25,7 @@ using namespace loader;
 
 #define TR_AUDIO_MAP_SIZE_TR3  370
 
-void TR3Level::load()
+void TR3Level::load(irr::video::IVideoDriver* drv)
 {
     // Version
     uint32_t file_version = m_reader.readU32();
@@ -88,7 +88,7 @@ void TR3Level::load()
     m_animatedTexturesUvCount = 0; // No UVRotate in TR3
     m_reader.readVector(m_animatedTextures, m_reader.readU32());
 
-    m_reader.readVector(m_objectTextures, m_reader.readU32(), &ObjectTexture::readTr1);
+    m_reader.readVector(m_uvTextures, m_reader.readU32(), &UVTexture::readTr1);
 
     m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr3);
 

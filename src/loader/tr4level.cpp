@@ -25,7 +25,7 @@ using namespace loader;
 
 #define TR_AUDIO_MAP_SIZE_TR4  370
 
-void TR4Level::load()
+void TR4Level::load(irr::video::IVideoDriver* drv)
 {
     // Version
     uint32_t file_version = m_reader.readU32();
@@ -186,7 +186,7 @@ void TR4Level::load()
     if(newsrc.readI8() != 'X')
         BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: 'TEX' not found"));
 
-    newsrc.readVector(m_objectTextures, newsrc.readU32(), &ObjectTexture::readTr4);
+    newsrc.readVector(m_uvTextures, newsrc.readU32(), &UVTexture::readTr4);
 
     newsrc.readVector(m_items, newsrc.readU32(), &Item::readTr4);
 

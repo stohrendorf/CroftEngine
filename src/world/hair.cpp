@@ -246,18 +246,19 @@ void Hair::createHairMesh(const animation::SkeletalModel& model)
     m_mesh->m_elements.resize(totalElements, 0);
 
     // - with matrix index information
-    m_mesh->m_matrixIndices.resize(m_mesh->m_vertices.size());
+    m_mesh->m_matrixIndices.resize(m_mesh->m_vertices->Vertices.size());
 
     // Copy information
     std::vector<size_t> elementsStartPerTexture(m_mesh->m_texturePageCount);
-    m_mesh->m_vertices.clear();
+    m_mesh->m_vertices->Vertices.clear();
     for(size_t i = 0; i < model.getBoneCount(); i++)
     {
         const std::shared_ptr<core::BaseMesh> original = model.getSkinnedBone(i).mesh_base;
 
         // Copy vertices
-        const size_t verticesStart = m_mesh->m_vertices.size();
-        m_mesh->m_vertices.insert(m_mesh->m_vertices.end(), original->m_vertices.begin(), original->m_vertices.end());
+        const size_t verticesStart = m_mesh->m_vertices->Vertices.size();
+        for(const auto& v : original->m_vertices->Vertices)
+            m_mesh->m_vertices->Vertices.push_back(v);
 
         // Copy elements
         size_t originalElementsStart = 0;
@@ -298,11 +299,11 @@ void Hair::createHairMesh(const animation::SkeletalModel& model)
         }
 
         // And create vertex data (including matrix indices)
-        for(size_t j = 0; j < original->m_vertices.size(); j++)
+        for(size_t j = 0; j < original->m_vertices->Vertices.size(); j++)
         {
             m_mesh->m_matrixIndices.emplace_back();
             BOOST_ASSERT(m_mesh->m_matrixIndices.size() > verticesStart + j);
-            if(original->m_vertices[j].Pos.Y <= 0)
+            if(original->m_vertices->Vertices[j].Pos.Y <= 0)
             {
                 m_mesh->m_matrixIndices[verticesStart + j].i = i;
                 m_mesh->m_matrixIndices[verticesStart + j].j = i + 1;
@@ -314,14 +315,14 @@ void Hair::createHairMesh(const animation::SkeletalModel& model)
             }
 
             // Now move all the hair vertices
-            m_mesh->m_vertices[verticesStart + j].Pos += m_elements[i].position;
+            m_mesh->m_vertices->Vertices[verticesStart + j].Pos += m_elements[i].position;
 
             // If the normal isn't fully in y direction, cancel its y component
             // This is perhaps a bit dubious.
-            if(m_mesh->m_vertices[verticesStart + j].Normal.X != 0 || m_mesh->m_vertices[verticesStart + j].Normal.Z != 0)
+            if(m_mesh->m_vertices->Vertices[verticesStart + j].Normal.X != 0 || m_mesh->m_vertices->Vertices[verticesStart + j].Normal.Z != 0)
             {
-                m_mesh->m_vertices[verticesStart + j].Normal.X = 0;
-                m_mesh->m_vertices[verticesStart + j].Normal.normalize();
+                m_mesh->m_vertices->Vertices[verticesStart + j].Normal.X = 0;
+                m_mesh->m_vertices->Vertices[verticesStart + j].Normal.normalize();
             }
         }
     }

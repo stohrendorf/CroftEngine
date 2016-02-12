@@ -28,20 +28,17 @@ public:
 
     size_t m_texturePageCount;
     std::vector<size_t> m_elementsPerTexture;
-    std::vector<GLuint> m_elements;
     size_t m_alphaElements;
 
-    std::vector<irr::video::S3DVertex> m_vertices;
+    irr::scene::SMeshBuffer* m_vertices = new irr::scene::SMeshBuffer();
+    irr::scene::SMeshBuffer* m_animatedVertices = new irr::scene::SMeshBuffer();
 
     size_t m_animatedElementCount;
     size_t m_alphaAnimatedElementCount;
-    std::vector<GLuint> m_allAnimatedElements;
-    std::vector<animation::AnimatedVertex> m_animatedVertices;
 
     std::vector<render::TransparentPolygonReference> m_transparentPolygons;
 
-    irr::core::vector3df m_center; //!< geometry center of mesh
-    BoundingBox m_boundingBox; //!< AABB bounding volume
+    irr::core::aabbox3df m_boundingBox;
     irr::f32 m_radius; //!< radius of the bounding sphere
 
 #pragma pack(push,1)
@@ -61,26 +58,12 @@ public:
 
     std::vector<MatrixIndex> m_matrixIndices; //!< vertices map for skin mesh
 
-    GLuint                m_vboVertexArray = 0;
-    GLuint                m_vboIndexArray = 0;
-    GLuint                m_vboSkinArray = 0;
-    std::shared_ptr< render::VertexArray > m_mainVertexArray;
-
-    // Buffers for animated polygons
-    // The first contains position, normal and color.
-    // The second contains the texture coordinates. It gets updated every frame.
-    GLuint                m_animatedVboVertexArray;
-    GLuint                m_animatedVboTexCoordArray;
-    GLuint                m_animatedVboIndexArray;
-    std::shared_ptr< render::VertexArray > m_animatedVertexArray;
-
     ~BaseMesh();
 
-    void updateBoundingBox();
-    void genVBO();
+    void genVBO(irr::scene::SMesh* mesh);
     void genFaces();
-    size_t addVertex(const irr::video::S3DVertex& v);
-    size_t addAnimatedVertex(const irr::video::S3DVertex& v);
+    irr::s32 findOrAddVertex(const irr::video::S3DVertex& v);
+    irr::s32 addAnimatedVertex(const irr::video::S3DVertex& v);
     void polySortInMesh(const world::World& world);
     irr::video::S3DVertex* findVertex(const irr::core::vector3df& v);
 };

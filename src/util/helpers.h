@@ -4,6 +4,8 @@
 #include <boost/type_index.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <irrlicht.h>
+
 #include <cstdint>
 #include <chrono>
 

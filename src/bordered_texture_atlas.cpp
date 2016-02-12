@@ -156,7 +156,7 @@ void BorderedTextureAtlas::layOutTextures()
 BorderedTextureAtlas::BorderedTextureAtlas(int border,
                                            bool conserve_memory,
                                            const std::vector<loader::DWordTexture>& pages,
-                                           const std::vector<loader::ObjectTexture>& object_textures,
+                                           const std::vector<loader::UVTexture>& object_textures,
                                            const std::vector<loader::SpriteTexture>& sprite_textures)
     : m_borderWidth(border)
     , m_resultPageWidth(0)
@@ -175,7 +175,7 @@ BorderedTextureAtlas::BorderedTextureAtlas(int border,
     {
         // Idea: sqrt(sum(areas)) * sqrt(2) >= needed area
         size_t areaSum = 0;
-        for(const loader::ObjectTexture& t : object_textures)
+        for(const loader::UVTexture& t : object_textures)
             areaSum += t.x_size * t.y_size;
         for(const loader::SpriteTexture& t : sprite_textures)
             areaSum += std::abs((t.x1 - t.x0) * (t.y1 - t.y0));
@@ -187,7 +187,7 @@ BorderedTextureAtlas::BorderedTextureAtlas(int border,
         m_resultPageWidth = NextPowerOf2(max_texture_edge_length);
     }
 
-    for(const loader::ObjectTexture& tex : object_textures)
+    for(const loader::UVTexture& tex : object_textures)
     {
         addObjectTexture(tex);
     }
@@ -200,7 +200,7 @@ BorderedTextureAtlas::BorderedTextureAtlas(int border,
     layOutTextures();
 }
 
-void BorderedTextureAtlas::addObjectTexture(const loader::ObjectTexture &texture)
+void BorderedTextureAtlas::addObjectTexture(const loader::UVTexture &texture)
 {
     // Determine the canonical texture for this texture.
     // Use only first three vertices to find min, max, because for triangles the last will be 0,0 with no other marker that this is a triangle. As long as all textures are axis-aligned rectangles, this will always return the right result anyway.

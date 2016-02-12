@@ -12,6 +12,6 @@ public:
     {
     }
 
-    void load() override;
+    void load(irr::video::IVideoDriver* drv) override;
 };
 } // namespace loader

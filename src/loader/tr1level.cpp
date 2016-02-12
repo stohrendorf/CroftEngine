@@ -25,7 +25,7 @@ using namespace loader;
 
 #define TR_AUDIO_MAP_SIZE_TR1  256
 
-void TR1Level::load()
+void TR1Level::load(irr::video::IVideoDriver* drv)
 {
     BOOST_LOG_TRIVIAL(debug) << "Start. File size = " << m_reader.size();
 
@@ -83,7 +83,7 @@ void TR1Level::load()
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading object textures";
-    m_reader.readVector(m_objectTextures, m_reader.readU32(), ObjectTexture::readTr1);
+    m_reader.readVector(m_uvTextures, m_reader.readU32(), UVTexture::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite textures";
     m_reader.readVector(m_spriteTextures, m_reader.readU32(), &SpriteTexture::readTr1);

@@ -307,7 +307,9 @@ void Skeleton::updateBoundingBox()
     m_boundingBox = m_bones[0].mesh->m_boundingBox;
     for(const Bone& bone : m_bones)
     {
-        m_boundingBox.adjust(glm::vec3(bone.globalTransform[3]), bone.mesh->m_boundingBox.getMaximumExtent() * 0.5f);
+        const auto ext = bone.mesh->m_boundingBox.getExtent();
+        auto max = std::max(std::max(ext.X, ext.Y), ext.Z);
+        m_boundingBox.adjust(bone.globalTransform.getTranslation(), max * 0.5f);
     }
 }
 

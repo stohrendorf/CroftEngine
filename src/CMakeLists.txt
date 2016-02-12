@@ -16,6 +16,7 @@ list(APPEND PRJ_SRC
     main_SDL.cpp
 
     loader/level.cpp
+    loader/datatypes.cpp
     loader/tr1level.cpp
     loader/tr2level.cpp
     loader/tr3level.cpp
@@ -257,3 +258,29 @@ if(APPLE)
         "-L${SDL2_LIBRARY_DIRS} -framework CoreFoundation -framework ApplicationServices"
     )
 endif()
+
+
+add_executable(ot_irr
+    ot_irr.cpp
+    loader/level.cpp
+    loader/datatypes.cpp
+    loader/tr1level.cpp
+    loader/tr2level.cpp
+    loader/tr3level.cpp
+    loader/tr4level.cpp
+    loader/tr5level.cpp
+)
+
+target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
+
+target_link_libraries(
+    ot_irr
+    Bullet
+    Boost
+    Irrlicht
+    ZLIB
+    SDL2
+    # efence
+)
+
+target_include_directories(ot_irr PRIVATE .)

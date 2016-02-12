@@ -104,7 +104,7 @@ class BorderedTextureAtlas
     void layOutTextures();
 
     /*! Adds an object texture to the list. */
-    void addObjectTexture(const loader::ObjectTexture &texture);
+    void addObjectTexture(const loader::UVTexture &texture);
 
     /*! Adds a sprite texture to the list. */
     void addSpriteTexture(const loader::SpriteTexture &texture);
@@ -117,7 +117,7 @@ public:
     BorderedTextureAtlas(int border,
                          bool conserve_memory,
                          const std::vector<loader::DWordTexture> &pages,
-                         const std::vector<loader::ObjectTexture> &object_textures,
+                         const std::vector<loader::UVTexture> &object_textures,
                          const std::vector<loader::SpriteTexture> &sprite_textures);
 
     /*!

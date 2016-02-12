@@ -40,7 +40,7 @@ public:
     std::vector<int16_t> m_animCommands;
     std::vector<std::unique_ptr<AnimatedModel>> m_animatedModels;
     std::vector<StaticMesh> m_staticMeshes;
-    std::vector<ObjectTexture> m_objectTextures;
+    std::vector<UVTexture> m_uvTextures;
     std::vector<uint16_t> m_animatedTextures;
     size_t m_animatedTexturesUvCount = 0;
     std::vector<SpriteTexture> m_spriteTextures;
@@ -83,12 +83,17 @@ public:
     uint16_t m_weatherType = 0;
 
     static std::unique_ptr<Level> createLoader(const std::string &filename, Game game_version);
-    virtual void load() = 0;
+    virtual void load(irr::video::IVideoDriver* drv) = 0;
 
     StaticMesh *findStaticMeshById(uint32_t object_id);
     Item* findItemById(int32_t object_id);
     AnimatedModel* findModelById(uint32_t object_id);
+    int findMeshIndexByObjectId(uint32_t object_id) const;
 
+    std::vector<irr::video::ITexture*> createTextures(irr::video::IVideoDriver* drv);
+    
+    void toIrrlicht(irr::scene::ISceneManager* mgr);
+    
 protected:
     io::SDLReader m_reader;
     bool m_demoOrUb = false;

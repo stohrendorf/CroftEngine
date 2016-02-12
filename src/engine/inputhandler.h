@@ -164,11 +164,11 @@ private:
             bool handled = false;
             if(axis == xAxis)
             {
-                handled |= handleImpl(position.x, axisValue, invertX);
+                handled |= handleImpl(position.X, axisValue, invertX);
             }
             else if(axis == yAxis)
             {
-                handled |= handleImpl(position.y, axisValue, invertY);
+                handled |= handleImpl(position.Y, axisValue, invertY);
             }
             return handled;
         }
@@ -176,7 +176,7 @@ private:
         void dispatch()
         {
             if(position != prevPosition)
-                handler(position.x, position.y);
+                handler(position.X, position.Y);
 
             prevPosition = position;
         }

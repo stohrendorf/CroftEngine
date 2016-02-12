@@ -7,6 +7,7 @@
 #include <array>
 #include <stdexcept>
 #include <vector>
+#include <map>
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
@@ -92,7 +93,7 @@ struct Vertex
 struct Triangle
 {
     uint16_t vertices[3];    ///< index into the appropriate list of vertices.
-    uint16_t texture;        /**< \brief object-texture index or colour index.
+    uint16_t uvTexture;        /**< \brief object-texture index or colour index.
                                * If the triangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
                                * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -119,7 +120,7 @@ private:
         meshface.vertices[0] = reader.readU16();
         meshface.vertices[1] = reader.readU16();
         meshface.vertices[2] = reader.readU16();
-        meshface.texture = reader.readU16();
+        meshface.uvTexture = reader.readU16();
         if(withLighting)
             meshface.lighting = reader.readU16();
         else
@@ -130,8 +131,8 @@ private:
 
 struct QuadFace
 {
-    uint16_t vertices[4];    ///< index into the appropriate list of vertices.
-    uint16_t texture;        /**< \brief object-texture index or colour index.
+    uint16_t uvCoordinates[4];    ///< index into the appropriate list of vertices.
+    uint16_t uvTexture;        /**< \brief object-texture index or colour index.
                                * If the rectangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
                                * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -157,11 +158,11 @@ private:
     static QuadFace read(io::SDLReader& reader, bool withLighting)
     {
         QuadFace meshface;
-        meshface.vertices[0] = reader.readU16();
-        meshface.vertices[1] = reader.readU16();
-        meshface.vertices[2] = reader.readU16();
-        meshface.vertices[3] = reader.readU16();
-        meshface.texture = reader.readU16();
+        meshface.uvCoordinates[0] = reader.readU16();
+        meshface.uvCoordinates[1] = reader.readU16();
+        meshface.uvCoordinates[2] = reader.readU16();
+        meshface.uvCoordinates[3] = reader.readU16();
+        meshface.uvTexture = reader.readU16();
         if(withLighting)
             meshface.lighting = reader.readU16();
         else
@@ -208,9 +209,9 @@ struct WordTexture
     }
 };
 
-struct DWordTexture
+struct DWordTexture final
 {
-    uint32_t pixels[256][256];
+    irr::video::SColor pixels[256][256];
 
     static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
     {
@@ -220,17 +221,15 @@ struct DWordTexture
         {
             for(int j = 0; j < 256; j++)
             {
-                auto tmp = reader.readU32();
-                const auto a = tmp & 0xff00ff00;
-                const auto b = tmp & 0x00ff0000;
-                const auto c = tmp & 0x000000ff;
-                tmp = a | (b >> 16) | (c << 16);
-                textile->pixels[i][j] = tmp;
+                auto tmp = reader.readU32(); // format is ARGB
+                textile->pixels[i][j].set(tmp);
             }
         }
 
         return textile;
     }
+    
+    irr::video::ITexture* toTexture(irr::video::IVideoDriver* drv, int texIdx);
 };
 
 struct Portal
@@ -776,6 +775,316 @@ enum class ReverbType : uint8_t
     Water,           // EFX_REVERB_PRESET_UNDERWATER
     Sentinel
 };
+
+/** \brief Object Texture.
+  *
+  * These, thee contents of ObjectTextures[], are used for specifying texture
+  * mapping for the world geometry and for mesh objects.
+  */
+enum class BlendingMode : uint16_t
+{
+    Opaque,
+    Transparent,
+    Multiply,
+    SimpleShade,
+    TransparentIgnoreZ,
+    InvertSrc,
+    Wireframe,
+    TransparentAlpha,
+    InvertDst,
+    Screen,
+    Hide,
+    AnimatedTexture
+};
+
+/** \brief Object Texture Vertex.
+  *
+  * It specifies a vertex location in textile coordinates.
+  * The Xpixel and Ypixel are the actual coordinates of the vertex's pixel.
+  * The Xcoordinate and Ycoordinate values depend on where the other vertices
+  * are in the object texture. And if the object texture is used to specify
+  * a triangle, then the fourth vertex's values will all be zero.
+  */
+struct UVVertex
+{
+    int8_t xcoordinate;     // 1 if Xpixel is the low value, -1 if Xpixel is the high value in the object texture
+    uint8_t xpixel;
+    int8_t ycoordinate;     // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
+    uint8_t ypixel;
+
+    /// \brief reads object texture vertex definition.
+    static UVVertex readTr1(io::SDLReader& reader)
+    {
+        UVVertex vert;
+        vert.xcoordinate = reader.readI8();
+        vert.xpixel = reader.readU8();
+        vert.ycoordinate = reader.readI8();
+        vert.ypixel = reader.readU8();
+        return vert;
+    }
+
+    static UVVertex readTr4(io::SDLReader& reader)
+    {
+        UVVertex vert;
+        vert.xcoordinate = reader.readI8();
+        vert.xpixel = reader.readU8();
+        vert.ycoordinate = reader.readI8();
+        vert.ypixel = reader.readU8();
+        if(vert.xcoordinate == 0)
+            vert.xcoordinate = 1;
+        if(vert.ycoordinate == 0)
+            vert.ycoordinate = 1;
+        return vert;
+    }
+};
+
+struct UVTexture
+{
+    struct TextureKey
+    {
+        BlendingMode blendingMode;
+        // 0 means that a texture is all-opaque, and that transparency
+        // information is ignored.
+        // 1 means that transparency information is used. In 8-bit colour,
+        // index 0 is the transparent colour, while in 16-bit colour, the
+        // top bit (0x8000) is the alpha channel (1 = opaque, 0 = transparent).
+        // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
+        // the brighter the colour, the more opaque it is. The intensity is probably calculated
+        // as the maximum of the individual color values.
+        uint16_t tileAndFlag;                     // index into textile list
+
+        uint16_t flags;                             // TR4
+        
+        inline bool operator==(const TextureKey& rhs) const
+        {
+            return tileAndFlag == rhs.tileAndFlag
+                && flags == rhs.flags
+                && blendingMode == rhs.blendingMode;
+        }
+        
+        inline bool operator<(const TextureKey& rhs) const
+        {
+            if( tileAndFlag != rhs.tileAndFlag )
+                return tileAndFlag < rhs.tileAndFlag;
+            
+            if( flags != rhs.flags )
+                return flags < rhs.flags;
+            
+            return blendingMode < rhs.blendingMode;
+        }
+    };
+    
+    TextureKey textureKey;
+    UVVertex vertices[4];      // the four corners of the texture
+    uint32_t unknown1;                          // TR4
+    uint32_t unknown2;                          // TR4
+    uint32_t x_size;                            // TR4
+    uint32_t y_size;                            // TR4
+
+    /** \brief reads object texture definition.
+      *
+      * some sanity checks get done and if they fail an exception gets thrown.
+      * all values introduced in TR4 get set appropiatly.
+      */
+    static std::unique_ptr<UVTexture> readTr1(io::SDLReader& reader)
+    {
+        std::unique_ptr<UVTexture> object_texture{ new UVTexture() };
+        object_texture->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+        object_texture->textureKey.tileAndFlag = reader.readU16();
+        if(object_texture->textureKey.tileAndFlag > 64)
+            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
+
+        if((object_texture->textureKey.tileAndFlag & (1 << 15)) != 0)
+            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
+
+        // only in TR4
+        object_texture->textureKey.flags = 0;
+        object_texture->vertices[0] = UVVertex::readTr1(reader);
+        object_texture->vertices[1] = UVVertex::readTr1(reader);
+        object_texture->vertices[2] = UVVertex::readTr1(reader);
+        object_texture->vertices[3] = UVVertex::readTr1(reader);
+        // only in TR4
+        object_texture->unknown1 = 0;
+        object_texture->unknown2 = 0;
+        object_texture->x_size = 0;
+        object_texture->y_size = 0;
+        return object_texture;
+    }
+
+    static std::unique_ptr<UVTexture> readTr4(io::SDLReader& reader)
+    {
+        std::unique_ptr<UVTexture> object_texture{ new UVTexture() };
+        object_texture->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+        object_texture->textureKey.tileAndFlag = reader.readU16();
+        if((object_texture->textureKey.tileAndFlag & 0x7FFF) > 128)
+            BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
+
+        object_texture->textureKey.flags = reader.readU16();
+        object_texture->vertices[0] = UVVertex::readTr4(reader);
+        object_texture->vertices[1] = UVVertex::readTr4(reader);
+        object_texture->vertices[2] = UVVertex::readTr4(reader);
+        object_texture->vertices[3] = UVVertex::readTr4(reader);
+        object_texture->unknown1 = reader.readU32();
+        object_texture->unknown2 = reader.readU32();
+        object_texture->x_size = reader.readU32();
+        object_texture->y_size = reader.readU32();
+        return object_texture;
+    }
+
+    static std::unique_ptr<UVTexture> readTr5(io::SDLReader& reader)
+    {
+        std::unique_ptr<UVTexture> object_texture = readTr4(reader);
+        if(reader.readU16() != 0)
+        {
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
+        }
+        return object_texture;
+    }
+
+    static irr::video::SMaterial createMaterial(irr::video::ITexture* texture, BlendingMode bmode)
+    {
+        irr::video::SMaterial result;
+        switch(bmode)
+        {
+            case BlendingMode::Opaque:
+                result.BlendOperation = irr::video::EBO_NONE;
+                break;
+
+            case BlendingMode::Transparent:
+                result.BlendOperation = irr::video::EBO_NONE;
+                result.MaterialType = irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+                break;
+
+            case BlendingMode::Multiply:                                    // Classic PC alpha
+                result.BlendOperation = irr::video::EBO_ADD;
+                break;
+
+            case BlendingMode::InvertSrc:                                  // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
+                result.BlendOperation = irr::video::EBO_SUBTRACT;
+                break;
+
+            case BlendingMode::InvertDst:                                 // Inversion by dest
+                result.BlendOperation = irr::video::EBO_REVSUBTRACT;
+                break;
+
+            case BlendingMode::Screen:                                      // Screen (smoke, etc.)
+                result.BlendOperation = irr::video::EBO_SUBTRACT;
+                result.MaterialType = irr::video::EMT_TRANSPARENT_ADD_COLOR;
+                break;
+
+            case BlendingMode::AnimatedTexture:
+                result.BlendOperation = irr::video::EBO_NONE;
+                break;
+
+            default:                                             // opaque animated textures case
+                BOOST_ASSERT(false); // FIXME [irrlicht]
+        }
+        
+        result.setTexture(0, texture);
+        result.BackfaceCulling = false;
+        
+        return result;
+    }
+};
+
+struct Mesh
+{
+    Vertex center;                // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
+    int32_t collision_size;             // This appears to be the radius of that aforementioned collisional sphere.
+    std::vector<Vertex> vertices;             //[NumVertices]; // list of vertices (relative coordinates)
+    std::vector<Vertex> normals;              //[NumNormals]; // list of normals (if NumNormals is positive)
+    std::vector<int16_t> lights;                    //[-NumNormals]; // list of light values (if NumNormals is negative)
+    std::vector<QuadFace> textured_rectangles;   //[NumTexturedRectangles]; // list of textured rectangles
+    std::vector<Triangle> textured_triangles;    //[NumTexturedTriangles]; // list of textured triangles
+    // the rest is not present in TR4
+    std::vector<QuadFace> colored_rectangles;   //[NumColouredRectangles]; // list of coloured rectangles
+    std::vector<Triangle> colored_triangles;    //[NumColouredTriangles]; // list of coloured triangles
+
+    /** \brief reads mesh definition.
+      *
+      * The read num_normals value is positive when normals are available and negative when light
+      * values are available. The values get set appropiatly.
+      */
+    static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
+    {
+        std::unique_ptr<Mesh> mesh{ new Mesh() };
+        mesh->center = Vertex::read16(reader);
+        mesh->collision_size = reader.readI32();
+
+        mesh->vertices.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->vertices.size(); i++)
+            mesh->vertices[i] = Vertex::read16(reader);
+
+        auto num_normals = reader.readI16();
+        if(num_normals >= 0)
+        {
+            mesh->normals.resize(num_normals);
+            for(size_t i = 0; i < mesh->normals.size(); i++)
+                mesh->normals[i] = Vertex::read16(reader);
+        }
+        else
+        {
+            mesh->lights.resize(-num_normals);
+            for(size_t i = 0; i < mesh->lights.size(); i++)
+                mesh->lights[i] = reader.readI16();
+        }
+
+        mesh->textured_rectangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->textured_rectangles.size(); i++)
+            mesh->textured_rectangles[i] = QuadFace::readTr1(reader);
+
+        mesh->textured_triangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->textured_triangles.size(); i++)
+            mesh->textured_triangles[i] = Triangle::readTr1(reader);
+
+        mesh->colored_rectangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->colored_rectangles.size(); i++)
+            mesh->colored_rectangles[i] = QuadFace::readTr1(reader);
+
+        mesh->colored_triangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->colored_triangles.size(); i++)
+            mesh->colored_triangles[i] = Triangle::readTr1(reader);
+        return mesh;
+    }
+
+    static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
+    {
+        std::unique_ptr<Mesh> mesh{ new Mesh() };
+        mesh->center = Vertex::read16(reader);
+        mesh->collision_size = reader.readI32();
+
+        mesh->vertices.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->vertices.size(); i++)
+            mesh->vertices[i] = Vertex::read16(reader);
+
+        auto num_normals = reader.readI16();
+        if(num_normals >= 0)
+        {
+            mesh->normals.resize(num_normals);
+            for(size_t i = 0; i < mesh->normals.size(); i++)
+                mesh->normals[i] = Vertex::read16(reader);
+        }
+        else
+        {
+            mesh->lights.resize(-num_normals);
+            for(size_t i = 0; i < mesh->lights.size(); i++)
+                mesh->lights[i] = reader.readI16();
+        }
+
+        mesh->textured_rectangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->textured_rectangles.size(); i++)
+            mesh->textured_rectangles[i] = QuadFace::readTr4(reader);
+
+        mesh->textured_triangles.resize(reader.readI16());
+        for(size_t i = 0; i < mesh->textured_triangles.size(); i++)
+            mesh->textured_triangles[i] = Triangle::readTr4(reader);
+        return mesh;
+    }
+
+    irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<UVTexture>& uvTextures, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials) const;
+};
+
+class Level;
 
 /** \brief room->
   */
@@ -1346,10 +1655,10 @@ struct Room
                 for(j = 0; j < room->layers[i].num_rectangles; j++)
                 {
                     room->rectangles[rectangle_index] = QuadFace::readTr4(reader);
-                    room->rectangles[rectangle_index].vertices[0] += vertex_index;
-                    room->rectangles[rectangle_index].vertices[1] += vertex_index;
-                    room->rectangles[rectangle_index].vertices[2] += vertex_index;
-                    room->rectangles[rectangle_index].vertices[3] += vertex_index;
+                    room->rectangles[rectangle_index].uvCoordinates[0] += vertex_index;
+                    room->rectangles[rectangle_index].uvCoordinates[1] += vertex_index;
+                    room->rectangles[rectangle_index].uvCoordinates[2] += vertex_index;
+                    room->rectangles[rectangle_index].uvCoordinates[3] += vertex_index;
                     rectangle_index++;
                 }
                 for(j = 0; j < room->layers[i].num_triangles; j++)
@@ -1383,101 +1692,8 @@ struct Room
 
         return room;
     }
-};
-
-struct Mesh
-{
-    Vertex centre;                // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
-    int32_t collision_size;             // This appears to be the radius of that aforementioned collisional sphere.
-    std::vector<Vertex> vertices;             //[NumVertices]; // list of vertices (relative coordinates)
-    std::vector<Vertex> normals;              //[NumNormals]; // list of normals (if NumNormals is positive)
-    std::vector<int16_t> lights;                    //[-NumNormals]; // list of light values (if NumNormals is negative)
-    std::vector<QuadFace> textured_rectangles;   //[NumTexturedRectangles]; // list of textured rectangles
-    std::vector<Triangle> textured_triangles;    //[NumTexturedTriangles]; // list of textured triangles
-    // the rest is not present in TR4
-    std::vector<QuadFace> coloured_rectangles;   //[NumColouredRectangles]; // list of coloured rectangles
-    std::vector<Triangle> coloured_triangles;    //[NumColouredTriangles]; // list of coloured triangles
-
-    /** \brief reads mesh definition.
-      *
-      * The read num_normals value is positive when normals are available and negative when light
-      * values are available. The values get set appropiatly.
-      */
-    static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
-    {
-        std::unique_ptr<Mesh> mesh{ new Mesh() };
-        mesh->centre = Vertex::read16(reader);
-        mesh->collision_size = reader.readI32();
-
-        mesh->vertices.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->vertices.size(); i++)
-            mesh->vertices[i] = Vertex::read16(reader);
-
-        auto num_normals = reader.readI16();
-        if(num_normals >= 0)
-        {
-            mesh->normals.resize(num_normals);
-            for(size_t i = 0; i < mesh->normals.size(); i++)
-                mesh->normals[i] = Vertex::read16(reader);
-        }
-        else
-        {
-            mesh->lights.resize(-num_normals);
-            for(size_t i = 0; i < mesh->lights.size(); i++)
-                mesh->lights[i] = reader.readI16();
-        }
-
-        mesh->textured_rectangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->textured_rectangles.size(); i++)
-            mesh->textured_rectangles[i] = QuadFace::readTr1(reader);
-
-        mesh->textured_triangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->textured_triangles.size(); i++)
-            mesh->textured_triangles[i] = Triangle::readTr1(reader);
-
-        mesh->coloured_rectangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->coloured_rectangles.size(); i++)
-            mesh->coloured_rectangles[i] = QuadFace::readTr1(reader);
-
-        mesh->coloured_triangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->coloured_triangles.size(); i++)
-            mesh->coloured_triangles[i] = Triangle::readTr1(reader);
-        return mesh;
-    }
-
-    static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
-    {
-        std::unique_ptr<Mesh> mesh{ new Mesh() };
-        mesh->centre = Vertex::read16(reader);
-        mesh->collision_size = reader.readI32();
-
-        mesh->vertices.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->vertices.size(); i++)
-            mesh->vertices[i] = Vertex::read16(reader);
-
-        auto num_normals = reader.readI16();
-        if(num_normals >= 0)
-        {
-            mesh->normals.resize(num_normals);
-            for(size_t i = 0; i < mesh->normals.size(); i++)
-                mesh->normals[i] = Vertex::read16(reader);
-        }
-        else
-        {
-            mesh->lights.resize(-num_normals);
-            for(size_t i = 0; i < mesh->lights.size(); i++)
-                mesh->lights[i] = reader.readI16();
-        }
-
-        mesh->textured_rectangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->textured_rectangles.size(); i++)
-            mesh->textured_rectangles[i] = QuadFace::readTr4(reader);
-
-        mesh->textured_triangles.resize(reader.readI16());
-        for(size_t i = 0; i < mesh->textured_triangles.size(); i++)
-            mesh->textured_triangles[i] = Triangle::readTr4(reader);
-        return mesh;
-    }
+    
+    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::scene::SMesh*>& staticMeshes) const;
 };
 
 struct StaticMesh
@@ -2131,147 +2347,6 @@ struct SoundDetails
         sound_details->num_samples_and_flags_1 = reader.readU8();
         sound_details->flags_2 = reader.readU8();
         return sound_details;
-    }
-};
-
-/** \brief Object Texture Vertex.
-  *
-  * It specifies a vertex location in textile coordinates.
-  * The Xpixel and Ypixel are the actual coordinates of the vertex's pixel.
-  * The Xcoordinate and Ycoordinate values depend on where the other vertices
-  * are in the object texture. And if the object texture is used to specify
-  * a triangle, then the fourth vertex's values will all be zero.
-  */
-struct ObjectTextureVertex
-{
-    int8_t xcoordinate;     // 1 if Xpixel is the low value, -1 if Xpixel is the high value in the object texture
-    uint8_t xpixel;
-    int8_t ycoordinate;     // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
-    uint8_t ypixel;
-
-    /// \brief reads object texture vertex definition.
-    static ObjectTextureVertex readTr1(io::SDLReader& reader)
-    {
-        ObjectTextureVertex vert;
-        vert.xcoordinate = reader.readI8();
-        vert.xpixel = reader.readU8();
-        vert.ycoordinate = reader.readI8();
-        vert.ypixel = reader.readU8();
-        return vert;
-    }
-
-    static ObjectTextureVertex readTr4(io::SDLReader& reader)
-    {
-        ObjectTextureVertex vert;
-        vert.xcoordinate = reader.readI8();
-        vert.xpixel = reader.readU8();
-        vert.ycoordinate = reader.readI8();
-        vert.ypixel = reader.readU8();
-        if(vert.xcoordinate == 0)
-            vert.xcoordinate = 1;
-        if(vert.ycoordinate == 0)
-            vert.ycoordinate = 1;
-        return vert;
-    }
-};
-
-/** \brief Object Texture.
-  *
-  * These, thee contents of ObjectTextures[], are used for specifying texture
-  * mapping for the world geometry and for mesh objects.
-  */
-enum class BlendingMode : uint16_t
-{
-    Opaque,
-    Transparent,
-    Multiply,
-    SimpleShade,
-    TransparentIgnoreZ,
-    InvertSrc,
-    Wireframe,
-    TransparentAlpha,
-    InvertDst,
-    Screen,
-    Hide,
-    AnimatedTexture
-};
-
-struct ObjectTexture
-{
-    BlendingMode transparency_flags;    // 0 means that a texture is all-opaque, and that transparency
-    // information is ignored.
-    // 1 means that transparency information is used. In 8-bit colour,
-    // index 0 is the transparent colour, while in 16-bit colour, the
-    // top bit (0x8000) is the alpha channel (1 = opaque, 0 = transparent).
-    // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
-    // the brighter the colour, the more opaque it is. The intensity is probably calculated
-    // as the maximum of the individual color values.
-    uint16_t tileAndFlag;                     // index into textile list
-    uint16_t flags;                             // TR4
-    ObjectTextureVertex vertices[4];      // the four corners of the texture
-    uint32_t unknown1;                          // TR4
-    uint32_t unknown2;                          // TR4
-    uint32_t x_size;                            // TR4
-    uint32_t y_size;                            // TR4
-
-    /** \brief reads object texture definition.
-      *
-      * some sanity checks get done and if they fail an exception gets thrown.
-      * all values introduced in TR4 get set appropiatly.
-      */
-    static std::unique_ptr<ObjectTexture> readTr1(io::SDLReader& reader)
-    {
-        std::unique_ptr<ObjectTexture> object_texture{ new ObjectTexture() };
-        object_texture->transparency_flags = static_cast<BlendingMode>(reader.readU16());
-        object_texture->tileAndFlag = reader.readU16();
-        if(object_texture->tileAndFlag > 64)
-            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
-
-        if((object_texture->tileAndFlag & (1 << 15)) != 0)
-            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
-
-        // only in TR4
-        object_texture->flags = 0;
-        object_texture->vertices[0] = ObjectTextureVertex::readTr1(reader);
-        object_texture->vertices[1] = ObjectTextureVertex::readTr1(reader);
-        object_texture->vertices[2] = ObjectTextureVertex::readTr1(reader);
-        object_texture->vertices[3] = ObjectTextureVertex::readTr1(reader);
-        // only in TR4
-        object_texture->unknown1 = 0;
-        object_texture->unknown2 = 0;
-        object_texture->x_size = 0;
-        object_texture->y_size = 0;
-        return object_texture;
-    }
-
-    static std::unique_ptr<ObjectTexture> readTr4(io::SDLReader& reader)
-    {
-        std::unique_ptr<ObjectTexture> object_texture{ new ObjectTexture() };
-        object_texture->transparency_flags = static_cast<BlendingMode>(reader.readU16());
-        object_texture->tileAndFlag = reader.readU16();
-        if((object_texture->tileAndFlag & 0x7FFF) > 128)
-            BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
-
-        object_texture->flags = reader.readU16();
-        object_texture->vertices[0] = ObjectTextureVertex::readTr4(reader);
-        object_texture->vertices[1] = ObjectTextureVertex::readTr4(reader);
-        object_texture->vertices[2] = ObjectTextureVertex::readTr4(reader);
-        object_texture->vertices[3] = ObjectTextureVertex::readTr4(reader);
-        object_texture->unknown1 = reader.readU32();
-        object_texture->unknown2 = reader.readU32();
-        object_texture->x_size = reader.readU32();
-        object_texture->y_size = reader.readU32();
-        return object_texture;
-    }
-
-    static std::unique_ptr<ObjectTexture> readTr5(io::SDLReader& reader)
-    {
-        std::unique_ptr<ObjectTexture> object_texture = readTr4(reader);
-        if(reader.readU16() != 0)
-        {
-            BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
-        }
-        return object_texture;
     }
 };
 
