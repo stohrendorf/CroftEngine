@@ -56,17 +56,15 @@ struct FloatColor
     float r, g, b, a;
 };
 
-struct Vertex
+struct Vertex : public irr::core::vector3df
 {
-    float x, y, z;
-
     static Vertex read16(io::SDLReader& reader)
     {
         Vertex vertex;
         // read vertex and change coordinate system
-        vertex.x = static_cast<float>(reader.readI16());
-        vertex.y = static_cast<float>(-reader.readI16());
-        vertex.z = static_cast<float>(-reader.readI16());
+        vertex.X = static_cast<float>(reader.readI16());
+        vertex.Y = static_cast<float>(-reader.readI16());
+        vertex.Z = static_cast<float>(reader.readI16());
         return vertex;
     }
 
@@ -74,18 +72,18 @@ struct Vertex
     {
         Vertex vertex;
         // read vertex and change coordinate system
-        vertex.x = static_cast<float>(reader.readI32());
-        vertex.y = static_cast<float>(-reader.readI32());
-        vertex.z = static_cast<float>(-reader.readI32());
+        vertex.X = static_cast<float>(reader.readI32());
+        vertex.Y = static_cast<float>(-reader.readI32());
+        vertex.Z = static_cast<float>(reader.readI32());
         return vertex;
     }
 
     static Vertex readF(io::SDLReader& reader)
     {
         Vertex vertex;
-        vertex.x = reader.readF();
-        vertex.y = -reader.readF();
-        vertex.z = -reader.readF();
+        vertex.X = reader.readF();
+        vertex.Y = -reader.readF();
+        vertex.Z = reader.readF();
         return vertex;
     }
 };
@@ -255,17 +253,17 @@ struct Portal
         portal.vertices[1] = Vertex::read16(reader);
         portal.vertices[2] = Vertex::read16(reader);
         portal.vertices[3] = Vertex::read16(reader);
-        if(util::fuzzyOne(portal.normal.x) && util::fuzzyZero(portal.normal.y) && util::fuzzyZero(portal.normal.z))
+        if(util::fuzzyOne(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
-        if(util::fuzzyOne(-portal.normal.x) && util::fuzzyZero(portal.normal.y) && util::fuzzyZero(portal.normal.z))
+        if(util::fuzzyOne(-portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
-        if(util::fuzzyZero(portal.normal.x) && util::fuzzyOne(portal.normal.y) && util::fuzzyZero(portal.normal.z))
+        if(util::fuzzyZero(portal.normal.X) && util::fuzzyOne(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
-        if(util::fuzzyZero(portal.normal.x) && util::fuzzyOne(-portal.normal.y) && util::fuzzyZero(portal.normal.z))
+        if(util::fuzzyZero(portal.normal.X) && util::fuzzyOne(-portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
-        if(util::fuzzyZero(portal.normal.x) && util::fuzzyZero(portal.normal.y) && util::fuzzyOne(portal.normal.z))
+        if(util::fuzzyZero(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyOne(portal.normal.Z))
             return portal;
-        if(util::fuzzyZero(portal.normal.x) && util::fuzzyZero(portal.normal.y) && util::fuzzyOne(-portal.normal.z))
+        if(util::fuzzyZero(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyOne(-portal.normal.Z))
             return portal;
         // std::cerr << "read_tr_room_portal: normal not on world axis");
         return portal;
@@ -567,7 +565,7 @@ struct RoomVertex
     int16_t lighting2;      // Almost always equal to Lighting1 [absent from TR1 data files]
     // TR5 -->
     Vertex normal;
-    FloatColor colour;
+    irr::video::SColor color;
 
     /** \brief reads a room vertex definition.
       *
@@ -581,18 +579,15 @@ struct RoomVertex
         RoomVertex room_vertex;
         room_vertex.vertex = Vertex::read16(reader);
         // read and make consistent
-        room_vertex.lighting1 = (8191 - reader.readI16()) << 2;
+        int tmp = reader.readU16();
+        room_vertex.lighting1 = (32768 - tmp*4);
         // only in TR2
         room_vertex.lighting2 = room_vertex.lighting1;
         room_vertex.attributes = 0;
         // only in TR5
-        room_vertex.normal.x = 0;
-        room_vertex.normal.y = 0;
-        room_vertex.normal.z = 0;
-        room_vertex.colour.r = room_vertex.lighting1 / 32768.0f;
-        room_vertex.colour.g = room_vertex.lighting1 / 32768.0f;
-        room_vertex.colour.b = room_vertex.lighting1 / 32768.0f;
-        room_vertex.colour.a = 1.0f;
+        room_vertex.normal.set(0,0,0);
+        auto f = room_vertex.lighting1 / 32768.0f * 255;
+        room_vertex.color.set(255, f, f, f);
         return room_vertex;
     }
 
@@ -605,13 +600,9 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
-        room_vertex.normal.x = 0;
-        room_vertex.normal.y = 0;
-        room_vertex.normal.z = 0;
-        room_vertex.colour.r = room_vertex.lighting2 / 32768.0f;
-        room_vertex.colour.g = room_vertex.lighting2 / 32768.0f;
-        room_vertex.colour.b = room_vertex.lighting2 / 32768.0f;
-        room_vertex.colour.a = 1.0f;
+        room_vertex.normal.set(0,0,0);
+        auto f = room_vertex.lighting2 / 32768.0f * 255;
+        room_vertex.color.set(255, f, f, f);
         return room_vertex;
     }
 
@@ -624,14 +615,11 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal.x = 0;
-        room_vertex.normal.y = 0;
-        room_vertex.normal.z = 0;
-
-        room_vertex.colour.r = ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f;
-        room_vertex.colour.g = ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f;
-        room_vertex.colour.b = (room_vertex.lighting2 & 0x001F) / 62.0f;
-        room_vertex.colour.a = 1.0f;
+        room_vertex.normal.set(0,0,0);
+        room_vertex.color.set(255,
+                              ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255,
+                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255,
+                              (room_vertex.lighting2 & 0x001F) / 62.0f * 255);
         return room_vertex;
     }
 
@@ -644,14 +632,12 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal.x = 0;
-        room_vertex.normal.y = 0;
-        room_vertex.normal.z = 0;
+        room_vertex.normal.set(0,0,0);
 
-        room_vertex.colour.r = ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f;
-        room_vertex.colour.g = ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f;
-        room_vertex.colour.b = (room_vertex.lighting2 & 0x001F) / 31.0f;
-        room_vertex.colour.a = 1.0f;
+        room_vertex.color.set(255,
+                              ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255,
+                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f * 255,
+                              (room_vertex.lighting2 & 0x001F) / 31.0f * 255);
         return room_vertex;
     }
 
@@ -660,10 +646,11 @@ struct RoomVertex
         RoomVertex vert;
         vert.vertex = Vertex::readF(reader);
         vert.normal = Vertex::readF(reader);
-        vert.colour.b = reader.readU8() / 255.0f;
-        vert.colour.g = reader.readU8() / 255.0f;
-        vert.colour.r = reader.readU8() / 255.0f;
-        vert.colour.a = reader.readU8() / 255.0f;
+        auto b = reader.readU8();
+        auto g = reader.readU8();
+        auto r = reader.readU8();
+        auto a = reader.readU8();
+        vert.color.set(a,r,g,b);
         return vert;
     }
 };
@@ -671,7 +658,7 @@ struct RoomVertex
 struct RoomStaticMesh
 {
     Vertex position;       // world coords
-    float rotation;         // high two bits (0xC000) indicate steps of
+    irr::f32 rotation;         // high two bits (0xC000) indicate steps of
     // 90 degrees (e.g. (Rotation >> 14) * 90)
     int16_t intensity1;     // Constant lighting; -1 means use mesh lighting
     int16_t intensity2;     // Like Intensity 1, and almost always the same value [absent from TR1 data files]
@@ -783,9 +770,9 @@ enum class ReverbType : uint8_t
   */
 enum class BlendingMode : uint16_t
 {
-    Opaque,
-    Transparent,
-    Multiply,
+    Solid,
+    AlphaTransparency,
+    VertexColorTransparency,
     SimpleShade,
     TransparentIgnoreZ,
     InvertSrc,
@@ -944,19 +931,25 @@ struct UVTexture
     static irr::video::SMaterial createMaterial(irr::video::ITexture* texture, BlendingMode bmode)
     {
         irr::video::SMaterial result;
+        // Set some defaults
+        result.setTexture(0, texture);
+        result.BackfaceCulling = false;
+        result.ColorMaterial = irr::video::ECM_AMBIENT;
+        result.Lighting = true;
+        result.AmbientColor.set(0);
+        result.BlendOperation = irr::video::EBO_ADD;
+
         switch(bmode)
         {
-            case BlendingMode::Opaque:
-                result.BlendOperation = irr::video::EBO_NONE;
+            case BlendingMode::Solid:
                 break;
 
-            case BlendingMode::Transparent:
-                result.BlendOperation = irr::video::EBO_NONE;
+            case BlendingMode::AlphaTransparency:
                 result.MaterialType = irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL;
                 break;
 
-            case BlendingMode::Multiply:                                    // Classic PC alpha
-                result.BlendOperation = irr::video::EBO_ADD;
+            case BlendingMode::VertexColorTransparency:                                    // Classic PC alpha
+                result.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
                 break;
 
             case BlendingMode::InvertSrc:                                  // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
@@ -973,15 +966,11 @@ struct UVTexture
                 break;
 
             case BlendingMode::AnimatedTexture:
-                result.BlendOperation = irr::video::EBO_NONE;
                 break;
 
             default:                                             // opaque animated textures case
                 BOOST_ASSERT(false); // FIXME [irrlicht]
         }
-        
-        result.setTexture(0, texture);
-        result.BackfaceCulling = false;
         
         return result;
     }
@@ -1158,9 +1147,9 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->offset.x = static_cast<float>(reader.readI32());
-        room->offset.y = 0;
-        room->offset.z = static_cast<float>(-reader.readI32());
+        room->offset.X = static_cast<float>(reader.readI32());
+        room->offset.Y = 0;
+        room->offset.Z = static_cast<float>(reader.readI32());
         room->y_bottom = static_cast<float>(-reader.readI32());
         room->y_top = static_cast<float>(-reader.readI32());
 
@@ -1229,9 +1218,9 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->offset.x = static_cast<float>(reader.readI32());
-        room->offset.y = 0;
-        room->offset.z = static_cast<float>(-reader.readI32());
+        room->offset.X = static_cast<float>(reader.readI32());
+        room->offset.Y = 0;
+        room->offset.Z = static_cast<float>(reader.readI32());
         room->y_bottom = static_cast<float>(-reader.readI32());
         room->y_top = static_cast<float>(-reader.readI32());
 
@@ -1307,9 +1296,9 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->offset.x = static_cast<float>(reader.readI32());
-        room->offset.y = 0;
-        room->offset.z = static_cast<float>(-reader.readI32());
+        room->offset.X = static_cast<float>(reader.readI32());
+        room->offset.Y = 0;
+        room->offset.Z = static_cast<float>(reader.readI32());
         room->y_bottom = static_cast<float>(-reader.readI32());
         room->y_top = static_cast<float>(-reader.readI32());
 
@@ -1389,9 +1378,9 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->offset.x = static_cast<float>(reader.readI32());
-        room->offset.y = 0;
-        room->offset.z = static_cast<float>(-reader.readI32());
+        room->offset.X = static_cast<float>(reader.readI32());
+        room->offset.Y = 0;
+        room->offset.Z = static_cast<float>(reader.readI32());
         room->y_bottom = static_cast<float>(-reader.readI32());
         room->y_top = static_cast<float>(-reader.readI32());
 
@@ -1487,9 +1476,9 @@ struct Room
         auto static_meshes_offset = reader.readU32();     // endPortalOffset
                                                         // static_meshes_offset or room_layer_offset
                                                         // read and change coordinate system
-        room->offset.x = static_cast<float>(reader.readI32());
-        room->offset.y = static_cast<float>(reader.readU32());
-        room->offset.z = static_cast<float>(-reader.readI32());
+        room->offset.X = static_cast<float>(reader.readI32());
+        room->offset.Y = static_cast<float>(reader.readU32());
+        room->offset.Z = static_cast<float>(reader.readI32());
         room->y_bottom = static_cast<float>(-reader.readI32());
         room->y_top = static_cast<float>(-reader.readI32());
 
@@ -1711,19 +1700,19 @@ struct StaticMesh
         mesh->object_id = reader.readU32();
         mesh->mesh = reader.readU16();
 
-        mesh->visibility_box[0].x = static_cast<float>(reader.readI16());
-        mesh->visibility_box[1].x = static_cast<float>(reader.readI16());
-        mesh->visibility_box[0].y = static_cast<float>(-reader.readI16());
-        mesh->visibility_box[1].y = static_cast<float>(-reader.readI16());
-        mesh->visibility_box[0].z = static_cast<float>(-reader.readI16());
-        mesh->visibility_box[1].z = static_cast<float>(-reader.readI16());
+        mesh->visibility_box[0].X = static_cast<float>(reader.readI16());
+        mesh->visibility_box[1].X = static_cast<float>(reader.readI16());
+        mesh->visibility_box[0].Y = static_cast<float>(-reader.readI16());
+        mesh->visibility_box[1].Y = static_cast<float>(-reader.readI16());
+        mesh->visibility_box[0].Z = static_cast<float>(reader.readI16());
+        mesh->visibility_box[1].Z = static_cast<float>(reader.readI16());
 
-        mesh->collision_box[0].x = static_cast<float>(reader.readI16());
-        mesh->collision_box[1].x = static_cast<float>(reader.readI16());
-        mesh->collision_box[0].y = static_cast<float>(-reader.readI16());
-        mesh->collision_box[1].y = static_cast<float>(-reader.readI16());
-        mesh->collision_box[0].z = static_cast<float>(-reader.readI16());
-        mesh->collision_box[1].z = static_cast<float>(-reader.readI16());
+        mesh->collision_box[0].X = static_cast<float>(reader.readI16());
+        mesh->collision_box[1].X = static_cast<float>(reader.readI16());
+        mesh->collision_box[0].Y = static_cast<float>(-reader.readI16());
+        mesh->collision_box[1].Y = static_cast<float>(-reader.readI16());
+        mesh->collision_box[0].Z = static_cast<float>(reader.readI16());
+        mesh->collision_box[1].Z = static_cast<float>(reader.readI16());
 
         mesh->flags = reader.readU16();
         return mesh;
@@ -1828,11 +1817,12 @@ struct Item
     int16_t object_id;     // Object Identifier (matched in Moveables[], or SpriteSequences[], as appropriate)
     int16_t room;          // which room contains this item
     Vertex position;       // world coords
-    float rotation;        // ((0xc000 >> 14) * 90) degrees
+    irr::f32 rotation;        // ((0xc000 >> 14) * 90) degrees
     int16_t intensity1;    // (constant lighting; -1 means use mesh lighting)
     int16_t intensity2;    // Like Intensity1, and almost always with the same value. [absent from TR1 data files]
     int16_t ocb;           // Object code bit - used for altering entity behaviour. Only in TR4-5.
-    uint16_t flags;        // 0x0100 indicates "initially invisible", 0x3e00 is Activation Mask
+    uint16_t flags;
+    // 0x0100 indicates "initially invisible", 0x3e00 is Activation Mask
     // 0x3e00 indicates "open" or "activated";  these can be XORed with
     // related FloorData::FDlist fields (e.g. for switches)
 
@@ -1912,11 +1902,9 @@ struct Item
 
 struct SpriteTexture
 {
-    uint16_t        tile;
-    int16_t         x0;        // tex coords
-    int16_t         y0;        //
-    int16_t         x1;        //
-    int16_t         y1;        //
+    uint16_t texture;
+    irr::core::vector2df t0;
+    irr::core::vector2df t1;
 
     int16_t         left_side;
     int16_t         top_side;
@@ -1931,8 +1919,8 @@ struct SpriteTexture
     {
         std::unique_ptr<SpriteTexture> sprite_texture{ new SpriteTexture() };
 
-        sprite_texture->tile = reader.readU16();
-        if(sprite_texture->tile > 64)
+        sprite_texture->texture = reader.readU16();
+        if(sprite_texture->texture > 64)
             BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture: tile > 64";
 
         int tx = reader.readU8();
@@ -1946,10 +1934,10 @@ struct SpriteTexture
 
         float w = tw / 256.0f;
         float h = th / 256.0f;
-        sprite_texture->x0 = tx;
-        sprite_texture->y0 = ty;
-        sprite_texture->x1 = static_cast<int16_t>(sprite_texture->x0 + w);
-        sprite_texture->y1 = static_cast<int16_t>(sprite_texture->y0 + h);
+        sprite_texture->t0.X = tx;
+        sprite_texture->t0.Y = ty;
+        sprite_texture->t1.X = static_cast<int16_t>(sprite_texture->t0.X + w);
+        sprite_texture->t1.Y = static_cast<int16_t>(sprite_texture->t0.Y + h);
 
         sprite_texture->left_side = tleft;
         sprite_texture->right_side = tright;
@@ -1961,8 +1949,8 @@ struct SpriteTexture
     static std::unique_ptr<SpriteTexture> readTr4(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteTexture> sprite_texture{ new SpriteTexture() };
-        sprite_texture->tile = reader.readU16();
-        if(sprite_texture->tile > 128)
+        sprite_texture->texture = reader.readU16();
+        if(sprite_texture->texture > 128)
             BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture: tile > 128";
 
         int tx = reader.readU8();
@@ -1974,10 +1962,10 @@ struct SpriteTexture
         int tright = reader.readI16();
         int tbottom = reader.readI16();
 
-        sprite_texture->x0 = tleft;
-        sprite_texture->x1 = tright;
-        sprite_texture->y0 = tbottom;
-        sprite_texture->y1 = ttop;
+        sprite_texture->t0.X = tleft;
+        sprite_texture->t0.Y = tright;
+        sprite_texture->t1.X = tbottom;
+        sprite_texture->t1.Y = ttop;
 
         sprite_texture->left_side = tx;
         sprite_texture->right_side = tx + tw / 256;

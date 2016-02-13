@@ -191,7 +191,7 @@ void Render::renderPolygonTransparency(loader::BlendingMode currentTransparency,
     {
         switch(bsp_ref.polygon->polygon->blendMode)
         {
-            case loader::BlendingMode::Multiply:                                    // Classic PC alpha
+            case loader::BlendingMode::VertexColorTransparency:                                    // Classic PC alpha
                 glBlendFunc(GL_ONE, GL_ONE);
                 break;
 
@@ -832,7 +832,7 @@ void Render::drawList()
         glDepthMask(GL_FALSE);
         glDisable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
-        renderBSPBackToFront(loader::BlendingMode::Opaque, render_dBSP.root(), *shader);
+        renderBSPBackToFront(loader::BlendingMode::Solid, render_dBSP.root(), *shader);
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
     }

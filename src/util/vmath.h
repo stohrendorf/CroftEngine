@@ -92,11 +92,6 @@ inline btVector3 convert(const irr::core::vector3df& v)
     return btVector3(v.X, v.Y, v.Z);
 }
 
-inline irr::core::vector3df convert(const loader::Vertex& tr_v)
-{
-    return {tr_v.x, tr_v.y, -tr_v.z};
-}
-
 inline irr::video::SColorf convert(const loader::FloatColor& tr_c)
 {
     return {tr_c.a*2, tr_c.r*2, tr_c.g*2, tr_c.b*2};

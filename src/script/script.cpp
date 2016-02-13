@@ -2107,7 +2107,7 @@ void lua_FlashSetup(engine::Engine& engine, int alpha, int R, int G, int B, int 
     engine.m_gui.m_faders.setup(gui::FaderType::Effect,
                                      alpha,
                                      R, G, B,
-                                     loader::BlendingMode::Multiply,
+                                     loader::BlendingMode::VertexColorTransparency,
                                      util::fromSeconds(fadeinSpeed / 1000.0f), util::fromSeconds(fadeoutSpeed / 1000.0f));
 }
 

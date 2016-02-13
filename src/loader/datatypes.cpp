@@ -16,9 +16,9 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
     BOOST_ASSERT(vertexIndex < vertices.size());
-    iv.Pos = ::util::convert(vertices[vertexIndex]);
+    iv.Pos = vertices[vertexIndex];
     if(!normals.empty())
-        iv.Normal = -util::convert(normals[vertexIndex]);
+        iv.Normal = -normals[vertexIndex];
     else
         iv.Normal.set(0,0,1);
     iv.TCoords.X = tex.xpixel/255.0f;
@@ -40,10 +40,11 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
     BOOST_ASSERT(vertexIndex < vertices.size());
-    iv.Pos = ::util::convert(vertices[vertexIndex].vertex);
-    iv.Normal = -util::convert(vertices[vertexIndex].normal);
+    iv.Pos = vertices[vertexIndex].vertex;
+    iv.Normal = -vertices[vertexIndex].normal;
     iv.TCoords.X = (tex.xpixel+tex.xcoordinate)/255.0f;
     iv.TCoords.Y = (tex.ypixel+tex.ycoordinate)/255.0f;
+    iv.Color = vertices[vertexIndex].color;
     irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
     if(ivIdx < 0)
     {
@@ -200,8 +201,8 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
                 break;
         }
 
-        ln->setPosition(util::convert(light.position));
-        ln->setRotation(util::convert(light.dir));
+        ln->setPosition(light.position);
+        ln->setRotation(light.dir);
         ln->setRadius(light.length);
         
         irr::video::SLight ld;
@@ -221,10 +222,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(idx < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
         smNode->setRotation({0,sm.rotation,0});
-        smNode->setPosition(util::convert(sm.position) - util::convert(offset));
+        smNode->setPosition(sm.position - offset);
         resultNode->addChild(smNode);
     }
-    resultNode->setPosition(util::convert(offset));
+    resultNode->setPosition(offset);
     
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
     

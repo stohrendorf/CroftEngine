@@ -92,7 +92,7 @@ FaderManager::FaderManager(engine::Engine* engine)
         Fader fader(m_engine);
         fader.setAlpha(255);
         fader.setColor(0, 0, 0);
-        fader.setBlendingMode(loader::BlendingMode::Opaque);
+        fader.setBlendingMode(loader::BlendingMode::Solid);
         fader.setSpeed(util::MilliSeconds(500));
         fader.setScaleMode(FaderScale::Zoom);
         m_faders.insert(std::make_pair(FaderType::LoadScreen, std::move(fader)));
@@ -102,7 +102,7 @@ FaderManager::FaderManager(engine::Engine* engine)
         Fader fader(m_engine);
         fader.setAlpha(255);
         fader.setColor(255, 180, 0);
-        fader.setBlendingMode(loader::BlendingMode::Multiply);
+        fader.setBlendingMode(loader::BlendingMode::VertexColorTransparency);
         fader.setSpeed(util::MilliSeconds(10), util::MilliSeconds(800));
         m_faders.insert(std::make_pair(FaderType::Effect, std::move(fader)));
     }
@@ -111,7 +111,7 @@ FaderManager::FaderManager(engine::Engine* engine)
         Fader fader(m_engine);
         fader.setAlpha(255);
         fader.setColor(0, 0, 0);
-        fader.setBlendingMode(loader::BlendingMode::Opaque);
+        fader.setBlendingMode(loader::BlendingMode::Solid);
         fader.setSpeed(util::MilliSeconds(500));
         fader.setScaleMode(FaderScale::Zoom);
         m_faders.insert(std::make_pair(FaderType::Black, std::move(fader)));

@@ -21,7 +21,7 @@ void BaseMesh::polySortInMesh(const world::World& world)
             world.m_textureAtlas->getCoordinates(seq->textureIndices[0], false, p, 0, seq->uvrotate);
         }
 
-        if(p.blendMode != loader::BlendingMode::Opaque && p.blendMode != loader::BlendingMode::Transparent)
+        if(p.blendMode != loader::BlendingMode::Solid && p.blendMode != loader::BlendingMode::AlphaTransparency)
         {
             m_transparencyPolygons.emplace_back(p);
         }
@@ -144,7 +144,7 @@ void BaseMesh::genFaces()
 
         if(!p.textureAnimationId)
         {
-            if(p.blendMode == loader::BlendingMode::Opaque || p.blendMode == loader::BlendingMode::Transparent)
+            if(p.blendMode == loader::BlendingMode::Solid || p.blendMode == loader::BlendingMode::AlphaTransparency)
             {
                 m_elementsPerTexture[p.textureIndex] += elementCount;
                 numNormalElements += elementCount;
@@ -157,7 +157,7 @@ void BaseMesh::genFaces()
         }
         else
         {
-            if(p.blendMode == loader::BlendingMode::Opaque || p.blendMode == loader::BlendingMode::Transparent)
+            if(p.blendMode == loader::BlendingMode::Solid || p.blendMode == loader::BlendingMode::AlphaTransparency)
                 m_animatedElementCount += elementCount;
             else
             {
@@ -199,7 +199,7 @@ void BaseMesh::genFaces()
             // Not animated
 
             size_t oldStart;
-            if(p.blendMode == loader::BlendingMode::Opaque || p.blendMode == loader::BlendingMode::Transparent)
+            if(p.blendMode == loader::BlendingMode::Solid || p.blendMode == loader::BlendingMode::AlphaTransparency)
             {
                 oldStart = startPerTexture[p.textureIndex];
                 startPerTexture[p.textureIndex] += elementCount;
@@ -242,7 +242,7 @@ void BaseMesh::genFaces()
         {
             // Animated
             size_t oldStart;
-            if(p.blendMode == loader::BlendingMode::Opaque || p.blendMode == loader::BlendingMode::Transparent)
+            if(p.blendMode == loader::BlendingMode::Solid || p.blendMode == loader::BlendingMode::AlphaTransparency)
             {
                 oldStart = animatedStart;
                 animatedStart += elementCount;

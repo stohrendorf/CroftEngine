@@ -32,7 +32,7 @@ struct Polygon
     size_t textureIndex = 0; //!< texture index
     boost::optional<size_t> textureAnimationId = boost::none; //!< anim texture ID
     size_t startFrame = 0; //!< anim texture frame offset
-    loader::BlendingMode blendMode = loader::BlendingMode::Opaque; //!< transparency information
+    loader::BlendingMode blendMode = loader::BlendingMode::Solid; //!< transparency information
     bool isDoubleSided = false;  //!< double side flag
     util::Plane plane; //!< polygon plane equation
 

@@ -294,7 +294,7 @@ void ProgressBar::show(irr::f32 value)
     m_engine->m_gui.drawRect(m_x, m_y, m_width + m_borderWidth * 2, m_height + m_borderHeight * 2,
                             m_borderMainColor, m_borderMainColor,
                             m_borderFadeColor, m_borderFadeColor,
-                            loader::BlendingMode::Opaque);
+                            loader::BlendingMode::Solid);
 
     // SECTION FOR BASE BAR RECTANGLE.
 
@@ -320,7 +320,7 @@ void ProgressBar::show(irr::f32 value)
         m_engine->m_gui.drawRect(m_x + m_borderWidth, m_y + m_borderHeight, m_width, m_height,
                                 m_backMainColor, m_vertical ? m_backFadeColor : m_backMainColor,
                                 m_vertical ? m_backMainColor : m_backFadeColor, m_backFadeColor,
-                                loader::BlendingMode::Opaque);
+                                loader::BlendingMode::Solid);
         return;
     }
 
@@ -367,7 +367,7 @@ void ProgressBar::show(irr::f32 value)
                                 m_width, m_baseSize,
                                 rectFirstColor, rectFirstColor,
                                 rectSecondColor, rectSecondColor,
-                                loader::BlendingMode::Opaque);
+                                loader::BlendingMode::Solid);
 
         // Draw background rect.
         m_engine->m_gui.drawRect(m_x + m_borderWidth,
@@ -375,7 +375,7 @@ void ProgressBar::show(irr::f32 value)
                                 m_width, m_height - m_baseSize,
                                 m_backMainColor, m_backFadeColor,
                                 m_backMainColor, m_backFadeColor,
-                                loader::BlendingMode::Opaque);
+                                loader::BlendingMode::Solid);
 
         if(m_extrude)    // Draw extrude overlay, if flag is set.
         {
@@ -385,12 +385,12 @@ void ProgressBar::show(irr::f32 value)
                                     m_width / 2, m_baseSize,
                                     m_extrudeDepth, transparentColor,
                                     m_extrudeDepth, transparentColor,
-                                    loader::BlendingMode::Opaque);
+                                    loader::BlendingMode::Solid);
             m_engine->m_gui.drawRect(m_x + m_borderWidth + m_width / 2, rectAnchor,
                                     m_width / 2, m_baseSize,
                                     transparentColor, m_extrudeDepth,
                                     transparentColor, m_extrudeDepth,
-                                    loader::BlendingMode::Opaque);
+                                    loader::BlendingMode::Solid);
         }
     }
     else
@@ -402,7 +402,7 @@ void ProgressBar::show(irr::f32 value)
                                 m_baseSize, m_height,
                                 rectSecondColor, rectFirstColor,
                                 rectSecondColor, rectFirstColor,
-                                loader::BlendingMode::Opaque);
+                                loader::BlendingMode::Solid);
 
         // Draw background rect.
         m_engine->m_gui.drawRect(m_invert ? m_x + m_borderWidth : rectAnchor + m_baseSize,
@@ -410,7 +410,7 @@ void ProgressBar::show(irr::f32 value)
                                 m_width - m_baseSize, m_height,
                                 m_backMainColor, m_backMainColor,
                                 m_backFadeColor, m_backFadeColor,
-                                loader::BlendingMode::Opaque);
+                                loader::BlendingMode::Solid);
 
         if(m_extrude)    // Draw extrude overlay, if flag is set.
         {
@@ -420,12 +420,12 @@ void ProgressBar::show(irr::f32 value)
                                     m_baseSize, m_height / 2,
                                     transparentColor, transparentColor,
                                     m_extrudeDepth, m_extrudeDepth,
-                                    loader::BlendingMode::Opaque);
+                                    loader::BlendingMode::Solid);
             m_engine->m_gui.drawRect(rectAnchor, m_y + m_borderHeight + m_height / 2,
                                     m_baseSize, m_height / 2,
                                     m_extrudeDepth, m_extrudeDepth,
                                     transparentColor, transparentColor,
-                                    loader::BlendingMode::Opaque);
+                                    loader::BlendingMode::Solid);
         }
     } // end if(Vertical)
 }

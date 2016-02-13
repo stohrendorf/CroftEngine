@@ -284,7 +284,7 @@ void BorderedTextureAtlas::addSpriteTexture(const loader::SpriteTexture &texture
     {
         CanonicalObjectTexture *canonical_candidate = &m_canonicalObjectTextures[i];
 
-        if(canonical_candidate->original_page == (texture.tile & loader::TextureIndexMaskTr4)
+        if(canonical_candidate->original_page == (texture.texture & loader::TextureIndexMaskTr4)
            && canonical_candidate->original_x == x
            && canonical_candidate->original_y == y
            && canonical_candidate->width == width
@@ -304,7 +304,7 @@ void BorderedTextureAtlas::addSpriteTexture(const loader::SpriteTexture &texture
         CanonicalObjectTexture &canonical = m_canonicalObjectTextures[canonical_index];
         canonical.width = width;
         canonical.height = height;
-        canonical.original_page = texture.tile & loader::TextureIndexMaskTr4;
+        canonical.original_page = texture.texture & loader::TextureIndexMaskTr4;
         canonical.original_x = x;
         canonical.original_y = y;
     }

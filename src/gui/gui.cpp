@@ -149,7 +149,7 @@ void Gui::drawInventory()
 
     drawRect(0.0, 0.0, static_cast<irr::f32>(m_engine->m_screenInfo.w), static_cast<irr::f32>(m_engine->m_screenInfo.h),
              upper_color, upper_color, lower_color, lower_color,
-             loader::BlendingMode::Opaque);
+             loader::BlendingMode::Solid);
 
     glDepthMask(GL_TRUE);
     glPopAttrib();
@@ -199,7 +199,7 @@ void Gui::drawRect(irr::f32 x, irr::f32 y,
     {
         case loader::BlendingMode::Hide:
             return;
-        case loader::BlendingMode::Multiply:
+        case loader::BlendingMode::VertexColorTransparency:
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             break;
         case loader::BlendingMode::SimpleShade:
@@ -209,7 +209,7 @@ void Gui::drawRect(irr::f32 x, irr::f32 y,
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             break;
         default:
-        case loader::BlendingMode::Opaque:
+        case loader::BlendingMode::Solid:
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             break;
     };

@@ -1483,7 +1483,7 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
 
         if(face3->lighting & 0x01)
         {
-            p.blendMode = loader::BlendingMode::Multiply;
+            p.blendMode = loader::BlendingMode::VertexColorTransparency;
         }
         else
         {
@@ -1507,7 +1507,7 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
         auto face3 = &tr_mesh.colored_triangles[i];
         auto col = face3->texture & 0xff;
         p.textureIndex = world.m_textureAtlas->getNumAtlasPages();
-        p.blendMode = loader::BlendingMode::Opaque;
+        p.blendMode = loader::BlendingMode::Solid;
         p.textureAnimationId.reset();
 
         tr_accumulateNormals(tr_mesh, *mesh, 3, face3->vertices, p);
@@ -1531,7 +1531,7 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
 
         if(face4->lighting & 0x01)
         {
-            p.blendMode = loader::BlendingMode::Multiply;
+            p.blendMode = loader::BlendingMode::VertexColorTransparency;
         }
         else
         {
@@ -1556,7 +1556,7 @@ void TR_GenMesh(World& world, ObjectId mesh_index, std::shared_ptr<core::BaseMes
         auto col = face4->texture & 0xff;
         p.vertices.resize(4);
         p.textureIndex = world.m_textureAtlas->getNumAtlasPages();
-        p.blendMode = loader::BlendingMode::Opaque;
+        p.blendMode = loader::BlendingMode::Solid;
         p.textureAnimationId.reset();
 
         tr_accumulateNormals(tr_mesh, *mesh, 4, face4->vertices, p);

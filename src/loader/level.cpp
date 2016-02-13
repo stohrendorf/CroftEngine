@@ -344,6 +344,17 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
             cpos = n->getAbsolutePosition();
     }
     
+    for(const Item& item : m_items)
+    {
+        int meshIdx = findMeshIndexByObjectId(item.object_id);
+        if(meshIdx < 0)
+            continue;
+        BOOST_ASSERT(meshIdx < staticMeshes.size());
+        irr::scene::IMeshSceneNode* n = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
+        n->setPosition(item.position);
+        n->setRotation({0,item.rotation,0});
+    }
+    
     irr::SKeyMap keyMap[7];
     keyMap[0].Action = irr::EKA_MOVE_FORWARD;
     keyMap[0].KeyCode = irr::KEY_KEY_W;

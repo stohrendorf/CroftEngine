@@ -88,7 +88,7 @@ public:
 
     void setScaleMode(FaderScale mode = FaderScale::Zoom);
     void setColor(uint8_t R, uint8_t G, uint8_t B, FaderCorner corner = FaderCorner::None);
-    void setBlendingMode(loader::BlendingMode mode = loader::BlendingMode::Opaque);
+    void setBlendingMode(loader::BlendingMode mode = loader::BlendingMode::Solid);
     void setAlpha(uint8_t alpha = 255);
     void setSpeed(util::Duration fade_speed, util::Duration fade_speed_secondary = util::MilliSeconds(200));
     void setDelay(util::Duration delay_msec);
@@ -106,7 +106,7 @@ private:
     irr::video::SColor m_bottomLeftColor{ 0 };    // screen effects with gradients.
     irr::video::SColor m_bottomRightColor{ 0 };
 
-    loader::BlendingMode m_blendingMode = loader::BlendingMode::Opaque;     // Fader's blending mode.
+    loader::BlendingMode m_blendingMode = loader::BlendingMode::Solid;     // Fader's blending mode.
 
     irr::u32 m_currentAlpha = 0;          // Current alpha value.
     irr::u32 m_maxAlpha{ 255 };              // Maximum reachable alpha value.
