@@ -339,7 +339,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
     irr::core::vector3df cpos;
     for(size_t i=0; i<m_rooms.size(); ++i)
     {
-        irr::scene::IMeshSceneNode* n = m_rooms[i].createSceneNode(mgr, i, *this, materials, staticMeshes);
+        irr::scene::IMeshSceneNode* n = m_rooms[i].createSceneNode(mgr, i, *this, materials, textures, staticMeshes);
         if(i==0)
             cpos = n->getAbsolutePosition();
     }

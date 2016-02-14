@@ -139,7 +139,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr, int dumpIdx,
     return result;
 }
 
-irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::scene::SMesh*>& staticMeshes) const
+irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes) const
 {
     // texture => mesh buffer
     std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
@@ -228,6 +228,33 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     resultNode->setPosition(offset);
     
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
+    
+    for(const Sprite& sprite : sprites)
+    {
+        BOOST_ASSERT(sprite.vertex < vertices.size());
+        BOOST_ASSERT(sprite.texture < level.m_spriteTextures.size());
+        
+        const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
+        
+        irr::core::vector2df dim(tex.right_side-tex.left_side+1, tex.bottom_side-tex.top_side+1);
+        BOOST_ASSERT(dim.X > 0);
+        BOOST_ASSERT(dim.Y > 0);
+        
+        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex, -1, 0, 0);
+        n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
+        n->setMaterialFlag(irr::video::EMF_BLEND_OPERATION, irr::video::EBO_ADD);
+        n->setMaterialTexture( 0, textures[tex.texture] );
+        
+        auto tscale = (tex.t1 - tex.t0);
+        BOOST_ASSERT(tscale.X > 0);
+        BOOST_ASSERT(tscale.Y > 0);
+
+        irr::core::matrix4 mat;
+        mat.setTextureScale(tscale.X, tscale.Y);
+        mat.setTextureTranslate(tex.t0.X, tex.t0.Y);
+        
+        n->getMaterial(0).setTextureMatrix(0, mat);
+    }
     
     if(dumpIdx >= 0)
     {

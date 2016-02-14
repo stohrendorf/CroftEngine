@@ -482,15 +482,15 @@ struct Light
 
 struct Sprite
 {
-    int16_t vertex;                 // offset into vertex list
-    int16_t texture;                // offset into sprite texture list
+    uint16_t vertex;                 // offset into vertex list
+    uint16_t texture;                // offset into sprite texture list
 
     /// \brief reads a room sprite definition.
     static Sprite read(io::SDLReader& reader)
     {
         Sprite room_sprite;
-        room_sprite.vertex = reader.readI16();
-        room_sprite.texture = reader.readI16();
+        room_sprite.vertex = reader.readU16();
+        room_sprite.texture = reader.readU16();
         return room_sprite;
     }
 };
@@ -1489,7 +1489,7 @@ struct Room
         room->light_colour.g = reader.readU8() / 255.0f;
         room->light_colour.r = reader.readU8() / 255.0f;
         room->light_colour.a = reader.readU8() / 255.0f;
-        room->light_colour.a = 1.0f;
+        //room->light_colour.a = 1.0f;
 
         room->lights.resize(reader.readU16());
         if(room->lights.size() > 512)
@@ -1682,7 +1682,7 @@ struct Room
         return room;
     }
     
-    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::scene::SMesh*>& staticMeshes) const;
+    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes) const;
 };
 
 struct StaticMesh
@@ -1934,10 +1934,10 @@ struct SpriteTexture
 
         float w = tw / 256.0f;
         float h = th / 256.0f;
-        sprite_texture->t0.X = tx;
-        sprite_texture->t0.Y = ty;
-        sprite_texture->t1.X = static_cast<int16_t>(sprite_texture->t0.X + w);
-        sprite_texture->t1.Y = static_cast<int16_t>(sprite_texture->t0.Y + h);
+        sprite_texture->t0.X = tx/255.0f;
+        sprite_texture->t0.Y = ty/255.0f;
+        sprite_texture->t1.X = sprite_texture->t0.X + w/255.0f;
+        sprite_texture->t1.Y = sprite_texture->t0.Y + h/255.0f;
 
         sprite_texture->left_side = tleft;
         sprite_texture->right_side = tright;
@@ -1962,10 +1962,10 @@ struct SpriteTexture
         int tright = reader.readI16();
         int tbottom = reader.readI16();
 
-        sprite_texture->t0.X = tleft;
-        sprite_texture->t0.Y = tright;
-        sprite_texture->t1.X = tbottom;
-        sprite_texture->t1.Y = ttop;
+        sprite_texture->t0.X = tleft/255.0f;
+        sprite_texture->t0.Y = tright/255.0f;
+        sprite_texture->t1.X = tbottom/255.0f;
+        sprite_texture->t1.Y = ttop/255.0f;
 
         sprite_texture->left_side = tx;
         sprite_texture->right_side = tx + tw / 256;
