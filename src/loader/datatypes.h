@@ -1792,6 +1792,22 @@ struct AnimatedModel
     uint32_t meshPositionOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t animationIndex;   // offset into Animations[]
 
+    struct FrameRange
+    {
+        const irr::u32 offset;
+        const irr::u32 firstFrame;
+        const irr::u32 lastFrame;
+        
+        FrameRange(irr::u32 o, irr::u32 f, irr::u32 l)
+            : offset(o)
+            , firstFrame(f+o)
+            , lastFrame(l+o)
+        {
+        }
+    };
+    
+    std::map<uint16_t, FrameRange> frameMapping;
+    
     /** \brief reads a moveable definition.
       *
       * some sanity checks get done which throw a exception on failure.

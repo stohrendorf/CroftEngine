@@ -89,7 +89,7 @@ public:
     Item* findItemById(int32_t object_id);
     AnimatedModel* findModelById(uint32_t object_id);
     int findStaticMeshIndexByObjectId(uint32_t object_id) const;
-    int findAnimatedMeshIndexByObjectId(uint32_t object_id) const;
+    int findAnimatedModelIndexByObjectId(uint32_t object_id) const;
 
     std::vector<irr::video::ITexture*> createTextures(irr::video::IVideoDriver* drv);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);

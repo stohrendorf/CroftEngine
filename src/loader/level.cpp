@@ -290,7 +290,7 @@ int Level::findStaticMeshIndexByObjectId(uint32_t object_id) const
     return -1;
 }
 
-int Level::findAnimatedMeshIndexByObjectId(uint32_t object_id) const
+int Level::findAnimatedModelIndexByObjectId(uint32_t object_id) const
 {
     for(size_t i = 0; i < m_animatedModels.size(); i++)
         if(m_animatedModels[i]->object_id == object_id)
@@ -344,6 +344,74 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
     return materials;
 }
 
+class DefaultAnimDispatcher final : public irr::scene::IAnimationEndCallBack
+{
+private:
+    const Level* const m_level;
+    const AnimatedModel& m_model;
+    uint16_t m_currentAnimation;
+    uint16_t m_currentState = 0;
+public:
+    DefaultAnimDispatcher(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node)
+        : m_level(level)
+        , m_model(model)
+        , m_currentAnimation(model.animationIndex)
+    {
+        auto it = model.frameMapping.find(m_currentAnimation);
+        if(it == model.frameMapping.end())
+            return;
+        
+        node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
+    }
+    
+    virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node) override
+    {
+        const Animation& currentAnim = m_level->m_animations[m_currentAnimation];
+        const auto currentFrame = getCurrentFrame(node);
+        for(auto i=0; i<currentAnim.transitionsCount; ++i)
+        {
+            auto tIdx = currentAnim.transitionsIndex + i;
+            BOOST_ASSERT(tIdx < m_level->m_transitions.size());
+            const Transitions& tr = m_level->m_transitions[tIdx];
+            if(tr.stateId != m_currentState)
+                continue;
+            
+            for(auto j=tr.firstTransitionCase; j<tr.firstTransitionCase+tr.transitionCaseCount; ++j)
+            {
+                BOOST_ASSERT(j < m_level->m_transitionCases.size());
+                const TransitionCase& trc = m_level->m_transitionCases[j];
+                if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
+                {
+                    m_currentAnimation = trc.targetAnimation;
+                    startAnimLoop(node, trc.targetFrame);
+                    return;
+                }
+            }
+        }
+        
+        m_currentAnimation = currentAnim.nextAnimation;
+        startAnimLoop(node, currentAnim.nextFrame);
+    }
+    
+private:
+    void startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame) const
+    {
+        auto it = m_model.frameMapping.find(m_currentAnimation);
+        BOOST_ASSERT(it != m_model.frameMapping.end());
+        
+        node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
+        node->setCurrentFrame(it->second.offset + frame);
+    }
+    
+    irr::u32 getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const
+    {
+        auto it = m_model.frameMapping.find(m_currentAnimation);
+        BOOST_ASSERT(it != m_model.frameMapping.end());
+        
+        return node->getFrameNr() - it->second.offset;
+    }
+};
+
 void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
     for(const Item& item : m_items)
@@ -359,7 +427,7 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
             continue;
         }
         
-        meshIdx = findAnimatedMeshIndexByObjectId(item.object_id);
+        meshIdx = findAnimatedModelIndexByObjectId(item.object_id);
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
@@ -370,6 +438,8 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
             //n->setDebugDataVisible(irr::scene::EDS_FULL);
             n->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             n->setAnimationSpeed(30);
+            n->setLoopMode(false);
+            n->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], n));
             skinnedMeshes[meshIdx]->drop();
         }
     }
@@ -420,18 +490,6 @@ void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, cons
         pData += animation.poseDataSize;
     }
 }
-
-struct AnimInfo
-{
-    irr::u32 firstFrame;
-    irr::u32 lastFrame;
-    
-    AnimInfo(irr::u32 f, irr::u32 l)
-        : firstFrame(f)
-        , lastFrame(l)
-    {
-    }
-};
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
 {
@@ -524,7 +582,6 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
         std::queue<uint16_t> animationsToLoad;
         animationsToLoad.push(model->animationIndex);
         
-        std::map<uint16_t, AnimInfo> animInfos;
         irr::u32 currentAnimOffset = 0;
         
         while(!animationsToLoad.empty())
@@ -533,7 +590,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             animationsToLoad.pop();
             BOOST_ASSERT(currentAnimIdx < m_animations.size());
             
-            if(animInfos.find(currentAnimIdx) != animInfos.end())
+            if(model->frameMapping.find(currentAnimIdx) != model->frameMapping.end())
             {
                 continue; // already loaded
             }
@@ -541,7 +598,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
             
-            animInfos.emplace(std::make_pair(currentAnimIdx, AnimInfo(animation.firstFrame+currentAnimOffset, animation.lastFrame+currentAnimOffset)));
+            model->frameMapping.emplace(std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
             animationsToLoad.push(animation.nextAnimation);
             
             currentAnimOffset += animation.getKeyframeCount() * animation.stretchFactor;
