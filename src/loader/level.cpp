@@ -26,7 +26,10 @@
 #include "tr4level.h"
 #include "tr5level.h"
 
+#include "util/vmath.h"
+
 #include <algorithm>
+#include <stack>
 #include <boost/lexical_cast.hpp>
 
 using namespace loader;
@@ -277,11 +280,20 @@ StaticMesh *Level::findStaticMeshById(uint32_t object_id)
     return nullptr;
 }
 
-int Level::findMeshIndexByObjectId(uint32_t object_id) const
+int Level::findStaticMeshIndexByObjectId(uint32_t object_id) const
 {
     for(size_t i = 0; i < m_staticMeshes.size(); i++)
         if(m_staticMeshes[i].object_id == object_id)
             return m_meshIndices[m_staticMeshes[i].mesh];
+    
+    return -1;
+}
+
+int Level::findAnimatedMeshIndexByObjectId(uint32_t object_id) const
+{
+    for(size_t i = 0; i < m_animatedModels.size(); i++)
+        if(m_animatedModels[i]->object_id == object_id)
+            return i;
     
     return -1;
 }
@@ -316,11 +328,10 @@ std::vector<irr::video::ITexture*> Level::createTextures(irr::video::IVideoDrive
     return textures;
 }
 
-void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
+std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(const std::vector<irr::video::ITexture*>& textures)
 {
-    std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
-    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials;
     const auto texMask = gameToEngine(m_gameVersion)==Engine::TR4 ? TextureIndexMaskTr4 : TextureIndexMask;
+    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials;
     for(UVTexture& uvTexture : m_uvTextures)
     {
         const auto& key = uvTexture.textureKey;
@@ -329,6 +340,182 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
         
         materials[key] = UVTexture::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
     }
+    return materials;
+}
+
+void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+{
+    for(const Item& item : m_items)
+    {
+        int meshIdx = findStaticMeshIndexByObjectId(item.object_id);
+        if(meshIdx >= 0)
+        {
+            BOOST_ASSERT(static_cast<size_t>(meshIdx) < staticMeshes.size());
+            irr::scene::IMeshSceneNode* n = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
+            n->setPosition(item.position);
+            n->setRotation({0,item.rotation,0});
+            staticMeshes[meshIdx]->drop();
+            continue;
+        }
+        
+        meshIdx = findAnimatedMeshIndexByObjectId(item.object_id);
+        if(meshIdx >= 0)
+        {
+            BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
+            auto n = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx]);
+            n->setAutomaticCulling(false);
+            n->setPosition(item.position);
+            n->setRotation({0,item.rotation,0});
+            //n->setDebugDataVisible(irr::scene::EDS_FULL);
+            n->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
+            n->setAnimationSpeed(30);
+            skinnedMeshes[meshIdx]->drop();
+        }
+    }
+}
+
+std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
+{
+    std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes;
+    
+    for(const std::unique_ptr<AnimatedModel>& model : m_animatedModels)
+    {
+        BOOST_ASSERT(model != nullptr);
+        irr::scene::ISkinnedMesh* skinnedMesh = mgr->createSkinnedMesh();
+        skinnedMeshes.emplace_back(skinnedMesh);
+
+        std::stack<irr::scene::ISkinnedMesh::SJoint*> parentStack;
+        
+        for(size_t modelMeshIdx=0; modelMeshIdx<model->meshCount; ++modelMeshIdx)        
+        {
+            BOOST_ASSERT(model->firstMesh+modelMeshIdx < m_meshIndices.size());
+            const auto meshIndex = m_meshIndices[model->firstMesh + modelMeshIdx];
+            BOOST_ASSERT(meshIndex < staticMeshes.size());
+            const auto staticMesh = staticMeshes[meshIndex];
+            irr::scene::ISkinnedMesh::SJoint* joint = skinnedMesh->addJoint();
+
+            // clone static mesh buffers to skinned mesh buffers
+            for(irr::u32 meshBufIdx=0; meshBufIdx<staticMesh->MeshBuffers.size(); ++meshBufIdx)
+            {
+                irr::scene::SSkinMeshBuffer* skinMeshBuffer = skinnedMesh->addMeshBuffer();
+                BOOST_ASSERT(skinMeshBuffer != nullptr);
+                BOOST_ASSERT(staticMesh->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
+                BOOST_ASSERT(staticMesh->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
+                for(irr::u32 i=0; i<staticMesh->MeshBuffers[meshBufIdx]->getIndexCount(); ++i)
+                    skinMeshBuffer->Indices.push_back( staticMesh->MeshBuffers[meshBufIdx]->getIndices()[i] );
+                
+                for(irr::u32 i = 0; i < staticMesh->MeshBuffers[meshBufIdx]->getVertexCount(); ++i)
+                {
+                    skinMeshBuffer->Vertices_Standard.push_back( static_cast<irr::video::S3DVertex*>(staticMesh->MeshBuffers[meshBufIdx]->getVertices())[i] );
+                    
+                    auto w = skinnedMesh->addWeight(joint);
+                    w->buffer_id = skinnedMesh->getMeshBuffers().size()-1;
+                    w->strength = 1.0f;
+                    w->vertex_id = i;
+                }
+
+                skinMeshBuffer->Material = staticMesh->MeshBuffers[meshBufIdx]->getMaterial();
+                
+                skinMeshBuffer->setDirty();
+                skinMeshBuffer->boundingBoxNeedsRecalculated();
+                skinMeshBuffer->recalculateBoundingBox();
+            }
+
+            if(modelMeshIdx == 0)
+            {
+                parentStack.push( joint );
+                continue;
+            }
+    
+            auto pred = skinnedMesh->getAllJoints()[modelMeshIdx - 1];
+            
+            irr::scene::ISkinnedMesh::SJoint* parent = nullptr;
+            BOOST_ASSERT(model->boneTreeIndex + 4*modelMeshIdx <= m_boneTrees.size());
+            const int32_t* boneTreeData = &m_boneTrees[ model->boneTreeIndex + (modelMeshIdx - 1) * 4 ];
+            
+            switch(boneTreeData[0])
+            {
+                case 0: // use predecessor
+                    parent = pred;
+                    parent->Children.push_back(joint);
+                    break;
+                case 2: // push
+                    parent = pred;
+                    parent->Children.push_back(joint);
+                    parentStack.push(parent);
+                    break;
+                case 1: // pop
+                    if(parentStack.empty())
+                        throw std::runtime_error("Invalid skeleton stack operation: cannot pop from empty stack");
+                    parent = parentStack.top();
+                    parent->Children.push_back(joint);
+                    parentStack.pop();
+                    break;
+                case 3: // top
+                    if(parentStack.empty())
+                        throw std::runtime_error("Invalid skeleton stack operation: cannot take top of empty stack");
+                    parent = parentStack.top();
+                    parent->Children.push_back(joint);
+                    break;
+                default:
+                    throw std::runtime_error("Invalid skeleton stack operation");
+            }
+        }
+        
+        BOOST_ASSERT(model->animationIndex < m_animations.size());
+        const auto meshPositionIndex = m_animations[model->animationIndex].meshPositionOffset/2;
+        const int16_t* pData = &m_poseData[meshPositionIndex];
+
+        for(auto kf = m_animations[model->animationIndex].firstFrame; kf <= m_animations[model->animationIndex].lastFrame; kf += m_animations[model->animationIndex].stretchFactor)
+        {
+            uint16_t l = 0x0a;
+
+            for(size_t k = 0; k < model->meshCount; k++)
+            {
+                auto joint = skinnedMesh->getAllJoints()[k];
+                auto pKey = skinnedMesh->addPositionKey(joint);
+                pKey->frame = kf;
+                
+                if(k==0)
+                {
+                    pKey->position = {pData[6], -pData[7], pData[8]};
+                }
+                else
+                {
+                    BOOST_ASSERT(model->boneTreeIndex + 4*k <= m_boneTrees.size());
+                    const int32_t* boneTreeData = &m_boneTrees[ model->boneTreeIndex + (k - 1) * 4 ];
+                    pKey->position = {boneTreeData[1], -boneTreeData[2], boneTreeData[3]};
+                }
+                
+                auto rKey = skinnedMesh->addRotationKey(joint);
+                rKey->frame = kf;
+    
+                auto temp2 = pData[l++];
+                auto temp1 = pData[l++];
+                
+                irr::core::vector3df rot;
+                rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
+                rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+                rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
+                rot *= 360 / 1024.0;
+                //rot *= 2*M_PI / 1024.0;
+                
+                rKey->rotation = util::trRotationToQuat(rot);
+            }
+            
+            pData += m_animations[model->animationIndex].poseDataSize;
+        }
+        
+        skinnedMesh->finalize();
+    }
+    
+    return skinnedMeshes;
+}
+
+void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
+{
+    std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
+    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
     std::vector<irr::scene::SMesh*> staticMeshes;
     for(size_t i=0; i<m_meshes.size(); ++i)
@@ -343,18 +530,11 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
         if(i==0)
             cpos = n->getAbsolutePosition();
     }
-    
-    for(const Item& item : m_items)
-    {
-        int meshIdx = findMeshIndexByObjectId(item.object_id);
-        if(meshIdx < 0)
-            continue;
-        BOOST_ASSERT(meshIdx < staticMeshes.size());
-        irr::scene::IMeshSceneNode* n = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
-        n->setPosition(item.position);
-        n->setRotation({0,item.rotation,0});
-    }
-    
+
+    std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
+      
+    createItems(mgr, staticMeshes, skinnedMeshes);
+
     irr::SKeyMap keyMap[7];
     keyMap[0].Action = irr::EKA_MOVE_FORWARD;
     keyMap[0].KeyCode = irr::KEY_KEY_W;

@@ -33,7 +33,7 @@ struct SkeletonPose
     irr::core::vector3df position = { 0,0,0 };
     core::BoundingBox boundingBox;
 
-    void load(const loader::Level& level, size_t poseDataOffset);
+    void load(const loader::Level& level, size_t meshPositionOffset);
 };
 }
 }

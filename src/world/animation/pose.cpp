@@ -6,11 +6,11 @@ namespace world
 {
 namespace animation
 {
-void SkeletonPose::load(const loader::Level& level, size_t poseDataOffset)
+void SkeletonPose::load(const loader::Level& level, size_t meshPositionOffset)
 {
-    if(poseDataOffset + 9 < level.m_poseData.size())
+    if(meshPositionOffset + 9 < level.m_poseData.size())
     {
-        const int16_t* frame = &level.m_poseData[poseDataOffset];
+        const int16_t* frame = &level.m_poseData[meshPositionOffset];
 
         boundingBox.min[0] = frame[0];   // x_min
         boundingBox.min[1] = frame[4];   // y_min
@@ -26,7 +26,7 @@ void SkeletonPose::load(const loader::Level& level, size_t poseDataOffset)
     }
     else
     {
-        BOOST_LOG_TRIVIAL(warning) << "Reading animation data beyond end of frame data: offset = " << poseDataOffset << ", size = " << level.m_poseData.size();
+        BOOST_LOG_TRIVIAL(warning) << "Reading animation data beyond end of frame data: offset = " << meshPositionOffset << ", size = " << level.m_poseData.size();
         boundingBox.min = { 0,0,0 };
         boundingBox.max = { 0,0,0 };
         position = { 0,0,0 };

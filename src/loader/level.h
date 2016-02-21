@@ -88,9 +88,13 @@ public:
     StaticMesh *findStaticMeshById(uint32_t object_id);
     Item* findItemById(int32_t object_id);
     AnimatedModel* findModelById(uint32_t object_id);
-    int findMeshIndexByObjectId(uint32_t object_id) const;
+    int findStaticMeshIndexByObjectId(uint32_t object_id) const;
+    int findAnimatedMeshIndexByObjectId(uint32_t object_id) const;
 
     std::vector<irr::video::ITexture*> createTextures(irr::video::IVideoDriver* drv);
+    std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
+    void createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
+    std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     
     void toIrrlicht(irr::scene::ISceneManager* mgr);
     

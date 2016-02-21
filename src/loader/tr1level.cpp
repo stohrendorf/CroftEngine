@@ -75,7 +75,7 @@ void TR1Level::load(irr::video::IVideoDriver* drv)
     // try to fix ugly stick
     for(size_t i = 0; i < m_animations.size(); i++)
     {
-        uint32_t frame_offset = m_animations[i].poseDataOffset / 2;
+        uint32_t frame_offset = m_animations[i].meshPositionOffset / 2;
         m_animations[i].poseDataSize = m_poseData[frame_offset + 9] * 2 + 10;
     }
 

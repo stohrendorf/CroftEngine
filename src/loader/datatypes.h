@@ -842,11 +842,14 @@ struct UVTexture
 
         uint16_t flags;                             // TR4
         
+        int colorId = -1;
+        
         inline bool operator==(const TextureKey& rhs) const
         {
             return tileAndFlag == rhs.tileAndFlag
                 && flags == rhs.flags
-                && blendingMode == rhs.blendingMode;
+                && blendingMode == rhs.blendingMode
+                && colorId == rhs.colorId;
         }
         
         inline bool operator<(const TextureKey& rhs) const
@@ -857,7 +860,10 @@ struct UVTexture
             if( flags != rhs.flags )
                 return flags < rhs.flags;
             
-            return blendingMode < rhs.blendingMode;
+            if( blendingMode != rhs.blendingMode )
+                return blendingMode < rhs.blendingMode;
+
+            return colorId < rhs.colorId;
         }
     };
     
@@ -1783,8 +1789,8 @@ struct AnimatedModel
     uint16_t meshCount;        // number of meshes in this object
     uint16_t firstMesh;     // starting mesh (offset into MeshPointers[])
     uint32_t boneTreeIndex;   // offset into MeshTree[]
-    uint32_t poseDataOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
-    uint16_t animation_index;   // offset into Animations[]
+    uint32_t meshPositionOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
+    uint16_t animationIndex;   // offset into Animations[]
 
     /** \brief reads a moveable definition.
       *
@@ -1798,8 +1804,8 @@ struct AnimatedModel
         moveable->meshCount = reader.readU16();
         moveable->firstMesh = reader.readU16();
         moveable->boneTreeIndex = reader.readU32();
-        moveable->poseDataOffset = reader.readU32();
-        moveable->animation_index = reader.readU16();
+        moveable->meshPositionOffset = reader.readU32();
+        moveable->animationIndex = reader.readU16();
         return moveable;
     }
 
@@ -1843,7 +1849,7 @@ struct Item
         item->object_id = reader.readI16();
         item->room = reader.readI16();
         item->position = Vertex::read32(reader);
-        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         if(item->intensity1 >= 0)
             item->intensity1 = (8191 - item->intensity1) << 2;
@@ -1859,7 +1865,7 @@ struct Item
         item->object_id = reader.readI16();
         item->room = reader.readI16();
         item->position = Vertex::read32(reader);
-        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         if(item->intensity1 >= 0)
             item->intensity1 = (8191 - item->intensity1) << 2;
@@ -1877,7 +1883,7 @@ struct Item
         item->object_id = reader.readI16();
         item->room = reader.readI16();
         item->position = Vertex::read32(reader);
-        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         item->intensity2 = reader.readU16();
         item->ocb = 0;   // Not present in TR3!
@@ -1891,7 +1897,7 @@ struct Item
         item->object_id = reader.readI16();
         item->room = reader.readI16();
         item->position = Vertex::read32(reader);
-        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         item->intensity2 = item->intensity1;
         item->ocb = reader.readU16();
@@ -1973,6 +1979,19 @@ struct SpriteTexture
         sprite_texture->top_side = ty + th / 256;
         return sprite_texture;
     }
+    
+    irr::core::matrix4 buildTextureMatrix() const
+    {
+        auto tscale = t1 - t0;
+        BOOST_ASSERT(tscale.X > 0);
+        BOOST_ASSERT(tscale.Y > 0);
+
+        irr::core::matrix4 mat;
+        mat.setTextureScale(tscale.X, tscale.Y);
+        mat.setTextureTranslate(t0.X, t0.Y);
+        
+        return mat;
+    }
 };
 
 struct SpriteSequence
@@ -2005,7 +2024,7 @@ struct SpriteSequence
   */
 struct Animation
 {
-    uint32_t poseDataOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
+    uint32_t meshPositionOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
     uint8_t stretchFactor;      // Slowdown factor of this animation
     uint8_t poseDataSize;         // number of bit16's in Frames[] used by this animation
     uint16_t state_id;
@@ -2025,6 +2044,11 @@ struct Animation
     uint16_t transitionsIndex;   // offset into StateChanges[]
     uint16_t animCommandCount;     // How many of them to use.
     uint16_t animCommandIndex;          // offset into AnimCommand[]
+    
+    constexpr size_t getKeyframeCount() const
+    {
+        return (lastFrame - firstFrame + stretchFactor) / stretchFactor;
+    }
 
     /// \brief reads an animation definition.
     static std::unique_ptr<Animation> readTr1(io::SDLReader& reader)
@@ -2041,7 +2065,7 @@ private:
     static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral)
     {
         std::unique_ptr<Animation> animation{ new Animation() };
-        animation->poseDataOffset = reader.readU32();
+        animation->meshPositionOffset = reader.readU32();
         animation->stretchFactor = reader.readU8();
         animation->poseDataSize = reader.readU8();
         animation->state_id = reader.readU16();

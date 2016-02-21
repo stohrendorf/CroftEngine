@@ -11,7 +11,7 @@ namespace loader
 
 namespace
 {
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex& tex, const std::vector<Vertex>& vertices, const std::vector<Vertex>& normals)
+irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex* tex, const std::vector<Vertex>& vertices, const std::vector<Vertex>& normals)
 {
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
@@ -21,8 +21,11 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
         iv.Normal = -normals[vertexIndex];
     else
         iv.Normal.set(0,0,1);
-    iv.TCoords.X = tex.xpixel/255.0f;
-    iv.TCoords.Y = tex.ypixel/255.0f;
+    if(tex != nullptr)
+    {
+        iv.TCoords.X = tex->xpixel/255.0f;
+        iv.TCoords.Y = tex->ypixel/255.0f;
+    }
     irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
     if(ivIdx < 0)
     {
@@ -30,7 +33,7 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
         meshBuffer.Vertices.push_back(iv);
     }
     BOOST_ASSERT(ivIdx >= 0);
-    BOOST_ASSERT(ivIdx < meshBuffer.Vertices.size());
+    BOOST_ASSERT(static_cast<irr::u32>(ivIdx) < meshBuffer.Vertices.size());
     meshBuffer.Indices.push_back(ivIdx);
     return meshBuffer.Vertices[ivIdx];
 }
@@ -58,7 +61,12 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
 }
 } // anonymous namespace
 
-irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<UVTexture>& uvTextures, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials) const
+irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
+                                    int dumpIdx,
+                                    const std::vector<UVTexture>& uvTextures,
+                                    const std::map<UVTexture::TextureKey,
+                                    irr::video::SMaterial>& materials,
+                                    const std::vector<irr::video::SMaterial>& colorMaterials) const
 {
     // texture => mesh buffer
     std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
@@ -69,23 +77,32 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr, int dumpIdx,
             texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[tex.textureKey];
         
-        addVertex(*buf, quad.uvCoordinates[0], tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[1], tex.vertices[1], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[0], tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[3], tex.vertices[3], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[0], &tex.vertices[0], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[1], &tex.vertices[1], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[2], &tex.vertices[2], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[0], &tex.vertices[0], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[2], &tex.vertices[2], vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[3], &tex.vertices[3], vertices, normals);
     }
-#if 0
     for(const QuadFace& quad : colored_rectangles)
     {
-        std::map<int, irr::s32>& indexMap = texIndexMap[-1 * quad.texture];
-        if(buffers.find(-1 * quad.texture) == buffers.end())
-            buffers[-1 * quad.texture] = new irr::scene::SMeshBuffer();
-        for(int i=0; i<4; ++i)
-            addVertex(*buffers[-1 * quad.texture], indexMap, quad.vertices[i]).Color;
+        UVTexture::TextureKey tk;
+        tk.blendingMode = BlendingMode::Solid;
+        tk.flags = 0;
+        tk.tileAndFlag = 0;
+        tk.colorId = quad.uvTexture&0xff;
+        
+        if(texBuffers.find(tk) == texBuffers.end())
+            texBuffers[tk] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[tk];
+        
+        addVertex(*buf, quad.uvCoordinates[0], nullptr, vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[1], nullptr, vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[2], nullptr, vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[0], nullptr, vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[2], nullptr, vertices, normals);
+        addVertex(*buf, quad.uvCoordinates[3], nullptr, vertices, normals);
     }
-#endif
     for(const Triangle& poly : textured_triangles)
     {
         const UVTexture& tex = uvTextures.at(poly.uvTexture);
@@ -94,25 +111,32 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr, int dumpIdx,
         auto buf = texBuffers[tex.textureKey];
 
         for(int i=0; i<3; ++i)
-            addVertex(*buf, poly.vertices[i], tex.vertices[i], vertices, normals);
+            addVertex(*buf, poly.vertices[i], &tex.vertices[i], vertices, normals);
     }
-#if 0
+
     for(const Triangle& poly : colored_triangles)
     {
-        std::map<int, irr::s32>& indexMap = texIndexMap[-1 * poly.texture];
-        if(buffers.find(-1 * poly.texture) == buffers.end())
-            buffers[-1 * poly.texture] = new irr::scene::SMeshBuffer();
+        UVTexture::TextureKey tk;
+        tk.blendingMode = BlendingMode::Solid;
+        tk.flags = 0;
+        tk.tileAndFlag = 0;
+        tk.colorId = poly.uvTexture&0xff;
+
+        if(texBuffers.find(tk) == texBuffers.end())
+            texBuffers[tk] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[tk];
+
         for(int i=0; i<3; ++i)
-            addVertex(*buffers[-1 * poly.texture], indexMap, poly.vertices[i]);
+            addVertex(*buf, poly.vertices[i], nullptr, vertices, normals);
     }
-#endif
     
     irr::scene::SMesh* result = new irr::scene::SMesh();
     for(auto& buffer : texBuffers)
     {
         auto it = materials.find(buffer.first);
-        BOOST_ASSERT(it != materials.end());
-        buffer.second->Material = it->second;
+        if(it != materials.end())
+            buffer.second->Material = it->second;
+
         result->addMeshBuffer(buffer.second);
     }
     
@@ -139,7 +163,13 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr, int dumpIdx,
     return result;
 }
 
-irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes) const
+irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr,
+                                                  int dumpIdx,
+                                                  const Level& level,
+                                                  const std::map<UVTexture::TextureKey,
+                                                  irr::video::SMaterial>& materials,
+                                                  const std::vector<irr::video::ITexture*>& textures,
+                                                  const std::vector<irr::scene::SMesh*>& staticMeshes) const
 {
     // texture => mesh buffer
     std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
@@ -180,6 +210,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     result->recalculateBoundingBox();
     
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
+    // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
     for(const Light& light : lights)
     {
@@ -201,7 +232,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
                 break;
         }
 
-        ln->setPosition(light.position);
+        ln->setPosition(light.position - offset);
         ln->setRotation(light.dir);
         ln->setRadius(light.length);
         
@@ -217,7 +248,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     
     for(const RoomStaticMesh& sm : static_meshes)
     {
-        auto idx = level.findMeshIndexByObjectId(sm.object_id);
+        auto idx = level.findStaticMeshIndexByObjectId(sm.object_id);
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(idx < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
@@ -240,20 +271,12 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(dim.X > 0);
         BOOST_ASSERT(dim.Y > 0);
         
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex, -1, 0, 0);
+        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex+irr::core::vector3df{0,tex.bottom_side/2,0}, -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
         n->setMaterialFlag(irr::video::EMF_BLEND_OPERATION, irr::video::EBO_ADD);
         n->setMaterialTexture( 0, textures[tex.texture] );
         
-        auto tscale = (tex.t1 - tex.t0);
-        BOOST_ASSERT(tscale.X > 0);
-        BOOST_ASSERT(tscale.Y > 0);
-
-        irr::core::matrix4 mat;
-        mat.setTextureScale(tscale.X, tscale.Y);
-        mat.setTextureTranslate(tex.t0.X, tex.t0.Y);
-        
-        n->getMaterial(0).setTextureMatrix(0, mat);
+        n->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
     }
     
     if(dumpIdx >= 0)
