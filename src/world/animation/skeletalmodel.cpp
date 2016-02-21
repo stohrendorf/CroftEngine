@@ -349,7 +349,7 @@ void SkeletalModel::loadAnimations(const loader::Level& level, size_t moveable)
         const loader::Animation& trAnimation = level.m_animations[level.m_animatedModels[moveable]->animation_index + i];
         anim->firstFrame = trAnimation.firstFrame;
 
-        size_t meshPositionIndex = trAnimation.meshPositionOffset / 2;
+        size_t meshPositionIndex = trAnimation.poseDataOffset / 2;
         uint16_t l_start = 0x09;
 
         if(loader::gameToEngine(level.m_gameVersion) == loader::Engine::TR1)

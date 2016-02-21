@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <stack>
+#include <queue>
 #include <boost/lexical_cast.hpp>
 
 using namespace loader;
@@ -374,6 +375,64 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
     }
 }
 
+void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
+{
+    const auto meshPositionIndex = animation.poseDataOffset/2;
+    const int16_t* pData = &m_poseData[meshPositionIndex];
+
+    for(irr::u32 frameIdx = animation.firstFrame; frameIdx <= animation.lastFrame; frameIdx += animation.stretchFactor)
+    {
+        uint16_t angleSetOfs = 0x0a;
+
+        for(size_t k = 0; k < model.meshCount; k++)
+        {
+            auto joint = skinnedMesh->getAllJoints()[k];
+            auto pKey = skinnedMesh->addPositionKey(joint);
+            pKey->frame = frameIdx + frameOffset;
+            
+            if(k==0)
+            {
+                pKey->position = {pData[6], -pData[7], pData[8]};
+            }
+            else
+            {
+                BOOST_ASSERT(model.boneTreeIndex + 4*k <= m_boneTrees.size());
+                const int32_t* boneTreeData = &m_boneTrees[ model.boneTreeIndex + (k - 1) * 4 ];
+                pKey->position = {boneTreeData[1], -boneTreeData[2], boneTreeData[3]};
+            }
+            
+            auto rKey = skinnedMesh->addRotationKey(joint);
+            rKey->frame = frameIdx + frameOffset;
+
+            auto temp2 = pData[angleSetOfs++];
+            auto temp1 = pData[angleSetOfs++];
+            
+            irr::core::vector3df rot;
+            rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
+            rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+            rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
+            rot *= 360 / 1024.0;
+            //rot *= 2*M_PI / 1024.0;
+            
+            rKey->rotation = util::trRotationToQuat(rot);
+        }
+        
+        pData += animation.poseDataSize;
+    }
+}
+
+struct AnimInfo
+{
+    irr::u32 firstFrame;
+    irr::u32 lastFrame;
+    
+    AnimInfo(irr::u32 f, irr::u32 l)
+        : firstFrame(f)
+        , lastFrame(l)
+    {
+    }
+};
+
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
 {
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes;
@@ -462,48 +521,45 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             }
         }
         
-        BOOST_ASSERT(model->animationIndex < m_animations.size());
-        const auto meshPositionIndex = m_animations[model->animationIndex].meshPositionOffset/2;
-        const int16_t* pData = &m_poseData[meshPositionIndex];
-
-        for(auto kf = m_animations[model->animationIndex].firstFrame; kf <= m_animations[model->animationIndex].lastFrame; kf += m_animations[model->animationIndex].stretchFactor)
+        std::queue<uint16_t> animationsToLoad;
+        animationsToLoad.push(model->animationIndex);
+        
+        std::map<uint16_t, AnimInfo> animInfos;
+        irr::u32 currentAnimOffset = 0;
+        
+        while(!animationsToLoad.empty())
         {
-            uint16_t l = 0x0a;
-
-            for(size_t k = 0; k < model->meshCount; k++)
+            const auto currentAnimIdx = animationsToLoad.front();
+            animationsToLoad.pop();
+            BOOST_ASSERT(currentAnimIdx < m_animations.size());
+            
+            if(animInfos.find(currentAnimIdx) != animInfos.end())
             {
-                auto joint = skinnedMesh->getAllJoints()[k];
-                auto pKey = skinnedMesh->addPositionKey(joint);
-                pKey->frame = kf;
-                
-                if(k==0)
-                {
-                    pKey->position = {pData[6], -pData[7], pData[8]};
-                }
-                else
-                {
-                    BOOST_ASSERT(model->boneTreeIndex + 4*k <= m_boneTrees.size());
-                    const int32_t* boneTreeData = &m_boneTrees[ model->boneTreeIndex + (k - 1) * 4 ];
-                    pKey->position = {boneTreeData[1], -boneTreeData[2], boneTreeData[3]};
-                }
-                
-                auto rKey = skinnedMesh->addRotationKey(joint);
-                rKey->frame = kf;
-    
-                auto temp2 = pData[l++];
-                auto temp1 = pData[l++];
-                
-                irr::core::vector3df rot;
-                rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
-                rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
-                rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
-                rot *= 360 / 1024.0;
-                //rot *= 2*M_PI / 1024.0;
-                
-                rKey->rotation = util::trRotationToQuat(rot);
+                BOOST_LOG_TRIVIAL(info) << "Anim " << currentAnimIdx << " already loaded";
+                continue; // already loaded
             }
             
-            pData += m_animations[model->animationIndex].poseDataSize;
+            const Animation& animation = m_animations[currentAnimIdx];
+            BOOST_LOG_TRIVIAL(info) << "Load anim " << currentAnimIdx << " offset=" << currentAnimOffset;
+            loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
+            
+            animInfos.emplace(std::make_pair(currentAnimIdx, AnimInfo(animation.firstFrame+currentAnimOffset, animation.lastFrame+currentAnimOffset)));
+            animationsToLoad.push(animation.nextAnimation);
+            
+            currentAnimOffset += animation.getKeyframeCount() * animation.stretchFactor;
+            
+            for(auto i=0; i<animation.transitionsCount; ++i)
+            {
+                auto tIdx = animation.transitionsIndex + i;
+                BOOST_ASSERT(tIdx < m_transitions.size());
+                const Transitions& tr = m_transitions[tIdx];
+                for(auto j=tr.firstTransitionCase; j<tr.firstTransitionCase+tr.transitionCaseCount; ++j)
+                {
+                    BOOST_ASSERT(j < m_transitionCases.size());
+                    const TransitionCase& trc = m_transitionCases[j];
+                    animationsToLoad.push(trc.targetAnimation);
+                }
+            }
         }
         
         skinnedMesh->finalize();

@@ -1691,20 +1691,20 @@ long int TR_GetOriginalAnimationFrameOffset(uint32_t offset, uint32_t anim, cons
     tr_animation = &tr->m_animations[anim];
     if(anim + 1 == tr->m_animations.size())
     {
-        if(offset < tr_animation->meshPositionOffset)
+        if(offset < tr_animation->poseDataOffset)
         {
             return -2;
         }
     }
     else
     {
-        if(offset < tr_animation->meshPositionOffset && offset >= (tr_animation + 1)->meshPositionOffset)
+        if(offset < tr_animation->poseDataOffset && offset >= (tr_animation + 1)->poseDataOffset)
         {
             return -2;
         }
     }
 
-    return tr_animation->meshPositionOffset;
+    return tr_animation->poseDataOffset;
 }
 
 std::shared_ptr<animation::SkeletalModel> Res_GetSkybox(World& world)
@@ -1793,13 +1793,13 @@ size_t TR_GetNumFramesForAnimation(const std::unique_ptr<loader::Level>& tr, siz
 
     if(animation_ind == tr->m_animations.size() - 1)
     {
-        size_t ret = 2 * tr->m_poseData.size() - curr_anim->meshPositionOffset;
+        size_t ret = 2 * tr->m_poseData.size() - curr_anim->poseDataOffset;
         ret /= curr_anim->poseDataSize * 2;                                       /// it is fully correct!
         return ret;
     }
 
     loader::Animation* next_anim = &tr->m_animations[animation_ind + 1];
-    size_t ret = next_anim->meshPositionOffset - curr_anim->meshPositionOffset;
+    size_t ret = next_anim->poseDataOffset - curr_anim->poseDataOffset;
     ret /= curr_anim->poseDataSize * 2;
 
     return ret;

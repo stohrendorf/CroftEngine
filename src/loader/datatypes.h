@@ -2024,7 +2024,7 @@ struct SpriteSequence
   */
 struct Animation
 {
-    uint32_t meshPositionOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
+    uint32_t poseDataOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
     uint8_t stretchFactor;      // Slowdown factor of this animation
     uint8_t poseDataSize;         // number of bit16's in Frames[] used by this animation
     uint16_t state_id;
@@ -2050,6 +2050,11 @@ struct Animation
         return (lastFrame - firstFrame + stretchFactor) / stretchFactor;
     }
 
+    constexpr size_t getFrameCount() const
+    {
+        return lastFrame - firstFrame + 1;
+    }
+
     /// \brief reads an animation definition.
     static std::unique_ptr<Animation> readTr1(io::SDLReader& reader)
     {
@@ -2065,8 +2070,10 @@ private:
     static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral)
     {
         std::unique_ptr<Animation> animation{ new Animation() };
-        animation->meshPositionOffset = reader.readU32();
+        animation->poseDataOffset = reader.readU32();
         animation->stretchFactor = reader.readU8();
+        if(animation->stretchFactor == 0)
+            animation->stretchFactor = 1;
         animation->poseDataSize = reader.readU8();
         animation->state_id = reader.readU16();
 
