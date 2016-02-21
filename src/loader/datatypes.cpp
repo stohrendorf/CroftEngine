@@ -64,10 +64,11 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
 irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
                                     int dumpIdx,
                                     const std::vector<UVTexture>& uvTextures,
-                                    const std::map<UVTexture::TextureKey,
-                                    irr::video::SMaterial>& materials,
+                                    const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials,
                                     const std::vector<irr::video::SMaterial>& colorMaterials) const
 {
+    BOOST_ASSERT(colorMaterials.size() == 256);
+
     // texture => mesh buffer
     std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
     for(const QuadFace& quad : textured_rectangles)
@@ -135,7 +136,17 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     {
         auto it = materials.find(buffer.first);
         if(it != materials.end())
+        {
             buffer.second->Material = it->second;
+        }
+        else if(buffer.first.colorId >= 0 && buffer.first.colorId <= 255)
+        {
+            buffer.second->Material = colorMaterials[buffer.first.colorId];
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL(error) << "Invalid mesh material";
+        }
 
         result->addMeshBuffer(buffer.second);
     }
@@ -166,8 +177,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
 irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr,
                                                   int dumpIdx,
                                                   const Level& level,
-                                                  const std::map<UVTexture::TextureKey,
-                                                  irr::video::SMaterial>& materials,
+                                                  const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials,
                                                   const std::vector<irr::video::ITexture*>& textures,
                                                   const std::vector<irr::scene::SMesh*>& staticMeshes) const
 {

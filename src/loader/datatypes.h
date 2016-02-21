@@ -46,7 +46,7 @@ private:
         if(withAlpha)
             colour.a = reader.readU8() << 2;
         else
-            colour.a = 0;
+            colour.a = 255;
         return colour;
     }
 };

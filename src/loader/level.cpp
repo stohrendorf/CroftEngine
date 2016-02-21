@@ -535,12 +535,10 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             
             if(animInfos.find(currentAnimIdx) != animInfos.end())
             {
-                BOOST_LOG_TRIVIAL(info) << "Anim " << currentAnimIdx << " already loaded";
                 continue; // already loaded
             }
             
             const Animation& animation = m_animations[currentAnimIdx];
-            BOOST_LOG_TRIVIAL(info) << "Load anim " << currentAnimIdx << " offset=" << currentAnimOffset;
             loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
             
             animInfos.emplace(std::make_pair(currentAnimIdx, AnimInfo(animation.firstFrame+currentAnimOffset, animation.lastFrame+currentAnimOffset)));
@@ -568,11 +566,50 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
     return skinnedMeshes;
 }
 
+irr::video::ITexture* Level::createSolidColorTex(irr::video::IVideoDriver* drv, uint8_t color)
+{
+    irr::video::SColor pixels[2][2];
+    pixels[0][0].set(m_palette->color[color].a, m_palette->color[color].r, m_palette->color[color].g, m_palette->color[color].b);
+    pixels[1][0] = pixels[0][0];
+    pixels[0][1] = pixels[0][0];
+    pixels[1][1] = pixels[0][0];
+
+    auto img = drv->createImageFromData(
+                   irr::video::ECF_A8R8G8B8,
+                   {2, 2},
+                   &pixels[0][0]);
+    irr::io::path p;
+    p = "tex_color";
+    p += boost::lexical_cast<std::string>(int(color)).c_str();
+    p += ".png";
+    auto tex = drv->addTexture(p, img);
+
+    chdir("dump");
+    drv->writeImageToFile(img, p);
+    chdir("..");
+    
+    img->drop();
+    return tex;
+}
+
 void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
 {
     std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
+    for(int i=0; i<256; ++i)
+    {
+        irr::video::SMaterial result;
+        // Set some defaults
+        result.setTexture(0, createSolidColorTex(mgr->getVideoDriver(), i));
+        result.BackfaceCulling = false;
+        result.ColorMaterial = irr::video::ECM_AMBIENT;
+        result.Lighting = true;
+        result.AmbientColor.set(0);
+      
+        coloredMaterials.emplace_back(result);
+    }
+    
     std::vector<irr::scene::SMesh*> staticMeshes;
     for(size_t i=0; i<m_meshes.size(); ++i)
     {
