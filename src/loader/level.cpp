@@ -350,7 +350,6 @@ private:
     const Level* const m_level;
     const AnimatedModel& m_model;
     uint16_t m_currentAnimation;
-    uint16_t m_currentState = 0;
 public:
     DefaultAnimDispatcher(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node)
         : m_level(level)
@@ -362,11 +361,11 @@ public:
             return;
         
         node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
-        m_currentState = it->second.state;
     }
     
     virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node) override
     {
+        BOOST_ASSERT(m_currentAnimation < m_level->m_animations.size());
         const Animation& currentAnim = m_level->m_animations[m_currentAnimation];
         const auto currentFrame = getCurrentFrame(node);
         for(auto i=0; i<currentAnim.transitionsCount; ++i)
@@ -374,7 +373,7 @@ public:
             auto tIdx = currentAnim.transitionsIndex + i;
             BOOST_ASSERT(tIdx < m_level->m_transitions.size());
             const Transitions& tr = m_level->m_transitions[tIdx];
-            if(tr.stateId != m_currentState)
+            if(tr.stateId != getCurrentState())
                 continue;
             
             for(auto j=tr.firstTransitionCase; j<tr.firstTransitionCase+tr.transitionCaseCount; ++j)
@@ -402,7 +401,6 @@ private:
         
         node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
         node->setCurrentFrame(it->second.offset + frame);
-        m_currentState = it->second.state;
     }
     
     irr::u32 getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const
@@ -411,6 +409,13 @@ private:
         BOOST_ASSERT(it != m_model.frameMapping.end());
         
         return node->getFrameNr() - it->second.offset;
+    }
+    
+    uint16_t getCurrentState() const
+    {
+        BOOST_ASSERT(m_currentAnimation < m_level->m_animations.size());
+        const Animation& currentAnim = m_level->m_animations[m_currentAnimation];
+        return currentAnim.state_id;
     }
 };
 
@@ -600,7 +605,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
             
-            model->frameMapping.emplace(std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.state_id, animation.firstFrame, animation.lastFrame)));
+            model->frameMapping.emplace(std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
             animationsToLoad.push(animation.nextAnimation);
             
             currentAnimOffset += animation.getKeyframeCount() * animation.stretchFactor;
