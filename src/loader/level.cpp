@@ -362,6 +362,7 @@ public:
             return;
         
         node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
+        m_currentState = it->second.state;
     }
     
     virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node) override
@@ -394,13 +395,14 @@ public:
     }
     
 private:
-    void startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame) const
+    void startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame)
     {
         auto it = m_model.frameMapping.find(m_currentAnimation);
         BOOST_ASSERT(it != m_model.frameMapping.end());
         
         node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
         node->setCurrentFrame(it->second.offset + frame);
+        m_currentState = it->second.state;
     }
     
     irr::u32 getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const
@@ -598,7 +600,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
             
-            model->frameMapping.emplace(std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
+            model->frameMapping.emplace(std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.state_id, animation.firstFrame, animation.lastFrame)));
             animationsToLoad.push(animation.nextAnimation);
             
             currentAnimOffset += animation.getKeyframeCount() * animation.stretchFactor;

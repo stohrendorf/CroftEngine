@@ -1794,12 +1794,14 @@ struct AnimatedModel
 
     struct FrameRange
     {
+        const uint16_t state;
         const irr::u32 offset;
         const irr::u32 firstFrame;
         const irr::u32 lastFrame;
         
-        FrameRange(irr::u32 o, irr::u32 f, irr::u32 l)
+        FrameRange(irr::u32 o, uint16_t s, irr::u32 f, irr::u32 l)
             : offset(o)
+            , state(s)
             , firstFrame(f+o)
             , lastFrame(l+o)
         {
