@@ -435,6 +435,7 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
             irr::scene::IMeshSceneNode* node = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
             node->setPosition(item.position);
             node->setRotation({0,item.rotation,0});
+            node->addShadowVolumeSceneNode();
             staticMeshes[meshIdx]->drop();
             continue;
         }
@@ -448,10 +449,11 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
             node->setPosition(item.position);
             node->setRotation({0,item.rotation,0});
             //n->setDebugDataVisible(irr::scene::EDS_FULL);
-            node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
+            //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
             node->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node));
+            node->addShadowVolumeSceneNode();
             skinnedMeshes[meshIdx]->drop();
         }
     }

@@ -226,9 +226,6 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
-    if(flags & TR_ROOM_FLAG_WATER)
-    {
-    }
     for(const Light& light : lights)
     {
         irr::scene::ILightSceneNode* ln = mgr->addLightSceneNode(resultNode);
@@ -236,31 +233,41 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         {
             case LightType::Shadow:
                 ln->enableCastShadow(true);
+                BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
                 // fall-through
             case LightType::Null:
             case LightType::Point:
+                BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
                 ln->setLightType(irr::video::ELT_POINT);
                 break;
             case LightType::Spotlight:
+                BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
                 ln->setLightType(irr::video::ELT_SPOT);
                 break;
             case LightType::Sun:
+                BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
                 ln->setLightType(irr::video::ELT_DIRECTIONAL);
                 break;
         }
 
-        ln->setPosition(light.position - offset);
-        ln->setRotation(light.dir);
-        ln->setRadius(light.length);
+        BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
+        BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
+        BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a/255.0f << "/" << light.color.r/255.0f << "/" << light.color.g/255.0f << "/" << light.color.b/255.0f;
+        BOOST_LOG_TRIVIAL(debug) << "  - Fade1: " << light.fade1;
+        BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
+        BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
         
-        irr::video::SLight ld;
+        irr::video::SLight& ld = ln->getLightData();
         ld.InnerCone = light.r_inner;
-        ld.InnerCone = light.r_outer;
+        ld.OuterCone = light.r_outer;
         ld.DiffuseColor.set(light.color.a/255.0f, light.color.r/255.0f, light.color.g/255.0f, light.color.b/255.0f);
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
-        ld.Falloff = light.fade1;
-        ln->setLightData(ld);
+        ld.Falloff = light.intensity;
+        ln->setPosition(light.position - offset);
+        ln->setRotation(light.dir);
+        ln->setRadius(light.r_outer);
+        ln->setDebugDataVisible(irr::scene::EDS_FULL);
     }
     
     for(const RoomStaticMesh& sm : static_meshes)

@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
+#include <iostream>
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
@@ -350,7 +351,11 @@ struct Light
         Light light;
         light.position = Vertex::read32(reader);
         // read and make consistent
-        light.intensity1 = (8191 - reader.readU16()) << 2;
+        const auto tmp = reader.readI16();
+        std::cerr << "tmp=" << tmp << "\n";
+        const uint16_t tmp2 = std::abs(tmp);
+        BOOST_ASSERT(tmp2 >= 0 && tmp2 < 8192);
+        light.intensity1 = (8191 - tmp2) << 2;
         light.fade1 = reader.readU32();
         // only in TR2
         light.intensity2 = light.intensity1;
@@ -372,6 +377,7 @@ struct Light
         light.color.r = 0xff;
         light.color.g = 0xff;
         light.color.b = 0xff;
+        light.color.a = 0xff;
         return light;
     }
 
