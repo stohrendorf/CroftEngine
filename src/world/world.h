@@ -120,23 +120,6 @@ enum class ActivatorType
 #define TR_ACTIVATORTYPE_LARA 0
 #define TR_ACTIVATORTYPE_MISC 1
 
-// Various room flags specify various room options. Mostly, they
-// specify environment type and some additional actions which should
-// be performed in such rooms.
-
-#define TR_ROOM_FLAG_WATER          0x0001
-#define TR_ROOM_FLAG_QUICKSAND      0x0002  // Moved from 0x0080 to avoid confusion with NL.
-#define TR_ROOM_FLAG_SKYBOX         0x0008
-#define TR_ROOM_FLAG_UNKNOWN1       0x0010
-#define TR_ROOM_FLAG_WIND           0x0020
-#define TR_ROOM_FLAG_UNKNOWN2       0x0040  ///@FIXME: Find what it means!!! Always set by Dxtre3d.
-#define TR_ROOM_FLAG_NO_LENSFLARE   0x0080  // In TR4-5. Was quicksand in TR3.
-#define TR_ROOM_FLAG_MIST           0x0100  ///@FIXME: Unknown meaning in TR1!!!
-#define TR_ROOM_FLAG_CAUSTICS       0x0200
-#define TR_ROOM_FLAG_UNKNOWN3       0x0400
-#define TR_ROOM_FLAG_DAMAGE         0x0800  ///@FIXME: Is it really damage (D)?
-#define TR_ROOM_FLAG_POISON         0x1000  ///@FIXME: Is it really poison (P)?
-
 //Room light mode flags (TR2 ONLY)
 
 #define TR_ROOM_LIGHTMODE_FLICKER   0x1

@@ -35,6 +35,11 @@
 
 using namespace loader;
 
+namespace
+{
+const irr::video::SColor WaterColor{ 0, 149, 229, 229 };
+}
+
 /// \brief reads the mesh data.
 void Level::readMeshData(io::SDLReader& reader)
 {
@@ -427,9 +432,9 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < staticMeshes.size());
-            irr::scene::IMeshSceneNode* n = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
-            n->setPosition(item.position);
-            n->setRotation({0,item.rotation,0});
+            irr::scene::IMeshSceneNode* node = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
+            node->setPosition(item.position);
+            node->setRotation({0,item.rotation,0});
             staticMeshes[meshIdx]->drop();
             continue;
         }
@@ -438,15 +443,15 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
-            auto n = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx]);
-            n->setAutomaticCulling(false);
-            n->setPosition(item.position);
-            n->setRotation({0,item.rotation,0});
+            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx]);
+            node->setAutomaticCulling(false);
+            node->setPosition(item.position);
+            node->setRotation({0,item.rotation,0});
             //n->setDebugDataVisible(irr::scene::EDS_FULL);
-            n->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
-            n->setAnimationSpeed(30);
-            n->setLoopMode(false);
-            n->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], n));
+            node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
+            node->setAnimationSpeed(30);
+            node->setLoopMode(false);
+            node->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node));
             skinnedMeshes[meshIdx]->drop();
         }
     }
@@ -658,6 +663,8 @@ irr::video::ITexture* Level::createSolidColorTex(irr::video::IVideoDriver* drv, 
 
 void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
 {
+    mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024*10, .003f, true, false);
+
     std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
@@ -685,7 +692,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
     {
         irr::scene::IMeshSceneNode* n = m_rooms[i].createSceneNode(mgr, i, *this, materials, textures, staticMeshes);
         if(i==0)
-            cpos = n->getAbsolutePosition();
+            cpos = n->getPosition();
     }
 
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);

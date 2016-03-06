@@ -41,10 +41,8 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
 irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex& tex, const std::vector<RoomVertex>& vertices)
 {
     irr::video::S3DVertex iv;
-    iv.Color.set(0xffffffff);
     BOOST_ASSERT(vertexIndex < vertices.size());
     iv.Pos = vertices[vertexIndex].vertex;
-    iv.Normal = -vertices[vertexIndex].normal;
     iv.TCoords.X = (tex.xpixel+tex.xcoordinate)/255.0f;
     iv.TCoords.Y = (tex.ypixel+tex.ycoordinate)/255.0f;
     iv.Color = vertices[vertexIndex].color;
@@ -213,7 +211,13 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     {
         auto it = materials.find(buffer.first);
         BOOST_ASSERT(it != materials.end());
-        buffer.second->Material = it->second;
+        irr::video::SMaterial material = it->second;
+        material.Lighting = true;
+        if(flags & TR_ROOM_FLAG_WATER)
+        {
+            material.FogEnable = true;
+        }
+        buffer.second->Material = material;
         result->addMeshBuffer(buffer.second);
     }
     
@@ -222,6 +226,9 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
+    if(flags & TR_ROOM_FLAG_WATER)
+    {
+    }
     for(const Light& light : lights)
     {
         irr::scene::ILightSceneNode* ln = mgr->addLightSceneNode(resultNode);

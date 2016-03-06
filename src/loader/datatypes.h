@@ -580,6 +580,7 @@ struct RoomVertex
         room_vertex.vertex = Vertex::read16(reader);
         // read and make consistent
         int tmp = reader.readU16();
+        BOOST_ASSERT(tmp < 8192);
         room_vertex.lighting1 = (32768 - tmp*4);
         // only in TR2
         room_vertex.lighting2 = room_vertex.lighting1;
@@ -1081,10 +1082,24 @@ struct Mesh
 
 class Level;
 
-/** \brief room->
-  */
 struct Room
 {
+    // Various room flags specify various room options. Mostly, they
+    // specify environment type and some additional actions which should
+    // be performed in such rooms.
+    static constexpr uint16_t TR_ROOM_FLAG_WATER          = 0x0001;
+    static constexpr uint16_t TR_ROOM_FLAG_QUICKSAND      = 0x0002;  // Moved from 0x0080 to avoid confusion with NL.
+    static constexpr uint16_t TR_ROOM_FLAG_SKYBOX         = 0x0008;
+    static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN1       = 0x0010;
+    static constexpr uint16_t TR_ROOM_FLAG_WIND           = 0x0020;
+    static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2       = 0x0040;  ///@FIXME: Find what it means!!! Always set by Dxtre3d.
+    static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE   = 0x0080;  // In TR4-5. Was quicksand in TR3.
+    static constexpr uint16_t TR_ROOM_FLAG_MIST           = 0x0100;  ///@FIXME: Unknown meaning in TR1!!!
+    static constexpr uint16_t TR_ROOM_FLAG_CAUSTICS       = 0x0200;
+    static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN3       = 0x0400;
+    static constexpr uint16_t TR_ROOM_FLAG_DAMAGE         = 0x0800;  ///@FIXME: Is it really damage (D)?
+    static constexpr uint16_t TR_ROOM_FLAG_POISON         = 0x1000;  ///@FIXME: Is it really poison (P)?
+    
     Vertex offset;            ///< \brief offset of room (world coordinates).
     float y_bottom;                 ///< \brief indicates lowest point in room->
     float y_top;                    ///< \brief indicates highest point in room->
