@@ -4,6 +4,7 @@
 #include "level.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/range/adaptors.hpp>
 #include <iostream>
 
 namespace loader
@@ -113,6 +114,9 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
             addVertex(*buf, poly.vertices[i], &tex.vertices[i], vertices, normals);
     }
 
+    for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
+        buffer->recalculateBoundingBox();
+    
     for(const Triangle& poly : colored_triangles)
     {
         UVTexture::TextureKey tk;
@@ -177,7 +181,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
                                                   const Level& level,
                                                   const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials,
                                                   const std::vector<irr::video::ITexture*>& textures,
-                                                  const std::vector<irr::scene::SMesh*>& staticMeshes) const
+                                                  const std::vector<irr::scene::SMesh*>& staticMeshes)
 {
     // texture => mesh buffer
     std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
@@ -206,13 +210,19 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
             addVertex(*buf, poly.vertices[i], tex.vertices[i], vertices);
     }
     
+    for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
+        buffer->recalculateBoundingBox();
+    
     irr::scene::SMesh* result = new irr::scene::SMesh();
     for(auto& buffer : texBuffers)
     {
         auto it = materials.find(buffer.first);
         BOOST_ASSERT(it != materials.end());
         irr::video::SMaterial material = it->second;
-        material.Lighting = true;
+        material.Lighting = false;
+        material.DiffuseColor.set( light_colour.a*255, light_colour.r*255, light_colour.g*255, light_colour.b*255 );
+        material.EmissiveColor = material.DiffuseColor;
+        BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
         if(flags & TR_ROOM_FLAG_WATER)
         {
             material.FogEnable = true;
@@ -231,10 +241,11 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         irr::scene::ILightSceneNode* ln = mgr->addLightSceneNode(resultNode);
         switch(light.getLightType())
         {
+            //ln->enableCastShadow(true);
             case LightType::Shadow:
-                ln->enableCastShadow(true);
                 BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
-                // fall-through
+                ln->setLightType(irr::video::ELT_POINT);
+                break;
             case LightType::Null:
             case LightType::Point:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
@@ -297,8 +308,18 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         
         irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex+irr::core::vector3df{0,tex.bottom_side/2,0}, -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
-        n->setMaterialFlag(irr::video::EMF_BLEND_OPERATION, irr::video::EBO_ADD);
+        n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
+        n->getMaterial(0).EmissiveColor.set(0);
+        n->setMaterialFlag(irr::video::EMF_LIGHTING, true);
         n->setMaterialTexture( 0, textures[tex.texture] );
+        {
+            irr::video::SColor col;
+            col.set( light_colour.a*255, light_colour.r*255, light_colour.g*255, light_colour.b*255 );
+            n->getMaterial(0).AmbientColor = col;
+            n->getMaterial(0).DiffuseColor = col;
+            n->getMaterial(0).SpecularColor = col;
+            n->getMaterial(0).Lighting = true;
+        }
         
         n->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
     }
@@ -320,6 +341,8 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         
         chdir("..");
     }
+    
+    node = resultNode;
     
     return resultNode;
 }

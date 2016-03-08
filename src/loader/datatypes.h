@@ -87,6 +87,19 @@ struct Vertex : public irr::core::vector3df
         vertex.Z = reader.readF();
         return vertex;
     }
+    
+    Vertex& operator+=(const irr::core::vector3df& rhs)
+    {
+        static_cast<irr::core::vector3df&>(*this) += rhs;
+        return *this;
+    }
+
+    Vertex operator+(const irr::core::vector3df& rhs) const
+    {
+        auto tmp = *this;
+        tmp += rhs;
+        return tmp;
+    }
 };
 
 struct Triangle
@@ -245,15 +258,15 @@ struct Portal
                                    * Adjoiningroom->
                                    */
 
-    static Portal read(io::SDLReader& reader)
+    static Portal read(io::SDLReader& reader, const irr::core::vector3df& offset)
     {
         Portal portal;
         portal.adjoining_room = reader.readU16();
         portal.normal = Vertex::read16(reader);
-        portal.vertices[0] = Vertex::read16(reader);
-        portal.vertices[1] = Vertex::read16(reader);
-        portal.vertices[2] = Vertex::read16(reader);
-        portal.vertices[3] = Vertex::read16(reader);
+        portal.vertices[0] = Vertex::read16(reader) + offset;
+        portal.vertices[1] = Vertex::read16(reader) + offset;
+        portal.vertices[2] = Vertex::read16(reader) + offset;
+        portal.vertices[3] = Vertex::read16(reader) + offset;
         if(util::fuzzyOne(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
         if(util::fuzzyOne(-portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
@@ -947,22 +960,26 @@ struct UVTexture
         // Set some defaults
         result.setTexture(0, texture);
         result.BackfaceCulling = false;
-        result.ColorMaterial = irr::video::ECM_AMBIENT;
+        result.ColorMaterial = irr::video::ECM_DIFFUSE_AND_AMBIENT;
         result.Lighting = true;
         result.AmbientColor.set(0);
-        result.BlendOperation = irr::video::EBO_ADD;
+        result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
+        result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;
 
         switch(bmode)
         {
             case BlendingMode::Solid:
+                result.BlendOperation = irr::video::EBO_ADD;
                 break;
 
             case BlendingMode::AlphaTransparency:
                 result.MaterialType = irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+                result.BlendOperation = irr::video::EBO_ADD;
                 break;
 
             case BlendingMode::VertexColorTransparency:                                    // Classic PC alpha
                 result.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
+                result.BlendOperation = irr::video::EBO_ADD;
                 break;
 
             case BlendingMode::InvertSrc:                                  // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
@@ -1090,6 +1107,8 @@ class Level;
 
 struct Room
 {
+    irr::scene::ISceneNode* node = nullptr;
+
     // Various room flags specify various room options. Mostly, they
     // specify environment type and some additional actions which should
     // be performed in such rooms.
@@ -1205,7 +1224,7 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader);
+            room->portals[i] = Portal::read(reader, room->offset);
 
         room->num_zsectors = reader.readU16();
         room->num_xsectors = reader.readU16();
@@ -1276,7 +1295,7 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader);
+            room->portals[i] = Portal::read(reader, room->offset);
 
         room->num_zsectors = reader.readU16();
         room->num_xsectors = reader.readU16();
@@ -1354,7 +1373,7 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader);
+            room->portals[i] = Portal::read(reader, room->offset);
 
         room->num_zsectors = reader.readU16();
         room->num_xsectors = reader.readU16();
@@ -1436,7 +1455,7 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader);
+            room->portals[i] = Portal::read(reader, room->offset);
 
         room->num_zsectors = reader.readU16();
         room->num_xsectors = reader.readU16();
@@ -1645,7 +1664,7 @@ struct Room
 
         room->portals.resize(reader.readI16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader);
+            room->portals[i] = Portal::read(reader, room->offset);
 
         reader.seek(position + 208 + static_meshes_offset);
 
@@ -1709,7 +1728,7 @@ struct Room
         return room;
     }
     
-    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes) const;
+    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes);
 };
 
 struct StaticMesh
@@ -1858,7 +1877,7 @@ struct AnimatedModel
 struct Item
 {
     int16_t object_id;     // Object Identifier (matched in Moveables[], or SpriteSequences[], as appropriate)
-    int16_t room;          // which room contains this item
+    uint16_t room;          // which room contains this item
     Vertex position;       // world coords
     irr::f32 rotation;        // ((0xc000 >> 14) * 90) degrees
     int16_t intensity1;    // (constant lighting; -1 means use mesh lighting)
@@ -1884,7 +1903,7 @@ struct Item
     {
         std::unique_ptr<Item> item{ new Item() };
         item->object_id = reader.readI16();
-        item->room = reader.readI16();
+        item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
@@ -1900,7 +1919,7 @@ struct Item
     {
         std::unique_ptr<Item> item{ new Item() };
         item->object_id = reader.readI16();
-        item->room = reader.readI16();
+        item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
@@ -1918,7 +1937,7 @@ struct Item
     {
         std::unique_ptr<Item> item{ new Item() };
         item->object_id = reader.readI16();
-        item->room = reader.readI16();
+        item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
@@ -1932,7 +1951,7 @@ struct Item
     {
         std::unique_ptr<Item> item{ new Item() };
         item->object_id = reader.readI16();
-        item->room = reader.readI16();
+        item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();

@@ -27,10 +27,12 @@
 #include "tr5level.h"
 
 #include "util/vmath.h"
+#include "render/portaltracer.h"
 
 #include <algorithm>
 #include <stack>
 #include <queue>
+#include <set>
 #include <boost/lexical_cast.hpp>
 
 using namespace loader;
@@ -428,13 +430,26 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
 {
     for(const Item& item : m_items)
     {
+        BOOST_ASSERT(item.room < m_rooms.size());
+        const Room& room = m_rooms[item.room];
+        
         int meshIdx = findStaticMeshIndexByObjectId(item.object_id);
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < staticMeshes.size());
-            irr::scene::IMeshSceneNode* node = mgr->addMeshSceneNode(staticMeshes[meshIdx]);
-            node->setPosition(item.position);
+            irr::scene::IMeshSceneNode* node = mgr->addMeshSceneNode(staticMeshes[meshIdx], room.node);
+            node->setPosition(item.position - room.node->getPosition());
             node->setRotation({0,item.rotation,0});
+            for(irr::u32 i=0; i<node->getMaterialCount(); ++i)
+            {
+                irr::video::SColor col;
+                col.set( room.light_colour.a*255, room.light_colour.r*255, room.light_colour.g*255, room.light_colour.b*255 );
+                node->getMaterial(i).AmbientColor = col;
+                node->getMaterial(i).DiffuseColor = col;
+                node->getMaterial(i).EmissiveColor = col;
+                node->getMaterial(i).SpecularColor = col;
+                node->getMaterial(i).Lighting = false;
+            }
             node->addShadowVolumeSceneNode();
             staticMeshes[meshIdx]->drop();
             continue;
@@ -444,15 +459,25 @@ void Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::s
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
-            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx]);
+            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
             node->setAutomaticCulling(false);
-            node->setPosition(item.position);
+            node->setPosition(item.position - room.node->getPosition());
             node->setRotation({0,item.rotation,0});
             //n->setDebugDataVisible(irr::scene::EDS_FULL);
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
             node->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node));
+            for(irr::u32 i=0; i<node->getMaterialCount(); ++i)
+            {
+                irr::video::SColor col;
+                col.set( room.light_colour.a*255, room.light_colour.r*255, room.light_colour.g*255, room.light_colour.b*255 );
+                node->getMaterial(i).AmbientColor = col;
+                node->getMaterial(i).DiffuseColor = col;
+                node->getMaterial(i).EmissiveColor = col;
+                node->getMaterial(i).SpecularColor = col;
+                node->getMaterial(i).Lighting = false;
+            }
             node->addShadowVolumeSceneNode();
             skinnedMeshes[meshIdx]->drop();
         }
@@ -663,9 +688,93 @@ irr::video::ITexture* Level::createSolidColorTex(irr::video::IVideoDriver* drv, 
     return tex;
 }
 
+class CameraAnimator final : public irr::scene::ISceneNodeAnimator
+{
+private:
+    const Level* m_level;
+    const irr::scene::ICameraSceneNode* m_camera;
+public:
+    explicit CameraAnimator(const Level* level, const irr::scene::ICameraSceneNode* camera)
+        : m_level(level)
+        , m_camera(camera)
+    {
+    }
+
+    virtual void animateNode(irr::scene::ISceneNode* /*node*/, irr::u32 /*timeMs*/) override
+    {
+        // Breadth-first queue
+        std::queue<render::PortalTracer> toVisit;
+        
+        uint16_t startRoom = std::numeric_limits<uint16_t>::max();
+        for(size_t i=0; i<m_level->m_rooms.size(); ++i)
+        {
+            const Room& room = m_level->m_rooms[i];
+            if(room.node->getTransformedBoundingBox().isPointInside(m_camera->getAbsolutePosition()))
+            {
+                startRoom = i;
+                room.node->setVisible(true);
+            }
+            else
+            {
+                room.node->setVisible(false);
+            }
+        }
+        
+        if(startRoom >= m_level->m_rooms.size())
+        {
+            for(const Room& room : m_level->m_rooms)
+                room.node->setVisible(true);
+            return;
+        }
+    
+        // always process direct neighbours
+        for(const loader::Portal& portal : m_level->m_rooms[startRoom].portals)
+        {
+            render::PortalTracer path;
+            if(!path.checkVisibility(&portal, m_camera->getAbsolutePosition(), *m_camera->getViewFrustum()))
+                continue;
+    
+            m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
+    
+            toVisit.emplace(std::move(path));
+        }
+    
+        // Avoid infinite loops
+        std::set<const loader::Portal*> visited;
+        while(!toVisit.empty())
+        {
+            const render::PortalTracer currentPath = std::move(toVisit.front());
+            toVisit.pop();
+    
+            if(!visited.insert(currentPath.getLastPortal()).second)
+            {
+                continue; // already tested
+            }
+    
+            // iterate through the last room's portals and add the destinations if suitable
+            uint16_t destRoom = currentPath.getLastDestinationRoom();
+            for(const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals)
+            {
+                render::PortalTracer newPath = currentPath;
+                if(!newPath.checkVisibility(&srcPortal, m_camera->getAbsolutePosition(), *m_camera->getViewFrustum()))
+                    continue;
+    
+                m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
+                toVisit.emplace(std::move(newPath));
+            }
+        }
+    }
+
+    virtual irr::scene::ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
+    {
+        BOOST_ASSERT(false);
+        return nullptr;
+    }
+};
+
 void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
 {
-    mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024*10, .003f, true, false);
+    mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024*32, .003f, false, false);
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
@@ -725,6 +834,9 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr)
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNodeFPS(nullptr, 50.f, 10.0f, -1, keyMap, 7, false, 10.0f);
     camera->setNearValue(1);
     camera->setFarValue(2e5);
+    
+    auto bb = mgr->addBillboardSceneNode();
+    bb->addAnimator(new CameraAnimator(this, camera));
     
     camera->setPosition(cpos);
 }
