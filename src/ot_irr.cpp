@@ -2,13 +2,14 @@
 
 int main()
 {
-    irr::IrrlichtDevice* device = irr::createDevice( irr::video::EDT_OPENGL, irr::core::dimension2d<irr::u32>(1024, 768), 16, false, false, false, 0);    
+    irr::IrrlichtDevice* device = irr::createDevice( irr::video::EDT_OPENGL, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, 0);    
     if(!device)
         return EXIT_FAILURE;
     
-    auto l = loader::Level::createLoader("data/tr1/data/LEVEL2.PHD", loader::Game::Unknown);
+    auto l = loader::Level::createLoader("data/tr1/data/LEVEL5.PHD", loader::Game::Unknown);
+    BOOST_ASSERT(l != nullptr);
     l->load(device->getVideoDriver());
-    l->toIrrlicht(device->getSceneManager());
+    l->toIrrlicht(device->getSceneManager(), device->getCursorControl());
     
     device->setWindowCaption(L"IrrOT");
     

@@ -220,7 +220,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(it != materials.end());
         irr::video::SMaterial material = it->second;
         material.Lighting = false;
-        material.DiffuseColor.set( light_colour.a*255, light_colour.r*255, light_colour.g*255, light_colour.b*255 );
+        material.DiffuseColor.set( lightColor.a*255, lightColor.r*255, lightColor.g*255, lightColor.b*255 );
         material.EmissiveColor = material.DiffuseColor;
         BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
         if(flags & TR_ROOM_FLAG_WATER)
@@ -275,23 +275,23 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
         ld.Falloff = light.intensity;
-        ln->setPosition(light.position - offset);
+        ln->setPosition(light.position - position);
         ln->setRotation(light.dir);
         ln->setRadius(light.r_outer);
         ln->setDebugDataVisible(irr::scene::EDS_FULL);
     }
     
-    for(const RoomStaticMesh& sm : static_meshes)
+    for(const RoomStaticMesh& sm : this->staticMeshes)
     {
         auto idx = level.findStaticMeshIndexByObjectId(sm.object_id);
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(idx < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
         smNode->setRotation({0,sm.rotation,0});
-        smNode->setPosition(sm.position - offset);
+        smNode->setPosition(sm.position - position);
         resultNode->addChild(smNode);
     }
-    resultNode->setPosition(offset);
+    resultNode->setPosition(position);
     
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
     
@@ -314,7 +314,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         n->setMaterialTexture( 0, textures[tex.texture] );
         {
             irr::video::SColor col;
-            col.set( light_colour.a*255, light_colour.r*255, light_colour.g*255, light_colour.b*255 );
+            col.set( lightColor.a*255, lightColor.r*255, lightColor.g*255, lightColor.b*255 );
             n->getMaterial(0).AmbientColor = col;
             n->getMaterial(0).DiffuseColor = col;
             n->getMaterial(0).SpecularColor = col;

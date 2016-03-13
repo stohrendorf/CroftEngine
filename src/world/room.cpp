@@ -715,22 +715,22 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     m_staticMeshes.clear();
 
     const loader::Room *tr_room = &tr->m_rooms[getId()];
-    for(size_t i = 0; i < tr_room->static_meshes.size(); i++)
+    for(size_t i = 0; i < tr_room->staticMeshes.size(); i++)
     {
-        const loader::StaticMesh* tr_static = tr->findStaticMeshById(tr_room->static_meshes[i].object_id);
+        const loader::StaticMesh* tr_static = tr->findStaticMeshById(tr_room->staticMeshes[i].object_id);
         if(tr_static == nullptr)
         {
             continue;
         }
-        m_staticMeshes.emplace_back(std::make_shared<StaticMesh>(tr_room->static_meshes[i].object_id, getWorld()));
+        m_staticMeshes.emplace_back(std::make_shared<StaticMesh>(tr_room->staticMeshes[i].object_id, getWorld()));
         std::shared_ptr<StaticMesh> r_static = m_staticMeshes.back();
         r_static->setRoom(this);
         r_static->mesh = getWorld()->m_meshes[tr->m_meshIndices[tr_static->mesh]];
         r_static->tint.set(
-                    tr_room->static_meshes[i].tint.a * 2,
-                    tr_room->static_meshes[i].tint.r * 2,
-                    tr_room->static_meshes[i].tint.g * 2,
-                    tr_room->static_meshes[i].tint.b * 2
+                    tr_room->staticMeshes[i].tint.a * 2,
+                    tr_room->staticMeshes[i].tint.r * 2,
+                    tr_room->staticMeshes[i].tint.g * 2,
+                    tr_room->staticMeshes[i].tint.b * 2
                     );
 
         r_static->collisionBoundingBox.min.X = tr_static->collision_box[0].x;
@@ -751,10 +751,10 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         r_static->obb.transform = &m_staticMeshes[i]->transform;
         r_static->obb.radius = m_staticMeshes[i]->mesh->m_radius;
 
-        irr::core::vector3df position{ tr_room->static_meshes[i].position.x, -tr_room->static_meshes[i].position.z, tr_room->static_meshes[i].position.y};
+        irr::core::vector3df position{ tr_room->staticMeshes[i].position.x, -tr_room->staticMeshes[i].position.z, tr_room->staticMeshes[i].position.y};
 
         r_static->transform.makeIdentity();
-        r_static->transform.setRotationAxisRadians(irr::core::degToRad(tr_room->static_meshes[i].rotation), { 0,0,1 });
+        r_static->transform.setRotationAxisRadians(irr::core::degToRad(tr_room->staticMeshes[i].rotation), { 0,0,1 });
         r_static->transform.setTranslation(position);
 
         r_static->was_rendered = false;
@@ -842,7 +842,7 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     /*
      * let us load sectors
      */
-    m_sectors.resize(boost::extents[tr_room->num_xsectors][tr_room->num_zsectors]);
+    m_sectors.resize(boost::extents[tr_room->sectorCountX][tr_room->sectorCountZ]);
 
     /*
      * base sectors information loading and collisional mesh creation
@@ -867,19 +867,19 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
 
         sector.position.X = getModelMatrix()(0,3) + sector.index_x * MeteringSectorSize + 0.5f * MeteringSectorSize;
         sector.position.Y = getModelMatrix()(1,3) + sector.index_y * MeteringSectorSize + 0.5f * MeteringSectorSize;
-        sector.position.Z = 0.5f * (tr_room->y_bottom + tr_room->y_top);
+        sector.position.Z = 0.5f * (tr_room->lowestHeight + tr_room->greatestHeight);
 
         sector.owner_room = this;
 
         if(loader::gameToEngine(tr->m_gameVersion) < loader::Engine::TR2)
         {
-            sector.box_index = tr_room->sector_list[i].box_index;
+            sector.box_index = tr_room->sectors[i].box_index;
             sector.material = SECTOR_MATERIAL_STONE;
         }
         else
         {
-            sector.box_index = (tr_room->sector_list[i].box_index & 0xFFF0) >> 4;
-            sector.material = tr_room->sector_list[i].box_index & 0x000F;
+            sector.box_index = (tr_room->sectors[i].box_index & 0xFFF0) >> 4;
+            sector.material = tr_room->sectors[i].box_index & 0x000F;
         }
 
         if(sector.box_index == 0xFFFF)
@@ -887,9 +887,9 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
 
         sector.flags = 0;  // Clear sector flags.
 
-        sector.floor = -MeteringStep * static_cast<int>(tr_room->sector_list[i].floor);
-        sector.ceiling = -MeteringStep * static_cast<int>(tr_room->sector_list[i].ceiling);
-        sector.trig_index = tr_room->sector_list[i].fd_index;
+        sector.floor = -MeteringStep * static_cast<int>(tr_room->sectors[i].floor);
+        sector.ceiling = -MeteringStep * static_cast<int>(tr_room->sectors[i].ceiling);
+        sector.trig_index = tr_room->sectors[i].fd_index;
 
         // BUILDING CEILING HEIGHTMAP.
 
@@ -905,7 +905,7 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         {
             sector.ceiling_penetration_config = PenetrationConfig::Wall;
         }
-        else if(tr_room->sector_list[i].room_above != 0xFF)
+        else if(tr_room->sectors[i].room_above != 0xFF)
         {
             sector.ceiling_penetration_config = PenetrationConfig::Ghost;
         }
@@ -949,7 +949,7 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
         {
             sector.floor_penetration_config = PenetrationConfig::Wall;
         }
-        else if(tr_room->sector_list[i].room_below != 0xFF)
+        else if(tr_room->sectors[i].room_below != 0xFF)
         {
             sector.floor_penetration_config = PenetrationConfig::Ghost;
         }
@@ -1030,8 +1030,8 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     /*
      * room borders calculation
      */
-    m_boundingBox.min.Z = tr_room->y_bottom;
-    m_boundingBox.max.Z = tr_room->y_top;
+    m_boundingBox.min.Z = tr_room->lowestHeight;
+    m_boundingBox.max.Z = tr_room->greatestHeight;
 
     m_boundingBox.min.X = getModelMatrix().getTranslation().X + MeteringSectorSize;
     m_boundingBox.min.Y = getModelMatrix().getTranslation().Y + MeteringSectorSize;
@@ -1044,9 +1044,9 @@ void Room::load(const std::unique_ptr<loader::Level>& tr)
     m_alternateRoom = nullptr;
     m_baseRoom = nullptr;
 
-    if(tr_room->alternate_room >= 0 && static_cast<uint32_t>(tr_room->alternate_room) < tr->m_rooms.size())
+    if(tr_room->alternateRoom >= 0 && static_cast<uint32_t>(tr_room->alternateRoom) < tr->m_rooms.size())
     {
-        m_alternateRoom = getWorld()->m_rooms[tr_room->alternate_room].get();
+        m_alternateRoom = getWorld()->m_rooms[tr_room->alternateRoom].get();
     }
 }
 
@@ -1548,13 +1548,13 @@ void Room::initVerticalSectorRelations(const loader::Room& tr)
          * Let us fill pointers to sectors above and sectors below
          */
 
-        uint8_t rp = tr.sector_list[i].room_below;
+        uint8_t rp = tr.sectors[i].room_below;
         sector.sector_below = nullptr;
         if(rp < getWorld()->m_rooms.size() && rp != 255)
         {
             sector.sector_below = getWorld()->m_rooms[rp]->getSectorRaw(sector.position);
         }
-        rp = tr.sector_list[i].room_above;
+        rp = tr.sectors[i].room_above;
         sector.sector_above = nullptr;
         if(rp < getWorld()->m_rooms.size() && rp != 255)
         {

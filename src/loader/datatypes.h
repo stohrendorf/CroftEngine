@@ -286,22 +286,22 @@ struct Portal
 
 struct Sector
 {
-    uint16_t fd_index;     // Index into FloorData[]
-    uint16_t box_index;    // Index into Boxes[]/Zones[] (-1 if none)
-    uint8_t room_below;    // The number of the room below this one (-1 or 255 if none)
-    int8_t floor;          // Absolute height of floor (multiply by 256 for world coordinates)
-    uint8_t room_above;    // The number of the room above this one (-1 or 255 if none)
-    int8_t ceiling;        // Absolute height of ceiling (multiply by 256 for world coordinates)
+    uint16_t floorDataIndex;     // Index into FloorData[]
+    uint16_t boxIndex;    // Index into Boxes[]/Zones[] (-1 if none)
+    uint8_t roomBelow;    // The number of the room below this one (-1 or 255 if none)
+    int8_t floorHeight;          // Absolute height of floor (multiply by 256 for world coordinates)
+    uint8_t roomAbove;    // The number of the room above this one (-1 or 255 if none)
+    int8_t ceilingHeight;        // Absolute height of ceiling (multiply by 256 for world coordinates)
 
     static Sector read(io::SDLReader& reader)
     {
         Sector sector;
-        sector.fd_index = reader.readU16();
-        sector.box_index = reader.readU16();
-        sector.room_below = reader.readU8();
-        sector.floor = reader.readI8();
-        sector.room_above = reader.readU8();
-        sector.ceiling = reader.readI8();
+        sector.floorDataIndex = reader.readU16();
+        sector.boxIndex = reader.readU16();
+        sector.roomBelow = reader.readU8();
+        sector.floorHeight = reader.readI8();
+        sector.roomAbove = reader.readU8();
+        sector.ceilingHeight = reader.readI8();
         return sector;
     }
 };
@@ -1117,34 +1117,33 @@ struct Room
     static constexpr uint16_t TR_ROOM_FLAG_SKYBOX         = 0x0008;
     static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN1       = 0x0010;
     static constexpr uint16_t TR_ROOM_FLAG_WIND           = 0x0020;
-    static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2       = 0x0040;  ///@FIXME: Find what it means!!! Always set by Dxtre3d.
+    static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2       = 0x0040;  ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
     static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE   = 0x0080;  // In TR4-5. Was quicksand in TR3.
-    static constexpr uint16_t TR_ROOM_FLAG_MIST           = 0x0100;  ///@FIXME: Unknown meaning in TR1!!!
+    static constexpr uint16_t TR_ROOM_FLAG_MIST           = 0x0100;  ///< @FIXME: Unknown meaning in TR1!!!
     static constexpr uint16_t TR_ROOM_FLAG_CAUSTICS       = 0x0200;
     static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN3       = 0x0400;
-    static constexpr uint16_t TR_ROOM_FLAG_DAMAGE         = 0x0800;  ///@FIXME: Is it really damage (D)?
-    static constexpr uint16_t TR_ROOM_FLAG_POISON         = 0x1000;  ///@FIXME: Is it really poison (P)?
+    static constexpr uint16_t TR_ROOM_FLAG_DAMAGE         = 0x0800;  ///< @FIXME: Is it really damage (D)?
+    static constexpr uint16_t TR_ROOM_FLAG_POISON         = 0x1000;  ///< @FIXME: Is it really poison (P)?
     
-    Vertex offset;            ///< \brief offset of room (world coordinates).
-    float y_bottom;                 ///< \brief indicates lowest point in room->
-    float y_top;                    ///< \brief indicates highest point in room->
-    std::vector<Layer> layers;       // [NumStaticMeshes]list of static meshes
-    std::vector<RoomVertex> vertices;    // [NumVertices] list of vertices (relative coordinates)
-    std::vector<QuadFace> rectangles;        // [NumRectangles] list of textured rectangles
-    std::vector<Triangle> triangles;         // [NumTriangles] list of textured triangles
-    std::vector<Sprite> sprites;      // [NumSprites] list of sprites
-    std::vector<Portal> portals;      // [NumPortals] list of visibility portals
-    uint16_t num_zsectors;          // "width" of sector list
-    uint16_t num_xsectors;          // "height" of sector list
-    std::vector<Sector> sector_list;  // [NumXsectors * NumZsectors] list of sectors
-    // in this room
+    Vertex position;
+    float lowestHeight;
+    float greatestHeight;
+    std::vector<Layer> layers;
+    std::vector<RoomVertex> vertices;
+    std::vector<QuadFace> rectangles;
+    std::vector<Triangle> triangles;
+    std::vector<Sprite> sprites;
+    std::vector<Portal> portals;
+    uint16_t sectorCountZ;          // "width" of sector list
+    uint16_t sectorCountX;          // "height" of sector list
+    std::vector<Sector> sectors;  // [NumXsectors * NumZsectors] list of sectors in this room
     int16_t intensity1;             // This and the next one only affect externally-lit objects
     int16_t intensity2;             // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
-    int16_t light_mode;             // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
+    int16_t lightMode;             // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
     std::vector<Light> lights;       // [NumLights] list of point lights
-    std::vector<RoomStaticMesh> static_meshes;    // [NumStaticMeshes]list of static meshes
-    int16_t alternate_room;         // number of the room that this room can alternate
-    int8_t  alternate_group;        // number of group which is used to switch alternate rooms
+    std::vector<RoomStaticMesh> staticMeshes;    // [NumStaticMeshes]list of static meshes
+    int16_t alternateRoom;         // number of the room that this room can alternate
+    int8_t  alternateGroup;        // number of group which is used to switch alternate rooms
     // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
     uint16_t flags;
@@ -1155,16 +1154,16 @@ struct Room
     // TR3 most likely has flags for "is raining", "is snowing", "water is cold", and "is
     // filled by quicksand", among others.
 
-    uint8_t water_scheme;
+    uint8_t waterScheme;
     // Water scheme is used with various room options, for example, R and M room flags in TRLE.
     // Also, it specifies lighting scheme, when 0x4000 vertex attribute is set.
 
-    ReverbType reverb_info;
+    ReverbType reverbInfo;
 
     // Reverb info is used in TR3-5 and contains index that specifies reverb type.
     // 0 - Outside, 1 - Small room, 2 - Medium room, 3 - Large room, 4 - Pipe.
 
-    FloatColor light_colour;    // Present in TR5 only
+    FloatColor lightColor;    // Present in TR5 only
 
     // TR5 only:
 
@@ -1193,11 +1192,11 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->offset.X = static_cast<float>(reader.readI32());
-        room->offset.Y = 0;
-        room->offset.Z = static_cast<float>(reader.readI32());
-        room->y_bottom = static_cast<float>(-reader.readI32());
-        room->y_top = static_cast<float>(-reader.readI32());
+        room->position.X = static_cast<float>(reader.readI32());
+        room->position.Y = 0;
+        room->position.Z = static_cast<float>(reader.readI32());
+        room->lowestHeight = static_cast<float>(-reader.readI32());
+        room->greatestHeight = static_cast<float>(-reader.readI32());
 
         auto num_data_words = reader.readU32();
 
@@ -1224,39 +1223,39 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader, room->offset);
+            room->portals[i] = Portal::read(reader, room->position);
 
-        room->num_zsectors = reader.readU16();
-        room->num_xsectors = reader.readU16();
-        room->sector_list.resize(room->num_zsectors * room->num_xsectors);
-        for(uint32_t i = 0; i < static_cast<uint32_t>(room->num_zsectors * room->num_xsectors); i++)
-            room->sector_list[i] = Sector::read(reader);
+        room->sectorCountZ = reader.readU16();
+        room->sectorCountX = reader.readU16();
+        room->sectors.resize(room->sectorCountZ * room->sectorCountX);
+        for(uint32_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
+            room->sectors[i] = Sector::read(reader);
 
         // read and make consistent
         room->intensity1 = (8191 - reader.readI16()) << 2;
         // only in TR2-TR4
         room->intensity2 = room->intensity1;
         // only in TR2
-        room->light_mode = 0;
+        room->lightMode = 0;
 
         room->lights.resize(reader.readU16());
         for(size_t i = 0; i < room->lights.size(); i++)
             room->lights[i] = Light::readTr1(reader);
 
-        room->static_meshes.resize(reader.readU16());
-        for(size_t i = 0; i < room->static_meshes.size(); i++)
-            room->static_meshes[i] = RoomStaticMesh::readTr1(reader);
+        room->staticMeshes.resize(reader.readU16());
+        for(size_t i = 0; i < room->staticMeshes.size(); i++)
+            room->staticMeshes[i] = RoomStaticMesh::readTr1(reader);
 
-        room->alternate_room = reader.readI16();
-        room->alternate_group = 0;   // Doesn't exist in TR1-3
+        room->alternateRoom = reader.readI16();
+        room->alternateGroup = 0;   // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
-        room->reverb_info = ReverbType::MediumRoom;
+        room->reverbInfo = ReverbType::MediumRoom;
 
-        room->light_colour.r = room->intensity1 / 32767.0f;
-        room->light_colour.g = room->intensity1 / 32767.0f;
-        room->light_colour.b = room->intensity1 / 32767.0f;
-        room->light_colour.a = 1.0f;
+        room->lightColor.r = room->intensity1 / 32767.0f;
+        room->lightColor.g = room->intensity1 / 32767.0f;
+        room->lightColor.b = room->intensity1 / 32767.0f;
+        room->lightColor.a = 1.0f;
         return room;
     }
 
@@ -1264,11 +1263,11 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->offset.X = static_cast<float>(reader.readI32());
-        room->offset.Y = 0;
-        room->offset.Z = static_cast<float>(reader.readI32());
-        room->y_bottom = static_cast<float>(-reader.readI32());
-        room->y_top = static_cast<float>(-reader.readI32());
+        room->position.X = static_cast<float>(reader.readI32());
+        room->position.Y = 0;
+        room->position.Z = static_cast<float>(reader.readI32());
+        room->lowestHeight = static_cast<float>(-reader.readI32());
+        room->greatestHeight = static_cast<float>(-reader.readI32());
 
         auto num_data_words = reader.readU32();
 
@@ -1295,45 +1294,45 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader, room->offset);
+            room->portals[i] = Portal::read(reader, room->position);
 
-        room->num_zsectors = reader.readU16();
-        room->num_xsectors = reader.readU16();
-        room->sector_list.resize(room->num_zsectors * room->num_xsectors);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->num_zsectors * room->num_xsectors); i++)
-            room->sector_list[i] = Sector::read(reader);
+        room->sectorCountZ = reader.readU16();
+        room->sectorCountX = reader.readU16();
+        room->sectors.resize(room->sectorCountZ * room->sectorCountX);
+        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
+            room->sectors[i] = Sector::read(reader);
 
         // read and make consistent
         room->intensity1 = (8191 - reader.readI16()) << 2;
         room->intensity2 = (8191 - reader.readI16()) << 2;
-        room->light_mode = reader.readI16();
+        room->lightMode = reader.readI16();
 
         room->lights.resize(reader.readU16());
         for(size_t i = 0; i < room->lights.size(); i++)
             room->lights[i] = Light::readTr2(reader);
 
-        room->static_meshes.resize(reader.readU16());
-        for(size_t i = 0; i < room->static_meshes.size(); i++)
-            room->static_meshes[i] = RoomStaticMesh::readTr2(reader);
+        room->staticMeshes.resize(reader.readU16());
+        for(size_t i = 0; i < room->staticMeshes.size(); i++)
+            room->staticMeshes[i] = RoomStaticMesh::readTr2(reader);
 
-        room->alternate_room = reader.readI16();
-        room->alternate_group = 0;   // Doesn't exist in TR1-3
+        room->alternateRoom = reader.readI16();
+        room->alternateGroup = 0;   // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
         if(room->flags & 0x0020)
         {
-            room->reverb_info = ReverbType::Outside;
+            room->reverbInfo = ReverbType::Outside;
         }
         else
         {
-            room->reverb_info = ReverbType::MediumRoom;
+            room->reverbInfo = ReverbType::MediumRoom;
         }
 
-        room->light_colour.r = room->intensity1 / 16384.0f;
-        room->light_colour.g = room->intensity1 / 16384.0f;
-        room->light_colour.b = room->intensity1 / 16384.0f;
-        room->light_colour.a = 1.0f;
+        room->lightColor.r = room->intensity1 / 16384.0f;
+        room->lightColor.g = room->intensity1 / 16384.0f;
+        room->lightColor.b = room->intensity1 / 16384.0f;
+        room->lightColor.a = 1.0f;
         return room;
     }
 
@@ -1342,11 +1341,11 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->offset.X = static_cast<float>(reader.readI32());
-        room->offset.Y = 0;
-        room->offset.Z = static_cast<float>(reader.readI32());
-        room->y_bottom = static_cast<float>(-reader.readI32());
-        room->y_top = static_cast<float>(-reader.readI32());
+        room->position.X = static_cast<float>(reader.readI32());
+        room->position.Y = 0;
+        room->position.Z = static_cast<float>(reader.readI32());
+        room->lowestHeight = static_cast<float>(-reader.readI32());
+        room->greatestHeight = static_cast<float>(-reader.readI32());
 
         auto num_data_words = reader.readU32();
 
@@ -1373,30 +1372,30 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader, room->offset);
+            room->portals[i] = Portal::read(reader, room->position);
 
-        room->num_zsectors = reader.readU16();
-        room->num_xsectors = reader.readU16();
-        room->sector_list.resize(room->num_zsectors * room->num_xsectors);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->num_zsectors * room->num_xsectors); i++)
-            room->sector_list[i] = Sector::read(reader);
+        room->sectorCountZ = reader.readU16();
+        room->sectorCountX = reader.readU16();
+        room->sectors.resize(room->sectorCountZ * room->sectorCountX);
+        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
+            room->sectors[i] = Sector::read(reader);
 
         room->intensity1 = reader.readI16();
         room->intensity2 = reader.readI16();
 
         // only in TR2
-        room->light_mode = 0;
+        room->lightMode = 0;
 
         room->lights.resize(reader.readU16());
         for(size_t i = 0; i < room->lights.size(); i++)
             room->lights[i] = Light::readTr3(reader);
 
-        room->static_meshes.resize(reader.readU16());
-        for(size_t i = 0; i < room->static_meshes.size(); i++)
-            room->static_meshes[i] = RoomStaticMesh::readTr3(reader);
+        room->staticMeshes.resize(reader.readU16());
+        for(size_t i = 0; i < room->staticMeshes.size(); i++)
+            room->staticMeshes[i] = RoomStaticMesh::readTr3(reader);
 
-        room->alternate_room = reader.readI16();
-        room->alternate_group = 0;   // Doesn't exist in TR1-3
+        room->alternateRoom = reader.readI16();
+        room->alternateGroup = 0;   // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
@@ -1408,15 +1407,15 @@ struct Room
 
         // Only in TR3-5
 
-        room->water_scheme = reader.readU8();
-        room->reverb_info = static_cast<ReverbType>(reader.readU8());
+        room->waterScheme = reader.readU8();
+        room->reverbInfo = static_cast<ReverbType>(reader.readU8());
 
         reader.skip(1);   // Alternate_group override?
 
-        room->light_colour.r = room->intensity1 / 65534.0f;
-        room->light_colour.g = room->intensity1 / 65534.0f;
-        room->light_colour.b = room->intensity1 / 65534.0f;
-        room->light_colour.a = 1.0f;
+        room->lightColor.r = room->intensity1 / 65534.0f;
+        room->lightColor.g = room->intensity1 / 65534.0f;
+        room->lightColor.b = room->intensity1 / 65534.0f;
+        room->lightColor.a = 1.0f;
         return room;
     }
 
@@ -1424,11 +1423,11 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->offset.X = static_cast<float>(reader.readI32());
-        room->offset.Y = 0;
-        room->offset.Z = static_cast<float>(reader.readI32());
-        room->y_bottom = static_cast<float>(-reader.readI32());
-        room->y_top = static_cast<float>(-reader.readI32());
+        room->position.X = static_cast<float>(reader.readI32());
+        room->position.Y = 0;
+        room->position.Z = static_cast<float>(reader.readI32());
+        room->lowestHeight = static_cast<float>(-reader.readI32());
+        room->greatestHeight = static_cast<float>(-reader.readI32());
 
         auto num_data_words = reader.readU32();
 
@@ -1455,44 +1454,44 @@ struct Room
 
         room->portals.resize(reader.readU16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader, room->offset);
+            room->portals[i] = Portal::read(reader, room->position);
 
-        room->num_zsectors = reader.readU16();
-        room->num_xsectors = reader.readU16();
-        room->sector_list.resize(room->num_zsectors * room->num_xsectors);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->num_zsectors * room->num_xsectors); i++)
-            room->sector_list[i] = Sector::read(reader);
+        room->sectorCountZ = reader.readU16();
+        room->sectorCountX = reader.readU16();
+        room->sectors.resize(room->sectorCountZ * room->sectorCountX);
+        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
+            room->sectors[i] = Sector::read(reader);
 
         room->intensity1 = reader.readI16();
         room->intensity2 = reader.readI16();
 
         // only in TR2
-        room->light_mode = 0;
+        room->lightMode = 0;
 
         room->lights.resize(reader.readU16());
         for(size_t i = 0; i < room->lights.size(); i++)
             room->lights[i] = Light::readTr4(reader);
 
-        room->static_meshes.resize(reader.readU16());
-        for(size_t i = 0; i < room->static_meshes.size(); i++)
-            room->static_meshes[i] = RoomStaticMesh::readTr4(reader);
+        room->staticMeshes.resize(reader.readU16());
+        for(size_t i = 0; i < room->staticMeshes.size(); i++)
+            room->staticMeshes[i] = RoomStaticMesh::readTr4(reader);
 
-        room->alternate_room = reader.readI16();
+        room->alternateRoom = reader.readI16();
         room->flags = reader.readU16();
 
         // Only in TR3-5
 
-        room->water_scheme = reader.readU8();
-        room->reverb_info = static_cast<ReverbType>(reader.readU8());
+        room->waterScheme = reader.readU8();
+        room->reverbInfo = static_cast<ReverbType>(reader.readU8());
 
         // Only in TR4-5
 
-        room->alternate_group = reader.readU8();
+        room->alternateGroup = reader.readU8();
 
-        room->light_colour.r = (room->intensity2 & 0x00FF) / 255.0f;
-        room->light_colour.g = ((room->intensity1 & 0xFF00) >> 8) / 255.0f;
-        room->light_colour.b = (room->intensity1 & 0x00FF) / 255.0f;
-        room->light_colour.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
+        room->lightColor.r = (room->intensity2 & 0x00FF) / 255.0f;
+        room->lightColor.g = ((room->intensity1 & 0xFF00) >> 8) / 255.0f;
+        room->lightColor.b = (room->intensity1 & 0x00FF) / 255.0f;
+        room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
         return room;
     }
 
@@ -1508,7 +1507,7 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
         room->intensity1 = 32767;
         room->intensity2 = 32767;
-        room->light_mode = 0;
+        room->lightMode = 0;
 
         if(reader.readU32() != 0xCDCDCDCD)
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: seperator1 has wrong value";
@@ -1522,32 +1521,32 @@ struct Room
         auto static_meshes_offset = reader.readU32();     // endPortalOffset
                                                         // static_meshes_offset or room_layer_offset
                                                         // read and change coordinate system
-        room->offset.X = static_cast<float>(reader.readI32());
-        room->offset.Y = static_cast<float>(reader.readU32());
-        room->offset.Z = static_cast<float>(reader.readI32());
-        room->y_bottom = static_cast<float>(-reader.readI32());
-        room->y_top = static_cast<float>(-reader.readI32());
+        room->position.X = static_cast<float>(reader.readI32());
+        room->position.Y = static_cast<float>(reader.readU32());
+        room->position.Z = static_cast<float>(reader.readI32());
+        room->lowestHeight = static_cast<float>(-reader.readI32());
+        room->greatestHeight = static_cast<float>(-reader.readI32());
 
-        room->num_zsectors = reader.readU16();
-        room->num_xsectors = reader.readU16();
+        room->sectorCountZ = reader.readU16();
+        room->sectorCountX = reader.readU16();
 
-        room->light_colour.b = reader.readU8() / 255.0f;
-        room->light_colour.g = reader.readU8() / 255.0f;
-        room->light_colour.r = reader.readU8() / 255.0f;
-        room->light_colour.a = reader.readU8() / 255.0f;
+        room->lightColor.b = reader.readU8() / 255.0f;
+        room->lightColor.g = reader.readU8() / 255.0f;
+        room->lightColor.r = reader.readU8() / 255.0f;
+        room->lightColor.a = reader.readU8() / 255.0f;
         //room->light_colour.a = 1.0f;
 
         room->lights.resize(reader.readU16());
         if(room->lights.size() > 512)
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: lights.size() > 512";
 
-        room->static_meshes.resize(reader.readU16());
-        if(room->static_meshes.size() > 512)
+        room->staticMeshes.resize(reader.readU16());
+        if(room->staticMeshes.size() > 512)
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: static_meshes.size() > 512";
 
-        room->reverb_info = static_cast<ReverbType>(reader.readU8());
-        room->alternate_group = reader.readU8();
-        room->water_scheme = static_cast<uint8_t>(reader.readU16());
+        room->reverbInfo = static_cast<ReverbType>(reader.readU8());
+        room->alternateGroup = reader.readU8();
+        room->waterScheme = static_cast<uint8_t>(reader.readU16());
 
         if(reader.readU32() != 0x00007FFF)
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: filler1 has wrong value";
@@ -1564,7 +1563,7 @@ struct Room
         if(reader.readU32() != 0xFFFFFFFF)
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: seperator6 has wrong value";
 
-        room->alternate_room = reader.readI16();
+        room->alternateRoom = reader.readI16();
 
         room->flags = reader.readU16();
 
@@ -1658,18 +1657,18 @@ struct Room
 
         reader.seek(position + 208 + sector_data_offset);
 
-        room->sector_list.resize(room->num_zsectors * room->num_xsectors);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->num_zsectors * room->num_xsectors); i++)
-            room->sector_list[i] = Sector::read(reader);
+        room->sectors.resize(room->sectorCountZ * room->sectorCountX);
+        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
+            room->sectors[i] = Sector::read(reader);
 
         room->portals.resize(reader.readI16());
         for(size_t i = 0; i < room->portals.size(); i++)
-            room->portals[i] = Portal::read(reader, room->offset);
+            room->portals[i] = Portal::read(reader, room->position);
 
         reader.seek(position + 208 + static_meshes_offset);
 
-        for(size_t i = 0; i < room->static_meshes.size(); i++)
-            room->static_meshes[i] = RoomStaticMesh::readTr4(reader);
+        for(size_t i = 0; i < room->staticMeshes.size(); i++)
+            room->staticMeshes[i] = RoomStaticMesh::readTr4(reader);
 
         reader.seek(position + 208 + layer_offset);
 
@@ -2052,7 +2051,7 @@ struct SpriteTexture
 
 struct SpriteSequence
 {
-    int32_t object_id;     // Item identifier (matched in Items[])
+    uint32_t object_id;     // Item identifier (matched in Items[])
     int16_t length;        // negative of "how many sprites are in this sequence"
     int16_t offset;        // where (in sprite texture list) this sequence starts
 
@@ -2063,7 +2062,7 @@ struct SpriteSequence
     static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{ new SpriteSequence() };
-        sprite_sequence->object_id = reader.readI32();
+        sprite_sequence->object_id = reader.readU32();
         sprite_sequence->length = -reader.readI16();
         sprite_sequence->offset = reader.readI16();
         return sprite_sequence;
