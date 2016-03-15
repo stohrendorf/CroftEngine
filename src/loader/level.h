@@ -94,7 +94,7 @@ public:
 
     std::vector<irr::video::ITexture*> createTextures(irr::video::IVideoDriver* drv);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
-    irr::scene::IAnimatedMeshSceneNode* createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
+    irr::scene::IAnimatedMeshSceneNode* createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
     std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     void loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
     irr::video::ITexture* createSolidColorTex(irr::video::IVideoDriver* drv, uint8_t color);

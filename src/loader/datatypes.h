@@ -365,9 +365,8 @@ struct Light
         light.position = Vertex::read32(reader);
         // read and make consistent
         const auto tmp = reader.readI16();
-        std::cerr << "tmp=" << tmp << "\n";
         const uint16_t tmp2 = std::abs(tmp);
-        BOOST_ASSERT(tmp2 >= 0 && tmp2 < 8192);
+        BOOST_ASSERT(tmp2 < 8192);
         light.intensity1 = (8191 - tmp2) << 2;
         light.fade1 = reader.readU32();
         // only in TR2
@@ -2189,19 +2188,19 @@ struct Transitions
   */
 struct TransitionCase
 {
-    int16_t firstFrame;          // Lowest frame that uses this range
-    int16_t lastFrame;           // Highest frame (+1?) that uses this range
-    int16_t targetAnimation;     // Animation to dispatch to
-    int16_t targetFrame;         // Frame offset to dispatch to
+    uint16_t firstFrame;          // Lowest frame that uses this range
+    uint16_t lastFrame;           // Highest frame (+1?) that uses this range
+    uint16_t targetAnimation;     // Animation to dispatch to
+    uint16_t targetFrame;         // Frame offset to dispatch to
 
     /// \brief reads an animation dispatch.
     static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
     {
         std::unique_ptr<TransitionCase> anim_dispatch{ new TransitionCase() };
-        anim_dispatch->firstFrame = reader.readI16();
-        anim_dispatch->lastFrame = reader.readI16();
-        anim_dispatch->targetAnimation = reader.readI16();
-        anim_dispatch->targetFrame = reader.readI16();
+        anim_dispatch->firstFrame = reader.readU16();
+        anim_dispatch->lastFrame = reader.readU16();
+        anim_dispatch->targetAnimation = reader.readU16();
+        anim_dispatch->targetFrame = reader.readU16();
         return anim_dispatch;
     }
 };
