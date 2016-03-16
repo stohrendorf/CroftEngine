@@ -292,6 +292,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         resultNode->addChild(smNode);
     }
     resultNode->setPosition(position);
+    resultNode->updateAbsolutePosition();
     
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
     

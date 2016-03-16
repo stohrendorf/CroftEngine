@@ -6,7 +6,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
     
-    auto l = loader::Level::createLoader("data/tr1/data/LEVEL5.PHD", loader::Game::Unknown);
+    auto l = loader::Level::createLoader("data/tr1/data/LEVEL1.PHD", loader::Game::Unknown);
     BOOST_ASSERT(l != nullptr);
     l->load(device->getVideoDriver());
     l->toIrrlicht(device->getSceneManager(), device->getCursorControl());

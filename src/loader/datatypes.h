@@ -286,12 +286,18 @@ struct Portal
 
 struct Sector
 {
-    uint16_t floorDataIndex;     // Index into FloorData[]
-    uint16_t boxIndex;    // Index into Boxes[]/Zones[] (-1 if none)
-    uint8_t roomBelow;    // The number of the room below this one (-1 or 255 if none)
-    int8_t floorHeight;          // Absolute height of floor (multiply by 256 for world coordinates)
-    uint8_t roomAbove;    // The number of the room above this one (-1 or 255 if none)
-    int8_t ceilingHeight;        // Absolute height of ceiling (multiply by 256 for world coordinates)
+    /**
+     * @brief Index into FloorData[]
+     * 
+     * @note If this is 0, no floor data is attached to this sector.
+     */
+    uint16_t floorDataIndex;
+    
+    uint16_t boxIndex;           //!< Index into Boxes[]/Zones[] (-1 if none)
+    uint8_t roomBelow;           //!< The number of the room below this one (255 if none)
+    int8_t floorHeight;          //!< Absolute height of floor (multiply by 256 for world coordinates)
+    uint8_t roomAbove;           //!< The number of the room above this one (255 if none)
+    int8_t ceilingHeight;        //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
     static Sector read(io::SDLReader& reader)
     {
@@ -1727,6 +1733,18 @@ struct Room
     }
     
     irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes);
+
+    const Sector* getSectorByPosition(const irr::core::vector3df& position) const
+    {
+        int dx = static_cast<int>(position.X / 1024); //! @fixme Magick
+        int dz = static_cast<int>(position.Z / 1024);
+//        BOOST_LOG_TRIVIAL(debug) << "Sector " << dx << "/" << dz;
+        if(dx < 0 || dx >= sectorCountX)
+            return nullptr;
+        if(dz < 0 || dz >= sectorCountZ)
+            return nullptr;
+        return &sectors[sectorCountZ * dx + dz];
+    }
 };
 
 struct StaticMesh
@@ -1874,17 +1892,25 @@ struct AnimatedModel
 
 struct Item
 {
-    int16_t object_id;     // Object Identifier (matched in Moveables[], or SpriteSequences[], as appropriate)
-    uint16_t room;          // which room contains this item
-    Vertex position;       // world coords
-    irr::f32 rotation;        // ((0xc000 >> 14) * 90) degrees
-    int16_t intensity1;    // (constant lighting; -1 means use mesh lighting)
-    int16_t intensity2;    // Like Intensity1, and almost always with the same value. [absent from TR1 data files]
-    int16_t ocb;           // Object code bit - used for altering entity behaviour. Only in TR4-5.
+    int16_t objectId;     //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
+    uint16_t room;        //!< Owning room
+    Vertex position;      //!< world coords
+    irr::f32 rotation;    //!< ((0xc000 >> 14) * 90) degrees around Y axis
+    int16_t intensity1;   //!< (constant lighting; -1 means use mesh lighting)
+    int16_t intensity2;   //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
+    int16_t ocb;          //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
+    
+    /**
+     * @brief Flags
+     * 
+     * @details
+     * @li 0x0100 indicates "initially invisible"
+     * @li 0x3e00 is Activation Mask
+     * @li 0x3e00 indicates "open" or "activated"
+     * 
+     * These can be XORed with related FloorData::FDlist fields (e.g. for switches).
+     */
     uint16_t flags;
-    // 0x0100 indicates "initially invisible", 0x3e00 is Activation Mask
-    // 0x3e00 indicates "open" or "activated";  these can be XORed with
-    // related FloorData::FDlist fields (e.g. for switches)
 
     uint16_t getActivationMask() const
     {
@@ -1900,7 +1926,7 @@ struct Item
     static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->object_id = reader.readI16();
+        item->objectId = reader.readI16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1916,7 +1942,7 @@ struct Item
     static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->object_id = reader.readI16();
+        item->objectId = reader.readI16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1934,7 +1960,7 @@ struct Item
     static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->object_id = reader.readI16();
+        item->objectId = reader.readI16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1948,7 +1974,7 @@ struct Item
     static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->object_id = reader.readI16();
+        item->objectId = reader.readI16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;

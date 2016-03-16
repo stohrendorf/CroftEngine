@@ -6,6 +6,68 @@
 #include <queue>
 #include <set>
 
+// Native TR floor data functions
+
+#define TR_FD_FUNC_PORTALSECTOR                 0x01
+#define TR_FD_FUNC_FLOORSLANT                   0x02
+#define TR_FD_FUNC_CEILINGSLANT                 0x03
+#define TR_FD_FUNC_TRIGGER                      0x04
+#define TR_FD_FUNC_DEATH                        0x05
+#define TR_FD_FUNC_CLIMB                        0x06
+#define TR_FD_FUNC_FLOORTRIANGLE_NW             0x07    //  [_\_]
+#define TR_FD_FUNC_FLOORTRIANGLE_NE             0x08    //  [_/_]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NW           0x09    //  [_/_]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NE           0x0A    //  [_\_]
+#define TR_FD_FUNC_FLOORTRIANGLE_NW_PORTAL_SW   0x0B    //  [P\_]
+#define TR_FD_FUNC_FLOORTRIANGLE_NW_PORTAL_NE   0x0C    //  [_\P]
+#define TR_FD_FUNC_FLOORTRIANGLE_NE_PORTAL_SE   0x0D    //  [_/P]
+#define TR_FD_FUNC_FLOORTRIANGLE_NE_PORTAL_NW   0x0E    //  [P/_]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NW_PORTAL_SW 0x0F    //  [P\_]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NW_PORTAL_NE 0x10    //  [_\P]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NE_PORTAL_NW 0x11    //  [P/_]
+#define TR_FD_FUNC_CEILINGTRIANGLE_NE_PORTAL_SE 0x12    //  [_/P]
+#define TR_FD_FUNC_MONKEY                       0x13
+#define TR_FD_FUNC_MINECART_LEFT                0x14    // In TR3 only. Function changed in TR4+.
+#define TR_FD_FUNC_MINECART_RIGHT               0x15    // In TR3 only. Function changed in TR4+.
+
+
+// Native TR trigger (TR_FD_FUNC_TRIGGER) types.
+
+#define TR_FD_TRIGTYPE_TRIGGER          0x00    // If Lara is in sector, run (any case).
+#define TR_FD_TRIGTYPE_PAD              0x01    // If Lara is in sector, run (land case).
+#define TR_FD_TRIGTYPE_SWITCH           0x02    // If item is activated, run, else stop.
+#define TR_FD_TRIGTYPE_KEY              0x03    // If item is activated, run.
+#define TR_FD_TRIGTYPE_PICKUP           0x04    // If item is picked up, run.
+#define TR_FD_TRIGTYPE_HEAVY            0x05    // If item is in sector, run, else stop.
+#define TR_FD_TRIGTYPE_ANTIPAD          0x06    // If Lara is in sector, stop (land case).
+#define TR_FD_TRIGTYPE_COMBAT           0x07    // If Lara is in combat state, run (any case).
+#define TR_FD_TRIGTYPE_DUMMY            0x08    // If Lara is in sector, run (air case).
+#define TR_FD_TRIGTYPE_ANTITRIGGER      0x09    // TR2-5 only: If Lara is in sector, stop (any case).
+#define TR_FD_TRIGTYPE_HEAVYSWITCH      0x0A    // TR3-5 only: If item is activated by item, run.
+#define TR_FD_TRIGTYPE_HEAVYANTITRIGGER 0x0B    // TR3-5 only: If item is activated by item, stop.
+#define TR_FD_TRIGTYPE_MONKEY           0x0C    // TR3-5 only: If Lara is monkey-swinging, run.
+#define TR_FD_TRIGTYPE_SKELETON         0x0D    // TR5 only: Activated by skeleton only?
+#define TR_FD_TRIGTYPE_TIGHTROPE        0x0E    // TR5 only: If Lara is on tightrope, run.
+#define TR_FD_TRIGTYPE_CRAWLDUCK        0x0F    // TR5 only: If Lara is crawling, run.
+#define TR_FD_TRIGTYPE_CLIMB            0x10    // TR5 only: If Lara is climbing, run.
+
+// Native trigger function types.
+
+#define TR_FD_TRIGFUNC_OBJECT           0x00
+#define TR_FD_TRIGFUNC_CAMERATARGET     0x01
+#define TR_FD_TRIGFUNC_UWCURRENT        0x02
+#define TR_FD_TRIGFUNC_FLIPMAP          0x03
+#define TR_FD_TRIGFUNC_FLIPON           0x04
+#define TR_FD_TRIGFUNC_FLIPOFF          0x05
+#define TR_FD_TRIGFUNC_LOOKAT           0x06
+#define TR_FD_TRIGFUNC_ENDLEVEL         0x07
+#define TR_FD_TRIGFUNC_PLAYTRACK        0x08
+#define TR_FD_TRIGFUNC_FLIPEFFECT       0x09
+#define TR_FD_TRIGFUNC_SECRET           0x0A
+#define TR_FD_TRIGFUNC_CLEARBODIES      0x0B    // Unused in TR4
+#define TR_FD_TRIGFUNC_FLYBY            0x0C
+#define TR_FD_TRIGFUNC_CUTSCENE         0x0D
+
 class TRCameraSceneNodeAnimator final : public irr::scene::ISceneNodeAnimator
 {
 private:
@@ -25,15 +87,51 @@ private:
     bool m_right = false;
 
     const loader::Level* m_level;
+    const loader::Room* m_currentRoom;
     
     const irr::core::vector3df m_relativeTarget{0, 256, 0};
     irr::core::vector3df m_relativePosition{0, 0, -1024};
+    
+    void setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara)
+    {
+        if(newRoom == m_currentRoom)
+            return;
+
+        BOOST_LOG_TRIVIAL(debug) << "Room switch";
+        if(newRoom == nullptr)
+        {
+            BOOST_LOG_TRIVIAL(fatal) << "No room to switch to!";
+            BOOST_LOG_TRIVIAL(fatal) << "Matching rooms by position:";
+            for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+            {
+                const loader::Room& room = m_level->m_rooms[i];
+                if(room.node->getTransformedBoundingBox().isPointInside(lara->getAbsolutePosition()))
+                {
+                    BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
+                }
+            }
+            return;
+        }
+        
+        BOOST_LOG_TRIVIAL(debug) << "Old room pos: " << m_currentRoom->node->getAbsolutePosition().X << "/" << m_currentRoom->node->getAbsolutePosition().Y << "/" << m_currentRoom->node->getAbsolutePosition().Z;
+        BOOST_LOG_TRIVIAL(debug) << "New room pos: " << newRoom->node->getAbsolutePosition().X << "/" << newRoom->node->getAbsolutePosition().Y << "/" << newRoom->node->getAbsolutePosition().Z;
+        BOOST_LOG_TRIVIAL(debug) << "Old lara pos: " << lara->getAbsolutePosition().X << "/" << lara->getAbsolutePosition().Y << "/" << lara->getAbsolutePosition().Z;
+
+        lara->setParent(newRoom->node);
+        lara->setPosition(lara->getAbsolutePosition() - newRoom->node->getAbsolutePosition());
+        lara->updateAbsolutePosition();
+
+        BOOST_LOG_TRIVIAL(debug) << "New lara pos: " << lara->getAbsolutePosition().X << "/" << lara->getAbsolutePosition().Y << "/" << lara->getAbsolutePosition().Z;
+        
+        m_currentRoom = newRoom;
+    }
 
 public:
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level)
-        : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level)
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom)
+        : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(currentRoom)
     {
         BOOST_ASSERT(cursorControl != nullptr);
+        BOOST_ASSERT(currentRoom != nullptr);
     }
 
     //! Animates a scene node.
@@ -54,6 +152,8 @@ public:
         
         irr::scene::IAnimatedMeshSceneNode* lara = static_cast<irr::scene::IAnimatedMeshSceneNode*>(camera->getParent());
         
+        handleFloorData(lara);
+        lara->updateAbsolutePosition();
 
         if(m_firstUpdate)
         {
@@ -239,13 +339,13 @@ private:
         // Breadth-first queue
         std::queue<render::PortalTracer> toVisit;
 
-        uint16_t startRoom = std::numeric_limits<uint16_t>::max();
+        const loader::Room* cameraRoom = nullptr;
         for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
         {
             const loader::Room& room = m_level->m_rooms[i];
             if(room.node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
             {
-                startRoom = i;
+                cameraRoom = &room;
                 room.node->setVisible(true);
             }
             else
@@ -254,15 +354,17 @@ private:
             }
         }
 
-        if(startRoom >= m_level->m_rooms.size())
+        if(cameraRoom == nullptr)
         {
             for(const loader::Room& room : m_level->m_rooms)
                 room.node->setVisible(true);
             return;
         }
 
+        m_currentRoom->node->setVisible(true);
+        
         // always process direct neighbours
-        for(const loader::Portal& portal : m_level->m_rooms[startRoom].portals)
+        for(const loader::Portal& portal : m_currentRoom->portals)
         {
             render::PortalTracer path;
             if(!path.checkVisibility(&portal, camera->getAbsolutePosition(), *camera->getViewFrustum()))
@@ -297,5 +399,203 @@ private:
                 toVisit.emplace(std::move(newPath));
             }
         }
+    }
+
+    bool handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara)
+    {
+        const loader::Sector* sector = m_currentRoom->getSectorByPosition(lara->getPosition());
+        if(sector == nullptr)
+        {
+            BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
+            return false;
+        }
+        
+        // check "room below"
+        while(sector->roomBelow != 0xff)
+        {
+            BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
+            setOwnerRoom(&m_level->m_rooms[sector->roomBelow], lara);
+            sector = m_currentRoom->getSectorByPosition(lara->getPosition());
+            if(sector == nullptr)
+            {
+                BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
+                return false;
+            }
+        }
+        
+        // fix height
+        {
+            const int globalY = sector->floorHeight * 256;
+//            BOOST_LOG_TRIVIAL(debug) << "fh=" << int(sector->floorHeight) << " => " << globalY;
+            auto pos = lara->getPosition();
+//            BOOST_LOG_TRIVIAL(debug) << "py=" << pos.Y << " ry=" << m_currentRoom->position.Y;
+            pos.Y = -globalY - m_currentRoom->position.Y;
+            lara->setPosition(pos);
+        }
+        
+        if(sector->floorDataIndex == 0)
+            return true;
+        
+        BOOST_ASSERT(sector->floorDataIndex < m_level->m_floorData.size());
+//        BOOST_LOG_TRIVIAL(debug) << "Starting to parse floordata...";
+        for(size_t fdi = sector->floorDataIndex; fdi < m_level->m_floorData.size(); /*nop*/)
+        {
+//            BOOST_LOG_TRIVIAL(debug) << "Parsing floordata @" << fdi;
+            const uint16_t* floorData = &m_level->m_floorData[fdi];
+            const uint16_t function = *floorData & 0x001F;             // 0b00000000 00011111
+//            BOOST_LOG_TRIVIAL(debug) << "Floordata function " << int(function);
+            const uint16_t subFunction = (*floorData & 0x7F00) >> 8;        // 0b01111111 00000000
+    
+            const bool isLastFloordata = ((*floorData & 0x8000) >> 15) != 0;       // 0b10000000 00000000
+            
+            ++fdi;
+            ++floorData;
+            
+            switch(function)
+            {
+                case TR_FD_FUNC_PORTALSECTOR:          // PORTAL DATA
+                    if(subFunction == 0x00)
+                    {
+                        if(*floorData < m_level->m_rooms.size())
+                        {
+                            BOOST_LOG_TRIVIAL(info) << "Switch to room: " << int(*floorData);
+                            BOOST_ASSERT(*floorData < m_level->m_rooms.size());
+                            setOwnerRoom(&m_level->m_rooms[*floorData], lara);
+                            break;
+                        }
+                        ++floorData;
+                        ++fdi;
+                    }
+                    break;
+                case TR_FD_FUNC_FLOORSLANT:          // FLOOR SLANT
+                case TR_FD_FUNC_CEILINGSLANT:          // CEILING SLANT
+                    if(subFunction == 0)
+                    {
+                        const int8_t xSlant{ *floorData & 0x00FF };
+                        const int8_t zSlant{ (*floorData & 0xFF00) >> 8 };
+                        ++floorData;
+                        ++fdi;
+                        
+                        if(function == TR_FD_FUNC_CEILINGSLANT)
+                            break;
+                        
+                        auto laraPos = lara->getPosition();
+                        
+                        static constexpr irr::f32 QuarterSectorSize = 256;
+                        static constexpr irr::f32 SectorSize = 1024;
+
+                        const irr::f32 localX = std::fmod(laraPos.X, SectorSize);
+                        const irr::f32 localZ = std::fmod(laraPos.Z, SectorSize);
+                        
+                        if(zSlant > 0) // lower edge at -Z
+                        {
+                            auto dist = (SectorSize - localZ) / SectorSize;
+                            laraPos.Y -= dist * zSlant * QuarterSectorSize;
+                        }
+                        else if(zSlant < 0)  // lower edge at +Z
+                        {
+                            auto dist = localZ / SectorSize;
+                            laraPos.Y += dist * zSlant * QuarterSectorSize;
+                        }
+    
+                        if(xSlant > 0) // lower edge at -X
+                        {
+                            auto dist = (SectorSize - localX) / SectorSize;
+                            laraPos.Y -= dist * xSlant * QuarterSectorSize;
+                        }
+                        else if(xSlant < 0) // lower edge at +X
+                        {
+                            auto dist = localX / SectorSize;
+                            laraPos.Y += dist * xSlant * QuarterSectorSize;
+                        }
+                        
+                        lara->setPosition(laraPos);
+                        lara->updateAbsolutePosition();
+                    }
+                    break;
+                case TR_FD_FUNC_TRIGGER:          // TRIGGERS
+                    switch(subFunction)
+                    {
+                        case TR_FD_TRIGTYPE_TRIGGER:
+                        case TR_FD_TRIGTYPE_HEAVY:
+                        case TR_FD_TRIGTYPE_PAD:
+                        case TR_FD_TRIGTYPE_ANTIPAD:
+                        case TR_FD_TRIGTYPE_SWITCH:
+                        case TR_FD_TRIGTYPE_HEAVYSWITCH:
+                        case TR_FD_TRIGTYPE_KEY:
+                        case TR_FD_TRIGTYPE_PICKUP:
+                        case TR_FD_TRIGTYPE_COMBAT:
+                        case TR_FD_TRIGTYPE_DUMMY:
+                        case TR_FD_TRIGTYPE_SKELETON:   ///@FIXME: Find the meaning later!!!
+                        case TR_FD_TRIGTYPE_ANTITRIGGER:
+                        case TR_FD_TRIGTYPE_HEAVYANTITRIGGER:
+                        case TR_FD_TRIGTYPE_MONKEY:
+                        case TR_FD_TRIGTYPE_CLIMB:
+                        case TR_FD_TRIGTYPE_TIGHTROPE:
+                        case TR_FD_TRIGTYPE_CRAWLDUCK:
+//                            BOOST_LOG_TRIVIAL(debug) << "Trigger subfunction " << int(subFunction);
+                            break;
+                        default:
+                            BOOST_LOG_TRIVIAL(error) << "Unexpected trigger subfunction " << int(subFunction);
+                            break;
+                    }
+                    for(bool contBit = false; contBit && fdi < m_level->m_floorData.size(); /*nop*/)
+                    {
+                        ++floorData;
+                        ++fdi;
+                        const uint16_t triggerFunction = (*floorData & 0x7C00) >> 10;
+                        BOOST_LOG_TRIVIAL(debug) << "Parsing trigger @" << fdi << " / func=" << int(triggerFunction);
+                        switch(triggerFunction)
+                        {
+                            case TR_FD_TRIGFUNC_OBJECT:         // ACTIVATE / DEACTIVATE object
+                                break;
+    
+                            case TR_FD_TRIGFUNC_CAMERATARGET:
+                                ++floorData;
+                                ++fdi;
+                                contBit = ((*floorData & 0x8000) >> 15) != 0;
+                                break;
+    
+                            case TR_FD_TRIGFUNC_UWCURRENT:
+                            case TR_FD_TRIGFUNC_FLIPMAP:
+                            case TR_FD_TRIGFUNC_FLIPON:
+                            case TR_FD_TRIGFUNC_FLIPOFF:
+                            case TR_FD_TRIGFUNC_LOOKAT:
+                            case TR_FD_TRIGFUNC_ENDLEVEL:
+                            case TR_FD_TRIGFUNC_PLAYTRACK:
+                            case TR_FD_TRIGFUNC_FLIPEFFECT:
+                            case TR_FD_TRIGFUNC_SECRET:
+                            case TR_FD_TRIGFUNC_CLEARBODIES:
+                            case TR_FD_TRIGFUNC_FLYBY:
+                                ++floorData;
+                                ++fdi;
+                                contBit = (*floorData & 0x8000) >> 15;
+                                break;
+    
+                            case TR_FD_TRIGFUNC_CUTSCENE:
+                                break;
+    
+                            default: // UNKNOWN!
+                                BOOST_LOG_TRIVIAL(warning) << "Unhandled trigger function " << int(triggerFunction);
+                                break;
+                        };
+                    }
+                    break;
+                case TR_FD_FUNC_DEATH:
+                case TR_FD_FUNC_CLIMB:
+                case TR_FD_FUNC_MONKEY:
+                case TR_FD_FUNC_MINECART_LEFT:
+                case TR_FD_FUNC_MINECART_RIGHT:
+                    break;
+                default:
+                    BOOST_LOG_TRIVIAL(error) << "Unhandled floordata function " << int(function) << "; floorData=0x" << std::hex << floorData[-1] << std::dec << " @" << fdi-1;
+                    break;
+            }
+            
+            if(isLastFloordata)
+                break;
+        }
+        
+        return true;
     }
 };

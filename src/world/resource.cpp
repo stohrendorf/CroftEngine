@@ -1822,7 +1822,7 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
     for(ObjectId i = 0; i < tr->m_items.size(); i++)
     {
         loader::Item *tr_item = &tr->m_items[i];
-        std::shared_ptr<Entity> entity = tr_item->object_id == 0 ? std::make_shared<Character>(i, &world) : std::make_shared<Entity>(i, &world);
+        std::shared_ptr<Entity> entity = tr_item->objectId == 0 ? std::make_shared<Character>(i, &world) : std::make_shared<Entity>(i, &world);
         entity->m_transform.setTranslation({tr_item->position.x, -tr_item->position.z, tr_item->position.y});
         entity->m_angles = {tr_item->rotation, 0, 0};
         entity->updateTransform();
@@ -1846,15 +1846,15 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
         entity->m_inertiaAngular[0] = 0.0;
         entity->m_inertiaAngular[1] = 0.0;
 
-        entity->m_skeleton.setModel(world.getModelByID(static_cast<animation::ModelId>(tr_item->object_id)));
+        entity->m_skeleton.setModel(world.getModelByID(static_cast<animation::ModelId>(tr_item->objectId)));
 
         if(entity->m_skeleton.getModel() == nullptr)
         {
-            animation::ModelId id = world.m_engine->m_scriptEngine.call("getOverridedID", static_cast<int>(loader::gameToEngine(tr->m_gameVersion)), tr_item->object_id).to<animation::ModelId>();
+            animation::ModelId id = world.m_engine->m_scriptEngine.call("getOverridedID", static_cast<int>(loader::gameToEngine(tr->m_gameVersion)), tr_item->objectId).to<animation::ModelId>();
             entity->m_skeleton.setModel(world.getModelByID(id));
         }
 
-        lua::Value replace_anim_id = world.m_engine->m_scriptEngine.call("getOverridedAnim", static_cast<int>(loader::gameToEngine(tr->m_gameVersion)), tr_item->object_id);
+        lua::Value replace_anim_id = world.m_engine->m_scriptEngine.call("getOverridedAnim", static_cast<int>(loader::gameToEngine(tr->m_gameVersion)), tr_item->objectId);
         if(!replace_anim_id.isNil())
         {
             auto replace_anim_model = world.getModelByID(replace_anim_id.to<animation::ModelId>());
@@ -1866,7 +1866,7 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
         if(entity->m_skeleton.getModel() == nullptr)
         {
             // SPRITE LOADING
-            core::Sprite* sp = world.getSpriteByID(tr_item->object_id);
+            core::Sprite* sp = world.getSpriteByID(tr_item->objectId);
             if(sp && entity->getRoom())
             {
                 entity->getRoom()->addSprite(sp, entity->m_transform.getTranslation());
@@ -1875,7 +1875,7 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
             continue;                                                           // that entity has no model. may be it is a some trigger or look at object
         }
 
-        if(loader::gameToEngine(tr->m_gameVersion) == loader::Engine::TR1 && tr_item->object_id == 83)                ///@FIXME: brutal magick hardcode! ;-)
+        if(loader::gameToEngine(tr->m_gameVersion) == loader::Engine::TR1 && tr_item->objectId == 83)                ///@FIXME: brutal magick hardcode! ;-)
         {
             // skip PSX save model
             continue;
@@ -1883,7 +1883,7 @@ void TR_GenEntities(World& world, const std::unique_ptr<loader::Level>& tr)
 
         entity->m_skeleton.fromModel(entity->m_skeleton.getModel());
 
-        if(tr_item->object_id != 0)                                             // Lara is unical model
+        if(tr_item->objectId != 0)                                             // Lara is unical model
         {
             entity->setAnimation(0, 0);                                      // Set zero animation and zero frame
 

@@ -309,10 +309,10 @@ int Level::findSpriteSequenceByObjectId(uint32_t object_id) const
     return -1;
 }
 
-Item* Level::findItemById(int32_t object_id)
+Item* Level::findItemById(int32_t objectId)
 {
     for(size_t i = 0; i < m_items.size(); i++)
-        if(m_items[i].object_id == object_id)
+        if(m_items[i].objectId == objectId)
             return &m_items[i];
 
     return nullptr;
@@ -354,30 +354,27 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
     return materials;
 }
 
-irr::scene::IAnimatedMeshSceneNode* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
-    irr::scene::IAnimatedMeshSceneNode* lara = nullptr;
+    std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> lara{nullptr, nullptr};
     for(const Item& item : m_items)
     {
         BOOST_ASSERT(item.room < m_rooms.size());
-        const Room& room = m_rooms[item.room];
+        Room& room = m_rooms[item.room];
 
-        auto meshIdx = findAnimatedModelIndexByObjectId(item.object_id);
+        auto meshIdx = findAnimatedModelIndexByObjectId(item.objectId);
         if(meshIdx >= 0)
         {
-            BOOST_ASSERT(findSpriteSequenceByObjectId(item.object_id) < 0);
-            BOOST_LOG_TRIVIAL(info) << "Object " << item.object_id << " uses animated model " << meshIdx;
+            BOOST_ASSERT(findSpriteSequenceByObjectId(item.objectId) < 0);
+            BOOST_LOG_TRIVIAL(info) << "Object " << item.objectId << " uses animated model " << meshIdx;
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
-            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], item.object_id == 0 ? nullptr : room.node);
-            if(item.object_id == 0)
+            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
+            if(item.objectId == 0)
             {
-                lara = node;
-                node->setPosition(item.position);
+                lara.first = node;
+                lara.second = &room;
             }
-            else
-            {
-                node->setPosition(item.position - room.node->getPosition());
-            }
+            node->setPosition(item.position - room.node->getPosition());
             node->setAutomaticCulling(false);
             node->setRotation({0, item.rotation, 0});
             // n->setDebugDataVisible(irr::scene::EDS_FULL);
@@ -396,18 +393,20 @@ irr::scene::IAnimatedMeshSceneNode* Level::createItems(irr::scene::ISceneManager
                 node->getMaterial(i).Lighting = false;
             }
             node->addShadowVolumeSceneNode();
+            if(item.isInitiallyInvisible())
+                node->setVisible(false);
             skinnedMeshes[meshIdx]->drop();
             continue;
         }
         
-        meshIdx = findSpriteSequenceByObjectId(item.object_id);
+        meshIdx = findSpriteSequenceByObjectId(item.objectId);
         if(meshIdx >= 0)
         {
-            BOOST_LOG_TRIVIAL(warning) << "Unimplemented: Object " << item.object_id << " is a sprite sequence";
+            BOOST_LOG_TRIVIAL(warning) << "Unimplemented: Object " << item.objectId << " is a sprite sequence";
             continue;
         }
         
-        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for object id " << int(item.object_id);
+        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for object id " << int(item.objectId);
     }
 
     return lara;
@@ -649,11 +648,11 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
 
     const auto lara = createItems(mgr, skinnedMeshes);
-    if(lara == nullptr)
+    if(lara.first == nullptr)
         return;
 
-    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara, {0, 0, -256}, {0, 0, 0}, -1, true);
-    camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this));
+    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.first, {0, 0, -256}, {0, 0, 0}, -1, true);
+    camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.second));
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
     camera->setFarValue(2e5);
