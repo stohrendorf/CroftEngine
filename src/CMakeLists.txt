@@ -269,6 +269,8 @@ add_executable(ot_irr
     loader/tr3level.cpp
     loader/tr4level.cpp
     loader/tr5level.cpp
+    loader/trcamerascenenodeanimator.cpp
+    loader/defaultanimdispatcher.cpp
 )
 
 target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
