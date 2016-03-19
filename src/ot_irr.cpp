@@ -2,7 +2,7 @@
 
 int main()
 {
-    irr::IrrlichtDevice* device = irr::createDevice( irr::video::EDT_OPENGL, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, 0);    
+    irr::IrrlichtDevice* device = irr::createDevice( irr::video::EDT_OPENGL, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, nullptr);    
     if(!device)
         return EXIT_FAILURE;
     

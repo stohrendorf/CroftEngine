@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <stack>
 #include <queue>
-#include <set>
 #include <boost/lexical_cast.hpp>
 
 using namespace loader;
@@ -327,14 +326,14 @@ AnimatedModel* Level::findModelById(uint32_t object_id)
     return nullptr;
 }
 
-std::vector<irr::video::ITexture*> Level::createTextures(irr::video::IVideoDriver* drv)
+std::vector<irr::video::ITexture*> Level::createTextures(irr::scene::ISceneManager* mgr)
 {
     BOOST_ASSERT(!m_textures.empty());
     std::vector<irr::video::ITexture*> textures;
     for(size_t i = 0; i < m_textures.size(); ++i)
     {
         DWordTexture& texture = m_textures[i];
-        textures.emplace_back(texture.toTexture(drv, i));
+        textures.emplace_back(texture.toTexture(mgr, i));
     }
     return textures;
 }
@@ -385,7 +384,7 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
                 irr::video::SColor col;
-                col.set(room.lightColor.a * 255, room.lightColor.r * 255, room.lightColor.g * 255, room.lightColor.b * 255);
+                col.set(static_cast<irr::u32>(room.lightColor.a * 255), static_cast<irr::u32>(room.lightColor.r * 255), static_cast<irr::u32>(room.lightColor.g * 255), static_cast<irr::u32>(room.lightColor.b * 255));
                 node->getMaterial(i).AmbientColor = col;
                 node->getMaterial(i).DiffuseColor = col;
                 node->getMaterial(i).EmissiveColor = col;
@@ -429,13 +428,13 @@ void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, cons
 
             if(k == 0)
             {
-                pKey->position.set(pData[6], -pData[7], pData[8]);
+                pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
             }
             else
             {
                 BOOST_ASSERT(model.boneTreeIndex + 4 * k <= m_boneTrees.size());
                 const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (k - 1) * 4];
-                pKey->position.set(boneTreeData[1], -boneTreeData[2], boneTreeData[3]);
+                pKey->position.set(static_cast<irr::f32>(boneTreeData[1]), static_cast<irr::f32>(-boneTreeData[2]), static_cast<irr::f32>(boneTreeData[3]));
             }
 
             auto rKey = skinnedMesh->addRotationKey(joint);
@@ -563,7 +562,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             }
 
             const Animation& animation = m_animations[currentAnimIdx];
-            loadAnimation(currentAnimOffset, *model, animation, skinnedMesh);
+            loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
 
             model->frameMapping.emplace(
                 std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
@@ -591,7 +590,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
     return skinnedMeshes;
 }
 
-irr::video::ITexture* Level::createSolidColorTex(irr::video::IVideoDriver* drv, uint8_t color)
+irr::video::ITexture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const
 {
     irr::video::SColor pixels[2][2];
     pixels[0][0].set(m_palette->color[color].a, m_palette->color[color].r, m_palette->color[color].g, m_palette->color[color].b);
@@ -599,16 +598,16 @@ irr::video::ITexture* Level::createSolidColorTex(irr::video::IVideoDriver* drv, 
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
 
-    auto img = drv->createImageFromData(irr::video::ECF_A8R8G8B8, {2, 2}, &pixels[0][0]);
+    auto img = mgr->getVideoDriver()->createImageFromData(irr::video::ECF_A8R8G8B8, {2, 2}, &pixels[0][0]);
     irr::io::path p;
     p = "tex_color";
     p += boost::lexical_cast<std::string>(int(color)).c_str();
     p += ".png";
-    auto tex = drv->addTexture(p, img);
+    auto tex = mgr->getVideoDriver()->addTexture(p, img);
 
-    chdir("dump");
-    drv->writeImageToFile(img, p);
-    chdir("..");
+    mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
+    mgr->getVideoDriver()->writeImageToFile(img, p);
+    mgr->getFileSystem()->changeWorkingDirectoryTo("..");
 
     img->drop();
     return tex;
@@ -618,14 +617,14 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
 {
     mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
 
-    std::vector<irr::video::ITexture*> textures = createTextures(mgr->getVideoDriver());
+    std::vector<irr::video::ITexture*> textures = createTextures(mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
     for(int i = 0; i < 256; ++i)
     {
         irr::video::SMaterial result;
         // Set some defaults
-        result.setTexture(0, createSolidColorTex(mgr->getVideoDriver(), i));
+        result.setTexture(0, createSolidColorTex(mgr, i));
         result.BackfaceCulling = false;
         result.ColorMaterial = irr::video::ECM_AMBIENT;
         result.Lighting = true;

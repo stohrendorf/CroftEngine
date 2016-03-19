@@ -49,7 +49,7 @@ void DefaultAnimDispatcher::startAnimLoop(irr::scene::IAnimatedMeshSceneNode* no
     BOOST_ASSERT(it != m_model.frameMapping.end());
     
     node->setFrameLoop(it->second.firstFrame, it->second.lastFrame);
-    node->setCurrentFrame(it->second.offset + frame);
+    node->setCurrentFrame(static_cast<irr::f32>(it->second.offset + frame));
 }
 
 irr::u32 DefaultAnimDispatcher::getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const
@@ -57,7 +57,7 @@ irr::u32 DefaultAnimDispatcher::getCurrentFrame(irr::scene::IAnimatedMeshSceneNo
     auto it = m_model.frameMapping.find(m_currentAnimation);
     BOOST_ASSERT(it != m_model.frameMapping.end());
     
-    return node->getFrameNr() - it->second.offset;
+    return static_cast<irr::u32>(node->getFrameNr() - it->second.offset);
 }
 
 uint16_t DefaultAnimDispatcher::getCurrentState() const

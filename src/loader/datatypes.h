@@ -241,7 +241,7 @@ struct DWordTexture final
         return textile;
     }
     
-    irr::video::ITexture* toTexture(irr::video::IVideoDriver* drv, int texIdx);
+    irr::video::ITexture* toTexture(irr::scene::ISceneManager* mgr, int texIdx);
 };
 
 struct Portal
@@ -611,7 +611,7 @@ struct RoomVertex
         room_vertex.attributes = 0;
         // only in TR5
         room_vertex.normal.set(0,0,0);
-        auto f = room_vertex.lighting1 / 32768.0f * 255;
+        auto f = static_cast<irr::u32>(room_vertex.lighting1 / 32768.0f * 255);
         room_vertex.color.set(255, f, f, f);
         return room_vertex;
     }
@@ -626,7 +626,7 @@ struct RoomVertex
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
         room_vertex.normal.set(0,0,0);
-        auto f = room_vertex.lighting2 / 32768.0f * 255;
+        auto f = static_cast<irr::u32>(room_vertex.lighting2 / 32768.0f * 255);
         room_vertex.color.set(255, f, f, f);
         return room_vertex;
     }
@@ -642,9 +642,9 @@ struct RoomVertex
         // only in TR5
         room_vertex.normal.set(0,0,0);
         room_vertex.color.set(255,
-                              ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255,
-                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255,
-                              (room_vertex.lighting2 & 0x001F) / 62.0f * 255);
+                              static_cast<irr::u32>(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255),
+                              static_cast<irr::u32>(((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255),
+                              static_cast<irr::u32>((room_vertex.lighting2 & 0x001F) / 62.0f * 255));
         return room_vertex;
     }
 
@@ -660,9 +660,9 @@ struct RoomVertex
         room_vertex.normal.set(0,0,0);
 
         room_vertex.color.set(255,
-                              ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255,
-                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f * 255,
-                              (room_vertex.lighting2 & 0x001F) / 31.0f * 255);
+                              static_cast<irr::u32>(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255),
+                              static_cast<irr::u32>(((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f * 255),
+                              static_cast<irr::u32>((room_vertex.lighting2 & 0x001F) / 31.0f * 255));
         return room_vertex;
     }
 

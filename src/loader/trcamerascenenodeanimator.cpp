@@ -149,7 +149,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     }
     
     // get time
-    irr::f32 timeDiff = timeMs - m_lastAnimationTime;
+    irr::f32 timeDiff = static_cast<irr::f32>(timeMs - m_lastAnimationTime);
     m_lastAnimationTime = timeMs;
     
     // Update mouse rotation
@@ -526,7 +526,7 @@ loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loade
                 
             case TR_FD_TRIGFUNC_CAMERATARGET:
                 ++floorDataIt;
-                contBit = ((*floorDataIt & 0x8000) >> 15) != 0;
+                contBit = (*floorDataIt & 0x8000) != 0;
                 break;
                 
             case TR_FD_TRIGFUNC_UWCURRENT:
@@ -541,7 +541,7 @@ loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loade
             case TR_FD_TRIGFUNC_CLEARBODIES:
             case TR_FD_TRIGFUNC_FLYBY:
                 ++floorDataIt;
-                contBit = (*floorDataIt & 0x8000) >> 15;
+                contBit = (*floorDataIt & 0x8000) != 0;
                 break;
                 
             case TR_FD_TRIGFUNC_CUTSCENE:

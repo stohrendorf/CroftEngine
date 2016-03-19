@@ -92,12 +92,12 @@ public:
     int findAnimatedModelIndexByObjectId(uint32_t object_id) const;
     int findSpriteSequenceByObjectId(uint32_t object_id) const;
 
-    std::vector<irr::video::ITexture*> createTextures(irr::video::IVideoDriver* drv);
+    std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
     std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
     std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     void loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
-    irr::video::ITexture* createSolidColorTex(irr::video::IVideoDriver* drv, uint8_t color);
+    irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;
     
     void toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl);
     

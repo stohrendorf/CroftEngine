@@ -1,11 +1,9 @@
 #include "datatypes.h"
 
-#include "util/vmath.h"
 #include "level.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
-#include <iostream>
 
 namespace loader
 {
@@ -54,7 +52,7 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
         meshBuffer.Vertices.push_back(iv);
     }
     BOOST_ASSERT(ivIdx >= 0);
-    BOOST_ASSERT(ivIdx < meshBuffer.Vertices.size());
+    BOOST_ASSERT(static_cast<irr::u32>(ivIdx) < meshBuffer.Vertices.size());
     meshBuffer.Indices.push_back(ivIdx);
     return meshBuffer.Vertices[ivIdx];
 }
@@ -157,7 +155,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     
     if(dumpIdx >= 0)
     {
-        chdir("dump");
+        mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
         irr::scene::IMeshWriter* meshWriter = mgr->createMeshWriter(irr::scene::EMWT_COLLADA);
         irr::io::path outputName;
         outputName = "object_";
@@ -170,7 +168,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
         file->drop();
         meshWriter->drop();
         
-        chdir("..");
+        mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     }
     
     return result;
@@ -220,7 +218,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(it != materials.end());
         irr::video::SMaterial material = it->second;
         material.Lighting = false;
-        material.DiffuseColor.set( lightColor.a*255, lightColor.r*255, lightColor.g*255, lightColor.b*255 );
+        material.DiffuseColor.set( static_cast<irr::u32>(lightColor.a*255), static_cast<irr::u32>(lightColor.r*255), static_cast<irr::u32>(lightColor.g*255), static_cast<irr::u32>(lightColor.b*255) );
         material.EmissiveColor = material.DiffuseColor;
         BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
         if(flags & TR_ROOM_FLAG_WATER)
@@ -285,7 +283,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     {
         auto idx = level.findStaticMeshIndexByObjectId(sm.object_id);
         BOOST_ASSERT(idx >= 0);
-        BOOST_ASSERT(idx < staticMeshes.size());
+        BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
         smNode->setRotation({0,sm.rotation,0});
         smNode->setPosition(sm.position - position);
@@ -303,11 +301,11 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         
         const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
         
-        irr::core::vector2df dim(tex.right_side-tex.left_side+1, tex.bottom_side-tex.top_side+1);
+        irr::core::vector2df dim{ static_cast<irr::f32>(tex.right_side - tex.left_side + 1), static_cast<irr::f32>(tex.bottom_side - tex.top_side + 1) };
         BOOST_ASSERT(dim.X > 0);
         BOOST_ASSERT(dim.Y > 0);
         
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex+irr::core::vector3df{0,tex.bottom_side/2,0}, -1, 0, 0);
+        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex+irr::core::vector3df{0,static_cast<irr::f32>(tex.bottom_side/2),0}, -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
         n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
         n->getMaterial(0).EmissiveColor.set(0);
@@ -315,7 +313,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         n->setMaterialTexture( 0, textures[tex.texture] );
         {
             irr::video::SColor col;
-            col.set( lightColor.a*255, lightColor.r*255, lightColor.g*255, lightColor.b*255 );
+            col.set( static_cast<irr::u32>(lightColor.a*255), static_cast<irr::u32>(lightColor.r*255), static_cast<irr::u32>(lightColor.g*255), static_cast<irr::u32>(lightColor.b*255) );
             n->getMaterial(0).AmbientColor = col;
             n->getMaterial(0).DiffuseColor = col;
             n->getMaterial(0).SpecularColor = col;
@@ -327,7 +325,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     
     if(dumpIdx >= 0)
     {
-        chdir("dump");
+        mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
         irr::scene::IMeshWriter* meshWriter = mgr->createMeshWriter(irr::scene::EMWT_COLLADA);
         irr::io::path outputName;
         outputName = "room_";
@@ -340,7 +338,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         file->drop();
         meshWriter->drop();
         
-        chdir("..");
+        mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     }
     
     node = resultNode;
@@ -348,9 +346,9 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     return resultNode;
 }
 
-irr::video::ITexture* DWordTexture::toTexture(irr::video::IVideoDriver* drv, int texIdx)
+irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, int texIdx)
 {
-    auto img = drv->createImageFromData(
+    auto img = mgr->getVideoDriver()->createImageFromData(
                    irr::video::ECF_A8R8G8B8,
                    {256, 256},
                    &pixels[0][0]);
@@ -358,11 +356,11 @@ irr::video::ITexture* DWordTexture::toTexture(irr::video::IVideoDriver* drv, int
     p = "tex_";
     p += boost::lexical_cast<std::string>(texIdx).c_str();
     p += ".png";
-    auto tex = drv->addTexture(p, img);
+    auto tex = mgr->getVideoDriver()->addTexture(p, img);
 
-    chdir("dump");
-    drv->writeImageToFile(img, p);
-    chdir("..");
+    mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
+    mgr->getVideoDriver()->writeImageToFile(img, p);
+    mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     
     img->drop();
     return tex;

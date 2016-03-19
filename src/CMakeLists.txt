@@ -273,7 +273,9 @@ add_executable(ot_irr
     loader/defaultanimdispatcher.cpp
 )
 
-target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
+if(NOT MSVC)
+    target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
+endif()
 
 target_link_libraries(
     ot_irr

@@ -12,7 +12,7 @@ private:
     irr::u32 m_lastAnimationTime = 0;
     bool m_firstInput = true;
     irr::f32 m_rotateSpeed = 100;
-    irr::f32 m_rotateSpeedLara = 0.1;
+    irr::f32 m_rotateSpeedLara = 0.1f;
     irr::f32 m_maxVerticalAngle = 88;
     irr::f32 m_moveSpeed = 10;
     bool m_forward = false;
