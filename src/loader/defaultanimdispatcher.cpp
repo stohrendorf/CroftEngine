@@ -53,7 +53,7 @@ void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode
     {
         m_currentAnimationId = currentAnim.nextAnimation;
         startAnimLoop(node, currentAnim.nextFrame);
-        m_targetState = getCurrentState();
+        // m_targetState = getCurrentState();
         // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
     }
 }

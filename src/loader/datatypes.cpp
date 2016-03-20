@@ -43,8 +43,8 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     irr::video::S3DVertex iv;
     BOOST_ASSERT(vertexIndex < vertices.size());
     iv.Pos = vertices[vertexIndex].vertex;
-    iv.TCoords.X = (tex.xpixel+tex.xcoordinate)/255.0f;
-    iv.TCoords.Y = (tex.ypixel+tex.ycoordinate)/255.0f;
+    iv.TCoords.X = tex.xpixel/255.0f;
+    iv.TCoords.Y = tex.ypixel/255.0f;
     iv.Color = vertices[vertexIndex].color;
     irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
     if(ivIdx < 0)
@@ -76,12 +76,12 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
             texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[tex.textureKey];
         
-        addVertex(*buf, quad.uvCoordinates[0], &tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[1], &tex.vertices[1], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], &tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[0], &tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], &tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[3], &tex.vertices[3], vertices, normals);
+        addVertex(*buf, quad.vertices[0], &tex.vertices[0], vertices, normals);
+        addVertex(*buf, quad.vertices[1], &tex.vertices[1], vertices, normals);
+        addVertex(*buf, quad.vertices[2], &tex.vertices[2], vertices, normals);
+        addVertex(*buf, quad.vertices[0], &tex.vertices[0], vertices, normals);
+        addVertex(*buf, quad.vertices[2], &tex.vertices[2], vertices, normals);
+        addVertex(*buf, quad.vertices[3], &tex.vertices[3], vertices, normals);
     }
     for(const QuadFace& quad : colored_rectangles)
     {
@@ -95,12 +95,12 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
             texBuffers[tk] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[tk];
         
-        addVertex(*buf, quad.uvCoordinates[0], nullptr, vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[1], nullptr, vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], nullptr, vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[0], nullptr, vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[2], nullptr, vertices, normals);
-        addVertex(*buf, quad.uvCoordinates[3], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[0], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[1], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[2], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[0], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[2], nullptr, vertices, normals);
+        addVertex(*buf, quad.vertices[3], nullptr, vertices, normals);
     }
     for(const Triangle& poly : textured_triangles)
     {
@@ -191,12 +191,12 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
             texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[tex.textureKey];
         
-        addVertex(*buf, quad.uvCoordinates[0], tex.vertices[0], vertices);
-        addVertex(*buf, quad.uvCoordinates[1], tex.vertices[1], vertices);
-        addVertex(*buf, quad.uvCoordinates[2], tex.vertices[2], vertices);
-        addVertex(*buf, quad.uvCoordinates[0], tex.vertices[0], vertices);
-        addVertex(*buf, quad.uvCoordinates[2], tex.vertices[2], vertices);
-        addVertex(*buf, quad.uvCoordinates[3], tex.vertices[3], vertices);
+        addVertex(*buf, quad.vertices[0], tex.vertices[0], vertices);
+        addVertex(*buf, quad.vertices[1], tex.vertices[1], vertices);
+        addVertex(*buf, quad.vertices[2], tex.vertices[2], vertices);
+        addVertex(*buf, quad.vertices[0], tex.vertices[0], vertices);
+        addVertex(*buf, quad.vertices[2], tex.vertices[2], vertices);
+        addVertex(*buf, quad.vertices[3], tex.vertices[3], vertices);
     }
     for(const Triangle& poly : triangles)
     {

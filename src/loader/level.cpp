@@ -114,6 +114,209 @@ public:
     virtual void onLoad() override {}
 };
 
+
+enum class LaraState : uint16_t
+{
+    WalkForward = 0,
+    RunForward = 1,
+    Stop = 2,
+    JumpForward = 3,
+    Pose = 4,                // Derived from leaked TOMB.MAP
+    RunBack = 5,
+    TurnRightSlow = 6,
+    TurnLeftSlow = 7,
+    Death = 8,
+    FreeFall = 9,
+    Hang = 10,
+    Reach = 11,
+    //    UNUSED2 12
+    UnderwaterStop = 13,
+    GrabToFall = 14,
+    JumpPrepare = 15,
+    WalkBackward = 16,
+    UnderwaterForward = 17,
+    UnderwaterInertia = 18,
+    Climbing = 19,
+    TurnFast = 20,
+    StepRight = 21,
+    StepLeft = 22,
+    RollBackward = 23,
+    SlideForward = 24,
+    JumpBack = 25,
+    JumpLeft = 26,
+    JumpRight = 27,
+    JumpUp = 28,
+    FallBackward = 29,
+    ShimmyLeft = 30,
+    ShimmyRight = 31,
+    SlideBackward = 32,
+    OnWaterStop = 33,
+    OnWaterForward = 34,
+    UnderwaterDiving = 35,
+    PushablePush = 36,
+    PushablePull = 37,
+    PushableGrab = 38,
+    PickUp = 39,
+    SwitchDown = 40,
+    SwitchUp = 41,
+    InsertKey = 42,
+    InsertPuzzle = 43,
+    WaterDeath = 44,
+    RollForward = 45,
+    BoulderDeath = 46,
+    OnWaterBackward = 47,
+    OnWaterLeft = 48,
+    OnWaterRight = 49,
+    UseMidas = 50,          //  Derived from leaked TOMB.MAP
+    MidasDeath = 51,          //  Derived from leaked TOMB.MAP
+    SwandiveBegin = 52,
+    SwandiveEnd = 53,
+    Handstand = 54,
+    OnWaterExit = 55,
+    LadderIdle = 56,
+    LadderUp = 57,
+    LadderLeft = 58,
+    //    UNUSED5 59
+    LadderRight = 60,
+    LadderDown = 61,
+    //    UNUSED6 62
+    //    UNUSED7 63
+    //    UNUSED8 64
+    WadeForward = 65,
+    UnderwaterTurnAround = 66,
+    FlarePickUp = 67,
+    JumpRoll = 68,
+    //    UNUSED10 69
+    ZiplineRide = 70,
+    CrouchIdle = 71,
+    CrouchRoll = 72,
+    Sprint = 73,
+    SprintRoll = 74,
+    MonkeyswingIdle = 75,
+    MonkeyswingForward = 76,
+    MonkeyswingLeft = 77,
+    MonkeyswingRight = 78,
+    MonkeyswingTurnAround = 79,
+    CrawlIdle = 80,
+    CrawlForward = 81,
+    MonkeyswingTurnLeft = 82,
+    MonkeyswingTurnRight = 83,
+    CrawlTurnLeft = 84,
+    CrawlTurnRight = 85,
+    CrawlBackward = 86,
+    ClimbToCrawl = 87,
+    CrawlToClimb = 88,
+    MiscControl = 89,
+    RopeTurnLeft = 90,
+    RopeTurnRight = 91,
+    GiantButtonPush = 92,
+    TrapdoorFloorOpen = 93,
+    //    UNUSED11 94
+    RoundHandle = 95,
+    CogWheel = 96,
+    LeverSwitchPush = 97,
+    Hole = 98,
+    PoleIdle = 99,
+    PoleUp = 100,
+    PoleDown = 101,
+    PoleTurnLeft = 102,
+    PoleTurnRight = 103,
+    Pulley = 104,
+    CrouchTurnLeft = 105,
+    CrouchTurnRight = 106,
+    ClimbOuterCornerLeft = 107,
+    ClimbOuterCornerRight = 108,
+    ClimbInnerCornerLeft = 109,
+    ClimbInnerCornerRight = 110,
+    RopeIdle = 111,
+    RopeClimbUp = 112,
+    RopeClimbDown = 113,
+    RopeSwing = 114,
+    LadderToHands = 115,
+    PositionCorrector = 116,
+    DoubledoorsPush = 117,
+    Dozy = 118,
+    TightropeIdle = 119,
+    TightropeTurnAround = 120,
+    TightropeForward = 121,
+    TightropeBalancingLeft = 122,
+    TightropeBalancingRight = 123,
+    TightropeEnter = 124,
+    TightropeExit = 125,
+    DoveSwitch = 126,
+    TightropeRestoreBalance = 127,
+    BarsSwing = 128,
+    BarsJump = 129,
+    //    UNUSED12 130
+    RadioListening = 131,
+    RadioOff = 132,
+    //    UNUSED13 133
+    //    UNUSED14 134
+    //    UNUSED15 135
+    //    UNUSED16 136
+    PickUpFromChest = 137
+};
+
+class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
+{
+private:
+    const Level* const m_level;
+    DefaultAnimDispatcher* m_dispatcher;
+    const std::string m_name;
+    irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
+
+public:
+    LaraStateHandler(const Level* level, DefaultAnimDispatcher* dispatcher, const std::string& name)
+        : m_level(level), m_dispatcher(dispatcher), m_name(name)
+    {
+        BOOST_ASSERT(level != nullptr);
+        BOOST_ASSERT(dispatcher != nullptr);
+        m_dispatcher->grab();
+    }
+    
+    ~LaraStateHandler()
+    {
+        m_dispatcher->drop();
+    }
+
+    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
+    {
+        BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
+        irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
+        
+        BOOST_ASSERT(animNode->getFrameNr() >= 0);
+        const auto currentFrame = static_cast<irr::u32>(animNode->getFrameNr());
+        if(currentFrame == m_lastActiveFrame)
+            return;
+        
+        m_lastActiveFrame = currentFrame;
+        switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
+        {
+            case LaraState::Stop:
+                setTargetState(LaraState::JumpPrepare);
+                break;
+            case LaraState::JumpPrepare:
+                setTargetState(LaraState::JumpBack);
+                break;
+            default:
+                setTargetState(LaraState::Stop);
+                break;
+        }
+    }
+
+    virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
+    {
+        BOOST_ASSERT(false);
+        return nullptr;
+    }
+    
+private:
+    void setTargetState(LaraState st)
+    {
+        m_dispatcher->setTargetState(static_cast<uint16_t>(st));
+    }
+};
+
 /// \brief reads the mesh data.
 void Level::readMeshData(io::SDLReader& reader)
 {
@@ -473,6 +676,14 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             node->setAnimationEndCallback(dispatcher);
             node->addAnimator(dispatcher);
             dispatcher->drop();
+            
+            if(item.objectId == 0)
+            {
+                auto stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
+                node->addAnimator(stateHandler);
+                stateHandler->drop();
+            }
+            
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
                 irr::video::SColor col;

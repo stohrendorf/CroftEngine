@@ -164,7 +164,8 @@ private:
 
 struct QuadFace
 {
-    uint16_t uvCoordinates[4];    ///< index into the appropriate list of vertices.
+    //! Vertex buffer indices
+    uint16_t vertices[4];
     uint16_t uvTexture;        /**< \brief object-texture index or colour index.
                                * If the rectangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
@@ -191,10 +192,10 @@ private:
     static QuadFace read(io::SDLReader& reader, bool withLighting)
     {
         QuadFace meshface;
-        meshface.uvCoordinates[0] = reader.readU16();
-        meshface.uvCoordinates[1] = reader.readU16();
-        meshface.uvCoordinates[2] = reader.readU16();
-        meshface.uvCoordinates[3] = reader.readU16();
+        meshface.vertices[0] = reader.readU16();
+        meshface.vertices[1] = reader.readU16();
+        meshface.vertices[2] = reader.readU16();
+        meshface.vertices[3] = reader.readU16();
         meshface.uvTexture = reader.readU16();
         if(withLighting)
             meshface.lighting = reader.readU16();
@@ -1715,10 +1716,10 @@ struct Room
                 for(j = 0; j < room->layers[i].num_rectangles; j++)
                 {
                     room->rectangles[rectangle_index] = QuadFace::readTr4(reader);
-                    room->rectangles[rectangle_index].uvCoordinates[0] += vertex_index;
-                    room->rectangles[rectangle_index].uvCoordinates[1] += vertex_index;
-                    room->rectangles[rectangle_index].uvCoordinates[2] += vertex_index;
-                    room->rectangles[rectangle_index].uvCoordinates[3] += vertex_index;
+                    room->rectangles[rectangle_index].vertices[0] += vertex_index;
+                    room->rectangles[rectangle_index].vertices[1] += vertex_index;
+                    room->rectangles[rectangle_index].vertices[2] += vertex_index;
+                    room->rectangles[rectangle_index].vertices[3] += vertex_index;
                     rectangle_index++;
                 }
                 for(j = 0; j < room->layers[i].num_triangles; j++)
