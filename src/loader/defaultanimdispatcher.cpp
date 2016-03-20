@@ -17,7 +17,7 @@ DefaultAnimDispatcher::DefaultAnimDispatcher(const Level* level, const AnimatedM
     m_targetState = getCurrentState();
 }
 
-void DefaultAnimDispatcher::OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node)
+void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode* node, bool isLoopEnd)
 {
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
     const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
@@ -49,10 +49,18 @@ void DefaultAnimDispatcher::OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* n
         }
     }
     
-    m_currentAnimationId = currentAnim.nextAnimation;
-    startAnimLoop(node, currentAnim.nextFrame);
-    m_targetState = getCurrentState();
-    // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
+    if(isLoopEnd)
+    {
+        m_currentAnimationId = currentAnim.nextAnimation;
+        startAnimLoop(node, currentAnim.nextFrame);
+        m_targetState = getCurrentState();
+        // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
+    }
+}
+
+void DefaultAnimDispatcher::OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node)
+{
+    handleTransitions(node, true);
 }
 
 void DefaultAnimDispatcher::startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame)

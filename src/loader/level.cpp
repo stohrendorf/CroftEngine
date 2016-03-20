@@ -471,6 +471,8 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             node->setLoopMode(false);
             auto dispatcher = new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node, name + ":dispatcher");
             node->setAnimationEndCallback(dispatcher);
+            node->addAnimator(dispatcher);
+            dispatcher->drop();
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
                 irr::video::SColor col;
