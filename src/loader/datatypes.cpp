@@ -286,7 +286,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
-        smNode->setRotation({0,sm.rotation,0});
+        smNode->setRotation({0,-sm.rotation,0});
         smNode->setPosition(sm.position - position);
         resultNode->addChild(smNode);
     }
