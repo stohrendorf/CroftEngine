@@ -13,16 +13,26 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 
+/**
+ * @defgroup native Native data interface
+ * 
+ * Contains structs and constants directly interfacing the native
+ * TR level data or engine internals.
+ */
+
 namespace loader
-{
-namespace
 {
 constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF;          // in some custom levels we need to use 0x7FFF flag
 constexpr const uint16_t TextureIndexMask = 0x0FFF;
 //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
 constexpr const uint16_t TextureFlippedMask = 0x8000;
-}
 
+/**
+ * @brief 8-Bit RGBA color.
+ * @ingroup native
+ * 
+ * @note The alpha component is set from TR2 on only.
+ */
 struct ByteColor
 {
     uint8_t r, g, b, a;
@@ -52,11 +62,21 @@ private:
     }
 };
 
+/**
+ * @brief 32-Bit float RGBA color.
+ * @ingroup native
+ */
 struct FloatColor
 {
     float r, g, b, a;
 };
 
+/**
+ * @brief 3D Vertex
+ * @ingroup native
+ * 
+ * @note Converts coordinates to be Irrlicht compatible when reading.
+ */
 struct Vertex : public irr::core::vector3df
 {
     static Vertex read16(io::SDLReader& reader)
@@ -104,7 +124,8 @@ struct Vertex : public irr::core::vector3df
 
 struct Triangle
 {
-    uint16_t vertices[3];    ///< index into the appropriate list of vertices.
+    //! Vertex buffer indices
+    uint16_t vertices[3];
     uint16_t uvTexture;        /**< \brief object-texture index or colour index.
                                * If the triangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
@@ -1734,8 +1755,9 @@ struct Room
     
     irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes);
 
-    const Sector* getSectorByPosition(const irr::core::vector3df& position) const
+    const Sector* getSectorByAbsolutePosition(irr::core::vector3df position) const
     {
+        position -= node->getAbsolutePosition();
         int dx = static_cast<int>(position.X / 1024); //! @fixme Magick
         int dz = static_cast<int>(position.Z / 1024);
 //        BOOST_LOG_TRIVIAL(debug) << "Sector " << dx << "/" << dz;
@@ -1848,17 +1870,41 @@ struct AnimatedModel
     uint32_t meshPositionOffset;      // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t animationIndex;   // offset into Animations[]
 
+    /**
+     * @brief Describes a range of frames of the linearized animations in an Irrlicht IAnimatedMeshSceneNode
+     */
     struct FrameRange
     {
+        //! The first real frame in the linearized animation this range describes
         const irr::u32 offset;
+        //! The first frame of the source animation frame range
         const irr::u32 firstFrame;
+        //! The last frame of the source animation frame range
         const irr::u32 lastFrame;
         
         FrameRange(irr::u32 o, irr::u32 f, irr::u32 l)
             : offset(o)
-            , firstFrame(f+o)
-            , lastFrame(l+o)
+            , firstFrame(f)
+            , lastFrame(l)
         {
+            BOOST_ASSERT(firstFrame < lastFrame);
+        }
+        
+        void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame) const
+        {
+            BOOST_ASSERT(frame >= firstFrame && frame <= lastFrame);
+            
+            const auto realOffset = offset + (frame-firstFrame);
+            const auto realFirst = offset;
+            const auto realLast = offset+lastFrame-firstFrame;
+            
+            if(!node->setFrameLoop(realFirst, realLast))
+            {
+                BOOST_LOG_TRIVIAL(error) << "  - Failed to set frame loop (" << node->getName() << ") " << realFirst << ".." << realLast;
+                return;
+            }
+            // BOOST_LOG_TRIVIAL(debug) << "  - Frame loop (" << node->getName() << ") " << realFirst << ".." << realLast << " @ " << realOffset;
+            node->setCurrentFrame(static_cast<irr::f32>(realOffset));
         }
     };
     
@@ -1890,15 +1936,86 @@ struct AnimatedModel
     }
 };
 
+enum class TimerState
+{
+    Active,
+    Idle,
+    Stopped
+};
+
+enum class TriggerOp
+{
+    Or,
+    XOr
+};
+
+class DefaultAnimDispatcher;
+struct Item;
+
+class AbstractTriggerHandler
+{
+private:
+    irr::f32 m_timer = -1;
+    uint8_t m_triggerMask;
+    bool m_lock;
+    bool m_event;
+    DefaultAnimDispatcher* const m_dispatcher;
+    
+protected:
+    explicit AbstractTriggerHandler(const Item& item, DefaultAnimDispatcher* dispatcher);
+    
+public:
+    template<class T>
+    static std::unique_ptr<T> create(const Item& item, DefaultAnimDispatcher* dispatcher)
+    {
+        static_assert(std::is_base_of<AbstractTriggerHandler, T>::value, "T must be derived from AbstractTriggerHandler");
+        std::unique_ptr<T> result{new T(item, dispatcher)};
+        result->prepare();
+        return result;
+    }
+
+    virtual ~AbstractTriggerHandler();
+
+    virtual void prepare();
+    
+    virtual void onActivate(AbstractTriggerHandler* activator) = 0;
+    virtual void onDeactivate(AbstractTriggerHandler* activator) = 0;
+    virtual void onCollide() = 0;
+    virtual void onStand() = 0;
+    virtual void onHit() = 0;
+    virtual void onRoomCollide() = 0;
+    virtual void update(irr::f32 frameTime) = 0;
+    virtual void onSave() = 0;
+    virtual void onLoad() = 0;
+    
+    DefaultAnimDispatcher* getDispatcher() const noexcept
+    {
+        return m_dispatcher;
+    }
+    
+    TimerState updateTimer(irr::f32 frameTime);
+    
+    irr::f32 getTimer() const noexcept
+    {
+        return m_timer;
+    }
+    
+    void activate(AbstractTriggerHandler* activator, uint8_t mask, TriggerOp trigger_op, bool onlyOnce, irr::f32 timer);
+    
+    void deactivate(AbstractTriggerHandler* activator, bool onlyOnce);
+};
+
 struct Item
 {
-    int16_t objectId;     //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
+    uint16_t objectId;    //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
     uint16_t room;        //!< Owning room
     Vertex position;      //!< world coords
     irr::f32 rotation;    //!< ((0xc000 >> 14) * 90) degrees around Y axis
     int16_t intensity1;   //!< (constant lighting; -1 means use mesh lighting)
     int16_t intensity2;   //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
     int16_t ocb;          //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
+    
+    std::unique_ptr<AbstractTriggerHandler> triggerHandler;
     
     /**
      * @brief Flags
@@ -1917,6 +2034,21 @@ struct Item
         return (flags & 0x3e00) >> 9;
     }
 
+    uint8_t getTriggerMask() const
+    {
+        return (flags >> 9) & 0x1f;
+    }
+    
+    bool getEventBit() const
+    {
+        return ((flags >> 14) & 1) != 0;
+    }
+    
+    bool getLockBit() const
+    {
+        return ((flags >> 15) & 1) != 0;
+    }
+    
     bool isInitiallyInvisible() const
     {
         return (flags & 0x0100) != 0;
@@ -1926,7 +2058,7 @@ struct Item
     static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readI16();
+        item->objectId = reader.readU16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1942,7 +2074,7 @@ struct Item
     static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readI16();
+        item->objectId = reader.readU16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1960,7 +2092,7 @@ struct Item
     static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readI16();
+        item->objectId = reader.readU16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
@@ -1974,7 +2106,7 @@ struct Item
     static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
     {
         std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readI16();
+        item->objectId = reader.readU16();
         item->room = reader.readU16();
         item->position = Vertex::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;

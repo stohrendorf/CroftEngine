@@ -1,5 +1,6 @@
 #include "datatypes.h"
 
+#include "defaultanimdispatcher.h"
 #include "level.h"
 
 #include <boost/lexical_cast.hpp>
@@ -366,4 +367,96 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
     return tex;
 }
 
+AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, DefaultAnimDispatcher* dispatcher)
+    : m_triggerMask{item.getTriggerMask()}
+    , m_lock{item.getLockBit()}
+    , m_event{item.getEventBit()}
+    , m_dispatcher{dispatcher}
+{
+    BOOST_ASSERT(dispatcher != nullptr);
+    dispatcher->grab();
+}
+
+AbstractTriggerHandler::~AbstractTriggerHandler()
+{
+    m_dispatcher->drop();
+}
+
+void AbstractTriggerHandler::prepare()
+{
+    if(m_triggerMask == 0x1F)
+    {
+        activate(nullptr, 0, TriggerOp::Or, false, 0);
+        m_lock = true;
+        m_event = true;
+    }
+}
+
+TimerState AbstractTriggerHandler::updateTimer(irr::f32 frameTime)
+{
+    if(m_timer <= 0)
+        return TimerState::Idle;
+
+    m_timer -= frameTime;
+    if(m_timer < 0)
+        m_timer = 0;
+    if(m_timer == 0)
+        return TimerState::Stopped;
+    
+    return TimerState::Active;
+}
+
+void AbstractTriggerHandler::activate(AbstractTriggerHandler* activator, uint8_t mask, TriggerOp trigger_op, bool onlyOnce, irr::f32 timer)
+{
+    if(m_lock && m_triggerMask == 0x1F)
+        return;
+    
+    // Apply trigger mask to entity mask.
+    
+    if(trigger_op == TriggerOp::XOr)
+        m_triggerMask ^= mask;   // Switch cases
+    else
+        m_triggerMask |= mask;    // Other cases
+    
+    // Apply trigger lock to entity lock.
+    
+    m_lock |= onlyOnce;
+    
+    // Full entity mask (11111) is always a reason to activate an entity.
+    // If mask is not full, entity won't activate - no exclusions.
+    
+    if(m_triggerMask == 0x1F && !m_event)
+    {
+        onActivate(activator);
+        m_event = true;
+    }
+    else if(m_triggerMask != 0x1f && m_event)
+    {
+        onDeactivate(activator);
+        m_event = false;
+    }
+    
+    m_timer = timer;
+}
+
+void AbstractTriggerHandler::deactivate(AbstractTriggerHandler* activator, bool onlyOnce)
+{
+    if(m_lock)
+        return;
+    
+    m_lock |= onlyOnce;
+    
+    // Execute entity deactivation function, only if activation was previously set.
+    if(m_event)
+    {
+        onDeactivate(activator);
+        
+        // Activation mask and timer are forced to zero when entity is deactivated.
+        // Activity lock is ignored, since it can't be raised by antitriggers.
+        
+        m_timer = 0;
+        m_triggerMask = 0;
+        m_event = false;
+    }
+}
 }

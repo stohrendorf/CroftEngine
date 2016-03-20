@@ -42,6 +42,78 @@ namespace
 const irr::video::SColor WaterColor{0, 149, 229, 229};
 }
 
+class DoorTriggerHandler final : public AbstractTriggerHandler
+{
+private:
+    uint16_t m_openState = 1;
+    uint16_t m_closedState = 0;
+    bool m_mustOpen = false;
+    bool m_mustClose = false;
+
+public:
+    explicit DoorTriggerHandler(const Item& item, loader::DefaultAnimDispatcher* dispatcher)
+        : AbstractTriggerHandler(item, dispatcher)
+    {
+    }
+    
+    virtual void prepare() override
+    {
+        AbstractTriggerHandler::prepare();
+
+        if(m_mustOpen)
+        {
+            BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << ": swapping opened/closed states";
+            update(0);
+            std::swap(m_openState, m_closedState);
+        }
+    }
+
+    virtual void onActivate(AbstractTriggerHandler* /*activator*/) override
+    {
+        m_mustOpen = true;
+        m_mustClose = false;
+    }
+
+    virtual void onDeactivate(AbstractTriggerHandler* /*activator*/) override
+    {
+        m_mustOpen = false;
+        m_mustClose = true;
+    }
+
+    virtual void onCollide() override {}
+    virtual void onStand() override {}
+    virtual void onHit() override {}
+    virtual void onRoomCollide() override {}
+    virtual void update(irr::f32 frameTime) override
+    {
+        if(getDispatcher()->getCurrentAnimationId() != 1 && getDispatcher()->getCurrentAnimationId() != 3)
+        {
+            const auto st = getDispatcher()->getCurrentState();
+            if(m_mustOpen && m_openState != st)
+            {
+                BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << " opening (timer=" << getTimer() << ")";
+                getDispatcher()->setTargetState(m_openState);
+                m_mustOpen = false;
+            }
+            else if(m_mustClose && m_closedState != st)
+            {
+                BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << " closing (timer=" << getTimer() << ")";
+                getDispatcher()->setTargetState(m_closedState);
+                m_mustClose = false;
+            }
+        }
+    
+        if(updateTimer(frameTime) == TimerState::Stopped)
+        {
+            m_mustOpen = false;
+            m_mustClose = true;
+        }
+    }
+
+    virtual void onSave() override {}
+    virtual void onLoad() override {}
+};
+
 /// \brief reads the mesh data.
 void Level::readMeshData(io::SDLReader& reader)
 {
@@ -356,8 +428,11 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
 std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
     std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> lara{nullptr, nullptr};
-    for(const Item& item : m_items)
+    int id = -1;
+    for(Item& item : m_items)
     {
+        ++id;
+        
         BOOST_ASSERT(item.room < m_rooms.size());
         Room& room = m_rooms[item.room];
 
@@ -365,22 +440,37 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
         if(meshIdx >= 0)
         {
             BOOST_ASSERT(findSpriteSequenceByObjectId(item.objectId) < 0);
-            BOOST_LOG_TRIVIAL(info) << "Object " << item.objectId << " uses animated model " << meshIdx;
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
-            auto node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
+            irr::scene::IAnimatedMeshSceneNode* node;
+            
             if(item.objectId == 0)
             {
+                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
+                node->setPosition(item.position);
                 lara.first = node;
                 lara.second = &room;
             }
-            node->setPosition(item.position - room.node->getPosition());
+            else
+            {
+                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
+                 node->setPosition(item.position - room.node->getPosition());
+            }
+
+            std::string name = "item";
+            name += std::to_string(id);
+            name += "(object";
+            name += std::to_string(item.objectId);
+            name += "/animatedModel)";
+            node->setName(name.c_str());
+                        
             node->setAutomaticCulling(false);
             node->setRotation({0, item.rotation, 0});
-            // n->setDebugDataVisible(irr::scene::EDS_FULL);
-            // node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
+            //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
+            //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            node->setAnimationEndCallback(new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node));
+            auto dispatcher = new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node, name + ":dispatcher");
+            node->setAnimationEndCallback(dispatcher);
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
                 irr::video::SColor col;
@@ -394,18 +484,23 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             node->addShadowVolumeSceneNode();
             if(item.isInitiallyInvisible())
                 node->setVisible(false);
-            skinnedMeshes[meshIdx]->drop();
+            
+            if(item.objectId >= 57 && item.objectId <= 64)
+            {
+                item.triggerHandler = AbstractTriggerHandler::create<DoorTriggerHandler>(item, dispatcher);
+            }
+            
             continue;
         }
         
         meshIdx = findSpriteSequenceByObjectId(item.objectId);
         if(meshIdx >= 0)
         {
-            BOOST_LOG_TRIVIAL(warning) << "Unimplemented: Object " << item.objectId << " is a sprite sequence";
+            BOOST_LOG_TRIVIAL(warning) << "Unimplemented: Item " << id << "/Object " << item.objectId << " is a sprite sequence";
             continue;
         }
         
-        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for object id " << int(item.objectId);
+        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for item " << id << "/object " << int(item.objectId);
     }
 
     return lara;
@@ -416,24 +511,24 @@ void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, cons
     const auto meshPositionIndex = animation.poseDataOffset / 2;
     const int16_t* pData = &m_poseData[meshPositionIndex];
 
-    for(irr::u32 frameIdx = animation.firstFrame; frameIdx <= animation.lastFrame; frameIdx += animation.stretchFactor)
+    for(irr::u32 frameIdx = 0; frameIdx <= animation.lastFrame - animation.firstFrame; frameIdx += animation.stretchFactor)
     {
         uint16_t angleSetOfs = 0x0a;
 
-        for(size_t k = 0; k < model.meshCount; k++)
+        for(size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++)
         {
-            auto joint = skinnedMesh->getAllJoints()[k];
+            auto joint = skinnedMesh->getAllJoints()[meshIdx];
             auto pKey = skinnedMesh->addPositionKey(joint);
             pKey->frame = frameIdx + frameOffset;
 
-            if(k == 0)
+            if(meshIdx == 0)
             {
                 pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
             }
             else
             {
-                BOOST_ASSERT(model.boneTreeIndex + 4 * k <= m_boneTrees.size());
-                const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (k - 1) * 4];
+                BOOST_ASSERT(model.boneTreeIndex + 4 * meshIdx <= m_boneTrees.size());
+                const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (meshIdx - 1) * 4];
                 pKey->position.set(static_cast<irr::f32>(boneTreeData[1]), static_cast<irr::f32>(-boneTreeData[2]), static_cast<irr::f32>(boneTreeData[3]));
             }
 
@@ -554,7 +649,8 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
         {
             const auto currentAnimIdx = animationsToLoad.front();
             animationsToLoad.pop();
-            BOOST_ASSERT(currentAnimIdx < m_animations.size());
+            if(currentAnimIdx >= m_animations.size())
+                continue;
 
             if(model->frameMapping.find(currentAnimIdx) != model->frameMapping.end())
             {
@@ -563,12 +659,26 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
 
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
+            const auto animLength = animation.getKeyframeCount() * animation.stretchFactor;
+            if(animation.firstFrame == animation.lastFrame)
+            {
+                BOOST_LOG_TRIVIAL(debug) << "Creating pseudo-animation for animation " << currentAnimIdx;
+                // add pseudo-animation loop to trick Irrlicht into thinking
+                // that the animation isn't static and thus calling the animation dispatcher.
+                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animLength), *model, animation, skinnedMesh);
+                model->frameMapping.emplace(
+                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame+animLength)));
+                currentAnimOffset += 2*animLength;
+            }
+            else
+            {
+                BOOST_LOG_TRIVIAL(debug) << "Creating simple frame range for animation " << currentAnimIdx;
+                model->frameMapping.emplace(
+                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
+                currentAnimOffset += animLength;
+            }
 
-            model->frameMapping.emplace(
-                std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
             animationsToLoad.push(animation.nextAnimation);
-
-            currentAnimOffset += animation.getKeyframeCount() * animation.stretchFactor;
 
             for(size_t i = 0; i < animation.transitionsCount; ++i)
             {
@@ -583,6 +693,14 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
                 }
             }
         }
+        
+#ifndef NDEBUG
+        BOOST_LOG_TRIVIAL(debug) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(model.get()) << std::dec << " frame mapping:";
+        for(const auto& fm : model->frameMapping)
+        {
+            BOOST_LOG_TRIVIAL(debug) << "  - anim " << fm.first << ": offset=" << fm.second.offset << ", first=" << fm.second.firstFrame << ", last=" << fm.second.lastFrame;
+        }
+#endif
 
         skinnedMesh->finalize();
     }
@@ -645,11 +763,17 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     }
 
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
-
+    
     const auto lara = createItems(mgr, skinnedMeshes);
     if(lara.first == nullptr)
         return;
 
+    for(auto* ptr : staticMeshes)
+        ptr->drop();
+    
+    for(auto& ptr : skinnedMeshes)
+        ptr->drop();
+    
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.first, {0, 0, -256}, {0, 0, 0}, -1, true);
     camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.second));
     camera->bindTargetAndRotation(true);

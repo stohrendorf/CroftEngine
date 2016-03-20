@@ -8,6 +8,7 @@
 
 namespace loader
 {
+
 /** \brief A complete TR level.
   *
   * This contains all necessary functions to load a TR level.
@@ -100,6 +101,23 @@ public:
     irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;
     
     void toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl);
+    
+    AbstractTriggerHandler* findHandler(uint16_t itemId) const
+    {
+        if(itemId >= m_items.size())
+            return nullptr;
+        
+        return m_items[itemId].triggerHandler.get();
+    }
+    
+    void updateTriggers(irr::f32 frameTime)
+    {
+        for(Item& item : m_items)
+        {
+            if(item.triggerHandler)
+                item.triggerHandler->update(frameTime);
+        }
+    }
     
 protected:
     io::SDLReader m_reader;

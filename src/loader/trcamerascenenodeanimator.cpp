@@ -1,70 +1,84 @@
 #include "trcamerascenenodeanimator.h"
 
+#include "defaultanimdispatcher.h"
 #include "render/portaltracer.h"
 
 #include <queue>
 #include <set>
 
-// Native TR floor data functions
-#define TR_FD_FUNC_PORTALSECTOR                 0x01
-#define TR_FD_FUNC_FLOORSLANT                   0x02
-#define TR_FD_FUNC_CEILINGSLANT                 0x03
-#define TR_FD_FUNC_TRIGGER                      0x04
-#define TR_FD_FUNC_DEATH                        0x05
-#define TR_FD_FUNC_CLIMB                        0x06
-#define TR_FD_FUNC_FLOORTRIANGLE_NW             0x07    //  [_\_]
-#define TR_FD_FUNC_FLOORTRIANGLE_NE             0x08    //  [_/_]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NW           0x09    //  [_/_]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NE           0x0A    //  [_\_]
-#define TR_FD_FUNC_FLOORTRIANGLE_NW_PORTAL_SW   0x0B    //  [P\_]
-#define TR_FD_FUNC_FLOORTRIANGLE_NW_PORTAL_NE   0x0C    //  [_\P]
-#define TR_FD_FUNC_FLOORTRIANGLE_NE_PORTAL_SE   0x0D    //  [_/P]
-#define TR_FD_FUNC_FLOORTRIANGLE_NE_PORTAL_NW   0x0E    //  [P/_]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NW_PORTAL_SW 0x0F    //  [P\_]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NW_PORTAL_NE 0x10    //  [_\P]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NE_PORTAL_NW 0x11    //  [P/_]
-#define TR_FD_FUNC_CEILINGTRIANGLE_NE_PORTAL_SE 0x12    //  [_/P]
-#define TR_FD_FUNC_MONKEY                       0x13
-#define TR_FD_FUNC_MINECART_LEFT                0x14    // In TR3 only. Function changed in TR4+.
-#define TR_FD_FUNC_MINECART_RIGHT               0x15    // In TR3 only. Function changed in TR4+.
+//! @brief Native TR floor data functions
+//! @ingroup native
+enum class FDFunction : uint8_t
+{
+    PortalSector              = 0x01,
+    FloorSlant                = 0x02,
+    CeilingSlant              = 0x03,
+    Trigger                   = 0x04,
+    Death                     = 0x05,
+    Climb                     = 0x06,
+    FloorTriangleNW           = 0x07,    //  [_\_]
+    FloorTriangleNE           = 0x08,    //  [_/_]
+    CeilingTriangleNW         = 0x09,    //  [_/_]
+    CeilingTriangleNE         = 0x0A,    //  [_\_]
+    FloorTriangleNWPortalSW   = 0x0B,    //  [P\_]
+    FloorTriangleNWPortalNE   = 0x0C,    //  [_\P]
+    FloorTriangleNEPortalSE   = 0x0D,    //  [_/P]
+    FloorTriangleNEPortalNW   = 0x0E,    //  [P/_]
+    CeilingTriangleNWPortalSW = 0x0F,    //  [P\_]
+    CeilingTriangleNWPortalNE = 0x10,    //  [_\P]
+    CeilingTriangleNEPortalNW = 0x11,    //  [P/_]
+    CeilingTriangleNEPortalSE = 0x12,    //  [_/P]
+    Monkey                    = 0x13,
+    MinecartLeft              = 0x14,    // In TR3 only. Function changed in TR4+.
+    MinecartRight             = 0x15     // In TR3 only. Function changed in TR4+.
+};
 
+//! @brief Native trigger types.
+//! @ingroup native
+//! @see FDFunction::Trigger
+//! @see TriggerFunction
+enum class TriggerType
+{
+    Trigger          = 0x00,    //!< If Lara is in sector, run (any case).
+    Pad              = 0x01,    //!< If Lara is in sector, run (land case).
+    Switch           = 0x02,    //!< If item is activated, run, else stop.
+    Key              = 0x03,    //!< If item is activated, run.
+    Pickup           = 0x04,    //!< If item is picked up, run.
+    Heavy            = 0x05,    //!< If item is in sector, run, else stop.
+    AntiPad          = 0x06,    //!< If Lara is in sector, stop (land case).
+    Combat           = 0x07,    //!< If Lara is in combat state, run (any case).
+    Dummy            = 0x08,    //!< If Lara is in sector, run (air case).
+    AntiTrigger      = 0x09,    //!< TR2-5 only: If Lara is in sector, stop (any case).
+    HeavySwitch      = 0x0A,    //!< TR3-5 only: If item is activated by item, run.
+    HeavyAntiTrigger = 0x0B,    //!< TR3-5 only: If item is activated by item, stop.
+    Monkey           = 0x0C,    //!< TR3-5 only: If Lara is monkey-swinging, run.
+    Skeleton         = 0x0D,    //!< TR5 only: Activated by skeleton only?
+    TightRope        = 0x0E,    //!< TR5 only: If Lara is on tightrope, run.
+    CrawlDuck        = 0x0F,    //!< TR5 only: If Lara is crawling, run.
+    Climb            = 0x10,    //!< TR5 only: If Lara is climbing, run.
+};
 
-// Native TR trigger (TR_FD_FUNC_TRIGGER) types.
-
-#define TR_FD_TRIGTYPE_TRIGGER          0x00    // If Lara is in sector, run (any case).
-#define TR_FD_TRIGTYPE_PAD              0x01    // If Lara is in sector, run (land case).
-#define TR_FD_TRIGTYPE_SWITCH           0x02    // If item is activated, run, else stop.
-#define TR_FD_TRIGTYPE_KEY              0x03    // If item is activated, run.
-#define TR_FD_TRIGTYPE_PICKUP           0x04    // If item is picked up, run.
-#define TR_FD_TRIGTYPE_HEAVY            0x05    // If item is in sector, run, else stop.
-#define TR_FD_TRIGTYPE_ANTIPAD          0x06    // If Lara is in sector, stop (land case).
-#define TR_FD_TRIGTYPE_COMBAT           0x07    // If Lara is in combat state, run (any case).
-#define TR_FD_TRIGTYPE_DUMMY            0x08    // If Lara is in sector, run (air case).
-#define TR_FD_TRIGTYPE_ANTITRIGGER      0x09    // TR2-5 only: If Lara is in sector, stop (any case).
-#define TR_FD_TRIGTYPE_HEAVYSWITCH      0x0A    // TR3-5 only: If item is activated by item, run.
-#define TR_FD_TRIGTYPE_HEAVYANTITRIGGER 0x0B    // TR3-5 only: If item is activated by item, stop.
-#define TR_FD_TRIGTYPE_MONKEY           0x0C    // TR3-5 only: If Lara is monkey-swinging, run.
-#define TR_FD_TRIGTYPE_SKELETON         0x0D    // TR5 only: Activated by skeleton only?
-#define TR_FD_TRIGTYPE_TIGHTROPE        0x0E    // TR5 only: If Lara is on tightrope, run.
-#define TR_FD_TRIGTYPE_CRAWLDUCK        0x0F    // TR5 only: If Lara is crawling, run.
-#define TR_FD_TRIGTYPE_CLIMB            0x10    // TR5 only: If Lara is climbing, run.
-
-// Native trigger function types.
-
-#define TR_FD_TRIGFUNC_OBJECT           0x00
-#define TR_FD_TRIGFUNC_CAMERATARGET     0x01
-#define TR_FD_TRIGFUNC_UWCURRENT        0x02
-#define TR_FD_TRIGFUNC_FLIPMAP          0x03
-#define TR_FD_TRIGFUNC_FLIPON           0x04
-#define TR_FD_TRIGFUNC_FLIPOFF          0x05
-#define TR_FD_TRIGFUNC_LOOKAT           0x06
-#define TR_FD_TRIGFUNC_ENDLEVEL         0x07
-#define TR_FD_TRIGFUNC_PLAYTRACK        0x08
-#define TR_FD_TRIGFUNC_FLIPEFFECT       0x09
-#define TR_FD_TRIGFUNC_SECRET           0x0A
-#define TR_FD_TRIGFUNC_CLEARBODIES      0x0B    // Unused in TR4
-#define TR_FD_TRIGFUNC_FLYBY            0x0C
-#define TR_FD_TRIGFUNC_CUTSCENE         0x0D
+//! @brief Native trigger function types.
+//! @ingroup native
+//! @see FDFunction::Trigger
+//! @see TriggerType
+enum class TriggerFunction
+{
+    Object           = 0x00,
+    CameraTarget     = 0x01,
+    UnderwaterCurrent = 0x02,
+    FlipMap          = 0x03,
+    FlipOn           = 0x04,
+    FlipOff          = 0x05,
+    LookAt           = 0x06,
+    EndLevel         = 0x07,
+    PlayTrack        = 0x08,
+    FlipEffect       = 0x09,
+    Secret           = 0x0A,
+    ClearBodies      = 0x0B,    // Unused in TR4
+    FlyBy            = 0x0C,
+    CutScene         = 0x0D
+};
 
 void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara)
 {
@@ -74,8 +88,7 @@ void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::s
     BOOST_LOG_TRIVIAL(debug) << "Room switch";
     if(newRoom == nullptr)
     {
-        BOOST_LOG_TRIVIAL(fatal) << "No room to switch to!";
-        BOOST_LOG_TRIVIAL(fatal) << "Matching rooms by position:";
+        BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
         for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
         {
             const loader::Room& room = m_level->m_rooms[i];
@@ -86,16 +99,6 @@ void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::s
         }
         return;
     }
-    
-    BOOST_LOG_TRIVIAL(debug) << "Old room pos: " << m_currentRoom->node->getAbsolutePosition().X << "/" << m_currentRoom->node->getAbsolutePosition().Y << "/" << m_currentRoom->node->getAbsolutePosition().Z;
-    BOOST_LOG_TRIVIAL(debug) << "New room pos: " << newRoom->node->getAbsolutePosition().X << "/" << newRoom->node->getAbsolutePosition().Y << "/" << newRoom->node->getAbsolutePosition().Z;
-    BOOST_LOG_TRIVIAL(debug) << "Old lara pos: " << lara->getAbsolutePosition().X << "/" << lara->getAbsolutePosition().Y << "/" << lara->getAbsolutePosition().Z;
-    
-    lara->setParent(newRoom->node);
-    lara->setPosition(lara->getAbsolutePosition() - newRoom->node->getAbsolutePosition());
-    lara->updateAbsolutePosition();
-    
-    BOOST_LOG_TRIVIAL(debug) << "New lara pos: " << lara->getAbsolutePosition().X << "/" << lara->getAbsolutePosition().Y << "/" << lara->getAbsolutePosition().Z;
     
     m_currentRoom = newRoom;
 }
@@ -360,7 +363,7 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
 
 bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara)
 {
-    const loader::Sector* sector = m_currentRoom->getSectorByPosition(lara->getPosition());
+    const loader::Sector* sector = m_currentRoom->getSectorByAbsolutePosition(lara->getAbsolutePosition());
     if(sector == nullptr)
     {
         BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
@@ -372,7 +375,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
     {
         BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
         setOwnerRoom(&m_level->m_rooms[sector->roomBelow], lara);
-        sector = m_currentRoom->getSectorByPosition(lara->getPosition());
+        sector = m_currentRoom->getSectorByAbsolutePosition(lara->getAbsolutePosition());
         if(sector == nullptr)
         {
             BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
@@ -398,7 +401,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
     for(auto floorDataIt = std::next(m_level->m_floorData.begin(), sector->floorDataIndex); floorDataIt < m_level->m_floorData.end(); /*nop*/)
     {
         //            BOOST_LOG_TRIVIAL(debug) << "Parsing floordata @" << fdi;
-        const uint16_t function = *floorDataIt & 0x001F;             // 0b00000000 00011111
+        const FDFunction function = static_cast<FDFunction>(*floorDataIt & 0x001F);             // 0b00000000 00011111
         //            BOOST_LOG_TRIVIAL(debug) << "Floordata function " << int(function);
         const uint16_t subFunction = (*floorDataIt & 0x7F00) >> 8;        // 0b01111111 00000000
         
@@ -408,7 +411,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
         
         switch(function)
         {
-            case TR_FD_FUNC_PORTALSECTOR:          // PORTAL DATA
+            case FDFunction::PortalSector:          // PORTAL DATA
                 if(subFunction == 0x00)
                 {
                     if(*floorDataIt < m_level->m_rooms.size())
@@ -421,15 +424,15 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
                     ++floorDataIt;
                 }
                 break;
-            case TR_FD_FUNC_FLOORSLANT:          // FLOOR SLANT
-            case TR_FD_FUNC_CEILINGSLANT:          // CEILING SLANT
+            case FDFunction::FloorSlant:          // FLOOR SLANT
+            case FDFunction::CeilingSlant:          // CEILING SLANT
                 if(subFunction == 0)
                 {
-                    const int8_t xSlant{ *floorDataIt & 0x00FF };
-                    const int8_t zSlant{ (*floorDataIt & 0xFF00) >> 8 };
+                    const int8_t xSlant = static_cast<int8_t>(*floorDataIt & 0x00FF);
+                    const int8_t zSlant = static_cast<int8_t>((*floorDataIt & 0xFF00) >> 8);
                     ++floorDataIt;
                     
-                    if(function == TR_FD_FUNC_CEILINGSLANT)
+                    if(function == FDFunction::CeilingSlant)
                         break;
                     
                     auto laraPos = lara->getPosition();
@@ -466,14 +469,14 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
                     lara->updateAbsolutePosition();
                 }
                 break;
-            case TR_FD_FUNC_TRIGGER:          // TRIGGERS
-                floorDataIt = handleTrigger(floorDataIt, subFunction);
+            case FDFunction::Trigger:          // TRIGGERS
+                floorDataIt = handleTrigger(floorDataIt, static_cast<TriggerType>(subFunction));
                 break;
-            case TR_FD_FUNC_DEATH:
-            case TR_FD_FUNC_CLIMB:
-            case TR_FD_FUNC_MONKEY:
-            case TR_FD_FUNC_MINECART_LEFT:
-            case TR_FD_FUNC_MINECART_RIGHT:
+            case FDFunction::Death:
+            case FDFunction::Climb:
+            case FDFunction::Monkey:
+            case FDFunction::MinecartLeft:
+            case FDFunction::MinecartRight:
                 break;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unhandled floordata function " << int(function) << "; floorData=0x" << std::hex << *std::prev(floorDataIt) << std::dec;
@@ -487,68 +490,92 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
     return true;
 }
 
-loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, uint16_t triggerType)
+loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, TriggerType triggerType)
 {
+    const int8_t timer = static_cast<int8_t>(*floorDataIt & 0x00FF);
+    const uint8_t mask = (*floorDataIt & 0x3E00) >> 9;
+    const bool onlyOnce = (*floorDataIt & 0x0100) >> 8;
+    
+    //BOOST_LOG_TRIVIAL(debug) << "Trigger: timer=" << int(timer) << ", mask=0x" << std::hex << int(mask) << std::dec << ", onlyOnce=" << (onlyOnce ? "true" : "false");
+    
     switch(triggerType)
     {
-        case TR_FD_TRIGTYPE_TRIGGER:
-        case TR_FD_TRIGTYPE_HEAVY:
-        case TR_FD_TRIGTYPE_PAD:
-        case TR_FD_TRIGTYPE_ANTIPAD:
-        case TR_FD_TRIGTYPE_SWITCH:
-        case TR_FD_TRIGTYPE_HEAVYSWITCH:
-        case TR_FD_TRIGTYPE_KEY:
-        case TR_FD_TRIGTYPE_PICKUP:
-        case TR_FD_TRIGTYPE_COMBAT:
-        case TR_FD_TRIGTYPE_DUMMY:
-        case TR_FD_TRIGTYPE_SKELETON:   ///@FIXME: Find the meaning later!!!
-        case TR_FD_TRIGTYPE_ANTITRIGGER:
-        case TR_FD_TRIGTYPE_HEAVYANTITRIGGER:
-        case TR_FD_TRIGTYPE_MONKEY:
-        case TR_FD_TRIGTYPE_CLIMB:
-        case TR_FD_TRIGTYPE_TIGHTROPE:
-        case TR_FD_TRIGTYPE_CRAWLDUCK:
-            //                            BOOST_LOG_TRIVIAL(debug) << "Trigger subfunction " << int(subFunction);
+        case TriggerType::Trigger:
+        case TriggerType::Heavy:
+        case TriggerType::Pad:
+        case TriggerType::AntiPad:
+        case TriggerType::Switch:
+        case TriggerType::HeavySwitch:
+        case TriggerType::Key:
+        case TriggerType::Pickup:
+        case TriggerType::Combat:
+        case TriggerType::Dummy:
+        case TriggerType::Skeleton:   ///@FIXME: Find the meaning later!!!
+        case TriggerType::AntiTrigger:
+        case TriggerType::HeavyAntiTrigger:
+        case TriggerType::Monkey:
+        case TriggerType::Climb:
+        case TriggerType::TightRope:
+        case TriggerType::CrawlDuck:
+            //BOOST_LOG_TRIVIAL(debug) << "Trigger type " << int(triggerType);
             break;
         default:
             BOOST_LOG_TRIVIAL(error) << "Unexpected trigger type " << int(triggerType);
             break;
     }
-    for(bool contBit = false; contBit && floorDataIt < m_level->m_floorData.end(); /*nop*/)
+    loader::AbstractTriggerHandler* const laraHandler = m_level->findHandler(0);
+    for(bool breakBit = false; !breakBit && floorDataIt < m_level->m_floorData.end(); /*nop*/)
     {
         ++floorDataIt;
-        const uint16_t triggerFunction = (*floorDataIt & 0x7C00) >> 10;
-        BOOST_LOG_TRIVIAL(debug) << "Parsing trigger func=" << int(triggerFunction);
+        breakBit = (*floorDataIt & 0x8000) != 0;
+        const TriggerFunction triggerFunction = static_cast<TriggerFunction>((*floorDataIt & 0x7C00) >> 10);
+        const uint16_t operand = *floorDataIt & 0x03FF;
+        //BOOST_LOG_TRIVIAL(debug) << "  - func=" << int(triggerFunction) << " op=" << int(operand);
+        loader::AbstractTriggerHandler* const handler = m_level->findHandler(operand);
         switch(triggerFunction)
         {
-            case TR_FD_TRIGFUNC_OBJECT:         // ACTIVATE / DEACTIVATE object
+            case TriggerFunction::Object:
+                if(handler)
+                {
+                    switch(triggerType)
+                    {
+                        case TriggerType::AntiPad:
+                        case TriggerType::AntiTrigger:
+                        case TriggerType::HeavyAntiTrigger:
+                            handler->deactivate(laraHandler, onlyOnce);
+                            break;
+                        default:
+                            handler->activate(laraHandler, mask, loader::TriggerOp::Or, onlyOnce, timer);
+                    }
+
+                }
                 break;
                 
-            case TR_FD_TRIGFUNC_CAMERATARGET:
+            case TriggerFunction::CameraTarget:
                 ++floorDataIt;
-                contBit = (*floorDataIt & 0x8000) != 0;
+                breakBit = (*floorDataIt & 0x8000) != 0;
                 break;
                 
-            case TR_FD_TRIGFUNC_UWCURRENT:
-            case TR_FD_TRIGFUNC_FLIPMAP:
-            case TR_FD_TRIGFUNC_FLIPON:
-            case TR_FD_TRIGFUNC_FLIPOFF:
-            case TR_FD_TRIGFUNC_LOOKAT:
-            case TR_FD_TRIGFUNC_ENDLEVEL:
-            case TR_FD_TRIGFUNC_PLAYTRACK:
-            case TR_FD_TRIGFUNC_FLIPEFFECT:
-            case TR_FD_TRIGFUNC_SECRET:
-            case TR_FD_TRIGFUNC_CLEARBODIES:
-            case TR_FD_TRIGFUNC_FLYBY:
+            case TriggerFunction::FlipMap:
+            case TriggerFunction::FlipOn:
+            case TriggerFunction::FlipOff:
+            case TriggerFunction::LookAt:
+            case TriggerFunction::EndLevel:
+            case TriggerFunction::PlayTrack:
+            case TriggerFunction::FlipEffect:
+            case TriggerFunction::Secret:
+            case TriggerFunction::ClearBodies:
+            case TriggerFunction::FlyBy:
                 ++floorDataIt;
-                contBit = (*floorDataIt & 0x8000) != 0;
+                breakBit = (*floorDataIt & 0x8000) != 0;
                 break;
                 
-            case TR_FD_TRIGFUNC_CUTSCENE:
+            case TriggerFunction::CutScene:
+            case TriggerFunction::UnderwaterCurrent:
                 break;
                 
             default: // UNKNOWN!
-                BOOST_LOG_TRIVIAL(warning) << "Unhandled trigger function " << int(triggerFunction);
+                BOOST_LOG_TRIVIAL(warning) << "  - Unhandled trigger function " << int(triggerFunction);
                 break;
         };
     }
