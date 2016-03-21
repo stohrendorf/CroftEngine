@@ -367,19 +367,13 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
     return tex;
 }
 
-AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, DefaultAnimDispatcher* dispatcher)
+AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher)
     : m_triggerMask{item.getTriggerMask()}
     , m_lock{item.getLockBit()}
     , m_event{item.getEventBit()}
     , m_dispatcher{dispatcher}
 {
     BOOST_ASSERT(dispatcher != nullptr);
-    dispatcher->grab();
-}
-
-AbstractTriggerHandler::~AbstractTriggerHandler()
-{
-    m_dispatcher->drop();
 }
 
 void AbstractTriggerHandler::prepare()

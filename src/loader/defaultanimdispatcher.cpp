@@ -17,6 +17,20 @@ DefaultAnimDispatcher::DefaultAnimDispatcher(const Level* level, const AnimatedM
     m_targetState = getCurrentState();
 }
 
+std::shared_ptr<DefaultAnimDispatcher> DefaultAnimDispatcher::create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name)
+{
+    std::shared_ptr<DefaultAnimDispatcher> dispatcher{ new DefaultAnimDispatcher(level, model, node, name) };
+    auto animEnd = new AnimationEndStateHandler(dispatcher);
+    node->setAnimationEndCallback(animEnd);
+    animEnd->drop();
+    BOOST_ASSERT(animEnd->getReferenceCount() > 0);
+    auto animator = new IntermediateStateHandler(dispatcher);
+    node->addAnimator(animator);
+    animator->drop();
+    BOOST_ASSERT(animator->getReferenceCount() > 0);
+    return dispatcher;
+}
+
 void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode* node, bool isLoopEnd)
 {
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
@@ -56,11 +70,6 @@ void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode
         // m_targetState = getCurrentState();
         // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
     }
-}
-
-void DefaultAnimDispatcher::OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node)
-{
-    handleTransitions(node, true);
 }
 
 void DefaultAnimDispatcher::startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame)

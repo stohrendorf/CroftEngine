@@ -51,7 +51,7 @@ private:
     bool m_mustClose = false;
 
 public:
-    explicit DoorTriggerHandler(const Item& item, loader::DefaultAnimDispatcher* dispatcher)
+    explicit DoorTriggerHandler(const Item& item, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher)
         : AbstractTriggerHandler(item, dispatcher)
     {
     }
@@ -261,23 +261,19 @@ class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
 private:
     const Level* const m_level;
-    DefaultAnimDispatcher* m_dispatcher;
+    std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
     const std::string m_name;
     irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
 
 public:
-    LaraStateHandler(const Level* level, DefaultAnimDispatcher* dispatcher, const std::string& name)
+    LaraStateHandler(const Level* level, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher, const std::string& name)
         : m_level(level), m_dispatcher(dispatcher), m_name(name)
     {
         BOOST_ASSERT(level != nullptr);
         BOOST_ASSERT(dispatcher != nullptr);
-        m_dispatcher->grab();
     }
     
-    ~LaraStateHandler()
-    {
-        m_dispatcher->drop();
-    }
+    ~LaraStateHandler() = default;
 
     virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
     {
@@ -296,10 +292,13 @@ public:
                 setTargetState(LaraState::JumpPrepare);
                 break;
             case LaraState::JumpPrepare:
-                setTargetState(LaraState::JumpBack);
+                setTargetState(LaraState::JumpForward);
                 break;
-            default:
-                setTargetState(LaraState::Stop);
+            case LaraState::JumpForward:
+                //setTargetState(LaraState::RunForward);
+                break;
+            case LaraState::RunForward:
+                setTargetState(LaraState::JumpForward);
                 break;
         }
     }
@@ -672,10 +671,7 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            auto dispatcher = new DefaultAnimDispatcher(this, *m_animatedModels[meshIdx], node, name + ":dispatcher");
-            node->setAnimationEndCallback(dispatcher);
-            node->addAnimator(dispatcher);
-            dispatcher->drop();
+            auto dispatcher = DefaultAnimDispatcher::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
             
             if(item.objectId == 0)
             {
@@ -880,7 +876,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
                 // that the animation isn't static and thus calling the animation dispatcher.
                 loadAnimation(static_cast<irr::f32>(currentAnimOffset + animLength), *model, animation, skinnedMesh);
                 model->frameMapping.emplace(
-                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame+animLength)));
+                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame+1)));
                 currentAnimOffset += 2*animLength;
             }
             else
