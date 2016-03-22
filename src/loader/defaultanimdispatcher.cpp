@@ -4,8 +4,11 @@ namespace loader
 {
 
 DefaultAnimDispatcher::DefaultAnimDispatcher(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name)
-    : m_level(level), m_model(model), m_currentAnimationId(model.animationIndex), m_name(name)
+    : m_level(level), m_model(model), m_currentAnimationId(model.animationIndex), m_name(name), m_node(node)
 {
+    BOOST_ASSERT(level != nullptr);
+    BOOST_ASSERT(node != nullptr);
+    
     auto it = model.frameMapping.find(m_currentAnimationId);
     if(it == model.frameMapping.end())
     {
@@ -13,7 +16,7 @@ DefaultAnimDispatcher::DefaultAnimDispatcher(const Level* level, const AnimatedM
         return;
     }
     
-    startAnimLoop(node, 0);
+    startAnimLoop(it->second.firstFrame);
     m_targetState = getCurrentState();
 }
 
@@ -31,11 +34,11 @@ std::shared_ptr<DefaultAnimDispatcher> DefaultAnimDispatcher::create(irr::scene:
     return dispatcher;
 }
 
-void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode* node, bool isLoopEnd)
+void DefaultAnimDispatcher::handleTransitions(bool useDefaultAnimationLoop)
 {
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
     const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
-    const auto currentFrame = getCurrentFrame(node);
+    const auto currentFrame = getCurrentFrame();
     // const auto currentState = getCurrentState();
     
     // BOOST_LOG_TRIVIAL(debug) << "End of anim (" << node->getName() << "): animation=" << m_currentAnimationId << " currentState=" << currentState << " targetState=" << m_targetState;
@@ -57,34 +60,34 @@ void DefaultAnimDispatcher::handleTransitions(irr::scene::IAnimatedMeshSceneNode
             {
                 //BOOST_LOG_TRIVIAL(debug) << "  - Starting target animation, targetAnimation=" << trc.targetAnimation << ", targetFrame=" << trc.targetFrame;
                 m_currentAnimationId = trc.targetAnimation;
-                startAnimLoop(node, trc.targetFrame);
+                startAnimLoop(trc.targetFrame);
                 return;
             }
         }
     }
     
-    if(isLoopEnd)
+    if(useDefaultAnimationLoop)
     {
         m_currentAnimationId = currentAnim.nextAnimation;
-        startAnimLoop(node, currentAnim.nextFrame);
+        startAnimLoop(currentAnim.nextFrame);
         // m_targetState = getCurrentState();
         // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
     }
 }
 
-void DefaultAnimDispatcher::startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame)
+void DefaultAnimDispatcher::startAnimLoop(irr::u32 localFrame)
 {
     auto it = m_model.frameMapping.find(m_currentAnimationId);
     BOOST_ASSERT(it != m_model.frameMapping.end());
-    it->second.apply(node, frame);
+    it->second.apply(m_node, localFrame);
 }
 
-irr::u32 DefaultAnimDispatcher::getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const
+irr::u32 DefaultAnimDispatcher::getCurrentFrame() const
 {
     auto it = m_model.frameMapping.find(m_currentAnimationId);
     BOOST_ASSERT(it != m_model.frameMapping.end());
     
-    return static_cast<irr::u32>(node->getFrameNr() - it->second.offset + it->second.firstFrame);
+    return static_cast<irr::u32>(m_node->getFrameNr() - it->second.offset + it->second.firstFrame);
 }
 
 uint16_t DefaultAnimDispatcher::getCurrentState() const
@@ -92,6 +95,22 @@ uint16_t DefaultAnimDispatcher::getCurrentState() const
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
     const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
     return currentAnim.state_id;
+}
+
+void DefaultAnimDispatcher::playAnimation(uint16_t anim)
+{
+    auto it = m_model.frameMapping.find(anim);
+    if(it == m_model.frameMapping.end())
+    {
+        BOOST_LOG_TRIVIAL(error) << "No animation " << anim << " for " << m_name;
+        return;
+    }
+    
+    m_currentAnimationId = anim;
+    it->second.apply(m_node, it->second.firstFrame);
+    m_targetState = getCurrentState();
+    
+    BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << m_targetState;
 }
 
 }

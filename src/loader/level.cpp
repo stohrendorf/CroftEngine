@@ -30,9 +30,12 @@
 #include "trcamerascenenodeanimator.h"
 #include "defaultanimdispatcher.h"
 
+#include "world/animation/animids.h"
+
 #include <algorithm>
 #include <stack>
 #include <queue>
+#include <set>
 #include <boost/lexical_cast.hpp>
 
 using namespace loader;
@@ -298,8 +301,11 @@ public:
                 //setTargetState(LaraState::RunForward);
                 break;
             case LaraState::RunForward:
-                setTargetState(LaraState::JumpForward);
+                //setTargetState(LaraState::JumpForward);
+                setAnimation(world::animation::TR_ANIMATION_LARA_ROLL_BEGIN);
                 break;
+            default:
+                BOOST_LOG_TRIVIAL(debug) << "Unhandled state: " << m_dispatcher->getCurrentState();
         }
     }
 
@@ -313,6 +319,11 @@ private:
     void setTargetState(LaraState st)
     {
         m_dispatcher->setTargetState(static_cast<uint16_t>(st));
+    }
+    
+    void setAnimation(uint16_t anim)
+    {
+        m_dispatcher->playAnimation(anim);
     }
 };
 
@@ -675,6 +686,7 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             
             if(item.objectId == 0)
             {
+                dispatcher->playAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
                 auto stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
                 node->addAnimator(stateHandler);
                 stateHandler->drop();
@@ -763,6 +775,22 @@ void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, cons
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
 {
+    BOOST_ASSERT(!m_animatedModels.empty());
+    
+    std::set<uint16_t> animStarts;
+    for(const std::unique_ptr<AnimatedModel>& model : m_animatedModels)
+    {
+        if(model->animationIndex == 0xffff)
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(model.get()) << std::dec << " has animationIndex==0xffff";
+            continue;
+        }
+        
+        BOOST_ASSERT(animStarts.find(model->animationIndex) == animStarts.end());
+        animStarts.insert(model->animationIndex);
+    }
+    animStarts.insert(m_animations.size());
+    
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes;
 
     for(const std::unique_ptr<AnimatedModel>& model : m_animatedModels)
@@ -849,22 +877,18 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             }
         }
 
-        std::queue<uint16_t> animationsToLoad;
-        animationsToLoad.push(model->animationIndex);
+        const auto currentAnimIt = animStarts.find(model->animationIndex);
+        
+        if(currentAnimIt == animStarts.end())
+            continue;
 
         irr::u32 currentAnimOffset = 0;
+        const auto nextAnimIdx = *std::next(currentAnimIt);
 
-        while(!animationsToLoad.empty())
+        for(auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx)
         {
-            const auto currentAnimIdx = animationsToLoad.front();
-            animationsToLoad.pop();
             if(currentAnimIdx >= m_animations.size())
                 continue;
-
-            if(model->frameMapping.find(currentAnimIdx) != model->frameMapping.end())
-            {
-                continue; // already loaded
-            }
 
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
@@ -885,21 +909,6 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
                 model->frameMapping.emplace(
                     std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
                 currentAnimOffset += animLength;
-            }
-
-            animationsToLoad.push(animation.nextAnimation);
-
-            for(size_t i = 0; i < animation.transitionsCount; ++i)
-            {
-                auto tIdx = animation.transitionsIndex + i;
-                BOOST_ASSERT(tIdx < m_transitions.size());
-                const Transitions& tr = m_transitions[tIdx];
-                for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
-                {
-                    BOOST_ASSERT(j < m_transitionCases.size());
-                    const TransitionCase& trc = m_transitionCases[j];
-                    animationsToLoad.push(trc.targetAnimation);
-                }
             }
         }
         

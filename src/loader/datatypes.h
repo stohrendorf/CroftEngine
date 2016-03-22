@@ -1891,11 +1891,11 @@ struct AnimatedModel
             BOOST_ASSERT(firstFrame < lastFrame);
         }
         
-        void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame) const
+        void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 localFrame) const
         {
-            BOOST_ASSERT(frame >= firstFrame && frame <= lastFrame);
+            BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
             
-            const auto realOffset = offset + (frame-firstFrame);
+            const auto realOffset = offset + (localFrame-firstFrame);
             const auto realFirst = offset;
             const auto realLast = offset+lastFrame-firstFrame;
             

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include <cstdint>
 
 namespace world
 {
@@ -10,6 +10,8 @@ namespace animation
 //  NOTE: In case of conflicting animations, there will be tr* prefix inside name.
 
 //  TR1 AND ABOVE (0-159)
+
+using AnimationId = uint16_t;
 
 constexpr AnimationId TR_ANIMATION_LARA_RUN = 0;
 constexpr AnimationId TR_ANIMATION_LARA_WALK_FORWARD = 1;

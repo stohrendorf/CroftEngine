@@ -4,9 +4,9 @@
 
 namespace loader
 {
-class AnimationEndStateHandler;
-class IntermediateStateHandler;
-
+/**
+ * @brief Handles state transitions and animation playback.
+ */
 class DefaultAnimDispatcher final
 {
 private:
@@ -15,6 +15,7 @@ private:
     uint16_t m_currentAnimationId;
     uint16_t m_targetState = 0;
     const std::string m_name;
+    irr::scene::IAnimatedMeshSceneNode* const m_node;
 
     DefaultAnimDispatcher(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name);
 public:
@@ -28,6 +29,17 @@ public:
         BOOST_LOG_TRIVIAL(debug) << "Set target state=" << state << " (" << m_name << ") current=" << getCurrentState();
         m_targetState = state;
     }
+    
+    /**
+     * @brief Play a specific animation.
+     * @param anim Animation ID
+     * 
+     * @details
+     * Plays the animation specified; if the animation does not exist, nothing happens;
+     * if it exists, the target state is changed to the animation's state.
+     */
+    void playAnimation(uint16_t anim);
+    
     uint16_t getCurrentAnimationId() const noexcept
     {
         return m_currentAnimationId;
@@ -38,13 +50,31 @@ public:
         return m_name;
     }
 
-    void handleTransitions(irr::scene::IAnimatedMeshSceneNode* node, bool isLoopEnd);
+    /**
+     * @brief Handles animation transitions
+     * @param[in] useDefaultAnimationLoop Whether to apply the current animation's default follow-up animation
+     * 
+     * @note The target state is never changed.
+     * 
+     * @details
+     * Checks the current animation's transitions for the target state and switches to the appropriate
+     * animation if applicable.  If no such transition applies and @a useDefaultAnimationLoop is @c true,
+     * the animation's default follow-up animation is played.
+     */
+    void handleTransitions(bool useDefaultAnimationLoop);
 
 private:
-    void startAnimLoop(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 frame);
-    irr::u32 getCurrentFrame(irr::scene::IAnimatedMeshSceneNode* node) const;
+    /**
+     * @brief Starts to play the current animation at the specified frame.
+     * @param[in] localFrame The animation-local frame number.
+     */
+    void startAnimLoop(irr::u32 localFrame);
+    irr::u32 getCurrentFrame() const;
 };
 
+/**
+ * @brief Handles looping and default transitions of animations.
+ */
 class AnimationEndStateHandler final : public irr::scene::IAnimationEndCallBack
 {
 private:
@@ -57,17 +87,22 @@ public:
         BOOST_ASSERT(dispatcher != nullptr);
     }
 
-    virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* node) override
+    virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* /*node*/) override
     {
-        m_dispatcher->handleTransitions(node, true);
+        m_dispatcher->handleTransitions(true);
     }
 };
 
+/**
+ * @brief Handles transitions while playing animations.
+ * 
+ * @note Transitions are only checked once per frame.
+ */
 class IntermediateStateHandler final : public irr::scene::ISceneNodeAnimator
 {
 private:
     std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
-    irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
+    irr::u32 m_lastCheckedFrame = std::numeric_limits<irr::u32>::max();
 
 public:
     explicit IntermediateStateHandler(std::shared_ptr<DefaultAnimDispatcher> dispatcher)
@@ -83,11 +118,11 @@ public:
         
         BOOST_ASSERT(animNode->getFrameNr() >= 0);
         const auto currentFrame = static_cast<irr::u32>(animNode->getFrameNr());
-        if(currentFrame == m_lastActiveFrame)
+        if(currentFrame == m_lastCheckedFrame)
             return;
         
-        m_lastActiveFrame = currentFrame;
-        m_dispatcher->handleTransitions(animNode, false);
+        m_lastCheckedFrame = currentFrame;
+        m_dispatcher->handleTransitions(false);
     }
 
     virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
