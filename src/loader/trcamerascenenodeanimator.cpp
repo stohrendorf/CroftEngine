@@ -2,6 +2,7 @@
 
 #include "defaultanimdispatcher.h"
 #include "render/portaltracer.h"
+#include "larastatehandler.h"
 
 #include <queue>
 #include <set>
@@ -103,8 +104,8 @@ void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::s
     m_currentRoom = newRoom;
 }
 
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(currentRoom)
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(currentRoom), m_stateHandler(stateHandler)
 {
     BOOST_ASSERT(cursorControl != nullptr);
     BOOST_ASSERT(currentRoom != nullptr);
@@ -124,6 +125,11 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         return;
     
     irr::scene::IAnimatedMeshSceneNode* lara = static_cast<irr::scene::IAnimatedMeshSceneNode*>(camera->getParent());
+    
+    m_stateHandler->setXAxisMovement(m_left, m_right);
+    m_stateHandler->setZAxisMovement(m_backward, m_forward);
+    m_stateHandler->setJump(m_jump);
+    m_stateHandler->setMoveSlow(m_moveSlow);
     
     handleFloorData(lara);
     lara->updateAbsolutePosition();
@@ -273,6 +279,12 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
                     return true;
                 case irr::KEY_KEY_S:
                     m_backward = evt.KeyInput.PressedDown;
+                    return true;
+                case irr::KEY_SHIFT:
+                    m_moveSlow = evt.KeyInput.PressedDown;
+                    return true;
+                case irr::KEY_SPACE:
+                    m_jump = evt.KeyInput.PressedDown;
                     return true;
                 default:
                     return false;

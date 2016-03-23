@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+class LaraStateHandler;
+
 namespace loader
 {
 
@@ -92,10 +94,17 @@ public:
     int findStaticMeshIndexByObjectId(uint32_t object_id) const;
     int findAnimatedModelIndexByObjectId(uint32_t object_id) const;
     int findSpriteSequenceByObjectId(uint32_t object_id) const;
-
+    
+    struct PlayerInfo
+    {
+        irr::scene::IAnimatedMeshSceneNode* node = nullptr;
+        Room* room = nullptr;
+        LaraStateHandler* stateHandler = nullptr;
+    };
+    
     std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
-    std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
+    PlayerInfo createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
     std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     void loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
     irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;

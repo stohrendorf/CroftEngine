@@ -29,8 +29,7 @@
 #include "util/vmath.h"
 #include "trcamerascenenodeanimator.h"
 #include "defaultanimdispatcher.h"
-
-#include "world/animation/animids.h"
+#include "larastatehandler.h"
 
 #include <algorithm>
 #include <stack>
@@ -115,216 +114,6 @@ public:
 
     virtual void onSave() override {}
     virtual void onLoad() override {}
-};
-
-
-enum class LaraState : uint16_t
-{
-    WalkForward = 0,
-    RunForward = 1,
-    Stop = 2,
-    JumpForward = 3,
-    Pose = 4,                // Derived from leaked TOMB.MAP
-    RunBack = 5,
-    TurnRightSlow = 6,
-    TurnLeftSlow = 7,
-    Death = 8,
-    FreeFall = 9,
-    Hang = 10,
-    Reach = 11,
-    //    UNUSED2 12
-    UnderwaterStop = 13,
-    GrabToFall = 14,
-    JumpPrepare = 15,
-    WalkBackward = 16,
-    UnderwaterForward = 17,
-    UnderwaterInertia = 18,
-    Climbing = 19,
-    TurnFast = 20,
-    StepRight = 21,
-    StepLeft = 22,
-    RollBackward = 23,
-    SlideForward = 24,
-    JumpBack = 25,
-    JumpLeft = 26,
-    JumpRight = 27,
-    JumpUp = 28,
-    FallBackward = 29,
-    ShimmyLeft = 30,
-    ShimmyRight = 31,
-    SlideBackward = 32,
-    OnWaterStop = 33,
-    OnWaterForward = 34,
-    UnderwaterDiving = 35,
-    PushablePush = 36,
-    PushablePull = 37,
-    PushableGrab = 38,
-    PickUp = 39,
-    SwitchDown = 40,
-    SwitchUp = 41,
-    InsertKey = 42,
-    InsertPuzzle = 43,
-    WaterDeath = 44,
-    RollForward = 45,
-    BoulderDeath = 46,
-    OnWaterBackward = 47,
-    OnWaterLeft = 48,
-    OnWaterRight = 49,
-    UseMidas = 50,          //  Derived from leaked TOMB.MAP
-    MidasDeath = 51,          //  Derived from leaked TOMB.MAP
-    SwandiveBegin = 52,
-    SwandiveEnd = 53,
-    Handstand = 54,
-    OnWaterExit = 55,
-    LadderIdle = 56,
-    LadderUp = 57,
-    LadderLeft = 58,
-    //    UNUSED5 59
-    LadderRight = 60,
-    LadderDown = 61,
-    //    UNUSED6 62
-    //    UNUSED7 63
-    //    UNUSED8 64
-    WadeForward = 65,
-    UnderwaterTurnAround = 66,
-    FlarePickUp = 67,
-    JumpRoll = 68,
-    //    UNUSED10 69
-    ZiplineRide = 70,
-    CrouchIdle = 71,
-    CrouchRoll = 72,
-    Sprint = 73,
-    SprintRoll = 74,
-    MonkeyswingIdle = 75,
-    MonkeyswingForward = 76,
-    MonkeyswingLeft = 77,
-    MonkeyswingRight = 78,
-    MonkeyswingTurnAround = 79,
-    CrawlIdle = 80,
-    CrawlForward = 81,
-    MonkeyswingTurnLeft = 82,
-    MonkeyswingTurnRight = 83,
-    CrawlTurnLeft = 84,
-    CrawlTurnRight = 85,
-    CrawlBackward = 86,
-    ClimbToCrawl = 87,
-    CrawlToClimb = 88,
-    MiscControl = 89,
-    RopeTurnLeft = 90,
-    RopeTurnRight = 91,
-    GiantButtonPush = 92,
-    TrapdoorFloorOpen = 93,
-    //    UNUSED11 94
-    RoundHandle = 95,
-    CogWheel = 96,
-    LeverSwitchPush = 97,
-    Hole = 98,
-    PoleIdle = 99,
-    PoleUp = 100,
-    PoleDown = 101,
-    PoleTurnLeft = 102,
-    PoleTurnRight = 103,
-    Pulley = 104,
-    CrouchTurnLeft = 105,
-    CrouchTurnRight = 106,
-    ClimbOuterCornerLeft = 107,
-    ClimbOuterCornerRight = 108,
-    ClimbInnerCornerLeft = 109,
-    ClimbInnerCornerRight = 110,
-    RopeIdle = 111,
-    RopeClimbUp = 112,
-    RopeClimbDown = 113,
-    RopeSwing = 114,
-    LadderToHands = 115,
-    PositionCorrector = 116,
-    DoubledoorsPush = 117,
-    Dozy = 118,
-    TightropeIdle = 119,
-    TightropeTurnAround = 120,
-    TightropeForward = 121,
-    TightropeBalancingLeft = 122,
-    TightropeBalancingRight = 123,
-    TightropeEnter = 124,
-    TightropeExit = 125,
-    DoveSwitch = 126,
-    TightropeRestoreBalance = 127,
-    BarsSwing = 128,
-    BarsJump = 129,
-    //    UNUSED12 130
-    RadioListening = 131,
-    RadioOff = 132,
-    //    UNUSED13 133
-    //    UNUSED14 134
-    //    UNUSED15 135
-    //    UNUSED16 136
-    PickUpFromChest = 137
-};
-
-class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
-{
-private:
-    const Level* const m_level;
-    std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
-    const std::string m_name;
-    irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
-
-public:
-    LaraStateHandler(const Level* level, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher, const std::string& name)
-        : m_level(level), m_dispatcher(dispatcher), m_name(name)
-    {
-        BOOST_ASSERT(level != nullptr);
-        BOOST_ASSERT(dispatcher != nullptr);
-    }
-    
-    ~LaraStateHandler() = default;
-
-    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
-    {
-        BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
-        irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
-        
-        BOOST_ASSERT(animNode->getFrameNr() >= 0);
-        const auto currentFrame = static_cast<irr::u32>(animNode->getFrameNr());
-        if(currentFrame == m_lastActiveFrame)
-            return;
-        
-        m_lastActiveFrame = currentFrame;
-        switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
-        {
-            case LaraState::Stop:
-                setTargetState(LaraState::JumpPrepare);
-                break;
-            case LaraState::JumpPrepare:
-                setTargetState(LaraState::JumpForward);
-                break;
-            case LaraState::JumpForward:
-                //setTargetState(LaraState::RunForward);
-                break;
-            case LaraState::RunForward:
-                //setTargetState(LaraState::JumpForward);
-                setAnimation(world::animation::TR_ANIMATION_LARA_ROLL_BEGIN);
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(debug) << "Unhandled state: " << m_dispatcher->getCurrentState();
-        }
-    }
-
-    virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
-    {
-        BOOST_ASSERT(false);
-        return nullptr;
-    }
-    
-private:
-    void setTargetState(LaraState st)
-    {
-        m_dispatcher->setTargetState(static_cast<uint16_t>(st));
-    }
-    
-    void setAnimation(uint16_t anim)
-    {
-        m_dispatcher->playAnimation(anim);
-    }
 };
 
 /// \brief reads the mesh data.
@@ -638,9 +427,9 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
     return materials;
 }
 
-std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
-    std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> lara{nullptr, nullptr};
+    PlayerInfo lara;
     int id = -1;
     for(Item& item : m_items)
     {
@@ -660,8 +449,8 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
                 node->setPosition(item.position);
-                lara.first = node;
-                lara.second = &room;
+                lara.node = node;
+                lara.room = &room;
             }
             else
             {
@@ -687,9 +476,9 @@ std::pair<irr::scene::IAnimatedMeshSceneNode*, Room*> Level::createItems(irr::sc
             if(item.objectId == 0)
             {
                 dispatcher->playAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
-                auto stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
-                node->addAnimator(stateHandler);
-                stateHandler->drop();
+                lara.stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
+                node->addAnimator(lara.stateHandler);
+                lara.stateHandler->drop();
             }
             
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
@@ -983,7 +772,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
     
     const auto lara = createItems(mgr, skinnedMeshes);
-    if(lara.first == nullptr)
+    if(lara.node == nullptr)
         return;
 
     for(auto* ptr : staticMeshes)
@@ -992,8 +781,8 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     for(auto& ptr : skinnedMeshes)
         ptr->drop();
     
-    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.first, {0, 0, -256}, {0, 0, 0}, -1, true);
-    camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.second));
+    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
+    camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler));
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
     camera->setFarValue(2e5);

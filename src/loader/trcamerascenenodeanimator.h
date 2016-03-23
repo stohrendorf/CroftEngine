@@ -21,9 +21,12 @@ private:
     bool m_backward = false;
     bool m_left = false;
     bool m_right = false;
+    bool m_moveSlow = false;
+    bool m_jump = false;
 
     const loader::Level* m_level;
     const loader::Room* m_currentRoom;
+    LaraStateHandler* m_stateHandler;
     
     const irr::core::vector3df m_relativeTarget{0, 256, 0};
     irr::core::vector3df m_relativePosition{0, 0, -1024};
@@ -31,7 +34,7 @@ private:
     void setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara);
 
 public:
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom);
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler);
 
     //! Animates a scene node.
     /** \param node Node to animate.
