@@ -97,7 +97,7 @@ uint16_t DefaultAnimDispatcher::getCurrentState() const
     return currentAnim.state_id;
 }
 
-void DefaultAnimDispatcher::playAnimation(uint16_t anim)
+void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim)
 {
     auto it = m_model.frameMapping.find(anim);
     if(it == m_model.frameMapping.end())

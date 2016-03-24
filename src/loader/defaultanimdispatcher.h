@@ -38,7 +38,12 @@ public:
      * Plays the animation specified; if the animation does not exist, nothing happens;
      * if it exists, the target state is changed to the animation's state.
      */
-    void playAnimation(uint16_t anim);
+    void playGlobalAnimation(uint16_t anim);
+    
+    void playLocalAnimation(uint16_t anim)
+    {
+        playGlobalAnimation(m_model.animationIndex + anim);
+    }
     
     uint16_t getCurrentAnimationId() const noexcept
     {

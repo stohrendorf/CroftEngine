@@ -174,7 +174,7 @@ public:
     {
         BOOST_ASSERT(level != nullptr);
         BOOST_ASSERT(dispatcher != nullptr);
-        setAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
+        playAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
     }
     
     ~LaraStateHandler() = default;
@@ -261,6 +261,14 @@ public:
                 {
                     setTargetState(LaraState::SwandiveBegin);
                 }
+                else if(m_zMovement == AxisMovement::Positive)
+                {
+                    setTargetState(LaraState::RunForward);
+                }
+                else
+                {
+                    setTargetState(LaraState::Stop);
+                }
                 break;
             case LaraState::JumpPrepare:
                 if(m_zMovement == AxisMovement::Positive)
@@ -284,7 +292,7 @@ public:
                 setTargetState(LaraState::FreeFall);
                 break;
             case LaraState::FreeFall:
-                m_dispatcher->playAnimation(world::animation::TR_ANIMATION_LARA_LANDING_MIDDLE);
+                playAnimation(world::animation::TR_ANIMATION_LARA_LANDING_HARD);
                 break;
             default:
                 BOOST_LOG_TRIVIAL(debug) << "Unhandled state: " << m_dispatcher->getCurrentState();
@@ -333,8 +341,8 @@ private:
         m_dispatcher->setTargetState(static_cast<uint16_t>(st));
     }
     
-    void setAnimation(uint16_t anim)
+    void playAnimation(uint16_t anim)
     {
-        m_dispatcher->playAnimation(anim);
+        m_dispatcher->playLocalAnimation(anim);
     }
 };

@@ -475,7 +475,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             
             if(item.objectId == 0)
             {
-                dispatcher->playAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
+                dispatcher->playLocalAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
                 lara.stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
                 node->addAnimator(lara.stateHandler);
                 lara.stateHandler->drop();
