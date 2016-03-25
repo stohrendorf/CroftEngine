@@ -159,7 +159,6 @@ list(APPEND PRJ_HDR
     world/core/light.h
 
     world/animation/animation.h
-    world/animation/animids.h
     world/animation/animcommands.h
     world/animation/animeffects.h
     world/animation/skeleton.h
@@ -259,6 +258,54 @@ if(APPLE)
     )
 endif()
 
+
+function(gen_enum name type source dest)
+    if(EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
+        return()
+    endif()
+    message(STATUS "Generating enum include ${dest} from ${source}")
+    file(STRINGS "${source}" _vals)
+    file(WRITE "${dest}" "")
+    # Write enum
+    file(APPEND "${dest}" "enum class ${name} : ${type}\n")
+    file(APPEND "${dest}" "{\n")
+    foreach(_val IN LISTS _vals)
+        string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
+        string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
+        if("${_ename}" STREQUAL "")
+            continue()
+        endif()
+        string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
+        if("${_eval}" STREQUAL "")
+            continue()
+        endif()
+        file(APPEND "${dest}" "    ${_ename} = ${_eval},\n")
+    endforeach()
+    file(APPEND "${dest}" "};\n\n")
+    # Write toString
+    file(APPEND "${dest}" "inline const char* toString(${name} val)\n")
+    file(APPEND "${dest}" "{\n")
+    file(APPEND "${dest}" "    switch(val)\n")
+    file(APPEND "${dest}" "    {\n")
+    foreach(_val IN LISTS _vals)
+        string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
+        string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
+        if("${_ename}" STREQUAL "")
+            continue()
+        endif()
+        string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
+        if("${_eval}" STREQUAL "")
+            continue()
+        endif()
+        file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
+    endforeach()
+    file(APPEND "${dest}" "        default: return nullptr;\n")
+    file(APPEND "${dest}" "    }\n")
+    file(APPEND "${dest}" "}\n")
+endfunction()
+
+gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
+gen_enum(LaraState uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastate_enum.h)
 
 add_executable(ot_irr
     ot_irr.cpp

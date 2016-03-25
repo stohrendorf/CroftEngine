@@ -1,5 +1,9 @@
 #include "defaultanimdispatcher.h"
 
+#include "larastatehandler.h"
+
+#include <set>
+
 namespace loader
 {
 

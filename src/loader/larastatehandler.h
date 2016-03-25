@@ -1,6 +1,7 @@
 #pragma once
 
-#include "world/animation/animids.h"
+#include "animationids.h"
+#include "larastate.h"
 
 #include <irrlicht.h>
 
@@ -13,150 +14,9 @@ enum class AxisMovement
     Negative
 };
 
-enum class LaraState : uint16_t
-{
-    WalkForward = 0,
-    RunForward = 1,
-    Stop = 2,
-    JumpForward = 3,
-    Pose = 4,                // Derived from leaked TOMB.MAP
-    RunBack = 5,
-    TurnRightSlow = 6,
-    TurnLeftSlow = 7,
-    Death = 8,
-    FreeFall = 9,
-    Hang = 10,
-    Reach = 11,
-    //    UNUSED2 12
-    UnderwaterStop = 13,
-    GrabToFall = 14,
-    JumpPrepare = 15,
-    WalkBackward = 16,
-    UnderwaterForward = 17,
-    UnderwaterInertia = 18,
-    Climbing = 19,
-    TurnFast = 20,
-    StepRight = 21,
-    StepLeft = 22,
-    RollBackward = 23,
-    SlideForward = 24,
-    JumpBack = 25,
-    JumpLeft = 26,
-    JumpRight = 27,
-    JumpUp = 28,
-    FallBackward = 29,
-    ShimmyLeft = 30,
-    ShimmyRight = 31,
-    SlideBackward = 32,
-    OnWaterStop = 33,
-    OnWaterForward = 34,
-    UnderwaterDiving = 35,
-    PushablePush = 36,
-    PushablePull = 37,
-    PushableGrab = 38,
-    PickUp = 39,
-    SwitchDown = 40,
-    SwitchUp = 41,
-    InsertKey = 42,
-    InsertPuzzle = 43,
-    WaterDeath = 44,
-    RollForward = 45,
-    BoulderDeath = 46,
-    OnWaterBackward = 47,
-    OnWaterLeft = 48,
-    OnWaterRight = 49,
-    UseMidas = 50,          //  Derived from leaked TOMB.MAP
-    MidasDeath = 51,          //  Derived from leaked TOMB.MAP
-    SwandiveBegin = 52,
-    SwandiveEnd = 53,
-    Handstand = 54,
-    OnWaterExit = 55,
-    LadderIdle = 56,
-    LadderUp = 57,
-    LadderLeft = 58,
-    //    UNUSED5 59
-    LadderRight = 60,
-    LadderDown = 61,
-    //    UNUSED6 62
-    //    UNUSED7 63
-    //    UNUSED8 64
-    WadeForward = 65,
-    UnderwaterTurnAround = 66,
-    FlarePickUp = 67,
-    JumpRoll = 68,
-    //    UNUSED10 69
-    ZiplineRide = 70,
-    CrouchIdle = 71,
-    CrouchRoll = 72,
-    Sprint = 73,
-    SprintRoll = 74,
-    MonkeyswingIdle = 75,
-    MonkeyswingForward = 76,
-    MonkeyswingLeft = 77,
-    MonkeyswingRight = 78,
-    MonkeyswingTurnAround = 79,
-    CrawlIdle = 80,
-    CrawlForward = 81,
-    MonkeyswingTurnLeft = 82,
-    MonkeyswingTurnRight = 83,
-    CrawlTurnLeft = 84,
-    CrawlTurnRight = 85,
-    CrawlBackward = 86,
-    ClimbToCrawl = 87,
-    CrawlToClimb = 88,
-    MiscControl = 89,
-    RopeTurnLeft = 90,
-    RopeTurnRight = 91,
-    GiantButtonPush = 92,
-    TrapdoorFloorOpen = 93,
-    //    UNUSED11 94
-    RoundHandle = 95,
-    CogWheel = 96,
-    LeverSwitchPush = 97,
-    Hole = 98,
-    PoleIdle = 99,
-    PoleUp = 100,
-    PoleDown = 101,
-    PoleTurnLeft = 102,
-    PoleTurnRight = 103,
-    Pulley = 104,
-    CrouchTurnLeft = 105,
-    CrouchTurnRight = 106,
-    ClimbOuterCornerLeft = 107,
-    ClimbOuterCornerRight = 108,
-    ClimbInnerCornerLeft = 109,
-    ClimbInnerCornerRight = 110,
-    RopeIdle = 111,
-    RopeClimbUp = 112,
-    RopeClimbDown = 113,
-    RopeSwing = 114,
-    LadderToHands = 115,
-    PositionCorrector = 116,
-    DoubledoorsPush = 117,
-    Dozy = 118,
-    TightropeIdle = 119,
-    TightropeTurnAround = 120,
-    TightropeForward = 121,
-    TightropeBalancingLeft = 122,
-    TightropeBalancingRight = 123,
-    TightropeEnter = 124,
-    TightropeExit = 125,
-    DoveSwitch = 126,
-    TightropeRestoreBalance = 127,
-    BarsSwing = 128,
-    BarsJump = 129,
-    //    UNUSED12 130
-    RadioListening = 131,
-    RadioOff = 132,
-    //    UNUSED13 133
-    //    UNUSED14 134
-    //    UNUSED15 135
-    //    UNUSED16 136
-    PickUpFromChest = 137
-};
-
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
+    using LaraState = loader::LaraState;
 private:
     const loader::Level* const m_level;
     std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
@@ -174,7 +34,7 @@ public:
     {
         BOOST_ASSERT(level != nullptr);
         BOOST_ASSERT(dispatcher != nullptr);
-        playAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
+        playAnimation(loader::AnimationId::STAY_IDLE);
     }
     
     ~LaraStateHandler() = default;
@@ -292,7 +152,7 @@ public:
                 setTargetState(LaraState::FreeFall);
                 break;
             case LaraState::FreeFall:
-                playAnimation(world::animation::TR_ANIMATION_LARA_LANDING_HARD);
+                playAnimation(loader::AnimationId::LANDING_HARD);
                 break;
             default:
                 BOOST_LOG_TRIVIAL(debug) << "Unhandled state: " << m_dispatcher->getCurrentState();
@@ -336,13 +196,13 @@ public:
     }
     
 private:
-    void setTargetState(LaraState st)
+    void setTargetState(loader::LaraState st)
     {
         m_dispatcher->setTargetState(static_cast<uint16_t>(st));
     }
     
-    void playAnimation(uint16_t anim)
+    void playAnimation(loader::AnimationId anim)
     {
-        m_dispatcher->playLocalAnimation(anim);
+        m_dispatcher->playLocalAnimation(static_cast<uint16_t>(anim));
     }
 };

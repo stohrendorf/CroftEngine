@@ -427,6 +427,82 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
     return materials;
 }
 
+#ifndef NDEBUG
+using StateMap = std::map<LaraState, std::map<AnimationId, std::map<AnimationId, std::string>>>;
+
+void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& anim, const Level* level)
+{
+    map[static_cast<LaraState>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
+    for(size_t i = 0; i < anim.transitionsCount; ++i)
+    {
+        auto tIdx = anim.transitionsIndex + i;
+        BOOST_ASSERT(tIdx < level->m_transitions.size());
+        const Transitions& tr = level->m_transitions[tIdx];
+        
+        for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
+        {
+            BOOST_ASSERT(j < level->m_transitionCases.size());
+            const TransitionCase& trc = level->m_transitionCases[j];
+
+            AnimationId a = static_cast<AnimationId>(trc.targetAnimation - ofs);
+            
+            map[static_cast<LaraState>(anim.state_id)][aid][a] = {};
+        }
+    }
+}
+
+void dumpAnims(const AnimatedModel& model, const Level* level)
+{
+    StateMap map;
+    for(const auto& fm : model.frameMapping)
+    {
+        loadAnim(map, static_cast<AnimationId>(fm.first - model.animationIndex), model.animationIndex, level->m_animations[fm.first], level);
+    }
+    
+    std::cerr << "@startuml\n\n";
+    std::cerr << "[*] --> Stop\n\n";
+    
+    for(const auto& state : map)
+    {
+        const char* st = toString(state.first);
+        if(st == nullptr)
+        {
+            st = "???";
+        }
+        std::cerr << "state \"" << st << "\" as s" << static_cast<uint16_t>(state.first) << " { \n";
+        
+        for(const auto& anim : state.second)
+        {
+            const char* an = toString(anim.first);
+            if(an == nullptr)
+            {
+                an = "???";
+            }
+            std::cerr << "    state \"" << an << "\" as a" << static_cast<uint16_t>(anim.first) << "\n";
+        }
+        
+        std::cerr << "}\n\n";
+    }
+
+    for(const auto& state : map)
+    {
+        for(const auto& anim : state.second)
+        {
+            for(const auto& targ : anim.second)
+            {
+                if(targ.second.empty())
+                    std::cerr << "a" << static_cast<uint16_t>(anim.first) << " --> a" << static_cast<uint16_t>(targ.first) << "\n";
+                else
+                    std::cerr << "a" << static_cast<uint16_t>(anim.first) << " --> a" << static_cast<uint16_t>(targ.first) << " : " << targ.second << "\n";
+            }
+        }
+    }
+    
+    std::cerr << "@enduml\n";
+}
+
+#endif
+
 Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
     PlayerInfo lara;
@@ -475,10 +551,13 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             
             if(item.objectId == 0)
             {
-                dispatcher->playLocalAnimation(world::animation::TR_ANIMATION_LARA_STAY_IDLE);
+                dispatcher->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
                 lara.stateHandler = new LaraStateHandler(this, dispatcher, name + ":statehandler");
                 node->addAnimator(lara.stateHandler);
                 lara.stateHandler->drop();
+#ifndef NDEBUG
+                dumpAnims(*m_animatedModels[meshIdx], this);
+#endif
             }
             
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
