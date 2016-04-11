@@ -1975,6 +1975,8 @@ public:
         return result;
     }
 
+    virtual ~AbstractTriggerHandler() = default;
+
     virtual void prepare();
     
     virtual void onActivate(AbstractTriggerHandler* activator) = 0;

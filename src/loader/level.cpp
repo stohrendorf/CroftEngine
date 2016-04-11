@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include <stack>
-#include <queue>
 #include <set>
 #include <boost/lexical_cast.hpp>
 

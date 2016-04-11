@@ -157,8 +157,6 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         m_firstInput = false;
     }
     
-    // get time
-    irr::f32 timeDiff = static_cast<irr::f32>(timeMs - m_lastAnimationTime);
     m_lastAnimationTime = timeMs;
     
     // Update mouse rotation
@@ -204,47 +202,6 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         m_cursorControl->setPosition(0.5f, 0.5f);
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
     }
-    
-    irr::core::vector3d<irr::f32> forwardDir = {0,0,1};
-    forwardDir.rotateXZBy(-lara->getRotation().Y);
-    
-    // update position
-    auto laraPos = lara->getPosition();
-    
-    if(m_forward)
-        laraPos += forwardDir * timeDiff * m_moveSpeed;
-    
-    if(m_backward)
-        laraPos -= forwardDir * timeDiff * m_moveSpeed;
-    
-    // strafing
-    
-    irr::core::vector3d<irr::f32> rightDir = {1,0,0};
-    rightDir.rotateXZBy(lara->getRotation().Y);
-    
-#if 0
-    if(m_left)
-        laraPos -= rightDir * timeDiff * m_moveSpeed;
-    
-    if(m_right)
-        laraPos += rightDir * timeDiff * m_moveSpeed;
-#else
-    auto laraRot = lara->getRotation();
-    const auto deltaRot = timeDiff * m_rotateSpeedLara;
-    if(m_left)
-    {
-        laraRot.Y -= deltaRot;
-    }
-    
-    if(m_right)
-    {
-        laraRot.Y += deltaRot;
-    }
-    lara->setRotation(laraRot);
-#endif
-    
-    // write translation
-    lara->setPosition(laraPos);
     
     lara->updateAbsolutePosition();
     camera->setPosition(m_relativePosition + m_relativeTarget);

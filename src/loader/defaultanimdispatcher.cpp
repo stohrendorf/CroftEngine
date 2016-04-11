@@ -94,6 +94,14 @@ irr::u32 DefaultAnimDispatcher::getCurrentFrame() const
     return static_cast<irr::u32>(m_node->getFrameNr() - it->second.offset + it->second.firstFrame);
 }
 
+irr::u32 DefaultAnimDispatcher::getCurrentRelativeFrame() const
+{
+    auto it = m_model.frameMapping.find(m_currentAnimationId);
+    BOOST_ASSERT(it != m_model.frameMapping.end());
+
+    return static_cast<irr::u32>(m_node->getFrameNr() - it->second.offset);
+}
+
 uint16_t DefaultAnimDispatcher::getCurrentState() const
 {
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());

@@ -29,6 +29,11 @@ public:
         BOOST_LOG_TRIVIAL(debug) << "Set target state=" << state << " (" << m_name << ") current=" << getCurrentState();
         m_targetState = state;
     }
+
+    uint16_t getTargetState() const noexcept
+    {
+        return m_targetState;
+    }
     
     /**
      * @brief Play a specific animation.
@@ -68,6 +73,20 @@ public:
      */
     void handleTransitions(bool useDefaultAnimationLoop);
 
+    int calculateFloorSpeed() const
+    {
+        BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
+        const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+        return (currentAnim.speed + currentAnim.accelleration * getCurrentRelativeFrame()) / (1 << 16);
+    }
+
+    int getAccelleration() const
+    {
+        BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
+        const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+        return currentAnim.accelleration / (1 << 16);
+    }
+
 private:
     /**
      * @brief Starts to play the current animation at the specified frame.
@@ -75,6 +94,7 @@ private:
      */
     void startAnimLoop(irr::u32 localFrame);
     irr::u32 getCurrentFrame() const;
+    irr::u32 getCurrentRelativeFrame() const;
 };
 
 /**
