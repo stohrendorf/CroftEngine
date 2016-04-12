@@ -23,6 +23,16 @@ constexpr irr::f32 auToDeg(irr::s32 au)
     return au / 65536.0f * 360;
 }
 
+constexpr irr::f32 auToRad(irr::s32 au)
+{
+    return au / 65536.0f * 2 * irr::core::PI;
+}
+
+constexpr irr::s32 degToAu(irr::f32 deg)
+{
+    return static_cast<irr::s32>(deg * 65536 / 360);
+}
+
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
     using LaraState = loader::LaraState;
@@ -40,6 +50,8 @@ private:
     bool m_roll = false;
     bool m_action = false;
 
+    irr::scene::IAnimatedMeshSceneNode* const m_lara;
+
     // Lara's vars
     int m_health = 1000;
     //! @brief Additional rotation in AU per TR Engine Frame
@@ -48,9 +60,12 @@ private:
     int m_fallSpeed = 0;
     int m_horizontalSpeed = 0;
 
-    using InputHandler = void (LaraStateHandler::*)(irr::scene::IAnimatedMeshSceneNode*);
+    // needed for YPR rotation, because the scene node uses XYZ rotation
+    irr::core::vector3di m_rotation;
+
+    using InputHandler = void (LaraStateHandler::*)();
     
-    void onInput0WalkForward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput0WalkForward()
     {
         if(m_health <= 0)
         {
@@ -75,7 +90,7 @@ private:
         }
     }
 
-    void onInput1RunForward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput1RunForward()
     {
         if(m_health <= 0)
         {
@@ -93,16 +108,12 @@ private:
         if(m_xMovement == AxisMovement::Left)
         {
             m_yRotationSpeed = std::max(-1456, m_yRotationSpeed - 409);
-            auto rot = node->getRotation();
-            rot.Z = std::max(auToDeg(-2002), rot.Z - auToDeg(273));
-            node->setRotation(rot);
+            m_rotation.Z = std::max(-2002, m_rotation.Z - 273);
         }
         else if(m_xMovement == AxisMovement::Right)
         {
             m_yRotationSpeed = std::min(1456, m_yRotationSpeed + 409);
-            auto rot = node->getRotation();
-            rot.Z = std::min(auToDeg(2002), rot.Z + auToDeg(273));
-            node->setRotation(rot);
+            m_rotation.Z = std::min(2002, m_rotation.Z + 273);
         }
         if(m_jump && !m_falling)
         {
@@ -120,7 +131,7 @@ private:
             setTargetState(LaraState::RunForward);
     }
 
-    void onInput2Stop(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput2Stop()
     {
         if(m_health <= 0)
         {
@@ -159,20 +170,20 @@ private:
         if(m_zMovement == AxisMovement::Forward)
         {
             if(m_moveSlow)
-                onInput0WalkForward(node);
+                onInput0WalkForward();
             else
-                onInput1RunForward(node);
+                onInput1RunForward();
         }
         else if(m_zMovement == AxisMovement::Backward)
         {
             if(m_moveSlow)
-                onInput16WalkBackward(node);
+                onInput16WalkBackward();
             else
                 setTargetState(LaraState::RunBack);
         }
     }
 
-    void onInput3JumpForward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput3JumpForward()
     {
         if(getTargetState() == LaraState::SwandiveBegin || getTargetState() == LaraState::Reach)
             setTargetState(LaraState::JumpForward);
@@ -199,7 +210,7 @@ private:
         }
     }
 
-    void onInput5RunBackward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput5RunBackward()
     {
         setTargetState(LaraState::Stop);
 
@@ -209,7 +220,7 @@ private:
             m_yRotationSpeed = std::min(1092, m_yRotationSpeed + 409);
     }
 
-    void onInput6TurnRightSlow(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput6TurnRightSlow()
     {
         if(m_health <= 0)
         {
@@ -247,7 +258,7 @@ private:
             setTargetState(LaraState::RunForward);
     }
 
-    void onInput7TurnLeftSlow(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput7TurnLeftSlow()
     {
         if(m_health <= 0)
         {
@@ -285,7 +296,7 @@ private:
             setTargetState(LaraState::RunForward);
     }
 
-    void onInput16WalkBackward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput16WalkBackward()
     {
         if(m_health <= 0)
         {
@@ -304,7 +315,7 @@ private:
             m_yRotationSpeed = std::min(728, m_yRotationSpeed + 409);
     }
 
-    void onInput20TurnFast(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput20TurnFast()
     {
         if(m_health <= 0)
         {
@@ -327,7 +338,7 @@ private:
         setTargetState(LaraState::Stop);
     }
 
-    void onInput25JumpBackward(irr::scene::IAnimatedMeshSceneNode* node)
+    void onInput25JumpBackward()
     {
         //! @todo Set local camera Y rotation to 24570 AU
         if(m_fallSpeed > 131)
@@ -335,20 +346,25 @@ private:
     }
 
 public:
-    LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, const std::string& name)
-        : m_level(level), m_dispatcher(dispatcher), m_name(name)
+    LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
+        : m_level(level), m_dispatcher(dispatcher), m_name(name), m_lara(lara)
     {
         BOOST_ASSERT(level != nullptr);
         BOOST_ASSERT(dispatcher != nullptr);
+        BOOST_ASSERT(lara != nullptr);
         playAnimation(loader::AnimationId::STAY_IDLE);
+
+        auto laraRot = lara->getRotation();
+        m_rotation.X = degToAu(laraRot.X);
+        m_rotation.Y = degToAu(laraRot.Y);
+        m_rotation.Z = degToAu(laraRot.Z);
     }
     
     ~LaraStateHandler() = default;
 
     virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override
     {
-        BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
-        irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
+        BOOST_ASSERT(m_lara == node);
         
         const auto currentFrame = 30*timeMs/1000;
         if(currentFrame == m_lastActiveFrame)
@@ -358,14 +374,12 @@ public:
         {
             // "slowly" revert rotations to zero
 
-            auto rot = animNode->getRotation();
-            
-            if(rot.Z < auToDeg(-182))
-                rot.Z += auToDeg(182);
-            else if(rot.Z > auToDeg(182))
-                rot.Z -= auToDeg(182);
+            if(m_rotation.Z < -182)
+                m_rotation.Z += 182;
+            else if(m_rotation.Z > 182)
+                m_rotation.Z -= 182;
             else
-                rot.Z = 0;
+                m_rotation.Z = 0;
 
             if(m_yRotationSpeed < -364)
                 m_yRotationSpeed += 364;
@@ -373,9 +387,7 @@ public:
                 m_yRotationSpeed -= 364;
             else
                 m_yRotationSpeed = 0;
-            rot.Y += auToDeg(m_yRotationSpeed);
-
-            animNode->setRotation(rot);
+            m_rotation.Y += m_yRotationSpeed;
         }
 
 
@@ -423,7 +435,7 @@ public:
         if(!inputHandlers[currentState])
             BOOST_LOG_TRIVIAL(warning) << "No input handler for state " << currentState;
         else
-            (this->*inputHandlers[currentState])(animNode);
+            (this->*inputHandlers[currentState])();
 
 
         if(m_falling)
@@ -440,7 +452,7 @@ public:
             m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
         }
 
-        auto movementAngle = animNode->getRotation().Y;
+        auto movementAngle = m_rotation.Y;
 
         // behaviour handling depends on the current state *after* handling the input
         switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
@@ -448,17 +460,31 @@ public:
             case LaraState::WalkBackward:
             case LaraState::RunBack:
             case LaraState::JumpBack:
-                movementAngle += 180;
+                movementAngle += 32768;
                 break;
             default:
                 break;
         }
 
-        auto pos = animNode->getPosition();
-        pos.X += std::sin(irr::core::degToRad(movementAngle)) * m_horizontalSpeed;
-        pos.Z += std::cos(irr::core::degToRad(movementAngle)) * m_horizontalSpeed;
-        animNode->setPosition(pos);
-        animNode->updateAbsolutePosition();
+        auto pos = m_lara->getPosition();
+        pos.X += std::sin(auToRad(movementAngle)) * m_horizontalSpeed;
+        pos.Z += std::cos(auToRad(movementAngle)) * m_horizontalSpeed;
+        m_lara->setPosition(pos);
+
+        {
+            //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
+            irr::core::quaternion q;
+            q.makeIdentity();
+            q *= irr::core::quaternion().fromAngleAxis(auToRad(m_rotation.Y), { 0,1,0 });
+            q *= irr::core::quaternion().fromAngleAxis(auToRad(m_rotation.X), { 1,0,0 });
+            q *= irr::core::quaternion().fromAngleAxis(auToRad(m_rotation.Z), { 0,0,-1 });
+
+            irr::core::vector3df euler;
+            q.toEuler(euler);
+            m_lara->setRotation(euler * 180 / irr::core::PI);
+        }
+
+        m_lara->updateAbsolutePosition();
     }
 
     virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
