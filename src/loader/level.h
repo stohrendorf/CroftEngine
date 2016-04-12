@@ -138,6 +138,8 @@ protected:
     static void convertTexture(ByteTexture & tex, Palette & pal, DWordTexture & dst);
     static void convertTexture(WordTexture & tex, DWordTexture & dst);
 
+    void loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData);
+
 private:
     static Game probeVersion(io::SDLReader& reader, const std::string &filename);
     static std::unique_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);

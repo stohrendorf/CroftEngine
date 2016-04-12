@@ -10,8 +10,12 @@
 enum class AxisMovement
 {
     Positive,
+    Right = Positive,
+    Forward = Positive,
     Null,
-    Negative
+    Negative,
+    Left = Negative,
+    Backward = Negative
 };
 
 constexpr irr::f32 auToDeg(irr::s32 au)
@@ -54,11 +58,11 @@ private:
             return;
         }
 
-        if(m_xMovement == AxisMovement::Negative)
+        if(m_xMovement == AxisMovement::Left)
             m_yRotationSpeed = std::max(-728, m_yRotationSpeed - 409);
-        else if(m_xMovement == AxisMovement::Positive)
+        else if(m_xMovement == AxisMovement::Right)
             m_yRotationSpeed = std::min(728, m_yRotationSpeed + 409);
-        if(m_zMovement == AxisMovement::Positive)
+        if(m_zMovement == AxisMovement::Forward)
         {
             if(m_moveSlow)
                 setTargetState(LaraState::WalkForward);
@@ -86,14 +90,14 @@ private:
             setTargetState(LaraState::Stop);
             return;
         }
-        if(m_xMovement == AxisMovement::Negative)
+        if(m_xMovement == AxisMovement::Left)
         {
             m_yRotationSpeed = std::max(-1456, m_yRotationSpeed - 409);
             auto rot = node->getRotation();
             rot.Z = std::max(auToDeg(-2002), rot.Z - auToDeg(273));
             node->setRotation(rot);
         }
-        else if(m_xMovement == AxisMovement::Positive)
+        else if(m_xMovement == AxisMovement::Right)
         {
             m_yRotationSpeed = std::min(1456, m_yRotationSpeed + 409);
             auto rot = node->getRotation();
@@ -102,10 +106,10 @@ private:
         }
         if(m_jump && !m_falling)
         {
-            setTargetState(LaraState::FreeFall);
+            setTargetState(LaraState::JumpForward);
             return;
         }
-        if(m_zMovement != AxisMovement::Positive)
+        if(m_zMovement != AxisMovement::Forward)
         {
             setTargetState(LaraState::Stop);
             return;
@@ -132,19 +136,19 @@ private:
         }
 
         setTargetState(LaraState::Stop);
-        if(m_stepMovement == AxisMovement::Negative)
+        if(m_stepMovement == AxisMovement::Left)
         {
             setTargetState(LaraState::StepLeft);
         }
-        else if(m_stepMovement == AxisMovement::Positive)
+        else if(m_stepMovement == AxisMovement::Right)
         {
             setTargetState(LaraState::StepRight);
         }
-        if(m_xMovement == AxisMovement::Negative)
+        if(m_xMovement == AxisMovement::Left)
         {
             setTargetState(LaraState::TurnLeftSlow);
         }
-        else if(m_xMovement == AxisMovement::Positive)
+        else if(m_xMovement == AxisMovement::Right)
         {
             setTargetState(LaraState::TurnRightSlow);
         }
@@ -152,14 +156,14 @@ private:
         {
             setTargetState(LaraState::JumpPrepare);
         }
-        if(m_zMovement == AxisMovement::Positive)
+        if(m_zMovement == AxisMovement::Forward)
         {
             if(m_moveSlow)
                 onInput0WalkForward(node);
             else
                 onInput1RunForward(node);
         }
-        else if(m_zMovement == AxisMovement::Negative)
+        else if(m_zMovement == AxisMovement::Backward)
         {
             if(m_moveSlow)
                 onInput16WalkBackward(node);
@@ -180,19 +184,29 @@ private:
                 setTargetState(LaraState::Reach);
             //! @todo Not only m_action, but also free hands!
             if(m_moveSlow)
-                setTargetState(LaraState::Reach);
+                setTargetState(LaraState::SwandiveBegin);
             if(m_fallSpeed > 131)
                 setTargetState(LaraState::FreeFall);
         }
 
-        if(m_xMovement == AxisMovement::Negative)
+        if(m_xMovement == AxisMovement::Left)
         {
             m_yRotationSpeed = std::max(-546, m_yRotationSpeed - 409);
         }
-        else if(m_xMovement == AxisMovement::Positive)
+        else if(m_xMovement == AxisMovement::Right)
         {
             m_yRotationSpeed = std::min(546, m_yRotationSpeed + 409);
         }
+    }
+
+    void onInput5RunBackward(irr::scene::IAnimatedMeshSceneNode* node)
+    {
+        setTargetState(LaraState::Stop);
+
+        if(m_xMovement == AxisMovement::Left)
+            m_yRotationSpeed = std::max(-1092, m_yRotationSpeed - 409);
+        else if(m_xMovement == AxisMovement::Right)
+            m_yRotationSpeed = std::min(1092, m_yRotationSpeed + 409);
     }
 
     void onInput6TurnRightSlow(irr::scene::IAnimatedMeshSceneNode* node)
@@ -220,9 +234,9 @@ private:
                 setTargetState(LaraState::TurnFast);
         }
 
-        if(m_zMovement != AxisMovement::Positive)
+        if(m_zMovement != AxisMovement::Forward)
         {
-            if(m_xMovement != AxisMovement::Positive)
+            if(m_xMovement != AxisMovement::Right)
                 setTargetState(LaraState::Stop);
             return;
         }
@@ -258,9 +272,9 @@ private:
                 setTargetState(LaraState::TurnFast);
         }
 
-        if(m_zMovement != AxisMovement::Positive)
+        if(m_zMovement != AxisMovement::Forward)
         {
-            if(m_xMovement != AxisMovement::Negative)
+            if(m_xMovement != AxisMovement::Left)
                 setTargetState(LaraState::Stop);
             return;
         }
@@ -279,14 +293,14 @@ private:
             return;
         }
 
-        if(m_zMovement == AxisMovement::Negative && m_moveSlow)
+        if(m_zMovement == AxisMovement::Backward && m_moveSlow)
             setTargetState(LaraState::WalkBackward);
         else
             setTargetState(LaraState::Stop);
 
-        if(m_xMovement == AxisMovement::Negative)
+        if(m_xMovement == AxisMovement::Left)
             m_yRotationSpeed = std::max(-728, m_yRotationSpeed - 409);
-        else if(m_xMovement == AxisMovement::Positive)
+        else if(m_xMovement == AxisMovement::Right)
             m_yRotationSpeed = std::min(728, m_yRotationSpeed + 409);
     }
 
@@ -301,16 +315,23 @@ private:
         if(m_yRotationSpeed >= 0)
         {
             m_yRotationSpeed = 1456;
-            if(m_xMovement == AxisMovement::Positive)
+            if(m_xMovement == AxisMovement::Right)
                 return;
         }
         else
         {
             m_yRotationSpeed = -1456;
-            if(m_xMovement == AxisMovement::Negative)
+            if(m_xMovement == AxisMovement::Left)
                 return;
         }
         setTargetState(LaraState::Stop);
+    }
+
+    void onInput25JumpBackward(irr::scene::IAnimatedMeshSceneNode* node)
+    {
+        //! @todo Set local camera Y rotation to 24570 AU
+        if(m_fallSpeed > 131)
+            setTargetState(LaraState::FreeFall);
     }
 
 public:
@@ -324,16 +345,14 @@ public:
     
     ~LaraStateHandler() = default;
 
-    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
+    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override
     {
         BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
         irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
         
-        BOOST_ASSERT(animNode->getFrameNr() >= 0);
-        const auto currentFrame = static_cast<irr::u32>(animNode->getFrameNr());
+        const auto currentFrame = 30*timeMs/1000;
         if(currentFrame == m_lastActiveFrame)
             return;
-        
         m_lastActiveFrame = currentFrame;
 
         {
@@ -359,35 +378,53 @@ public:
             animNode->setRotation(rot);
         }
 
-        switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
+
+        static std::array<InputHandler, 55> inputHandlers{{
+            &LaraStateHandler::onInput0WalkForward,
+            &LaraStateHandler::onInput1RunForward,
+            &LaraStateHandler::onInput2Stop,
+            &LaraStateHandler::onInput3JumpForward,
+            nullptr,
+            &LaraStateHandler::onInput5RunBackward,
+            &LaraStateHandler::onInput6TurnRightSlow,
+            &LaraStateHandler::onInput7TurnLeftSlow,
+            nullptr,
+            nullptr,
+            // 10
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            &LaraStateHandler::onInput16WalkBackward,
+            nullptr,
+            nullptr,
+            nullptr,
+            &LaraStateHandler::onInput20TurnFast,
+            nullptr,nullptr,nullptr,nullptr,
+            &LaraStateHandler::onInput25JumpBackward,
+            nullptr,nullptr,nullptr,nullptr,
+            // 30
+            nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,
+            // 40
+            nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,
+            // 50
+            nullptr,nullptr,nullptr,nullptr,nullptr
+        }};
+
+        const auto currentState = m_dispatcher->getCurrentState();
+        if(currentState >= inputHandlers.size())
         {
-            case LaraState::WalkForward:
-                onInput0WalkForward(animNode);
-                break;
-            case LaraState::RunForward:
-                onInput1RunForward(animNode);
-                break;
-            case LaraState::Stop:
-                onInput2Stop(animNode);
-                break;
-            case LaraState::JumpForward:
-                onInput3JumpForward(animNode);
-                break;
-            case LaraState::TurnRightSlow:
-                onInput6TurnRightSlow(animNode);
-                break;
-            case LaraState::TurnLeftSlow:
-                onInput7TurnLeftSlow(animNode);
-                break;
-            case LaraState::WalkBackward:
-                onInput16WalkBackward(animNode);
-                break;
-            case LaraState::TurnFast:
-                onInput20TurnFast(animNode);
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(debug) << "Unhandled state: " << m_dispatcher->getCurrentState();
+            BOOST_LOG_TRIVIAL(error) << "Unexpected state " << currentState;
+            return;
         }
+
+        if(!inputHandlers[currentState])
+            BOOST_LOG_TRIVIAL(warning) << "No input handler for state " << currentState;
+        else
+            (this->*inputHandlers[currentState])(animNode);
+
 
         if(m_falling)
         {
@@ -396,15 +433,30 @@ public:
                 m_fallSpeed += 1;
             else
                 m_fallSpeed += 6;
+            m_fallSpeed = 0; //!< @todo We're never falling (for now).
         }
         else
         {
             m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
         }
 
+        auto movementAngle = animNode->getRotation().Y;
+
+        // behaviour handling depends on the current state *after* handling the input
+        switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
+        {
+            case LaraState::WalkBackward:
+            case LaraState::RunBack:
+            case LaraState::JumpBack:
+                movementAngle += 180;
+                break;
+            default:
+                break;
+        }
+
         auto pos = animNode->getPosition();
-        pos.X += std::sin(irr::core::degToRad(animNode->getRotation().Y)) * m_horizontalSpeed;
-        pos.Z += std::cos(irr::core::degToRad(animNode->getRotation().Y)) * m_horizontalSpeed;
+        pos.X += std::sin(irr::core::degToRad(movementAngle)) * m_horizontalSpeed;
+        pos.Z += std::cos(irr::core::degToRad(movementAngle)) * m_horizontalSpeed;
         animNode->setPosition(pos);
         animNode->updateAbsolutePosition();
     }
@@ -418,9 +470,9 @@ public:
     void setXAxisMovement(bool left, bool right)
     {
         if(left < right)
-            m_xMovement = AxisMovement::Positive;
+            m_xMovement = AxisMovement::Right;
         else if(left > right)
-            m_xMovement = AxisMovement::Negative;
+            m_xMovement = AxisMovement::Left;
         else
             m_xMovement = AxisMovement::Null;
     }
@@ -428,9 +480,9 @@ public:
     void setZAxisMovement(bool back, bool forward)
     {
         if(back < forward)
-            m_zMovement = AxisMovement::Positive;
+            m_zMovement = AxisMovement::Forward;
         else if(back > forward)
-            m_zMovement = AxisMovement::Negative;
+            m_zMovement = AxisMovement::Backward;
         else
             m_zMovement = AxisMovement::Null;
     }

@@ -594,6 +594,46 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
     return lara;
 }
 
+void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData)
+{
+    uint16_t angleSetOfs = 0x0a;
+
+    for(size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++)
+    {
+        auto joint = skinnedMesh->getAllJoints()[meshIdx];
+        auto pKey = skinnedMesh->addPositionKey(joint);
+        pKey->frame = frameIdx + frameOffset;
+
+        if(meshIdx == 0)
+        {
+            pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
+        }
+        else
+        {
+            BOOST_ASSERT(model.boneTreeIndex + 4 * meshIdx <= m_boneTrees.size());
+            const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (meshIdx - 1) * 4];
+            pKey->position.set(static_cast<irr::f32>(boneTreeData[1]), static_cast<irr::f32>(-boneTreeData[2]), static_cast<irr::f32>(boneTreeData[3]));
+        }
+
+        auto rKey = skinnedMesh->addRotationKey(joint);
+        rKey->frame = frameIdx + frameOffset;
+
+        auto temp2 = pData[angleSetOfs++];
+        auto temp1 = pData[angleSetOfs++];
+
+        irr::core::vector3df rot;
+        rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
+        rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+        rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
+        rot *= 360 / 1024.0;
+        // rot *= 2*M_PI / 1024.0;
+
+        rKey->rotation = util::trRotationToQuat(rot);
+    }
+
+    pData += animation.poseDataSize;
+}
+
 void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
 {
     const auto meshPositionIndex = animation.poseDataOffset / 2;
@@ -601,43 +641,12 @@ void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, cons
 
     for(irr::u32 frameIdx = 0; frameIdx <= animation.lastFrame - animation.firstFrame; frameIdx += animation.stretchFactor)
     {
-        uint16_t angleSetOfs = 0x0a;
-
-        for(size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++)
-        {
-            auto joint = skinnedMesh->getAllJoints()[meshIdx];
-            auto pKey = skinnedMesh->addPositionKey(joint);
-            pKey->frame = frameIdx + frameOffset;
-
-            if(meshIdx == 0)
-            {
-                pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
-            }
-            else
-            {
-                BOOST_ASSERT(model.boneTreeIndex + 4 * meshIdx <= m_boneTrees.size());
-                const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (meshIdx - 1) * 4];
-                pKey->position.set(static_cast<irr::f32>(boneTreeData[1]), static_cast<irr::f32>(-boneTreeData[2]), static_cast<irr::f32>(boneTreeData[3]));
-            }
-
-            auto rKey = skinnedMesh->addRotationKey(joint);
-            rKey->frame = frameIdx + frameOffset;
-
-            auto temp2 = pData[angleSetOfs++];
-            auto temp1 = pData[angleSetOfs++];
-
-            irr::core::vector3df rot;
-            rot.X = static_cast<irr::f32>((temp1 & 0x3ff0) >> 4);
-            rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
-            rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
-            rot *= 360 / 1024.0;
-            // rot *= 2*M_PI / 1024.0;
-
-            rKey->rotation = util::trRotationToQuat(rot);
-        }
-
-        pData += animation.poseDataSize;
+        loadAnimFrame(frameIdx, frameOffset, model, animation, skinnedMesh, pData);
     }
+
+    pData = &m_poseData[meshPositionIndex];
+    // append the first frame again
+    loadAnimFrame(0, frameOffset + animation.lastFrame - animation.firstFrame + 1, model, animation, skinnedMesh, pData);
 }
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
@@ -759,24 +768,36 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
 
             const Animation& animation = m_animations[currentAnimIdx];
             loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
+            loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
             const auto animLength = animation.getKeyframeCount() * animation.stretchFactor;
             if(animation.firstFrame == animation.lastFrame)
             {
                 BOOST_LOG_TRIVIAL(debug) << "Creating pseudo-animation for animation " << currentAnimIdx;
+                model->frameMapping.emplace(
+                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame + 2)));
                 // add pseudo-animation loop to trick Irrlicht into thinking
                 // that the animation isn't static and thus calling the animation dispatcher.
-                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animLength), *model, animation, skinnedMesh);
+                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animation.stretchFactor), *model, animation, skinnedMesh);
+                loadAnimation(static_cast<irr::f32>(currentAnimOffset + 2*animation.stretchFactor), *model, animation, skinnedMesh);
+                currentAnimOffset += 2*animation.stretchFactor;
+            }
+            else if(animation.firstFrame+1 == animation.lastFrame)
+            {
+                BOOST_LOG_TRIVIAL(debug) << "Creating pseudo-animation for animation " << currentAnimIdx;
                 model->frameMapping.emplace(
-                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame+1)));
-                currentAnimOffset += 2*animLength;
+                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame + 1)));
+                // add pseudo-animation loop to trick Irrlicht into thinking
+                // that the animation isn't static and thus calling the animation dispatcher.
+                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animation.stretchFactor), *model, animation, skinnedMesh);
+                currentAnimOffset += animation.stretchFactor;
             }
             else
             {
                 BOOST_LOG_TRIVIAL(debug) << "Creating simple frame range for animation " << currentAnimIdx;
                 model->frameMapping.emplace(
                     std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
-                currentAnimOffset += animLength;
             }
+            currentAnimOffset += animLength + animation.stretchFactor;
         }
         
 #ifndef NDEBUG
