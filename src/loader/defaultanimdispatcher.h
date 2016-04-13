@@ -87,13 +87,14 @@ public:
         return currentAnim.accelleration / (1 << 16);
     }
 
+    irr::u32 getCurrentFrame() const;
+
 private:
     /**
      * @brief Starts to play the current animation at the specified frame.
      * @param[in] localFrame The animation-local frame number.
      */
     void startAnimLoop(irr::u32 localFrame);
-    irr::u32 getCurrentFrame() const;
     irr::u32 getCurrentRelativeFrame() const;
 };
 

@@ -36,6 +36,7 @@ constexpr irr::s32 degToAu(irr::f32 deg)
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
     using LaraState = loader::LaraState;
+    friend class Behavior;
 private:
     const loader::Level* const m_level;
     std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
@@ -59,6 +60,9 @@ private:
     bool m_falling = false;
     int m_fallSpeed = 0;
     int m_horizontalSpeed = 0;
+    int m_fallSpeedOverride = 0;
+    int m_movementAngle = 0;
+    int m_air = 1800;
 
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3di m_rotation;
@@ -371,6 +375,9 @@ public:
             return;
         m_lastActiveFrame = currentFrame;
 
+        //! @todo Only when on solid ground
+        m_air = 1800;
+
         {
             // "slowly" revert rotations to zero
 
@@ -391,7 +398,7 @@ public:
         }
 
 
-        static std::array<InputHandler, 55> inputHandlers{{
+        static std::array<InputHandler, 56> inputHandlers{{
             &LaraStateHandler::onInput0WalkForward,
             &LaraStateHandler::onInput1RunForward,
             &LaraStateHandler::onInput2Stop,
@@ -422,7 +429,7 @@ public:
             // 40
             nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,
             // 50
-            nullptr,nullptr,nullptr,nullptr,nullptr
+            nullptr,nullptr,nullptr,nullptr,nullptr,nullptr
         }};
 
         const auto currentState = m_dispatcher->getCurrentState();
@@ -452,7 +459,7 @@ public:
             m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
         }
 
-        auto movementAngle = m_rotation.Y;
+        m_movementAngle = m_rotation.Y;
 
         // behaviour handling depends on the current state *after* handling the input
         switch(static_cast<LaraState>(m_dispatcher->getCurrentState()))
@@ -460,15 +467,81 @@ public:
             case LaraState::WalkBackward:
             case LaraState::RunBack:
             case LaraState::JumpBack:
-                movementAngle += 32768;
+                m_movementAngle += 32768;
                 break;
             default:
                 break;
         }
 
+        processAnimCommands();
+    }
+
+    enum class AnimCommandOpcode : uint16_t
+    {
+        SetPosition = 1,
+        SetVelocity = 2,
+        EmptyHands = 3,
+        Kill = 4,
+        PlaySound = 5,
+        PlayEffect = 6,
+        Interact = 7
+    };
+
+    void processAnimCommands()
+    {
+        const loader::Animation& animation = m_level->m_animations[m_dispatcher->getCurrentAnimationId()];
+        if(animation.animCommandCount > 0)
+        {
+            BOOST_ASSERT(animation.animCommandIndex < m_level->m_animCommands.size());
+            const auto* cmd = &m_level->m_animCommands[animation.animCommandIndex];
+            for(uint16_t i = 0; i < animation.animCommandCount; ++i)
+            {
+                BOOST_ASSERT(cmd < &m_level->m_animCommands.back());
+                const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
+                ++cmd;
+                switch(opcode)
+                {
+                    case AnimCommandOpcode::SetPosition:
+                    {
+                        auto dx = cmd[0];
+                        auto dy = cmd[1];
+                        auto dz = cmd[2];
+                        cmd += 3;
+                        break;
+                    }
+                    case AnimCommandOpcode::SetVelocity:
+                        m_fallSpeed = m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride;
+                        m_fallSpeedOverride = 0;
+                        m_horizontalSpeed = cmd[1];
+                        m_falling = true;
+                        cmd += 2;
+                        break;
+                    case AnimCommandOpcode::EmptyHands:
+                        //! @todo Set hand status to "free"
+                        break;
+                    case AnimCommandOpcode::PlaySound:
+                        if(m_dispatcher->getCurrentFrame() == cmd[0])
+                        {
+                            //! @todo playsound(cmd[1])
+                        }
+                        cmd += 2;
+                        break;
+                    case AnimCommandOpcode::PlayEffect:
+                        if(m_dispatcher->getCurrentFrame() == cmd[0])
+                        {
+                            //! @todo Execute anim effect cmd[1]
+                        }
+                        cmd += 2;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         auto pos = m_lara->getPosition();
-        pos.X += std::sin(auToRad(movementAngle)) * m_horizontalSpeed;
-        pos.Z += std::cos(auToRad(movementAngle)) * m_horizontalSpeed;
+        pos.X += std::sin(auToRad(m_movementAngle)) * m_horizontalSpeed;
+        pos.Z += std::cos(auToRad(m_movementAngle)) * m_horizontalSpeed;
         m_lara->setPosition(pos);
 
         {
