@@ -318,6 +318,7 @@ add_executable(ot_irr
     loader/tr5level.cpp
     loader/trcamerascenenodeanimator.cpp
     loader/defaultanimdispatcher.cpp
+    loader/larastatehandler.cpp
 )
 
 if(NOT MSVC)

@@ -122,4 +122,19 @@ inline bool intersectRayRectangle(const irr::core::vector3df& rayStart, const ir
         return false;
 }
 #endif
+
+constexpr irr::f32 auToDeg(irr::s32 au)
+{
+    return au / 65536.0f * 360;
+}
+
+constexpr irr::f32 auToRad(irr::s32 au)
+{
+    return au / 65536.0f * 2 * irr::core::PI;
+}
+
+constexpr irr::s32 degToAu(irr::f32 deg)
+{
+    return static_cast<irr::s32>(deg * 65536 / 360);
+}
 } // namespace util
