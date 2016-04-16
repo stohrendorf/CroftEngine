@@ -57,6 +57,16 @@ public:
     //! Event receiver, override this function for camera controlling animators
     virtual bool OnEvent(const irr::SEvent& evt) override;
     
+    const loader::Room* getCurrentRoom() const noexcept
+    {
+        return m_currentRoom;
+    }
+
+    const loader::Level* getLevel() const noexcept
+    {
+        return m_level;
+    }
+
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
 

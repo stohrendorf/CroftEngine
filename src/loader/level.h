@@ -7,6 +7,7 @@
 #include <vector>
 
 class LaraStateHandler;
+class TRCameraSceneNodeAnimator;
 
 namespace loader
 {
@@ -84,6 +85,8 @@ public:
      * 2 Snow (in title.trc these are red triangles falling from the sky).
      */
     uint16_t m_weatherType = 0;
+
+    TRCameraSceneNodeAnimator* m_camera = nullptr;
 
     static std::unique_ptr<Level> createLoader(const std::string &filename, Game game_version);
     virtual void load(irr::video::IVideoDriver* drv) = 0;

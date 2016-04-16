@@ -1,6 +1,7 @@
 #include "larastatehandler.h"
 
 #include "defaultanimdispatcher.h"
+#include "trcamerascenenodeanimator.h"
 
 void LaraStateHandler::setTargetState(loader::LaraState st)
 {
@@ -479,3 +480,233 @@ void LaraStateHandler::processAnimCommands()
 
     m_lara->updateAbsolutePosition();
 }
+
+struct HeightInfo
+{
+    enum class SlantClass
+    {
+        None,
+        Max512,
+        Steep
+    };
+
+    const uint16_t* triggerOrKill = nullptr;
+    int height = 0;
+    SlantClass slantClass = SlantClass::None;
+
+    void initFloor(TRCameraSceneNodeAnimator* camera, const irr::core::vector3df& pos, bool skipSteepSlants)
+    {
+        const loader::Sector* roomSector = camera->getCurrentRoom()->getSectorByAbsolutePosition(pos);
+        BOOST_ASSERT(roomSector != nullptr);
+        for(auto room = camera->getCurrentRoom(); roomSector->roomBelow != 0xff; roomSector = room->getSectorByAbsolutePosition(pos))
+        {
+            BOOST_ASSERT(roomSector->roomAbove < camera->getLevel()->m_rooms.size());
+            room = &camera->getLevel()->m_rooms[roomSector->roomBelow];
+        }
+
+        height = roomSector->floorHeight * loader::QuarterSectorSize;
+
+        if(roomSector->floorDataIndex == 0)
+        {
+            return;
+        }
+
+        const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
+        while(true)
+        {
+            const bool isLast = loader::isLastFloorataEntry(*floorData);
+            const auto currentFd = *floorData;
+            ++floorData;
+            switch(loader::extractFDFunction(currentFd))
+            {
+                case loader::FDFunction::FloorSlant:
+                {
+                    const int8_t xSlant = static_cast<int8_t>(*floorData & 0xff);
+                    const auto absX = std::abs(xSlant);
+                    const int8_t zSlant = static_cast<int8_t>((*floorData >> 8) & 0xff);
+                    const auto absZ = std::abs(zSlant);
+                    if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+                    {
+                        if(absX <= 2 && absZ <= 2)
+                            slantClass = HeightInfo::SlantClass::Max512;
+                        else
+                            slantClass = HeightInfo::SlantClass::Steep;
+
+                        const irr::f32 localX = std::fmod(pos.X, loader::SectorSize);
+                        const irr::f32 localZ = std::fmod(pos.Z, loader::SectorSize);
+
+                        if(zSlant > 0) // lower edge at -Z
+                        {
+                            auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
+                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        }
+                        else if(zSlant < 0)  // lower edge at +Z
+                        {
+                            auto dist = localZ / loader::SectorSize;
+                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        }
+
+                        if(xSlant > 0) // lower edge at -X
+                        {
+                            auto dist = (loader::SectorSize - localX) / loader::SectorSize;
+                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        }
+                        else if(xSlant < 0) // lower edge at +X
+                        {
+                            auto dist = localX / loader::SectorSize;
+                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        }
+                    }
+                }
+                // Fall-through
+                case loader::FDFunction::CeilingSlant:
+                case loader::FDFunction::PortalSector:
+                    ++floorData;
+                    break;
+                case loader::FDFunction::Death:
+                    triggerOrKill = floorData - 1;
+                    break;
+                case loader::FDFunction::Trigger:
+                    if(!triggerOrKill)
+                        triggerOrKill = floorData - 1;
+                    ++floorData;
+                    while(true)
+                    {
+                        const bool isLast = loader::isLastFloorataEntry(*floorData);
+
+                        const auto func = loader::extractTriggerFunction(*floorData);
+                        const auto param = loader::extractTriggerFunctionParam(*floorData);
+                        ++floorData;
+
+                        if(func != loader::TriggerFunction::Object)
+                        {
+                            if(func == loader::TriggerFunction::CameraTarget)
+                            {
+                                ++floorData;
+                            }
+                        }
+                        else
+                        {
+                            BOOST_ASSERT(func == loader::TriggerFunction::Object);
+                            //! @todo Query height patch from object @c param, e.g. trapdoors or falling floor.
+                        }
+
+                        if(isLast)
+                            break;
+                    }
+                default:
+                    break;
+            }
+            if(isLast)
+                break;
+        }
+    }
+
+    void initCeiling(TRCameraSceneNodeAnimator* camera, const irr::core::vector3df& pos, bool skipSteepSlants)
+    {
+        const loader::Sector* roomSector = camera->getCurrentRoom()->getSectorByAbsolutePosition(pos);
+        BOOST_ASSERT(roomSector != nullptr);
+        for(auto room = camera->getCurrentRoom(); roomSector->roomAbove != 0xff; roomSector = room->getSectorByAbsolutePosition(pos))
+        {
+            BOOST_ASSERT(roomSector->roomAbove < camera->getLevel()->m_rooms.size());
+            room = &camera->getLevel()->m_rooms[roomSector->roomAbove];
+        }
+
+        height = roomSector->ceilingHeight * loader::QuarterSectorSize;
+
+        if(roomSector->floorDataIndex == 0)
+        {
+            return;
+        }
+
+        const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
+        while(true)
+        {
+            const bool isLast = loader::isLastFloorataEntry(*floorData);
+            const auto currentFd = *floorData;
+            ++floorData;
+            switch(loader::extractFDFunction(currentFd))
+            {
+                case loader::FDFunction::CeilingSlant:
+                {
+                    const int8_t xSlant = static_cast<int8_t>(*floorData & 0xff);
+                    const auto absX = std::abs(xSlant);
+                    const int8_t zSlant = static_cast<int8_t>((*floorData >> 8) & 0xff);
+                    const auto absZ = std::abs(zSlant);
+                    if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+                    {
+                        if(absX <= 2 && absZ <= 2)
+                            slantClass = HeightInfo::SlantClass::Max512;
+                        else
+                            slantClass = HeightInfo::SlantClass::Steep;
+
+                        const irr::f32 localX = std::fmod(pos.X, loader::SectorSize);
+                        const irr::f32 localZ = std::fmod(pos.Z, loader::SectorSize);
+
+                        if(zSlant > 0) // lower edge at -Z
+                        {
+                            auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
+                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        }
+                        else if(zSlant < 0)  // lower edge at +Z
+                        {
+                            auto dist = localZ / loader::SectorSize;
+                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        }
+
+                        if(xSlant > 0) // lower edge at -X
+                        {
+                            auto dist = (loader::SectorSize - localX) / loader::SectorSize;
+                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        }
+                        else if(xSlant < 0) // lower edge at +X
+                        {
+                            auto dist = localX / loader::SectorSize;
+                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        }
+                    }
+                }
+                // Fall-through
+                case loader::FDFunction::FloorSlant:
+                case loader::FDFunction::PortalSector:
+                    ++floorData;
+                    break;
+                case loader::FDFunction::Death:
+                    triggerOrKill = floorData - 1;
+                    break;
+                case loader::FDFunction::Trigger:
+                    if(!triggerOrKill)
+                        triggerOrKill = floorData - 1;
+                    ++floorData;
+                    while(true)
+                    {
+                        const bool isLast = loader::isLastFloorataEntry(*floorData);
+
+                        const auto func = loader::extractTriggerFunction(*floorData);
+                        const auto param = loader::extractTriggerFunctionParam(*floorData);
+                        ++floorData;
+
+                        if(func != loader::TriggerFunction::Object)
+                        {
+                            if(func == loader::TriggerFunction::CameraTarget)
+                            {
+                                ++floorData;
+                            }
+                        }
+                        else
+                        {
+                            BOOST_ASSERT(func == loader::TriggerFunction::Object);
+                            //! @todo Query height patch from object @c param.
+                        }
+
+                        if(isLast)
+                            break;
+                    }
+                default:
+                    break;
+            }
+            if(isLast)
+                break;
+        }
+    }
+};

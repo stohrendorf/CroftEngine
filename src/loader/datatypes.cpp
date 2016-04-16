@@ -228,19 +228,21 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         }
         buffer.second->Material = material;
         result->addMeshBuffer(buffer.second);
+        buffer.second->drop();
     }
     
     result->recalculateBoundingBox();
     
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
+    result->drop();
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
-    resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
+    // resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
     for(const Light& light : lights)
     {
         irr::scene::ILightSceneNode* ln = mgr->addLightSceneNode(resultNode);
+        ln->enableCastShadow(true);
         switch(light.getLightType())
         {
-            //ln->enableCastShadow(true);
             case LightType::Shadow:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
                 ln->setLightType(irr::video::ELT_POINT);
@@ -266,7 +268,8 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_LOG_TRIVIAL(debug) << "  - Fade1: " << light.fade1;
         BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
         BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
-        
+        BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
+
         irr::video::SLight& ld = ln->getLightData();
         ld.InnerCone = light.r_inner;
         ld.OuterCone = light.r_outer;
@@ -274,10 +277,13 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
         ld.Falloff = light.intensity;
+        ld.Attenuation.Y = 1.0f / ld.OuterCone;
         ln->setPosition(light.position - position);
         ln->setRotation(light.dir);
         ln->setRadius(light.r_outer);
+#ifndef NDEBUG
         ln->setDebugDataVisible(irr::scene::EDS_FULL);
+#endif
     }
     
     for(const RoomStaticMesh& sm : this->staticMeshes)
@@ -342,6 +348,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     }
     
+    resultNode->addShadowVolumeSceneNode();
     node = resultNode;
     
     return resultNode;

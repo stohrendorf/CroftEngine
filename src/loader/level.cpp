@@ -540,7 +540,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             name += "/animatedModel)";
             node->setName(name.c_str());
                         
-            node->setAutomaticCulling(false);
+            //node->setAutomaticCulling(false);
             node->setRotation({0, item.rotation, 0});
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
@@ -554,6 +554,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
                 lara.stateHandler = new LaraStateHandler(this, dispatcher, node, name + ":statehandler");
                 node->addAnimator(lara.stateHandler);
                 lara.stateHandler->drop();
+                node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
@@ -561,15 +562,13 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
-                irr::video::SColor col;
-                col.set(static_cast<irr::u32>(room.lightColor.a * 255), static_cast<irr::u32>(room.lightColor.r * 255), static_cast<irr::u32>(room.lightColor.g * 255), static_cast<irr::u32>(room.lightColor.b * 255));
+                irr::video::SColor col = room.lightColor.toSColor(room.intensity1/32767.0f);
                 node->getMaterial(i).AmbientColor = col;
                 node->getMaterial(i).DiffuseColor = col;
                 node->getMaterial(i).EmissiveColor = col;
                 node->getMaterial(i).SpecularColor = col;
-                node->getMaterial(i).Lighting = false;
+                //node->getMaterial(i).Lighting = false;
             }
-            node->addShadowVolumeSceneNode();
             if(item.isInitiallyInvisible())
                 node->setVisible(false);
             
@@ -849,7 +848,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         irr::video::SMaterial result;
         // Set some defaults
         result.setTexture(0, createSolidColorTex(mgr, i));
-        result.BackfaceCulling = false;
+        //result.BackfaceCulling = false;
         result.ColorMaterial = irr::video::ECM_AMBIENT;
         result.Lighting = true;
         result.AmbientColor.set(0);
@@ -881,7 +880,8 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
-    camera->addAnimator(new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler));
+    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler);
+    camera->addAnimator(m_camera);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
     camera->setFarValue(2e5);

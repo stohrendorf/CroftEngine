@@ -2,7 +2,13 @@
 
 int main()
 {
-    irr::IrrlichtDevice* device = irr::createDevice( irr::video::EDT_OPENGL, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, nullptr);    
+#ifdef _MSC_VER
+    const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_DIRECT3D9;
+#else
+    const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_OPENGL;
+#endif
+
+    irr::IrrlichtDevice* device = irr::createDevice( driverType, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, nullptr);    
     if(!device)
         return EXIT_FAILURE;
     

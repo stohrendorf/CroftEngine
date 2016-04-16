@@ -69,6 +69,17 @@ private:
 struct FloatColor
 {
     float r, g, b, a;
+
+    irr::video::SColor toSColor(irr::f32 intensity) const
+    {
+        BOOST_ASSERT(intensity >=0 && intensity <= 1);
+        irr::video::SColor col;
+        col.setRed(static_cast<irr::u32>(r * intensity * 255));
+        col.setGreen(static_cast<irr::u32>(g * intensity * 255));
+        col.setBlue(static_cast<irr::u32>(b * intensity * 255));
+        col.setAlpha(static_cast<irr::u32>(a * intensity * 255));
+        return col;
+    }
 };
 
 /**
@@ -400,11 +411,7 @@ struct Light
         // only in TR2
         light.intensity2 = light.intensity1;
 
-        light.intensity = light.intensity1;
-        light.intensity /= 4096.0f;
-
-        if(light.intensity > 1.0f)
-            light.intensity = 1.0f;
+        light.intensity = irr::core::clamp(light.intensity1/4095.0f, 0.0f, 1.0f);
 
         light.fade2 = light.fade1;
 
@@ -986,7 +993,7 @@ struct UVTexture
         irr::video::SMaterial result;
         // Set some defaults
         result.setTexture(0, texture);
-        result.BackfaceCulling = false;
+        //result.BackfaceCulling = false;
         result.ColorMaterial = irr::video::ECM_DIFFUSE_AND_AMBIENT;
         result.Lighting = true;
         result.AmbientColor.set(0);
@@ -1279,9 +1286,9 @@ struct Room
         room->flags = reader.readU16();
         room->reverbInfo = ReverbType::MediumRoom;
 
-        room->lightColor.r = room->intensity1 / 32767.0f;
-        room->lightColor.g = room->intensity1 / 32767.0f;
-        room->lightColor.b = room->intensity1 / 32767.0f;
+        room->lightColor.r = 1.0f;
+        room->lightColor.g = 1.0f;
+        room->lightColor.b = 1.0f;
         room->lightColor.a = 1.0f;
         return room;
     }
@@ -2745,4 +2752,103 @@ struct Palette
 };
 
 using FloorData = std::vector<uint16_t>;
+
+
+//! @brief Native TR floor data functions
+//! @ingroup native
+enum class FDFunction : uint8_t
+{
+    PortalSector = 0x01,
+    FloorSlant = 0x02,
+    CeilingSlant = 0x03,
+    Trigger = 0x04,
+    Death = 0x05,
+    Climb = 0x06,
+    FloorTriangleNW = 0x07,    //  [_\_]
+    FloorTriangleNE = 0x08,    //  [_/_]
+    CeilingTriangleNW = 0x09,    //  [_/_]
+    CeilingTriangleNE = 0x0A,    //  [_\_]
+    FloorTriangleNWPortalSW = 0x0B,    //  [P\_]
+    FloorTriangleNWPortalNE = 0x0C,    //  [_\P]
+    FloorTriangleNEPortalSE = 0x0D,    //  [_/P]
+    FloorTriangleNEPortalNW = 0x0E,    //  [P/_]
+    CeilingTriangleNWPortalSW = 0x0F,    //  [P\_]
+    CeilingTriangleNWPortalNE = 0x10,    //  [_\P]
+    CeilingTriangleNEPortalNW = 0x11,    //  [P/_]
+    CeilingTriangleNEPortalSE = 0x12,    //  [_/P]
+    Monkey = 0x13,
+    MinecartLeft = 0x14,    // In TR3 only. Function changed in TR4+.
+    MinecartRight = 0x15     // In TR3 only. Function changed in TR4+.
+};
+
+//! @brief Native trigger types.
+//! @ingroup native
+//! @see FDFunction::Trigger
+//! @see TriggerFunction
+enum class TriggerType
+{
+    Trigger = 0x00,    //!< If Lara is in sector, run (any case).
+    Pad = 0x01,    //!< If Lara is in sector, run (land case).
+    Switch = 0x02,    //!< If item is activated, run, else stop.
+    Key = 0x03,    //!< If item is activated, run.
+    Pickup = 0x04,    //!< If item is picked up, run.
+    Heavy = 0x05,    //!< If item is in sector, run, else stop.
+    AntiPad = 0x06,    //!< If Lara is in sector, stop (land case).
+    Combat = 0x07,    //!< If Lara is in combat state, run (any case).
+    Dummy = 0x08,    //!< If Lara is in sector, run (air case).
+    AntiTrigger = 0x09,    //!< TR2-5 only: If Lara is in sector, stop (any case).
+    HeavySwitch = 0x0A,    //!< TR3-5 only: If item is activated by item, run.
+    HeavyAntiTrigger = 0x0B,    //!< TR3-5 only: If item is activated by item, stop.
+    Monkey = 0x0C,    //!< TR3-5 only: If Lara is monkey-swinging, run.
+    Skeleton = 0x0D,    //!< TR5 only: Activated by skeleton only?
+    TightRope = 0x0E,    //!< TR5 only: If Lara is on tightrope, run.
+    CrawlDuck = 0x0F,    //!< TR5 only: If Lara is crawling, run.
+    Climb = 0x10,    //!< TR5 only: If Lara is climbing, run.
+};
+
+//! @brief Native trigger function types.
+//! @ingroup native
+//! @see FDFunction::Trigger
+//! @see TriggerType
+enum class TriggerFunction
+{
+    Object = 0x00,
+    CameraTarget = 0x01,
+    UnderwaterCurrent = 0x02,
+    FlipMap = 0x03,
+    FlipOn = 0x04,
+    FlipOff = 0x05,
+    LookAt = 0x06,
+    EndLevel = 0x07,
+    PlayTrack = 0x08,
+    FlipEffect = 0x09,
+    Secret = 0x0A,
+    ClearBodies = 0x0B,    // Unused in TR4
+    FlyBy = 0x0C,
+    CutScene = 0x0D
+};
+
+inline constexpr FDFunction extractFDFunction(FloorData::value_type data)
+{
+    return static_cast<FDFunction>(data);
+}
+
+inline constexpr TriggerFunction extractTriggerFunction(FloorData::value_type data)
+{
+    return static_cast<TriggerFunction>((data & 0x3fff) >> 10);
+}
+
+inline constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)
+{
+    return data & 0x3fff;
+}
+
+inline constexpr bool isLastFloorataEntry(FloorData::value_type data)
+{
+    return (data & 0x8000) != 0;
+}
+
+constexpr irr::u32 QuarterSectorSize = 256;
+constexpr irr::u32 SectorSize = 1024;
+
 } // namespace loader
