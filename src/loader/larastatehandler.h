@@ -19,6 +19,8 @@ enum class AxisMovement
     Backward = Negative
 };
 
+struct LaraState;
+
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
     using LaraState = loader::LaraState;
@@ -154,4 +156,9 @@ private:
     LaraState getTargetState() const;
     
     void playAnimation(loader::AnimationId anim);
+
+    bool tryStopOnFloor(::LaraState& state);
+    bool tryClimb(::LaraState& state);
+
+    void applyCollisionFeedback(::LaraState& state);
 };

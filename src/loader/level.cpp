@@ -427,11 +427,11 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
 }
 
 #ifndef NDEBUG
-using StateMap = std::map<LaraState, std::map<AnimationId, std::map<AnimationId, std::string>>>;
+using StateMap = std::map<loader::LaraState, std::map<AnimationId, std::map<AnimationId, std::string>>>;
 
 void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& anim, const Level* level)
 {
-    map[static_cast<LaraState>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
+    map[static_cast<loader::LaraState>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
     for(size_t i = 0; i < anim.transitionsCount; ++i)
     {
         auto tIdx = anim.transitionsIndex + i;
@@ -445,7 +445,7 @@ void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& ani
 
             AnimationId a = static_cast<AnimationId>(trc.targetAnimation - ofs);
             
-            map[static_cast<LaraState>(anim.state_id)][aid][a] = {};
+            map[static_cast<loader::LaraState>(anim.state_id)][aid][a] = {};
         }
     }
 }
