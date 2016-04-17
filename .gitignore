@@ -10,3 +10,6 @@ Thumbs.db
 
 src/loader/animationids_enum.h
 src/loader/larastate_enum.h
+screen_*.png
+*.log
+*.dll

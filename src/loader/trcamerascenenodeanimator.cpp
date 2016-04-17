@@ -400,7 +400,7 @@ loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loade
 {
     const int8_t timer = static_cast<int8_t>(*floorDataIt & 0x00FF);
     const uint8_t mask = (*floorDataIt & 0x3E00) >> 9;
-    const bool onlyOnce = (*floorDataIt & 0x0100) >> 8;
+    const bool onlyOnce = ((*floorDataIt & 0x0100) >> 8) != 0;
     
     //BOOST_LOG_TRIVIAL(debug) << "Trigger: timer=" << int(timer) << ", mask=0x" << std::hex << int(mask) << std::dec << ", onlyOnce=" << (onlyOnce ? "true" : "false");
     

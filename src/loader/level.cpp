@@ -926,3 +926,63 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
         }
     }
 }
+
+const Sector* Level::findSectorForPosition(const irr::core::vector3df& position, const Room* room) const
+{
+    BOOST_ASSERT(room != nullptr);
+
+    const Sector* sector = nullptr;
+    while(true)
+    {
+        int sectorX = (position.X - room->position.X) / SectorSize;
+        int sectorZ = (position.Z - room->position.Z) / SectorSize;
+        if(sectorZ > 0)
+        {
+            if(sectorZ < room->sectorCountZ-1)
+            {
+                // This inconsistency of sector coordinate limits is indeed used in TR1.
+                sectorX = irr::core::clamp(sectorX, 0, room->sectorCountX - 1);
+            }
+            else
+            {
+                sectorZ = room->sectorCountZ - 1;
+                sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
+            }
+        }
+        else
+        {
+            sectorZ = 0;
+            sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
+        }
+
+        sector = &room->sectors[sectorZ + room->sectorCountZ * sectorX];
+        const auto portalTarget = sector->getPortalTarget(m_floorData);
+        if(!portalTarget)
+            break;
+
+        BOOST_ASSERT(*portalTarget < m_rooms.size());
+        room = &m_rooms[*portalTarget];
+    }
+
+    BOOST_ASSERT(sector != nullptr);
+    if(sector->floorHeight * QuarterSectorSize > position.Y)
+    {
+        while(sector->ceilingHeight*QuarterSectorSize > position.Y && sector->roomAbove != 0xff)
+        {
+            BOOST_ASSERT(sector->roomAbove < m_rooms.size());
+            room = &m_rooms[sector->roomAbove];
+            sector = room->getSectorByAbsolutePosition(position);
+        }
+    }
+    else
+    {
+        while(sector->floorHeight*QuarterSectorSize <= position.Y && sector->roomBelow != 0xff)
+        {
+            BOOST_ASSERT(sector->roomBelow < m_rooms.size());
+            room = &m_rooms[sector->roomBelow];
+            sector = room->getSectorByAbsolutePosition(position);
+        }
+    }
+
+    return sector;
+}

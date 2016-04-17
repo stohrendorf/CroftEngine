@@ -131,6 +131,27 @@ public:
         }
     }
     
+    const Sector* findSectorForPosition(const irr::core::vector3df& position, const Room* room) const;
+
+    std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const irr::core::vector3df& position) const
+    {
+        while(sector->roomBelow != 0xff)
+        {
+            auto room = &m_rooms[sector->roomBelow];
+            sector = room->getSectorByAbsolutePosition(position);
+        }
+
+        if(position.Y + QuarterSectorSize * 2 < sector->floorHeight*QuarterSectorSize)
+            return {0,0};
+        if(sector->floorDataIndex == 0)
+            return {0,0};
+        if(extractFDFunction(m_floorData[sector->floorDataIndex]) != FDFunction::FloorSlant)
+            return {0,0};
+
+        auto fd = m_floorData[sector->floorDataIndex + 1];
+        return { static_cast<int8_t>(fd & 0xff), static_cast<int8_t>(fd >> 8) };
+    }
+
 protected:
     io::SDLReader m_reader;
     bool m_demoOrUb = false;

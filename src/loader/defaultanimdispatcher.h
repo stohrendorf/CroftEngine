@@ -26,6 +26,9 @@ public:
     
     void setTargetState(uint16_t state) noexcept
     {
+        if(state == getCurrentState())
+            return;
+        
         BOOST_LOG_TRIVIAL(debug) << "Set target state=" << state << " (" << m_name << ") current=" << getCurrentState();
         m_targetState = state;
     }

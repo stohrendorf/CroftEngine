@@ -142,7 +142,12 @@ public:
     {
         m_moveSlow = val;
     }
-    
+
+    irr::scene::IAnimatedMeshSceneNode* getLara() const noexcept
+    {
+        return m_lara;
+    }
+
 private:
     void setTargetState(loader::LaraState st);
 
