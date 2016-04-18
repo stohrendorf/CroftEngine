@@ -346,6 +346,7 @@ struct LaraState
         const loader::Room* room = level.m_camera->getCurrentRoom();
         const irr::core::vector3df deltaHeight(0, height + 160, 0); //!< @todo MAGICK 160
         auto currentSector = level.findSectorForPosition(laraPos - deltaHeight, room);
+        BOOST_ASSERT(currentSector != nullptr);
         currentHI.init(level.m_camera->getCurrentRoom()->getSectorByAbsolutePosition(laraPos),
                        level.m_camera,
                        laraPos - deltaHeight,
@@ -906,6 +907,39 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     // behaviour handling depends on the current state *after* handling the input
     switch( static_cast<LaraState>(m_dispatcher->getCurrentState()) )
     {
+        case LaraState::Stop:
+        case LaraState::Pose:
+        case LaraState::GrabToFall:
+        case LaraState::TurnFast:
+            m_fallSpeed = 0;
+            m_falling = false;
+            laraState.yAngle = m_rotation.Y;
+            m_movementAngle = m_rotation.Y;
+            laraState.fruityFloorLimitMin = -384;
+            laraState.fruityFloorLimitMax = 384;
+            laraState.fruityCeilingLimit = 0;
+            laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
+            laraState.initHeightInfo(this, *m_level, 762, false);
+            if(tryStopOnFloor(laraState))
+                break;
+            if(laraState.currentHI.floor.height <= 100)
+            {
+                if(!tryStartSlide(laraState))
+                {
+                    applyCollisionFeedback(laraState);
+                    m_lara->setPosition(m_lara->getPosition() + irr::core::vector3df(0, -laraState.currentHI.floor.height, 0));
+                    m_lara->updateAbsolutePosition();
+                }
+            }
+            else
+            {
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD);
+                //! @todo set frame = 492
+                setTargetState(loader::LaraState::JumpForward);
+                m_fallSpeed = 0;
+                m_falling = true;
+            }
+            break;
         case LaraState::RunForward:
             m_movementAngle = m_rotation.Y;
             laraState.yAngle = m_rotation.Y;
@@ -936,39 +970,39 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
 
                     playAnimation(loader::AnimationId::STAY_SOLID);
                     //! @todo set frame = 185
-                    break;
                 }
+            }
 
-                if(laraState.currentHI.floor.height <= 384)
+            if(laraState.currentHI.floor.height > 384)
+            {
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD);
+                //! @todo set frame = 492, current state = jump forward
+                setTargetState(loader::LaraState::JumpForward);
+                m_falling = true;
+                m_fallSpeed = 0;
+                break;
+            }
+
+            if(laraState.currentHI.floor.height >= -384 && laraState.currentHI.floor.height < -128)
+            {
+                if(m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14)
                 {
-                    if(laraState.currentHI.floor.height >= -384 && laraState.currentHI.floor.height < -128)
-                    {
-                        if(m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14)
-                        {
-                            playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT);
-                            //! @todo set frame = 837
-                        }
-                        else
-                        {
-                            playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT);
-                            //! @todo set frame = 830
-                        }
-                    }
-                    if(!tryStartSlide(laraState))
-                    {
-                        m_lara->setPosition(m_lara->getPosition() + irr::core::vector3df(0, std::min(50, laraState.currentHI.floor.height), 0));
-                        m_lara->updateAbsolutePosition();
-                    }
+                    playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT);
+                    //! @todo set frame = 837
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::FREE_FALL_FORWARD);
-                    //! @todo set frame = 492, current state = jump forward
-                    setTargetState(loader::LaraState::JumpForward);
-                    m_falling = true;
+                    playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT);
+                    //! @todo set frame = 830
                 }
             }
-            //! @todo complete implementation
+
+            if(!tryStartSlide(laraState))
+            {
+                m_lara->setPosition(m_lara->getPosition() + irr::core::vector3df(0, -std::min(50, laraState.currentHI.floor.height), 0));
+                m_lara->updateAbsolutePosition();
+            }
+
             break;
         case LaraState::WalkBackward:
         case LaraState::RunBack:
@@ -1140,6 +1174,7 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
 void LaraStateHandler::applyCollisionFeedback(::LaraState& state)
 {
     m_lara->setPosition(m_lara->getPosition() + state.collisionFeedback);
+    m_lara->updateAbsolutePosition();
     state.collisionFeedback = { 0,0,0 };
 }
 
