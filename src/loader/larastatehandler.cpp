@@ -82,23 +82,23 @@ struct HeightInfo
                         if(zSlant > 0) // lower edge at -Z
                         {
                             auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
                         else if(zSlant < 0) // lower edge at +Z
                         {
                             auto dist = localZ / loader::SectorSize;
-                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
 
                         if(xSlant > 0) // lower edge at -X
                         {
                             auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                         else if(xSlant < 0) // lower edge at +X
                         {
                             auto dist = localX / loader::SectorSize;
-                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                     }
                 }
@@ -189,23 +189,23 @@ struct HeightInfo
                         if(zSlant > 0) // lower edge at -Z
                         {
                             auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
                         else if(zSlant < 0) // lower edge at +Z
                         {
                             auto dist = localZ / loader::SectorSize;
-                            height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
 
                         if(xSlant > 0) // lower edge at -X
                         {
                             auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                         else if(xSlant < 0) // lower edge at +X
                         {
                             auto dist = localX / loader::SectorSize;
-                            height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                     }
                 }
@@ -341,7 +341,7 @@ struct LaraState
 
         axisCollisions = AxisColl00;
         collisionFeedback = { 0,0,0 };
-        orientationAxis = static_cast<Axis>((yAngle + util::degToAu(45)) / util::degToAu(90));
+        orientationAxis = static_cast<Axis>(static_cast<irr::u16>(yAngle + util::degToAu(45)) / util::degToAu(90));
 
         const loader::Room* room = level.m_camera->getCurrentRoom();
         const irr::core::vector3df deltaHeight(0, height + 160, 0); //!< @todo MAGICK 160
@@ -957,6 +957,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
                     if(!tryStartSlide(laraState))
                     {
                         m_lara->setPosition(m_lara->getPosition() + irr::core::vector3df(0, std::min(50, laraState.currentHI.floor.height), 0));
+                        m_lara->updateAbsolutePosition();
                     }
                 }
                 else

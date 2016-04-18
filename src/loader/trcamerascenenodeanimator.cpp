@@ -286,17 +286,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
             return false;
         }
     }
-    
-    // fix height
-    {
-        const int globalY = sector->floorHeight * 256;
-        //            BOOST_LOG_TRIVIAL(debug) << "fh=" << int(sector->floorHeight) << " => " << globalY;
-        auto pos = lara->getPosition();
-        //            BOOST_LOG_TRIVIAL(debug) << "py=" << pos.Y << " ry=" << m_currentRoom->position.Y;
-        pos.Y = -globalY - m_currentRoom->position.Y;
-        lara->setPosition(pos);
-    }
-    
+
     if(sector->floorDataIndex == 0 || sector->floorDataIndex >= m_level->m_floorData.size())
         return true;
     
@@ -318,62 +308,17 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
         switch(function)
         {
             case FDFunction::PortalSector:          // PORTAL DATA
-                if(subFunction == 0x00)
+                if(*floorDataIt < m_level->m_rooms.size())
                 {
-                    if(*floorDataIt < m_level->m_rooms.size())
-                    {
-                        BOOST_LOG_TRIVIAL(info) << "Switch to room: " << int(*floorDataIt);
-                        BOOST_ASSERT(*floorDataIt < m_level->m_rooms.size());
-                        setOwnerRoom(&m_level->m_rooms[*floorDataIt], lara);
-                        break;
-                    }
-                    ++floorDataIt;
+                    BOOST_LOG_TRIVIAL(info) << "Switch to room: " << int(*floorDataIt);
+                    BOOST_ASSERT(*floorDataIt < m_level->m_rooms.size());
+                    setOwnerRoom(&m_level->m_rooms[*floorDataIt], lara);
                 }
+                ++floorDataIt;
                 break;
             case FDFunction::FloorSlant:          // FLOOR SLANT
             case FDFunction::CeilingSlant:          // CEILING SLANT
-                if(subFunction == 0)
-                {
-                    const int8_t xSlant = static_cast<int8_t>(*floorDataIt & 0x00FF);
-                    const int8_t zSlant = static_cast<int8_t>((*floorDataIt & 0xFF00) >> 8);
-                    ++floorDataIt;
-                    
-                    if(function == FDFunction::CeilingSlant)
-                        break;
-                    
-                    auto laraPos = lara->getPosition();
-                    
-                    static constexpr irr::f32 QuarterSectorSize = 256;
-                    static constexpr irr::f32 SectorSize = 1024;
-                    
-                    const irr::f32 localX = std::fmod(laraPos.X, SectorSize);
-                    const irr::f32 localZ = std::fmod(laraPos.Z, SectorSize);
-                    
-                    if(zSlant > 0) // lower edge at -Z
-                    {
-                        auto dist = (SectorSize - localZ) / SectorSize;
-                        laraPos.Y -= dist * zSlant * QuarterSectorSize;
-                    }
-                    else if(zSlant < 0)  // lower edge at +Z
-                    {
-                        auto dist = localZ / SectorSize;
-                        laraPos.Y += dist * zSlant * QuarterSectorSize;
-                    }
-                    
-                    if(xSlant > 0) // lower edge at -X
-                    {
-                        auto dist = (SectorSize - localX) / SectorSize;
-                        laraPos.Y -= dist * xSlant * QuarterSectorSize;
-                    }
-                    else if(xSlant < 0) // lower edge at +X
-                    {
-                        auto dist = localX / SectorSize;
-                        laraPos.Y += dist * xSlant * QuarterSectorSize;
-                    }
-                    
-                    lara->setPosition(laraPos);
-                    lara->updateAbsolutePosition();
-                }
+                ++floorDataIt;
                 break;
             case FDFunction::Trigger:          // TRIGGERS
                 floorDataIt = handleTrigger(floorDataIt, static_cast<TriggerType>(subFunction));
