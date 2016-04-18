@@ -258,6 +258,7 @@ if(APPLE)
     )
 endif()
 
+### irrlicht stuff follows
 
 function(gen_enum name type source dest)
     if(EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
@@ -307,19 +308,35 @@ endfunction()
 gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
 gen_enum(LaraState uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastate_enum.h)
 
-add_executable(ot_irr
+set(OT_IRR_SRCS
     ot_irr.cpp
+    loader/level.h
     loader/level.cpp
+    loader/datatypes.h
     loader/datatypes.cpp
+    loader/tr1level.h
     loader/tr1level.cpp
+    loader/tr2level.h
     loader/tr2level.cpp
+    loader/tr3level.h
     loader/tr3level.cpp
+    loader/tr4level.h
     loader/tr4level.cpp
+    loader/tr5level.h
     loader/tr5level.cpp
+    loader/trcamerascenenodeanimator.h
     loader/trcamerascenenodeanimator.cpp
+    loader/defaultanimdispatcher.h
     loader/defaultanimdispatcher.cpp
+    loader/larastatehandler.h
     loader/larastatehandler.cpp
 )
+
+add_executable(ot_irr
+    ${OT_IRR_SRCS}
+)
+
+GROUP_FILES(${OT_IRR_SRCS})
 
 if(NOT MSVC)
     target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
@@ -327,12 +344,10 @@ endif()
 
 target_link_libraries(
     ot_irr
-    Bullet
     Boost
     Irrlicht
-    ZLIB
     SDL2
-    # efence
+    ZLIB
 )
 
 target_include_directories(ot_irr PRIVATE .)

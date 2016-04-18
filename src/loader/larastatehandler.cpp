@@ -336,24 +336,24 @@ struct LaraState
 
     void initHeightInfo(LaraStateHandler* lara, const loader::Level& level, int height, bool skipSteepSlants)
     {
+        auto laraPos = lara->getLara()->getAbsolutePosition();
+        laraPos.Y *= -1;
+
         axisCollisions = AxisColl00;
         collisionFeedback = { 0,0,0 };
         orientationAxis = static_cast<Axis>((yAngle + util::degToAu(45)) / util::degToAu(90));
 
         const loader::Room* room = level.m_camera->getCurrentRoom();
         const irr::core::vector3df deltaHeight(0, height + 160, 0); //!< @todo MAGICK 160
-        auto currentSector = level.findSectorForPosition(lara->getLara()->getPosition() - deltaHeight, room);
-        currentHI.init(level.m_camera->getCurrentRoom()->getSectorByAbsolutePosition(lara->getLara()->getPosition()),
-                       level.m_camera, lara->getLara()->getPosition() - deltaHeight,
+        auto currentSector = level.findSectorForPosition(laraPos - deltaHeight, room);
+        currentHI.init(level.m_camera->getCurrentRoom()->getSectorByAbsolutePosition(laraPos),
+                       level.m_camera,
+                       laraPos - deltaHeight,
                        0,
                        height,
-                       lara->getLara()->getPosition().Y,
+                       laraPos.Y,
                        skipSteepSlants);
-        if(currentHI.floor.height != -loader::HeightLimit)
-            currentHI.floor.height -= lara->getLara()->getPosition().Y;
-        if(currentHI.ceiling.height != -loader::HeightLimit)
-            currentHI.ceiling.height -= lara->getLara()->getPosition().Y - height;
-        std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, lara->getLara()->getPosition());
+        std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos);
 
         int frontX = 0, frontZ = 0;
         int frontLeftX = 0, frontLeftZ = 0;
@@ -396,41 +396,41 @@ struct LaraState
         }
 
         // Front
-        auto checkPos = lara->getLara()->getPosition() + irr::core::vector3df(frontX, 0, frontZ);
+        auto checkPos = laraPos + irr::core::vector3df(frontX, 0, frontZ);
         auto sector = level.findSectorForPosition(checkPos, level.m_camera->getCurrentRoom());
         frontHI.init(sector,
-                     level.m_camera, lara->getLara()->getPosition() - deltaHeight,
+                     level.m_camera, laraPos - deltaHeight,
                      frobbelFlags,
                      height,
-                     lara->getLara()->getPosition().Y,
+                     laraPos.Y,
                      skipSteepSlants);
 
         // Front left
-        checkPos = lara->getLara()->getPosition() + irr::core::vector3df(frontLeftX, 0, frontLeftZ);
+        checkPos = laraPos + irr::core::vector3df(frontLeftX, 0, frontLeftZ);
         sector = level.findSectorForPosition(checkPos, level.m_camera->getCurrentRoom());
         frontLeftHI.init(sector,
-                         level.m_camera, lara->getLara()->getPosition() - deltaHeight,
+                         level.m_camera, laraPos - deltaHeight,
                          frobbelFlags,
                          height,
-                         lara->getLara()->getPosition().Y,
+                         laraPos.Y,
                          skipSteepSlants);
 
 
         // Front right
-        checkPos = lara->getLara()->getPosition() + irr::core::vector3df(frontRightX, 0, frontRightZ);
+        checkPos = laraPos + irr::core::vector3df(frontRightX, 0, frontRightZ);
         sector = level.findSectorForPosition(checkPos, level.m_camera->getCurrentRoom());
         frontRightHI.init(sector,
-                          level.m_camera, lara->getLara()->getPosition() - deltaHeight,
+                          level.m_camera, laraPos - deltaHeight,
                           frobbelFlags,
                           height,
-                          lara->getLara()->getPosition().Y,
+                          laraPos.Y,
                           skipSteepSlants);
 
         //! @todo check static mesh collisions here
 
         if(currentHI.floor.height == -loader::HeightLimit)
         {
-            collisionFeedback = position - lara->getLara()->getPosition();
+            collisionFeedback = position - laraPos;
             axisCollisions = AxisColl01;
             return;
         }
@@ -438,7 +438,7 @@ struct LaraState
         if(currentHI.floor.height <= currentHI.ceiling.height)
         {
             axisCollisions = AxisColl20;
-            collisionFeedback = position - lara->getLara()->getPosition();
+            collisionFeedback = position - laraPos;
             return;
         }
 
@@ -455,13 +455,13 @@ struct LaraState
             {
                 case Axis::PosZ:
                 case Axis::NegZ:
-                    collisionFeedback.X = position.X - lara->getLara()->getPosition().X;
-                    collisionFeedback.Z = fruityFeedback(frontZ + lara->getLara()->getPosition().Z, lara->getLara()->getPosition().Z);
+                    collisionFeedback.X = position.X - laraPos.X;
+                    collisionFeedback.Z = fruityFeedback(frontZ + laraPos.Z, laraPos.Z);
                     break;
                 case Axis::PosX:
                 case Axis::NegX:
-                    collisionFeedback.X = fruityFeedback(frontX + lara->getLara()->getPosition().X, lara->getLara()->getPosition().X);
-                    collisionFeedback.Z = position.Z - lara->getLara()->getPosition().Z;
+                    collisionFeedback.X = fruityFeedback(frontX + laraPos.X, laraPos.X);
+                    collisionFeedback.Z = position.Z - laraPos.Z;
                     break;
             }
             return;
@@ -470,7 +470,7 @@ struct LaraState
         if(frontHI.ceiling.height >= fruityCeilingLimit)
         {
             axisCollisions = AxisColl10;
-            collisionFeedback = position - lara->getLara()->getPosition();
+            collisionFeedback = position - laraPos;
             return;
         }
 
@@ -481,11 +481,11 @@ struct LaraState
             {
                 case Axis::PosZ:
                 case Axis::NegZ:
-                    collisionFeedback.X = fruityFeedback(frontLeftX + lara->getLara()->getPosition().X, frontX + lara->getLara()->getPosition().X);
+                    collisionFeedback.X = fruityFeedback(frontLeftX + laraPos.X, frontX + laraPos.X);
                     break;
                 case Axis::PosX:
                 case Axis::NegX:
-                    collisionFeedback.Z = fruityFeedback(frontLeftZ + lara->getLara()->getPosition().Z, frontZ + lara->getLara()->getPosition().Z);
+                    collisionFeedback.Z = fruityFeedback(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
                     break;
             }
             return;
@@ -498,11 +498,11 @@ struct LaraState
             {
                 case Axis::PosZ:
                 case Axis::NegZ:
-                    collisionFeedback.X = fruityFeedback(frontRightX + lara->getLara()->getPosition().X, frontX + lara->getLara()->getPosition().X);
+                    collisionFeedback.X = fruityFeedback(frontRightX + laraPos.X, frontX + laraPos.X);
                     break;
                 case Axis::PosX:
                 case Axis::NegX:
-                    collisionFeedback.Z = fruityFeedback(frontRightZ + lara->getLara()->getPosition().Z, frontZ + lara->getLara()->getPosition().Z);
+                    collisionFeedback.Z = fruityFeedback(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
                     break;
             }
         }
@@ -817,7 +817,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     m_air = 1800;
 
     ::LaraState laraState;
-    laraState.position = m_lara->getPosition();
+    laraState.position = m_lara->getAbsolutePosition();
     laraState.collisionRadius = 100; //!< @todo MAGICK 100
     laraState.frobbelFlags = FrobbelFlag10 | FrobbelFlag08;
 
@@ -911,11 +911,62 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
             laraState.yAngle = m_rotation.Y;
             laraState.fruityFloorLimitMax = loader::HeightLimit;
             laraState.fruityFloorLimitMin = -384; //!< @todo MAGICK -384
+            laraState.fruityCeilingLimit = 0;
             laraState.frobbelFlags |= FrobbelFlag01;
-            laraState.initHeightInfo(this, *m_level, 762, true); //! @todo MAGICK 762 and hardcoded parameter value "true"
+            laraState.initHeightInfo(this, *m_level, 762, false); //! @todo MAGICK 762 and hardcoded parameter value "false"
             if(tryStopOnFloor(laraState) || tryClimb(laraState))
                 break;
+            if(checkWallCollision(laraState))
+            {
+                m_rotation.Z = 0;
+                if(laraState.frontHI.floor.slantClass == HeightInfo::SlantClass::None && laraState.frontHI.floor.height < -640)
+                {
+                    if(m_dispatcher->getCurrentFrame() >= 0 && m_dispatcher->getCurrentFrame() <= 9)
+                    {
+                        playAnimation(loader::AnimationId::WALL_SMASH_LEFT);
+                        //! @todo set frame = 800
+                        break;
+                    }
+                    if(m_dispatcher->getCurrentFrame() >= 10 && m_dispatcher->getCurrentFrame() <= 21)
+                    {
+                        playAnimation(loader::AnimationId::WALL_SMASH_RIGHT);
+                        //! @todo set frame = 815
+                        break;
+                    }
 
+                    playAnimation(loader::AnimationId::STAY_SOLID);
+                    //! @todo set frame = 185
+                    break;
+                }
+
+                if(laraState.currentHI.floor.height <= 384)
+                {
+                    if(laraState.currentHI.floor.height >= -384 && laraState.currentHI.floor.height < -128)
+                    {
+                        if(m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14)
+                        {
+                            playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT);
+                            //! @todo set frame = 837
+                        }
+                        else
+                        {
+                            playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT);
+                            //! @todo set frame = 830
+                        }
+                    }
+                    if(!tryStartSlide(laraState))
+                    {
+                        m_lara->setPosition(m_lara->getPosition() + irr::core::vector3df(0, std::min(50, laraState.currentHI.floor.height), 0));
+                    }
+                }
+                else
+                {
+                    playAnimation(loader::AnimationId::FREE_FALL_FORWARD);
+                    //! @todo set frame = 492, current state = jump forward
+                    setTargetState(loader::LaraState::JumpForward);
+                    m_falling = true;
+                }
+            }
             //! @todo complete implementation
             break;
         case LaraState::WalkBackward:
@@ -1089,4 +1140,74 @@ void LaraStateHandler::applyCollisionFeedback(::LaraState& state)
 {
     m_lara->setPosition(m_lara->getPosition() + state.collisionFeedback);
     state.collisionFeedback = { 0,0,0 };
+}
+
+bool LaraStateHandler::checkWallCollision(::LaraState& state)
+{
+    if(state.axisCollisions == ::LaraState::AxisColl01 || state.axisCollisions == ::LaraState::AxisColl10)
+    {
+        applyCollisionFeedback(state);
+        setTargetState(LaraState::Stop);
+        m_falling = false;
+        m_horizontalSpeed = 0;
+        // @todo Set current state to "Stop"
+        return true;
+    }
+
+    if(state.axisCollisions == ::LaraState::AxisColl02)
+    {
+        applyCollisionFeedback(state);
+        m_rotation.Y += 910;
+    }
+    else if(state.axisCollisions == ::LaraState::AxisColl04)
+    {
+        applyCollisionFeedback(state);
+        m_rotation.Y -= 910;
+    }
+
+    return false;
+}
+
+bool LaraStateHandler::tryStartSlide(::LaraState& state)
+{
+    auto slantX = std::abs(state.floorSlantX);
+    auto slantZ = std::abs(state.floorSlantZ);
+    if(slantX <= 2 && slantZ <= 2)
+        return false;
+
+    int targetAngle = util::degToAu(0);
+    if(state.floorSlantX < -2)
+        targetAngle = util::degToAu(90);
+    else if(state.floorSlantX > 2)
+        targetAngle = util::degToAu(-90);
+
+    if(state.floorSlantZ > std::max(2, slantX))
+        targetAngle = util::degToAu(180);
+    else if(state.floorSlantZ < std::min(-2, -slantX))
+        targetAngle = util::degToAu(0);
+
+    auto dy = targetAngle - m_rotation.Y;
+    applyCollisionFeedback(state);
+    if(dy < util::degToAu(-90) || dy > util::degToAu(90))
+    {
+        if(m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraState::SlideBackward) || targetAngle != m_currentSlideAngle)
+        {
+            playAnimation(loader::AnimationId::START_SLIDE_BACKWARD);
+            //! @todo set frame=1677
+            setTargetState(LaraState::SlideBackward);
+            m_movementAngle = targetAngle;
+            m_currentSlideAngle = targetAngle;
+            m_rotation.Y = targetAngle + util::degToAu(180);
+        }
+    }
+    else if(m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraState::SlideForward) || targetAngle != m_currentSlideAngle)
+    {
+        playAnimation(loader::AnimationId::SLIDE_FORWARD);
+        //! @todo set frame=1133
+        setTargetState(LaraState::SlideForward);
+        m_movementAngle = targetAngle;
+        m_currentSlideAngle = targetAngle;
+        m_rotation.Y = targetAngle;
+    }
+    return true;
 }

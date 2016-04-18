@@ -3,8 +3,6 @@
 #include "loader/datatypes.h"
 #include "util/helpers.h"
 
-#include <LinearMath/btVector3.h>
-
 #include <irrlicht.h>
 
 #define PLANE_X        1
@@ -13,9 +11,9 @@
 
 namespace util
 {
-constexpr const float Rad90 = static_cast<float>(0.5*SIMD_PI);
-constexpr const float Rad180 = static_cast<float>(SIMD_PI);
-constexpr const float Rad360 = static_cast<float>(2 * SIMD_PI);
+constexpr const float Rad90 = static_cast<float>(0.5*irr::core::PI);
+constexpr const float Rad180 = static_cast<float>(irr::core::PI);
+constexpr const float Rad360 = static_cast<float>(2 * irr::core::PI);
 
 // A simple Hesse normal form plane
 
@@ -80,16 +78,6 @@ inline irr::core::quaternion trRotationToQuat(const irr::core::vector3df& rotati
     v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.X), {1,0,0});
     v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.Y), {0,1,0});
     return v;
-}
-
-inline irr::core::vector3df convert(const btVector3& v)
-{
-    return {v[0], v[1], v[2]};
-}
-
-inline btVector3 convert(const irr::core::vector3df& v)
-{
-    return btVector3(v.X, v.Y, v.Z);
 }
 
 inline irr::video::SColorf convert(const loader::FloatColor& tr_c)

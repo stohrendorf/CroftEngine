@@ -51,6 +51,7 @@ private:
     int m_fallSpeedOverride = 0;
     int m_movementAngle = 0;
     int m_air = 1800;
+    irr::s16 m_currentSlideAngle = 0;
 
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3di m_rotation;
@@ -159,6 +160,8 @@ private:
 
     bool tryStopOnFloor(::LaraState& state);
     bool tryClimb(::LaraState& state);
+    bool checkWallCollision(::LaraState& state);
+    bool tryStartSlide(::LaraState& state);
 
     void applyCollisionFeedback(::LaraState& state);
 };

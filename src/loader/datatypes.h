@@ -125,7 +125,7 @@ inline constexpr bool isLastFloorataEntry(FloorData::value_type data)
 
 constexpr int SectorSize = 1024;
 constexpr int QuarterSectorSize = SectorSize/4;
-constexpr int HeightLimit = 255 * QuarterSectorSize;
+constexpr int HeightLimit = 127 * QuarterSectorSize;
 
 /**
  * @brief 8-Bit RGBA color.
