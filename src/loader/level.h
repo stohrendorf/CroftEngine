@@ -135,10 +135,12 @@ public:
 
     std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const irr::core::vector3df& position) const
     {
+        BOOST_ASSERT(sector != nullptr);
         while(sector->roomBelow != 0xff)
         {
             auto room = &m_rooms[sector->roomBelow];
             sector = room->getSectorByAbsolutePosition(position);
+            BOOST_ASSERT(sector != nullptr);
         }
 
         if(position.Y + QuarterSectorSize * 2 < sector->floorHeight*QuarterSectorSize)

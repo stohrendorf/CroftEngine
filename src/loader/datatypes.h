@@ -451,14 +451,17 @@ struct Sector
 
         BOOST_ASSERT(floorDataIndex < floorData.size());
         const FloorData::value_type* fdData = &floorData[floorDataIndex];
+        BOOST_ASSERT(fdData <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::FloorSlant)
         {
             fdData += 2;
         }
+        BOOST_ASSERT(fdData <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::CeilingSlant)
         {
             fdData += 2;
         }
+        BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::PortalSector)
             return fdData[1];
 

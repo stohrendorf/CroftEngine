@@ -955,6 +955,7 @@ const Sector* Level::findSectorForPosition(const irr::core::vector3df& position,
             sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
         }
 
+        BOOST_ASSERT(sectorZ + room->sectorCountZ * sectorX >= 0 && sectorZ + room->sectorCountZ * sectorX < room->sectors.size());
         sector = &room->sectors[sectorZ + room->sectorCountZ * sectorX];
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if(!portalTarget)
@@ -972,6 +973,7 @@ const Sector* Level::findSectorForPosition(const irr::core::vector3df& position,
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
             sector = room->getSectorByAbsolutePosition(position);
+            BOOST_ASSERT(sector != nullptr);
         }
     }
     else
@@ -981,6 +983,7 @@ const Sector* Level::findSectorForPosition(const irr::core::vector3df& position,
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
             sector = room->getSectorByAbsolutePosition(position);
+            BOOST_ASSERT(sector != nullptr);
         }
     }
 
