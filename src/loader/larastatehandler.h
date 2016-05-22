@@ -71,12 +71,16 @@ private:
     void onInput6TurnRightSlow();
 
     void onInput7TurnLeftSlow();
+    
+    void onInput9FreeFall();
 
     void onInput16WalkBackward();
 
     void onInput20TurnFast();
 
     void onInput25JumpBackward();
+    
+    void onInput28JumpUp();
 
 public:
     LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
@@ -91,6 +95,8 @@ public:
         m_rotation.X = util::degToAu(laraRot.X);
         m_rotation.Y = util::degToAu(laraRot.Y);
         m_rotation.Z = util::degToAu(laraRot.Z);
+
+        m_movementAngle = m_rotation.Y;
     }
     
     ~LaraStateHandler() = default;
@@ -162,6 +168,17 @@ private:
     bool tryClimb(::LaraState& state);
     bool checkWallCollision(::LaraState& state);
     bool tryStartSlide(::LaraState& state);
+    bool tryGrabEdge(::LaraState& state)
+    {
+        //! @todo Implement me
+        return false;
+    }
+    void jumpAgainstWall(::LaraState& state);
 
     void applyCollisionFeedback(::LaraState& state);
+
+    void handleLaraStateOnLand();
+
+    int m_unknown10CD54 = 0;
+    int m_handStatus = 0;
 };
