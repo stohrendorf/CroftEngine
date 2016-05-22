@@ -925,7 +925,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         laraState.fruityFloorLimitMax = ClimbLimit2ClickMin;
         laraState.fruityCeilingLimit = 0;
         laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition()));
+        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition())); //! @todo MAGICK 762
         if( tryStopOnFloor(laraState) )
             break;
         if( laraState.current.floor.height <= 100 )
@@ -953,7 +953,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         laraState.fruityFloorLimitMin = -ClimbLimit2ClickMin;
         laraState.fruityCeilingLimit = 0;
         laraState.frobbelFlags |= FrobbelFlag01;
-        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition())); //! @todo MAGICK 762 and hardcoded parameter value "false"
+        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition())); //! @todo MAGICK 762
         if( tryStopOnFloor(laraState) || tryClimb(laraState) )
             break;
         if( checkWallCollision(laraState) )
@@ -1019,7 +1019,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
         m_movementAngle = m_rotation.Y + util::degToAu(180);
         laraState.yAngle = m_rotation.Y + util::degToAu(180);
-        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition())); //! @todo MAGICK 762 and hardcoded parameter value "false"
+        laraState.initHeightInfo(this, *m_level, 762, loader::TRCoordinates(getLara()->getAbsolutePosition())); //! @todo MAGICK 762
         if( tryStopOnFloor(laraState) )
             break;
         if( laraState.current.floor.height > 200 )
