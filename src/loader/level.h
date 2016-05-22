@@ -131,9 +131,9 @@ public:
         }
     }
     
-    const Sector* findSectorForPosition(const irr::core::vector3df& position, const Room* room) const;
+    const Sector* findSectorForPosition(const TRCoordinates& position, const Room* room) const;
 
-    std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const irr::core::vector3df& position) const
+    std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const TRCoordinates& position) const
     {
         BOOST_ASSERT(sector != nullptr);
         while(sector->roomBelow != 0xff)

@@ -267,7 +267,7 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
 
 bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara)
 {
-    const loader::Sector* sector = m_currentRoom->getSectorByAbsolutePosition(lara->getAbsolutePosition());
+    const loader::Sector* sector = m_currentRoom->getSectorByAbsolutePosition(loader::TRCoordinates(lara->getAbsolutePosition()));
     if(sector == nullptr)
     {
         BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
@@ -279,7 +279,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
     {
         BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
         setOwnerRoom(&m_level->m_rooms[sector->roomBelow], lara);
-        sector = m_currentRoom->getSectorByAbsolutePosition(lara->getAbsolutePosition());
+        sector = m_currentRoom->getSectorByAbsolutePosition(loader::TRCoordinates(lara->getAbsolutePosition()));
         if(sector == nullptr)
         {
             BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;

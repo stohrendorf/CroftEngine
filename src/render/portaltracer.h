@@ -10,7 +10,7 @@ struct PortalTracer
 
     bool checkVisibility(const loader::Portal* portal, const irr::core::vector3df& cameraPosition, const irr::scene::SViewFrustum& frustum)
     {
-        if(portal->normal.dotProduct(portal->vertices[0] - cameraPosition) >= 0)
+        if(portal->normal.toIrrlicht().dotProduct(portal->vertices[0].toIrrlicht() - cameraPosition) >= 0)
         {
             return false; // wrong orientation (normals point usually into the source room)
         }
@@ -63,7 +63,12 @@ private:
     
         return false;
     }
-    
+
+    static bool intersects(const irr::scene::SViewFrustum& frustum, const loader::TRCoordinates& a, const loader::TRCoordinates& b)
+    {
+        return intersects(frustum, a.toIrrlicht(), b.toIrrlicht());
+    }
+
     static bool intersects(const irr::scene::SViewFrustum& frustum, const irr::core::vector3df& a, const irr::core::vector3df& b)
     {
         uint32_t aOutside = 0, bOutside = 0;
@@ -88,15 +93,15 @@ private:
     
     static bool testIntersectionFwd(const irr::core::vector3df& camPos, const loader::Portal& a, const loader::Portal& b)
     {
-        irr::core::triangle3df tri1{b.vertices[0], b.vertices[1], b.vertices[2]};
-        irr::core::triangle3df tri2{b.vertices[0], b.vertices[2], b.vertices[3]};
+        irr::core::triangle3df tri1{b.vertices[0].toIrrlicht(), b.vertices[1].toIrrlicht(), b.vertices[2].toIrrlicht()};
+        irr::core::triangle3df tri2{b.vertices[0].toIrrlicht(), b.vertices[2].toIrrlicht(), b.vertices[3].toIrrlicht()};
         irr::core::vector3df dummy;
         // test if the ray from the camera to a's vertices crosses b's triangles
-        for(const irr::core::vector3df& v : a.vertices)
+        for(const loader::TRCoordinates& v : a.vertices)
         {
-            if(tri1.getIntersectionWithLine(camPos, v-camPos, dummy))
+            if(tri1.getIntersectionWithLine(camPos, v.toIrrlicht()-camPos, dummy))
                 return true;
-            if(tri2.getIntersectionWithLine(camPos, v-camPos, dummy))
+            if(tri2.getIntersectionWithLine(camPos, v.toIrrlicht()-camPos, dummy))
                 return true;
         }
 

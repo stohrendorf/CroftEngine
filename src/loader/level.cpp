@@ -523,14 +523,14 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             if(item.objectId == 0)
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
-                node->setPosition(item.position);
+                node->setPosition(item.position.toIrrlicht());
                 lara.node = node;
                 lara.room = &room;
             }
             else
             {
                  node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
-                 node->setPosition(item.position - room.node->getPosition());
+                 node->setPosition(item.position.toIrrlicht() - room.node->getPosition());
             }
 
             std::string name = "item";
@@ -927,7 +927,7 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-const Sector* Level::findSectorForPosition(const irr::core::vector3df& position, const Room* room) const
+const Sector* Level::findSectorForPosition(const TRCoordinates& position, const Room* room) const
 {
     BOOST_ASSERT(room != nullptr);
 

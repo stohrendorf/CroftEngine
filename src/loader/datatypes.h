@@ -182,54 +182,85 @@ struct FloatColor
     }
 };
 
-/**
- * @brief 3D Vertex
- * @ingroup native
- * 
- * @note Converts coordinates to be Irrlicht compatible when reading.
- */
-struct Vertex : public irr::core::vector3df
+struct TRCoordinates
 {
-    static Vertex read16(io::SDLReader& reader)
+    long X = 0, Y = 0, Z = 0;
+
+    TRCoordinates() = default;
+    TRCoordinates(const TRCoordinates&) = default;
+
+    explicit TRCoordinates(const irr::core::vector3df& v)
+        : X(std::lround(v.X))
+        , Y(-std::lround(v.Y))
+        , Z(std::lround(v.Z))
     {
-        Vertex vertex;
-        // read vertex and change coordinate system
-        vertex.X = static_cast<float>(reader.readI16());
-        vertex.Y = static_cast<float>(-reader.readI16());
-        vertex.Z = static_cast<float>(reader.readI16());
-        return vertex;
     }
 
-    static Vertex read32(io::SDLReader& reader)
+    TRCoordinates(long x, long y, long z)
+        : X(x), Y(y), Z(z)
     {
-        Vertex vertex;
-        // read vertex and change coordinate system
-        vertex.X = static_cast<float>(reader.readI32());
-        vertex.Y = static_cast<float>(-reader.readI32());
-        vertex.Z = static_cast<float>(reader.readI32());
-        return vertex;
     }
 
-    static Vertex readF(io::SDLReader& reader)
+    TRCoordinates operator-(const TRCoordinates& rhs) const noexcept
     {
-        Vertex vertex;
-        vertex.X = reader.readF();
-        vertex.Y = -reader.readF();
-        vertex.Z = reader.readF();
-        return vertex;
+        return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
     }
-    
-    Vertex& operator+=(const irr::core::vector3df& rhs)
+
+    TRCoordinates& operator-=(const TRCoordinates& rhs) noexcept
     {
-        static_cast<irr::core::vector3df&>(*this) += rhs;
+        X -= rhs.X;
+        Y -= rhs.Y;
+        Z -= rhs.Z;
         return *this;
     }
 
-    Vertex operator+(const irr::core::vector3df& rhs) const
+    TRCoordinates operator+(const TRCoordinates& rhs) const noexcept
     {
-        auto tmp = *this;
-        tmp += rhs;
-        return tmp;
+        return{ X + rhs.X, Y + rhs.Y, Z + rhs.Z };
+    }
+
+    TRCoordinates& operator+=(const TRCoordinates& rhs) noexcept
+    {
+        X += rhs.X;
+        Y += rhs.Y;
+        Z += rhs.Z;
+        return *this;
+    }
+
+    TRCoordinates& operator=(const TRCoordinates&) = default;
+
+    irr::core::vector3df toIrrlicht() const noexcept
+    {
+        return{ static_cast<irr::f32>(X), -static_cast<irr::f32>(Y), static_cast<irr::f32>(Z) };
+    }
+
+    static TRCoordinates read16(io::SDLReader& reader)
+    {
+        TRCoordinates vertex;
+        // read vertex and change coordinate system
+        vertex.X = reader.readI16();
+        vertex.Y = reader.readI16();
+        vertex.Z = reader.readI16();
+        return vertex;
+    }
+
+    static TRCoordinates read32(io::SDLReader& reader)
+    {
+        TRCoordinates vertex;
+        // read vertex and change coordinate system
+        vertex.X = reader.readI32();
+        vertex.Y = reader.readI32();
+        vertex.Z = reader.readI32();
+        return vertex;
+    }
+
+    static TRCoordinates readF(io::SDLReader& reader)
+    {
+        TRCoordinates vertex;
+        vertex.X = reader.readF();
+        vertex.Y = reader.readF();
+        vertex.Z = reader.readF();
+        return vertex;
     }
 };
 
@@ -380,26 +411,26 @@ struct DWordTexture final
 struct Portal
 {
     uint16_t adjoining_room;     ///< \brief which room this portal leads to.
-    Vertex normal;         /**< \brief which way the portal faces.
+    TRCoordinates normal;         /**< \brief which way the portal faces.
                                    * the normal points away from the adjacent room->
                                    * to be seen through, it must point toward the viewpoint.
                                    */
-    Vertex vertices[4];    /**< \brief the corners of this portal.
+    TRCoordinates vertices[4];    /**< \brief the corners of this portal.
                                    * the right-hand rule applies with respect to the normal.
                                    * if the right-hand-rule is not followed, the portal will
                                    * contain visual artifacts instead of a viewport to
                                    * Adjoiningroom->
                                    */
 
-    static Portal read(io::SDLReader& reader, const irr::core::vector3df& offset)
+    static Portal read(io::SDLReader& reader, const TRCoordinates& offset)
     {
         Portal portal;
         portal.adjoining_room = reader.readU16();
-        portal.normal = Vertex::read16(reader);
-        portal.vertices[0] = Vertex::read16(reader) + offset;
-        portal.vertices[1] = Vertex::read16(reader) + offset;
-        portal.vertices[2] = Vertex::read16(reader) + offset;
-        portal.vertices[3] = Vertex::read16(reader) + offset;
+        portal.normal = TRCoordinates::read16(reader);
+        portal.vertices[0] = TRCoordinates::read16(reader) + offset;
+        portal.vertices[1] = TRCoordinates::read16(reader) + offset;
+        portal.vertices[2] = TRCoordinates::read16(reader) + offset;
+        portal.vertices[3] = TRCoordinates::read16(reader) + offset;
         if(util::fuzzyOne(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
             return portal;
         if(util::fuzzyOne(-portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z))
@@ -483,7 +514,7 @@ enum class LightType : uint8_t
 
 struct Light
 {
-    Vertex position;           // world coords
+    TRCoordinates position;           // world coords
     ByteColor color;         // three bytes rgb values
     float intensity;            // Calculated intensity
     uint16_t intensity1;        // Light intensity
@@ -496,9 +527,9 @@ struct Light
     float r_outer;
     float length;
     float cutoff;
-    Vertex dir;           // direction
-    Vertex pos2;          // world coords
-    Vertex dir2;          // direction
+    TRCoordinates dir;           // direction
+    TRCoordinates pos2;          // world coords
+    TRCoordinates dir2;          // direction
 
     LightType getLightType() const
     {
@@ -525,7 +556,7 @@ struct Light
     static Light readTr1(io::SDLReader& reader)
     {
         Light light;
-        light.position = Vertex::read32(reader);
+        light.position = TRCoordinates::read32(reader);
         // read and make consistent
         const auto tmp = reader.readI16();
         const uint16_t tmp2 = std::abs(tmp);
@@ -555,7 +586,7 @@ struct Light
     static Light readTr2(io::SDLReader& reader)
     {
         Light light;
-        light.position = Vertex::read32(reader);
+        light.position = TRCoordinates::read32(reader);
         light.intensity1 = reader.readU16();
         light.intensity2 = reader.readU16();
         light.fade1 = reader.readU32();
@@ -582,7 +613,7 @@ struct Light
     static Light readTr3(io::SDLReader& reader)
     {
         Light light;
-        light.position = Vertex::read32(reader);
+        light.position = TRCoordinates::read32(reader);
         light.color.r = reader.readU8();
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
@@ -602,7 +633,7 @@ struct Light
     static Light readTr4(io::SDLReader& reader)
     {
         Light light;
-        light.position = Vertex::read32(reader);
+        light.position = TRCoordinates::read32(reader);
         light.color = ByteColor::readTr1(reader);
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
@@ -613,14 +644,14 @@ struct Light
         light.r_outer = reader.readF();
         light.length = reader.readF();
         light.cutoff = reader.readF();
-        light.dir = Vertex::readF(reader);
+        light.dir = TRCoordinates::readF(reader);
         return light;
     }
 
     static Light readTr5(io::SDLReader& reader)
     {
         Light light;
-        light.position = Vertex::readF(reader);
+        light.position = TRCoordinates::readF(reader);
         //read_tr_colour(src, light.color);
         light.color.r = static_cast<uint8_t>(reader.readF() * 255);    // r
         light.color.g = static_cast<uint8_t>(reader.readF() * 255);    // g
@@ -636,9 +667,9 @@ struct Light
         reader.readF();    // rad_input
         reader.readF();    // rad_output
         reader.readF();    // range
-        light.dir = Vertex::readF(reader);
-        light.pos2 = Vertex::read32(reader);
-        light.dir2 = Vertex::read32(reader);
+        light.dir = TRCoordinates::readF(reader);
+        light.pos2 = TRCoordinates::read32(reader);
+        light.dir2 = TRCoordinates::read32(reader);
         light.light_type = reader.readU8();
 
         auto temp = reader.readU8();
@@ -731,7 +762,7 @@ struct Layer
 
 struct RoomVertex
 {
-    Vertex vertex;    // where this vertex lies (relative to tr2_room_info::x/z)
+    TRCoordinates vertex;    // where this vertex lies (relative to tr2_room_info::x/z)
     int16_t lighting1;
     uint16_t attributes;    // A set of flags for special rendering effects [absent from TR1 data files]
     // 0x8000 something to do with water surface
@@ -741,7 +772,7 @@ struct RoomVertex
     // 0x0010 "normal"
     int16_t lighting2;      // Almost always equal to Lighting1 [absent from TR1 data files]
     // TR5 -->
-    Vertex normal;
+    TRCoordinates normal;
     irr::video::SColor color;
 
     /** \brief reads a room vertex definition.
@@ -754,7 +785,7 @@ struct RoomVertex
     static RoomVertex readTr1(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.vertex = Vertex::read16(reader);
+        room_vertex.vertex = TRCoordinates::read16(reader);
         // read and make consistent
         int tmp = reader.readU16();
         BOOST_ASSERT(tmp < 8192);
@@ -763,7 +794,7 @@ struct RoomVertex
         room_vertex.lighting2 = room_vertex.lighting1;
         room_vertex.attributes = 0;
         // only in TR5
-        room_vertex.normal.set(0,0,0);
+        room_vertex.normal = { 0,0,0 };
         auto f = static_cast<irr::u32>(room_vertex.lighting1 / 32768.0f * 255);
         room_vertex.color.set(255, f, f, f);
         return room_vertex;
@@ -772,13 +803,13 @@ struct RoomVertex
     static RoomVertex readTr2(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.vertex = Vertex::read16(reader);
+        room_vertex.vertex = TRCoordinates::read16(reader);
         // read and make consistent
         room_vertex.lighting1 = (8191 - reader.readI16()) << 2;
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
-        room_vertex.normal.set(0,0,0);
+        room_vertex.normal = { 0,0,0 };
         auto f = static_cast<irr::u32>(room_vertex.lighting2 / 32768.0f * 255);
         room_vertex.color.set(255, f, f, f);
         return room_vertex;
@@ -787,13 +818,13 @@ struct RoomVertex
     static RoomVertex readTr3(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.vertex = Vertex::read16(reader);
+        room_vertex.vertex = TRCoordinates::read16(reader);
         // read and make consistent
         room_vertex.lighting1 = reader.readI16();
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal.set(0,0,0);
+        room_vertex.normal = { 0,0,0 };
         room_vertex.color.set(255,
                               static_cast<irr::u32>(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255),
                               static_cast<irr::u32>(((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255),
@@ -804,13 +835,13 @@ struct RoomVertex
     static RoomVertex readTr4(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.vertex = Vertex::read16(reader);
+        room_vertex.vertex = TRCoordinates::read16(reader);
         // read and make consistent
         room_vertex.lighting1 = reader.readI16();
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal.set(0,0,0);
+        room_vertex.normal = { 0,0,0 };
 
         room_vertex.color.set(255,
                               static_cast<irr::u32>(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255),
@@ -822,8 +853,8 @@ struct RoomVertex
     static RoomVertex readTr5(io::SDLReader& reader)
     {
         RoomVertex vert;
-        vert.vertex = Vertex::readF(reader);
-        vert.normal = Vertex::readF(reader);
+        vert.vertex = TRCoordinates::readF(reader);
+        vert.normal = TRCoordinates::readF(reader);
         auto b = reader.readU8();
         auto g = reader.readU8();
         auto r = reader.readU8();
@@ -835,7 +866,7 @@ struct RoomVertex
 
 struct RoomStaticMesh
 {
-    Vertex position;       // world coords
+    TRCoordinates position;       // world coords
     irr::f32 rotation;         // high two bits (0xC000) indicate steps of
     // 90 degrees (e.g. (Rotation >> 14) * 90)
     int16_t intensity1;     // Constant lighting; -1 means use mesh lighting
@@ -852,7 +883,7 @@ struct RoomStaticMesh
     static RoomStaticMesh readTr1(io::SDLReader& reader)
     {
         RoomStaticMesh room_static_mesh;
-        room_static_mesh.position = Vertex::read32(reader);
+        room_static_mesh.position = TRCoordinates::read32(reader);
         room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.object_id = reader.readU16();
@@ -870,7 +901,7 @@ struct RoomStaticMesh
     static RoomStaticMesh readTr2(io::SDLReader& reader)
     {
         RoomStaticMesh room_static_mesh;
-        room_static_mesh.position = Vertex::read32(reader);
+        room_static_mesh.position = TRCoordinates::read32(reader);
         room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
@@ -889,7 +920,7 @@ struct RoomStaticMesh
     static RoomStaticMesh readTr3(io::SDLReader& reader)
     {
         RoomStaticMesh room_static_mesh;
-        room_static_mesh.position = Vertex::read32(reader);
+        room_static_mesh.position = TRCoordinates::read32(reader);
         room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
@@ -907,7 +938,7 @@ struct RoomStaticMesh
     static RoomStaticMesh readTr4(io::SDLReader& reader)
     {
         RoomStaticMesh room_static_mesh;
-        room_static_mesh.position = Vertex::read32(reader);
+        room_static_mesh.position = TRCoordinates::read32(reader);
         room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
@@ -1166,10 +1197,10 @@ struct UVTexture
 
 struct Mesh
 {
-    Vertex center;                // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
+    TRCoordinates center;                // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
     int32_t collision_size;             // This appears to be the radius of that aforementioned collisional sphere.
-    std::vector<Vertex> vertices;             //[NumVertices]; // list of vertices (relative coordinates)
-    std::vector<Vertex> normals;              //[NumNormals]; // list of normals (if NumNormals is positive)
+    std::vector<TRCoordinates> vertices;             //[NumVertices]; // list of vertices (relative coordinates)
+    std::vector<TRCoordinates> normals;              //[NumNormals]; // list of normals (if NumNormals is positive)
     std::vector<int16_t> lights;                    //[-NumNormals]; // list of light values (if NumNormals is negative)
     std::vector<QuadFace> textured_rectangles;   //[NumTexturedRectangles]; // list of textured rectangles
     std::vector<Triangle> textured_triangles;    //[NumTexturedTriangles]; // list of textured triangles
@@ -1185,19 +1216,19 @@ struct Mesh
     static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Mesh> mesh{ new Mesh() };
-        mesh->center = Vertex::read16(reader);
+        mesh->center = TRCoordinates::read16(reader);
         mesh->collision_size = reader.readI32();
 
         mesh->vertices.resize(reader.readI16());
         for(size_t i = 0; i < mesh->vertices.size(); i++)
-            mesh->vertices[i] = Vertex::read16(reader);
+            mesh->vertices[i] = TRCoordinates::read16(reader);
 
         auto num_normals = reader.readI16();
         if(num_normals >= 0)
         {
             mesh->normals.resize(num_normals);
             for(size_t i = 0; i < mesh->normals.size(); i++)
-                mesh->normals[i] = Vertex::read16(reader);
+                mesh->normals[i] = TRCoordinates::read16(reader);
         }
         else
         {
@@ -1227,19 +1258,19 @@ struct Mesh
     static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
     {
         std::unique_ptr<Mesh> mesh{ new Mesh() };
-        mesh->center = Vertex::read16(reader);
+        mesh->center = TRCoordinates::read16(reader);
         mesh->collision_size = reader.readI32();
 
         mesh->vertices.resize(reader.readI16());
         for(size_t i = 0; i < mesh->vertices.size(); i++)
-            mesh->vertices[i] = Vertex::read16(reader);
+            mesh->vertices[i] = TRCoordinates::read16(reader);
 
         auto num_normals = reader.readI16();
         if(num_normals >= 0)
         {
             mesh->normals.resize(num_normals);
             for(size_t i = 0; i < mesh->normals.size(); i++)
-                mesh->normals[i] = Vertex::read16(reader);
+                mesh->normals[i] = TRCoordinates::read16(reader);
         }
         else
         {
@@ -1283,9 +1314,9 @@ struct Room
     static constexpr uint16_t TR_ROOM_FLAG_DAMAGE         = 0x0800;  ///< @FIXME: Is it really damage (D)?
     static constexpr uint16_t TR_ROOM_FLAG_POISON         = 0x1000;  ///< @FIXME: Is it really poison (P)?
     
-    Vertex position;
-    float lowestHeight;
-    float greatestHeight;
+    TRCoordinates position;
+    long lowestHeight;
+    long greatestHeight;
     std::vector<Layer> layers;
     std::vector<RoomVertex> vertices;
     std::vector<QuadFace> rectangles;
@@ -1350,11 +1381,11 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->position.X = static_cast<float>(reader.readI32());
+        room->position.X = reader.readI32();
         room->position.Y = 0;
-        room->position.Z = static_cast<float>(reader.readI32());
-        room->lowestHeight = static_cast<float>(-reader.readI32());
-        room->greatestHeight = static_cast<float>(-reader.readI32());
+        room->position.Z = reader.readI32();
+        room->lowestHeight = -reader.readI32();
+        room->greatestHeight = -reader.readI32();
 
         auto num_data_words = reader.readU32();
 
@@ -1887,11 +1918,11 @@ struct Room
     
     irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes);
 
-    const Sector* getSectorByAbsolutePosition(irr::core::vector3df position) const
+    const Sector* getSectorByAbsolutePosition(TRCoordinates position) const
     {
         position -= this->position;
-        int dx = static_cast<int>(position.X / SectorSize);
-        int dz = static_cast<int>(position.Z / SectorSize);
+        auto dx = position.X / SectorSize;
+        auto dz = position.Z / SectorSize;
 //        BOOST_LOG_TRIVIAL(debug) << "Sector " << dx << "/" << dz;
         if(dx < 0 || dx >= sectorCountX)
             return nullptr;
@@ -1905,8 +1936,8 @@ struct StaticMesh
 {
     uint32_t object_id;             // Object Identifier (matched in Items[])
     uint16_t mesh;                  // mesh (offset into MeshPointers[])
-    Vertex visibility_box[2];
-    Vertex collision_box[2];
+    TRCoordinates visibility_box[2];
+    TRCoordinates collision_box[2];
     uint16_t flags;                 // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
     // like TR2's skeletons and underwater vegetation
 
@@ -1916,19 +1947,19 @@ struct StaticMesh
         mesh->object_id = reader.readU32();
         mesh->mesh = reader.readU16();
 
-        mesh->visibility_box[0].X = static_cast<float>(reader.readI16());
-        mesh->visibility_box[1].X = static_cast<float>(reader.readI16());
-        mesh->visibility_box[0].Y = static_cast<float>(-reader.readI16());
-        mesh->visibility_box[1].Y = static_cast<float>(-reader.readI16());
-        mesh->visibility_box[0].Z = static_cast<float>(reader.readI16());
-        mesh->visibility_box[1].Z = static_cast<float>(reader.readI16());
+        mesh->visibility_box[0].X = reader.readI16();
+        mesh->visibility_box[1].X = reader.readI16();
+        mesh->visibility_box[0].Y = reader.readI16();
+        mesh->visibility_box[1].Y = reader.readI16();
+        mesh->visibility_box[0].Z = reader.readI16();
+        mesh->visibility_box[1].Z = reader.readI16();
 
-        mesh->collision_box[0].X = static_cast<float>(reader.readI16());
-        mesh->collision_box[1].X = static_cast<float>(reader.readI16());
-        mesh->collision_box[0].Y = static_cast<float>(-reader.readI16());
-        mesh->collision_box[1].Y = static_cast<float>(-reader.readI16());
-        mesh->collision_box[0].Z = static_cast<float>(reader.readI16());
-        mesh->collision_box[1].Z = static_cast<float>(reader.readI16());
+        mesh->collision_box[0].X = reader.readI16();
+        mesh->collision_box[1].X = reader.readI16();
+        mesh->collision_box[0].Y = -reader.readI16();
+        mesh->collision_box[1].Y = -reader.readI16();
+        mesh->collision_box[0].Z = reader.readI16();
+        mesh->collision_box[1].Z = reader.readI16();
 
         mesh->flags = reader.readU16();
         return mesh;
@@ -1948,7 +1979,7 @@ struct StaticMesh
 struct MeshTree
 {
     uint32_t flags;
-    Vertex offset;
+    TRCoordinates offset;
 };
 
 /** \brief Frame.
@@ -2142,7 +2173,7 @@ struct Item
 {
     uint16_t objectId;    //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
     uint16_t room;        //!< Owning room
-    Vertex position;      //!< world coords
+    TRCoordinates position;      //!< world coords
     irr::f32 rotation;    //!< ((0xc000 >> 14) * 90) degrees around Y axis
     int16_t intensity1;   //!< (constant lighting; -1 means use mesh lighting)
     int16_t intensity2;   //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
@@ -2193,7 +2224,7 @@ struct Item
         std::unique_ptr<Item> item{ new Item() };
         item->objectId = reader.readU16();
         item->room = reader.readU16();
-        item->position = Vertex::read32(reader);
+        item->position = TRCoordinates::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         if(item->intensity1 >= 0)
@@ -2209,7 +2240,7 @@ struct Item
         std::unique_ptr<Item> item{ new Item() };
         item->objectId = reader.readU16();
         item->room = reader.readU16();
-        item->position = Vertex::read32(reader);
+        item->position = TRCoordinates::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         if(item->intensity1 >= 0)
@@ -2227,7 +2258,7 @@ struct Item
         std::unique_ptr<Item> item{ new Item() };
         item->objectId = reader.readU16();
         item->room = reader.readU16();
-        item->position = Vertex::read32(reader);
+        item->position = TRCoordinates::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         item->intensity2 = reader.readU16();
@@ -2241,7 +2272,7 @@ struct Item
         std::unique_ptr<Item> item{ new Item() };
         item->objectId = reader.readU16();
         item->room = reader.readU16();
-        item->position = Vertex::read32(reader);
+        item->position = TRCoordinates::read32(reader);
         item->rotation = static_cast<float>(reader.readU16()) / 16384.0f * 90;
         item->intensity1 = reader.readU16();
         item->intensity2 = item->intensity1;

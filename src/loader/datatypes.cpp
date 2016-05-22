@@ -11,14 +11,14 @@ namespace loader
 
 namespace
 {
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex* tex, const std::vector<Vertex>& vertices, const std::vector<Vertex>& normals)
+irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex* tex, const std::vector<TRCoordinates>& vertices, const std::vector<TRCoordinates>& normals)
 {
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
     BOOST_ASSERT(vertexIndex < vertices.size());
-    iv.Pos = vertices[vertexIndex];
+    iv.Pos = vertices[vertexIndex].toIrrlicht();
     if(!normals.empty())
-        iv.Normal = -normals[vertexIndex];
+        iv.Normal = normals[vertexIndex].toIrrlicht();
     else
         iv.Normal.set(0,0,1);
     if(tex != nullptr)
@@ -42,7 +42,7 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
 {
     irr::video::S3DVertex iv;
     BOOST_ASSERT(vertexIndex < vertices.size());
-    iv.Pos = vertices[vertexIndex].vertex;
+    iv.Pos = vertices[vertexIndex].vertex.toIrrlicht();
     iv.TCoords.X = tex.xpixel/255.0f;
     iv.TCoords.Y = tex.ypixel/255.0f;
     iv.Color = vertices[vertexIndex].color;
@@ -278,8 +278,8 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         ld.AmbientColor = ld.DiffuseColor;
         ld.Falloff = light.intensity;
         ld.Attenuation.Y = 1.0f / ld.OuterCone;
-        ln->setPosition(light.position - position);
-        ln->setRotation(light.dir);
+        ln->setPosition((light.position - position).toIrrlicht());
+        ln->setRotation(light.dir.toIrrlicht());
         ln->setRadius(light.r_outer);
 #ifndef NDEBUG
         ln->setDebugDataVisible(irr::scene::EDS_FULL);
@@ -293,10 +293,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
         smNode->setRotation({0,-sm.rotation,0});
-        smNode->setPosition(sm.position - position);
+        smNode->setPosition((sm.position - position).toIrrlicht());
         resultNode->addChild(smNode);
     }
-    resultNode->setPosition(position);
+    resultNode->setPosition(position.toIrrlicht());
     resultNode->updateAbsolutePosition();
     
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
@@ -312,7 +312,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(dim.X > 0);
         BOOST_ASSERT(dim.Y > 0);
         
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, vertices[sprite.vertex].vertex+irr::core::vector3df{0,static_cast<irr::f32>(tex.bottom_side/2),0}, -1, 0, 0);
+        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex + TRCoordinates{0, tex.bottom_side/2, 0}).toIrrlicht(), -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
         n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
         n->getMaterial(0).EmissiveColor.set(0);
