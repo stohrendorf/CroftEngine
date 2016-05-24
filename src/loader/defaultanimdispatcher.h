@@ -23,7 +23,8 @@ public:
     static std::shared_ptr<DefaultAnimDispatcher> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
     
     uint16_t getCurrentState() const;
-    
+    uint16_t getNextFrameState() const;
+
     void setTargetState(uint16_t state) noexcept
     {
         if(state == getCurrentState())
@@ -37,7 +38,7 @@ public:
     {
         return m_targetState;
     }
-    
+
     /**
      * @brief Play a specific animation.
      * @param anim Animation ID
@@ -46,11 +47,11 @@ public:
      * Plays the animation specified; if the animation does not exist, nothing happens;
      * if it exists, the target state is changed to the animation's state.
      */
-    void playGlobalAnimation(uint16_t anim);
+    void playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none);
     
-    void playLocalAnimation(uint16_t anim)
+    void playLocalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none)
     {
-        playGlobalAnimation(m_model.animationIndex + anim);
+        playGlobalAnimation(m_model.animationIndex + anim, firstFrame);
     }
     
     uint16_t getCurrentAnimationId() const noexcept

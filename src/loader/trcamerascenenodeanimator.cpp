@@ -321,7 +321,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
                 ++floorDataIt;
                 break;
             case FDFunction::Trigger:          // TRIGGERS
-                floorDataIt = handleTrigger(floorDataIt, static_cast<TriggerType>(subFunction));
+                floorDataIt = handleTrigger(floorDataIt, static_cast<loader::TriggerType>(subFunction));
                 break;
             case FDFunction::Death:
             case FDFunction::Climb:
@@ -341,7 +341,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
     return true;
 }
 
-loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, TriggerType triggerType)
+loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, loader::TriggerType triggerType)
 {
     const int8_t timer = static_cast<int8_t>(*floorDataIt & 0x00FF);
     const uint8_t mask = (*floorDataIt & 0x3E00) >> 9;

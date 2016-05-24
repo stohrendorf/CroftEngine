@@ -109,7 +109,37 @@ uint16_t DefaultAnimDispatcher::getCurrentState() const
     return currentAnim.state_id;
 }
 
-void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim)
+uint16_t DefaultAnimDispatcher::getNextFrameState() const
+{
+    BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
+    const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+    const auto currentFrame = getCurrentFrame();
+
+    for(size_t i = 0; i < currentAnim.transitionsCount; ++i)
+    {
+        auto tIdx = currentAnim.transitionsIndex + i;
+        BOOST_ASSERT(tIdx < m_level->m_transitions.size());
+        const Transitions& tr = m_level->m_transitions[tIdx];
+        if(tr.stateId != m_targetState)
+            continue;
+
+        for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
+        {
+            BOOST_ASSERT(j < m_level->m_transitionCases.size());
+            const TransitionCase& trc = m_level->m_transitionCases[j];
+
+            if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
+            {
+                //BOOST_LOG_TRIVIAL(debug) << "  - Starting target animation, targetAnimation=" << trc.targetAnimation << ", targetFrame=" << trc.targetFrame;
+                return m_level->m_animations[trc.targetAnimation].state_id;
+            }
+        }
+    }
+
+    return m_level->m_animations[currentAnim.nextAnimation].state_id;
+}
+
+void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame)
 {
     auto it = m_model.frameMapping.find(anim);
     if(it == m_model.frameMapping.end())
@@ -119,7 +149,7 @@ void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim)
     }
     
     m_currentAnimationId = anim;
-    it->second.apply(m_node, it->second.firstFrame);
+    it->second.apply(m_node, firstFrame.get_value_or(it->second.firstFrame));
     m_targetState = getCurrentState();
     
     BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << m_targetState;

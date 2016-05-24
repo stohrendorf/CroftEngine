@@ -2,8 +2,6 @@
 
 #include "level.h"
 
-enum class TriggerType;
-
 class TRCameraSceneNodeAnimator final : public irr::scene::ISceneNodeAnimator
 {
 private:
@@ -71,5 +69,5 @@ private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
 
     bool handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara);
-    loader::FloorData::const_iterator handleTrigger(loader::FloorData::const_iterator floorDataIt, TriggerType triggerType);
+    loader::FloorData::const_iterator handleTrigger(loader::FloorData::const_iterator floorDataIt, loader::TriggerType triggerType);
 };

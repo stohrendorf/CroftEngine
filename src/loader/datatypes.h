@@ -257,9 +257,9 @@ struct TRCoordinates
     static TRCoordinates readF(io::SDLReader& reader)
     {
         TRCoordinates vertex;
-        vertex.X = reader.readF();
-        vertex.Y = reader.readF();
-        vertex.Z = reader.readF();
+        vertex.X = std::lround( reader.readF() );
+        vertex.Y = std::lround( reader.readF() );
+        vertex.Z = std::lround( reader.readF() );
         return vertex;
     }
 };
@@ -1452,11 +1452,11 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->position.X = static_cast<float>(reader.readI32());
+        room->position.X = reader.readI32();
         room->position.Y = 0;
-        room->position.Z = static_cast<float>(reader.readI32());
-        room->lowestHeight = static_cast<float>(-reader.readI32());
-        room->greatestHeight = static_cast<float>(-reader.readI32());
+        room->position.Z = reader.readI32();
+        room->lowestHeight = reader.readI32();
+        room->greatestHeight = reader.readI32();
 
         auto num_data_words = reader.readU32();
 
@@ -1530,11 +1530,11 @@ struct Room
         std::unique_ptr<Room> room{ new Room() };
 
         // read and change coordinate system
-        room->position.X = static_cast<float>(reader.readI32());
+        room->position.X = reader.readI32();
         room->position.Y = 0;
-        room->position.Z = static_cast<float>(reader.readI32());
-        room->lowestHeight = static_cast<float>(-reader.readI32());
-        room->greatestHeight = static_cast<float>(-reader.readI32());
+        room->position.Z = reader.readI32();
+        room->lowestHeight = reader.readI32();
+        room->greatestHeight = reader.readI32();
 
         auto num_data_words = reader.readU32();
 
@@ -1612,11 +1612,11 @@ struct Room
     {
         std::unique_ptr<Room> room{ new Room() };
         // read and change coordinate system
-        room->position.X = static_cast<float>(reader.readI32());
+        room->position.X = reader.readI32();
         room->position.Y = 0;
-        room->position.Z = static_cast<float>(reader.readI32());
-        room->lowestHeight = static_cast<float>(-reader.readI32());
-        room->greatestHeight = static_cast<float>(-reader.readI32());
+        room->position.Z = reader.readI32();
+        room->lowestHeight = reader.readI32();
+        room->greatestHeight = reader.readI32();
 
         auto num_data_words = reader.readU32();
 
@@ -1710,11 +1710,11 @@ struct Room
         auto static_meshes_offset = reader.readU32();     // endPortalOffset
                                                         // static_meshes_offset or room_layer_offset
                                                         // read and change coordinate system
-        room->position.X = static_cast<float>(reader.readI32());
-        room->position.Y = static_cast<float>(reader.readU32());
-        room->position.Z = static_cast<float>(reader.readI32());
-        room->lowestHeight = static_cast<float>(-reader.readI32());
-        room->greatestHeight = static_cast<float>(-reader.readI32());
+        room->position.X = reader.readI32();
+        room->position.Y = reader.readU32();
+        room->position.Z = reader.readI32();
+        room->lowestHeight = reader.readI32();
+        room->greatestHeight = reader.readI32();
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();

@@ -90,13 +90,6 @@ target_include_directories(OpenGL INTERFACE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(OpenGL INTERFACE ${OPENGL_LIBRARIES})
 
 
-# Dependency: GLEW
-find_package(GLEW REQUIRED)
-add_library(GLEW INTERFACE)
-target_include_directories(GLEW INTERFACE ${GLEW_INCLUDE_DIRS})
-target_link_libraries(GLEW INTERFACE ${GLEW_LIBRARIES})
-
-
 # Dependency: Lua
 ot_find_dependency(Lua)
 target_link_libraries(Lua INTERFACE ${LUA_LIBRARIES})

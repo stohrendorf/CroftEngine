@@ -24,7 +24,7 @@ struct LaraState;
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
     using LaraState = loader::LaraState;
-    friend class Behavior;
+
 private:
     const loader::Level* const m_level;
     std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
@@ -56,6 +56,8 @@ private:
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3di m_rotation;
 
+    loader::TRCoordinates m_position;
+
     using InputHandler = void (LaraStateHandler::*)();
     
     void onInput0WalkForward();
@@ -73,6 +75,8 @@ private:
     void onInput7TurnLeftSlow();
     
     void onInput9FreeFall();
+
+    void onInput15JumpPrepare();
 
     void onInput16WalkBackward();
 
@@ -97,6 +101,9 @@ public:
         m_rotation.Z = util::degToAu(laraRot.Z);
 
         m_movementAngle = m_rotation.Y;
+
+        m_lara->updateAbsolutePosition();
+        m_position = loader::TRCoordinates(m_lara->getAbsolutePosition());
     }
     
     ~LaraStateHandler() = default;
@@ -157,12 +164,17 @@ public:
         return m_lara;
     }
 
+    const loader::TRCoordinates& getPosition() const noexcept
+    {
+        return m_position;
+    }
+
 private:
     void setTargetState(loader::LaraState st);
 
     LaraState getTargetState() const;
     
-    void playAnimation(loader::AnimationId anim);
+    void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
     bool tryStopOnFloor(::LaraState& state);
     bool tryClimb(::LaraState& state);
@@ -174,11 +186,16 @@ private:
         return false;
     }
     void jumpAgainstWall(::LaraState& state);
+    void checkJumpWallSmash(::LaraState& state);
 
     void applyCollisionFeedback(::LaraState& state);
+    void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
+    void updateFloorHeight(int dy);
+    int getRelativeHeightAtDirection(int16_t angle, int dist) const;
+    void commonJumpHandling(::LaraState& state);
 
     void handleLaraStateOnLand();
 
-    int m_unknown10CD54 = 0;
     int m_handStatus = 0;
+    int m_floorHeight = 0;
 };
