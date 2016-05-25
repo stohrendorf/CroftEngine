@@ -21,7 +21,7 @@ DefaultAnimDispatcher::DefaultAnimDispatcher(const Level* level, const AnimatedM
     }
     
     startAnimLoop(it->second.firstFrame);
-    m_targetState = getCurrentState();
+    m_targetState = getCurrentAnimState();
 }
 
 std::shared_ptr<DefaultAnimDispatcher> DefaultAnimDispatcher::create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name)
@@ -64,6 +64,8 @@ void DefaultAnimDispatcher::handleTransitions(bool useDefaultAnimationLoop)
             {
                 //BOOST_LOG_TRIVIAL(debug) << "  - Starting target animation, targetAnimation=" << trc.targetAnimation << ", targetFrame=" << trc.targetFrame;
                 m_currentAnimationId = trc.targetAnimation;
+                if(getCurrentState() == getCurrentAnimState())
+                    m_currenStateOverride = boost::none;
                 startAnimLoop(trc.targetFrame);
                 return;
             }
@@ -73,6 +75,8 @@ void DefaultAnimDispatcher::handleTransitions(bool useDefaultAnimationLoop)
     if(useDefaultAnimationLoop)
     {
         m_currentAnimationId = currentAnim.nextAnimation;
+        if(getCurrentState() == getCurrentAnimState())
+            m_currenStateOverride = boost::none;
         startAnimLoop(currentAnim.nextFrame);
         // m_targetState = getCurrentState();
         // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
@@ -102,41 +106,11 @@ irr::u32 DefaultAnimDispatcher::getCurrentRelativeFrame() const
     return static_cast<irr::u32>(m_node->getFrameNr() - it->second.offset);
 }
 
-uint16_t DefaultAnimDispatcher::getCurrentState() const
+uint16_t DefaultAnimDispatcher::getCurrentAnimState() const
 {
     BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
     const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
     return currentAnim.state_id;
-}
-
-uint16_t DefaultAnimDispatcher::getNextFrameState() const
-{
-    BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
-    const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
-    const auto currentFrame = getCurrentFrame();
-
-    for(size_t i = 0; i < currentAnim.transitionsCount; ++i)
-    {
-        auto tIdx = currentAnim.transitionsIndex + i;
-        BOOST_ASSERT(tIdx < m_level->m_transitions.size());
-        const Transitions& tr = m_level->m_transitions[tIdx];
-        if(tr.stateId != m_targetState)
-            continue;
-
-        for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
-        {
-            BOOST_ASSERT(j < m_level->m_transitionCases.size());
-            const TransitionCase& trc = m_level->m_transitionCases[j];
-
-            if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
-            {
-                //BOOST_LOG_TRIVIAL(debug) << "  - Starting target animation, targetAnimation=" << trc.targetAnimation << ", targetFrame=" << trc.targetFrame;
-                return m_level->m_animations[trc.targetAnimation].state_id;
-            }
-        }
-    }
-
-    return m_level->m_animations[currentAnim.nextAnimation].state_id;
 }
 
 void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame)
@@ -150,9 +124,9 @@ void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim, const boost::opti
     
     m_currentAnimationId = anim;
     it->second.apply(m_node, firstFrame.get_value_or(it->second.firstFrame));
-    m_targetState = getCurrentState();
+    //m_targetState = getCurrentState();
     
-    BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << m_targetState;
+    BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << getCurrentAnimState();
 }
 
 }

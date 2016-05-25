@@ -10,7 +10,7 @@ Death=8
 FreeFall=9
 Hang=10
 Reach=11
-//    UNUSED2 12
+Unknown12=12
 UnderwaterStop=13
 GrabToFall=14
 JumpPrepare=15

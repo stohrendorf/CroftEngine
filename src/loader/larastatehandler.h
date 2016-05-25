@@ -58,41 +58,58 @@ private:
 
     loader::TRCoordinates m_position;
 
-    using InputHandler = void (LaraStateHandler::*)();
-    using BehaviourHandler = void (LaraStateHandler::*)(::LaraState&);
+    using Handler = void (LaraStateHandler::*)(::LaraState&);
 
-    void onInput0WalkForward();
+    void onInput0WalkForward(::LaraState& state);
 
-    void onInput1RunForward();
+    void onInput1RunForward(::LaraState& state);
     void onBehave1RunForward(::LaraState& state);
 
-    void onInput2Stop();
+    void onInput2Stop(::LaraState& state);
 
-    void onInput3JumpForward();
+    void onInput3JumpForward(::LaraState& state);
     void onBehave3JumpForward(::LaraState& state);
 
-    void onInput5RunBackward();
+    void onInput5RunBackward(::LaraState& state);
     void onBehave5RunBackward(::LaraState& state);
 
-    void onInput6TurnRightSlow();
+    void onInput6TurnRightSlow(::LaraState& state);
 
-    void onInput7TurnLeftSlow();
+    void onInput7TurnLeftSlow(::LaraState& state);
     
-    void onInput9FreeFall();
+    void onInput9FreeFall(::LaraState& state);
     void onBehave9FreeFall(::LaraState& state);
 
-    void onInput15JumpPrepare();
+    void onBehave12Unknown(::LaraState& state);
+
+    void onInput15JumpPrepare(::LaraState& state);
     void onBehave15JumpPrepare(::LaraState& state);
 
-    void onInput16WalkBackward();
+    void onInput16WalkBackward(::LaraState& state);
     void onBehave16WalkBackward(::LaraState& state);
 
-    void onInput20TurnFast();
+    void onInput19Climbing(::LaraState& state);
+    void onBehave19Climbing(::LaraState& state);
 
-    void onInput25JumpBackward();
+    void onInput20TurnFast(::LaraState& state);
+
+    void onInput24SlideForward(::LaraState& state);
+    void onBehave24SlideForward(::LaraState& state);
+
+    void onInput25JumpBackward(::LaraState& state);
     
-    void onInput28JumpUp();
+    void onInput28JumpUp(::LaraState& state);
     void onBehave28JumpUp(::LaraState& state);
+
+    void onInput29FallBackward(::LaraState& state);
+    void onBehave29FallBackward(::LaraState& state);
+
+    void onInput32SlideBackward(::LaraState& state);
+    void onBehave32SlideBackward(::LaraState& state);
+
+    void nopHandler(::LaraState&)
+    {
+    }
 
 public:
     LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
@@ -179,6 +196,8 @@ public:
 
 private:
     void setTargetState(loader::LaraState st);
+    void setStateOverride(loader::LaraState st);
+    void clearStateOverride();
 
     LaraState getTargetState() const;
     
@@ -201,6 +220,7 @@ private:
     void updateFloorHeight(int dy);
     int getRelativeHeightAtDirection(int16_t angle, int dist) const;
     void commonJumpHandling(::LaraState& state);
+    void commonSlideHandling(::LaraState& state);
 
     void handleLaraStateOnLand();
 

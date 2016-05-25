@@ -14,6 +14,7 @@ private:
     const AnimatedModel& m_model;
     uint16_t m_currentAnimationId;
     uint16_t m_targetState = 0;
+    boost::optional<uint16_t> m_currenStateOverride = boost::none;
     const std::string m_name;
     irr::scene::IAnimatedMeshSceneNode* const m_node;
 
@@ -22,15 +23,33 @@ public:
 
     static std::shared_ptr<DefaultAnimDispatcher> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
     
-    uint16_t getCurrentState() const;
-    uint16_t getNextFrameState() const;
+    uint16_t getCurrentAnimState() const;
+
+    uint16_t getCurrentState() const
+    {
+        if(m_currenStateOverride.is_initialized())
+            return *m_currenStateOverride;
+
+        return getCurrentAnimState();
+    }
+
+    void setStateOverride(uint16_t value)
+    {
+        BOOST_LOG_TRIVIAL(debug) << m_name << " -- set state override=" << value;
+        m_currenStateOverride = value;
+    }
+
+    void clearStateOverride()
+    {
+        m_currenStateOverride = boost::none;
+    }
 
     void setTargetState(uint16_t state) noexcept
     {
-        if(state == getCurrentState())
+        if(state == m_targetState)
             return;
         
-        BOOST_LOG_TRIVIAL(debug) << "Set target state=" << state << " (" << m_name << ") current=" << getCurrentState();
+        BOOST_LOG_TRIVIAL(debug) << m_name << " -- set target state=" << state << " (was " << m_targetState << "), current state=" << getCurrentAnimState();
         m_targetState = state;
     }
 
