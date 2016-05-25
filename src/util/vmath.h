@@ -123,6 +123,6 @@ constexpr irr::f32 auToRad(irr::s16 au)
 
 constexpr irr::s16 degToAu(irr::f32 deg)
 {
-    return static_cast<irr::s32>(deg * 65536 / 360);
+    return static_cast<irr::s16>(deg * 65536 / 360);
 }
 } // namespace util

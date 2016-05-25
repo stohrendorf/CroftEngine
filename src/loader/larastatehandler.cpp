@@ -904,7 +904,7 @@ void LaraStateHandler::handleLaraStateOnLand()
     }
 
     if( !inputHandlers[currentState] )
-    BOOST_LOG_TRIVIAL(warning) << "No input handler for state " << currentState;
+        BOOST_LOG_TRIVIAL(warning) << "No input handler for state " << currentState;
     else
         (this ->* inputHandlers[currentState])();
 
@@ -964,123 +964,13 @@ void LaraStateHandler::handleLaraStateOnLand()
         }
         break;
     case LaraState::RunForward:
-        m_movementAngle = m_rotation.Y;
-        laraState.yAngle = m_rotation.Y;
-        laraState.fruityFloorLimitBottom = loader::HeightLimit;
-        laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 0;
-        laraState.frobbelFlags |= FrobbelFlag01;
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
-        if( tryStopOnFloor(laraState) || tryClimb(laraState) )
-            break;
-        if( checkWallCollision(laraState) )
-        {
-            m_rotation.Z = 0;
-            if( laraState.front.floor.slantClass == SlantClass::None && laraState.front.floor.height < -ClimbLimit2ClickMax )
-            {
-                if( m_dispatcher->getCurrentFrame() >= 0 && m_dispatcher->getCurrentFrame() <= 9 )
-                {
-                    playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800);
-                    break;
-                }
-                if( m_dispatcher->getCurrentFrame() >= 10 && m_dispatcher->getCurrentFrame() <= 21 )
-                {
-                    playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815);
-                    break;
-                }
-
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
-            }
-        }
-
-        if( laraState.current.floor.height > ClimbLimit2ClickMin )
-        {
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
-            //! @todo set current state = jump forward
-            setTargetState(loader::LaraState::JumpForward);
-            m_falling = true;
-            m_fallSpeed = 0;
-            break;
-        }
-
-        if( laraState.current.floor.height >= -ClimbLimit2ClickMin && laraState.current.floor.height < -SteppableHeight )
-        {
-            if( m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14 )
-            {
-                playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT, 837);
-            }
-            else
-            {
-                playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT, 830);
-            }
-        }
-
-        if( !tryStartSlide(laraState) )
-        {
-            m_position.Y += std::min(50, laraState.current.floor.height);
-        }
-
+        onBehave1RunForward(laraState);
         break;
     case LaraState::RunBack:
-        m_fallSpeed = 0;
-        m_falling = false;
-        laraState.fruityFloorLimitBottom = loader::HeightLimit;
-        laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 0;
-        laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-        m_movementAngle = m_rotation.Y + util::degToAu(180);
-        laraState.yAngle = m_rotation.Y + util::degToAu(180);
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
-        if( tryStopOnFloor(laraState) )
-            break;
-        if( laraState.current.floor.height > 200 )
-        {
-            playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
-            setTargetState(loader::LaraState::FallBackward);
-            m_fallSpeed = 0;
-            m_falling = true;
-            break;
-        }
-
-        if( checkWallCollision(laraState) )
-        {
-            playAnimation(loader::AnimationId::STAY_SOLID, 185);
-        }
-        m_position.Y += laraState.current.floor.height;
+        onBehave5RunBackward(laraState);
         break;
     case LaraState::WalkBackward:
-        m_fallSpeed = 0;
-        m_falling = false;
-        laraState.fruityFloorLimitBottom = ClimbLimit2ClickMin;
-        laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 0;
-        m_movementAngle = laraState.yAngle = m_rotation.Y + util::degToAu(180);
-        laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
-        if(!tryStopOnFloor(laraState))
-        {
-            if(checkWallCollision(laraState))
-            {
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
-            }
-
-            if(laraState.current.floor.height > 128 && laraState.current.floor.height < 384)
-            {
-                if(m_dispatcher->getCurrentFrame() < 964 && m_dispatcher->getCurrentFrame() > 993)
-                {
-                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
-                }
-                else
-                {
-                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
-                }
-            }
-
-            if(!tryStartSlide(laraState))
-            {
-                m_position.Y += laraState.current.floor.height;
-            }
-        }
+        onBehave16WalkBackward(laraState);
         break;
     case LaraState::JumpBack:
         m_movementAngle = m_rotation.Y + util::degToAu(180);
@@ -1095,122 +985,283 @@ void LaraStateHandler::handleLaraStateOnLand()
         commonJumpHandling(laraState);
         break;
     case LaraState::FreeFall:
-        laraState.fruityFloorLimitBottom = loader::HeightLimit;
-        laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 192;
-        laraState.yAngle = m_movementAngle;
-        m_falling = true;
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
-        jumpAgainstWall(laraState);
-        if( laraState.current.floor.height <= 0 )
-        {
-            if( false ) //! @todo if(applyLandingDamage())
-            {
-                setTargetState(loader::LaraState::Death);
-            }
-            else
-            {
-                setTargetState(loader::LaraState::Stop);
-                playAnimation(loader::AnimationId::LANDING_HARD, 358);
-            }
-            m_fallSpeed = 0;
-            m_position.Y += laraState.current.floor.height;
-            m_falling = false;
-        }
+        onBehave9FreeFall(laraState);
         break;
     case LaraState::JumpUp:
-        laraState.fruityFloorLimitBottom = loader::HeightLimit;
-        laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 192;
-        laraState.yAngle = m_rotation.Y;
-        laraState.initHeightInfo(this, *m_level, 870, m_position); //! @todo MAGICK 870
-        if( !tryGrabEdge(laraState) )
-        {
-            jumpAgainstWall(laraState);
-            if( m_fallSpeed > 0 && laraState.current.floor.height <= 0 )
-            {
-                //! @todo Apply landing damage
-                setTargetState(loader::LaraState::Stop);
-                m_fallSpeed = 0;
-                m_position.Y += laraState.current.floor.height;
-                m_falling = false;
-            }
-        }
+        onBehave28JumpUp(laraState);
         break;
     case LaraState::JumpForward:
-        laraState.fruityFloorLimitBottom = loader::HeightLimit;
+        onBehave3JumpForward(laraState);
+        break;
+    case LaraState::JumpPrepare:
+        onBehave15JumpPrepare(laraState);
+        break;
+    case LaraState::Climbing:
+        laraState.fruityFloorLimitBottom = ClimbLimit2ClickMin;
         laraState.fruityFloorLimitTop = -ClimbLimit2ClickMin;
-        laraState.fruityCeilingLimit = 192;
-        m_movementAngle = laraState.yAngle = m_rotation.Y;
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
-        checkJumpWallSmash(laraState);
-
-        if( laraState.current.floor.height <= 0 && m_fallSpeed > 0 )
-        {
-            if( false ) //! @todo applyLandingDamage(laraState)
-            {
-                setTargetState(LaraState::Death);
-            }
-            else if( m_zMovement != AxisMovement::Forward || m_moveSlow )
-            {
-                setTargetState(LaraState::Stop);
-            }
-            else
-            {
-                setTargetState(LaraState::RunForward);
-            }
-
-            m_fallSpeed = 0;
-            m_falling = false;
-            m_horizontalSpeed = 0;
-            m_position.Y += laraState.current.floor.height;
-            processAnimCommands();
-        }
-
+        laraState.fruityCeilingLimit = 0;
+        laraState.yAngle = m_movementAngle = m_rotation.Y;
+        laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
+        laraState.initHeightInfo(this, *m_level, 762, m_position);
         break;
     default:
+        BOOST_LOG_TRIVIAL(warning) << "No behaviour handler for state " << m_dispatcher->getNextFrameState();
         break;
     }
-
 
     updateFloorHeight(-381);
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
 }
 
-void LaraStateHandler::jumpAgainstWall(::LaraState& state)
+void LaraStateHandler::onBehave15JumpPrepare(::LaraState& state)
 {
-    applyCollisionFeedback(state);
-    if( state.axisCollisions < ::LaraState::AxisColl_HeadInCeiling )
+    m_fallSpeed = 0;
+    m_falling = false;
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -loader::HeightLimit;
+    state.fruityCeilingLimit = 0;
+    state.yAngle = m_rotation.Y;
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+
+    if(state.current.ceiling.height <= -100)
+        return;
+
+    setTargetState(LaraState::Stop);
+    playAnimation(loader::AnimationId::STAY_SOLID, 185);
+    m_horizontalSpeed = 0;
+    m_falling = false;
+    m_position = state.position;
+}
+
+
+void LaraStateHandler::onBehave1RunForward(::LaraState& state)
+{
+    m_movementAngle = m_rotation.Y;
+    state.yAngle = m_rotation.Y;
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 0;
+    state.frobbelFlags |= FrobbelFlag01;
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    if(tryStopOnFloor(state) || tryClimb(state))
+        return;
+
+    if(checkWallCollision(state))
     {
-        if( state.axisCollisions >= ::LaraState::AxisColl_FrontLeftBump )
+        m_rotation.Z = 0;
+        if(state.front.floor.slantClass == SlantClass::None && state.front.floor.height < -ClimbLimit2ClickMax)
         {
-            if( state.axisCollisions <= ::LaraState::AxisColl_FrontLeftBump )
-                m_rotation.Y += 910;
-            else
-                m_rotation.Y -= 910;
+            if(m_dispatcher->getCurrentFrame() >= 0 && m_dispatcher->getCurrentFrame() <= 9)
+            {
+                playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800);
+                return;
+            }
+            if(m_dispatcher->getCurrentFrame() >= 10 && m_dispatcher->getCurrentFrame() <= 21)
+            {
+                playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815);
+                return;
+            }
+
+            playAnimation(loader::AnimationId::STAY_SOLID, 185);
         }
+    }
+
+    if(state.current.floor.height > ClimbLimit2ClickMin)
+    {
+        playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+        //! @todo set current state = jump forward
+        setTargetState(loader::LaraState::JumpForward);
+        m_falling = true;
+        m_fallSpeed = 0;
+        return;
+    }
+
+    if(state.current.floor.height >= -ClimbLimit2ClickMin && state.current.floor.height < -SteppableHeight)
+    {
+        if(m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14)
+        {
+            playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT, 837);
+        }
+        else
+        {
+            playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT, 830);
+        }
+    }
+
+    if(!tryStartSlide(state))
+    {
+        m_position.Y += std::min(50, state.current.floor.height);
+    }
+}
+
+void LaraStateHandler::onBehave5RunBackward(::LaraState& state)
+{
+    m_fallSpeed = 0;
+    m_falling = false;
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 0;
+    state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
+    m_movementAngle = m_rotation.Y + util::degToAu(180);
+    state.yAngle = m_rotation.Y + util::degToAu(180);
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    if(tryStopOnFloor(state))
+        return;
+
+    if(state.current.floor.height > 200)
+    {
+        playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+        setTargetState(loader::LaraState::FallBackward);
+        m_fallSpeed = 0;
+        m_falling = true;
+        return;
+    }
+
+    if(checkWallCollision(state))
+    {
+        playAnimation(loader::AnimationId::STAY_SOLID, 185);
+    }
+    m_position.Y += state.current.floor.height;
+}
+
+
+void LaraStateHandler::onBehave16WalkBackward(::LaraState& state)
+{
+    m_fallSpeed = 0;
+    m_falling = false;
+    state.fruityFloorLimitBottom = ClimbLimit2ClickMin;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 0;
+    m_movementAngle = state.yAngle = m_rotation.Y + util::degToAu(180);
+    state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    if(tryStopOnFloor(state))
+        return;
+
+    if(checkWallCollision(state))
+    {
+        playAnimation(loader::AnimationId::STAY_SOLID, 185);
+    }
+
+    if(state.current.floor.height > 128 && state.current.floor.height < 384)
+    {
+        if(m_dispatcher->getCurrentFrame() < 964 && m_dispatcher->getCurrentFrame() > 993)
+        {
+            playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
+        }
+        else
+        {
+            playAnimation(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
+        }
+    }
+
+    if(!tryStartSlide(state))
+    {
+        m_position.Y += state.current.floor.height;
+    }
+}
+
+
+void LaraStateHandler::onBehave9FreeFall(::LaraState& state)
+{
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 192;
+    state.yAngle = m_movementAngle;
+    m_falling = true;
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    jumpAgainstWall(state);
+    if(state.current.floor.height > 0)
+        return;
+
+    if(false) //! @todo if(applyLandingDamage())
+    {
+        setTargetState(loader::LaraState::Death);
     }
     else
     {
-        if( state.axisCollisions <= ::LaraState::AxisColl_HeadInCeiling )
-            goto bla;
-        if( state.axisCollisions < ::LaraState::AxisColl_BumpHead )
-            return;
-        if( state.axisCollisions < ::LaraState::AxisColl_BumpHead )
-        {
-        bla:
-            if( m_fallSpeed <= 0 )
-                m_fallSpeed = 1;
-        }
-        else if( state.axisCollisions == ::LaraState::AxisColl_CeilingTooLow )
-        {
-            m_position.X += static_cast<long>(100 * std::sin(util::auToRad(m_rotation.Y)));
-            m_position.Z += static_cast<long>(100 * std::cos(util::auToRad(m_rotation.Y)));
-            m_horizontalSpeed = 0;
-            state.current.floor.height = 0;
-            if( m_fallSpeed < 0 )
-                m_fallSpeed = 16;
-        }
+        setTargetState(loader::LaraState::Stop);
+        playAnimation(loader::AnimationId::LANDING_HARD, 358);
+    }
+    m_fallSpeed = 0;
+    m_position.Y += state.current.floor.height;
+    m_falling = false;
+}
+
+
+void LaraStateHandler::onBehave3JumpForward(::LaraState& state)
+{
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 192;
+    m_movementAngle = state.yAngle = m_rotation.Y;
+    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    checkJumpWallSmash(state);
+
+    if(state.current.floor.height > 0 || m_fallSpeed <= 0)
+        return;
+
+    if(false) //! @todo applyLandingDamage(laraState)
+    {
+        setTargetState(LaraState::Death);
+    }
+    else if(m_zMovement != AxisMovement::Forward || m_moveSlow)
+    {
+        setTargetState(LaraState::Stop);
+    }
+    else
+    {
+        setTargetState(LaraState::RunForward);
+    }
+
+    m_fallSpeed = 0;
+    m_falling = false;
+    m_horizontalSpeed = 0;
+    m_position.Y += state.current.floor.height;
+    processAnimCommands();
+}
+
+void LaraStateHandler::onBehave28JumpUp(::LaraState& state)
+{
+    state.fruityFloorLimitBottom = loader::HeightLimit;
+    state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
+    state.fruityCeilingLimit = 192;
+    state.yAngle = m_rotation.Y;
+    state.initHeightInfo(this, *m_level, 870, m_position); //! @todo MAGICK 870
+    if(tryGrabEdge(state))
+        return;
+
+    jumpAgainstWall(state);
+    if(m_fallSpeed <= 0 || state.current.floor.height > 0)
+        return;
+
+    //! @todo Apply landing damage
+    setTargetState(loader::LaraState::Stop);
+    m_fallSpeed = 0;
+    m_position.Y += state.current.floor.height;
+    m_falling = false;
+}
+
+void LaraStateHandler::jumpAgainstWall(::LaraState& state)
+{
+    applyCollisionFeedback(state);
+    if(state.axisCollisions == ::LaraState::AxisColl_FrontLeftBump)
+        m_rotation.Y += 910;
+    else if(state.axisCollisions == ::LaraState::AxisColl_FrontRightBump)
+        m_rotation.Y -= 910;
+    else if(state.axisCollisions == ::LaraState::AxisColl_HeadInCeiling)
+    {
+        if(m_fallSpeed <= 0)
+            m_fallSpeed = 1;
+    }
+    else if(state.axisCollisions == ::LaraState::AxisColl_CeilingTooLow)
+    {
+        m_position.X += static_cast<long>(100 * std::sin(util::auToRad(m_rotation.Y)));
+        m_position.Z += static_cast<long>(100 * std::cos(util::auToRad(m_rotation.Y)));
+        m_horizontalSpeed = 0;
+        state.current.floor.height = 0;
+        if(m_fallSpeed < 0)
+            m_fallSpeed = 16;
     }
 }
 
@@ -1284,13 +1335,9 @@ void LaraStateHandler::processAnimCommands()
             switch( opcode )
             {
             case AnimCommandOpcode::SetPosition:
-                {
-                    auto dx = cmd[0];
-                    auto dy = cmd[1];
-                    auto dz = cmd[2];
-                    cmd += 3;
-                    break;
-                }
+                m_position += {cmd[0], cmd[1], cmd[2]};
+                cmd += 3;
+                break;
             case AnimCommandOpcode::SetVelocity:
                 m_fallSpeed = m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride;
                 m_fallSpeedOverride = 0;
@@ -1403,7 +1450,7 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
         setTargetState(LaraState::Stop);
         playAnimation(loader::AnimationId::CLIMB_2CLICK, 759);
         m_position.Y -= 2 * loader::QuarterSectorSize + climbHeight;
-        m_handStatus = 1;
+        //! @todo m_handStatus = 1;
     }
     else if( climbHeight >= -ClimbLimit3ClickMax && climbHeight <= -ClimbLimit2ClickMax )
     {
@@ -1415,7 +1462,7 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
         setTargetState(LaraState::Stop);
         playAnimation(loader::AnimationId::CLIMB_3CLICK, 614);
         m_position.Y -= 3 * loader::QuarterSectorSize + climbHeight;
-        m_handStatus = 1;
+        //! @todo m_handStatus = 1;
     }
     else
     {

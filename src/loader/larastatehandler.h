@@ -59,32 +59,40 @@ private:
     loader::TRCoordinates m_position;
 
     using InputHandler = void (LaraStateHandler::*)();
-    
+    using BehaviourHandler = void (LaraStateHandler::*)(::LaraState&);
+
     void onInput0WalkForward();
 
     void onInput1RunForward();
+    void onBehave1RunForward(::LaraState& state);
 
     void onInput2Stop();
 
     void onInput3JumpForward();
+    void onBehave3JumpForward(::LaraState& state);
 
     void onInput5RunBackward();
+    void onBehave5RunBackward(::LaraState& state);
 
     void onInput6TurnRightSlow();
 
     void onInput7TurnLeftSlow();
     
     void onInput9FreeFall();
+    void onBehave9FreeFall(::LaraState& state);
 
     void onInput15JumpPrepare();
+    void onBehave15JumpPrepare(::LaraState& state);
 
     void onInput16WalkBackward();
+    void onBehave16WalkBackward(::LaraState& state);
 
     void onInput20TurnFast();
 
     void onInput25JumpBackward();
     
     void onInput28JumpUp();
+    void onBehave28JumpUp(::LaraState& state);
 
 public:
     LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
