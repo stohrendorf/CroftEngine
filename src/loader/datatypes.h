@@ -264,6 +264,71 @@ struct TRCoordinates
     }
 };
 
+struct ExactTRCoordinates
+{
+    float X = 0, Y = 0, Z = 0;
+
+    ExactTRCoordinates() = default;
+    ExactTRCoordinates(const ExactTRCoordinates&) = default;
+
+    explicit ExactTRCoordinates(const irr::core::vector3df& v)
+        : X(v.X)
+        , Y(-v.Y)
+        , Z(v.Z)
+    {
+    }
+
+    explicit ExactTRCoordinates(const TRCoordinates& v)
+        : X(v.X)
+        , Y(v.Y)
+        , Z(v.Z)
+    {
+    }
+
+    ExactTRCoordinates(float x, float y, float z)
+        : X(x), Y(y), Z(z)
+    {
+    }
+
+    ExactTRCoordinates operator-(const ExactTRCoordinates& rhs) const noexcept
+    {
+        return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
+    }
+
+    ExactTRCoordinates& operator-=(const ExactTRCoordinates& rhs) noexcept
+    {
+        X -= rhs.X;
+        Y -= rhs.Y;
+        Z -= rhs.Z;
+        return *this;
+    }
+
+    ExactTRCoordinates operator+(const ExactTRCoordinates& rhs) const noexcept
+    {
+        return{ X + rhs.X, Y + rhs.Y, Z + rhs.Z };
+    }
+
+    ExactTRCoordinates& operator+=(const ExactTRCoordinates& rhs) noexcept
+    {
+        X += rhs.X;
+        Y += rhs.Y;
+        Z += rhs.Z;
+        return *this;
+    }
+
+    ExactTRCoordinates& operator=(const ExactTRCoordinates&) = default;
+
+    irr::core::vector3df toIrrlicht() const noexcept
+    {
+        return{ X, -Y, Z };
+    }
+
+    TRCoordinates toInexact() const noexcept
+    {
+        return{std::lround(X), std::lround(Y), std::lround(Z)};
+    }
+};
+
 struct Triangle
 {
     //! Vertex buffer indices
@@ -2907,3 +2972,106 @@ struct Palette
 };
 
 } // namespace loader
+
+template<typename InterfaceType, typename StorageType = float>
+class SpeedValue
+{
+    StorageType m_value = 0;
+
+public:
+    using Type = InterfaceType;
+
+    static constexpr int FrameRate = 30;
+
+    // ReSharper disable once CppNonExplicitConvertingConstructor
+    constexpr SpeedValue(InterfaceType v = 0)
+        : m_value(v)
+    {
+    }
+
+    constexpr InterfaceType get() const noexcept
+    {
+        return static_cast<InterfaceType>(m_value);
+    }
+
+    constexpr StorageType getExact() const noexcept
+    {
+        return m_value;
+    }
+
+    SpeedValue<InterfaceType>& operator=(InterfaceType v) noexcept
+    {
+        m_value = static_cast<StorageType>(v);
+        return *this;
+    }
+
+    template<typename U>
+    void addTo(U& v, int ms)
+    {
+        v += getScaled(ms);
+    }
+
+    template<typename U>
+    void subFrom(U& v, int ms)
+    {
+        v -= getScaled(ms);
+    }
+
+    template<typename U>
+    void addToExact(U& v, int ms)
+    {
+        v += getScaledExact(ms);
+    }
+
+    template<typename U>
+    void subFromExact(U& v, int ms)
+    {
+        v -= getScaledExact(ms);
+    }
+
+    void add(InterfaceType v, int ms)
+    {
+        m_value += scaleExact(static_cast<StorageType>(v), ms);
+    }
+
+    void sub(InterfaceType v, int ms)
+    {
+        m_value -= scaleExact(static_cast<StorageType>(v), ms);
+    }
+
+    void addExact(StorageType v, int ms)
+    {
+        m_value += scaleExact(v, ms);
+    }
+
+    void subExact(StorageType v, int ms)
+    {
+        m_value -= scaleExact(v, ms);
+    }
+
+    constexpr InterfaceType getScaled(int ms) const noexcept
+    {
+        return scale(m_value, ms);
+    }
+
+    constexpr StorageType getScaledExact(int ms) const noexcept
+    {
+        return scaleExact(m_value, ms);
+    }
+
+    static constexpr InterfaceType scale(InterfaceType v, int ms)
+    {
+        return v * FrameRate * ms / 1000;
+    }
+
+    static constexpr StorageType scaleExact(StorageType v, int ms)
+    {
+        return v * FrameRate * ms / 1000;
+    }
+};
+
+template<typename T>
+constexpr SpeedValue<T> makeSpeedValue(const T& v)
+{
+    return SpeedValue<T>(v);
+}

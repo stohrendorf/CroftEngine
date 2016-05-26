@@ -17,28 +17,38 @@ private:
     const loader::Level* const m_level;
     std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
     const std::string m_name;
-    irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
 
     irr::scene::IAnimatedMeshSceneNode* const m_lara;
 
     // Lara's vars
     int m_health = 1000;
     //! @brief Additional rotation in AU per TR Engine Frame
-    int m_yRotationSpeed = 0;
+    SpeedValue<int> m_yRotationSpeed = 0;
     bool m_falling = false;
-    int m_fallSpeed = 0;
-    int m_horizontalSpeed = 0;
+    SpeedValue<int> m_fallSpeed = 0;
+    SpeedValue<int> m_horizontalSpeed = 0;
     int m_fallSpeedOverride = 0;
     int m_movementAngle = 0;
     int m_air = 1800;
-    irr::s16 m_currentSlideAngle = 0;
+    int16_t m_currentSlideAngle = 0;
 
     InputState m_inputState;
 
-    // needed for YPR rotation, because the scene node uses XYZ rotation
-    irr::core::vector3di m_rotation;
+    int m_handStatus = 0;
+    int m_floorHeight = 0;
+    int m_lastFrameTime = -1;
+    int m_currentFrameTime = 0;
 
-    loader::TRCoordinates m_position;
+    int getCurrentDeltaTime() const
+    {
+        BOOST_ASSERT(m_lastFrameTime < m_currentFrameTime);
+        return m_currentFrameTime - m_lastFrameTime;
+    }
+
+    // needed for YPR rotation, because the scene node uses XYZ rotation
+    irr::core::vector3df m_rotation;
+
+    loader::ExactTRCoordinates m_position;
 
     using Handler = void (LaraStateHandler::*)(::LaraState&);
 
@@ -121,7 +131,7 @@ public:
         m_movementAngle = m_rotation.Y;
 
         m_lara->updateAbsolutePosition();
-        m_position = loader::TRCoordinates(m_lara->getAbsolutePosition());
+        m_position = loader::ExactTRCoordinates(m_lara->getAbsolutePosition());
     }
     
     ~LaraStateHandler() = default;
@@ -157,9 +167,9 @@ public:
         return m_lara;
     }
 
-    const loader::TRCoordinates& getPosition() const noexcept
+    loader::TRCoordinates getPosition() const noexcept
     {
-        return m_position;
+        return m_position.toInexact();
     }
 
 private:
@@ -193,7 +203,4 @@ private:
     bool applyLandingDamage(::LaraState& state);
 
     void handleLaraStateOnLand();
-
-    int m_handStatus = 0;
-    int m_floorHeight = 0;
 };

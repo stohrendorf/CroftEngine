@@ -96,11 +96,11 @@ public:
      */
     void handleTransitions(bool useDefaultAnimationLoop);
 
-    int calculateFloorSpeed() const
+    float calculateFloorSpeed() const
     {
         BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
         const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
-        return (currentAnim.speed + currentAnim.accelleration * getCurrentRelativeFrame()) / (1 << 16);
+        return float(currentAnim.speed + currentAnim.accelleration * getCurrentRelativeFrame()) / (1 << 16);
     }
 
     int getAccelleration() const
