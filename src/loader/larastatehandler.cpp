@@ -16,7 +16,11 @@ constexpr int SteppableHeight = loader::QuarterSectorSize / 2;
 constexpr int ClimbLimit2ClickMin = loader::QuarterSectorSize + SteppableHeight;
 constexpr int ClimbLimit2ClickMax = loader::QuarterSectorSize + ClimbLimit2ClickMin;
 constexpr int ClimbLimit3ClickMax = loader::QuarterSectorSize + ClimbLimit2ClickMax;
-constexpr int ReachableHeight = 896 + loader::SectorSize;
+
+constexpr int ScalpHeight = 762;
+constexpr int ScalpToHandsHeight = 160;
+constexpr int JumpReachableHeight = 896 + loader::SectorSize;
+
 
 enum class SlantClass
 {
@@ -27,7 +31,7 @@ enum class SlantClass
 
 struct HeightInfo
 {
-    int height = 0;
+    int distance = 0;
     SlantClass slantClass = SlantClass::None;
     const uint16_t* lastTriggerOrKill = nullptr;
 
@@ -46,7 +50,7 @@ struct HeightInfo
             room = &camera->getLevel()->m_rooms[roomSector->roomBelow];
         }
 
-        hi.height = roomSector->floorHeight * loader::QuarterSectorSize;
+        hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;
         hi.lastTriggerOrKill = nullptr;
 
         if( roomSector->floorDataIndex == 0 )
@@ -81,23 +85,23 @@ struct HeightInfo
                         if( zSlant > 0 ) // lower edge at -Z
                         {
                             auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                            hi.height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            hi.distance += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
                         else if( zSlant < 0 ) // lower edge at +Z
                         {
                             auto dist = localZ / loader::SectorSize;
-                            hi.height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            hi.distance -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
 
                         if( xSlant > 0 ) // lower edge at -X
                         {
                             auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                            hi.height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            hi.distance += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                         else if( xSlant < 0 ) // lower edge at +X
                         {
                             auto dist = localX / loader::SectorSize;
-                            hi.height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            hi.distance -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                     }
                 }
@@ -158,7 +162,7 @@ struct HeightInfo
             room = &camera->getLevel()->m_rooms[roomSector->roomAbove];
         }
 
-        hi.height = roomSector->ceilingHeight * loader::QuarterSectorSize;
+        hi.distance = roomSector->ceilingHeight * loader::QuarterSectorSize;
 
         if( roomSector->floorDataIndex == 0 )
         {
@@ -187,23 +191,23 @@ struct HeightInfo
                         if( zSlant > 0 ) // lower edge at -Z
                         {
                             auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                            hi.height -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            hi.distance -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
                         else if( zSlant < 0 ) // lower edge at +Z
                         {
                             auto dist = localZ / loader::SectorSize;
-                            hi.height += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                            hi.distance += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
                         }
 
                         if( xSlant > 0 ) // lower edge at -X
                         {
                             auto dist = localX / loader::SectorSize;
-                            hi.height -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            hi.distance -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                         else if( xSlant < 0 ) // lower edge at +X
                         {
                             auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                            hi.height += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                            hi.distance += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
                         }
                     }
                 }
@@ -260,15 +264,15 @@ struct VerticalInfo
     HeightInfo floor;
     HeightInfo ceiling;
 
-    void init(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const TRCameraSceneNodeAnimator* camera, int height)
+    void init(const loader::Sector* roomSector, const loader::TRCoordinates& position, const TRCameraSceneNodeAnimator* camera, int scalpHeight)
     {
-        floor = HeightInfo::fromFloor(roomSector, pos, camera);
-        if( floor.height != -loader::HeightLimit )
-            floor.height -= pos.Y;
+        floor = HeightInfo::fromFloor(roomSector, position, camera);
+        if( floor.distance != -loader::HeightLimit )
+            floor.distance -= position.Y;
 
-        ceiling = HeightInfo::fromCeiling(roomSector, pos, camera);
-        if( ceiling.height != -loader::HeightLimit )
-            ceiling.height -= pos.Y - height;
+        ceiling = HeightInfo::fromCeiling(roomSector, position, camera);
+        if( ceiling.distance != -loader::HeightLimit )
+            ceiling.distance -= position.Y - scalpHeight;
     }
 };
 
@@ -332,7 +336,7 @@ struct LaraState
         orientationAxis = static_cast<Axis>(static_cast<irr::u16>(yAngle + util::degToAu(45)) / util::degToAu(90));
 
         const loader::Room* room = level.m_camera->getCurrentRoom();
-        const auto reachablePos = pos - loader::TRCoordinates{0, height + 160, 0}; //!< @todo MAGICK 160
+        const auto reachablePos = pos - loader::TRCoordinates{0, height + ScalpToHandsHeight, 0};
         auto currentSector = level.findSectorForPosition(reachablePos, room);
         BOOST_ASSERT(currentSector != nullptr);
 
@@ -384,17 +388,17 @@ struct LaraState
         auto checkPos = loader::TRCoordinates(frontX, 0, frontZ);
         auto sector = level.findSectorForPosition(reachablePos + checkPos, level.m_camera->getCurrentRoom());
         front.init(sector, pos + checkPos, level.m_camera, height);
-        if( (frobbelFlags & FrobbelFlag01) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.height < 0 )
+        if( (frobbelFlags & FrobbelFlag01) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
         {
-            front.floor.height = -32767;
+            front.floor.distance = -32767;
         }
-        else if( front.floor.height > 0
+        else if( front.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag02) != 0 && front.floor.slantClass == SlantClass::Steep)
                 || ((frobbelFlags & FrobbelFlag04) != 0 && front.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*front.floor.lastTriggerOrKill) == loader::FDFunction::Death)
             ) )
         {
-            front.floor.height = 2 * loader::QuarterSectorSize;
+            front.floor.distance = 2 * loader::QuarterSectorSize;
         }
 
         // Front left
@@ -402,17 +406,17 @@ struct LaraState
         sector = level.findSectorForPosition(reachablePos + checkPos, level.m_camera->getCurrentRoom());
         frontLeft.init(sector, pos + checkPos, level.m_camera, height);
 
-        if( (frobbelFlags & FrobbelFlag01) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.height < 0 )
+        if( (frobbelFlags & FrobbelFlag01) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
         {
-            frontLeft.floor.height = -32767;
+            frontLeft.floor.distance = -32767;
         }
-        else if( frontLeft.floor.height > 0
+        else if( frontLeft.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag02) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
                 || ((frobbelFlags & FrobbelFlag04) != 0 && frontLeft.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*frontLeft.floor.lastTriggerOrKill) == loader::FDFunction::Death)
             ) )
         {
-            frontLeft.floor.height = 2 * loader::QuarterSectorSize;
+            frontLeft.floor.distance = 2 * loader::QuarterSectorSize;
         }
 
         // Front right
@@ -420,42 +424,42 @@ struct LaraState
         sector = level.findSectorForPosition(reachablePos + checkPos, level.m_camera->getCurrentRoom());
         frontRight.init(sector, pos + checkPos, level.m_camera, height);
 
-        if( (frobbelFlags & FrobbelFlag01) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.height < 0 )
+        if( (frobbelFlags & FrobbelFlag01) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
         {
-            frontRight.floor.height = -32767;
+            frontRight.floor.distance = -32767;
         }
-        else if( frontRight.floor.height > 0
+        else if( frontRight.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag02) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
                 || ((frobbelFlags & FrobbelFlag04) != 0 && frontRight.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*frontRight.floor.lastTriggerOrKill) == loader::FDFunction::Death)
             ) )
         {
-            frontRight.floor.height = 2 * loader::QuarterSectorSize;
+            frontRight.floor.distance = 2 * loader::QuarterSectorSize;
         }
 
         //! @todo check static mesh collisions here
 
-        if( current.floor.height == -loader::HeightLimit )
+        if( current.floor.distance == -loader::HeightLimit )
         {
             collisionFeedback = position - pos;
             axisCollisions = AxisColl_CannotGoForward;
             return;
         }
 
-        if( current.floor.height <= current.ceiling.height )
+        if( current.floor.distance <= current.ceiling.distance )
         {
             axisCollisions = AxisColl_CeilingTooLow;
             collisionFeedback = position - pos;
             return;
         }
 
-        if( current.ceiling.height >= 0 )
+        if( current.ceiling.distance >= 0 )
         {
             axisCollisions = AxisColl_HeadInCeiling;
-            collisionFeedback.Y = current.ceiling.height;
+            collisionFeedback.Y = current.ceiling.distance;
         }
 
-        if( front.floor.height > fruityFloorLimitBottom || front.floor.height < fruityFloorLimitTop || front.ceiling.height > fruityCeilingLimit )
+        if( front.floor.distance > fruityFloorLimitBottom || front.floor.distance < fruityFloorLimitTop || front.ceiling.distance > fruityCeilingLimit )
         {
             axisCollisions = AxisColl_CannotGoForward;
             switch( orientationAxis )
@@ -474,14 +478,14 @@ struct LaraState
             return;
         }
 
-        if( front.ceiling.height >= fruityCeilingLimit )
+        if( front.ceiling.distance >= fruityCeilingLimit )
         {
             axisCollisions = AxisColl_BumpHead;
             collisionFeedback = position - pos;
             return;
         }
 
-        if( frontLeft.floor.height > fruityFloorLimitBottom || frontLeft.floor.height < fruityFloorLimitTop )
+        if( frontLeft.floor.distance > fruityFloorLimitBottom || frontLeft.floor.distance < fruityFloorLimitTop )
         {
             axisCollisions = AxisColl_FrontLeftBump;
             switch( orientationAxis )
@@ -498,7 +502,7 @@ struct LaraState
             return;
         }
 
-        if( frontRight.floor.height > fruityFloorLimitBottom || frontRight.floor.height < fruityFloorLimitTop )
+        if( frontRight.floor.distance > fruityFloorLimitBottom || frontRight.floor.distance < fruityFloorLimitTop )
         {
             axisCollisions = AxisColl_FrontRightBump;
             switch( orientationAxis )
@@ -576,7 +580,7 @@ void LaraStateHandler::onBehave0WalkForward(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 0;
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02 | FrobbelFlag04;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
     if( tryStopOnFloor(state) || tryClimb(state) )
         return;
@@ -598,7 +602,7 @@ void LaraStateHandler::onBehave0WalkForward(::LaraState& state)
         }
     }
 
-    if(state.current.floor.height > ClimbLimit2ClickMin)
+    if(state.current.floor.distance > ClimbLimit2ClickMin)
     {
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
         setStateOverride(loader::LaraStateId::JumpForward);
@@ -607,7 +611,7 @@ void LaraStateHandler::onBehave0WalkForward(::LaraState& state)
         m_falling = true;
     }
 
-    if(state.current.floor.height > SteppableHeight)
+    if(state.current.floor.distance > SteppableHeight)
     {
         const auto fr = m_dispatcher->getCurrentFrame();
         if(fr < 28 || fr > 45)
@@ -620,7 +624,7 @@ void LaraStateHandler::onBehave0WalkForward(::LaraState& state)
         }
     }
 
-    if(state.current.floor.height >= -ClimbLimit2ClickMin && state.current.floor.height < -SteppableHeight)
+    if(state.current.floor.distance >= -ClimbLimit2ClickMin && state.current.floor.distance < -SteppableHeight)
     {
         const auto fr = m_dispatcher->getCurrentFrame();
         if(fr < 27 || fr > 44)
@@ -635,7 +639,7 @@ void LaraStateHandler::onBehave0WalkForward(::LaraState& state)
 
     if(!tryStartSlide(state))
     {
-        m_position.Y += state.current.floor.height;
+        m_position.Y += state.current.floor.distance;
     }
 }
 
@@ -852,12 +856,12 @@ void LaraStateHandler::onBehaveTurnSlow(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 0;
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
-    if(state.current.floor.height <= 100)
+    if(state.current.floor.distance <= 100)
     {
         if(!tryStartSlide(state))
-            m_position.Y += state.current.floor.height;
+            m_position.Y += state.current.floor.distance;
 
         return;
     }
@@ -996,7 +1000,7 @@ void LaraStateHandler::onBehave29FallBackward(::LaraState& state)
     state.yAngle = m_rotation.Y + util::degToAu(180);
     state.initHeightInfo(this, *m_level, 870, m_position); //! @todo MAGICK 870
     checkJumpWallSmash(state);
-    if( state.current.floor.height > 0 || m_fallSpeed <= 0 )
+    if( state.current.floor.distance > 0 || m_fallSpeed <= 0 )
         return;
 
     if( applyLandingDamage(state) )
@@ -1005,7 +1009,7 @@ void LaraStateHandler::onBehave29FallBackward(::LaraState& state)
         setTargetState(LaraStateId::Stop);
 
     m_fallSpeed = 0;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
     m_falling = false;
 }
 
@@ -1122,15 +1126,15 @@ void LaraStateHandler::handleLaraStateOnLand()
         laraState.fruityFloorLimitBottom = ClimbLimit2ClickMin;
         laraState.fruityCeilingLimit = 0;
         laraState.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-        laraState.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+        laraState.initHeightInfo(this, *m_level, ScalpHeight, m_position);
         if( tryStopOnFloor(laraState) )
             break;
-        if( laraState.current.floor.height <= 100 )
+        if( laraState.current.floor.distance <= 100 )
         {
             if( !tryStartSlide(laraState) )
             {
                 applyCollisionFeedback(laraState);
-                m_position.Y += laraState.current.floor.height;
+                m_position.Y += laraState.current.floor.distance;
             }
         }
         else
@@ -1224,7 +1228,7 @@ void LaraStateHandler::onBehave19Climbing(::LaraState& state)
     state.fruityCeilingLimit = 0;
     state.yAngle = m_movementAngle = m_rotation.Y;
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-    state.initHeightInfo(this, *m_level, 762, m_position);
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 }
 
 void LaraStateHandler::onBehave15JumpPrepare(::LaraState& state)
@@ -1235,9 +1239,9 @@ void LaraStateHandler::onBehave15JumpPrepare(::LaraState& state)
     state.fruityFloorLimitTop = -loader::HeightLimit;
     state.fruityCeilingLimit = 0;
     state.yAngle = m_rotation.Y;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
-    if( state.current.ceiling.height <= -100 )
+    if( state.current.ceiling.distance <= -100 )
         return;
 
     setTargetState(LaraStateId::Stop);
@@ -1256,14 +1260,14 @@ void LaraStateHandler::onBehave1RunForward(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 0;
     state.frobbelFlags |= FrobbelFlag01;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     if( tryStopOnFloor(state) || tryClimb(state) )
         return;
 
     if( checkWallCollision(state) )
     {
         m_rotation.Z = 0;
-        if( state.front.floor.slantClass == SlantClass::None && state.front.floor.height < -ClimbLimit2ClickMax )
+        if( state.front.floor.slantClass == SlantClass::None && state.front.floor.distance < -ClimbLimit2ClickMax )
         {
             setStateOverride(LaraStateId::Unknown12);
             if( m_dispatcher->getCurrentFrame() >= 0 && m_dispatcher->getCurrentFrame() <= 9 )
@@ -1281,7 +1285,7 @@ void LaraStateHandler::onBehave1RunForward(::LaraState& state)
         }
     }
 
-    if( state.current.floor.height > ClimbLimit2ClickMin )
+    if( state.current.floor.distance > ClimbLimit2ClickMin )
     {
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
         setStateOverride(LaraStateId::JumpForward);
@@ -1291,7 +1295,7 @@ void LaraStateHandler::onBehave1RunForward(::LaraState& state)
         return;
     }
 
-    if( state.current.floor.height >= -ClimbLimit2ClickMin && state.current.floor.height < -SteppableHeight )
+    if( state.current.floor.distance >= -ClimbLimit2ClickMin && state.current.floor.distance < -SteppableHeight )
     {
         if( m_dispatcher->getCurrentFrame() >= 3 && m_dispatcher->getCurrentFrame() <= 14 )
         {
@@ -1305,7 +1309,7 @@ void LaraStateHandler::onBehave1RunForward(::LaraState& state)
 
     if( !tryStartSlide(state) )
     {
-        m_position.Y += std::min(50, state.current.floor.height);
+        m_position.Y += std::min(50, state.current.floor.distance);
     }
 }
 
@@ -1319,11 +1323,11 @@ void LaraStateHandler::onBehave5RunBackward(::LaraState& state)
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
     m_movementAngle = m_rotation.Y + util::degToAu(180);
     state.yAngle = m_rotation.Y + util::degToAu(180);
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     if( tryStopOnFloor(state) )
         return;
 
-    if( state.current.floor.height > 200 )
+    if( state.current.floor.distance > 200 )
     {
         playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
         setTargetState(loader::LaraStateId::FallBackward);
@@ -1337,7 +1341,7 @@ void LaraStateHandler::onBehave5RunBackward(::LaraState& state)
     {
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
     }
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
 }
 
 void LaraStateHandler::onBehave16WalkBackward(::LaraState& state)
@@ -1349,7 +1353,7 @@ void LaraStateHandler::onBehave16WalkBackward(::LaraState& state)
     state.fruityCeilingLimit = 0;
     m_movementAngle = state.yAngle = m_rotation.Y + util::degToAu(180);
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     if( tryStopOnFloor(state) )
         return;
 
@@ -1358,7 +1362,7 @@ void LaraStateHandler::onBehave16WalkBackward(::LaraState& state)
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
     }
 
-    if( state.current.floor.height > 128 && state.current.floor.height < 384 )
+    if( state.current.floor.distance > 128 && state.current.floor.distance < 384 )
     {
         if( m_dispatcher->getCurrentFrame() < 964 && m_dispatcher->getCurrentFrame() > 993 )
         {
@@ -1372,7 +1376,7 @@ void LaraStateHandler::onBehave16WalkBackward(::LaraState& state)
 
     if( !tryStartSlide(state) )
     {
-        m_position.Y += state.current.floor.height;
+        m_position.Y += state.current.floor.distance;
     }
 }
 
@@ -1383,9 +1387,9 @@ void LaraStateHandler::onBehave9FreeFall(::LaraState& state)
     state.fruityCeilingLimit = 192;
     state.yAngle = m_movementAngle;
     m_falling = true;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     jumpAgainstWall(state);
-    if( state.current.floor.height > 0 )
+    if( state.current.floor.distance > 0 )
         return;
 
     if( applyLandingDamage(state) )
@@ -1399,7 +1403,7 @@ void LaraStateHandler::onBehave9FreeFall(::LaraState& state)
         playAnimation(loader::AnimationId::LANDING_HARD, 358);
     }
     m_fallSpeed = 0;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
     m_falling = false;
 }
 
@@ -1410,7 +1414,7 @@ void LaraStateHandler::onBehave12Unknown(::LaraState& state)
     state.fruityCeilingLimit = 0;
     state.yAngle = m_movementAngle;
     state.frobbelFlags |= FrobbelFlag01 | FrobbelFlag02;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     applyCollisionFeedback(state);
 }
 
@@ -1420,10 +1424,10 @@ void LaraStateHandler::onBehave3JumpForward(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 192;
     m_movementAngle = state.yAngle = m_rotation.Y;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     checkJumpWallSmash(state);
 
-    if( state.current.floor.height > 0 || m_fallSpeed <= 0 )
+    if( state.current.floor.distance > 0 || m_fallSpeed <= 0 )
         return;
 
     if( applyLandingDamage(state) )
@@ -1442,7 +1446,7 @@ void LaraStateHandler::onBehave3JumpForward(::LaraState& state)
     m_fallSpeed = 0;
     m_falling = false;
     m_horizontalSpeed = 0;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
     processAnimCommands();
 }
 
@@ -1457,7 +1461,7 @@ void LaraStateHandler::onBehave28JumpUp(::LaraState& state)
         return;
 
     jumpAgainstWall(state);
-    if( m_fallSpeed <= 0 || state.current.floor.height > 0 )
+    if( m_fallSpeed <= 0 || state.current.floor.distance > 0 )
         return;
 
     if( applyLandingDamage(state) )
@@ -1465,7 +1469,7 @@ void LaraStateHandler::onBehave28JumpUp(::LaraState& state)
     else
         setTargetState(loader::LaraStateId::Stop);
     m_fallSpeed = 0;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
     m_falling = false;
 }
 
@@ -1492,7 +1496,7 @@ void LaraStateHandler::jumpAgainstWall(::LaraState& state)
         m_position.X += static_cast<long>(100 * std::sin(util::auToRad(m_rotation.Y)));
         m_position.Z += static_cast<long>(100 * std::cos(util::auToRad(m_rotation.Y)));
         m_horizontalSpeed = 0;
-        state.current.floor.height = 0;
+        state.current.floor.distance = 0;
         if( m_fallSpeed < 0 )
             m_fallSpeed = 16;
     }
@@ -1533,7 +1537,7 @@ void LaraStateHandler::checkJumpWallSmash(::LaraState& state)
         m_position.X -= 100 * std::sin(util::auToRad(state.yAngle));
         m_position.Z -= 100 * std::cos(util::auToRad(state.yAngle));
         m_horizontalSpeed = 0;
-        state.current.floor.height = 0;
+        state.current.floor.distance = 0;
         if( m_fallSpeed <= 0 )
             m_fallSpeed = 16;
     }
@@ -1661,7 +1665,7 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
     if( state.axisCollisions != ::LaraState::AxisColl_CannotGoForward || !m_inputState.jump || m_handStatus != 0 )
         return false;
 
-    const auto floorGradient = std::abs(state.frontLeft.floor.height - state.frontRight.floor.height);
+    const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
     if( floorGradient >= 60 ) //! @todo MAGICK 60
         return false;
 
@@ -1678,12 +1682,12 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
     else
         return false;
 
-    const auto climbHeight = state.front.floor.height;
+    const auto climbHeight = state.front.floor.distance;
     if( climbHeight >= -ClimbLimit2ClickMax && climbHeight <= -ClimbLimit2ClickMin )
     {
-        if( climbHeight < state.front.ceiling.height
-            || state.frontLeft.floor.height < state.frontLeft.ceiling.height
-            || state.frontRight.floor.height < state.frontRight.ceiling.height )
+        if( climbHeight < state.front.ceiling.distance
+            || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
+            || state.frontRight.floor.distance < state.frontRight.ceiling.distance )
             return false;
 
         setTargetState(LaraStateId::Stop);
@@ -1694,9 +1698,9 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
     }
     else if( climbHeight >= -ClimbLimit3ClickMax && climbHeight <= -ClimbLimit2ClickMax )
     {
-        if( state.front.floor.height < state.front.ceiling.height
-            || state.frontLeft.floor.height < state.frontLeft.ceiling.height
-            || state.frontRight.floor.height < state.frontRight.ceiling.height )
+        if( state.front.floor.distance < state.front.ceiling.distance
+            || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
+            || state.frontRight.floor.distance < state.frontRight.ceiling.distance )
             return false;
 
         setTargetState(LaraStateId::Stop);
@@ -1707,7 +1711,7 @@ bool LaraStateHandler::tryClimb(::LaraState& state)
     }
     else
     {
-        if( climbHeight < -ReachableHeight || climbHeight > -ClimbLimit3ClickMax )
+        if( climbHeight < -JumpReachableHeight || climbHeight > -ClimbLimit3ClickMax )
             return false;
 
         setTargetState(LaraStateId::JumpUp);
@@ -1829,7 +1833,7 @@ void LaraStateHandler::updateFloorHeight(int dy)
     pos.Y += dy;
     auto sector = m_level->findSectorForPosition(pos, m_level->m_camera->getCurrentRoom());
     HeightInfo hi = HeightInfo::fromFloor(sector, pos, m_level->m_camera);
-    m_floorHeight = hi.height;
+    m_floorHeight = hi.distance;
 
     //! @todo Check room ownership change
 }
@@ -1838,7 +1842,7 @@ int LaraStateHandler::getRelativeHeightAtDirection(int16_t angle, int dist) cons
 {
     auto pos = m_position;
     pos.X += std::sin(util::auToDeg(angle)) * dist;
-    pos.Y -= 762; //! @todo MAGICK 762
+    pos.Y -= ScalpHeight;
     pos.Z += std::cos(util::auToDeg(angle)) * dist;
 
     auto sector = m_level->findSectorForPosition(pos, m_level->m_camera->getCurrentRoom());
@@ -1846,10 +1850,10 @@ int LaraStateHandler::getRelativeHeightAtDirection(int16_t angle, int dist) cons
 
     HeightInfo h = HeightInfo::fromFloor(sector, pos, m_level->m_camera);
 
-    if( h.height != -loader::HeightLimit )
-        h.height -= m_position.Y;
+    if( h.distance != -loader::HeightLimit )
+        h.distance -= m_position.Y;
 
-    return h.height;
+    return h.distance;
 }
 
 void LaraStateHandler::commonJumpHandling(::LaraState& state)
@@ -1858,9 +1862,9 @@ void LaraStateHandler::commonJumpHandling(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 192;
     state.yAngle = m_movementAngle;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     checkJumpWallSmash(state);
-    if( m_fallSpeed <= 0 || state.current.floor.height > 0 )
+    if( m_fallSpeed <= 0 || state.current.floor.distance > 0 )
         return;
 
     if( applyLandingDamage(state) )
@@ -1868,7 +1872,7 @@ void LaraStateHandler::commonJumpHandling(::LaraState& state)
     else
         setTargetState(LaraStateId::Stop);
     m_fallSpeed = 0;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
     m_falling = false;
 }
 
@@ -1878,16 +1882,16 @@ void LaraStateHandler::commonSlideHandling(::LaraState& state)
     state.fruityFloorLimitTop = -loader::QuarterSectorSize * 2;
     state.fruityCeilingLimit = 0;
     state.yAngle = m_movementAngle;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
     if( tryStopOnFloor(state) )
         return;
 
     checkWallCollision(state);
-    if( state.current.floor.height <= 200 )
+    if( state.current.floor.distance <= 200 )
     {
         tryStartSlide(state);
-        m_position.Y += state.current.floor.height;
+        m_position.Y += state.current.floor.distance;
         const auto absSlantX = std::abs(state.floorSlantX);
         const auto absSlantZ = std::abs(state.floorSlantZ);
         if( absSlantX <= 2 && absSlantZ <= 2 )
@@ -1918,8 +1922,8 @@ void LaraStateHandler::commonSlideHandling(::LaraState& state)
 bool LaraStateHandler::applyLandingDamage(::LaraState& state)
 {
     auto sector = m_level->findSectorForPosition(m_position, m_level->m_camera->getCurrentRoom());
-    HeightInfo h = HeightInfo::fromFloor(sector, m_position - loader::TRCoordinates{0, 762, 0}, m_level->m_camera);
-    m_floorHeight = h.height;
+    HeightInfo h = HeightInfo::fromFloor(sector, m_position - loader::TRCoordinates{0, ScalpHeight, 0}, m_level->m_camera);
+    m_floorHeight = h.distance;
     handleTriggers(h.lastTriggerOrKill, false);
     auto damageSpeed = m_fallSpeed - 140;
     if( damageSpeed <= 0 )
@@ -1948,15 +1952,15 @@ void LaraStateHandler::onBehave52SwandiveBegin(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 192;
     m_movementAngle = state.yAngle = m_rotation.Y;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     checkJumpWallSmash(state);
-    if(state.current.floor.height > 0 || m_fallSpeed <= 0)
+    if(state.current.floor.distance > 0 || m_fallSpeed <= 0)
         return;
 
     setTargetState(loader::LaraStateId::Stop);
     m_fallSpeed = 0;
     m_falling = false;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
 }
 
 void LaraStateHandler::onInput53SwandiveEnd(::LaraState& state)
@@ -1972,9 +1976,9 @@ void LaraStateHandler::onBehave53SwandiveEnd(::LaraState& state)
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 192;
     m_movementAngle = state.yAngle = m_rotation.Y;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
     checkJumpWallSmash(state);
-    if(state.current.floor.height > 0 || m_fallSpeed <= 0)
+    if(state.current.floor.distance > 0 || m_fallSpeed <= 0)
         return;
 
     if(m_fallSpeed <= 133)
@@ -1984,7 +1988,7 @@ void LaraStateHandler::onBehave53SwandiveEnd(::LaraState& state)
 
     m_fallSpeed = 0;
     m_falling = false;
-    m_position.Y += state.current.floor.height;
+    m_position.Y += state.current.floor.distance;
 }
 
 void LaraStateHandler::onBehave23RollBackward(::LaraState& state)
@@ -1996,15 +2000,15 @@ void LaraStateHandler::onBehave23RollBackward(::LaraState& state)
     state.fruityFloorLimitBottom = loader::HeightLimit;
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 0;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
     if(tryStopOnFloor(state) || tryStartSlide(state))
         return;
 
-    if(state.current.floor.height <= 200)
+    if(state.current.floor.distance <= 200)
     {
         applyCollisionFeedback(state);
-        m_position.Y += state.current.floor.height;
+        m_position.Y += state.current.floor.distance;
         return;
     }
 
@@ -2024,15 +2028,15 @@ void LaraStateHandler::onBehave45RollForward(::LaraState& state)
     state.fruityFloorLimitBottom = loader::HeightLimit;
     state.fruityFloorLimitTop = -ClimbLimit2ClickMin;
     state.fruityCeilingLimit = 0;
-    state.initHeightInfo(this, *m_level, 762, m_position); //! @todo MAGICK 762
+    state.initHeightInfo(this, *m_level, ScalpHeight, m_position);
 
     if(tryStopOnFloor(state) || tryStartSlide(state))
         return;
 
-    if(state.current.floor.height <= 200)
+    if(state.current.floor.distance <= 200)
     {
         applyCollisionFeedback(state);
-        m_position.Y += state.current.floor.height;
+        m_position.Y += state.current.floor.distance;
         return;
     }
 
