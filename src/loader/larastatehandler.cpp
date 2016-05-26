@@ -900,7 +900,7 @@ void LaraStateHandler::onBehave29FallBackward(::LaraState& state)
     if(state.current.floor.height > 0 || m_fallSpeed <= 0)
         return;
 
-    if(false) //! @todo (applyLandingDamage())
+    if(applyLandingDamage(state))
         setTargetState(LaraState::Death);
     else
         setTargetState(LaraState::Stop);
@@ -1001,7 +1001,7 @@ void LaraStateHandler::handleLaraStateOnLand()
 
     // @todo test interactions?
 
-    BOOST_LOG_TRIVIAL(debug) << "BRHAVE State=" << m_dispatcher->getCurrentState() << ", pos = (" << m_position.X << "/" << m_position.Y << "/" << m_position.Z << ")";
+    BOOST_LOG_TRIVIAL(debug) << "BEHAVE State=" << m_dispatcher->getCurrentState() << ", pos = (" << m_position.X << "/" << m_position.Y << "/" << m_position.Z << ")";
 
     switch( m_dispatcher->getCurrentState() )
     {
@@ -1264,7 +1264,7 @@ void LaraStateHandler::onBehave9FreeFall(::LaraState& state)
     if(state.current.floor.height > 0)
         return;
 
-    if(false) //! @todo if(applyLandingDamage())
+    if(applyLandingDamage(state))
     {
         setTargetState(loader::LaraState::Death);
     }
@@ -1302,7 +1302,7 @@ void LaraStateHandler::onBehave3JumpForward(::LaraState& state)
     if(state.current.floor.height > 0 || m_fallSpeed <= 0)
         return;
 
-    if(false) //! @todo applyLandingDamage(laraState)
+    if(applyLandingDamage(state))
     {
         setTargetState(LaraState::Death);
     }
@@ -1336,8 +1336,10 @@ void LaraStateHandler::onBehave28JumpUp(::LaraState& state)
     if(m_fallSpeed <= 0 || state.current.floor.height > 0)
         return;
 
-    //! @todo Apply landing damage
-    setTargetState(loader::LaraState::Stop);
+    if(applyLandingDamage(state))
+        setTargetState(loader::LaraState::Death);
+    else
+        setTargetState(loader::LaraState::Stop);
     m_fallSpeed = 0;
     m_position.Y += state.current.floor.height;
     m_falling = false;
@@ -1734,8 +1736,7 @@ void LaraStateHandler::commonJumpHandling(::LaraState& state)
     if(m_fallSpeed <= 0 || state.current.floor.height > 0)
         return;
 
-    //! @todo if(applyLandingDamage())
-    if(false)
+    if(applyLandingDamage(state))
         setTargetState(LaraState::Death);
     else
         setTargetState(LaraState::Stop);
@@ -1785,4 +1786,23 @@ void LaraStateHandler::commonSlideHandling(::LaraState& state)
         m_fallSpeed = 0;
         m_falling = true;
     }
+}
+
+bool LaraStateHandler::applyLandingDamage(::LaraState& state)
+{
+    auto sector = m_level->findSectorForPosition(m_position, m_level->m_camera->getCurrentRoom());
+    HeightInfo h = HeightInfo::fromFloor(sector, m_position - loader::TRCoordinates{0, 762, 0}, m_level->m_camera);
+    m_floorHeight = h.height;
+    handleTriggers(h.lastTriggerOrKill, false);
+    auto damageSpeed = m_fallSpeed - 140;
+    if(damageSpeed <= 0)
+        return false;
+
+    static constexpr int DeathSpeedLimit = 14;
+
+    if(damageSpeed <= DeathSpeedLimit)
+        m_health -= 1000 * damageSpeed * damageSpeed / (DeathSpeedLimit * DeathSpeedLimit);
+    else
+        m_health = -1;
+    return m_health <= 0;
 }

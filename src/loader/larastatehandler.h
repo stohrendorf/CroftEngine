@@ -222,6 +222,8 @@ private:
     void commonJumpHandling(::LaraState& state);
     void commonSlideHandling(::LaraState& state);
 
+    bool applyLandingDamage(::LaraState& state);
+
     void handleLaraStateOnLand();
 
     int m_handStatus = 0;
