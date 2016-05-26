@@ -92,6 +92,8 @@ private:
     void onBehave24SlideForward(::LaraState& state);
 
     void onInput25JumpBackward(::LaraState& state);
+    void onInput26JumpLeft(::LaraState& state);
+    void onInput27JumpRight(::LaraState& state);
     
     void onInput28JumpUp(::LaraState& state);
     void onBehave28JumpUp(::LaraState& state);

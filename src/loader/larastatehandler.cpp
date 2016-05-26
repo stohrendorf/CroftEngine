@@ -765,11 +765,15 @@ void LaraStateHandler::onInput3JumpForward(::LaraState& /*state*/)
 
     if( m_inputState.xMovement == AxisMovement::Left )
     {
-        m_yRotationSpeed = std::max(-546, m_yRotationSpeed.get() - 409);
+        m_yRotationSpeed.subExact(409, getCurrentDeltaTime());
+        if(m_yRotationSpeed.get() < -546)
+            m_yRotationSpeed = -546;
     }
     else if( m_inputState.xMovement == AxisMovement::Right )
     {
-        m_yRotationSpeed = std::min(546, m_yRotationSpeed.get() + 409);
+        m_yRotationSpeed.addExact(409, getCurrentDeltaTime());
+        if(m_yRotationSpeed.get() > 546)
+            m_yRotationSpeed = 546;
     }
 }
 
@@ -1066,7 +1070,8 @@ void LaraStateHandler::handleLaraStateOnLand()
         &LaraStateHandler::nopHandler,
         &LaraStateHandler::onInput24SlideForward,
         &LaraStateHandler::onInput25JumpBackward,
-        nullptr,nullptr,
+        &LaraStateHandler::onInput26JumpLeft,
+        &LaraStateHandler::onInput27JumpRight,
         &LaraStateHandler::onInput28JumpUp,
         &LaraStateHandler::onInput29FallBackward,
         // 30
@@ -1534,8 +1539,10 @@ void LaraStateHandler::checkJumpWallSmash(::LaraState& state)
     if( state.axisCollisions == ::LaraState::AxisColl_CannotGoForward || state.axisCollisions == ::LaraState::AxisColl_BumpHead )
     {
         setTargetState(LaraStateId::FreeFall);
-        m_horizontalSpeed.subExact( m_horizontalSpeed.getExact() * 3 / 4, getCurrentDeltaTime() ); //!< @todo Check formula
-        m_movementAngle -= 32768;
+        //! @todo Check formula
+        //! @bug Time is too short to properly apply collision momentum!
+        m_horizontalSpeed.subExact( m_horizontalSpeed.getExact() * 4 / 5, getCurrentDeltaTime() );
+        m_movementAngle -= util::degToAu(180);
         playAnimation(loader::AnimationId::SMASH_JUMP, 481);
         setStateOverride(LaraStateId::FreeFall);
         if( m_fallSpeed.get() <= 0 )
@@ -1793,7 +1800,7 @@ bool LaraStateHandler::tryStartSlide(::LaraState& state)
     if( slantX <= 2 && slantZ <= 2 )
         return false;
 
-    int targetAngle = util::degToAu(0);
+    auto targetAngle = util::degToAu(0);
     if( state.floorSlantX < -2 )
         targetAngle = util::degToAu(90);
     else if( state.floorSlantX > 2 )
@@ -2072,4 +2079,16 @@ void LaraStateHandler::onBehave45RollForward(::LaraState& state)
     setStateOverride(loader::LaraStateId::JumpForward);
     m_fallSpeed = 0;
     m_falling = true;
+}
+
+void LaraStateHandler::onInput26JumpLeft(::LaraState& state)
+{
+    if(m_fallSpeed.get() > FreeFallSpeedThreshold)
+        setTargetState(loader::LaraStateId::FreeFall);
+}
+
+void LaraStateHandler::onInput27JumpRight(::LaraState& state)
+{
+    if(m_fallSpeed.get() > FreeFallSpeedThreshold)
+        setTargetState(loader::LaraStateId::FreeFall);
 }
