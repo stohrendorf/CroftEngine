@@ -427,11 +427,11 @@ std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(co
 }
 
 #ifndef NDEBUG
-using StateMap = std::map<loader::LaraState, std::map<AnimationId, std::map<AnimationId, std::string>>>;
+using StateMap = std::map<loader::LaraStateId, std::map<AnimationId, std::map<AnimationId, std::string>>>;
 
 void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& anim, const Level* level)
 {
-    map[static_cast<loader::LaraState>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
+    map[static_cast<loader::LaraStateId>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
     for(size_t i = 0; i < anim.transitionsCount; ++i)
     {
         auto tIdx = anim.transitionsIndex + i;
@@ -445,7 +445,7 @@ void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& ani
 
             AnimationId a = static_cast<AnimationId>(trc.targetAnimation - ofs);
             
-            map[static_cast<loader::LaraState>(anim.state_id)][aid][a] = {};
+            map[static_cast<loader::LaraStateId>(anim.state_id)][aid][a] = {};
         }
     }
 }
@@ -633,19 +633,41 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const Animate
     pData += animation.poseDataSize;
 }
 
-void Level::loadAnimation(irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
+AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
 {
     const auto meshPositionIndex = animation.poseDataOffset / 2;
     const int16_t* pData = &m_poseData[meshPositionIndex];
 
-    for(irr::u32 frameIdx = 0; frameIdx <= animation.lastFrame - animation.firstFrame; frameIdx += animation.stretchFactor)
-    {
-        loadAnimFrame(frameIdx, frameOffset, model, animation, skinnedMesh, pData);
-    }
+    // prepend the first frame
+    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+    frameOffset += animation.stretchFactor;
+
+    const auto firstLinearFrame = frameOffset;
 
     pData = &m_poseData[meshPositionIndex];
+    for(irr::u32 i = 0; i <= animation.lastFrame - animation.firstFrame; i += animation.stretchFactor)
+    {
+        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+        frameOffset += animation.stretchFactor;
+    }
+
+    irr::u32 framePatch = 0;
+    // is necessary, create pseudo-frames, because otherwise irrlicht thinks
+    // there's no animation at all
+    while(animation.firstFrame >= animation.lastFrame + framePatch)
+    {
+        pData = &m_poseData[meshPositionIndex];
+        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+        frameOffset += animation.stretchFactor;
+        ++framePatch;
+    }
+
     // append the first frame again
-    loadAnimFrame(0, frameOffset + animation.lastFrame - animation.firstFrame + 1, model, animation, skinnedMesh, pData);
+    pData = &m_poseData[meshPositionIndex];
+    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+    frameOffset += animation.stretchFactor;
+
+    return AnimatedModel::FrameRange{ firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch };
 }
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
@@ -766,37 +788,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
                 continue;
 
             const Animation& animation = m_animations[currentAnimIdx];
-            loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
-            loadAnimation(static_cast<irr::f32>(currentAnimOffset), *model, animation, skinnedMesh);
-            const auto animLength = animation.getKeyframeCount() * animation.stretchFactor;
-            if(animation.firstFrame == animation.lastFrame)
-            {
-                BOOST_LOG_TRIVIAL(debug) << "Creating pseudo-animation for animation " << currentAnimIdx;
-                model->frameMapping.emplace(
-                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame + 2)));
-                // add pseudo-animation loop to trick Irrlicht into thinking
-                // that the animation isn't static and thus calling the animation dispatcher.
-                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animation.stretchFactor), *model, animation, skinnedMesh);
-                loadAnimation(static_cast<irr::f32>(currentAnimOffset + 2*animation.stretchFactor), *model, animation, skinnedMesh);
-                currentAnimOffset += 2*animation.stretchFactor;
-            }
-            else if(animation.firstFrame+1 == animation.lastFrame)
-            {
-                BOOST_LOG_TRIVIAL(debug) << "Creating pseudo-animation for animation " << currentAnimIdx;
-                model->frameMapping.emplace(
-                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame + 1)));
-                // add pseudo-animation loop to trick Irrlicht into thinking
-                // that the animation isn't static and thus calling the animation dispatcher.
-                loadAnimation(static_cast<irr::f32>(currentAnimOffset + animation.stretchFactor), *model, animation, skinnedMesh);
-                currentAnimOffset += animation.stretchFactor;
-            }
-            else
-            {
-                BOOST_LOG_TRIVIAL(debug) << "Creating simple frame range for animation " << currentAnimIdx;
-                model->frameMapping.emplace(
-                    std::make_pair(currentAnimIdx, AnimatedModel::FrameRange(currentAnimOffset, animation.firstFrame, animation.lastFrame)));
-            }
-            currentAnimOffset += animLength + animation.stretchFactor;
+            model->frameMapping.emplace( std::make_pair(currentAnimIdx, loadAnimation(currentAnimOffset, *model, animation, skinnedMesh)) );
         }
         
 #ifndef NDEBUG

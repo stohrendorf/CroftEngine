@@ -3,41 +3,21 @@
 #include "animationids.h"
 #include "larastate.h"
 #include "util/vmath.h"
+#include "inputstate.h"
 
 #include <irrlicht.h>
-
-#include <cstdint>
-
-enum class AxisMovement
-{
-    Positive,
-    Right = Positive,
-    Forward = Positive,
-    Null,
-    Negative,
-    Left = Negative,
-    Backward = Negative
-};
 
 struct LaraState;
 
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
-    using LaraState = loader::LaraState;
+    using LaraStateId = loader::LaraStateId;
 
 private:
     const loader::Level* const m_level;
     std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
     const std::string m_name;
     irr::u32 m_lastActiveFrame = std::numeric_limits<irr::u32>::max();
-
-    AxisMovement m_xMovement = AxisMovement::Null;
-    AxisMovement m_zMovement = AxisMovement::Null;
-    AxisMovement m_stepMovement = AxisMovement::Null;
-    bool m_jump = false;
-    bool m_moveSlow = false;
-    bool m_roll = false;
-    bool m_action = false;
 
     irr::scene::IAnimatedMeshSceneNode* const m_lara;
 
@@ -53,6 +33,8 @@ private:
     int m_air = 1800;
     irr::s16 m_currentSlideAngle = 0;
 
+    InputState m_inputState;
+
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3di m_rotation;
 
@@ -61,6 +43,7 @@ private:
     using Handler = void (LaraStateHandler::*)(::LaraState&);
 
     void onInput0WalkForward(::LaraState& state);
+    void onBehave0WalkForward(::LaraState& state);
 
     void onInput1RunForward(::LaraState& state);
     void onBehave1RunForward(::LaraState& state);
@@ -74,8 +57,8 @@ private:
     void onBehave5RunBackward(::LaraState& state);
 
     void onInput6TurnRightSlow(::LaraState& state);
-
     void onInput7TurnLeftSlow(::LaraState& state);
+    void onBehaveTurnSlow(::LaraState& state);
     
     void onInput9FreeFall(::LaraState& state);
     void onBehave9FreeFall(::LaraState& state);
@@ -93,6 +76,8 @@ private:
 
     void onInput20TurnFast(::LaraState& state);
 
+    void onBehave23RollBackward(::LaraState& state);
+
     void onInput24SlideForward(::LaraState& state);
     void onBehave24SlideForward(::LaraState& state);
 
@@ -106,6 +91,14 @@ private:
 
     void onInput32SlideBackward(::LaraState& state);
     void onBehave32SlideBackward(::LaraState& state);
+
+    void onBehave45RollForward(::LaraState& state);
+
+    void onInput52SwandiveBegin(::LaraState& state);
+    void onBehave52SwandiveBegin(::LaraState& state);
+
+    void onInput53SwandiveEnd(::LaraState& state);
+    void onBehave53SwandiveEnd(::LaraState& state);
 
     void nopHandler(::LaraState&)
     {
@@ -154,34 +147,9 @@ public:
         return nullptr;
     }
     
-    void setXAxisMovement(bool left, bool right)
+    void setInputState(const InputState& state)
     {
-        if(left < right)
-            m_xMovement = AxisMovement::Right;
-        else if(left > right)
-            m_xMovement = AxisMovement::Left;
-        else
-            m_xMovement = AxisMovement::Null;
-    }
-    
-    void setZAxisMovement(bool back, bool forward)
-    {
-        if(back < forward)
-            m_zMovement = AxisMovement::Forward;
-        else if(back > forward)
-            m_zMovement = AxisMovement::Backward;
-        else
-            m_zMovement = AxisMovement::Null;
-    }
-    
-    void setJump(bool val)
-    {
-        m_jump = val;
-    }
-    
-    void setMoveSlow(bool val)
-    {
-        m_moveSlow = val;
+        m_inputState = state;
     }
 
     irr::scene::IAnimatedMeshSceneNode* getLara() const noexcept
@@ -195,11 +163,11 @@ public:
     }
 
 private:
-    void setTargetState(loader::LaraState st);
-    void setStateOverride(loader::LaraState st);
+    void setTargetState(loader::LaraStateId st);
+    void setStateOverride(loader::LaraStateId st);
     void clearStateOverride();
 
-    LaraState getTargetState() const;
+    LaraStateId getTargetState() const;
     
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 

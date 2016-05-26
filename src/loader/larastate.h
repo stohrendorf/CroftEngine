@@ -2,5 +2,5 @@
 
 namespace loader
 {
-#include "larastate_enum.h"
+#include "larastateids_enum.h"
 }

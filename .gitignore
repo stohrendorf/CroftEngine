@@ -13,3 +13,4 @@ src/loader/larastate_enum.h
 screen_*.png
 *.log
 *.dll
+src/loader/larastateids_enum.h

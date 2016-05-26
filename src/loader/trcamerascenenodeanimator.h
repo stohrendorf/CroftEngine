@@ -1,6 +1,7 @@
 #pragma once
 
 #include "level.h"
+#include "inputstate.h"
 
 class TRCameraSceneNodeAnimator final : public irr::scene::ISceneNodeAnimator
 {
@@ -11,16 +12,15 @@ private:
     irr::core::vector2df m_currentCursorPos;
     irr::u32 m_lastAnimationTime = 0;
     bool m_firstInput = true;
-    irr::f32 m_rotateSpeed = 100;
-    irr::f32 m_rotateSpeedLara = 0.1f;
     irr::f32 m_maxVerticalAngle = 88;
-    irr::f32 m_moveSpeed = 10;
+    irr::f32 m_rotateSpeed = 100;
+
     bool m_forward = false;
     bool m_backward = false;
     bool m_left = false;
     bool m_right = false;
-    bool m_moveSlow = false;
-    bool m_jump = false;
+
+    InputState m_inputState;
 
     const loader::Level* m_level;
     const loader::Room* m_currentRoom;

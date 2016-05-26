@@ -60,11 +60,10 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         return;
     
     irr::scene::IAnimatedMeshSceneNode* lara = static_cast<irr::scene::IAnimatedMeshSceneNode*>(camera->getParent());
-    
-    m_stateHandler->setXAxisMovement(m_left, m_right);
-    m_stateHandler->setZAxisMovement(m_backward, m_forward);
-    m_stateHandler->setJump(m_jump);
-    m_stateHandler->setMoveSlow(m_moveSlow);
+
+    m_inputState.setXAxisMovement(m_left, m_right);
+    m_inputState.setZAxisMovement(m_backward, m_forward);
+    m_stateHandler->setInputState(m_inputState);
     
     handleFloorData(lara);
     lara->updateAbsolutePosition();
@@ -172,12 +171,17 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
                 case irr::KEY_KEY_S:
                     m_backward = evt.KeyInput.PressedDown;
                     return true;
+                case irr::KEY_LSHIFT:
+                case irr::KEY_RSHIFT:
                 case irr::KEY_SHIFT:
-                    m_moveSlow = evt.KeyInput.PressedDown;
+                    m_inputState.moveSlow = evt.KeyInput.PressedDown;
                     return true;
                 case irr::KEY_SPACE:
-                    m_jump = evt.KeyInput.PressedDown;
+                    m_inputState.jump = evt.KeyInput.PressedDown;
                     return true;
+                case irr::KEY_KEY_X:
+                    m_inputState.roll = evt.KeyInput.PressedDown;
+                    break;
                 default:
                     return false;
             }

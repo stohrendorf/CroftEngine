@@ -2050,7 +2050,7 @@ struct AnimatedModel
             , firstFrame(f)
             , lastFrame(l)
         {
-            BOOST_ASSERT(firstFrame+1 < lastFrame);
+            BOOST_ASSERT(firstFrame < lastFrame);
         }
         
         void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 localFrame) const
@@ -2061,7 +2061,7 @@ struct AnimatedModel
             const auto realFirst = offset;
             const auto realLast = offset+lastFrame-firstFrame;
             
-            BOOST_ASSERT(realFirst+1 < realLast);
+            BOOST_ASSERT(realFirst < realLast);
             if(!node->setFrameLoop(realFirst, realLast))
             {
                 BOOST_LOG_TRIVIAL(error) << "  - Failed to set frame loop (" << node->getName() << ") " << realFirst << ".." << realLast;

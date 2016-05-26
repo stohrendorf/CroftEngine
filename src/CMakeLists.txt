@@ -44,7 +44,7 @@ function(gen_enum name type source dest)
 endfunction()
 
 gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
-gen_enum(LaraState uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastate_enum.h)
+gen_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateids_enum.h)
 
 set(OT_IRR_SRCS
     ot_irr.cpp
@@ -68,6 +68,8 @@ set(OT_IRR_SRCS
     loader/defaultanimdispatcher.cpp
     loader/larastatehandler.h
     loader/larastatehandler.cpp
+
+    inputstate.h
 )
 
 add_executable(ot_irr
