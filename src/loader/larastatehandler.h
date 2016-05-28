@@ -213,11 +213,7 @@ private:
     bool tryClimb(LaraState& state);
     bool checkWallCollision(LaraState& state);
     bool tryStartSlide(LaraState& state);
-    bool tryGrabEdge(LaraState& state)
-    {
-        //! @todo Implement me
-        return false;
-    }
+    bool tryGrabEdge(LaraState& state);
     void jumpAgainstWall(LaraState& state);
     void checkJumpWallSmash(LaraState& state);
 

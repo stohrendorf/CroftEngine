@@ -1804,6 +1804,54 @@ bool LaraStateHandler::tryStartSlide(LaraState& state)
     return true;
 }
 
+bool LaraStateHandler::tryGrabEdge(LaraState& state)
+{
+    if(state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !m_inputState.action || m_handStatus != 0)
+        return false;
+
+    const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
+    if(floorGradient >= 60) //! @todo MAGICK 60
+        return false;
+
+    if(state.front.ceiling.distance > 0 || state.current.ceiling.distance > -ClimbLimit2ClickMin)
+        return false;
+
+    getLara()->updateAbsolutePosition();
+
+    const auto spaceToReach = state.front.ceiling.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - m_position.Y);
+
+    if(spaceToReach < 0 && spaceToReach + m_fallSpeed.getExact() < 0)
+        return false;
+    if(spaceToReach > 0 && spaceToReach + m_fallSpeed.getExact() > 0)
+        return false;
+
+    int16_t rot = static_cast<int16_t>(m_rotation.Y);
+    if(std::abs(rot) <= util::degToAu(35))
+        rot = 0;
+    else if(rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35))
+        rot = util::degToAu(90);
+    else if(std::abs(rot) >= util::degToAu(180 - 35))
+        rot = util::degToAu(180);
+    else if(-rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35))
+        rot = util::degToAu(-90);
+    else
+        return false;
+
+    setTargetState(LaraStateId::Hang);
+    setStateOverride(LaraStateId::Hang);
+    playAnimation(loader::AnimationId::HANG_IDLE, 1505);
+
+    m_position.Y += spaceToReach;
+    applyCollisionFeedback(state);
+    m_horizontalSpeed = 0;
+    m_fallSpeed = 0;
+    m_falling = false;
+    m_handStatus = 1;
+    m_rotation.Y = rot;
+
+    return true;
+}
+
 void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
 {
     if( floorData == nullptr )
