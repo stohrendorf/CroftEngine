@@ -38,6 +38,7 @@ private:
     int m_floorHeight = 0;
     int m_lastFrameTime = -1;
     int m_currentFrameTime = 0;
+    int m_lastAnimFrame = -1;
 
     int getCurrentDeltaTime() const
     {
@@ -72,6 +73,9 @@ private:
     
     void onInput9FreeFall(::LaraState& state);
     void onBehave9FreeFall(::LaraState& state);
+
+    void onInput11Reach(::LaraState& state);
+    void onBehave11Reach(::LaraState& state);
 
     void onBehave12Unknown(::LaraState& state);
 
@@ -201,6 +205,8 @@ private:
     int getRelativeHeightAtDirection(int16_t angle, int dist) const;
     void commonJumpHandling(::LaraState& state);
     void commonSlideHandling(::LaraState& state);
+    bool tryReach(::LaraState& state);
+    bool canClimbOnto(::LaraState& state, int16_t angle) const;
 
     bool applyLandingDamage(::LaraState& state);
 

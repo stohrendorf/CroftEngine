@@ -176,6 +176,11 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
                 case irr::KEY_SHIFT:
                     m_inputState.moveSlow = evt.KeyInput.PressedDown;
                     return true;
+                case irr::KEY_LCONTROL:
+                case irr::KEY_RCONTROL:
+                case irr::KEY_CONTROL:
+                    m_inputState.action = evt.KeyInput.PressedDown;
+                    return true;
                 case irr::KEY_SPACE:
                     m_inputState.jump = evt.KeyInput.PressedDown;
                     return true;

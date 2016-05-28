@@ -83,18 +83,8 @@ public:
         return m_name;
     }
 
-    /**
-     * @brief Handles animation transitions
-     * @param[in] useDefaultAnimationLoop Whether to apply the current animation's default follow-up animation
-     * 
-     * @note The target state is never changed.
-     * 
-     * @details
-     * Checks the current animation's transitions for the target state and switches to the appropriate
-     * animation if applicable.  If no such transition applies and @a useDefaultAnimationLoop is @c true,
-     * the animation's default follow-up animation is played.
-     */
-    void handleTransitions(bool useDefaultAnimationLoop);
+    bool handleTRTransitions();
+    void handleAnimationEnd();
 
     float calculateFloorSpeed() const
     {
@@ -126,7 +116,6 @@ private:
  */
 class AnimationEndStateHandler final : public irr::scene::IAnimationEndCallBack
 {
-private:
     std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
 
 public:
@@ -136,9 +125,9 @@ public:
         BOOST_ASSERT(dispatcher != nullptr);
     }
 
-    virtual void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* /*node*/) override
+    void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* /*node*/) override
     {
-        m_dispatcher->handleTransitions(true);
+        m_dispatcher->handleAnimationEnd();
     }
 };
 
@@ -149,7 +138,6 @@ public:
  */
 class IntermediateStateHandler final : public irr::scene::ISceneNodeAnimator
 {
-private:
     std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
     irr::u32 m_lastCheckedFrame = std::numeric_limits<irr::u32>::max();
 
@@ -160,7 +148,7 @@ public:
         BOOST_ASSERT(dispatcher != nullptr);
     }
 
-    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
+    void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override
     {
         BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
         irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
@@ -171,10 +159,9 @@ public:
             return;
         
         m_lastCheckedFrame = currentFrame;
-        m_dispatcher->handleTransitions(false);
     }
 
-    virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
+    ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
     {
         BOOST_ASSERT(false);
         return nullptr;

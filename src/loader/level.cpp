@@ -595,6 +595,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
 
 void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData)
 {
+    BOOST_ASSERT(pData != nullptr);
     uint16_t angleSetOfs = 0x0a;
 
     for(size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++)
@@ -637,6 +638,7 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
 {
     const auto meshPositionIndex = animation.poseDataOffset / 2;
     const int16_t* pData = &m_poseData[meshPositionIndex];
+    const int16_t* lastPData = nullptr;
 
     // prepend the first frame
     loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
@@ -647,6 +649,7 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
     pData = &m_poseData[meshPositionIndex];
     for(irr::u32 i = 0; i <= animation.lastFrame - animation.firstFrame; i += animation.stretchFactor)
     {
+        lastPData = pData;
         loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
         frameOffset += animation.stretchFactor;
     }
@@ -656,14 +659,14 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
     // there's no animation at all
     while(animation.firstFrame >= animation.lastFrame + framePatch)
     {
-        pData = &m_poseData[meshPositionIndex];
+        pData = lastPData;
         loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
         frameOffset += animation.stretchFactor;
         ++framePatch;
     }
 
-    // append the first frame again
-    pData = &m_poseData[meshPositionIndex];
+    // append the last frame again
+    pData = lastPData;
     loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
     frameOffset += animation.stretchFactor;
 

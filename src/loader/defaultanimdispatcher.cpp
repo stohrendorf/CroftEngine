@@ -38,51 +38,6 @@ std::shared_ptr<DefaultAnimDispatcher> DefaultAnimDispatcher::create(irr::scene:
     return dispatcher;
 }
 
-void DefaultAnimDispatcher::handleTransitions(bool useDefaultAnimationLoop)
-{
-    BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
-    const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
-    const auto currentFrame = getCurrentFrame();
-    // const auto currentState = getCurrentState();
-    
-    // BOOST_LOG_TRIVIAL(debug) << "End of anim (" << node->getName() << "): animation=" << m_currentAnimationId << " currentState=" << currentState << " targetState=" << m_targetState;
-    
-    for(size_t i = 0; i < currentAnim.transitionsCount; ++i)
-    {
-        auto tIdx = currentAnim.transitionsIndex + i;
-        BOOST_ASSERT(tIdx < m_level->m_transitions.size());
-        const Transitions& tr = m_level->m_transitions[tIdx];
-        if(tr.stateId != m_targetState)
-            continue;
-        
-        for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
-        {
-            BOOST_ASSERT(j < m_level->m_transitionCases.size());
-            const TransitionCase& trc = m_level->m_transitionCases[j];
-
-            if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
-            {
-                //BOOST_LOG_TRIVIAL(debug) << "  - Starting target animation, targetAnimation=" << trc.targetAnimation << ", targetFrame=" << trc.targetFrame;
-                m_currentAnimationId = trc.targetAnimation;
-                if(getCurrentState() == getCurrentAnimState())
-                    m_currenStateOverride = boost::none;
-                startAnimLoop(trc.targetFrame);
-                return;
-            }
-        }
-    }
-    
-    if(useDefaultAnimationLoop)
-    {
-        m_currentAnimationId = currentAnim.nextAnimation;
-        if(getCurrentState() == getCurrentAnimState())
-            m_currenStateOverride = boost::none;
-        startAnimLoop(currentAnim.nextFrame);
-        // m_targetState = getCurrentState();
-        // BOOST_LOG_TRIVIAL(debug) << "  - Starting default animation, new targetState=" << m_targetState << ", nextAnimation=" << currentAnim.nextAnimation << ", nextFrame=" << currentAnim.nextFrame;
-    }
-}
-
 void DefaultAnimDispatcher::startAnimLoop(irr::u32 localFrame)
 {
     auto it = m_model.frameMapping.find(m_currentAnimationId);
@@ -128,5 +83,53 @@ void DefaultAnimDispatcher::playGlobalAnimation(uint16_t anim, const boost::opti
     
     BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << getCurrentAnimState();
 }
+
+bool DefaultAnimDispatcher::handleTRTransitions()
+{
+    if(getCurrentAnimState() == m_targetState)
+        return false;
+
+    BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
+    const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+    const auto currentFrame = getCurrentFrame();
+
+    for(size_t i = 0; i < currentAnim.transitionsCount; ++i)
+    {
+        auto tIdx = currentAnim.transitionsIndex + i;
+        BOOST_ASSERT(tIdx < m_level->m_transitions.size());
+        const Transitions& tr = m_level->m_transitions[tIdx];
+        if(tr.stateId != m_targetState)
+            continue;
+
+        for(auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j)
+        {
+            BOOST_ASSERT(j < m_level->m_transitionCases.size());
+            const TransitionCase& trc = m_level->m_transitionCases[j];
+
+            if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
+            {
+                m_currentAnimationId = trc.targetAnimation;
+                if(getCurrentState() == getCurrentAnimState())
+                    m_currenStateOverride = boost::none;
+                startAnimLoop(trc.targetFrame);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void DefaultAnimDispatcher::handleAnimationEnd()
+{
+    BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
+    const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+
+    m_currentAnimationId = currentAnim.nextAnimation;
+    if(getCurrentState() == getCurrentAnimState())
+        m_currenStateOverride = boost::none;
+    startAnimLoop(currentAnim.nextFrame);
+}
+
 
 }
