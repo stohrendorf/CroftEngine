@@ -22,6 +22,7 @@ constexpr int ScalpToHandsHeight = 160;
 constexpr int JumpReachableHeight = 896 + loader::SectorSize;
 
 constexpr int FreeFallSpeedThreshold = 131;
+constexpr int MaxGrabableGradient = 60;
 
 enum class SlantClass
 {
@@ -894,22 +895,22 @@ void LaraStateHandler::onInput9FreeFall(LaraState& /*state*/)
 
 void LaraStateHandler::onInput15JumpPrepare(LaraState& /*state*/)
 {
-    if( m_inputState.zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(m_rotation.Y, 256) >= -384 )
+    if( m_inputState.zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(m_rotation.Y, 256) >= -ClimbLimit2ClickMin)
     {
         m_movementAngle = m_rotation.Y;
         setTargetState(LaraStateId::JumpForward);
     }
-    else if( m_inputState.xMovement == AxisMovement::Left && getRelativeHeightAtDirection(m_rotation.Y - util::degToAu(90), 256) >= -384 )
+    else if( m_inputState.xMovement == AxisMovement::Left && getRelativeHeightAtDirection(m_rotation.Y - util::degToAu(90), 256) >= -ClimbLimit2ClickMin)
     {
         m_movementAngle = m_rotation.Y - util::degToAu(90);
         setTargetState(LaraStateId::JumpRight);
     }
-    else if( m_inputState.xMovement == AxisMovement::Right && getRelativeHeightAtDirection(m_rotation.Y + util::degToAu(90), 256) >= -384 )
+    else if( m_inputState.xMovement == AxisMovement::Right && getRelativeHeightAtDirection(m_rotation.Y + util::degToAu(90), 256) >= -ClimbLimit2ClickMin)
     {
         m_movementAngle = m_rotation.Y + util::degToAu(90);
         setTargetState(LaraStateId::JumpLeft);
     }
-    else if( m_inputState.zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(m_rotation.Y + util::degToAu(180), 256) >= -384 )
+    else if( m_inputState.zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(m_rotation.Y + util::degToAu(180), 256) >= -ClimbLimit2ClickMin)
     {
         m_movementAngle = m_rotation.Y + util::degToAu(180);
         setTargetState(LaraStateId::JumpBack);
@@ -1351,7 +1352,7 @@ void LaraStateHandler::onBehave16WalkBackward(LaraState& state)
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
     }
 
-    if( state.current.floor.distance > 128 && state.current.floor.distance < 384 )
+    if( state.current.floor.distance > loader::QuarterSectorSize && state.current.floor.distance < ClimbLimit2ClickMin)
     {
         if( m_dispatcher->getCurrentFrame() < 964 || m_dispatcher->getCurrentFrame() > 993 )
         {
@@ -1667,7 +1668,7 @@ bool LaraStateHandler::tryClimb(LaraState& state)
         return false;
 
     const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
-    if( floorGradient >= 60 ) //! @todo MAGICK 60
+    if( floorGradient >= MaxGrabableGradient)
         return false;
 
     int alignedRotation;
@@ -1810,7 +1811,7 @@ bool LaraStateHandler::tryGrabEdge(LaraState& state)
         return false;
 
     const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
-    if(floorGradient >= 60) //! @todo MAGICK 60
+    if(floorGradient >= MaxGrabableGradient)
         return false;
 
     if(state.front.ceiling.distance > 0 || state.current.ceiling.distance > -ClimbLimit2ClickMin)
@@ -2157,7 +2158,7 @@ bool LaraStateHandler::tryReach(LaraState& state)
     if( state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !m_inputState.action || m_handStatus != 0 )
         return false;
 
-    if( std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= 60 )
+    if( std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= MaxGrabableGradient)
         return false;
 
     if( state.front.ceiling.distance > 0 || state.current.ceiling.distance > -ClimbLimit2ClickMin || state.current.floor.distance < 200 )
