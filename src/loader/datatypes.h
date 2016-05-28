@@ -2979,7 +2979,7 @@ class SpeedValue
     StorageType m_value = 0;
 
 public:
-    using Type = InterfaceType;
+    using SelfType = SpeedValue<InterfaceType, StorageType>;
 
     static constexpr int FrameRate = 30;
 
@@ -2999,7 +2999,7 @@ public:
         return m_value;
     }
 
-    SpeedValue<InterfaceType>& operator=(InterfaceType v) noexcept
+    SelfType& operator=(InterfaceType v) noexcept
     {
         m_value = static_cast<StorageType>(v);
         return *this;
@@ -3029,24 +3029,28 @@ public:
         v -= getScaledExact(ms);
     }
 
-    void add(InterfaceType v, int ms)
+    SelfType& add(InterfaceType v, int ms)
     {
         m_value += scaleExact(static_cast<StorageType>(v), ms);
+        return *this;
     }
 
-    void sub(InterfaceType v, int ms)
+    SelfType& sub(InterfaceType v, int ms)
     {
         m_value -= scaleExact(static_cast<StorageType>(v), ms);
+        return *this;
     }
 
-    void addExact(StorageType v, int ms)
+    SelfType& addExact(StorageType v, int ms)
     {
         m_value += scaleExact(v, ms);
+        return *this;
     }
 
-    void subExact(StorageType v, int ms)
+    SelfType& subExact(StorageType v, int ms)
     {
         m_value -= scaleExact(v, ms);
+        return *this;
     }
 
     constexpr InterfaceType getScaled(int ms) const noexcept
@@ -3057,6 +3061,44 @@ public:
     constexpr StorageType getScaledExact(int ms) const noexcept
     {
         return scaleExact(m_value, ms);
+    }
+
+    SelfType& limitMin(InterfaceType v)
+    {
+        if(get() < v)
+            *this = v;
+        return *this;
+    }
+
+    SelfType& limitMax(InterfaceType v)
+    {
+        if(get() > v)
+            *this = v;
+        return *this;
+    }
+
+    SelfType& limit(InterfaceType min, InterfaceType max)
+    {
+        return limitMin(min).limitMax(max);
+    }
+
+    SelfType& limitMinExact(StorageType v)
+    {
+        if(m_value < v)
+            m_value = v;
+        return *this;
+    }
+
+    SelfType& limitMaxExact(StorageType v)
+    {
+        if(m_value > v)
+            m_value = v;
+        return *this;
+    }
+
+    SelfType& limitExact(StorageType min, StorageType max)
+    {
+        return limitMinExact(min).limitMaxExact(max);
     }
 
     static constexpr InterfaceType scale(InterfaceType v, int ms)
