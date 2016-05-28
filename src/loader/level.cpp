@@ -834,6 +834,7 @@ irr::video::ITexture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr,
 void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl)
 {
     mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
+    mgr->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
