@@ -28,7 +28,7 @@ private:
     SpeedValue<int> m_fallSpeed = 0;
     SpeedValue<int> m_horizontalSpeed = 0;
     int m_fallSpeedOverride = 0;
-    int m_movementAngle = 0;
+    int16_t m_movementAngle = 0;
     int m_air = 1800;
     int16_t m_currentSlideAngle = 0;
 
@@ -56,16 +56,16 @@ private:
 
     void callHandler(const HandlersArray& handlers, uint16_t state, LaraState& laraState, const char* semantic)
     {
-        if(state >= handlers.size())
+        if( state >= handlers.size() )
         {
             BOOST_LOG_TRIVIAL(error) << "Unexpected state " << state;
             return;
         }
 
-        if(!handlers[state])
-            BOOST_LOG_TRIVIAL(warning) << "No " << semantic << " handler for state " << state;
+        if( !handlers[state] )
+        BOOST_LOG_TRIVIAL(warning) << "No " << semantic << " handler for state " << state;
         else
-            (this->*handlers[state])(laraState);
+            (this ->* handlers[state])(laraState);
     }
 
     void onBehaveStanding(LaraState& state);
@@ -87,7 +87,7 @@ private:
     void onInput6TurnRightSlow(LaraState& state);
     void onInput7TurnLeftSlow(LaraState& state);
     void onBehaveTurnSlow(LaraState& state);
-    
+
     void onInput9FreeFall(LaraState& state);
     void onBehave9FreeFall(LaraState& state);
 
@@ -120,7 +120,7 @@ private:
 
     void onInput27JumpRight(LaraState& state);
     void onBehave27JumpRight(LaraState& state);
-    
+
     void onInput28JumpUp(LaraState& state);
     void onBehave28JumpUp(LaraState& state);
 
@@ -156,12 +156,12 @@ public:
         m_rotation.Y = util::degToAu(laraRot.Y);
         m_rotation.Z = util::degToAu(laraRot.Z);
 
-        m_movementAngle = m_rotation.Y;
+        setMovementAngle(getRotation().Y);
 
         m_lara->updateAbsolutePosition();
         m_position = loader::ExactTRCoordinates(m_lara->getAbsolutePosition());
     }
-    
+
     ~LaraStateHandler() = default;
 
     virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
@@ -184,7 +184,7 @@ public:
         BOOST_ASSERT(false);
         return nullptr;
     }
-    
+
     void setInputState(const InputState& state)
     {
         m_inputState = state;
@@ -206,7 +206,7 @@ private:
     void clearStateOverride();
 
     LaraStateId getTargetState() const;
-    
+
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
     bool tryStopOnFloor(LaraState& state);
@@ -224,9 +224,119 @@ private:
     void commonJumpHandling(LaraState& state);
     void commonSlideHandling(LaraState& state);
     bool tryReach(LaraState& state);
-    bool canClimbOnto(LaraState& state, int16_t angle) const;
+    bool canClimbOnto(int16_t angle) const;
 
     bool applyLandingDamage(LaraState& state);
 
     void handleLaraStateOnLand();
+
+    ///////////////////////////////////////
+
+    int getHealth() const noexcept
+    {
+        return m_health;
+    }
+
+    void setHealth(int h) noexcept
+    {
+        m_health = h;
+    }
+
+    const InputState& getInputState() const noexcept
+    {
+        return m_inputState;
+    }
+
+    void setMovementAngle(int16_t angle) noexcept
+    {
+        m_movementAngle = angle;
+    }
+
+    int16_t getMovementAngle() const noexcept
+    {
+        return m_movementAngle;
+    }
+
+    void setFallSpeed(int spd)
+    {
+        m_fallSpeed = spd;
+    }
+
+    const SpeedValue<int>& getFallSpeed() const noexcept
+    {
+        return m_fallSpeed;
+    }
+
+    void setFalling(bool falling) noexcept
+    {
+        m_falling = falling;
+    }
+
+    int getHandStatus() const noexcept
+    {
+        return m_handStatus;
+    }
+
+    void setHandStatus(int status) noexcept
+    {
+        m_handStatus = status;
+    }
+
+    irr::u32 getCurrentFrame() const;
+
+    const irr::core::vector3df& getRotation() const noexcept
+    {
+        return m_rotation;
+    }
+
+    void setHorizontalSpeed(int speed)
+    {
+        m_horizontalSpeed = speed;
+    }
+
+    const loader::Level& getLevel() const
+    {
+        BOOST_ASSERT(m_level != nullptr);
+        return *m_level;
+    }
+
+    void placeOnFloor(const LaraState& state);
+
+    void moveY(int distance)
+    {
+        m_position.Y += distance;
+    }
+
+    void moveXZ(float dx, float dz)
+    {
+        m_position.X += dx;
+        m_position.Z += dz;
+    }
+
+    void setPosition(const loader::ExactTRCoordinates& pos)
+    {
+        m_position = pos;
+    }
+
+    void setFloorHeight(int h) noexcept
+    {
+        m_floorHeight = h;
+    }
+
+    void setYRotationSpeed(int spd)
+    {
+        m_yRotationSpeed = spd;
+    }
+
+    int getYRotationSpeed() const
+    {
+        return m_yRotationSpeed.get();
+    }
+
+    void setYRotation(int16_t y)
+    {
+        m_rotation.Y = y;
+    }
+
+    loader::LaraStateId getCurrentState() const;
 };
