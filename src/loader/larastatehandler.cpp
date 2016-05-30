@@ -558,9 +558,9 @@ void LaraStateHandler::onInput0WalkForward(LaraState& /*state*/)
     }
 
     if( getInputState().xMovement == AxisMovement::Left )
-        m_yRotationSpeed.subExact(409, getCurrentDeltaTime()).limitMin(-728);
+        subYRotationSpeed(409, -728);
     else if( getInputState().xMovement == AxisMovement::Right )
-        m_yRotationSpeed.addExact(409, getCurrentDeltaTime()).limitMax(728);
+        addYRotationSpeed(409, 728);
     if( getInputState().zMovement == AxisMovement::Forward )
     {
         if( getInputState().moveSlow )
@@ -647,7 +647,6 @@ void LaraStateHandler::onBehave0WalkForward(LaraState& state)
     }
 }
 
-
 void LaraStateHandler::onInput1RunForward(LaraState& /*state*/)
 {
     if( getHealth() <= 0 )
@@ -666,16 +665,16 @@ void LaraStateHandler::onInput1RunForward(LaraState& /*state*/)
 
     if( getInputState().xMovement == AxisMovement::Left )
     {
-        m_yRotationSpeed.subExact(409, getCurrentDeltaTime()).limitMin(-1456);
-        m_rotation.Z = std::max(-2002.f, getRotation().Z - makeSpeedValue(273).getScaledExact(getCurrentDeltaTime()));
+        subYRotationSpeed(409, -1456);
+        setZRotationExact( std::max(-2002.f, getRotation().Z - makeSpeedValue(273).getScaledExact(getCurrentDeltaTime())) );
     }
     else if( getInputState().xMovement == AxisMovement::Right )
     {
-        m_yRotationSpeed.addExact(409, getCurrentDeltaTime()).limitMax(1456);
-        m_rotation.Z = std::min(2002.f, getRotation().Z + makeSpeedValue(273).getScaledExact(getCurrentDeltaTime()));
+        addYRotationSpeed(409, 1456);
+        setZRotationExact( std::min(2002.f, getRotation().Z + makeSpeedValue(273).getScaledExact(getCurrentDeltaTime())) );
     }
 
-    if( getInputState().jump && !m_falling )
+    if( getInputState().jump && !isFalling() )
     {
         setTargetState(LaraStateId::JumpForward);
         return;
@@ -766,11 +765,11 @@ void LaraStateHandler::onInput3JumpForward(LaraState& /*state*/)
 
     if( getInputState().xMovement == AxisMovement::Left )
     {
-        m_yRotationSpeed.subExact(409, getCurrentDeltaTime()).limitMin(-546);
+        subYRotationSpeed(409, -546);
     }
     else if( getInputState().xMovement == AxisMovement::Right )
     {
-        m_yRotationSpeed.addExact(409, getCurrentDeltaTime()).limitMax(546);
+        addYRotationSpeed(409, 546);
     }
 }
 
@@ -779,9 +778,9 @@ void LaraStateHandler::onInput5RunBackward(LaraState& /*state*/)
     setTargetState(LaraStateId::Stop);
 
     if( getInputState().xMovement == AxisMovement::Left )
-        m_yRotationSpeed.subExact(409, getCurrentDeltaTime()).limitMin(-1092);
+        subYRotationSpeed(409, -1092);
     else if( getInputState().xMovement == AxisMovement::Right )
-        m_yRotationSpeed.addExact(409, getCurrentDeltaTime()).limitMax(1092);
+        addYRotationSpeed(409, 1092);
 }
 
 void LaraStateHandler::onInput6TurnRightSlow(LaraState& /*state*/)
@@ -792,7 +791,7 @@ void LaraStateHandler::onInput6TurnRightSlow(LaraState& /*state*/)
         return;
     }
 
-    m_yRotationSpeed.addExact(409, getCurrentDeltaTime());
+    addYRotationSpeed(409);
 
     if( getHandStatus() == 4 )
     {
@@ -829,7 +828,7 @@ void LaraStateHandler::onInput7TurnLeftSlow(LaraState& /*state*/)
         return;
     }
 
-    m_yRotationSpeed.subExact(409, getCurrentDeltaTime());
+    subYRotationSpeed(409);
 
     if( getHandStatus() == 4 )
     {
@@ -887,7 +886,7 @@ void LaraStateHandler::onBehaveTurnSlow(LaraState& state)
 
 void LaraStateHandler::onInput9FreeFall(LaraState& /*state*/)
 {
-    m_horizontalSpeed.subExact(m_horizontalSpeed.getExact() * 5 / 100, getCurrentDeltaTime());
+    dampenHorizontalSpeed(5, 100);
     if( getFallSpeed().get() > 154 )
     {
         //! @todo playSound(30)
@@ -937,9 +936,9 @@ void LaraStateHandler::onInput16WalkBackward(LaraState& /*state*/)
         setTargetState(LaraStateId::Stop);
 
     if( getInputState().xMovement == AxisMovement::Left )
-        m_yRotationSpeed.subExact(409, getCurrentDeltaTime()).limitMin(-728);
+        subYRotationSpeed(409, -728);
     else if( getInputState().xMovement == AxisMovement::Right )
-        m_yRotationSpeed.addExact(409, getCurrentDeltaTime()).limitMax(728);
+        addYRotationSpeed(409, 728);
 }
 
 void LaraStateHandler::onInput19Climbing(LaraState& state)
@@ -1276,7 +1275,7 @@ void LaraStateHandler::onBehave1RunForward(LaraState& state)
 
     if( checkWallCollision(state) )
     {
-        m_rotation.Z = 0;
+        setZRotation(0);
         if( state.front.floor.slantClass == SlantClass::None && state.front.floor.distance < -ClimbLimit2ClickMax )
         {
             setStateOverride(LaraStateId::Unknown12);
@@ -1497,9 +1496,9 @@ void LaraStateHandler::jumpAgainstWall(LaraState& state)
 {
     applyCollisionFeedback(state);
     if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
-        m_rotation.Y += makeSpeedValue(910).getScaledExact(getCurrentDeltaTime());
+        addYRotation( makeSpeedValue(910).getScaledExact(getCurrentDeltaTime()) );
     else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
-        m_rotation.Y -= makeSpeedValue(940).getScaledExact(getCurrentDeltaTime());
+        addYRotation( -makeSpeedValue(940).getScaledExact(getCurrentDeltaTime()) );
     else if( state.axisCollisions == LaraState::AxisColl_HeadInCeiling )
     {
         if( getFallSpeed().get() <= 0 )
@@ -1528,9 +1527,9 @@ void LaraStateHandler::checkJumpWallSmash(LaraState& state)
     if( state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead )
     {
         setTargetState(LaraStateId::FreeFall);
-        //! @todo Check formula
+        //! @todo Check values
         //! @bug Time is too short to properly apply collision momentum!
-        m_horizontalSpeed.subExact(m_horizontalSpeed.getExact() * 4 / 5, getCurrentDeltaTime());
+        dampenHorizontalSpeed(4, 5);
         setMovementAngle(getMovementAngle() - util::degToAu(180));
         playAnimation(loader::AnimationId::SMASH_JUMP, 481);
         setStateOverride(LaraStateId::FreeFall);
@@ -1541,12 +1540,12 @@ void LaraStateHandler::checkJumpWallSmash(LaraState& state)
 
     if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
     {
-        m_rotation.Y += makeSpeedValue(910).getScaledExact(getCurrentDeltaTime());
+        addYRotation( makeSpeedValue(910).getScaledExact(getCurrentDeltaTime()) );
         return;
     }
     else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
     {
-        m_rotation.Y -= makeSpeedValue(910).getScaledExact(getCurrentDeltaTime());
+        addYRotation( -makeSpeedValue(910).getScaledExact(getCurrentDeltaTime()) );
         return;
     }
 
@@ -1747,7 +1746,7 @@ bool LaraStateHandler::tryClimb(LaraState& state)
         setTargetState(LaraStateId::JumpUp);
         setStateOverride(LaraStateId::Stop);
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
-        m_fallSpeedOverride = -static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3));
+        setFallSpeedOverride( -static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)) );
         processAnimCommands();
     }
 
@@ -1778,12 +1777,12 @@ bool LaraStateHandler::checkWallCollision(LaraState& state)
     if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
     {
         applyCollisionFeedback(state);
-        m_rotation.Y += makeSpeedValue(910).getScaledExact(getCurrentDeltaTime());
+        addYRotation( makeSpeedValue(910).getScaledExact(getCurrentDeltaTime()) );
     }
     else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
     {
         applyCollisionFeedback(state);
-        m_rotation.Y -= makeSpeedValue(910).getScaledExact(getCurrentDeltaTime());
+        addYRotation( -makeSpeedValue(910).getScaledExact(getCurrentDeltaTime()) );
     }
 
     return false;
@@ -1811,23 +1810,23 @@ bool LaraStateHandler::tryStartSlide(LaraState& state)
     applyCollisionFeedback(state);
     if( dy > util::degToAu(90) || dy < util::degToAu(-90) )
     {
-        if( m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraStateId::SlideBackward) || targetAngle != m_currentSlideAngle )
+        if( m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraStateId::SlideBackward) || targetAngle != getCurrentSlideAngle() )
         {
             playAnimation(loader::AnimationId::START_SLIDE_BACKWARD, 1677);
             setTargetState(LaraStateId::SlideBackward);
             setStateOverride(LaraStateId::SlideBackward);
             setMovementAngle(targetAngle);
-            m_currentSlideAngle = targetAngle;
+            setCurrentSlideAngle( targetAngle );
             setYRotation(targetAngle + util::degToAu(180));
         }
     }
-    else if( m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraStateId::SlideForward) || targetAngle != m_currentSlideAngle )
+    else if( m_dispatcher->getCurrentState() != static_cast<uint16_t>(LaraStateId::SlideForward) || targetAngle != getCurrentSlideAngle() )
     {
         playAnimation(loader::AnimationId::SLIDE_FORWARD, 1133);
         setTargetState(LaraStateId::SlideForward);
         setStateOverride(LaraStateId::SlideForward);
         setMovementAngle(targetAngle);
-        m_currentSlideAngle = targetAngle;
+        setCurrentSlideAngle( targetAngle );
         setYRotation(targetAngle);
     }
     return true;
@@ -2046,7 +2045,7 @@ void LaraStateHandler::onInput53SwandiveEnd(LaraState& state)
 {
     state.frobbelFlags &= ~FrobbelFlag10;
     state.frobbelFlags |= FrobbelFlag08;
-    m_horizontalSpeed.subExact(m_horizontalSpeed.getExact() * 5 / 100, getCurrentDeltaTime());
+    dampenHorizontalSpeed(5, 100);
 }
 
 void LaraStateHandler::onBehave53SwandiveEnd(LaraState& state)

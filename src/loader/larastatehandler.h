@@ -267,6 +267,11 @@ private:
         return m_fallSpeed;
     }
 
+    bool isFalling() const noexcept
+    {
+        return m_falling;
+    }
+
     void setFalling(bool falling) noexcept
     {
         m_falling = falling;
@@ -333,9 +338,54 @@ private:
         return m_yRotationSpeed.get();
     }
 
+    void subYRotationSpeed(int val, int limit = std::numeric_limits<int>::min())
+    {
+        m_yRotationSpeed.subExact(val, getCurrentDeltaTime()).limitMin(limit);
+    }
+
+    void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max())
+    {
+        m_yRotationSpeed.addExact(val, getCurrentDeltaTime()).limitMax(limit);
+    }
+
     void setYRotation(int16_t y)
     {
         m_rotation.Y = y;
+    }
+
+    void addYRotation(float v)
+    {
+        m_rotation.Y = v;
+    }
+
+    void setZRotation(int16_t z)
+    {
+        m_rotation.Z = z;
+    }
+
+    void setZRotationExact(float z)
+    {
+        m_rotation.Z = z;
+    }
+
+    void setFallSpeedOverride(int v)
+    {
+        m_fallSpeedOverride = v;
+    }
+
+    void dampenHorizontalSpeed(int nom, int den)
+    {
+        m_horizontalSpeed.subExact(m_horizontalSpeed.getExact() * nom / den, getCurrentDeltaTime());
+    }
+
+    int16_t getCurrentSlideAngle() const noexcept
+    {
+        return m_currentSlideAngle;
+    }
+
+    void setCurrentSlideAngle(int16_t a) noexcept
+    {
+        m_currentSlideAngle = a;
     }
 
     loader::LaraStateId getCurrentState() const;
