@@ -70,6 +70,12 @@ set(OT_IRR_SRCS
     loader/larastatehandler.cpp
 
     inputstate.h
+    heightinfo.h
+    heightinfo.cpp
+    larastate.h
+    larastate.cpp
+
+    core/magic.h
 )
 
 add_executable(ot_irr
