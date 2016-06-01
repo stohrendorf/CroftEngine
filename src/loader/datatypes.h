@@ -279,9 +279,9 @@ struct ExactTRCoordinates
     }
 
     explicit ExactTRCoordinates(const TRCoordinates& v)
-        : X(v.X)
-        , Y(v.Y)
-        , Z(v.Z)
+        : X(float(v.X))
+        , Y(float(v.Y))
+        , Z(float(v.Z))
     {
     }
 
@@ -2985,7 +2985,7 @@ public:
 
     // ReSharper disable once CppNonExplicitConvertingConstructor
     constexpr SpeedValue(InterfaceType v = 0)
-        : m_value(v)
+        : m_value(static_cast<StorageType>(v))
     {
     }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "animationids.h"
+#include "larastateid.h"
 #include "larastate.h"
 #include "util/vmath.h"
 #include "inputstate.h"
@@ -50,97 +51,6 @@ private:
     irr::core::vector3df m_rotation;
 
     loader::ExactTRCoordinates m_position;
-
-    using Handler = void (LaraStateHandler::*)(LaraState&);
-    using HandlersArray = std::array<Handler, 56>;
-
-    void callHandler(const HandlersArray& handlers, uint16_t state, LaraState& laraState, const char* semantic)
-    {
-        if( state >= handlers.size() )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Unexpected state " << state;
-            return;
-        }
-
-        if( !handlers[state] )
-        BOOST_LOG_TRIVIAL(warning) << "No " << semantic << " handler for state " << state;
-        else
-            (this ->* handlers[state])(laraState);
-    }
-
-    void onBehaveStanding(LaraState& state);
-
-    void onInput0WalkForward(LaraState& state);
-    void onBehave0WalkForward(LaraState& state);
-
-    void onInput1RunForward(LaraState& state);
-    void onBehave1RunForward(LaraState& state);
-
-    void onInput2Stop(LaraState& state);
-
-    void onInput3JumpForward(LaraState& state);
-    void onBehave3JumpForward(LaraState& state);
-
-    void onInput5RunBackward(LaraState& state);
-    void onBehave5RunBackward(LaraState& state);
-
-    void onInput6TurnRightSlow(LaraState& state);
-    void onInput7TurnLeftSlow(LaraState& state);
-    void onBehaveTurnSlow(LaraState& state);
-
-    void onInput9FreeFall(LaraState& state);
-    void onBehave9FreeFall(LaraState& state);
-
-    void onInput11Reach(LaraState& state);
-    void onBehave11Reach(LaraState& state);
-
-    void onBehave12Unknown(LaraState& state);
-
-    void onInput15JumpPrepare(LaraState& state);
-    void onBehave15JumpPrepare(LaraState& state);
-
-    void onInput16WalkBackward(LaraState& state);
-    void onBehave16WalkBackward(LaraState& state);
-
-    void onInput19Climbing(LaraState& state);
-    void onBehave19Climbing(LaraState& state);
-
-    void onInput20TurnFast(LaraState& state);
-
-    void onBehave23RollBackward(LaraState& state);
-
-    void onInput24SlideForward(LaraState& state);
-    void onBehave24SlideForward(LaraState& state);
-
-    void onInput25JumpBackward(LaraState& state);
-    void onBehave25JumpBackward(LaraState& state);
-
-    void onInput26JumpLeft(LaraState& state);
-    void onBehave26JumpLeft(LaraState& state);
-
-    void onInput27JumpRight(LaraState& state);
-    void onBehave27JumpRight(LaraState& state);
-
-    void onInput28JumpUp(LaraState& state);
-    void onBehave28JumpUp(LaraState& state);
-
-    void onInput29FallBackward(LaraState& state);
-    void onBehave29FallBackward(LaraState& state);
-
-    void onInput32SlideBackward(LaraState& state);
-    void onBehave32SlideBackward(LaraState& state);
-
-    void onBehave45RollForward(LaraState& state);
-
-    void onInput52SwandiveBegin(LaraState& state);
-    void onBehave52SwandiveBegin(LaraState& state);
-
-    void onInput53SwandiveEnd(LaraState& state);
-    void onBehave53SwandiveEnd(LaraState& state);
-
-    void nopHandler(LaraState&)
-    {
-    }
 
 public:
     LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
@@ -201,37 +111,13 @@ public:
     }
 
 private:
-    void setTargetState(loader::LaraStateId st);
-    void setStateOverride(loader::LaraStateId st);
     void clearStateOverride();
 
-    LaraStateId getTargetState() const;
-
-    void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
-
-    bool tryStopOnFloor(LaraState& state);
-    bool tryClimb(LaraState& state);
-    bool checkWallCollision(LaraState& state);
-    bool tryStartSlide(LaraState& state);
-    bool tryGrabEdge(LaraState& state);
-    void jumpAgainstWall(LaraState& state);
-    void checkJumpWallSmash(LaraState& state);
-
-    void applyCollisionFeedback(LaraState& state);
-    void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
-    void updateFloorHeight(int dy);
-    int getRelativeHeightAtDirection(int16_t angle, int dist) const;
-    void commonJumpHandling(LaraState& state);
-    void commonSlideHandling(LaraState& state);
-    bool tryReach(LaraState& state);
-    bool canClimbOnto(int16_t angle) const;
-
-    bool applyLandingDamage(LaraState& state);
-
-    void handleLaraStateOnLand();
+    void handleLaraStateOnLand(bool newFrame);
 
     ///////////////////////////////////////
 
+public:
     int getHealth() const noexcept
     {
         return m_health;
@@ -307,20 +193,23 @@ private:
 
     void placeOnFloor(const LaraState& state);
 
-    void moveY(int distance)
+    void move(float dx, float dy, float dz)
     {
-        m_position.Y += distance;
-    }
-
-    void moveXZ(float dx, float dz)
-    {
+        // BOOST_LOG_TRIVIAL(debug) << "Move " << m_position.X << "/" << m_position.Y << "/" << m_position.Z << " + " << dx << "/" << dy << "/" << dz;
         m_position.X += dx;
+        m_position.Y += dy;
         m_position.Z += dz;
     }
 
     void setPosition(const loader::ExactTRCoordinates& pos)
     {
         m_position = pos;
+        // BOOST_LOG_TRIVIAL(debug) << "Move to " << m_position.X << "/" << m_position.Y << "/" << m_position.Z;
+    }
+
+    int getFloorHeight() const noexcept
+    {
+        return m_floorHeight;
     }
 
     void setFloorHeight(int h) noexcept
@@ -355,7 +244,7 @@ private:
 
     void addYRotation(float v)
     {
-        m_rotation.Y = v;
+        m_rotation.Y += v;
     }
 
     void setZRotation(int16_t z)
@@ -388,5 +277,12 @@ private:
         m_currentSlideAngle = a;
     }
 
+    LaraStateId getTargetState() const;
+    void setTargetState(loader::LaraStateId st);
+    void setStateOverride(loader::LaraStateId st);
     loader::LaraStateId getCurrentState() const;
+    void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
+
+    void updateFloorHeight(int dy);
+    void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 };

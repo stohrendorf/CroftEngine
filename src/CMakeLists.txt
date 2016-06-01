@@ -68,12 +68,15 @@ set(OT_IRR_SRCS
     loader/defaultanimdispatcher.cpp
     loader/larastatehandler.h
     loader/larastatehandler.cpp
+    loader/larastateid.h
 
     inputstate.h
     heightinfo.h
     heightinfo.cpp
     larastate.h
     larastate.cpp
+    abstractstatehandler.h
+    abstractstatehandler.cpp
 
     core/magic.h
 )
