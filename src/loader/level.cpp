@@ -89,7 +89,7 @@ public:
     {
         if(getDispatcher()->getCurrentAnimationId() != 1 && getDispatcher()->getCurrentAnimationId() != 3)
         {
-            const auto st = getDispatcher()->getCurrentState();
+            const auto st = getDispatcher()->getCurrentAnimState();
             if(m_mustOpen && m_openState != st)
             {
                 BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << " opening (timer=" << getTimer() << ")";

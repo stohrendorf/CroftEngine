@@ -5,6 +5,7 @@
 #include "larastate.h"
 #include "util/vmath.h"
 #include "inputstate.h"
+#include "abstractstatehandler.h"
 
 #include <irrlicht.h>
 
@@ -38,8 +39,11 @@ private:
     int m_handStatus = 0;
     int m_floorHeight = 0;
     int m_lastFrameTime = -1;
+    int m_lastEngineFrameTime = -1;
     int m_currentFrameTime = 0;
     int m_lastAnimFrame = -1;
+
+    std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
 
     int getCurrentDeltaTime() const
     {
@@ -72,9 +76,9 @@ public:
         m_position = loader::ExactTRCoordinates(m_lara->getAbsolutePosition());
     }
 
-    ~LaraStateHandler() = default;
+    ~LaraStateHandler();
 
-    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
+    void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
 
     enum class AnimCommandOpcode : uint16_t
     {
@@ -87,9 +91,9 @@ public:
         Interact = 7
     };
 
-    void processAnimCommands();
+    std::unique_ptr<AbstractStateHandler> processAnimCommands();
 
-    virtual ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
+    ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
     {
         BOOST_ASSERT(false);
         return nullptr;
@@ -111,8 +115,6 @@ public:
     }
 
 private:
-    void clearStateOverride();
-
     void handleLaraStateOnLand(bool newFrame);
 
     ///////////////////////////////////////
@@ -279,8 +281,8 @@ public:
 
     LaraStateId getTargetState() const;
     void setTargetState(loader::LaraStateId st);
-    void setStateOverride(loader::LaraStateId st);
     loader::LaraStateId getCurrentState() const;
+    loader::LaraStateId getCurrentAnimState() const;
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
     void updateFloorHeight(int dy);

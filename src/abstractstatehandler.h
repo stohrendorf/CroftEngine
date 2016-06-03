@@ -22,12 +22,14 @@ public:
 
     virtual ~AbstractStateHandler() = default;
 
-    virtual void handleInput(LaraState& state) = 0;
-    virtual void postprocessFrame(LaraState& state) = 0;
+    virtual std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) = 0;
+    virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) = 0;
 
     void animate(LaraState& state, int deltaTimeMs);
 
     static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraStateHandler& lara);
+
+    virtual loader::LaraStateId getId() const noexcept = 0;
 
 private:
     virtual void animateImpl(LaraState& state, int deltaTimeMs) = 0;
@@ -67,7 +69,7 @@ protected:
 
     uint32_t getCurrentFrame() const;
     
-    loader::LaraStateId getCurrentState() const;
+    loader::LaraStateId getCurrentAnimState() const;
 
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
@@ -111,21 +113,20 @@ protected:
 
     void setTargetState(loader::LaraStateId state);
     loader::LaraStateId getTargetState() const;
-    void setStateOverride(loader::LaraStateId state);
 
-    bool tryStopOnFloor(LaraState& state);
-    bool tryClimb(LaraState& state);
-    bool checkWallCollision(LaraState& state);
-    bool tryStartSlide(LaraState& state);
-    bool tryGrabEdge(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> tryStopOnFloor(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> tryClimb(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> checkWallCollision(LaraState& state);
+    bool tryStartSlide(LaraState& state, std::unique_ptr<AbstractStateHandler>& nextHandler);
+    std::unique_ptr<AbstractStateHandler> tryGrabEdge(LaraState& state);
     void jumpAgainstWall(LaraState& state);
-    void checkJumpWallSmash(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> checkJumpWallSmash(LaraState& state);
 
     void applyCollisionFeedback(LaraState& state);
     int getRelativeHeightAtDirection(int16_t angle, int dist) const;
-    void commonJumpHandling(LaraState& state);
-    void commonSlideHandling(LaraState& state);
-    bool tryReach(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> commonJumpHandling(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> commonSlideHandling(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> tryReach(LaraState& state);
     bool canClimbOnto(int16_t angle) const;
 
     bool applyLandingDamage();

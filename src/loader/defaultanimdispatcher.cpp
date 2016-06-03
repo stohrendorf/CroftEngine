@@ -109,8 +109,6 @@ bool DefaultAnimDispatcher::handleTRTransitions()
             if(currentFrame >= trc.firstFrame && currentFrame <= trc.lastFrame)
             {
                 m_currentAnimationId = trc.targetAnimation;
-                if(getCurrentState() == getCurrentAnimState())
-                    m_currenStateOverride = boost::none;
                 startAnimLoop(trc.targetFrame);
                 return true;
             }
@@ -126,8 +124,6 @@ void DefaultAnimDispatcher::handleAnimationEnd()
     const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
 
     m_currentAnimationId = currentAnim.nextAnimation;
-    if(getCurrentState() == getCurrentAnimState())
-        m_currenStateOverride = boost::none;
     startAnimLoop(currentAnim.nextFrame);
 }
 

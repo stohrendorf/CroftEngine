@@ -13,16 +13,6 @@ void LaraStateHandler::setTargetState(LaraStateId st)
     m_dispatcher->setTargetState(static_cast<uint16_t>(st));
 }
 
-void LaraStateHandler::setStateOverride(LaraStateId st)
-{
-    m_dispatcher->setStateOverride(static_cast<uint16_t>(st));
-}
-
-void LaraStateHandler::clearStateOverride()
-{
-    m_dispatcher->clearStateOverride();
-}
-
 loader::LaraStateId LaraStateHandler::getTargetState() const
 {
     return static_cast<LaraStateId>(m_dispatcher->getTargetState());
@@ -43,12 +33,19 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
     laraState.collisionRadius = 100; //!< @todo MAGICK 100
     laraState.frobbelFlags = LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08;
 
-    auto handler = AbstractStateHandler::create(getCurrentState(), *this);
-
+    std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
     if(newFrame)
-        handler->handleInput(laraState);
+    {
+        m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
+        nextHandler = m_currentStateHandler->handleInput(laraState);
 
-    handler->animate(laraState, getCurrentDeltaTime());
+        BOOST_LOG_TRIVIAL(debug) << "Input state = " << loader::toString(m_currentStateHandler->getId());
+    }
+
+    m_currentStateHandler->animate(laraState, getCurrentDeltaTime());
+
+    if(nextHandler != nullptr)
+        m_currentStateHandler = std::move(nextHandler);
 
     // "slowly" revert rotations to zero
     if( getRotation().Z < 0 )
@@ -117,14 +114,18 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
     if(!newFrame)
         return;
 
-    processAnimCommands();
+    auto tmp = processAnimCommands();
+    if(tmp)
+        nextHandler = std::move(tmp);
 
     // @todo test interactions?
 
     // BOOST_LOG_TRIVIAL(debug) << "BEHAVE State=" << m_dispatcher->getCurrentState() << ", pos = (" << m_position.X << "/" << m_position.Y << "/" << m_position.Z << ")";
 
-    handler = AbstractStateHandler::create(getCurrentState(), *this);
-    handler->postprocessFrame(laraState);
+    BOOST_LOG_TRIVIAL(debug) << "Postprocessing state = " << loader::toString(m_currentStateHandler->getId());
+    nextHandler = m_currentStateHandler->postprocessFrame(laraState);
+    if(nextHandler != nullptr)
+        m_currentStateHandler = std::move(nextHandler);
 
     updateFloorHeight(-381);
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
@@ -142,32 +143,51 @@ void LaraStateHandler::placeOnFloor(const LaraState & state)
 
 loader::LaraStateId LaraStateHandler::getCurrentState() const
 {
-    return static_cast<LaraStateId>(m_dispatcher->getCurrentState());
+    return m_currentStateHandler->getId();
 }
+
+loader::LaraStateId LaraStateHandler::getCurrentAnimState() const
+{
+    return static_cast<loader::LaraStateId>( m_dispatcher->getCurrentAnimState() );
+}
+
+LaraStateHandler::~LaraStateHandler() = default;
 
 void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 {
     BOOST_ASSERT(m_lara == node);
 
     if( m_lastFrameTime < 0 )
-        m_lastFrameTime = m_currentFrameTime = timeMs;
+        m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
 
     if( m_lastFrameTime == timeMs )
         return;
 
     m_currentFrameTime = timeMs;
 
-    handleLaraStateOnLand(m_lastAnimFrame != getCurrentFrame());
+    static constexpr int FrameTime = 1000 / 30;
+
+    bool isNewFrame = m_lastAnimFrame != getCurrentFrame();
+    if(timeMs - m_lastEngineFrameTime >= FrameTime)
+    {
+        isNewFrame = true;
+        m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
+    }
+
+    handleLaraStateOnLand(isNewFrame);
 
     m_lastFrameTime = m_currentFrameTime;
 }
 
-void LaraStateHandler::processAnimCommands()
+std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
 {
+    std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
+    bool newFrame = false;
     if( m_dispatcher->handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
     {
-        clearStateOverride();
+        nextHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
         m_lastAnimFrame = getCurrentFrame();
+        newFrame = true;
     }
 
     const loader::Animation& animation = getLevel().m_animations[m_dispatcher->getCurrentAnimationId()];
@@ -211,7 +231,7 @@ void LaraStateHandler::processAnimCommands()
                 if( getCurrentFrame() == cmd[0] )
                 {
                     BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-                    if( cmd[1] == 0 )
+                    if( cmd[1] == 0 && newFrame )
                         m_rotation.Y += util::degToAu(180);
                     //! @todo Execute anim effect cmd[1]
                 }
@@ -222,6 +242,8 @@ void LaraStateHandler::processAnimCommands()
             }
         }
     }
+
+    return nextHandler;
 }
 
 void LaraStateHandler::updateFloorHeight(int dy)
