@@ -701,6 +701,46 @@ public:
     }
 };
 
+class StateHandler_8 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_8(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+        state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+        state.neededCeilingDistance = 0;
+        state.collisionRadius = 400;
+        state.yAngle = static_cast<int16_t>(getRotation().Y);
+        setMovementAngle(state.yAngle);
+        applyCollisionFeedback(state);
+        placeOnFloor(state);
+        state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+        setHealth(-1);
+        //! @todo set air=-1
+        return nullptr;
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::Death;
+    }
+
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+    {
+    }
+};
+
 class StateHandler_9 final : public AbstractStateHandler
 {
 public:
@@ -1599,6 +1639,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
             return std::make_unique<StateHandler_6>(lara);
         case LaraStateId::TurnLeftSlow:
             return std::make_unique<StateHandler_7>(lara);
+        case LaraStateId::Death:
+            return std::make_unique<StateHandler_8>(lara);
         case LaraStateId::FreeFall:
             return std::make_unique<StateHandler_9>(lara);
         case LaraStateId::Reach:
