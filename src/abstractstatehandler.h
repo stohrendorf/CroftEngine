@@ -77,11 +77,14 @@ protected:
 
     void setHorizontalSpeed(int speed);
 
+    int getHorizontalSpeed() const;
+
     const loader::Level& getLevel() const;
 
     void placeOnFloor(const LaraState& state);
 
     loader::TRCoordinates getPosition() const;
+    const loader::ExactTRCoordinates& getExactPosition() const;
 
     void setPosition(const loader::ExactTRCoordinates& pos);
 

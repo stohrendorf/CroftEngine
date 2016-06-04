@@ -1764,6 +1764,12 @@ void AbstractStateHandler::setHorizontalSpeed(int speed)
     m_stateHandler.setHorizontalSpeed(speed);
 }
 
+int AbstractStateHandler::getHorizontalSpeed() const
+{
+    return m_stateHandler.getHorizontalSpeed();
+}
+
+
 const loader::Level & AbstractStateHandler::getLevel() const
 {
     return m_stateHandler.getLevel();
@@ -1777,6 +1783,11 @@ void AbstractStateHandler::placeOnFloor(const LaraState & state)
 loader::TRCoordinates AbstractStateHandler::getPosition() const
 {
     return m_stateHandler.getPosition();
+}
+
+const loader::ExactTRCoordinates& AbstractStateHandler::getExactPosition() const
+{
+    return m_stateHandler.getExactPosition();
 }
 
 void AbstractStateHandler::setPosition(const loader::ExactTRCoordinates & pos)
@@ -2013,7 +2024,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
 
 void AbstractStateHandler::applyCollisionFeedback(LaraState& state)
 {
-    setPosition(loader::ExactTRCoordinates(getPosition() + state.collisionFeedback));
+    setPosition(getExactPosition() + state.collisionFeedback);
     state.collisionFeedback = { 0,0,0 };
 }
 
@@ -2274,9 +2285,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkJumpWallSmash(L
     if(state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead)
     {
         setTargetState(LaraStateId::FreeFall);
-        //! @todo Check values
-        //! @bug Time is too short to properly apply collision momentum!
-        dampenHorizontalSpeed(4, 5);
+        //! @todo Check formula
+        setHorizontalSpeed(getHorizontalSpeed() / 5);
         setMovementAngle(getMovementAngle() - util::degToAu(180));
         playAnimation(loader::AnimationId::SMASH_JUMP, 481);
         if(getFallSpeed().get() <= 0)

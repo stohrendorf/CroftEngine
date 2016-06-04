@@ -114,6 +114,11 @@ public:
         return m_position.toInexact();
     }
 
+    const loader::ExactTRCoordinates& getExactPosition() const noexcept
+    {
+        return m_position;
+    }
+
 private:
     void handleLaraStateOnLand(bool newFrame);
 
@@ -185,6 +190,11 @@ public:
     void setHorizontalSpeed(int speed)
     {
         m_horizontalSpeed = speed;
+    }
+
+    int getHorizontalSpeed() const
+    {
+        return m_horizontalSpeed.get();
     }
 
     const loader::Level& getLevel() const

@@ -325,7 +325,7 @@ struct ExactTRCoordinates
 
     TRCoordinates toInexact() const noexcept
     {
-        return{std::lround(X), std::lround(Y), std::lround(Z)};
+        return{long(std::floor(X)), long(std::floor(Y)), long(std::floor(Z))};
     }
 };
 
@@ -547,12 +547,12 @@ struct Sector
 
         BOOST_ASSERT(floorDataIndex < floorData.size());
         const FloorData::value_type* fdData = &floorData[floorDataIndex];
-        BOOST_ASSERT(fdData <= &floorData.back());
+        BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::FloorSlant)
         {
             fdData += 2;
         }
-        BOOST_ASSERT(fdData <= &floorData.back());
+        BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::CeilingSlant)
         {
             fdData += 2;
@@ -1482,8 +1482,8 @@ struct Room
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
         room->sectors.resize(room->sectorCountZ * room->sectorCountX);
-        for(uint32_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
-            room->sectors[i] = Sector::read(reader);
+        for(Sector& sector : room->sectors)
+            sector = Sector::read(reader);
 
         // read and make consistent
         room->intensity1 = (8191 - reader.readI16()) << 2;
@@ -1553,8 +1553,8 @@ struct Room
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
         room->sectors.resize(room->sectorCountZ * room->sectorCountX);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
-            room->sectors[i] = Sector::read(reader);
+        for(Sector& sector : room->sectors)
+            sector = Sector::read(reader);
 
         // read and make consistent
         room->intensity1 = (8191 - reader.readI16()) << 2;
@@ -1631,8 +1631,8 @@ struct Room
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
         room->sectors.resize(room->sectorCountZ * room->sectorCountX);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
-            room->sectors[i] = Sector::read(reader);
+        for(Sector& sector : room->sectors)
+            sector = Sector::read(reader);
 
         room->intensity1 = reader.readI16();
         room->intensity2 = reader.readI16();
@@ -1713,8 +1713,8 @@ struct Room
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
         room->sectors.resize(room->sectorCountZ * room->sectorCountX);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
-            room->sectors[i] = Sector::read(reader);
+        for(Sector& sector : room->sectors)
+            sector = Sector::read(reader);
 
         room->intensity1 = reader.readI16();
         room->intensity2 = reader.readI16();
@@ -1912,8 +1912,8 @@ struct Room
         reader.seek(position + 208 + sector_data_offset);
 
         room->sectors.resize(room->sectorCountZ * room->sectorCountX);
-        for(size_t i = 0; i < static_cast<uint32_t>(room->sectorCountZ * room->sectorCountX); i++)
-            room->sectors[i] = Sector::read(reader);
+        for(Sector& sector : room->sectors)
+            sector = Sector::read(reader);
 
         room->portals.resize(reader.readI16());
         for(size_t i = 0; i < room->portals.size(); i++)
@@ -1986,9 +1986,11 @@ struct Room
     const Sector* getSectorByAbsolutePosition(TRCoordinates position) const
     {
         position -= this->position;
-        auto dx = position.X / SectorSize;
-        auto dz = position.Z / SectorSize;
-//        BOOST_LOG_TRIVIAL(debug) << "Sector " << dx << "/" << dz;
+        return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
+    }
+
+    const Sector* getSectorByIndex(int dx, int dz) const
+    {
         if(dx < 0 || dx >= sectorCountX)
             return nullptr;
         if(dz < 0 || dz >= sectorCountZ)

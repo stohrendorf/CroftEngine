@@ -117,7 +117,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     if( current.floor.distance == -loader::HeightLimit )
     {
-        collisionFeedback = position.toInexact() - laraPos;
+        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
         axisCollisions = AxisColl_InsufficientFrontSpace;
         return;
     }
@@ -125,7 +125,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     if( current.floor.distance <= current.ceiling.distance )
     {
         axisCollisions = AxisColl_CeilingTooLow;
-        collisionFeedback = position.toInexact() - laraPos;
+        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
         return;
     }
 
@@ -157,7 +157,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     if( front.ceiling.distance >= neededCeilingDistance )
     {
         axisCollisions = AxisColl_BumpHead;
-        collisionFeedback = position.toInexact() - laraPos;
+        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
         return;
     }
 

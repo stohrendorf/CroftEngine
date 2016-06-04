@@ -930,11 +930,64 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
     const Sector* sector = nullptr;
     while(true)
     {
-        const int sectorX = irr::core::clamp(static_cast<int>((position.X - room->position.X) / SectorSize), 1, room->sectorCountX - 1);
-        const int sectorZ = irr::core::clamp(static_cast<int>((position.Z - room->position.Z) / SectorSize), 1, room->sectorCountZ - 1);
+        int sectorX = (position.X - room->position.X) / SectorSize;
+        int sectorZ = (position.Z - room->position.Z) / SectorSize;
 
-        BOOST_ASSERT(sectorZ + room->sectorCountZ * sectorX >= 0 && sectorZ + room->sectorCountZ * sectorX < room->sectors.size());
-        sector = &room->sectors[sectorZ + room->sectorCountZ * sectorX];
+        // xxxxx
+        // xxxxx
+        // xxxxx
+        // xxxxx
+        // xxxxx
+        if(sectorZ > 0)
+        {
+            // xxxxx
+            // xxxxx
+            // xxxxx
+            // xxxxx
+            // -----
+            if(sectorZ < room->sectorCountZ - 1)
+            {
+                // -----
+                // xxxxx
+                // xxxxx
+                // xxxxx
+                // -----
+                sectorX = irr::core::clamp(sectorX, 0, room->sectorCountX - 1);
+            }
+            else
+            {
+                // xxxxx
+                // -----
+                // -----
+                // -----
+                // -----
+                sectorZ = room->sectorCountZ - 1;
+                // *+x+*
+                // -----
+                // -----
+                // -----
+                // -----
+                sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
+            }
+        }
+        else
+        {
+            // -----
+            // -----
+            // -----
+            // -----
+            // xxxxx
+            sectorZ = 0;
+            // -----
+            // -----
+            // -----
+            // -----
+            // *+x+*
+            sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
+        }
+
+        sector = room->getSectorByIndex(sectorX, sectorZ);
+        BOOST_ASSERT(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if(!portalTarget)
             break;

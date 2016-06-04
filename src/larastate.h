@@ -34,7 +34,7 @@ struct LaraState
     static constexpr int FrobbelFlag80 = 0x80;
 
     int axisCollisions;
-    loader::TRCoordinates collisionFeedback;
+    loader::ExactTRCoordinates collisionFeedback;
     Axis orientationAxis;
     irr::s16 yAngle; // external
     int collisionRadius; // external
