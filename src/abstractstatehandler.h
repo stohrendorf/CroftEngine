@@ -5,6 +5,7 @@
 #include "loader/animationids.h"
 
 #include <memory>
+#include "larastate.h"
 
 struct LaraState;
 class LaraStateHandler;
@@ -133,7 +134,7 @@ protected:
     std::unique_ptr<AbstractStateHandler> commonSlideHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> commonEdgeHangHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> tryReach(LaraState& state);
-    bool canClimbOnto(int16_t angle) const;
+    bool canClimbOnto(Axis axis) const;
 
     bool applyLandingDamage();
 

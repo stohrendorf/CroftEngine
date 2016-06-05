@@ -9,7 +9,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 {
     axisCollisions = AxisColl_None;
     collisionFeedback = {0,0,0};
-    orientationAxis = static_cast<Axis>(static_cast<irr::u16>(yAngle + util::degToAu(45)) / util::degToAu(90));
+    orientationAxis = *axisFromAngle(yAngle, util::degToAu(45));
 
     const loader::Room* room = level.m_camera->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};

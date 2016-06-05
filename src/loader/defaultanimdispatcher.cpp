@@ -53,6 +53,14 @@ irr::u32 DefaultAnimDispatcher::getCurrentFrame() const
     return std::lround(m_node->getFrameNr() - it->second.offset + it->second.firstFrame);
 }
 
+irr::u32 DefaultAnimDispatcher::getAnimEndFrame() const
+{
+    auto it = m_model.frameMapping.find(m_currentAnimationId);
+    BOOST_ASSERT(it != m_model.frameMapping.end());
+    
+    return it->second.lastFrame;
+}
+
 irr::u32 DefaultAnimDispatcher::getCurrentRelativeFrame() const
 {
     auto it = m_model.frameMapping.find(m_currentAnimationId);

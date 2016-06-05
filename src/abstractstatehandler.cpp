@@ -2002,17 +2002,16 @@ loader::LaraStateId AbstractStateHandler::getTargetState() const
     return m_stateHandler.getTargetState();
 }
 
-bool AbstractStateHandler::canClimbOnto(int16_t angle) const
+bool AbstractStateHandler::canClimbOnto(Axis axis) const
 {
     auto pos = getPosition();
-    if( angle == 0 )
-        pos.Z += 256;
-    else if( angle == util::degToAu(90) )
-        pos.X += 256;
-    else if( angle == util::degToAu(180) )
-        pos.Z -= 256;
-    else if( angle == util::degToAu(-90) )
-        pos.X -= 256;
+    switch(axis)
+    {
+        case Axis::PosZ: pos.Z += 256; break;
+        case Axis::PosX: pos.X += 256; break;
+        case Axis::NegZ: pos.Z -= 256; break;
+        case Axis::NegX: pos.X -= 256; break;
+    }
 
     auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
     HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
@@ -2040,19 +2039,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
     if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
-    int16_t rot = static_cast<int16_t>(getRotation().Y);
-    if( std::abs(rot) <= util::degToAu(35) )
-        rot = 0;
-    else if( rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35) )
-        rot = util::degToAu(90);
-    else if( std::abs(rot) >= util::degToAu(180 - 35) )
-        rot = util::degToAu(180);
-    else if( -rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35) )
-        rot = util::degToAu(-90);
-    else
+    auto alignedRotation = alignRotation(getRotation().Y, 35);
+    if(!alignedRotation)
         return nullptr;
 
-    if( canClimbOnto(rot) )
+    if( canClimbOnto(*axisFromAngle(getRotation().Y, 35)) )
         playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
     else
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
@@ -2061,7 +2052,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
     m_yMovement = spaceToReach;
     setHorizontalSpeed(0);
     applyCollisionFeedback(state);
-    setYRotation(rot);
+    setYRotation(*alignedRotation);
     setFalling(false);
     setFallSpeed(0);
     setHandStatus(1);
@@ -2092,17 +2083,9 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
     if( floorGradient >= core::MaxGrabableGradient )
         return nullptr;
 
-    int16_t alignedRotation = static_cast<int16_t>(getRotation().Y);
     //! @todo MAGICK +/- 30 degrees
-    if(alignedRotation >= util::degToAu(0-30) && alignedRotation <= util::degToAu(0+30) )
-        alignedRotation = util::degToAu(0);
-    else if(alignedRotation >= util::degToAu(90-30) && alignedRotation <= util::degToAu(90+30) )
-        alignedRotation = util::degToAu(90);
-    else if(alignedRotation >= util::degToAu(180-30) && alignedRotation <= util::degToAu(-180-30) )
-        alignedRotation = util::degToAu(180);
-    else if(alignedRotation >= util::degToAu(-90-30) && alignedRotation <= util::degToAu(-90+30) )
-        alignedRotation = util::degToAu(-90);
-    else
+    auto alignedRotation = alignRotation(getRotation().Y, util::degToAu(30));
+    if(!alignedRotation)
         return nullptr;
 
     const auto climbHeight = state.front.floor.distance;
@@ -2147,7 +2130,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
             nextHandler = std::move(tmp);
     }
 
-    setYRotation(alignedRotation);
+    setYRotation(*alignedRotation);
     applyCollisionFeedback(state);
 
     BOOST_ASSERT(nextHandler != nullptr);
@@ -2250,16 +2233,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
     if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
-    int16_t rot = static_cast<int16_t>(getRotation().Y);
-    if( std::abs(rot) <= util::degToAu(35) )
-        rot = 0;
-    else if( rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35) )
-        rot = util::degToAu(90);
-    else if( std::abs(rot) >= util::degToAu(180 - 35) )
-        rot = util::degToAu(180);
-    else if( -rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35) )
-        rot = util::degToAu(-90);
-    else
+    auto alignedRotation = alignRotation(getRotation().Y, 35);
+    if(!alignedRotation)
         return nullptr;
 
     setTargetState(LaraStateId::Hang);
@@ -2271,7 +2246,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
     setFallSpeed(0);
     setFalling(false);
     setHandStatus(1);
-    setYRotation(rot);
+    setYRotation(*alignedRotation);
 
     return create(LaraStateId::Hang);
 }
@@ -2371,7 +2346,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     setFallSpeed(0);
     setFalling(false);
     setMovementAngle(static_cast<int16_t>(getRotation().Y));
-    const auto axis = static_cast<Axis>(static_cast<irr::u16>(getMovementAngle() + util::degToAu(45)) / util::degToAu(90));
+    const auto axis = *axisFromAngle(getMovementAngle(), util::degToAu(45));
     switch( axis )
     {
     case Axis::PosZ:

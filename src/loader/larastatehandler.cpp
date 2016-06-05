@@ -123,6 +123,10 @@ irr::u32 LaraStateHandler::getCurrentFrame() const
 {
     return m_dispatcher->getCurrentFrame();
 }
+irr::u32 LaraStateHandler::getAnimEndFrame() const
+{
+    return m_dispatcher->getAnimEndFrame();
+}
 
 void LaraStateHandler::placeOnFloor(const LaraState & state)
 {
@@ -179,6 +183,8 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
         newFrame = true;
     }
 
+    const bool isAnimEnd = getCurrentFrame() >= getAnimEndFrame();
+
     const loader::Animation& animation = getLevel().m_animations[m_dispatcher->getCurrentAnimationId()];
     if( animation.animCommandCount > 0 )
     {
@@ -192,9 +198,8 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
             switch( opcode )
             {
             case AnimCommandOpcode::SetPosition:
-                if(newFrame)
+                if(isAnimEnd && newFrame)
                 {
-                    BOOST_LOG_TRIVIAL(debug) << "Local movement: " << cmd[0] << "/" << cmd[1] << "/" << cmd[2];
                     moveLocal(
                         cmd[0],
                         cmd[1],
@@ -204,7 +209,7 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
                 cmd += 3;
                 break;
             case AnimCommandOpcode::SetVelocity:
-                if(newFrame)
+                if(isAnimEnd && newFrame)
                 {
                     setFallSpeed(m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride);
                     m_fallSpeedOverride = 0;
@@ -214,7 +219,7 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
                 cmd += 2;
                 break;
             case AnimCommandOpcode::EmptyHands:
-                if(newFrame)
+                if(isAnimEnd)
                 {
                     setHandStatus(0);
                 }

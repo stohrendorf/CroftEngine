@@ -181,6 +181,7 @@ public:
     }
 
     irr::u32 getCurrentFrame() const;
+    irr::u32 getAnimEndFrame() const;
 
     const irr::core::vector3df& getRotation() const noexcept
     {

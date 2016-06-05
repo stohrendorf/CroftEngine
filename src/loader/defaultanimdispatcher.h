@@ -81,6 +81,7 @@ public:
     }
 
     irr::u32 getCurrentFrame() const;
+    irr::u32 getAnimEndFrame() const;
 
 private:
     /**
