@@ -278,10 +278,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
         ld.Falloff = light.intensity;
-        ld.Attenuation.Y = 1.0f / ld.OuterCone;
         ln->setPosition((light.position - position).toIrrlicht());
         ln->setRotation(light.dir.toIrrlicht());
         ln->setRadius(light.r_outer);
+        ld.Attenuation.Z = ld.Attenuation.Y;
 #ifndef NDEBUG
         ln->setDebugDataVisible(irr::scene::EDS_FULL);
 #endif

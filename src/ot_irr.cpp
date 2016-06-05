@@ -8,7 +8,17 @@ int main()
     const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_OPENGL;
 #endif
 
-    irr::IrrlichtDevice* device = irr::createDevice( driverType, irr::core::dimension2d<irr::u32>(1024, 768), 10, false, false, false, nullptr);    
+    irr::SIrrlichtCreationParameters driverParams;
+    driverParams.AntiAlias = 255;
+    driverParams.ZBufferBits = 24;
+    driverParams.Stencilbuffer = true;
+    driverParams.Vsync = false;
+    driverParams.Bits = 24;
+    driverParams.Fullscreen = false;
+    driverParams.DriverType = driverType;
+    driverParams.WindowSize = irr::core::dimension2d<irr::u32>(1024, 768);
+
+    irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
     if(!device)
         return EXIT_FAILURE;
     
