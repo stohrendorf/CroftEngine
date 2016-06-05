@@ -349,6 +349,15 @@ StaticMesh* Level::findStaticMeshById(uint32_t object_id)
     return nullptr;
 }
 
+const StaticMesh* Level::findStaticMeshById(uint32_t object_id) const
+{
+    for(size_t i = 0; i < m_staticMeshes.size(); i++)
+        if(m_staticMeshes[i].object_id == object_id && m_meshIndices[m_staticMeshes[i].mesh])
+            return &m_staticMeshes[i];
+
+    return nullptr;
+}
+
 int Level::findStaticMeshIndexByObjectId(uint32_t object_id) const
 {
     for(size_t i = 0; i < m_staticMeshes.size(); i++)
@@ -532,6 +541,8 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
                  node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
                  node->setPosition(item.position.toIrrlicht() - room.node->getPosition());
             }
+
+            node->setDebugDataVisible(irr::scene::EDS_BBOX_ALL);
 
             std::string name = "item";
             name += std::to_string(id);
@@ -965,4 +976,48 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
     }
 
     return sector;
+}
+
+const Room* Level::findRoomForPosition(const TRCoordinates& position, const Room* room) const
+{
+    BOOST_ASSERT(room != nullptr);
+
+    const Sector* sector = nullptr;
+    while(true)
+    {
+        sector = room->getSectorByClampedIndex((position.X - room->position.X) / SectorSize, (position.Z - room->position.Z) / SectorSize);
+        BOOST_ASSERT(sector != nullptr);
+        const auto portalTarget = sector->getPortalTarget(m_floorData);
+        if(!portalTarget)
+        {
+            break;
+        }
+
+        BOOST_ASSERT(*portalTarget != 0xff && *portalTarget < m_rooms.size());
+        room = &m_rooms[*portalTarget];
+    }
+
+    BOOST_ASSERT(sector != nullptr);
+    if(sector->floorHeight * QuarterSectorSize > position.Y)
+    {
+        while(sector->ceilingHeight*QuarterSectorSize > position.Y && sector->roomAbove != 0xff)
+        {
+            BOOST_ASSERT(sector->roomAbove < m_rooms.size());
+            room = &m_rooms[sector->roomAbove];
+            sector = room->getSectorByAbsolutePosition(position);
+            BOOST_ASSERT(sector != nullptr);
+        }
+    }
+    else
+    {
+        while(sector->floorHeight*QuarterSectorSize <= position.Y && sector->roomBelow != 0xff)
+        {
+            BOOST_ASSERT(sector->roomBelow < m_rooms.size());
+            room = &m_rooms[sector->roomBelow];
+            sector = room->getSectorByAbsolutePosition(position);
+            BOOST_ASSERT(sector != nullptr);
+        }
+    }
+
+    return room;
 }

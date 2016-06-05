@@ -9,7 +9,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 {
     axisCollisions = AxisColl_None;
     collisionFeedback = {0,0,0};
-    orientationAxis = *axisFromAngle(yAngle, util::degToAu(45));
+    orientationAxis = *util::axisFromAngle(yAngle, util::degToAu(45));
 
     const loader::Room* room = level.m_camera->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
@@ -26,7 +26,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     switch( orientationAxis )
     {
-    case Axis::PosZ:
+    case util::Axis::PosZ:
         frontX = std::sin(util::auToRad(yAngle)) * collisionRadius;
         frontZ = collisionRadius;
         frontLeftZ = collisionRadius;
@@ -34,7 +34,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         frontRightX = collisionRadius;
         frontRightZ = collisionRadius;
         break;
-    case Axis::PosX:
+    case util::Axis::PosX:
         frontX = collisionRadius;
         frontZ = std::cos(util::auToRad(yAngle)) * collisionRadius;
         frontLeftX = collisionRadius;
@@ -42,7 +42,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         frontRightX = collisionRadius;
         frontRightZ = -collisionRadius;
         break;
-    case Axis::NegZ:
+    case util::Axis::NegZ:
         frontX = std::sin(util::auToRad(yAngle)) * collisionRadius;
         frontZ = -collisionRadius;
         frontLeftX = collisionRadius;
@@ -50,7 +50,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         frontRightX = -collisionRadius;
         frontRightZ = -collisionRadius;
         break;
-    case Axis::NegX:
+    case util::Axis::NegX:
         frontX = -collisionRadius;
         frontZ = std::cos(util::auToRad(yAngle)) * collisionRadius;
         frontLeftX = -collisionRadius;
@@ -113,7 +113,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         frontRight.floor.distance = 2 * loader::QuarterSectorSize;
     }
 
-    //! @todo check static mesh collisions here
+    checkStaticMeshCollisions(laraPos, height, level);
 
     if( current.floor.distance == -loader::HeightLimit )
     {
@@ -140,13 +140,13 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         axisCollisions = AxisColl_InsufficientFrontSpace;
         switch( orientationAxis )
         {
-        case Axis::PosZ:
-        case Axis::NegZ:
+        case util::Axis::PosZ:
+        case util::Axis::NegZ:
             collisionFeedback.X = position.X - laraPos.X;
             collisionFeedback.Z = fruityFeedback(frontZ + laraPos.Z, laraPos.Z);
             break;
-        case Axis::PosX:
-        case Axis::NegX:
+        case util::Axis::PosX:
+        case util::Axis::NegX:
             collisionFeedback.X = fruityFeedback(frontX + laraPos.X, laraPos.X);
             collisionFeedback.Z = position.Z - laraPos.Z;
             break;
@@ -166,12 +166,12 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         axisCollisions = AxisColl_FrontLeftBump;
         switch( orientationAxis )
         {
-        case Axis::PosZ:
-        case Axis::NegZ:
+        case util::Axis::PosZ:
+        case util::Axis::NegZ:
             collisionFeedback.X = fruityFeedback(frontLeftX + laraPos.X, frontX + laraPos.X);
             break;
-        case Axis::PosX:
-        case Axis::NegX:
+        case util::Axis::PosX:
+        case util::Axis::NegX:
             collisionFeedback.Z = fruityFeedback(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
@@ -183,14 +183,180 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         axisCollisions = AxisColl_FrontRightBump;
         switch( orientationAxis )
         {
-        case Axis::PosZ:
-        case Axis::NegZ:
+        case util::Axis::PosZ:
+        case util::Axis::NegZ:
             collisionFeedback.X = fruityFeedback(frontRightX + laraPos.X, frontX + laraPos.X);
             break;
-        case Axis::PosX:
-        case Axis::NegX:
+        case util::Axis::PosX:
+        case util::Axis::NegX:
             collisionFeedback.Z = fruityFeedback(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
     }
+}
+
+std::set<const loader::Room*> LaraState::collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level)
+{
+    std::set<const loader::Room*> result;
+    result.insert(level.m_camera->getCurrentRoom());
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_camera->getCurrentRoom()));
+    return result;
+}
+
+bool LaraState::checkStaticMeshCollisions(const loader::TRCoordinates& position, int height, const loader::Level& level)
+{
+    auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
+
+    irr::core::aabbox3di baseBB{
+        position.X - collisionRadius, position.Y - height, position.Z - collisionRadius,
+        position.X + collisionRadius, position.Y + height, position.Z + collisionRadius
+    };
+    baseBB.repair();
+
+    for(const loader::Room* room : rooms)
+    {
+        for(const loader::RoomStaticMesh& rsm : room->staticMeshes)
+        {
+            const loader::StaticMesh* sm = level.findStaticMeshById(rsm.object_id);
+            BOOST_ASSERT(sm != nullptr);
+            if(sm->doNotCollide())
+                continue;
+
+            irr::core::aabbox3di bb = sm->getCollisionBox(rsm.position, rsm.rotation);
+
+            if(!bb.intersectsWithBox(baseBB))
+                continue;
+
+            auto dx = bb.MaxEdge.X - baseBB.MinEdge.X;
+            if(baseBB.MaxEdge.X - bb.MinEdge.X < dx)
+                dx = -(baseBB.MaxEdge.X - bb.MinEdge.X);
+            auto dz = bb.MaxEdge.X - baseBB.MinEdge.X;
+            if(baseBB.MaxEdge.Z - bb.MinEdge.Z < dz)
+                dz = -(baseBB.MaxEdge.Z - bb.MinEdge.Z);
+
+            switch(orientationAxis)
+            {
+                case util::Axis::PosX:
+                    if(dz > collisionRadius || -collisionRadius > dz)
+                    {
+                        collisionFeedback.X = dx;
+                        collisionFeedback.Z = this->position.Z - position.Z;
+                        axisCollisions = LaraState::AxisColl_InsufficientFrontSpace;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dz > 0 && dz <= collisionRadius)
+                    {
+                        collisionFeedback.X = 0;
+                        collisionFeedback.Z = dz;
+                        axisCollisions = LaraState::AxisColl_FrontRightBump;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dz >= 0 || -collisionRadius > dz)
+                    {
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    collisionFeedback.X = 0;
+                    collisionFeedback.Z = dz;
+                    axisCollisions = LaraState::AxisColl_FrontLeftBump;
+                    hasStaticMeshCollision = true;
+                    return true;
+                case util::Axis::PosZ:
+                    if(dx > collisionRadius || -collisionRadius > dx)
+                    {
+                        collisionFeedback.X = this->position.X - position.X;
+                        collisionFeedback.Z = dz;
+                        axisCollisions = LaraState::AxisColl_InsufficientFrontSpace;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dx > 0 && dx <= collisionRadius)
+                    {
+                        collisionFeedback.X = dx;
+                        collisionFeedback.Z = 0;
+                        axisCollisions = LaraState::AxisColl_FrontLeftBump;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dx >= 0 || -collisionRadius > dx)
+                    {
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    collisionFeedback.X = dx;
+                    collisionFeedback.Z = 0;
+                    axisCollisions = LaraState::AxisColl_FrontRightBump;
+                    hasStaticMeshCollision = true;
+                    return true;
+                case util::Axis::NegX:
+                    if(dz > collisionRadius || -collisionRadius > dz)
+                    {
+                        collisionFeedback.X = dx;
+                        collisionFeedback.Z = this->position.Z - position.Z;
+                        axisCollisions = LaraState::AxisColl_InsufficientFrontSpace;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dz > 0 && dz <= collisionRadius)
+                    {
+                        collisionFeedback.X = 0;
+                        collisionFeedback.Z = dz;
+                        axisCollisions = LaraState::AxisColl_FrontLeftBump;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dz >= 0 || -collisionRadius > dz)
+                    {
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    collisionFeedback.X = 0;
+                    collisionFeedback.Z = dz;
+                    axisCollisions = LaraState::AxisColl_FrontRightBump;
+                    hasStaticMeshCollision = true;
+                    return true;
+                case util::Axis::NegZ:
+                    if(dx > collisionRadius || -collisionRadius > dx)
+                    {
+                        collisionFeedback.X = this->position.X - position.X;
+                        collisionFeedback.Z = dz;
+                        axisCollisions = LaraState::AxisColl_InsufficientFrontSpace;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dx > 0 && dx <= collisionRadius)
+                    {
+                        collisionFeedback.X = dx;
+                        collisionFeedback.Z = 0;
+                        axisCollisions = LaraState::AxisColl_FrontRightBump;
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    if(dx >= 0 || -collisionRadius > dx)
+                    {
+                        hasStaticMeshCollision = true;
+                        return true;
+                    }
+                    collisionFeedback.X = dx;
+                    collisionFeedback.Z = 0;
+                    axisCollisions = LaraState::AxisColl_FrontLeftBump;
+                    hasStaticMeshCollision = true;
+                    return true;
+            }
+
+            hasStaticMeshCollision = true;
+            return true;
+        }
+    }
+
+    return false;
 }

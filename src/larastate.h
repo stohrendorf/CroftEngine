@@ -1,46 +1,10 @@
 #pragma once
 
+#include <set>
+
 #include "heightinfo.h"
 
 class LaraStateHandler;
-
-enum class Axis
-{
-    PosZ,
-    PosX,
-    NegZ,
-    NegX
-};
-
-inline boost::optional<Axis> axisFromAngle(int16_t angle, uint16_t margin)
-{
-    BOOST_ASSERT(margin <= 0x2000); // 45 degrees
-    if(angle <= 0x0000 + margin && angle >= 0x0000 - margin)
-        return Axis::PosZ;
-    if(angle <= 0x4000 + margin && angle >= 0x4000 - margin)
-        return Axis::PosX;
-    if(angle <= -0x4000 + margin && angle >= -0x4000 - margin)
-        return Axis::NegX;
-    if(angle >= 0x8000 - margin || angle <= -0x8000 + margin)
-        return Axis::NegZ;
-
-    return {};
-}
-
-inline boost::optional<int16_t> alignRotation(int16_t angle, int16_t margin)
-{
-    auto axis = axisFromAngle(angle, margin);
-    if(!axis)
-        return {};
-
-    switch(*axis)
-    {
-        case Axis::PosZ: return 0x0000;
-        case Axis::PosX: return 0x4000;
-        case Axis::NegZ: return 0x8000;
-        case Axis::NegX: return -0x4000;
-    }
-}
 
 struct LaraState
 {
@@ -65,7 +29,7 @@ struct LaraState
 
     int axisCollisions;
     loader::ExactTRCoordinates collisionFeedback;
-    Axis orientationAxis;
+    util::Axis orientationAxis;
     irr::s16 yAngle; // external
     int collisionRadius; // external
     int frobbelFlags; // external
@@ -99,4 +63,7 @@ struct LaraState
     }
 
     void initHeightInfo(const loader::TRCoordinates& laraPos, const loader::Level& level, int height);
+
+    static std::set<const loader::Room*> collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level);
+    bool checkStaticMeshCollisions(const loader::TRCoordinates& position, int height, const loader::Level& level);
 };

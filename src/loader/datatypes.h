@@ -938,7 +938,7 @@ struct RoomVertex
 struct RoomStaticMesh
 {
     TRCoordinates position;       // world coords
-    irr::f32 rotation;         // high two bits (0xC000) indicate steps of
+    int16_t rotation;         // high two bits (0xC000) indicate steps of
     // 90 degrees (e.g. (Rotation >> 14) * 90)
     int16_t intensity1;     // Constant lighting; -1 means use mesh lighting
     int16_t intensity2;     // Like Intensity 1, and almost always the same value [absent from TR1 data files]
@@ -955,7 +955,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = TRCoordinates::read32(reader);
-        room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        room_static_mesh.rotation = reader.readI16();
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.object_id = reader.readU16();
         // make consistent
@@ -973,7 +973,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = TRCoordinates::read32(reader);
-        room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        room_static_mesh.rotation = reader.readI16();
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.object_id = reader.readU16();
@@ -992,7 +992,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = TRCoordinates::read32(reader);
-        room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        room_static_mesh.rotation = reader.readI16();
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.object_id = reader.readU16();
@@ -1010,7 +1010,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = TRCoordinates::read32(reader);
-        room_static_mesh.rotation = static_cast<float>(reader.readU16()) / 16384.0f * -90;
+        room_static_mesh.rotation = reader.readI16();
         room_static_mesh.intensity1 = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.object_id = reader.readU16();
@@ -2032,6 +2032,13 @@ struct StaticMesh
     TRCoordinates collision_box[2];
     uint16_t flags;                 // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
     // like TR2's skeletons and underwater vegetation
+
+    bool doNotCollide() const
+    {
+        return (flags & 1) != 0;
+    }
+
+    irr::core::aabbox3di getCollisionBox(const TRCoordinates& pos, int16_t angle) const;
 
     static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
     {

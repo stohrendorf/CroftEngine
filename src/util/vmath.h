@@ -85,32 +85,6 @@ inline irr::video::SColorf convert(const loader::FloatColor& tr_c)
     return {tr_c.a*2, tr_c.r*2, tr_c.g*2, tr_c.b*2};
 }
 
-#if 0
-inline bool intersectRayTriangle(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir, const irr::core::vector3df& v0, const irr::core::vector3df& v1, const irr::core::vector3df& v2)
-{
-    BOOST_ASSERT(!fuzzyZero(rayDir.getLength()));
-    // Check for intersection with each of the portal's 2 front triangles
-    // Solve line-plane intersection using parametric form
-    irr::core::vector3df tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
-    if(tuv.y >= 0 && tuv.y <= 1 && tuv.z >= 0 && tuv.z <= 1 && tuv.y + tuv.z <= 1)
-        return true;
-    else
-        return false;
-}
-
-inline bool intersectRayRectangle(const irr::core::vector3df& rayStart, const irr::core::vector3df& rayDir, const irr::core::vector3df& v0, const irr::core::vector3df& v1, const irr::core::vector3df& v2)
-{
-    BOOST_ASSERT(!fuzzyZero(rayDir.getLength()));
-    BOOST_ASSERT(fuzzyZero((v1 - v0).dotProduct(v2 - v0))); // test if the vertices are perpendicular
-    // Solve line-plane intersection using parametric form
-    irr::core::vector3df tuv = glm::inverse(glm::mat3(rayDir, v1 - v0, v2 - v0)) * (rayStart - v0);
-    if(tuv.y >= 0 && tuv.y <= 1 && tuv.z >= 0 && tuv.z <= 1)
-        return true;
-    else
-        return false;
-}
-#endif
-
 constexpr irr::f32 auToDeg(irr::s16 au)
 {
     return au / 65536.0f * 360;

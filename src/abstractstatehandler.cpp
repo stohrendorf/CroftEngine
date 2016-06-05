@@ -1477,7 +1477,7 @@ public:
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         //! @todo set camera rotation (x,y)=(-10920,0)
-        if(getInputState().xMovement != AxisMovement::Left && getInputState().stepMovement != AxisMovement::Left)
+        if( getInputState().xMovement != AxisMovement::Left && getInputState().stepMovement != AxisMovement::Left )
             setTargetState(LaraStateId::Hang);
 
         return nullptr;
@@ -1490,7 +1490,7 @@ public:
         setMovementAngle(static_cast<int16_t>(getRotation().Y - util::degToAu(90)));
         return nextHandler;
     }
-    
+
     loader::LaraStateId getId() const noexcept override
     {
         return LaraStateId::ShimmyLeft;
@@ -1513,7 +1513,7 @@ public:
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         //! @todo set camera rotation (x,y)=(-10920,0)
-        if(getInputState().xMovement != AxisMovement::Right && getInputState().stepMovement != AxisMovement::Right)
+        if( getInputState().xMovement != AxisMovement::Right && getInputState().stepMovement != AxisMovement::Right )
             setTargetState(LaraStateId::Hang);
 
         return nullptr;
@@ -1526,7 +1526,7 @@ public:
         setMovementAngle(static_cast<int16_t>(getRotation().Y + util::degToAu(90)));
         return nextHandler;
     }
-    
+
     loader::LaraStateId getId() const noexcept override
     {
         return LaraStateId::ShimmyRight;
@@ -2002,15 +2002,19 @@ loader::LaraStateId AbstractStateHandler::getTargetState() const
     return m_stateHandler.getTargetState();
 }
 
-bool AbstractStateHandler::canClimbOnto(Axis axis) const
+bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
 {
     auto pos = getPosition();
-    switch(axis)
+    switch( axis )
     {
-        case Axis::PosZ: pos.Z += 256; break;
-        case Axis::PosX: pos.X += 256; break;
-        case Axis::NegZ: pos.Z -= 256; break;
-        case Axis::NegX: pos.X -= 256; break;
+    case util::Axis::PosZ: pos.Z += 256;
+        break;
+    case util::Axis::PosX: pos.X += 256;
+        break;
+    case util::Axis::NegZ: pos.Z -= 256;
+        break;
+    case util::Axis::NegX: pos.X -= 256;
+        break;
     }
 
     auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
@@ -2032,26 +2036,24 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
 
     getLara()->updateAbsolutePosition();
 
-    const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
-    BOOST_LOG_TRIVIAL(debug) << "spaceToReach=" << spaceToReach << ", fallSpeed=" << getFallSpeed().getExact();
+    auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
     if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
         return nullptr;
     if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
-    auto alignedRotation = alignRotation(getRotation().Y, 35);
-    if(!alignedRotation)
+    auto alignedRotation = util::alignRotation(getRotation().Y, util::degToAu(35));
+    if( !alignedRotation )
         return nullptr;
 
-    if( canClimbOnto(*axisFromAngle(getRotation().Y, 35)) )
+    if( canClimbOnto(*util::axisFromAngle(getRotation().Y, util::degToAu(35))) )
         playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
     else
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
 
     setTargetState(LaraStateId::Hang);
-    m_yMovement = spaceToReach;
+    setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(state.collisionFeedback.X,spaceToReach,state.collisionFeedback.Z)));
     setHorizontalSpeed(0);
-    applyCollisionFeedback(state);
     setYRotation(*alignedRotation);
     setFalling(false);
     setFallSpeed(0);
@@ -2084,8 +2086,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
         return nullptr;
 
     //! @todo MAGICK +/- 30 degrees
-    auto alignedRotation = alignRotation(getRotation().Y, util::degToAu(30));
-    if(!alignedRotation)
+    auto alignedRotation = util::alignRotation(getRotation().Y, util::degToAu(30));
+    if( !alignedRotation )
         return nullptr;
 
     const auto climbHeight = state.front.floor.distance;
@@ -2226,19 +2228,23 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
 
     getLara()->updateAbsolutePosition();
 
-    const auto spaceToReach = state.front.ceiling.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+    const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+
+    BOOST_LOG_TRIVIAL(debug) << "Space to reach = " << spaceToReach << ", fall speed = " << getFallSpeed().getExact() << " => " << spaceToReach + getFallSpeed().getExact();
 
     if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
         return nullptr;
     if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
-    auto alignedRotation = alignRotation(getRotation().Y, 35);
-    if(!alignedRotation)
+    auto alignedRotation = util::alignRotation(getRotation().Y, util::degToAu(35));
+    if( !alignedRotation )
         return nullptr;
 
     setTargetState(LaraStateId::Hang);
     playAnimation(loader::AnimationId::HANG_IDLE, 1505);
+
+    BOOST_LOG_TRIVIAL(debug) << "Grabbing edge at distance " << spaceToReach;
 
     m_yMovement = spaceToReach;
     applyCollisionFeedback(state);
@@ -2346,19 +2352,19 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     setFallSpeed(0);
     setFalling(false);
     setMovementAngle(static_cast<int16_t>(getRotation().Y));
-    const auto axis = *axisFromAngle(getMovementAngle(), util::degToAu(45));
+    const auto axis = *util::axisFromAngle(getMovementAngle(), util::degToAu(45));
     switch( axis )
     {
-    case Axis::PosZ:
+    case util::Axis::PosZ:
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, 2));
         break;
-    case Axis::PosX:
+    case util::Axis::PosX:
         setPosition(getExactPosition() + loader::ExactTRCoordinates(2, 0, 0));
         break;
-    case Axis::NegZ:
+    case util::Axis::NegZ:
         setPosition(getExactPosition() - loader::ExactTRCoordinates(0, 0, 2));
         break;
-    case Axis::NegX:
+    case util::Axis::NegX:
         setPosition(getExactPosition() - loader::ExactTRCoordinates(2, 0, 0));
         break;
     }
@@ -2397,12 +2403,12 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
 
     switch( axis )
     {
-    case Axis::PosZ:
-    case Axis::NegZ:
+    case util::Axis::PosZ:
+    case util::Axis::NegZ:
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, state.collisionFeedback.Z));
         break;
-    case Axis::PosX:
-    case Axis::NegX:
+    case util::Axis::PosX:
+    case util::Axis::NegX:
         setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
         break;
     }

@@ -92,6 +92,7 @@ public:
     virtual void load(irr::video::IVideoDriver* drv) = 0;
 
     StaticMesh *findStaticMeshById(uint32_t object_id);
+    const StaticMesh *findStaticMeshById(uint32_t object_id) const;
     Item* findItemById(int32_t object_id);
     AnimatedModel* findModelById(uint32_t object_id);
     int findStaticMeshIndexByObjectId(uint32_t object_id) const;
@@ -132,6 +133,7 @@ public:
     }
     
     const Sector* findSectorForPosition(const TRCoordinates& position, const Room* room) const;
+    const Room* findRoomForPosition(const TRCoordinates& position, const Room* room) const;
 
     std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const TRCoordinates& position) const
     {

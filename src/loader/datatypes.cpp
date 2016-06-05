@@ -2,6 +2,7 @@
 
 #include "defaultanimdispatcher.h"
 #include "level.h"
+#include "util/vmath.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
@@ -292,7 +293,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
-        smNode->setRotation({0,-sm.rotation,0});
+        smNode->setRotation({0,-util::auToDeg(sm.rotation),0});
         smNode->setPosition((sm.position - position).toIrrlicht());
         resultNode->addChild(smNode);
     }
@@ -459,5 +460,41 @@ void AbstractTriggerHandler::deactivate(AbstractTriggerHandler* activator, bool 
         m_triggerMask = 0;
         m_event = false;
     }
+}
+irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, int16_t angle) const
+{
+    irr::core::aabbox3di result{
+        collision_box[0].X, collision_box[0].Y, collision_box[0].Z,
+        collision_box[1].X, collision_box[1].Y, collision_box[1].Z
+    };
+    result.repair();
+
+    const auto axis = util::axisFromAngle(angle, 0x2000);
+    switch(*axis)
+    {
+        case util::Axis::PosZ:
+            std::swap(result.MinEdge.X, result.MinEdge.Z);
+            result.MinEdge.X *= -1;
+            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
+            result.MaxEdge.X *= -1;
+            break;
+        case util::Axis::PosX:
+            // nothing to do
+            break;
+        case util::Axis::NegZ:
+            result.MinEdge.X *= -1;
+            result.MaxEdge.X *= -1;
+            break;
+        case util::Axis::NegX:
+            std::swap(result.MinEdge.X, result.MinEdge.Z);
+            result.MinEdge.Z *= -1;
+            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
+            result.MaxEdge.Z *= -1;
+            break;
+    }
+
+    result.MinEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
+    result.MaxEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
+    return result;
 }
 }

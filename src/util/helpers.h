@@ -119,4 +119,43 @@ public:
 #define TRACK_LIFETIME() \
     ::util::LifetimeTracker _S_lifetimeTracker{ boost::typeindex::type_id<decltype(*this)>().pretty_name(), this }
 
+
+enum class Axis
+{
+    PosZ,
+    PosX,
+    NegZ,
+    NegX
+};
+
+inline boost::optional<Axis> axisFromAngle(int16_t angle, uint16_t margin)
+{
+    BOOST_ASSERT(margin <= 0x2000); // 45 degrees
+    if(angle <= 0x0000 + margin && angle >= 0x0000 - margin)
+        return Axis::PosZ;
+    if(angle <= 0x4000 + margin && angle >= 0x4000 - margin)
+        return Axis::PosX;
+    if(angle <= -0x4000 + margin && angle >= -0x4000 - margin)
+        return Axis::NegX;
+    if(angle >= 0x8000 - margin || angle <= -0x8000 + margin)
+        return Axis::NegZ;
+
+    return{};
+}
+
+inline boost::optional<int16_t> alignRotation(int16_t angle, int16_t margin)
+{
+    auto axis = axisFromAngle(angle, margin);
+    if(!axis)
+        return{};
+
+    switch(*axis)
+    {
+        case Axis::PosZ: return 0x0000;
+        case Axis::PosX: return 0x4000;
+        case Axis::NegZ: return 0x8000;
+        case Axis::NegX: return -0x4000;
+    }
+}
+
 } // namespace util
