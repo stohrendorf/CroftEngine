@@ -129,6 +129,7 @@ protected:
     int getRelativeHeightAtDirection(int16_t angle, int dist) const;
     std::unique_ptr<AbstractStateHandler> commonJumpHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> commonSlideHandling(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> commonEdgeHangHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> tryReach(LaraState& state);
     bool canClimbOnto(int16_t angle) const;
 

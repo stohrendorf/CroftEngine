@@ -30,12 +30,12 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryStopOnFloor(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
 
-        if(state.current.floor.distance <= 100)
+        if( state.current.floor.distance <= 100 )
         {
-            if(!tryStartSlide(state, nextHandler))
+            if( !tryStartSlide(state, nextHandler) )
             {
                 applyCollisionFeedback(state);
                 placeOnFloor(state);
@@ -62,15 +62,15 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getInputState().zMovement == AxisMovement::Forward)
+        if( getInputState().zMovement == AxisMovement::Forward )
         {
-            if(getInputState().moveSlow)
+            if( getInputState().moveSlow )
                 setTargetState(LaraStateId::WalkForward);
             else
                 setTargetState(LaraStateId::RunForward);
@@ -85,9 +85,9 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
             subYRotationSpeed(409, -728);
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
             addYRotationSpeed(409, 728);
     }
 
@@ -104,21 +104,21 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryStopOnFloor(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
         nextHandler = tryClimb(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
 
         nextHandler = checkWallCollision(state);
-        if(nextHandler != nullptr)
+        if( nextHandler != nullptr )
         {
             const auto fr = getCurrentFrame();
-            if(fr >= 29 && fr <= 47)
+            if( fr >= 29 && fr <= 47 )
             {
                 playAnimation(loader::AnimationId::END_WALK_LEFT, 74);
             }
-            else if((fr >= 22 && fr <= 28) || (fr >= 48 && fr <= 57))
+            else if( (fr >= 22 && fr <= 28) || (fr >= 48 && fr <= 57) )
             {
                 playAnimation(loader::AnimationId::END_WALK_RIGHT, 58);
             }
@@ -128,7 +128,7 @@ public:
             }
         }
 
-        if(state.current.floor.distance > core::ClimbLimit2ClickMin)
+        if( state.current.floor.distance > core::ClimbLimit2ClickMin )
         {
             playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
             nextHandler = create(LaraStateId::JumpForward, getStateHandler());
@@ -137,10 +137,10 @@ public:
             setFalling(true);
         }
 
-        if(state.current.floor.distance > core::SteppableHeight)
+        if( state.current.floor.distance > core::SteppableHeight )
         {
             const auto fr = getCurrentFrame();
-            if(fr < 28 || fr > 45)
+            if( fr < 28 || fr > 45 )
             {
                 playAnimation(loader::AnimationId::WALK_DOWN_RIGHT, 887);
             }
@@ -150,10 +150,10 @@ public:
             }
         }
 
-        if(state.current.floor.distance >= -core::ClimbLimit2ClickMin && state.current.floor.distance < -core::SteppableHeight)
+        if( state.current.floor.distance >= -core::ClimbLimit2ClickMin && state.current.floor.distance < -core::SteppableHeight )
         {
             const auto fr = getCurrentFrame();
-            if(fr < 27 || fr > 44)
+            if( fr < 27 || fr > 44 )
             {
                 playAnimation(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
             }
@@ -163,7 +163,7 @@ public:
             }
         }
 
-        if(!tryStartSlide(state, nextHandler))
+        if( !tryStartSlide(state, nextHandler) )
         {
             placeOnFloor(state);
         }
@@ -187,32 +187,32 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Death);
             return nullptr;
         }
 
-        if(getInputState().roll)
+        if( getInputState().roll )
         {
             playAnimation(loader::AnimationId::ROLL_BEGIN, 3857);
             setTargetState(LaraStateId::Stop);
             return create(LaraStateId::RollForward, getStateHandler());
         }
 
-        if(getInputState().jump && !isFalling())
+        if( getInputState().jump && !isFalling() )
         {
             setTargetState(LaraStateId::JumpForward);
             return nullptr;
         }
 
-        if(getInputState().zMovement != AxisMovement::Forward)
+        if( getInputState().zMovement != AxisMovement::Forward )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getInputState().moveSlow)
+        if( getInputState().moveSlow )
             setTargetState(LaraStateId::WalkForward);
         else
             setTargetState(LaraStateId::RunForward);
@@ -222,12 +222,12 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed(409, -1456);
             setZRotationExact(std::max(-2002.f, getRotation().Z - makeSpeedValue(273).getScaledExact(deltaTimeMs)));
         }
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed(409, 1456);
             setZRotationExact(std::min(2002.f, getRotation().Z + makeSpeedValue(273).getScaledExact(deltaTimeMs)));
@@ -245,25 +245,25 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryStopOnFloor(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
         nextHandler = tryClimb(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
 
         nextHandler = checkWallCollision(state);
-        if(nextHandler != nullptr)
+        if( nextHandler != nullptr )
         {
             setZRotation(0);
-            if(state.front.floor.slantClass == SlantClass::None && state.front.floor.distance < -core::ClimbLimit2ClickMax)
+            if( state.front.floor.slantClass == SlantClass::None && state.front.floor.distance < -core::ClimbLimit2ClickMax )
             {
                 nextHandler = create(LaraStateId::Unknown12, getStateHandler());
-                if(getCurrentFrame() >= 0 && getCurrentFrame() <= 9)
+                if( getCurrentFrame() >= 0 && getCurrentFrame() <= 9 )
                 {
                     playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800);
                     return nextHandler;
                 }
-                if(getCurrentFrame() >= 10 && getCurrentFrame() <= 21)
+                if( getCurrentFrame() >= 10 && getCurrentFrame() <= 21 )
                 {
                     playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815);
                     return nextHandler;
@@ -273,7 +273,7 @@ public:
             }
         }
 
-        if(state.current.floor.distance > core::ClimbLimit2ClickMin)
+        if( state.current.floor.distance > core::ClimbLimit2ClickMin )
         {
             playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
@@ -282,9 +282,9 @@ public:
             return create(LaraStateId::JumpForward, getStateHandler());
         }
 
-        if(state.current.floor.distance >= -core::ClimbLimit2ClickMin && state.current.floor.distance < -core::SteppableHeight)
+        if( state.current.floor.distance >= -core::ClimbLimit2ClickMin && state.current.floor.distance < -core::SteppableHeight )
         {
-            if(getCurrentFrame() >= 3 && getCurrentFrame() <= 14)
+            if( getCurrentFrame() >= 3 && getCurrentFrame() <= 14 )
             {
                 playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT, 837);
             }
@@ -294,9 +294,9 @@ public:
             }
         }
 
-        if(!tryStartSlide(state, nextHandler))
+        if( !tryStartSlide(state, nextHandler) )
         {
-            if(state.current.floor.distance > 50)
+            if( state.current.floor.distance > 50 )
                 state.current.floor.distance = 50;
             placeOnFloor(state);
         }
@@ -320,13 +320,16 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
     {
-        if(getHealth() <= 0)
+        //! @todo HACK
+        setHandStatus(0);
+
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Death);
             return nullptr;
         }
 
-        if(getInputState().roll)
+        if( getInputState().roll )
         {
             playAnimation(loader::AnimationId::ROLL_BEGIN);
             setTargetState(LaraStateId::Stop);
@@ -335,38 +338,38 @@ public:
 
         setTargetState(LaraStateId::Stop);
 
-        if(getInputState().stepMovement == AxisMovement::Left)
+        if( getInputState().stepMovement == AxisMovement::Left )
         {
             setTargetState(LaraStateId::StepLeft);
         }
-        else if(getInputState().stepMovement == AxisMovement::Right)
+        else if( getInputState().stepMovement == AxisMovement::Right )
         {
             setTargetState(LaraStateId::StepRight);
         }
 
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
         {
             setTargetState(LaraStateId::TurnLeftSlow);
         }
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
         {
             setTargetState(LaraStateId::TurnRightSlow);
         }
 
-        if(getInputState().jump)
+        if( getInputState().jump )
         {
             setTargetState(LaraStateId::JumpPrepare);
         }
-        else if(getInputState().zMovement == AxisMovement::Forward)
+        else if( getInputState().zMovement == AxisMovement::Forward )
         {
-            if(getInputState().moveSlow)
+            if( getInputState().moveSlow )
                 AbstractStateHandler::create(LaraStateId::WalkForward, getStateHandler())->handleInput(state);
             else
                 AbstractStateHandler::create(LaraStateId::RunForward, getStateHandler())->handleInput(state);
         }
-        else if(getInputState().zMovement == AxisMovement::Backward)
+        else if( getInputState().zMovement == AxisMovement::Backward )
         {
-            if(getInputState().moveSlow)
+            if( getInputState().moveSlow )
                 AbstractStateHandler::create(LaraStateId::WalkBackward, getStateHandler())->handleInput(state);
             else
                 setTargetState(LaraStateId::RunBack);
@@ -395,19 +398,19 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach)
+        if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
             setTargetState(LaraStateId::JumpForward);
 
-        if(getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop)
+        if( getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop )
             return nullptr;
 
-        if(getInputState().action && getHandStatus() == 0)
+        if( getInputState().action && getHandStatus() == 0 )
             setTargetState(LaraStateId::Reach);
 
-        if(getInputState().moveSlow && getHandStatus() == 0)
+        if( getInputState().moveSlow && getHandStatus() == 0 )
             setTargetState(LaraStateId::SwandiveBegin);
 
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
         return nullptr;
@@ -415,11 +418,11 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed(409, -546);
         }
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed(409, 546);
         }
@@ -435,14 +438,14 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
         auto nextHandler = checkJumpWallSmash(state);
 
-        if(state.current.floor.distance > 0 || getFallSpeed().get() <= 0)
+        if( state.current.floor.distance > 0 || getFallSpeed().get() <= 0 )
             return nextHandler;
 
-        if(applyLandingDamage())
+        if( applyLandingDamage() )
         {
             setTargetState(LaraStateId::Death);
         }
-        else if(getInputState().zMovement != AxisMovement::Forward || getInputState().moveSlow)
+        else if( getInputState().zMovement != AxisMovement::Forward || getInputState().moveSlow )
         {
             setTargetState(LaraStateId::Stop);
         }
@@ -456,7 +459,7 @@ public:
         setHorizontalSpeed(0);
         placeOnFloor(state);
         auto tmp = getStateHandler().processAnimCommands();
-        if(tmp)
+        if( tmp )
             return tmp;
 
         return nextHandler;
@@ -483,7 +486,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -508,9 +510,9 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
             subYRotationSpeed(409, -1092);
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
             addYRotationSpeed(409, 1092);
     }
 
@@ -525,10 +527,10 @@ public:
         state.yAngle = static_cast<int16_t>(getRotation().Y + util::degToAu(180));
         setMovementAngle(state.yAngle);
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-        if(auto nextHandler = tryStopOnFloor(state))
+        if( auto nextHandler = tryStopOnFloor(state) )
             return nextHandler;
 
-        if(state.current.floor.distance > 200)
+        if( state.current.floor.distance > 200 )
         {
             playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
             setTargetState(LaraStateId::FallBackward);
@@ -538,7 +540,7 @@ public:
         }
 
         auto nextHandler = checkWallCollision(state);
-        if(nextHandler)
+        if( nextHandler )
         {
             playAnimation(loader::AnimationId::STAY_SOLID, 185);
         }
@@ -574,10 +576,10 @@ public:
         state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-        if(state.current.floor.distance <= 100)
+        if( state.current.floor.distance <= 100 )
         {
             std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-            if(!tryStartSlide(state, nextHandler))
+            if( !tryStartSlide(state, nextHandler) )
                 placeOnFloor(state);
 
             return nextHandler;
@@ -601,26 +603,26 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getHandStatus() == 4)
+        if( getHandStatus() == 4 )
         {
             setTargetState(LaraStateId::TurnFast);
             return nullptr;
         }
 
-        if(getInputState().zMovement != AxisMovement::Forward)
+        if( getInputState().zMovement != AxisMovement::Forward )
         {
-            if(getInputState().xMovement != AxisMovement::Right)
+            if( getInputState().xMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getInputState().moveSlow)
+        if( getInputState().moveSlow )
             setTargetState(LaraStateId::WalkForward);
         else
             setTargetState(LaraStateId::RunForward);
@@ -631,10 +633,10 @@ public:
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
         addYRotationSpeed(409);
-        if(getYRotationSpeed() <= 728)
+        if( getYRotationSpeed() <= 728 )
             return;
 
-        if(getInputState().moveSlow)
+        if( getInputState().moveSlow )
             setYRotationSpeed(728);
         else
             setTargetState(LaraStateId::TurnFast);
@@ -656,26 +658,26 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getHandStatus() == 4)
+        if( getHandStatus() == 4 )
         {
             setTargetState(LaraStateId::TurnFast);
             return nullptr;
         }
 
-        if(getInputState().zMovement != AxisMovement::Forward)
+        if( getInputState().zMovement != AxisMovement::Forward )
         {
-            if(getInputState().xMovement != AxisMovement::Left)
+            if( getInputState().xMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getInputState().moveSlow)
+        if( getInputState().moveSlow )
             setTargetState(LaraStateId::WalkForward);
         else
             setTargetState(LaraStateId::RunForward);
@@ -686,10 +688,10 @@ public:
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
         subYRotationSpeed(409);
-        if(getYRotationSpeed() >= -728)
+        if( getYRotationSpeed() >= -728 )
             return;
 
-        if(getInputState().moveSlow)
+        if( getInputState().moveSlow )
             setYRotationSpeed(-728);
         else
             setTargetState(LaraStateId::TurnFast);
@@ -757,7 +759,7 @@ public:
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
         dampenHorizontalSpeed(5, 100);
-        if(getFallSpeed().get() > 154)
+        if( getFallSpeed().get() > 154 )
         {
             //! @todo playSound(30)
         }
@@ -772,11 +774,11 @@ public:
         setFalling(true);
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
         jumpAgainstWall(state);
-        if(state.current.floor.distance > 0)
+        if( state.current.floor.distance > 0 )
             return nullptr;
 
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-        if(applyLandingDamage())
+        if( applyLandingDamage() )
         {
             setTargetState(LaraStateId::Death);
         }
@@ -799,6 +801,63 @@ public:
     }
 };
 
+class StateHandler_10 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_10(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        //! @todo Set camera rotation (x,y) = (-10920,0)
+        if( getInputState().xMovement == AxisMovement::Left || getInputState().stepMovement == AxisMovement::Left )
+            setTargetState(LaraStateId::ShimmyLeft);
+        else if( getInputState().xMovement == AxisMovement::Right || getInputState().stepMovement == AxisMovement::Right )
+            setTargetState(LaraStateId::ShimmyRight);
+
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        auto nextHandler = commonEdgeHangHandling(state);
+
+        if( getTargetState() != LaraStateId::Hang )
+            return nextHandler;
+
+        if( getInputState().zMovement != AxisMovement::Forward )
+            return nextHandler;
+
+        const auto frontHeight = state.front.floor.distance;
+        const auto frontSpace = frontHeight - state.front.ceiling.distance;
+        const auto frontLeftSpace = state.frontLeft.floor.distance - state.frontLeft.ceiling.distance;
+        const auto frontRightSpace = state.frontRight.floor.distance - state.frontRight.ceiling.distance;
+        if( frontHeight <= -850 || frontHeight >= -650 || frontSpace < 0 || frontLeftSpace < 0 || frontRightSpace < 0 || state.hasStaticMeshCollision )
+        {
+            return nextHandler;
+        }
+
+        if( getInputState().moveSlow )
+            setTargetState(LaraStateId::Handstand);
+        else
+            setTargetState(LaraStateId::Climbing);
+
+        return nextHandler;
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::Hang;
+    }
+
+    void animateImpl(LaraState& state, int deltaTimeMs) override
+    {
+    }
+};
+
 class StateHandler_11 final : public AbstractStateHandler
 {
 public:
@@ -809,14 +868,13 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
         return nullptr;
     }
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -830,14 +888,14 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryReach(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
 
         jumpAgainstWall(state);
-        if(getFallSpeed().get() <= 0 || state.current.floor.distance > 0)
+        if( getFallSpeed().get() <= 0 || state.current.floor.distance > 0 )
             return nextHandler;
 
-        if(applyLandingDamage())
+        if( applyLandingDamage() )
             setTargetState(LaraStateId::Death);
         else
             setTargetState(LaraStateId::Stop);
@@ -870,7 +928,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -901,28 +958,28 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin)
+        if( getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle(getRotation().Y);
             setTargetState(LaraStateId::JumpForward);
         }
-        else if(getInputState().xMovement == AxisMovement::Left && getRelativeHeightAtDirection(getRotation().Y - util::degToAu(90), 256) >= -core::ClimbLimit2ClickMin)
+        else if( getInputState().xMovement == AxisMovement::Left && getRelativeHeightAtDirection(getRotation().Y - util::degToAu(90), 256) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle(getRotation().Y - util::degToAu(90));
             setTargetState(LaraStateId::JumpRight);
         }
-        else if(getInputState().xMovement == AxisMovement::Right && getRelativeHeightAtDirection(getRotation().Y + util::degToAu(90), 256) >= -core::ClimbLimit2ClickMin)
+        else if( getInputState().xMovement == AxisMovement::Right && getRelativeHeightAtDirection(getRotation().Y + util::degToAu(90), 256) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle(getRotation().Y + util::degToAu(90));
             setTargetState(LaraStateId::JumpLeft);
         }
-        else if(getInputState().zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(getRotation().Y + util::degToAu(180), 256) >= -core::ClimbLimit2ClickMin)
+        else if( getInputState().zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(getRotation().Y + util::degToAu(180), 256) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle(getRotation().Y + util::degToAu(180));
             setTargetState(LaraStateId::JumpBack);
         }
 
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
         {
             setTargetState(LaraStateId::FreeFall);
         }
@@ -932,7 +989,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -945,7 +1001,7 @@ public:
         state.yAngle = static_cast<int16_t>(getRotation().Y);
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-        if(state.current.ceiling.distance <= -100)
+        if( state.current.ceiling.distance <= -100 )
             return nullptr;
 
         setTargetState(LaraStateId::Stop);
@@ -972,25 +1028,25 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getInputState().zMovement == AxisMovement::Backward && getInputState().moveSlow)
+        if( getInputState().zMovement == AxisMovement::Backward && getInputState().moveSlow )
             setTargetState(LaraStateId::WalkBackward);
         else
             setTargetState(LaraStateId::Stop);
-        
+
         return nullptr;
     }
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-        if(getInputState().xMovement == AxisMovement::Left)
+        if( getInputState().xMovement == AxisMovement::Left )
             subYRotationSpeed(409, -728);
-        else if(getInputState().xMovement == AxisMovement::Right)
+        else if( getInputState().xMovement == AxisMovement::Right )
             addYRotationSpeed(409, 728);
     }
 
@@ -1006,18 +1062,18 @@ public:
         state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-        if(auto nextHandler = tryStopOnFloor(state))
+        if( auto nextHandler = tryStopOnFloor(state) )
             return nextHandler;
 
         auto nextHandler = checkWallCollision(state);
-        if(nextHandler)
+        if( nextHandler )
         {
             playAnimation(loader::AnimationId::STAY_SOLID, 185);
         }
 
-        if(state.current.floor.distance > loader::QuarterSectorSize && state.current.floor.distance < core::ClimbLimit2ClickMin)
+        if( state.current.floor.distance > loader::QuarterSectorSize && state.current.floor.distance < core::ClimbLimit2ClickMin )
         {
-            if(getCurrentFrame() < 964 || getCurrentFrame() > 993)
+            if( getCurrentFrame() < 964 || getCurrentFrame() > 993 )
             {
                 playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
             }
@@ -1027,7 +1083,7 @@ public:
             }
         }
 
-        if(!tryStartSlide(state, nextHandler))
+        if( !tryStartSlide(state, nextHandler) )
         {
             placeOnFloor(state);
         }
@@ -1057,7 +1113,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1088,22 +1143,22 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getHealth() <= 0)
+        if( getHealth() <= 0 )
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        if(getYRotationSpeed() >= 0)
+        if( getYRotationSpeed() >= 0 )
         {
             setYRotationSpeed(1456);
-            if(getInputState().xMovement == AxisMovement::Right)
+            if( getInputState().xMovement == AxisMovement::Right )
                 return nullptr;
         }
         else
         {
             setYRotationSpeed(-1456);
-            if(getInputState().xMovement == AxisMovement::Left)
+            if( getInputState().xMovement == AxisMovement::Left )
                 return nullptr;
         }
 
@@ -1113,7 +1168,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -1137,7 +1191,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1153,12 +1206,12 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryStopOnFloor(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
-        if(tryStartSlide(state, nextHandler))
+        if( tryStartSlide(state, nextHandler) )
             return nextHandler;
 
-        if(state.current.floor.distance <= 200)
+        if( state.current.floor.distance <= 200 )
         {
             applyCollisionFeedback(state);
             placeOnFloor(state);
@@ -1189,7 +1242,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getInputState().jump)
+        if( getInputState().jump )
             setTargetState(LaraStateId::JumpForward);
 
         return nullptr;
@@ -1197,7 +1250,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1223,7 +1275,7 @@ public:
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
         //! @todo Set local camera Y rotation to 24570 AU
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
         return nullptr;
@@ -1231,7 +1283,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1256,7 +1307,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
         return nullptr;
@@ -1264,7 +1315,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1289,7 +1339,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
         return nullptr;
@@ -1297,7 +1347,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1322,7 +1371,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
         return nullptr;
@@ -1330,7 +1379,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1341,14 +1389,14 @@ public:
         state.yAngle = getRotation().Y;
         state.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
 
-        if(auto nextHandler = tryGrabEdge(state))
+        if( auto nextHandler = tryGrabEdge(state) )
             return nextHandler;
 
         jumpAgainstWall(state);
-        if(getFallSpeed().get() <= 0 || state.current.floor.distance > 0)
+        if( getFallSpeed().get() <= 0 || state.current.floor.distance > 0 )
             return nullptr;
 
-        if(applyLandingDamage())
+        if( applyLandingDamage() )
             setTargetState(LaraStateId::Death);
         else
             setTargetState(LaraStateId::Stop);
@@ -1375,10 +1423,10 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
-        if(getInputState().action && getHandStatus() == 0)
+        if( getInputState().action && getHandStatus() == 0 )
             setTargetState(LaraStateId::Reach);
 
         return nullptr;
@@ -1386,7 +1434,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1397,10 +1444,10 @@ public:
         state.yAngle = getRotation().Y + util::degToAu(180);
         state.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
         auto nextHandler = checkJumpWallSmash(state);
-        if(state.current.floor.distance > 0 || getFallSpeed().get() <= 0)
+        if( state.current.floor.distance > 0 || getFallSpeed().get() <= 0 )
             return nextHandler;
 
-        if(applyLandingDamage())
+        if( applyLandingDamage() )
             setTargetState(LaraStateId::Death);
         else
             setTargetState(LaraStateId::Stop);
@@ -1418,6 +1465,78 @@ public:
     }
 };
 
+class StateHandler_30 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_30(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        //! @todo set camera rotation (x,y)=(-10920,0)
+        if(getInputState().xMovement != AxisMovement::Left && getInputState().stepMovement != AxisMovement::Left)
+            setTargetState(LaraStateId::Hang);
+
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(static_cast<int16_t>(getRotation().Y - util::degToAu(90)));
+        auto nextHandler = commonEdgeHangHandling(state);
+        setMovementAngle(static_cast<int16_t>(getRotation().Y - util::degToAu(90)));
+        return nextHandler;
+    }
+    
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::ShimmyLeft;
+    }
+
+    void animateImpl(LaraState& state, int deltaTimeMs) override
+    {
+    }
+};
+
+class StateHandler_31 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_31(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        //! @todo set camera rotation (x,y)=(-10920,0)
+        if(getInputState().xMovement != AxisMovement::Right && getInputState().stepMovement != AxisMovement::Right)
+            setTargetState(LaraStateId::Hang);
+
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(static_cast<int16_t>(getRotation().Y + util::degToAu(90)));
+        auto nextHandler = commonEdgeHangHandling(state);
+        setMovementAngle(static_cast<int16_t>(getRotation().Y + util::degToAu(90)));
+        return nextHandler;
+    }
+    
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::ShimmyRight;
+    }
+
+    void animateImpl(LaraState& state, int deltaTimeMs) override
+    {
+    }
+};
+
 class StateHandler_32 final : public AbstractStateHandler
 {
 public:
@@ -1428,7 +1547,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
     {
-        if(getInputState().jump)
+        if( getInputState().jump )
             setTargetState(LaraStateId::JumpBack);
 
         return nullptr;
@@ -1436,7 +1555,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1466,7 +1584,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1482,12 +1599,12 @@ public:
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
         auto nextHandler = tryStopOnFloor(state);
-        if(nextHandler)
+        if( nextHandler )
             return nextHandler;
-        if(tryStartSlide(state, nextHandler))
+        if( tryStartSlide(state, nextHandler) )
             return nextHandler;
 
-        if(state.current.floor.distance <= 200)
+        if( state.current.floor.distance <= 200 )
         {
             applyCollisionFeedback(state);
             placeOnFloor(state);
@@ -1520,7 +1637,7 @@ public:
     {
         state.frobbelFlags &= ~LaraState::FrobbelFlag10;
         state.frobbelFlags |= LaraState::FrobbelFlag08;
-        if(getFallSpeed().get() > core::FreeFallSpeedThreshold)
+        if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::SwandiveEnd);
 
         return nullptr;
@@ -1528,7 +1645,6 @@ public:
 
     void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
-
     }
 
     std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
@@ -1540,7 +1656,7 @@ public:
         setMovementAngle(state.yAngle);
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
         auto nextHandler = checkJumpWallSmash(state);
-        if(state.current.floor.distance > 0 || getFallSpeed().get() <= 0)
+        if( state.current.floor.distance > 0 || getFallSpeed().get() <= 0 )
             return nextHandler;
 
         setTargetState(LaraStateId::Stop);
@@ -1586,10 +1702,10 @@ public:
         setMovementAngle(state.yAngle);
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
         auto nextHandler = checkJumpWallSmash(state);
-        if(state.current.floor.distance > 0 || getFallSpeed().get() <= 0)
+        if( state.current.floor.distance > 0 || getFallSpeed().get() <= 0 )
             return nextHandler;
 
-        if(getFallSpeed().get() <= 133)
+        if( getFallSpeed().get() <= 133 )
             setTargetState(LaraStateId::Stop);
         else
             setTargetState(LaraStateId::Death);
@@ -1607,78 +1723,85 @@ public:
     }
 };
 
-void AbstractStateHandler::animate(LaraState & state, int deltaTimeMs)
+void AbstractStateHandler::animate(LaraState& state, int deltaTimeMs)
 {
     animateImpl(state, deltaTimeMs);
 
     m_stateHandler.addYRotation(m_yRotationSpeed.getScaledExact(deltaTimeMs));
     m_stateHandler.move(
-        m_xMovement.getScaledExact(deltaTimeMs),
-        m_yMovement.getScaledExact(deltaTimeMs),
-        m_zMovement.getScaledExact(deltaTimeMs)
-    );
+                        m_xMovement.getScaledExact(deltaTimeMs),
+                        m_yMovement.getScaledExact(deltaTimeMs),
+                        m_zMovement.getScaledExact(deltaTimeMs)
+                       );
 }
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraStateHandler& lara)
 {
-    switch(id)
+    switch( id )
     {
-        case LaraStateId::WalkForward:
-            return std::make_unique<StateHandler_0>(lara);
-        case LaraStateId::RunForward:
-            return std::make_unique<StateHandler_1>(lara);
-        case LaraStateId::Stop:
-            return std::make_unique<StateHandler_2>(lara);
-        case LaraStateId::JumpForward:
-            return std::make_unique<StateHandler_3>(lara);
-        case LaraStateId::Pose:
-            return std::make_unique<StateHandler_4>(lara);
-        case LaraStateId::RunBack:
-            return std::make_unique<StateHandler_5>(lara);
-        case LaraStateId::TurnRightSlow:
-            return std::make_unique<StateHandler_6>(lara);
-        case LaraStateId::TurnLeftSlow:
-            return std::make_unique<StateHandler_7>(lara);
-        case LaraStateId::Death:
-            return std::make_unique<StateHandler_8>(lara);
-        case LaraStateId::FreeFall:
-            return std::make_unique<StateHandler_9>(lara);
-        case LaraStateId::Reach:
-            return std::make_unique<StateHandler_11>(lara);
-        case LaraStateId::Unknown12:
-            return std::make_unique<StateHandler_12>(lara);
-        case LaraStateId::JumpPrepare:
-            return std::make_unique<StateHandler_15>(lara);
-        case LaraStateId::WalkBackward:
-            return std::make_unique<StateHandler_16>(lara);
-        case LaraStateId::Climbing:
-            return std::make_unique<StateHandler_19>(lara);
-        case LaraStateId::TurnFast:
-            return std::make_unique<StateHandler_20>(lara);
-        case LaraStateId::RollBackward:
-            return std::make_unique<StateHandler_23>(lara);
-        case LaraStateId::SlideForward:
-            return std::make_unique<StateHandler_24>(lara);
-        case LaraStateId::JumpBack:
-            return std::make_unique<StateHandler_25>(lara);
-        case LaraStateId::JumpLeft:
-            return std::make_unique<StateHandler_26>(lara);
-        case LaraStateId::JumpRight:
-            return std::make_unique<StateHandler_27>(lara);
-        case LaraStateId::JumpUp:
-            return std::make_unique<StateHandler_28>(lara);
-        case LaraStateId::FallBackward:
-            return std::make_unique<StateHandler_29>(lara);
-        case LaraStateId::SlideBackward:
-            return std::make_unique<StateHandler_32>(lara);
-        case LaraStateId::RollForward:
-            return std::make_unique<StateHandler_45>(lara);
-        case LaraStateId::SwandiveBegin:
-            return std::make_unique<StateHandler_52>(lara);
-        case LaraStateId::SwandiveEnd:
-            return std::make_unique<StateHandler_53>(lara);
-        default:
-            BOOST_LOG_TRIVIAL(error) << "No state handler for state " << loader::toString(id);
+    case LaraStateId::WalkForward:
+        return std::make_unique<StateHandler_0>(lara);
+    case LaraStateId::RunForward:
+        return std::make_unique<StateHandler_1>(lara);
+    case LaraStateId::Stop:
+        return std::make_unique<StateHandler_2>(lara);
+    case LaraStateId::JumpForward:
+        return std::make_unique<StateHandler_3>(lara);
+    case LaraStateId::Pose:
+        return std::make_unique<StateHandler_4>(lara);
+    case LaraStateId::RunBack:
+        return std::make_unique<StateHandler_5>(lara);
+    case LaraStateId::TurnRightSlow:
+        return std::make_unique<StateHandler_6>(lara);
+    case LaraStateId::TurnLeftSlow:
+        return std::make_unique<StateHandler_7>(lara);
+    case LaraStateId::Death:
+        return std::make_unique<StateHandler_8>(lara);
+    case LaraStateId::FreeFall:
+        return std::make_unique<StateHandler_9>(lara);
+    case LaraStateId::Hang:
+        return std::make_unique<StateHandler_10>(lara);
+    case LaraStateId::Reach:
+        return std::make_unique<StateHandler_11>(lara);
+    case LaraStateId::Unknown12:
+        return std::make_unique<StateHandler_12>(lara);
+    case LaraStateId::JumpPrepare:
+        return std::make_unique<StateHandler_15>(lara);
+    case LaraStateId::WalkBackward:
+        return std::make_unique<StateHandler_16>(lara);
+    case LaraStateId::Climbing:
+        return std::make_unique<StateHandler_19>(lara);
+    case LaraStateId::TurnFast:
+        return std::make_unique<StateHandler_20>(lara);
+    case LaraStateId::RollBackward:
+        return std::make_unique<StateHandler_23>(lara);
+    case LaraStateId::SlideForward:
+        return std::make_unique<StateHandler_24>(lara);
+    case LaraStateId::JumpBack:
+        return std::make_unique<StateHandler_25>(lara);
+    case LaraStateId::JumpLeft:
+        return std::make_unique<StateHandler_26>(lara);
+    case LaraStateId::JumpRight:
+        return std::make_unique<StateHandler_27>(lara);
+    case LaraStateId::JumpUp:
+        return std::make_unique<StateHandler_28>(lara);
+    case LaraStateId::FallBackward:
+        return std::make_unique<StateHandler_29>(lara);
+    case LaraStateId::ShimmyLeft:
+        return std::make_unique<StateHandler_30>(lara);
+    case LaraStateId::ShimmyRight:
+        return std::make_unique<StateHandler_31>(lara);
+    case LaraStateId::SlideBackward:
+        return std::make_unique<StateHandler_32>(lara);
+    case LaraStateId::RollForward:
+        return std::make_unique<StateHandler_45>(lara);
+    case LaraStateId::SwandiveBegin:
+        return std::make_unique<StateHandler_52>(lara);
+    case LaraStateId::SwandiveEnd:
+        return std::make_unique<StateHandler_53>(lara);
+    default:
+        BOOST_LOG_TRIVIAL(error) << "No state handler for state " << loader::toString(id);
+        throw std::runtime_error("Unhandled state");
     }
 
     return nullptr;
@@ -1694,7 +1817,7 @@ void AbstractStateHandler::setHealth(int h) noexcept
     m_stateHandler.setHealth(h);
 }
 
-const InputState & AbstractStateHandler::getInputState() const noexcept
+const InputState& AbstractStateHandler::getInputState() const noexcept
 {
     return m_stateHandler.getInputState();
 }
@@ -1754,7 +1877,7 @@ void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::
     m_stateHandler.playAnimation(anim, firstFrame);
 }
 
-const irr::core::vector3df & AbstractStateHandler::getRotation() const noexcept
+const irr::core::vector3df& AbstractStateHandler::getRotation() const noexcept
 {
     return m_stateHandler.getRotation();
 }
@@ -1770,12 +1893,12 @@ int AbstractStateHandler::getHorizontalSpeed() const
 }
 
 
-const loader::Level & AbstractStateHandler::getLevel() const
+const loader::Level& AbstractStateHandler::getLevel() const
 {
     return m_stateHandler.getLevel();
 }
 
-void AbstractStateHandler::placeOnFloor(const LaraState & state)
+void AbstractStateHandler::placeOnFloor(const LaraState& state)
 {
     m_stateHandler.placeOnFloor(state);
 }
@@ -1790,7 +1913,7 @@ const loader::ExactTRCoordinates& AbstractStateHandler::getExactPosition() const
     return m_stateHandler.getExactPosition();
 }
 
-void AbstractStateHandler::setPosition(const loader::ExactTRCoordinates & pos)
+void AbstractStateHandler::setPosition(const loader::ExactTRCoordinates& pos)
 {
     m_stateHandler.setPosition(pos);
 }
@@ -1873,13 +1996,13 @@ loader::LaraStateId AbstractStateHandler::getTargetState() const
 bool AbstractStateHandler::canClimbOnto(int16_t angle) const
 {
     auto pos = getPosition();
-    if(angle == 0)
+    if( angle == 0 )
         pos.Z += 256;
-    else if(angle == util::degToAu(90))
+    else if( angle == util::degToAu(90) )
         pos.X += 256;
-    else if(angle == util::degToAu(180))
+    else if( angle == util::degToAu(180) )
         pos.Z -= 256;
-    else if(angle == util::degToAu(-90))
+    else if( angle == util::degToAu(-90) )
         pos.X -= 256;
 
     auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
@@ -1890,37 +2013,37 @@ bool AbstractStateHandler::canClimbOnto(int16_t angle) const
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& state)
 {
-    if(state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().action || getHandStatus() != 0)
+    if( state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().action || getHandStatus() != 0 )
         return nullptr;
 
-    if(std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= core::MaxGrabableGradient)
+    if( std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= core::MaxGrabableGradient )
         return nullptr;
 
-    if(state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin || state.current.floor.distance < 200)
+    if( state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin || state.current.floor.distance < 200 )
         return nullptr;
 
     getLara()->updateAbsolutePosition();
 
     const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
     BOOST_LOG_TRIVIAL(debug) << "spaceToReach=" << spaceToReach << ", fallSpeed=" << getFallSpeed().getExact();
-    if(spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0)
+    if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
         return nullptr;
-    if(spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0)
+    if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
     int16_t rot = static_cast<int16_t>(getRotation().Y);
-    if(std::abs(rot) <= util::degToAu(35))
+    if( std::abs(rot) <= util::degToAu(35) )
         rot = 0;
-    else if(rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35))
+    else if( rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35) )
         rot = util::degToAu(90);
-    else if(std::abs(rot) >= util::degToAu(180 - 35))
+    else if( std::abs(rot) >= util::degToAu(180 - 35) )
         rot = util::degToAu(180);
-    else if(-rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35))
+    else if( -rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35) )
         rot = util::degToAu(-90);
     else
         return nullptr;
 
-    if(canClimbOnto(rot))
+    if( canClimbOnto(rot) )
         playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
     else
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
@@ -1938,7 +2061,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryStopOnFloor(LaraState& state)
 {
-    if(state.axisCollisions != LaraState::AxisColl_HeadInCeiling && state.axisCollisions != LaraState::AxisColl_CeilingTooLow)
+    if( state.axisCollisions != LaraState::AxisColl_HeadInCeiling && state.axisCollisions != LaraState::AxisColl_CeilingTooLow )
         return nullptr;
 
     setPosition(state.position);
@@ -1953,33 +2076,33 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryStopOnFloor(LaraS
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& state)
 {
-    if(state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().jump || getHandStatus() != 0)
+    if( state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().jump || getHandStatus() != 0 )
         return nullptr;
 
     const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
-    if(floorGradient >= core::MaxGrabableGradient)
+    if( floorGradient >= core::MaxGrabableGradient )
         return nullptr;
 
-    int alignedRotation;
+    int16_t alignedRotation = static_cast<int16_t>(getRotation().Y);
     //! @todo MAGICK +/- 30 degrees
-    if(getRotation().Y >= util::degToAu(-30) && getRotation().Y <= util::degToAu(30))
+    if(alignedRotation >= util::degToAu(0-30) && alignedRotation <= util::degToAu(0+30) )
         alignedRotation = util::degToAu(0);
-    else if(getRotation().Y >= util::degToAu(60) && getRotation().Y <= util::degToAu(120))
+    else if(alignedRotation >= util::degToAu(90-30) && alignedRotation <= util::degToAu(90+30) )
         alignedRotation = util::degToAu(90);
-    else if(getRotation().Y >= util::degToAu(150) && getRotation().Y <= util::degToAu(210))
+    else if(alignedRotation >= util::degToAu(180-30) && alignedRotation <= util::degToAu(-180-30) )
         alignedRotation = util::degToAu(180);
-    else if(getRotation().Y >= util::degToAu(240) && getRotation().Y <= util::degToAu(300))
-        alignedRotation = util::degToAu(270);
+    else if(alignedRotation >= util::degToAu(-90-30) && alignedRotation <= util::degToAu(-90+30) )
+        alignedRotation = util::degToAu(-90);
     else
         return nullptr;
 
     const auto climbHeight = state.front.floor.distance;
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-    if(climbHeight >= -core::ClimbLimit2ClickMax && climbHeight <= -core::ClimbLimit2ClickMin)
+    if( climbHeight >= -core::ClimbLimit2ClickMax && climbHeight <= -core::ClimbLimit2ClickMin )
     {
-        if(climbHeight < state.front.ceiling.distance
-           || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
-           || state.frontRight.floor.distance < state.frontRight.ceiling.distance)
+        if( climbHeight < state.front.ceiling.distance
+            || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
+            || state.frontRight.floor.distance < state.frontRight.ceiling.distance )
             return nullptr;
 
         setTargetState(LaraStateId::Stop);
@@ -1988,11 +2111,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
         m_yMovement = 2 * loader::QuarterSectorSize + climbHeight;
         setHandStatus(1);
     }
-    else if(climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax)
+    else if( climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax )
     {
-        if(state.front.floor.distance < state.front.ceiling.distance
-           || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
-           || state.frontRight.floor.distance < state.frontRight.ceiling.distance)
+        if( state.front.floor.distance < state.front.ceiling.distance
+            || state.frontLeft.floor.distance < state.frontLeft.ceiling.distance
+            || state.frontRight.floor.distance < state.frontRight.ceiling.distance )
             return nullptr;
 
         setTargetState(LaraStateId::Stop);
@@ -2003,7 +2126,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
     }
     else
     {
-        if(climbHeight < -core::JumpReachableHeight || climbHeight > -core::ClimbLimit3ClickMax)
+        if( climbHeight < -core::JumpReachableHeight || climbHeight > -core::ClimbLimit3ClickMax )
             return nullptr;
 
         setTargetState(LaraStateId::JumpUp);
@@ -2011,7 +2134,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
         setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)));
         auto tmp = getStateHandler().processAnimCommands();
-        if(tmp)
+        if( tmp )
             nextHandler = std::move(tmp);
     }
 
@@ -2025,12 +2148,12 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
 void AbstractStateHandler::applyCollisionFeedback(LaraState& state)
 {
     setPosition(getExactPosition() + state.collisionFeedback);
-    state.collisionFeedback = { 0,0,0 };
+    state.collisionFeedback = {0,0,0};
 }
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkWallCollision(LaraState& state)
 {
-    if(state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead)
+    if( state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead )
     {
         applyCollisionFeedback(state);
         setTargetState(LaraStateId::Stop);
@@ -2039,12 +2162,12 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkWallCollision(L
         return create(LaraStateId::Stop, getStateHandler());
     }
 
-    if(state.axisCollisions == LaraState::AxisColl_FrontLeftBump)
+    if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
     {
         applyCollisionFeedback(state);
         m_yRotationSpeed = 910;
     }
-    else if(state.axisCollisions == LaraState::AxisColl_FrontRightBump)
+    else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
     {
         applyCollisionFeedback(state);
         m_yRotationSpeed = -910;
@@ -2057,25 +2180,25 @@ bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<Abstr
 {
     auto slantX = std::abs(state.floorSlantX);
     auto slantZ = std::abs(state.floorSlantZ);
-    if(slantX <= 2 && slantZ <= 2)
+    if( slantX <= 2 && slantZ <= 2 )
         return false;
 
     auto targetAngle = util::degToAu(0);
-    if(state.floorSlantX < -2)
+    if( state.floorSlantX < -2 )
         targetAngle = util::degToAu(90);
-    else if(state.floorSlantX > 2)
+    else if( state.floorSlantX > 2 )
         targetAngle = util::degToAu(-90);
 
-    if(state.floorSlantZ > std::max(2, slantX))
+    if( state.floorSlantZ > std::max(2, slantX) )
         targetAngle = util::degToAu(180);
-    else if(state.floorSlantZ < std::min(-2, -slantX))
+    else if( state.floorSlantZ < std::min(-2, -slantX) )
         targetAngle = util::degToAu(0);
 
     int16_t dy = std::abs(targetAngle - getRotation().Y);
     applyCollisionFeedback(state);
-    if(dy > util::degToAu(90) || dy < util::degToAu(-90))
+    if( dy > util::degToAu(90) || dy < util::degToAu(-90) )
     {
-        if(getCurrentAnimState() != LaraStateId::SlideBackward || targetAngle != getCurrentSlideAngle())
+        if( getCurrentAnimState() != LaraStateId::SlideBackward || targetAngle != getCurrentSlideAngle() )
         {
             playAnimation(loader::AnimationId::START_SLIDE_BACKWARD, 1677);
             setTargetState(LaraStateId::SlideBackward);
@@ -2085,7 +2208,7 @@ bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<Abstr
             setYRotation(targetAngle + util::degToAu(180));
         }
     }
-    else if(getCurrentAnimState() != LaraStateId::SlideForward || targetAngle != getCurrentSlideAngle())
+    else if( getCurrentAnimState() != LaraStateId::SlideForward || targetAngle != getCurrentSlideAngle() )
     {
         playAnimation(loader::AnimationId::SLIDE_FORWARD, 1133);
         setTargetState(LaraStateId::SlideForward);
@@ -2099,33 +2222,33 @@ bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<Abstr
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraState& state)
 {
-    if(state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().action || getHandStatus() != 0)
+    if( state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || !getInputState().action || getHandStatus() != 0 )
         return nullptr;
 
     const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
-    if(floorGradient >= core::MaxGrabableGradient)
+    if( floorGradient >= core::MaxGrabableGradient )
         return nullptr;
 
-    if(state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin)
+    if( state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin )
         return nullptr;
 
     getLara()->updateAbsolutePosition();
 
     const auto spaceToReach = state.front.ceiling.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
 
-    if(spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0)
+    if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
         return nullptr;
-    if(spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0)
+    if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
         return nullptr;
 
     int16_t rot = static_cast<int16_t>(getRotation().Y);
-    if(std::abs(rot) <= util::degToAu(35))
+    if( std::abs(rot) <= util::degToAu(35) )
         rot = 0;
-    else if(rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35))
+    else if( rot >= util::degToAu(90 - 35) && rot <= util::degToAu(90 + 35) )
         rot = util::degToAu(90);
-    else if(std::abs(rot) >= util::degToAu(180 - 35))
+    else if( std::abs(rot) >= util::degToAu(180 - 35) )
         rot = util::degToAu(180);
-    else if(-rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35))
+    else if( -rot >= util::degToAu(90 - 35) && -rot <= util::degToAu(90 + 35) )
         rot = util::degToAu(-90);
     else
         return nullptr;
@@ -2156,7 +2279,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(int16_t angle, int dist) 
 
     HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
 
-    if(h.distance != -loader::HeightLimit)
+    if( h.distance != -loader::HeightLimit )
         h.distance -= getPosition().Y;
 
     return h.distance;
@@ -2170,17 +2293,17 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonJumpHandling(L
     state.yAngle = getMovementAngle();
     state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
     auto nextHandler = checkJumpWallSmash(state);
-    if(getFallSpeed().get() <= 0 || state.current.floor.distance > 0)
+    if( getFallSpeed().get() <= 0 || state.current.floor.distance > 0 )
         return nextHandler;
 
-    if(applyLandingDamage())
+    if( applyLandingDamage() )
         setTargetState(LaraStateId::Death);
     else
         setTargetState(LaraStateId::Stop);
     setFallSpeed(0);
     placeOnFloor(state);
     setFalling(false);
-    
+
     return nextHandler;
 }
 
@@ -2192,24 +2315,24 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonSlideHandling(
     state.yAngle = getMovementAngle();
     state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-    if(auto nextHandler = tryStopOnFloor(state))
+    if( auto nextHandler = tryStopOnFloor(state) )
         return nextHandler;
 
     auto nextHandler = checkWallCollision(state);
-    if(state.current.floor.distance <= 200)
+    if( state.current.floor.distance <= 200 )
     {
         tryStartSlide(state, nextHandler);
         placeOnFloor(state);
         const auto absSlantX = std::abs(state.floorSlantX);
         const auto absSlantZ = std::abs(state.floorSlantZ);
-        if(absSlantX <= 2 && absSlantZ <= 2)
+        if( absSlantX <= 2 && absSlantZ <= 2 )
         {
             setTargetState(LaraStateId::Stop);
         }
         return nextHandler;
     }
 
-    if(getCurrentAnimState() == LaraStateId::SlideForward)
+    if( getCurrentAnimState() == LaraStateId::SlideForward )
     {
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
         setTargetState(LaraStateId::JumpForward);
@@ -2228,19 +2351,96 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonSlideHandling(
     return nextHandler;
 }
 
+std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandling(LaraState& state)
+{
+    state.neededFloorDistanceBottom = loader::HeightLimit;
+    state.neededFloorDistanceTop = -loader::HeightLimit;
+    state.neededCeilingDistance = 0;
+    state.yAngle = getMovementAngle();
+    state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+    const bool frobbel = state.front.floor.distance < 200;
+    setFallSpeed(0);
+    setFalling(false);
+    setMovementAngle(static_cast<int16_t>(getRotation().Y));
+    const auto axis = static_cast<Axis>(static_cast<irr::u16>(getMovementAngle() + util::degToAu(45)) / util::degToAu(90));
+    switch( axis )
+    {
+    case Axis::PosZ:
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, 2));
+        break;
+    case Axis::PosX:
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(2, 0, 0));
+        break;
+    case Axis::NegZ:
+        setPosition(getExactPosition() - loader::ExactTRCoordinates(0, 0, 2));
+        break;
+    case Axis::NegX:
+        setPosition(getExactPosition() - loader::ExactTRCoordinates(2, 0, 0));
+        break;
+    }
+
+    state.neededFloorDistanceBottom = loader::HeightLimit;
+    state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+    state.neededCeilingDistance = 0;
+    state.yAngle = getMovementAngle();
+    state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+    if( !getInputState().action || getHealth() <= 0 )
+    {
+        setTargetState(LaraStateId::JumpUp);
+        playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
+        setHandStatus(0);
+        const auto hangDistance = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y) + 2;
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
+        setHorizontalSpeed(2);
+        setFallSpeed(1);
+        setFalling(true);
+        return create(LaraStateId::JumpUp, getStateHandler());
+    }
+
+    auto gradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
+    if( gradient >= core::MaxGrabableGradient || state.current.ceiling.distance >= 0 || state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace || frobbel )
+    {
+        setPosition(state.position);
+        if( getCurrentAnimState() != LaraStateId::ShimmyLeft && getCurrentAnimState() != LaraStateId::ShimmyRight )
+        {
+            return nullptr;
+        }
+
+        setTargetState(LaraStateId::Hang);
+        playAnimation(loader::AnimationId::HANG_IDLE, 1514);
+        return create(LaraStateId::Hang, getStateHandler());
+    }
+
+    switch( axis )
+    {
+    case Axis::PosZ:
+    case Axis::NegZ:
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, state.collisionFeedback.Z));
+        break;
+    case Axis::PosX:
+    case Axis::NegX:
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
+        break;
+    }
+    const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+    if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
+    return nullptr;
+}
+
 bool AbstractStateHandler::applyLandingDamage()
 {
     auto sector = getLevel().findSectorForPosition(getPosition(), getLevel().m_camera->getCurrentRoom());
-    HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{ 0, core::ScalpHeight, 0 }, getLevel().m_camera);
+    HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{0, core::ScalpHeight, 0}, getLevel().m_camera);
     setFloorHeight(h.distance);
     getStateHandler().handleTriggers(h.lastTriggerOrKill, false);
     auto damageSpeed = getFallSpeed().get() - 140;
-    if(damageSpeed <= 0)
+    if( damageSpeed <= 0 )
         return false;
 
     static constexpr int DeathSpeedLimit = 14;
 
-    if(damageSpeed <= DeathSpeedLimit)
+    if( damageSpeed <= DeathSpeedLimit )
         setHealth(getHealth() - 1000 * damageSpeed * damageSpeed / (DeathSpeedLimit * DeathSpeedLimit));
     else
         setHealth(-1);
@@ -2255,22 +2455,22 @@ irr::scene::ISceneNode* AbstractStateHandler::getLara()
 void AbstractStateHandler::jumpAgainstWall(LaraState& state)
 {
     applyCollisionFeedback(state);
-    if(state.axisCollisions == LaraState::AxisColl_FrontLeftBump)
+    if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
         m_yRotationSpeed = 910;
-    else if(state.axisCollisions == LaraState::AxisColl_FrontRightBump)
+    else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
         m_yRotationSpeed = -910;
-    else if(state.axisCollisions == LaraState::AxisColl_HeadInCeiling)
+    else if( state.axisCollisions == LaraState::AxisColl_HeadInCeiling )
     {
-        if(getFallSpeed().get() <= 0)
+        if( getFallSpeed().get() <= 0 )
             setFallSpeed(1);
     }
-    else if(state.axisCollisions == LaraState::AxisColl_CeilingTooLow)
+    else if( state.axisCollisions == LaraState::AxisColl_CeilingTooLow )
     {
         m_xMovement = 100 * std::sin(util::auToRad(getRotation().Y));
         m_zMovement = 100 * std::cos(util::auToRad(getRotation().Y));
         setHorizontalSpeed(0);
         state.current.floor.distance = 0;
-        if(getFallSpeed().get() < 0)
+        if( getFallSpeed().get() < 0 )
             setFallSpeed(16);
     }
 }
@@ -2279,43 +2479,43 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkJumpWallSmash(L
 {
     applyCollisionFeedback(state);
 
-    if(state.axisCollisions == LaraState::AxisColl_None)
+    if( state.axisCollisions == LaraState::AxisColl_None )
         return nullptr;
 
-    if(state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead)
+    if( state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace || state.axisCollisions == LaraState::AxisColl_BumpHead )
     {
         setTargetState(LaraStateId::FreeFall);
         //! @todo Check formula
         setHorizontalSpeed(getHorizontalSpeed() / 5);
         setMovementAngle(getMovementAngle() - util::degToAu(180));
         playAnimation(loader::AnimationId::SMASH_JUMP, 481);
-        if(getFallSpeed().get() <= 0)
+        if( getFallSpeed().get() <= 0 )
             setFallSpeed(1);
         return create(LaraStateId::FreeFall, getStateHandler());
     }
 
-    if(state.axisCollisions == LaraState::AxisColl_FrontLeftBump)
+    if( state.axisCollisions == LaraState::AxisColl_FrontLeftBump )
     {
         m_yRotationSpeed = 910;
         return nullptr;
     }
-    else if(state.axisCollisions == LaraState::AxisColl_FrontRightBump)
+    else if( state.axisCollisions == LaraState::AxisColl_FrontRightBump )
     {
         m_yRotationSpeed = -910;
         return nullptr;
     }
 
-    if(state.axisCollisions == LaraState::AxisColl_CeilingTooLow)
+    if( state.axisCollisions == LaraState::AxisColl_CeilingTooLow )
     {
         m_xMovement = 100 * std::sin(util::auToRad(state.yAngle));
         m_zMovement = 100 * std::cos(util::auToRad(state.yAngle));
         setHorizontalSpeed(0);
         state.current.floor.distance = 0;
-        if(getFallSpeed().get() <= 0)
+        if( getFallSpeed().get() <= 0 )
             setFallSpeed(16);
     }
 
-    if(state.axisCollisions == LaraState::AxisColl_HeadInCeiling && getFallSpeed().get() <= 0)
+    if( state.axisCollisions == LaraState::AxisColl_HeadInCeiling && getFallSpeed().get() <= 0 )
         setFallSpeed(1);
 
     return nullptr;

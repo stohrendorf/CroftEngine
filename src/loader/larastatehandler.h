@@ -207,16 +207,23 @@ public:
 
     void move(float dx, float dy, float dz)
     {
-        // BOOST_LOG_TRIVIAL(debug) << "Move " << m_position.X << "/" << m_position.Y << "/" << m_position.Z << " + " << dx << "/" << dy << "/" << dz;
         m_position.X += dx;
         m_position.Y += dy;
         m_position.Z += dz;
     }
 
+    void moveLocal(float dx, float dy, float dz)
+    {
+        const auto sin = std::sin(util::auToRad(getRotation().Y));
+        const auto cos = std::cos(util::auToRad(getRotation().Y));
+        m_position.X += dz * sin + dx * cos;
+        m_position.Y += dy;
+        m_position.Z += dz * cos - dx * sin;
+    }
+
     void setPosition(const loader::ExactTRCoordinates& pos)
     {
         m_position = pos;
-        // BOOST_LOG_TRIVIAL(debug) << "Move to " << m_position.X << "/" << m_position.Y << "/" << m_position.Z;
     }
 
     int getFloorHeight() const noexcept

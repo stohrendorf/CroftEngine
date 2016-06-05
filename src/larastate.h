@@ -52,6 +52,8 @@ struct LaraState
     int8_t floorSlantX;
     int8_t floorSlantZ;
 
+    bool hasStaticMeshCollision = false;
+
     static int fruityFeedback(int a, int b)
     {
         const auto sectorA = a / loader::SectorSize;
