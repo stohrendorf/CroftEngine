@@ -40,6 +40,8 @@ protected:
     SpeedValue<int> m_yMovement = 0;
     SpeedValue<int> m_zMovement = 0;
 
+    std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id) const;
+
     LaraStateHandler& getStateHandler()
     {
         return m_stateHandler;

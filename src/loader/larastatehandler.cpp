@@ -34,10 +34,13 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
     laraState.frobbelFlags = LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08;
 
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-    if(newFrame)
+    if(m_currentStateHandler == nullptr)
     {
         m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
-        BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
+    }
+    if(newFrame)
+    {
+        //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
         nextHandler = m_currentStateHandler->handleInput(laraState);
     }
 
@@ -78,26 +81,6 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
 
     m_rotation.Y += m_yRotationSpeed.getScaledExact(getCurrentDeltaTime());
 
-    move(
-        std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
-        getFallSpeed().getScaledExact(getCurrentDeltaTime()),
-        std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
-    );
-    m_lara->setPosition(m_position.toIrrlicht());
-
-    if(m_falling)
-    {
-        m_horizontalSpeed.addExact(m_dispatcher->getAccelleration(), getCurrentDeltaTime());
-        if(getFallSpeed().get() >= 128)
-            m_fallSpeed.addExact(1, getCurrentDeltaTime());
-        else
-            m_fallSpeed.addExact(6, getCurrentDeltaTime());
-    }
-    else
-    {
-        m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
-    }
-
     {
         //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
         irr::core::quaternion q;
@@ -111,12 +94,10 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
         m_lara->setRotation(euler * 180 / irr::core::PI);
     }
 
-    m_lara->updateAbsolutePosition();
-
     if(!newFrame)
         return;
 
-    BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
+    //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
     auto animCommandOverride = processAnimCommands();
     if(animCommandOverride)
@@ -124,9 +105,6 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
         m_currentStateHandler = std::move(animCommandOverride);
         BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
     }
-
-    m_lara->setPosition(m_position.toIrrlicht());
-    m_lara->updateAbsolutePosition();
 
     // @todo test interactions?
 
@@ -226,14 +204,20 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
                 cmd += 3;
                 break;
             case AnimCommandOpcode::SetVelocity:
-                setFallSpeed(m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride);
-                m_fallSpeedOverride = 0;
-                setHorizontalSpeed(cmd[1]);
-                setFalling(true);
+                if(newFrame)
+                {
+                    setFallSpeed(m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride);
+                    m_fallSpeedOverride = 0;
+                    setHorizontalSpeed(cmd[1]);
+                    setFalling(true);
+                }
                 cmd += 2;
                 break;
             case AnimCommandOpcode::EmptyHands:
-                setHandStatus(0);
+                if(newFrame)
+                {
+                    setHandStatus(0);
+                }
                 break;
             case AnimCommandOpcode::PlaySound:
                 if( getCurrentFrame() == cmd[0] )
@@ -257,6 +241,28 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
             }
         }
     }
+
+    if(m_falling)
+    {
+        m_horizontalSpeed.addExact(m_dispatcher->getAccelleration(), getCurrentDeltaTime());
+        if(getFallSpeed().get() >= 128)
+            m_fallSpeed.addExact(1, getCurrentDeltaTime());
+        else
+            m_fallSpeed.addExact(6, getCurrentDeltaTime());
+    }
+    else
+    {
+        m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
+    }
+
+    move(
+        std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
+        getFallSpeed().getScaledExact(getCurrentDeltaTime()),
+        std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
+    );
+
+    m_lara->setPosition(m_position.toIrrlicht());
+    m_lara->updateAbsolutePosition();
 
     return nextHandler;
 }
