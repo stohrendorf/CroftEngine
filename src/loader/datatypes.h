@@ -118,7 +118,7 @@ inline constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data
     return data & 0x3fff;
 }
 
-inline constexpr bool isLastFloorataEntry(FloorData::value_type data)
+inline constexpr bool isLastFloordataEntry(FloorData::value_type data)
 {
     return (data & 0x8000) != 0;
 }
@@ -550,16 +550,22 @@ struct Sector
         BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::FloorSlant)
         {
+            if(isLastFloordataEntry(fdData[0]))
+                return {};
             fdData += 2;
         }
         BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::CeilingSlant)
         {
+            if(isLastFloordataEntry(fdData[0]))
+                return {};
             fdData += 2;
         }
         BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::PortalSector)
+        {
             return fdData[1];
+        }
 
         return {};
     }
@@ -1996,6 +2002,25 @@ struct Room
         if(dz < 0 || dz >= sectorCountZ)
             return nullptr;
         return &sectors[sectorCountZ * dx + dz];
+    }
+
+    const Sector* getSectorByClampedIndex(int dx, int dz) const
+    {
+        if(dz <= 0)
+        {
+            dz = 0;
+            dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+        }
+        else if(dz >= sectorCountZ - 1)
+        {
+            dz = sectorCountZ - 1;
+            dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+        }
+        else
+        {
+            dx = irr::core::clamp(dx, 0, sectorCountX - 1);
+        }
+        return getSectorByIndex(dx, dz);
     }
 };
 

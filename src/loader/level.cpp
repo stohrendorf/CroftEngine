@@ -930,69 +930,15 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
     const Sector* sector = nullptr;
     while(true)
     {
-        int sectorX = (position.X - room->position.X) / SectorSize;
-        int sectorZ = (position.Z - room->position.Z) / SectorSize;
-
-        // xxxxx
-        // xxxxx
-        // xxxxx
-        // xxxxx
-        // xxxxx
-        if(sectorZ > 0)
-        {
-            // xxxxx
-            // xxxxx
-            // xxxxx
-            // xxxxx
-            // -----
-            if(sectorZ < room->sectorCountZ - 1)
-            {
-                // -----
-                // xxxxx
-                // xxxxx
-                // xxxxx
-                // -----
-                sectorX = irr::core::clamp(sectorX, 0, room->sectorCountX - 1);
-            }
-            else
-            {
-                // xxxxx
-                // -----
-                // -----
-                // -----
-                // -----
-                sectorZ = room->sectorCountZ - 1;
-                // *+x+*
-                // -----
-                // -----
-                // -----
-                // -----
-                sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
-            }
-        }
-        else
-        {
-            // -----
-            // -----
-            // -----
-            // -----
-            // xxxxx
-            sectorZ = 0;
-            // -----
-            // -----
-            // -----
-            // -----
-            // *+x+*
-            sectorX = irr::core::clamp(sectorX, 1, room->sectorCountX - 2);
-        }
-
-        sector = room->getSectorByIndex(sectorX, sectorZ);
+        sector = room->getSectorByClampedIndex((position.X - room->position.X) / SectorSize, (position.Z - room->position.Z) / SectorSize);
         BOOST_ASSERT(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if(!portalTarget)
+        {
             break;
+        }
 
-        BOOST_ASSERT(*portalTarget < m_rooms.size());
+        BOOST_ASSERT(*portalTarget != 0xff && *portalTarget < m_rooms.size());
         room = &m_rooms[*portalTarget];
     }
 

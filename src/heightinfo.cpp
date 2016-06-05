@@ -29,7 +29,7 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
     const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
     while( true )
     {
-        const bool isLast = loader::isLastFloorataEntry(*floorData);
+        const bool isLast = loader::isLastFloordataEntry(*floorData);
         const auto currentFd = *floorData;
         ++floorData;
         switch( loader::extractFDFunction(currentFd) )
@@ -87,7 +87,7 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
             ++floorData;
             while( true )
             {
-                const bool isLastTrigger = loader::isLastFloorataEntry(*floorData);
+                const bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
                 const auto func = loader::extractTriggerFunction(*floorData);
                 const auto param = loader::extractTriggerFunctionParam(*floorData);
@@ -141,7 +141,7 @@ HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loade
     const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
     while( true )
     {
-        const bool isLast = loader::isLastFloorataEntry(*floorData);
+        const bool isLast = loader::isLastFloordataEntry(*floorData);
         const auto currentFd = *floorData;
         ++floorData;
         switch( loader::extractFDFunction(currentFd) )
@@ -191,7 +191,7 @@ HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loade
             ++floorData;
             while( true )
             {
-                const bool isLastTrigger = loader::isLastFloorataEntry(*floorData);
+                const bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
                 const auto func = loader::extractTriggerFunction(*floorData);
                 const auto param = loader::extractTriggerFunctionParam(*floorData);
