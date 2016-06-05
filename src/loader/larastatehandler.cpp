@@ -3,9 +3,7 @@
 #include "defaultanimdispatcher.h"
 #include "trcamerascenenodeanimator.h"
 #include "heightinfo.h"
-#include "core/magic.h"
 #include "larastate.h"
-#include "../larastate.h"
 #include "abstractstatehandler.h"
 
 void LaraStateHandler::setTargetState(LaraStateId st)
@@ -298,11 +296,16 @@ void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelga
             }
         }
 
-        if(*floorData & 0x8000)
+        if(loader::isLastFloordataEntry(*floorData))
             return;
 
         ++floorData;
     }
 
     //! @todo Implement the rest
+}
+
+irr::core::aabbox3di LaraStateHandler::getBoundingBox() const
+{
+    return m_dispatcher->getBoundingBox();
 }

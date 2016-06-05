@@ -166,7 +166,7 @@ protected:
     static void convertTexture(ByteTexture & tex, Palette & pal, DWordTexture & dst);
     static void convertTexture(WordTexture & tex, DWordTexture & dst);
 
-    void loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData);
+    void loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData, irr::core::aabbox3di& bbox);
 
 private:
     static Game probeVersion(io::SDLReader& reader, const std::string &filename);

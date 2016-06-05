@@ -141,4 +141,5 @@ protected:
     bool applyLandingDamage();
 
     irr::scene::ISceneNode* getLara();
+    irr::core::aabbox3di getBoundingBox() const;
 };

@@ -305,4 +305,6 @@ public:
 
     void updateFloorHeight(int dy);
     void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
+
+    irr::core::aabbox3di getBoundingBox() const;
 };

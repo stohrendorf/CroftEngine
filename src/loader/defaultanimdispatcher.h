@@ -82,6 +82,7 @@ public:
 
     irr::u32 getCurrentFrame() const;
     irr::u32 getAnimEndFrame() const;
+    irr::core::aabbox3di getBoundingBox() const;
 
 private:
     /**

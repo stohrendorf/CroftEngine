@@ -140,7 +140,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     lara->updateAbsolutePosition();
     camera->setPosition(m_relativePosition + m_relativeTarget);
     camera->updateAbsolutePosition();
-    camera->setTarget(lara->getAbsolutePosition() + m_relativeTarget);
+    camera->setTarget(lara->getJointNode("chest")->getAbsolutePosition() + m_relativeTarget);
     camera->updateAbsolutePosition();
     
     tracePortals(camera);

@@ -2143,13 +2143,16 @@ struct AnimatedModel
         const irr::u32 firstFrame;
         //! The last frame of the source animation frame range
         const irr::u32 lastFrame;
+        const std::map<irr::u32, irr::core::aabbox3di> bboxes;
         
-        FrameRange(irr::u32 o, irr::u32 f, irr::u32 l)
+        FrameRange(irr::u32 o, irr::u32 f, irr::u32 l, std::map<irr::u32, irr::core::aabbox3di>&& bb)
             : offset(o)
             , firstFrame(f)
             , lastFrame(l)
+            , bboxes(std::move(bb))
         {
             BOOST_ASSERT(firstFrame < lastFrame);
+            BOOST_ASSERT(!bboxes.empty());
         }
         
         void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 localFrame) const
@@ -2168,6 +2171,37 @@ struct AnimatedModel
             }
             // BOOST_LOG_TRIVIAL(debug) << "  - Frame loop (" << node->getName() << ") " << realFirst << ".." << realLast << " @ " << realOffset;
             node->setCurrentFrame(static_cast<irr::f32>(realOffset));
+        }
+
+        irr::core::aabbox3di getBoundingBox(irr::u32 localFrame) const
+        {
+            BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
+            localFrame -= firstFrame;
+            auto it = bboxes.lower_bound(localFrame);
+            if(it == bboxes.end())
+                return std::prev(it)->second;
+
+            if(it->first == localFrame || it == bboxes.begin())
+                return it->second;
+
+            // the iterator points behind the searched frame
+            auto before = std::prev(it);
+            auto dist = it->first - before->first;
+            BOOST_ASSERT(dist > 0);
+            auto lambda = static_cast<float>(localFrame - before->first) / dist;
+
+            auto intLerp = [](const irr::core::vector3di& a, const irr::core::vector3di& b, float d) -> irr::core::vector3di
+            {
+                return irr::core::vector3di{
+                    irr::core::lerp(a.X, b.X, d),
+                    irr::core::lerp(a.Y, b.Y, d),
+                    irr::core::lerp(a.Z, b.Z, d)
+                };
+            };
+
+            // aabbox's getInterpolated does wrong rounding for ints, so we need to do it manually
+            irr::core::aabbox3di interp( intLerp(before->second.MinEdge, it->second.MinEdge, lambda), intLerp(before->second.MaxEdge, it->second.MaxEdge, lambda));
+            return interp;
         }
     };
     

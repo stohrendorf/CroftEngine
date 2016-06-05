@@ -26,7 +26,7 @@ private:
     const loader::Room* m_currentRoom;
     LaraStateHandler* m_stateHandler;
     
-    const irr::core::vector3df m_relativeTarget{0, 256, 0};
+    const irr::core::vector3df m_relativeTarget{0, 0, 0};
     irr::core::vector3df m_relativePosition{0, 0, -1024};
     
     void setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara);

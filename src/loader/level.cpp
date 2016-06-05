@@ -542,8 +542,6 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
                  node->setPosition(item.position.toIrrlicht() - room.node->getPosition());
             }
 
-            node->setDebugDataVisible(irr::scene::EDS_BBOX_ALL);
-
             std::string name = "item";
             name += std::to_string(id);
             name += "(object";
@@ -604,7 +602,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
     return lara;
 }
 
-void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData)
+void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData, irr::core::aabbox3di& bbox)
 {
     BOOST_ASSERT(pData != nullptr);
     uint16_t angleSetOfs = 0x0a;
@@ -617,6 +615,8 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const Animate
 
         if(meshIdx == 0)
         {
+            bbox.MinEdge = {pData[0], pData[2], pData[1]};
+            bbox.MaxEdge = {pData[3], pData[5], pData[4]};
             pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
         }
         else
@@ -651,17 +651,20 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
     const int16_t* pData = &m_poseData[meshPositionIndex];
     const int16_t* lastPData = nullptr;
 
+    irr::core::aabbox3di bbox;
     // prepend the first frame
-    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
     frameOffset += animation.stretchFactor;
 
     const auto firstLinearFrame = frameOffset;
 
+    std::map<irr::u32, irr::core::aabbox3di> bboxes;
     pData = &m_poseData[meshPositionIndex];
     for(irr::u32 i = 0; i <= animation.lastFrame - animation.firstFrame; i += animation.stretchFactor)
     {
         lastPData = pData;
-        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
+        bboxes.insert(std::make_pair(i, bbox));
         frameOffset += animation.stretchFactor;
     }
 
@@ -671,17 +674,17 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
     while(animation.firstFrame >= animation.lastFrame + framePatch)
     {
         pData = lastPData;
-        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+        loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
         frameOffset += animation.stretchFactor;
         ++framePatch;
     }
 
     // append the last frame again
     pData = lastPData;
-    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData);
+    loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
     frameOffset += animation.stretchFactor;
 
-    return AnimatedModel::FrameRange{ firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch };
+    return AnimatedModel::FrameRange{ firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch, std::move(bboxes) };
 }
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
@@ -719,6 +722,13 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             BOOST_ASSERT(meshIndex < staticMeshes.size());
             const auto staticMesh = staticMeshes[meshIndex];
             irr::scene::ISkinnedMesh::SJoint* joint = skinnedMesh->addJoint();
+            if(model->object_id == 0)
+            {
+                if(modelMeshIdx == 7)
+                    joint->Name = "chest";
+                else if(modelMeshIdx == 0)
+                    joint->Name = "hips";
+            }
 
             // clone static mesh buffers to skinned mesh buffers
             for(irr::u32 meshBufIdx = 0; meshBufIdx < staticMesh->MeshBuffers.size(); ++meshBufIdx)

@@ -853,7 +853,7 @@ public:
         return LaraStateId::Hang;
     }
 
-    void animateImpl(LaraState& state, int deltaTimeMs) override
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
     }
 };
@@ -1496,7 +1496,7 @@ public:
         return LaraStateId::ShimmyLeft;
     }
 
-    void animateImpl(LaraState& state, int deltaTimeMs) override
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
     }
 };
@@ -1532,7 +1532,7 @@ public:
         return LaraStateId::ShimmyRight;
     }
 
-    void animateImpl(LaraState& state, int deltaTimeMs) override
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
     {
     }
 };
@@ -1723,6 +1723,43 @@ public:
     }
 };
 
+class StateHandler_54 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_54(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+        state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+        state.neededCeilingDistance = 0;
+        state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+        state.yAngle = getRotation().Y;
+        setMovementAngle(state.yAngle);
+        state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+        return nullptr;
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::Handstand;
+    }
+
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+    {
+
+    }
+};
+
 void AbstractStateHandler::animate(LaraState& state, int deltaTimeMs)
 {
     animateImpl(state, deltaTimeMs);
@@ -1799,6 +1836,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
         return std::make_unique<StateHandler_52>(lara);
     case LaraStateId::SwandiveEnd:
         return std::make_unique<StateHandler_53>(lara);
+    case LaraStateId::Handstand:
+        return std::make_unique<StateHandler_54>(lara);
     default:
         BOOST_LOG_TRIVIAL(error) << "No state handler for state " << loader::toString(id);
         throw std::runtime_error("Unhandled state");
@@ -2036,7 +2075,13 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
 
     getLara()->updateAbsolutePosition();
 
-    auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+    const auto bbox = getBoundingBox();
+    auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+
+    BOOST_LOG_TRIVIAL(debug) << "BBox min = " << bbox.MinEdge.X << "/" << bbox.MinEdge.Y << "/" << bbox.MinEdge.Z
+        << ", max = " << bbox.MaxEdge.X << "/" << bbox.MaxEdge.Y << "/" << bbox.MaxEdge.Z;
+    BOOST_LOG_TRIVIAL(debug) << "Space to reach = " << spaceToReach << ", fall speed = " << getFallSpeed().getExact() << " => " << spaceToReach + getFallSpeed().getExact();
+
     if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
         return nullptr;
     if( spaceToReach > 0 && spaceToReach + getFallSpeed().getExact() > 0 )
@@ -2050,6 +2095,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
         playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
     else
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
+
+    BOOST_LOG_TRIVIAL(debug) << "Reaching edge at distance " << spaceToReach;
 
     setTargetState(LaraStateId::Hang);
     setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(state.collisionFeedback.X,spaceToReach,state.collisionFeedback.Z)));
@@ -2228,8 +2275,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
 
     getLara()->updateAbsolutePosition();
 
-    const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+    auto bbox = getBoundingBox();
+    auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
+    BOOST_LOG_TRIVIAL(debug) << "BBox min = " << bbox.MinEdge.X << "/" << bbox.MinEdge.Y << "/" << bbox.MinEdge.Z
+        << ", max = " << bbox.MaxEdge.X << "/" << bbox.MaxEdge.Y << "/" << bbox.MaxEdge.Z;
     BOOST_LOG_TRIVIAL(debug) << "Space to reach = " << spaceToReach << ", fall speed = " << getFallSpeed().getExact() << " => " << spaceToReach + getFallSpeed().getExact();
 
     if( spaceToReach < 0 && spaceToReach + getFallSpeed().getExact() < 0 )
@@ -2243,10 +2293,12 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
 
     setTargetState(LaraStateId::Hang);
     playAnimation(loader::AnimationId::HANG_IDLE, 1505);
+    bbox = getBoundingBox();
+    spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
     BOOST_LOG_TRIVIAL(debug) << "Grabbing edge at distance " << spaceToReach;
 
-    m_yMovement = spaceToReach;
+    setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(0,spaceToReach,0)));
     applyCollisionFeedback(state);
     setHorizontalSpeed(0);
     setFallSpeed(0);
@@ -2379,7 +2431,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
         setTargetState(LaraStateId::JumpUp);
         playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
         setHandStatus(0);
-        const auto hangDistance = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y) + 2;
+        const auto bbox = getBoundingBox();
+        const auto hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
+        BOOST_LOG_TRIVIAL(debug) << "BBox min = " << bbox.MinEdge.X << "/" << bbox.MinEdge.Y << "/" << bbox.MinEdge.Z
+            << ", max = " << bbox.MaxEdge.X << "/" << bbox.MaxEdge.Y << "/" << bbox.MaxEdge.Z;
+        BOOST_LOG_TRIVIAL(debug) << "hang distance = " << hangDistance << ", floor = " << state.front.floor.distance;
         setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
         setHorizontalSpeed(2);
         setFallSpeed(1);
@@ -2412,7 +2468,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
         setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
         break;
     }
-    const auto spaceToReach = state.front.floor.distance - (loader::TRCoordinates(getLara()->getTransformedBoundingBox().MaxEdge).Y - getPosition().Y);
+    const auto spaceToReach = state.front.floor.distance - getBoundingBox().MaxEdge.Y;
     if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
     return nullptr;
@@ -2440,6 +2496,11 @@ bool AbstractStateHandler::applyLandingDamage()
 irr::scene::ISceneNode* AbstractStateHandler::getLara()
 {
     return m_stateHandler.getLara();
+}
+
+irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const
+{
+    return m_stateHandler.getBoundingBox();
 }
 
 void AbstractStateHandler::jumpAgainstWall(LaraState& state)

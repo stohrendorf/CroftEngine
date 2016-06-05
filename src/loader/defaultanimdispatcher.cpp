@@ -61,6 +61,14 @@ irr::u32 DefaultAnimDispatcher::getAnimEndFrame() const
     return it->second.lastFrame;
 }
 
+irr::core::aabbox3di DefaultAnimDispatcher::getBoundingBox() const
+{
+    auto it = m_model.frameMapping.find(m_currentAnimationId);
+    BOOST_ASSERT(it != m_model.frameMapping.end());
+
+    return it->second.getBoundingBox(getCurrentFrame());
+}
+
 irr::u32 DefaultAnimDispatcher::getCurrentRelativeFrame() const
 {
     auto it = m_model.frameMapping.find(m_currentAnimationId);
@@ -134,6 +142,5 @@ void DefaultAnimDispatcher::handleAnimationEnd()
     m_currentAnimationId = currentAnim.nextAnimation;
     startAnimLoop(currentAnim.nextFrame);
 }
-
 
 }
