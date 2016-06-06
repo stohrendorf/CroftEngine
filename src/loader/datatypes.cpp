@@ -313,7 +313,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(dim.X > 0);
         BOOST_ASSERT(dim.Y > 0);
         
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex + TRCoordinates{0, tex.bottom_side/2, 0}).toIrrlicht(), -1, 0, 0);
+        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex - TRCoordinates{0, tex.bottom_side/2, 0}).toIrrlicht(), -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
         n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
         n->getMaterial(0).EmissiveColor.set(0);
