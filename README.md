@@ -4,7 +4,7 @@ EdisonEngine — an open-source Tomb Raider 1-5 engine remake
 1. Licensing
 ------------
 
-OpenTomb is an open-source engine distributed under LGPLv3 license, which means that ANY part of
+EdisonEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of
 the source code must be open-source as well. Hence, all used libraries and bundled resources must
 be open-source with GPL-compatible licenses. Here is the list of used libraries, resources and
 their licenses:
