@@ -32,7 +32,7 @@ private:
     void setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara);
 
 public:
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler);
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, irr::scene::IAnimatedMeshSceneNode* lara, LaraStateHandler* stateHandler);
 
     //! Animates a scene node.
     /** \param node Node to animate.

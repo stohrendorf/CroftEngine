@@ -85,18 +85,18 @@ inline irr::video::SColorf convert(const loader::FloatColor& tr_c)
     return {tr_c.a*2, tr_c.r*2, tr_c.g*2, tr_c.b*2};
 }
 
-constexpr irr::f32 auToDeg(irr::s16 au)
+constexpr float auToDeg(int16_t au)
 {
     return au / 65536.0f * 360;
 }
 
-constexpr irr::f32 auToRad(irr::s16 au)
+constexpr float auToRad(int16_t au)
 {
     return au / 65536.0f * 2 * irr::core::PI;
 }
 
-constexpr irr::s16 degToAu(irr::f32 deg)
+constexpr int16_t degToAu(float deg)
 {
-    return static_cast<irr::s16>(deg * 65536 / 360);
+    return static_cast<int16_t>(deg * 65536 / 360);
 }
 } // namespace util

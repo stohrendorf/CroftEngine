@@ -156,6 +156,8 @@ public:
         return { static_cast<int8_t>(fd & 0xff), static_cast<int8_t>(fd >> 8) };
     }
 
+    irr::scene::IAnimatedMeshSceneNode* m_lara = nullptr;
+
 protected:
     io::SDLReader m_reader;
     bool m_demoOrUb = false;

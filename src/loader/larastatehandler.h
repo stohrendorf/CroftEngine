@@ -249,12 +249,12 @@ public:
 
     void subYRotationSpeed(int val, int limit = std::numeric_limits<int>::min())
     {
-        m_yRotationSpeed.subExact(val, getCurrentDeltaTime()).limitMin(limit);
+        m_yRotationSpeed.subExact(static_cast<float>(val), getCurrentDeltaTime()).limitMin(limit);
     }
 
     void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max())
     {
-        m_yRotationSpeed.addExact(val, getCurrentDeltaTime()).limitMax(limit);
+        m_yRotationSpeed.addExact(static_cast<float>(val), getCurrentDeltaTime()).limitMax(limit);
     }
 
     void setYRotation(int16_t y)

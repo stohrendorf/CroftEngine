@@ -220,8 +220,11 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(it != materials.end());
         irr::video::SMaterial material = it->second;
         material.Lighting = false;
-        material.DiffuseColor.set( static_cast<irr::u32>(lightColor.a*255), static_cast<irr::u32>(lightColor.r*255), static_cast<irr::u32>(lightColor.g*255), static_cast<irr::u32>(lightColor.b*255) );
-        material.EmissiveColor = material.DiffuseColor;
+        material.DiffuseColor.set(0);
+        material.AmbientColor.set(0);
+        material.Shininess = 20;
+        material.SpecularColor.set(0);
+        material.EmissiveColor = lightColor.toSColor(0.25f);
         BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
         if(flags & TR_ROOM_FLAG_WATER)
         {
@@ -238,52 +241,54 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     result->drop();
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     // resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
-    for(const Light& light : lights)
+    for(Light& light : lights)
     {
-        irr::scene::ILightSceneNode* ln = mgr->addLightSceneNode(resultNode);
-        ln->enableCastShadow(true);
+        light.node = mgr->addLightSceneNode(resultNode);
+        light.node->enableCastShadow(true);
         switch(light.getLightType())
         {
             case LightType::Shadow:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
-                ln->setLightType(irr::video::ELT_POINT);
+                light.node->setLightType(irr::video::ELT_POINT);
                 break;
             case LightType::Null:
             case LightType::Point:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
-                ln->setLightType(irr::video::ELT_POINT);
+                light.node->setLightType(irr::video::ELT_POINT);
                 break;
             case LightType::Spotlight:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
-                ln->setLightType(irr::video::ELT_SPOT);
+                light.node->setLightType(irr::video::ELT_SPOT);
                 break;
             case LightType::Sun:
                 BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
-                ln->setLightType(irr::video::ELT_DIRECTIONAL);
+                light.node->setLightType(irr::video::ELT_DIRECTIONAL);
                 break;
         }
 
         BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
         BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
         BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a/255.0f << "/" << light.color.r/255.0f << "/" << light.color.g/255.0f << "/" << light.color.b/255.0f;
-        BOOST_LOG_TRIVIAL(debug) << "  - Fade1: " << light.fade1;
+        BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.specularFade;
+        BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.specularIntensity;
         BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
         BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
         BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
 
-        irr::video::SLight& ld = ln->getLightData();
+        irr::video::SLight& ld = light.node->getLightData();
         ld.InnerCone = light.r_inner;
         ld.OuterCone = light.r_outer;
-        ld.DiffuseColor.set(light.color.a/255.0f, light.color.r/255.0f, light.color.g/255.0f, light.color.b/255.0f);
+        const auto f = light.specularIntensity / 4095.0f;
+        ld.DiffuseColor.set(light.color.a/255.0f*f, light.color.r/255.0f*f, light.color.g/255.0f*f, light.color.b/255.0f*f);
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
-        ld.Falloff = light.intensity;
-        ln->setPosition((light.position - position).toIrrlicht());
-        ln->setRotation(light.dir.toIrrlicht());
-        ln->setRadius(light.r_outer);
+        ld.Falloff = light.specularFade / 8192.0f;
+        light.node->setPosition((light.position - position).toIrrlicht());
+        light.node->setRotation(light.dir.toIrrlicht());
+        light.node->setRadius(light.specularFade);
         ld.Attenuation.Z = ld.Attenuation.Y;
 #ifndef NDEBUG
-        ln->setDebugDataVisible(irr::scene::EDS_FULL);
+        light.node->setDebugDataVisible(irr::scene::EDS_FULL);
 #endif
     }
     
@@ -349,7 +354,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     }
     
-    resultNode->addShadowVolumeSceneNode();
+    // resultNode->addShadowVolumeSceneNode();
     node = resultNode;
     
     return resultNode;

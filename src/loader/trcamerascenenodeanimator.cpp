@@ -31,19 +31,18 @@ void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::s
     for(irr::u32 i = 0; i < lara->getMaterialCount(); ++i)
     {
         irr::video::SMaterial& material = lara->getMaterial(i);
-        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 32767.0f);
-        material.DiffuseColor = col;
-        material.AmbientColor = col;
-        material.SpecularColor = col;
+        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 8191.0f / 4);
         material.EmissiveColor = col;
+        material.AmbientColor = col;
     }
 }
 
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(currentRoom), m_stateHandler(stateHandler)
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, irr::scene::IAnimatedMeshSceneNode* lara, LaraStateHandler* stateHandler)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler)
 {
     BOOST_ASSERT(cursorControl != nullptr);
     BOOST_ASSERT(currentRoom != nullptr);
+    setOwnerRoom(currentRoom, lara);
 }
 
 void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)

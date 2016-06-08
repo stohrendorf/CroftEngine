@@ -113,6 +113,11 @@ inline constexpr TriggerFunction extractTriggerFunction(FloorData::value_type da
     return static_cast<TriggerFunction>((data & 0x3fff) >> 10);
 }
 
+inline constexpr TriggerType extractTriggerType(FloorData::value_type data)
+{
+    return static_cast<TriggerType>((data & 0x3fff) >> 8);
+}
+
 inline constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)
 {
     return data & 0x3fff;
@@ -564,7 +569,7 @@ struct Sector
         BOOST_ASSERT(fdData+1 <= &floorData.back());
         if(extractFDFunction(fdData[0]) == FDFunction::PortalSector)
         {
-            return fdData[1];
+            return static_cast<uint8_t>(fdData[1]);
         }
 
         return {};
@@ -585,12 +590,14 @@ enum class LightType : uint8_t
 
 struct Light
 {
+    irr::scene::ILightSceneNode* node = nullptr;
+
     TRCoordinates position;           // world coords
     ByteColor color;         // three bytes rgb values
     float intensity;            // Calculated intensity
-    uint16_t intensity1;        // Light intensity
+    uint16_t specularIntensity;        // Light intensity
     uint16_t intensity2;        // Almost always equal to Intensity1 [absent from TR1 data files]
-    uint32_t fade1;             // Falloff value 1
+    uint32_t specularFade;             // Falloff value 1
     uint32_t fade2;             // Falloff value 2 [absent from TR1 data files]
     uint8_t light_type;         // same as D3D (i.e. 2 is for spotlight)
     uint8_t unknown;            // always 0xff?
@@ -629,20 +636,17 @@ struct Light
         Light light;
         light.position = TRCoordinates::read32(reader);
         // read and make consistent
-        const auto tmp = reader.readI16();
-        const uint16_t tmp2 = std::abs(tmp);
-        BOOST_ASSERT(tmp2 < 8192);
-        light.intensity1 = (8191 - tmp2) << 2;
-        light.fade1 = reader.readU32();
+        light.specularIntensity = reader.readI16();
+        light.specularFade = reader.readU32();
         // only in TR2
-        light.intensity2 = light.intensity1;
+        light.intensity2 = light.specularIntensity;
 
-        light.intensity = irr::core::clamp(light.intensity1/4095.0f, 0.0f, 1.0f);
+        light.intensity = irr::core::clamp(light.specularIntensity/4095.0f, 0.0f, 1.0f);
 
-        light.fade2 = light.fade1;
+        light.fade2 = light.specularFade;
 
-        light.r_outer = static_cast<float>(light.fade1);
-        light.r_inner = static_cast<float>(light.fade1 / 2);
+        light.r_outer = static_cast<float>(light.specularFade);
+        light.r_inner = static_cast<float>(light.specularFade / 2);
 
         light.light_type = 1; // Point light
 
@@ -658,19 +662,19 @@ struct Light
     {
         Light light;
         light.position = TRCoordinates::read32(reader);
-        light.intensity1 = reader.readU16();
+        light.specularIntensity = reader.readU16();
         light.intensity2 = reader.readU16();
-        light.fade1 = reader.readU32();
+        light.specularFade = reader.readU32();
         light.fade2 = reader.readU32();
 
-        light.intensity = light.intensity1;
+        light.intensity = light.specularIntensity;
         light.intensity /= 4096.0f;
 
         if(light.intensity > 1.0f)
             light.intensity = 1.0f;
 
-        light.r_outer = static_cast<float>(light.fade1);
-        light.r_inner = static_cast<float>(light.fade1 / 2);
+        light.r_outer = static_cast<float>(light.specularFade);
+        light.r_inner = static_cast<float>(light.specularFade / 2);
 
         light.light_type = 1; // Point light
 
@@ -689,13 +693,13 @@ struct Light
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
         light.color.a = reader.readU8();
-        light.fade1 = reader.readU32();
+        light.specularFade = reader.readU32();
         light.fade2 = reader.readU32();
 
         light.intensity = 1.0f;
 
-        light.r_outer = static_cast<float>(light.fade1);
-        light.r_inner = static_cast<float>(light.fade1) / 2.0f;
+        light.r_outer = static_cast<float>(light.specularFade);
+        light.r_inner = static_cast<float>(light.specularFade) / 2.0f;
 
         light.light_type = 1; // Point light
         return light;
@@ -708,8 +712,8 @@ struct Light
         light.color = ByteColor::readTr1(reader);
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
-        light.intensity1 = reader.readU8();
-        light.intensity = light.intensity1;
+        light.specularIntensity = reader.readU8();
+        light.intensity = light.specularIntensity;
         light.intensity /= 32;
         light.r_inner = reader.readF();
         light.r_outer = reader.readF();
@@ -1492,7 +1496,7 @@ struct Room
             sector = Sector::read(reader);
 
         // read and make consistent
-        room->intensity1 = (8191 - reader.readI16()) << 2;
+        room->intensity1 = reader.readI16();
         // only in TR2-TR4
         room->intensity2 = room->intensity1;
         // only in TR2
@@ -2171,6 +2175,7 @@ struct AnimatedModel
             }
             // BOOST_LOG_TRIVIAL(debug) << "  - Frame loop (" << node->getName() << ") " << realFirst << ".." << realLast << " @ " << realOffset;
             node->setCurrentFrame(static_cast<irr::f32>(realOffset));
+            node->animateJoints();
         }
 
         irr::core::aabbox3di getBoundingBox(irr::u32 localFrame) const

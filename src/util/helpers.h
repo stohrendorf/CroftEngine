@@ -153,7 +153,7 @@ inline boost::optional<int16_t> alignRotation(int16_t angle, int16_t margin)
     {
         case Axis::PosZ: return 0x0000;
         case Axis::PosX: return 0x4000;
-        case Axis::NegZ: return 0x8000;
+        case Axis::NegZ: return -0x8000;
         case Axis::NegX: return -0x4000;
     }
 }

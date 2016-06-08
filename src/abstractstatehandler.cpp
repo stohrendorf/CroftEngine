@@ -2099,7 +2099,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
     BOOST_LOG_TRIVIAL(debug) << "Reaching edge at distance " << spaceToReach;
 
     setTargetState(LaraStateId::Hang);
-    setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(state.collisionFeedback.X,spaceToReach,state.collisionFeedback.Z)));
+    setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X,spaceToReach,state.collisionFeedback.Z));
     setHorizontalSpeed(0);
     setYRotation(*alignedRotation);
     setFalling(false);
@@ -2298,7 +2298,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
 
     BOOST_LOG_TRIVIAL(debug) << "Grabbing edge at distance " << spaceToReach;
 
-    setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(0,spaceToReach,0)));
+    setPosition(getExactPosition() + loader::ExactTRCoordinates(0,spaceToReach,0));
     applyCollisionFeedback(state);
     setHorizontalSpeed(0);
     setFallSpeed(0);
@@ -2468,8 +2468,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
         setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
         break;
     }
-    const auto spaceToReach = state.front.floor.distance - getBoundingBox().MaxEdge.Y;
-    if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
+
+    const auto bbox = getBoundingBox();
+    const auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+
+    if(spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
     return nullptr;
 }

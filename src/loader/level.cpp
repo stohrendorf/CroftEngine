@@ -41,6 +41,66 @@ using namespace loader;
 namespace
 {
 const irr::video::SColor WaterColor{0, 149, 229, 229};
+
+class LightSelector final : public irr::scene::ILightManager
+{
+private:
+    loader::Level& m_level;
+
+public:
+    explicit LightSelector(loader::Level& level)
+        : m_level(level)
+    {
+    }
+
+    void OnPreRender(irr::core::array<irr::scene::ISceneNode*>& lightList) override
+    {
+        for(irr::u32 i = 0; i<lightList.size(); ++i)
+            lightList[i]->setVisible(false);
+        //if(node->getType() != irr::scene::ESNT_ANIMATED_MESH && node->getType() != irr::scene::ESNT_BILLBOARD && node->getType() != irr::scene::ESNT_MESH)
+        //    return;
+
+        const auto laraPos = m_level.m_lara->getPosition();
+        const auto room = m_level.m_camera->getCurrentRoom();
+        int maxFrobbel = 0;
+        const loader::Light* bestLight = nullptr;
+        for(const loader::Light& light : room->lights)
+        {
+            auto fadeSq = light.specularFade * light.specularFade / 4096;
+            const int frobbel = fadeSq + (0x1fff - room->intensity1) * light.specularIntensity
+                / (fadeSq + laraPos.getDistanceFromSQ(light.position.toIrrlicht()) / 4096);
+            if(frobbel > maxFrobbel)
+            {
+                maxFrobbel = frobbel;
+                bestLight = &light;
+            }
+        }
+        BOOST_ASSERT(bestLight != nullptr);
+        bestLight->node->setVisible(true);
+    }
+
+    void OnPostRender() override
+    {
+        // nop
+    }
+
+    void OnRenderPassPreRender(irr::scene::E_SCENE_NODE_RENDER_PASS /*renderPass*/) override
+    {
+    }
+
+    void OnRenderPassPostRender(irr::scene::E_SCENE_NODE_RENDER_PASS /*renderPass*/) override
+    {
+    }
+
+    void OnNodePreRender(irr::scene::ISceneNode* /*node*/) override
+    {
+    }
+
+    void OnNodePostRender(irr::scene::ISceneNode* /*node*/) override
+    {
+        // nop
+    }
+};
 }
 
 class DoorTriggerHandler final : public AbstractTriggerHandler
@@ -571,12 +631,9 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             
             for(irr::u32 i = 0; i < node->getMaterialCount(); ++i)
             {
-                irr::video::SColor col = room.lightColor.toSColor(room.intensity1/32767.0f);
-                node->getMaterial(i).AmbientColor = col;
-                node->getMaterial(i).DiffuseColor = col;
-                node->getMaterial(i).EmissiveColor = col;
-                node->getMaterial(i).SpecularColor = col;
-                //node->getMaterial(i).Lighting = false;
+                node->getMaterial(i).DiffuseColor = room.lightColor.toSColor(room.intensity1 / 8191.0f);
+                node->getMaterial(i).SpecularColor = room.lightColor.toSColor(room.intensity1 / 8191.0f / 4);
+                node->getMaterial(i).EmissiveColor.set(0);
             }
             if(item.isInitiallyInvisible())
                 node->setVisible(false);
@@ -856,6 +913,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
 {
     mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
     mgr->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
+    mgr->setLightManager(new LightSelector(*this));
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
@@ -889,6 +947,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     const auto lara = createItems(mgr, skinnedMeshes);
     if(lara.node == nullptr)
         return;
+    m_lara = lara.node;
 
     for(auto* ptr : staticMeshes)
         ptr->drop();
@@ -897,7 +956,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
-    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler);
+    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.node, lara.stateHandler);
     camera->addAnimator(m_camera);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
