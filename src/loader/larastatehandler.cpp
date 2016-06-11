@@ -359,48 +359,52 @@ void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelga
     while(true)
     {
         const bool isLast = loader::isLastFloordataEntry(*nextFloorData);
-        switch(loader::extractTriggerType(*nextFloorData))
+        switch(loader::extractTriggerFunction(*nextFloorData))
         {
-        case loader::TriggerType::Trigger:
+        case loader::TriggerFunction::Object:
             ++nextFloorData;
-            //! @todo handle trigger
+            //! @todo handle object
             break;
-        case loader::TriggerType::Pad:
+        case loader::TriggerFunction::CameraTarget:
             ++nextFloorData;
             ++nextFloorData;
-            //! @todo handle pad
+            //! @todo handle camera target
             break;
-        case loader::TriggerType::AntiPad:
+        case loader::TriggerFunction::LookAt:
             ++nextFloorData;
-            //! @todo handle antipad
+            //! @todo handle "look at"
             break;
-        case loader::TriggerType::Switch:
+        case loader::TriggerFunction::UnderwaterCurrent:
             ++nextFloorData;
-            //! @todo handle switch
+            //! @todo handle underwater current
             break;
-        case loader::TriggerType::Key:
+        case loader::TriggerFunction::FlipMap:
             ++nextFloorData;
-            //! @todo handle key
+            //! @todo handle flip map
             break;
-        case loader::TriggerType::Pickup:
+        case loader::TriggerFunction::FlipOn:
             ++nextFloorData;
-            //! @todo handle pickup
+            //! @todo handle flip on
             break;
-        case loader::TriggerType::Heavy:
+        case loader::TriggerFunction::FlipOff:
             ++nextFloorData;
-            //! @todo handle heavy
+            //! @todo handle flip off
             break;
-        case loader::TriggerType::Combat:
+        case loader::TriggerFunction::FlipEffect:
             ++nextFloorData;
-            //! @todo handle combat
+            //! @todo handle flip effect
             break;
-        case loader::TriggerType::Dummy:
+        case loader::TriggerFunction::EndLevel:
             ++nextFloorData;
-            //! @todo handle dummy
+            //! @todo handle level end
             break;
-        case loader::TriggerType::HeavySwitch:
+        case loader::TriggerFunction::PlayTrack:
             ++nextFloorData;
-            //! @todo handle heavy switch
+            //! @todo handle "play track"
+            break;
+        case loader::TriggerFunction::Secret:
+            ++nextFloorData;
+            //! @todo handle secrets
             break;
         default:
             ++nextFloorData;
