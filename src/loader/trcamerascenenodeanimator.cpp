@@ -351,7 +351,7 @@ bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNo
 
 loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, loader::TriggerType triggerType)
 {
-    const int8_t timer = static_cast<int8_t>(*floorDataIt & 0x00FF);
+    const int8_t timer = gsl::narrow_cast<int8_t>(*floorDataIt & 0x00FF);
     const uint8_t mask = (*floorDataIt & 0x3E00) >> 9;
     const bool onlyOnce = ((*floorDataIt & 0x0100) >> 8) != 0;
     

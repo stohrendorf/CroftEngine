@@ -326,7 +326,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         n->setMaterialTexture( 0, textures[tex.texture] );
         {
             irr::video::SColor col;
-            col.set( static_cast<irr::u32>(lightColor.a*255), static_cast<irr::u32>(lightColor.r*255), static_cast<irr::u32>(lightColor.g*255), static_cast<irr::u32>(lightColor.b*255) );
+            col.set(gsl::narrow<irr::u8>(lightColor.a * 255), gsl::narrow<irr::u8>(lightColor.r * 255), gsl::narrow<irr::u8>(lightColor.g * 255), gsl::narrow<irr::u8>(lightColor.b * 255));
             n->getMaterial(0).AmbientColor = col;
             n->getMaterial(0).DiffuseColor = col;
             n->getMaterial(0).SpecularColor = col;

@@ -36,9 +36,9 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
         {
         case loader::FDFunction::FloorSlant:
             {
-                const int8_t xSlant = static_cast<int8_t>(*floorData & 0xff);
+                const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);
-                const int8_t zSlant = static_cast<int8_t>((*floorData >> 8) & 0xff);
+                const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
                 const auto absZ = std::abs(zSlant);
                 if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
@@ -52,24 +52,24 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
 
                     if( zSlant > 0 ) // lower edge at -Z
                     {
-                        auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                        hi.distance += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        auto dist = loader::SectorSize - localZ;
+                        hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( zSlant < 0 ) // lower edge at +Z
                     {
-                        auto dist = localZ / loader::SectorSize;
-                        hi.distance -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        auto dist = localZ;
+                        hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
 
                     if( xSlant > 0 ) // lower edge at -X
                     {
-                        auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                        hi.distance += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        auto dist = loader::SectorSize - localX;
+                        hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( xSlant < 0 ) // lower edge at +X
                     {
-                        auto dist = localX / loader::SectorSize;
-                        hi.distance -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        auto dist = localX;
+                        hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                 }
             }
@@ -148,9 +148,9 @@ HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loade
         {
         case loader::FDFunction::CeilingSlant:
             {
-                const int8_t xSlant = static_cast<int8_t>(*floorData & 0xff);
+                const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);
-                const int8_t zSlant = static_cast<int8_t>((*floorData >> 8) & 0xff);
+                const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
                 const auto absZ = std::abs(zSlant);
                 if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
@@ -159,24 +159,24 @@ HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loade
 
                     if( zSlant > 0 ) // lower edge at -Z
                     {
-                        auto dist = (loader::SectorSize - localZ) / loader::SectorSize;
-                        hi.distance -= static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        auto dist = loader::SectorSize - localZ;
+                        hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( zSlant < 0 ) // lower edge at +Z
                     {
-                        auto dist = localZ / loader::SectorSize;
-                        hi.distance += static_cast<int>(dist * zSlant * loader::QuarterSectorSize);
+                        auto dist = localZ;
+                        hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
 
                     if( xSlant > 0 ) // lower edge at -X
                     {
-                        auto dist = localX / loader::SectorSize;
-                        hi.distance -= static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        auto dist = localX;
+                        hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( xSlant < 0 ) // lower edge at +X
                     {
-                        auto dist = (loader::SectorSize - localX) / loader::SectorSize;
-                        hi.distance += static_cast<int>(dist * xSlant * loader::QuarterSectorSize);
+                        auto dist = loader::SectorSize - localX;
+                        hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                 }
             }

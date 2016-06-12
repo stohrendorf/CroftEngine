@@ -610,7 +610,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             node->setName(name.c_str());
                         
             //node->setAutomaticCulling(false);
-            node->setRotation({0, item.rotation, 0});
+            node->setRotation({0, util::auToDeg(item.rotation), 0});
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
@@ -792,8 +792,8 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             {
                 irr::scene::SSkinMeshBuffer* skinMeshBuffer = skinnedMesh->addMeshBuffer();
                 BOOST_ASSERT(skinMeshBuffer != nullptr);
-                BOOST_ASSERT(staticMesh->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
-                BOOST_ASSERT(staticMesh->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
+                Expects(staticMesh->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
+                Expects(staticMesh->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
                 for(irr::u32 i = 0; i < staticMesh->MeshBuffers[meshBufIdx]->getIndexCount(); ++i)
                     skinMeshBuffer->Indices.push_back(staticMesh->MeshBuffers[meshBufIdx]->getIndices()[i]);
 

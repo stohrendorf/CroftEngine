@@ -99,4 +99,4 @@ target_link_libraries(
     ZLIB
 )
 
-target_include_directories(ot_irr PRIVATE .)
+target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include)

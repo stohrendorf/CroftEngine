@@ -22,13 +22,13 @@ int main()
     if(!device)
         return EXIT_FAILURE;
     
-    auto l = loader::Level::createLoader("data/tr1/data/LEVEL1.PHD", loader::Game::Unknown);
+    auto l = loader::Level::createLoader("data/tr1/data/LEVEL2.PHD", loader::Game::Unknown);
     BOOST_ASSERT(l != nullptr);
     auto driver = device->getVideoDriver();
     l->load(driver);
     l->toIrrlicht(device->getSceneManager(), device->getCursorControl());
     
-    device->setWindowCaption(L"IrrOT");
+    device->setWindowCaption(L"EdisonEngine");
     
     auto timer = device->getTimer();
     auto lastTime = timer->getTime();
