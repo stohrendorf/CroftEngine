@@ -21,21 +21,28 @@ void LaraStateHandler::playAnimation(loader::AnimationId anim, const boost::opti
     m_dispatcher->playLocalAnimation(static_cast<uint16_t>(anim), firstFrame);
 }
 
+void LaraStateHandler::applyRotation()
+{
+    //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
+    irr::core::quaternion q;
+    q.makeIdentity();
+    q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Y), {0,1,0});
+    q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().X), {1,0,0});
+    q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Z), {0,0,-1});
+
+    irr::core::vector3df euler;
+    q.toEuler(euler);
+    m_lara->setRotation(euler * 180 / irr::core::PI);
+}
+
 void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
 {
-    //! @todo Only when on solid ground
-    m_air = 1800;
-
     LaraState laraState;
-    laraState.position = loader::ExactTRCoordinates(getPosition());
+    laraState.position = getExactPosition();
     laraState.collisionRadius = 100; //!< @todo MAGICK 100
     laraState.frobbelFlags = LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08;
 
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-    if( m_currentStateHandler == nullptr )
-    {
-        m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
-    }
     if( newFrame )
     {
         //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
@@ -79,18 +86,7 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
 
     m_rotation.Y += m_yRotationSpeed.getScaledExact(getCurrentDeltaTime());
 
-    {
-        //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        irr::core::quaternion q;
-        q.makeIdentity();
-        q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Y), {0,1,0});
-        q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().X), {1,0,0});
-        q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Z), {0,0,-1});
-
-        irr::core::vector3df euler;
-        q.toEuler(euler);
-        m_lara->setRotation(euler * 180 / irr::core::PI);
-    }
+    applyRotation();
 
     if( !newFrame )
         return;
@@ -104,7 +100,7 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
         BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
     }
 
-    // @todo test interactions?
+    // @todo test interactions
 
     nextHandler = m_currentStateHandler->postprocessFrame(laraState);
     if( nextHandler != nullptr )
@@ -115,6 +111,81 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
 
     updateFloorHeight(-381);
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
+}
+
+void LaraStateHandler::handleLaraStateDiving(bool newFrame)
+{
+    LaraState laraState;
+    laraState.position = getExactPosition();
+    laraState.collisionRadius = 300; //!< @todo MAGICK 300
+    laraState.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08 | LaraState::FrobbelFlag_UnwalkableDeadlyFloor | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant);
+    laraState.neededCeilingDistance = 400;
+    laraState.neededFloorDistanceBottom = loader::HeightLimit;
+    laraState.neededFloorDistanceTop = -400;
+
+    std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
+    if(newFrame)
+    {
+        //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
+        nextHandler = m_currentStateHandler->handleInput(laraState);
+    }
+
+    m_currentStateHandler->animate(laraState, getCurrentDeltaTime());
+
+    if(nextHandler != nullptr)
+    {
+        m_currentStateHandler = std::move(nextHandler);
+        BOOST_LOG_TRIVIAL(debug) << "New input state override: " << loader::toString(m_currentStateHandler->getId());
+    }
+
+    // "slowly" revert rotations to zero
+    if(getRotation().Z < 0)
+    {
+        m_rotation.Z += makeSpeedValue(364).getScaledExact(getCurrentDeltaTime());
+        if(getRotation().Z >= 0)
+            m_rotation.Z = 0;
+    }
+    else if(getRotation().Z > 0)
+    {
+        m_rotation.Z -= makeSpeedValue(364).getScaledExact(getCurrentDeltaTime());
+        if(getRotation().Z <= 0)
+            m_rotation.Z = 0;
+    }
+    m_rotation.X = irr::core::clamp(m_rotation.X, -18200.0f, 18200.0f);
+    m_rotation.Z = irr::core::clamp(m_rotation.Z, -4004.0f, 4004.0f);
+
+    m_position.X += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::sin(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
+    m_position.Y -= m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::sin(util::auToRad(m_rotation.X));
+    m_position.Z += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::cos(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
+
+    applyRotation();
+
+    if(!newFrame)
+        return;
+
+    auto animCommandOverride = processAnimCommands();
+    if(animCommandOverride)
+    {
+        m_currentStateHandler = std::move(animCommandOverride);
+        BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
+    }
+
+    // @todo test interactions
+
+    nextHandler = m_currentStateHandler->postprocessFrame(laraState);
+    if(nextHandler != nullptr)
+    {
+        m_currentStateHandler = std::move(nextHandler);
+        BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: " << loader::toString(m_currentStateHandler->getId());
+    }
+
+    updateFloorHeight(0);
+    handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
+}
+
+void LaraStateHandler::handleLaraStateSwimming(bool newFrame)
+{
+    throw std::runtime_error("Swimming handler not yet implemented");
 }
 
 irr::u32 LaraStateHandler::getCurrentFrame() const
@@ -166,7 +237,118 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
     }
 
-    handleLaraStateOnLand(isNewFrame);
+    if(m_currentStateHandler == nullptr)
+    {
+        m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
+    }
+
+    if(m_underwaterState == UnderwaterState::OnLand && m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    {
+        m_air = 1800;
+        m_underwaterState = UnderwaterState::Diving;
+        m_falling = false;
+        m_position.Y += 100;
+        updateFloorHeight(0);
+        //! @todo stop sound 30
+        if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
+        {
+            m_rotation.X = -8190;
+            setTargetState(LaraStateId::UnderwaterDiving);
+            if(auto tmp = processAnimCommands())
+                m_currentStateHandler = std::move(tmp);
+            m_fallSpeed = m_fallSpeed.get() * 2;
+        }
+        else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
+        {
+            m_rotation.X = -15470;
+            setTargetState(LaraStateId::UnderwaterDiving);
+            if(auto tmp = processAnimCommands())
+                m_currentStateHandler = std::move(tmp);
+            m_fallSpeed = m_fallSpeed.get() * 2;
+        }
+        else
+        {
+            m_rotation.X = -8190;
+            playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
+            setTargetState(LaraStateId::UnderwaterForward);
+            m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
+            if(auto tmp = processAnimCommands())
+                m_currentStateHandler = std::move(tmp);
+            m_fallSpeed = m_fallSpeed.get() * 3 / 2;
+        }
+
+        //! @todo jumpIntoWater();
+    }
+    else if(m_underwaterState == UnderwaterState::Diving && !m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    {
+        auto waterSurfaceHeight = getWaterSurfaceHeight();
+        if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - m_position.Y) >= 256)
+        {
+            m_underwaterState = UnderwaterState::OnLand;
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            setTargetState(LaraStateId::JumpForward);
+            m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+            m_fallSpeed = 0;
+            //! @todo Check formula
+            m_horizontalSpeed = m_horizontalSpeed.get() / 5;
+            m_falling = true;
+            m_handStatus = 0;
+            m_rotation.X = m_rotation.Z = 0;
+        }
+        else
+        {
+            m_underwaterState = UnderwaterState::Swimming;
+            playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
+            setTargetState(LaraStateId::OnWaterStop);
+            m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
+            m_handStatus = 0;
+            m_rotation.X = m_rotation.Z = 0;
+            m_position.Y = *waterSurfaceHeight + 1;
+            m_swimToDiveKeypressDuration = 11;
+            updateFloorHeight(-381);
+            //! @todo play sound 36
+        }
+    }
+    else if(m_underwaterState == UnderwaterState::Swimming && !m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    {
+        m_underwaterState = UnderwaterState::OnLand;
+        playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+        setTargetState(LaraStateId::JumpForward);
+        m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+        m_fallSpeed = 0;
+        //! @todo Check formula
+        m_horizontalSpeed = m_horizontalSpeed.get() / 5;
+        m_falling = true;
+        m_handStatus = 0;
+        m_rotation.X = m_rotation.Z = 0;
+    }
+
+    if(m_underwaterState == UnderwaterState::OnLand)
+    {
+        m_air = 1800;
+        handleLaraStateOnLand(isNewFrame);
+    }
+    else if(m_underwaterState == UnderwaterState::Diving)
+    {
+        if(m_health.get() >= 0)
+        {
+            m_air.sub(1, getCurrentDeltaTime());
+            if(m_air.get() < 0)
+            {
+                m_air = -1;
+                m_health.sub(5, getCurrentDeltaTime());
+            }
+        }
+        handleLaraStateDiving(isNewFrame);
+    }
+    else if(m_underwaterState == UnderwaterState::Swimming)
+    {
+        if(m_health.get() >= 0)
+        {
+            m_air.add(10, getCurrentDeltaTime()).limitMax(1800);
+        }
+        handleLaraStateSwimming(isNewFrame);
+    }
 
     m_lastFrameTime = m_currentFrameTime;
 }
@@ -177,7 +359,7 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
     bool newFrame = false;
     if( m_dispatcher->handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
     {
-        nextHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
+        nextHandler = m_currentStateHandler->create(getCurrentAnimState(), *this);
         m_lastAnimFrame = getCurrentFrame();
         newFrame = true;
     }
@@ -421,4 +603,48 @@ void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelga
 irr::core::aabbox3di LaraStateHandler::getBoundingBox() const
 {
     return m_dispatcher->getBoundingBox();
+}
+
+boost::optional<int> LaraStateHandler::getWaterSurfaceHeight() const
+{
+    auto sector = m_level->m_camera->getCurrentRoom()->getSectorByAbsolutePosition(m_position.toInexact());
+
+    if(m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    {
+        while(true)
+        {
+            if(sector->roomAbove == 0xff)
+                break;
+
+            BOOST_ASSERT(sector->roomAbove < m_level->m_rooms.size());
+            const auto& room = m_level->m_rooms[sector->roomAbove];
+            if(!room.isWaterRoom())
+                break;
+
+            sector = room.getSectorByAbsolutePosition(m_position.toInexact());
+        }
+
+        return sector->ceilingHeight * loader::QuarterSectorSize;
+    }
+    else
+    {
+        while(true)
+        {
+            if(sector->roomBelow == 0xff)
+                break;
+
+            BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
+            const auto& room = m_level->m_rooms[sector->roomBelow];
+            if(room.isWaterRoom())
+            {
+                return sector->floorHeight * loader::QuarterSectorSize;
+            }
+
+            sector = room.getSectorByAbsolutePosition(m_position.toInexact());
+        }
+
+        return sector->ceilingHeight * loader::QuarterSectorSize;
+    }
+
+    return boost::none;
 }

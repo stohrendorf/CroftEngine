@@ -226,7 +226,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         material.SpecularColor.set(0);
         material.EmissiveColor = lightColor.toSColor(0.25f);
         BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
-        if(flags & TR_ROOM_FLAG_WATER)
+        if(isWaterRoom())
         {
             material.FogEnable = true;
         }

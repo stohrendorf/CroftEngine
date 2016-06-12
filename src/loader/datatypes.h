@@ -1394,6 +1394,11 @@ struct Room
     // TR3 most likely has flags for "is raining", "is snowing", "water is cold", and "is
     // filled by quicksand", among others.
 
+    inline bool isWaterRoom() const noexcept
+    {
+        return (flags & TR_ROOM_FLAG_WATER) != 0;
+    }
+
     uint8_t waterScheme;
     // Water scheme is used with various room options, for example, R and M room flags in TRLE.
     // Also, it specifies lighting scheme, when 0x4000 vertex attribute is set.
@@ -2624,10 +2629,10 @@ private:
 
         std::unique_ptr<Zone> zone{ new Zone() };
         zone->flyZoneNormal = reader.readU16();
-        for(int i = 0; i < n; ++i)
+        for(size_t i = 0; i < n; ++i)
             zone->groundZonesNormal.emplace_back(reader.readU16());
         zone->flyZoneAlternate = reader.readU16();
-        for(int i = 0; i < n; ++i)
+        for(size_t i = 0; i < n; ++i)
             zone->groundZonesAlternate.emplace_back(reader.readU16());
         return zone;
     }
@@ -2980,6 +2985,11 @@ public:
     {
         m_value = static_cast<StorageType>(v);
         return *this;
+    }
+
+    void setExact(StorageType v) noexcept
+    {
+        m_value = v;
     }
 
     template<typename U>

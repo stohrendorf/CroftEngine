@@ -5,9 +5,6 @@
 #include "loader/animationids.h"
 
 #include <memory>
-#include <set>
-
-#include "larastate.h"
 
 struct LaraState;
 class LaraStateHandler;
@@ -31,6 +28,7 @@ public:
     void animate(LaraState& state, int deltaTimeMs);
 
     static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraStateHandler& lara);
+    std::unique_ptr<AbstractStateHandler> createWithRetainedAnimation(loader::LaraStateId id) const;
 
     virtual loader::LaraStateId getId() const noexcept = 0;
 
@@ -38,12 +36,12 @@ private:
     virtual void animateImpl(LaraState& state, int deltaTimeMs) = 0;
 
 protected:
+    SpeedValue<int16_t> m_xRotationSpeed = 0;
     SpeedValue<int16_t> m_yRotationSpeed = 0;
+    SpeedValue<int16_t> m_zRotationSpeed = 0;
     SpeedValue<int> m_xMovement = 0;
     SpeedValue<int> m_yMovement = 0;
     SpeedValue<int> m_zMovement = 0;
-
-    std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id) const;
 
     LaraStateHandler& getStateHandler()
     {
@@ -61,6 +59,7 @@ protected:
     int16_t getMovementAngle() const noexcept;
 
     void setFallSpeed(int spd);
+    void setFallSpeedExact(float spd);
 
     const SpeedValue<int>& getFallSpeed() const noexcept;
 
@@ -105,6 +104,8 @@ protected:
 
     void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max());
 
+    void setXRotation(int16_t y);
+    
     void setYRotation(int16_t y);
 
     void setZRotation(int16_t z);

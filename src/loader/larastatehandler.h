@@ -11,6 +11,13 @@
 
 struct LaraState;
 
+enum class UnderwaterState
+{
+    OnLand,
+    Diving,
+    Swimming
+};
+
 class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
 {
     using LaraStateId = loader::LaraStateId;
@@ -23,7 +30,7 @@ private:
     irr::scene::IAnimatedMeshSceneNode* const m_lara;
 
     // Lara's vars
-    int m_health = 1000;
+    SpeedValue<int> m_health = 1000;
     //! @brief Additional rotation in AU per TR Engine Frame
     SpeedValue<int> m_yRotationSpeed = 0;
     bool m_falling = false;
@@ -31,7 +38,7 @@ private:
     SpeedValue<int> m_horizontalSpeed = 0;
     int m_fallSpeedOverride = 0;
     int16_t m_movementAngle = 0;
-    int m_air = 1800;
+    SpeedValue<int> m_air = 1800;
     int16_t m_currentSlideAngle = 0;
 
     InputState m_inputState;
@@ -43,6 +50,7 @@ private:
     int m_currentFrameTime = 0;
     int m_lastAnimFrame = -1;
 
+    UnderwaterState m_underwaterState = UnderwaterState::OnLand;
     std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
 
     int getCurrentDeltaTime() const
@@ -121,13 +129,17 @@ public:
 
 private:
     void handleLaraStateOnLand(bool newFrame);
+    void handleLaraStateDiving(bool newFrame);
+    void handleLaraStateSwimming(bool newFrame);
+    boost::optional<int> getWaterSurfaceHeight() const;
+    int m_swimToDiveKeypressDuration = 0;
 
     ///////////////////////////////////////
 
 public:
     int getHealth() const noexcept
     {
-        return m_health;
+        return m_health.get();
     }
 
     void setHealth(int h) noexcept
@@ -153,6 +165,11 @@ public:
     void setFallSpeed(int spd)
     {
         m_fallSpeed = spd;
+    }
+
+    void setFallSpeedExact(float spd)
+    {
+        m_fallSpeed.setExact(spd);
     }
 
     const SpeedValue<int>& getFallSpeed() const noexcept
@@ -206,6 +223,13 @@ public:
 
     void placeOnFloor(const LaraState& state);
 
+    void rotate(float dx, float dy, float dz)
+    {
+        m_rotation.X += dx;
+        m_rotation.Y += dy;
+        m_rotation.Z += dz;
+    }
+
     void move(float dx, float dy, float dz)
     {
         m_position.X += dx;
@@ -257,6 +281,16 @@ public:
         m_yRotationSpeed.addExact(static_cast<float>(val), getCurrentDeltaTime()).limitMax(limit);
     }
 
+    void setXRotation(int16_t x)
+    {
+        m_rotation.X = x;
+    }
+
+    void addXRotation(int16_t x)
+    {
+        m_rotation.X += x;
+    }
+
     void setYRotation(int16_t y)
     {
         m_rotation.Y = y;
@@ -270,6 +304,11 @@ public:
     void setZRotation(int16_t z)
     {
         m_rotation.Z = z;
+    }
+
+    void addZRotation(int16_t z)
+    {
+        m_rotation.Z += z;
     }
 
     void setZRotationExact(float z)
@@ -302,7 +341,7 @@ public:
     loader::LaraStateId getCurrentState() const;
     loader::LaraStateId getCurrentAnimState() const;
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
-
+    void applyRotation();
     void updateFloorHeight(int dy);
     void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 
