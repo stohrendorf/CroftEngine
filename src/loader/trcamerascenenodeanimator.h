@@ -29,36 +29,36 @@ private:
     const irr::core::vector3df m_relativeTarget{0, 0, 0};
     irr::core::vector3df m_relativePosition{0, 0, -1024};
     
-    void setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara);
-
 public:
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, irr::scene::IAnimatedMeshSceneNode* lara, LaraStateHandler* stateHandler);
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler);
 
     //! Animates a scene node.
     /** \param node Node to animate.
     \param timeMs Current time in milli seconds. */
-    virtual void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
+    void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
 
     //! Creates a clone of this animator.
     /** Please note that you will have to drop
     (IReferenceCounted::drop()) the returned pointer after calling this. */
-    virtual irr::scene::ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override;
+    irr::scene::ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override;
 
     //! Returns true if this animator receives events.
     /** When attached to an active camera, this animator will be
     able to respond to events such as mouse and keyboard events. */
-    virtual bool isEventReceiverEnabled() const override
+    bool isEventReceiverEnabled() const override
     {
         return true;
     }
 
     //! Event receiver, override this function for camera controlling animators
-    virtual bool OnEvent(const irr::SEvent& evt) override;
+    bool OnEvent(const irr::SEvent& evt) override;
     
     const loader::Room* getCurrentRoom() const noexcept
     {
         return m_currentRoom;
     }
+
+    void setCurrentRoom(const loader::Room* newRoom);
 
     const loader::Level* getLevel() const noexcept
     {
@@ -67,7 +67,4 @@ public:
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
-
-    bool handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara);
-    loader::FloorData::const_iterator handleTrigger(loader::FloorData::const_iterator floorDataIt, loader::TriggerType triggerType);
 };

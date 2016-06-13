@@ -7,19 +7,19 @@
 #include <queue>
 #include <set>
 
-void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::scene::IAnimatedMeshSceneNode* lara)
+void TRCameraSceneNodeAnimator::setCurrentRoom(const loader::Room* newRoom)
 {
     if(newRoom == m_currentRoom)
         return;
     
-    BOOST_LOG_TRIVIAL(debug) << "Room switch";
+    BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
     if(newRoom == nullptr)
     {
         BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
         for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
         {
             const loader::Room& room = m_level->m_rooms[i];
-            if(room.node->getTransformedBoundingBox().isPointInside(lara->getAbsolutePosition()))
+            if(room.node->getTransformedBoundingBox().isPointInside(m_level->m_lara->getAbsolutePosition()))
             {
                 BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
             }
@@ -28,21 +28,21 @@ void TRCameraSceneNodeAnimator::setOwnerRoom(const loader::Room* newRoom, irr::s
     }
     
     m_currentRoom = newRoom;
-    for(irr::u32 i = 0; i < lara->getMaterialCount(); ++i)
+    for(irr::u32 i = 0; i < m_level->m_lara->getMaterialCount(); ++i)
     {
-        irr::video::SMaterial& material = lara->getMaterial(i);
+        irr::video::SMaterial& material = m_level->m_lara->getMaterial(i);
         const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 8191.0f / 4);
         material.EmissiveColor = col;
         material.AmbientColor = col;
     }
 }
 
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, irr::scene::IAnimatedMeshSceneNode* lara, LaraStateHandler* stateHandler)
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler)
     : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler)
 {
     BOOST_ASSERT(cursorControl != nullptr);
     BOOST_ASSERT(currentRoom != nullptr);
-    setOwnerRoom(currentRoom, lara);
+    setCurrentRoom(currentRoom);
 }
 
 void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
@@ -63,9 +63,6 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     m_inputState.setXAxisMovement(m_left, m_right);
     m_inputState.setZAxisMovement(m_backward, m_forward);
     m_stateHandler->setInputState(m_inputState);
-    
-    handleFloorData(lara);
-    lara->updateAbsolutePosition();
     
     if(m_firstUpdate)
     {
@@ -271,175 +268,4 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
             toVisit.emplace(std::move(newPath));
         }
     }
-}
-
-bool TRCameraSceneNodeAnimator::handleFloorData(irr::scene::IAnimatedMeshSceneNode* lara)
-{
-    const loader::Sector* sector = m_currentRoom->getSectorByAbsolutePosition(loader::TRCoordinates(lara->getAbsolutePosition()));
-    if(sector == nullptr)
-    {
-        BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
-        return false;
-    }
-    
-    // check "room below"
-    while(sector->roomBelow != 0xff)
-    {
-        BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
-        setOwnerRoom(&m_level->m_rooms[sector->roomBelow], lara);
-        sector = m_currentRoom->getSectorByAbsolutePosition(loader::TRCoordinates(lara->getAbsolutePosition()));
-        if(sector == nullptr)
-        {
-            BOOST_LOG_TRIVIAL(error) << "No sector for coordinates: " << lara->getPosition().X << "/" << lara->getPosition().Z;
-            return false;
-        }
-    }
-
-    if(sector->floorDataIndex == 0 || sector->floorDataIndex >= m_level->m_floorData.size())
-        return true;
-    
-    BOOST_ASSERT(sector->floorDataIndex < m_level->m_floorData.size());
-    //        BOOST_LOG_TRIVIAL(debug) << "Starting to parse floordata...";
-
-    using loader::FDFunction;
-    for(auto floorDataIt = std::next(m_level->m_floorData.begin(), sector->floorDataIndex); floorDataIt < m_level->m_floorData.end(); /*nop*/)
-    {
-        //            BOOST_LOG_TRIVIAL(debug) << "Parsing floordata @" << fdi;
-        const FDFunction function = static_cast<FDFunction>(*floorDataIt & 0x001F);             // 0b00000000 00011111
-        //            BOOST_LOG_TRIVIAL(debug) << "Floordata function " << int(function);
-        const uint16_t subFunction = (*floorDataIt & 0x7F00) >> 8;        // 0b01111111 00000000
-        
-        const bool isLastFloordata = ((*floorDataIt & 0x8000) >> 15) != 0;       // 0b10000000 00000000
-        
-        ++floorDataIt;
-        
-        switch(function)
-        {
-            case FDFunction::PortalSector:          // PORTAL DATA
-                if(*floorDataIt < m_level->m_rooms.size())
-                {
-                    BOOST_LOG_TRIVIAL(info) << "Switch to room: " << int(*floorDataIt);
-                    BOOST_ASSERT(*floorDataIt < m_level->m_rooms.size());
-                    setOwnerRoom(&m_level->m_rooms[*floorDataIt], lara);
-                }
-                ++floorDataIt;
-                break;
-            case FDFunction::FloorSlant:          // FLOOR SLANT
-            case FDFunction::CeilingSlant:          // CEILING SLANT
-                ++floorDataIt;
-                break;
-            case FDFunction::Trigger:          // TRIGGERS
-                floorDataIt = handleTrigger(floorDataIt, static_cast<loader::TriggerType>(subFunction));
-                break;
-            case FDFunction::Death:
-            case FDFunction::Climb:
-            case FDFunction::Monkey:
-            case FDFunction::MinecartLeft:
-            case FDFunction::MinecartRight:
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(error) << "Unhandled floordata function " << int(function) << "; floorData=0x" << std::hex << *std::prev(floorDataIt) << std::dec;
-                break;
-        }
-        
-        if(isLastFloordata)
-            break;
-    }
-    
-    return true;
-}
-
-loader::FloorData::const_iterator TRCameraSceneNodeAnimator::handleTrigger(loader::FloorData::const_iterator floorDataIt, loader::TriggerType triggerType)
-{
-    const int8_t timer = gsl::narrow_cast<int8_t>(*floorDataIt & 0x00FF);
-    const uint8_t mask = (*floorDataIt & 0x3E00) >> 9;
-    const bool onlyOnce = ((*floorDataIt & 0x0100) >> 8) != 0;
-    
-    //BOOST_LOG_TRIVIAL(debug) << "Trigger: timer=" << int(timer) << ", mask=0x" << std::hex << int(mask) << std::dec << ", onlyOnce=" << (onlyOnce ? "true" : "false");
-    
-    using loader::TriggerType;
-    using loader::TriggerFunction;
-
-    switch(triggerType)
-    {
-        case TriggerType::Trigger:
-        case TriggerType::Heavy:
-        case TriggerType::Pad:
-        case TriggerType::AntiPad:
-        case TriggerType::Switch:
-        case TriggerType::HeavySwitch:
-        case TriggerType::Key:
-        case TriggerType::Pickup:
-        case TriggerType::Combat:
-        case TriggerType::Dummy:
-        case TriggerType::Skeleton:   ///@FIXME: Find the meaning later!!!
-        case TriggerType::AntiTrigger:
-        case TriggerType::HeavyAntiTrigger:
-        case TriggerType::Monkey:
-        case TriggerType::Climb:
-        case TriggerType::TightRope:
-        case TriggerType::CrawlDuck:
-            //BOOST_LOG_TRIVIAL(debug) << "Trigger type " << int(triggerType);
-            break;
-        default:
-            BOOST_LOG_TRIVIAL(error) << "Unexpected trigger type " << int(triggerType);
-            break;
-    }
-    loader::AbstractTriggerHandler* const laraHandler = m_level->findHandler(0);
-    for(bool breakBit = false; !breakBit && floorDataIt < m_level->m_floorData.end(); /*nop*/)
-    {
-        ++floorDataIt;
-        breakBit = (*floorDataIt & 0x8000) != 0;
-        const TriggerFunction triggerFunction = static_cast<TriggerFunction>((*floorDataIt & 0x7C00) >> 10);
-        const uint16_t operand = *floorDataIt & 0x03FF;
-        //BOOST_LOG_TRIVIAL(debug) << "  - func=" << int(triggerFunction) << " op=" << int(operand);
-        loader::AbstractTriggerHandler* const handler = m_level->findHandler(operand);
-        switch(triggerFunction)
-        {
-            case TriggerFunction::Object:
-                if(handler)
-                {
-                    switch(triggerType)
-                    {
-                        case TriggerType::AntiPad:
-                        case TriggerType::AntiTrigger:
-                        case TriggerType::HeavyAntiTrigger:
-                            handler->deactivate(laraHandler, onlyOnce);
-                            break;
-                        default:
-                            handler->activate(laraHandler, mask, loader::TriggerOp::Or, onlyOnce, timer);
-                    }
-
-                }
-                break;
-                
-            case TriggerFunction::CameraTarget:
-                ++floorDataIt;
-                breakBit = (*floorDataIt & 0x8000) != 0;
-                break;
-                
-            case TriggerFunction::FlipMap:
-            case TriggerFunction::FlipOn:
-            case TriggerFunction::FlipOff:
-            case TriggerFunction::LookAt:
-            case TriggerFunction::EndLevel:
-            case TriggerFunction::PlayTrack:
-            case TriggerFunction::FlipEffect:
-            case TriggerFunction::Secret:
-            case TriggerFunction::ClearBodies:
-            case TriggerFunction::FlyBy:
-                ++floorDataIt;
-                breakBit = (*floorDataIt & 0x8000) != 0;
-                break;
-                
-            case TriggerFunction::CutScene:
-            case TriggerFunction::UnderwaterCurrent:
-                break;
-                
-            default: // UNKNOWN!
-                BOOST_LOG_TRIVIAL(warning) << "  - Unhandled trigger function " << int(triggerFunction);
-                break;
-        };
-    }
-    return floorDataIt;
 }

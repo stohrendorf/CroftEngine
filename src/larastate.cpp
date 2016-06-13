@@ -13,7 +13,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     const loader::Room* room = level.m_camera->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
-    auto currentSector = level.findSectorForPosition(reachablePos, room);
+    auto currentSector = level.findSectorForPosition(reachablePos, &room);
     BOOST_ASSERT(currentSector != nullptr);
 
     current.init(currentSector, laraPos, level.m_camera, height);
@@ -62,7 +62,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     // Front
     auto checkPos = loader::TRCoordinates(frontX, 0, frontZ);
-    auto sector = level.findSectorForPosition(reachablePos + checkPos, room);
+    auto sector = level.findSectorForPosition(reachablePos + checkPos, &room);
     front.init(sector, laraPos + checkPos, level.m_camera, height);
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
@@ -79,7 +79,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     // Front left
     checkPos = loader::TRCoordinates(frontLeftX, 0, frontLeftZ);
-    sector = level.findSectorForPosition(reachablePos + checkPos, room);
+    sector = level.findSectorForPosition(reachablePos + checkPos, &room);
     frontLeft.init(sector, laraPos + checkPos, level.m_camera, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
@@ -97,7 +97,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 
     // Front right
     checkPos = loader::TRCoordinates(frontRightX, 0, frontRightZ);
-    sector = level.findSectorForPosition(reachablePos + checkPos, room);
+    sector = level.findSectorForPosition(reachablePos + checkPos, &room);
     frontRight.init(sector, laraPos + checkPos, level.m_camera, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )

@@ -139,26 +139,28 @@ void LaraStateHandler::handleLaraStateDiving(bool newFrame)
     }
 
     // "slowly" revert rotations to zero
-    if(getRotation().Z < 0)
+    if(m_rotation.Z < 0)
     {
         m_rotation.Z += makeSpeedValue(364).getScaledExact(getCurrentDeltaTime());
-        if(getRotation().Z >= 0)
+        if(m_rotation.Z >= 0)
             m_rotation.Z = 0;
     }
-    else if(getRotation().Z > 0)
+    else if(m_rotation.Z > 0)
     {
         m_rotation.Z -= makeSpeedValue(364).getScaledExact(getCurrentDeltaTime());
-        if(getRotation().Z <= 0)
+        if(m_rotation.Z <= 0)
             m_rotation.Z = 0;
     }
-    m_rotation.X = irr::core::clamp(m_rotation.X, -18200.0f, 18200.0f);
-    m_rotation.Z = irr::core::clamp(m_rotation.Z, -4004.0f, 4004.0f);
+    m_rotation.X = irr::core::clamp(m_rotation.X, -18200.0f, 18200.0f); // 100 degrees
+    m_rotation.Z = irr::core::clamp(m_rotation.Z, -4004.0f, 4004.0f); // 22 degrees
 
     m_position.X += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::sin(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
-    m_position.Y -= m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::sin(util::auToRad(m_rotation.X));
+    m_position.Y -= m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4                                         * std::sin(util::auToRad(m_rotation.X));
     m_position.Z += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::cos(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
 
     applyRotation();
+    m_lara->setPosition(m_position.toIrrlicht());
+    m_lara->updateAbsolutePosition();
 
     if(!newFrame)
         return;
@@ -252,7 +254,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         //! @todo stop sound 30
         if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
         {
-            m_rotation.X = -8190;
+            m_rotation.X = -util::degToAu(45);
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
@@ -260,7 +262,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         }
         else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
         {
-            m_rotation.X = -15470;
+            m_rotation.X = -util::degToAu(85);
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
@@ -268,7 +270,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         }
         else
         {
-            m_rotation.X = -8190;
+            m_rotation.X = -util::degToAu(45);
             playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
             setTargetState(LaraStateId::UnderwaterForward);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
@@ -359,7 +361,7 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
     bool newFrame = false;
     if( m_dispatcher->handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
     {
-        nextHandler = m_currentStateHandler->create(getCurrentAnimState(), *this);
+        nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
         m_lastAnimFrame = getCurrentFrame();
         newFrame = true;
     }
@@ -445,7 +447,7 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
 
     move(
          std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
-         getFallSpeed().getScaledExact(getCurrentDeltaTime()),
+         m_fallSpeed.getScaledExact(getCurrentDeltaTime()),
          std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
         );
 
@@ -459,11 +461,11 @@ void LaraStateHandler::updateFloorHeight(int dy)
 {
     auto pos = getPosition();
     pos.Y += dy;
-    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
+    auto room = getLevel().m_camera->getCurrentRoom();
+    auto sector = getLevel().findSectorForPosition(pos, &room);
+    m_level->m_camera->setCurrentRoom(room);
     HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
     setFloorHeight(hi.distance);
-
-    //! @todo Check room ownership change
 }
 
 void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelganger)

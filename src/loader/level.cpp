@@ -956,7 +956,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
-    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.node, lara.stateHandler);
+    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler);
     camera->addAnimator(m_camera);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
@@ -1003,14 +1003,15 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-const Sector* Level::findSectorForPosition(const TRCoordinates& position, const Room* room) const
+const Sector* Level::findSectorForPosition(const TRCoordinates& position, const Room** room) const
 {
     BOOST_ASSERT(room != nullptr);
+    BOOST_ASSERT(*room != nullptr);
 
     const Sector* sector = nullptr;
     while(true)
     {
-        sector = room->getSectorByClampedIndex((position.X - room->position.X) / SectorSize, (position.Z - room->position.Z) / SectorSize);
+        sector = (*room)->getSectorByClampedIndex((position.X - (*room)->position.X) / SectorSize, (position.Z - (*room)->position.Z) / SectorSize);
         BOOST_ASSERT(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if(!portalTarget)
@@ -1019,7 +1020,7 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
         }
 
         BOOST_ASSERT(*portalTarget != 0xff && *portalTarget < m_rooms.size());
-        room = &m_rooms[*portalTarget];
+        *room = &m_rooms[*portalTarget];
     }
 
     BOOST_ASSERT(sector != nullptr);
@@ -1028,8 +1029,8 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
         while(sector->ceilingHeight*QuarterSectorSize > position.Y && sector->roomAbove != 0xff)
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
-            room = &m_rooms[sector->roomAbove];
-            sector = room->getSectorByAbsolutePosition(position);
+            *room = &m_rooms[sector->roomAbove];
+            sector = (*room)->getSectorByAbsolutePosition(position);
             BOOST_ASSERT(sector != nullptr);
         }
     }
@@ -1038,8 +1039,8 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
         while(sector->floorHeight*QuarterSectorSize <= position.Y && sector->roomBelow != 0xff)
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
-            room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition(position);
+            *room = &m_rooms[sector->roomBelow];
+            sector = (*room)->getSectorByAbsolutePosition(position);
             BOOST_ASSERT(sector != nullptr);
         }
     }

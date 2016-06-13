@@ -131,7 +131,6 @@ private:
     void handleLaraStateOnLand(bool newFrame);
     void handleLaraStateDiving(bool newFrame);
     void handleLaraStateSwimming(bool newFrame);
-    boost::optional<int> getWaterSurfaceHeight() const;
     int m_swimToDiveKeypressDuration = 0;
 
     ///////////////////////////////////////
@@ -145,6 +144,11 @@ public:
     void setHealth(int h) noexcept
     {
         m_health = h;
+    }
+
+    void setAir(int a) noexcept
+    {
+        m_air = a;
     }
 
     const InputState& getInputState() const noexcept
@@ -286,6 +290,11 @@ public:
         m_rotation.X = x;
     }
 
+    void setXRotationExact(float x)
+    {
+        m_rotation.X = x;
+    }
+
     void addXRotation(int16_t x)
     {
         m_rotation.X += x;
@@ -346,4 +355,6 @@ public:
     void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 
     irr::core::aabbox3di getBoundingBox() const;
+
+    boost::optional<int> getWaterSurfaceHeight() const;
 };

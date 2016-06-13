@@ -60,7 +60,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -185,7 +185,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -318,7 +318,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         //! @todo HACK
         setHandStatus(0);
@@ -363,14 +363,14 @@ public:
         else if( getInputState().zMovement == AxisMovement::Forward )
         {
             if( getInputState().moveSlow )
-                createWithRetainedAnimation(LaraStateId::WalkForward)->handleInput(state);
+                createWithRetainedAnimation(LaraStateId::WalkForward)->handleInputImpl(state);
             else
-                createWithRetainedAnimation(LaraStateId::RunForward)->handleInput(state);
+                createWithRetainedAnimation(LaraStateId::RunForward)->handleInputImpl(state);
         }
         else if( getInputState().zMovement == AxisMovement::Backward )
         {
             if( getInputState().moveSlow )
-                AbstractStateHandler::create(LaraStateId::WalkBackward, getStateHandler())->handleInput(state);
+                createWithRetainedAnimation(LaraStateId::WalkBackward)->handleInputImpl(state);
             else
                 setTargetState(LaraStateId::RunBack);
         }
@@ -396,7 +396,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
             setTargetState(LaraStateId::JumpForward);
@@ -479,7 +479,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         return nullptr;
     }
@@ -502,7 +502,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         setTargetState(LaraStateId::Stop);
         return nullptr;
@@ -601,7 +601,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -656,7 +656,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -711,7 +711,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         return nullptr;
@@ -751,7 +751,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         return nullptr;
     }
@@ -809,7 +809,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         //! @todo Set camera rotation (x,y) = (-10920,0)
@@ -866,7 +866,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
@@ -921,7 +921,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         return nullptr;
     }
@@ -956,7 +956,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override final
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
     {
         state.yAngle = getRotation().Y;
         if(std::abs(getRotation().X) > util::degToAu(90))
@@ -965,13 +965,16 @@ public:
         state.initHeightInfo(getPosition() + loader::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
         applyCollisionFeedback(state);
 
+        m_xRotationSpeed = 0;
+        m_yRotationSpeed = 0;
+
         switch(state.axisCollisions)
         {
             case LaraState::AxisColl_FrontLeftBump:
-                setYRotation(getRotation().Y + 910);
+                m_yRotationSpeed = 910;
                 break;
             case LaraState::AxisColl_FrontRightBump:
-                setYRotation(getRotation().Y - 910);
+                m_yRotationSpeed = -910;
                 break;
             case LaraState::AxisColl_CeilingTooLow:
                 setFallSpeed(0);
@@ -981,14 +984,15 @@ public:
                 break;
             case LaraState::AxisColl_HeadInCeiling:
                 if(getRotation().X > -8190)
-                    setXRotation(getRotation().X - 364);
+                    m_xRotationSpeed = -364; // setXRotation(getRotation().X - 364);
                 break;
             case LaraState::AxisColl_InsufficientFrontSpace:
                 if(getRotation().X > 6370)
-                    setXRotation(getRotation().X + 364);
+                    m_xRotationSpeed = 364; // setXRotation(getRotation().X + 364);
                 else if(getRotation().X < -6370)
-                    setXRotation(getRotation().X - 364);
-                setFallSpeed(0);
+                    m_xRotationSpeed = -364; // setXRotation(getRotation().X - 364);
+                else
+                    setFallSpeed(0);
                 break;
             default:
                 break;
@@ -997,8 +1001,8 @@ public:
         if(state.current.floor.distance >= 0)
             return nullptr;
 
-        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
-        setXRotation(getRotation().X + 364);
+        setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(0, state.current.floor.distance, 0)));
+        m_xRotationSpeed = m_xRotationSpeed.get() + 364;
 
         return nullptr;
     }
@@ -1007,18 +1011,25 @@ protected:
     void handleDiveInput()
     {
         if(getInputState().zMovement == AxisMovement::Forward)
-            m_xRotationSpeed = -364;
+            m_xRotationSpeed = -util::degToAu(2);
         else if(getInputState().zMovement == AxisMovement::Backward)
-            m_xRotationSpeed = 364;
+            m_xRotationSpeed = util::degToAu(2);
+        else
+            m_xRotationSpeed = 0;
         if(getInputState().xMovement == AxisMovement::Left)
         {
-            m_yRotationSpeed = -1092;
-            m_zRotationSpeed = -546;
+            m_yRotationSpeed = -util::degToAu(6);
+            m_zRotationSpeed = -util::degToAu(3);
         }
         else if(getInputState().xMovement == AxisMovement::Right)
         {
-            m_yRotationSpeed = 1092;
-            m_zRotationSpeed = 546;
+            m_yRotationSpeed = util::degToAu(6);
+            m_zRotationSpeed = util::degToAu(3);
+        }
+        else
+        {
+            m_yRotationSpeed = 0;
+            m_zRotationSpeed = 0;
         }
     }
 };
@@ -1031,7 +1042,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if(getHealth() < 0)
         {
@@ -1066,7 +1077,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
         {
@@ -1136,7 +1147,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -1215,7 +1226,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if(getHealth() < 0)
         {
@@ -1250,7 +1261,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if(getHealth() < 0)
         {
@@ -1271,7 +1282,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeedExact(std::max(0.0f, getFallSpeed().getExact() + makeSpeedValue(6).getScaledExact(deltaTimeMs)));
+        setFallSpeedExact(std::max(0.0f, getFallSpeed().getExact() - makeSpeedValue(6).getScaledExact(deltaTimeMs)));
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -1288,7 +1299,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         return nullptr;
@@ -1324,7 +1335,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getHealth() <= 0 )
         {
@@ -1367,7 +1378,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         return nullptr;
     }
@@ -1423,7 +1434,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getInputState().jump )
             setTargetState(LaraStateId::JumpForward);
@@ -1455,7 +1466,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         //! @todo Set local camera Y rotation to 24570 AU
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
@@ -1488,7 +1499,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
@@ -1520,7 +1531,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
@@ -1552,7 +1563,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
@@ -1604,7 +1615,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
@@ -1656,7 +1667,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         //! @todo set camera rotation (x,y)=(-10920,0)
@@ -1692,7 +1703,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         //! @todo set camera rotation (x,y)=(-10920,0)
@@ -1728,7 +1739,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if( getInputState().jump )
             setTargetState(LaraStateId::JumpBack);
@@ -1760,7 +1771,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         if(getInputState().zMovement == AxisMovement::Forward)
             m_yRotationSpeed = -182;
@@ -1780,6 +1791,55 @@ public:
     }
 };
 
+class StateHandler_44 final : public StateHandler_Underwater
+{
+public:
+    explicit StateHandler_44(LaraStateHandler& lara)
+        : StateHandler_Underwater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        return nullptr;
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::max(0.0f, getFallSpeed().getExact() - makeSpeedValue(8).getScaledExact(deltaTimeMs)));
+
+        if(getRotation().X < 0)
+        {
+            setXRotationExact(getRotation().X - makeSpeedValue(364).getScaledExact(deltaTimeMs));
+            if(getRotation().X >= 0)
+                setXRotation(0);
+        }
+        else if(getRotation().X > 0)
+        {
+            setXRotationExact(getRotation().X + makeSpeedValue(364).getScaledExact(deltaTimeMs));
+            if(getRotation().X <= 0)
+                setXRotation(0);
+        }
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::WaterDeath;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setHealth(-1);
+        setAir(-1);
+        setHandStatus(1);
+        auto h = getStateHandler().getWaterSurfaceHeight();
+        if(h && *h < getPosition().Y - 100)
+            setPosition(getExactPosition() - loader::ExactTRCoordinates(0,5,0));
+
+        return StateHandler_Underwater::postprocessFrame(state);
+    }
+};
+
 class StateHandler_45 final : public AbstractStateHandler
 {
 public:
@@ -1788,7 +1848,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& /*state*/) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
         return nullptr;
     }
@@ -1844,7 +1904,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~LaraState::FrobbelFlag10;
         state.frobbelFlags |= LaraState::FrobbelFlag08;
@@ -1892,7 +1952,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~LaraState::FrobbelFlag10;
         state.frobbelFlags |= LaraState::FrobbelFlag08;
@@ -1942,7 +2002,7 @@ public:
     {
     }
 
-    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) override
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
         return nullptr;
@@ -2053,6 +2113,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
         return std::make_unique<StateHandler_32>(lara);
     case LaraStateId::UnderwaterDiving:
         return std::make_unique<StateHandler_35>(lara);
+    case LaraStateId::WaterDeath:
+        return std::make_unique<StateHandler_44>(lara);
     case LaraStateId::RollForward:
         return std::make_unique<StateHandler_45>(lara);
     case LaraStateId::SwandiveBegin:
@@ -2072,7 +2134,9 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::createWithRetainedAnimation(loader::LaraStateId id) const
 {
     auto handler = create(id, m_stateHandler);
+    handler->m_xRotationSpeed = m_xRotationSpeed;
     handler->m_yRotationSpeed = m_yRotationSpeed;
+    handler->m_zRotationSpeed = m_zRotationSpeed;
     handler->m_xMovement = m_xMovement;
     handler->m_yMovement = m_yMovement;
     handler->m_zMovement = m_zMovement;
@@ -2087,6 +2151,11 @@ int AbstractStateHandler::getHealth() const noexcept
 void AbstractStateHandler::setHealth(int h) noexcept
 {
     m_stateHandler.setHealth(h);
+}
+
+void AbstractStateHandler::setAir(int a) noexcept
+{
+    m_stateHandler.setAir(a);
 }
 
 const InputState& AbstractStateHandler::getInputState() const noexcept
@@ -2224,9 +2293,14 @@ void AbstractStateHandler::addYRotationSpeed(int val, int limit)
     m_stateHandler.addYRotationSpeed(val, limit);
 }
 
-void AbstractStateHandler::setXRotation(int16_t y)
+void AbstractStateHandler::setXRotation(int16_t x)
 {
-    m_stateHandler.setXRotation(y);
+    m_stateHandler.setXRotation(x);
+}
+
+void AbstractStateHandler::setXRotationExact(float x)
+{
+    m_stateHandler.setXRotationExact(x);
 }
 
 void AbstractStateHandler::setYRotation(int16_t y)

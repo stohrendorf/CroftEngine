@@ -22,10 +22,19 @@ public:
 
     virtual ~AbstractStateHandler() = default;
 
-    virtual std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state) = 0;
     virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) = 0;
 
     void animate(LaraState& state, int deltaTimeMs);
+    std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state)
+    {
+        m_xMovement = 0;
+        m_yMovement = 0;
+        m_zMovement = 0;
+        m_xRotationSpeed = 0;
+        m_yRotationSpeed = 0;
+        m_zRotationSpeed = 0;
+        return handleInputImpl(state);
+    }
 
     static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraStateHandler& lara);
     std::unique_ptr<AbstractStateHandler> createWithRetainedAnimation(loader::LaraStateId id) const;
@@ -33,7 +42,10 @@ public:
     virtual loader::LaraStateId getId() const noexcept = 0;
 
 private:
+    friend class StateHandler_2;
+
     virtual void animateImpl(LaraState& state, int deltaTimeMs) = 0;
+    virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) = 0;
 
 protected:
     SpeedValue<int16_t> m_xRotationSpeed = 0;
@@ -51,6 +63,7 @@ protected:
     int getHealth() const noexcept;
     
     void setHealth(int h) noexcept;
+    void setAir(int a) noexcept;
 
     const InputState& getInputState() const noexcept;
 
@@ -105,6 +118,8 @@ protected:
     void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max());
 
     void setXRotation(int16_t y);
+    
+    void setXRotationExact(float y);
     
     void setYRotation(int16_t y);
 
