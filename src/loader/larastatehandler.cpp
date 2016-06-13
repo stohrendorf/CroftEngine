@@ -27,7 +27,7 @@ void LaraStateHandler::applyRotation()
     irr::core::quaternion q;
     q.makeIdentity();
     q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Y), {0,1,0});
-    q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().X), {1,0,0});
+    q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().X), {-1,0,0});
     q *= irr::core::quaternion().fromAngleAxis(util::auToRad(getRotation().Z), {0,0,-1});
 
     irr::core::vector3df euler;
@@ -154,9 +154,9 @@ void LaraStateHandler::handleLaraStateDiving(bool newFrame)
     m_rotation.X = irr::core::clamp(m_rotation.X, -18200.0f, 18200.0f); // 100 degrees
     m_rotation.Z = irr::core::clamp(m_rotation.Z, -4004.0f, 4004.0f); // 22 degrees
 
-    m_position.X += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::sin(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
-    m_position.Y -= m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4                                         * std::sin(util::auToRad(m_rotation.X));
-    m_position.Z += m_fallSpeed.getScaledExact(getCurrentDeltaTime())/4 * std::cos(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X));
+    m_position.X += std::sin(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X)) * m_fallSpeed.getScaledExact(getCurrentDeltaTime()) / 4;
+    m_position.Y -=                                         std::sin(util::auToRad(m_rotation.X)) * m_fallSpeed.getScaledExact(getCurrentDeltaTime()) / 4;
+    m_position.Z += std::cos(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X)) * m_fallSpeed.getScaledExact(getCurrentDeltaTime()) / 4;
 
     applyRotation();
     m_lara->setPosition(m_position.toIrrlicht());
@@ -439,17 +439,23 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
             m_fallSpeed.addExact(1, getCurrentDeltaTime());
         else
             m_fallSpeed.addExact(6, getCurrentDeltaTime());
+
+        move(
+            std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
+            m_fallSpeed.getScaledExact(getCurrentDeltaTime()),
+            std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
+        );
     }
     else
     {
         m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
-    }
 
-    move(
-         std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
-         m_fallSpeed.getScaledExact(getCurrentDeltaTime()),
-         std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
+        move(
+            std::sin(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime()),
+            0,
+            std::cos(util::auToRad(getMovementAngle())) * m_horizontalSpeed.getScaledExact(getCurrentDeltaTime())
         );
+    }
 
     m_lara->setPosition(m_position.toIrrlicht());
     m_lara->updateAbsolutePosition();
