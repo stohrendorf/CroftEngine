@@ -279,7 +279,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
             m_fallSpeed = m_fallSpeed.get() * 3 / 2;
         }
 
-        //! @todo jumpIntoWater();
+        //! @todo Show water splash effect
     }
     else if(m_underwaterState == UnderwaterState::Diving && !m_level->m_camera->getCurrentRoom()->isWaterRoom())
     {
