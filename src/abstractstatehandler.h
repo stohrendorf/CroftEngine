@@ -10,6 +10,8 @@ struct LaraState;
 class LaraStateHandler;
 struct InputState;
 
+enum class UnderwaterState;
+
 class AbstractStateHandler
 {
     LaraStateHandler& m_stateHandler;
@@ -158,4 +160,12 @@ protected:
 
     irr::scene::ISceneNode* getLara();
     irr::core::aabbox3di getBoundingBox() const;
+
+    void addSwimToDiveKeypressDuration(int ms) noexcept;
+
+    void setSwimToDiveKeypressDuration(int ms) noexcept;
+
+    int getSwimToDiveKeypressDuration() const noexcept;
+
+    void setUnderwaterState(UnderwaterState u) noexcept;
 };

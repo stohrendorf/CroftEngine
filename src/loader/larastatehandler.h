@@ -357,4 +357,24 @@ public:
     irr::core::aabbox3di getBoundingBox() const;
 
     boost::optional<int> getWaterSurfaceHeight() const;
+
+    void addSwimToDiveKeypressDuration(int ms) noexcept
+    {
+        m_swimToDiveKeypressDuration += ms;
+    }
+
+    void setSwimToDiveKeypressDuration(int ms) noexcept
+    {
+        m_swimToDiveKeypressDuration = ms;
+    }
+
+    int getSwimToDiveKeypressDuration() const noexcept
+    {
+        return m_swimToDiveKeypressDuration;
+    }
+
+    void setUnderwaterState(UnderwaterState u) noexcept
+    {
+        m_underwaterState = u;
+    }
 };

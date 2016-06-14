@@ -1764,6 +1764,230 @@ public:
     }
 };
 
+class StateHandler_OnWater : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_OnWater(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+protected:
+    std::unique_ptr<AbstractStateHandler> commonOnWaterHandling(LaraState& state)
+    {
+        state.yAngle = getMovementAngle();
+        state.initHeightInfo(getPosition() + loader::TRCoordinates(0, 700, 0), getLevel(), 700);
+        applyCollisionFeedback(state);
+        if(   state.current.floor.distance < 0
+           || state.axisCollisions == LaraState::AxisColl_CeilingTooLow
+           || state.axisCollisions == LaraState::AxisColl_BumpHead
+           || state.axisCollisions == LaraState::AxisColl_HeadInCeiling
+           || state.axisCollisions == LaraState::AxisColl_InsufficientFrontSpace
+           )
+        {
+            setFallSpeed(0);
+            setPosition(state.position);
+        }
+        else
+        {
+            if(state.axisCollisions == LaraState::AxisColl_FrontLeftBump)
+                m_yRotationSpeed = 910;
+            else if(state.axisCollisions == LaraState::AxisColl_FrontRightBump)
+                m_yRotationSpeed = -910;
+            else
+                m_yRotationSpeed = 0;
+        }
+
+        auto wsh = getStateHandler().getWaterSurfaceHeight();
+        if(wsh && *wsh > getPosition().Y - 100)
+        {
+            return tryClimbOutOfWater(state);
+        }
+
+        setTargetState(LaraStateId::UnderwaterForward);
+        playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+        setXRotation(-8190);
+        setFallSpeed(80);
+        setUnderwaterState(UnderwaterState::Diving);
+        return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
+    }
+
+private:
+    std::unique_ptr<AbstractStateHandler> tryClimbOutOfWater(LaraState& state)
+    {
+        if(getMovementAngle() != gsl::narrow_cast<int16_t>(getRotation().Y))
+            return nullptr;
+
+        if(state.axisCollisions != LaraState::AxisColl_InsufficientFrontSpace)
+            return nullptr;
+
+        if(!getInputState().action)
+            return nullptr;
+
+        const auto gradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
+        if(gradient >= core::MaxGrabableGradient)
+            return nullptr;
+
+        if(state.front.ceiling.distance > 0)
+            return nullptr;
+
+        if(state.current.ceiling.distance > -core::ClimbLimit2ClickMin)
+            return nullptr;
+
+        if(state.front.floor.distance + 700 <= -2*loader::QuarterSectorSize)
+            return nullptr;
+
+        if(state.front.floor.distance + 700 > 100)
+            return nullptr;
+
+        const auto yRot = util::alignRotation(gsl::narrow_cast<int16_t>(getRotation().Y), util::degToAu(35));
+        if(!yRot)
+            return nullptr;
+
+        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
+        getStateHandler().updateFloorHeight(-381);
+        if(*yRot == util::degToAu(0))
+            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100));
+        else if(*yRot == util::degToAu(180))
+            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - 100));
+        else if(*yRot == util::degToAu(90))
+            setPosition(getExactPosition() + loader::ExactTRCoordinates((getPosition().X / loader::SectorSize + 0) * loader::SectorSize - 100, 0, 0));
+        else if(*yRot == util::degToAu(-90))
+            setPosition(getExactPosition() + loader::ExactTRCoordinates((getPosition().X / loader::SectorSize + 1) * loader::SectorSize + 100, 0, 0));
+
+        setTargetState(LaraStateId::Stop);
+        playAnimation(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
+        setHorizontalSpeed(0);
+        setFallSpeed(0);
+        setFalling(false);
+        setXRotation(0);
+        setZRotation(0);
+        setHandStatus(1);
+        setUnderwaterState(UnderwaterState::OnLand);
+        return createWithRetainedAnimation(LaraStateId::OnWaterExit);
+    }
+};
+
+class StateHandler_33 final : public StateHandler_OnWater
+{
+public:
+    explicit StateHandler_33(LaraStateHandler& lara)
+        : StateHandler_OnWater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        if(getHealth() <= 0)
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return nullptr;
+        }
+
+        if(getInputState().zMovement == AxisMovement::Forward)
+            setTargetState(LaraStateId::OnWaterForward);
+        else if(getInputState().zMovement == AxisMovement::Backward)
+            setTargetState(LaraStateId::OnWaterBackward);
+
+        if(getInputState().stepMovement == AxisMovement::Left)
+            setTargetState(LaraStateId::OnWaterLeft);
+        else if(getInputState().stepMovement == AxisMovement::Right)
+            setTargetState(LaraStateId::OnWaterRight);
+
+        if(!getInputState().jump)
+        {
+            setSwimToDiveKeypressDuration(0);
+            return nullptr;
+        }
+
+        if(getSwimToDiveKeypressDuration() * 30 / 1000 < 10)
+            return nullptr;
+
+        setTargetState(LaraStateId::UnderwaterForward);
+        playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+        setXRotation(-8190);
+        setFallSpeed(80);
+        setUnderwaterState(UnderwaterState::Diving);
+        return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::max(0.0f, getFallSpeed().getExact() - makeSpeedValue(4).getScaledExact(deltaTimeMs)));
+
+        if(getInputState().xMovement == AxisMovement::Left)
+            m_yRotationSpeed = -728;
+        else if(getInputState().xMovement == AxisMovement::Right)
+            m_yRotationSpeed = 728;
+        else
+            m_yRotationSpeed = 0;
+
+        addSwimToDiveKeypressDuration(deltaTimeMs);
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(getRotation().Y);
+        return commonOnWaterHandling(state);
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterStop;
+    }
+};
+
+class StateHandler_34 final : public StateHandler_OnWater
+{
+public:
+    explicit StateHandler_34(LaraStateHandler& lara)
+        : StateHandler_OnWater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        if(getHealth() <= 0)
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return nullptr;
+        }
+
+        setSwimToDiveKeypressDuration(0);
+
+        if(getInputState().zMovement != AxisMovement::Forward)
+            setTargetState(LaraStateId::OnWaterStop);
+
+        if(getInputState().jump)
+            setTargetState(LaraStateId::OnWaterStop);
+
+        return nullptr;
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::min(60.0f, getFallSpeed().getExact() + makeSpeedValue(8).getScaledExact(deltaTimeMs)));
+
+        if(getInputState().xMovement == AxisMovement::Left)
+            m_yRotationSpeed = -728;
+        else if(getInputState().xMovement == AxisMovement::Right)
+            m_yRotationSpeed = 728;
+        else
+            m_yRotationSpeed = 0;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(getRotation().Y);
+        return commonOnWaterHandling(state);
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterForward;
+    }
+};
+
 class StateHandler_35 final : public StateHandler_Underwater
 {
 public:
@@ -1888,6 +2112,150 @@ public:
     loader::LaraStateId getId() const noexcept override
     {
         return LaraStateId::RollForward;
+    }
+};
+
+class StateHandler_47 final : public StateHandler_OnWater
+{
+public:
+    explicit StateHandler_47(LaraStateHandler& lara)
+        : StateHandler_OnWater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        if(getHealth() <= 0)
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return nullptr;
+        }
+
+        setSwimToDiveKeypressDuration(0);
+
+        if(getInputState().zMovement != AxisMovement::Backward)
+            setTargetState(LaraStateId::OnWaterStop);
+
+        return nullptr;
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::min(60.0f, getFallSpeed().getExact() + makeSpeedValue(8).getScaledExact(deltaTimeMs)));
+
+        if(getInputState().xMovement == AxisMovement::Left)
+            m_yRotationSpeed = -364;
+        else if(getInputState().xMovement == AxisMovement::Right)
+            m_yRotationSpeed = 364;
+        else
+            m_yRotationSpeed = 0;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(getRotation().Y + util::degToAu(180));
+        return commonOnWaterHandling(state);
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterBackward;
+    }
+};
+
+class StateHandler_48 final : public StateHandler_OnWater
+{
+public:
+    explicit StateHandler_48(LaraStateHandler& lara)
+        : StateHandler_OnWater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        if(getHealth() <= 0)
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return nullptr;
+        }
+
+        setSwimToDiveKeypressDuration(0);
+
+        if(getInputState().stepMovement != AxisMovement::Left)
+            setTargetState(LaraStateId::OnWaterStop);
+
+        return nullptr;
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::min(60.0f, getFallSpeed().getExact() + makeSpeedValue(8).getScaledExact(deltaTimeMs)));
+
+        if(getInputState().xMovement == AxisMovement::Left)
+            m_yRotationSpeed = -364;
+        else if(getInputState().xMovement == AxisMovement::Right)
+            m_yRotationSpeed = 364;
+        else
+            m_yRotationSpeed = 0;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(getRotation().Y - util::degToAu(90));
+        return commonOnWaterHandling(state);
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterLeft;
+    }
+};
+
+class StateHandler_49 final : public StateHandler_OnWater
+{
+public:
+    explicit StateHandler_49(LaraStateHandler& lara)
+        : StateHandler_OnWater(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+    {
+        if(getHealth() <= 0)
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return nullptr;
+        }
+
+        setSwimToDiveKeypressDuration(0);
+
+        if(getInputState().stepMovement != AxisMovement::Right)
+            setTargetState(LaraStateId::OnWaterStop);
+
+        return nullptr;
+    }
+
+    void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+    {
+        setFallSpeedExact(std::min(60.0f, getFallSpeed().getExact() + makeSpeedValue(8).getScaledExact(deltaTimeMs)));
+
+        if(getInputState().xMovement == AxisMovement::Left)
+            m_yRotationSpeed = -364;
+        else if(getInputState().xMovement == AxisMovement::Right)
+            m_yRotationSpeed = 364;
+        else
+            m_yRotationSpeed = 0;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        setMovementAngle(getRotation().Y + util::degToAu(90));
+        return commonOnWaterHandling(state);
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterRight;
     }
 };
 
@@ -2106,12 +2474,22 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
         return std::make_unique<StateHandler_31>(lara);
     case LaraStateId::SlideBackward:
         return std::make_unique<StateHandler_32>(lara);
+    case LaraStateId::OnWaterStop:
+        return std::make_unique<StateHandler_33>(lara);
+    case LaraStateId::OnWaterForward:
+        return std::make_unique<StateHandler_34>(lara);
     case LaraStateId::UnderwaterDiving:
         return std::make_unique<StateHandler_35>(lara);
     case LaraStateId::WaterDeath:
         return std::make_unique<StateHandler_44>(lara);
     case LaraStateId::RollForward:
         return std::make_unique<StateHandler_45>(lara);
+    case LaraStateId::OnWaterBackward:
+        return std::make_unique<StateHandler_47>(lara);
+    case LaraStateId::OnWaterLeft:
+        return std::make_unique<StateHandler_48>(lara);
+    case LaraStateId::OnWaterRight:
+        return std::make_unique<StateHandler_49>(lara);
     case LaraStateId::SwandiveBegin:
         return std::make_unique<StateHandler_52>(lara);
     case LaraStateId::SwandiveEnd:
@@ -2791,6 +3169,26 @@ irr::scene::ISceneNode* AbstractStateHandler::getLara()
 irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const
 {
     return m_stateHandler.getBoundingBox();
+}
+
+void AbstractStateHandler::addSwimToDiveKeypressDuration(int ms) noexcept
+{
+    m_stateHandler.addSwimToDiveKeypressDuration(ms);
+}
+
+void AbstractStateHandler::setSwimToDiveKeypressDuration(int ms) noexcept
+{
+    m_stateHandler.setSwimToDiveKeypressDuration(ms);
+}
+
+int AbstractStateHandler::getSwimToDiveKeypressDuration() const noexcept
+{
+    return m_stateHandler.getSwimToDiveKeypressDuration();
+}
+
+void AbstractStateHandler::setUnderwaterState(UnderwaterState u) noexcept
+{
+    m_stateHandler.setUnderwaterState(u);
 }
 
 void AbstractStateHandler::jumpAgainstWall(LaraState& state)
