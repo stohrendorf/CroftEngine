@@ -19,6 +19,8 @@ private:
     bool m_backward = false;
     bool m_left = false;
     bool m_right = false;
+    bool m_stepLeft = false;
+    bool m_stepRight = false;
 
     InputState m_inputState;
 

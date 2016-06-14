@@ -62,6 +62,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
 
     m_inputState.setXAxisMovement(m_left, m_right);
     m_inputState.setZAxisMovement(m_backward, m_forward);
+    m_inputState.setStepMovement(m_stepLeft, m_stepRight);
     m_stateHandler->setInputState(m_inputState);
     
     if(m_firstUpdate)
@@ -83,7 +84,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     
     if(m_firstInput)
     {
-        m_left = m_right = m_forward = m_backward = false;
+        m_left = m_right = m_stepLeft = m_stepRight = m_forward = m_backward = false;
         m_firstInput = false;
     }
     
@@ -160,6 +161,12 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
                     return true;
                 case irr::KEY_KEY_D:
                     m_right = evt.KeyInput.PressedDown;
+                    return true;
+                case irr::KEY_KEY_Q:
+                    m_stepLeft = evt.KeyInput.PressedDown;
+                    return true;
+                case irr::KEY_KEY_E:
+                    m_stepRight = evt.KeyInput.PressedDown;
                     return true;
                 case irr::KEY_KEY_W:
                     m_forward = evt.KeyInput.PressedDown;

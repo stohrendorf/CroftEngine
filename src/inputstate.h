@@ -31,6 +31,16 @@ struct InputState
             xMovement = AxisMovement::Null;
     }
 
+    void setStepMovement(bool left, bool right)
+    {
+        if(left < right)
+            stepMovement = AxisMovement::Right;
+        else if(left > right)
+            stepMovement = AxisMovement::Left;
+        else
+            stepMovement = AxisMovement::Null;
+    }
+
     void setZAxisMovement(bool back, bool forward)
     {
         if(back < forward)
