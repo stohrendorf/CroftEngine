@@ -230,6 +230,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::TRCoordinates& position,
                 continue;
 
             irr::core::aabbox3di bb = sm->getCollisionBox(rsm.position, rsm.rotation);
+            bb.repair();
 
             if(!bb.intersectsWithBox(baseBB))
                 continue;
