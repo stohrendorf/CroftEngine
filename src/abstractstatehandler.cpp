@@ -1846,14 +1846,19 @@ private:
 
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
         getStateHandler().updateFloorHeight(-381);
+        loader::ExactTRCoordinates d = getExactPosition();
         if(*yRot == util::degToAu(0))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100));
+            d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100;
         else if(*yRot == util::degToAu(180))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - 100));
-        else if(*yRot == util::degToAu(90))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates((getPosition().X / loader::SectorSize + 0) * loader::SectorSize - 100, 0, 0));
+            d.Z = (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - 100;
         else if(*yRot == util::degToAu(-90))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates((getPosition().X / loader::SectorSize + 1) * loader::SectorSize + 100, 0, 0));
+            d.X = (getPosition().X / loader::SectorSize + 0) * loader::SectorSize - 100;
+        else if(*yRot == util::degToAu(90))
+            d.X = (getPosition().X / loader::SectorSize + 1) * loader::SectorSize + 100;
+        else
+            throw std::runtime_error("Unexpected angle value");
+
+        setPosition(d);
 
         setTargetState(LaraStateId::Stop);
         playAnimation(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
@@ -1861,6 +1866,7 @@ private:
         setFallSpeed(0);
         setFalling(false);
         setXRotation(0);
+        setYRotation(*yRot);
         setZRotation(0);
         setHandStatus(1);
         setUnderwaterState(UnderwaterState::OnLand);
@@ -2394,6 +2400,43 @@ public:
     }
 };
 
+class StateHandler_55 final : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_55(LaraStateHandler& lara)
+        : AbstractStateHandler(lara)
+    {
+    }
+
+    std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+    {
+        state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+        return nullptr;
+    }
+
+    std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+    {
+        state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+        state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+        state.neededCeilingDistance = 0;
+        state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+        state.yAngle = getRotation().Y;
+        setMovementAngle(state.yAngle);
+        state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+        return nullptr;
+    }
+
+    loader::LaraStateId getId() const noexcept override
+    {
+        return LaraStateId::OnWaterExit;
+    }
+
+    void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+    {
+
+    }
+};
+
 void AbstractStateHandler::animate(LaraState& state, int deltaTimeMs)
 {
     animateImpl(state, deltaTimeMs);
@@ -2496,6 +2539,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
         return std::make_unique<StateHandler_53>(lara);
     case LaraStateId::Handstand:
         return std::make_unique<StateHandler_54>(lara);
+    case LaraStateId::OnWaterExit:
+        return std::make_unique<StateHandler_55>(lara);
     default:
         BOOST_LOG_TRIVIAL(error) << "No state handler for state " << loader::toString(id);
         throw std::runtime_error("Unhandled state");
