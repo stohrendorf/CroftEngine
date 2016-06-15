@@ -220,32 +220,47 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
     // Breadth-first queue
     std::queue<render::PortalTracer> toVisit;
     
-    const loader::Room* cameraRoom = nullptr;
+    bool cameraOutOfGeometry = true;
     for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
     {
         const loader::Room& room = m_level->m_rooms[i];
         if(room.node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
         {
-            cameraRoom = &room;
-            room.node->setVisible(true);
-        }
-        else
-        {
-            room.node->setVisible(false);
+            cameraOutOfGeometry = false;
+            break;
         }
     }
     
-    if(cameraRoom == nullptr)
+    for(const loader::Room& room : m_level->m_rooms)
+        room.node->setVisible(cameraOutOfGeometry);
+
+    if(cameraOutOfGeometry)
     {
-        for(const loader::Room& room : m_level->m_rooms)
-            room.node->setVisible(true);
         return;
     }
     
-    m_currentRoom->node->setVisible(true);
-    
-    // always process direct neighbours
-    for(const loader::Portal& portal : m_currentRoom->portals)
+    // First, find the room the camera is actually in.
+    // This is either Lara's room, or one of the neighbors.
+
+    const loader::Room* startRoom = m_currentRoom;
+    if(!startRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
+    {
+        for(const loader::Portal& portal : startRoom->portals)
+        {
+            BOOST_ASSERT(portal.adjoining_room < m_level->m_rooms.size());
+            const auto* testRoom = &m_level->m_rooms[portal.adjoining_room];
+            if(!testRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
+                continue;
+
+            startRoom = testRoom;
+            break;
+        }
+    }
+
+    startRoom->node->setVisible(true);
+
+    // always process direct neighbours of the starting room
+    for(const loader::Portal& portal : startRoom->portals)
     {
         render::PortalTracer path;
 #ifndef NDEBUG

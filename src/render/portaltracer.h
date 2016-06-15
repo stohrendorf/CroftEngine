@@ -60,7 +60,7 @@ private:
     static irr::core::position2df project(irr::core::vector3df pos, const irr::core::matrix4& view, const irr::core::matrix4& proj, bool& allBehind)
     {
         view.transformVect(pos);
-        if(pos.Z >= -0.5f)
+        if(pos.Z >= 0)
             allBehind = false;
 
         // clamp Z value to if too close to the eye
@@ -69,7 +69,7 @@ private:
 
         irr::f32 tmp[4];
         proj.transformVect(tmp, pos);
-        irr::core::position2df res{ irr::core::clamp(tmp[0] / tmp[3], -1.0f, 1.0f), irr::core::clamp(tmp[1] / tmp[3], -1.0f, 1.0f) };
+        irr::core::position2df res{ tmp[0] / tmp[3], tmp[1] / tmp[3] };
 
         return res;
     }
