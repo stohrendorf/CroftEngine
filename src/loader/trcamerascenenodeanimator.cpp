@@ -37,8 +37,13 @@ void TRCameraSceneNodeAnimator::setCurrentRoom(const loader::Room* newRoom)
     }
 }
 
+#ifndef NDEBUG
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler, irr::video::IVideoDriver* drv)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler), m_driver(drv)
+#else
 TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler)
     : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler)
+#endif
 {
     BOOST_ASSERT(cursorControl != nullptr);
     BOOST_ASSERT(currentRoom != nullptr);
@@ -243,8 +248,13 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
     for(const loader::Portal& portal : m_currentRoom->portals)
     {
         render::PortalTracer path;
-        if(!path.checkVisibility(&portal, camera->getAbsolutePosition(), *camera->getViewFrustum()))
+#ifndef NDEBUG
+        if(!path.checkVisibility(&portal, *camera, m_driver))
             continue;
+#else
+        if(!path.checkVisibility(&portal, *camera))
+            continue;
+#endif
         
         m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
         
@@ -268,8 +278,13 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
         for(const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals)
         {
             render::PortalTracer newPath = currentPath;
-            if(!newPath.checkVisibility(&srcPortal, camera->getAbsolutePosition(), *camera->getViewFrustum()))
+#ifndef NDEBUG
+            if(!newPath.checkVisibility(&srcPortal, *camera, m_driver))
                 continue;
+#else
+            if(!newPath.checkVisibility(&srcPortal, *camera))
+                continue;
+#endif
             
             m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
             toVisit.emplace(std::move(newPath));

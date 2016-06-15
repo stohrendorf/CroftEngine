@@ -6,38 +6,43 @@ namespace render
 {
 struct PortalTracer
 {
-    std::vector<const loader::Portal*> portals;
+    irr::core::rectf boundingBox{ -1, -1, 1, 1 };
+    const loader::Portal* lastPortal = nullptr;
 
-    bool checkVisibility(const loader::Portal* portal, const irr::core::vector3df& cameraPosition, const irr::scene::SViewFrustum& frustum)
+    bool checkVisibility(const loader::Portal* portal, const irr::scene::ICameraSceneNode& camera
+#ifndef NDEBUG
+                         , irr::video::IVideoDriver* drv
+#endif
+    )
     {
-        if(portal->normal.toIrrlicht().dotProduct(portal->vertices[0].toIrrlicht() - cameraPosition) >= 0)
+        if(portal->normal.toIrrlicht().dotProduct(portal->vertices[0].toIrrlicht() - camera.getAbsolutePosition()) >= 0)
         {
-            return false; // wrong orientation (normals point usually into the source room)
+            return false; // wrong orientation (normals must face the camera)
         }
 
-        if(!isVisible(frustum, *portal))
-        {
-           return false; // not in frustum
-        }
+        const auto& proj = camera.getProjectionMatrix();
+        const auto& view = camera.getViewMatrix();
 
-        if(portals.empty())
-        {
-            // no need to check the path
-            portals.emplace_back(portal);
-            return true;
-        }
+        bool allBehind = true;
+        irr::core::rectf portalBB;
+        portalBB.UpperLeftCorner = project(portal->vertices[0].toIrrlicht(), view, proj, allBehind);
+        portalBB.LowerRightCorner = project(portal->vertices[1].toIrrlicht(), view, proj, allBehind);
+        portalBB.repair();
+        portalBB.addInternalPoint(project(portal->vertices[2].toIrrlicht(), view, proj, allBehind));
+        portalBB.addInternalPoint(project(portal->vertices[3].toIrrlicht(), view, proj, allBehind));
 
-        // Now the heavy work: trace the portal path and test if we can see the target portal through any other portal.
-        for(const loader::Portal* testPortal : portals)
-        {
-            if(!testIntersection(cameraPosition, *portal, *testPortal))
-            {
-                return false;
-            }
-        }
+        if(allBehind)
+            return false;
 
-        portals.emplace_back(portal);
-        return true;
+        boundingBox.clipAgainst(portalBB);
+        lastPortal = portal;
+
+#ifndef NDEBUG
+        drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
+        drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
+#endif
+
+        return boundingBox.getArea()*drv->getScreenSize().getArea() >= 1;
     }
 
     uint16_t getLastDestinationRoom() const
@@ -47,74 +52,52 @@ struct PortalTracer
 
     const loader::Portal* getLastPortal() const
     {
-        BOOST_ASSERT(!portals.empty());
-        return portals.back();
+        BOOST_ASSERT(lastPortal != nullptr);
+        return lastPortal;
     }
 
 private:
-    static bool isVisible(const irr::scene::SViewFrustum& frustum, const loader::Portal& portal)
+    static irr::core::position2df project(irr::core::vector3df pos, const irr::core::matrix4& view, const irr::core::matrix4& proj, bool& allBehind)
     {
-        if(intersects(frustum, portal.vertices[0], portal.vertices[1])) return true;
-        if(intersects(frustum, portal.vertices[1], portal.vertices[2])) return true;
-        if(intersects(frustum, portal.vertices[2], portal.vertices[3])) return true;
-        if(intersects(frustum, portal.vertices[3], portal.vertices[0])) return true;
-        if(intersects(frustum, portal.vertices[0], portal.vertices[2])) return true;
-        if(intersects(frustum, portal.vertices[1], portal.vertices[3])) return true;
-    
-        return false;
+        view.transformVect(pos);
+        if(pos.Z >= -0.5f)
+            allBehind = false;
+
+        // clamp Z value to if too close to the eye
+        if(pos.Z < 0.001f)
+            pos.Z = 0.001f;
+
+        irr::f32 tmp[4];
+        proj.transformVect(tmp, pos);
+        irr::core::position2df res{ irr::core::clamp(tmp[0] / tmp[3], -1.0f, 1.0f), irr::core::clamp(tmp[1] / tmp[3], -1.0f, 1.0f) };
+
+        return res;
     }
 
-    static bool intersects(const irr::scene::SViewFrustum& frustum, const loader::TRCoordinates& a, const loader::TRCoordinates& b)
+#ifndef NDEBUG
+    void drawBB(irr::video::IVideoDriver* drv, const irr::core::rectf& bb, const irr::video::SColor& col)
     {
-        return intersects(frustum, a.toIrrlicht(), b.toIrrlicht());
+        const auto w = drv->getScreenSize().Width;
+        const auto h = drv->getScreenSize().Height;
+        // top
+        drawBBLine(drv, w, h, { bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y }, { bb.LowerRightCorner.X, bb.UpperLeftCorner.Y }, col);
+        // bottom
+        drawBBLine(drv, w, h, { bb.UpperLeftCorner.X, bb.LowerRightCorner.Y }, { bb.LowerRightCorner.X, bb.LowerRightCorner.Y }, col);
+        // left
+        drawBBLine(drv, w, h, { bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y }, { bb.UpperLeftCorner.X, bb.LowerRightCorner.Y }, col);
+        // right
+        drawBBLine(drv, w, h, { bb.LowerRightCorner.X, bb.UpperLeftCorner.Y }, { bb.LowerRightCorner.X, bb.LowerRightCorner.Y }, col);
+        
+        drawBBLine(drv, w, h, { bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y }, { bb.LowerRightCorner.X, bb.LowerRightCorner.Y }, col);
+        drawBBLine(drv, w, h, { bb.UpperLeftCorner.X, bb.LowerRightCorner.Y }, { bb.LowerRightCorner.X, bb.UpperLeftCorner.Y }, col);
     }
 
-    static bool intersects(const irr::scene::SViewFrustum& frustum, const irr::core::vector3df& a, const irr::core::vector3df& b)
+    static void drawBBLine(irr::video::IVideoDriver* drv, int w, int h, const irr::core::vector2df& a, const irr::core::vector2df& b, const irr::video::SColor& col)
     {
-        uint32_t aOutside = 0, bOutside = 0;
-        for(size_t i = 0; i < 6; ++i)
-        {
-            const auto aDist = frustum.planes[i].classifyPointRelation(a);
-            if(aDist != irr::core::ISREL3D_BACK)
-                aOutside |= 1 << i;
-    
-            const auto bDist = frustum.planes[i].classifyPointRelation(b);
-            if(bDist != irr::core::ISREL3D_BACK)
-                bOutside |= 1 << i;
-        }
-    
-        if(aOutside == 0 || bOutside == 0)
-            return true; // a or b or both are inside the frustum
-    
-        // if both are outside different planes, chances are high that they cross the frustum;
-        // chances are low for false positives unless there are very very long edges compared to the frustum
-        return aOutside != bOutside;
+        const auto a_ = irr::core::dimension2di(w*(a.X + 1) / 2, h - h*(a.Y + 1) / 2);
+        const auto b_ = irr::core::dimension2di(w*(b.X + 1) / 2, h - h*(b.Y + 1) / 2);
+        drv->draw2DLine(a_, b_, col);
     }
-    
-    static bool testIntersectionFwd(const irr::core::vector3df& camPos, const loader::Portal& a, const loader::Portal& b)
-    {
-        irr::core::triangle3df tri1{b.vertices[0].toIrrlicht(), b.vertices[1].toIrrlicht(), b.vertices[2].toIrrlicht()};
-        irr::core::triangle3df tri2{b.vertices[0].toIrrlicht(), b.vertices[2].toIrrlicht(), b.vertices[3].toIrrlicht()};
-        irr::core::vector3df dummy;
-        // test if the ray from the camera to a's vertices crosses b's triangles
-        for(const loader::TRCoordinates& v : a.vertices)
-        {
-            if(tri1.getIntersectionWithLine(camPos, v.toIrrlicht()-camPos, dummy))
-                return true;
-            if(tri2.getIntersectionWithLine(camPos, v.toIrrlicht()-camPos, dummy))
-                return true;
-        }
-
-        return false;
-    }
-
-    static bool testIntersection(const irr::core::vector3df& camPos, const loader::Portal& a, const loader::Portal& b)
-    {
-        if(testIntersectionFwd(camPos, a, b))
-            return true;
-        if(testIntersectionFwd(camPos, b, a))
-            return true;
-        return false;
-    }
+#endif
 };
 }

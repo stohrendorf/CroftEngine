@@ -956,7 +956,11 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
+#ifndef NDEBUG
+    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler, mgr->getVideoDriver());
+#else
     m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler);
+#endif
     camera->addAnimator(m_camera);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);

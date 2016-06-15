@@ -31,8 +31,16 @@ private:
     const irr::core::vector3df m_relativeTarget{0, 0, 0};
     irr::core::vector3df m_relativePosition{0, 0, -1024};
     
+#ifndef NDEBUG
+    irr::video::IVideoDriver* m_driver;
+#endif
+
 public:
+#ifndef NDEBUG
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler, irr::video::IVideoDriver* drv);
+#else
     explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler);
+#endif
 
     //! Animates a scene node.
     /** \param node Node to animate.
