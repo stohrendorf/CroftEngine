@@ -46,11 +46,14 @@ class LightSelector final : public irr::scene::ILightManager
 {
 private:
     loader::Level& m_level;
+    irr::scene::ISceneManager* m_manager;
 
 public:
-    explicit LightSelector(loader::Level& level)
+    explicit LightSelector(loader::Level& level, irr::scene::ISceneManager* mgr)
         : m_level(level)
+        , m_manager(mgr)
     {
+        BOOST_ASSERT(mgr != nullptr);
     }
 
     void OnPreRender(irr::core::array<irr::scene::ISceneNode*>& lightList) override
@@ -67,7 +70,7 @@ public:
         for(const loader::Light& light : room->lights)
         {
             auto fadeSq = light.specularFade * light.specularFade / 4096;
-            const int frobbel = fadeSq + (0x1fff - room->intensity1) * light.specularIntensity
+            const int frobbel = (0x1fff - room->intensity1) + fadeSq * light.specularIntensity
                 / (fadeSq + laraPos.getDistanceFromSQ(light.position.toIrrlicht()) / 4096);
             if(frobbel > maxFrobbel)
             {
@@ -77,6 +80,7 @@ public:
         }
         BOOST_ASSERT(bestLight != nullptr);
         bestLight->node->setVisible(true);
+        m_manager->setShadowColor(irr::video::SColor(150*maxFrobbel/4096,0,0,0));
     }
 
     void OnPostRender() override
@@ -913,7 +917,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
 {
     mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
     mgr->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-    mgr->setLightManager(new LightSelector(*this));
+    mgr->setLightManager(new LightSelector(*this, mgr));
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
     std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
