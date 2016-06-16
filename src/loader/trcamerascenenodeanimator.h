@@ -12,7 +12,6 @@ private:
     irr::core::vector2df m_currentCursorPos;
     irr::u32 m_lastAnimationTime = 0;
     bool m_firstInput = true;
-    irr::f32 m_maxVerticalAngle = 88;
     irr::f32 m_rotateSpeed = 100;
 
     bool m_forward = false;
@@ -28,8 +27,12 @@ private:
     const loader::Room* m_currentRoom;
     LaraStateHandler* m_stateHandler;
     
-    const irr::core::vector3df m_relativeTarget{0, 0, 0};
-    irr::core::vector3df m_relativePosition{0, 0, -1024};
+    int m_lookAtYOffset = 1024;
+    int m_distanceFromLookAt = 1536;
+    int m_smoothFactor = 3; // 12
+    irr::core::vector3df m_currentLookAt;
+    irr::core::vector3df m_localRotation;
+    irr::core::vector3df m_currentPosition;
     
 #ifndef NDEBUG
     irr::video::IVideoDriver* m_driver;
@@ -74,6 +77,10 @@ public:
     {
         return m_level;
     }
+
+    void setLocalRotation(int16_t x, int16_t y);
+    void setLocalRotationX(int16_t x);
+    void setLocalRotationY(int16_t y);
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);

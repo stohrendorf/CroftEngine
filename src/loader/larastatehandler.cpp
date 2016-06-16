@@ -195,6 +195,8 @@ void LaraStateHandler::handleLaraStateSwimming(bool newFrame)
     laraState.neededFloorDistanceBottom = loader::HeightLimit;
     laraState.neededFloorDistanceTop = -100;
 
+    setCameraRotationX(-4004);
+
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
     if(newFrame)
     {
@@ -719,4 +721,19 @@ boost::optional<int> LaraStateHandler::getWaterSurfaceHeight() const
     }
 
     return boost::none;
+}
+
+void LaraStateHandler::setCameraRotation(int16_t x, int16_t y)
+{
+    m_level->m_camera->setLocalRotation(x, y);
+}
+
+void LaraStateHandler::setCameraRotationY(int16_t y)
+{
+    m_level->m_camera->setLocalRotationY(y);
+}
+
+void LaraStateHandler::setCameraRotationX(int16_t x)
+{
+    m_level->m_camera->setLocalRotationX(x);
 }

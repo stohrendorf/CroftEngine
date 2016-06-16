@@ -955,7 +955,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     for(auto& ptr : skinnedMeshes)
         ptr->drop();
     
-    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode(lara.node, {0, 0, -256}, {0, 0, 0}, -1, true);
+    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
 #ifndef NDEBUG
     m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler, mgr->getVideoDriver());
 #else

@@ -168,4 +168,8 @@ protected:
     int getSwimToDiveKeypressDuration() const noexcept;
 
     void setUnderwaterState(UnderwaterState u) noexcept;
+
+    void setCameraRotation(int16_t x, int16_t y);
+    void setCameraRotationX(int16_t x);
+    void setCameraRotationY(int16_t y);
 };

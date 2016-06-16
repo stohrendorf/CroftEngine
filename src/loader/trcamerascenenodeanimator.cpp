@@ -48,6 +48,10 @@ TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* c
     BOOST_ASSERT(cursorControl != nullptr);
     BOOST_ASSERT(currentRoom != nullptr);
     setCurrentRoom(currentRoom);
+    m_currentLookAt = m_level->m_lara->getAbsolutePosition();
+    m_currentLookAt.Y += m_lookAtYOffset;
+    m_currentPosition = m_currentLookAt;
+    m_currentPosition.Z -= 100;
 }
 
 void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
@@ -60,11 +64,6 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     if(smgr && smgr->getActiveCamera() != camera)
         return;
     
-    if(!camera->getParent() || camera->getParent()->getType() != irr::scene::ESNT_ANIMATED_MESH)
-        return;
-    
-    irr::scene::IAnimatedMeshSceneNode* lara = static_cast<irr::scene::IAnimatedMeshSceneNode*>(camera->getParent());
-
     m_inputState.setXAxisMovement(m_left, m_right);
     m_inputState.setZAxisMovement(m_backward, m_forward);
     m_inputState.setStepMovement(m_stepLeft, m_stepRight);
@@ -93,26 +92,19 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         m_firstInput = false;
     }
     
+    const auto localTime = timeMs - m_lastAnimationTime;
+
+    if(localTime <= 0)
+        return;
+
     m_lastAnimationTime = timeMs;
     
     // Update mouse rotation
     if(m_currentCursorPos != m_prevCursorPos)
     {
-        auto relativeCameraPosition = m_relativePosition - m_relativeTarget;
-        irr::core::vector3df relativeRotation{0,0,0};
-        relativeRotation.Y = -(0.5f - m_currentCursorPos.X) * m_rotateSpeed;
-        relativeRotation.X = -(0.5f - m_currentCursorPos.Y) * m_rotateSpeed;
-        
-        // X < MaxVerticalAngle or X > 360-MaxVerticalAngle
-        
-        if(relativeRotation.X > m_maxVerticalAngle * 2 && relativeRotation.X < 360.0f - m_maxVerticalAngle)
-        {
-            relativeRotation.X = 360.0f - m_maxVerticalAngle;
-        }
-        else if(relativeRotation.X > m_maxVerticalAngle && relativeRotation.X < 360.0f - m_maxVerticalAngle)
-        {
-            relativeRotation.X = m_maxVerticalAngle;
-        }
+        m_localRotation.Y += -(0.5f - m_currentCursorPos.X) * m_rotateSpeed;
+        m_localRotation.X +=  (0.5f - m_currentCursorPos.Y) * m_rotateSpeed;
+        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85.0f, 85.0f);
         
         // Do the fix as normal, special case below
         // reset cursor position to the centre of the window.
@@ -120,10 +112,6 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         
         // needed to avoid problems when the event receiver is disabled
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
-        irr::core::matrix4 mat(irr::core::IdentityMatrix);
-        mat.setRotationDegrees({relativeRotation.X, relativeRotation.Y, 0});
-        mat.transformVect(relativeCameraPosition);
-        m_relativePosition = m_relativeTarget + relativeCameraPosition;
     }
     
     // Special case, mouse is whipped outside of window before it can update.
@@ -139,16 +127,29 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
     }
     
-    lara->updateAbsolutePosition();
-    camera->setPosition(m_relativePosition + m_relativeTarget);
+    auto targetLookAt = m_stateHandler->getPosition().toIrrlicht();
+    targetLookAt.Y += m_lookAtYOffset;
+    m_currentLookAt += (targetLookAt - m_currentLookAt) * 30 / m_smoothFactor * localTime / 1000;
+
+    const irr::core::vector3df totalRotation = m_localRotation + util::auToDeg(m_stateHandler->getRotation());
+
+    irr::core::vector3df targetPos = m_currentLookAt;
+    const auto localDistance = m_distanceFromLookAt * std::cos(irr::core::degToRad(totalRotation.X));
+    targetPos.X -= std::sin(irr::core::degToRad(totalRotation.Y)) * localDistance;
+    targetPos.Z -= std::cos(irr::core::degToRad(totalRotation.Y)) * localDistance;
+    targetPos.Y -= std::sin(irr::core::degToRad(totalRotation.X)) * m_distanceFromLookAt;
+
+    m_currentPosition += (targetPos - m_currentPosition) * 30 / m_smoothFactor * localTime / 1000;
+
+    camera->setPosition(m_currentPosition);
     camera->updateAbsolutePosition();
-    camera->setTarget(lara->getJointNode("chest")->getAbsolutePosition() + m_relativeTarget);
+    camera->setTarget(m_currentLookAt);
     camera->updateAbsolutePosition();
     
     tracePortals(camera);
 }
 
-irr::scene::ISceneNodeAnimator*TRCameraSceneNodeAnimator::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
+irr::scene::ISceneNodeAnimator* TRCameraSceneNodeAnimator::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
 {
     BOOST_ASSERT(false);
     return nullptr;
@@ -213,6 +214,22 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
     }
     
     return false;
+}
+
+void TRCameraSceneNodeAnimator::setLocalRotation(int16_t x, int16_t y)
+{
+    m_localRotation.X = util::auToDeg(x);
+    m_localRotation.Y = util::auToDeg(y);
+}
+
+void TRCameraSceneNodeAnimator::setLocalRotationX(int16_t x)
+{
+    m_localRotation.X = util::auToDeg(x);
+}
+
+void TRCameraSceneNodeAnimator::setLocalRotationY(int16_t y)
+{
+    m_localRotation.X = util::auToDeg(y);
 }
 
 void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camera)

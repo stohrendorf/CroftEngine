@@ -90,6 +90,12 @@ constexpr float auToDeg(int16_t au)
     return au / 65536.0f * 360;
 }
 
+template<typename T>
+inline irr::core::vector3d<T> auToDeg(const irr::core::vector3d<T>& au)
+{
+    return irr::core::vector3d<T>(auToDeg(au.X), auToDeg(au.Y), auToDeg(au.Z));
+}
+
 constexpr float auToRad(int16_t au)
 {
     return au / 65536.0f * 2 * irr::core::PI;

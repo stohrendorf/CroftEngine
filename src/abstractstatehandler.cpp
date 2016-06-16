@@ -811,8 +811,8 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
+        setCameraRotation(-10920, 0);
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-        //! @todo Set camera rotation (x,y) = (-10920,0)
         if( getInputState().xMovement == AxisMovement::Left || getInputState().stepMovement == AxisMovement::Left )
             setTargetState(LaraStateId::ShimmyLeft);
         else if( getInputState().xMovement == AxisMovement::Right || getInputState().stepMovement == AxisMovement::Right )
@@ -868,6 +868,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
+        setCameraRotationY(15470);
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
         return nullptr;
@@ -1571,6 +1572,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
+        setCameraRotationX(-8190);
         if( getInputState().jump )
             setTargetState(LaraStateId::JumpForward);
 
@@ -1603,7 +1605,7 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
     {
-        //! @todo Set local camera Y rotation to 24570 AU
+        setCameraRotationY(24570);
         if( getFallSpeed().get() > core::FreeFallSpeedThreshold )
             setTargetState(LaraStateId::FreeFall);
 
@@ -1804,8 +1806,8 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
+        setCameraRotation(-10920, 0);
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-        //! @todo set camera rotation (x,y)=(-10920,0)
         if( getInputState().xMovement != AxisMovement::Left && getInputState().stepMovement != AxisMovement::Left )
             setTargetState(LaraStateId::Hang);
 
@@ -1840,8 +1842,8 @@ public:
 
     std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
     {
+        setCameraRotation(-10920, 0);
         state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-        //! @todo set camera rotation (x,y)=(-10920,0)
         if( getInputState().xMovement != AxisMovement::Right && getInputState().stepMovement != AxisMovement::Right )
             setTargetState(LaraStateId::Hang);
 
@@ -3372,6 +3374,21 @@ int AbstractStateHandler::getSwimToDiveKeypressDuration() const noexcept
 void AbstractStateHandler::setUnderwaterState(UnderwaterState u) noexcept
 {
     m_stateHandler.setUnderwaterState(u);
+}
+
+void AbstractStateHandler::setCameraRotation(int16_t x, int16_t y)
+{
+    m_stateHandler.setCameraRotation(x, y);
+}
+
+void AbstractStateHandler::setCameraRotationX(int16_t x)
+{
+    m_stateHandler.setCameraRotationX(x);
+}
+
+void AbstractStateHandler::setCameraRotationY(int16_t y)
+{
+    m_stateHandler.setCameraRotationY(y);
 }
 
 void AbstractStateHandler::jumpAgainstWall(LaraState& state)

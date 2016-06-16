@@ -377,4 +377,10 @@ public:
     {
         m_underwaterState = u;
     }
+
+    void setCameraRotation(int16_t x, int16_t y);
+
+    void setCameraRotationX(int16_t x);
+    
+    void setCameraRotationY(int16_t y);
 };
