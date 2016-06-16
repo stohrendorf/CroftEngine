@@ -2156,7 +2156,7 @@ enum class TriggerOp
     XOr
 };
 
-class DefaultAnimDispatcher;
+class AnimationController;
 struct Item;
 
 class AbstractTriggerHandler
@@ -2166,14 +2166,14 @@ private:
     uint8_t m_triggerMask;
     bool m_lock;
     bool m_event;
-    std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
+    std::shared_ptr<AnimationController> m_dispatcher;
     
 protected:
-    explicit AbstractTriggerHandler(const Item& item, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher);
+    explicit AbstractTriggerHandler(const Item& item, const std::shared_ptr<AnimationController>& dispatcher);
     
 public:
     template<class T>
-    static std::unique_ptr<T> create(const Item& item, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher)
+    static std::unique_ptr<T> create(const Item& item, const std::shared_ptr<AnimationController>& dispatcher)
     {
         static_assert(std::is_base_of<AbstractTriggerHandler, T>::value, "T must be derived from AbstractTriggerHandler");
         std::unique_ptr<T> result{new T(item, dispatcher)};
@@ -2195,7 +2195,7 @@ public:
     virtual void onSave() = 0;
     virtual void onLoad() = 0;
     
-    const std::shared_ptr<DefaultAnimDispatcher>& getDispatcher() const noexcept
+    const std::shared_ptr<AnimationController>& getDispatcher() const noexcept
     {
         return m_dispatcher;
     }

@@ -1,6 +1,6 @@
 #include "datatypes.h"
 
-#include "defaultanimdispatcher.h"
+#include "animationcontroller.h"
 #include "level.h"
 #include "util/vmath.h"
 
@@ -380,7 +380,7 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
     return tex;
 }
 
-AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, const std::shared_ptr<DefaultAnimDispatcher>& dispatcher)
+AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, const std::shared_ptr<AnimationController>& dispatcher)
     : m_triggerMask{item.getTriggerMask()}
     , m_lock{item.getLockBit()}
     , m_event{item.getEventBit()}

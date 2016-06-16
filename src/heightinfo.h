@@ -2,7 +2,7 @@
 
 #include "loader/datatypes.h"
 
-class TRCameraSceneNodeAnimator;
+class CameraController;
 
 enum class SlantClass
 {
@@ -19,9 +19,9 @@ struct HeightInfo
 
     static bool skipSteepSlants;
 
-    static HeightInfo fromFloor(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const TRCameraSceneNodeAnimator* camera);
+    static HeightInfo fromFloor(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
 
-    static HeightInfo fromCeiling(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const TRCameraSceneNodeAnimator* camera);
+    static HeightInfo fromCeiling(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
 
     HeightInfo() = default;
 };
@@ -31,7 +31,7 @@ struct VerticalInfo
     HeightInfo floor;
     HeightInfo ceiling;
 
-    void init(const loader::Sector* roomSector, const loader::TRCoordinates& position, const TRCameraSceneNodeAnimator* camera, int scalpHeight)
+    void init(const loader::Sector* roomSector, const loader::TRCoordinates& position, const CameraController* camera, int scalpHeight)
     {
         floor = HeightInfo::fromFloor(roomSector, position, camera);
         if(floor.distance != -loader::HeightLimit)

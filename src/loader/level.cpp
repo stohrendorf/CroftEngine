@@ -27,9 +27,9 @@
 #include "tr5level.h"
 
 #include "util/vmath.h"
-#include "trcamerascenenodeanimator.h"
-#include "defaultanimdispatcher.h"
-#include "larastatehandler.h"
+#include "cameracontroller.h"
+#include "animationcontroller.h"
+#include "laracontroller.h"
 
 #include <algorithm>
 #include <stack>
@@ -64,7 +64,7 @@ public:
         //    return;
 
         const auto laraPos = m_level.m_lara->getPosition();
-        const auto room = m_level.m_camera->getCurrentRoom();
+        const auto room = m_level.m_cameraController->getCurrentRoom();
         int maxFrobbel = 0;
         const loader::Light* bestLight = nullptr;
         for(const loader::Light& light : room->lights)
@@ -116,8 +116,8 @@ private:
     bool m_mustClose = false;
 
 public:
-    explicit DoorTriggerHandler(const Item& item, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher)
-        : AbstractTriggerHandler(item, dispatcher)
+    explicit DoorTriggerHandler(const Item& item, const std::shared_ptr<loader::AnimationController>& animationController)
+        : AbstractTriggerHandler(item, animationController)
     {
     }
     
@@ -619,14 +619,14 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            auto dispatcher = DefaultAnimDispatcher::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
+            auto animationController = AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
             
             if(item.objectId == 0)
             {
-                dispatcher->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
-                lara.stateHandler = new LaraStateHandler(this, dispatcher, node, name + ":statehandler");
-                node->addAnimator(lara.stateHandler);
-                lara.stateHandler->drop();
+                animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
+                lara.controller = new LaraController(this, animationController, node, name + ":statehandler");
+                node->addAnimator(lara.controller);
+                lara.controller->drop();
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
@@ -644,7 +644,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             
             if(item.objectId >= 57 && item.objectId <= 64)
             {
-                item.triggerHandler = AbstractTriggerHandler::create<DoorTriggerHandler>(item, dispatcher);
+                item.triggerHandler = AbstractTriggerHandler::create<DoorTriggerHandler>(item, animationController);
             }
             
             continue;
@@ -961,11 +961,11 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
 #ifndef NDEBUG
-    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler, mgr->getVideoDriver());
+    m_cameraController = new CameraController(cursorCtrl, this, lara.room, lara.controller, mgr->getVideoDriver());
 #else
-    m_camera = new TRCameraSceneNodeAnimator(cursorCtrl, this, lara.room, lara.stateHandler);
+    m_cameraController = new CameraController(cursorCtrl, this, lara.room, lara.stateHandler);
 #endif
-    camera->addAnimator(m_camera);
+    camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
     camera->setFarValue(2e5);

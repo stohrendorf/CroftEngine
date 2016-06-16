@@ -62,12 +62,12 @@ set(OT_IRR_SRCS
     loader/tr4level.cpp
     loader/tr5level.h
     loader/tr5level.cpp
-    loader/trcamerascenenodeanimator.h
-    loader/trcamerascenenodeanimator.cpp
-    loader/defaultanimdispatcher.h
-    loader/defaultanimdispatcher.cpp
-    loader/larastatehandler.h
-    loader/larastatehandler.cpp
+    loader/cameracontroller.h
+    loader/cameracontroller.cpp
+    loader/animationcontroller.h
+    loader/animationcontroller.cpp
+    loader/laracontroller.h
+    loader/laracontroller.cpp
     loader/larastateid.h
 
     inputstate.h

@@ -7,7 +7,7 @@ namespace loader
 /**
  * @brief Handles state transitions and animation playback.
  */
-class DefaultAnimDispatcher final
+class AnimationController final
 {
 private:
     const Level* const m_level;
@@ -17,10 +17,10 @@ private:
     const std::string m_name;
     irr::scene::IAnimatedMeshSceneNode* const m_node;
 
-    DefaultAnimDispatcher(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name);
+    AnimationController(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name);
 public:
 
-    static std::shared_ptr<DefaultAnimDispatcher> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
+    static std::shared_ptr<AnimationController> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
     
     uint16_t getCurrentAnimState() const;
 
@@ -96,20 +96,20 @@ private:
 /**
  * @brief Handles looping and default transitions of animations.
  */
-class AnimationEndStateHandler final : public irr::scene::IAnimationEndCallBack
+class AnimationEndControllerHelper final : public irr::scene::IAnimationEndCallBack
 {
-    std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
+    std::shared_ptr<AnimationController> m_animationController;
 
 public:
-    explicit AnimationEndStateHandler(std::shared_ptr<DefaultAnimDispatcher> dispatcher)
-        : m_dispatcher(dispatcher)
+    explicit AnimationEndControllerHelper(std::shared_ptr<AnimationController> animationController)
+        : m_animationController(animationController)
     {
-        BOOST_ASSERT(dispatcher != nullptr);
+        BOOST_ASSERT(animationController != nullptr);
     }
 
     void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* /*node*/) override
     {
-        m_dispatcher->handleAnimationEnd();
+        m_animationController->handleAnimationEnd();
     }
 };
 
@@ -118,16 +118,16 @@ public:
  * 
  * @note Transitions are only checked once per frame.
  */
-class IntermediateStateHandler final : public irr::scene::ISceneNodeAnimator
+class IntermediateTransitionControllerHelper final : public irr::scene::ISceneNodeAnimator
 {
-    std::shared_ptr<DefaultAnimDispatcher> m_dispatcher;
+    std::shared_ptr<AnimationController> m_animationController;
     irr::u32 m_lastCheckedFrame = std::numeric_limits<irr::u32>::max();
 
 public:
-    explicit IntermediateStateHandler(std::shared_ptr<DefaultAnimDispatcher> dispatcher)
-        : m_dispatcher(dispatcher)
+    explicit IntermediateTransitionControllerHelper(std::shared_ptr<AnimationController> animationController)
+        : m_animationController(animationController)
     {
-        BOOST_ASSERT(dispatcher != nullptr);
+        BOOST_ASSERT(animationController != nullptr);
     }
 
     void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override

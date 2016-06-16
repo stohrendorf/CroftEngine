@@ -18,13 +18,13 @@ enum class UnderwaterState
     Swimming
 };
 
-class LaraStateHandler final : public irr::scene::ISceneNodeAnimator
+class LaraController final : public irr::scene::ISceneNodeAnimator
 {
     using LaraStateId = loader::LaraStateId;
 
 private:
     const loader::Level* const m_level;
-    std::shared_ptr<loader::DefaultAnimDispatcher> m_dispatcher;
+    std::shared_ptr<loader::AnimationController> m_dispatcher;
     const std::string m_name;
 
     irr::scene::IAnimatedMeshSceneNode* const m_lara;
@@ -65,7 +65,7 @@ private:
     loader::ExactTRCoordinates m_position;
 
 public:
-    LaraStateHandler(const loader::Level* level, const std::shared_ptr<loader::DefaultAnimDispatcher>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
+    LaraController(const loader::Level* level, const std::shared_ptr<loader::AnimationController>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
         : m_level(level), m_dispatcher(dispatcher), m_name(name), m_lara(lara)
     {
         BOOST_ASSERT(level != nullptr);
@@ -84,7 +84,7 @@ public:
         m_position = loader::ExactTRCoordinates(m_lara->getAbsolutePosition());
     }
 
-    ~LaraStateHandler();
+    ~LaraController();
 
     void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
 

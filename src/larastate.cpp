@@ -2,7 +2,7 @@
 
 #include "util/vmath.h"
 #include "loader/level.h"
-#include "loader/trcamerascenenodeanimator.h"
+#include "loader/cameracontroller.h"
 #include "core/magic.h"
 
 void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loader::Level& level, int height)
@@ -11,12 +11,12 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     collisionFeedback = {0,0,0};
     orientationAxis = *util::axisFromAngle(yAngle, util::degToAu(45));
 
-    const loader::Room* room = level.m_camera->getCurrentRoom();
+    const loader::Room* room = level.m_cameraController->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
     auto currentSector = level.findSectorForPosition(reachablePos, &room);
     BOOST_ASSERT(currentSector != nullptr);
 
-    current.init(currentSector, laraPos, level.m_camera, height);
+    current.init(currentSector, laraPos, level.m_cameraController, height);
 
     std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos);
 
@@ -63,7 +63,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     // Front
     auto checkPos = loader::TRCoordinates(frontX, 0, frontZ);
     auto sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    front.init(sector, laraPos + checkPos, level.m_camera, height);
+    front.init(sector, laraPos + checkPos, level.m_cameraController, height);
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
         front.floor.distance = -32767;
@@ -80,7 +80,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     // Front left
     checkPos = loader::TRCoordinates(frontLeftX, 0, frontLeftZ);
     sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    frontLeft.init(sector, laraPos + checkPos, level.m_camera, height);
+    frontLeft.init(sector, laraPos + checkPos, level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
     {
@@ -98,7 +98,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     // Front right
     checkPos = loader::TRCoordinates(frontRightX, 0, frontRightZ);
     sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    frontRight.init(sector, laraPos + checkPos, level.m_camera, height);
+    frontRight.init(sector, laraPos + checkPos, level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
     {
@@ -198,15 +198,15 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 std::set<const loader::Room*> LaraState::collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level)
 {
     std::set<const loader::Room*> result;
-    result.insert(level.m_camera->getCurrentRoom());
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_camera->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_camera->getCurrentRoom()));
+    result.insert(level.m_cameraController->getCurrentRoom());
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_cameraController->getCurrentRoom()));
     return result;
 }
 

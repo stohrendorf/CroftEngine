@@ -1,17 +1,17 @@
 #include "abstractstatehandler.h"
 
-#include "loader/larastatehandler.h"
+#include "loader/laracontroller.h"
 #include "larastate.h"
 #include "core/magic.h"
 #include "loader/level.h"
-#include "loader/trcamerascenenodeanimator.h"
+#include "loader/cameracontroller.h"
 
 using LaraStateId = loader::LaraStateId;
 
 class StateHandler_Standing : public AbstractStateHandler
 {
 protected:
-    explicit StateHandler_Standing(LaraStateHandler& lara)
+    explicit StateHandler_Standing(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -55,7 +55,7 @@ class StateHandler_0 final : public AbstractStateHandler
 {
 public:
 
-    explicit StateHandler_0(LaraStateHandler& lara)
+    explicit StateHandler_0(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -180,7 +180,7 @@ public:
 class StateHandler_1 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_1(LaraStateHandler& lara)
+    explicit StateHandler_1(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -313,7 +313,7 @@ public:
 class StateHandler_2 final : public StateHandler_Standing
 {
 public:
-    explicit StateHandler_2(LaraStateHandler& lara)
+    explicit StateHandler_2(LaraController& lara)
         : StateHandler_Standing(lara)
     {
     }
@@ -391,7 +391,7 @@ public:
 class StateHandler_3 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_3(LaraStateHandler& lara)
+    explicit StateHandler_3(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -458,7 +458,7 @@ public:
         setFalling(false);
         setHorizontalSpeed(0);
         placeOnFloor(state);
-        auto tmp = getStateHandler().processAnimCommands();
+        auto tmp = getController().processAnimCommands();
         if( tmp )
             return tmp;
 
@@ -474,7 +474,7 @@ public:
 class StateHandler_4 final : public StateHandler_Standing
 {
 public:
-    explicit StateHandler_4(LaraStateHandler& lara)
+    explicit StateHandler_4(LaraController& lara)
         : StateHandler_Standing(lara)
     {
     }
@@ -497,7 +497,7 @@ public:
 class StateHandler_5 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_5(LaraStateHandler& lara)
+    explicit StateHandler_5(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -558,7 +558,7 @@ public:
 class StateHandler_TurnSlow : public AbstractStateHandler
 {
 protected:
-    explicit StateHandler_TurnSlow(LaraStateHandler& lara)
+    explicit StateHandler_TurnSlow(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -596,7 +596,7 @@ public:
 class StateHandler_6 final : public StateHandler_TurnSlow
 {
 public:
-    explicit StateHandler_6(LaraStateHandler& lara)
+    explicit StateHandler_6(LaraController& lara)
         : StateHandler_TurnSlow(lara)
     {
     }
@@ -651,7 +651,7 @@ public:
 class StateHandler_7 final : public StateHandler_TurnSlow
 {
 public:
-    explicit StateHandler_7(LaraStateHandler& lara)
+    explicit StateHandler_7(LaraController& lara)
         : StateHandler_TurnSlow(lara)
     {
     }
@@ -706,7 +706,7 @@ public:
 class StateHandler_8 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_8(LaraStateHandler& lara)
+    explicit StateHandler_8(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -746,7 +746,7 @@ public:
 class StateHandler_9 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_9(LaraStateHandler& lara)
+    explicit StateHandler_9(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -804,7 +804,7 @@ public:
 class StateHandler_10 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_10(LaraStateHandler& lara)
+    explicit StateHandler_10(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -861,7 +861,7 @@ public:
 class StateHandler_11 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_11(LaraStateHandler& lara)
+    explicit StateHandler_11(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -917,7 +917,7 @@ public:
 class StateHandler_12 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_12(LaraStateHandler& lara)
+    explicit StateHandler_12(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -952,7 +952,7 @@ public:
 class StateHandler_Underwater : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_Underwater(LaraStateHandler& lara)
+    explicit StateHandler_Underwater(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1039,7 +1039,7 @@ protected:
 class StateHandler_13 final : public StateHandler_Underwater
 {
 public:
-    explicit StateHandler_13(LaraStateHandler& lara)
+    explicit StateHandler_13(LaraController& lara)
         : StateHandler_Underwater(lara)
     {
     }
@@ -1074,7 +1074,7 @@ public:
 class StateHandler_15 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_15(LaraStateHandler& lara)
+    explicit StateHandler_15(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1144,7 +1144,7 @@ public:
 class StateHandler_16 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_16(LaraStateHandler& lara)
+    explicit StateHandler_16(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1223,7 +1223,7 @@ public:
 class StateHandler_17 final : public StateHandler_Underwater
 {
 public:
-    explicit StateHandler_17(LaraStateHandler& lara)
+    explicit StateHandler_17(LaraController& lara)
         : StateHandler_Underwater(lara)
     {
     }
@@ -1258,7 +1258,7 @@ public:
 class StateHandler_18 final : public StateHandler_Underwater
 {
 public:
-    explicit StateHandler_18(LaraStateHandler& lara)
+    explicit StateHandler_18(LaraController& lara)
         : StateHandler_Underwater(lara)
     {
     }
@@ -1296,7 +1296,7 @@ public:
 class StateHandler_19 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_19(LaraStateHandler& lara)
+    explicit StateHandler_19(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1332,7 +1332,7 @@ public:
 class StateHandler_20 final : public StateHandler_Standing
 {
 public:
-    explicit StateHandler_20(LaraStateHandler& lara)
+    explicit StateHandler_20(LaraController& lara)
         : StateHandler_Standing(lara)
     {
     }
@@ -1375,7 +1375,7 @@ public:
 class StateHandler_21 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_21(LaraStateHandler& lara)
+    explicit StateHandler_21(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1442,7 +1442,7 @@ public:
 class StateHandler_22 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_22(LaraStateHandler& lara)
+    explicit StateHandler_22(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1509,7 +1509,7 @@ public:
 class StateHandler_23 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_23(LaraStateHandler& lara)
+    explicit StateHandler_23(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1565,7 +1565,7 @@ public:
 class StateHandler_24 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_24(LaraStateHandler& lara)
+    explicit StateHandler_24(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1598,7 +1598,7 @@ public:
 class StateHandler_25 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_25(LaraStateHandler& lara)
+    explicit StateHandler_25(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1631,7 +1631,7 @@ public:
 class StateHandler_26 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_26(LaraStateHandler& lara)
+    explicit StateHandler_26(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1663,7 +1663,7 @@ public:
 class StateHandler_27 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_27(LaraStateHandler& lara)
+    explicit StateHandler_27(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1695,7 +1695,7 @@ public:
 class StateHandler_28 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_28(LaraStateHandler& lara)
+    explicit StateHandler_28(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1747,7 +1747,7 @@ public:
 class StateHandler_29 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_29(LaraStateHandler& lara)
+    explicit StateHandler_29(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1799,7 +1799,7 @@ public:
 class StateHandler_30 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_30(LaraStateHandler& lara)
+    explicit StateHandler_30(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1835,7 +1835,7 @@ public:
 class StateHandler_31 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_31(LaraStateHandler& lara)
+    explicit StateHandler_31(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1871,7 +1871,7 @@ public:
 class StateHandler_32 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_32(LaraStateHandler& lara)
+    explicit StateHandler_32(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1903,7 +1903,7 @@ public:
 class StateHandler_OnWater : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_OnWater(LaraStateHandler& lara)
+    explicit StateHandler_OnWater(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -1934,7 +1934,7 @@ protected:
                 m_yRotationSpeed = 0;
         }
 
-        auto wsh = getStateHandler().getWaterSurfaceHeight();
+        auto wsh = getController().getWaterSurfaceHeight();
         if(wsh && *wsh > getPosition().Y - 100)
         {
             return tryClimbOutOfWater(state);
@@ -1981,7 +1981,7 @@ private:
             return nullptr;
 
         setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
-        getStateHandler().updateFloorHeight(-381);
+        getController().updateFloorHeight(-381);
         loader::ExactTRCoordinates d = getExactPosition();
         if(*yRot == util::degToAu(0))
             d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100;
@@ -2013,7 +2013,7 @@ private:
 class StateHandler_33 final : public StateHandler_OnWater
 {
 public:
-    explicit StateHandler_33(LaraStateHandler& lara)
+    explicit StateHandler_33(LaraController& lara)
         : StateHandler_OnWater(lara)
     {
     }
@@ -2082,7 +2082,7 @@ public:
 class StateHandler_34 final : public StateHandler_OnWater
 {
 public:
-    explicit StateHandler_34(LaraStateHandler& lara)
+    explicit StateHandler_34(LaraController& lara)
         : StateHandler_OnWater(lara)
     {
     }
@@ -2133,7 +2133,7 @@ public:
 class StateHandler_35 final : public StateHandler_Underwater
 {
 public:
-    explicit StateHandler_35(LaraStateHandler& lara)
+    explicit StateHandler_35(LaraController& lara)
         : StateHandler_Underwater(lara)
     {
     }
@@ -2161,7 +2161,7 @@ public:
 class StateHandler_44 final : public StateHandler_Underwater
 {
 public:
-    explicit StateHandler_44(LaraStateHandler& lara)
+    explicit StateHandler_44(LaraController& lara)
         : StateHandler_Underwater(lara)
     {
     }
@@ -2193,7 +2193,7 @@ public:
         setHealth(-1);
         setAir(-1);
         setHandStatus(1);
-        auto h = getStateHandler().getWaterSurfaceHeight();
+        auto h = getController().getWaterSurfaceHeight();
         if(h && *h < getPosition().Y - 100)
             setPosition(getExactPosition() - loader::ExactTRCoordinates(0,5,0));
 
@@ -2204,7 +2204,7 @@ public:
 class StateHandler_45 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_45(LaraStateHandler& lara)
+    explicit StateHandler_45(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -2260,7 +2260,7 @@ public:
 class StateHandler_47 final : public StateHandler_OnWater
 {
 public:
-    explicit StateHandler_47(LaraStateHandler& lara)
+    explicit StateHandler_47(LaraController& lara)
         : StateHandler_OnWater(lara)
     {
     }
@@ -2308,7 +2308,7 @@ public:
 class StateHandler_48 final : public StateHandler_OnWater
 {
 public:
-    explicit StateHandler_48(LaraStateHandler& lara)
+    explicit StateHandler_48(LaraController& lara)
         : StateHandler_OnWater(lara)
     {
     }
@@ -2356,7 +2356,7 @@ public:
 class StateHandler_49 final : public StateHandler_OnWater
 {
 public:
-    explicit StateHandler_49(LaraStateHandler& lara)
+    explicit StateHandler_49(LaraController& lara)
         : StateHandler_OnWater(lara)
     {
     }
@@ -2404,7 +2404,7 @@ public:
 class StateHandler_52 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_52(LaraStateHandler& lara)
+    explicit StateHandler_52(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -2452,7 +2452,7 @@ public:
 class StateHandler_53 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_53(LaraStateHandler& lara)
+    explicit StateHandler_53(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -2502,7 +2502,7 @@ public:
 class StateHandler_54 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_54(LaraStateHandler& lara)
+    explicit StateHandler_54(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -2539,7 +2539,7 @@ public:
 class StateHandler_55 final : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_55(LaraStateHandler& lara)
+    explicit StateHandler_55(LaraController& lara)
         : AbstractStateHandler(lara)
     {
     }
@@ -2577,110 +2577,110 @@ void AbstractStateHandler::animate(LaraState& state, int deltaTimeMs)
 {
     animateImpl(state, deltaTimeMs);
 
-    m_stateHandler.rotate(
+    m_controller.rotate(
                           m_xRotationSpeed.getScaledExact(deltaTimeMs),
                           m_yRotationSpeed.getScaledExact(deltaTimeMs),
                           m_zRotationSpeed.getScaledExact(deltaTimeMs)
                          );
-    m_stateHandler.move(
+    m_controller.move(
                         m_xMovement.getScaledExact(deltaTimeMs),
                         m_yMovement.getScaledExact(deltaTimeMs),
                         m_zMovement.getScaledExact(deltaTimeMs)
                        );
 }
 
-std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraStateHandler& lara)
+std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraController& controller)
 {
     switch( id )
     {
     case LaraStateId::WalkForward:
-        return std::make_unique<StateHandler_0>(lara);
+        return std::make_unique<StateHandler_0>(controller);
     case LaraStateId::RunForward:
-        return std::make_unique<StateHandler_1>(lara);
+        return std::make_unique<StateHandler_1>(controller);
     case LaraStateId::Stop:
-        return std::make_unique<StateHandler_2>(lara);
+        return std::make_unique<StateHandler_2>(controller);
     case LaraStateId::JumpForward:
-        return std::make_unique<StateHandler_3>(lara);
+        return std::make_unique<StateHandler_3>(controller);
     case LaraStateId::Pose:
-        return std::make_unique<StateHandler_4>(lara);
+        return std::make_unique<StateHandler_4>(controller);
     case LaraStateId::RunBack:
-        return std::make_unique<StateHandler_5>(lara);
+        return std::make_unique<StateHandler_5>(controller);
     case LaraStateId::TurnRightSlow:
-        return std::make_unique<StateHandler_6>(lara);
+        return std::make_unique<StateHandler_6>(controller);
     case LaraStateId::TurnLeftSlow:
-        return std::make_unique<StateHandler_7>(lara);
+        return std::make_unique<StateHandler_7>(controller);
     case LaraStateId::Death:
-        return std::make_unique<StateHandler_8>(lara);
+        return std::make_unique<StateHandler_8>(controller);
     case LaraStateId::FreeFall:
-        return std::make_unique<StateHandler_9>(lara);
+        return std::make_unique<StateHandler_9>(controller);
     case LaraStateId::Hang:
-        return std::make_unique<StateHandler_10>(lara);
+        return std::make_unique<StateHandler_10>(controller);
     case LaraStateId::Reach:
-        return std::make_unique<StateHandler_11>(lara);
+        return std::make_unique<StateHandler_11>(controller);
     case LaraStateId::Unknown12:
-        return std::make_unique<StateHandler_12>(lara);
+        return std::make_unique<StateHandler_12>(controller);
     case LaraStateId::UnderwaterStop:
-        return std::make_unique<StateHandler_13>(lara);
+        return std::make_unique<StateHandler_13>(controller);
     case LaraStateId::JumpPrepare:
-        return std::make_unique<StateHandler_15>(lara);
+        return std::make_unique<StateHandler_15>(controller);
     case LaraStateId::WalkBackward:
-        return std::make_unique<StateHandler_16>(lara);
+        return std::make_unique<StateHandler_16>(controller);
     case LaraStateId::UnderwaterForward:
-        return std::make_unique<StateHandler_17>(lara);
+        return std::make_unique<StateHandler_17>(controller);
     case LaraStateId::UnderwaterInertia:
-        return std::make_unique<StateHandler_18>(lara);
+        return std::make_unique<StateHandler_18>(controller);
     case LaraStateId::Climbing:
-        return std::make_unique<StateHandler_19>(lara);
+        return std::make_unique<StateHandler_19>(controller);
     case LaraStateId::TurnFast:
-        return std::make_unique<StateHandler_20>(lara);
+        return std::make_unique<StateHandler_20>(controller);
     case LaraStateId::StepRight:
-        return std::make_unique<StateHandler_21>(lara);
+        return std::make_unique<StateHandler_21>(controller);
     case LaraStateId::StepLeft:
-        return std::make_unique<StateHandler_22>(lara);
+        return std::make_unique<StateHandler_22>(controller);
     case LaraStateId::RollBackward:
-        return std::make_unique<StateHandler_23>(lara);
+        return std::make_unique<StateHandler_23>(controller);
     case LaraStateId::SlideForward:
-        return std::make_unique<StateHandler_24>(lara);
+        return std::make_unique<StateHandler_24>(controller);
     case LaraStateId::JumpBack:
-        return std::make_unique<StateHandler_25>(lara);
+        return std::make_unique<StateHandler_25>(controller);
     case LaraStateId::JumpLeft:
-        return std::make_unique<StateHandler_26>(lara);
+        return std::make_unique<StateHandler_26>(controller);
     case LaraStateId::JumpRight:
-        return std::make_unique<StateHandler_27>(lara);
+        return std::make_unique<StateHandler_27>(controller);
     case LaraStateId::JumpUp:
-        return std::make_unique<StateHandler_28>(lara);
+        return std::make_unique<StateHandler_28>(controller);
     case LaraStateId::FallBackward:
-        return std::make_unique<StateHandler_29>(lara);
+        return std::make_unique<StateHandler_29>(controller);
     case LaraStateId::ShimmyLeft:
-        return std::make_unique<StateHandler_30>(lara);
+        return std::make_unique<StateHandler_30>(controller);
     case LaraStateId::ShimmyRight:
-        return std::make_unique<StateHandler_31>(lara);
+        return std::make_unique<StateHandler_31>(controller);
     case LaraStateId::SlideBackward:
-        return std::make_unique<StateHandler_32>(lara);
+        return std::make_unique<StateHandler_32>(controller);
     case LaraStateId::OnWaterStop:
-        return std::make_unique<StateHandler_33>(lara);
+        return std::make_unique<StateHandler_33>(controller);
     case LaraStateId::OnWaterForward:
-        return std::make_unique<StateHandler_34>(lara);
+        return std::make_unique<StateHandler_34>(controller);
     case LaraStateId::UnderwaterDiving:
-        return std::make_unique<StateHandler_35>(lara);
+        return std::make_unique<StateHandler_35>(controller);
     case LaraStateId::WaterDeath:
-        return std::make_unique<StateHandler_44>(lara);
+        return std::make_unique<StateHandler_44>(controller);
     case LaraStateId::RollForward:
-        return std::make_unique<StateHandler_45>(lara);
+        return std::make_unique<StateHandler_45>(controller);
     case LaraStateId::OnWaterBackward:
-        return std::make_unique<StateHandler_47>(lara);
+        return std::make_unique<StateHandler_47>(controller);
     case LaraStateId::OnWaterLeft:
-        return std::make_unique<StateHandler_48>(lara);
+        return std::make_unique<StateHandler_48>(controller);
     case LaraStateId::OnWaterRight:
-        return std::make_unique<StateHandler_49>(lara);
+        return std::make_unique<StateHandler_49>(controller);
     case LaraStateId::SwandiveBegin:
-        return std::make_unique<StateHandler_52>(lara);
+        return std::make_unique<StateHandler_52>(controller);
     case LaraStateId::SwandiveEnd:
-        return std::make_unique<StateHandler_53>(lara);
+        return std::make_unique<StateHandler_53>(controller);
     case LaraStateId::Handstand:
-        return std::make_unique<StateHandler_54>(lara);
+        return std::make_unique<StateHandler_54>(controller);
     case LaraStateId::OnWaterExit:
-        return std::make_unique<StateHandler_55>(lara);
+        return std::make_unique<StateHandler_55>(controller);
     default:
         BOOST_LOG_TRIVIAL(error) << "No state handler for state " << loader::toString(id);
         throw std::runtime_error("Unhandled state");
@@ -2691,7 +2691,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
 
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::createWithRetainedAnimation(loader::LaraStateId id) const
 {
-    auto handler = create(id, m_stateHandler);
+    auto handler = create(id, m_controller);
     handler->m_xRotationSpeed = m_xRotationSpeed;
     handler->m_yRotationSpeed = m_yRotationSpeed;
     handler->m_zRotationSpeed = m_zRotationSpeed;
@@ -2703,207 +2703,207 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::createWithRetainedAn
 
 int AbstractStateHandler::getHealth() const noexcept
 {
-    return m_stateHandler.getHealth();
+    return m_controller.getHealth();
 }
 
 void AbstractStateHandler::setHealth(int h) noexcept
 {
-    m_stateHandler.setHealth(h);
+    m_controller.setHealth(h);
 }
 
 void AbstractStateHandler::setAir(int a) noexcept
 {
-    m_stateHandler.setAir(a);
+    m_controller.setAir(a);
 }
 
 const InputState& AbstractStateHandler::getInputState() const noexcept
 {
-    return m_stateHandler.getInputState();
+    return m_controller.getInputState();
 }
 
 void AbstractStateHandler::setMovementAngle(int16_t angle) noexcept
 {
-    m_stateHandler.setMovementAngle(angle);
+    m_controller.setMovementAngle(angle);
 }
 
 int16_t AbstractStateHandler::getMovementAngle() const noexcept
 {
-    return m_stateHandler.getMovementAngle();
+    return m_controller.getMovementAngle();
 }
 
 void AbstractStateHandler::setFallSpeed(int spd)
 {
-    m_stateHandler.setFallSpeed(spd);
+    m_controller.setFallSpeed(spd);
 }
 
 void AbstractStateHandler::setFallSpeedExact(float spd)
 {
-    m_stateHandler.setFallSpeedExact(spd);
+    m_controller.setFallSpeedExact(spd);
 }
 
 const SpeedValue<int>& AbstractStateHandler::getFallSpeed() const noexcept
 {
-    return m_stateHandler.getFallSpeed();
+    return m_controller.getFallSpeed();
 }
 
 bool AbstractStateHandler::isFalling() const noexcept
 {
-    return m_stateHandler.isFalling();
+    return m_controller.isFalling();
 }
 
 void AbstractStateHandler::setFalling(bool falling) noexcept
 {
-    m_stateHandler.setFalling(falling);
+    m_controller.setFalling(falling);
 }
 
 int AbstractStateHandler::getHandStatus() const noexcept
 {
-    return m_stateHandler.getHandStatus();
+    return m_controller.getHandStatus();
 }
 
 void AbstractStateHandler::setHandStatus(int status) noexcept
 {
-    m_stateHandler.setHandStatus(status);
+    m_controller.setHandStatus(status);
 }
 
 uint32_t AbstractStateHandler::getCurrentFrame() const
 {
-    return m_stateHandler.getCurrentFrame();
+    return m_controller.getCurrentFrame();
 }
 
 loader::LaraStateId AbstractStateHandler::getCurrentAnimState() const
 {
-    return m_stateHandler.getCurrentAnimState();
+    return m_controller.getCurrentAnimState();
 }
 
 void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
 {
-    m_stateHandler.playAnimation(anim, firstFrame);
+    m_controller.playAnimation(anim, firstFrame);
 }
 
 const irr::core::vector3df& AbstractStateHandler::getRotation() const noexcept
 {
-    return m_stateHandler.getRotation();
+    return m_controller.getRotation();
 }
 
 void AbstractStateHandler::setHorizontalSpeed(int speed)
 {
-    m_stateHandler.setHorizontalSpeed(speed);
+    m_controller.setHorizontalSpeed(speed);
 }
 
 int AbstractStateHandler::getHorizontalSpeed() const
 {
-    return m_stateHandler.getHorizontalSpeed();
+    return m_controller.getHorizontalSpeed();
 }
 
 const loader::Level& AbstractStateHandler::getLevel() const
 {
-    return m_stateHandler.getLevel();
+    return m_controller.getLevel();
 }
 
 void AbstractStateHandler::placeOnFloor(const LaraState& state)
 {
-    m_stateHandler.placeOnFloor(state);
+    m_controller.placeOnFloor(state);
 }
 
 loader::TRCoordinates AbstractStateHandler::getPosition() const
 {
-    return m_stateHandler.getPosition();
+    return m_controller.getPosition();
 }
 
 const loader::ExactTRCoordinates& AbstractStateHandler::getExactPosition() const
 {
-    return m_stateHandler.getExactPosition();
+    return m_controller.getExactPosition();
 }
 
 void AbstractStateHandler::setPosition(const loader::ExactTRCoordinates& pos)
 {
-    m_stateHandler.setPosition(pos);
+    m_controller.setPosition(pos);
 }
 
 int AbstractStateHandler::getFloorHeight() const noexcept
 {
-    return m_stateHandler.getFloorHeight();
+    return m_controller.getFloorHeight();
 }
 
 void AbstractStateHandler::setFloorHeight(int h) noexcept
 {
-    m_stateHandler.setFloorHeight(h);
+    m_controller.setFloorHeight(h);
 }
 
 void AbstractStateHandler::setYRotationSpeed(int spd)
 {
-    m_stateHandler.setYRotationSpeed(spd);
+    m_controller.setYRotationSpeed(spd);
 }
 
 int AbstractStateHandler::getYRotationSpeed() const
 {
-    return m_stateHandler.getYRotationSpeed();
+    return m_controller.getYRotationSpeed();
 }
 
 void AbstractStateHandler::subYRotationSpeed(int val, int limit)
 {
-    m_stateHandler.subYRotationSpeed(val, limit);
+    m_controller.subYRotationSpeed(val, limit);
 }
 
 void AbstractStateHandler::addYRotationSpeed(int val, int limit)
 {
-    m_stateHandler.addYRotationSpeed(val, limit);
+    m_controller.addYRotationSpeed(val, limit);
 }
 
 void AbstractStateHandler::setXRotation(int16_t x)
 {
-    m_stateHandler.setXRotation(x);
+    m_controller.setXRotation(x);
 }
 
 void AbstractStateHandler::setXRotationExact(float x)
 {
-    m_stateHandler.setXRotationExact(x);
+    m_controller.setXRotationExact(x);
 }
 
 void AbstractStateHandler::setYRotation(int16_t y)
 {
-    m_stateHandler.setYRotation(y);
+    m_controller.setYRotation(y);
 }
 
 void AbstractStateHandler::setZRotation(int16_t z)
 {
-    m_stateHandler.setZRotation(z);
+    m_controller.setZRotation(z);
 }
 
 void AbstractStateHandler::setZRotationExact(float z)
 {
-    m_stateHandler.setZRotationExact(z);
+    m_controller.setZRotationExact(z);
 }
 
 void AbstractStateHandler::setFallSpeedOverride(int v)
 {
-    m_stateHandler.setFallSpeedOverride(v);
+    m_controller.setFallSpeedOverride(v);
 }
 
 void AbstractStateHandler::dampenHorizontalSpeed(int nom, int den)
 {
-    m_stateHandler.dampenHorizontalSpeed(nom, den);
+    m_controller.dampenHorizontalSpeed(nom, den);
 }
 
 int16_t AbstractStateHandler::getCurrentSlideAngle() const noexcept
 {
-    return m_stateHandler.getCurrentSlideAngle();
+    return m_controller.getCurrentSlideAngle();
 }
 
 void AbstractStateHandler::setCurrentSlideAngle(int16_t a) noexcept
 {
-    m_stateHandler.setCurrentSlideAngle(a);
+    m_controller.setCurrentSlideAngle(a);
 }
 
 void AbstractStateHandler::setTargetState(loader::LaraStateId state)
 {
-    m_stateHandler.setTargetState(state);
+    m_controller.setTargetState(state);
 }
 
 loader::LaraStateId AbstractStateHandler::getTargetState() const
 {
-    return m_stateHandler.getTargetState();
+    return m_controller.getTargetState();
 }
 
 bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
@@ -2921,9 +2921,9 @@ bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
         break;
     }
 
-    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
-    HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
-    HeightInfo ceil = HeightInfo::fromCeiling(sector, pos, getLevel().m_camera);
+    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_cameraController->getCurrentRoom());
+    HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
+    HeightInfo ceil = HeightInfo::fromCeiling(sector, pos, getLevel().m_cameraController);
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
 }
 
@@ -3033,7 +3033,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
         nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
         playAnimation(loader::AnimationId::STAY_SOLID, 185);
         setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)));
-        auto tmp = getStateHandler().processAnimCommands();
+        auto tmp = getController().processAnimCommands();
         if( tmp )
             nextHandler = std::move(tmp);
     }
@@ -3169,10 +3169,10 @@ int AbstractStateHandler::getRelativeHeightAtDirection(int16_t angle, int dist) 
     pos.Y -= core::ScalpHeight;
     pos.Z += std::cos(util::auToRad(angle)) * dist;
 
-    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_camera->getCurrentRoom());
+    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_cameraController->getCurrentRoom());
     BOOST_ASSERT(sector != nullptr);
 
-    HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
+    HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
 
     if( h.distance != -loader::HeightLimit )
         h.distance -= getPosition().Y;
@@ -3329,10 +3329,10 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = getLevel().findSectorForPosition(getPosition(), getLevel().m_camera->getCurrentRoom());
-    HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{0, core::ScalpHeight, 0}, getLevel().m_camera);
+    auto sector = getLevel().findSectorForPosition(getPosition(), getLevel().m_cameraController->getCurrentRoom());
+    HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{0, core::ScalpHeight, 0}, getLevel().m_cameraController);
     setFloorHeight(h.distance);
-    getStateHandler().handleTriggers(h.lastTriggerOrKill, false);
+    getController().handleTriggers(h.lastTriggerOrKill, false);
     auto damageSpeed = getFallSpeed().get() - 140;
     if( damageSpeed <= 0 )
         return false;
@@ -3348,47 +3348,47 @@ bool AbstractStateHandler::applyLandingDamage()
 
 irr::scene::ISceneNode* AbstractStateHandler::getLara()
 {
-    return m_stateHandler.getLara();
+    return m_controller.getLara();
 }
 
 irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const
 {
-    return m_stateHandler.getBoundingBox();
+    return m_controller.getBoundingBox();
 }
 
 void AbstractStateHandler::addSwimToDiveKeypressDuration(int ms) noexcept
 {
-    m_stateHandler.addSwimToDiveKeypressDuration(ms);
+    m_controller.addSwimToDiveKeypressDuration(ms);
 }
 
 void AbstractStateHandler::setSwimToDiveKeypressDuration(int ms) noexcept
 {
-    m_stateHandler.setSwimToDiveKeypressDuration(ms);
+    m_controller.setSwimToDiveKeypressDuration(ms);
 }
 
 int AbstractStateHandler::getSwimToDiveKeypressDuration() const noexcept
 {
-    return m_stateHandler.getSwimToDiveKeypressDuration();
+    return m_controller.getSwimToDiveKeypressDuration();
 }
 
 void AbstractStateHandler::setUnderwaterState(UnderwaterState u) noexcept
 {
-    m_stateHandler.setUnderwaterState(u);
+    m_controller.setUnderwaterState(u);
 }
 
 void AbstractStateHandler::setCameraRotation(int16_t x, int16_t y)
 {
-    m_stateHandler.setCameraRotation(x, y);
+    m_controller.setCameraRotation(x, y);
 }
 
 void AbstractStateHandler::setCameraRotationX(int16_t x)
 {
-    m_stateHandler.setCameraRotationX(x);
+    m_controller.setCameraRotationX(x);
 }
 
 void AbstractStateHandler::setCameraRotationY(int16_t y)
 {
-    m_stateHandler.setCameraRotationY(y);
+    m_controller.setCameraRotationY(y);
 }
 
 void AbstractStateHandler::jumpAgainstWall(LaraState& state)

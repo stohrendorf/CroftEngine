@@ -1,27 +1,27 @@
-#include "larastatehandler.h"
+#include "laracontroller.h"
 
-#include "defaultanimdispatcher.h"
-#include "trcamerascenenodeanimator.h"
+#include "animationcontroller.h"
+#include "cameracontroller.h"
 #include "heightinfo.h"
 #include "larastate.h"
 #include "abstractstatehandler.h"
 
-void LaraStateHandler::setTargetState(LaraStateId st)
+void LaraController::setTargetState(LaraStateId st)
 {
     m_dispatcher->setTargetState(static_cast<uint16_t>(st));
 }
 
-loader::LaraStateId LaraStateHandler::getTargetState() const
+loader::LaraStateId LaraController::getTargetState() const
 {
     return static_cast<LaraStateId>(m_dispatcher->getTargetState());
 }
 
-void LaraStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
+void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
 {
     m_dispatcher->playLocalAnimation(static_cast<uint16_t>(anim), firstFrame);
 }
 
-void LaraStateHandler::applyRotation()
+void LaraController::applyRotation()
 {
     //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
     irr::core::quaternion q;
@@ -35,7 +35,7 @@ void LaraStateHandler::applyRotation()
     m_lara->setRotation(euler * 180 / irr::core::PI);
 }
 
-void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
+void LaraController::handleLaraStateOnLand(bool newFrame)
 {
     LaraState laraState;
     laraState.position = getExactPosition();
@@ -113,7 +113,7 @@ void LaraStateHandler::handleLaraStateOnLand(bool newFrame)
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
 }
 
-void LaraStateHandler::handleLaraStateDiving(bool newFrame)
+void LaraController::handleLaraStateDiving(bool newFrame)
 {
     LaraState laraState;
     laraState.position = getExactPosition();
@@ -185,7 +185,7 @@ void LaraStateHandler::handleLaraStateDiving(bool newFrame)
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
 }
 
-void LaraStateHandler::handleLaraStateSwimming(bool newFrame)
+void LaraController::handleLaraStateSwimming(bool newFrame)
 {
     LaraState laraState;
     laraState.position = getExactPosition();
@@ -256,34 +256,34 @@ void LaraStateHandler::handleLaraStateSwimming(bool newFrame)
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
 }
 
-irr::u32 LaraStateHandler::getCurrentFrame() const
+irr::u32 LaraController::getCurrentFrame() const
 {
     return m_dispatcher->getCurrentFrame();
 }
 
-irr::u32 LaraStateHandler::getAnimEndFrame() const
+irr::u32 LaraController::getAnimEndFrame() const
 {
     return m_dispatcher->getAnimEndFrame();
 }
 
-void LaraStateHandler::placeOnFloor(const LaraState& state)
+void LaraController::placeOnFloor(const LaraState& state)
 {
     m_position.Y += state.current.floor.distance;
 }
 
-loader::LaraStateId LaraStateHandler::getCurrentState() const
+loader::LaraStateId LaraController::getCurrentState() const
 {
     return m_currentStateHandler->getId();
 }
 
-loader::LaraStateId LaraStateHandler::getCurrentAnimState() const
+loader::LaraStateId LaraController::getCurrentAnimState() const
 {
     return static_cast<loader::LaraStateId>(m_dispatcher->getCurrentAnimState());
 }
 
-LaraStateHandler::~LaraStateHandler() = default;
+LaraController::~LaraController() = default;
 
-void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 {
     BOOST_ASSERT(m_lara == node);
 
@@ -310,7 +310,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
     }
 
-    if(m_underwaterState == UnderwaterState::OnLand && m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    if(m_underwaterState == UnderwaterState::OnLand && m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
     {
         m_air = 1800;
         m_underwaterState = UnderwaterState::Diving;
@@ -347,7 +347,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
 
         //! @todo Show water splash effect
     }
-    else if(m_underwaterState == UnderwaterState::Diving && !m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Diving && !m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
         if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - m_position.Y) >= 256)
@@ -377,7 +377,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
             //! @todo play sound 36
         }
     }
-    else if(m_underwaterState == UnderwaterState::Swimming && !m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Swimming && !m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
     {
         m_underwaterState = UnderwaterState::OnLand;
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
@@ -421,7 +421,7 @@ void LaraStateHandler::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     m_lastFrameTime = m_currentFrameTime;
 }
 
-std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
+std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
 {
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
     bool newFrame = false;
@@ -529,18 +529,18 @@ std::unique_ptr<AbstractStateHandler> LaraStateHandler::processAnimCommands()
     return nextHandler;
 }
 
-void LaraStateHandler::updateFloorHeight(int dy)
+void LaraController::updateFloorHeight(int dy)
 {
     auto pos = getPosition();
     pos.Y += dy;
-    auto room = getLevel().m_camera->getCurrentRoom();
+    auto room = getLevel().m_cameraController->getCurrentRoom();
     auto sector = getLevel().findSectorForPosition(pos, &room);
-    m_level->m_camera->setCurrentRoom(room);
-    HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_camera);
+    m_level->m_cameraController->setCurrentRoom(room);
+    HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
     setFloorHeight(hi.distance);
 }
 
-void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
+void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
 {
     if( floorData == nullptr )
         return;
@@ -674,16 +674,16 @@ void LaraStateHandler::handleTriggers(const uint16_t* floorData, bool isDoppelga
     //! @todo Implement the rest
 }
 
-irr::core::aabbox3di LaraStateHandler::getBoundingBox() const
+irr::core::aabbox3di LaraController::getBoundingBox() const
 {
     return m_dispatcher->getBoundingBox();
 }
 
-boost::optional<int> LaraStateHandler::getWaterSurfaceHeight() const
+boost::optional<int> LaraController::getWaterSurfaceHeight() const
 {
-    auto sector = m_level->m_camera->getCurrentRoom()->getSectorByAbsolutePosition(m_position.toInexact());
+    auto sector = m_level->m_cameraController->getCurrentRoom()->getSectorByAbsolutePosition(m_position.toInexact());
 
-    if(m_level->m_camera->getCurrentRoom()->isWaterRoom())
+    if(m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
     {
         while(true)
         {
@@ -723,17 +723,17 @@ boost::optional<int> LaraStateHandler::getWaterSurfaceHeight() const
     return boost::none;
 }
 
-void LaraStateHandler::setCameraRotation(int16_t x, int16_t y)
+void LaraController::setCameraRotation(int16_t x, int16_t y)
 {
-    m_level->m_camera->setLocalRotation(x, y);
+    m_level->m_cameraController->setLocalRotation(x, y);
 }
 
-void LaraStateHandler::setCameraRotationY(int16_t y)
+void LaraController::setCameraRotationY(int16_t y)
 {
-    m_level->m_camera->setLocalRotationY(y);
+    m_level->m_cameraController->setLocalRotationY(y);
 }
 
-void LaraStateHandler::setCameraRotationX(int16_t x)
+void LaraController::setCameraRotationX(int16_t x)
 {
-    m_level->m_camera->setLocalRotationX(x);
+    m_level->m_cameraController->setLocalRotationX(x);
 }

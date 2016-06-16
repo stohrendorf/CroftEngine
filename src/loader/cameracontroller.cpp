@@ -1,13 +1,13 @@
-#include "trcamerascenenodeanimator.h"
+#include "cameracontroller.h"
 
-#include "defaultanimdispatcher.h"
+#include "animationcontroller.h"
 #include "render/portaltracer.h"
-#include "larastatehandler.h"
+#include "laracontroller.h"
 
 #include <queue>
 #include <set>
 
-void TRCameraSceneNodeAnimator::setCurrentRoom(const loader::Room* newRoom)
+void CameraController::setCurrentRoom(const loader::Room* newRoom)
 {
     if(newRoom == m_currentRoom)
         return;
@@ -38,11 +38,11 @@ void TRCameraSceneNodeAnimator::setCurrentRoom(const loader::Room* newRoom)
 }
 
 #ifndef NDEBUG
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler, irr::video::IVideoDriver* drv)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler), m_driver(drv)
+CameraController::CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraController* laraController, irr::video::IVideoDriver* drv)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_laraController(laraController), m_driver(drv)
 #else
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_stateHandler(stateHandler)
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* laraController)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_laraController(laraController)
 #endif
 {
     BOOST_ASSERT(cursorControl != nullptr);
@@ -54,7 +54,7 @@ TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* c
     m_currentPosition.Z -= 100;
 }
 
-void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 {
     if(!node || node->getType() != irr::scene::ESNT_CAMERA)
         return;
@@ -67,7 +67,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     m_inputState.setXAxisMovement(m_left, m_right);
     m_inputState.setZAxisMovement(m_backward, m_forward);
     m_inputState.setStepMovement(m_stepLeft, m_stepRight);
-    m_stateHandler->setInputState(m_inputState);
+    m_laraController->setInputState(m_inputState);
     
     if(m_firstUpdate)
     {
@@ -127,11 +127,11 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
     }
     
-    auto targetLookAt = m_stateHandler->getPosition().toIrrlicht();
+    auto targetLookAt = m_laraController->getPosition().toIrrlicht();
     targetLookAt.Y += m_lookAtYOffset;
     m_currentLookAt += (targetLookAt - m_currentLookAt) * 30 / m_smoothFactor * localTime / 1000;
 
-    const irr::core::vector3df totalRotation = m_localRotation + util::auToDeg(m_stateHandler->getRotation());
+    const irr::core::vector3df totalRotation = m_localRotation + util::auToDeg(m_laraController->getRotation());
 
     irr::core::vector3df targetPos = m_currentLookAt;
     const auto localDistance = m_distanceFromLookAt * std::cos(irr::core::degToRad(totalRotation.X));
@@ -154,13 +154,13 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     tracePortals(camera);
 }
 
-irr::scene::ISceneNodeAnimator* TRCameraSceneNodeAnimator::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
+irr::scene::ISceneNodeAnimator* CameraController::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
 {
     BOOST_ASSERT(false);
     return nullptr;
 }
 
-bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
+bool CameraController::OnEvent(const irr::SEvent& evt)
 {
     switch(evt.EventType)
     {
@@ -221,23 +221,23 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
     return false;
 }
 
-void TRCameraSceneNodeAnimator::setLocalRotation(int16_t x, int16_t y)
+void CameraController::setLocalRotation(int16_t x, int16_t y)
 {
     setLocalRotationX(x);
     setLocalRotationY(y);
 }
 
-void TRCameraSceneNodeAnimator::setLocalRotationX(int16_t x)
+void CameraController::setLocalRotationX(int16_t x)
 {
     m_localRotation.X = util::auToDeg(x);
 }
 
-void TRCameraSceneNodeAnimator::setLocalRotationY(int16_t y)
+void CameraController::setLocalRotationY(int16_t y)
 {
     m_localRotation.Y = util::auToDeg(y);
 }
 
-void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camera)
+void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
 {
     // Breadth-first queue
     std::queue<render::PortalTracer> toVisit;
@@ -329,7 +329,7 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
     }
 }
 
-bool TRCameraSceneNodeAnimator::moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
+bool CameraController::moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
 {
     BOOST_ASSERT(sector != nullptr);
 
@@ -355,7 +355,7 @@ bool TRCameraSceneNodeAnimator::moveIntoRoomGeometry(const irr::core::vector3df&
     return true;
 }
 
-int TRCameraSceneNodeAnimator::moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
     if(irr::core::equals(lookAt.X, origin.X, 1.0f))
         return 1;
@@ -459,7 +459,7 @@ int TRCameraSceneNodeAnimator::moveX(const irr::core::vector3df& lookAt, irr::co
     }
 }
 
-int TRCameraSceneNodeAnimator::moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
     if(irr::core::equals(lookAt.Z, origin.Z, 1.0f))
         return 1;
@@ -565,7 +565,7 @@ int TRCameraSceneNodeAnimator::moveZ(const irr::core::vector3df& lookAt, irr::co
     }
 }
 
-bool TRCameraSceneNodeAnimator::tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+bool CameraController::tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
     bool firstMove;
     int secondMove;

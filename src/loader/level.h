@@ -6,8 +6,8 @@
 #include <memory>
 #include <vector>
 
-class LaraStateHandler;
-class TRCameraSceneNodeAnimator;
+class LaraController;
+class CameraController;
 
 namespace loader
 {
@@ -86,7 +86,7 @@ public:
      */
     uint16_t m_weatherType = 0;
 
-    TRCameraSceneNodeAnimator* m_camera = nullptr;
+    CameraController* m_cameraController = nullptr;
 
     static std::unique_ptr<Level> createLoader(const std::string &filename, Game game_version);
     virtual void load(irr::video::IVideoDriver* drv) = 0;
@@ -103,7 +103,7 @@ public:
     {
         irr::scene::IAnimatedMeshSceneNode* node = nullptr;
         Room* room = nullptr;
-        LaraStateHandler* stateHandler = nullptr;
+        LaraController* controller = nullptr;
     };
     
     std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);

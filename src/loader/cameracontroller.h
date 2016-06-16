@@ -3,7 +3,7 @@
 #include "level.h"
 #include "inputstate.h"
 
-class TRCameraSceneNodeAnimator final : public irr::scene::ISceneNodeAnimator
+class CameraController final : public irr::scene::ISceneNodeAnimator
 {
 private:
     bool m_firstUpdate = true;
@@ -25,7 +25,7 @@ private:
 
     const loader::Level* m_level;
     const loader::Room* m_currentRoom;
-    LaraStateHandler* m_stateHandler;
+    LaraController* m_laraController;
     
     int m_lookAtYOffset = 1024;
     int m_distanceFromLookAt = 1536;
@@ -40,9 +40,9 @@ private:
 
 public:
 #ifndef NDEBUG
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler, irr::video::IVideoDriver* drv);
+    explicit CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraController* laraController, irr::video::IVideoDriver* drv);
 #else
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* stateHandler);
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* laraController);
 #endif
 
     //! Animates a scene node.

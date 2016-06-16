@@ -4,7 +4,7 @@
 
 #include "heightinfo.h"
 
-class LaraStateHandler;
+class LaraController;
 
 struct LaraState
 {

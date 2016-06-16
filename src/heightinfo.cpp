@@ -1,10 +1,10 @@
 #include "heightinfo.h"
 
-#include "loader/trcamerascenenodeanimator.h"
+#include "loader/cameracontroller.h"
 
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const TRCameraSceneNodeAnimator* camera)
+HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera)
 {
     HeightInfo hi;
 
@@ -119,7 +119,7 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
     return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const TRCameraSceneNodeAnimator* camera)
+HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera)
 {
     HeightInfo hi;
 

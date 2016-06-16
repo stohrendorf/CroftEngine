@@ -7,18 +7,18 @@
 #include <memory>
 
 struct LaraState;
-class LaraStateHandler;
+class LaraController;
 struct InputState;
 
 enum class UnderwaterState;
 
 class AbstractStateHandler
 {
-    LaraStateHandler& m_stateHandler;
+    LaraController& m_controller;
 
 public:
-    explicit AbstractStateHandler(LaraStateHandler& lara)
-        : m_stateHandler(lara)
+    explicit AbstractStateHandler(LaraController& controller)
+        : m_controller(controller)
     {
     }
 
@@ -38,7 +38,7 @@ public:
         return handleInputImpl(state);
     }
 
-    static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraStateHandler& lara);
+    static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraController& controller);
     std::unique_ptr<AbstractStateHandler> createWithRetainedAnimation(loader::LaraStateId id) const;
 
     virtual loader::LaraStateId getId() const noexcept = 0;
@@ -57,9 +57,9 @@ protected:
     SpeedValue<int> m_yMovement = 0;
     SpeedValue<int> m_zMovement = 0;
 
-    LaraStateHandler& getStateHandler()
+    LaraController& getController()
     {
-        return m_stateHandler;
+        return m_controller;
     }
 
     int getHealth() const noexcept;
