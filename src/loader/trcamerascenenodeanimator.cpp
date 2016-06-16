@@ -94,7 +94,7 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     
     const auto localTime = timeMs - m_lastAnimationTime;
 
-    if(localTime <= 0)
+    if(localTime <= 1)
         return;
 
     m_lastAnimationTime = timeMs;
@@ -139,9 +139,14 @@ void TRCameraSceneNodeAnimator::animateNode(irr::scene::ISceneNode* node, irr::u
     targetPos.Z -= std::cos(irr::core::degToRad(totalRotation.Y)) * localDistance;
     targetPos.Y -= std::sin(irr::core::degToRad(totalRotation.X)) * m_distanceFromLookAt;
 
-    m_currentPosition += (targetPos - m_currentPosition) * 30 / m_smoothFactor * localTime / 1000;
+    const auto d = targetPos - m_currentPosition;
+    const auto bias = 30.0f / m_smoothFactor * localTime / 1000;
+    m_currentPosition += d * bias;
 
-    camera->setPosition(m_currentPosition);
+    auto pos = m_currentPosition;
+    tryLookAt(m_currentLookAt, pos);
+
+    camera->setPosition(pos);
     camera->updateAbsolutePosition();
     camera->setTarget(m_currentLookAt);
     camera->updateAbsolutePosition();
@@ -218,8 +223,8 @@ bool TRCameraSceneNodeAnimator::OnEvent(const irr::SEvent& evt)
 
 void TRCameraSceneNodeAnimator::setLocalRotation(int16_t x, int16_t y)
 {
-    m_localRotation.X = util::auToDeg(x);
-    m_localRotation.Y = util::auToDeg(y);
+    setLocalRotationX(x);
+    setLocalRotationY(y);
 }
 
 void TRCameraSceneNodeAnimator::setLocalRotationX(int16_t x)
@@ -229,7 +234,7 @@ void TRCameraSceneNodeAnimator::setLocalRotationX(int16_t x)
 
 void TRCameraSceneNodeAnimator::setLocalRotationY(int16_t y)
 {
-    m_localRotation.X = util::auToDeg(y);
+    m_localRotation.Y = util::auToDeg(y);
 }
 
 void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camera)
@@ -322,4 +327,262 @@ void TRCameraSceneNodeAnimator::tracePortals(irr::scene::ICameraSceneNode* camer
             toVisit.emplace(std::move(newPath));
         }
     }
+}
+
+bool TRCameraSceneNodeAnimator::moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
+{
+    BOOST_ASSERT(sector != nullptr);
+
+    const auto d = origin - lookAt;
+    const HeightInfo floor = HeightInfo::fromFloor(sector, loader::TRCoordinates(origin), this);
+    if(floor.distance < -origin.Y && floor.distance > -lookAt.Y)
+    {
+        origin.Y = -floor.distance;
+        origin.X = d.X / d.Y * (-floor.distance - lookAt.Y) + lookAt.X;
+        origin.Z = d.Z / d.Y * (-floor.distance - lookAt.Y) + lookAt.Z;
+        return false;
+    }
+
+    const HeightInfo ceiling = HeightInfo::fromCeiling(sector, loader::TRCoordinates(origin), this);
+    if(ceiling.distance > -origin.Y && ceiling.distance < -lookAt.Y)
+    {
+        origin.Y = -ceiling.distance;
+        origin.X = d.X / d.Y * (-ceiling.distance - lookAt.Y) + lookAt.X;
+        origin.Z = d.Z / d.Y * (-ceiling.distance - lookAt.Y) + lookAt.Z;
+        return false;
+    }
+
+    return true;
+}
+
+int TRCameraSceneNodeAnimator::moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+{
+    if(irr::core::equals(lookAt.X, origin.X, 1.0f))
+        return 1;
+
+    const auto d = origin - lookAt;
+    const auto gradientZX = d.Z / d.X;
+    const auto gradientYX = d.Y / d.X;
+
+    if(d.X < 0)
+    {
+        auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize;
+        if(sectorBoundary <= origin.X)
+            return 1;
+
+        irr::core::vector3df localPos;
+        localPos.X = sectorBoundary - lookAt.X;
+        localPos.Y = lookAt.Y + localPos.X * gradientYX;
+        localPos.Z = lookAt.Z + localPos.X * gradientZX;
+
+        auto innerBoundary = sectorBoundary - 1;
+        while(true)
+        {
+            loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
+            auto sector = m_level->findSectorForPosition(pos, m_currentRoom);
+            HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
+            HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
+            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+            {
+                origin.X = sectorBoundary;
+                origin.Y = localPos.Y;
+                origin.Z = localPos.Z;
+                return -1;
+            }
+
+            pos.X = innerBoundary;
+            sector = m_level->findSectorForPosition(pos, m_currentRoom);
+            floor = HeightInfo::fromFloor(sector, pos, this);
+            ceiling = HeightInfo::fromCeiling(sector, pos, this);
+            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+            {
+                origin.X = sectorBoundary;
+                origin.Y = localPos.Y;
+                origin.Z = localPos.Z;
+                return 0;
+            }
+
+            sectorBoundary -= loader::SectorSize;
+            innerBoundary -= loader::SectorSize;
+            localPos.Y -= gradientYX * loader::SectorSize;
+            localPos.Z -= gradientZX * loader::SectorSize;
+
+            if(sectorBoundary <= origin.X)
+                return 1;
+        }
+    }
+
+    auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
+
+    if(sectorBoundary >= origin.X)
+        return 1;
+
+    irr::core::vector3df localPos;
+    localPos.X = sectorBoundary - lookAt.X;
+    localPos.Y = lookAt.Y + localPos.X * gradientYX;
+    localPos.Z = lookAt.Z + localPos.X * gradientZX;
+
+    auto innerBoundary = sectorBoundary + 1;
+    while(true)
+    {
+        loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
+        auto sector = m_level->findSectorForPosition(pos, m_currentRoom);
+        HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
+        HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
+        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+        {
+            origin.X = sectorBoundary;
+            origin.Y = localPos.Y;
+            origin.Z = localPos.Z;
+            return -1;
+        }
+
+        pos.X = innerBoundary;
+        sector = m_level->findSectorForPosition(pos, m_currentRoom);
+        floor = HeightInfo::fromFloor(sector, pos, this);
+        ceiling = HeightInfo::fromCeiling(sector, pos, this);
+        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+        {
+            origin.X = sectorBoundary;
+            origin.Y = localPos.Y;
+            origin.Z = localPos.Z;
+            return 0;
+        }
+
+        sectorBoundary += loader::SectorSize;
+        innerBoundary += loader::SectorSize;
+        localPos.Y += gradientYX * loader::SectorSize;
+        localPos.Z += gradientZX * loader::SectorSize;
+
+        if(sectorBoundary >= origin.X)
+            return 1;
+    }
+}
+
+int TRCameraSceneNodeAnimator::moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+{
+    if(irr::core::equals(lookAt.Z, origin.Z, 1.0f))
+        return 1;
+
+    const auto d = origin - lookAt;
+    const auto gradientXZ = d.X / d.Z;
+    const auto gradientYZ = d.Y / d.Z;
+
+    if(d.Z < 0)
+    {
+        auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize;
+        if(sectorBoundary <= origin.Z)
+            return 1;
+
+        irr::core::vector3df localPos;
+        localPos.Z = sectorBoundary - lookAt.Z;
+        localPos.X = lookAt.X + localPos.Z * gradientXZ;
+        localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
+
+        auto innerBoundary = sectorBoundary - 1;
+        auto room = m_currentRoom;
+        while(true)
+        {
+            loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
+            auto sector = m_level->findSectorForPosition(pos, &room);
+            HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
+            HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
+            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+            {
+                origin.X = localPos.X;
+                origin.Y = localPos.Y;
+                origin.Z = sectorBoundary;
+                return -1;
+            }
+
+            pos.Z = innerBoundary;
+            sector = m_level->findSectorForPosition(pos, &room);
+            floor = HeightInfo::fromFloor(sector, pos, this);
+            ceiling = HeightInfo::fromCeiling(sector, pos, this);
+            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+            {
+                origin.X = localPos.X;
+                origin.Y = localPos.Y;
+                origin.Z = sectorBoundary;
+                return 0;
+            }
+
+            sectorBoundary -= loader::SectorSize;
+            innerBoundary -= loader::SectorSize;
+            localPos.X -= gradientXZ * loader::SectorSize;
+            localPos.Y -= gradientYZ * loader::SectorSize;
+
+            if(sectorBoundary <= origin.Z)
+                return 1;
+        }
+    }
+
+    auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
+
+    if(sectorBoundary >= origin.Z)
+        return 1;
+
+    irr::core::vector3df localPos;
+    localPos.Z = sectorBoundary - lookAt.Z;
+    localPos.X = lookAt.X + localPos.Z * gradientXZ;
+    localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
+
+    auto innerBoundary = sectorBoundary + 1;
+    auto room = m_currentRoom;
+    while(true)
+    {
+        loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
+        auto sector = m_level->findSectorForPosition(pos, &room);
+        HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
+        HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
+        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+        {
+            origin.X = localPos.X;
+            origin.Y = localPos.Y;
+            origin.Z = sectorBoundary;
+            return -1;
+        }
+
+        pos.Z = innerBoundary;
+        sector = m_level->findSectorForPosition(pos, &room);
+        floor = HeightInfo::fromFloor(sector, pos, this);
+        ceiling = HeightInfo::fromCeiling(sector, pos, this);
+        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
+        {
+            origin.X = localPos.X;
+            origin.Y = localPos.Y;
+            origin.Z = sectorBoundary;
+            return 0;
+        }
+
+        sectorBoundary += loader::SectorSize;
+        innerBoundary += loader::SectorSize;
+        localPos.X += gradientXZ * loader::SectorSize;
+        localPos.Y += gradientYZ * loader::SectorSize;
+
+        if(sectorBoundary >= origin.Z)
+            return 1;
+    }
+}
+
+bool TRCameraSceneNodeAnimator::tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+{
+    bool firstMove;
+    int secondMove;
+    if(std::abs(origin.Z - lookAt.Z) <= std::abs(origin.X - lookAt.X))
+    {
+        firstMove = moveZ(lookAt, origin) == 1;
+        secondMove = moveX(lookAt, origin);
+    }
+    else
+    {
+        firstMove = moveX(lookAt, origin) == 1;
+        secondMove = moveZ(lookAt, origin);
+    }
+
+    if(secondMove == 0)
+        return false;
+
+    auto sector = m_level->findSectorForPosition(loader::TRCoordinates(origin), m_currentRoom);
+    return moveIntoRoomGeometry(lookAt, origin, sector) && firstMove && secondMove == 1;
 }

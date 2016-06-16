@@ -84,4 +84,8 @@ public:
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
+    bool moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const;
+    int moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    int moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    bool tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
 };
