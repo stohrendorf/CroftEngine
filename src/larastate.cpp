@@ -3,6 +3,7 @@
 #include "util/vmath.h"
 #include "loader/level.h"
 #include "loader/cameracontroller.h"
+#include "loader/laracontroller.h"
 #include "core/magic.h"
 
 void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loader::Level& level, int height)
@@ -11,7 +12,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     collisionFeedback = {0,0,0};
     orientationAxis = *util::axisFromAngle(yAngle, util::degToAu(45));
 
-    const loader::Room* room = level.m_cameraController->getCurrentRoom();
+    const loader::Room* room = level.m_lara->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
     auto currentSector = level.findSectorForPosition(reachablePos, &room);
     BOOST_ASSERT(currentSector != nullptr);
@@ -198,15 +199,15 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 std::set<const loader::Room*> LaraState::collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level)
 {
     std::set<const loader::Room*> result;
-    result.insert(level.m_cameraController->getCurrentRoom());
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_cameraController->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_cameraController->getCurrentRoom()));
+    result.insert(level.m_lara->getCurrentRoom());
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
     return result;
 }
 

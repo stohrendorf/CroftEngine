@@ -63,8 +63,8 @@ public:
         //if(node->getType() != irr::scene::ESNT_ANIMATED_MESH && node->getType() != irr::scene::ESNT_BILLBOARD && node->getType() != irr::scene::ESNT_MESH)
         //    return;
 
-        const auto laraPos = m_level.m_lara->getPosition();
-        const auto room = m_level.m_cameraController->getCurrentRoom();
+        const auto laraPos = m_level.m_lara->getSceneNode()->getPosition();
+        const auto room = m_level.m_lara->getCurrentRoom();
         int maxFrobbel = 0;
         const loader::Light* bestLight = nullptr;
         for(const loader::Light& light : room->lights)
@@ -951,7 +951,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     const auto lara = createItems(mgr, skinnedMeshes);
     if(lara.node == nullptr)
         return;
-    m_lara = lara.node;
+    m_lara = lara.controller;
 
     for(auto* ptr : staticMeshes)
         ptr->drop();
@@ -961,10 +961,11 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
 #ifndef NDEBUG
-    m_cameraController = new CameraController(cursorCtrl, this, lara.room, lara.controller, mgr->getVideoDriver());
+    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver());
 #else
-    m_cameraController = new CameraController(cursorCtrl, this, lara.room, lara.stateHandler);
+    m_cameraController = new CameraController(cursorCtrl, this, lara.stateHandler);
 #endif
+    lara.controller->setCurrentRoom(lara.room);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);

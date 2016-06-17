@@ -2921,7 +2921,7 @@ bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
         break;
     }
 
-    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_cameraController->getCurrentRoom());
+    auto sector = getLevel().findSectorForPosition(pos, m_controller.getCurrentRoom());
     HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
     HeightInfo ceil = HeightInfo::fromCeiling(sector, pos, getLevel().m_cameraController);
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
@@ -3169,7 +3169,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(int16_t angle, int dist) 
     pos.Y -= core::ScalpHeight;
     pos.Z += std::cos(util::auToRad(angle)) * dist;
 
-    auto sector = getLevel().findSectorForPosition(pos, getLevel().m_cameraController->getCurrentRoom());
+    auto sector = getLevel().findSectorForPosition(pos, m_controller.getCurrentRoom());
     BOOST_ASSERT(sector != nullptr);
 
     HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
@@ -3329,7 +3329,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = getLevel().findSectorForPosition(getPosition(), getLevel().m_cameraController->getCurrentRoom());
+    auto sector = getLevel().findSectorForPosition(getPosition(), m_controller.getCurrentRoom());
     HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{0, core::ScalpHeight, 0}, getLevel().m_cameraController);
     setFloorHeight(h.distance);
     getController().handleTriggers(h.lastTriggerOrKill, false);
@@ -3348,7 +3348,7 @@ bool AbstractStateHandler::applyLandingDamage()
 
 irr::scene::ISceneNode* AbstractStateHandler::getLara()
 {
-    return m_controller.getLara();
+    return m_controller.getSceneNode();
 }
 
 irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const

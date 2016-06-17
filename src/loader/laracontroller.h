@@ -27,7 +27,7 @@ private:
     std::shared_ptr<loader::AnimationController> m_dispatcher;
     const std::string m_name;
 
-    irr::scene::IAnimatedMeshSceneNode* const m_lara;
+    irr::scene::IAnimatedMeshSceneNode* const m_sceneNode;
 
     // Lara's vars
     SpeedValue<int> m_health = 1000;
@@ -64,9 +64,11 @@ private:
 
     loader::ExactTRCoordinates m_position;
 
+    const loader::Room* m_currentRoom;
+
 public:
     LaraController(const loader::Level* level, const std::shared_ptr<loader::AnimationController>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
-        : m_level(level), m_dispatcher(dispatcher), m_name(name), m_lara(lara)
+        : m_level(level), m_dispatcher(dispatcher), m_name(name), m_sceneNode(lara)
     {
         BOOST_ASSERT(level != nullptr);
         BOOST_ASSERT(dispatcher != nullptr);
@@ -80,8 +82,8 @@ public:
 
         setMovementAngle(getRotation().Y);
 
-        m_lara->updateAbsolutePosition();
-        m_position = loader::ExactTRCoordinates(m_lara->getAbsolutePosition());
+        m_sceneNode->updateAbsolutePosition();
+        m_position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
     }
 
     ~LaraController();
@@ -112,9 +114,9 @@ public:
         m_inputState = state;
     }
 
-    irr::scene::IAnimatedMeshSceneNode* getLara() const noexcept
+    irr::scene::IAnimatedMeshSceneNode* getSceneNode() const noexcept
     {
-        return m_lara;
+        return m_sceneNode;
     }
 
     loader::TRCoordinates getPosition() const noexcept
@@ -126,6 +128,13 @@ public:
     {
         return m_position;
     }
+
+    const loader::Room* getCurrentRoom() const noexcept
+    {
+        return m_currentRoom;
+    }
+
+    void setCurrentRoom(const loader::Room* newRoom);
 
 private:
     void handleLaraStateOnLand(bool newFrame);

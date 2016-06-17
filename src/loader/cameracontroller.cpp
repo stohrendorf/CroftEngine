@@ -7,48 +7,16 @@
 #include <queue>
 #include <set>
 
-void CameraController::setCurrentRoom(const loader::Room* newRoom)
-{
-    if(newRoom == m_currentRoom)
-        return;
-    
-    BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
-    if(newRoom == nullptr)
-    {
-        BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
-        for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
-        {
-            const loader::Room& room = m_level->m_rooms[i];
-            if(room.node->getTransformedBoundingBox().isPointInside(m_level->m_lara->getAbsolutePosition()))
-            {
-                BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
-            }
-        }
-        return;
-    }
-    
-    m_currentRoom = newRoom;
-    for(irr::u32 i = 0; i < m_level->m_lara->getMaterialCount(); ++i)
-    {
-        irr::video::SMaterial& material = m_level->m_lara->getMaterial(i);
-        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 8191.0f / 4);
-        material.EmissiveColor = col;
-        material.AmbientColor = col;
-    }
-}
-
 #ifndef NDEBUG
-CameraController::CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraController* laraController, irr::video::IVideoDriver* drv)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_laraController(laraController), m_driver(drv)
+CameraController::CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraController* laraController, irr::video::IVideoDriver* drv)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_laraController(laraController), m_driver(drv)
 #else
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* laraController)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_currentRoom(nullptr), m_laraController(laraController)
+TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraStateHandler* laraController)
+    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_laraController(laraController)
 #endif
 {
     BOOST_ASSERT(cursorControl != nullptr);
-    BOOST_ASSERT(currentRoom != nullptr);
-    setCurrentRoom(currentRoom);
-    m_currentLookAt = m_level->m_lara->getAbsolutePosition();
+    m_currentLookAt = m_level->m_lara->getSceneNode()->getAbsolutePosition();
     m_currentLookAt.Y += m_lookAtYOffset;
     m_currentPosition = m_currentLookAt;
     m_currentPosition.Z -= 100;
@@ -264,7 +232,7 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     // First, find the room the camera is actually in.
     // This is either Lara's room, or one of the neighbors.
 
-    const loader::Room* startRoom = m_currentRoom;
+    const loader::Room* startRoom = m_laraController->getCurrentRoom();
     if(!startRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
     {
         for(const loader::Portal& portal : startRoom->portals)
@@ -379,7 +347,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
         while(true)
         {
             loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
-            auto sector = m_level->findSectorForPosition(pos, m_currentRoom);
+            auto sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
             HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
             HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
             if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
@@ -391,7 +359,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
             }
 
             pos.X = innerBoundary;
-            sector = m_level->findSectorForPosition(pos, m_currentRoom);
+            sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
             floor = HeightInfo::fromFloor(sector, pos, this);
             ceiling = HeightInfo::fromCeiling(sector, pos, this);
             if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
@@ -426,7 +394,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
     while(true)
     {
         loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
-        auto sector = m_level->findSectorForPosition(pos, m_currentRoom);
+        auto sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
         HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
         if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
@@ -438,7 +406,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
         }
 
         pos.X = innerBoundary;
-        sector = m_level->findSectorForPosition(pos, m_currentRoom);
+        sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
         floor = HeightInfo::fromFloor(sector, pos, this);
         ceiling = HeightInfo::fromCeiling(sector, pos, this);
         if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
@@ -480,7 +448,7 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
         localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
 
         auto innerBoundary = sectorBoundary - 1;
-        auto room = m_currentRoom;
+        auto room = m_laraController->getCurrentRoom();
         while(true)
         {
             loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
@@ -528,7 +496,7 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
     localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
 
     auto innerBoundary = sectorBoundary + 1;
-    auto room = m_currentRoom;
+    auto room = m_laraController->getCurrentRoom();
     while(true)
     {
         loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
@@ -583,6 +551,6 @@ bool CameraController::tryLookAt(const irr::core::vector3df& lookAt, irr::core::
     if(secondMove == 0)
         return false;
 
-    auto sector = m_level->findSectorForPosition(loader::TRCoordinates(origin), m_currentRoom);
+    auto sector = m_level->findSectorForPosition(loader::TRCoordinates(origin), m_laraController->getCurrentRoom());
     return moveIntoRoomGeometry(lookAt, origin, sector) && firstMove && secondMove == 1;
 }

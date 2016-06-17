@@ -24,7 +24,6 @@ private:
     InputState m_inputState;
 
     const loader::Level* m_level;
-    const loader::Room* m_currentRoom;
     LaraController* m_laraController;
     
     int m_lookAtYOffset = 1024;
@@ -40,9 +39,9 @@ private:
 
 public:
 #ifndef NDEBUG
-    explicit CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraController* laraController, irr::video::IVideoDriver* drv);
+    explicit CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraController* laraController, irr::video::IVideoDriver* drv);
 #else
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, loader::Room* currentRoom, LaraStateHandler* laraController);
+    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraStateHandler* laraController);
 #endif
 
     //! Animates a scene node.
@@ -66,13 +65,6 @@ public:
     //! Event receiver, override this function for camera controlling animators
     bool OnEvent(const irr::SEvent& evt) override;
     
-    const loader::Room* getCurrentRoom() const noexcept
-    {
-        return m_currentRoom;
-    }
-
-    void setCurrentRoom(const loader::Room* newRoom);
-
     const loader::Level* getLevel() const noexcept
     {
         return m_level;

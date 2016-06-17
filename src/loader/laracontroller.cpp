@@ -32,7 +32,7 @@ void LaraController::applyRotation()
 
     irr::core::vector3df euler;
     q.toEuler(euler);
-    m_lara->setRotation(euler * 180 / irr::core::PI);
+    m_sceneNode->setRotation(euler * 180 / irr::core::PI);
 }
 
 void LaraController::handleLaraStateOnLand(bool newFrame)
@@ -159,8 +159,8 @@ void LaraController::handleLaraStateDiving(bool newFrame)
     m_position.Z += std::cos(util::auToRad(m_rotation.Y)) * std::cos(util::auToRad(m_rotation.X)) * m_fallSpeed.getScaledExact(getCurrentDeltaTime()) / 4;
 
     applyRotation();
-    m_lara->setPosition(m_position.toIrrlicht());
-    m_lara->updateAbsolutePosition();
+    m_sceneNode->setPosition(m_position.toIrrlicht());
+    m_sceneNode->updateAbsolutePosition();
 
     if(!newFrame)
         return;
@@ -230,8 +230,8 @@ void LaraController::handleLaraStateSwimming(bool newFrame)
     m_position.Z += std::cos(util::auToRad(getMovementAngle())) * m_fallSpeed.getScaledExact(getCurrentDeltaTime()) / 4;
 
     applyRotation();
-    m_lara->setPosition(m_position.toIrrlicht());
-    m_lara->updateAbsolutePosition();
+    m_sceneNode->setPosition(m_position.toIrrlicht());
+    m_sceneNode->updateAbsolutePosition();
 
     if(!newFrame)
         return;
@@ -285,7 +285,7 @@ LaraController::~LaraController() = default;
 
 void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 {
-    BOOST_ASSERT(m_lara == node);
+    BOOST_ASSERT(m_sceneNode == node);
 
     if( m_lastFrameTime < 0 )
         m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
@@ -310,7 +310,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
     }
 
-    if(m_underwaterState == UnderwaterState::OnLand && m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
+    if(m_underwaterState == UnderwaterState::OnLand && m_currentRoom->isWaterRoom())
     {
         m_air = 1800;
         m_underwaterState = UnderwaterState::Diving;
@@ -347,7 +347,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 
         //! @todo Show water splash effect
     }
-    else if(m_underwaterState == UnderwaterState::Diving && !m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Diving && !m_currentRoom->isWaterRoom())
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
         if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - m_position.Y) >= 256)
@@ -377,7 +377,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             //! @todo play sound 36
         }
     }
-    else if(m_underwaterState == UnderwaterState::Swimming && !m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Swimming && !m_currentRoom->isWaterRoom())
     {
         m_underwaterState = UnderwaterState::OnLand;
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
@@ -523,8 +523,8 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
         );
     }
 
-    m_lara->setPosition(m_position.toIrrlicht());
-    m_lara->updateAbsolutePosition();
+    m_sceneNode->setPosition(m_position.toIrrlicht());
+    m_sceneNode->updateAbsolutePosition();
 
     return nextHandler;
 }
@@ -533,9 +533,9 @@ void LaraController::updateFloorHeight(int dy)
 {
     auto pos = getPosition();
     pos.Y += dy;
-    auto room = getLevel().m_cameraController->getCurrentRoom();
+    auto room = m_currentRoom;
     auto sector = getLevel().findSectorForPosition(pos, &room);
-    m_level->m_cameraController->setCurrentRoom(room);
+    setCurrentRoom(room);
     HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
     setFloorHeight(hi.distance);
 }
@@ -681,9 +681,9 @@ irr::core::aabbox3di LaraController::getBoundingBox() const
 
 boost::optional<int> LaraController::getWaterSurfaceHeight() const
 {
-    auto sector = m_level->m_cameraController->getCurrentRoom()->getSectorByAbsolutePosition(m_position.toInexact());
+    auto sector = m_currentRoom->getSectorByAbsolutePosition(m_position.toInexact());
 
-    if(m_level->m_cameraController->getCurrentRoom()->isWaterRoom())
+    if(m_currentRoom->isWaterRoom())
     {
         while(true)
         {
@@ -736,4 +736,34 @@ void LaraController::setCameraRotationY(int16_t y)
 void LaraController::setCameraRotationX(int16_t x)
 {
     m_level->m_cameraController->setLocalRotationX(x);
+}
+
+void LaraController::setCurrentRoom(const loader::Room* newRoom)
+{
+    if(newRoom == m_currentRoom)
+        return;
+
+    BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
+    if(newRoom == nullptr)
+    {
+        BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
+        for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+        {
+            const loader::Room& room = m_level->m_rooms[i];
+            if(room.node->getTransformedBoundingBox().isPointInside(m_sceneNode->getAbsolutePosition()))
+            {
+                BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
+            }
+        }
+        return;
+    }
+
+    m_currentRoom = newRoom;
+    for(irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i)
+    {
+        irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
+        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 8191.0f / 4);
+        material.EmissiveColor = col;
+        material.AmbientColor = col;
+    }
 }
