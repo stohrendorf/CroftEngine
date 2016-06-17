@@ -214,10 +214,10 @@ bool LaraState::checkStaticMeshCollisions(const loader::TRCoordinates& position,
 {
     auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 
-    irr::core::aabbox3di baseBB{
+    irr::core::aabbox3di baseBB(
         position.X - collisionRadius, position.Y - height, position.Z - collisionRadius,
         position.X + collisionRadius, position.Y + height, position.Z + collisionRadius
-    };
+    );
     baseBB.repair();
 
     for(const loader::Room* room : rooms)

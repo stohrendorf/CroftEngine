@@ -468,10 +468,10 @@ void AbstractTriggerHandler::deactivate(AbstractTriggerHandler* activator, bool 
 }
 irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, int16_t angle) const
 {
-    irr::core::aabbox3di result{
+    irr::core::aabbox3di result(
         collision_box[0].X, collision_box[0].Y, collision_box[0].Z,
         collision_box[1].X, collision_box[1].Y, collision_box[1].Z
-    };
+    );
     result.repair();
 
     const auto axis = util::axisFromAngle(angle, 0x2000);
