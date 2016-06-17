@@ -112,7 +112,7 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     m_currentPosition += d * bias;
 
     auto pos = m_currentPosition;
-    tryLookAt(m_currentLookAt, pos);
+    clamp(m_currentLookAt, pos);
 
     camera->setPosition(pos);
     camera->updateAbsolutePosition();
@@ -306,7 +306,7 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     }
 }
 
-bool CameraController::moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
+bool CameraController::clampY(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
 {
     BOOST_ASSERT(sector != nullptr);
 
@@ -332,10 +332,10 @@ bool CameraController::moveIntoRoomGeometry(const irr::core::vector3df& lookAt, 
     return true;
 }
 
-int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+CameraController::ClampType CameraController::clampX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
     if(irr::core::equals(lookAt.X, origin.X, 1.0f))
-        return 1;
+        return ClampType::None;
 
     const auto d = origin - lookAt;
     const auto gradientZX = d.Z / d.X;
@@ -345,7 +345,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
     {
         auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize;
         if(sectorBoundary <= origin.X)
-            return 1;
+            return ClampType::None;
 
         irr::core::vector3df localPos;
         localPos.X = sectorBoundary - lookAt.X;
@@ -364,7 +364,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
                 origin.X = sectorBoundary;
                 origin.Y = localPos.Y;
                 origin.Z = localPos.Z;
-                return -1;
+                return ClampType::Outer;
             }
 
             pos.X = innerBoundary;
@@ -376,7 +376,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
                 origin.X = sectorBoundary;
                 origin.Y = localPos.Y;
                 origin.Z = localPos.Z;
-                return 0;
+                return ClampType::Inner;
             }
 
             sectorBoundary -= loader::SectorSize;
@@ -385,14 +385,14 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
             localPos.Z -= gradientZX * loader::SectorSize;
 
             if(sectorBoundary <= origin.X)
-                return 1;
+                return ClampType::None;
         }
     }
 
     auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
 
     if(sectorBoundary >= origin.X)
-        return 1;
+        return ClampType::None;
 
     irr::core::vector3df localPos;
     localPos.X = sectorBoundary - lookAt.X;
@@ -411,7 +411,7 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
             origin.X = sectorBoundary;
             origin.Y = localPos.Y;
             origin.Z = localPos.Z;
-            return -1;
+            return ClampType::Outer;
         }
 
         pos.X = innerBoundary;
@@ -420,10 +420,10 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
         ceiling = HeightInfo::fromCeiling(sector, pos, this);
         if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
         {
-            origin.X = sectorBoundary;
+            origin.X = innerBoundary;
             origin.Y = localPos.Y;
             origin.Z = localPos.Z;
-            return 0;
+            return ClampType::Inner;
         }
 
         sectorBoundary += loader::SectorSize;
@@ -432,14 +432,14 @@ int CameraController::moveX(const irr::core::vector3df& lookAt, irr::core::vecto
         localPos.Z += gradientZX * loader::SectorSize;
 
         if(sectorBoundary >= origin.X)
-            return 1;
+            return ClampType::None;
     }
 }
 
-int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+CameraController::ClampType CameraController::clampZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
     if(irr::core::equals(lookAt.Z, origin.Z, 1.0f))
-        return 1;
+        return ClampType::None;
 
     const auto d = origin - lookAt;
     const auto gradientXZ = d.X / d.Z;
@@ -449,7 +449,7 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
     {
         auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize;
         if(sectorBoundary <= origin.Z)
-            return 1;
+            return ClampType::None;
 
         irr::core::vector3df localPos;
         localPos.Z = sectorBoundary - lookAt.Z;
@@ -469,7 +469,7 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
                 origin.X = localPos.X;
                 origin.Y = localPos.Y;
                 origin.Z = sectorBoundary;
-                return -1;
+                return ClampType::Outer;
             }
 
             pos.Z = innerBoundary;
@@ -480,8 +480,8 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
             {
                 origin.X = localPos.X;
                 origin.Y = localPos.Y;
-                origin.Z = sectorBoundary;
-                return 0;
+                origin.Z = innerBoundary;
+                return ClampType::Inner;
             }
 
             sectorBoundary -= loader::SectorSize;
@@ -490,14 +490,14 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
             localPos.Y -= gradientYZ * loader::SectorSize;
 
             if(sectorBoundary <= origin.Z)
-                return 1;
+                return ClampType::None;
         }
     }
 
     auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
 
     if(sectorBoundary >= origin.Z)
-        return 1;
+        return ClampType::None;
 
     irr::core::vector3df localPos;
     localPos.Z = sectorBoundary - lookAt.Z;
@@ -517,7 +517,7 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
             origin.X = localPos.X;
             origin.Y = localPos.Y;
             origin.Z = sectorBoundary;
-            return -1;
+            return ClampType::Outer;
         }
 
         pos.Z = innerBoundary;
@@ -528,8 +528,8 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
         {
             origin.X = localPos.X;
             origin.Y = localPos.Y;
-            origin.Z = sectorBoundary;
-            return 0;
+            origin.Z = innerBoundary;
+            return ClampType::Inner;
         }
 
         sectorBoundary += loader::SectorSize;
@@ -538,28 +538,28 @@ int CameraController::moveZ(const irr::core::vector3df& lookAt, irr::core::vecto
         localPos.Y += gradientYZ * loader::SectorSize;
 
         if(sectorBoundary >= origin.Z)
-            return 1;
+            return ClampType::None;
     }
 }
 
-bool CameraController::tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+bool CameraController::clamp(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
 {
-    bool firstMove;
-    int secondMove;
+    bool firstUnclamped;
+    ClampType secondClamp;
     if(std::abs(origin.Z - lookAt.Z) <= std::abs(origin.X - lookAt.X))
     {
-        firstMove = moveZ(lookAt, origin) == 1;
-        secondMove = moveX(lookAt, origin);
+        firstUnclamped = clampZ(lookAt, origin) == ClampType::None;
+        secondClamp = clampX(lookAt, origin);
     }
     else
     {
-        firstMove = moveX(lookAt, origin) == 1;
-        secondMove = moveZ(lookAt, origin);
+        firstUnclamped = clampX(lookAt, origin) == ClampType::None;
+        secondClamp = clampZ(lookAt, origin);
     }
 
-    if(secondMove == 0)
+    if(secondClamp == ClampType::Inner)
         return false;
 
     auto sector = m_level->findSectorForPosition(loader::TRCoordinates(origin), m_laraController->getCurrentRoom());
-    return moveIntoRoomGeometry(lookAt, origin, sector) && firstMove && secondMove == 1;
+    return clampY(lookAt, origin, sector) && firstUnclamped && secondClamp == ClampType::None;
 }

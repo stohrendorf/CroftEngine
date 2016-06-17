@@ -76,8 +76,16 @@ public:
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
-    bool moveIntoRoomGeometry(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const;
-    int moveX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
-    int moveZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
-    bool tryLookAt(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    bool clampY(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const;
+
+    enum class ClampType
+    {
+        Outer,
+        Inner,
+        None
+    };
+
+    ClampType clampX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    ClampType clampZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    bool clamp(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
 };
