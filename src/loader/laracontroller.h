@@ -49,6 +49,7 @@ private:
     int m_lastEngineFrameTime = -1;
     int m_currentFrameTime = 0;
     int m_lastAnimFrame = -1;
+    int m_uvAnimTime = 0;
 
     UnderwaterState m_underwaterState = UnderwaterState::OnLand;
     std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;

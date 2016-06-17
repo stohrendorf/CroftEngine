@@ -22,6 +22,8 @@
  * TR level data or engine internals.
  */
 
+class TextureAnimator;
+
 namespace loader
 {
 constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF;          // in some custom levels we need to use 0x7FFF flag
@@ -340,7 +342,7 @@ struct Triangle
 {
     //! Vertex buffer indices
     uint16_t vertices[3];
-    uint16_t uvTexture;        /**< \brief object-texture index or colour index.
+    uint16_t proxyId;        /**< \brief object-texture index or colour index.
                                * If the triangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
                                * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -367,7 +369,7 @@ private:
         meshface.vertices[0] = reader.readU16();
         meshface.vertices[1] = reader.readU16();
         meshface.vertices[2] = reader.readU16();
-        meshface.uvTexture = reader.readU16();
+        meshface.proxyId = reader.readU16();
         if(withLighting)
             meshface.lighting = reader.readU16();
         else
@@ -380,7 +382,7 @@ struct QuadFace
 {
     //! Vertex buffer indices
     uint16_t vertices[4];
-    uint16_t uvTexture;        /**< \brief object-texture index or colour index.
+    uint16_t proxyId;        /**< \brief object-texture index or colour index.
                                * If the rectangle is textured, then this is an index into the object-texture list.
                                * If it's not textured, then the low 8 bit contain the index into the 256 colour palette
                                * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -410,7 +412,7 @@ private:
         meshface.vertices[1] = reader.readU16();
         meshface.vertices[2] = reader.readU16();
         meshface.vertices[3] = reader.readU16();
-        meshface.uvTexture = reader.readU16();
+        meshface.proxyId = reader.readU16();
         if(withLighting)
             meshface.lighting = reader.readU16();
         else
@@ -717,10 +719,10 @@ struct Light
         light.specularIntensity = reader.readU8();
         light.intensity = light.specularIntensity;
         light.intensity /= 32;
-        light.r_inner = reader.readF();
-        light.r_outer = reader.readF();
-        light.length = reader.readF();
-        light.cutoff = reader.readF();
+        light.r_inner = gsl::narrow<int>(reader.readF());
+        light.r_outer = gsl::narrow<int>(reader.readF());
+        light.length = gsl::narrow<int>(reader.readF());
+        light.cutoff = gsl::narrow<int>(reader.readF());
         light.dir = TRCoordinates::readF(reader);
         return light;
     }
@@ -739,8 +741,8 @@ struct Light
         if ((temp != 0) && (temp != 0xCDCDCDCD))
         BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: seperator1 has wrong value") );
         */
-        light.r_inner = reader.readF();
-        light.r_outer = reader.readF();
+        light.r_inner = gsl::narrow<int>(reader.readF());
+        light.r_outer = gsl::narrow<int>(reader.readF());
         reader.readF();    // rad_input
         reader.readF();    // rad_output
         reader.readF();    // range
@@ -1340,7 +1342,7 @@ struct Mesh
         return mesh;
     }
 
-    irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials) const;
+    irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials, TextureAnimator& animator) const;
 };
 
 class Level;
@@ -1377,7 +1379,7 @@ struct Room
     uint16_t sectorCountZ;          // "width" of sector list
     uint16_t sectorCountX;          // "height" of sector list
     std::vector<Sector> sectors;  // [NumXsectors * NumZsectors] list of sectors in this room
-    int16_t intensity1;             // This and the next one only affect externally-lit objects
+    int16_t darkness;             // This and the next one only affect externally-lit objects
     int16_t intensity2;             // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
     int16_t lightMode;             // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
     std::vector<Light> lights;       // [NumLights] list of point lights
@@ -1464,9 +1466,9 @@ struct Room
         reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         // read and make consistent
-        room->intensity1 = reader.readI16();
+        room->darkness = reader.readI16();
         // only in TR2-TR4
-        room->intensity2 = room->intensity1;
+        room->intensity2 = room->darkness;
         // only in TR2
         room->lightMode = 0;
 
@@ -1517,7 +1519,7 @@ struct Room
         reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         // read and make consistent
-        room->intensity1 = (8191 - reader.readI16()) << 2;
+        room->darkness = (8191 - reader.readI16()) << 2;
         room->intensity2 = (8191 - reader.readI16()) << 2;
         room->lightMode = reader.readI16();
 
@@ -1538,9 +1540,9 @@ struct Room
             room->reverbInfo = ReverbType::MediumRoom;
         }
 
-        room->lightColor.r = room->intensity1 / 16384.0f;
-        room->lightColor.g = room->intensity1 / 16384.0f;
-        room->lightColor.b = room->intensity1 / 16384.0f;
+        room->lightColor.r = room->darkness / 16384.0f;
+        room->lightColor.g = room->darkness / 16384.0f;
+        room->lightColor.b = room->darkness / 16384.0f;
         room->lightColor.a = 1.0f;
         return room;
     }
@@ -1576,7 +1578,7 @@ struct Room
         room->sectorCountX = reader.readU16();
         reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-        room->intensity1 = reader.readI16();
+        room->darkness = reader.readI16();
         room->intensity2 = reader.readI16();
 
         // only in TR2
@@ -1603,9 +1605,9 @@ struct Room
 
         reader.skip(1);   // Alternate_group override?
 
-        room->lightColor.r = room->intensity1 / 65534.0f;
-        room->lightColor.g = room->intensity1 / 65534.0f;
-        room->lightColor.b = room->intensity1 / 65534.0f;
+        room->lightColor.r = room->darkness / 65534.0f;
+        room->lightColor.g = room->darkness / 65534.0f;
+        room->lightColor.b = room->darkness / 65534.0f;
         room->lightColor.a = 1.0f;
         return room;
     }
@@ -1640,7 +1642,7 @@ struct Room
         room->sectorCountX = reader.readU16();
         reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-        room->intensity1 = reader.readI16();
+        room->darkness = reader.readI16();
         room->intensity2 = reader.readI16();
 
         // only in TR2
@@ -1662,8 +1664,8 @@ struct Room
         room->alternateGroup = reader.readU8();
 
         room->lightColor.r = (room->intensity2 & 0x00FF) / 255.0f;
-        room->lightColor.g = ((room->intensity1 & 0xFF00) >> 8) / 255.0f;
-        room->lightColor.b = (room->intensity1 & 0x00FF) / 255.0f;
+        room->lightColor.g = ((room->darkness & 0xFF00) >> 8) / 255.0f;
+        room->lightColor.b = (room->darkness & 0x00FF) / 255.0f;
         room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
         return room;
     }
@@ -1678,7 +1680,7 @@ struct Room
         const auto endPos = position + room_data_size;
 
         std::unique_ptr<Room> room{ new Room() };
-        room->intensity1 = 32767;
+        room->darkness = 32767;
         room->intensity2 = 32767;
         room->lightMode = 0;
 
@@ -1896,7 +1898,7 @@ struct Room
         return room;
     }
     
-    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes);
+    irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes, TextureAnimator& animator);
 
     const Sector* getSectorByAbsolutePosition(TRCoordinates position) const
     {
@@ -2964,8 +2966,8 @@ public:
 
     static constexpr int FrameRate = 30;
 
-    // ReSharper disable once CppNonExplicitConvertingConstructor
     [[implicit]]
+    // ReSharper disable once CppNonExplicitConvertingConstructor
     constexpr SpeedValue(InterfaceType v = 0)
         : m_value(static_cast<StorageType>(v))
     {

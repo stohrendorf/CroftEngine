@@ -47,8 +47,8 @@ HeightInfo HeightInfo::fromFloor(const loader::Sector* roomSector, const loader:
                     else
                         hi.slantClass = SlantClass::Steep;
 
-                    const irr::f32 localX = pos.X % loader::SectorSize;
-                    const irr::f32 localZ = pos.Z % loader::SectorSize;
+                    const auto localX = pos.X % loader::SectorSize;
+                    const auto localZ = pos.Z % loader::SectorSize;
 
                     if( zSlant > 0 ) // lower edge at -Z
                     {
@@ -154,8 +154,8 @@ HeightInfo HeightInfo::fromCeiling(const loader::Sector* roomSector, const loade
                 const auto absZ = std::abs(zSlant);
                 if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
-                    const irr::f32 localX = pos.X % loader::SectorSize;
-                    const irr::f32 localZ = pos.Z % loader::SectorSize;
+                    const auto localX = pos.X % loader::SectorSize;
+                    const auto localZ = pos.Z % loader::SectorSize;
 
                     if( zSlant > 0 ) // lower edge at -Z
                     {

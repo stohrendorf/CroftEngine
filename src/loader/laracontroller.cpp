@@ -5,6 +5,7 @@
 #include "heightinfo.h"
 #include "larastate.h"
 #include "abstractstatehandler.h"
+#include "textureanimator.h"
 
 void LaraController::setTargetState(LaraStateId st)
 {
@@ -296,6 +297,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
     m_currentFrameTime = timeMs;
 
     static constexpr int FrameTime = 1000 / 30;
+    static constexpr int UVAnimTime = 1000 / 10;
 
     bool isNewFrame = m_lastAnimFrame != getCurrentFrame();
 
@@ -303,6 +305,13 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
     {
         isNewFrame = true;
         m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
+    }
+
+    m_uvAnimTime += getCurrentDeltaTime();
+    if(m_uvAnimTime >= UVAnimTime)
+    {
+        m_level->m_textureAnimator->updateCoordinates(m_level->m_textureProxies);
+        m_uvAnimTime -= UVAnimTime;
     }
 
     if(m_currentStateHandler == nullptr)
@@ -762,7 +771,7 @@ void LaraController::setCurrentRoom(const loader::Room* newRoom)
     for(irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i)
     {
         irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
-        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->intensity1 / 8191.0f / 4);
+        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->darkness / 8191.0f / 4);
         material.EmissiveColor = col;
         material.AmbientColor = col;
     }

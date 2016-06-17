@@ -8,6 +8,7 @@
 
 class LaraController;
 class CameraController;
+class TextureAnimator;
 
 namespace loader
 {
@@ -163,6 +164,7 @@ public:
     }
 
     LaraController* m_lara = nullptr;
+    std::shared_ptr<TextureAnimator> m_textureAnimator;
 
 protected:
     io::SDLReader m_reader;

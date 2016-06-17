@@ -3,6 +3,7 @@
 #include "animationcontroller.h"
 #include "level.h"
 #include "util/vmath.h"
+#include "textureanimator.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
@@ -12,7 +13,7 @@ namespace loader
 
 namespace
 {
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates* uvCoordinates, const std::vector<TRCoordinates>& vertices, const std::vector<TRCoordinates>& normals)
+irr::u16 addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates* uvCoordinates, const std::vector<TRCoordinates>& vertices, const std::vector<TRCoordinates>& normals)
 {
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
@@ -35,11 +36,11 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     }
     BOOST_ASSERT(ivIdx >= 0);
     BOOST_ASSERT(static_cast<irr::u32>(ivIdx) < meshBuffer.Vertices.size());
-    meshBuffer.Indices.push_back(ivIdx);
-    return meshBuffer.Vertices[ivIdx];
+    meshBuffer.Indices.push_back(gsl::narrow<irr::u16>(ivIdx));
+    return gsl::narrow_cast<irr::u16>(ivIdx);
 }
 
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
+irr::u16 addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
 {
     irr::video::S3DVertex iv;
     BOOST_ASSERT(vertexIndex < vertices.size());
@@ -55,8 +56,8 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     }
     BOOST_ASSERT(ivIdx >= 0);
     BOOST_ASSERT(static_cast<irr::u32>(ivIdx) < meshBuffer.Vertices.size());
-    meshBuffer.Indices.push_back(ivIdx);
-    return meshBuffer.Vertices[ivIdx];
+    meshBuffer.Indices.push_back(gsl::narrow<irr::u16>(ivIdx));
+    return gsl::narrow_cast<irr::u16>(ivIdx);
 }
 } // anonymous namespace
 
@@ -64,7 +65,8 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
                                     int dumpIdx,
                                     const std::vector<TextureLayoutProxy>& textureProxies,
                                     const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
-                                    const std::vector<irr::video::SMaterial>& colorMaterials) const
+                                    const std::vector<irr::video::SMaterial>& colorMaterials,
+                                    TextureAnimator& animator) const
 {
     BOOST_ASSERT(colorMaterials.size() == 256);
 
@@ -72,17 +74,17 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
     for(const QuadFace& quad : textured_rectangles)
     {
-        const TextureLayoutProxy& proxy = textureProxies.at(quad.uvTexture);
+        const TextureLayoutProxy& proxy = textureProxies.at(quad.proxyId);
         if(texBuffers.find(proxy.textureKey) == texBuffers.end())
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
         
-        addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals);
-        addVertex(*buf, quad.vertices[1], &proxy.uvCoordinates[1], vertices, normals);
-        addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals);
-        addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals);
-        addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals);
-        addVertex(*buf, quad.vertices[3], &proxy.uvCoordinates[3], vertices, normals);
+        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals));
+        animator.registerVertex(quad.proxyId, buf, 1, addVertex(*buf, quad.vertices[1], &proxy.uvCoordinates[1], vertices, normals));
+        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals));
+        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals));
+        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals));
+        animator.registerVertex(quad.proxyId, buf, 3, addVertex(*buf, quad.vertices[3], &proxy.uvCoordinates[3], vertices, normals));
     }
     for(const QuadFace& quad : colored_rectangles)
     {
@@ -90,7 +92,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
         tk.blendingMode = BlendingMode::Solid;
         tk.flags = 0;
         tk.tileAndFlag = 0;
-        tk.colorId = quad.uvTexture&0xff;
+        tk.colorId = quad.proxyId&0xff;
         
         if(texBuffers.find(tk) == texBuffers.end())
             texBuffers[tk] = new irr::scene::SMeshBuffer();
@@ -105,13 +107,13 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     }
     for(const Triangle& poly : textured_triangles)
     {
-        const TextureLayoutProxy& proxy = textureProxies.at(poly.uvTexture);
+        const TextureLayoutProxy& proxy = textureProxies.at(poly.proxyId);
         if(texBuffers.find(proxy.textureKey) == texBuffers.end())
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
 
         for(int i=0; i<3; ++i)
-            addVertex(*buf, poly.vertices[i], &proxy.uvCoordinates[i], vertices, normals);
+            animator.registerVertex(poly.proxyId, buf, i, addVertex(*buf, poly.vertices[i], &proxy.uvCoordinates[i], vertices, normals));
     }
 
     for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
@@ -123,7 +125,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
         tk.blendingMode = BlendingMode::Solid;
         tk.flags = 0;
         tk.tileAndFlag = 0;
-        tk.colorId = poly.uvTexture&0xff;
+        tk.colorId = poly.proxyId&0xff;
 
         if(texBuffers.find(tk) == texBuffers.end())
             texBuffers[tk] = new irr::scene::SMeshBuffer();
@@ -181,27 +183,28 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
                                                   const Level& level,
                                                   const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
                                                   const std::vector<irr::video::ITexture*>& textures,
-                                                  const std::vector<irr::scene::SMesh*>& staticMeshes)
+                                                  const std::vector<irr::scene::SMesh*>& staticMeshes,
+                                                  TextureAnimator& animator)
 {
     // texture => mesh buffer
     std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
     for(const QuadFace& quad : rectangles)
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.uvTexture);
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.proxyId);
         if(texBuffers.find(proxy.textureKey) == texBuffers.end())
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
         
-        addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices);
-        addVertex(*buf, quad.vertices[1], proxy.uvCoordinates[1], vertices);
-        addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices);
-        addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices);
-        addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices);
-        addVertex(*buf, quad.vertices[3], proxy.uvCoordinates[3], vertices);
+        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices));
+        animator.registerVertex(quad.proxyId, buf, 1, addVertex(*buf, quad.vertices[1], proxy.uvCoordinates[1], vertices));
+        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices));
+        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices));
+        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices));
+        animator.registerVertex(quad.proxyId, buf, 3, addVertex(*buf, quad.vertices[3], proxy.uvCoordinates[3], vertices));
     }
     for(const Triangle& poly : triangles)
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(poly.uvTexture);
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at(poly.proxyId);
         if(texBuffers.find(proxy.textureKey) == texBuffers.end())
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
@@ -225,7 +228,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         material.Shininess = 20;
         material.SpecularColor.set(0);
         material.EmissiveColor = lightColor.toSColor(0.25f);
-        BOOST_LOG_TRIVIAL(debug) << "Intensity=" << intensity1;
+        BOOST_LOG_TRIVIAL(debug) << "Intensity=" << darkness;
         if(isWaterRoom())
         {
             material.FogEnable = true;

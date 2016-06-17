@@ -160,7 +160,9 @@ inline boost::optional<int16_t> alignRotation(int16_t angle, uint16_t margin)
         case Axis::NegZ: return boost::optional<int16_t>(-0x8000);
         case Axis::NegX: return boost::optional<int16_t>(-0x4000);
     }
-    BOOST_ASSERT(false);
+    
+    // silence compiler warning
+    return{};
 }
 
 } // namespace util

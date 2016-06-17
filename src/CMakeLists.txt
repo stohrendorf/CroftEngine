@@ -69,6 +69,7 @@ set(OT_IRR_SRCS
     loader/laracontroller.h
     loader/laracontroller.cpp
     loader/larastateid.h
+    loader/textureanimator.h
 
     inputstate.h
     heightinfo.h
