@@ -186,7 +186,7 @@ void TR4Level::load(irr::video::IVideoDriver* drv)
     if(newsrc.readI8() != 'X')
         BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: 'TEX' not found"));
 
-    newsrc.readVector(m_uvTextures, newsrc.readU32(), &UVTexture::readTr4);
+    newsrc.readVector(m_textureProxies, newsrc.readU32(), &TextureLayoutProxy::readTr4);
 
     newsrc.readVector(m_items, newsrc.readU32(), &Item::readTr4);
 

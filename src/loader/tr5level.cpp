@@ -189,7 +189,7 @@ void TR5Level::load(irr::video::IVideoDriver* drv)
     if(m_reader.readI8() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_uvTextures, m_reader.readU32(), &UVTexture::readTr5);
+    m_reader.readVector(m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr5);
 
     m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr4);
 

@@ -83,7 +83,7 @@ void TR1Level::load(irr::video::IVideoDriver* drv)
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading object textures";
-    m_reader.readVector(m_uvTextures, m_reader.readU32(), UVTexture::readTr1);
+    m_reader.readVector(m_textureProxies, m_reader.readU32(), TextureLayoutProxy::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite textures";
     m_reader.readVector(m_spriteTextures, m_reader.readU32(), &SpriteTexture::readTr1);

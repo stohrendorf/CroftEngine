@@ -88,7 +88,7 @@ void TR3Level::load(irr::video::IVideoDriver* drv)
     m_animatedTexturesUvCount = 0; // No UVRotate in TR3
     m_reader.readVector(m_animatedTextures, m_reader.readU32());
 
-    m_reader.readVector(m_uvTextures, m_reader.readU32(), &UVTexture::readTr1);
+    m_reader.readVector(m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr1);
 
     m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr3);
 

@@ -44,7 +44,7 @@ public:
     std::vector<int16_t> m_animCommands;
     std::vector<std::unique_ptr<AnimatedModel>> m_animatedModels;
     std::vector<StaticMesh> m_staticMeshes;
-    std::vector<UVTexture> m_uvTextures;
+    std::vector<TextureLayoutProxy> m_textureProxies;
     std::vector<uint16_t> m_animatedTextures;
     size_t m_animatedTexturesUvCount = 0;
     std::vector<SpriteTexture> m_spriteTextures;
@@ -107,7 +107,7 @@ public:
     };
     
     std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
-    std::map<UVTexture::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
+    std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
     PlayerInfo createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
     std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     AnimatedModel::FrameRange loadAnimation(irr::u32 & frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);

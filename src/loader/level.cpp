@@ -484,17 +484,17 @@ std::vector<irr::video::ITexture*> Level::createTextures(irr::scene::ISceneManag
     return textures;
 }
 
-std::map<UVTexture::TextureKey, irr::video::SMaterial> Level::createMaterials(const std::vector<irr::video::ITexture*>& textures)
+std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> Level::createMaterials(const std::vector<irr::video::ITexture*>& textures)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? TextureIndexMaskTr4 : TextureIndexMask;
-    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials;
-    for(UVTexture& uvTexture : m_uvTextures)
+    std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials;
+    for(TextureLayoutProxy& proxy : m_textureProxies)
     {
-        const auto& key = uvTexture.textureKey;
+        const auto& key = proxy.textureKey;
         if(materials.find(key) != materials.end())
             continue;
 
-        materials[key] = UVTexture::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
+        materials[key] = TextureLayoutProxy::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
     }
     return materials;
 }
@@ -920,7 +920,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     mgr->setLightManager(new LightSelector(*this, mgr));
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
-    std::map<UVTexture::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
+    std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
     for(int i = 0; i < 256; ++i)
     {
@@ -938,7 +938,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     std::vector<irr::scene::SMesh*> staticMeshes;
     for(size_t i = 0; i < m_meshes.size(); ++i)
     {
-        staticMeshes.emplace_back(m_meshes[i].createMesh(mgr, i, m_uvTextures, materials, coloredMaterials));
+        staticMeshes.emplace_back(m_meshes[i].createMesh(mgr, i, m_textureProxies, materials, coloredMaterials));
     }
 
     for(size_t i = 0; i < m_rooms.size(); ++i)

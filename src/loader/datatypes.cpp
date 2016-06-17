@@ -12,7 +12,7 @@ namespace loader
 
 namespace
 {
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex* tex, const std::vector<TRCoordinates>& vertices, const std::vector<TRCoordinates>& normals)
+irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates* uvCoordinates, const std::vector<TRCoordinates>& vertices, const std::vector<TRCoordinates>& normals)
 {
     irr::video::S3DVertex iv;
     iv.Color.set(0xffffffff);
@@ -22,10 +22,10 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
         iv.Normal = normals[vertexIndex].toIrrlicht();
     else
         iv.Normal.set(0,0,1);
-    if(tex != nullptr)
+    if(uvCoordinates != nullptr)
     {
-        iv.TCoords.X = tex->xpixel/255.0f;
-        iv.TCoords.Y = tex->ypixel/255.0f;
+        iv.TCoords.X = uvCoordinates->xpixel/255.0f;
+        iv.TCoords.Y = uvCoordinates->ypixel/255.0f;
     }
     irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
     if(ivIdx < 0)
@@ -39,13 +39,13 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
     return meshBuffer.Vertices[ivIdx];
 }
 
-irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVVertex& tex, const std::vector<RoomVertex>& vertices)
+irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
 {
     irr::video::S3DVertex iv;
     BOOST_ASSERT(vertexIndex < vertices.size());
     iv.Pos = vertices[vertexIndex].vertex.toIrrlicht();
-    iv.TCoords.X = tex.xpixel/255.0f;
-    iv.TCoords.Y = tex.ypixel/255.0f;
+    iv.TCoords.X = uvCoordinates.xpixel/255.0f;
+    iv.TCoords.Y = uvCoordinates.ypixel/255.0f;
     iv.Color = vertices[vertexIndex].color;
     irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
     if(ivIdx < 0)
@@ -62,31 +62,31 @@ irr::video::S3DVertex& addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t v
 
 irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
                                     int dumpIdx,
-                                    const std::vector<UVTexture>& uvTextures,
-                                    const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials,
+                                    const std::vector<TextureLayoutProxy>& textureProxies,
+                                    const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
                                     const std::vector<irr::video::SMaterial>& colorMaterials) const
 {
     BOOST_ASSERT(colorMaterials.size() == 256);
 
     // texture => mesh buffer
-    std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
+    std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
     for(const QuadFace& quad : textured_rectangles)
     {
-        const UVTexture& tex = uvTextures.at(quad.uvTexture);
-        if(texBuffers.find(tex.textureKey) == texBuffers.end())
-            texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[tex.textureKey];
+        const TextureLayoutProxy& proxy = textureProxies.at(quad.uvTexture);
+        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[proxy.textureKey];
         
-        addVertex(*buf, quad.vertices[0], &tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.vertices[1], &tex.vertices[1], vertices, normals);
-        addVertex(*buf, quad.vertices[2], &tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.vertices[0], &tex.vertices[0], vertices, normals);
-        addVertex(*buf, quad.vertices[2], &tex.vertices[2], vertices, normals);
-        addVertex(*buf, quad.vertices[3], &tex.vertices[3], vertices, normals);
+        addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals);
+        addVertex(*buf, quad.vertices[1], &proxy.uvCoordinates[1], vertices, normals);
+        addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals);
+        addVertex(*buf, quad.vertices[0], &proxy.uvCoordinates[0], vertices, normals);
+        addVertex(*buf, quad.vertices[2], &proxy.uvCoordinates[2], vertices, normals);
+        addVertex(*buf, quad.vertices[3], &proxy.uvCoordinates[3], vertices, normals);
     }
     for(const QuadFace& quad : colored_rectangles)
     {
-        UVTexture::TextureKey tk;
+        TextureLayoutProxy::TextureKey tk;
         tk.blendingMode = BlendingMode::Solid;
         tk.flags = 0;
         tk.tileAndFlag = 0;
@@ -105,13 +105,13 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     }
     for(const Triangle& poly : textured_triangles)
     {
-        const UVTexture& tex = uvTextures.at(poly.uvTexture);
-        if(texBuffers.find(tex.textureKey) == texBuffers.end())
-            texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[tex.textureKey];
+        const TextureLayoutProxy& proxy = textureProxies.at(poly.uvTexture);
+        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[proxy.textureKey];
 
         for(int i=0; i<3; ++i)
-            addVertex(*buf, poly.vertices[i], &tex.vertices[i], vertices, normals);
+            addVertex(*buf, poly.vertices[i], &proxy.uvCoordinates[i], vertices, normals);
     }
 
     for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
@@ -119,7 +119,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
     
     for(const Triangle& poly : colored_triangles)
     {
-        UVTexture::TextureKey tk;
+        TextureLayoutProxy::TextureKey tk;
         tk.blendingMode = BlendingMode::Solid;
         tk.flags = 0;
         tk.tileAndFlag = 0;
@@ -179,35 +179,35 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
 irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr,
                                                   int dumpIdx,
                                                   const Level& level,
-                                                  const std::map<UVTexture::TextureKey, irr::video::SMaterial>& materials,
+                                                  const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
                                                   const std::vector<irr::video::ITexture*>& textures,
                                                   const std::vector<irr::scene::SMesh*>& staticMeshes)
 {
     // texture => mesh buffer
-    std::map<UVTexture::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
+    std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
     for(const QuadFace& quad : rectangles)
     {
-        const UVTexture& tex = level.m_uvTextures.at(quad.uvTexture);
-        if(texBuffers.find(tex.textureKey) == texBuffers.end())
-            texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[tex.textureKey];
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.uvTexture);
+        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[proxy.textureKey];
         
-        addVertex(*buf, quad.vertices[0], tex.vertices[0], vertices);
-        addVertex(*buf, quad.vertices[1], tex.vertices[1], vertices);
-        addVertex(*buf, quad.vertices[2], tex.vertices[2], vertices);
-        addVertex(*buf, quad.vertices[0], tex.vertices[0], vertices);
-        addVertex(*buf, quad.vertices[2], tex.vertices[2], vertices);
-        addVertex(*buf, quad.vertices[3], tex.vertices[3], vertices);
+        addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices);
+        addVertex(*buf, quad.vertices[1], proxy.uvCoordinates[1], vertices);
+        addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices);
+        addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices);
+        addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices);
+        addVertex(*buf, quad.vertices[3], proxy.uvCoordinates[3], vertices);
     }
     for(const Triangle& poly : triangles)
     {
-        const UVTexture& tex = level.m_uvTextures.at(poly.uvTexture);
-        if(texBuffers.find(tex.textureKey) == texBuffers.end())
-            texBuffers[tex.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[tex.textureKey];
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at(poly.uvTexture);
+        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
+        auto buf = texBuffers[proxy.textureKey];
 
         for(int i=0; i<3; ++i)
-            addVertex(*buf, poly.vertices[i], tex.vertices[i], vertices);
+            addVertex(*buf, poly.vertices[i], proxy.uvCoordinates[i], vertices);
     }
     
     for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
