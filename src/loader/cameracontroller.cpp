@@ -175,10 +175,19 @@ bool CameraController::OnEvent(const irr::SEvent& evt)
             break;
             
         case irr::EET_MOUSE_INPUT_EVENT:
-            if(evt.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
+            switch(evt.MouseInput.Event)
             {
-                m_currentCursorPos = m_cursorControl->getRelativePosition();
-                return true;
+                case irr::EMIE_MOUSE_MOVED:
+                    m_currentCursorPos = m_cursorControl->getRelativePosition();
+                    return true;
+                case irr::EMIE_LMOUSE_PRESSED_DOWN:
+                    m_inputState.action = true;
+                    return true;
+                case irr::EMIE_LMOUSE_LEFT_UP:
+                    m_inputState.action = false;
+                    return true;
+                default:
+                    return false;
             }
             break;
             
