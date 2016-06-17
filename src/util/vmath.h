@@ -11,10 +11,6 @@
 
 namespace util
 {
-constexpr const float Rad90 = static_cast<float>(0.5*irr::core::PI);
-constexpr const float Rad180 = static_cast<float>(irr::core::PI);
-constexpr const float Rad360 = static_cast<float>(2 * irr::core::PI);
-
 // A simple Hesse normal form plane
 
 struct Plane
@@ -96,7 +92,7 @@ inline irr::core::vector3d<T> auToDeg(const irr::core::vector3d<T>& au)
     return irr::core::vector3d<T>(auToDeg(au.X), auToDeg(au.Y), auToDeg(au.Z));
 }
 
-constexpr float auToRad(int16_t au)
+inline float auToRad(int16_t au)
 {
     return au / 65536.0f * 2 * irr::core::PI;
 }

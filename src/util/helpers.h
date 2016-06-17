@@ -1,8 +1,12 @@
 #pragma once
 
 #include <boost/log/trivial.hpp>
-#include <boost/type_index.hpp>
 #include <boost/property_tree/ptree.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 105800
+#include <boost/type_index.hpp>
+#endif
 
 #include <irrlicht.h>
 
@@ -17,7 +21,7 @@
 
 #define DISABLE_COPY(classname) \
     classname(const classname&) = delete; \
-    classname& operator=(const classname&) = delete;
+    classname& operator=(const classname&) = delete
 
 namespace util
 {
@@ -143,7 +147,7 @@ inline boost::optional<Axis> axisFromAngle(int16_t angle, uint16_t margin)
     return{};
 }
 
-inline boost::optional<int16_t> alignRotation(int16_t angle, int16_t margin)
+inline boost::optional<int16_t> alignRotation(int16_t angle, uint16_t margin)
 {
     auto axis = axisFromAngle(angle, margin);
     if(!axis)
@@ -151,11 +155,12 @@ inline boost::optional<int16_t> alignRotation(int16_t angle, int16_t margin)
 
     switch(*axis)
     {
-        case Axis::PosZ: return 0x0000;
-        case Axis::PosX: return 0x4000;
-        case Axis::NegZ: return -0x8000;
-        case Axis::NegX: return -0x4000;
+        case Axis::PosZ: return boost::optional<int16_t>(0x0000);
+        case Axis::PosX: return boost::optional<int16_t>(0x4000);
+        case Axis::NegZ: return boost::optional<int16_t>(-0x8000);
+        case Axis::NegX: return boost::optional<int16_t>(-0x4000);
     }
+    BOOST_ASSERT(false);
 }
 
 } // namespace util

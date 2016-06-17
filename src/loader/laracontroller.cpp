@@ -549,7 +549,7 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
     {
         if( !isDoppelganger )
         {
-            if( irr::core::equals(getPosition().Y, getFloorHeight(), 1) )
+            if( irr::core::equals(gsl::narrow<int>(getPosition().Y), getFloorHeight(), 1) )
             {
                 //! @todo kill Lara
             }

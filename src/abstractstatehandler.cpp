@@ -3078,8 +3078,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkWallCollision(L
 
 bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<AbstractStateHandler>& nextHandler)
 {
-    auto slantX = std::abs(state.floorSlantX);
-    auto slantZ = std::abs(state.floorSlantZ);
+    auto slantX = irr::core::abs_(state.floorSlantX);
+    auto slantZ = irr::core::abs_(state.floorSlantZ);
     if( slantX <= 2 && slantZ <= 2 )
         return false;
 
@@ -3089,12 +3089,12 @@ bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<Abstr
     else if( state.floorSlantX > 2 )
         targetAngle = util::degToAu(-90);
 
-    if( state.floorSlantZ > std::max(2, slantX) )
+    if( state.floorSlantZ > std::max(int8_t(2), slantX) )
         targetAngle = util::degToAu(180);
     else if( state.floorSlantZ < std::min(-2, -slantX) )
         targetAngle = util::degToAu(0);
 
-    int16_t dy = std::abs(targetAngle - getRotation().Y);
+    int16_t dy = irr::core::abs_(targetAngle - getRotation().Y);
     applyCollisionFeedback(state);
     if( dy > util::degToAu(90) || dy < util::degToAu(-90) )
     {

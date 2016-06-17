@@ -7,7 +7,11 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 105800
 #include <boost/type_index.hpp>
+#endif
 
 #include <cstdint>
 #include <memory>
@@ -16,6 +20,22 @@
 
 namespace loader
 {
+namespace detail
+{
+template<typename T>
+struct TypeInfo
+{
+    std::string pretty_name() const
+    {
+#if BOOST_VERSION >= 105800
+        return boost::typeindex::type_id<T>().pretty_name();
+#else
+        return typeid(T).name();
+#endif
+    }
+};
+}
+
 namespace io
 {
 class SDLReader
@@ -138,7 +158,7 @@ public:
     template<typename T>
     void appendVector(std::vector<T>& elements, typename std::vector<T>::size_type count, PtrProducer<T> producer)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << boost::typeindex::type_id<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
+        BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
 
         elements.reserve(elements.size() + count);
         for(typename std::vector<T>::size_type i = 0; i < count; ++i)
@@ -150,7 +170,7 @@ public:
     template<typename T>
     void appendVector(std::vector<T>& elements, typename std::vector<T>::size_type count, StackProducer<T> producer)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << boost::typeindex::type_id<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
+        BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
 
         elements.reserve(elements.size() + count);
         for(typename std::vector<T>::size_type i = 0; i < count; ++i)
@@ -162,7 +182,7 @@ public:
     template<typename T>
     void readVector(std::vector<T>& elements, typename std::vector<T>::size_type count)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << boost::typeindex::type_id<T>().pretty_name() << "` (size " << sizeof(T) << ")";
+        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ")";
 
         elements.clear();
         elements.reserve(count);
@@ -174,7 +194,7 @@ public:
 
     void readVector(std::vector<uint8_t>& elements, std::vector<uint8_t>::size_type count)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << boost::typeindex::type_id<uint8_t>().pretty_name() << "` (size " << sizeof(uint8_t) << ")";
+        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<uint8_t>().pretty_name() << "` (size " << sizeof(uint8_t) << ")";
 
         elements.clear();
         elements.resize(count);
@@ -183,7 +203,7 @@ public:
 
     void readVector(std::vector<int8_t>& elements, std::vector<int8_t>::size_type count)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << boost::typeindex::type_id<int8_t>().pretty_name() << "` (size " << sizeof(int8_t) << ")";
+        BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<int8_t>().pretty_name() << "` (size " << sizeof(int8_t) << ")";
 
         elements.clear();
         elements.resize(count);

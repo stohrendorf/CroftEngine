@@ -88,7 +88,7 @@ add_executable(ot_irr
 GROUP_FILES(${OT_IRR_SRCS})
 
 if(NOT MSVC)
-    target_compile_options(ot_irr PRIVATE -std=c++11 -Wall -Wextra -msse3)
+    target_compile_options(ot_irr PRIVATE -std=c++14 -Wall -Wextra -msse3)
 endif()
 
 target_link_libraries(

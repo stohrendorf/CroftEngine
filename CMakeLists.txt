@@ -72,17 +72,6 @@ if(USE_OPENAL_FLOAT)
 endif(USE_OPENAL_FLOAT)
 
 
-# Dependency: Bullet
-option(SKIP_SYSTEM_BULLET "Skip the sytem-provided Bullet installation and use a custom built 2.83.6." ON)
-if(SKIP_SYSTEM_BULLET)
-    hunter_add_package(Bullet)
-endif()
-include(${CMAKE_SOURCE_DIR}/cmake/FindBullet.cmake) # Bullet's own BulletConfig.cmake is crap, and CMake's version doesn't look for "d" suffixes, only for "_d"
-add_library(Bullet INTERFACE)
-target_include_directories(Bullet INTERFACE ${BULLET_INCLUDE_DIRS})
-target_link_libraries(Bullet INTERFACE ${BULLET_LIBRARIES})
-
-
 # Dependency: OpenGL
 find_package(OpenGL REQUIRED)
 add_library(OpenGL INTERFACE)
@@ -103,13 +92,6 @@ if(WIN32)
 endif()
 target_link_libraries(SDL2 INTERFACE ${SDL2_LIBRARY})
 target_include_directories(SDL2 INTERFACE ${SDL2_INCLUDE_DIR})
-
-
-# Dependency: GLM
-ot_find_dependency_alt(glm GLM)
-add_library(GLM INTERFACE)
-target_include_directories(GLM INTERFACE ${GLM_INCLUDE_DIR})
-target_compile_definitions(GLM INTERFACE -DGLM_FORCE_RADIANS)
 
 
 # Dependency: Boost
