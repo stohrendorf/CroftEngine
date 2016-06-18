@@ -89,9 +89,6 @@ void LaraController::handleLaraStateOnLand(bool newFrame)
 
     applyRotation();
 
-    if( !newFrame )
-        return;
-
     //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
     auto animCommandOverride = processAnimCommands();
@@ -100,6 +97,9 @@ void LaraController::handleLaraStateOnLand(bool newFrame)
         m_currentStateHandler = std::move(animCommandOverride);
         BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
     }
+
+    if(!newFrame)
+        return;
 
     // @todo test interactions
 
@@ -163,15 +163,15 @@ void LaraController::handleLaraStateDiving(bool newFrame)
     m_sceneNode->setPosition(m_position.toIrrlicht());
     m_sceneNode->updateAbsolutePosition();
 
-    if(!newFrame)
-        return;
-
     auto animCommandOverride = processAnimCommands();
     if(animCommandOverride)
     {
         m_currentStateHandler = std::move(animCommandOverride);
         BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
     }
+
+    if(!newFrame)
+        return;
 
     // @todo test interactions
 
@@ -234,15 +234,15 @@ void LaraController::handleLaraStateSwimming(bool newFrame)
     m_sceneNode->setPosition(m_position.toIrrlicht());
     m_sceneNode->updateAbsolutePosition();
 
-    if(!newFrame)
-        return;
-
     auto animCommandOverride = processAnimCommands();
     if(animCommandOverride)
     {
         m_currentStateHandler = std::move(animCommandOverride);
         BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
     }
+
+    if(!newFrame)
+        return;
 
     // @todo test interactions
 

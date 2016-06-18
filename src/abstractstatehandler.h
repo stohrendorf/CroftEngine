@@ -111,13 +111,13 @@ protected:
 
     void setFloorHeight(int h) noexcept;
 
-    void setYRotationSpeed(int spd);
+    void setYRotationSpeed(int16_t spd);
 
-    int getYRotationSpeed() const;
+    int16_t getYRotationSpeed() const;
 
-    void subYRotationSpeed(int val, int limit = std::numeric_limits<int>::min());
+    void subYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::min());
 
-    void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max());
+    void addYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::max());
 
     void setXRotation(int16_t y);
     
@@ -140,7 +140,7 @@ protected:
     void setTargetState(loader::LaraStateId state);
     loader::LaraStateId getTargetState() const;
 
-    std::unique_ptr<AbstractStateHandler> tryStopOnFloor(LaraState& state);
+    std::unique_ptr<AbstractStateHandler> stopIfCeilingBlocked(LaraState& state);
     std::unique_ptr<AbstractStateHandler> tryClimb(LaraState& state);
     std::unique_ptr<AbstractStateHandler> checkWallCollision(LaraState& state);
     bool tryStartSlide(LaraState& state, std::unique_ptr<AbstractStateHandler>& nextHandler);

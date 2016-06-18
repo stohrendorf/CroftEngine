@@ -12,5 +12,5 @@ constexpr int ScalpToHandsHeight = 160;
 constexpr int JumpReachableHeight = 896 + loader::SectorSize;
 
 constexpr int FreeFallSpeedThreshold = 131;
-constexpr int MaxGrabableGradient = 60;
+constexpr int MaxGrabbableGradient = 60;
 }

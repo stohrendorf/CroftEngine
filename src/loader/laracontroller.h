@@ -32,7 +32,7 @@ private:
     // Lara's vars
     SpeedValue<int> m_health = 1000;
     //! @brief Additional rotation in AU per TR Engine Frame
-    SpeedValue<int> m_yRotationSpeed = 0;
+    SpeedValue<int16_t> m_yRotationSpeed = 0;
     bool m_falling = false;
     SpeedValue<int> m_fallSpeed = 0;
     SpeedValue<int> m_horizontalSpeed = 0;
@@ -275,22 +275,22 @@ public:
         m_floorHeight = h;
     }
 
-    void setYRotationSpeed(int spd)
+    void setYRotationSpeed(int16_t spd)
     {
         m_yRotationSpeed = spd;
     }
 
-    int getYRotationSpeed() const
+    int16_t getYRotationSpeed() const
     {
         return m_yRotationSpeed.get();
     }
 
-    void subYRotationSpeed(int val, int limit = std::numeric_limits<int>::min())
+    void subYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::min())
     {
         m_yRotationSpeed.subExact(static_cast<float>(val), getCurrentDeltaTime()).limitMin(limit);
     }
 
-    void addYRotationSpeed(int val, int limit = std::numeric_limits<int>::max())
+    void addYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::max())
     {
         m_yRotationSpeed.addExact(static_cast<float>(val), getCurrentDeltaTime()).limitMax(limit);
     }

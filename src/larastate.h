@@ -9,12 +9,12 @@ class LaraController;
 struct LaraState
 {
     static constexpr int AxisColl_None = 0x00;
-    static constexpr int AxisColl_InsufficientFrontSpace = 0x01;
-    static constexpr int AxisColl_FrontLeftBump = 0x02;
-    static constexpr int AxisColl_FrontRightBump = 0x04;
-    static constexpr int AxisColl_HeadInCeiling = 0x08;
-    static constexpr int AxisColl_BumpHead = 0x10;
-    static constexpr int AxisColl_CeilingTooLow = 0x20;
+    static constexpr int AxisColl_FrontBlocked = 0x01;
+    static constexpr int AxisColl_FrontLeftBlocked = 0x02;
+    static constexpr int AxisColl_FrontRightBlocked = 0x04;
+    static constexpr int AxisColl_FrontCeilingBlocked = 0x08;
+    static constexpr int AxisColl_InsufficientCeilingSpace = 0x10;
+    static constexpr int AxisColl_InvalidPosition = 0x20;
     static constexpr int AxisColl40 = 0x40;
     static constexpr int AxisColl80 = 0x80;
 
