@@ -469,7 +469,7 @@ void AbstractTriggerHandler::deactivate(AbstractTriggerHandler* activator, bool 
         m_event = false;
     }
 }
-irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, int16_t angle) const
+irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, core::Angle angle) const
 {
     irr::core::aabbox3di result(
         collision_box[0].X, collision_box[0].Y, collision_box[0].Z,
@@ -477,7 +477,7 @@ irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, int1
     );
     result.repair();
 
-    const auto axis = util::axisFromAngle(angle, 0x2000);
+    const auto axis = util::axisFromAngle(angle, 45_deg);
     switch(*axis)
     {
         case util::Axis::PosZ:

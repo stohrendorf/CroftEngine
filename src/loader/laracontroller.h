@@ -30,16 +30,16 @@ private:
     irr::scene::IAnimatedMeshSceneNode* const m_sceneNode;
 
     // Lara's vars
-    SpeedValue<int> m_health = 1000;
+    core::InterpolatedValue<float> m_health{ 1000.0f };
     //! @brief Additional rotation in AU per TR Engine Frame
-    SpeedValue<int16_t> m_yRotationSpeed = 0;
+    core::InterpolatedValue<core::Angle> m_yRotationSpeed{ 0_deg };
     bool m_falling = false;
-    SpeedValue<int> m_fallSpeed = 0;
-    SpeedValue<int> m_horizontalSpeed = 0;
+    core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
+    core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
     int m_fallSpeedOverride = 0;
-    int16_t m_movementAngle = 0;
-    SpeedValue<int> m_air = 1800;
-    int16_t m_currentSlideAngle = 0;
+    core::Angle m_movementAngle{0};
+    core::InterpolatedValue<float> m_air{ 1800.0f };
+    core::Angle m_currentSlideAngle{0};
 
     InputState m_inputState;
 
@@ -61,7 +61,7 @@ private:
     }
 
     // needed for YPR rotation, because the scene node uses XYZ rotation
-    irr::core::vector3df m_rotation;
+    irr::core::vector3d<core::Angle> m_rotation;
 
     loader::ExactTRCoordinates m_position;
 
@@ -77,11 +77,11 @@ public:
         playAnimation(loader::AnimationId::STAY_IDLE);
 
         auto laraRot = lara->getRotation();
-        m_rotation.X = util::degToAu(laraRot.X);
-        m_rotation.Y = util::degToAu(laraRot.Y);
-        m_rotation.Z = util::degToAu(laraRot.Z);
+        m_rotation.X = core::degToAngle(laraRot.X);
+        m_rotation.Y = core::degToAngle(laraRot.Y);
+        m_rotation.Z = core::degToAngle(laraRot.Z);
 
-        setMovementAngle(getRotation().Y);
+        setMovementAngle(m_rotation.Y);
 
         m_sceneNode->updateAbsolutePosition();
         m_position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
@@ -146,17 +146,17 @@ private:
     ///////////////////////////////////////
 
 public:
-    int getHealth() const noexcept
+    const core::InterpolatedValue<float>& getHealth() const noexcept
     {
-        return m_health.get();
+        return m_health;
     }
 
-    void setHealth(int h) noexcept
+    void setHealth(const core::InterpolatedValue<float>& h) noexcept
     {
         m_health = h;
     }
 
-    void setAir(int a) noexcept
+    void setAir(const core::InterpolatedValue<float>& a) noexcept
     {
         m_air = a;
     }
@@ -166,27 +166,22 @@ public:
         return m_inputState;
     }
 
-    void setMovementAngle(int16_t angle) noexcept
+    void setMovementAngle(core::Angle angle) noexcept
     {
         m_movementAngle = angle;
     }
 
-    int16_t getMovementAngle() const noexcept
+    core::Angle getMovementAngle() const noexcept
     {
         return m_movementAngle;
     }
 
-    void setFallSpeed(int spd)
+    void setFallSpeed(const core::InterpolatedValue<float>& spd)
     {
         m_fallSpeed = spd;
     }
 
-    void setFallSpeedExact(float spd)
-    {
-        m_fallSpeed.setExact(spd);
-    }
-
-    const SpeedValue<int>& getFallSpeed() const noexcept
+    const core::InterpolatedValue<float>& getFallSpeed() const noexcept
     {
         return m_fallSpeed;
     }
@@ -214,19 +209,19 @@ public:
     irr::u32 getCurrentFrame() const;
     irr::u32 getAnimEndFrame() const;
 
-    const irr::core::vector3df& getRotation() const noexcept
+    const irr::core::vector3d<core::Angle>& getRotation() const noexcept
     {
         return m_rotation;
     }
 
-    void setHorizontalSpeed(int speed)
+    void setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
     {
         m_horizontalSpeed = speed;
     }
 
-    int getHorizontalSpeed() const
+    const core::InterpolatedValue<float>& getHorizontalSpeed() const
     {
-        return m_horizontalSpeed.get();
+        return m_horizontalSpeed;
     }
 
     const loader::Level& getLevel() const
@@ -237,7 +232,7 @@ public:
 
     void placeOnFloor(const LaraState& state);
 
-    void rotate(float dx, float dy, float dz)
+    void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
     {
         m_rotation.X += dx;
         m_rotation.Y += dy;
@@ -253,8 +248,8 @@ public:
 
     void moveLocal(float dx, float dy, float dz)
     {
-        const auto sin = std::sin(util::auToRad(getRotation().Y));
-        const auto cos = std::cos(util::auToRad(getRotation().Y));
+        const auto sin = getRotation().Y.sin();
+        const auto cos = getRotation().Y.cos();
         m_position.X += dz * sin + dx * cos;
         m_position.Y += dy;
         m_position.Z += dz * cos - dx * sin;
@@ -275,64 +270,54 @@ public:
         m_floorHeight = h;
     }
 
-    void setYRotationSpeed(int16_t spd)
+    void setYRotationSpeed(core::Angle spd)
     {
         m_yRotationSpeed = spd;
     }
 
-    int16_t getYRotationSpeed() const
+    core::Angle getYRotationSpeed() const
     {
-        return m_yRotationSpeed.get();
+        return static_cast<core::Angle>(m_yRotationSpeed);
     }
 
-    void subYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::min())
+    void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au)
     {
-        m_yRotationSpeed.subExact(static_cast<float>(val), getCurrentDeltaTime()).limitMin(limit);
+        m_yRotationSpeed.sub(val, getCurrentDeltaTime()).limitMin(limit);
     }
 
-    void addYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::max())
+    void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au)
     {
-        m_yRotationSpeed.addExact(static_cast<float>(val), getCurrentDeltaTime()).limitMax(limit);
+        m_yRotationSpeed.add(val, getCurrentDeltaTime()).limitMax(limit);
     }
 
-    void setXRotation(int16_t x)
-    {
-        m_rotation.X = x;
-    }
-
-    void setXRotationExact(float x)
+    void setXRotation(core::Angle x)
     {
         m_rotation.X = x;
     }
 
-    void addXRotation(int16_t x)
+    void addXRotation(core::Angle x)
     {
         m_rotation.X += x;
     }
 
-    void setYRotation(int16_t y)
+    void setYRotation(core::Angle y)
     {
         m_rotation.Y = y;
     }
 
-    void addYRotation(float v)
+    void addYRotation(core::Angle v)
     {
         m_rotation.Y += v;
     }
 
-    void setZRotation(int16_t z)
+    void setZRotation(core::Angle z)
     {
         m_rotation.Z = z;
     }
 
-    void addZRotation(int16_t z)
+    void addZRotation(core::Angle z)
     {
         m_rotation.Z += z;
-    }
-
-    void setZRotationExact(float z)
-    {
-        m_rotation.Z = z;
     }
 
     void setFallSpeedOverride(int v)
@@ -340,17 +325,17 @@ public:
         m_fallSpeedOverride = v;
     }
 
-    void dampenHorizontalSpeed(int nom, int den)
+    void dampenHorizontalSpeed(float f)
     {
-        m_horizontalSpeed.subExact(m_horizontalSpeed.getExact() * nom / den, getCurrentDeltaTime());
+        m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
     }
 
-    int16_t getCurrentSlideAngle() const noexcept
+    core::Angle getCurrentSlideAngle() const noexcept
     {
         return m_currentSlideAngle;
     }
 
-    void setCurrentSlideAngle(int16_t a) noexcept
+    void setCurrentSlideAngle(core::Angle a) noexcept
     {
         m_currentSlideAngle = a;
     }
@@ -388,9 +373,9 @@ public:
         m_underwaterState = u;
     }
 
-    void setCameraRotation(int16_t x, int16_t y);
+    void setCameraRotation(core::Angle x, core::Angle y);
 
-    void setCameraRotationX(int16_t x);
+    void setCameraRotationX(core::Angle x);
     
-    void setCameraRotationY(int16_t y);
+    void setCameraRotationY(core::Angle y);
 };

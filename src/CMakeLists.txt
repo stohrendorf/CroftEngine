@@ -80,6 +80,8 @@ set(OT_IRR_SRCS
     abstractstatehandler.cpp
 
     core/magic.h
+    core/angle.h
+    core/interpolatedvalue.h
 )
 
 add_executable(ot_irr

@@ -3,8 +3,10 @@
 #include "loader/larastateid.h"
 #include "loader/datatypes.h"
 #include "loader/animationids.h"
+#include "core/angle.h"
 
 #include <memory>
+#include "core/interpolatedvalue.h"
 
 struct LaraState;
 class LaraController;
@@ -32,9 +34,9 @@ public:
         m_xMovement = 0;
         m_yMovement = 0;
         m_zMovement = 0;
-        m_xRotationSpeed = 0;
-        m_yRotationSpeed = 0;
-        m_zRotationSpeed = 0;
+        m_xRotationSpeed = 0_deg;
+        m_yRotationSpeed = 0_deg;
+        m_zRotationSpeed = 0_deg;
         return handleInputImpl(state);
     }
 
@@ -50,33 +52,32 @@ private:
     virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) = 0;
 
 protected:
-    SpeedValue<int16_t> m_xRotationSpeed = 0;
-    SpeedValue<int16_t> m_yRotationSpeed = 0;
-    SpeedValue<int16_t> m_zRotationSpeed = 0;
-    SpeedValue<int> m_xMovement = 0;
-    SpeedValue<int> m_yMovement = 0;
-    SpeedValue<int> m_zMovement = 0;
+    core::InterpolatedValue<core::Angle> m_xRotationSpeed{ 0_deg };
+    core::InterpolatedValue<core::Angle> m_yRotationSpeed{ 0_deg };
+    core::InterpolatedValue<core::Angle> m_zRotationSpeed{ 0_deg };
+    core::InterpolatedValue<float> m_xMovement{ 0.0f };
+    core::InterpolatedValue<float> m_yMovement{ 0.0f };
+    core::InterpolatedValue<float> m_zMovement{ 0.0f };
 
     LaraController& getController()
     {
         return m_controller;
     }
 
-    int getHealth() const noexcept;
+    const core::InterpolatedValue<float>& getHealth() const noexcept;
     
-    void setHealth(int h) noexcept;
-    void setAir(int a) noexcept;
+    void setHealth(const core::InterpolatedValue<float>& h) noexcept;
+    void setAir(const core::InterpolatedValue<float>& a) noexcept;
 
     const InputState& getInputState() const noexcept;
 
-    void setMovementAngle(int16_t angle) noexcept;
+    void setMovementAngle(core::Angle angle) noexcept;
 
-    int16_t getMovementAngle() const noexcept;
+    core::Angle getMovementAngle() const noexcept;
 
-    void setFallSpeed(int spd);
-    void setFallSpeedExact(float spd);
+    void setFallSpeed(const core::InterpolatedValue<float>& spd);
 
-    const SpeedValue<int>& getFallSpeed() const noexcept;
+    const core::InterpolatedValue<float>& getFallSpeed() const noexcept;
 
     bool isFalling() const noexcept;
 
@@ -92,11 +93,11 @@ protected:
 
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
-    const irr::core::vector3df& getRotation() const noexcept;
+    const irr::core::vector3d<core::Angle>& getRotation() const noexcept;
 
-    void setHorizontalSpeed(int speed);
+    void setHorizontalSpeed(const core::InterpolatedValue<float>& speed);
 
-    int getHorizontalSpeed() const;
+    const core::InterpolatedValue<float>& getHorizontalSpeed() const;
 
     const loader::Level& getLevel() const;
 
@@ -111,31 +112,27 @@ protected:
 
     void setFloorHeight(int h) noexcept;
 
-    void setYRotationSpeed(int16_t spd);
+    void setYRotationSpeed(core::Angle spd);
 
-    int16_t getYRotationSpeed() const;
+    core::Angle getYRotationSpeed() const;
 
-    void subYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::min());
+    void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au);
 
-    void addYRotationSpeed(int16_t val, int16_t limit = std::numeric_limits<int16_t>::max());
+    void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au);
 
-    void setXRotation(int16_t y);
+    void setXRotation(core::Angle y);
     
-    void setXRotationExact(float y);
-    
-    void setYRotation(int16_t y);
+    void setYRotation(core::Angle y);
 
-    void setZRotation(int16_t z);
-
-    void setZRotationExact(float z);
+    void setZRotation(core::Angle z);
 
     void setFallSpeedOverride(int v);
 
-    void dampenHorizontalSpeed(int nom, int den);
+    void dampenHorizontalSpeed(float f);
 
-    int16_t getCurrentSlideAngle() const noexcept;
+    core::Angle getCurrentSlideAngle() const noexcept;
 
-    void setCurrentSlideAngle(int16_t a) noexcept;
+    void setCurrentSlideAngle(core::Angle a) noexcept;
 
     void setTargetState(loader::LaraStateId state);
     loader::LaraStateId getTargetState() const;
@@ -149,7 +146,7 @@ protected:
     std::unique_ptr<AbstractStateHandler> checkJumpWallSmash(LaraState& state);
 
     void applyCollisionFeedback(LaraState& state);
-    int getRelativeHeightAtDirection(int16_t angle, int dist) const;
+    int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
     std::unique_ptr<AbstractStateHandler> commonJumpHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> commonSlideHandling(LaraState& state);
     std::unique_ptr<AbstractStateHandler> commonEdgeHangHandling(LaraState& state);
@@ -169,7 +166,7 @@ protected:
 
     void setUnderwaterState(UnderwaterState u) noexcept;
 
-    void setCameraRotation(int16_t x, int16_t y);
-    void setCameraRotationX(int16_t x);
-    void setCameraRotationY(int16_t y);
+    void setCameraRotation(core::Angle x, core::Angle y);
+    void setCameraRotationX(core::Angle x);
+    void setCameraRotationY(core::Angle y);
 };

@@ -9,7 +9,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
 {
     axisCollisions = AxisColl_None;
     collisionFeedback = {0,0,0};
-    orientationAxis = *util::axisFromAngle(yAngle, util::degToAu(45));
+    orientationAxis = *util::axisFromAngle(yAngle, 45_deg);
 
     const loader::Room* room = level.m_lara->getCurrentRoom();
     const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
@@ -27,7 +27,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     switch( orientationAxis )
     {
     case util::Axis::PosZ:
-        frontX = std::sin(util::auToRad(yAngle)) * collisionRadius;
+        frontX = yAngle.sin() * collisionRadius;
         frontZ = collisionRadius;
         frontLeftZ = collisionRadius;
         frontLeftX = -collisionRadius;
@@ -36,14 +36,14 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         break;
     case util::Axis::PosX:
         frontX = collisionRadius;
-        frontZ = std::cos(util::auToRad(yAngle)) * collisionRadius;
+        frontZ = yAngle.cos() * collisionRadius;
         frontLeftX = collisionRadius;
         frontLeftZ = collisionRadius;
         frontRightX = collisionRadius;
         frontRightZ = -collisionRadius;
         break;
     case util::Axis::NegZ:
-        frontX = std::sin(util::auToRad(yAngle)) * collisionRadius;
+        frontX = yAngle.sin() * collisionRadius;
         frontZ = -collisionRadius;
         frontLeftX = collisionRadius;
         frontLeftZ = -collisionRadius;
@@ -52,7 +52,7 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         break;
     case util::Axis::NegX:
         frontX = -collisionRadius;
-        frontZ = std::cos(util::auToRad(yAngle)) * collisionRadius;
+        frontZ = yAngle.cos() * collisionRadius;
         frontLeftX = -collisionRadius;
         frontLeftZ = -collisionRadius;
         frontRightX = -collisionRadius;
@@ -229,7 +229,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::TRCoordinates& position,
             if(sm->doNotCollide())
                 continue;
 
-            irr::core::aabbox3di bb = sm->getCollisionBox(rsm.position, rsm.rotation);
+            irr::core::aabbox3di bb = sm->getCollisionBox(rsm.position, core::Angle{ rsm.rotation });
             bb.repair();
 
             if(!bb.intersectsWithBox(baseBB))

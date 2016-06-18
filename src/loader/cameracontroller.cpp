@@ -70,9 +70,9 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     // Update mouse rotation
     if(m_currentCursorPos != m_prevCursorPos)
     {
-        m_localRotation.Y += -(0.5f - m_currentCursorPos.X) * m_rotateSpeed;
-        m_localRotation.X +=  (0.5f - m_currentCursorPos.Y) * m_rotateSpeed;
-        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85.0f, 85.0f);
+        m_localRotation.Y += m_rotateSpeed * -(0.5f - m_currentCursorPos.X);
+        m_localRotation.X += m_rotateSpeed *  (0.5f - m_currentCursorPos.Y);
+        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
         
         // Do the fix as normal, special case below
         // reset cursor position to the centre of the window.
@@ -99,13 +99,13 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     targetLookAt.Y += m_lookAtYOffset;
     m_currentLookAt += (targetLookAt - m_currentLookAt) * 30 / m_smoothFactor * localTime / 1000;
 
-    const irr::core::vector3df totalRotation = m_localRotation + util::auToDeg(m_laraController->getRotation());
+    const irr::core::vector3d<core::Angle> totalRotation = m_localRotation + m_laraController->getRotation();
 
     irr::core::vector3df targetPos = m_currentLookAt;
-    const auto localDistance = m_distanceFromLookAt * std::cos(irr::core::degToRad(totalRotation.X));
-    targetPos.X -= std::sin(irr::core::degToRad(totalRotation.Y)) * localDistance;
-    targetPos.Z -= std::cos(irr::core::degToRad(totalRotation.Y)) * localDistance;
-    targetPos.Y -= std::sin(irr::core::degToRad(totalRotation.X)) * m_distanceFromLookAt;
+    const auto localDistance = m_distanceFromLookAt * totalRotation.X.cos();
+    targetPos.X -= totalRotation.Y.sin() * localDistance;
+    targetPos.Z -= totalRotation.Y.cos() * localDistance;
+    targetPos.Y -= totalRotation.X.sin() * m_distanceFromLookAt;
 
     const auto d = targetPos - m_currentPosition;
     const auto bias = 30.0f / m_smoothFactor * localTime / 1000;
@@ -198,20 +198,20 @@ bool CameraController::OnEvent(const irr::SEvent& evt)
     return false;
 }
 
-void CameraController::setLocalRotation(int16_t x, int16_t y)
+void CameraController::setLocalRotation(core::Angle x, core::Angle y)
 {
     setLocalRotationX(x);
     setLocalRotationY(y);
 }
 
-void CameraController::setLocalRotationX(int16_t x)
+void CameraController::setLocalRotationX(core::Angle x)
 {
-    m_localRotation.X = util::auToDeg(x);
+    m_localRotation.X = x;
 }
 
-void CameraController::setLocalRotationY(int16_t y)
+void CameraController::setLocalRotationY(core::Angle y)
 {
-    m_localRotation.Y = util::auToDeg(y);
+    m_localRotation.Y = y;
 }
 
 void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)

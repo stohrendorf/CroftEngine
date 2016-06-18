@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <chrono>
 
+#include "core/angle.h"
+
 #define ENUM_TO_OSTREAM(name) \
     inline std::ostream& operator<<(std::ostream& str, name e) \
     { \
@@ -132,22 +134,22 @@ enum class Axis
     NegX
 };
 
-inline boost::optional<Axis> axisFromAngle(int16_t angle, uint16_t margin)
+inline boost::optional<Axis> axisFromAngle(core::Angle angle, core::Angle margin)
 {
-    BOOST_ASSERT(margin <= 0x2000); // 45 degrees
-    if(angle <= 0x0000 + margin && angle >= 0x0000 - margin)
+    BOOST_ASSERT(margin.toAU() <= 0x2000); // 45 degrees
+    if(angle.toAU() <= 0x0000 + margin.toAU() && angle.toAU() >= 0x0000 - margin.toAU())
         return Axis::PosZ;
-    if(angle <= 0x4000 + margin && angle >= 0x4000 - margin)
+    if(angle.toAU() <= 0x4000 + margin.toAU() && angle.toAU() >= 0x4000 - margin.toAU())
         return Axis::PosX;
-    if(angle <= -0x4000 + margin && angle >= -0x4000 - margin)
+    if(angle.toAU() <= -0x4000 + margin.toAU() && angle.toAU() >= -0x4000 - margin.toAU())
         return Axis::NegX;
-    if(angle >= 0x8000 - margin || angle <= -0x8000 + margin)
+    if(angle.toAU() >= 0x8000 - margin.toAU() || angle.toAU() <= -0x8000 + margin.toAU())
         return Axis::NegZ;
 
     return{};
 }
 
-inline boost::optional<int16_t> alignRotation(int16_t angle, uint16_t margin)
+inline boost::optional<core::Angle> alignRotation(core::Angle angle, core::Angle margin)
 {
     auto axis = axisFromAngle(angle, margin);
     if(!axis)
@@ -155,10 +157,10 @@ inline boost::optional<int16_t> alignRotation(int16_t angle, uint16_t margin)
 
     switch(*axis)
     {
-        case Axis::PosZ: return boost::optional<int16_t>(0x0000);
-        case Axis::PosX: return boost::optional<int16_t>(0x4000);
-        case Axis::NegZ: return boost::optional<int16_t>(-0x8000);
-        case Axis::NegX: return boost::optional<int16_t>(-0x4000);
+        case Axis::PosZ: return boost::optional<core::Angle>(0_deg);
+        case Axis::PosX: return boost::optional<core::Angle>(90_deg);
+        case Axis::NegZ: return boost::optional<core::Angle>(-180_deg);
+        case Axis::NegX: return boost::optional<core::Angle>(-90_deg);
     }
     
     // silence compiler warning

@@ -13,4 +13,6 @@ constexpr int JumpReachableHeight = 896 + loader::SectorSize;
 
 constexpr int FreeFallSpeedThreshold = 131;
 constexpr int MaxGrabbableGradient = 60;
+
+constexpr int FrameRate = 30;
 }

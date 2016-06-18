@@ -3,6 +3,7 @@
 #include <set>
 
 #include "heightinfo.h"
+#include "core/angle.h"
 
 class LaraController;
 
@@ -30,7 +31,7 @@ struct LaraState
     int axisCollisions;
     loader::ExactTRCoordinates collisionFeedback;
     util::Axis orientationAxis;
-    irr::s16 yAngle; // external
+    core::Angle yAngle; // external
     int collisionRadius; // external
     int frobbelFlags; // external
     loader::ExactTRCoordinates position; // external

@@ -2,6 +2,7 @@
 
 #include "level.h"
 #include "inputstate.h"
+#include "core/angle.h"
 
 class CameraController final : public irr::scene::ISceneNodeAnimator
 {
@@ -12,7 +13,7 @@ private:
     irr::core::vector2df m_currentCursorPos;
     irr::u32 m_lastAnimationTime = 0;
     bool m_firstInput = true;
-    irr::f32 m_rotateSpeed = 100;
+    core::Angle m_rotateSpeed{ 100_deg };
 
     bool m_forward = false;
     bool m_backward = false;
@@ -30,7 +31,7 @@ private:
     int m_distanceFromLookAt = 1536;
     int m_smoothFactor = 6; // 12
     irr::core::vector3df m_currentLookAt;
-    irr::core::vector3df m_localRotation;
+    irr::core::vector3d<core::Angle> m_localRotation;
     irr::core::vector3df m_currentPosition;
     
 #ifndef NDEBUG
@@ -70,9 +71,9 @@ public:
         return m_level;
     }
 
-    void setLocalRotation(int16_t x, int16_t y);
-    void setLocalRotationX(int16_t x);
-    void setLocalRotationY(int16_t y);
+    void setLocalRotation(core::Angle x, core::Angle y);
+    void setLocalRotationX(core::Angle x);
+    void setLocalRotationY(core::Angle y);
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
