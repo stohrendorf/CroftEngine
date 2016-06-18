@@ -239,20 +239,25 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     }
     
     // First, find the room the camera is actually in.
-    // This is either Lara's room, or one of the neighbors.
 
     const loader::Room* startRoom = m_laraController->getCurrentRoom();
-    if(!startRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
     {
-        for(const loader::Portal& portal : startRoom->portals)
+        std::queue<const loader::Room*> toVisit;
+        toVisit.push(m_laraController->getCurrentRoom());
+        while(!toVisit.empty())
         {
-            BOOST_ASSERT(portal.adjoining_room < m_level->m_rooms.size());
-            const auto* testRoom = &m_level->m_rooms[portal.adjoining_room];
-            if(!testRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
-                continue;
-
-            startRoom = testRoom;
-            break;
+            auto currentRoom = toVisit.front();
+            toVisit.pop();
+            if(currentRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
+            {
+                startRoom = currentRoom;
+                break;
+            }
+            for(const loader::Portal& portal : currentRoom->portals)
+            {
+                BOOST_ASSERT(portal.adjoining_room < m_level->m_rooms.size());
+                toVisit.push( &m_level->m_rooms[portal.adjoining_room] );
+            }
         }
     }
 
