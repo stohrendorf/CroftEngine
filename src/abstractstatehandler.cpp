@@ -963,7 +963,7 @@ public:
         if(irr::core::abs_(getRotation().X) > 90_deg)
             state.yAngle += 180_deg;
         setMovementAngle(state.yAngle);
-        state.initHeightInfo(getPosition() + loader::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
+        state.initHeightInfo(getPosition() + loader::ExactTRCoordinates{ 0, 200, 0 }, getLevel(), 400);
 
         applyCollisionFeedback(state);
 
@@ -1003,7 +1003,7 @@ public:
         if(state.current.floor.distance >= 0)
             return nullptr;
 
-        setPosition(loader::ExactTRCoordinates(getPosition() + loader::TRCoordinates(0, state.current.floor.distance, 0)));
+        setPosition(loader::ExactTRCoordinates(getPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0)));
         m_xRotationSpeed = m_xRotationSpeed + 2_deg;
 
         return nullptr;
@@ -1433,7 +1433,7 @@ public:
         }
 
         if(!tryStartSlide(state, nextHandler))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
+            setPosition(getPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
 
         return nextHandler;
     }
@@ -1500,7 +1500,7 @@ public:
         }
 
         if(!tryStartSlide(state, nextHandler))
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
+            setPosition(getPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
 
         return nextHandler;
     }
@@ -1912,7 +1912,7 @@ protected:
     std::unique_ptr<AbstractStateHandler> commonOnWaterHandling(LaraState& state)
     {
         state.yAngle = getMovementAngle();
-        state.initHeightInfo(getPosition() + loader::TRCoordinates(0, 700, 0), getLevel(), 700);
+        state.initHeightInfo(getPosition() + loader::ExactTRCoordinates(0, 700, 0), getLevel(), 700);
         applyCollisionFeedback(state);
         if(state.current.floor.distance < 0
            || state.axisCollisions == LaraState::AxisColl_InvalidPosition
@@ -1980,9 +1980,9 @@ private:
         if(!yRot)
             return nullptr;
 
-        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
+        setPosition(getPosition() + loader::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
         getController().updateFloorHeight(-381);
-        loader::ExactTRCoordinates d = getExactPosition();
+        loader::ExactTRCoordinates d = getPosition();
         if(*yRot == 0_deg)
             d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100;
         else if(*yRot == 180_deg)
@@ -2195,7 +2195,7 @@ public:
         setHandStatus(1);
         auto h = getController().getWaterSurfaceHeight();
         if(h && *h < getPosition().Y - 100)
-            setPosition(getExactPosition() - loader::ExactTRCoordinates(0, 5, 0));
+            setPosition(getPosition() - loader::ExactTRCoordinates(0, 5, 0));
 
         return StateHandler_Underwater::postprocessFrame(state);
     }
@@ -2799,14 +2799,9 @@ void AbstractStateHandler::placeOnFloor(const LaraState& state)
     m_controller.placeOnFloor(state);
 }
 
-loader::TRCoordinates AbstractStateHandler::getPosition() const
+const loader::ExactTRCoordinates& AbstractStateHandler::getPosition() const
 {
     return m_controller.getPosition();
-}
-
-const loader::ExactTRCoordinates& AbstractStateHandler::getExactPosition() const
-{
-    return m_controller.getExactPosition();
 }
 
 void AbstractStateHandler::setPosition(const loader::ExactTRCoordinates& pos)
@@ -2904,9 +2899,9 @@ bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
             break;
     }
 
-    auto sector = getLevel().findSectorForPosition(pos, m_controller.getCurrentRoom());
-    HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
-    HeightInfo ceil = HeightInfo::fromCeiling(sector, pos, getLevel().m_cameraController);
+    auto sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
+    HeightInfo floor = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
+    HeightInfo ceil = HeightInfo::fromCeiling(sector, pos.toInexact(), getLevel().m_cameraController);
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
 }
 
@@ -2941,7 +2936,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
 
     setTargetState(LaraStateId::Hang);
-    setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, spaceToReach, state.collisionFeedback.Z));
+    setPosition(getPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, spaceToReach, state.collisionFeedback.Z));
     setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
     setYRotation(*alignedRotation);
     setFalling(false);
@@ -3030,7 +3025,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
 
 void AbstractStateHandler::applyCollisionFeedback(LaraState& state)
 {
-    setPosition(getExactPosition() + state.collisionFeedback);
+    setPosition(getPosition() + state.collisionFeedback);
     state.collisionFeedback = { 0,0,0 };
 }
 
@@ -3134,7 +3129,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
     bbox = getBoundingBox();
     spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
-    setPosition(getExactPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
+    setPosition(getPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
     applyCollisionFeedback(state);
     setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
     setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -3152,10 +3147,10 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    auto sector = getLevel().findSectorForPosition(pos, m_controller.getCurrentRoom());
+    auto sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
     BOOST_ASSERT(sector != nullptr);
 
-    HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
+    HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
 
     if(h.distance != -loader::HeightLimit)
         h.distance -= getPosition().Y;
@@ -3244,16 +3239,16 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     switch(axis)
     {
         case util::Axis::PosZ:
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, 2));
+            setPosition(getPosition() + loader::ExactTRCoordinates(0, 0, 2));
             break;
         case util::Axis::PosX:
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(2, 0, 0));
+            setPosition(getPosition() + loader::ExactTRCoordinates(2, 0, 0));
             break;
         case util::Axis::NegZ:
-            setPosition(getExactPosition() - loader::ExactTRCoordinates(0, 0, 2));
+            setPosition(getPosition() - loader::ExactTRCoordinates(0, 0, 2));
             break;
         case util::Axis::NegX:
-            setPosition(getExactPosition() - loader::ExactTRCoordinates(2, 0, 0));
+            setPosition(getPosition() - loader::ExactTRCoordinates(2, 0, 0));
             break;
     }
 
@@ -3269,7 +3264,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
         setHandStatus(0);
         const auto bbox = getBoundingBox();
         const auto hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
-        setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
+        setPosition(getPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
         setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
         setFallSpeed(core::makeInterpolatedValue(1.0f));
         setFalling(true);
@@ -3294,11 +3289,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     {
         case util::Axis::PosZ:
         case util::Axis::NegZ:
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(0, 0, state.collisionFeedback.Z));
+            setPosition(getPosition() + loader::ExactTRCoordinates(0, 0, state.collisionFeedback.Z));
             break;
         case util::Axis::PosX:
         case util::Axis::NegX:
-            setPosition(getExactPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
+            setPosition(getPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
             break;
     }
 
@@ -3306,14 +3301,14 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     const auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
     if(spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize)
-        setPosition(getExactPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
+        setPosition(getPosition() + loader::ExactTRCoordinates(0, spaceToReach, 0));
     return nullptr;
 }
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = getLevel().findSectorForPosition(getPosition(), m_controller.getCurrentRoom());
-    HeightInfo h = HeightInfo::fromFloor(sector, getPosition() - loader::TRCoordinates{ 0, core::ScalpHeight, 0 }, getLevel().m_cameraController);
+    auto sector = getLevel().findSectorForPosition(getPosition().toInexact(), m_controller.getCurrentRoom());
+    HeightInfo h = HeightInfo::fromFloor(sector, getPosition().toInexact() - loader::TRCoordinates{ 0, core::ScalpHeight, 0 }, getLevel().m_cameraController);
     setFloorHeight(h.distance);
     getController().handleTriggers(h.lastTriggerOrKill, false);
     auto damageSpeed = static_cast<float>(getFallSpeed()) - 140;

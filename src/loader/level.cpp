@@ -1077,7 +1077,7 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
     return sector;
 }
 
-const Room* Level::findRoomForPosition(const TRCoordinates& position, const Room* room) const
+const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, const Room* room) const
 {
     BOOST_ASSERT(room != nullptr);
 
@@ -1103,7 +1103,7 @@ const Room* Level::findRoomForPosition(const TRCoordinates& position, const Room
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
-            sector = room->getSectorByAbsolutePosition(position);
+            sector = room->getSectorByAbsolutePosition(position.toInexact());
             BOOST_ASSERT(sector != nullptr);
         }
     }
@@ -1113,7 +1113,7 @@ const Room* Level::findRoomForPosition(const TRCoordinates& position, const Room
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition(position);
+            sector = room->getSectorByAbsolutePosition(position.toInexact());
             BOOST_ASSERT(sector != nullptr);
         }
     }

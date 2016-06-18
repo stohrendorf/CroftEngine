@@ -140,7 +140,7 @@ public:
 
     const Sector* findSectorForPosition(const TRCoordinates& position, const Room** room) const;
 
-    const Room* findRoomForPosition(const TRCoordinates& position, const Room* room) const;
+    const Room* findRoomForPosition(const ExactTRCoordinates& position, const Room* room) const;
 
     std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const TRCoordinates& position) const
     {

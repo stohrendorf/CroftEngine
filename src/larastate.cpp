@@ -5,20 +5,20 @@
 #include "loader/laracontroller.h"
 #include "core/magic.h"
 
-void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loader::Level& level, int height)
+void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const loader::Level& level, int height)
 {
     axisCollisions = AxisColl_None;
     collisionFeedback = {0,0,0};
     orientationAxis = *util::axisFromAngle(yAngle, 45_deg);
 
     const loader::Room* room = level.m_lara->getCurrentRoom();
-    const auto reachablePos = laraPos - loader::TRCoordinates{0, height + core::ScalpToHandsHeight, 0};
-    auto currentSector = level.findSectorForPosition(reachablePos, &room);
+    const auto reachablePos = laraPos - loader::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
+    auto currentSector = level.findSectorForPosition(reachablePos.toInexact(), &room);
     BOOST_ASSERT(currentSector != nullptr);
 
-    current.init(currentSector, laraPos, level.m_cameraController, height);
+    current.init(currentSector, laraPos.toInexact(), level.m_cameraController, height);
 
-    std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos);
+    std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos.toInexact());
 
     int frontX = 0, frontZ = 0;
     int frontLeftX = 0, frontLeftZ = 0;
@@ -61,9 +61,9 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     }
 
     // Front
-    auto checkPos = loader::TRCoordinates(frontX, 0, frontZ);
-    auto sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    front.init(sector, laraPos + checkPos, level.m_cameraController, height);
+    auto checkPos = loader::ExactTRCoordinates(frontX, 0, frontZ);
+    auto sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    front.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
         front.floor.distance = -32767;
@@ -78,9 +78,9 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     }
 
     // Front left
-    checkPos = loader::TRCoordinates(frontLeftX, 0, frontLeftZ);
-    sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    frontLeft.init(sector, laraPos + checkPos, level.m_cameraController, height);
+    checkPos = loader::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
+    sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    frontLeft.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
     {
@@ -96,9 +96,9 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
     }
 
     // Front right
-    checkPos = loader::TRCoordinates(frontRightX, 0, frontRightZ);
-    sector = level.findSectorForPosition(reachablePos + checkPos, &room);
-    frontRight.init(sector, laraPos + checkPos, level.m_cameraController, height);
+    checkPos = loader::ExactTRCoordinates(frontRightX, 0, frontRightZ);
+    sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    frontRight.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
     {
@@ -143,11 +143,11 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         case util::Axis::PosZ:
         case util::Axis::NegZ:
             collisionFeedback.X = position.X - laraPos.X;
-            collisionFeedback.Z = fruityFeedback(frontZ + laraPos.Z, laraPos.Z);
+            collisionFeedback.Z = reflectAtSectorBoundary(frontZ + laraPos.Z, laraPos.Z);
             break;
         case util::Axis::PosX:
         case util::Axis::NegX:
-            collisionFeedback.X = fruityFeedback(frontX + laraPos.X, laraPos.X);
+            collisionFeedback.X = reflectAtSectorBoundary(frontX + laraPos.X, laraPos.X);
             collisionFeedback.Z = position.Z - laraPos.Z;
             break;
         }
@@ -168,11 +168,11 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         {
         case util::Axis::PosZ:
         case util::Axis::NegZ:
-            collisionFeedback.X = fruityFeedback(frontLeftX + laraPos.X, frontX + laraPos.X);
+            collisionFeedback.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X);
             break;
         case util::Axis::PosX:
         case util::Axis::NegX:
-            collisionFeedback.Z = fruityFeedback(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
+            collisionFeedback.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
         return;
@@ -185,32 +185,32 @@ void LaraState::initHeightInfo(const loader::TRCoordinates& laraPos, const loade
         {
         case util::Axis::PosZ:
         case util::Axis::NegZ:
-            collisionFeedback.X = fruityFeedback(frontRightX + laraPos.X, frontX + laraPos.X);
+            collisionFeedback.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X);
             break;
         case util::Axis::PosX:
         case util::Axis::NegX:
-            collisionFeedback.Z = fruityFeedback(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
+            collisionFeedback.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
     }
 }
 
-std::set<const loader::Room*> LaraState::collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level)
+std::set<const loader::Room*> LaraState::collectNeighborRooms(const loader::ExactTRCoordinates& position, int radius, int height, const loader::Level& level)
 {
     std::set<const loader::Room*> result;
     result.insert(level.m_lara->getCurrentRoom());
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
-    result.insert(level.findRoomForPosition(position + loader::TRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
+    result.insert(level.findRoomForPosition(position + loader::ExactTRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
     return result;
 }
 
-bool LaraState::checkStaticMeshCollisions(const loader::TRCoordinates& position, int height, const loader::Level& level)
+bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& position, int height, const loader::Level& level)
 {
     auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 

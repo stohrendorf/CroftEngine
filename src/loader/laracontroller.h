@@ -120,12 +120,7 @@ public:
         return m_sceneNode;
     }
 
-    loader::TRCoordinates getPosition() const noexcept
-    {
-        return m_position.toInexact();
-    }
-
-    const loader::ExactTRCoordinates& getExactPosition() const noexcept
+    const loader::ExactTRCoordinates& getPosition() const noexcept
     {
         return m_position;
     }

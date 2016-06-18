@@ -39,7 +39,7 @@ void LaraController::applyRotation()
 void LaraController::handleLaraStateOnLand(bool newFrame)
 {
     LaraState laraState;
-    laraState.position = getExactPosition();
+    laraState.position = getPosition();
     laraState.collisionRadius = 100; //!< @todo MAGICK 100
     laraState.frobbelFlags = LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08;
 
@@ -117,7 +117,7 @@ void LaraController::handleLaraStateOnLand(bool newFrame)
 void LaraController::handleLaraStateDiving(bool newFrame)
 {
     LaraState laraState;
-    laraState.position = getExactPosition();
+    laraState.position = getPosition();
     laraState.collisionRadius = 300; //!< @todo MAGICK 300
     laraState.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08 | LaraState::FrobbelFlag_UnwalkableDeadlyFloor | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant);
     laraState.neededCeilingDistance = 400;
@@ -189,7 +189,7 @@ void LaraController::handleLaraStateDiving(bool newFrame)
 void LaraController::handleLaraStateSwimming(bool newFrame)
 {
     LaraState laraState;
-    laraState.position = getExactPosition();
+    laraState.position = getPosition();
     laraState.collisionRadius = 100; //!< @todo MAGICK 100
     laraState.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08 | LaraState::FrobbelFlag_UnwalkableDeadlyFloor | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant);
     laraState.neededCeilingDistance = 100;
@@ -543,9 +543,9 @@ void LaraController::updateFloorHeight(int dy)
     auto pos = getPosition();
     pos.Y += dy;
     auto room = m_currentRoom;
-    auto sector = getLevel().findSectorForPosition(pos, &room);
+    auto sector = getLevel().findSectorForPosition(pos.toInexact(), &room);
     setCurrentRoom(room);
-    HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
+    HeightInfo hi = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
     setFloorHeight(hi.distance);
 }
 

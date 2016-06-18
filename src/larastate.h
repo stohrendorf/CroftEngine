@@ -49,22 +49,22 @@ struct LaraState
 
     bool hasStaticMeshCollision = false;
 
-    static int fruityFeedback(int a, int b)
+    static float reflectAtSectorBoundary(float target, float current)
     {
-        const auto sectorA = a / loader::SectorSize;
-        const auto sectorB = b / loader::SectorSize;
-        if( sectorA == sectorB )
+        const auto targetSector = gsl::narrow_cast<int>(std::floor(target / loader::SectorSize));
+        const auto currentSector = gsl::narrow_cast<int>(std::floor(current / loader::SectorSize));
+        if( targetSector == currentSector )
             return 0;
 
-        const auto localA = (a % loader::SectorSize) + 1;
-        if( sectorB <= sectorA )
-            return -localA;
+        const auto targetInSector = std::fmod(target, loader::SectorSize);
+        if(current <= target)
+            return -targetInSector;
         else
-            return loader::SectorSize - localA;
+            return loader::SectorSize - 1 - targetInSector;
     }
 
-    void initHeightInfo(const loader::TRCoordinates& laraPos, const loader::Level& level, int height);
+    void initHeightInfo(const loader::ExactTRCoordinates& laraPos, const loader::Level& level, int height);
 
-    static std::set<const loader::Room*> collectNeighborRooms(const loader::TRCoordinates& position, int radius, int height, const loader::Level& level);
-    bool checkStaticMeshCollisions(const loader::TRCoordinates& position, int height, const loader::Level& level);
+    static std::set<const loader::Room*> collectNeighborRooms(const loader::ExactTRCoordinates& position, int radius, int height, const loader::Level& level);
+    bool checkStaticMeshCollisions(const loader::ExactTRCoordinates& position, int height, const loader::Level& level);
 };
