@@ -297,7 +297,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
     m_currentFrameTime = timeMs;
 
     static constexpr int FrameTime = 1000 / 30;
-    static constexpr int UVAnimTime = 1000 / 10;
+    static constexpr int UVAnimTime = 1000 / 3;
 
     bool isNewFrame = m_lastAnimFrame != getCurrentFrame();
 

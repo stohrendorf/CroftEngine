@@ -28,6 +28,7 @@ private:
     
     int m_lookAtYOffset = 1024;
     int m_distanceFromLookAt = 1536;
+    int m_smoothFactor = 6; // 12
     irr::core::vector3df m_currentLookAt;
     irr::core::vector3df m_localRotation;
     irr::core::vector3df m_currentPosition;
