@@ -121,7 +121,7 @@ public:
     {
     }
 
-    virtual void prepare() override
+    void prepare() override
     {
         AbstractTriggerHandler::prepare();
 
@@ -133,35 +133,35 @@ public:
         }
     }
 
-    virtual void onActivate(AbstractTriggerHandler* /*activator*/) override
+    void onActivate(AbstractTriggerHandler* /*activator*/) override
     {
         m_mustOpen = true;
         m_mustClose = false;
     }
 
-    virtual void onDeactivate(AbstractTriggerHandler* /*activator*/) override
+    void onDeactivate(AbstractTriggerHandler* /*activator*/) override
     {
         m_mustOpen = false;
         m_mustClose = true;
     }
 
-    virtual void onCollide() override
+    void onCollide() override
     {
     }
 
-    virtual void onStand() override
+    void onStand() override
     {
     }
 
-    virtual void onHit() override
+    void onHit() override
     {
     }
 
-    virtual void onRoomCollide() override
+    void onRoomCollide() override
     {
     }
 
-    virtual void update(irr::f32 frameTime) override
+    void update(irr::f32 frameTime) override
     {
         if( getDispatcher()->getCurrentAnimationId() != 1 && getDispatcher()->getCurrentAnimationId() != 3 )
         {
@@ -187,11 +187,11 @@ public:
         }
     }
 
-    virtual void onSave() override
+    void onSave() override
     {
     }
 
-    virtual void onLoad() override
+    void onLoad() override
     {
     }
 };

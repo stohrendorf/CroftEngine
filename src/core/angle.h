@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include <irrlicht.h>
 
 #include <gsl.h>

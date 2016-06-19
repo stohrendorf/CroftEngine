@@ -703,27 +703,23 @@ boost::optional<int> LaraController::getWaterSurfaceHeight() const
 
         return sector->ceilingHeight * loader::QuarterSectorSize;
     }
-    else
+    
+    while(true)
     {
-        while(true)
+        if(sector->roomBelow == 0xff)
+            break;
+
+        BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
+        const auto& room = m_level->m_rooms[sector->roomBelow];
+        if(room.isWaterRoom())
         {
-            if(sector->roomBelow == 0xff)
-                break;
-
-            BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
-            const auto& room = m_level->m_rooms[sector->roomBelow];
-            if(room.isWaterRoom())
-            {
-                return sector->floorHeight * loader::QuarterSectorSize;
-            }
-
-            sector = room.getSectorByAbsolutePosition(m_position.toInexact());
+            return sector->floorHeight * loader::QuarterSectorSize;
         }
 
-        return sector->ceilingHeight * loader::QuarterSectorSize;
+        sector = room.getSectorByAbsolutePosition(m_position.toInexact());
     }
 
-    return boost::none;
+    return sector->ceilingHeight * loader::QuarterSectorSize;
 }
 
 void LaraController::setCameraRotation(core::Angle x, core::Angle y)

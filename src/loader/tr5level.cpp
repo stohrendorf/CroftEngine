@@ -25,7 +25,7 @@ using namespace loader;
 
 #define TR_AUDIO_MAP_SIZE_TR5  450
 
-void TR5Level::load(irr::video::IVideoDriver* drv)
+void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
 {
     // Version
     uint32_t file_version = m_reader.readU32();

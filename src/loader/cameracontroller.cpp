@@ -161,7 +161,6 @@ bool CameraController::OnEvent(const irr::SEvent& evt)
                 default:
                     return false;
             }
-            break;
             
         default:
             break;
@@ -188,9 +187,6 @@ void CameraController::setLocalRotationY(core::Angle y)
 
 void CameraController::tracePortals(gsl::not_null<irr::scene::ICameraSceneNode*> camera)
 {
-    // Breadth-first queue
-    std::queue<render::PortalTracer> toVisit;
-    
     bool cameraOutOfGeometry = true;
     for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
     {
@@ -238,6 +234,9 @@ void CameraController::tracePortals(gsl::not_null<irr::scene::ICameraSceneNode*>
     }
 
     startRoom->node->setVisible(true);
+
+    // Breadth-first queue
+    std::queue<render::PortalTracer> toVisit;
 
     // always process direct neighbours of the starting room
     for(const loader::Portal& portal : startRoom->portals)
