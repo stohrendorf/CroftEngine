@@ -7,14 +7,15 @@
 class CameraController final : public irr::scene::ISceneNodeAnimator
 {
 private:
+    // Internals
     bool m_firstUpdate = true;
     irr::gui::ICursorControl* m_cursorControl;
     irr::core::vector2df m_prevCursorPos;
     irr::core::vector2df m_currentCursorPos;
     irr::u32 m_lastAnimationTime = 0;
     bool m_firstInput = true;
-    core::Angle m_rotateSpeed{ 100_deg };
 
+    // Input
     bool m_forward = false;
     bool m_backward = false;
     bool m_left = false;
@@ -24,9 +25,11 @@ private:
 
     InputState m_inputState;
 
+    // For interactions
     const loader::Level* m_level;
     LaraController* m_laraController;
     
+    // TR state
     int m_lookAtYOffset = 1024;
     int m_distanceFromLookAt = 1536;
     int m_smoothFactor = 8;

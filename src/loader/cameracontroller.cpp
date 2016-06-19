@@ -10,7 +10,7 @@
 CameraController::CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv)
     : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_laraController(laraController), m_driver(drv)
 {
-    m_currentLookAt = loader::ExactTRCoordinates(m_level->m_lara->getSceneNode()->getAbsolutePosition());
+    m_currentLookAt = loader::ExactTRCoordinates(m_laraController->getSceneNode()->getAbsolutePosition());
     m_currentLookAt.Y -= m_lookAtYOffset;
     m_currentPosition = m_currentLookAt;
     m_currentPosition.Z -= 100;
@@ -64,8 +64,9 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     // Update mouse rotation
     if(m_currentCursorPos != m_prevCursorPos)
     {
-        m_localRotation.Y -= m_rotateSpeed * (0.5f - m_currentCursorPos.X);
-        m_localRotation.X -= m_rotateSpeed * (0.5f - m_currentCursorPos.Y);
+        static const core::Angle rotationSpeed = 100_deg;
+        m_localRotation.Y -= rotationSpeed * (0.5f - m_currentCursorPos.X);
+        m_localRotation.X -= rotationSpeed * (0.5f - m_currentCursorPos.Y);
         m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
         
         // Do the fix as normal, special case below
@@ -451,18 +452,18 @@ void CameraController::applyPosition(gsl::not_null<irr::scene::ICameraSceneNode*
 
     auto pos = m_currentPosition;
 
-    HeightInfo originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+    HeightInfo originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_laraController->getCurrentRoom()), pos.toInexact(), this);
     originFloor.distance -= 256;
 
     if(originFloor.distance <= pos.Y && originFloor.distance <= m_currentLookAt.Y)
     {
         clamp(m_currentLookAt, pos);
 
-        originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+        originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_laraController->getCurrentRoom()), pos.toInexact(), this);
         originFloor.distance += 256;
     }
 
-    HeightInfo originCeiling = HeightInfo::fromCeiling(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+    HeightInfo originCeiling = HeightInfo::fromCeiling(m_level->findSectorForPosition(pos.toInexact(), m_laraController->getCurrentRoom()), pos.toInexact(), this);
     originCeiling.distance += 256;
 
     if(originFloor.distance < originCeiling.distance)
