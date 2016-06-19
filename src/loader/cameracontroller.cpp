@@ -184,7 +184,7 @@ void CameraController::setLocalRotation(core::Angle x, core::Angle y)
 
 void CameraController::setLocalRotationX(core::Angle x)
 {
-    m_localRotation.X = x;
+    m_localRotation.X = -x;
 }
 
 void CameraController::setLocalRotationY(core::Angle y)

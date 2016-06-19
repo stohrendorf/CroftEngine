@@ -1984,13 +1984,13 @@ private:
         getController().updateFloorHeight(-381);
         loader::ExactTRCoordinates d = getPosition();
         if(*yRot == 0_deg)
-            d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100;
+            d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 1) * loader::SectorSize + 100;
         else if(*yRot == 180_deg)
-            d.Z = (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - 100;
+            d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 0) * loader::SectorSize - 100;
         else if(*yRot == -90_deg)
-            d.X = (getPosition().X / loader::SectorSize + 0) * loader::SectorSize - 100;
+            d.X = (std::floor(getPosition().X / loader::SectorSize) + 0) * loader::SectorSize - 100;
         else if(*yRot == 90_deg)
-            d.X = (getPosition().X / loader::SectorSize + 1) * loader::SectorSize + 100;
+            d.X = (std::floor(getPosition().X / loader::SectorSize) + 1) * loader::SectorSize + 100;
         else
             throw std::runtime_error("Unexpected angle value");
 
