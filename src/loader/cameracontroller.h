@@ -30,9 +30,9 @@ private:
     int m_lookAtYOffset = 1024;
     int m_distanceFromLookAt = 1536;
     int m_smoothFactor = 6; // 12
-    irr::core::vector3df m_currentLookAt;
+    loader::ExactTRCoordinates m_currentLookAt;
     irr::core::vector3d<core::Angle> m_localRotation;
-    irr::core::vector3df m_currentPosition;
+    loader::ExactTRCoordinates m_currentPosition;
     
 #ifndef NDEBUG
     irr::video::IVideoDriver* m_driver;
@@ -77,16 +77,16 @@ public:
 
 private:
     void tracePortals(irr::scene::ICameraSceneNode* camera);
-    bool clampY(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const;
+    bool clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, const loader::Sector* sector) const;
 
     enum class ClampType
     {
-        Outer,
-        Inner,
+        Normal,
+        Edge,
         None
     };
 
-    ClampType clampX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
-    ClampType clampZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
-    bool clamp(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const;
+    ClampType clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
+    ClampType clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
+    bool clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
 };

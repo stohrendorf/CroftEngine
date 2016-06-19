@@ -19,6 +19,7 @@ class TextureAnimator
         {
             const irr::u16 bufferIndex;
             const int sourceIndex;
+            size_t queueOffset = 0;
 
             VertexReference(irr::u16 bufferIdx, int sourceIdx)
                 : bufferIndex(bufferIdx)
@@ -38,27 +39,28 @@ class TextureAnimator
             }
         };
 
-        std::deque<uint16_t> proxyIds;
+        std::vector<uint16_t> proxyIds;
         std::map<irr::scene::IMeshBuffer*, std::set<VertexReference>> affectedVertices;
 
         void rotate()
         {
             auto first = proxyIds.front();
-            proxyIds.pop_front();
+            proxyIds.erase(proxyIds.begin(), std::next(proxyIds.begin()));
             proxyIds.emplace_back(first);
         }
 
-        void registerVertex(irr::scene::IMeshBuffer* buffer, const VertexReference& vertex)
+        void registerVertex(irr::scene::IMeshBuffer* buffer, VertexReference vertex, uint16_t proxyId)
         {
             Expects(buffer != nullptr);
+            auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
+            Expects(it != proxyIds.end());
+            vertex.queueOffset = std::distance(proxyIds.begin(), it);
             affectedVertices[buffer].insert(vertex);
         }
 
         void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)
         {
             BOOST_ASSERT(!proxyIds.empty());
-            Expects(proxyIds.front() < proxies.size());
-            const loader::TextureLayoutProxy& proxy = proxies[proxyIds.front()];
 
             for(const auto& bufferAndVertices : affectedVertices)
             {
@@ -91,6 +93,10 @@ class TextureAnimator
                         default:
                             throw std::runtime_error("Unexpected vertex format");
                     }
+
+                    BOOST_ASSERT(vref.queueOffset < proxyIds.size());
+                    const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
+
                     uv->X = proxy.uvCoordinates[vref.sourceIndex].xpixel / 255.0f;
                     uv->Y = proxy.uvCoordinates[vref.sourceIndex].ypixel / 255.0f;
                 }
@@ -130,7 +136,7 @@ public:
         Expects(buffer != nullptr)
         const size_t sequenceId = m_sequenceByProxyId[proxyId];
         Expects(sequenceId < m_sequences.size());
-        m_sequences[sequenceId].registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex));
+        m_sequences[sequenceId].registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);
     }
 
     void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)

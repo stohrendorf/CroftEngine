@@ -91,9 +91,23 @@ public:
     }
 
     template<typename U>
+    SelfType& operator*=(const U& f)
+    {
+        m_value *= f;
+        return *this;
+    }
+
+    template<typename U>
     SelfType operator/(const U& f) const
     {
         return SelfType{ m_value/f };
+    }
+
+    template<typename U>
+    SelfType& operator/=(const U& f)
+    {
+        m_value /= f;
+        return *this;
     }
 
     template<typename U>

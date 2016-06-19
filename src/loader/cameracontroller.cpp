@@ -16,8 +16,8 @@ TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* c
 #endif
 {
     BOOST_ASSERT(cursorControl != nullptr);
-    m_currentLookAt = m_level->m_lara->getSceneNode()->getAbsolutePosition();
-    m_currentLookAt.Y += m_lookAtYOffset;
+    m_currentLookAt = loader::ExactTRCoordinates(m_level->m_lara->getSceneNode()->getAbsolutePosition());
+    m_currentLookAt.Y -= m_lookAtYOffset;
     m_currentPosition = m_currentLookAt;
     m_currentPosition.Z -= 100;
 }
@@ -70,8 +70,8 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
     // Update mouse rotation
     if(m_currentCursorPos != m_prevCursorPos)
     {
-        m_localRotation.Y += m_rotateSpeed * -(0.5f - m_currentCursorPos.X);
-        m_localRotation.X += m_rotateSpeed *  (0.5f - m_currentCursorPos.Y);
+        m_localRotation.Y -= m_rotateSpeed * (0.5f - m_currentCursorPos.X);
+        m_localRotation.X -= m_rotateSpeed * (0.5f - m_currentCursorPos.Y);
         m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
         
         // Do the fix as normal, special case below
@@ -95,28 +95,28 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
     }
     
-    auto targetLookAt = m_laraController->getPosition().toIrrlicht();
-    targetLookAt.Y += m_lookAtYOffset;
-    m_currentLookAt += (targetLookAt - m_currentLookAt) * 30 / m_smoothFactor * localTime / 1000;
+    auto targetLookAt = m_laraController->getPosition();
+    targetLookAt.Y -= m_lookAtYOffset;
+    m_currentLookAt += (targetLookAt - m_currentLookAt) * core::FrameRate * localTime / 1000 / m_smoothFactor;
 
     const irr::core::vector3d<core::Angle> totalRotation = m_localRotation + m_laraController->getRotation();
 
-    irr::core::vector3df targetPos = m_currentLookAt;
+    loader::ExactTRCoordinates targetPos = m_currentLookAt;
     const auto localDistance = m_distanceFromLookAt * totalRotation.X.cos();
     targetPos.X -= totalRotation.Y.sin() * localDistance;
     targetPos.Z -= totalRotation.Y.cos() * localDistance;
     targetPos.Y -= totalRotation.X.sin() * m_distanceFromLookAt;
 
     const auto d = targetPos - m_currentPosition;
-    const auto bias = 30.0f / m_smoothFactor * localTime / 1000;
+    const auto bias = gsl::narrow_cast<float>(core::FrameRate) / m_smoothFactor * localTime / 1000;
     m_currentPosition += d * bias;
 
     auto pos = m_currentPosition;
     clamp(m_currentLookAt, pos);
 
-    camera->setPosition(pos);
+    camera->setPosition(pos.toIrrlicht());
     camera->updateAbsolutePosition();
-    camera->setTarget(m_currentLookAt);
+    camera->setTarget(m_currentLookAt.toIrrlicht());
     camera->updateAbsolutePosition();
     
     tracePortals(camera);
@@ -311,33 +311,33 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     }
 }
 
-bool CameraController::clampY(const irr::core::vector3df& lookAt, irr::core::vector3df& origin, const loader::Sector* sector) const
+bool CameraController::clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, const loader::Sector* sector) const
 {
     BOOST_ASSERT(sector != nullptr);
 
     const auto d = origin - lookAt;
-    const HeightInfo floor = HeightInfo::fromFloor(sector, loader::TRCoordinates(origin), this);
-    if(floor.distance < -origin.Y && floor.distance > -lookAt.Y)
+    const HeightInfo floor = HeightInfo::fromFloor(sector, origin.toInexact(), this);
+    if(floor.distance < origin.Y && floor.distance > lookAt.Y)
     {
-        origin.Y = -floor.distance;
-        origin.X = d.X / d.Y * (-floor.distance - lookAt.Y) + lookAt.X;
-        origin.Z = d.Z / d.Y * (-floor.distance - lookAt.Y) + lookAt.Z;
+        origin.Y = floor.distance;
+        origin.X = d.X / d.Y * (floor.distance - lookAt.Y) + lookAt.X;
+        origin.Z = d.Z / d.Y * (floor.distance - lookAt.Y) + lookAt.Z;
         return false;
     }
 
-    const HeightInfo ceiling = HeightInfo::fromCeiling(sector, loader::TRCoordinates(origin), this);
-    if(ceiling.distance > -origin.Y && ceiling.distance < -lookAt.Y)
+    const HeightInfo ceiling = HeightInfo::fromCeiling(sector, origin.toInexact(), this);
+    if(ceiling.distance > origin.Y && ceiling.distance < lookAt.Y)
     {
-        origin.Y = -ceiling.distance;
-        origin.X = d.X / d.Y * (-ceiling.distance - lookAt.Y) + lookAt.X;
-        origin.Z = d.Z / d.Y * (-ceiling.distance - lookAt.Y) + lookAt.Z;
+        origin.Y = ceiling.distance;
+        origin.X = d.X / d.Y * (ceiling.distance - lookAt.Y) + lookAt.X;
+        origin.Z = d.Z / d.Y * (ceiling.distance - lookAt.Y) + lookAt.Z;
         return false;
     }
 
     return true;
 }
 
-CameraController::ClampType CameraController::clampX(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+CameraController::ClampType CameraController::clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
 {
     if(irr::core::equals(lookAt.X, origin.X, 1.0f))
         return ClampType::None;
@@ -346,102 +346,53 @@ CameraController::ClampType CameraController::clampX(const irr::core::vector3df&
     const auto gradientZX = d.Z / d.X;
     const auto gradientYX = d.Y / d.X;
 
-    if(d.X < 0)
-    {
-        auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize;
-        if(sectorBoundary <= origin.X)
-            return ClampType::None;
+    const int sign = d.X < 0 ? -1 : 1;
 
-        irr::core::vector3df localPos;
-        localPos.X = sectorBoundary - lookAt.X;
-        localPos.Y = lookAt.Y + localPos.X * gradientYX;
-        localPos.Z = lookAt.Z + localPos.X * gradientZX;
+    loader::ExactTRCoordinates testPos;
+    testPos.X = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize;
+    if(sign > 0)
+        testPos.X += loader::SectorSize - 1;
 
-        auto innerBoundary = sectorBoundary - 1;
-        while(true)
-        {
-            loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
-            auto sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
-            HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
-            HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
-            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-            {
-                origin.X = sectorBoundary;
-                origin.Y = localPos.Y;
-                origin.Z = localPos.Z;
-                return ClampType::Outer;
-            }
+    testPos.Y = lookAt.Y + (testPos.X - lookAt.X) * gradientYX;
+    testPos.Z = lookAt.Z + (testPos.X - lookAt.X) * gradientZX;
 
-            pos.X = innerBoundary;
-            sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
-            floor = HeightInfo::fromFloor(sector, pos, this);
-            ceiling = HeightInfo::fromCeiling(sector, pos, this);
-            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-            {
-                origin.X = sectorBoundary;
-                origin.Y = localPos.Y;
-                origin.Z = localPos.Z;
-                return ClampType::Inner;
-            }
+    loader::ExactTRCoordinates step;
+    step.X = sign * loader::SectorSize;
+    step.Y = gradientYX * step.X;
+    step.Z = gradientZX * step.X;
 
-            sectorBoundary -= loader::SectorSize;
-            innerBoundary -= loader::SectorSize;
-            localPos.Y -= gradientYX * loader::SectorSize;
-            localPos.Z -= gradientZX * loader::SectorSize;
-
-            if(sectorBoundary <= origin.X)
-                return ClampType::None;
-        }
-    }
-
-    auto sectorBoundary = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
-
-    if(sectorBoundary >= origin.X)
-        return ClampType::None;
-
-    irr::core::vector3df localPos;
-    localPos.X = sectorBoundary - lookAt.X;
-    localPos.Y = lookAt.Y + localPos.X * gradientYX;
-    localPos.Z = lookAt.Z + localPos.X * gradientZX;
-
-    auto innerBoundary = sectorBoundary + 1;
     while(true)
     {
-        loader::TRCoordinates pos(sectorBoundary, localPos.Y, localPos.Z);
-        auto sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
-        HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
-        HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
-        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-        {
-            origin.X = sectorBoundary;
-            origin.Y = localPos.Y;
-            origin.Z = localPos.Z;
-            return ClampType::Outer;
-        }
-
-        pos.X = innerBoundary;
-        sector = m_level->findSectorForPosition(pos, m_laraController->getCurrentRoom());
-        floor = HeightInfo::fromFloor(sector, pos, this);
-        ceiling = HeightInfo::fromCeiling(sector, pos, this);
-        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-        {
-            origin.X = innerBoundary;
-            origin.Y = localPos.Y;
-            origin.Z = localPos.Z;
-            return ClampType::Inner;
-        }
-
-        sectorBoundary += loader::SectorSize;
-        innerBoundary += loader::SectorSize;
-        localPos.Y += gradientYX * loader::SectorSize;
-        localPos.Z += gradientZX * loader::SectorSize;
-
-        if(sectorBoundary >= origin.X)
+        if(sign > 0 && testPos.X >= origin.X)
             return ClampType::None;
+        else if(sign < 0 && testPos.X <= origin.X)
+            return ClampType::None;
+
+        loader::TRCoordinates heightPos = testPos.toInexact();
+        auto sector = m_level->findSectorForPosition(heightPos, m_laraController->getCurrentRoom());
+        HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
+        HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
+        if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
+        {
+            origin = testPos;
+            return ClampType::Normal;
+        }
+
+        heightPos.X = testPos.X + 2*sign;
+        sector = m_level->findSectorForPosition(heightPos, m_laraController->getCurrentRoom());
+        floor = HeightInfo::fromFloor(sector, heightPos, this);
+        ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
+        if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
+        {
+            origin = testPos;
+            return ClampType::Edge;
+        }
+
+        testPos += step;
     }
 }
 
-CameraController::ClampType CameraController::clampZ(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+CameraController::ClampType CameraController::clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
 {
     if(irr::core::equals(lookAt.Z, origin.Z, 1.0f))
         return ClampType::None;
@@ -450,104 +401,55 @@ CameraController::ClampType CameraController::clampZ(const irr::core::vector3df&
     const auto gradientXZ = d.X / d.Z;
     const auto gradientYZ = d.Y / d.Z;
 
-    if(d.Z < 0)
-    {
-        auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize;
-        if(sectorBoundary <= origin.Z)
-            return ClampType::None;
+    const int sign = d.Z < 0 ? -1 : 1;
 
-        irr::core::vector3df localPos;
-        localPos.Z = sectorBoundary - lookAt.Z;
-        localPos.X = lookAt.X + localPos.Z * gradientXZ;
-        localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
+    loader::ExactTRCoordinates testPos;
+    testPos.Z = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize;
 
-        auto innerBoundary = sectorBoundary - 1;
-        auto room = m_laraController->getCurrentRoom();
-        while(true)
-        {
-            loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
-            auto sector = m_level->findSectorForPosition(pos, &room);
-            HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
-            HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
-            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-            {
-                origin.X = localPos.X;
-                origin.Y = localPos.Y;
-                origin.Z = sectorBoundary;
-                return ClampType::Outer;
-            }
+    if(sign > 0)
+        testPos.Z += loader::SectorSize - 1;
 
-            pos.Z = innerBoundary;
-            sector = m_level->findSectorForPosition(pos, &room);
-            floor = HeightInfo::fromFloor(sector, pos, this);
-            ceiling = HeightInfo::fromCeiling(sector, pos, this);
-            if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-            {
-                origin.X = localPos.X;
-                origin.Y = localPos.Y;
-                origin.Z = innerBoundary;
-                return ClampType::Inner;
-            }
+    testPos.X = lookAt.X + (testPos.Z - lookAt.Z) * gradientXZ;
+    testPos.Y = lookAt.Y + (testPos.Z - lookAt.Z) * gradientYZ;
 
-            sectorBoundary -= loader::SectorSize;
-            innerBoundary -= loader::SectorSize;
-            localPos.X -= gradientXZ * loader::SectorSize;
-            localPos.Y -= gradientYZ * loader::SectorSize;
+    loader::ExactTRCoordinates step;
+    step.Z = sign * loader::SectorSize;
+    step.X = gradientXZ * step.Z;
+    step.Y = gradientYZ * step.Z;
 
-            if(sectorBoundary <= origin.Z)
-                return ClampType::None;
-        }
-    }
-
-    auto sectorBoundary = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize - 1;
-
-    if(sectorBoundary >= origin.Z)
-        return ClampType::None;
-
-    irr::core::vector3df localPos;
-    localPos.Z = sectorBoundary - lookAt.Z;
-    localPos.X = lookAt.X + localPos.Z * gradientXZ;
-    localPos.Y = lookAt.Y + localPos.Z * gradientYZ;
-
-    auto innerBoundary = sectorBoundary + 1;
     auto room = m_laraController->getCurrentRoom();
     while(true)
     {
-        loader::TRCoordinates pos(localPos.X, localPos.Y, sectorBoundary);
-        auto sector = m_level->findSectorForPosition(pos, &room);
-        HeightInfo floor = HeightInfo::fromFloor(sector, pos, this);
-        HeightInfo ceiling = HeightInfo::fromCeiling(sector, pos, this);
-        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-        {
-            origin.X = localPos.X;
-            origin.Y = localPos.Y;
-            origin.Z = sectorBoundary;
-            return ClampType::Outer;
-        }
-
-        pos.Z = innerBoundary;
-        sector = m_level->findSectorForPosition(pos, &room);
-        floor = HeightInfo::fromFloor(sector, pos, this);
-        ceiling = HeightInfo::fromCeiling(sector, pos, this);
-        if(-localPos.Y > floor.distance || -localPos.Y < ceiling.distance)
-        {
-            origin.X = localPos.X;
-            origin.Y = localPos.Y;
-            origin.Z = innerBoundary;
-            return ClampType::Inner;
-        }
-
-        sectorBoundary += loader::SectorSize;
-        innerBoundary += loader::SectorSize;
-        localPos.X += gradientXZ * loader::SectorSize;
-        localPos.Y += gradientYZ * loader::SectorSize;
-
-        if(sectorBoundary >= origin.Z)
+        if(sign > 0 && testPos.Z >= origin.Z)
             return ClampType::None;
+        else if(sign < 0 && testPos.Z <= origin.Z)
+            return ClampType::None;
+
+        loader::TRCoordinates heightPos = testPos.toInexact();
+        auto sector = m_level->findSectorForPosition(heightPos, &room);
+        HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
+        HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
+        if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
+        {
+            origin = testPos;
+            return ClampType::Normal;
+        }
+
+        heightPos.Z = testPos.Z + 2*sign;
+        sector = m_level->findSectorForPosition(heightPos, &room);
+        floor = HeightInfo::fromFloor(sector, heightPos, this);
+        ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
+        if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
+        {
+            origin = testPos;
+            return ClampType::Edge;
+        }
+
+        testPos += step;
     }
 }
 
-bool CameraController::clamp(const irr::core::vector3df& lookAt, irr::core::vector3df& origin) const
+bool CameraController::clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
 {
     bool firstUnclamped;
     ClampType secondClamp;
@@ -562,9 +464,9 @@ bool CameraController::clamp(const irr::core::vector3df& lookAt, irr::core::vect
         secondClamp = clampZ(lookAt, origin);
     }
 
-    if(secondClamp == ClampType::Inner)
+    if(secondClamp == ClampType::Edge)
         return false;
 
-    auto sector = m_level->findSectorForPosition(loader::TRCoordinates(origin), m_laraController->getCurrentRoom());
+    auto sector = m_level->findSectorForPosition(origin.toInexact(), m_laraController->getCurrentRoom());
     return clampY(lookAt, origin, sector) && firstUnclamped && secondClamp == ClampType::None;
 }

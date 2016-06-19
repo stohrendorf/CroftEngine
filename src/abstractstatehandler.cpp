@@ -1003,7 +1003,7 @@ public:
         if(state.current.floor.distance >= 0)
             return nullptr;
 
-        setPosition(loader::ExactTRCoordinates(getPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0)));
+        setPosition(getPosition() + loader::ExactTRCoordinates(0, state.current.floor.distance, 0));
         m_xRotationSpeed = m_xRotationSpeed + 2_deg;
 
         return nullptr;
@@ -1246,7 +1246,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::min(core::makeInterpolatedValue(200.0f), getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)).limitMax(200.0f));
     }
 
     loader::LaraStateId getId() const noexcept override

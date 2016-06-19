@@ -20,9 +20,9 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos.toInexact());
 
-    int frontX = 0, frontZ = 0;
-    int frontLeftX = 0, frontLeftZ = 0;
-    int frontRightX = 0, frontRightZ = 0;
+    float frontX = 0, frontZ = 0;
+    float frontLeftX = 0, frontLeftZ = 0;
+    float frontRightX = 0, frontRightZ = 0;
 
     switch( orientationAxis )
     {
@@ -117,7 +117,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     if( current.floor.distance == -loader::HeightLimit )
     {
-        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
+        collisionFeedback = position - laraPos;
         axisCollisions = AxisColl_FrontBlocked;
         return;
     }
@@ -125,7 +125,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
     if( current.floor.distance <= current.ceiling.distance )
     {
         axisCollisions = AxisColl_InvalidPosition;
-        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
+        collisionFeedback = position - laraPos;
         return;
     }
 
@@ -157,7 +157,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
     if( front.ceiling.distance >= neededCeilingDistance )
     {
         axisCollisions = AxisColl_InsufficientCeilingSpace;
-        collisionFeedback = position - loader::ExactTRCoordinates(laraPos);
+        collisionFeedback = position - laraPos;
         return;
     }
 

@@ -333,7 +333,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
-            m_fallSpeed = m_fallSpeed * 2;
+            m_fallSpeed *= 2;
         }
         else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
         {
@@ -341,7 +341,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
-            m_fallSpeed = m_fallSpeed * 2;
+            m_fallSpeed *= 2;
         }
         else
         {
@@ -351,7 +351,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
-            m_fallSpeed = m_fallSpeed * 1.5f;
+            m_fallSpeed *= 1.5f;
         }
 
         //! @todo Show water splash effect
@@ -514,23 +514,17 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
             m_fallSpeed.add(1, getCurrentDeltaTime());
         else
             m_fallSpeed.add(6, getCurrentDeltaTime());
-
-        move(
-            getMovementAngle().sin() * m_horizontalSpeed.getScaled(getCurrentDeltaTime()),
-            m_fallSpeed.getScaled(getCurrentDeltaTime()),
-            getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
-        );
     }
     else
     {
         m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
-
-        move(
-            getMovementAngle().sin() * m_horizontalSpeed.getScaled(getCurrentDeltaTime()),
-            0,
-            getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
-        );
     }
+
+    move(
+        getMovementAngle().sin() * m_horizontalSpeed.getScaled(getCurrentDeltaTime()),
+        m_falling ? m_fallSpeed.getScaled(getCurrentDeltaTime()) : 0,
+        getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
+    );
 
     m_sceneNode->setPosition(m_position.toIrrlicht());
     m_sceneNode->updateAbsolutePosition();

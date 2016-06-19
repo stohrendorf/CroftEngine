@@ -325,6 +325,32 @@ struct ExactTRCoordinates
         return *this;
     }
 
+    ExactTRCoordinates operator*(float f) const noexcept
+    {
+        return{ X * f, Y * f, Z * f };
+    }
+
+    ExactTRCoordinates& operator*=(float f) noexcept
+    {
+        X *= f;
+        Y *= f;
+        Z *= f;
+        return *this;
+    }
+
+    ExactTRCoordinates operator/(float f) const noexcept
+    {
+        return{ X / f, Y / f, Z / f };
+    }
+
+    ExactTRCoordinates& operator/=(float f) noexcept
+    {
+        X /= f;
+        Y /= f;
+        Z /= f;
+        return *this;
+    }
+
     ExactTRCoordinates& operator=(const ExactTRCoordinates&) = default;
 
     irr::core::vector3df toIrrlicht() const noexcept
