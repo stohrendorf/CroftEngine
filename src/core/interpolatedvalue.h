@@ -162,7 +162,7 @@ public:
 
     SelfType operator+(const T& v) const
     {
-        return SelfType{ m_value - v };
+        return SelfType{ m_value + v };
     }
 
     SelfType& operator-=(const SelfType& v)
@@ -184,7 +184,7 @@ public:
 
     SelfType operator+(const SelfType& v) const
     {
-        return SelfType{ m_value - v.m_value };
+        return SelfType{ m_value + v.m_value };
     }
 
     SelfType& operator=(const SelfType&) = default;
