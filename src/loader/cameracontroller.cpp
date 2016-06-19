@@ -95,30 +95,8 @@ void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs
         m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
     }
     
-    auto targetLookAt = m_laraController->getPosition();
-    targetLookAt.Y -= m_lookAtYOffset;
-    m_currentLookAt += (targetLookAt - m_currentLookAt) * core::FrameRate * localTime / 1000 / m_smoothFactor;
+    applyPosition(camera, localTime);
 
-    const irr::core::vector3d<core::Angle> totalRotation = m_localRotation + m_laraController->getRotation();
-
-    loader::ExactTRCoordinates targetPos = m_currentLookAt;
-    const auto localDistance = m_distanceFromLookAt * totalRotation.X.cos();
-    targetPos.X -= totalRotation.Y.sin() * localDistance;
-    targetPos.Z -= totalRotation.Y.cos() * localDistance;
-    targetPos.Y -= totalRotation.X.sin() * m_distanceFromLookAt;
-
-    const auto d = targetPos - m_currentPosition;
-    const auto bias = gsl::narrow_cast<float>(core::FrameRate) / m_smoothFactor * localTime / 1000;
-    m_currentPosition += d * bias;
-
-    auto pos = m_currentPosition;
-    clamp(m_currentLookAt, pos);
-
-    camera->setPosition(pos.toIrrlicht());
-    camera->updateAbsolutePosition();
-    camera->setTarget(m_currentLookAt.toIrrlicht());
-    camera->updateAbsolutePosition();
-    
     tracePortals(camera);
 }
 
@@ -469,4 +447,58 @@ bool CameraController::clamp(const loader::ExactTRCoordinates& lookAt, loader::E
 
     auto sector = m_level->findSectorForPosition(origin.toInexact(), m_laraController->getCurrentRoom());
     return clampY(lookAt, origin, sector) && firstUnclamped && secondClamp == ClampType::None;
+}
+
+void CameraController::applyPosition(irr::scene::ICameraSceneNode* camera, uint32_t localTime)
+{
+    const irr::core::vector3d<core::Angle> totalRotation = m_localRotation + m_laraController->getRotation();
+
+    loader::ExactTRCoordinates targetPos = m_currentLookAt;
+    const auto localDistance = m_distanceFromLookAt * totalRotation.X.cos();
+    targetPos.X -= totalRotation.Y.sin() * localDistance;
+    targetPos.Z -= totalRotation.Y.cos() * localDistance;
+    targetPos.Y -= totalRotation.X.sin() * m_distanceFromLookAt;
+
+    const auto d = targetPos - m_currentPosition;
+    m_currentPosition += d * (gsl::narrow_cast<float>(core::FrameRate) / m_smoothFactor * localTime / 1000);
+
+    HeightInfo::skipSteepSlants = false;
+
+    auto pos = m_currentPosition;
+
+    HeightInfo originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+    originFloor.distance -= 256;
+
+    if(originFloor.distance <= pos.Y && originFloor.distance <= m_currentLookAt.Y)
+    {
+        clamp(m_currentLookAt, pos);
+
+        originFloor = HeightInfo::fromFloor(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+        originFloor.distance += 256;
+    }
+
+    HeightInfo originCeiling = HeightInfo::fromCeiling(m_level->findSectorForPosition(pos.toInexact(), m_level->m_lara->getCurrentRoom()), pos.toInexact(), this);
+    originCeiling.distance += 256;
+
+    if(originFloor.distance < originCeiling.distance)
+    {
+        originFloor.distance = originCeiling.distance = (originFloor.distance + originCeiling.distance) / 2;
+    }
+
+    if(originFloor.distance < pos.Y)
+        m_lookAtYOffset = originFloor.distance - pos.Y;
+    else if(originCeiling.distance > pos.Y)
+        m_lookAtYOffset = originCeiling.distance - pos.Y;
+    else
+        m_lookAtYOffset = 0;
+
+    auto targetLookAt = m_laraController->getPosition();
+    targetLookAt.Y += (m_laraController->getBoundingBox().MinEdge.Y - m_laraController->getBoundingBox().MaxEdge.Y) * 3 / 4 + m_laraController->getBoundingBox().MaxEdge.Y;
+
+    m_currentLookAt += (targetLookAt - m_currentLookAt) * core::FrameRate * localTime / 1000 / m_smoothFactor;
+
+    camera->setPosition(pos.toIrrlicht());
+    camera->updateAbsolutePosition();
+    camera->setTarget(targetLookAt.toIrrlicht());
+    camera->updateAbsolutePosition();
 }

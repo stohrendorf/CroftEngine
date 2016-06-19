@@ -89,4 +89,5 @@ private:
     ClampType clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     ClampType clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     bool clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
+    void applyPosition(irr::scene::ICameraSceneNode* camera, uint32_t localTime);
 };
