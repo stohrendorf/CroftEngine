@@ -680,7 +680,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
     return lara;
 }
 
-void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
+void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
 {
     uint16_t angleSetOfs = 0x0a;
 
@@ -737,7 +737,7 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
 
     std::map<irr::u32, irr::core::aabbox3di> bboxes;
     pData = &m_poseData[meshPositionIndex];
-    for( irr::u32 i = 0; i <= animation.lastFrame - animation.firstFrame; i += animation.stretchFactor )
+    for( irr::u32 i = 0; i <= gsl::narrow<irr::u32>(animation.lastFrame - animation.firstFrame); i += animation.stretchFactor )
     {
         lastPData = pData;
         loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
@@ -1076,7 +1076,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
     const Sector* sector = nullptr;
     while( true )
     {
-        sector = room->getSectorByClampedIndex((position.X - room->position.X) / SectorSize, (position.Z - room->position.Z) / SectorSize);
+        sector = room->getSectorByClampedIndex(gsl::narrow<int>(position.X - room->position.X) / SectorSize, gsl::narrow<int>(position.Z - room->position.Z) / SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )

@@ -56,7 +56,7 @@ struct LaraState
         if( targetSector == currentSector )
             return 0;
 
-        const auto targetInSector = std::fmod(target, loader::SectorSize);
+        const auto targetInSector = gsl::narrow_cast<float>(std::fmod(target, loader::SectorSize));
         if(current <= target)
             return -targetInSector;
         else
