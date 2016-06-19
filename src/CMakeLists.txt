@@ -82,6 +82,10 @@ set(OT_IRR_SRCS
     core/magic.h
     core/angle.h
     core/interpolatedvalue.h
+
+    render/portaltracer.h
+    util/helpers.h
+    util/vmath.h
 )
 
 add_executable(ot_irr
