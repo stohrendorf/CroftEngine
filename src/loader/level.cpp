@@ -1076,7 +1076,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
     const Sector* sector = nullptr;
     while( true )
     {
-        sector = room->getSectorByClampedIndex(gsl::narrow<int>(position.X - room->position.X) / SectorSize, gsl::narrow<int>(position.Z - room->position.Z) / SectorSize);
+        sector = room->getSectorByClampedIndex(gsl::narrow_cast<int>(position.X - room->position.X) / SectorSize, gsl::narrow_cast<int>(position.Z - room->position.Z) / SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
