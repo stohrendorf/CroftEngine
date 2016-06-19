@@ -641,7 +641,7 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             if( item.objectId == 0 )
             {
                 animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
-                lara.controller = new LaraController(this, animationController, node, name + ":statehandler");
+                lara.controller = new LaraController(this, animationController, node, name + ":statehandler", &room);
                 node->addAnimator(lara.controller);
                 lara.controller->drop();
                 node->addShadowVolumeSceneNode();
@@ -977,11 +977,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
 
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
-#ifndef NDEBUG
-    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver());
-#else
-    m_cameraController = new CameraController(cursorCtrl, this, lara.stateHandler);
-#endif
+    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver(), lara.room);
     lara.controller->setCurrentRoom(lara.room);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);

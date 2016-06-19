@@ -6,6 +6,7 @@
 #include "util/vmath.h"
 #include "inputstate.h"
 #include "abstractstatehandler.h"
+#include "itemcontroller.h"
 
 #include <irrlicht.h>
 
@@ -18,17 +19,11 @@ enum class UnderwaterState
     Swimming
 };
 
-class LaraController final : public irr::scene::ISceneNodeAnimator
+class LaraController final : public ItemController
 {
     using LaraStateId = loader::LaraStateId;
 
 private:
-    gsl::not_null<const loader::Level*> const m_level;
-    std::shared_ptr<loader::AnimationController> m_dispatcher;
-    const std::string m_name;
-
-    gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> const m_sceneNode;
-
     // Lara's vars
     core::InterpolatedValue<float> m_health{ 1000.0f };
     //! @brief Additional rotation in AU per TR Engine Frame
@@ -60,29 +55,15 @@ private:
         return m_currentFrameTime - m_lastFrameTime;
     }
 
-    // needed for YPR rotation, because the scene node uses XYZ rotation
-    irr::core::vector3d<core::Angle> m_rotation;
-
-    loader::ExactTRCoordinates m_position;
-
-    const loader::Room* m_currentRoom;
+    gsl::not_null<const loader::Room*> m_currentRoom;
 
 public:
-    LaraController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> lara, const std::string& name)
-        : m_level(level), m_dispatcher(dispatcher), m_name(name), m_sceneNode(lara)
+    LaraController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::ISceneNode*> lara, const std::string& name, gsl::not_null<const loader::Room*> room)
+        : ItemController(level, dispatcher, lara, name)
+        , m_currentRoom(room)
     {
-        Expects(dispatcher != nullptr);
         playAnimation(loader::AnimationId::STAY_IDLE);
-
-        auto laraRot = lara->getRotation();
-        m_rotation.X = core::degToAngle(laraRot.X);
-        m_rotation.Y = core::degToAngle(laraRot.Y);
-        m_rotation.Z = core::degToAngle(laraRot.Z);
-
-        setMovementAngle(m_rotation.Y);
-
-        m_sceneNode->updateAbsolutePosition();
-        m_position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
+        setMovementAngle(getRotation().Y);
     }
 
     ~LaraController();
@@ -112,23 +93,6 @@ public:
     {
         m_inputState = state;
     }
-
-    irr::scene::IAnimatedMeshSceneNode* getSceneNode() const noexcept
-    {
-        return m_sceneNode;
-    }
-
-    const loader::ExactTRCoordinates& getPosition() const noexcept
-    {
-        return m_position;
-    }
-
-    const loader::Room* getCurrentRoom() const noexcept
-    {
-        return m_currentRoom;
-    }
-
-    void setCurrentRoom(const loader::Room* newRoom);
 
 private:
     void handleLaraStateOnLand(bool newFrame);
@@ -199,14 +163,6 @@ public:
         m_handStatus = status;
     }
 
-    irr::u32 getCurrentFrame() const;
-    irr::u32 getAnimEndFrame() const;
-
-    const irr::core::vector3d<core::Angle>& getRotation() const noexcept
-    {
-        return m_rotation;
-    }
-
     void setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
     {
         m_horizontalSpeed = speed;
@@ -217,40 +173,7 @@ public:
         return m_horizontalSpeed;
     }
 
-    const loader::Level& getLevel() const
-    {
-        return *m_level;
-    }
-
     void placeOnFloor(const LaraState& state);
-
-    void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
-    {
-        m_rotation.X += dx;
-        m_rotation.Y += dy;
-        m_rotation.Z += dz;
-    }
-
-    void move(float dx, float dy, float dz)
-    {
-        m_position.X += dx;
-        m_position.Y += dy;
-        m_position.Z += dz;
-    }
-
-    void moveLocal(float dx, float dy, float dz)
-    {
-        const auto sin = getRotation().Y.sin();
-        const auto cos = getRotation().Y.cos();
-        m_position.X += dz * sin + dx * cos;
-        m_position.Y += dy;
-        m_position.Z += dz * cos - dx * sin;
-    }
-
-    void setPosition(const loader::ExactTRCoordinates& pos)
-    {
-        m_position = pos;
-    }
 
     int getFloorHeight() const noexcept
     {
@@ -282,36 +205,6 @@ public:
         m_yRotationSpeed.add(val, getCurrentDeltaTime()).limitMax(limit);
     }
 
-    void setXRotation(core::Angle x)
-    {
-        m_rotation.X = x;
-    }
-
-    void addXRotation(core::Angle x)
-    {
-        m_rotation.X += x;
-    }
-
-    void setYRotation(core::Angle y)
-    {
-        m_rotation.Y = y;
-    }
-
-    void addYRotation(core::Angle v)
-    {
-        m_rotation.Y += v;
-    }
-
-    void setZRotation(core::Angle z)
-    {
-        m_rotation.Z = z;
-    }
-
-    void addZRotation(core::Angle z)
-    {
-        m_rotation.Z += z;
-    }
-
     void setFallSpeedOverride(int v)
     {
         m_fallSpeedOverride = v;
@@ -337,11 +230,8 @@ public:
     loader::LaraStateId getCurrentState() const;
     loader::LaraStateId getCurrentAnimState() const;
     void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
-    void applyRotation();
     void updateFloorHeight(int dy);
     void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
-
-    irr::core::aabbox3di getBoundingBox() const;
 
     boost::optional<int> getWaterSurfaceHeight() const;
 

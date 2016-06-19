@@ -4,6 +4,8 @@
 #include "inputstate.h"
 #include "core/angle.h"
 
+class ItemController;
+
 class CameraController final : public irr::scene::ISceneNodeAnimator
 {
 private:
@@ -30,17 +32,35 @@ private:
     LaraController* m_laraController;
     
     // TR state
-    int m_lookAtYOffset = 1024;
+    ItemController* m_lookAtItem = nullptr;
+    ItemController* m_lookAtItem2 = nullptr;
+    ItemController* m_enemy = nullptr;
+    irr::core::vector3d<core::Angle> m_enemyLookRot;
+    int m_unknown1 = 0;
+    int m_camShakeRadius = 0;
+    int m_lookAtY;
     int m_distanceFromLookAt = 1536;
     int m_smoothFactor = 8;
+    int m_camOverrideId = -1;
+    int m_activeCamOverrideId = -1;
+    int m_camOverrideTimeout = -1;
+    int m_camOverrideType = 0;
     loader::ExactTRCoordinates m_currentLookAt;
     irr::core::vector3d<core::Angle> m_localRotation;
     loader::ExactTRCoordinates m_currentPosition;
+    bool m_lookingAtSomething = false;
+    gsl::not_null<const loader::Room*> m_lookAtRoom;
+    gsl::not_null<const loader::Room*> m_currentRoom;
+    int m_horizontalDistSq;
     
+    // hacks
+    irr::core::vector3d<core::Angle> m_headRotation;
+    irr::core::vector3d<core::Angle> m_freeLookRotation;
+
     irr::video::IVideoDriver* m_driver;
 
 public:
-    explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv);
+    explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, gsl::not_null<const loader::Room*> currentRoom);
 
     //! Animates a scene node.
     /** \param node Node to animate.
@@ -87,4 +107,13 @@ private:
     ClampType clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     bool clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     void applyPosition(gsl::not_null<irr::scene::ICameraSceneNode*>camera, uint32_t localTime);
+
+    void update(int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    void handleCamOverride(int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    int moveIntoGeometry(loader::ExactTRCoordinates& pos, gsl::not_null<const loader::Room*>& room, int margin) const;
+    bool isOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
+    void updatePosition(const loader::ExactTRCoordinates& pos, const gsl::not_null<const loader::Room*>& room, int smoothFactor, int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    void doUsualMovement(const gsl::not_null<ItemController*>& item, int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    void handleFreeLook(const ItemController& item, int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    void handleEnemy(const ItemController& item, int deltaTimeMs, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
 };

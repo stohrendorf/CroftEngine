@@ -9,31 +9,17 @@
 
 void LaraController::setTargetState(LaraStateId st)
 {
-    m_dispatcher->setTargetState(static_cast<uint16_t>(st));
+    ItemController::setTargetState(static_cast<uint16_t>(st));
 }
 
 loader::LaraStateId LaraController::getTargetState() const
 {
-    return static_cast<LaraStateId>(m_dispatcher->getTargetState());
+    return static_cast<LaraStateId>(ItemController::getTargetState());
 }
 
 void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
 {
-    m_dispatcher->playLocalAnimation(static_cast<uint16_t>(anim), firstFrame);
-}
-
-void LaraController::applyRotation()
-{
-    //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-    irr::core::quaternion q;
-    q.makeIdentity();
-    q *= irr::core::quaternion().fromAngleAxis(getRotation().Y.toRad(), {0,1,0});
-    q *= irr::core::quaternion().fromAngleAxis(getRotation().X.toRad(), {-1,0,0});
-    q *= irr::core::quaternion().fromAngleAxis(getRotation().Z.toRad(), {0,0,-1});
-
-    irr::core::vector3df euler;
-    q.toEuler(euler);
-    m_sceneNode->setRotation(euler * 180 / irr::core::PI);
+    ItemController::playAnimation(static_cast<uint16_t>(anim), firstFrame);
 }
 
 void LaraController::handleLaraStateOnLand(bool newFrame)
@@ -61,15 +47,15 @@ void LaraController::handleLaraStateOnLand(bool newFrame)
     // "slowly" revert rotations to zero
     if( getRotation().Z < 0_deg )
     {
-        m_rotation.Z += core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime());
+        addZRotation(core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime()));
         if( getRotation().Z >= 0_deg )
-            m_rotation.Z = 0_deg;
+            setZRotation(0_deg);
     }
     else if( getRotation().Z > 0_deg )
     {
-        m_rotation.Z -= core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime());
+        addZRotation(-core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime()));
         if( getRotation().Z <= 0_deg )
-            m_rotation.Z = 0_deg;
+            setZRotation(0_deg);
     }
 
     if( getYRotationSpeed() < 0_deg )
@@ -85,7 +71,7 @@ void LaraController::handleLaraStateOnLand(bool newFrame)
         setYRotationSpeed(0_deg);
     }
 
-    m_rotation.Y += m_yRotationSpeed.getScaled(getCurrentDeltaTime());
+    addYRotation(m_yRotationSpeed.getScaled(getCurrentDeltaTime()));
 
     applyRotation();
 
@@ -140,28 +126,31 @@ void LaraController::handleLaraStateDiving(bool newFrame)
     }
 
     // "slowly" revert rotations to zero
-    if(m_rotation.Z < 0_deg)
+    if(getRotation().Z < 0_deg)
     {
-        m_rotation.Z += core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime());
-        if(m_rotation.Z >= 0_deg)
-            m_rotation.Z = 0_deg;
+        addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+        if(getRotation().Z >= 0_deg)
+            setZRotation(0_deg);
     }
-    else if(m_rotation.Z > 0_deg)
+    else if(getRotation().Z > 0_deg)
     {
-        m_rotation.Z -= core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime());
-        if(m_rotation.Z <= 0_deg)
-            m_rotation.Z = 0_deg;
+        addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+        if(getRotation().Z <= 0_deg)
+            setZRotation(0_deg);
     }
-    m_rotation.X = irr::core::clamp(m_rotation.X, -100_deg, +100_deg);
-    m_rotation.Z = irr::core::clamp(m_rotation.Z, -22_deg, +22_deg);
-
-    m_position.X += m_rotation.Y.sin() * m_rotation.X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
-    m_position.Y -=                      m_rotation.X.sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
-    m_position.Z += m_rotation.Y.cos() * m_rotation.X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+    setXRotation(irr::core::clamp(getRotation().X, -100_deg, +100_deg));
+    setZRotation(irr::core::clamp(getRotation().Z, -22_deg, +22_deg));
+    {
+        auto pos = getPosition();
+        pos.X += getRotation().Y.sin() * getRotation().X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+        pos.Y -=                         getRotation().X.sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+        pos.Z += getRotation().Y.cos() * getRotation().X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+        setPosition(pos);
+    }
 
     applyRotation();
-    m_sceneNode->setPosition(m_position.toIrrlicht());
-    m_sceneNode->updateAbsolutePosition();
+    getSceneNode()->setPosition(getPosition().toIrrlicht());
+    getSceneNode()->updateAbsolutePosition();
 
     auto animCommandOverride = processAnimCommands();
     if(animCommandOverride)
@@ -214,25 +203,28 @@ void LaraController::handleLaraStateSwimming(bool newFrame)
     }
 
     // "slowly" revert rotations to zero
-    if(m_rotation.Z < 0_deg)
+    if(getRotation().Z < 0_deg)
     {
-        m_rotation.Z += core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime());
-        if(m_rotation.Z >= 0_deg)
-            m_rotation.Z = 0_deg;
+        addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+        if(getRotation().Z >= 0_deg)
+            setZRotation(0_deg);
     }
-    else if(m_rotation.Z > 0_deg)
+    else if(getRotation().Z > 0_deg)
     {
-        m_rotation.Z -= core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime());
-        if(m_rotation.Z <= 0_deg)
-            m_rotation.Z = 0_deg;
+        addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+        if(getRotation().Z <= 0_deg)
+            setZRotation(0_deg);
     }
 
-    m_position.X += getMovementAngle().sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
-    m_position.Z += getMovementAngle().cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+    setPosition(getPosition() + loader::ExactTRCoordinates(
+        getMovementAngle().sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4,
+        0,
+        getMovementAngle().cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4
+    ));
 
     applyRotation();
-    m_sceneNode->setPosition(m_position.toIrrlicht());
-    m_sceneNode->updateAbsolutePosition();
+    getSceneNode()->setPosition(getPosition().toIrrlicht());
+    getSceneNode()->updateAbsolutePosition();
 
     auto animCommandOverride = processAnimCommands();
     if(animCommandOverride)
@@ -257,19 +249,11 @@ void LaraController::handleLaraStateSwimming(bool newFrame)
     handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
 }
 
-irr::u32 LaraController::getCurrentFrame() const
-{
-    return m_dispatcher->getCurrentFrame();
-}
-
-irr::u32 LaraController::getAnimEndFrame() const
-{
-    return m_dispatcher->getAnimEndFrame();
-}
-
 void LaraController::placeOnFloor(const LaraState& state)
 {
-    m_position.Y += state.current.floor.distance;
+    auto pos = getPosition();
+    pos.Y += state.current.floor.distance;
+    setPosition(pos);
 }
 
 loader::LaraStateId LaraController::getCurrentState() const
@@ -279,14 +263,14 @@ loader::LaraStateId LaraController::getCurrentState() const
 
 loader::LaraStateId LaraController::getCurrentAnimState() const
 {
-    return static_cast<loader::LaraStateId>(m_dispatcher->getCurrentAnimState());
+    return static_cast<loader::LaraStateId>(ItemController::getCurrentAnimState());
 }
 
 LaraController::~LaraController() = default;
 
 void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 {
-    BOOST_ASSERT(m_sceneNode == node);
+    BOOST_ASSERT(getSceneNode() == node);
 
     if( m_lastFrameTime < 0 )
         m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
@@ -310,7 +294,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
     m_uvAnimTime += getCurrentDeltaTime();
     if(m_uvAnimTime >= UVAnimTime)
     {
-        m_level->m_textureAnimator->updateCoordinates(m_level->m_textureProxies);
+        getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
         m_uvAnimTime -= UVAnimTime;
     }
 
@@ -324,12 +308,12 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         m_air = 1800;
         m_underwaterState = UnderwaterState::Diving;
         m_falling = false;
-        m_position.Y += 100;
+        setPosition(getPosition() + loader::ExactTRCoordinates(0, 100, 0));
         updateFloorHeight(0);
         //! @todo stop sound 30
         if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
         {
-            m_rotation.X = -45_deg;
+            setXRotation(-45_deg);
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
@@ -337,7 +321,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         }
         else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
         {
-            m_rotation.X = -85_deg;
+            setXRotation(-85_deg);
             setTargetState(LaraStateId::UnderwaterDiving);
             if(auto tmp = processAnimCommands())
                 m_currentStateHandler = std::move(tmp);
@@ -345,7 +329,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         }
         else
         {
-            m_rotation.X = -45_deg;
+            setXRotation(-45_deg);
             playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
             setTargetState(LaraStateId::UnderwaterForward);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
@@ -359,7 +343,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
     else if(m_underwaterState == UnderwaterState::Diving && !m_currentRoom->isWaterRoom())
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
-        if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - m_position.Y) >= 256)
+        if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= 256)
         {
             m_underwaterState = UnderwaterState::OnLand;
             playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
@@ -370,7 +354,8 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             m_horizontalSpeed = m_horizontalSpeed * 0.2f;
             m_falling = true;
             m_handStatus = 0;
-            m_rotation.X = m_rotation.Z = 0_deg;
+            setXRotation(0_deg);
+            setZRotation(0_deg);
         }
         else
         {
@@ -379,8 +364,13 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             setTargetState(LaraStateId::OnWaterStop);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
             m_handStatus = 0;
-            m_rotation.X = m_rotation.Z = 0_deg;
-            m_position.Y = *waterSurfaceHeight + 1;
+            setXRotation(0_deg);
+            setZRotation(0_deg);
+            {
+                auto pos = getPosition();
+                pos.Y = *waterSurfaceHeight + 1;
+                setPosition(pos);
+            }
             m_swimToDiveKeypressDuration = 11 * 1000 / 30;
             updateFloorHeight(-381);
             //! @todo play sound 36
@@ -397,7 +387,8 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         m_horizontalSpeed = m_horizontalSpeed * 0.2f;
         m_falling = true;
         m_handStatus = 0;
-        m_rotation.X = m_rotation.Z = 0_deg;
+        setXRotation(0_deg);
+        setZRotation(0_deg);
     }
 
     if(m_underwaterState == UnderwaterState::OnLand)
@@ -434,7 +425,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
 {
     std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
     bool newFrame = false;
-    if( m_dispatcher->handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
+    if( handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
     {
         nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
         m_lastAnimFrame = getCurrentFrame();
@@ -443,7 +434,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
 
     const bool isAnimEnd = getCurrentFrame() >= getAnimEndFrame();
 
-    const loader::Animation& animation = getLevel().m_animations[m_dispatcher->getCurrentAnimationId()];
+    const loader::Animation& animation = getLevel().m_animations[getCurrentAnimationId()];
     if( animation.animCommandCount > 0 )
     {
         BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -494,7 +485,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
                 {
                     BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                     if( cmd[1] == 0 && newFrame )
-                        m_rotation.Y += 180_deg;
+                        addYRotation(180_deg);
                     else if( cmd[1] == 12 )
                         setHandStatus(0);
                     //! @todo Execute anim effect cmd[1]
@@ -509,7 +500,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
 
     if( m_falling )
     {
-        m_horizontalSpeed.add(m_dispatcher->getAccelleration(), getCurrentDeltaTime());
+        m_horizontalSpeed.add(getAnimAccelleration(), getCurrentDeltaTime());
         if( getFallSpeed() >= 128 )
             m_fallSpeed.add(1, getCurrentDeltaTime());
         else
@@ -517,7 +508,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
     }
     else
     {
-        m_horizontalSpeed = m_dispatcher->calculateFloorSpeed();
+        m_horizontalSpeed = calculateAnimFloorSpeed();
     }
 
     move(
@@ -526,8 +517,8 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
         getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
     );
 
-    m_sceneNode->setPosition(m_position.toIrrlicht());
-    m_sceneNode->updateAbsolutePosition();
+    getSceneNode()->setPosition(getPosition().toIrrlicht());
+    getSceneNode()->updateAbsolutePosition();
 
     return nextHandler;
 }
@@ -677,14 +668,9 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
     //! @todo Implement the rest
 }
 
-irr::core::aabbox3di LaraController::getBoundingBox() const
-{
-    return m_dispatcher->getBoundingBox();
-}
-
 boost::optional<int> LaraController::getWaterSurfaceHeight() const
 {
-    auto sector = m_currentRoom->getSectorByAbsolutePosition(m_position.toInexact());
+    auto sector = m_currentRoom->getSectorByAbsolutePosition(getPosition().toInexact());
 
     if(m_currentRoom->isWaterRoom())
     {
@@ -693,12 +679,12 @@ boost::optional<int> LaraController::getWaterSurfaceHeight() const
             if(sector->roomAbove == 0xff)
                 break;
 
-            BOOST_ASSERT(sector->roomAbove < m_level->m_rooms.size());
-            const auto& room = m_level->m_rooms[sector->roomAbove];
+            BOOST_ASSERT(sector->roomAbove < getLevel().m_rooms.size());
+            const auto& room = getLevel().m_rooms[sector->roomAbove];
             if(!room.isWaterRoom())
                 break;
 
-            sector = room.getSectorByAbsolutePosition(m_position.toInexact());
+            sector = room.getSectorByAbsolutePosition(getPosition().toInexact());
         }
 
         return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -709,14 +695,14 @@ boost::optional<int> LaraController::getWaterSurfaceHeight() const
         if(sector->roomBelow == 0xff)
             break;
 
-        BOOST_ASSERT(sector->roomBelow < m_level->m_rooms.size());
-        const auto& room = m_level->m_rooms[sector->roomBelow];
+        BOOST_ASSERT(sector->roomBelow < getLevel().m_rooms.size());
+        const auto& room = getLevel().m_rooms[sector->roomBelow];
         if(room.isWaterRoom())
         {
             return sector->floorHeight * loader::QuarterSectorSize;
         }
 
-        sector = room.getSectorByAbsolutePosition(m_position.toInexact());
+        sector = room.getSectorByAbsolutePosition(getPosition().toInexact());
     }
 
     return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -724,45 +710,15 @@ boost::optional<int> LaraController::getWaterSurfaceHeight() const
 
 void LaraController::setCameraRotation(core::Angle x, core::Angle y)
 {
-    m_level->m_cameraController->setLocalRotation(x, y);
+    getLevel().m_cameraController->setLocalRotation(x, y);
 }
 
 void LaraController::setCameraRotationY(core::Angle y)
 {
-    m_level->m_cameraController->setLocalRotationY(y);
+    getLevel().m_cameraController->setLocalRotationY(y);
 }
 
 void LaraController::setCameraRotationX(core::Angle x)
 {
-    m_level->m_cameraController->setLocalRotationX(x);
-}
-
-void LaraController::setCurrentRoom(const loader::Room* newRoom)
-{
-    if(newRoom == m_currentRoom)
-        return;
-
-    BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
-    if(newRoom == nullptr)
-    {
-        BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
-        for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
-        {
-            const loader::Room& room = m_level->m_rooms[i];
-            if(room.node->getTransformedBoundingBox().isPointInside(m_sceneNode->getAbsolutePosition()))
-            {
-                BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
-            }
-        }
-        return;
-    }
-
-    m_currentRoom = newRoom;
-    for(irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i)
-    {
-        irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
-        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->darkness / 8191.0f / 4);
-        material.EmissiveColor = col;
-        material.AmbientColor = col;
-    }
+    getLevel().m_cameraController->setLocalRotationX(x);
 }

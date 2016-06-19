@@ -362,6 +362,12 @@ struct ExactTRCoordinates
     {
         return{long(std::floor(X)), long(std::floor(Y)), long(std::floor(Z))};
     }
+
+    float distanceTo(const ExactTRCoordinates& b) const
+    {
+        auto d = *this - b;
+        return std::sqrt(d.X * d.X + d.Y * d.Y + d.Z * d.Z);
+    }
 };
 
 struct Triangle
@@ -2829,7 +2835,7 @@ struct Camera
     int32_t x;
     int32_t y;
     int32_t z;
-    int16_t room;
+    uint16_t room;
     uint16_t unknown1;    // correlates to Boxes[]? Zones[]?
 
     static std::unique_ptr<Camera> read(io::SDLReader& reader)
@@ -2839,7 +2845,7 @@ struct Camera
         camera->y = reader.readI32();
         camera->z = reader.readI32();
 
-        camera->room = reader.readI16();
+        camera->room = reader.readU16();
         camera->unknown1 = reader.readU16();
         return camera;
     }

@@ -68,6 +68,8 @@ set(OT_IRR_SRCS
     loader/animationcontroller.cpp
     loader/laracontroller.h
     loader/laracontroller.cpp
+    loader/itemcontroller.h
+    loader/itemcontroller.cpp
     loader/larastateid.h
     loader/textureanimator.h
 

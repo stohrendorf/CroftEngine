@@ -39,6 +39,11 @@ namespace core
 
         constexpr Angle(const Angle&) = default;
 
+        static Angle fromRad(float r)
+        {
+            return Angle{ gsl::narrow_cast<int32_t>(r / 2 / irr::core::PI * 65536 * Scale), RawTag() };
+        }
+
         constexpr float toDegrees() const noexcept
         {
             return m_value * 360.0f / Scale / 65536;
@@ -89,6 +94,12 @@ namespace core
         Angle operator*(float v) const
         {
             return Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
+        }
+
+        Angle& operator*=(float v)
+        {
+            m_value *= v;
+            return *this;
         }
 
         Angle operator-() const
