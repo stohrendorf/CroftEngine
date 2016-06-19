@@ -221,11 +221,15 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     const loader::Room* startRoom = m_laraController->getCurrentRoom();
     {
         std::queue<const loader::Room*> toVisit;
+        std::set<const loader::Room*> visited;
         toVisit.push(m_laraController->getCurrentRoom());
         while(!toVisit.empty())
         {
             auto currentRoom = toVisit.front();
             toVisit.pop();
+            if(!visited.insert(currentRoom).second)
+                continue;
+
             if(currentRoom->node->getTransformedBoundingBox().isPointInside(camera->getAbsolutePosition()))
             {
                 startRoom = currentRoom;
@@ -499,6 +503,6 @@ void CameraController::applyPosition(irr::scene::ICameraSceneNode* camera, uint3
 
     camera->setPosition(pos.toIrrlicht());
     camera->updateAbsolutePosition();
-    camera->setTarget(targetLookAt.toIrrlicht());
+    camera->setTarget(m_currentLookAt.toIrrlicht());
     camera->updateAbsolutePosition();
 }

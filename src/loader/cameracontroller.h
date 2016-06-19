@@ -29,7 +29,7 @@ private:
     
     int m_lookAtYOffset = 1024;
     int m_distanceFromLookAt = 1536;
-    int m_smoothFactor = 6; // 12
+    int m_smoothFactor = 8;
     loader::ExactTRCoordinates m_currentLookAt;
     irr::core::vector3d<core::Angle> m_localRotation;
     loader::ExactTRCoordinates m_currentPosition;

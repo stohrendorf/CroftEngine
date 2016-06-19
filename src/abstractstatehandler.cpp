@@ -1246,7 +1246,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)).limitMax(200.0f));
+        setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)).limitMax(200.0f));
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -1284,7 +1284,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6).getScaled(deltaTimeMs)));
+        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -2055,7 +2055,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4).getScaled(deltaTimeMs)));
+        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4.0f).getScaled(deltaTimeMs)));
 
         if(getInputState().xMovement == AxisMovement::Left)
             m_yRotationSpeed = -4_deg;
@@ -2108,7 +2108,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
         if(getInputState().xMovement == AxisMovement::Left)
             m_yRotationSpeed = -4_deg;
@@ -2180,7 +2180,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
     }
 
     loader::LaraStateId getId() const noexcept override
@@ -2283,7 +2283,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
         if(getInputState().xMovement == AxisMovement::Left)
             m_yRotationSpeed = -2_deg;
@@ -2331,7 +2331,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
         if(getInputState().xMovement == AxisMovement::Left)
             m_yRotationSpeed = -2_deg;
@@ -2379,7 +2379,7 @@ public:
 
     void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
     {
-        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8).getScaled(deltaTimeMs)));
+        setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
         if(getInputState().xMovement == AxisMovement::Left)
             m_yRotationSpeed = -2_deg;
