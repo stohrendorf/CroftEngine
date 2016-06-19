@@ -17,7 +17,7 @@ private:
     const std::string m_name;
     irr::scene::IAnimatedMeshSceneNode* const m_node;
 
-    AnimationController(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name);
+    AnimationController(gsl::not_null<const Level*> level, const AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name);
 public:
 
     static std::shared_ptr<AnimationController> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
@@ -101,10 +101,10 @@ class AnimationEndControllerHelper final : public irr::scene::IAnimationEndCallB
     std::shared_ptr<AnimationController> m_animationController;
 
 public:
-    explicit AnimationEndControllerHelper(std::shared_ptr<AnimationController> animationController)
+    explicit AnimationEndControllerHelper(const std::shared_ptr<AnimationController>& animationController)
         : m_animationController(animationController)
     {
-        BOOST_ASSERT(animationController != nullptr);
+        Expects(animationController != nullptr);
     }
 
     void OnAnimationEnd(irr::scene::IAnimatedMeshSceneNode* /*node*/) override
@@ -124,10 +124,10 @@ class IntermediateTransitionControllerHelper final : public irr::scene::ISceneNo
     irr::u32 m_lastCheckedFrame = std::numeric_limits<irr::u32>::max();
 
 public:
-    explicit IntermediateTransitionControllerHelper(std::shared_ptr<AnimationController> animationController)
+    explicit IntermediateTransitionControllerHelper(const std::shared_ptr<AnimationController>& animationController)
         : m_animationController(animationController)
     {
-        BOOST_ASSERT(animationController != nullptr);
+        Expects(animationController != nullptr);
     }
 
     void animateNode(irr::scene::ISceneNode* node, irr::u32 /*timeMs*/) override

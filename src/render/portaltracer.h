@@ -9,11 +9,7 @@ struct PortalTracer
     irr::core::rectf boundingBox{ -1, -1, 1, 1 };
     const loader::Portal* lastPortal = nullptr;
 
-    bool checkVisibility(const loader::Portal* portal, const irr::scene::ICameraSceneNode& camera
-#ifndef NDEBUG
-                         , irr::video::IVideoDriver* drv
-#endif
-    )
+    bool checkVisibility(const loader::Portal* portal, const irr::scene::ICameraSceneNode& camera, irr::video::IVideoDriver* drv)
     {
         if(portal->normal.toIrrlicht().dotProduct(portal->vertices[0].toIrrlicht() - camera.getAbsolutePosition()) >= 0)
         {
@@ -37,10 +33,8 @@ struct PortalTracer
         boundingBox.clipAgainst(portalBB);
         lastPortal = portal;
 
-#ifndef NDEBUG
         drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
         drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
-#endif
 
         return boundingBox.getArea()*drv->getScreenSize().getArea() >= 1;
     }
@@ -52,7 +46,7 @@ struct PortalTracer
 
     const loader::Portal* getLastPortal() const
     {
-        BOOST_ASSERT(lastPortal != nullptr);
+        Expects(lastPortal != nullptr);
         return lastPortal;
     }
 
@@ -74,7 +68,6 @@ private:
         return res;
     }
 
-#ifndef NDEBUG
     void drawBB(irr::video::IVideoDriver* drv, const irr::core::rectf& bb, const irr::video::SColor& col)
     {
         const auto w = drv->getScreenSize().Width;
@@ -98,6 +91,5 @@ private:
         const auto b_ = irr::core::dimension2di(w*(b.X + 1) / 2, h - h*(b.Y + 1) / 2);
         drv->draw2DLine(a_, b_, col);
     }
-#endif
 };
 }

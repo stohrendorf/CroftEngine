@@ -3147,8 +3147,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    auto sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
-    BOOST_ASSERT(sector != nullptr);
+    gsl::not_null<const loader::Sector*> sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
 
     HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
 

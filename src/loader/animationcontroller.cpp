@@ -7,12 +7,9 @@
 namespace loader
 {
 
-AnimationController::AnimationController(const Level* level, const AnimatedModel& model, irr::scene::IAnimatedMeshSceneNode* node, const std::string& name)
+AnimationController::AnimationController(gsl::not_null<const Level*> level, const AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name)
     : m_level(level), m_model(model), m_currentAnimationId(model.animationIndex), m_name(name), m_node(node)
 {
-    BOOST_ASSERT(level != nullptr);
-    BOOST_ASSERT(node != nullptr);
-    
     auto it = model.frameMapping.find(m_currentAnimationId);
     if(it == model.frameMapping.end())
     {

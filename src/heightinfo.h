@@ -19,9 +19,9 @@ struct HeightInfo
 
     static bool skipSteepSlants;
 
-    static HeightInfo fromFloor(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
+    static HeightInfo fromFloor(gsl::not_null<const loader::Sector*>roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
 
-    static HeightInfo fromCeiling(const loader::Sector* roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
+    static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*>roomSector, const loader::TRCoordinates& pos, const CameraController* camera);
 
     HeightInfo() = default;
 };

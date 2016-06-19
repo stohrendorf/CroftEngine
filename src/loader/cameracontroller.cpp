@@ -7,15 +7,9 @@
 #include <queue>
 #include <set>
 
-#ifndef NDEBUG
-CameraController::CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraController* laraController, irr::video::IVideoDriver* drv)
+CameraController::CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv)
     : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_laraController(laraController), m_driver(drv)
-#else
-TRCameraSceneNodeAnimator::TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraStateHandler* laraController)
-    : ISceneNodeAnimator(), m_cursorControl(cursorControl), m_level(level), m_laraController(laraController)
-#endif
 {
-    BOOST_ASSERT(cursorControl != nullptr);
     m_currentLookAt = loader::ExactTRCoordinates(m_level->m_lara->getSceneNode()->getAbsolutePosition());
     m_currentLookAt.Y -= m_lookAtYOffset;
     m_currentPosition = m_currentLookAt;
@@ -192,7 +186,7 @@ void CameraController::setLocalRotationY(core::Angle y)
     m_localRotation.Y = y;
 }
 
-void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
+void CameraController::tracePortals(gsl::not_null<irr::scene::ICameraSceneNode*> camera)
 {
     // Breadth-first queue
     std::queue<render::PortalTracer> toVisit;
@@ -249,13 +243,8 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     for(const loader::Portal& portal : startRoom->portals)
     {
         render::PortalTracer path;
-#ifndef NDEBUG
         if(!path.checkVisibility(&portal, *camera, m_driver))
             continue;
-#else
-        if(!path.checkVisibility(&portal, *camera))
-            continue;
-#endif
         
         m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
         
@@ -279,13 +268,8 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
         for(const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals)
         {
             render::PortalTracer newPath = currentPath;
-#ifndef NDEBUG
             if(!newPath.checkVisibility(&srcPortal, *camera, m_driver))
                 continue;
-#else
-            if(!newPath.checkVisibility(&srcPortal, *camera))
-                continue;
-#endif
             
             m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
             toVisit.emplace(std::move(newPath));
@@ -293,10 +277,8 @@ void CameraController::tracePortals(irr::scene::ICameraSceneNode* camera)
     }
 }
 
-bool CameraController::clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, const loader::Sector* sector) const
+bool CameraController::clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const
 {
-    BOOST_ASSERT(sector != nullptr);
-
     const auto d = origin - lookAt;
     const HeightInfo floor = HeightInfo::fromFloor(sector, origin.toInexact(), this);
     if(floor.distance < origin.Y && floor.distance > lookAt.Y)
@@ -399,7 +381,7 @@ CameraController::ClampType CameraController::clampZ(const loader::ExactTRCoordi
     step.X = gradientXZ * step.Z;
     step.Y = gradientYZ * step.Z;
 
-    auto room = m_laraController->getCurrentRoom();
+    gsl::not_null<const loader::Room*> room = m_laraController->getCurrentRoom();
     while(true)
     {
         if(sign > 0 && testPos.Z >= origin.Z)
@@ -453,7 +435,7 @@ bool CameraController::clamp(const loader::ExactTRCoordinates& lookAt, loader::E
     return clampY(lookAt, origin, sector) && firstUnclamped && secondClamp == ClampType::None;
 }
 
-void CameraController::applyPosition(irr::scene::ICameraSceneNode* camera, uint32_t localTime)
+void CameraController::applyPosition(gsl::not_null<irr::scene::ICameraSceneNode*> camera, uint32_t localTime)
 {
     const irr::core::vector3d<core::Angle> totalRotation = m_localRotation + m_laraController->getRotation();
 

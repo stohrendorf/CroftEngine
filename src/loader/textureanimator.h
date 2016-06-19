@@ -49,9 +49,8 @@ class TextureAnimator
             proxyIds.emplace_back(first);
         }
 
-        void registerVertex(irr::scene::IMeshBuffer* buffer, VertexReference vertex, uint16_t proxyId)
+        void registerVertex(gsl::not_null<irr::scene::IMeshBuffer*> buffer, VertexReference vertex, uint16_t proxyId)
         {
-            Expects(buffer != nullptr);
             auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
             Expects(it != proxyIds.end());
             vertex.queueOffset = std::distance(proxyIds.begin(), it);
@@ -128,12 +127,11 @@ public:
         }
     }
 
-    void registerVertex(uint16_t proxyId, irr::scene::IMeshBuffer* buffer, int sourceIndex, irr::u16 bufferIndex)
+    void registerVertex(uint16_t proxyId, gsl::not_null<irr::scene::IMeshBuffer*> buffer, int sourceIndex, irr::u16 bufferIndex)
     {
         if(m_sequenceByProxyId.find(proxyId) == m_sequenceByProxyId.end())
             return;
 
-        Expects(buffer != nullptr)
         const size_t sequenceId = m_sequenceByProxyId[proxyId];
         Expects(sequenceId < m_sequences.size());
         m_sequences[sequenceId].registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);

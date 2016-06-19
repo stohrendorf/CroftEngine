@@ -47,14 +47,13 @@ namespace
     {
     private:
         loader::Level& m_level;
-        irr::scene::ISceneManager* m_manager;
+        gsl::not_null<irr::scene::ISceneManager*> m_manager;
 
     public:
-        explicit LightSelector(loader::Level& level, irr::scene::ISceneManager* mgr)
+        explicit LightSelector(loader::Level& level, gsl::not_null<irr::scene::ISceneManager*> mgr)
             : m_level(level)
-              , m_manager(mgr)
+            , m_manager(mgr)
         {
-            BOOST_ASSERT(mgr != nullptr);
         }
 
         void OnPreRender(irr::core::array<irr::scene::ISceneNode*>& lightList) override
@@ -79,7 +78,7 @@ namespace
                     brightestLight = &light;
                 }
             }
-            BOOST_ASSERT(brightestLight != nullptr);
+            Expects(brightestLight != nullptr);
             brightestLight->node->setVisible(true);
             m_manager->setShadowColor(irr::video::SColor(150 * maxBrightness / 4096, 0, 0, 0));
         }
@@ -681,9 +680,8 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
     return lara;
 }
 
-void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData, irr::core::aabbox3di& bbox)
+void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
 {
-    BOOST_ASSERT(pData != nullptr);
     uint16_t angleSetOfs = 0x0a;
 
     for( size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++ )
@@ -721,13 +719,13 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const Animate
         rKey->rotation = util::trRotationToQuat(rot);
     }
 
-    pData += animation.poseDataSize;
+    pData = pData.get() + animation.poseDataSize;
 }
 
 AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
 {
     const auto meshPositionIndex = animation.poseDataOffset / 2;
-    const int16_t* pData = &m_poseData[meshPositionIndex];
+    gsl::not_null<const int16_t*> pData = &m_poseData[meshPositionIndex];
     const int16_t* lastPData = nullptr;
 
     irr::core::aabbox3di bbox;
@@ -788,7 +786,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
 
     for( const std::unique_ptr<AnimatedModel>& model : m_animatedModels )
     {
-        BOOST_ASSERT(model != nullptr);
+        Expects(model != nullptr);
         irr::scene::ISkinnedMesh* skinnedMesh = mgr->createSkinnedMesh();
         skinnedMeshes.emplace_back(skinnedMesh);
 
@@ -812,8 +810,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             // clone static mesh buffers to skinned mesh buffers
             for( irr::u32 meshBufIdx = 0; meshBufIdx < staticMesh->MeshBuffers.size(); ++meshBufIdx )
             {
-                irr::scene::SSkinMeshBuffer* skinMeshBuffer = skinnedMesh->addMeshBuffer();
-                BOOST_ASSERT(skinMeshBuffer != nullptr);
+                gsl::not_null<irr::scene::SSkinMeshBuffer*> skinMeshBuffer = skinnedMesh->addMeshBuffer();
                 Expects(staticMesh->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
                 Expects(staticMesh->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
                 for( irr::u32 i = 0; i < staticMesh->MeshBuffers[meshBufIdx]->getIndexCount(); ++i )
@@ -1032,16 +1029,13 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-const Sector* Level::findSectorForPosition(const TRCoordinates& position, const Room** room) const
+const Sector* Level::findSectorForPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
 {
-    BOOST_ASSERT(room != nullptr);
-    BOOST_ASSERT(*room != nullptr);
-
     const Sector* sector = nullptr;
     while( true )
     {
         sector = (*room)->getSectorByClampedIndex((position.X - (*room)->position.X) / SectorSize, (position.Z - (*room)->position.Z) / SectorSize);
-        BOOST_ASSERT(sector != nullptr);
+        Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
         {
@@ -1052,7 +1046,7 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
         *room = &m_rooms[*portalTarget];
     }
 
-    BOOST_ASSERT(sector != nullptr);
+    Expects(sector != nullptr);
     if( sector->floorHeight * QuarterSectorSize > position.Y )
     {
         while( sector->ceilingHeight * QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
@@ -1060,7 +1054,7 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             *room = &m_rooms[sector->roomAbove];
             sector = (*room)->getSectorByAbsolutePosition(position);
-            BOOST_ASSERT(sector != nullptr);
+            Expects(sector != nullptr);
         }
     }
     else
@@ -1070,22 +1064,20 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, const 
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             *room = &m_rooms[sector->roomBelow];
             sector = (*room)->getSectorByAbsolutePosition(position);
-            BOOST_ASSERT(sector != nullptr);
+            Expects(sector != nullptr);
         }
     }
 
     return sector;
 }
 
-const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, const Room* room) const
+const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
 {
-    BOOST_ASSERT(room != nullptr);
-
     const Sector* sector = nullptr;
     while( true )
     {
         sector = room->getSectorByClampedIndex((position.X - room->position.X) / SectorSize, (position.Z - room->position.Z) / SectorSize);
-        BOOST_ASSERT(sector != nullptr);
+        Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
         {
@@ -1096,7 +1088,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, const
         room = &m_rooms[*portalTarget];
     }
 
-    BOOST_ASSERT(sector != nullptr);
+    Expects(sector != nullptr);
     if( sector->floorHeight * QuarterSectorSize > position.Y )
     {
         while( sector->ceilingHeight * QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
@@ -1104,7 +1096,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, const
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
             sector = room->getSectorByAbsolutePosition(position.toInexact());
-            BOOST_ASSERT(sector != nullptr);
+            Expects(sector != nullptr);
         }
     }
     else
@@ -1114,7 +1106,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, const
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
             sector = room->getSectorByAbsolutePosition(position.toInexact());
-            BOOST_ASSERT(sector != nullptr);
+            Expects(sector != nullptr);
         }
     }
 

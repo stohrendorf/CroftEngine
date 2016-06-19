@@ -11,10 +11,9 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
     collisionFeedback = {0,0,0};
     orientationAxis = *util::axisFromAngle(yAngle, 45_deg);
 
-    const loader::Room* room = level.m_lara->getCurrentRoom();
+    gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
     const auto reachablePos = laraPos - loader::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
-    auto currentSector = level.findSectorForPosition(reachablePos.toInexact(), &room);
-    BOOST_ASSERT(currentSector != nullptr);
+    gsl::not_null<const loader::Sector*> currentSector = level.findSectorForPosition(reachablePos.toInexact(), &room);
 
     current.init(currentSector, laraPos.toInexact(), level.m_cameraController, height);
 
@@ -224,8 +223,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
     {
         for(const loader::RoomStaticMesh& rsm : room->staticMeshes)
         {
-            const loader::StaticMesh* sm = level.findStaticMeshById(rsm.object_id);
-            BOOST_ASSERT(sm != nullptr);
+            gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById(rsm.object_id);
             if(sm->doNotCollide())
                 continue;
 

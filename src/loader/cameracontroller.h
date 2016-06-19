@@ -34,16 +34,10 @@ private:
     irr::core::vector3d<core::Angle> m_localRotation;
     loader::ExactTRCoordinates m_currentPosition;
     
-#ifndef NDEBUG
     irr::video::IVideoDriver* m_driver;
-#endif
 
 public:
-#ifndef NDEBUG
-    explicit CameraController(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraController* laraController, irr::video::IVideoDriver* drv);
-#else
-    explicit TRCameraSceneNodeAnimator(irr::gui::ICursorControl* cursorControl, const loader::Level* level, LaraStateHandler* laraController);
-#endif
+    explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv);
 
     //! Animates a scene node.
     /** \param node Node to animate.
@@ -76,8 +70,8 @@ public:
     void setLocalRotationY(core::Angle y);
 
 private:
-    void tracePortals(irr::scene::ICameraSceneNode* camera);
-    bool clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, const loader::Sector* sector) const;
+    void tracePortals(gsl::not_null<irr::scene::ICameraSceneNode*>camera);
+    bool clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*>sector) const;
 
     enum class ClampType
     {
@@ -89,5 +83,5 @@ private:
     ClampType clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     ClampType clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
     bool clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
-    void applyPosition(irr::scene::ICameraSceneNode* camera, uint32_t localTime);
+    void applyPosition(gsl::not_null<irr::scene::ICameraSceneNode*>camera, uint32_t localTime);
 };

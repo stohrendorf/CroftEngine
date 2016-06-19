@@ -536,7 +536,7 @@ void LaraController::updateFloorHeight(int dy)
 {
     auto pos = getPosition();
     pos.Y += dy;
-    auto room = m_currentRoom;
+    gsl::not_null<const loader::Room*> room = m_currentRoom;
     auto sector = getLevel().findSectorForPosition(pos.toInexact(), &room);
     setCurrentRoom(room);
     HeightInfo hi = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);

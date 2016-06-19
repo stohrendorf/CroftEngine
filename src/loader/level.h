@@ -133,23 +133,21 @@ public:
         }
     }
     
-    const Sector* findSectorForPosition(const TRCoordinates& position, const Room* room) const
+    const Sector* findSectorForPosition(const TRCoordinates& position, gsl::not_null<const Room*> room) const
     {
         return findSectorForPosition(position, &room);
     }
 
-    const Sector* findSectorForPosition(const TRCoordinates& position, const Room** room) const;
+    const Sector* findSectorForPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
 
-    const Room* findRoomForPosition(const ExactTRCoordinates& position, const Room* room) const;
+    const Room* findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
 
-    std::tuple<int8_t,int8_t> getFloorSlantInfo(const Sector* sector, const TRCoordinates& position) const
+    std::tuple<int8_t,int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const TRCoordinates& position) const
     {
-        BOOST_ASSERT(sector != nullptr);
         while(sector->roomBelow != 0xff)
         {
             auto room = &m_rooms[sector->roomBelow];
             sector = room->getSectorByAbsolutePosition(position);
-            BOOST_ASSERT(sector != nullptr);
         }
 
         if(position.Y + QuarterSectorSize * 2 < sector->floorHeight*QuarterSectorSize)
@@ -176,7 +174,7 @@ protected:
     static void convertTexture(ByteTexture & tex, Palette & pal, DWordTexture & dst);
     static void convertTexture(WordTexture & tex, DWordTexture & dst);
 
-    void loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, const int16_t*& pData, irr::core::aabbox3di& bbox);
+    void loadAnimFrame(irr::u32 frameIdx, irr::f32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox);
 
 private:
     static Game probeVersion(io::SDLReader& reader, const std::string &filename);

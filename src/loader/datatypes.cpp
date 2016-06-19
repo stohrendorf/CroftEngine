@@ -165,8 +165,7 @@ irr::scene::SMesh* Mesh::createMesh(irr::scene::ISceneManager* mgr,
         outputName = "object_";
         outputName += boost::lexical_cast<std::string>(dumpIdx).c_str();
         outputName += ".dae";
-        irr::io::IWriteFile* file = mgr->getFileSystem()->createAndWriteFile(outputName);
-        BOOST_ASSERT(file != nullptr);
+        gsl::not_null<irr::io::IWriteFile*> file = mgr->getFileSystem()->createAndWriteFile(outputName);
 
         meshWriter->writeMesh( file, result );
         file->drop();
@@ -347,8 +346,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         outputName = "room_";
         outputName += boost::lexical_cast<std::string>(dumpIdx).c_str();
         outputName += ".dae";
-        irr::io::IWriteFile* file = mgr->getFileSystem()->createAndWriteFile(outputName);
-        BOOST_ASSERT(file != nullptr);
+        gsl::not_null<irr::io::IWriteFile*> file = mgr->getFileSystem()->createAndWriteFile(outputName);
 
         meshWriter->writeMesh( file, result );
         file->drop();
@@ -389,7 +387,7 @@ AbstractTriggerHandler::AbstractTriggerHandler(const Item& item, const std::shar
     , m_event{item.getEventBit()}
     , m_dispatcher{dispatcher}
 {
-    BOOST_ASSERT(dispatcher != nullptr);
+    Expects(dispatcher != nullptr);
 }
 
 void AbstractTriggerHandler::prepare()

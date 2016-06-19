@@ -23,11 +23,11 @@ class LaraController final : public irr::scene::ISceneNodeAnimator
     using LaraStateId = loader::LaraStateId;
 
 private:
-    const loader::Level* const m_level;
+    gsl::not_null<const loader::Level*> const m_level;
     std::shared_ptr<loader::AnimationController> m_dispatcher;
     const std::string m_name;
 
-    irr::scene::IAnimatedMeshSceneNode* const m_sceneNode;
+    gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> const m_sceneNode;
 
     // Lara's vars
     core::InterpolatedValue<float> m_health{ 1000.0f };
@@ -68,12 +68,10 @@ private:
     const loader::Room* m_currentRoom;
 
 public:
-    LaraController(const loader::Level* level, const std::shared_ptr<loader::AnimationController>& dispatcher, irr::scene::IAnimatedMeshSceneNode* lara, const std::string& name)
+    LaraController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> lara, const std::string& name)
         : m_level(level), m_dispatcher(dispatcher), m_name(name), m_sceneNode(lara)
     {
-        BOOST_ASSERT(level != nullptr);
-        BOOST_ASSERT(dispatcher != nullptr);
-        BOOST_ASSERT(lara != nullptr);
+        Expects(dispatcher != nullptr);
         playAnimation(loader::AnimationId::STAY_IDLE);
 
         auto laraRot = lara->getRotation();
@@ -221,7 +219,6 @@ public:
 
     const loader::Level& getLevel() const
     {
-        BOOST_ASSERT(m_level != nullptr);
         return *m_level;
     }
 
