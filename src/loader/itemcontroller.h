@@ -27,9 +27,9 @@ public:
         Expects(dispatcher != nullptr);
 
         auto laraRot = sceneNode->getRotation();
-        m_rotation.X = core::degToAngle(laraRot.X);
-        m_rotation.Y = core::degToAngle(laraRot.Y);
-        m_rotation.Z = core::degToAngle(laraRot.Z);
+        m_rotation.X = core::Angle::fromDegrees(laraRot.X);
+        m_rotation.Y = core::Angle::fromDegrees(laraRot.Y);
+        m_rotation.Z = core::Angle::fromDegrees(laraRot.Z);
 
         m_sceneNode->updateAbsolutePosition();
         m_position.position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());

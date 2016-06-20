@@ -475,23 +475,23 @@ irr::core::aabbox3di StaticMesh::getCollisionBox(const TRCoordinates & pos, core
     );
     result.repair();
 
-    const auto axis = util::axisFromAngle(angle, 45_deg);
+    const auto axis = core::axisFromAngle(angle, 45_deg);
     switch(*axis)
     {
-        case util::Axis::PosZ:
+        case core::Axis::PosZ:
             std::swap(result.MinEdge.X, result.MinEdge.Z);
             result.MinEdge.X *= -1;
             std::swap(result.MaxEdge.X, result.MaxEdge.Z);
             result.MaxEdge.X *= -1;
             break;
-        case util::Axis::PosX:
+        case core::Axis::PosX:
             // nothing to do
             break;
-        case util::Axis::NegZ:
+        case core::Axis::NegZ:
             result.MinEdge.X *= -1;
             result.MaxEdge.X *= -1;
             break;
-        case util::Axis::NegX:
+        case core::Axis::NegX:
             std::swap(result.MinEdge.X, result.MinEdge.Z);
             result.MinEdge.Z *= -1;
             std::swap(result.MaxEdge.X, result.MaxEdge.Z);

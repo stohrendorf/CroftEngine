@@ -3,7 +3,9 @@
 #include "game.h"
 #include "io/sdlreader.h"
 #include "util/helpers.h"
+#include "core/angle.h"
 
+#include <irrlicht.h>
 #include <gsl.h>
 
 #include <array>
@@ -14,6 +16,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/optional.hpp>
 
 /**
  * @defgroup native Native data interface

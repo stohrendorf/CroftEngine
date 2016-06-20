@@ -258,7 +258,7 @@ public:
             if(state.front.floor.slantClass == SlantClass::None && state.front.floor.distance < -core::ClimbLimit2ClickMax)
             {
                 nextHandler = createWithRetainedAnimation(LaraStateId::Unknown12);
-                if(getCurrentFrame() >= 0 && getCurrentFrame() <= 9)
+                if(getCurrentFrame() <= 9)
                 {
                     playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800);
                     return nextHandler;
@@ -1976,7 +1976,7 @@ private:
         if(state.front.floor.distance + 700 > 100)
             return nullptr;
 
-        const auto yRot = util::alignRotation(getRotation().Y, 35_deg);
+        const auto yRot = core::alignRotation(getRotation().Y, 35_deg);
         if(!yRot)
             return nullptr;
 
@@ -2884,18 +2884,18 @@ loader::LaraStateId AbstractStateHandler::getTargetState() const
     return m_controller.getTargetState();
 }
 
-bool AbstractStateHandler::canClimbOnto(util::Axis axis) const
+bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
 {
     auto pos = getPosition();
     switch(axis)
     {
-        case util::Axis::PosZ: pos.Z += 256;
+        case core::Axis::PosZ: pos.Z += 256;
             break;
-        case util::Axis::PosX: pos.X += 256;
+        case core::Axis::PosX: pos.X += 256;
             break;
-        case util::Axis::NegZ: pos.Z -= 256;
+        case core::Axis::NegZ: pos.Z -= 256;
             break;
-        case util::Axis::NegX: pos.X -= 256;
+        case core::Axis::NegX: pos.X -= 256;
             break;
     }
 
@@ -2926,11 +2926,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& 
     if(spaceToReach > 0 && getFallSpeed() + spaceToReach > 0)
         return nullptr;
 
-    auto alignedRotation = util::alignRotation(getRotation().Y, 35_deg);
+    auto alignedRotation = core::alignRotation(getRotation().Y, 35_deg);
     if(!alignedRotation)
         return nullptr;
 
-    if(canClimbOnto(*util::axisFromAngle(getRotation().Y, 35_deg)))
+    if(canClimbOnto(*core::axisFromAngle(getRotation().Y, 35_deg)))
         playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
     else
         playAnimation(loader::AnimationId::HANG_IDLE, 1493);
@@ -2970,7 +2970,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& 
         return nullptr;
 
     //! @todo MAGICK +/- 30 degrees
-    auto alignedRotation = util::alignRotation(getRotation().Y, 30_deg);
+    auto alignedRotation = core::alignRotation(getRotation().Y, 30_deg);
     if(!alignedRotation)
         return nullptr;
 
@@ -3120,7 +3120,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraStat
     if(spaceToReach > 0 && getFallSpeed() + spaceToReach > 0)
         return nullptr;
 
-    auto alignedRotation = util::alignRotation(getRotation().Y, 35_deg);
+    auto alignedRotation = core::alignRotation(getRotation().Y, 35_deg);
     if(!alignedRotation)
         return nullptr;
 
@@ -3234,19 +3234,19 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
     setFallSpeed(core::makeInterpolatedValue(0.0f));
     setFalling(false);
     setMovementAngle(getRotation().Y);
-    const auto axis = *util::axisFromAngle(getMovementAngle(), 45_deg);
+    const auto axis = *core::axisFromAngle(getMovementAngle(), 45_deg);
     switch(axis)
     {
-        case util::Axis::PosZ:
+        case core::Axis::PosZ:
             setPosition(getPosition() + loader::ExactTRCoordinates(0, 0, 2));
             break;
-        case util::Axis::PosX:
+        case core::Axis::PosX:
             setPosition(getPosition() + loader::ExactTRCoordinates(2, 0, 0));
             break;
-        case util::Axis::NegZ:
+        case core::Axis::NegZ:
             setPosition(getPosition() - loader::ExactTRCoordinates(0, 0, 2));
             break;
-        case util::Axis::NegX:
+        case core::Axis::NegX:
             setPosition(getPosition() - loader::ExactTRCoordinates(2, 0, 0));
             break;
     }
@@ -3286,12 +3286,12 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
 
     switch(axis)
     {
-        case util::Axis::PosZ:
-        case util::Axis::NegZ:
+        case core::Axis::PosZ:
+        case core::Axis::NegZ:
             setPosition(getPosition() + loader::ExactTRCoordinates(0, 0, state.collisionFeedback.Z));
             break;
-        case util::Axis::PosX:
-        case util::Axis::NegX:
+        case core::Axis::PosX:
+        case core::Axis::NegX:
             setPosition(getPosition() + loader::ExactTRCoordinates(state.collisionFeedback.X, 0, 0));
             break;
     }

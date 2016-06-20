@@ -9,7 +9,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 {
     axisCollisions = AxisColl_None;
     collisionFeedback = {0,0,0};
-    orientationAxis = *util::axisFromAngle(yAngle, 45_deg);
+    orientationAxis = *core::axisFromAngle(yAngle, 45_deg);
 
     gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
     const auto reachablePos = laraPos - loader::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
@@ -25,7 +25,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     switch( orientationAxis )
     {
-    case util::Axis::PosZ:
+    case core::Axis::PosZ:
         frontX = yAngle.sin() * collisionRadius;
         frontZ = collisionRadius;
         frontLeftZ = collisionRadius;
@@ -33,7 +33,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         frontRightX = collisionRadius;
         frontRightZ = collisionRadius;
         break;
-    case util::Axis::PosX:
+    case core::Axis::PosX:
         frontX = collisionRadius;
         frontZ = yAngle.cos() * collisionRadius;
         frontLeftX = collisionRadius;
@@ -41,7 +41,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         frontRightX = collisionRadius;
         frontRightZ = -collisionRadius;
         break;
-    case util::Axis::NegZ:
+    case core::Axis::NegZ:
         frontX = yAngle.sin() * collisionRadius;
         frontZ = -collisionRadius;
         frontLeftX = collisionRadius;
@@ -49,7 +49,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         frontRightX = -collisionRadius;
         frontRightZ = -collisionRadius;
         break;
-    case util::Axis::NegX:
+    case core::Axis::NegX:
         frontX = -collisionRadius;
         frontZ = yAngle.cos() * collisionRadius;
         frontLeftX = -collisionRadius;
@@ -139,13 +139,13 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         axisCollisions = AxisColl_FrontBlocked;
         switch( orientationAxis )
         {
-        case util::Axis::PosZ:
-        case util::Axis::NegZ:
+        case core::Axis::PosZ:
+        case core::Axis::NegZ:
             collisionFeedback.X = position.X - laraPos.X;
             collisionFeedback.Z = reflectAtSectorBoundary(frontZ + laraPos.Z, laraPos.Z);
             break;
-        case util::Axis::PosX:
-        case util::Axis::NegX:
+        case core::Axis::PosX:
+        case core::Axis::NegX:
             collisionFeedback.X = reflectAtSectorBoundary(frontX + laraPos.X, laraPos.X);
             collisionFeedback.Z = position.Z - laraPos.Z;
             break;
@@ -165,12 +165,12 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         axisCollisions = AxisColl_FrontLeftBlocked;
         switch( orientationAxis )
         {
-        case util::Axis::PosZ:
-        case util::Axis::NegZ:
+        case core::Axis::PosZ:
+        case core::Axis::NegZ:
             collisionFeedback.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X);
             break;
-        case util::Axis::PosX:
-        case util::Axis::NegX:
+        case core::Axis::PosX:
+        case core::Axis::NegX:
             collisionFeedback.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
@@ -182,12 +182,12 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         axisCollisions = AxisColl_FrontRightBlocked;
         switch( orientationAxis )
         {
-        case util::Axis::PosZ:
-        case util::Axis::NegZ:
+        case core::Axis::PosZ:
+        case core::Axis::NegZ:
             collisionFeedback.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X);
             break;
-        case util::Axis::PosX:
-        case util::Axis::NegX:
+        case core::Axis::PosX:
+        case core::Axis::NegX:
             collisionFeedback.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
             break;
         }
@@ -242,7 +242,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
 
             switch(orientationAxis)
             {
-                case util::Axis::PosX:
+                case core::Axis::PosX:
                     if(dz > collisionRadius || -collisionRadius > dz)
                     {
                         collisionFeedback.X = dx;
@@ -269,7 +269,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
                     axisCollisions = AxisColl_FrontLeftBlocked;
                     hasStaticMeshCollision = true;
                     return true;
-                case util::Axis::PosZ:
+                case core::Axis::PosZ:
                     if(dx > collisionRadius || -collisionRadius > dx)
                     {
                         collisionFeedback.X = this->position.X - position.X;
@@ -296,7 +296,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
                     axisCollisions = AxisColl_FrontRightBlocked;
                     hasStaticMeshCollision = true;
                     return true;
-                case util::Axis::NegX:
+                case core::Axis::NegX:
                     if(dz > collisionRadius || -collisionRadius > dz)
                     {
                         collisionFeedback.X = dx;
@@ -323,7 +323,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
                     axisCollisions = AxisColl_FrontRightBlocked;
                     hasStaticMeshCollision = true;
                     return true;
-                case util::Axis::NegZ:
+                case core::Axis::NegZ:
                     if(dx > collisionRadius || -collisionRadius > dx)
                     {
                         collisionFeedback.X = this->position.X - position.X;

@@ -30,7 +30,7 @@ struct LaraState
 
     int axisCollisions;
     loader::ExactTRCoordinates collisionFeedback;
-    util::Axis orientationAxis;
+    core::Axis orientationAxis;
     core::Angle yAngle; // external
     int collisionRadius; // external
     int frobbelFlags; // external

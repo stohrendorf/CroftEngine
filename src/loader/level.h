@@ -158,7 +158,7 @@ public:
             return {0,0};
 
         auto fd = m_floorData[sector->floorDataIndex + 1];
-        return { static_cast<int8_t>(fd & 0xff), static_cast<int8_t>(fd >> 8) };
+        return { gsl::narrow_cast<int8_t>(fd & 0xff), gsl::narrow_cast<int8_t>(fd >> 8) };
     }
 
     LaraController* m_lara = nullptr;

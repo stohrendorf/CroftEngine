@@ -1,5 +1,7 @@
 #pragma once
 
+#include "loader/datatypes.h"
+
 namespace core
 {
 constexpr int SteppableHeight = loader::QuarterSectorSize / 2;

@@ -205,7 +205,7 @@ inline bool operator<=(const InterpolatedValue<T>& a, const U& b)
 template<typename T, typename U>
 inline bool operator>=(const InterpolatedValue<T>& a, const U& b)
 {
-    return a == b || a > b;
+    return !(a < b);
 }
 
 template<typename T>
