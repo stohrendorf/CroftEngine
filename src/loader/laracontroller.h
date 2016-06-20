@@ -55,12 +55,9 @@ private:
         return m_currentFrameTime - m_lastFrameTime;
     }
 
-    gsl::not_null<const loader::Room*> m_currentRoom;
-
 public:
     LaraController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::ISceneNode*> lara, const std::string& name, gsl::not_null<const loader::Room*> room)
-        : ItemController(level, dispatcher, lara, name)
-        , m_currentRoom(room)
+        : ItemController(level, dispatcher, lara, name, room)
     {
         playAnimation(loader::AnimationId::STAY_IDLE);
         setMovementAngle(getRotation().Y);

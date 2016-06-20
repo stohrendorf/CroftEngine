@@ -303,7 +303,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
     }
 
-    if(m_underwaterState == UnderwaterState::OnLand && m_currentRoom->isWaterRoom())
+    if(m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom())
     {
         m_air = 1800;
         m_underwaterState = UnderwaterState::Diving;
@@ -340,7 +340,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
 
         //! @todo Show water splash effect
     }
-    else if(m_underwaterState == UnderwaterState::Diving && !m_currentRoom->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Diving && !getCurrentRoom()->isWaterRoom())
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
         if(!waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= 256)
@@ -376,7 +376,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
             //! @todo play sound 36
         }
     }
-    else if(m_underwaterState == UnderwaterState::Swimming && !m_currentRoom->isWaterRoom())
+    else if(m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom())
     {
         m_underwaterState = UnderwaterState::OnLand;
         playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
@@ -527,7 +527,7 @@ void LaraController::updateFloorHeight(int dy)
 {
     auto pos = getPosition();
     pos.Y += dy;
-    gsl::not_null<const loader::Room*> room = m_currentRoom;
+    gsl::not_null<const loader::Room*> room = getCurrentRoom();
     auto sector = getLevel().findSectorForPosition(pos.toInexact(), &room);
     setCurrentRoom(room);
     HeightInfo hi = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
@@ -670,9 +670,9 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
 
 boost::optional<int> LaraController::getWaterSurfaceHeight() const
 {
-    auto sector = m_currentRoom->getSectorByAbsolutePosition(getPosition().toInexact());
+    auto sector = getCurrentRoom()->getSectorByAbsolutePosition(getPosition().toInexact());
 
-    if(m_currentRoom->isWaterRoom())
+    if(getCurrentRoom()->isWaterRoom())
     {
         while(true)
         {

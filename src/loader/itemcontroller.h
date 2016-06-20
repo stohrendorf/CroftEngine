@@ -4,12 +4,10 @@
 
 class ItemController : public irr::scene::ISceneNodeAnimator
 {
-    loader::ExactTRCoordinates m_position;
+    loader::RoomBoundPosition m_position;
 
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3d<core::Angle> m_rotation;
-
-    const loader::Room* m_currentRoom;
 
     gsl::not_null<const loader::Level*> const m_level;
 
@@ -19,12 +17,12 @@ class ItemController : public irr::scene::ISceneNodeAnimator
     const std::string m_name;
 
 public:
-    ItemController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::ISceneNode*> sceneNode, const std::string& name)
+    ItemController(const gsl::not_null<const loader::Level*>& level, const std::shared_ptr<loader::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room)
         : m_level(level)
         , m_dispatcher(dispatcher)
         , m_name(name)
         , m_sceneNode(sceneNode)
-        , m_currentRoom(nullptr)
+        , m_position(room)
     {
         Expects(dispatcher != nullptr);
 
@@ -34,14 +32,14 @@ public:
         m_rotation.Z = core::degToAngle(laraRot.Z);
 
         m_sceneNode->updateAbsolutePosition();
-        m_position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
+        m_position.position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
     }
 
     irr::core::aabbox3di getBoundingBox() const;
 
     const loader::ExactTRCoordinates& getPosition() const noexcept
     {
-        return m_position;
+        return m_position.position;
     }
 
     const irr::core::vector3d<core::Angle>& getRotation() const noexcept
@@ -49,9 +47,9 @@ public:
         return m_rotation;
     }
 
-    const loader::Room* getCurrentRoom() const noexcept
+    gsl::not_null<const loader::Room*> getCurrentRoom() const noexcept
     {
-        return m_currentRoom;
+        return m_position.room;
     }
 
     void setCurrentRoom(const loader::Room* newRoom);
@@ -72,23 +70,23 @@ public:
 
     void move(float dx, float dy, float dz)
     {
-        m_position.X += dx;
-        m_position.Y += dy;
-        m_position.Z += dz;
+        m_position.position.X += dx;
+        m_position.position.Y += dy;
+        m_position.position.Z += dz;
     }
 
     void moveLocal(float dx, float dy, float dz)
     {
         const auto sin = getRotation().Y.sin();
         const auto cos = getRotation().Y.cos();
-        m_position.X += dz * sin + dx * cos;
-        m_position.Y += dy;
-        m_position.Z += dz * cos - dx * sin;
+        m_position.position.X += dz * sin + dx * cos;
+        m_position.position.Y += dy;
+        m_position.position.Z += dz * cos - dx * sin;
     }
 
     void setPosition(const loader::ExactTRCoordinates& pos)
     {
-        m_position = pos;
+        m_position.position = pos;
     }
 
     void setXRotation(core::Angle x)

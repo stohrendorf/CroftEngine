@@ -977,7 +977,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
 
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
-    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver(), lara.room);
+    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver(), lara.room, camera);
     lara.controller->setCurrentRoom(lara.room);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);

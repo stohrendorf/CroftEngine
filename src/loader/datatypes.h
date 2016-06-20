@@ -370,6 +370,19 @@ struct ExactTRCoordinates
     }
 };
 
+struct Room;
+
+struct RoomBoundPosition
+{
+    gsl::not_null<const Room*> room;
+    ExactTRCoordinates position;
+
+    explicit RoomBoundPosition(const gsl::not_null<const Room*>& r)
+        : room(r)
+    {
+    }
+};
+
 struct Triangle
 {
     //! Vertex buffer indices

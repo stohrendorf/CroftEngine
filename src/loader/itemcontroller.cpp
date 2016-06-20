@@ -59,7 +59,7 @@ irr::core::aabbox3di ItemController::getBoundingBox() const
 
 void ItemController::setCurrentRoom(const loader::Room* newRoom)
 {
-    if(newRoom == m_currentRoom)
+    if(newRoom == m_position.room)
         return;
 
     BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
@@ -77,11 +77,11 @@ void ItemController::setCurrentRoom(const loader::Room* newRoom)
         return;
     }
 
-    m_currentRoom = newRoom;
+    m_position.room = newRoom;
     for(irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i)
     {
         irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
-        const auto col = m_currentRoom->lightColor.toSColor(m_currentRoom->darkness / 8191.0f / 4);
+        const auto col = m_position.room->lightColor.toSColor(m_position.room->darkness / 8191.0f / 4);
         material.EmissiveColor = col;
         material.AmbientColor = col;
     }
