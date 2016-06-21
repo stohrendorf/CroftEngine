@@ -354,7 +354,13 @@ struct ExactTRCoordinates
         return *this;
     }
 
-    ExactTRCoordinates& operator=(const ExactTRCoordinates&) = default;
+    ExactTRCoordinates& operator=(const ExactTRCoordinates& rhs)
+    {
+        X = rhs.X;
+        Y = rhs.Y;
+        Z = rhs.Z;
+        return *this;
+    }
 
     irr::core::vector3df toIrrlicht() const noexcept
     {
@@ -2633,11 +2639,11 @@ struct Box
     static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{ new Box() };
-        box->zmax = -reader.readI32();
-        box->zmin = -reader.readI32();
+        box->zmax = reader.readI32();
+        box->zmin = reader.readI32();
         box->xmin = reader.readI32();
         box->xmax = reader.readI32();
-        box->true_floor = -reader.readI16();
+        box->true_floor = reader.readI16();
         box->overlap_index = reader.readI16();
         return box;
     }
@@ -2645,11 +2651,11 @@ struct Box
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{ new Box() };
-        box->zmax = -1024 * reader.readU8();
-        box->zmin = -1024 * reader.readU8();
+        box->zmax = 1024 * reader.readU8();
+        box->zmin = 1024 * reader.readU8();
         box->xmin = 1024 * reader.readU8();
         box->xmax = 1024 * reader.readU8();
-        box->true_floor = -reader.readI16();
+        box->true_floor = reader.readI16();
         box->overlap_index = reader.readI16();
         return box;
     }

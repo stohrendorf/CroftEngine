@@ -39,7 +39,7 @@ private:
     irr::core::vector3d<core::Angle> m_enemyLookRot;
     int m_unknown1 = 0;
     int m_camShakeRadius = 0;
-    int m_lookAtY;
+    int m_lookAtY = 0;
     int m_distanceFromLookAt = 1536;
     int m_smoothFactor = 8;
     int m_camOverrideId = -1;
@@ -102,9 +102,9 @@ private:
         None
     };
 
-    ClampType clampX(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
-    ClampType clampZ(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
-    bool clamp(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
+    ClampType clampX(loader::RoomBoundPosition& origin) const;
+    ClampType clampZ(loader::RoomBoundPosition& origin) const;
+    bool clamp(loader::RoomBoundPosition& origin) const;
 
     void update(int deltaTimeMs);
     void handleCamOverride(int deltaTimeMs);

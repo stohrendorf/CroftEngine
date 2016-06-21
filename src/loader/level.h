@@ -131,6 +131,11 @@ public:
         return findSectorForPosition(position, &room);
     }
 
+    const Sector* findSectorForPosition(RoomBoundPosition& rbs) const
+    {
+        return findSectorForPosition(rbs.position.toInexact(), &rbs.room);
+    }
+
     const Sector* findSectorForPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
 
     const Room* findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
