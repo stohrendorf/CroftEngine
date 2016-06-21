@@ -2622,10 +2622,10 @@ struct TransitionCase
 
 struct Box
 {
-    uint32_t zmin;          // sectors (* 1024 units)
-    uint32_t zmax;
-    uint32_t xmin;
-    uint32_t xmax;
+    int32_t zmin;          // sectors (* 1024 units)
+    int32_t zmax;
+    int32_t xmin;
+    int32_t xmax;
     int16_t true_floor;     // Y value (no scaling)
     int16_t overlap_index;  // index into Overlaps[]. The high bit is sometimes set; this
     // occurs in front of swinging doors and the like.

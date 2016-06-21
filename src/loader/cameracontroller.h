@@ -117,7 +117,7 @@ private:
 
     using ClampCallback = void(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
 
-    void clampBox(loader::RoomBoundPosition& pos, const std::function<ClampCallback>& callback);
-    static void freeLookClamp(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
-    static void sub_22918(const int hDistSq, float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
+    void clampBox(loader::RoomBoundPosition& pos, const std::function<ClampCallback>& callback) const;
+    static void freeLookClamp(float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
+    static void clampToCorners(const float lookAtDistanceSq, float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
 };

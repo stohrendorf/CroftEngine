@@ -710,7 +710,7 @@ void CameraController::doUsualMovement(const gsl::not_null<ItemController*>& ite
     core::Angle y = m_localRotation.Y + item->getRotation().Y;
     targetPos.position.X = m_currentLookAt.position.X - dist*y.sin();
     targetPos.position.Z = m_currentLookAt.position.Z - dist*y.cos();
-    clampBox(targetPos, [this](float& a, float& b, float c, float d, float e, float f, float g, float h) { sub_22918(m_lookAtDistanceSq, a, b, c, d, e, f, g, h); });
+    clampBox(targetPos, [this](float& a, float& b, float c, float d, float e, float f, float g, float h) { clampToCorners(m_lookAtDistanceSq, a, b, c, d, e, f, g, h); });
 
     if(m_lookingAtSomething)
         updatePosition(targetPos, m_smoothFactor, deltaTimeMs);
@@ -776,229 +776,234 @@ void CameraController::handleEnemy(const ItemController& item, int deltaTimeMs)
     tmp.position.Y += m_distanceFromLookAt * m_localRotation.X.sin();
     tmp.room = m_currentPosition.room;
 
-    clampBox(tmp, [this](float& a, float& b, float c, float d, float e, float f, float g, float h) { sub_22918(m_lookAtDistanceSq, a, b, c, d, e, f, g, h); });
+    clampBox(tmp, [this](float& a, float& b, float c, float d, float e, float f, float g, float h) { clampToCorners(m_lookAtDistanceSq, a, b, c, d, e, f, g, h); });
     updatePosition(tmp, m_smoothFactor, deltaTimeMs);
 }
 
-void CameraController::clampBox(loader::RoomBoundPosition& targetPos, const std::function<ClampCallback>& callback)
+void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const std::function<ClampCallback>& callback) const
 {
-    clamp(m_currentLookAt, targetPos);
+    clamp(m_currentLookAt, camTargetPos);
     Expects(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex < m_level->m_boxes.size());
-    auto lookBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex];
-    if(targetPos.room->getSectorByAbsolutePosition(targetPos.position.toInexact())->boxIndex != 0xffff)
+    auto clampBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex];
+    if(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position.toInexact())->boxIndex != 0xffff)
     {
-        auto targetBox = &m_level->m_boxes[targetPos.room->getSectorByAbsolutePosition(targetPos.position.toInexact())->boxIndex];
-        if(   targetPos.position.X < lookBox->xmin || targetPos.position.X > lookBox->xmax
-           || targetPos.position.Z < lookBox->zmin || targetPos.position.Z > lookBox->zmax)
-            lookBox = targetBox;
+        if(   camTargetPos.position.X < clampBox->xmin || camTargetPos.position.X > clampBox->xmax
+           || camTargetPos.position.Z < clampBox->zmin || camTargetPos.position.Z > clampBox->zmax)
+            clampBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position.toInexact())->boxIndex];
     }
 
-    loader::TRCoordinates testPos = targetPos.position.toInexact();
+    loader::TRCoordinates testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
 
-    auto boxZMin = lookBox->zmin;
-    const bool negZoutside = isOutsideRoom(testPos, targetPos.room);
-    if(!negZoutside && targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    auto clampZMin = clampBox->zmin;
+    const bool negZoutside = isOutsideRoom(testPos, camTargetPos.room);
+    if(!negZoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
-        if(testBox->zmin < boxZMin)
-            boxZMin = testBox->zmin;
+        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        if(testBox->zmin < clampZMin)
+            clampZMin = testBox->zmin;
     }
-    boxZMin += loader::QuarterSectorSize;
+    clampZMin += loader::QuarterSectorSize;
 
-    testPos = targetPos.position.toInexact();
+    testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize + 1) * loader::SectorSize;
 
-    auto boxZMax = lookBox->zmax;
-    const bool posZoutside = isOutsideRoom(testPos, targetPos.room);
-    if(!posZoutside && targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    auto clampZMax = clampBox->zmax;
+    const bool posZoutside = isOutsideRoom(testPos, camTargetPos.room);
+    if(!posZoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
-        if(testBox->zmax < boxZMax)
-            boxZMax = testBox->zmax;
+        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        if(testBox->zmax < clampZMax)
+            clampZMax = testBox->zmax;
     }
-    boxZMax -= loader::QuarterSectorSize;
+    clampZMax -= loader::QuarterSectorSize;
 
-    testPos = targetPos.position.toInexact();
+    testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize) * loader::SectorSize - 1;
 
-    auto boxXMin = lookBox->xmin;
-    const bool negXoutside = isOutsideRoom(testPos, targetPos.room);
-    if(!negXoutside && targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    auto clampXMin = clampBox->xmin;
+    const bool negXoutside = isOutsideRoom(testPos, camTargetPos.room);
+    if(!negXoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
-        if(testBox->xmin < boxXMin)
-            boxXMin = testBox->xmin;
+        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        if(testBox->xmin < clampXMin)
+            clampXMin = testBox->xmin;
     }
-    boxXMin += loader::QuarterSectorSize;
+    clampXMin += loader::QuarterSectorSize;
 
-    testPos = targetPos.position.toInexact();
+    testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize + 1) * loader::SectorSize;
 
-    auto boxXMax = lookBox->xmax;
-    const bool posXoutside = isOutsideRoom(testPos, targetPos.room);
-    if(!posXoutside && targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    auto clampXMax = clampBox->xmax;
+    const bool posXoutside = isOutsideRoom(testPos, camTargetPos.room);
+    if(!posXoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[targetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
-        if(testBox->xmax < boxXMax)
-            boxXMax = testBox->xmax;
+        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        if(testBox->xmax < clampXMax)
+            clampXMax = testBox->xmax;
     }
-    boxXMax -= loader::QuarterSectorSize;
+    clampXMax -= loader::QuarterSectorSize;
 
     bool skipRoomPatch = true;
-    if(negZoutside && targetPos.position.Z < boxZMin)
+    if(negZoutside && camTargetPos.position.Z < clampZMin)
     {
         skipRoomPatch = false;
-        float cbXMin, cbXMax;
-        if(targetPos.position.X >= m_currentLookAt.position.X)
+        float clampLeft, clampRight;
+        if(camTargetPos.position.X >= m_currentLookAt.position.X)
         {
-            cbXMin = boxXMin;
-            cbXMax = boxXMax;
+            clampLeft = clampXMin;
+            clampRight = clampXMax;
         }
         else
         {
-            cbXMin = boxXMax;
-            cbXMax = boxXMin;
+            clampLeft = clampXMax;
+            clampRight = clampXMin;
         }
-        callback(targetPos.position.Z, targetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, boxZMin, cbXMax, boxZMax, cbXMin);
+        callback(camTargetPos.position.Z, camTargetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, clampZMin, clampRight, clampZMax, clampLeft);
     }
-    else if(posZoutside && targetPos.position.Z > boxZMax)
+    else if(posZoutside && camTargetPos.position.Z > clampZMax)
     {
         skipRoomPatch = false;
-        float cbXMin, cbXMax;
-        if(targetPos.position.X >= m_currentLookAt.position.X)
+        float clampLeft, clampRight;
+        if(camTargetPos.position.X >= m_currentLookAt.position.X)
         {
-            cbXMin = boxXMin;
-            cbXMax = boxXMax;
+            clampLeft = clampXMin;
+            clampRight = clampXMax;
         }
         else
         {
-            cbXMin = boxXMax;
-            cbXMax = boxXMin;
+            clampLeft = clampXMax;
+            clampRight = clampXMin;
         }
-        callback(targetPos.position.Z, targetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, boxZMax, cbXMax, boxZMin, cbXMin);
+        callback(camTargetPos.position.Z, camTargetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, clampZMax, clampRight, clampZMin, clampLeft);
     }
 
     if(!skipRoomPatch)
     {
-        m_level->findSectorForPosition(targetPos.position.toInexact(), &targetPos.room);
+        m_level->findSectorForPosition(camTargetPos.position.toInexact(), &camTargetPos.room);
         return;
     }
 
-    if(negXoutside && targetPos.position.X < boxXMin)
+    if(negXoutside && camTargetPos.position.X < clampXMin)
     {
         skipRoomPatch = false;
         float cbZMin, cbZMax;
-        if(targetPos.position.Z >= m_currentLookAt.position.Z)
+        if(camTargetPos.position.Z >= m_currentLookAt.position.Z)
         {
-            cbZMin = boxZMin;
-            cbZMax = boxZMax;
+            cbZMin = clampZMin;
+            cbZMax = clampZMax;
         }
         else
         {
-            cbZMin = boxZMax;
-            cbZMax = boxZMin;
+            cbZMin = clampZMax;
+            cbZMax = clampZMin;
         }
-        callback(targetPos.position.X, targetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, boxXMin, cbZMax, boxXMax, cbZMin);
+        callback(camTargetPos.position.X, camTargetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, clampXMin, cbZMax, clampXMax, cbZMin);
     }
-    else if(posXoutside && targetPos.position.X > boxXMax)
+    else if(posXoutside && camTargetPos.position.X > clampXMax)
     {
         skipRoomPatch = false;
         float cbZMin, cbZMax;
-        if(targetPos.position.Z >= m_currentLookAt.position.Z)
+        if(camTargetPos.position.Z >= m_currentLookAt.position.Z)
         {
-            cbZMin = boxZMin;
-            cbZMax = boxZMax;
+            cbZMin = clampZMin;
+            cbZMax = clampZMax;
         }
         else
         {
-            cbZMin = boxZMax;
-            cbZMax = boxZMin;
+            cbZMin = clampZMax;
+            cbZMax = clampZMin;
         }
-        callback(targetPos.position.X, targetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, boxXMax, cbZMax, boxXMin, cbZMin);
+        callback(camTargetPos.position.X, camTargetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, clampXMax, cbZMax, clampXMin, cbZMin);
     }
 
     if(!skipRoomPatch)
     {
-        m_level->findSectorForPosition(targetPos.position.toInexact(), &targetPos.room);
+        m_level->findSectorForPosition(camTargetPos.position.toInexact(), &camTargetPos.room);
         return;
     }
 }
 
-void CameraController::freeLookClamp(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2)
+void CameraController::freeLookClamp(float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left)
 {
-    if( (highLimit1 > lowLimit1) != (target1 < lowLimit1) )
+    if( (front > back) != (targetFrontBack < back) )
     {
-        current1 = lowLimit1;
-        current2 = target2 + (current2 - target2) * (lowLimit1 - target1) / (current1 - target1);
+        currentFrontBack = back;
+        currentLeftRight = targetLeftRight + (currentLeftRight - targetLeftRight) * (back - targetFrontBack) / (currentFrontBack - targetFrontBack);
     }
-    else if((lowLimit2 < highLimit2 && target2 > lowLimit2 && lowLimit2 > current2) || (lowLimit2 > highLimit2 && target2 < lowLimit2 && lowLimit2 < current2))
+    else if((right < left && targetLeftRight > right && right > currentLeftRight) || (right > left && targetLeftRight < right && right < currentLeftRight))
     {
-        current1 = target1 + (current1 - target1) * (lowLimit2 - target2) / (current2 - target2);
-        current2 = lowLimit2;
+        currentFrontBack = targetFrontBack + (currentFrontBack - targetFrontBack) * (right - targetLeftRight) / (currentLeftRight - targetLeftRight);
+        currentLeftRight = right;
     }
 }
 
-void CameraController::sub_22918(const int lookAtDistanceSq, float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2)
+void CameraController::clampToCorners(const float lookAtDistanceSq, float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left)
 {
-    const auto lowDistSq1 = (target1 - lowLimit1) * (target1 - lowLimit1);
-    const auto lowDistSq2 = (target2 - lowLimit2) * (target2 - lowLimit2);
-    const auto hiDistSq2 = (target2 - highLimit2) * (target2 - highLimit2);
-    const auto lowDistSqSum = lowDistSq1 + lowDistSq2;
-    const auto lowHighDistSq = lowDistSq1 + hiDistSq2;
-    if(lookAtDistanceSq < lowDistSqSum)
+    const auto rightDistSq = (targetLeftRight - right) * (targetLeftRight - right);
+    const auto backDistSq = (targetFrontBack - back) * (targetFrontBack - back);
+    
+    // back right
+    const auto backRightDistSq = backDistSq + rightDistSq;
+    if(backRightDistSq > lookAtDistanceSq)
     {
-        current1 = lowLimit1;
-        if(lookAtDistanceSq - lowDistSq1 >= 0)
+        currentFrontBack = back;
+        if(lookAtDistanceSq >= backDistSq)
         {
-            auto tmp = std::sqrt(lookAtDistanceSq - lowDistSq1);
-            if(lowLimit2 < highLimit2)
+            auto tmp = std::sqrt(lookAtDistanceSq - backDistSq);
+            if(left >= right)
                 tmp = -tmp;
-            current2 = tmp + target2;
+            currentLeftRight = tmp + targetLeftRight;
         }
         return;
     }
 
-    if(lowDistSqSum > loader::QuarterSectorSize*loader::QuarterSectorSize)
+    if(backRightDistSq > loader::QuarterSectorSize*loader::QuarterSectorSize)
     {
-        current1 = lowLimit1;
-        current2 = lowLimit2;
+        currentFrontBack = back;
+        currentLeftRight = right;
         return;
     }
 
-    if( lookAtDistanceSq >= lowHighDistSq )
+    // back left
+    const auto leftDistSq = (targetLeftRight - left) * (targetLeftRight - left);
+    const auto backLeftDistSq = backDistSq + leftDistSq;
+    if( lookAtDistanceSq < backLeftDistSq )
     {
-        if(lowHighDistSq > loader::QuarterSectorSize*loader::QuarterSectorSize)
+        currentFrontBack = back;
+        if(lookAtDistanceSq >= backDistSq)
         {
-            current1 = lowLimit1;
-            current2 = highLimit2;
-            return;
-        }
-        if(lookAtDistanceSq >= lowDistSq2 + (target1 - highLimit1)*(target1 - highLimit1))
-        {
-            current1 = highLimit1;
-            current2 = lowLimit2;
-            return;
-        }
-        if(lookAtDistanceSq - lowDistSq2 >= 0)
-        {
-            auto tmp = std::sqrt(lookAtDistanceSq - lowDistSq2);
-            if(lowLimit1 >= highLimit1)
+            auto tmp = std::sqrt(lookAtDistanceSq - backDistSq);
+            if(right >= left)
                 tmp = -tmp;
-            current1 = tmp + target1;
-            current2 = lowLimit2;
+            currentLeftRight = tmp + targetLeftRight;
+        }
+        return;
+    }
+
+    if(backLeftDistSq > loader::QuarterSectorSize*loader::QuarterSectorSize)
+    {
+        currentFrontBack = back;
+        currentLeftRight = left;
+        return;
+    }
+
+    // front right
+    const auto frontDistSq = (targetFrontBack - front) * (targetFrontBack - front);
+    const auto frontRightDistSq = frontDistSq + rightDistSq;
+    if(lookAtDistanceSq < frontRightDistSq)
+    {
+        currentLeftRight = right;
+        if(lookAtDistanceSq >= rightDistSq)
+        {
+            auto tmp = std::sqrt(lookAtDistanceSq - rightDistSq);
+            if(back >= front)
+                tmp = -tmp;
+            currentFrontBack = tmp + targetFrontBack;
             return;
         }
     }
-    else
-    {
-        current1 = lowLimit1;
-        if(lookAtDistanceSq - lowDistSq1 >= 0)
-        {
-            auto tmp = std::sqrt(lookAtDistanceSq - lowDistSq1);
-            if(lowLimit2 > highLimit2)
-                tmp = -tmp;
-            current2 = tmp + target2;
-        }
-    }
+
+    currentFrontBack = front;
+    currentLeftRight = right;
 }
