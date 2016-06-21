@@ -50,7 +50,7 @@ private:
     irr::core::vector3d<core::Angle> m_localRotation;
     loader::RoomBoundPosition m_currentPosition;
     bool m_lookingAtSomething = false;
-    int m_horizontalDistSq;
+    float m_lookAtDistanceSq = 0;
     
     // hacks
     irr::core::vector3d<core::Angle> m_headRotation;
@@ -114,4 +114,10 @@ private:
     void doUsualMovement(const gsl::not_null<ItemController*>& item, int deltaTimeMs);
     void handleFreeLook(const ItemController& item, int deltaTimeMs);
     void handleEnemy(const ItemController& item, int deltaTimeMs);
+
+    using ClampCallback = void(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
+
+    void clampBox(loader::RoomBoundPosition& pos, const std::function<ClampCallback>& callback);
+    static void freeLookClamp(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
+    static void sub_22918(const int hDistSq, float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
 };
