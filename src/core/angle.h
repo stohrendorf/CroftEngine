@@ -108,7 +108,7 @@ namespace core
 
         Angle& operator*=(float v)
         {
-            m_value *= v;
+            m_value = gsl::narrow_cast<int32_t>(v);
             return *this;
         }
 

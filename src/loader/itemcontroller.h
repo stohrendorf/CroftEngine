@@ -33,6 +33,8 @@ public:
 
         m_sceneNode->updateAbsolutePosition();
         m_position.position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
+
+        setCurrentRoom(room);
     }
 
     irr::core::aabbox3di getBoundingBox() const;

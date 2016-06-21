@@ -100,16 +100,9 @@ public:
     int findAnimatedModelIndexByObjectId(uint32_t object_id) const;
     int findSpriteSequenceByObjectId(uint32_t object_id) const;
     
-    struct PlayerInfo
-    {
-        irr::scene::IAnimatedMeshSceneNode* node = nullptr;
-        Room* room = nullptr;
-        LaraController* controller = nullptr;
-    };
-    
     std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
     std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
-    PlayerInfo createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
+    LaraController * createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
     std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
     AnimatedModel::FrameRange loadAnimation(irr::u32 & frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
     irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;

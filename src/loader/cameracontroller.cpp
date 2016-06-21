@@ -7,14 +7,14 @@
 #include <queue>
 #include <set>
 
-CameraController::CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, gsl::not_null<const loader::Room*> currentRoom, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
+CameraController::CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
     : ISceneNodeAnimator()
     , m_cursorControl(cursorControl)
     , m_level(level)
     , m_laraController(laraController)
     , m_driver(drv)
-    , m_currentPosition(currentRoom)
-    , m_currentLookAt(currentRoom)
+    , m_currentPosition(laraController->getCurrentRoom())
+    , m_currentLookAt(laraController->getCurrentRoom())
     , m_camera(camera)
 {
     m_currentLookAt.position = m_laraController->getPosition();
@@ -309,24 +309,24 @@ bool CameraController::clampY(const loader::ExactTRCoordinates& lookAt, loader::
     return true;
 }
 
-CameraController::ClampType CameraController::clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
+CameraController::ClampType CameraController::clampX(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const
 {
-    if(irr::core::equals(lookAt.X, origin.X, 1.0f))
+    if(irr::core::equals(lookAt.position.X, origin.position.X, 1.0f))
         return ClampType::None;
 
-    const auto d = origin - lookAt;
+    const auto d = origin.position - lookAt.position;
     const auto gradientZX = d.Z / d.X;
     const auto gradientYX = d.Y / d.X;
 
     const int sign = d.X < 0 ? -1 : 1;
 
     loader::ExactTRCoordinates testPos;
-    testPos.X = std::floor(lookAt.X / loader::SectorSize) * loader::SectorSize;
+    testPos.X = std::floor(lookAt.position.X / loader::SectorSize) * loader::SectorSize;
     if(sign > 0)
         testPos.X += loader::SectorSize - 1;
 
-    testPos.Y = lookAt.Y + (testPos.X - lookAt.X) * gradientYX;
-    testPos.Z = lookAt.Z + (testPos.X - lookAt.X) * gradientZX;
+    testPos.Y = lookAt.position.Y + (testPos.X - lookAt.position.X) * gradientYX;
+    testPos.Z = lookAt.position.Z + (testPos.X - lookAt.position.X) * gradientZX;
 
     loader::ExactTRCoordinates step;
     step.X = sign * loader::SectorSize;
@@ -335,28 +335,32 @@ CameraController::ClampType CameraController::clampX(const loader::ExactTRCoordi
 
     while(true)
     {
-        if(sign > 0 && testPos.X >= origin.X)
+        if(sign > 0 && testPos.X >= origin.position.X)
             return ClampType::None;
-        else if(sign < 0 && testPos.X <= origin.X)
+        else if(sign < 0 && testPos.X <= origin.position.X)
             return ClampType::None;
 
         loader::TRCoordinates heightPos = testPos.toInexact();
-        auto sector = m_level->findSectorForPosition(heightPos, m_laraController->getCurrentRoom());
+        auto newRoom = origin.room;
+        auto sector = m_level->findSectorForPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
-            origin = testPos;
+            origin.position = testPos;
+            origin.room = newRoom;
             return ClampType::Normal;
         }
 
         heightPos.X = testPos.X + 2*sign;
-        sector = m_level->findSectorForPosition(heightPos, m_laraController->getCurrentRoom());
+        newRoom = origin.room;
+        sector = m_level->findSectorForPosition(heightPos, &newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
-            origin = testPos;
+            origin.position = testPos;
+            origin.room = newRoom;
             return ClampType::Edge;
         }
 
@@ -364,56 +368,59 @@ CameraController::ClampType CameraController::clampX(const loader::ExactTRCoordi
     }
 }
 
-CameraController::ClampType CameraController::clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
+CameraController::ClampType CameraController::clampZ(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const
 {
-    if(irr::core::equals(lookAt.Z, origin.Z, 1.0f))
+    if(irr::core::equals(lookAt.position.Z, origin.position.Z, 1.0f))
         return ClampType::None;
 
-    const auto d = origin - lookAt;
+    const auto d = origin.position - lookAt.position;
     const auto gradientXZ = d.X / d.Z;
     const auto gradientYZ = d.Y / d.Z;
 
     const int sign = d.Z < 0 ? -1 : 1;
 
     loader::ExactTRCoordinates testPos;
-    testPos.Z = std::floor(lookAt.Z / loader::SectorSize) * loader::SectorSize;
+    testPos.Z = std::floor(lookAt.position.Z / loader::SectorSize) * loader::SectorSize;
 
     if(sign > 0)
         testPos.Z += loader::SectorSize - 1;
 
-    testPos.X = lookAt.X + (testPos.Z - lookAt.Z) * gradientXZ;
-    testPos.Y = lookAt.Y + (testPos.Z - lookAt.Z) * gradientYZ;
+    testPos.X = lookAt.position.X + (testPos.Z - lookAt.position.Z) * gradientXZ;
+    testPos.Y = lookAt.position.Y + (testPos.Z - lookAt.position.Z) * gradientYZ;
 
     loader::ExactTRCoordinates step;
     step.Z = sign * loader::SectorSize;
     step.X = gradientXZ * step.Z;
     step.Y = gradientYZ * step.Z;
 
-    gsl::not_null<const loader::Room*> room = m_laraController->getCurrentRoom();
     while(true)
     {
-        if(sign > 0 && testPos.Z >= origin.Z)
+        if(sign > 0 && testPos.Z >= origin.position.Z)
             return ClampType::None;
-        else if(sign < 0 && testPos.Z <= origin.Z)
+        else if(sign < 0 && testPos.Z <= origin.position.Z)
             return ClampType::None;
 
         loader::TRCoordinates heightPos = testPos.toInexact();
-        auto sector = m_level->findSectorForPosition(heightPos, &room);
+        auto newRoom = origin.room;
+        auto sector = m_level->findSectorForPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
-            origin = testPos;
+            origin.position = testPos;
+            origin.room = newRoom;
             return ClampType::Normal;
         }
 
         heightPos.Z = testPos.Z + 2*sign;
-        sector = m_level->findSectorForPosition(heightPos, &room);
+        newRoom = origin.room;
+        sector = m_level->findSectorForPosition(heightPos, &newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
-            origin = testPos;
+            origin.position = testPos;
+            origin.room = newRoom;
             return ClampType::Edge;
         }
 
@@ -421,11 +428,11 @@ CameraController::ClampType CameraController::clampZ(const loader::ExactTRCoordi
     }
 }
 
-bool CameraController::clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const
+bool CameraController::clamp(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const
 {
     bool firstUnclamped;
     ClampType secondClamp;
-    if(std::abs(origin.Z - lookAt.Z) <= std::abs(origin.X - lookAt.X))
+    if(std::abs(origin.position.Z - lookAt.position.Z) <= std::abs(origin.position.X - lookAt.position.X))
     {
         firstUnclamped = clampZ(lookAt, origin) == ClampType::None;
         secondClamp = clampX(lookAt, origin);
@@ -439,8 +446,8 @@ bool CameraController::clamp(const loader::ExactTRCoordinates& lookAt, loader::E
     if(secondClamp == ClampType::Edge)
         return false;
 
-    auto sector = m_level->findSectorForPosition(origin.toInexact(), m_laraController->getCurrentRoom());
-    return clampY(lookAt, origin, sector) && firstUnclamped && secondClamp == ClampType::None;
+    auto sector = m_level->findSectorForPosition(origin.position.toInexact(), &origin.room);
+    return clampY(lookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
 }
 
 void CameraController::update(int deltaTimeMs)
@@ -499,6 +506,8 @@ void CameraController::update(int deltaTimeMs)
         }
     }
 
+    m_currentLookAt.room = lookAtItem->getCurrentRoom();
+
     if(m_camOverrideType != 2 && m_camOverrideType != 3)
     {
         m_currentLookAt.position.X = lookAtItem->getPosition().X;
@@ -511,7 +520,6 @@ void CameraController::update(int deltaTimeMs)
             m_currentLookAt.position.X += midZ * lookAtItem->getRotation().Y.sin();
         }
 
-        m_currentLookAt.room = lookAtItem->getCurrentRoom();
         if(m_lookingAtSomething == lookingAtSomething)
         {
             //! @todo check formula
@@ -536,7 +544,6 @@ void CameraController::update(int deltaTimeMs)
     }
     else
     {
-        m_currentLookAt.room = lookAtItem->getCurrentRoom();
         if(m_lookingAtSomething)
         {
             m_currentLookAt.position.Y = lookAtY - loader::QuarterSectorSize;
@@ -582,7 +589,7 @@ void CameraController::handleCamOverride(int deltaTimeMs)
     pos.position.Y = m_level->m_cameras[m_camOverrideId].y;
     pos.position.Z = m_level->m_cameras[m_camOverrideId].z;
 
-    if(!clamp(m_currentLookAt.position, pos.position))
+    if(!clamp(m_currentLookAt, pos))
         moveIntoGeometry(pos, loader::QuarterSectorSize);
 
     m_lookingAtSomething = true;
@@ -639,7 +646,7 @@ void CameraController::updatePosition(const loader::RoomBoundPosition& pos, int 
     auto height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
     if(height <= m_currentPosition.position.Y && height <= pos.position.Y)
     {
-        clamp(m_currentLookAt.position, m_currentPosition.position);
+        clamp(m_currentLookAt, m_currentPosition);
         sector = m_level->findSectorForPosition(m_currentPosition.position.toInexact(), &m_currentPosition.room);
         height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
     }
@@ -775,7 +782,7 @@ void CameraController::handleEnemy(const ItemController& item, int deltaTimeMs)
 
 void CameraController::clampBox(loader::RoomBoundPosition& targetPos, const std::function<ClampCallback>& callback)
 {
-    clamp(m_currentLookAt.position, targetPos.position);
+    clamp(m_currentLookAt, targetPos);
     Expects(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex < m_level->m_boxes.size());
     auto lookBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex];
     if(targetPos.room->getSectorByAbsolutePosition(targetPos.position.toInexact())->boxIndex != 0xffff)

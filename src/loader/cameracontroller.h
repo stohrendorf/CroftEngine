@@ -59,7 +59,7 @@ private:
     irr::video::IVideoDriver* m_driver;
 
 public:
-    explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, gsl::not_null<const loader::Room*> currentRoom, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+    explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const loader::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
 
     //! Animates a scene node.
     /** \param node Node to animate.
@@ -102,9 +102,9 @@ private:
         None
     };
 
-    ClampType clampX(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
-    ClampType clampZ(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
-    bool clamp(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin) const;
+    ClampType clampX(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
+    ClampType clampZ(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
+    bool clamp(const loader::RoomBoundPosition& lookAt, loader::RoomBoundPosition& origin) const;
 
     void update(int deltaTimeMs);
     void handleCamOverride(int deltaTimeMs);

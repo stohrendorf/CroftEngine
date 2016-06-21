@@ -592,9 +592,9 @@ void dumpAnims(const AnimatedModel& model, const Level* level)
 
 #endif
 
-Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
-    PlayerInfo lara;
+    LaraController* lara = nullptr;
     int id = -1;
     for( Item& item : m_items )
     {
@@ -614,8 +614,6 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
                 node->setPosition(item.position.toIrrlicht());
-                lara.node = node;
-                lara.room = &room;
             }
             else
             {
@@ -641,9 +639,9 @@ Level::PlayerInfo Level::createItems(irr::scene::ISceneManager* mgr, const std::
             if( item.objectId == 0 )
             {
                 animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
-                lara.controller = new LaraController(this, animationController, node, name + ":statehandler", &room);
-                node->addAnimator(lara.controller);
-                lara.controller->drop();
+                lara = new LaraController(this, animationController, node, name + ":statehandler", &room);
+                node->addAnimator(lara);
+                lara->drop();
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
@@ -965,10 +963,9 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
 
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
 
-    const auto lara = createItems(mgr, skinnedMeshes);
-    if( lara.node == nullptr )
+    m_lara = createItems(mgr, skinnedMeshes);
+    if(m_lara == nullptr)
         return;
-    m_lara = lara.controller;
 
     for( auto* ptr : staticMeshes )
         ptr->drop();
@@ -977,8 +974,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
 
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
-    m_cameraController = new CameraController(cursorCtrl, this, lara.controller, mgr->getVideoDriver(), lara.room, camera);
-    lara.controller->setCurrentRoom(lara.room);
+    m_cameraController = new CameraController(cursorCtrl, this, m_lara, mgr->getVideoDriver(), camera);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
