@@ -2,6 +2,7 @@
 -- Please note that on XInput game controllers (XBOX360 and such), triggers are NOT
 -- coded as joystick buttons. Instead, they have unique names: JOY_TRIGGERLEFT and
 -- JOY_TRIGGERRIGHT.
+-- ignore this comment --
 
 dofile("scripts/config/control_constants.lua");
 
