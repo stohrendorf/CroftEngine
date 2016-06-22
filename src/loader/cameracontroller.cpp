@@ -613,32 +613,32 @@ int CameraController::moveIntoGeometry(loader::RoomBoundPosition& pos, int margi
     Expects(sector->boxIndex < m_level->m_boxes.size());
     const loader::Box& box = m_level->m_boxes[sector->boxIndex];
     
-    if(box.zmin + margin > pos.position.Z && isOutsideRoom(pos.position.toInexact() - loader::TRCoordinates(0, 0, margin), pos.room))
+    if(box.zmin + margin > pos.position.Z && isVerticallyOutsideRoom(pos.position.toInexact() - loader::TRCoordinates(0, 0, margin), pos.room))
         pos.position.Z = box.zmin + margin;
-    else if(box.zmax - margin > pos.position.Z && isOutsideRoom(pos.position.toInexact() + loader::TRCoordinates(0, 0, margin), pos.room))
+    else if(box.zmax - margin > pos.position.Z && isVerticallyOutsideRoom(pos.position.toInexact() + loader::TRCoordinates(0, 0, margin), pos.room))
         pos.position.Z = box.zmax - margin;
     
-    if(box.xmin + margin > pos.position.Z && isOutsideRoom(pos.position.toInexact() - loader::TRCoordinates(margin, 0, 0), pos.room))
+    if(box.xmin + margin > pos.position.Z && isVerticallyOutsideRoom(pos.position.toInexact() - loader::TRCoordinates(margin, 0, 0), pos.room))
         pos.position.X = box.xmin + margin;
-    else if(box.xmax - margin > pos.position.Z && isOutsideRoom(pos.position.toInexact() + loader::TRCoordinates(margin, 0, 0), pos.room))
+    else if(box.xmax - margin > pos.position.Z && isVerticallyOutsideRoom(pos.position.toInexact() + loader::TRCoordinates(margin, 0, 0), pos.room))
         pos.position.X = box.xmax - margin;
 
-    auto ymax = HeightInfo::fromFloor(sector, pos.position.toInexact(), this).distance - margin;
-    auto ymin = HeightInfo::fromCeiling(sector, pos.position.toInexact(), this).distance + margin;
-    if(ymax > ymin)
-        ymin = ymax = (ymax + ymin) / 2;
+    auto bottom = HeightInfo::fromFloor(sector, pos.position.toInexact(), this).distance - margin;
+    auto top = HeightInfo::fromCeiling(sector, pos.position.toInexact(), this).distance + margin;
+    if(bottom < top)
+        top = bottom = (bottom + top) / 2;
 
-    if(pos.position.Y > ymax)
-        return ymax - pos.position.Y;
-    else if(ymin > pos.position.Y)
-        return ymin - pos.position.Y;
+    if(pos.position.Y > bottom)
+        return bottom - pos.position.Y;
+    else if(top > pos.position.Y)
+        return top - pos.position.Y;
     else
         return 0;
 }
 
-bool CameraController::isOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
+bool CameraController::isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
 {
-    auto sector = m_level->findSectorForPosition(pos, room);
+    gsl::not_null<const loader::Sector*> sector = m_level->findSectorForPosition(pos, room);
     return pos.Y >= HeightInfo::fromFloor(sector, pos, this).distance || pos.Y <= HeightInfo::fromCeiling(sector, pos, this).distance;
 }
 
@@ -736,7 +736,7 @@ void CameraController::handleFreeLook(const ItemController& item, int deltaTimeM
     m_currentLookAt.position.X += m_lookAtY * item.getRotation().Y.sin();
     m_currentLookAt.position.Z += m_lookAtY * item.getRotation().Y.cos();
 
-    if(isOutsideRoom(m_currentLookAt.position.toInexact(), m_currentPosition.room))
+    if(isVerticallyOutsideRoom(m_currentLookAt.position.toInexact(), m_currentPosition.room))
     {
         m_currentLookAt.position.X = item.getPosition().X;
         m_currentLookAt.position.Z = item.getPosition().Z;
@@ -800,10 +800,11 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     loader::TRCoordinates testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
+    BOOST_ASSERT(testPos.Z % loader::SectorSize == loader::SectorSize - 1);
 
     auto clampZMin = clampBox->zmin;
-    const bool negZoutside = isOutsideRoom(testPos, camTargetPos.room);
-    if(!negZoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    if(!negZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
         if(testBox->zmin < clampZMin)
@@ -813,10 +814,11 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize + 1) * loader::SectorSize;
+    BOOST_ASSERT(testPos.Z % loader::SectorSize == 0);
 
     auto clampZMax = clampBox->zmax;
-    const bool posZoutside = isOutsideRoom(testPos, camTargetPos.room);
-    if(!posZoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    if(!posZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
         if(testBox->zmax > clampZMax)
@@ -826,10 +828,11 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize) * loader::SectorSize - 1;
+    BOOST_ASSERT(testPos.X % loader::SectorSize == loader::SectorSize - 1);
 
     auto clampXMin = clampBox->xmin;
-    const bool negXoutside = isOutsideRoom(testPos, camTargetPos.room);
-    if(!negXoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    if(!negXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
         if(testBox->xmin < clampXMin)
@@ -839,10 +842,11 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize + 1) * loader::SectorSize;
+    BOOST_ASSERT(testPos.X % loader::SectorSize == 0);
 
     auto clampXMax = clampBox->xmax;
-    const bool posXoutside = isOutsideRoom(testPos, camTargetPos.room);
-    if(!posXoutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    if(!posXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
         if(testBox->xmax > clampXMax)
@@ -850,25 +854,31 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     }
     clampXMax -= loader::QuarterSectorSize;
 
+    //! @bug Not original TR!
+    clampXMin = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.X - m_distanceFromLookAt), clampXMin);
+    clampXMax = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.X + m_distanceFromLookAt), clampXMax);
+    clampZMin = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.Z - m_distanceFromLookAt), clampZMin);
+    clampZMax = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.Z + m_distanceFromLookAt), clampZMax);
+
     bool skipRoomPatch = true;
-    if(negZoutside && camTargetPos.position.Z < clampZMin)
+    if(negZverticalOutside && camTargetPos.position.Z < clampZMin)
     {
         skipRoomPatch = false;
-        float clampLeft, clampRight;
+        float left, right;
         if(camTargetPos.position.X >= m_currentLookAt.position.X)
         {
-            clampLeft = clampXMin;
-            clampRight = clampXMax;
+            left = clampXMin;
+            right = clampXMax;
         }
         else
         {
-            clampLeft = clampXMax;
-            clampRight = clampXMin;
+            left = clampXMax;
+            right = clampXMin;
         }
-        callback(camTargetPos.position.Z, camTargetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, clampZMin, clampRight, clampZMax, clampLeft);
-        //BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
+        callback(camTargetPos.position.Z, camTargetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, clampZMin, right, clampZMax, left);
+        // BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
     }
-    else if(posZoutside && camTargetPos.position.Z > clampZMax)
+    else if(posZverticalOutside && camTargetPos.position.Z > clampZMax)
     {
         skipRoomPatch = false;
         float left, right;
@@ -883,7 +893,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
             right = clampXMin;
         }
         callback(camTargetPos.position.Z, camTargetPos.position.X, m_currentLookAt.position.Z, m_currentLookAt.position.X, clampZMax, right, clampZMin, left);
-        //BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
+        // BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
     }
 
     if(!skipRoomPatch)
@@ -892,7 +902,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
         return;
     }
 
-    if(negXoutside && camTargetPos.position.X < clampXMin)
+    if(negXverticalOutside && camTargetPos.position.X < clampXMin)
     {
         skipRoomPatch = false;
         float left, right;
@@ -907,9 +917,9 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
             right = clampZMin;
         }
         callback(camTargetPos.position.X, camTargetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, clampXMin, right, clampXMax, left);
-        BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
+        // BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
     }
-    else if(posXoutside && camTargetPos.position.X > clampXMax)
+    else if(posXverticalOutside && camTargetPos.position.X > clampXMax)
     {
         skipRoomPatch = false;
         float left, right;
@@ -924,7 +934,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
             right = clampZMin;
         }
         callback(camTargetPos.position.X, camTargetPos.position.Z, m_currentLookAt.position.X, m_currentLookAt.position.Z, clampXMax, right, clampXMin, left);
-        BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
+        // BOOST_ASSERT(m_currentLookAt.position.distanceTo(camTargetPos.position) <= 2 * m_distanceFromLookAt); // sanity check
     }
 
     if(!skipRoomPatch)
@@ -961,7 +971,7 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
         if(lookAtDistanceSq >= backDistSq)
         {
             auto tmp = std::sqrt(lookAtDistanceSq - backDistSq);
-            if(right < left)
+            if(right >= left)
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
         }
@@ -1001,17 +1011,18 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
     // front right
     const auto frontDistSq = (targetFrontBack - front) * (targetFrontBack - front);
     const auto frontRightDistSq = frontDistSq + rightDistSq;
+
     if(frontRightDistSq > lookAtDistanceSq)
     {
-        currentLeftRight = right;
         if(lookAtDistanceSq >= rightDistSq)
         {
+            currentLeftRight = right;
             auto tmp = std::sqrt(lookAtDistanceSq - rightDistSq);
             if(back >= front)
                 tmp = -tmp;
             currentFrontBack = tmp + targetFrontBack;
-            return;
         }
+        return;
     }
 
     currentFrontBack = front;

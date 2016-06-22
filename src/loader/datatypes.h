@@ -1960,6 +1960,12 @@ struct Room
         return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
     }
 
+    const Sector* getSectorByClampedAbsolutePosition(TRCoordinates position) const
+    {
+        position -= this->position;
+        return getSectorByClampedIndex(position.X / SectorSize, position.Z / SectorSize);
+    }
+
     const Sector* getSectorByIndex(int dx, int dz) const
     {
         if(dx < 0 || dx >= sectorCountX)
