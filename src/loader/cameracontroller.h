@@ -109,7 +109,7 @@ private:
     void update(int deltaTimeMs);
     void handleCamOverride(int deltaTimeMs);
     int moveIntoGeometry(loader::RoomBoundPosition& pos, int margin) const;
-    bool isOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
+    bool isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
     void updatePosition(const loader::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs);
     void doUsualMovement(const gsl::not_null<ItemController*>& item, int deltaTimeMs);
     void handleFreeLook(const ItemController& item, int deltaTimeMs);

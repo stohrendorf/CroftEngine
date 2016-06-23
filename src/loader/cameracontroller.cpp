@@ -804,6 +804,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampZMin = clampBox->zmin;
     const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    Expects(negZverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
     if(!negZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
@@ -818,6 +819,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampZMax = clampBox->zmax;
     const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    Expects(posZverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
     if(!posZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
@@ -832,6 +834,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampXMin = clampBox->xmin;
     const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    Expects(negXverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
     if(!negXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
@@ -846,6 +849,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampXMax = clampBox->xmax;
     const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
+    Expects(posXverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
     if(!posXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
     {
         auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
@@ -853,12 +857,6 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
             clampXMax = testBox->xmax;
     }
     clampXMax -= loader::QuarterSectorSize;
-
-    //! @bug Not original TR!
-    clampXMin = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.X - m_distanceFromLookAt), clampXMin);
-    clampXMax = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.X + m_distanceFromLookAt), clampXMax);
-    clampZMin = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.Z - m_distanceFromLookAt), clampZMin);
-    clampZMax = std::min(gsl::narrow_cast<int>(m_currentLookAt.position.Z + m_distanceFromLookAt), clampZMax);
 
     bool skipRoomPatch = true;
     if(negZverticalOutside && camTargetPos.position.Z < clampZMin)
@@ -882,7 +880,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     {
         skipRoomPatch = false;
         float left, right;
-        if(camTargetPos.position.X >= m_currentLookAt.position.X)
+        if(camTargetPos.position.X <= m_currentLookAt.position.X)
         {
             left = clampXMin;
             right = clampXMax;
@@ -923,7 +921,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     {
         skipRoomPatch = false;
         float left, right;
-        if(camTargetPos.position.Z >= m_currentLookAt.position.Z)
+        if(camTargetPos.position.Z <= m_currentLookAt.position.Z)
         {
             left = clampZMin;
             right = clampZMax;
@@ -960,17 +958,19 @@ void CameraController::freeLookClamp(float& currentFrontBack, float& currentLeft
 
 void CameraController::clampToCorners(const float lookAtDistanceSq, float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left)
 {
-    const auto rightDistSq = (targetLeftRight - right) * (targetLeftRight - right);
-    const auto backDistSq = (targetFrontBack - back) * (targetFrontBack - back);
+    const auto targetRightDistSq = (targetLeftRight - right) * (targetLeftRight - right);
+    const auto targetBackDistSq = (targetFrontBack - back) * (targetFrontBack - back);
     
     // back right
-    const auto backRightDistSq = backDistSq + rightDistSq;
+    const auto backRightDistSq = targetBackDistSq + targetRightDistSq;
     if(backRightDistSq > lookAtDistanceSq)
     {
+        BOOST_LOG_TRIVIAL(debug) << "Clamp back right: " << currentFrontBack << " => " << back;
+        BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
-        if(lookAtDistanceSq >= backDistSq)
+        if(lookAtDistanceSq >= targetBackDistSq)
         {
-            auto tmp = std::sqrt(lookAtDistanceSq - backDistSq);
+            auto tmp = std::sqrt(lookAtDistanceSq - targetBackDistSq);
             if(right >= left)
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
@@ -986,14 +986,16 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
     }
 
     // back left
-    const auto leftDistSq = (targetLeftRight - left) * (targetLeftRight - left);
-    const auto backLeftDistSq = backDistSq + leftDistSq;
-    if( backLeftDistSq > lookAtDistanceSq )
+    const auto targetLeftDistSq = (targetLeftRight - left) * (targetLeftRight - left);
+    const auto targetBackLeftDistSq = targetBackDistSq + targetLeftDistSq;
+    if( targetBackLeftDistSq > lookAtDistanceSq )
     {
+        BOOST_LOG_TRIVIAL(debug) << "Clamp back left: " << currentFrontBack << " => " << back;
+        BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
-        if(lookAtDistanceSq >= backDistSq)
+        if(lookAtDistanceSq >= targetBackDistSq)
         {
-            auto tmp = std::sqrt(lookAtDistanceSq - backDistSq);
+            auto tmp = std::sqrt(lookAtDistanceSq - targetBackDistSq);
             if(right >= left)
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
@@ -1001,7 +1003,7 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
         return;
     }
 
-    if(backLeftDistSq > loader::QuarterSectorSize*loader::QuarterSectorSize)
+    if(targetBackLeftDistSq > loader::QuarterSectorSize*loader::QuarterSectorSize)
     {
         currentFrontBack = back;
         currentLeftRight = left;
@@ -1009,15 +1011,17 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
     }
 
     // front right
-    const auto frontDistSq = (targetFrontBack - front) * (targetFrontBack - front);
-    const auto frontRightDistSq = frontDistSq + rightDistSq;
+    const auto targetFrontDistSq = (targetFrontBack - front) * (targetFrontBack - front);
+    const auto targetFrontRightDistSq = targetFrontDistSq + targetRightDistSq;
 
-    if(frontRightDistSq > lookAtDistanceSq)
+    if(targetFrontRightDistSq > lookAtDistanceSq)
     {
-        if(lookAtDistanceSq >= rightDistSq)
+        BOOST_LOG_TRIVIAL(debug) << "Clamp front right";
+        BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
+        if(lookAtDistanceSq >= targetRightDistSq)
         {
             currentLeftRight = right;
-            auto tmp = std::sqrt(lookAtDistanceSq - rightDistSq);
+            auto tmp = std::sqrt(lookAtDistanceSq - targetRightDistSq);
             if(back >= front)
                 tmp = -tmp;
             currentFrontBack = tmp + targetFrontBack;
@@ -1025,6 +1029,8 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
         return;
     }
 
+    BOOST_LOG_TRIVIAL(debug) << "Clamp front right: " << currentFrontBack << " => " << front << ", " << currentLeftRight << " => " << right;
+    BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
     currentFrontBack = front;
     currentLeftRight = right;
 }

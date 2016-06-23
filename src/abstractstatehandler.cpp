@@ -2899,7 +2899,7 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
             break;
     }
 
-    auto sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
+    auto sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), m_controller.getCurrentRoom());
     HeightInfo floor = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
     HeightInfo ceil = HeightInfo::fromCeiling(sector, pos.toInexact(), getLevel().m_cameraController);
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
@@ -3147,7 +3147,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    gsl::not_null<const loader::Sector*> sector = getLevel().findSectorForPosition(pos.toInexact(), m_controller.getCurrentRoom());
+    gsl::not_null<const loader::Sector*> sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), m_controller.getCurrentRoom());
 
     HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
 
@@ -3306,7 +3306,7 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandli
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = getLevel().findSectorForPosition(getPosition().toInexact(), m_controller.getCurrentRoom());
+    auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), m_controller.getCurrentRoom());
     HeightInfo h = HeightInfo::fromFloor(sector, getPosition().toInexact() - loader::TRCoordinates{ 0, core::ScalpHeight, 0 }, getLevel().m_cameraController);
     setFloorHeight(h.distance);
     getController().handleTriggers(h.lastTriggerOrKill, false);

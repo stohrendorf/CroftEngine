@@ -369,7 +369,7 @@ struct ExactTRCoordinates
 
     TRCoordinates toInexact() const noexcept
     {
-        return{long(std::floor(X)), long(std::floor(Y)), long(std::floor(Z))};
+        return{long(std::lround(X)), long(std::lround(Y)), long(std::lround(Z))};
     }
 
     float distanceTo(const ExactTRCoordinates& b) const
@@ -1960,10 +1960,10 @@ struct Room
         return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
     }
 
-    const Sector* getSectorByClampedAbsolutePosition(TRCoordinates position) const
+    const Sector* findFloorSectorWithClampedPosition(TRCoordinates position) const
     {
         position -= this->position;
-        return getSectorByClampedIndex(position.X / SectorSize, position.Z / SectorSize);
+        return findFloorSectorWithClampedIndex(position.X / SectorSize, position.Z / SectorSize);
     }
 
     const Sector* getSectorByIndex(int dx, int dz) const
@@ -1975,7 +1975,7 @@ struct Room
         return &sectors[sectorCountZ * dx + dz];
     }
 
-    const Sector* getSectorByClampedIndex(int dx, int dz) const
+    const Sector* findFloorSectorWithClampedIndex(int dx, int dz) const
     {
         if(dz <= 0)
         {
@@ -2645,8 +2645,8 @@ struct Box
     static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{ new Box() };
-        box->zmax = reader.readI32();
         box->zmin = reader.readI32();
+        box->zmax = reader.readI32();
         box->xmin = reader.readI32();
         box->xmax = reader.readI32();
         box->true_floor = reader.readI16();
@@ -2657,8 +2657,8 @@ struct Box
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{ new Box() };
-        box->zmax = 1024 * reader.readU8();
         box->zmin = 1024 * reader.readU8();
+        box->zmax = 1024 * reader.readU8();
         box->xmin = 1024 * reader.readU8();
         box->xmax = 1024 * reader.readU8();
         box->true_floor = reader.readI16();

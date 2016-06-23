@@ -1026,7 +1026,7 @@ const Sector* Level::findSectorForPosition(const TRCoordinates& position, gsl::n
     const Sector* sector = nullptr;
     while( true )
     {
-        sector = (*room)->getSectorByClampedIndex((position.X - (*room)->position.X) / SectorSize, (position.Z - (*room)->position.Z) / SectorSize);
+        sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / SectorSize, (position.Z - (*room)->position.Z) / SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
@@ -1068,7 +1068,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
     const Sector* sector = nullptr;
     while( true )
     {
-        sector = room->getSectorByClampedIndex(gsl::narrow_cast<int>(position.X - room->position.X) / SectorSize, gsl::narrow_cast<int>(position.Z - room->position.Z) / SectorSize);
+        sector = room->findFloorSectorWithClampedIndex(gsl::narrow_cast<int>(position.X - room->position.X) / SectorSize, gsl::narrow_cast<int>(position.Z - room->position.Z) / SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
@@ -1087,7 +1087,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
-            sector = room->getSectorByAbsolutePosition(position.toInexact());
+            sector = room->findFloorSectorWithClampedPosition(position.toInexact());
             Expects(sector != nullptr);
         }
     }
@@ -1097,7 +1097,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition(position.toInexact());
+            sector = room->findFloorSectorWithClampedPosition(position.toInexact());
             Expects(sector != nullptr);
         }
     }
