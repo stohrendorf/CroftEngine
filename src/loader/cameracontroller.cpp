@@ -345,7 +345,7 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
 
         loader::TRCoordinates heightPos = testPos.toInexact();
         auto newRoom = origin.room;
-        auto sector = m_level->findSectorForPosition(heightPos, &newRoom);
+        auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
@@ -357,7 +357,7 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
 
         heightPos.X = testPos.X + 2*sign;
         newRoom = origin.room;
-        sector = m_level->findSectorForPosition(heightPos, &newRoom);
+        sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
@@ -406,7 +406,7 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
 
         loader::TRCoordinates heightPos = testPos.toInexact();
         auto newRoom = origin.room;
-        auto sector = m_level->findSectorForPosition(heightPos, &newRoom);
+        auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
@@ -418,7 +418,7 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
 
         heightPos.Z = testPos.Z + 2*sign;
         newRoom = origin.room;
-        sector = m_level->findSectorForPosition(heightPos, &newRoom);
+        sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
@@ -451,7 +451,7 @@ bool CameraController::clamp(loader::RoomBoundPosition& origin) const
     if(secondClamp == ClampType::Edge)
         return false;
 
-    auto sector = m_level->findSectorForPosition(origin);
+    auto sector = m_level->findFloorSectorWithClampedPosition(origin);
     return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
 }
 
@@ -538,7 +538,7 @@ void CameraController::update(int deltaTimeMs)
             m_smoothFactor = 1;
         }
 
-        auto sector = m_level->findSectorForPosition(m_currentLookAt);
+        auto sector = m_level->findFloorSectorWithClampedPosition(m_currentLookAt);
         if(HeightInfo::fromFloor(sector, m_currentLookAt.position.toInexact(), this).distance < m_currentLookAt.position.Y)
             HeightInfo::skipSteepSlants = false;
 
@@ -609,7 +609,7 @@ void CameraController::handleCamOverride(int deltaTimeMs)
 
 int CameraController::moveIntoGeometry(loader::RoomBoundPosition& pos, int margin) const
 {
-    auto sector = m_level->findSectorForPosition(pos);
+    auto sector = m_level->findFloorSectorWithClampedPosition(pos);
     Expects(sector->boxIndex < m_level->m_boxes.size());
     const loader::Box& box = m_level->m_boxes[sector->boxIndex];
     
@@ -638,7 +638,7 @@ int CameraController::moveIntoGeometry(loader::RoomBoundPosition& pos, int margi
 
 bool CameraController::isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
 {
-    gsl::not_null<const loader::Sector*> sector = m_level->findSectorForPosition(pos, room);
+    gsl::not_null<const loader::Sector*> sector = m_level->findFloorSectorWithClampedPosition(pos, room);
     return pos.Y >= HeightInfo::fromFloor(sector, pos, this).distance || pos.Y <= HeightInfo::fromCeiling(sector, pos, this).distance;
 }
 
@@ -647,12 +647,12 @@ void CameraController::updatePosition(const loader::RoomBoundPosition& pos, int 
     m_currentPosition.position += (pos.position - m_currentPosition.position) * core::FrameRate * deltaTimeMs / 1000 / smoothFactor;
     HeightInfo::skipSteepSlants = false;
     m_currentPosition.room = pos.room;
-    auto sector = m_level->findSectorForPosition(m_currentPosition);
+    auto sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
     auto height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
     if(height <= m_currentPosition.position.Y && height <= pos.position.Y)
     {
         clamp(m_currentPosition);
-        sector = m_level->findSectorForPosition(m_currentPosition);
+        sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
         height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
     }
 
@@ -690,7 +690,7 @@ void CameraController::updatePosition(const loader::RoomBoundPosition& pos, int 
     auto camPos = m_currentPosition.position;
     camPos.Y += m_lookAtY;
 
-    m_level->findSectorForPosition(camPos.toInexact(), &m_currentPosition.room);
+    m_level->findFloorSectorWithClampedPosition(camPos.toInexact(), &m_currentPosition.room);
 
     m_camera->setPosition(camPos.toIrrlicht());
     m_camera->updateAbsolutePosition();
@@ -896,7 +896,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     if(!skipRoomPatch)
     {
-        m_level->findSectorForPosition(camTargetPos);
+        m_level->findFloorSectorWithClampedPosition(camTargetPos);
         return;
     }
 
@@ -937,7 +937,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     if(!skipRoomPatch)
     {
-        m_level->findSectorForPosition(camTargetPos);
+        m_level->findFloorSectorWithClampedPosition(camTargetPos);
         return;
     }
 }

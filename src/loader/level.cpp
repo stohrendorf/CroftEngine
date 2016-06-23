@@ -1021,7 +1021,7 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-const Sector* Level::findSectorForPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
+const Sector* Level::findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
 {
     const Sector* sector = nullptr;
     while( true )
@@ -1087,7 +1087,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
-            sector = room->findFloorSectorWithClampedPosition(position.toInexact());
+            sector = room->getSectorByAbsolutePosition(position.toInexact());
             Expects(sector != nullptr);
         }
     }
@@ -1097,7 +1097,7 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
-            sector = room->findFloorSectorWithClampedPosition(position.toInexact());
+            sector = room->getSectorByAbsolutePosition(position.toInexact());
             Expects(sector != nullptr);
         }
     }
