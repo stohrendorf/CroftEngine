@@ -800,7 +800,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     loader::TRCoordinates testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
-    BOOST_ASSERT(testPos.Z % loader::SectorSize == loader::SectorSize - 1);
+    BOOST_ASSERT(testPos.Z % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.Z - camTargetPos.position.toInexact().Z) <= loader::SectorSize);
 
     auto clampZMin = clampBox->zmin;
     const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
@@ -815,7 +815,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.Z = (testPos.Z / loader::SectorSize + 1) * loader::SectorSize;
-    BOOST_ASSERT(testPos.Z % loader::SectorSize == 0);
+    BOOST_ASSERT(testPos.Z % loader::SectorSize == 0 && std::abs(testPos.Z - camTargetPos.position.toInexact().Z) <= loader::SectorSize);
 
     auto clampZMax = clampBox->zmax;
     const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
@@ -830,7 +830,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize) * loader::SectorSize - 1;
-    BOOST_ASSERT(testPos.X % loader::SectorSize == loader::SectorSize - 1);
+    BOOST_ASSERT(testPos.X % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.X - camTargetPos.position.toInexact().X) <= loader::SectorSize);
 
     auto clampXMin = clampBox->xmin;
     const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
@@ -845,7 +845,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     testPos = camTargetPos.position.toInexact();
     testPos.X = (testPos.X / loader::SectorSize + 1) * loader::SectorSize;
-    BOOST_ASSERT(testPos.X % loader::SectorSize == 0);
+    BOOST_ASSERT(testPos.X % loader::SectorSize == 0 && std::abs(testPos.X - camTargetPos.position.toInexact().X) <= loader::SectorSize);
 
     auto clampXMax = clampBox->xmax;
     const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);

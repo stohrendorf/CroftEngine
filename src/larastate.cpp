@@ -13,7 +13,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
     const auto reachablePos = laraPos - loader::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
-    gsl::not_null<const loader::Sector*> currentSector = level.findSectorForPosition(reachablePos.toInexact(), &room);
+    gsl::not_null<const loader::Sector*> currentSector = level.findFloorSectorWithClampedPosition(reachablePos.toInexact(), &room);
 
     current.init(currentSector, laraPos.toInexact(), level.m_cameraController, height);
 
@@ -61,7 +61,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     // Front
     auto checkPos = loader::ExactTRCoordinates(frontX, 0, frontZ);
-    auto sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    auto sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
     front.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
@@ -78,7 +78,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     // Front left
     checkPos = loader::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
-    sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
     frontLeft.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
@@ -96,7 +96,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
 
     // Front right
     checkPos = loader::ExactTRCoordinates(frontRightX, 0, frontRightZ);
-    sector = level.findSectorForPosition((reachablePos + checkPos).toInexact(), &room);
+    sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
     frontRight.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
 
     if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
