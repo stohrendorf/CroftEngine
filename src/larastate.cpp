@@ -112,7 +112,7 @@ void LaraState::initHeightInfo(const loader::ExactTRCoordinates& laraPos, const 
         frontRight.floor.distance = 2 * loader::QuarterSectorSize;
     }
 
-    checkStaticMeshCollisions(laraPos, height, level);
+    //! @bug This is buggy. checkStaticMeshCollisions(laraPos, height, level);
 
     if( current.floor.distance == -loader::HeightLimit )
     {
@@ -259,7 +259,7 @@ bool LaraState::checkStaticMeshCollisions(const loader::ExactTRCoordinates& posi
                         hasStaticMeshCollision = true;
                         return true;
                     }
-                    if(dz >= 0 || -collisionRadius > dz)
+                    if(dz >= 0 || dz < -collisionRadius)
                     {
                         hasStaticMeshCollision = true;
                         return true;

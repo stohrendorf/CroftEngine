@@ -314,7 +314,7 @@ bool CameraController::clampY(const loader::ExactTRCoordinates& lookAt, loader::
 CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& origin) const
 {
     //BOOST_ASSERT(m_currentLookAt.position.distanceTo(origin.position) <= 2 * m_distanceFromLookAt); // sanity check
-    if(irr::core::equals(m_currentLookAt.position.X, origin.position.X, 1.0f))
+    if(irr::core::equals(m_currentLookAt.position.X, origin.position.X, 0.5f))
         return ClampType::None;
 
     const auto d = origin.position - m_currentLookAt.position;
@@ -374,7 +374,7 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
 CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& origin) const
 {
     //BOOST_ASSERT(m_currentLookAt.position.distanceTo(origin.position) <= 2 * m_distanceFromLookAt); // sanity check
-    if(irr::core::equals(m_currentLookAt.position.Z, origin.position.Z, 1.0f))
+    if(irr::core::equals(m_currentLookAt.position.Z, origin.position.Z, 0.5f))
         return ClampType::None;
 
     const auto d = origin.position - m_currentLookAt.position;
@@ -880,7 +880,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     {
         skipRoomPatch = false;
         float left, right;
-        if(camTargetPos.position.X <= m_currentLookAt.position.X)
+        if(camTargetPos.position.X >= m_currentLookAt.position.X)
         {
             left = clampXMin;
             right = clampXMax;
@@ -921,7 +921,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     {
         skipRoomPatch = false;
         float left, right;
-        if(camTargetPos.position.Z <= m_currentLookAt.position.Z)
+        if(camTargetPos.position.Z >= m_currentLookAt.position.Z)
         {
             left = clampZMin;
             right = clampZMax;
@@ -971,7 +971,7 @@ void CameraController::clampToCorners(const float lookAtDistanceSq, float& curre
         if(lookAtDistanceSq >= targetBackDistSq)
         {
             auto tmp = std::sqrt(lookAtDistanceSq - targetBackDistSq);
-            if(right >= left)
+            if(right < left)
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
         }
