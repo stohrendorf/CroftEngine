@@ -217,7 +217,7 @@ namespace engine
 
         irr::core::aabbox3di baseCollisionBox(
                                               position.X - collisionRadius, position.Y - height, position.Z - collisionRadius,
-                                              position.X + collisionRadius, position.Y + height, position.Z + collisionRadius
+                                              position.X + collisionRadius, position.Y         , position.Z + collisionRadius
                                              );
         baseCollisionBox.repair();
 

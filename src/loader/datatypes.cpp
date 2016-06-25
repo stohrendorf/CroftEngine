@@ -156,7 +156,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
-        smNode->setRotation({0,-util::auToDeg(sm.rotation),0});
+        smNode->setRotation({0,util::auToDeg(sm.rotation),0});
         smNode->setPosition((sm.position - position).toIrrlicht());
         resultNode->addChild(smNode);
     }
@@ -239,38 +239,37 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
 
 irr::core::aabbox3di StaticMesh::getCollisionBox(const core::TRCoordinates & pos, core::Angle angle) const
 {
-    irr::core::aabbox3di result(
-        collision_box[0].X, collision_box[0].Y, collision_box[0].Z,
-        collision_box[1].X, collision_box[1].Y, collision_box[1].Z
-    );
-    result.repair();
+    auto result = collision_box;
 
     const auto axis = core::axisFromAngle(angle, 45_deg);
     switch(*axis)
     {
         case core::Axis::PosZ:
-            std::swap(result.MinEdge.X, result.MinEdge.Z);
-            result.MinEdge.X *= -1;
-            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
-            result.MaxEdge.X *= -1;
-            break;
-        case core::Axis::PosX:
             // nothing to do
             break;
-        case core::Axis::NegZ:
-            result.MinEdge.X *= -1;
-            result.MaxEdge.X *= -1;
-            break;
-        case core::Axis::NegX:
+        case core::Axis::PosX:
             std::swap(result.MinEdge.X, result.MinEdge.Z);
             result.MinEdge.Z *= -1;
             std::swap(result.MaxEdge.X, result.MaxEdge.Z);
             result.MaxEdge.Z *= -1;
             break;
+        case core::Axis::NegZ:
+            result.MinEdge.X *= -1;
+            result.MinEdge.Z *= -1;
+            result.MaxEdge.X *= -1;
+            result.MaxEdge.Z *= -1;
+            break;
+        case core::Axis::NegX:
+            std::swap(result.MinEdge.X, result.MinEdge.Z);
+            result.MinEdge.X *= -1;
+            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
+            result.MaxEdge.X *= -1;
+            break;
     }
 
     result.MinEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
     result.MaxEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
+    result.repair();
     return result;
 }
 }

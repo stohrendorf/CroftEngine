@@ -184,8 +184,8 @@ namespace loader
     {
         uint32_t object_id; // Object Identifier (matched in Items[])
         uint16_t mesh; // mesh (offset into MeshPointers[])
-        core::TRCoordinates visibility_box[2];
-        core::TRCoordinates collision_box[2];
+        irr::core::aabbox3di visibility_box;
+        irr::core::aabbox3di collision_box;
         uint16_t flags; // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
         // like TR2's skeletons and underwater vegetation
 
@@ -202,19 +202,19 @@ namespace loader
             mesh->object_id = reader.readU32();
             mesh->mesh = reader.readU16();
 
-            mesh->visibility_box[0].X = reader.readI16();
-            mesh->visibility_box[1].X = reader.readI16();
-            mesh->visibility_box[0].Y = reader.readI16();
-            mesh->visibility_box[1].Y = reader.readI16();
-            mesh->visibility_box[0].Z = reader.readI16();
-            mesh->visibility_box[1].Z = reader.readI16();
+            mesh->visibility_box.MinEdge.X = reader.readI16();
+            mesh->visibility_box.MaxEdge.X = reader.readI16();
+            mesh->visibility_box.MinEdge.Y = reader.readI16();
+            mesh->visibility_box.MaxEdge.Y = reader.readI16();
+            mesh->visibility_box.MinEdge.Z = reader.readI16();
+            mesh->visibility_box.MaxEdge.Z = reader.readI16();
 
-            mesh->collision_box[0].X = reader.readI16();
-            mesh->collision_box[1].X = reader.readI16();
-            mesh->collision_box[0].Y = reader.readI16();
-            mesh->collision_box[1].Y = reader.readI16();
-            mesh->collision_box[0].Z = reader.readI16();
-            mesh->collision_box[1].Z = reader.readI16();
+            mesh->collision_box.MinEdge.X = reader.readI16();
+            mesh->collision_box.MaxEdge.X = reader.readI16();
+            mesh->collision_box.MinEdge.Y = reader.readI16();
+            mesh->collision_box.MaxEdge.Y = reader.readI16();
+            mesh->collision_box.MinEdge.Z = reader.readI16();
+            mesh->collision_box.MaxEdge.Z = reader.readI16();
 
             mesh->flags = reader.readU16();
             return mesh;
