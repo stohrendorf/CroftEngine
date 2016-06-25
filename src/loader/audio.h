@@ -1,8 +1,7 @@
 #pragma once
 
-#include "game.h"
-
 #include "io/sdlreader.h"
+#include "level/game.h"
 
 namespace loader
 {
@@ -86,9 +85,9 @@ namespace loader
         uint8_t flags_2; // Bit 4: UNKNOWN, bit 5: Randomize pitch, bit 6: randomize volume
         // All other bits in flags_2 are unused.
 
-        LoopType getLoopType(Engine engine) const
+        LoopType getLoopType(level::Engine engine) const
         {
-            if( engine == Engine::TR1 )
+            if( engine == level::Engine::TR1 )
             {
                 switch( num_samples_and_flags_1 & 3 )
                 {
@@ -100,7 +99,7 @@ namespace loader
                     return LoopType::None;
                 }
             }
-            else if( engine == Engine::TR2 )
+            else if( engine == level::Engine::TR2 )
             {
                 switch( num_samples_and_flags_1 & 3 )
                 {

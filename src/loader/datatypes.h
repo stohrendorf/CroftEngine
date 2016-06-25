@@ -31,9 +31,13 @@
  * TR level data or engine internals.
  */
 
-namespace loader
+namespace level
 {
     class Level;
+}
+
+namespace loader
+{
     constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
     constexpr const uint16_t TextureIndexMask = 0x0FFF;
     //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
@@ -1058,7 +1062,7 @@ namespace loader
             return room;
         }
 
-        irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes, TextureAnimator& animator);
+        irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes, render::TextureAnimator& animator);
 
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {

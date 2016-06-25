@@ -19,27 +19,25 @@
  *
  */
 
+#include "engine/animationcontroller.h"
+#include "engine/laracontroller.h"
 #include "level.h"
+#include "render/lightselector.h"
+#include "render/textureanimator.h"
 #include "tr1level.h"
 #include "tr2level.h"
 #include "tr3level.h"
 #include "tr4level.h"
 #include "tr5level.h"
-
 #include "util/vmath.h"
-#include "cameracontroller.h"
-#include "animationcontroller.h"
-#include "laracontroller.h"
-#include "textureanimator.h"
-#include "item.h"
-#include "render/lightselector.h"
+
+#include <boost/lexical_cast.hpp>
 
 #include <algorithm>
 #include <stack>
 #include <set>
-#include <boost/lexical_cast.hpp>
 
-using namespace loader;
+using namespace level;
 
 namespace
 {
@@ -49,7 +47,7 @@ namespace
 Level::~Level() = default;
 
 /// \brief reads the mesh data.
-void Level::readMeshData(io::SDLReader& reader)
+void Level::readMeshData(loader::io::SDLReader& reader)
 {
     uint32_t meshDataWords = reader.readU32();
     const auto basePos = reader.tell();
@@ -70,9 +68,9 @@ void Level::readMeshData(io::SDLReader& reader)
         reader.seek(basePos + meshDataPos);
 
         if( gameToEngine(m_gameVersion) >= Engine::TR4 )
-            m_meshes.emplace_back(*Mesh::readTr4(reader));
+            m_meshes.emplace_back(*loader::Mesh::readTr4(reader));
         else
-            m_meshes.emplace_back(*Mesh::readTr1(reader));
+            m_meshes.emplace_back(*loader::Mesh::readTr1(reader));
 
         for( size_t j = 0; j < m_meshIndices.size(); j++ )
         {
@@ -88,17 +86,17 @@ void Level::readMeshData(io::SDLReader& reader)
 }
 
 /// \brief reads frame and moveable data.
-void Level::readPoseDataAndModels(io::SDLReader& reader)
+void Level::readPoseDataAndModels(loader::io::SDLReader& reader)
 {
     m_poseData.resize(reader.readU32());
     reader.readVector(m_poseData, m_poseData.size());
 
     m_animatedModels.resize(reader.readU32());
-    for( std::unique_ptr<AnimatedModel>& model : m_animatedModels )
+    for( std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         if( gameToEngine(m_gameVersion) < Engine::TR5 )
         {
-            model = AnimatedModel::readTr1(reader);
+            model = loader::AnimatedModel::readTr1(reader);
             // Disable unused skybox polygons.
             if( gameToEngine(m_gameVersion) == Engine::TR3 && model->object_id == 355 )
             {
@@ -107,7 +105,7 @@ void Level::readPoseDataAndModels(io::SDLReader& reader)
         }
         else
         {
-            model = AnimatedModel::readTr5(reader);
+            model = loader::AnimatedModel::readTr5(reader);
         }
     }
 }
@@ -135,7 +133,7 @@ std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game gam
         sfxPath = "MAIN.SFX";
     }
 
-    io::SDLReader reader(filename);
+    loader::io::SDLReader reader(filename);
     if( !reader.isOpen() )
         return nullptr;
 
@@ -152,7 +150,7 @@ std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game gam
   *
   * Takes a SDL_RWop and the game_version of the file and reads the structures into the members of TR_Level.
   */
-std::unique_ptr<Level> Level::createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath)
+std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath)
 {
     if( !reader.isOpen() )
         return nullptr;
@@ -194,7 +192,7 @@ std::unique_ptr<Level> Level::createLoader(io::SDLReader&& reader, Game game_ver
     return result;
 }
 
-Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
+Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filename)
 {
     if( !reader.isOpen() || filename.length() < 5 )
         return Game::Unknown;
@@ -221,18 +219,18 @@ Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
     {
         if( check[0] == 0x20 && check[1] == 0x00 && check[2] == 0x00 && check[3] == 0x00 )
         {
-            ret = loader::Game::TR1UnfinishedBusiness;
+            ret = Game::TR1UnfinishedBusiness;
         }
     }
     else if( ext == ".TR2" )
     {
         if( check[0] == 0x2D && check[1] == 0x00 && check[2] == 0x00 && check[3] == 0x00 )
         {
-            ret = loader::Game::TR2;
+            ret = Game::TR2;
         }
         else if( (check[0] == 0x38 || check[0] == 0x34) && check[1] == 0x00 && (check[2] == 0x18 || check[2] == 0x08) && check[3] == 0xFF )
         {
-            ret = loader::Game::TR3;
+            ret = Game::TR3;
         }
     }
     else if( ext == ".TR4" )
@@ -242,21 +240,21 @@ Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
             check[2] == 0x34 && // 4
             check[3] == 0x00 )
         {
-            ret = loader::Game::TR4;
+            ret = Game::TR4;
         }
         else if( check[0] == 0x54 && // T
             check[1] == 0x52 && // R
             check[2] == 0x34 && // 4
             check[3] == 0x63 ) //
         {
-            ret = loader::Game::TR4;
+            ret = Game::TR4;
         }
         else if( check[0] == 0xF0 && // T
             check[1] == 0xFF && // R
             check[2] == 0xFF && // 4
             check[3] == 0xFF )
         {
-            ret = loader::Game::TR4;
+            ret = Game::TR4;
         }
     }
     else if( ext == ".TRC" )
@@ -266,14 +264,14 @@ Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
             check[2] == 0x34 && // C
             check[3] == 0x00 )
         {
-            ret = loader::Game::TR5;
+            ret = Game::TR5;
         }
     }
 
     return ret;
 }
 
-StaticMesh* Level::findStaticMeshById(uint32_t object_id)
+loader::StaticMesh* Level::findStaticMeshById(uint32_t object_id)
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
         if( m_staticMeshes[i].object_id == object_id && m_meshIndices[m_staticMeshes[i].mesh] )
@@ -282,7 +280,7 @@ StaticMesh* Level::findStaticMeshById(uint32_t object_id)
     return nullptr;
 }
 
-const StaticMesh* Level::findStaticMeshById(uint32_t object_id) const
+const loader::StaticMesh* Level::findStaticMeshById(uint32_t object_id) const
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
         if( m_staticMeshes[i].object_id == object_id && m_meshIndices[m_staticMeshes[i].mesh] )
@@ -323,7 +321,7 @@ int Level::findSpriteSequenceByObjectId(uint32_t object_id) const
     return -1;
 }
 
-Item* Level::findItemById(int32_t objectId)
+loader::Item* Level::findItemById(int32_t objectId)
 {
     for( size_t i = 0; i < m_items.size(); i++ )
         if( m_items[i].objectId == objectId )
@@ -332,7 +330,7 @@ Item* Level::findItemById(int32_t objectId)
     return nullptr;
 }
 
-AnimatedModel* Level::findModelById(uint32_t object_id)
+loader::AnimatedModel* Level::findModelById(uint32_t object_id)
 {
     for( size_t i = 0; i < m_animatedModels.size(); i++ )
         if( m_animatedModels[i]->object_id == object_id )
@@ -347,57 +345,57 @@ std::vector<irr::video::ITexture*> Level::createTextures(irr::scene::ISceneManag
     std::vector<irr::video::ITexture*> textures;
     for( size_t i = 0; i < m_textures.size(); ++i )
     {
-        DWordTexture& texture = m_textures[i];
+        loader::DWordTexture& texture = m_textures[i];
         textures.emplace_back(texture.toTexture(mgr, i));
     }
     return textures;
 }
 
-std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> Level::createMaterials(const std::vector<irr::video::ITexture*>& textures)
+std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> Level::createMaterials(const std::vector<irr::video::ITexture*>& textures)
 {
-    const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? TextureIndexMaskTr4 : TextureIndexMask;
-    std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials;
-    for( TextureLayoutProxy& proxy : m_textureProxies )
+    const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4 : loader::TextureIndexMask;
+    std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials;
+    for( loader::TextureLayoutProxy& proxy : m_textureProxies )
     {
         const auto& key = proxy.textureKey;
         if( materials.find(key) != materials.end() )
             continue;
 
-        materials[key] = TextureLayoutProxy::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
+        materials[key] = loader::TextureLayoutProxy::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
     }
     return materials;
 }
 
 #ifndef NDEBUG
-using StateMap = std::map<loader::LaraStateId, std::map<AnimationId, std::map<AnimationId, std::string>>>;
+using StateMap = std::map<loader::LaraStateId, std::map<loader::AnimationId, std::map<loader::AnimationId, std::string>>>;
 
-void loadAnim(StateMap& map, AnimationId aid, uint16_t ofs, const Animation& anim, const Level* level)
+void loadAnim(StateMap& map, loader::AnimationId aid, uint16_t ofs, const loader::Animation& anim, const Level* level)
 {
-    map[static_cast<loader::LaraStateId>(anim.state_id)][aid][static_cast<AnimationId>(anim.nextAnimation - ofs)] = "@";
+    map[static_cast<loader::LaraStateId>(anim.state_id)][aid][static_cast<loader::AnimationId>(anim.nextAnimation - ofs)] = "@";
     for( size_t i = 0; i < anim.transitionsCount; ++i )
     {
         auto tIdx = anim.transitionsIndex + i;
         BOOST_ASSERT(tIdx < level->m_transitions.size());
-        const Transitions& tr = level->m_transitions[tIdx];
+        const loader::Transitions& tr = level->m_transitions[tIdx];
 
         for( auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j )
         {
             BOOST_ASSERT(j < level->m_transitionCases.size());
-            const TransitionCase& trc = level->m_transitionCases[j];
+            const loader::TransitionCase& trc = level->m_transitionCases[j];
 
-            AnimationId a = static_cast<AnimationId>(trc.targetAnimation - ofs);
+            loader::AnimationId a = static_cast<loader::AnimationId>(trc.targetAnimation - ofs);
 
             map[static_cast<loader::LaraStateId>(anim.state_id)][aid][a] = {};
         }
     }
 }
 
-void dumpAnims(const AnimatedModel& model, const Level* level)
+void dumpAnims(const loader::AnimatedModel& model, const Level* level)
 {
     StateMap map;
     for( const auto& fm : model.frameMapping )
     {
-        loadAnim(map, static_cast<AnimationId>(fm.first - model.animationIndex), model.animationIndex, level->m_animations[fm.first], level);
+        loadAnim(map, static_cast<loader::AnimationId>(fm.first - model.animationIndex), model.animationIndex, level->m_animations[fm.first], level);
     }
 
     std::cerr << "@startuml\n\n";
@@ -444,16 +442,16 @@ void dumpAnims(const AnimatedModel& model, const Level* level)
 
 #endif
 
-LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
 {
-    LaraController* lara = nullptr;
+    engine::LaraController* lara = nullptr;
     int id = -1;
-    for( Item& item : m_items )
+    for( loader::Item& item : m_items )
     {
         ++id;
 
         BOOST_ASSERT(item.room < m_rooms.size());
-        Room& room = m_rooms[item.room];
+        loader::Room& room = m_rooms[item.room];
 
         auto meshIdx = findAnimatedModelIndexByObjectId(item.objectId);
         if( meshIdx >= 0 )
@@ -483,12 +481,12 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            auto animationController = AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
+            auto animationController = engine::AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
 
             if( item.objectId == 0 )
             {
-                animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
-                lara = new LaraController(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(static_cast<uint16_t>(loader::AnimationId::STAY_IDLE));
+                lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
                 m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
                 node->addShadowVolumeSceneNode();
@@ -498,7 +496,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             }
             else
             {
-                m_itemControllers[id] = std::make_unique<DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
+                m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - room.position));
             }
 
@@ -532,7 +530,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
     return lara;
 }
 
-void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
+void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
 {
     uint16_t angleSetOfs = 10;
 
@@ -574,7 +572,7 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const Animate
     pData = pData.get() + animation.poseDataSize;
 }
 
-AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
+loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
 {
     const auto meshPositionIndex = animation.poseDataOffset / 2;
     gsl::not_null<const int16_t*> pData = &m_poseData[meshPositionIndex];
@@ -613,7 +611,7 @@ AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const Anim
     loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
     frameOffset += animation.stretchFactor;
 
-    return AnimatedModel::FrameRange{firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch, std::move(bboxes)};
+    return loader::AnimatedModel::FrameRange{firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch, std::move(bboxes)};
 }
 
 std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes)
@@ -621,7 +619,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
     BOOST_ASSERT(!m_animatedModels.empty());
 
     std::set<uint16_t> animStarts;
-    for( const std::unique_ptr<AnimatedModel>& model : m_animatedModels )
+    for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         if( model->animationIndex == 0xffff )
         {
@@ -636,7 +634,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
 
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes;
 
-    for( const std::unique_ptr<AnimatedModel>& model : m_animatedModels )
+    for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         Expects(model != nullptr);
         irr::scene::ISkinnedMesh* skinnedMesh = mgr->createSkinnedMesh();
@@ -739,7 +737,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             if( currentAnimIdx >= m_animations.size() )
                 continue;
 
-            const Animation& animation = m_animations[currentAnimIdx];
+            const loader::Animation& animation = m_animations[currentAnimIdx];
             model->frameMapping.emplace(std::make_pair(currentAnimIdx, loadAnimation(currentAnimOffset, *model, animation, skinnedMesh)));
         }
 
@@ -787,7 +785,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     mgr->setLightManager(new render::LightSelector(*this, mgr));
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
-    std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
+    std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
@@ -802,7 +800,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         coloredMaterials.emplace_back(result);
     }
 
-    m_textureAnimator = std::make_shared<TextureAnimator>(m_animatedTextures);
+    m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
     std::vector<irr::scene::SMesh*> staticMeshes;
     for( size_t i = 0; i < m_meshes.size(); ++i )
@@ -828,14 +826,14 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
         ptr->drop();
 
     irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
-    m_cameraController = new CameraController(cursorCtrl, this, m_lara, mgr->getVideoDriver(), camera);
+    m_cameraController = new engine::CameraController(cursorCtrl, this, m_lara, mgr->getVideoDriver(), camera);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);
     camera->setFarValue(2e5);
 }
 
-void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
+void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
     {
@@ -851,7 +849,7 @@ void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
     }
 }
 
-void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
+void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
     {
@@ -875,12 +873,12 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
+gsl::not_null<const loader::Sector*> Level::findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const loader::Room*>*> room) const
 {
-    const Sector* sector = nullptr;
+    const loader::Sector* sector = nullptr;
     while( true )
     {
-        sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / SectorSize, (position.Z - (*room)->position.Z) / SectorSize);
+        sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / loader::SectorSize, (position.Z - (*room)->position.Z) / loader::SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
@@ -893,9 +891,9 @@ gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const cor
     }
 
     Expects(sector != nullptr);
-    if( sector->floorHeight * QuarterSectorSize > position.Y )
+    if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
+        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             *room = &m_rooms[sector->roomAbove];
@@ -905,7 +903,7 @@ gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const cor
     }
     else
     {
-        while( sector->floorHeight * QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
+        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             *room = &m_rooms[sector->roomBelow];
@@ -917,12 +915,12 @@ gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const cor
     return sector;
 }
 
-gsl::not_null<const Room*> Level::findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
+gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const loader::Room*> room) const
 {
-    const Sector* sector = nullptr;
+    const loader::Sector* sector = nullptr;
     while( true )
     {
-        sector = room->findFloorSectorWithClampedIndex(gsl::narrow_cast<int>(position.X - room->position.X) / SectorSize, gsl::narrow_cast<int>(position.Z - room->position.Z) / SectorSize);
+        sector = room->findFloorSectorWithClampedIndex(gsl::narrow_cast<int>(position.X - room->position.X) / loader::SectorSize, gsl::narrow_cast<int>(position.Z - room->position.Z) / loader::SectorSize);
         Expects(sector != nullptr);
         const auto portalTarget = sector->getPortalTarget(m_floorData);
         if( !portalTarget )
@@ -935,9 +933,9 @@ gsl::not_null<const Room*> Level::findRoomForPosition(const core::ExactTRCoordin
     }
 
     Expects(sector != nullptr);
-    if( sector->floorHeight * QuarterSectorSize > position.Y )
+    if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
+        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             room = &m_rooms[sector->roomAbove];
@@ -947,7 +945,7 @@ gsl::not_null<const Room*> Level::findRoomForPosition(const core::ExactTRCoordin
     }
     else
     {
-        while( sector->floorHeight * QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
+        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
         {
             BOOST_ASSERT(sector->roomBelow < m_rooms.size());
             room = &m_rooms[sector->roomBelow];
@@ -959,7 +957,7 @@ gsl::not_null<const Room*> Level::findRoomForPosition(const core::ExactTRCoordin
     return room;
 }
 
-const ItemController* Level::getItemController(uint16_t id) const
+const engine::ItemController* Level::getItemController(uint16_t id) const
 {
     auto it = m_itemControllers.find(id);
     if(it == m_itemControllers.end())

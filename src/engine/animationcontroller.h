@@ -1,9 +1,11 @@
 #pragma once
 
-#include "level.h"
-#include "animation.h"
+#include "level/level.h"
+#include "loader/animation.h"
 
-namespace loader
+#include <boost/optional.hpp>
+
+namespace engine
 {
 /**
  * @brief Handles state transitions and animation playback.
@@ -11,17 +13,17 @@ namespace loader
 class AnimationController final
 {
 private:
-    const Level* const m_level;
-    const AnimatedModel& m_model;
+    const level::Level* const m_level;
+    const loader::AnimatedModel& m_model;
     uint16_t m_currentAnimationId;
     uint16_t m_targetState = 0;
     const std::string m_name;
     irr::scene::IAnimatedMeshSceneNode* const m_node;
 
-    AnimationController(gsl::not_null<const Level*> level, const AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name);
+    AnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name);
 public:
 
-    static std::shared_ptr<AnimationController> create(irr::scene::IAnimatedMeshSceneNode* node, const Level* level, const AnimatedModel& model, const std::string& name);
+    static std::shared_ptr<AnimationController> create(irr::scene::IAnimatedMeshSceneNode* node, const level::Level* level, const loader::AnimatedModel& model, const std::string& name);
     
     uint16_t getCurrentAnimState() const;
 
@@ -70,14 +72,14 @@ public:
     float calculateFloorSpeed() const
     {
         BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
-        const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+        const loader::Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
         return float(currentAnim.speed + currentAnim.accelleration * getCurrentRelativeFrame()) / (1 << 16);
     }
 
     int getAccelleration() const
     {
         BOOST_ASSERT(m_currentAnimationId < m_level->m_animations.size());
-        const Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
+        const loader::Animation& currentAnim = m_level->m_animations[m_currentAnimationId];
         return currentAnim.accelleration / (1 << 16);
     }
 

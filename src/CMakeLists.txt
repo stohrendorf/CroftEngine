@@ -48,56 +48,60 @@ gen_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CUR
 
 set(OT_IRR_SRCS
     ot_irr.cpp
-    loader/level.h
-    loader/level.cpp
-    loader/datatypes.h
-    loader/datatypes.cpp
-    loader/tr1level.h
-    loader/tr1level.cpp
-    loader/tr2level.h
-    loader/tr2level.cpp
-    loader/tr3level.h
-    loader/tr3level.cpp
-    loader/tr4level.h
-    loader/tr4level.cpp
-    loader/tr5level.h
-    loader/tr5level.cpp
-    loader/cameracontroller.h
-    loader/cameracontroller.cpp
-    loader/animationcontroller.h
-    loader/animationcontroller.cpp
-    loader/laracontroller.h
-    loader/laracontroller.cpp
-    loader/itemcontroller.h
-    loader/itemcontroller.cpp
-    loader/larastateid.h
-    loader/textureanimator.h
-    loader/item.h
-    loader/floordata.h
-    loader/color.h
-    loader/texture.h
-    loader/primitives.h
-    loader/meshes.h
-    loader/meshes.cpp
-    loader/util.h
+
+    core/angle.h
+    core/coordinates.h
+    core/interpolatedvalue.h
+    core/magic.h
+
+    engine/abstractstatehandler.cpp
+    engine/abstractstatehandler.h
+    engine/animationcontroller.cpp
+    engine/animationcontroller.h
+    engine/cameracontroller.cpp
+    engine/cameracontroller.h
+    engine/heightinfo.cpp
+    engine/heightinfo.h
+    engine/inputstate.h
+    engine/itemcontroller.cpp
+    engine/itemcontroller.h
+    engine/laracontroller.cpp
+    engine/laracontroller.h
+    engine/larastate.cpp
+    engine/larastate.h
+
+    level/game.h
+    level/level.cpp
+    level/level.h
+    level/tr1level.cpp
+    level/tr1level.h
+    level/tr2level.cpp
+    level/tr2level.h
+    level/tr3level.cpp
+    level/tr3level.h
+    level/tr4level.cpp
+    level/tr4level.h
+    level/tr5level.cpp
+    level/tr5level.h
+
     loader/animation.h
     loader/audio.h
+    loader/color.h
+    loader/datatypes.cpp
+    loader/datatypes.h
+    loader/floordata.h
+    loader/item.h
+    loader/larastateid.h
+    loader/meshes.cpp
+    loader/meshes.h
+    loader/primitives.h
+    loader/texture.h
+    loader/util.h
 
-    inputstate.h
-    heightinfo.h
-    heightinfo.cpp
-    larastate.h
-    larastate.cpp
-    abstractstatehandler.h
-    abstractstatehandler.cpp
-
-    core/magic.h
-    core/angle.h
-    core/interpolatedvalue.h
-    core/coordinates.h
-
-    render/portaltracer.h
     render/lightselector.h
+    render/portaltracer.h
+    render/textureanimator.h
+
     util/helpers.h
     util/vmath.h
 )

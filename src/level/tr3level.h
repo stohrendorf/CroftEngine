@@ -2,12 +2,12 @@
 
 #include "level.h"
 
-namespace loader
+namespace level
 {
 class TR3Level : public Level
 {
 public:
-    TR3Level(Game gameVersion, io::SDLReader&& reader)
+    TR3Level(Game gameVersion, loader::io::SDLReader&& reader)
         : Level(gameVersion, std::move(reader))
     {
     }

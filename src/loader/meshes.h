@@ -12,7 +12,10 @@ namespace core
     class Angle;
 }
 
-class TextureAnimator;
+namespace render
+{
+    class TextureAnimator;
+}
 
 namespace loader
 {
@@ -84,7 +87,7 @@ namespace loader
             return mesh;
         }
 
-        irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials, TextureAnimator& animator) const;
+        irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials, render::TextureAnimator& animator) const;
     };
 
     struct RoomStaticMesh

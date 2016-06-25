@@ -1,8 +1,8 @@
 #include "datatypes.h"
 
-#include "level.h"
+#include "level/level.h"
+#include "render/textureanimator.h"
 #include "util/vmath.h"
-#include "textureanimator.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
@@ -35,11 +35,11 @@ irr::u16 addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, co
 
 irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr,
                                                   int dumpIdx,
-                                                  const Level& level,
+                                                  const level::Level& level,
                                                   const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
                                                   const std::vector<irr::video::ITexture*>& textures,
                                                   const std::vector<irr::scene::SMesh*>& staticMeshes,
-                                                  TextureAnimator& animator)
+                                                  render::TextureAnimator& animator)
 {
     // texture => mesh buffer
     std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;

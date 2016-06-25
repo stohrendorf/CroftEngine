@@ -21,7 +21,7 @@
 
 #include "tr2level.h"
 
-using namespace loader;
+using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR2  370
 
@@ -33,29 +33,29 @@ void TR2Level::load(irr::video::IVideoDriver* /*drv*/)
     if(file_version != 0x0000002d)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR2 Level: Wrong level version"));
 
-    m_palette = Palette::readTr1(m_reader);
-    /*Palette palette16 =*/ Palette::readTr2(m_reader);
+    m_palette = loader::Palette::readTr1(m_reader);
+    /*Palette palette16 =*/ loader::Palette::readTr2(m_reader);
 
     auto numTextiles = m_reader.readU32();
-    std::vector<ByteTexture> texture8;
-    m_reader.readVector(texture8, numTextiles, &ByteTexture::read);
-    std::vector<WordTexture> texture16;
-    m_reader.readVector(texture16, numTextiles, &WordTexture::read);
+    std::vector<loader::ByteTexture> texture8;
+    m_reader.readVector(texture8, numTextiles, &loader::ByteTexture::read);
+    std::vector<loader::WordTexture> texture16;
+    m_reader.readVector(texture16, numTextiles, &loader::WordTexture::read);
 
     // Unused
     if(m_reader.readU32() != 0)
         BOOST_LOG_TRIVIAL(warning) << "TR2 Level: Bad value for 'unused'";
 
-    m_reader.readVector(m_rooms, m_reader.readU16(), Room::readTr2);
+    m_reader.readVector(m_rooms, m_reader.readU16(), loader::Room::readTr2);
     m_reader.readVector(m_floorData, m_reader.readU32());
 
     readMeshData(m_reader);
 
-    m_reader.readVector(m_animations, m_reader.readU32(), &Animation::readTr1);
+    m_reader.readVector(m_animations, m_reader.readU32(), &loader::Animation::readTr1);
 
-    m_reader.readVector(m_transitions, m_reader.readU32(), &Transitions::read);
+    m_reader.readVector(m_transitions, m_reader.readU32(), &loader::Transitions::read);
 
-    m_reader.readVector(m_transitionCases, m_reader.readU32(), &TransitionCase::read);
+    m_reader.readVector(m_transitionCases, m_reader.readU32(), &loader::TransitionCase::read);
 
     m_reader.readVector(m_animCommands, m_reader.readU32());
 
@@ -63,43 +63,43 @@ void TR2Level::load(irr::video::IVideoDriver* /*drv*/)
 
     readPoseDataAndModels(m_reader);
 
-    m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
+    m_reader.readVector(m_staticMeshes, m_reader.readU32(), &loader::StaticMesh::read);
 
-    m_reader.readVector(m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr1);
+    m_reader.readVector(m_textureProxies, m_reader.readU32(), &loader::TextureLayoutProxy::readTr1);
 
-    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &SpriteTexture::readTr1);
+    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &loader::SpriteTexture::readTr1);
 
-    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &SpriteSequence::read);
+    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::read);
 
     if(m_demoOrUb)
-        m_lightmap = LightMap::read(m_reader);
+        m_lightmap = loader::LightMap::read(m_reader);
 
-    m_reader.readVector(m_cameras, m_reader.readU32(), &Camera::read);
+    m_reader.readVector(m_cameras, m_reader.readU32(), &loader::Camera::read);
 
-    m_reader.readVector(m_soundSources, m_reader.readU32(), &SoundSource::read);
+    m_reader.readVector(m_soundSources, m_reader.readU32(), &loader::SoundSource::read);
 
-    m_reader.readVector(m_boxes, m_reader.readU32(), &Box::readTr2);
+    m_reader.readVector(m_boxes, m_reader.readU32(), &loader::Box::readTr2);
 
     m_reader.readVector(m_overlaps, m_reader.readU32());
 
-    m_reader.readVector(m_zones, m_boxes.size(), &Zone::readTr2);
+    m_reader.readVector(m_zones, m_boxes.size(), &loader::Zone::readTr2);
 
     m_animatedTexturesUvCount = 0; // No UVRotate in TR2
     m_reader.readVector(m_animatedTextures, m_reader.readU32());
 
-    m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr2);
+    m_reader.readVector(m_items, m_reader.readU32(), &loader::Item::readTr2);
 
     if(!m_demoOrUb)
-        m_lightmap = LightMap::read(m_reader);
+        m_lightmap = loader::LightMap::read(m_reader);
 
-    m_reader.readVector(m_cinematicFrames, m_reader.readU16(), &CinematicFrame::read);
+    m_reader.readVector(m_cinematicFrames, m_reader.readU16(), &loader::CinematicFrame::read);
 
     m_reader.readVector(m_demoData, m_reader.readU16());
 
     // Soundmap
     m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR2);
 
-    m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr1);
+    m_reader.readVector(m_soundDetails, m_reader.readU32(), &loader::SoundDetails::readTr1);
 
     m_reader.readVector(m_sampleIndices, m_reader.readU32());
 
@@ -117,7 +117,7 @@ void TR2Level::load(irr::video::IVideoDriver* /*drv*/)
     // In TR2, samples are stored in separate file called MAIN.SFX.
     // If there is no such files, no samples are loaded.
 
-    io::SDLReader newsrc(m_sfxPath);
+    loader::io::SDLReader newsrc(m_sfxPath);
     if(!newsrc.isOpen())
     {
         BOOST_LOG_TRIVIAL(warning) << "TR2 Level: failed to open '" << m_sfxPath << "', no samples loaded.";

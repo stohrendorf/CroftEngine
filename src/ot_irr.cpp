@@ -1,4 +1,4 @@
-#include "loader/level.h"
+#include "level/level.h"
 
 int main()
 {
@@ -22,7 +22,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
     
-    auto l = loader::Level::createLoader("data/tr1/data/LEVEL3A.PHD", loader::Game::Unknown);
+    auto l = level::Level::createLoader("data/tr1/data/LEVEL2.PHD", level::Game::Unknown);
     BOOST_ASSERT(l != nullptr);
     auto driver = device->getVideoDriver();
     l->load(driver);

@@ -21,7 +21,7 @@
 
 #include "tr5level.h"
 
-using namespace loader;
+using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR5  450
 
@@ -49,8 +49,8 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
         std::vector<uint8_t> comp_buffer(comp_size);
         m_reader.readBytes(comp_buffer.data(), comp_size);
 
-        io::SDLReader newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-        newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &DWordTexture::read);
+        loader::io::SDLReader newsrc = loader::io::SDLReader::decompress(comp_buffer, uncomp_size);
+        newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &loader::DWordTexture::read);
     }
 
     uncomp_size = m_reader.readU32();
@@ -58,7 +58,7 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles16 is empty"));
 
     comp_size = m_reader.readU32();
-    std::vector<WordTexture> texture16;
+    std::vector<loader::WordTexture> texture16;
     if(comp_size > 0)
     {
         if(m_textures.empty())
@@ -66,8 +66,8 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
             std::vector<uint8_t> comp_buffer(comp_size);
             m_reader.readBytes(comp_buffer.data(), comp_size);
 
-            io::SDLReader newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-            newsrc.readVector(texture16, numTextiles - numMiscTextiles, &WordTexture::read);
+            loader::io::SDLReader newsrc = loader::io::SDLReader::decompress(comp_buffer, uncomp_size);
+            newsrc.readVector(texture16, numTextiles - numMiscTextiles, &loader::WordTexture::read);
         }
         else
         {
@@ -88,8 +88,8 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
         std::vector<uint8_t> comp_buffer(comp_size);
         m_reader.readBytes(comp_buffer.data(), comp_size);
 
-        io::SDLReader newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-        newsrc.appendVector(m_textures, numMiscTextiles, &DWordTexture::read);
+        loader::io::SDLReader newsrc = loader::io::SDLReader::decompress(comp_buffer, uncomp_size);
+        newsrc.appendVector(m_textures, numMiscTextiles, &loader::DWordTexture::read);
     }
 
     m_laraType = m_reader.readU16();
@@ -125,17 +125,17 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
     if(m_reader.readU32() != 0)
         BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value for 'unused'";
 
-    m_reader.readVector(m_rooms, m_reader.readU32(), &Room::readTr5);
+    m_reader.readVector(m_rooms, m_reader.readU32(), &loader::Room::readTr5);
 
     m_reader.readVector(m_floorData, m_reader.readU32());
 
     readMeshData(m_reader);
 
-    m_reader.readVector(m_animations, m_reader.readU32(), &Animation::readTr4);
+    m_reader.readVector(m_animations, m_reader.readU32(), &loader::Animation::readTr4);
 
-    m_reader.readVector(m_transitions, m_reader.readU32(), &Transitions::read);
+    m_reader.readVector(m_transitions, m_reader.readU32(), &loader::Transitions::read);
 
-    m_reader.readVector(m_transitionCases, m_reader.readU32(), &TransitionCase::read);
+    m_reader.readVector(m_transitionCases, m_reader.readU32(), &loader::TransitionCase::read);
 
     m_reader.readVector(m_animCommands, m_reader.readU32());
 
@@ -143,7 +143,7 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
 
     readPoseDataAndModels(m_reader);
 
-    m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
+    m_reader.readVector(m_staticMeshes, m_reader.readU32(), &loader::StaticMesh::read);
 
     if(m_reader.readI8() != 'S')
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
@@ -157,21 +157,21 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
     if(m_reader.readI8() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &SpriteTexture::readTr4);
+    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &loader::SpriteTexture::readTr4);
 
-    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &SpriteSequence::read);
+    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::read);
 
-    m_reader.readVector(m_cameras, m_reader.readU32(), &Camera::read);
+    m_reader.readVector(m_cameras, m_reader.readU32(), &loader::Camera::read);
 
-    m_reader.readVector(m_flybyCameras, m_reader.readU32(), &FlybyCamera::read);
+    m_reader.readVector(m_flybyCameras, m_reader.readU32(), &loader::FlybyCamera::read);
 
-    m_reader.readVector(m_soundSources, m_reader.readU32(), &SoundSource::read);
+    m_reader.readVector(m_soundSources, m_reader.readU32(), &loader::SoundSource::read);
 
-    m_reader.readVector(m_boxes, m_reader.readU32(), &Box::readTr2);
+    m_reader.readVector(m_boxes, m_reader.readU32(), &loader::Box::readTr2);
 
     m_reader.readVector(m_overlaps, m_reader.readU32());
 
-    m_reader.readVector(m_zones, m_boxes.size(), &Zone::readTr2);
+    m_reader.readVector(m_zones, m_boxes.size(), &loader::Zone::readTr2);
 
     m_reader.readVector(m_animatedTextures, m_reader.readU32());
 
@@ -189,18 +189,18 @@ void TR5Level::load(irr::video::IVideoDriver* /*drv*/)
     if(m_reader.readI8() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr5);
+    m_reader.readVector(m_textureProxies, m_reader.readU32(), &loader::TextureLayoutProxy::readTr5);
 
-    m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr4);
+    m_reader.readVector(m_items, m_reader.readU32(), &loader::Item::readTr4);
 
-    m_reader.readVector(m_aiObjects, m_reader.readU32(), &AIObject::read);
+    m_reader.readVector(m_aiObjects, m_reader.readU32(), &loader::AIObject::read);
 
     m_reader.readVector(m_demoData, m_reader.readU16());
 
     // Soundmap
     m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR5);
 
-    m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr3);
+    m_reader.readVector(m_soundDetails, m_reader.readU32(), &loader::SoundDetails::readTr3);
 
     m_reader.readVector(m_sampleIndices, m_reader.readU32());
 

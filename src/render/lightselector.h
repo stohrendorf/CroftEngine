@@ -1,17 +1,17 @@
 #pragma once
 
-#include "loader/level.h"
+#include "level/level.h"
 
 namespace render
 {
     class LightSelector final : public irr::scene::ILightManager
     {
     private:
-        loader::Level& m_level;
+        level::Level& m_level;
         gsl::not_null<irr::scene::ISceneManager*> m_manager;
 
     public:
-        explicit LightSelector(loader::Level& level, gsl::not_null<irr::scene::ISceneManager*> mgr)
+        explicit LightSelector(level::Level& level, gsl::not_null<irr::scene::ISceneManager*> mgr)
             : m_level(level)
               , m_manager(mgr)
         {

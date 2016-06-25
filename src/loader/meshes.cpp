@@ -1,7 +1,7 @@
 #include "meshes.h"
 
+#include "render/textureanimator.h"
 #include "primitives.h"
-#include "textureanimator.h"
 
 #include <gsl.h>
 
@@ -45,7 +45,7 @@ namespace loader
                                         const std::vector<TextureLayoutProxy>& textureProxies,
                                         const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
                                         const std::vector<irr::video::SMaterial>& colorMaterials,
-                                        TextureAnimator& animator) const
+                                        render::TextureAnimator& animator) const
     {
         BOOST_ASSERT(colorMaterials.size() == 256);
 
