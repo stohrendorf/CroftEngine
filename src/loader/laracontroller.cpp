@@ -517,7 +517,7 @@ std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
         getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
     );
 
-    getSceneNode()->setPosition(getPosition().toIrrlicht());
+    applyPosition();
     getSceneNode()->updateAbsolutePosition();
 
     return nextHandler;

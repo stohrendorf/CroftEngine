@@ -616,12 +616,10 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             if( item.objectId == 0 )
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
-                node->setPosition(item.position.toIrrlicht());
             }
             else
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
-                node->setPosition(item.position.toIrrlicht() - room.node->getPosition());
             }
 
             std::string name = "item";
@@ -643,8 +641,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
                 animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
                 lara = new LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
-                node->addAnimator(lara);
-                lara->drop();
+                m_itemControllers[id]->setPosition(loader::ExactTRCoordinates(item.position));
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
@@ -653,9 +650,13 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             else
             {
                 m_itemControllers[id] = std::make_unique<DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
+                m_itemControllers[id]->setPosition(loader::ExactTRCoordinates(item.position - room.position));
             }
 
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
+
+            node->addAnimator(m_itemControllers[id].get());
+            m_itemControllers[id]->drop();
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
             {

@@ -65,6 +65,10 @@ public:
     void setCurrentRoom(const loader::Room* newRoom);
 
     void applyRotation();
+    void applyPosition()
+    {
+        m_sceneNode->setPosition(m_position.position.toIrrlicht());
+    }
 
     irr::scene::ISceneNode* getSceneNode() const noexcept
     {
@@ -165,6 +169,9 @@ public:
 
     void animateNode(irr::scene::ISceneNode* /*node*/, irr::u32 /*timeMs*/) override
     {
+        applyRotation();
+        applyPosition();
+        getSceneNode()->updateAbsolutePosition();
     }
     
     ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/) override
