@@ -208,8 +208,8 @@ namespace loader
 
             mesh->collision_box[0].X = reader.readI16();
             mesh->collision_box[1].X = reader.readI16();
-            mesh->collision_box[0].Y = -reader.readI16();
-            mesh->collision_box[1].Y = -reader.readI16();
+            mesh->collision_box[0].Y = reader.readI16();
+            mesh->collision_box[1].Y = reader.readI16();
             mesh->collision_box[0].Z = reader.readI16();
             mesh->collision_box[1].Z = reader.readI16();
 

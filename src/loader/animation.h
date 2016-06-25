@@ -214,17 +214,22 @@ namespace loader
                 BOOST_ASSERT(dist > 0);
                 auto lambda = float(localFrame - before->first) / dist;
 
-                auto intLerp = [](const irr::core::vector3di& a, const irr::core::vector3di& b, float d) -> irr::core::vector3di
+                auto lerpInt = [](int a, int b, float d) -> int
+                    {
+                        return static_cast<int>(a * (1.0f - d) + b * d);
+                    };
+
+                auto lerpIVec = [&lerpInt](const irr::core::vector3di& a, const irr::core::vector3di& b, float d) -> irr::core::vector3di
                     {
                         return irr::core::vector3di{
-                            irr::core::lerp(a.X, b.X, d),
-                            irr::core::lerp(a.Y, b.Y, d),
-                            irr::core::lerp(a.Z, b.Z, d)
+                            lerpInt(a.X, b.X, d),
+                            lerpInt(a.Y, b.Y, d),
+                            lerpInt(a.Z, b.Z, d)
                         };
                     };
 
                 // aabbox's getInterpolated does wrong rounding for ints, so we need to do it manually
-                irr::core::aabbox3di interp(intLerp(before->second.MinEdge, it->second.MinEdge, lambda), intLerp(before->second.MaxEdge, it->second.MaxEdge, lambda));
+                irr::core::aabbox3di interp(lerpIVec(before->second.MinEdge, it->second.MinEdge, lambda), lerpIVec(before->second.MaxEdge, it->second.MaxEdge, lambda));
                 return interp;
             }
         };

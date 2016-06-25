@@ -112,7 +112,7 @@ void LaraState::initHeightInfo(const core::ExactTRCoordinates& laraPos, const lo
         frontRight.floor.distance = 2 * loader::QuarterSectorSize;
     }
 
-    //! @bug This is buggy. checkStaticMeshCollisions(laraPos, height, level);
+    checkStaticMeshCollisions(laraPos, height, level);
 
     if( current.floor.distance == -loader::HeightLimit )
     {
@@ -213,11 +213,11 @@ bool LaraState::checkStaticMeshCollisions(const core::ExactTRCoordinates& positi
 {
     auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 
-    irr::core::aabbox3di baseBB(
+    irr::core::aabbox3di baseCollisionBox(
         position.X - collisionRadius, position.Y - height, position.Z - collisionRadius,
         position.X + collisionRadius, position.Y + height, position.Z + collisionRadius
     );
-    baseBB.repair();
+    baseCollisionBox.repair();
 
     for(const loader::Room* room : rooms)
     {
@@ -227,18 +227,17 @@ bool LaraState::checkStaticMeshCollisions(const core::ExactTRCoordinates& positi
             if(sm->doNotCollide())
                 continue;
 
-            irr::core::aabbox3di bb = sm->getCollisionBox(rsm.position, core::Angle{ rsm.rotation });
-            bb.repair();
+            irr::core::aabbox3di meshCollisionBox = sm->getCollisionBox(rsm.position, core::Angle{ rsm.rotation });
 
-            if(!bb.intersectsWithBox(baseBB))
+            if(!meshCollisionBox.intersectsWithBox(baseCollisionBox))
                 continue;
 
-            auto dx = bb.MaxEdge.X - baseBB.MinEdge.X;
-            if(baseBB.MaxEdge.X - bb.MinEdge.X < dx)
-                dx = -(baseBB.MaxEdge.X - bb.MinEdge.X);
-            auto dz = bb.MaxEdge.X - baseBB.MinEdge.X;
-            if(baseBB.MaxEdge.Z - bb.MinEdge.Z < dz)
-                dz = -(baseBB.MaxEdge.Z - bb.MinEdge.Z);
+            auto dx = meshCollisionBox.MaxEdge.X - baseCollisionBox.MinEdge.X;
+            if(baseCollisionBox.MaxEdge.X - meshCollisionBox.MinEdge.X < dx)
+                dx = -(baseCollisionBox.MaxEdge.X - meshCollisionBox.MinEdge.X);
+            auto dz = meshCollisionBox.MaxEdge.Z - baseCollisionBox.MinEdge.Z;
+            if(baseCollisionBox.MaxEdge.Z - meshCollisionBox.MinEdge.Z < dz)
+                dz = -(baseCollisionBox.MaxEdge.Z - meshCollisionBox.MinEdge.Z);
 
             switch(orientationAxis)
             {
