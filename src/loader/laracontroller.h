@@ -95,6 +95,16 @@ public:
         m_inputState = state;
     }
 
+    bool isInWater() const
+    {
+        return m_underwaterState == UnderwaterState::Swimming || m_underwaterState == UnderwaterState::Diving;
+    }
+
+    float getAir() const
+    {
+        return m_air.getCurrentValue();
+    }
+
 private:
     void handleLaraStateOnLand(bool newFrame);
     void handleLaraStateDiving(bool newFrame);

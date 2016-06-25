@@ -159,6 +159,11 @@ struct ByteColor
         return read(reader, true);
     }
 
+    irr::video::SColor toSColor() const
+    {
+        return irr::video::SColor(a, r ,g, b);
+    }
+
 private:
     static ByteColor read(io::SDLReader& reader, bool withAlpha)
     {
@@ -1960,7 +1965,7 @@ struct Room
         return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
     }
 
-    const Sector* findFloorSectorWithClampedPosition(TRCoordinates position) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(TRCoordinates position) const
     {
         position -= this->position;
         return findFloorSectorWithClampedIndex(position.X / SectorSize, position.Z / SectorSize);
@@ -1975,7 +1980,7 @@ struct Room
         return &sectors[sectorCountZ * dx + dz];
     }
 
-    const Sector* findFloorSectorWithClampedIndex(int dx, int dz) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
     {
         if(dz <= 0)
         {

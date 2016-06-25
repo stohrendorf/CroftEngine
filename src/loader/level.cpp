@@ -1047,7 +1047,7 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-const Sector* Level::findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
+gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
 {
     const Sector* sector = nullptr;
     while( true )
@@ -1089,7 +1089,7 @@ const Sector* Level::findFloorSectorWithClampedPosition(const TRCoordinates& pos
     return sector;
 }
 
-const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
+gsl::not_null<const Room*> Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
 {
     const Sector* sector = nullptr;
     while( true )
@@ -1138,4 +1138,47 @@ const ItemController* Level::getItemController(uint16_t id) const
         return nullptr;
 
     return it->second.get();
+}
+
+void Level::drawBars(irr::video::IVideoDriver* drv) const
+{
+    if(m_lara->isInWater())
+    {
+        const irr::s32 x0 = drv->getScreenSize().Width - 110;
+
+        for(irr::s32 i = 7; i <= 13; ++i)
+            drv->draw2DLine({ x0 - 1, i }, { x0 + 101, i }, m_palette->color[0].toSColor());
+        drv->draw2DLine({ x0 - 2, 14 }, { x0 + 102, 14 }, m_palette->color[17].toSColor());
+        drv->draw2DLine({ x0 + 102, 6 }, { x0 + 102, 14 }, m_palette->color[17].toSColor());
+        drv->draw2DLine({ x0 + 102, 6 }, { x0 + 102, 14 }, m_palette->color[19].toSColor());
+        drv->draw2DLine({ x0 - 2, 6 }, { x0 - 2, 14 }, m_palette->color[19].toSColor());
+
+        const int p = irr::core::clamp(std::lround(m_lara->getAir() * 100 / 1800), 0L, 100L);
+        if(p > 0)
+        {
+            drv->draw2DLine({ x0, 8 }, { x0 + p, 8 }, m_palette->color[32].toSColor());
+            drv->draw2DLine({ x0, 9 }, { x0 + p, 9 }, m_palette->color[41].toSColor());
+            drv->draw2DLine({ x0, 10 }, { x0 + p, 10 }, m_palette->color[32].toSColor());
+            drv->draw2DLine({ x0, 11 }, { x0 + p, 11 }, m_palette->color[19].toSColor());
+            drv->draw2DLine({ x0, 12 }, { x0 + p, 12 }, m_palette->color[21].toSColor());
+        }
+    }
+
+    const irr::s32 x0 = 8;
+    for(irr::s32 i = 7; i <= 13; ++i)
+        drv->draw2DLine({ x0 - 1, i }, { x0 + 101, i }, m_palette->color[0].toSColor());
+    drv->draw2DLine({ x0 - 2, 14 }, { x0 + 102, 14 }, m_palette->color[17].toSColor());
+    drv->draw2DLine({ x0 + 102, 6 }, { x0 + 102, 14 }, m_palette->color[17].toSColor());
+    drv->draw2DLine({ x0 + 102, 6 }, { x0 + 102, 14 }, m_palette->color[19].toSColor());
+    drv->draw2DLine({ x0 - 2, 6 }, { x0 - 2, 14 }, m_palette->color[19].toSColor());
+
+    const int p = irr::core::clamp(std::lround(m_lara->getHealth().getCurrentValue() * 100 / 1000), 0L, 100L);
+    if(p > 0)
+    {
+        drv->draw2DLine({ x0, 8 }, { x0 + p, 8 }, m_palette->color[8].toSColor());
+        drv->draw2DLine({ x0, 9 }, { x0 + p, 9 }, m_palette->color[11].toSColor());
+        drv->draw2DLine({ x0, 10 }, { x0 + p, 10 }, m_palette->color[8].toSColor());
+        drv->draw2DLine({ x0, 11 }, { x0 + p, 11 }, m_palette->color[6].toSColor());
+        drv->draw2DLine({ x0, 12 }, { x0 + p, 12 }, m_palette->color[24].toSColor());
+    }
 }

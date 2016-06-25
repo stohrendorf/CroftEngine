@@ -15,6 +15,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
         BOOST_ASSERT(roomSector->roomBelow < camera->getLevel()->m_rooms.size());
         auto room = &camera->getLevel()->m_rooms[roomSector->roomBelow];
         roomSector = room->getSectorByAbsolutePosition(pos);
+        Expects(roomSector != nullptr);
     }
 
     hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;

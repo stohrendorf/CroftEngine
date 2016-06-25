@@ -21,6 +21,11 @@ public:
     {
     }
 
+    const T& getCurrentValue() const noexcept
+    {
+        return m_value;
+    }
+
     explicit operator const T&() const noexcept
     {
         return m_value;

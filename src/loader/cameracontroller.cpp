@@ -384,6 +384,7 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
         }
 
         loader::TRCoordinates heightPos = testPos.toInexact();
+        BOOST_ASSERT(heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1);
         auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -395,6 +396,7 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
         }
 
         heightPos.X = testPos.X + sign;
+        BOOST_ASSERT(heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1);
         sector = m_level->findFloorSectorWithClampedPosition(heightPos, newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -451,6 +453,7 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
         }
 
         loader::TRCoordinates heightPos = testPos.toInexact();
+        BOOST_ASSERT(heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1);
         auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -462,6 +465,7 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
         }
 
         heightPos.Z = testPos.Z + sign;
+        BOOST_ASSERT(heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1);
         sector = m_level->findFloorSectorWithClampedPosition(heightPos, newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -682,7 +686,9 @@ int CameraController::moveIntoGeometry(loader::RoomBoundPosition& pos, int margi
 bool CameraController::isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
 {
     gsl::not_null<const loader::Sector*> sector = m_level->findFloorSectorWithClampedPosition(pos, room);
-    return pos.Y >= HeightInfo::fromFloor(sector, pos, this).distance || pos.Y <= HeightInfo::fromCeiling(sector, pos, this).distance;
+    const auto floor = HeightInfo::fromFloor(sector, pos, this).distance;
+    const auto ceiling = HeightInfo::fromCeiling(sector, pos, this).distance;
+    return pos.Y >= floor || pos.Y <= ceiling;
 }
 
 void CameraController::updatePosition(const loader::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs)
@@ -848,10 +854,10 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampZMin = clampBox->zmin;
     const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-    Expects(negZverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
-    if(!negZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    Expects(negZverticalOutside || camTargetPos.room->findFloorSectorWithClampedPosition(testPos) != nullptr);
+    if(!negZverticalOutside && camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        auto testBox = &m_level->m_boxes[camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex];
         if(testBox->zmin < clampZMin)
             clampZMin = testBox->zmin;
     }
@@ -863,10 +869,10 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampZMax = clampBox->zmax;
     const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-    Expects(posZverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
-    if(!posZverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    Expects(posZverticalOutside || camTargetPos.room->findFloorSectorWithClampedPosition(testPos) != nullptr);
+    if(!posZverticalOutside && camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        auto testBox = &m_level->m_boxes[camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex];
         if(testBox->zmax > clampZMax)
             clampZMax = testBox->zmax;
     }
@@ -878,10 +884,10 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampXMin = clampBox->xmin;
     const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-    Expects(negXverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
-    if(!negXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    Expects(negXverticalOutside || camTargetPos.room->findFloorSectorWithClampedPosition(testPos) != nullptr);
+    if(!negXverticalOutside && camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        auto testBox = &m_level->m_boxes[camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex];
         if(testBox->xmin < clampXMin)
             clampXMin = testBox->xmin;
     }
@@ -893,10 +899,10 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
 
     auto clampXMax = clampBox->xmax;
     const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-    Expects(posXverticalOutside || camTargetPos.room->getSectorByAbsolutePosition(testPos) != nullptr);
-    if(!posXverticalOutside && camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex != 0xffff)
+    Expects(posXverticalOutside || camTargetPos.room->findFloorSectorWithClampedPosition(testPos) != nullptr);
+    if(!posXverticalOutside && camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex != 0xffff)
     {
-        auto testBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(testPos)->boxIndex];
+        auto testBox = &m_level->m_boxes[camTargetPos.room->findFloorSectorWithClampedPosition(testPos)->boxIndex];
         if(testBox->xmax > clampXMax)
             clampXMax = testBox->xmax;
     }

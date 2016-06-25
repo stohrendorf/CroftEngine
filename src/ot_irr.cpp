@@ -22,7 +22,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
     
-    auto l = loader::Level::createLoader("data/tr1/data/LEVEL2.PHD", loader::Game::Unknown);
+    auto l = loader::Level::createLoader("data/tr1/data/LEVEL3A.PHD", loader::Game::Unknown);
     BOOST_ASSERT(l != nullptr);
     auto driver = device->getVideoDriver();
     l->load(driver);
@@ -51,6 +51,7 @@ int main()
         
         device->getVideoDriver()->beginScene(true, true);
         device->getSceneManager()->drawAll();
+        l->drawBars(device->getVideoDriver());
         device->getVideoDriver()->endScene();
         
         l->updateTriggers(lastTime / 1000.0f);

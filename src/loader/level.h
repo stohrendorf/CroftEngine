@@ -116,19 +116,19 @@ public:
     
     void updateTriggers(irr::f32 frameTime);
     
-    const Sector* findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<const Room*> room) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<const Room*> room) const
     {
         return findFloorSectorWithClampedPosition(position, &room);
     }
 
-    const Sector* findFloorSectorWithClampedPosition(RoomBoundPosition& rbs) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(RoomBoundPosition& rbs) const
     {
         return findFloorSectorWithClampedPosition(rbs.position.toInexact(), &rbs.room);
     }
 
-    const Sector* findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
+    gsl::not_null<const Sector*>findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
 
-    const Room* findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
+    gsl::not_null<const Room*>findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
 
     std::tuple<int8_t,int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const TRCoordinates& position) const
     {
@@ -153,6 +153,8 @@ public:
     std::shared_ptr<TextureAnimator> m_textureAnimator;
 
     const ItemController* getItemController(uint16_t id) const;
+
+    void drawBars(irr::video::IVideoDriver* drv) const;
 
 protected:
     io::SDLReader m_reader;
