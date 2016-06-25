@@ -3,7 +3,6 @@
 #include "animationids.h"
 #include "larastateid.h"
 #include "larastate.h"
-#include "util/vmath.h"
 #include "inputstate.h"
 #include "abstractstatehandler.h"
 #include "itemcontroller.h"
@@ -56,8 +55,13 @@ private:
     }
 
 public:
-    LaraController(gsl::not_null<const loader::Level*> level, const std::shared_ptr<loader::AnimationController>& dispatcher, gsl::not_null<irr::scene::ISceneNode*> lara, const std::string& name, gsl::not_null<const loader::Room*> room)
-        : ItemController(level, dispatcher, lara, name, room)
+    LaraController(gsl::not_null<loader::Level*> level,
+                   const std::shared_ptr<loader::AnimationController>& dispatcher,
+                   gsl::not_null<irr::scene::ISceneNode*> lara,
+                   const std::string& name,
+                   gsl::not_null<const loader::Room*> room,
+                   gsl::not_null<loader::Item*> item)
+        : ItemController(level, dispatcher, lara, name, room, item)
     {
         playAnimation(loader::AnimationId::STAY_IDLE);
         setMovementAngle(getRotation().Y);

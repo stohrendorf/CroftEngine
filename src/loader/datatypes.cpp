@@ -4,6 +4,7 @@
 #include "level.h"
 #include "util/vmath.h"
 #include "textureanimator.h"
+#include "item.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>

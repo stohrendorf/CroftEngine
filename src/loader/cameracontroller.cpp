@@ -195,6 +195,38 @@ void CameraController::setLocalRotationY(core::Angle y)
     m_localRotation.Y = y;
 }
 
+void CameraController::setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn)
+{
+    Expects(camId < m_level->m_cameras.size());
+    if(m_level->m_cameras[camId].isActive())
+        return;
+
+    const auto timeout = floorData & 0xff;
+    const auto flags = (floorData >> 8) & 0xff;
+
+    m_camOverrideId = camId;
+    if(m_camOverrideType == 2 || m_camOverrideType == 3 || triggerType == loader::TriggerType::Combat)
+        return;
+
+    if(triggerType == loader::TriggerType::Switch && triggerArg != 0 && switchIsOn)
+        return;
+
+    if(triggerType != loader::TriggerType::Switch && m_camOverrideId == m_activeCamOverrideId)
+        return;
+
+    if(timeout != 1)
+        m_camOverrideTimeout = timeout * 1000;
+
+    if((flags & 1) != 0)
+        m_level->m_cameras[camId].setActive(true);
+
+    m_smoothFactor = 1 + ((flags & 0x3e00) >> 6);
+    if(isDoppelganger)
+        m_camOverrideType = 1;
+    else
+        m_camOverrideType = 5;
+}
+
 void CameraController::tracePortals()
 {
     bool cameraOutOfGeometry = true;
@@ -336,15 +368,22 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
     step.Y = gradientYX * step.X;
     step.Z = gradientZX * step.X;
 
+    auto newRoom = m_currentLookAt.room;
+
     while(true)
     {
         if(sign > 0 && testPos.X >= origin.position.X)
+        {
+            origin.room = newRoom;
             return ClampType::None;
+        }
         else if(sign < 0 && testPos.X <= origin.position.X)
+        {
+            origin.room = newRoom;
             return ClampType::None;
+        }
 
         loader::TRCoordinates heightPos = testPos.toInexact();
-        auto newRoom = origin.room;
         auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -352,19 +391,18 @@ CameraController::ClampType CameraController::clampX(loader::RoomBoundPosition& 
         {
             origin.position = testPos;
             origin.room = newRoom;
-            return ClampType::Normal;
+            return ClampType::Ceiling;
         }
 
-        heightPos.X = testPos.X + 2*sign;
-        newRoom = origin.room;
-        sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+        heightPos.X = testPos.X + sign;
+        sector = m_level->findFloorSectorWithClampedPosition(heightPos, newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
             origin.position = testPos;
             origin.room = newRoom;
-            return ClampType::Edge;
+            return ClampType::Wall;
         }
 
         testPos += step;
@@ -397,15 +435,22 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
     step.X = gradientXZ * step.Z;
     step.Y = gradientYZ * step.Z;
 
+    auto newRoom = m_currentLookAt.room;
+
     while(true)
     {
         if(sign > 0 && testPos.Z >= origin.position.Z)
+        {
+            origin.room = newRoom;
             return ClampType::None;
+        }
         else if(sign < 0 && testPos.Z <= origin.position.Z)
+        {
+            origin.room = newRoom;
             return ClampType::None;
+        }
 
         loader::TRCoordinates heightPos = testPos.toInexact();
-        auto newRoom = origin.room;
         auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
         HeightInfo floor = HeightInfo::fromFloor(sector, heightPos, this);
         HeightInfo ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
@@ -413,19 +458,18 @@ CameraController::ClampType CameraController::clampZ(loader::RoomBoundPosition& 
         {
             origin.position = testPos;
             origin.room = newRoom;
-            return ClampType::Normal;
+            return ClampType::Ceiling;
         }
 
-        heightPos.Z = testPos.Z + 2*sign;
-        newRoom = origin.room;
-        sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+        heightPos.Z = testPos.Z + sign;
+        sector = m_level->findFloorSectorWithClampedPosition(heightPos, newRoom);
         floor = HeightInfo::fromFloor(sector, heightPos, this);
         ceiling = HeightInfo::fromCeiling(sector, heightPos, this);
         if(testPos.Y > floor.distance || testPos.Y < ceiling.distance)
         {
             origin.position = testPos;
             origin.room = newRoom;
-            return ClampType::Edge;
+            return ClampType::Wall;
         }
 
         testPos += step;
@@ -448,7 +492,7 @@ bool CameraController::clamp(loader::RoomBoundPosition& origin) const
         secondClamp = clampZ(origin);
     }
 
-    if(secondClamp == ClampType::Edge)
+    if(secondClamp != ClampType::Wall)
         return false;
 
     auto sector = m_level->findFloorSectorWithClampedPosition(origin);
@@ -468,7 +512,7 @@ void CameraController::update(int deltaTimeMs)
 
     bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
 
-    ItemController* lookAtItem = m_lookAtItem != nullptr ? m_lookAtItem : m_laraController;
+    const ItemController* lookAtItem = m_lookAtItem != nullptr ? m_lookAtItem : m_laraController;
     auto lookAtItemBbox = lookAtItem->getBoundingBox();
     auto lookAtBbox = lookAtItemBbox;
     int lookAtY = lookAtItem->getPosition().Y;
@@ -571,7 +615,7 @@ void CameraController::update(int deltaTimeMs)
 
     m_lookingAtSomething = lookingAtSomething;
     m_activeCamOverrideId = m_camOverrideId;
-    if(m_camOverrideType != 5 || m_camOverrideTimeout == -1)
+    if(m_camOverrideType != 5 || m_camOverrideTimeout < 0)
     {
         m_camOverrideType = 0;
         m_lookAtItem2 = m_lookAtItem;
@@ -599,11 +643,10 @@ void CameraController::handleCamOverride(int deltaTimeMs)
 
     m_lookingAtSomething = true;
     updatePosition(pos, m_smoothFactor, deltaTimeMs);
-    if(m_camOverrideTimeout == 0)
-        return;
 
-    --m_camOverrideTimeout;
-    if(m_camOverrideTimeout == 0)
+    if(m_camOverrideTimeout > deltaTimeMs)
+        m_camOverrideTimeout -= deltaTimeMs;
+    else
         m_camOverrideTimeout = -1;
 }
 
@@ -698,7 +741,7 @@ void CameraController::updatePosition(const loader::RoomBoundPosition& pos, int 
     m_camera->updateAbsolutePosition();
 }
 
-void CameraController::doUsualMovement(const gsl::not_null<ItemController*>& item, int deltaTimeMs)
+void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs)
 {
     m_localRotation.X += item->getRotation().X;
     if(m_localRotation.X > 85_deg)
@@ -791,6 +834,7 @@ void CameraController::clampBox(loader::RoomBoundPosition& camTargetPos, const s
     clamp(camTargetPos);
     Expects(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex < m_level->m_boxes.size());
     auto clampBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex];
+    Expects(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position.toInexact()) != nullptr);
     if(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position.toInexact())->boxIndex != 0xffff)
     {
         if(   camTargetPos.position.X < clampBox->xmin || camTargetPos.position.X > clampBox->xmax

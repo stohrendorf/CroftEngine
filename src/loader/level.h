@@ -2,6 +2,8 @@
 
 #include "datatypes.h"
 #include "game.h"
+#include "itemcontroller.h"
+#include "item.h"
 
 #include <memory>
 #include <vector>
@@ -29,7 +31,7 @@ public:
     {
     }
 
-    virtual ~Level() = default;
+    virtual ~Level();
 
     const Game m_gameVersion;
 
@@ -57,6 +59,7 @@ public:
     std::vector<uint16_t> m_overlaps;
     std::vector<Zone> m_zones;
     std::vector<Item> m_items;
+    std::map<uint16_t, std::unique_ptr<ItemController>> m_itemControllers;
     std::unique_ptr<LightMap> m_lightmap;
     std::vector<AIObject> m_aiObjects;
     std::vector<CinematicFrame> m_cinematicFrames;
@@ -109,22 +112,9 @@ public:
     
     void toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl);
     
-    AbstractTriggerHandler* findHandler(uint16_t itemId) const
-    {
-        if(itemId >= m_items.size())
-            return nullptr;
-        
-        return m_items[itemId].triggerHandler.get();
-    }
+    AbstractTriggerHandler* findHandler(uint16_t itemId) const;
     
-    void updateTriggers(irr::f32 frameTime)
-    {
-        for(Item& item : m_items)
-        {
-            if(item.triggerHandler)
-                item.triggerHandler->update(frameTime);
-        }
-    }
+    void updateTriggers(irr::f32 frameTime);
     
     const Sector* findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<const Room*> room) const
     {
@@ -161,6 +151,8 @@ public:
 
     LaraController* m_lara = nullptr;
     std::shared_ptr<TextureAnimator> m_textureAnimator;
+
+    const ItemController* getItemController(uint16_t id) const;
 
 protected:
     io::SDLReader m_reader;

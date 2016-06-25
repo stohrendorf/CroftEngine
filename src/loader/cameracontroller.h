@@ -33,8 +33,8 @@ private:
     LaraController* m_laraController;
     
     // TR state
-    ItemController* m_lookAtItem = nullptr;
-    ItemController* m_lookAtItem2 = nullptr;
+    const ItemController* m_lookAtItem = nullptr;
+    const ItemController* m_lookAtItem2 = nullptr;
     ItemController* m_enemy = nullptr;
     irr::core::vector3d<core::Angle> m_enemyLookRot;
     int m_unknown1 = 0;
@@ -91,14 +91,74 @@ public:
     void setLocalRotationX(core::Angle x);
     void setLocalRotationY(core::Angle y);
 
+    void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
+    void setLookAtItem(const ItemController* item)
+    {
+        if(item == nullptr || (m_camOverrideType != 1 && m_camOverrideType != 5))
+            return;
+
+        m_lookAtItem = item;
+    }
+
+    void findCameraTarget(loader::TriggerType triggerType, const loader::FloorData::value_type* floorData)
+    {
+        if(m_camOverrideType == 5)
+            return;
+
+        int type = 2;
+        while(true)
+        {
+            const bool isLast = loader::isLastFloordataEntry(*floorData);
+            const auto triggerFunc = loader::extractTriggerFunction(*floorData);
+            const auto param = loader::extractTriggerFunctionParam(*floorData);
+
+            ++floorData;
+
+            
+            if(triggerFunc == loader::TriggerFunction::LookAt && m_camOverrideType != 2 && m_camOverrideType != 3)
+            {
+                m_lookAtItem = m_level->getItemController(param);
+            }
+            else if(triggerFunc == loader::TriggerFunction::CameraTarget)
+            {
+                ++floorData;
+
+                if(param != m_activeCamOverrideId)
+                {
+                    type = 0;
+                }
+                else
+                {
+                    m_camOverrideId = m_activeCamOverrideId;
+                    if(m_camOverrideTimeout >= 0 && m_camOverrideType != 2 && m_camOverrideType != 3)
+                    {
+                        type = 1;
+                        m_camOverrideType = 1;
+                    }
+                    else
+                    {
+                        type = 0;
+                        m_camOverrideTimeout = -1;
+                    }
+                }
+            }
+
+            if(isLast)
+                break;
+        }
+
+        if(type == 0 || (type == 2 /** @todo && lookAtItem->flags2 & 0x40 */ && m_lookAtItem != m_lookAtItem2))
+            m_lookAtItem = nullptr;
+    }
+
 private:
     void tracePortals();
     bool clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*>sector) const;
 
     enum class ClampType
     {
-        Normal,
-        Edge,
+        Ceiling,
+        Wall,
         None
     };
 
@@ -111,7 +171,7 @@ private:
     int moveIntoGeometry(loader::RoomBoundPosition& pos, int margin) const;
     bool isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
     void updatePosition(const loader::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs);
-    void doUsualMovement(const gsl::not_null<ItemController*>& item, int deltaTimeMs);
+    void doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs);
     void handleFreeLook(const ItemController& item, int deltaTimeMs);
     void handleEnemy(const ItemController& item, int deltaTimeMs);
 

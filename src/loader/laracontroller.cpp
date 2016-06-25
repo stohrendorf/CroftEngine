@@ -559,6 +559,7 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
     const auto triggerArg = floorData[1];
     auto nextFloorData = floorData + 2;
 
+    getLevel().m_cameraController->findCameraTarget(triggerType, nextFloorData);
     //! @todo Find camera target if necessary
 
     bool doTrigger = false;
@@ -567,6 +568,7 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
         switch( triggerType )
         {
         case loader::TriggerType::Trigger:
+            doTrigger = true;
             break;
         case loader::TriggerType::Pad:
         case loader::TriggerType::AntiPad:
@@ -606,64 +608,59 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
     if(!doTrigger)
         return;
 
+    const ItemController* lookAtItem = nullptr;
+
     while(true)
     {
         const bool isLast = loader::isLastFloordataEntry(*nextFloorData);
-        switch(loader::extractTriggerFunction(*nextFloorData))
+        const auto param = loader::extractTriggerFunctionParam(*nextFloorData);
+        switch(loader::extractTriggerFunction(*nextFloorData++))
         {
         case loader::TriggerFunction::Object:
-            ++nextFloorData;
             //! @todo handle object
             break;
         case loader::TriggerFunction::CameraTarget:
-            ++nextFloorData;
+            getLevel().m_cameraController->setCamOverride(nextFloorData[0], param, triggerType, isDoppelganger, triggerArg, /** @todo switchIsOn*/ false);
             ++nextFloorData;
             //! @todo handle camera target
             break;
         case loader::TriggerFunction::LookAt:
-            ++nextFloorData;
+            lookAtItem = getLevel().getItemController(param);
             //! @todo handle "look at"
             break;
         case loader::TriggerFunction::UnderwaterCurrent:
-            ++nextFloorData;
             //! @todo handle underwater current
             break;
         case loader::TriggerFunction::FlipMap:
-            ++nextFloorData;
             //! @todo handle flip map
             break;
         case loader::TriggerFunction::FlipOn:
-            ++nextFloorData;
             //! @todo handle flip on
             break;
         case loader::TriggerFunction::FlipOff:
-            ++nextFloorData;
             //! @todo handle flip off
             break;
         case loader::TriggerFunction::FlipEffect:
-            ++nextFloorData;
             //! @todo handle flip effect
             break;
         case loader::TriggerFunction::EndLevel:
-            ++nextFloorData;
             //! @todo handle level end
             break;
         case loader::TriggerFunction::PlayTrack:
-            ++nextFloorData;
             //! @todo handle "play track"
             break;
         case loader::TriggerFunction::Secret:
-            ++nextFloorData;
             //! @todo handle secrets
             break;
         default:
-            ++nextFloorData;
             break;
         }
 
         if(isLast)
             break;
     }
+
+    getLevel().m_cameraController->setLookAtItem(lookAtItem);
 
     //! @todo Implement the rest
 }

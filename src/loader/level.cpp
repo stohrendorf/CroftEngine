@@ -31,6 +31,7 @@
 #include "animationcontroller.h"
 #include "laracontroller.h"
 #include "textureanimator.h"
+#include "item.h"
 
 #include <algorithm>
 #include <stack>
@@ -195,6 +196,8 @@ public:
     {
     }
 };
+
+Level::~Level() = default;
 
 /// \brief reads the mesh data.
 void Level::readMeshData(io::SDLReader& reader)
@@ -639,13 +642,18 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             if( item.objectId == 0 )
             {
                 animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
-                lara = new LaraController(this, animationController, node, name + ":statehandler", &room);
+                lara = new LaraController(this, animationController, node, name + ":controller", &room, &item);
+                m_itemControllers[id].reset( lara );
                 node->addAnimator(lara);
                 lara->drop();
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
+            }
+            else
+            {
+                m_itemControllers[id] = std::make_unique<DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
             }
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
@@ -981,6 +989,23 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     camera->setFarValue(2e5);
 }
 
+AbstractTriggerHandler * loader::Level::findHandler(uint16_t itemId) const
+{
+    if(itemId >= m_items.size())
+        return nullptr;
+
+    return m_items[itemId].triggerHandler.get();
+}
+
+void loader::Level::updateTriggers(irr::f32 frameTime)
+{
+    for(Item& item : m_items)
+    {
+        if(item.triggerHandler)
+            item.triggerHandler->update(frameTime);
+    }
+}
+
 void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
@@ -1103,4 +1128,13 @@ const Room* Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::
     }
 
     return room;
+}
+
+const ItemController* Level::getItemController(uint16_t id) const
+{
+    auto it = m_itemControllers.find(id);
+    if(it == m_itemControllers.end())
+        return nullptr;
+
+    return it->second.get();
 }

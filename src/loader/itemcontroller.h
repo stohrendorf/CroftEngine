@@ -9,20 +9,28 @@ class ItemController : public irr::scene::ISceneNodeAnimator
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3d<core::Angle> m_rotation;
 
-    gsl::not_null<const loader::Level*> const m_level;
+    gsl::not_null<loader::Level*> const m_level;
 
     gsl::not_null<irr::scene::ISceneNode*> const m_sceneNode;
 
     std::shared_ptr<loader::AnimationController> m_dispatcher;
     const std::string m_name;
 
+    gsl::not_null<loader::Item*> m_item;
+
 public:
-    ItemController(const gsl::not_null<const loader::Level*>& level, const std::shared_ptr<loader::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room)
-        : m_level(level)
+    ItemController(const gsl::not_null<loader::Level*>& level,
+                   const std::shared_ptr<loader::AnimationController>& dispatcher,
+                   const gsl::not_null<irr::scene::ISceneNode*>& sceneNode,
+                   const std::string& name,
+                   const gsl::not_null<const loader::Room*>& room,
+                   gsl::not_null<loader::Item*> item)
+        : m_position(room)
+        , m_level(level)
+        , m_sceneNode(sceneNode)
         , m_dispatcher(dispatcher)
         , m_name(name)
-        , m_sceneNode(sceneNode)
-        , m_position(room)
+        , m_item(item)
     {
         Expects(dispatcher != nullptr);
 
@@ -126,6 +134,11 @@ public:
         return *m_level;
     }
 
+    loader::Level& getLevel()
+    {
+        return *m_level;
+    }
+
     void setTargetState(uint16_t st);
     uint16_t getTargetState() const;
 
@@ -140,4 +153,23 @@ public:
 
     float calculateAnimFloorSpeed() const;
     int getAnimAccelleration() const;
+};
+
+class DummyItemController final : public ItemController
+{
+public:
+    DummyItemController(const gsl::not_null<loader::Level*>& level, const std::shared_ptr<loader::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        : ItemController(level, dispatcher, sceneNode, name, room, item)
+    {
+    }
+
+    void animateNode(irr::scene::ISceneNode* /*node*/, irr::u32 /*timeMs*/) override
+    {
+    }
+    
+    ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/) override
+    {
+        BOOST_ASSERT(false);
+        return nullptr;
+    }
 };

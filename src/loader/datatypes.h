@@ -127,7 +127,7 @@ inline TriggerType extractTriggerType(FloorData::value_type data)
 
 inline constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)
 {
-    return data & 0x3fff;
+    return data & 0x3ff;
 }
 
 inline constexpr bool isLastFloordataEntry(FloorData::value_type data)
@@ -2274,119 +2274,6 @@ public:
     void deactivate(AbstractTriggerHandler* activator, bool onlyOnce);
 };
 
-struct Item
-{
-    uint16_t objectId;    //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
-    uint16_t room;        //!< Owning room
-    TRCoordinates position;      //!< world coords
-    int16_t rotation;    //!< ((0xc000 >> 14) * 90) degrees around Y axis
-    int16_t intensity1;   //!< (constant lighting; -1 means use mesh lighting)
-    int16_t intensity2;   //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
-    int16_t ocb;          //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
-    
-    std::unique_ptr<AbstractTriggerHandler> triggerHandler;
-    
-    /**
-     * @brief Flags
-     * 
-     * @details
-     * @li 0x0100 indicates "initially invisible"
-     * @li 0x3e00 is Activation Mask
-     * @li 0x3e00 indicates "open" or "activated"
-     * 
-     * These can be XORed with related FloorData::FDlist fields (e.g. for switches).
-     */
-    uint16_t flags;
-
-    uint16_t getActivationMask() const
-    {
-        return (flags & 0x3e00) >> 9;
-    }
-
-    uint8_t getTriggerMask() const
-    {
-        return (flags >> 9) & 0x1f;
-    }
-    
-    bool getEventBit() const
-    {
-        return ((flags >> 14) & 1) != 0;
-    }
-    
-    bool getLockBit() const
-    {
-        return ((flags >> 15) & 1) != 0;
-    }
-    
-    bool isInitiallyInvisible() const
-    {
-        return (flags & 0x0100) != 0;
-    }
-
-    /// \brief reads an item definition.
-    static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
-    {
-        std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readU16();
-        item->room = reader.readU16();
-        item->position = TRCoordinates::read32(reader);
-        item->rotation = reader.readI16();
-        item->intensity1 = reader.readU16();
-        if(item->intensity1 >= 0)
-            item->intensity1 = (8191 - item->intensity1) << 2;
-        item->intensity2 = item->intensity1;
-        item->ocb = 0;   // Not present in TR1!
-        item->flags = reader.readU16();
-        return item;
-    }
-
-    static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
-    {
-        std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readU16();
-        item->room = reader.readU16();
-        item->position = TRCoordinates::read32(reader);
-        item->rotation = reader.readI16();
-        item->intensity1 = reader.readU16();
-        if(item->intensity1 >= 0)
-            item->intensity1 = (8191 - item->intensity1) << 2;
-        item->intensity2 = reader.readU16();
-        if(item->intensity2 >= 0)
-            item->intensity2 = (8191 - item->intensity2) << 2;
-        item->ocb = 0;   // Not present in TR2!
-        item->flags = reader.readU16();
-        return item;
-    }
-
-    static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
-    {
-        std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readU16();
-        item->room = reader.readU16();
-        item->position = TRCoordinates::read32(reader);
-        item->rotation = reader.readI16();
-        item->intensity1 = reader.readU16();
-        item->intensity2 = reader.readU16();
-        item->ocb = 0;   // Not present in TR3!
-        item->flags = reader.readU16();
-        return item;
-    }
-
-    static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
-    {
-        std::unique_ptr<Item> item{ new Item() };
-        item->objectId = reader.readU16();
-        item->room = reader.readU16();
-        item->position = TRCoordinates::read32(reader);
-        item->rotation = reader.readI16();
-        item->intensity1 = reader.readU16();
-        item->intensity2 = item->intensity1;
-        item->ocb = reader.readU16();
-        item->flags = reader.readU16();
-        return item;
-    }
-};
-
 struct SpriteTexture
 {
     uint16_t texture;
@@ -2864,7 +2751,8 @@ struct Camera
     int32_t y;
     int32_t z;
     uint16_t room;
-    uint16_t unknown1;    // correlates to Boxes[]? Zones[]?
+    //! @todo mutable flags
+    mutable uint16_t flags;
 
     static std::unique_ptr<Camera> read(io::SDLReader& reader)
     {
@@ -2874,8 +2762,21 @@ struct Camera
         camera->z = reader.readI32();
 
         camera->room = reader.readU16();
-        camera->unknown1 = reader.readU16();
+        camera->flags = reader.readU16();
         return camera;
+    }
+
+    constexpr bool isActive() const noexcept
+    {
+        return (flags & 1) != 0;
+    }
+
+    void setActive(bool flg) const noexcept
+    {
+        if(flg)
+            flags |= 1;
+        else
+            flags &= ~1;
     }
 };
 
