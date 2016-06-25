@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-    URL "https://github.com/stohrendorf/hunter/archive/3b5ddd4e70cb96e089e4ff98f60addedfb34a4c2.zip"
-    SHA1 "793706a63f7df16b2c23774da12d2193383d16f9"
+    URL "https://github.com/stohrendorf/hunter/archive/f730e3c314f4568bf5f20850e6a5451dc691b318.zip"
+    SHA1 "6dac4843726a6d8f6110f63da5af1dedb1931589"
 )
 
 project(OpenTomb)
@@ -109,25 +109,6 @@ ot_find_dependency(ZLIB)
 target_link_libraries(ZLIB INTERFACE ${ZLIB_LIBRARIES})
 target_include_directories(ZLIB INTERFACE ${ZLIB_INCLUDE_DIR})
 
-
-# Dependency: PNG (for CImg)
-# Make sure to find ZLIB *before* this
-ot_find_dependency(PNG)
-target_include_directories(PNG INTERFACE ${PNG_INCLUDE_DIRS})
-target_link_libraries(PNG INTERFACE ${PNG_LIBRARIES})
-
-
-# Dependency: JPEG (for CImg)
-ot_find_dependency(JPEG)
-target_include_directories(JPEG INTERFACE ${JPEG_INCLUDE_DIR})
-target_link_libraries(JPEG INTERFACE ${JPEG_LIBRARIES})
-
-
-# Dependency: CImg
-add_library(CImg INTERFACE)
-target_include_directories(CImg INTERFACE ${CMAKE_SOURCE_DIR}/3rdparty/CImg)
-target_link_libraries(CImg INTERFACE PNG JPEG)
-target_compile_definitions(CImg INTERFACE -Dcimg_use_png -Dcimg_use_jpeg -Dcimg_display=0)
 
 # Dependency: SndFile
 ot_find_dependency(OGG)
