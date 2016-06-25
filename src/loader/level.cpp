@@ -688,7 +688,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
 
 void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const AnimatedModel& model, const Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh, gsl::not_null<const int16_t*>& pData, irr::core::aabbox3di& bbox)
 {
-    uint16_t angleSetOfs = 0x0a;
+    uint16_t angleSetOfs = 10;
 
     for( size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++ )
     {
@@ -698,8 +698,8 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const Animate
 
         if( meshIdx == 0 )
         {
-            bbox.MinEdge = {pData[0], pData[2], pData[1]};
-            bbox.MaxEdge = {pData[3], pData[5], pData[4]};
+            bbox.MinEdge = {pData[0], pData[2], pData[4]};
+            bbox.MaxEdge = {pData[1], pData[3], pData[5]};
             pKey->position.set(pData[6], static_cast<irr::f32>(-pData[7]), pData[8]);
         }
         else
