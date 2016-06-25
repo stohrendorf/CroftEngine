@@ -632,7 +632,6 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             node->setName(name.c_str());
 
             //node->setAutomaticCulling(false);
-            node->setRotation({0, util::auToDeg(item.rotation), 0});
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
@@ -655,6 +654,8 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             {
                 m_itemControllers[id] = std::make_unique<DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
             }
+
+            m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
             {
