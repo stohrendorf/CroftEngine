@@ -4,7 +4,7 @@
 
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const loader::TRCoordinates& pos, const CameraController* camera)
+HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
 {
     HeightInfo hi;
 
@@ -119,7 +119,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
     return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const loader::TRCoordinates& pos, const CameraController* camera)
+HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
 {
     HeightInfo hi;
 

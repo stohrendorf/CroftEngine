@@ -54,8 +54,6 @@ int main()
         l->drawBars(device->getVideoDriver());
         device->getVideoDriver()->endScene();
         
-        l->updateTriggers(lastTime / 1000.0f);
-        
         // update information about current frame-rate
         irr::core::stringw str(L"FPS: ");
         str.append(irr::core::stringw(driver->getFPS()));

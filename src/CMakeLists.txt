@@ -73,6 +73,15 @@ set(OT_IRR_SRCS
     loader/larastateid.h
     loader/textureanimator.h
     loader/item.h
+    loader/floordata.h
+    loader/color.h
+    loader/texture.h
+    loader/primitives.h
+    loader/meshes.h
+    loader/meshes.cpp
+    loader/util.h
+    loader/animation.h
+    loader/audio.h
 
     inputstate.h
     heightinfo.h
@@ -85,8 +94,10 @@ set(OT_IRR_SRCS
     core/magic.h
     core/angle.h
     core/interpolatedvalue.h
+    core/coordinates.h
 
     render/portaltracer.h
+    render/lightselector.h
     util/helpers.h
     util/vmath.h
 )

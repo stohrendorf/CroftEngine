@@ -29,12 +29,12 @@ struct LaraState
     static constexpr int FrobbelFlag80 = 0x80;
 
     int axisCollisions;
-    loader::ExactTRCoordinates collisionFeedback;
+    core::ExactTRCoordinates collisionFeedback;
     core::Axis orientationAxis;
     core::Angle yAngle; // external
     int collisionRadius; // external
     int frobbelFlags; // external
-    loader::ExactTRCoordinates position; // external
+    core::ExactTRCoordinates position; // external
     int neededFloorDistanceBottom; // external
     int neededFloorDistanceTop; // external
     int neededCeilingDistance; // external
@@ -63,8 +63,8 @@ struct LaraState
             return loader::SectorSize - 1 - targetInSector;
     }
 
-    void initHeightInfo(const loader::ExactTRCoordinates& laraPos, const loader::Level& level, int height);
+    void initHeightInfo(const core::ExactTRCoordinates& laraPos, const loader::Level& level, int height);
 
-    static std::set<const loader::Room*> collectNeighborRooms(const loader::ExactTRCoordinates& position, int radius, int height, const loader::Level& level);
-    bool checkStaticMeshCollisions(const loader::ExactTRCoordinates& position, int height, const loader::Level& level);
+    static std::set<const loader::Room*> collectNeighborRooms(const core::ExactTRCoordinates& position, int radius, int height, const loader::Level& level);
+    bool checkStaticMeshCollisions(const core::ExactTRCoordinates& position, int height, const loader::Level& level);
 };

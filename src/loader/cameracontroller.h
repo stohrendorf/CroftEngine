@@ -46,9 +46,9 @@ private:
     int m_activeCamOverrideId = -1;
     int m_camOverrideTimeout = -1;
     int m_camOverrideType = 0;
-    loader::RoomBoundPosition m_currentLookAt;
+    core::RoomBoundPosition m_currentLookAt;
     irr::core::vector3d<core::Angle> m_localRotation;
-    loader::RoomBoundPosition m_currentPosition;
+    core::RoomBoundPosition m_currentPosition;
     bool m_lookingAtSomething = false;
     float m_lookAtDistanceSq = 0;
     
@@ -100,7 +100,7 @@ public:
         m_lookAtItem = item;
     }
 
-    void findCameraTarget(loader::TriggerType triggerType, const loader::FloorData::value_type* floorData)
+    void findCameraTarget(const loader::FloorData::value_type* floorData)
     {
         if(m_camOverrideType == 5)
             return;
@@ -153,7 +153,7 @@ public:
 
 private:
     void tracePortals();
-    bool clampY(const loader::ExactTRCoordinates& lookAt, loader::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*>sector) const;
+    bool clampY(const core::ExactTRCoordinates& lookAt, core::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*>sector) const;
 
     enum class ClampType
     {
@@ -162,22 +162,22 @@ private:
         None
     };
 
-    ClampType clampX(loader::RoomBoundPosition& origin) const;
-    ClampType clampZ(loader::RoomBoundPosition& origin) const;
-    bool clamp(loader::RoomBoundPosition& origin) const;
+    ClampType clampX(core::RoomBoundPosition& origin) const;
+    ClampType clampZ(core::RoomBoundPosition& origin) const;
+    bool clamp(core::RoomBoundPosition& origin) const;
 
     void update(int deltaTimeMs);
     void handleCamOverride(int deltaTimeMs);
-    int moveIntoGeometry(loader::RoomBoundPosition& pos, int margin) const;
-    bool isVerticallyOutsideRoom(const loader::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-    void updatePosition(const loader::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs);
+    int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
+    bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
+    void updatePosition(const core::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs);
     void doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs);
     void handleFreeLook(const ItemController& item, int deltaTimeMs);
     void handleEnemy(const ItemController& item, int deltaTimeMs);
 
     using ClampCallback = void(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
 
-    void clampBox(loader::RoomBoundPosition& pos, const std::function<ClampCallback>& callback) const;
+    void clampBox(core::RoomBoundPosition& pos, const std::function<ClampCallback>& callback) const;
     static void freeLookClamp(float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
     static void clampToCorners(const float lookAtDistanceSq, float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
 };

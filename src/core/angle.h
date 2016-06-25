@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include <cstdint>
 
 #include <irrlicht.h>
 
@@ -19,26 +18,28 @@ namespace core
     class Angle final
     {
         friend struct detail::UnsignedRawAngle;
-        friend Angle degToAngle(float);
 
         int32_t m_value;
-        static const int32_t Scale = 1<<16;
+        static const int32_t Scale = 1 << 16;
 
-        struct RawTag{};
+        struct RawTag
+        {
+        };
+
         constexpr explicit Angle(int32_t val, const RawTag&) noexcept
-            : m_value{ val }
+            : m_value{val}
         {
         }
 
     public:
         [[implicit]]
         constexpr Angle() noexcept
-            : m_value{ 0 }
+            : m_value{0}
         {
         }
 
         explicit Angle(int16_t val) noexcept
-            : m_value{ gsl::narrow_cast<int32_t>(val * Scale) }
+            : m_value{gsl::narrow_cast<int32_t>(val * Scale)}
         {
         }
 
@@ -46,12 +47,12 @@ namespace core
 
         static Angle fromRad(float r)
         {
-            return Angle{ gsl::narrow_cast<int32_t>(r / 2 / irr::core::PI * 65536 * Scale), RawTag() };
+            return Angle{gsl::narrow_cast<int32_t>(r / 2 / irr::core::PI * 65536 * Scale), RawTag()};
         }
 
         static Angle fromDegrees(float val)
         {
-            return Angle{ gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag() };
+            return Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
         }
 
         constexpr float toDegrees() const noexcept
@@ -81,7 +82,7 @@ namespace core
 
         Angle operator-(const Angle& rhs) const noexcept
         {
-            return Angle{ gsl::narrow_cast<int32_t>(m_value - rhs.m_value), RawTag() };
+            return Angle{gsl::narrow_cast<int32_t>(m_value - rhs.m_value), RawTag()};
         }
 
         Angle& operator-=(const Angle& rhs) noexcept
@@ -92,7 +93,7 @@ namespace core
 
         Angle operator+(const Angle& rhs) const noexcept
         {
-            return Angle{ gsl::narrow_cast<int32_t>(m_value + rhs.m_value), RawTag() };
+            return Angle{gsl::narrow_cast<int32_t>(m_value + rhs.m_value), RawTag()};
         }
 
         Angle& operator+=(const Angle& rhs) noexcept
@@ -156,22 +157,22 @@ namespace core
         struct UnsignedRawAngle final
         {
             const uint32_t value;
-            
+
             explicit UnsignedRawAngle(unsigned long long val)
-                : value{ gsl::narrow<uint32_t>(val * Angle::Scale) }
+                : value{gsl::narrow<uint32_t>(val * Angle::Scale)}
             {
                 Expects(value <= 32768U * Angle::Scale);
             }
 
             explicit UnsignedRawAngle(long double val)
-                : value{ gsl::narrow<uint32_t>(std::llround(val * Angle::Scale)) }
+                : value{gsl::narrow<uint32_t>(std::llround(val * Angle::Scale))}
             {
                 Expects(value <= 32768U * Angle::Scale);
             }
 
             Angle operator-() const
             {
-                return Angle{ -gsl::narrow_cast<int32_t>(value), Angle::RawTag() };
+                return Angle{-gsl::narrow_cast<int32_t>(value), Angle::RawTag()};
             }
 
             Angle operator+() const
@@ -191,28 +192,27 @@ namespace core
 
             operator Angle() const
             {
-                return Angle{ gsl::narrow_cast<int32_t>(value), Angle::RawTag() };
+                return Angle{gsl::narrow_cast<int32_t>(value), Angle::RawTag()};
             }
         };
 
         inline UnsignedRawAngle operator"" _au(unsigned long long v) noexcept
         {
             Expects(v <= 32768);
-            return UnsignedRawAngle{ v };
+            return UnsignedRawAngle{v};
         }
 
         inline UnsignedRawAngle operator"" _deg(unsigned long long v) noexcept
         {
             Expects(v <= 180);
-            return UnsignedRawAngle{ v * 65536 / 360 };
+            return UnsignedRawAngle{v * 65536 / 360};
         }
 
         inline UnsignedRawAngle operator"" _deg(long double v) noexcept
         {
             Expects(v <= 180);
-            return UnsignedRawAngle{ v * 65536 / 360 };
+            return UnsignedRawAngle{v * 65536 / 360};
         }
-
     }
 
     enum class Axis
@@ -229,34 +229,34 @@ namespace core
     inline boost::optional<Axis> axisFromAngle(const core::Angle& angle, const core::Angle& margin)
     {
         Expects(margin >= 0_deg && margin <= 45_deg);
-        if(angle <= 0_deg + margin && angle >= 0_deg - margin)
+        if( angle <= 0_deg + margin && angle >= 0_deg - margin )
             return Axis::PosZ;
-        if(angle <= 90_deg + margin && angle >= 90_deg - margin)
+        if( angle <= 90_deg + margin && angle >= 90_deg - margin )
             return Axis::PosX;
-        if(angle <= -90_deg + margin && angle >= -90_deg - margin)
+        if( angle <= -90_deg + margin && angle >= -90_deg - margin )
             return Axis::NegX;
-        if(angle >= 180_deg - margin || angle <= -180_deg + margin)
+        if( angle >= 180_deg - margin || angle <= -180_deg + margin )
             return Axis::NegZ;
 
-        return{};
+        return {};
     }
 
     inline boost::optional<core::Angle> alignRotation(const core::Angle& angle, const core::Angle& margin)
     {
         auto axis = axisFromAngle(angle, margin);
-        if(!axis)
-            return{};
+        if( !axis )
+            return {};
 
-        switch(*axis)
+        switch( *axis )
         {
-            case Axis::PosZ: return boost::optional<core::Angle>(0_deg);
-            case Axis::PosX: return boost::optional<core::Angle>(90_deg);
-            case Axis::NegZ: return boost::optional<core::Angle>(-180_deg);
-            case Axis::NegX: return boost::optional<core::Angle>(-90_deg);
+        case Axis::PosZ: return boost::optional<core::Angle>(0_deg);
+        case Axis::PosX: return boost::optional<core::Angle>(90_deg);
+        case Axis::NegZ: return boost::optional<core::Angle>(-180_deg);
+        case Axis::NegX: return boost::optional<core::Angle>(-90_deg);
         }
 
         // silence compiler warning
-        return{};
+        return {};
     }
 }
 

@@ -4,6 +4,7 @@
 #include "game.h"
 #include "itemcontroller.h"
 #include "item.h"
+#include "animation.h"
 
 #include <memory>
 #include <vector>
@@ -112,25 +113,21 @@ public:
     
     void toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl);
     
-    AbstractTriggerHandler* findHandler(uint16_t itemId) const;
-    
-    void updateTriggers(irr::f32 frameTime);
-    
-    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<const Room*> room) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const Room*> room) const
     {
         return findFloorSectorWithClampedPosition(position, &room);
     }
 
-    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(RoomBoundPosition& rbs) const
+    gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(core::RoomBoundPosition& rbs) const
     {
         return findFloorSectorWithClampedPosition(rbs.position.toInexact(), &rbs.room);
     }
 
-    gsl::not_null<const Sector*>findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
+    gsl::not_null<const Sector*>findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*>room) const;
 
-    gsl::not_null<const Room*>findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
+    gsl::not_null<const Room*>findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const Room*>room) const;
 
-    std::tuple<int8_t,int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const TRCoordinates& position) const
+    std::tuple<int8_t,int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRCoordinates& position) const
     {
         while(sector->roomBelow != 0xff)
         {

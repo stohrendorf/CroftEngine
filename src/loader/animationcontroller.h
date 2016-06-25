@@ -1,6 +1,7 @@
 #pragma once
 
 #include "level.h"
+#include "animation.h"
 
 namespace loader
 {

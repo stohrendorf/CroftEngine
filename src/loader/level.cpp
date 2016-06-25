@@ -32,6 +32,7 @@
 #include "laracontroller.h"
 #include "textureanimator.h"
 #include "item.h"
+#include "render/lightselector.h"
 
 #include <algorithm>
 #include <stack>
@@ -43,159 +44,7 @@ using namespace loader;
 namespace
 {
     const irr::video::SColor WaterColor{0, 149, 229, 229};
-
-    class LightSelector final : public irr::scene::ILightManager
-    {
-    private:
-        loader::Level& m_level;
-        gsl::not_null<irr::scene::ISceneManager*> m_manager;
-
-    public:
-        explicit LightSelector(loader::Level& level, gsl::not_null<irr::scene::ISceneManager*> mgr)
-            : m_level(level)
-            , m_manager(mgr)
-        {
-        }
-
-        void OnPreRender(irr::core::array<irr::scene::ISceneNode*>& lightList) override
-        {
-            for( irr::u32 i = 0; i < lightList.size(); ++i )
-                lightList[i]->setVisible(false);
-            //if(node->getType() != irr::scene::ESNT_ANIMATED_MESH && node->getType() != irr::scene::ESNT_BILLBOARD && node->getType() != irr::scene::ESNT_MESH)
-            //    return;
-
-            const auto laraPos = m_level.m_lara->getSceneNode()->getPosition();
-            const auto room = m_level.m_lara->getCurrentRoom();
-            int maxBrightness = 0;
-            const loader::Light* brightestLight = nullptr;
-            for( const loader::Light& light : room->lights )
-            {
-                auto fadeSq = light.specularFade * light.specularFade / 4096;
-                const int brightness = gsl::narrow_cast<int>((0x1fff - room->darkness) + fadeSq * light.specularIntensity
-                                                             / (fadeSq + laraPos.getDistanceFromSQ(light.position.toIrrlicht()) / 4096));
-                if( brightness > maxBrightness )
-                {
-                    maxBrightness = brightness;
-                    brightestLight = &light;
-                }
-            }
-            Expects(brightestLight != nullptr);
-            brightestLight->node->setVisible(true);
-            m_manager->setShadowColor(irr::video::SColor(150 * maxBrightness / 4096, 0, 0, 0));
-        }
-
-        void OnPostRender() override
-        {
-            // nop
-        }
-
-        void OnRenderPassPreRender(irr::scene::E_SCENE_NODE_RENDER_PASS /*renderPass*/) override
-        {
-        }
-
-        void OnRenderPassPostRender(irr::scene::E_SCENE_NODE_RENDER_PASS /*renderPass*/) override
-        {
-        }
-
-        void OnNodePreRender(irr::scene::ISceneNode* /*node*/) override
-        {
-        }
-
-        void OnNodePostRender(irr::scene::ISceneNode* /*node*/) override
-        {
-            // nop
-        }
-    };
 }
-
-class DoorTriggerHandler final : public AbstractTriggerHandler
-{
-private:
-    uint16_t m_openState = 1;
-    uint16_t m_closedState = 0;
-    bool m_mustOpen = false;
-    bool m_mustClose = false;
-
-public:
-    explicit DoorTriggerHandler(const Item& item, const std::shared_ptr<loader::AnimationController>& animationController)
-        : AbstractTriggerHandler(item, animationController)
-    {
-    }
-
-    void prepare() override
-    {
-        AbstractTriggerHandler::prepare();
-
-        if( m_mustOpen )
-        {
-            BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << ": swapping opened/closed states";
-            update(0);
-            std::swap(m_openState, m_closedState);
-        }
-    }
-
-    void onActivate(AbstractTriggerHandler* /*activator*/) override
-    {
-        m_mustOpen = true;
-        m_mustClose = false;
-    }
-
-    void onDeactivate(AbstractTriggerHandler* /*activator*/) override
-    {
-        m_mustOpen = false;
-        m_mustClose = true;
-    }
-
-    void onCollide() override
-    {
-    }
-
-    void onStand() override
-    {
-    }
-
-    void onHit() override
-    {
-    }
-
-    void onRoomCollide() override
-    {
-    }
-
-    void update(irr::f32 frameTime) override
-    {
-        if( getDispatcher()->getCurrentAnimationId() != 1 && getDispatcher()->getCurrentAnimationId() != 3 )
-        {
-            const auto st = getDispatcher()->getCurrentAnimState();
-            if( m_mustOpen && m_openState != st )
-            {
-                BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << " opening (timer=" << getTimer() << ")";
-                getDispatcher()->setTargetState(m_openState);
-                m_mustOpen = false;
-            }
-            else if( m_mustClose && m_closedState != st )
-            {
-                BOOST_LOG_TRIVIAL(debug) << "Door " << getDispatcher()->getName() << " closing (timer=" << getTimer() << ")";
-                getDispatcher()->setTargetState(m_closedState);
-                m_mustClose = false;
-            }
-        }
-
-        if( updateTimer(frameTime) == TimerState::Stopped )
-        {
-            m_mustOpen = false;
-            m_mustClose = true;
-        }
-    }
-
-    void onSave() override
-    {
-    }
-
-    void onLoad() override
-    {
-    }
-};
 
 Level::~Level() = default;
 
@@ -641,7 +490,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
                 animationController->playLocalAnimation(static_cast<uint16_t>(AnimationId::STAY_IDLE));
                 lara = new LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
-                m_itemControllers[id]->setPosition(loader::ExactTRCoordinates(item.position));
+                m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
@@ -650,7 +499,7 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             else
             {
                 m_itemControllers[id] = std::make_unique<DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
-                m_itemControllers[id]->setPosition(loader::ExactTRCoordinates(item.position - room.position));
+                m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - room.position));
             }
 
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -666,11 +515,6 @@ LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::ve
             }
             if( item.isInitiallyInvisible() )
                 node->setVisible(false);
-
-            if( item.objectId >= 57 && item.objectId <= 64 )
-            {
-                item.triggerHandler = AbstractTriggerHandler::create<DoorTriggerHandler>(item, animationController);
-            }
 
             continue;
         }
@@ -940,7 +784,7 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
 {
     mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
     mgr->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-    mgr->setLightManager(new LightSelector(*this, mgr));
+    mgr->setLightManager(new render::LightSelector(*this, mgr));
 
     std::vector<irr::video::ITexture*> textures = createTextures(mgr);
     std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
@@ -991,23 +835,6 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     camera->setFarValue(2e5);
 }
 
-AbstractTriggerHandler * loader::Level::findHandler(uint16_t itemId) const
-{
-    if(itemId >= m_items.size())
-        return nullptr;
-
-    return m_items[itemId].triggerHandler.get();
-}
-
-void loader::Level::updateTriggers(irr::f32 frameTime)
-{
-    for(Item& item : m_items)
-    {
-        if(item.triggerHandler)
-            item.triggerHandler->update(frameTime);
-    }
-}
-
 void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
@@ -1048,7 +875,7 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
+gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const Room*>*> room) const
 {
     const Sector* sector = nullptr;
     while( true )
@@ -1090,7 +917,7 @@ gsl::not_null<const Sector*> Level::findFloorSectorWithClampedPosition(const TRC
     return sector;
 }
 
-gsl::not_null<const Room*> Level::findRoomForPosition(const ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
+gsl::not_null<const Room*> Level::findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const Room*> room) const
 {
     const Sector* sector = nullptr;
     while( true )

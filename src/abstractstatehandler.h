@@ -103,9 +103,9 @@ protected:
 
     void placeOnFloor(const LaraState& state);
 
-    const loader::ExactTRCoordinates& getPosition() const;
+    const core::ExactTRCoordinates& getPosition() const;
 
-    void setPosition(const loader::ExactTRCoordinates& pos);
+    void setPosition(const core::ExactTRCoordinates& pos);
 
     int getFloorHeight() const noexcept;
 

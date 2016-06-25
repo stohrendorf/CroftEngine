@@ -216,7 +216,7 @@ void LaraController::handleLaraStateSwimming(bool newFrame)
             setZRotation(0_deg);
     }
 
-    setPosition(getPosition() + loader::ExactTRCoordinates(
+    setPosition(getPosition() + core::ExactTRCoordinates(
         getMovementAngle().sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4,
         0,
         getMovementAngle().cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4
@@ -308,7 +308,7 @@ void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
         m_air = 1800;
         m_underwaterState = UnderwaterState::Diving;
         m_falling = false;
-        setPosition(getPosition() + loader::ExactTRCoordinates(0, 100, 0));
+        setPosition(getPosition() + core::ExactTRCoordinates(0, 100, 0));
         updateFloorHeight(0);
         //! @todo stop sound 30
         if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
@@ -559,7 +559,7 @@ void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelgang
     const auto triggerArg = floorData[1];
     auto nextFloorData = floorData + 2;
 
-    getLevel().m_cameraController->findCameraTarget(triggerType, nextFloorData);
+    getLevel().m_cameraController->findCameraTarget(nextFloorData);
     //! @todo Find camera target if necessary
 
     bool doTrigger = false;

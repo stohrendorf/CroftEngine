@@ -1,10 +1,20 @@
 #pragma once
 
-#include "datatypes.h"
+#include "core/angle.h"
+#include "core/coordinates.h"
+
+#include <irrlicht.h>
+
+namespace loader
+{
+    class Level;
+    class AnimationController;
+    struct Item;
+}
 
 class ItemController : public irr::scene::ISceneNodeAnimator
 {
-    loader::RoomBoundPosition m_position;
+    core::RoomBoundPosition m_position;
 
     // needed for YPR rotation, because the scene node uses XYZ rotation
     irr::core::vector3d<core::Angle> m_rotation;
@@ -26,11 +36,11 @@ public:
                    const gsl::not_null<const loader::Room*>& room,
                    gsl::not_null<loader::Item*> item)
         : m_position(room)
-        , m_level(level)
-        , m_sceneNode(sceneNode)
-        , m_dispatcher(dispatcher)
-        , m_name(name)
-        , m_item(item)
+          , m_level(level)
+          , m_sceneNode(sceneNode)
+          , m_dispatcher(dispatcher)
+          , m_name(name)
+          , m_item(item)
     {
         Expects(dispatcher != nullptr);
 
@@ -40,14 +50,14 @@ public:
         m_rotation.Z = core::Angle::fromDegrees(laraRot.Z);
 
         m_sceneNode->updateAbsolutePosition();
-        m_position.position = loader::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
+        m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
 
         setCurrentRoom(room);
     }
 
     irr::core::aabbox3di getBoundingBox() const;
 
-    const loader::ExactTRCoordinates& getPosition() const noexcept
+    const core::ExactTRCoordinates& getPosition() const noexcept
     {
         return m_position.position;
     }
@@ -65,6 +75,7 @@ public:
     void setCurrentRoom(const loader::Room* newRoom);
 
     void applyRotation();
+
     void applyPosition()
     {
         m_sceneNode->setPosition(m_position.position.toIrrlicht());
@@ -98,7 +109,7 @@ public:
         m_position.position.Z += dz * cos - dx * sin;
     }
 
-    void setPosition(const loader::ExactTRCoordinates& pos)
+    void setPosition(const core::ExactTRCoordinates& pos)
     {
         m_position.position = pos;
     }
@@ -173,7 +184,7 @@ public:
         applyPosition();
         getSceneNode()->updateAbsolutePosition();
     }
-    
+
     ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/) override
     {
         BOOST_ASSERT(false);
