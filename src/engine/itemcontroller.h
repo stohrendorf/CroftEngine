@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "core/coordinates.h"
 #include "level/level.h"
+#include "core/interpolatedvalue.h"
 
 #include <irrlicht.h>
 
@@ -19,6 +20,16 @@ namespace level
 namespace engine
 {
     class AnimationController;
+    struct LaraState;
+
+    struct InteractionLimits
+    {
+        irr::core::aabbox3di distance;
+        irr::core::vector3d<core::Angle> minAngle;
+        irr::core::vector3d<core::Angle> maxAngle;
+
+        bool canInteract(const ItemController& item, const LaraController& lara) const;
+    };
 
     class ItemController : public irr::scene::ISceneNodeAnimator
     {
@@ -35,8 +46,28 @@ namespace engine
         const std::string m_name;
 
         gsl::not_null<loader::Item*> m_item;
+        int m_lastAnimFrame = -1;
+        bool m_falling = false;
+        core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
+        core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
+        int m_currentFrameTime = 0;
+        int m_lastFrameTime = -1;
+        int m_lastEngineFrameTime = -1;
 
     public:
+        enum class AnimCommandOpcode : uint16_t
+        {
+            SetPosition = 1,
+            SetVelocity = 2,
+            EmptyHands = 3,
+            Kill = 4,
+            PlaySound = 5,
+            PlayEffect = 6,
+            Interact = 7
+        };
+
+        static constexpr int FrameTime = 1000 / 30;
+
         ItemController(const gsl::not_null<level::Level*>& level,
                        const std::shared_ptr<engine::AnimationController>& dispatcher,
                        const gsl::not_null<irr::scene::ISceneNode*>& sceneNode,
@@ -91,6 +122,8 @@ namespace engine
                 m_sceneNode->setPosition(m_position.position.toIrrlicht() - parent->getAbsolutePosition());
             else
                 m_sceneNode->setPosition(m_position.position.toIrrlicht());
+
+            m_sceneNode->updateAbsolutePosition();
         }
 
         irr::scene::ISceneNode* getSceneNode() const noexcept
@@ -166,11 +199,52 @@ namespace engine
             return *m_level;
         }
 
+        bool isFalling() const noexcept
+        {
+            return m_falling;
+        }
+
+        void setFalling(bool falling) noexcept
+        {
+            m_falling = falling;
+        }
+
+        void setFallSpeed(const core::InterpolatedValue<float>& spd)
+        {
+            m_fallSpeed = spd;
+        }
+
+        const core::InterpolatedValue<float>& getFallSpeed() const noexcept
+        {
+            return m_fallSpeed;
+        }
+
+        void setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
+        {
+            m_horizontalSpeed = speed;
+        }
+
+        const core::InterpolatedValue<float>& getHorizontalSpeed() const
+        {
+            return m_horizontalSpeed;
+        }
+
+        void dampenHorizontalSpeed(float f)
+        {
+            m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
+        }
+
+        int getCurrentDeltaTime() const
+        {
+            return m_currentFrameTime - m_lastFrameTime;
+        }
+
         void setTargetState(uint16_t st);
         uint16_t getTargetState() const;
 
         void playAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame);
 
+        void nextFrame();
         irr::u32 getCurrentFrame() const;
         irr::u32 getAnimEndFrame() const;
         uint16_t getCurrentAnimState() const;
@@ -180,6 +254,81 @@ namespace engine
 
         float calculateAnimFloorSpeed() const;
         int getAnimAccelleration() const;
+
+        virtual float queryFloor(const core::ExactTRCoordinates& pos)
+        {
+            return pos.Y;
+        }
+
+        virtual float queryCeiling(const core::ExactTRCoordinates& pos)
+        {
+            return pos.Y;
+        }
+
+        virtual void onInteract(LaraController& lara, LaraState& state)
+        {
+        }
+
+        virtual void processAnimCommands(bool advanceFrame = false);
+        
+        void activate();
+
+        void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override final
+        {
+            Expects(node == m_sceneNode);
+
+            if(m_lastFrameTime < 0)
+                m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
+
+            if(m_lastFrameTime == timeMs)
+                return;
+
+            m_currentFrameTime = timeMs;
+
+            bool isNewFrame = m_dispatcher == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
+
+            if(timeMs - m_lastEngineFrameTime >= FrameTime)
+            {
+                isNewFrame = true;
+                m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
+            }
+
+            animate(isNewFrame);
+
+            applyRotation();
+            applyPosition();
+
+            m_lastFrameTime = m_currentFrameTime;
+        }
+
+        ISceneNodeAnimator* createClone(irr::scene::ISceneNode* node, irr::scene::ISceneManager* newManager) override final
+        {
+            BOOST_ASSERT(false);
+            return nullptr;
+        }
+
+        virtual void animate(bool isNewFrame) = 0;
+
+        core::InterpolatedValue<float>& getHorizontalSpeed()
+        {
+            return m_horizontalSpeed;
+        }
+
+        core::InterpolatedValue<float>& getFallSpeed() noexcept
+        {
+            return m_fallSpeed;
+        }
+
+    protected:
+        int getLastAnimFrame() const noexcept
+        {
+            return m_lastAnimFrame;
+        }
+
+        void setLastAnimFrame(int f) noexcept
+        {
+            m_lastAnimFrame = f;
+        }
     };
 
     class DummyItemController final : public ItemController
@@ -190,17 +339,23 @@ namespace engine
         {
         }
 
-        void animateNode(irr::scene::ISceneNode* /*node*/, irr::u32 /*timeMs*/) override
+        void animate(bool /*isNewFrame*/) override
         {
-            applyRotation();
-            applyPosition();
-            getSceneNode()->updateAbsolutePosition();
+        }
+    };
+
+    class ItemController_55_Switch final : public ItemController
+    {
+    public:
+        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item)
+        {
         }
 
-        ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/) override
+        void animate(bool /*isNewFrame*/) override
         {
-            BOOST_ASSERT(false);
-            return nullptr;
         }
+
+        void onInteract(LaraController& lara, LaraState& state) override;
     };
 }

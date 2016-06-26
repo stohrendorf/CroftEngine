@@ -7,6 +7,8 @@
 #include "larastate.h"
 #include "render/textureanimator.h"
 
+#include <boost/range/adaptors.hpp>
+
 namespace engine
 {
     void LaraController::setTargetState(LaraStateId st)
@@ -79,7 +81,7 @@ namespace engine
 
         //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
-        auto animCommandOverride = processAnimCommands();
+        auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
         {
             m_currentStateHandler = std::move(animCommandOverride);
@@ -89,7 +91,7 @@ namespace engine
         if( !newFrame )
             return;
 
-        // @todo test interactions
+        testInteractions(laraState);
 
         nextHandler = m_currentStateHandler->postprocessFrame(laraState);
         if( nextHandler != nullptr )
@@ -144,9 +146,9 @@ namespace engine
         setZRotation(irr::core::clamp(getRotation().Z, -22_deg, +22_deg));
         {
             auto pos = getPosition();
-            pos.X += getRotation().Y.sin() * getRotation().X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
-            pos.Y -= getRotation().X.sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
-            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4;
+            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
+            pos.Y -= getRotation().X.sin() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
+            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
             setPosition(pos);
         }
 
@@ -154,7 +156,7 @@ namespace engine
         getSceneNode()->setPosition(getPosition().toIrrlicht());
         getSceneNode()->updateAbsolutePosition();
 
-        auto animCommandOverride = processAnimCommands();
+        auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
         {
             m_currentStateHandler = std::move(animCommandOverride);
@@ -164,7 +166,7 @@ namespace engine
         if( !newFrame )
             return;
 
-        // @todo test interactions
+        testInteractions(laraState);
 
         nextHandler = m_currentStateHandler->postprocessFrame(laraState);
         if( nextHandler != nullptr )
@@ -219,16 +221,16 @@ namespace engine
         }
 
         setPosition(getPosition() + core::ExactTRCoordinates(
-                                                             getMovementAngle().sin() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4,
+                                                             getMovementAngle().sin() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4,
                                                              0,
-                                                             getMovementAngle().cos() * m_fallSpeed.getScaled(getCurrentDeltaTime()) / 4
+                                                             getMovementAngle().cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4
                                                             ));
 
         applyRotation();
         getSceneNode()->setPosition(getPosition().toIrrlicht());
         getSceneNode()->updateAbsolutePosition();
 
-        auto animCommandOverride = processAnimCommands();
+        auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
         {
             m_currentStateHandler = std::move(animCommandOverride);
@@ -238,7 +240,7 @@ namespace engine
         if( !newFrame )
             return;
 
-        // @todo test interactions
+        testInteractions(laraState);
 
         nextHandler = m_currentStateHandler->postprocessFrame(laraState);
         if( nextHandler != nullptr )
@@ -270,28 +272,9 @@ namespace engine
 
     LaraController::~LaraController() = default;
 
-    void LaraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+    void LaraController::animate(bool isNewFrame)
     {
-        BOOST_ASSERT(getSceneNode() == node);
-
-        if( m_lastFrameTime < 0 )
-            m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
-
-        if( m_lastFrameTime == timeMs )
-            return;
-
-        m_currentFrameTime = timeMs;
-
-        static constexpr int FrameTime = 1000 / 30;
         static constexpr int UVAnimTime = 1000 / 10;
-
-        bool isNewFrame = m_lastAnimFrame != getCurrentFrame();
-
-        if( timeMs - m_lastEngineFrameTime >= FrameTime )
-        {
-            isNewFrame = true;
-            m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
-        }
 
         m_uvAnimTime += getCurrentDeltaTime();
         if( m_uvAnimTime >= UVAnimTime )
@@ -309,7 +292,7 @@ namespace engine
         {
             m_air = 1800;
             m_underwaterState = UnderwaterState::Diving;
-            m_falling = false;
+            setFalling(false);
             setPosition(getPosition() + core::ExactTRCoordinates(0, 100, 0));
             updateFloorHeight(0);
             //! @todo stop sound 30
@@ -317,17 +300,17 @@ namespace engine
             {
                 setXRotation(-45_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                if( auto tmp = processAnimCommands() )
+                if( auto tmp = processLaraAnimCommands() )
                     m_currentStateHandler = std::move(tmp);
-                m_fallSpeed *= 2;
+                setFallSpeed(getFallSpeed() * 2);
             }
             else if( getCurrentAnimState() == LaraStateId::SwandiveEnd )
             {
                 setXRotation(-85_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                if( auto tmp = processAnimCommands() )
+                if( auto tmp = processLaraAnimCommands() )
                     m_currentStateHandler = std::move(tmp);
-                m_fallSpeed *= 2;
+                setFallSpeed(getFallSpeed() * 2);
             }
             else
             {
@@ -335,9 +318,9 @@ namespace engine
                 playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
                 setTargetState(LaraStateId::UnderwaterForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
-                if( auto tmp = processAnimCommands() )
+                if( auto tmp = processLaraAnimCommands() )
                     m_currentStateHandler = std::move(tmp);
-                m_fallSpeed *= 1.5f;
+                setFallSpeed(getFallSpeed() * 1.5f);
             }
 
             //! @todo Show water splash effect
@@ -351,10 +334,10 @@ namespace engine
                 playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-                m_fallSpeed = 0;
+                setFallSpeed(core::makeInterpolatedValue(0.0f));
                 //! @todo Check formula
-                m_horizontalSpeed = m_horizontalSpeed * 0.2f;
-                m_falling = true;
+                setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
+                setFalling(true);
                 m_handStatus = 0;
                 setXRotation(0_deg);
                 setZRotation(0_deg);
@@ -384,10 +367,10 @@ namespace engine
             playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-            m_fallSpeed = 0;
+            setFallSpeed(core::makeInterpolatedValue(0.0f));
             //! @todo Check formula
-            m_horizontalSpeed = m_horizontalSpeed * 0.2f;
-            m_falling = true;
+            setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
+            setFalling(true);
             m_handStatus = 0;
             setXRotation(0_deg);
             setZRotation(0_deg);
@@ -419,18 +402,22 @@ namespace engine
             }
             handleLaraStateSwimming(isNewFrame);
         }
-
-        m_lastFrameTime = m_currentFrameTime;
     }
 
-    std::unique_ptr<AbstractStateHandler> LaraController::processAnimCommands()
+    std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)
     {
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
         bool newFrame = false;
-        if( handleTRTransitions() || m_lastAnimFrame != getCurrentFrame() )
+
+        if(advanceFrame)
+        {
+            nextFrame();
+        }
+
+        if( handleTRTransitions() || getLastAnimFrame() != getCurrentFrame() )
         {
             nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
-            m_lastAnimFrame = getCurrentFrame();
+            setLastAnimFrame( getCurrentFrame() );
             newFrame = true;
         }
 
@@ -500,27 +487,26 @@ namespace engine
             }
         }
 
-        if( m_falling )
+        if( isFalling() )
         {
-            m_horizontalSpeed.add(getAnimAccelleration(), getCurrentDeltaTime());
+            getHorizontalSpeed().add(getAnimAccelleration(), getCurrentDeltaTime());
             if( getFallSpeed() >= 128 )
-                m_fallSpeed.add(1, getCurrentDeltaTime());
+                getFallSpeed().add(1, getCurrentDeltaTime());
             else
-                m_fallSpeed.add(6, getCurrentDeltaTime());
+                getFallSpeed().add(6, getCurrentDeltaTime());
         }
         else
         {
-            m_horizontalSpeed = calculateAnimFloorSpeed();
+            setHorizontalSpeed( core::makeInterpolatedValue(calculateAnimFloorSpeed()) );
         }
 
         move(
-             getMovementAngle().sin() * m_horizontalSpeed.getScaled(getCurrentDeltaTime()),
-             m_falling ? m_fallSpeed.getScaled(getCurrentDeltaTime()) : 0,
-             getMovementAngle().cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
+             getMovementAngle().sin() * getHorizontalSpeed().getScaled(getCurrentDeltaTime()),
+             isFalling() ? getFallSpeed().getScaled(getCurrentDeltaTime()) : 0,
+             getMovementAngle().cos() * getHorizontalSpeed().getScaled(getCurrentDeltaTime())
             );
 
         applyPosition();
-        getSceneNode()->updateAbsolutePosition();
 
         return nextHandler;
     }
@@ -721,4 +707,33 @@ namespace engine
     {
         getLevel().m_cameraController->setLocalRotationX(x);
     }
+
+    void LaraController::setCameraDistance(int d)
+    {
+        getLevel().m_cameraController->setLocalDistance(d);
+    }
+
+    void LaraController::testInteractions(LaraState& state)
+    {
+        if(m_health < 0)
+            return;
+
+        std::set<const loader::Room*> rooms;
+        rooms.insert(getCurrentRoom());
+        for(const loader::Portal& p : getCurrentRoom()->portals)
+            rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
+
+        for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
+        {
+            if(rooms.find(ctrl->getCurrentRoom()) == rooms.end())
+                continue;
+
+            const auto d = getPosition() - ctrl->getPosition();
+            if(std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096)
+                continue;
+
+            ctrl->onInteract(*this, state);
+        }
+    }
+
 }

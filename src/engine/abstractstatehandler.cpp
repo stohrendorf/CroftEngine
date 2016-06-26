@@ -459,7 +459,7 @@ namespace engine
             setFalling(false);
             setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
             placeOnFloor(state);
-            auto tmp = getController().processAnimCommands();
+            auto tmp = getController().processLaraAnimCommands();
             if( tmp )
                 return tmp;
 
@@ -2159,6 +2159,88 @@ namespace engine
         }
     };
 
+    class StateHandler_40 final : public AbstractStateHandler
+    {
+    public:
+        explicit StateHandler_40(LaraController& lara)
+            : AbstractStateHandler(lara)
+        {
+        }
+        
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        {
+            state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
+            setCameraRotation(-25_deg, 80_deg);
+            setCameraDistance(1024);
+            
+            return nullptr;
+        }
+
+        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        {
+        }
+
+        loader::LaraStateId getId() const noexcept override
+        {
+            return LaraStateId::SwitchDown;
+        }
+
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        {
+            setMovementAngle(getRotation().Y);
+            state.yAngle = getRotation().Y;
+            state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+            state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            state.neededCeilingDistance = 0;
+            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+
+            state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+
+            return nullptr;
+        }
+     };
+
+    class StateHandler_41 final : public AbstractStateHandler
+    {
+    public:
+        explicit StateHandler_41(LaraController& lara)
+            : AbstractStateHandler(lara)
+        {
+        }
+        
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        {
+            state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
+            setCameraRotation(-25_deg, 80_deg);
+            setCameraDistance(1024);
+            
+            return nullptr;
+        }
+
+        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        {
+        }
+
+        loader::LaraStateId getId() const noexcept override
+        {
+            return LaraStateId::SwitchUp;
+        }
+
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        {
+            setMovementAngle(getRotation().Y);
+            state.yAngle = getRotation().Y;
+            state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+            state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            state.neededCeilingDistance = 0;
+            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+
+            state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+
+            return nullptr;
+        }
+     };
+
     class StateHandler_44 final : public StateHandler_Underwater
     {
     public:
@@ -2662,6 +2744,10 @@ namespace engine
             return std::make_unique<StateHandler_34>(controller);
         case LaraStateId::UnderwaterDiving:
             return std::make_unique<StateHandler_35>(controller);
+        case LaraStateId::SwitchDown:
+            return std::make_unique<StateHandler_40>(controller);
+        case LaraStateId::SwitchUp:
+            return std::make_unique<StateHandler_41>(controller);
         case LaraStateId::WaterDeath:
             return std::make_unique<StateHandler_44>(controller);
         case LaraStateId::RollForward:
@@ -3012,7 +3098,7 @@ namespace engine
             nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
             playAnimation(loader::AnimationId::STAY_SOLID, 185);
             setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)));
-            auto tmp = getController().processAnimCommands();
+            auto tmp = getController().processLaraAnimCommands();
             if( tmp )
                 nextHandler = std::move(tmp);
         }
@@ -3367,6 +3453,11 @@ namespace engine
     void AbstractStateHandler::setCameraRotationY(core::Angle y)
     {
         m_controller.setCameraRotationY(y);
+    }
+
+    void AbstractStateHandler::setCameraDistance(int d)
+    {
+        m_controller.setCameraDistance(d);
     }
 
     void AbstractStateHandler::jumpAgainstWall(LaraState& state)

@@ -94,6 +94,10 @@ namespace engine
         void setLocalRotation(core::Angle x, core::Angle y);
         void setLocalRotationX(core::Angle x);
         void setLocalRotationY(core::Angle y);
+        void setLocalDistance(int d)
+        {
+            m_distanceFromLookAt = d;
+        }
 
         void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
 

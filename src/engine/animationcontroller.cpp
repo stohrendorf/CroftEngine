@@ -41,6 +41,16 @@ namespace engine
         it->second.apply(m_node, localFrame);
     }
 
+    void AnimationController::advanceFrame()
+    {
+        m_node->setCurrentFrame(m_node->getFrameNr() + 1);
+        if(m_node->getFrameNr() > m_node->getEndFrame())
+            handleAnimationEnd();
+
+        m_node->animateJoints();
+    }
+
+
     irr::u32 AnimationController::getCurrentFrame() const
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);

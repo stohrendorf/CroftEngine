@@ -494,6 +494,10 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
             }
+            else if(item.objectId == 55)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
+            }
             else
             {
                 m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);

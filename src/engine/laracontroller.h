@@ -29,9 +29,6 @@ namespace engine
         core::InterpolatedValue<float> m_health{1000.0f};
         //! @brief Additional rotation in AU per TR Engine Frame
         core::InterpolatedValue<core::Angle> m_yRotationSpeed{0_deg};
-        bool m_falling = false;
-        core::InterpolatedValue<float> m_fallSpeed{0.0f};
-        core::InterpolatedValue<float> m_horizontalSpeed{0.0f};
         int m_fallSpeedOverride = 0;
         core::Angle m_movementAngle{0};
         core::InterpolatedValue<float> m_air{1800.0f};
@@ -41,20 +38,10 @@ namespace engine
 
         int m_handStatus = 0;
         int m_floorHeight = 0;
-        int m_lastFrameTime = -1;
-        int m_lastEngineFrameTime = -1;
-        int m_currentFrameTime = 0;
-        int m_lastAnimFrame = -1;
         int m_uvAnimTime = 0;
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
         std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
-
-        int getCurrentDeltaTime() const
-        {
-            BOOST_ASSERT(m_lastFrameTime < m_currentFrameTime);
-            return m_currentFrameTime - m_lastFrameTime;
-        }
 
     public:
         LaraController(gsl::not_null<level::Level*> level,
@@ -71,26 +58,9 @@ namespace engine
 
         ~LaraController();
 
-        void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
+        void animate(bool isNewFrame) override;
 
-        enum class AnimCommandOpcode : uint16_t
-        {
-            SetPosition = 1,
-            SetVelocity = 2,
-            EmptyHands = 3,
-            Kill = 4,
-            PlaySound = 5,
-            PlayEffect = 6,
-            Interact = 7
-        };
-
-        std::unique_ptr<AbstractStateHandler> processAnimCommands();
-
-        ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override
-        {
-            BOOST_ASSERT(false);
-            return nullptr;
-        }
+        std::unique_ptr<AbstractStateHandler> processLaraAnimCommands(bool advanceFrame = false);
 
         void setInputState(const InputState& state)
         {
@@ -111,6 +81,7 @@ namespace engine
         void handleLaraStateOnLand(bool newFrame);
         void handleLaraStateDiving(bool newFrame);
         void handleLaraStateSwimming(bool newFrame);
+        void testInteractions(LaraState& state);
         int m_swimToDiveKeypressDuration = 0;
 
         ///////////////////////////////////////
@@ -146,26 +117,6 @@ namespace engine
             return m_movementAngle;
         }
 
-        void setFallSpeed(const core::InterpolatedValue<float>& spd)
-        {
-            m_fallSpeed = spd;
-        }
-
-        const core::InterpolatedValue<float>& getFallSpeed() const noexcept
-        {
-            return m_fallSpeed;
-        }
-
-        bool isFalling() const noexcept
-        {
-            return m_falling;
-        }
-
-        void setFalling(bool falling) noexcept
-        {
-            m_falling = falling;
-        }
-
         int getHandStatus() const noexcept
         {
             return m_handStatus;
@@ -174,16 +125,6 @@ namespace engine
         void setHandStatus(int status) noexcept
         {
             m_handStatus = status;
-        }
-
-        void setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
-        {
-            m_horizontalSpeed = speed;
-        }
-
-        const core::InterpolatedValue<float>& getHorizontalSpeed() const
-        {
-            return m_horizontalSpeed;
         }
 
         void placeOnFloor(const LaraState& state);
@@ -221,11 +162,6 @@ namespace engine
         void setFallSpeedOverride(int v)
         {
             m_fallSpeedOverride = v;
-        }
-
-        void dampenHorizontalSpeed(float f)
-        {
-            m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
         }
 
         core::Angle getCurrentSlideAngle() const noexcept
@@ -269,9 +205,8 @@ namespace engine
         }
 
         void setCameraRotation(core::Angle x, core::Angle y);
-
         void setCameraRotationX(core::Angle x);
-
         void setCameraRotationY(core::Angle y);
+        void setCameraDistance(int d);
     };
 }
