@@ -59,6 +59,9 @@ namespace engine
             m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
 
             setCurrentRoom(room);
+
+            sceneNode->addAnimator(this);
+            this->drop();
         }
 
         irr::core::aabbox3di getBoundingBox() const;

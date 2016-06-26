@@ -503,9 +503,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
             node->addShadowVolumeSceneNode();
 
-            node->addAnimator(m_itemControllers[id].get());
-            m_itemControllers[id]->drop();
-
             m_fx->addShadowToNode(m_itemControllers[id]->getSceneNode());
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
@@ -553,8 +550,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
             m_itemControllers[id]->setYRotation(core::Angle{ item.rotation });
             m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
-            node->addAnimator(m_itemControllers[id].get());
-            m_itemControllers[id]->drop();
 
             continue;
         }
