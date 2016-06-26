@@ -82,7 +82,7 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     BOOST_LOG_TRIVIAL(debug) << "Reading static meshes";
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &loader::StaticMesh::read);
 
-    BOOST_LOG_TRIVIAL(debug) << "Reading object textures";
+    BOOST_LOG_TRIVIAL(debug) << "Reading texture proxies";
     m_reader.readVector(m_textureProxies, m_reader.readU32(), loader::TextureLayoutProxy::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite textures";
@@ -95,6 +95,9 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     {
         BOOST_LOG_TRIVIAL(debug) << "Reading palette";
         m_palette = loader::Palette::readTr1(m_reader);
+        m_palette->color[0].r = 0;
+        m_palette->color[0].g = 0;
+        m_palette->color[0].b = 0;
     }
 
     BOOST_LOG_TRIVIAL(debug) << "Reading cameras";
@@ -126,6 +129,9 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     {
         BOOST_LOG_TRIVIAL(debug) << "Reading palette";
         m_palette = loader::Palette::readTr1(m_reader);
+        m_palette->color[0].r = 0;
+        m_palette->color[0].g = 0;
+        m_palette->color[0].b = 0;
     }
 
     BOOST_LOG_TRIVIAL(debug) << "Reading cinematic frames";

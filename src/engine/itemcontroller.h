@@ -50,8 +50,6 @@ namespace engine
               , m_name(name)
               , m_item(item)
         {
-            Expects(dispatcher != nullptr);
-
             auto nodeRot = sceneNode->getRotation();
             m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
             m_rotation.Y = core::Angle::fromDegrees(nodeRot.Y);

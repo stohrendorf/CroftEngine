@@ -104,7 +104,7 @@ namespace level
 
         std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
         std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);
-        engine::LaraController* createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes);
+        engine::LaraController* createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes, const std::vector<irr::video::ITexture*>& textures);
         std::vector<irr::scene::ISkinnedMesh*> createSkinnedMeshes(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::SMesh*>& staticMeshes);
         loader::AnimatedModel::FrameRange loadAnimation(irr::u32& frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
         irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;

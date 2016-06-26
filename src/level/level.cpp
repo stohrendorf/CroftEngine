@@ -444,7 +444,7 @@ void dumpAnims(const loader::AnimatedModel& model, const Level* level)
 
 #endif
 
-engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes)
+engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<irr::scene::ISkinnedMesh*>& skinnedMeshes, const std::vector<irr::video::ITexture*>& textures)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -523,7 +523,39 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
         meshIdx = findSpriteSequenceByObjectId(item.objectId);
         if( meshIdx >= 0 )
         {
-            BOOST_LOG_TRIVIAL(warning) << "Unimplemented: Item " << id << "/Object " << item.objectId << " is a sprite sequence";
+            BOOST_ASSERT(findAnimatedModelIndexByObjectId(item.objectId) < 0);
+            BOOST_ASSERT(static_cast<size_t>(meshIdx) < m_spriteSequences.size());
+            const loader::SpriteSequence& spriteSequence = m_spriteSequences[meshIdx];
+            
+            BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
+
+            const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
+
+            irr::core::vector2df dim{ static_cast<irr::f32>(tex.right_side - tex.left_side + 1), static_cast<irr::f32>(tex.bottom_side - tex.top_side + 1) };
+            BOOST_ASSERT(dim.X > 0);
+            BOOST_ASSERT(dim.Y > 0);
+
+            irr::scene::IBillboardSceneNode* node = mgr->addBillboardSceneNode(room.node, dim, { 0,0,0 }, -1, 0, 0);
+            node->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
+            node->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
+            node->getMaterial(0).EmissiveColor.set(0);
+            node->setMaterialFlag(irr::video::EMF_LIGHTING, true);
+            node->setMaterialTexture(0, textures[tex.texture]);
+            node->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
+            
+            std::string name = "item";
+            name += std::to_string(id);
+            name += "(object";
+            name += std::to_string(item.objectId);
+            name += "/spriteSequence)";
+            node->setName(name.c_str());
+
+            m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
+            m_itemControllers[id]->setYRotation(core::Angle{ item.rotation });
+            m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+            node->addAnimator(m_itemControllers[id].get());
+            m_itemControllers[id]->drop();
+
             continue;
         }
 
@@ -821,7 +853,7 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
 
     std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(device->getSceneManager(), staticMeshes);
 
-    m_lara = createItems(device->getSceneManager(), skinnedMeshes);
+    m_lara = createItems(device->getSceneManager(), skinnedMeshes, textures);
     if(m_lara == nullptr)
         return;
 
