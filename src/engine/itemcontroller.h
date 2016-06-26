@@ -52,10 +52,10 @@ namespace engine
         {
             Expects(dispatcher != nullptr);
 
-            auto laraRot = sceneNode->getRotation();
-            m_rotation.X = core::Angle::fromDegrees(laraRot.X);
-            m_rotation.Y = core::Angle::fromDegrees(laraRot.Y);
-            m_rotation.Z = core::Angle::fromDegrees(laraRot.Z);
+            auto nodeRot = sceneNode->getRotation();
+            m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
+            m_rotation.Y = core::Angle::fromDegrees(nodeRot.Y);
+            m_rotation.Z = core::Angle::fromDegrees(nodeRot.Z);
 
             m_sceneNode->updateAbsolutePosition();
             m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
@@ -86,7 +86,10 @@ namespace engine
 
         void applyPosition()
         {
-            m_sceneNode->setPosition(m_position.position.toIrrlicht());
+            if(auto parent = m_sceneNode->getParent())
+                m_sceneNode->setPosition(m_position.position.toIrrlicht() - parent->getAbsolutePosition());
+            else
+                m_sceneNode->setPosition(m_position.position.toIrrlicht());
         }
 
         irr::scene::ISceneNode* getSceneNode() const noexcept

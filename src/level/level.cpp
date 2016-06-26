@@ -32,6 +32,7 @@
 #include "util/vmath.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/range/adaptors.hpp>
 
 #include <algorithm>
 #include <stack>
@@ -488,7 +489,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 animationController->playLocalAnimation(static_cast<uint16_t>(loader::AnimationId::STAY_IDLE));
                 lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
-                m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
                 node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
@@ -497,10 +497,10 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             else
             {
                 m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
-                m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - room.position));
             }
 
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
+            m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
 
             node->addAnimator(m_itemControllers[id].get());
             m_itemControllers[id]->drop();
@@ -1007,4 +1007,15 @@ void Level::drawBars(irr::video::IVideoDriver* drv) const
         drv->draw2DLine({ x0, 11 }, { x0 + p, 11 }, m_palette->color[6].toSColor());
         drv->draw2DLine({ x0, 12 }, { x0 + p, 12 }, m_palette->color[24].toSColor());
     }
+}
+
+engine::ItemController * level::Level::findControllerForNode(const irr::scene::ISceneNode* node)
+{
+    for(const auto& ctrl : m_itemControllers | boost::adaptors::map_values)
+    {
+        if(ctrl->getSceneNode() == node)
+            return ctrl.get();
+    }
+
+    return nullptr;
 }

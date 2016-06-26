@@ -149,6 +149,8 @@ namespace level
 
         void drawBars(irr::video::IVideoDriver* drv) const;
 
+        engine::ItemController* findControllerForNode(const irr::scene::ISceneNode* node);
+
     protected:
         loader::io::SDLReader m_reader;
         bool m_demoOrUb = false;
