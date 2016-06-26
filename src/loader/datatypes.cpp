@@ -6,6 +6,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
+#include <EffectHandler.h>
 
 namespace loader
 {
@@ -94,9 +95,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     }
     
     result->recalculateBoundingBox();
-    
+
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
     result->drop();
+    level.m_fx->addShadowToNode(resultNode);
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     // resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
     for(Light& light : lights)
@@ -136,17 +138,19 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         irr::video::SLight& ld = light.node->getLightData();
         ld.InnerCone = light.r_inner;
         ld.OuterCone = light.r_outer;
-        const auto f = light.specularIntensity / 4095.0f;
+        const auto f = light.specularIntensity / 8191.0f;
+        BOOST_ASSERT(f >= 0 && f <= 1);
         ld.DiffuseColor.set(light.color.a/255.0f*f, light.color.r/255.0f*f, light.color.g/255.0f*f, light.color.b/255.0f*f);
         ld.SpecularColor = ld.DiffuseColor;
         ld.AmbientColor = ld.DiffuseColor;
-        ld.Falloff = light.specularFade / 8192.0f;
+        //ld.Falloff = light.specularFade / 8192.0f;
         light.node->setPosition((light.position - position).toIrrlicht());
         light.node->setRotation(light.dir.toIrrlicht());
-        light.node->setRadius(light.specularFade);
-        ld.Attenuation.Z = ld.Attenuation.Y;
+        light.node->setRadius(light.specularFade * 2);
+        ld.Attenuation.Y = 1.0f / light.specularFade;
+        //ld.Attenuation.Z = ld.Attenuation.X;
 #ifndef NDEBUG
-        light.node->setDebugDataVisible(irr::scene::EDS_FULL);
+        //light.node->setDebugDataVisible(irr::scene::EDS_FULL);
 #endif
     }
     
@@ -158,6 +162,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
         smNode->setRotation({0,util::auToDeg(sm.rotation),0});
         smNode->setPosition((sm.position - position).toIrrlicht());
+        level.m_fx->addShadowToNode(smNode);
         resultNode->addChild(smNode);
     }
     resultNode->setPosition(position.toIrrlicht());

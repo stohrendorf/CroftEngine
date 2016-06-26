@@ -82,7 +82,7 @@ namespace engine
         for( irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i )
         {
             irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
-            const auto col = m_position.room->lightColor.toSColor(m_position.room->darkness / 8191.0f / 4);
+            const auto col = m_position.room->lightColor.toSColor(1 - m_position.room->darkness / 8191.0f);
             material.EmissiveColor = col;
             material.AmbientColor = col;
         }

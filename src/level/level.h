@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+class EffectHandler;
+
 namespace level
 {
     /** \brief A complete TR level.
@@ -107,7 +109,7 @@ namespace level
         loader::AnimatedModel::FrameRange loadAnimation(irr::u32& frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh);
         irr::video::ITexture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;
 
-        void toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl);
+        void toIrrlicht(irr::IrrlichtDevice* device);
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
         {
@@ -144,6 +146,7 @@ namespace level
 
         engine::LaraController* m_lara = nullptr;
         std::shared_ptr<render::TextureAnimator> m_textureAnimator;
+        std::shared_ptr<EffectHandler> m_fx = nullptr;
 
         const engine::ItemController* getItemController(uint16_t id) const;
 

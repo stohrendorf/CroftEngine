@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <stack>
 #include <set>
+#include <EffectHandler.h>
 
 using namespace level;
 
@@ -489,7 +490,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 animationController->playLocalAnimation(static_cast<uint16_t>(loader::AnimationId::STAY_IDLE));
                 lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
-                node->addShadowVolumeSceneNode();
 #ifndef NDEBUG
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
@@ -501,9 +501,12 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
             m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
+            node->addShadowVolumeSceneNode();
 
             node->addAnimator(m_itemControllers[id].get());
             m_itemControllers[id]->drop();
+
+            m_fx->addShadowToNode(m_itemControllers[id]->getSceneNode());
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
             {
@@ -778,20 +781,23 @@ irr::video::ITexture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr,
     return tex;
 }
 
-void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl* cursorCtrl)
+void Level::toIrrlicht(irr::IrrlichtDevice* device)
 {
-    mgr->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
-    mgr->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-    mgr->setLightManager(new render::LightSelector(*this, mgr));
+    device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
+    device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
+    device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
 
-    std::vector<irr::video::ITexture*> textures = createTextures(mgr);
+    m_fx = std::make_shared<EffectHandler>(device, device->getVideoDriver()->getScreenSize(), true, true, true);
+    m_fx->setClearColour(irr::video::SColor(0));
+
+    std::vector<irr::video::ITexture*> textures = createTextures(device->getSceneManager());
     std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
     std::vector<irr::video::SMaterial> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
         irr::video::SMaterial result;
         // Set some defaults
-        result.setTexture(0, createSolidColorTex(mgr, i));
+        result.setTexture(0, createSolidColorTex(device->getSceneManager(), i));
         //result.BackfaceCulling = false;
         result.ColorMaterial = irr::video::ECM_AMBIENT;
         result.Lighting = true;
@@ -805,17 +811,17 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     std::vector<irr::scene::SMesh*> staticMeshes;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
-        staticMeshes.emplace_back(m_meshes[i].createMesh(mgr, i, m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
+        staticMeshes.emplace_back(m_meshes[i].createMesh(device->getSceneManager(), i, m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
     }
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(mgr, i, *this, materials, textures, staticMeshes, *m_textureAnimator);
+        m_rooms[i].createSceneNode(device->getSceneManager(), i, *this, materials, textures, staticMeshes, *m_textureAnimator);
     }
 
-    std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(mgr, staticMeshes);
+    std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(device->getSceneManager(), staticMeshes);
 
-    m_lara = createItems(mgr, skinnedMeshes);
+    m_lara = createItems(device->getSceneManager(), skinnedMeshes);
     if(m_lara == nullptr)
         return;
 
@@ -825,8 +831,8 @@ void Level::toIrrlicht(irr::scene::ISceneManager* mgr, irr::gui::ICursorControl*
     for( auto& ptr : skinnedMeshes )
         ptr->drop();
 
-    irr::scene::ICameraSceneNode* camera = mgr->addCameraSceneNode();
-    m_cameraController = new engine::CameraController(cursorCtrl, this, m_lara, mgr->getVideoDriver(), camera);
+    irr::scene::ICameraSceneNode* camera = device->getSceneManager()->addCameraSceneNode();
+    m_cameraController = new engine::CameraController(device->getCursorControl(), this, m_lara, device->getSceneManager()->getVideoDriver(), camera);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(1);

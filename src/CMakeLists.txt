@@ -104,6 +104,15 @@ set(OT_IRR_SRCS
 
     util/helpers.h
     util/vmath.h
+
+    ../3rdparty/xeffects/Source/CScreenQuad.h
+    ../3rdparty/xeffects/Source/CShaderPre.h
+    ../3rdparty/xeffects/Source/CShaderPre.cpp
+    ../3rdparty/xeffects/Source/EffectCB.h
+    ../3rdparty/xeffects/Source/EffectHandler.h
+    ../3rdparty/xeffects/Source/EffectHandler.cpp
+    ../3rdparty/xeffects/Source/EffectShaders.h
+    ../3rdparty/xeffects/Source/XEffects.h
 )
 
 add_executable(ot_irr
@@ -124,4 +133,4 @@ target_link_libraries(
     ZLIB
 )
 
-target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include)
+target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include ../3rdparty/xeffects/Source)

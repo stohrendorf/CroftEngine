@@ -1,4 +1,5 @@
 #include "level/level.h"
+#include <EffectHandler.h>
 
 int main()
 {
@@ -10,7 +11,7 @@ int main()
 
     irr::SIrrlichtCreationParameters driverParams;
     driverParams.AntiAlias = 255;
-    driverParams.ZBufferBits = 24;
+    driverParams.ZBufferBits = 16;
     driverParams.Stencilbuffer = true;
     driverParams.Vsync = false;
     driverParams.Bits = 24;
@@ -26,7 +27,7 @@ int main()
     BOOST_ASSERT(l != nullptr);
     auto driver = device->getVideoDriver();
     l->load(driver);
-    l->toIrrlicht(device->getSceneManager(), device->getCursorControl());
+    l->toIrrlicht(device);
     
     device->setWindowCaption(L"EdisonEngine");
     
@@ -50,7 +51,8 @@ int main()
         lastTime = timer->getTime();
         
         device->getVideoDriver()->beginScene(true, true);
-        device->getSceneManager()->drawAll();
+        //device->getSceneManager()->drawAll();
+        l->m_fx->update();
         l->drawBars(device->getVideoDriver());
         device->getVideoDriver()->endScene();
         
