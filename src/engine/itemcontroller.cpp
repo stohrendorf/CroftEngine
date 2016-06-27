@@ -65,14 +65,15 @@ namespace engine
         return m_dispatcher->getAnimEndFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room)
         , m_level(level)
         , m_sceneNode(sceneNode)
         , m_dispatcher(dispatcher)
         , m_name(name)
-        , m_item(item)
         , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
+        , m_itemFlags(item->flags)
+        , m_characteristics(characteristics)
     {
         auto nodeRot = sceneNode->getRotation();
         m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
@@ -87,14 +88,17 @@ namespace engine
         sceneNode->addAnimator(this);
         this->drop();
 
-        if(item->isInitiallyInvisible())
+        if((m_itemFlags & 0x100) != 0)
         {
+            m_itemFlags &= ~0x100;
             m_flags2_02 = true;
             m_flags2_04 = true;
         }
 
-        if(item->getActivationMask() == 0x3e00)
+        if((m_itemFlags & 0x3e00) == 0x3e00)
         {
+            m_itemFlags &= ~0x3e00;
+            m_itemFlags |= 0x4000;
             activate();
             m_flags2_02 = true;
             m_flags2_04 = false;
@@ -274,6 +278,13 @@ namespace engine
         m_isActive = true;
     }
 
+    void ItemController::deactivate()
+    {
+        if(!m_isActive)
+            BOOST_LOG_TRIVIAL(warning) << "Item controller " << m_name << " already inactive";
+
+        m_isActive = false;
+    }
 
     void ItemController_55_Switch::onInteract(LaraController& lara, LaraState & state)
     {
@@ -286,7 +297,7 @@ namespace engine
         if(lara.isFalling())
             return;
 
-        if(!m_flags2_04 && !m_flags2_02)
+        if(m_flags2_04 || m_flags2_02)
             return;
 
         if(lara.getCurrentState() != loader::LaraStateId::Stop)
@@ -361,6 +372,11 @@ namespace engine
         const auto dz = m(2, 0) * dist.X + m(2, 1) * dist.Y + m(2, 2) * dist.Z;
 
         return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
+    }
+
+    void ItemController_62_Door::onInteract(LaraController& lara, LaraState& state)
+    {
+        
     }
 
 }

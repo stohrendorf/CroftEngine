@@ -498,6 +498,10 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
             }
+            else if(item.objectId == 62)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_62_Door>(this, animationController, node, name + ":controller", &room, &item);
+            }
             else
             {
                 m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);

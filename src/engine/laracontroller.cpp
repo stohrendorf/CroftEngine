@@ -274,6 +274,15 @@ namespace engine
 
     void LaraController::animate(bool isNewFrame)
     {
+        if(isNewFrame)
+        {
+            for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
+            {
+                if(ctrl->m_isActive && ctrl->m_hasProcessAnimCommandsOverride)
+                    ctrl->processAnimCommands();
+            }
+        }
+
         static constexpr int UVAnimTime = 1000 / 10;
 
         m_uvAnimTime += getCurrentDeltaTime();
@@ -409,7 +418,7 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
         bool newFrame = false;
 
-        if(advanceFrame)
+        if( advanceFrame )
         {
             nextFrame();
         }
@@ -417,7 +426,7 @@ namespace engine
         if( handleTRTransitions() || getLastAnimFrame() != getCurrentFrame() )
         {
             nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
-            setLastAnimFrame( getCurrentFrame() );
+            setLastAnimFrame(getCurrentFrame());
             newFrame = true;
         }
 
@@ -497,7 +506,7 @@ namespace engine
         }
         else
         {
-            setHorizontalSpeed( core::makeInterpolatedValue(calculateAnimFloorSpeed()) );
+            setHorizontalSpeed(core::makeInterpolatedValue(calculateAnimFloorSpeed()));
         }
 
         move(
@@ -550,7 +559,7 @@ namespace engine
         getLevel().m_cameraController->findCameraTarget(nextFloorData);
         //! @todo Find camera target if necessary
 
-        bool doTrigger = false;
+        bool doTrigger = false, switchIsOn = false;
         if( !isDoppelganger )
         {
             switch( triggerType )
@@ -563,7 +572,31 @@ namespace engine
                 doTrigger = getPosition().Y == getFloorHeight();
                 break;
             case loader::TriggerType::Switch:
-                //! @todo Handle switch
+                {
+                    Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*nextFloorData)) != getLevel().m_itemControllers.end());
+                    ItemController& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*nextFloorData)];
+                    if( !swtch.m_flags2_04 || swtch.m_flags2_02 )
+                    {
+                        return;
+                    }
+
+                    if( swtch.getCurrentAnimState() != 0 || static_cast<int8_t>(triggerArg) <= 0 )
+                    {
+                        swtch.deactivate();
+                        swtch.m_flags2_02 = false;
+                        swtch.m_flags2_04 = false;
+                    }
+                    else
+                    {
+                        swtch.m_triggerTimeout = static_cast<int8_t>(triggerArg);
+                        if( swtch.m_triggerTimeout != 1 )
+                            swtch.m_triggerTimeout *= 1000;
+                        swtch.m_flags2_02 = true;
+                        swtch.m_flags2_04 = false;
+                    }
+
+                    switchIsOn = (swtch.getCurrentAnimState() == 1);
+                }
                 ++nextFloorData;
                 doTrigger = true;
                 return;
@@ -605,16 +638,79 @@ namespace engine
             switch( loader::extractTriggerFunction(*nextFloorData++) )
             {
             case loader::TriggerFunction::Object:
-                //! @todo handle object
+                {
+                    Expects(getLevel().m_itemControllers.find(param) != getLevel().m_itemControllers.end());
+                    ItemController& item = *getLevel().m_itemControllers[param];
+                    if( (item.m_itemFlags & 0x100) == 0 )
+                    {
+                        item.m_triggerTimeout = static_cast<uint8_t>(triggerArg);
+                        if( item.m_triggerTimeout != 1 )
+                            item.m_triggerTimeout *= 1000;
+                        if( triggerType == loader::TriggerType::Switch )
+                        {
+                            item.m_itemFlags ^= triggerArg & 0x3e00;
+                        }
+                        else if( triggerType == loader::TriggerType::AntiPad )
+                        {
+                            item.m_itemFlags &= ~(triggerArg & 0x3e00);
+                        }
+                        else
+                        {
+                            item.m_itemFlags |= triggerArg & 0x3e00;
+                        }
+
+                        if( (item.m_itemFlags & 0x3e00) == 0x3e00 )
+                        {
+                            if( (triggerArg & 0x100) != 0 )
+                                item.m_itemFlags |= 0x100;
+
+                            if( !item.m_isActive )
+                            {
+                                if( (item.m_characteristics & 0x02) != 0 )
+                                {
+                                    if( item.m_flags2_02 || item.m_flags2_04 )
+                                    {
+                                        if( item.m_flags2_02 && item.m_flags2_04 )
+                                        {
+                                            //! @todo Implement baddie
+                                            if( false ) //!< @todo unpauseBaddie
+                                            {
+                                                item.m_flags2_02 = true;
+                                                item.m_flags2_04 = false;
+                                            }
+                                            else
+                                            {
+                                                item.m_flags2_02 = true;
+                                                item.m_flags2_04 = true;
+                                            }
+                                            item.activate();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //! @todo Implement baddie
+                                        item.m_flags2_02 = true;
+                                        item.m_flags2_04 = false;
+                                        item.activate();
+                                    }
+                                }
+                                else
+                                {
+                                    item.m_flags2_02 = true;
+                                    item.m_flags2_04 = false;
+                                    item.activate();
+                                }
+                            }
+                        }
+                    }
+                }
                 break;
             case loader::TriggerFunction::CameraTarget:
-                getLevel().m_cameraController->setCamOverride(nextFloorData[0], param, triggerType, isDoppelganger, triggerArg, /** @todo switchIsOn*/ false);
+                getLevel().m_cameraController->setCamOverride(nextFloorData[0], param, triggerType, isDoppelganger, triggerArg, switchIsOn);
                 ++nextFloorData;
-                //! @todo handle camera target
                 break;
             case loader::TriggerFunction::LookAt:
                 lookAtItem = getLevel().getItemController(param);
-                //! @todo handle "look at"
                 break;
             case loader::TriggerFunction::UnderwaterCurrent:
                 //! @todo handle underwater current
@@ -716,32 +812,31 @@ namespace engine
     void LaraController::testInteractions(LaraState& state)
     {
         m_flags2_10 = false;
-            
-        if(m_health < 0)
+
+        if( m_health < 0 )
             return;
 
         std::set<const loader::Room*> rooms;
         rooms.insert(getCurrentRoom());
-        for(const loader::Portal& p : getCurrentRoom()->portals)
+        for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
+        for( const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
         {
-            if(rooms.find(ctrl->getCurrentRoom()) == rooms.end())
+            if( rooms.find(ctrl->getCurrentRoom()) == rooms.end() )
                 continue;
 
-            if(!ctrl->m_flags2_20)
+            if( !ctrl->m_flags2_20 )
                 continue;
 
-            if(!ctrl->m_flags2_04 || !ctrl->m_flags2_02)
+            if( !ctrl->m_flags2_04 || !ctrl->m_flags2_02 )
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();
-            if(std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096)
+            if( std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096 )
                 continue;
 
             ctrl->onInteract(*this, state);
         }
     }
-
 }

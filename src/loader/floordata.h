@@ -92,7 +92,7 @@ namespace loader
 
     inline TriggerType extractTriggerType(FloorData::value_type data)
     {
-        return gsl::narrow_cast<TriggerType>((data & 0x3fff) >> 8);
+        return gsl::narrow_cast<TriggerType>((data & 0x3f00) >> 8);
     }
 
     constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)

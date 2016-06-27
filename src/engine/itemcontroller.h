@@ -45,7 +45,6 @@ namespace engine
         std::shared_ptr<engine::AnimationController> m_dispatcher;
         const std::string m_name;
 
-        gsl::not_null<loader::Item*> m_item;
         int m_lastAnimFrame = -1;
         core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
         core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
@@ -55,9 +54,8 @@ namespace engine
 
         bool m_falling = false; // flags2_08
 
-        const bool m_hasProcessAnimCommandsOverride;
-
     public:
+        uint16_t m_itemFlags;
         bool m_isActive = false;
         bool m_flags2_02 = false;
         bool m_flags2_04 = false;
@@ -67,6 +65,9 @@ namespace engine
         bool m_flags2_80 = false;
         uint16_t m_triggerFlags = 0;
         int m_triggerTimeout = 0;
+
+        const bool m_hasProcessAnimCommandsOverride;
+        const uint8_t m_characteristics;
 
         enum class AnimCommandOpcode : uint16_t
         {
@@ -87,7 +88,8 @@ namespace engine
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        gsl::not_null<loader::Item*> item,
-                       bool hasProcessAnimCommandsOverride);
+                       bool hasProcessAnimCommandsOverride,
+                       uint8_t characteristics);
 
         irr::core::aabbox3di getBoundingBox() const;
 
@@ -261,11 +263,13 @@ namespace engine
 
         virtual void onInteract(LaraController& lara, LaraState& state)
         {
+            BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
 
         virtual void processAnimCommands(bool advanceFrame = false);
         
         void activate();
+        void deactivate();
 
         void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override final
         {
@@ -326,25 +330,25 @@ namespace engine
 
         bool updateTrigger()
         {
-            if((m_triggerFlags&0x3e00) != 0x3e00)
+            if((m_itemFlags&0x3e00) != 0x3e00)
             {
-                return m_flags2_40;
+                return (m_itemFlags & 0x40) != 0;
             }
 
             if(m_triggerTimeout == 0)
             {
-                return !m_flags2_40;
+                return (m_itemFlags & 0x40) == 0;
             }
             
             if(m_triggerTimeout < 0)
             {
-                return m_flags2_40;
+                return (m_itemFlags & 0x40) != 0;
             }
 
             m_triggerTimeout -= getCurrentDeltaTime();
             if(m_triggerTimeout < 0)
                 m_triggerTimeout = -1;
-            return !m_flags2_40;
+            return (m_itemFlags & 0x40) == 0;
         }
     };
 
@@ -352,7 +356,7 @@ namespace engine
     {
     public:
         DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
         {
         }
 
@@ -365,7 +369,7 @@ namespace engine
     {
     public:
         ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
         {
         }
 
@@ -385,6 +389,50 @@ namespace engine
             }
 
             ItemController::processAnimCommands(advanceFrame);
+        }
+    };
+
+    class ItemController_62_Door final : public ItemController
+    {
+    public:
+        ItemController_62_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        {
+        }
+
+        void animate(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override;
+      
+        void processAnimCommands(bool advanceFrame = false) override
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
+
+            if(updateTrigger())
+            {
+                if(getCurrentAnimState() != 0)
+                {
+                    //! @todo Implement me
+                }
+                else
+                {
+                    setTargetState(1);
+                    ItemController::processAnimCommands();
+                    return;
+                }
+            }
+            else
+            {
+                if(getCurrentAnimState() == 1)
+                {
+                    setTargetState(0);
+                    ItemController::processAnimCommands();
+                    return;
+                }
+            }
+            ItemController::processAnimCommands();
         }
     };
 }
