@@ -50,7 +50,7 @@ namespace engine
                        const std::string& name,
                        gsl::not_null<const loader::Room*> room,
                        gsl::not_null<loader::Item*> item)
-            : ItemController(level, dispatcher, lara, name, room, item)
+            : ItemController(level, dispatcher, lara, name, room, item, false)
         {
             playAnimation(loader::AnimationId::STAY_IDLE);
             setMovementAngle(getRotation().Y);

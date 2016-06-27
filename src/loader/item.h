@@ -28,7 +28,7 @@ namespace loader
 
         uint16_t getActivationMask() const
         {
-            return (flags & 0x3e00) >> 9;
+            return (flags & 0x3e00);
         }
 
         uint8_t getTriggerMask() const

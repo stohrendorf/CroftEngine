@@ -715,6 +715,8 @@ namespace engine
 
     void LaraController::testInteractions(LaraState& state)
     {
+        m_flags2_10 = false;
+            
         if(m_health < 0)
             return;
 
@@ -726,6 +728,12 @@ namespace engine
         for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
         {
             if(rooms.find(ctrl->getCurrentRoom()) == rooms.end())
+                continue;
+
+            if(!ctrl->m_flags2_20)
+                continue;
+
+            if(!ctrl->m_flags2_04 || !ctrl->m_flags2_02)
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();

@@ -53,7 +53,6 @@ namespace engine
         m_dispatcher->advanceFrame();
     }
 
-
     irr::u32 ItemController::getCurrentFrame() const
     {
         Expects(m_dispatcher != nullptr);
@@ -64,6 +63,42 @@ namespace engine
     {
         Expects(m_dispatcher != nullptr);
         return m_dispatcher->getAnimEndFrame();
+    }
+
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride)
+        : m_position(room)
+        , m_level(level)
+        , m_sceneNode(sceneNode)
+        , m_dispatcher(dispatcher)
+        , m_name(name)
+        , m_item(item)
+        , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
+    {
+        auto nodeRot = sceneNode->getRotation();
+        m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
+        m_rotation.Y = core::Angle::fromDegrees(nodeRot.Y);
+        m_rotation.Z = core::Angle::fromDegrees(nodeRot.Z);
+
+        m_sceneNode->updateAbsolutePosition();
+        m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
+
+        setCurrentRoom(room);
+
+        sceneNode->addAnimator(this);
+        this->drop();
+
+        if(item->isInitiallyInvisible())
+        {
+            m_flags2_02 = true;
+            m_flags2_04 = true;
+        }
+
+        if(item->getActivationMask() == 0x3e00)
+        {
+            activate();
+            m_flags2_02 = true;
+            m_flags2_04 = false;
+        }
     }
 
     irr::core::aabbox3di ItemController::getBoundingBox() const
@@ -122,6 +157,8 @@ namespace engine
 
     void ItemController::processAnimCommands(bool advanceFrame)
     {
+        m_flags2_10 = false;
+
         if(advanceFrame)
             nextFrame();
 
@@ -188,6 +225,10 @@ namespace engine
                         }
                         cmd += 2;
                         break;
+                    case AnimCommandOpcode::Kill:
+                        m_flags2_02 = false;
+                        m_flags2_04 = true;
+                        break;
                     default:
                         break;
                 }
@@ -218,7 +259,19 @@ namespace engine
 
     void ItemController::activate()
     {
-        //! @todo Implement me
+        if(!m_hasProcessAnimCommandsOverride)
+        {
+            m_flags2_02 = false;
+            m_flags2_04 = false;
+            return;
+        }
+
+        if(m_isActive)
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Item controller " << m_name << " already active";
+        }
+
+        m_isActive = true;
     }
 
 
@@ -233,6 +286,9 @@ namespace engine
         if(lara.isFalling())
             return;
 
+        if(!m_flags2_04 && !m_flags2_02)
+            return;
+
         if(lara.getCurrentState() != loader::LaraStateId::Stop)
             return;
 
@@ -245,8 +301,6 @@ namespace engine
         if(!limits.canInteract(*this, lara))
             return;
 
-        //! @todo Check item flags
-
         lara.setYRotation(getRotation().Y);
 
         if(getCurrentAnimState() == 1)
@@ -257,9 +311,10 @@ namespace engine
                 lara.processLaraAnimCommands(true);
             } while(lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown);
             lara.setTargetState(loader::LaraStateId::Stop);
-            //! @todo update flags
             setTargetState(0);
             lara.setHandStatus(1);
+            m_flags2_04 = false;
+            m_flags2_02 = true;
         }
         else
         {
@@ -272,9 +327,10 @@ namespace engine
                 lara.processLaraAnimCommands(true);
             } while(lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp);
             lara.setTargetState(loader::LaraStateId::Stop);
-            //! @todo update flags
             setTargetState(1);
             lara.setHandStatus(1);
+            m_flags2_04 = false;
+            m_flags2_02 = true;
         }
 
         activate();

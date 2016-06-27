@@ -47,14 +47,27 @@ namespace engine
 
         gsl::not_null<loader::Item*> m_item;
         int m_lastAnimFrame = -1;
-        bool m_falling = false;
         core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
         core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
         int m_currentFrameTime = 0;
         int m_lastFrameTime = -1;
         int m_lastEngineFrameTime = -1;
 
+        bool m_falling = false; // flags2_08
+
+        const bool m_hasProcessAnimCommandsOverride;
+
     public:
+        bool m_isActive = false;
+        bool m_flags2_02 = false;
+        bool m_flags2_04 = false;
+        bool m_flags2_10 = false;
+        bool m_flags2_20 = true;
+        bool m_flags2_40 = false;
+        bool m_flags2_80 = false;
+        uint16_t m_triggerFlags = 0;
+        int m_triggerTimeout = 0;
+
         enum class AnimCommandOpcode : uint16_t
         {
             SetPosition = 1,
@@ -73,27 +86,8 @@ namespace engine
                        const gsl::not_null<irr::scene::ISceneNode*>& sceneNode,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
-                       gsl::not_null<loader::Item*> item)
-            : m_position(room)
-              , m_level(level)
-              , m_sceneNode(sceneNode)
-              , m_dispatcher(dispatcher)
-              , m_name(name)
-              , m_item(item)
-        {
-            auto nodeRot = sceneNode->getRotation();
-            m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
-            m_rotation.Y = core::Angle::fromDegrees(nodeRot.Y);
-            m_rotation.Z = core::Angle::fromDegrees(nodeRot.Z);
-
-            m_sceneNode->updateAbsolutePosition();
-            m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
-
-            setCurrentRoom(room);
-
-            sceneNode->addAnimator(this);
-            this->drop();
-        }
+                       gsl::not_null<loader::Item*> item,
+                       bool hasProcessAnimCommandsOverride);
 
         irr::core::aabbox3di getBoundingBox() const;
 
@@ -329,13 +323,36 @@ namespace engine
         {
             m_lastAnimFrame = f;
         }
+
+        bool updateTrigger()
+        {
+            if((m_triggerFlags&0x3e00) != 0x3e00)
+            {
+                return m_flags2_40;
+            }
+
+            if(m_triggerTimeout == 0)
+            {
+                return !m_flags2_40;
+            }
+            
+            if(m_triggerTimeout < 0)
+            {
+                return m_flags2_40;
+            }
+
+            m_triggerTimeout -= getCurrentDeltaTime();
+            if(m_triggerTimeout < 0)
+                m_triggerTimeout = -1;
+            return !m_flags2_40;
+        }
     };
 
     class DummyItemController final : public ItemController
     {
     public:
         DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false)
         {
         }
 
@@ -348,7 +365,7 @@ namespace engine
     {
     public:
         ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true)
         {
         }
 
@@ -357,5 +374,17 @@ namespace engine
         }
 
         void onInteract(LaraController& lara, LaraState& state) override;
+      
+        void processAnimCommands(bool advanceFrame = false) override
+        {
+            m_triggerFlags |= 0x3e00;
+            if(!updateTrigger())
+            {
+                setTargetState(1);
+                m_triggerTimeout = 0;
+            }
+
+            ItemController::processAnimCommands(advanceFrame);
+        }
     };
 }
