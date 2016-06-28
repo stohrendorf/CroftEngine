@@ -63,7 +63,6 @@ namespace engine
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
         bool m_flags2_80 = false;
-        uint16_t m_triggerFlags = 0;
         int m_triggerTimeout = 0;
 
         const bool m_hasProcessAnimCommandsOverride;
@@ -381,7 +380,7 @@ namespace engine
       
         void processAnimCommands(bool advanceFrame = false) override
         {
-            m_triggerFlags |= 0x3e00;
+            m_itemFlags |= 0x3e00;
             if(!updateTrigger())
             {
                 setTargetState(1);
@@ -408,7 +407,7 @@ namespace engine
       
         void processAnimCommands(bool advanceFrame = false) override
         {
-            BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
+            //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
 
             if(updateTrigger())
             {

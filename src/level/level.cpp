@@ -483,7 +483,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            auto animationController = engine::AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
+            auto animationController = engine::AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":animator");
 
             if( item.type == 0 )
             {
@@ -497,14 +497,17 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             else if(item.type == 55)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
             }
             else if(item.type >= 57 && item.type <= 64)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
             }
             else
             {
                 m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
             }
 
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -643,6 +646,7 @@ loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, co
         frameOffset += animation.stretchFactor;
         ++framePatch;
     }
+    BOOST_LOG_TRIVIAL(debug) << "Framepatch: " << animation.firstFrame << " / " << animation.lastFrame << " + " << framePatch;
 
     // append the last frame again
     pData = lastPData;

@@ -829,7 +829,7 @@ namespace engine
             if( !ctrl->m_flags2_20 )
                 continue;
 
-            if( !ctrl->m_flags2_04 || !ctrl->m_flags2_02 )
+            if( ctrl->m_flags2_04 && ctrl->m_flags2_02 )
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();

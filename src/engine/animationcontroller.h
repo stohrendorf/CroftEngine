@@ -144,6 +144,8 @@ public:
         if(currentFrame == m_lastCheckedFrame)
             return;
         
+        m_animationController->handleTRTransitions();
+
         m_lastCheckedFrame = currentFrame;
     }
 

@@ -170,9 +170,9 @@ namespace loader
 
             FrameRange(irr::u32 o, irr::u32 f, irr::u32 l, std::map<irr::u32, irr::core::aabbox3di>&& bb)
                 : offset(o)
-                  , firstFrame(f)
-                  , lastFrame(l)
-                  , bboxes(std::move(bb))
+                , firstFrame(f)
+                , lastFrame(l)
+                , bboxes(std::move(bb))
             {
                 BOOST_ASSERT(firstFrame < lastFrame);
                 BOOST_ASSERT(!bboxes.empty());

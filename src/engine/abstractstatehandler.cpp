@@ -321,9 +321,6 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
         {
-            //! @todo HACK
-            setHandStatus(0);
-
             if( getHealth() <= 0 )
             {
                 setTargetState(LaraStateId::Death);
