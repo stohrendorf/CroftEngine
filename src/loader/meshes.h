@@ -97,7 +97,7 @@ namespace loader
         // 90 degrees (e.g. (Rotation >> 14) * 90)
         int16_t intensity1; // Constant lighting; -1 means use mesh lighting
         int16_t intensity2; // Like Intensity 1, and almost always the same value [absent from TR1 data files]
-        uint16_t object_id; // which StaticMesh item to draw
+        uint16_t meshId; // which StaticMesh item to draw
         FloatColor tint; // extracted from intensity
 
         /** \brief reads a room staticmesh definition.
@@ -112,7 +112,7 @@ namespace loader
             room_static_mesh.position = readCoordinates32(reader);
             room_static_mesh.rotation = reader.readI16();
             room_static_mesh.intensity1 = reader.readI16();
-            room_static_mesh.object_id = reader.readU16();
+            room_static_mesh.meshId = reader.readU16();
             // make consistent
             if( room_static_mesh.intensity1 >= 0 )
                 room_static_mesh.intensity1 = (8191 - room_static_mesh.intensity1) << 2;
@@ -131,7 +131,7 @@ namespace loader
             room_static_mesh.rotation = reader.readI16();
             room_static_mesh.intensity1 = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
-            room_static_mesh.object_id = reader.readU16();
+            room_static_mesh.meshId = reader.readU16();
             // make consistent
             if( room_static_mesh.intensity1 >= 0 )
                 room_static_mesh.intensity1 = (8191 - room_static_mesh.intensity1) << 2;
@@ -150,7 +150,7 @@ namespace loader
             room_static_mesh.rotation = reader.readI16();
             room_static_mesh.intensity1 = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
-            room_static_mesh.object_id = reader.readU16();
+            room_static_mesh.meshId = reader.readU16();
 
             room_static_mesh.tint.r = (room_static_mesh.intensity1 & 0x001F) / 62.0f;
 
@@ -168,7 +168,7 @@ namespace loader
             room_static_mesh.rotation = reader.readI16();
             room_static_mesh.intensity1 = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
-            room_static_mesh.object_id = reader.readU16();
+            room_static_mesh.meshId = reader.readU16();
 
             room_static_mesh.tint.r = (room_static_mesh.intensity1 & 0x001F) / 31.0f;
 
@@ -182,7 +182,7 @@ namespace loader
 
     struct StaticMesh
     {
-        uint32_t object_id; // Object Identifier (matched in Items[])
+        uint32_t id; // Object Identifier (matched in Items[])
         uint16_t mesh; // mesh (offset into MeshPointers[])
         irr::core::aabbox3di visibility_box;
         irr::core::aabbox3di collision_box;
@@ -199,7 +199,7 @@ namespace loader
         static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
         {
             std::unique_ptr<StaticMesh> mesh{new StaticMesh()};
-            mesh->object_id = reader.readU32();
+            mesh->id = reader.readU32();
             mesh->mesh = reader.readU16();
 
             mesh->visibility_box.MinEdge.X = reader.readI16();

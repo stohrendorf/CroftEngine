@@ -374,7 +374,7 @@ namespace engine
         return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
     }
 
-    void ItemController_62_Door::onInteract(LaraController& lara, LaraState& state)
+    void ItemController_Door::onInteract(LaraController& lara, LaraState& state)
     {
         
     }

@@ -96,11 +96,11 @@ namespace level
 
         loader::StaticMesh* findStaticMeshById(uint32_t object_id);
         const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
-        loader::Item* findItemById(int32_t object_id);
-        loader::AnimatedModel* findModelById(uint32_t object_id);
-        int findStaticMeshIndexByObjectId(uint32_t object_id) const;
-        int findAnimatedModelIndexByObjectId(uint32_t object_id) const;
-        int findSpriteSequenceByObjectId(uint32_t object_id) const;
+        loader::Item* findItemByType(int32_t object_id);
+        loader::AnimatedModel* findModelByType(uint32_t object_id);
+        int findStaticMeshIndexById(uint32_t object_id) const;
+        int findAnimatedModelIndexByType(uint32_t object_id) const;
+        int findSpriteSequenceByType(uint32_t object_id) const;
 
         std::vector<irr::video::ITexture*> createTextures(irr::scene::ISceneManager* mgr);
         std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> createMaterials(const std::vector<irr::video::ITexture*>& textures);

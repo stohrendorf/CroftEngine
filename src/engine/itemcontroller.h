@@ -392,10 +392,10 @@ namespace engine
         }
     };
 
-    class ItemController_62_Door final : public ItemController
+    class ItemController_Door final : public ItemController
     {
     public:
-        ItemController_62_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
         {
         }

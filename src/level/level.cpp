@@ -100,7 +100,7 @@ void Level::readPoseDataAndModels(loader::io::SDLReader& reader)
         {
             model = loader::AnimatedModel::readTr1(reader);
             // Disable unused skybox polygons.
-            if( gameToEngine(m_gameVersion) == Engine::TR3 && model->object_id == 355 )
+            if( gameToEngine(m_gameVersion) == Engine::TR3 && model->type == 355 )
             {
                 m_meshes[m_meshIndices[model->firstMesh]].colored_triangles.resize(16);
             }
@@ -273,29 +273,29 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
     return ret;
 }
 
-loader::StaticMesh* Level::findStaticMeshById(uint32_t object_id)
+loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId)
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
-        if( m_staticMeshes[i].object_id == object_id && m_meshIndices[m_staticMeshes[i].mesh] )
+        if( m_staticMeshes[i].id == meshId && m_meshIndices[m_staticMeshes[i].mesh] )
             return &m_staticMeshes[i];
 
     return nullptr;
 }
 
-const loader::StaticMesh* Level::findStaticMeshById(uint32_t object_id) const
+const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
-        if( m_staticMeshes[i].object_id == object_id && m_meshIndices[m_staticMeshes[i].mesh] )
+        if( m_staticMeshes[i].id == meshId && m_meshIndices[m_staticMeshes[i].mesh] )
             return &m_staticMeshes[i];
 
     return nullptr;
 }
 
-int Level::findStaticMeshIndexByObjectId(uint32_t object_id) const
+int Level::findStaticMeshIndexById(uint32_t meshId) const
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
     {
-        if( m_staticMeshes[i].object_id == object_id )
+        if( m_staticMeshes[i].id == meshId )
         {
             BOOST_ASSERT(m_staticMeshes[i].mesh < m_meshIndices.size());
             return m_meshIndices[m_staticMeshes[i].mesh];
@@ -305,37 +305,37 @@ int Level::findStaticMeshIndexByObjectId(uint32_t object_id) const
     return -1;
 }
 
-int Level::findAnimatedModelIndexByObjectId(uint32_t object_id) const
+int Level::findAnimatedModelIndexByType(uint32_t type) const
 {
     for( size_t i = 0; i < m_animatedModels.size(); i++ )
-        if( m_animatedModels[i]->object_id == object_id )
+        if( m_animatedModels[i]->type == type )
             return i;
 
     return -1;
 }
 
-int Level::findSpriteSequenceByObjectId(uint32_t object_id) const
+int Level::findSpriteSequenceByType(uint32_t type) const
 {
     for( size_t i = 0; i < m_spriteSequences.size(); i++ )
-        if( m_spriteSequences[i].object_id == object_id )
+        if( m_spriteSequences[i].type == type )
             return i;
 
     return -1;
 }
 
-loader::Item* Level::findItemById(int32_t objectId)
+loader::Item* Level::findItemByType(int32_t type)
 {
     for( size_t i = 0; i < m_items.size(); i++ )
-        if( m_items[i].objectId == objectId )
+        if( m_items[i].type == type )
             return &m_items[i];
 
     return nullptr;
 }
 
-loader::AnimatedModel* Level::findModelById(uint32_t object_id)
+loader::AnimatedModel* Level::findModelByType(uint32_t type)
 {
     for( size_t i = 0; i < m_animatedModels.size(); i++ )
-        if( m_animatedModels[i]->object_id == object_id )
+        if( m_animatedModels[i]->type == type )
             return m_animatedModels[i].get();
 
     return nullptr;
@@ -455,14 +455,14 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
         BOOST_ASSERT(item.room < m_rooms.size());
         loader::Room& room = m_rooms[item.room];
 
-        auto meshIdx = findAnimatedModelIndexByObjectId(item.objectId);
+        auto meshIdx = findAnimatedModelIndexByType(item.type);
         if( meshIdx >= 0 )
         {
-            BOOST_ASSERT(findSpriteSequenceByObjectId(item.objectId) < 0);
+            BOOST_ASSERT(findSpriteSequenceByType(item.type) < 0);
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
             irr::scene::IAnimatedMeshSceneNode* node;
 
-            if( item.objectId == 0 )
+            if( item.type == 0 )
             {
                 node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
             }
@@ -473,8 +473,8 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
             std::string name = "item";
             name += std::to_string(id);
-            name += "(object";
-            name += std::to_string(item.objectId);
+            name += "(type";
+            name += std::to_string(item.type);
             name += "/animatedModel)";
             node->setName(name.c_str());
 
@@ -485,7 +485,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             node->setLoopMode(false);
             auto animationController = engine::AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":dispatcher");
 
-            if( item.objectId == 0 )
+            if( item.type == 0 )
             {
                 animationController->playLocalAnimation(static_cast<uint16_t>(loader::AnimationId::STAY_IDLE));
                 lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
@@ -494,13 +494,13 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
             }
-            else if(item.objectId == 55)
+            else if(item.type == 55)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
             }
-            else if(item.objectId == 62)
+            else if(item.type >= 57 && item.type <= 64)
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_62_Door>(this, animationController, node, name + ":controller", &room, &item);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animationController, node, name + ":controller", &room, &item);
             }
             else
             {
@@ -525,10 +525,10 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             continue;
         }
 
-        meshIdx = findSpriteSequenceByObjectId(item.objectId);
+        meshIdx = findSpriteSequenceByType(item.type);
         if( meshIdx >= 0 )
         {
-            BOOST_ASSERT(findAnimatedModelIndexByObjectId(item.objectId) < 0);
+            BOOST_ASSERT(findAnimatedModelIndexByType(item.type) < 0);
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < m_spriteSequences.size());
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[meshIdx];
             
@@ -550,8 +550,8 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             
             std::string name = "item";
             name += std::to_string(id);
-            name += "(object";
-            name += std::to_string(item.objectId);
+            name += "(type";
+            name += std::to_string(item.type);
             name += "/spriteSequence)";
             node->setName(name.c_str());
 
@@ -562,7 +562,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             continue;
         }
 
-        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for item " << id << "/object " << int(item.objectId);
+        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for item " << id << "/type " << int(item.type);
     }
 
     return lara;
@@ -687,7 +687,7 @@ std::vector<irr::scene::ISkinnedMesh*> Level::createSkinnedMeshes(irr::scene::IS
             BOOST_ASSERT(meshIndex < staticMeshes.size());
             const auto staticMesh = staticMeshes[meshIndex];
             irr::scene::ISkinnedMesh::SJoint* joint = skinnedMesh->addJoint();
-            if( model->object_id == 0 )
+            if( model->type == 0 )
             {
                 if( modelMeshIdx == 7 )
                     joint->Name = "chest";

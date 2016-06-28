@@ -225,7 +225,7 @@ namespace engine
         {
             for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
             {
-                gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById(rsm.object_id);
+                gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById(rsm.meshId);
                 if( sm->doNotCollide() )
                     continue;
 

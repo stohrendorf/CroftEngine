@@ -148,7 +148,7 @@ namespace loader
 
     struct AnimatedModel
     {
-        uint32_t object_id; // Item Identifier (matched in Items[])
+        uint32_t type; // Item Identifier (matched in Items[])
         uint16_t meshCount; // number of meshes in this object
         uint16_t firstMesh; // starting mesh (offset into MeshPointers[])
         uint32_t boneTreeIndex; // offset into MeshTree[]
@@ -244,7 +244,7 @@ namespace loader
         static std::unique_ptr<AnimatedModel> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<AnimatedModel> moveable{new AnimatedModel()};
-            moveable->object_id = reader.readU32();
+            moveable->type = reader.readU32();
             moveable->meshCount = reader.readU16();
             moveable->firstMesh = reader.readU16();
             moveable->boneTreeIndex = reader.readU32();

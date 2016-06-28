@@ -6,7 +6,7 @@ namespace loader
 {
     struct Item
     {
-        uint16_t objectId; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
+        uint16_t type; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
         uint16_t room; //!< Owning room
         core::TRCoordinates position; //!< world coords
         int16_t rotation; //!< ((0xc000 >> 14) * 90) degrees around Y axis
@@ -55,7 +55,7 @@ namespace loader
         static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<Item> item{new Item()};
-            item->objectId = reader.readU16();
+            item->type = reader.readU16();
             item->room = reader.readU16();
             item->position = io::readCoordinates32(reader);
             item->rotation = reader.readI16();
@@ -71,7 +71,7 @@ namespace loader
         static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Item> item{new Item()};
-            item->objectId = reader.readU16();
+            item->type = reader.readU16();
             item->room = reader.readU16();
             item->position = io::readCoordinates32(reader);
             item->rotation = reader.readI16();
@@ -89,7 +89,7 @@ namespace loader
         static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
         {
             std::unique_ptr<Item> item{new Item()};
-            item->objectId = reader.readU16();
+            item->type = reader.readU16();
             item->room = reader.readU16();
             item->position = io::readCoordinates32(reader);
             item->rotation = reader.readI16();
@@ -103,7 +103,7 @@ namespace loader
         static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
         {
             std::unique_ptr<Item> item{new Item()};
-            item->objectId = reader.readU16();
+            item->type = reader.readU16();
             item->room = reader.readU16();
             item->position = io::readCoordinates32(reader);
             item->rotation = reader.readI16();

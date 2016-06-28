@@ -1202,7 +1202,7 @@ namespace loader
 
     struct SpriteSequence
     {
-        uint32_t object_id; // Item identifier (matched in Items[])
+        uint32_t type; // Item identifier (matched in Items[])
         int16_t length; // negative of "how many sprites are in this sequence"
         int16_t offset; // where (in sprite texture list) this sequence starts
 
@@ -1213,7 +1213,7 @@ namespace loader
         static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
         {
             std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
-            sprite_sequence->object_id = reader.readU32();
+            sprite_sequence->type = reader.readU32();
             sprite_sequence->length = -reader.readI16();
             sprite_sequence->offset = reader.readI16();
             return sprite_sequence;

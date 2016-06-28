@@ -156,7 +156,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     
     for(const RoomStaticMesh& sm : this->staticMeshes)
     {
-        auto idx = level.findStaticMeshIndexByObjectId(sm.object_id);
+        auto idx = level.findStaticMeshIndexById(sm.meshId);
         BOOST_ASSERT(idx >= 0);
         BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
         irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
