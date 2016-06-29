@@ -61,8 +61,8 @@ namespace engine
 
         uint16_t m_itemFlags;
         bool m_isActive = false;
-        bool m_flags2_02 = false;
-        bool m_flags2_04 = false;
+        bool m_flags2_02_enabled = false;
+        bool m_flags2_04_ready = false;
         bool m_flags2_10 = false;
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
@@ -322,24 +322,24 @@ namespace engine
 
         bool triggerSwitch(uint16_t arg)
         {
-            if(!m_flags2_04 || m_flags2_02)
+            if(!m_flags2_04_ready || m_flags2_02_enabled)
             {
                 return false;
             }
 
-            m_flags2_04 = false;
+            m_flags2_04_ready = false;
 
             if(getCurrentAnimState() != 0 || loader::isLastFloordataEntry(arg))
             {
                 deactivate();
-                m_flags2_02 = false;
+                m_flags2_02_enabled = false;
             }
             else
             {
                 m_triggerTimeout = gsl::narrow_cast<uint8_t>(arg);
                 if(m_triggerTimeout != 1)
                     m_triggerTimeout *= 1000;
-                m_flags2_02 = true;
+                m_flags2_02_enabled = true;
             }
 
             return true;

@@ -656,34 +656,34 @@ namespace engine
 
                     if( (item.m_characteristics & 0x02) == 0 )
                     {
-                        item.m_flags2_02 = true;
-                        item.m_flags2_04 = false;
+                        item.m_flags2_02_enabled = true;
+                        item.m_flags2_04_ready = false;
                         item.activate();
                         break;
                     }
 
-                    if( !item.m_flags2_02 && !item.m_flags2_04 )
+                    if( !item.m_flags2_02_enabled && !item.m_flags2_04_ready )
                     {
                         //! @todo Implement baddie
-                        item.m_flags2_02 = true;
-                        item.m_flags2_04 = false;
+                        item.m_flags2_02_enabled = true;
+                        item.m_flags2_04_ready = false;
                         item.activate();
                         break;
                     }
 
-                    if(!item.m_flags2_02 || !item.m_flags2_04)
+                    if(!item.m_flags2_02_enabled || !item.m_flags2_04_ready)
                         break;
 
                     //! @todo Implement baddie
                     if( false ) //!< @todo unpauseBaddie
                     {
-                        item.m_flags2_02 = true;
-                        item.m_flags2_04 = false;
+                        item.m_flags2_02_enabled = true;
+                        item.m_flags2_04_ready = false;
                     }
                     else
                     {
-                        item.m_flags2_02 = true;
-                        item.m_flags2_04 = true;
+                        item.m_flags2_02_enabled = true;
+                        item.m_flags2_04_ready = true;
                     }
                     item.activate();
                 }
@@ -812,7 +812,7 @@ namespace engine
             if( !ctrl->m_flags2_20 )
                 continue;
 
-            if( ctrl->m_flags2_04 && ctrl->m_flags2_02 )
+            if( ctrl->m_flags2_04_ready && ctrl->m_flags2_02_enabled )
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();
