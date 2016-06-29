@@ -55,6 +55,10 @@ namespace engine
         bool m_falling = false; // flags2_08
 
     public:
+        static constexpr const uint16_t InvertedActivation = 0x40;
+        static constexpr const uint16_t Oneshot = 0x100;
+        static constexpr const uint16_t ActivationMask = 0x3e00;
+
         uint16_t m_itemFlags;
         bool m_isActive = false;
         bool m_flags2_02 = false;
@@ -325,14 +329,14 @@ namespace engine
 
             m_flags2_04 = false;
 
-            if(getCurrentAnimState() != 0 || (arg & 0x8000) != 0)
+            if(getCurrentAnimState() != 0 || loader::isLastFloordataEntry(arg))
             {
                 deactivate();
                 m_flags2_02 = false;
             }
             else
             {
-                m_triggerTimeout = static_cast<int8_t>(arg);
+                m_triggerTimeout = gsl::narrow_cast<uint8_t>(arg);
                 if(m_triggerTimeout != 1)
                     m_triggerTimeout *= 1000;
                 m_flags2_02 = true;
@@ -354,25 +358,25 @@ namespace engine
 
         bool updateTrigger()
         {
-            if((m_itemFlags&0x3e00) != 0x3e00)
+            if((m_itemFlags&ActivationMask) != ActivationMask)
             {
-                return (m_itemFlags & 0x40) != 0;
+                return (m_itemFlags & InvertedActivation) != 0;
             }
 
             if(m_triggerTimeout == 0)
             {
-                return (m_itemFlags & 0x40) == 0;
+                return (m_itemFlags & InvertedActivation) == 0;
             }
             
             if(m_triggerTimeout < 0)
             {
-                return (m_itemFlags & 0x40) != 0;
+                return (m_itemFlags & InvertedActivation) != 0;
             }
 
             m_triggerTimeout -= getCurrentDeltaTime();
             if(m_triggerTimeout < 0)
                 m_triggerTimeout = -1;
-            return (m_itemFlags & 0x40) == 0;
+            return (m_itemFlags & InvertedActivation) == 0;
         }
     };
 
@@ -405,7 +409,7 @@ namespace engine
       
         void processAnimCommands(bool advanceFrame = false) override
         {
-            m_itemFlags |= 0x3e00;
+            m_itemFlags |= ActivationMask;
             if(!updateTrigger())
             {
                 setTargetState(1);

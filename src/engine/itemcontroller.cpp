@@ -88,20 +88,20 @@ namespace engine
         sceneNode->addAnimator(this);
         this->drop();
 
-        if((m_itemFlags & 0x100) != 0)
+        if((m_itemFlags & Oneshot) != 0)
         {
-            m_itemFlags &= ~0x100;
-            m_flags2_02 = true;
-            m_flags2_04 = true;
+            m_itemFlags &= ~Oneshot;
+            m_flags2_02_enabled = true;
+            m_flags2_04_ready = true;
         }
 
-        if((m_itemFlags & 0x3e00) == 0x3e00)
+        if((m_itemFlags & ActivationMask) == ActivationMask)
         {
-            m_itemFlags &= ~0x3e00;
+            m_itemFlags &= ~ActivationMask;
             m_itemFlags |= 0x4000;
             activate();
-            m_flags2_02 = true;
-            m_flags2_04 = false;
+            m_flags2_02_enabled = true;
+            m_flags2_04_ready = false;
         }
     }
 
@@ -230,8 +230,8 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::Kill:
-                        m_flags2_02 = false;
-                        m_flags2_04 = true;
+                        m_flags2_02_enabled = false;
+                        m_flags2_04_ready = true;
                         break;
                     default:
                         break;
@@ -265,8 +265,8 @@ namespace engine
     {
         if(!m_hasProcessAnimCommandsOverride)
         {
-            m_flags2_02 = false;
-            m_flags2_04 = false;
+            m_flags2_02_enabled = false;
+            m_flags2_04_ready = false;
             return;
         }
 
@@ -297,7 +297,7 @@ namespace engine
         if(lara.isFalling())
             return;
 
-        if(m_flags2_04 || m_flags2_02)
+        if(m_flags2_04_ready || m_flags2_02_enabled)
             return;
 
         if(lara.getCurrentState() != loader::LaraStateId::Stop)
@@ -340,8 +340,8 @@ namespace engine
             lara.setHandStatus(1);
         }
 
-        m_flags2_04 = false;
-        m_flags2_02 = true;
+        m_flags2_04_ready = false;
+        m_flags2_02_enabled = true;
 
         activate();
         ItemController::processAnimCommands();

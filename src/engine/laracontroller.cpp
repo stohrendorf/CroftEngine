@@ -624,7 +624,7 @@ namespace engine
                 {
                     Expects(getLevel().m_itemControllers.find(actionParam) != getLevel().m_itemControllers.end());
                     ItemController& item = *getLevel().m_itemControllers[actionParam];
-                    if( (item.m_itemFlags & 0x100) != 0 )
+                    if( (item.m_itemFlags & Oneshot) != 0 )
                     {
                         break;
                     }
@@ -634,22 +634,22 @@ namespace engine
 
                     if( srcTriggerType == loader::TriggerType::Switch )
                     {
-                        item.m_itemFlags ^= srcTriggerArg & 0x3e00;
+                        item.m_itemFlags ^= srcTriggerArg & ActivationMask;
                     }
                     else if( srcTriggerType == loader::TriggerType::AntiPad )
                     {
-                        item.m_itemFlags &= ~(srcTriggerArg & 0x3e00);
+                        item.m_itemFlags &= ~(srcTriggerArg & ActivationMask);
                     }
                     else
                     {
-                        item.m_itemFlags |= srcTriggerArg & 0x3e00;
+                        item.m_itemFlags |= srcTriggerArg & ActivationMask;
                     }
 
-                    if( (item.m_itemFlags & 0x3e00) != 0x3e00 )
+                    if( (item.m_itemFlags & ActivationMask) != ActivationMask)
                         break;
 
-                    if( (srcTriggerArg & 0x100) != 0 )
-                        item.m_itemFlags |= 0x100;
+                    if( (srcTriggerArg & Oneshot) != 0 )
+                        item.m_itemFlags |= Oneshot;
 
                     if(item.m_isActive)
                         break;
