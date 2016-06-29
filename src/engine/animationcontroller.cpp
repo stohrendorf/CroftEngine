@@ -43,9 +43,17 @@ namespace engine
 
     void AnimationController::advanceFrame()
     {
-        m_node->setCurrentFrame(m_node->getFrameNr() + 1);
-        if(m_node->getFrameNr() > m_node->getEndFrame())
+        BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << m_node->getFrameNr() << ", end=" << m_node->getEndFrame();
+        if(m_node->getFrameNr() >= m_node->getEndFrame())
+        {
             handleAnimationEnd();
+        }
+        else
+        {
+            m_node->setCurrentFrame(m_node->getFrameNr() + 1);
+        }
+
+        handleTRTransitions();
 
         m_node->animateJoints();
     }
@@ -132,6 +140,7 @@ namespace engine
                 {
                     m_currentAnimationId = trc.targetAnimation;
                     startAnimLoop(trc.targetFrame);
+                    BOOST_LOG_TRIVIAL(debug) << m_name << " -- found transition to state " << m_targetState << ", new animation " << m_currentAnimationId << "/frame " << trc.targetFrame;
                     return true;
                 }
             }

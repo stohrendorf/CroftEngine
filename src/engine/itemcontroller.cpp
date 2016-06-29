@@ -166,7 +166,7 @@ namespace engine
         if(advanceFrame)
             nextFrame();
 
-        bool newFrame = false;
+        bool newFrame = advanceFrame;
 
         if(handleTRTransitions() || m_lastAnimFrame != getCurrentFrame())
         {
@@ -324,8 +324,6 @@ namespace engine
             lara.setTargetState(loader::LaraStateId::Stop);
             setTargetState(0);
             lara.setHandStatus(1);
-            m_flags2_04 = false;
-            m_flags2_02 = true;
         }
         else
         {
@@ -340,12 +338,13 @@ namespace engine
             lara.setTargetState(loader::LaraStateId::Stop);
             setTargetState(1);
             lara.setHandStatus(1);
-            m_flags2_04 = false;
-            m_flags2_02 = true;
         }
 
+        m_flags2_04 = false;
+        m_flags2_02 = true;
+
         activate();
-        processAnimCommands();
+        ItemController::processAnimCommands();
     }
 
     bool InteractionLimits::canInteract(const ItemController& item, const LaraController& lara) const

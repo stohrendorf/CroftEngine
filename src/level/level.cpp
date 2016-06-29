@@ -637,6 +637,7 @@ loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, co
     }
 
     irr::u32 framePatch = 0;
+#if 0
     // is necessary, create pseudo-frames, because otherwise irrlicht thinks
     // there's no animation at all
     while( animation.firstFrame >= animation.lastFrame + framePatch )
@@ -652,6 +653,7 @@ loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, co
     pData = lastPData;
     loadAnimFrame(0, frameOffset, model, animation, skinnedMesh, pData, bbox);
     frameOffset += animation.stretchFactor;
+#endif
 
     return loader::AnimatedModel::FrameRange{firstLinearFrame, animation.firstFrame, animation.lastFrame + framePatch, std::move(bboxes)};
 }

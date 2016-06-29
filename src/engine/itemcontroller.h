@@ -262,7 +262,7 @@ namespace engine
 
         virtual void onInteract(LaraController& lara, LaraState& state)
         {
-            BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
+            //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
 
         virtual void processAnimCommands(bool advanceFrame = false);
@@ -314,6 +314,31 @@ namespace engine
         core::InterpolatedValue<float>& getFallSpeed() noexcept
         {
             return m_fallSpeed;
+        }
+
+        bool triggerSwitch(uint16_t arg)
+        {
+            if(!m_flags2_04 || m_flags2_02)
+            {
+                return false;
+            }
+
+            m_flags2_04 = false;
+
+            if(getCurrentAnimState() != 0 || (arg & 0x8000) != 0)
+            {
+                deactivate();
+                m_flags2_02 = false;
+            }
+            else
+            {
+                m_triggerTimeout = static_cast<int8_t>(arg);
+                if(m_triggerTimeout != 1)
+                    m_triggerTimeout *= 1000;
+                m_flags2_02 = true;
+            }
+
+            return true;
         }
 
     protected:
@@ -387,7 +412,7 @@ namespace engine
                 m_triggerTimeout = 0;
             }
 
-            ItemController::processAnimCommands(advanceFrame);
+            ItemController::processAnimCommands();
         }
     };
 
@@ -418,8 +443,6 @@ namespace engine
                 else
                 {
                     setTargetState(1);
-                    ItemController::processAnimCommands();
-                    return;
                 }
             }
             else
@@ -430,6 +453,7 @@ namespace engine
                     ItemController::processAnimCommands();
                     return;
                 }
+                //! @todo Implement sector patches
             }
             ItemController::processAnimCommands();
         }

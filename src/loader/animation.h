@@ -174,7 +174,7 @@ namespace loader
                 , lastFrame(l)
                 , bboxes(std::move(bb))
             {
-                BOOST_ASSERT(firstFrame < lastFrame);
+                BOOST_ASSERT(firstFrame <= lastFrame);
                 BOOST_ASSERT(!bboxes.empty());
             }
 
@@ -186,7 +186,7 @@ namespace loader
                 const auto realFirst = offset;
                 const auto realLast = offset + lastFrame - firstFrame;
 
-                BOOST_ASSERT(realFirst < realLast);
+                BOOST_ASSERT(realFirst <= realLast);
                 if( !node->setFrameLoop(realFirst, realLast) )
                 {
                     BOOST_LOG_TRIVIAL(error) << "  - Failed to set frame loop (" << node->getName() << ") " << realFirst << ".." << realLast;

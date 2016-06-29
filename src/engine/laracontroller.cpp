@@ -552,165 +552,148 @@ namespace engine
             ++floorData;
         }
 
-        const auto triggerType = loader::extractTriggerType(*floorData);
-        const auto triggerArg = floorData[1];
-        auto nextFloorData = floorData + 2;
+        const auto srcTriggerType = loader::extractTriggerType(*floorData);
+        const auto srcTriggerArg = floorData[1];
+        auto actionFloorData = floorData + 2;
 
-        getLevel().m_cameraController->findCameraTarget(nextFloorData);
+        getLevel().m_cameraController->findCameraTarget(actionFloorData);
         //! @todo Find camera target if necessary
 
-        bool doTrigger = false, switchIsOn = false;
+        bool runActions = false, switchIsOn = false;
         if( !isDoppelganger )
         {
-            switch( triggerType )
+            switch( srcTriggerType )
             {
             case loader::TriggerType::Trigger:
-                doTrigger = true;
+                runActions = true;
                 break;
             case loader::TriggerType::Pad:
             case loader::TriggerType::AntiPad:
-                doTrigger = getPosition().Y == getFloorHeight();
+                runActions = getPosition().Y == getFloorHeight();
                 break;
             case loader::TriggerType::Switch:
                 {
-                    Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*nextFloorData)) != getLevel().m_itemControllers.end());
-                    ItemController& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*nextFloorData)];
-                    if( !swtch.m_flags2_04 || swtch.m_flags2_02 )
-                    {
+                    Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
+                    ItemController& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    if(!swtch.triggerSwitch(srcTriggerArg))
                         return;
-                    }
-
-                    if( swtch.getCurrentAnimState() != 0 || static_cast<int8_t>(triggerArg) <= 0 )
-                    {
-                        swtch.deactivate();
-                        swtch.m_flags2_02 = false;
-                        swtch.m_flags2_04 = false;
-                    }
-                    else
-                    {
-                        swtch.m_triggerTimeout = static_cast<int8_t>(triggerArg);
-                        if( swtch.m_triggerTimeout != 1 )
-                            swtch.m_triggerTimeout *= 1000;
-                        swtch.m_flags2_02 = true;
-                        swtch.m_flags2_04 = false;
-                    }
 
                     switchIsOn = (swtch.getCurrentAnimState() == 1);
                 }
-                ++nextFloorData;
-                doTrigger = true;
-                return;
+                ++actionFloorData;
+                runActions = true;
+                break;
             case loader::TriggerType::Key:
                 //! @todo Handle key
-                ++nextFloorData;
-                doTrigger = true;
+                ++actionFloorData;
+                runActions = true;
                 return;
             case loader::TriggerType::Pickup:
                 //! @todo Handle pickup
-                ++nextFloorData;
-                doTrigger = true;
+                ++actionFloorData;
+                runActions = true;
                 return;
             case loader::TriggerType::Combat:
-                doTrigger = getHandStatus() == 4;
+                runActions = getHandStatus() == 4;
                 break;
             case loader::TriggerType::Heavy:
             case loader::TriggerType::Dummy:
                 return;
             default:
-                doTrigger = true;
+                runActions = true;
                 break;
             }
         }
         else
         {
-            doTrigger = triggerType == loader::TriggerType::Heavy;
+            runActions = srcTriggerType == loader::TriggerType::Heavy;
         }
 
-        if( !doTrigger )
+        if( !runActions )
             return;
 
         const ItemController* lookAtItem = nullptr;
 
         while( true )
         {
-            const bool isLast = loader::isLastFloordataEntry(*nextFloorData);
-            const auto param = loader::extractTriggerFunctionParam(*nextFloorData);
-            switch( loader::extractTriggerFunction(*nextFloorData++) )
+            const bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
+            const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
+            switch( loader::extractTriggerFunction(*actionFloorData++) )
             {
             case loader::TriggerFunction::Object:
                 {
-                    Expects(getLevel().m_itemControllers.find(param) != getLevel().m_itemControllers.end());
-                    ItemController& item = *getLevel().m_itemControllers[param];
-                    if( (item.m_itemFlags & 0x100) == 0 )
+                    Expects(getLevel().m_itemControllers.find(actionParam) != getLevel().m_itemControllers.end());
+                    ItemController& item = *getLevel().m_itemControllers[actionParam];
+                    if( (item.m_itemFlags & 0x100) != 0 )
                     {
-                        item.m_triggerTimeout = static_cast<uint8_t>(triggerArg);
-                        if( item.m_triggerTimeout != 1 )
-                            item.m_triggerTimeout *= 1000;
-                        if( triggerType == loader::TriggerType::Switch )
-                        {
-                            item.m_itemFlags ^= triggerArg & 0x3e00;
-                        }
-                        else if( triggerType == loader::TriggerType::AntiPad )
-                        {
-                            item.m_itemFlags &= ~(triggerArg & 0x3e00);
-                        }
-                        else
-                        {
-                            item.m_itemFlags |= triggerArg & 0x3e00;
-                        }
-
-                        if( (item.m_itemFlags & 0x3e00) == 0x3e00 )
-                        {
-                            if( (triggerArg & 0x100) != 0 )
-                                item.m_itemFlags |= 0x100;
-
-                            if( !item.m_isActive )
-                            {
-                                if( (item.m_characteristics & 0x02) != 0 )
-                                {
-                                    if( item.m_flags2_02 || item.m_flags2_04 )
-                                    {
-                                        if( item.m_flags2_02 && item.m_flags2_04 )
-                                        {
-                                            //! @todo Implement baddie
-                                            if( false ) //!< @todo unpauseBaddie
-                                            {
-                                                item.m_flags2_02 = true;
-                                                item.m_flags2_04 = false;
-                                            }
-                                            else
-                                            {
-                                                item.m_flags2_02 = true;
-                                                item.m_flags2_04 = true;
-                                            }
-                                            item.activate();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //! @todo Implement baddie
-                                        item.m_flags2_02 = true;
-                                        item.m_flags2_04 = false;
-                                        item.activate();
-                                    }
-                                }
-                                else
-                                {
-                                    item.m_flags2_02 = true;
-                                    item.m_flags2_04 = false;
-                                    item.activate();
-                                }
-                            }
-                        }
+                        break;
                     }
+                    item.m_triggerTimeout = static_cast<uint8_t>(srcTriggerArg);
+                    if( item.m_triggerTimeout != 1 )
+                        item.m_triggerTimeout *= 1000;
+
+                    if( srcTriggerType == loader::TriggerType::Switch )
+                    {
+                        item.m_itemFlags ^= srcTriggerArg & 0x3e00;
+                    }
+                    else if( srcTriggerType == loader::TriggerType::AntiPad )
+                    {
+                        item.m_itemFlags &= ~(srcTriggerArg & 0x3e00);
+                    }
+                    else
+                    {
+                        item.m_itemFlags |= srcTriggerArg & 0x3e00;
+                    }
+
+                    if( (item.m_itemFlags & 0x3e00) != 0x3e00 )
+                        break;
+
+                    if( (srcTriggerArg & 0x100) != 0 )
+                        item.m_itemFlags |= 0x100;
+
+                    if(item.m_isActive)
+                        break;
+
+                    if( (item.m_characteristics & 0x02) == 0 )
+                    {
+                        item.m_flags2_02 = true;
+                        item.m_flags2_04 = false;
+                        item.activate();
+                        break;
+                    }
+
+                    if( !item.m_flags2_02 && !item.m_flags2_04 )
+                    {
+                        //! @todo Implement baddie
+                        item.m_flags2_02 = true;
+                        item.m_flags2_04 = false;
+                        item.activate();
+                        break;
+                    }
+
+                    if(!item.m_flags2_02 || !item.m_flags2_04)
+                        break;
+
+                    //! @todo Implement baddie
+                    if( false ) //!< @todo unpauseBaddie
+                    {
+                        item.m_flags2_02 = true;
+                        item.m_flags2_04 = false;
+                    }
+                    else
+                    {
+                        item.m_flags2_02 = true;
+                        item.m_flags2_04 = true;
+                    }
+                    item.activate();
                 }
                 break;
             case loader::TriggerFunction::CameraTarget:
-                getLevel().m_cameraController->setCamOverride(nextFloorData[0], param, triggerType, isDoppelganger, triggerArg, switchIsOn);
-                ++nextFloorData;
+                getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, srcTriggerType, isDoppelganger, srcTriggerArg, switchIsOn);
+                ++actionFloorData;
                 break;
             case loader::TriggerFunction::LookAt:
-                lookAtItem = getLevel().getItemController(param);
+                lookAtItem = getLevel().getItemController(actionParam);
                 break;
             case loader::TriggerFunction::UnderwaterCurrent:
                 //! @todo handle underwater current
@@ -740,7 +723,7 @@ namespace engine
                 break;
             }
 
-            if( isLast )
+            if( isLastAction )
                 break;
         }
 
