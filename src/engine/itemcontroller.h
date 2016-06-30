@@ -345,6 +345,11 @@ namespace engine
             return true;
         }
 
+        const std::string& getName() const noexcept
+        {
+            return m_name;
+        }
+
     protected:
         int getLastAnimFrame() const noexcept
         {
@@ -356,21 +361,26 @@ namespace engine
             m_lastAnimFrame = f;
         }
 
-        bool updateTrigger()
+        bool isInvertedActivation() const noexcept
+        {
+            return (m_itemFlags & InvertedActivation) != 0;
+        }
+
+        bool updateTriggerTimeout()
         {
             if((m_itemFlags&ActivationMask) != ActivationMask)
             {
-                return (m_itemFlags & InvertedActivation) != 0;
+                return isInvertedActivation();
             }
 
             if(m_triggerTimeout == 0)
             {
-                return (m_itemFlags & InvertedActivation) == 0;
+                return !isInvertedActivation();
             }
             
             if(m_triggerTimeout < 0)
             {
-                return (m_itemFlags & InvertedActivation) != 0;
+                return isInvertedActivation();
             }
 
             BOOST_ASSERT(getCurrentDeltaTime() > 0);
@@ -378,7 +388,7 @@ namespace engine
             if(m_triggerTimeout <= 0)
                 m_triggerTimeout = -1;
 
-            return (m_itemFlags & InvertedActivation) == 0;
+            return !isInvertedActivation();
         }
     };
 
@@ -412,7 +422,7 @@ namespace engine
         void processAnimCommands(bool advanceFrame = false) override
         {
             m_itemFlags |= ActivationMask;
-            if(!updateTrigger())
+            if(!updateTriggerTimeout())
             {
                 setTargetState(1);
                 m_triggerTimeout = 0;
@@ -440,7 +450,7 @@ namespace engine
         {
             //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
 
-            if(updateTrigger())
+            if(updateTriggerTimeout())
             {
                 if(getCurrentAnimState() != 0)
                 {
@@ -448,6 +458,7 @@ namespace engine
                 }
                 else
                 {
+                    BOOST_LOG_TRIVIAL(debug) << "Door " << getName() << ": opening";
                     setTargetState(1);
                 }
             }
@@ -455,6 +466,7 @@ namespace engine
             {
                 if(getCurrentAnimState() == 1)
                 {
+                    BOOST_LOG_TRIVIAL(debug) << "Door " << getName() << ": closing";
                     setTargetState(0);
                     ItemController::processAnimCommands();
                     return;

@@ -230,8 +230,11 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::Kill:
-                        m_flags2_02_toggledOn = false;
-                        m_flags2_04_ready = true;
+                        if(isAnimEnd && newFrame)
+                        {
+                            m_flags2_02_toggledOn = false;
+                            m_flags2_04_ready = true;
+                        }
                         break;
                     default:
                         break;
@@ -271,9 +274,9 @@ namespace engine
         }
 
         if(m_isActive)
-        {
             BOOST_LOG_TRIVIAL(warning) << "Item controller " << m_name << " already active";
-        }
+        else
+            BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << m_name;
 
         m_isActive = true;
     }
@@ -282,6 +285,8 @@ namespace engine
     {
         if(!m_isActive)
             BOOST_LOG_TRIVIAL(warning) << "Item controller " << m_name << " already inactive";
+        else
+            BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << m_name;
 
         m_isActive = false;
     }
@@ -316,6 +321,7 @@ namespace engine
 
         if(getCurrentAnimState() == 1)
         {
+            BOOST_LOG_TRIVIAL(debug) << "Switch " << getName() << ": pull down";
             lara.setTargetState(loader::LaraStateId::SwitchDown);
             do
             {
@@ -330,6 +336,7 @@ namespace engine
             if(getCurrentAnimState() != 0)
                 return;
 
+            BOOST_LOG_TRIVIAL(debug) << "Switch " << getName() << ": pull up";
             lara.setTargetState(loader::LaraStateId::SwitchUp);
             do
             {

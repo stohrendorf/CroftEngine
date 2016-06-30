@@ -626,9 +626,11 @@ namespace engine
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
-                    item.m_triggerTimeout = static_cast<uint8_t>(srcTriggerArg);
+                    item.m_triggerTimeout = gsl::narrow_cast<uint8_t>(srcTriggerArg);
                     if( item.m_triggerTimeout != 1 )
                         item.m_triggerTimeout *= 1000;
+
+                    BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                     if( srcTriggerType == loader::TriggerType::Switch )
                         item.m_itemFlags ^= srcTriggerArg & ActivationMask;
