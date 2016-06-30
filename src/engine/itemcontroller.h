@@ -54,6 +54,8 @@ namespace engine
 
         bool m_falling = false; // flags2_08
 
+        int m_floorHeight = 0;
+
     public:
         static constexpr const uint16_t Oneshot = 0x100;
         static constexpr const uint16_t ActivationMask = 0x3e00;
@@ -109,6 +111,16 @@ namespace engine
         gsl::not_null<const loader::Room*> getCurrentRoom() const noexcept
         {
             return m_position.room;
+        }
+
+        int getFloorHeight() const noexcept
+        {
+            return m_floorHeight;
+        }
+
+        void setFloorHeight(int h) noexcept
+        {
+            m_floorHeight = h;
         }
 
         void setCurrentRoom(const loader::Room* newRoom);
@@ -427,6 +439,47 @@ namespace engine
             }
 
             ItemController::processAnimCommands();
+        }
+    };
+
+    class ItemController_35_CollapsibleFloor final : public ItemController
+    {
+    public:
+        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        {
+        }
+
+        void animate(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+      
+        void processAnimCommands(bool advanceFrame = false) override;
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            if(pos.Y > getPosition().Y - 512)
+                return;
+
+            if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
+                return;
+
+            y = getPosition().Y - 512;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            if(pos.Y <= getPosition().Y - 512)
+                return;
+
+            if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
+                return;
+
+            y = getPosition().Y - 256;
         }
     };
 

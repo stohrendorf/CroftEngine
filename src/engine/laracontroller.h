@@ -37,7 +37,6 @@ namespace engine
         InputState m_inputState;
 
         int m_handStatus = 0;
-        int m_floorHeight = 0;
         int m_uvAnimTime = 0;
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
@@ -128,16 +127,6 @@ namespace engine
         }
 
         void placeOnFloor(const LaraState& state);
-
-        int getFloorHeight() const noexcept
-        {
-            return m_floorHeight;
-        }
-
-        void setFloorHeight(int h) noexcept
-        {
-            m_floorHeight = h;
-        }
 
         void setYRotationSpeed(core::Angle spd)
         {

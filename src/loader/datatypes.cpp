@@ -138,7 +138,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         irr::video::SLight& ld = light.node->getLightData();
         ld.InnerCone = light.r_inner;
         ld.OuterCone = light.r_outer;
-        const auto f = light.specularIntensity / 8191.0f;
+        const auto f = std::abs(light.specularIntensity) / 8191.0f;
         BOOST_ASSERT(f >= 0 && f <= 1);
         ld.DiffuseColor.set(light.color.a/255.0f*f, light.color.r/255.0f*f, light.color.g/255.0f*f, light.color.b/255.0f*f);
         ld.SpecularColor = ld.DiffuseColor;

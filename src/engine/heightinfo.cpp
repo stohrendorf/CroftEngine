@@ -90,7 +90,7 @@ namespace engine
                 ++floorData;
                 while( true )
                 {
-                    const bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                    bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
                     const auto func = loader::extractTriggerFunction(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
@@ -100,6 +100,7 @@ namespace engine
                     {
                         if( func == loader::TriggerFunction::CameraTarget )
                         {
+                            isLastTrigger = loader::isLastFloordataEntry(*floorData);
                             ++floorData;
                         }
                     }

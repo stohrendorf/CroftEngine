@@ -164,7 +164,7 @@ namespace loader
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
         float intensity; // Calculated intensity
-        uint16_t specularIntensity; // Light intensity
+        int16_t specularIntensity; // Light intensity
         uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
         uint32_t specularFade; // Falloff value 1
         uint32_t fade2; // Falloff value 2 [absent from TR1 data files]

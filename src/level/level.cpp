@@ -494,6 +494,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 dumpAnims(*m_animatedModels[meshIdx], this);
 #endif
             }
+            else if(item.type == 35)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
             else if(item.type == 55)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
