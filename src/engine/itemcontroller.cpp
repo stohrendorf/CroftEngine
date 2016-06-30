@@ -92,7 +92,7 @@ namespace engine
         {
             m_itemFlags &= ~Oneshot;
             m_flags2_02_toggledOn = true;
-            m_flags2_04_oneshot = true;
+            m_flags2_04_ready = true;
         }
 
         if((m_itemFlags & ActivationMask) == ActivationMask)
@@ -101,7 +101,7 @@ namespace engine
             m_itemFlags |= InvertedActivation;
             activate();
             m_flags2_02_toggledOn = true;
-            m_flags2_04_oneshot = false;
+            m_flags2_04_ready = false;
         }
     }
 
@@ -231,7 +231,7 @@ namespace engine
                         break;
                     case AnimCommandOpcode::Kill:
                         m_flags2_02_toggledOn = false;
-                        m_flags2_04_oneshot = true;
+                        m_flags2_04_ready = true;
                         break;
                     default:
                         break;
@@ -266,7 +266,7 @@ namespace engine
         if(!m_hasProcessAnimCommandsOverride)
         {
             m_flags2_02_toggledOn = false;
-            m_flags2_04_oneshot = false;
+            m_flags2_04_ready = false;
             return;
         }
 
@@ -286,7 +286,7 @@ namespace engine
         m_isActive = false;
     }
 
-    void ItemController_55_Switch::onInteract(LaraController& lara, LaraState & state)
+    void ItemController_55_Switch::onInteract(LaraController& lara, LaraState& /*state*/)
     {
         if(!lara.getInputState().action)
             return;
@@ -297,7 +297,7 @@ namespace engine
         if(lara.isFalling())
             return;
 
-        if(m_flags2_04_oneshot || m_flags2_02_toggledOn)
+        if(m_flags2_04_ready || m_flags2_02_toggledOn)
             return;
 
         if(lara.getCurrentState() != loader::LaraStateId::Stop)
@@ -340,7 +340,7 @@ namespace engine
             lara.setHandStatus(1);
         }
 
-        m_flags2_04_oneshot = false;
+        m_flags2_04_ready = false;
         m_flags2_02_toggledOn = true;
 
         activate();
@@ -373,7 +373,7 @@ namespace engine
         return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
     }
 
-    void ItemController_Door::onInteract(LaraController& lara, LaraState& state)
+    void ItemController_Door::onInteract(LaraController& /*lara*/, LaraState& /*state*/)
     {
         
     }

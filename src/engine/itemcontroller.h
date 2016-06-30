@@ -62,7 +62,7 @@ namespace engine
         uint16_t m_itemFlags;
         bool m_isActive = false;
         bool m_flags2_02_toggledOn = false;
-        bool m_flags2_04_oneshot = false;
+        bool m_flags2_04_ready = false;
         bool m_flags2_10 = false;
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
@@ -322,12 +322,12 @@ namespace engine
 
         bool triggerSwitch(uint16_t arg)
         {
-            if(!m_flags2_04_oneshot || m_flags2_02_toggledOn)
+            if(!m_flags2_04_ready || m_flags2_02_toggledOn)
             {
                 return false;
             }
 
-            m_flags2_04_oneshot = false;
+            m_flags2_04_ready = false;
 
             if(getCurrentAnimState() != 0 || loader::isLastFloordataEntry(arg))
             {
@@ -373,9 +373,11 @@ namespace engine
                 return (m_itemFlags & InvertedActivation) != 0;
             }
 
+            BOOST_ASSERT(getCurrentDeltaTime() > 0);
             m_triggerTimeout -= getCurrentDeltaTime();
-            if(m_triggerTimeout < 0)
+            if(m_triggerTimeout <= 0)
                 m_triggerTimeout = -1;
+
             return (m_itemFlags & InvertedActivation) == 0;
         }
     };
@@ -434,7 +436,7 @@ namespace engine
 
         void onInteract(LaraController& lara, LaraState& state) override;
       
-        void processAnimCommands(bool advanceFrame = false) override
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
         {
             //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
 
@@ -442,7 +444,7 @@ namespace engine
             {
                 if(getCurrentAnimState() != 0)
                 {
-                    //! @todo Implement me
+                    //! @todo Restore original sector data
                 }
                 else
                 {
@@ -457,7 +459,7 @@ namespace engine
                     ItemController::processAnimCommands();
                     return;
                 }
-                //! @todo Implement sector patches
+                //! @todo Patch original sector data with blocking heights
             }
             ItemController::processAnimCommands();
         }

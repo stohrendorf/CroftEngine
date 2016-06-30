@@ -557,7 +557,6 @@ namespace engine
         auto actionFloorData = floorData + 2;
 
         getLevel().m_cameraController->findCameraTarget(actionFloorData);
-        //! @todo Find camera target if necessary
 
         bool runActions = false, switchIsOn = false;
         if( !isDoppelganger )
@@ -625,25 +624,18 @@ namespace engine
                     Expects(getLevel().m_itemControllers.find(actionParam) != getLevel().m_itemControllers.end());
                     ItemController& item = *getLevel().m_itemControllers[actionParam];
                     if( (item.m_itemFlags & Oneshot) != 0 )
-                    {
                         break;
-                    }
+
                     item.m_triggerTimeout = static_cast<uint8_t>(srcTriggerArg);
                     if( item.m_triggerTimeout != 1 )
                         item.m_triggerTimeout *= 1000;
 
                     if( srcTriggerType == loader::TriggerType::Switch )
-                    {
                         item.m_itemFlags ^= srcTriggerArg & ActivationMask;
-                    }
                     else if( srcTriggerType == loader::TriggerType::AntiPad )
-                    {
                         item.m_itemFlags &= ~(srcTriggerArg & ActivationMask);
-                    }
                     else
-                    {
                         item.m_itemFlags |= srcTriggerArg & ActivationMask;
-                    }
 
                     if( (item.m_itemFlags & ActivationMask) != ActivationMask)
                         break;
@@ -657,33 +649,33 @@ namespace engine
                     if( (item.m_characteristics & 0x02) == 0 )
                     {
                         item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_oneshot = false;
+                        item.m_flags2_04_ready = false;
                         item.activate();
                         break;
                     }
 
-                    if( !item.m_flags2_02_toggledOn && !item.m_flags2_04_oneshot )
+                    if( !item.m_flags2_02_toggledOn && !item.m_flags2_04_ready )
                     {
                         //! @todo Implement baddie
                         item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_oneshot = false;
+                        item.m_flags2_04_ready = false;
                         item.activate();
                         break;
                     }
 
-                    if(!item.m_flags2_02_toggledOn || !item.m_flags2_04_oneshot)
+                    if(!item.m_flags2_02_toggledOn || !item.m_flags2_04_ready)
                         break;
 
                     //! @todo Implement baddie
                     if( false ) //!< @todo unpauseBaddie
                     {
                         item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_oneshot = false;
+                        item.m_flags2_04_ready = false;
                     }
                     else
                     {
                         item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_oneshot = true;
+                        item.m_flags2_04_ready = true;
                     }
                     item.activate();
                 }
@@ -812,7 +804,7 @@ namespace engine
             if( !ctrl->m_flags2_20 )
                 continue;
 
-            if( ctrl->m_flags2_04_oneshot && ctrl->m_flags2_02_toggledOn )
+            if( ctrl->m_flags2_04_ready && ctrl->m_flags2_02_toggledOn )
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();
