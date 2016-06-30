@@ -656,34 +656,34 @@ namespace engine
 
                     if( (item.m_characteristics & 0x02) == 0 )
                     {
-                        item.m_flags2_02_enabled = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_flags2_02_toggledOn = true;
+                        item.m_flags2_04_oneshot = false;
                         item.activate();
                         break;
                     }
 
-                    if( !item.m_flags2_02_enabled && !item.m_flags2_04_ready )
+                    if( !item.m_flags2_02_toggledOn && !item.m_flags2_04_oneshot )
                     {
                         //! @todo Implement baddie
-                        item.m_flags2_02_enabled = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_flags2_02_toggledOn = true;
+                        item.m_flags2_04_oneshot = false;
                         item.activate();
                         break;
                     }
 
-                    if(!item.m_flags2_02_enabled || !item.m_flags2_04_ready)
+                    if(!item.m_flags2_02_toggledOn || !item.m_flags2_04_oneshot)
                         break;
 
                     //! @todo Implement baddie
                     if( false ) //!< @todo unpauseBaddie
                     {
-                        item.m_flags2_02_enabled = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_flags2_02_toggledOn = true;
+                        item.m_flags2_04_oneshot = false;
                     }
                     else
                     {
-                        item.m_flags2_02_enabled = true;
-                        item.m_flags2_04_ready = true;
+                        item.m_flags2_02_toggledOn = true;
+                        item.m_flags2_04_oneshot = true;
                     }
                     item.activate();
                 }
@@ -812,7 +812,7 @@ namespace engine
             if( !ctrl->m_flags2_20 )
                 continue;
 
-            if( ctrl->m_flags2_04_ready && ctrl->m_flags2_02_enabled )
+            if( ctrl->m_flags2_04_oneshot && ctrl->m_flags2_02_toggledOn )
                 continue;
 
             const auto d = getPosition() - ctrl->getPosition();

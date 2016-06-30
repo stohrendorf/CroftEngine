@@ -55,14 +55,14 @@ namespace engine
         bool m_falling = false; // flags2_08
 
     public:
-        static constexpr const uint16_t InvertedActivation = 0x40;
         static constexpr const uint16_t Oneshot = 0x100;
         static constexpr const uint16_t ActivationMask = 0x3e00;
+        static constexpr const uint16_t InvertedActivation = 0x4000;
 
         uint16_t m_itemFlags;
         bool m_isActive = false;
-        bool m_flags2_02_enabled = false;
-        bool m_flags2_04_ready = false;
+        bool m_flags2_02_toggledOn = false;
+        bool m_flags2_04_oneshot = false;
         bool m_flags2_10 = false;
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
@@ -322,24 +322,24 @@ namespace engine
 
         bool triggerSwitch(uint16_t arg)
         {
-            if(!m_flags2_04_ready || m_flags2_02_enabled)
+            if(!m_flags2_04_oneshot || m_flags2_02_toggledOn)
             {
                 return false;
             }
 
-            m_flags2_04_ready = false;
+            m_flags2_04_oneshot = false;
 
             if(getCurrentAnimState() != 0 || loader::isLastFloordataEntry(arg))
             {
                 deactivate();
-                m_flags2_02_enabled = false;
+                m_flags2_02_toggledOn = false;
             }
             else
             {
                 m_triggerTimeout = gsl::narrow_cast<uint8_t>(arg);
                 if(m_triggerTimeout != 1)
                     m_triggerTimeout *= 1000;
-                m_flags2_02_enabled = true;
+                m_flags2_02_toggledOn = true;
             }
 
             return true;

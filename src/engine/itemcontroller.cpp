@@ -91,17 +91,17 @@ namespace engine
         if((m_itemFlags & Oneshot) != 0)
         {
             m_itemFlags &= ~Oneshot;
-            m_flags2_02_enabled = true;
-            m_flags2_04_ready = true;
+            m_flags2_02_toggledOn = true;
+            m_flags2_04_oneshot = true;
         }
 
         if((m_itemFlags & ActivationMask) == ActivationMask)
         {
             m_itemFlags &= ~ActivationMask;
-            m_itemFlags |= 0x4000;
+            m_itemFlags |= InvertedActivation;
             activate();
-            m_flags2_02_enabled = true;
-            m_flags2_04_ready = false;
+            m_flags2_02_toggledOn = true;
+            m_flags2_04_oneshot = false;
         }
     }
 
@@ -230,8 +230,8 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::Kill:
-                        m_flags2_02_enabled = false;
-                        m_flags2_04_ready = true;
+                        m_flags2_02_toggledOn = false;
+                        m_flags2_04_oneshot = true;
                         break;
                     default:
                         break;
@@ -265,8 +265,8 @@ namespace engine
     {
         if(!m_hasProcessAnimCommandsOverride)
         {
-            m_flags2_02_enabled = false;
-            m_flags2_04_ready = false;
+            m_flags2_02_toggledOn = false;
+            m_flags2_04_oneshot = false;
             return;
         }
 
@@ -297,7 +297,7 @@ namespace engine
         if(lara.isFalling())
             return;
 
-        if(m_flags2_04_ready || m_flags2_02_enabled)
+        if(m_flags2_04_oneshot || m_flags2_02_toggledOn)
             return;
 
         if(lara.getCurrentState() != loader::LaraStateId::Stop)
@@ -340,8 +340,8 @@ namespace engine
             lara.setHandStatus(1);
         }
 
-        m_flags2_04_ready = false;
-        m_flags2_02_enabled = true;
+        m_flags2_04_oneshot = false;
+        m_flags2_02_toggledOn = true;
 
         activate();
         ItemController::processAnimCommands();
