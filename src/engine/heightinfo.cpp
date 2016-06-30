@@ -106,7 +106,9 @@ namespace engine
                     else
                     {
                         BOOST_ASSERT(func == loader::TriggerFunction::Object);
-                        //! @todo Query height patch from object @c param, e.g. trapdoors or falling floor.
+                        auto it = camera->getLevel()->m_itemControllers.find(param);
+                        Expects(it != camera->getLevel()->m_itemControllers.end());
+                        it->second->patchFloor(pos, hi.distance);
                     }
 
                     if( isLastTrigger )
@@ -209,7 +211,9 @@ namespace engine
                     else
                     {
                         BOOST_ASSERT(func == loader::TriggerFunction::Object);
-                        //! @todo Query height patch from object @c param.
+                        auto it = camera->getLevel()->m_itemControllers.find(param);
+                        Expects(it != camera->getLevel()->m_itemControllers.end());
+                        it->second->patchCeiling(pos, hi.distance);
                     }
 
                     if( isLastTrigger )

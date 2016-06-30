@@ -254,14 +254,12 @@ namespace engine
         float calculateAnimFloorSpeed() const;
         int getAnimAccelleration() const;
 
-        virtual float queryFloor(const core::ExactTRCoordinates& pos)
+        virtual void patchFloor(const core::TRCoordinates& pos, int& y)
         {
-            return pos.Y;
         }
 
-        virtual float queryCeiling(const core::ExactTRCoordinates& pos)
+        virtual void patchCeiling(const core::TRCoordinates& pos, int& y)
         {
-            return pos.Y;
         }
 
         virtual void onInteract(LaraController& lara, LaraState& state)

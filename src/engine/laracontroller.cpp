@@ -723,7 +723,7 @@ namespace engine
 
         getLevel().m_cameraController->setLookAtItem(lookAtItem);
 
-        //! @todo Implement the rest
+        //! @todo Implement room swapping
     }
 
     boost::optional<int> LaraController::getWaterSurfaceHeight() const
