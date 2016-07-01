@@ -456,11 +456,7 @@ namespace engine
             setFalling(false);
             setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
             placeOnFloor(state);
-            auto tmp = getController().processLaraAnimCommands();
-            if( tmp )
-                return tmp;
-
-            return nextHandler;
+            return getController().processLaraAnimCommands();
         }
 
         loader::LaraStateId getId() const noexcept override

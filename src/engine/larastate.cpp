@@ -14,10 +14,10 @@ namespace engine
         orientationAxis = *core::axisFromAngle(yAngle, 45_deg);
 
         gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
-        const auto reachablePos = laraPos - core::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
-        gsl::not_null<const loader::Sector*> currentSector = level.findFloorSectorWithClampedPosition(reachablePos.toInexact(), &room);
+        const auto refTestPos = laraPos - core::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
+        gsl::not_null<const loader::Sector*> currentSector = level.findFloorSectorWithClampedPosition(refTestPos.toInexact(), &room);
 
-        current.init(currentSector, laraPos.toInexact(), level.m_cameraController, height);
+        current.init(currentSector, refTestPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
         std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos.toInexact());
 
@@ -62,9 +62,9 @@ namespace engine
         }
 
         // Front
-        auto checkPos = core::ExactTRCoordinates(frontX, 0, frontZ);
-        auto sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
-        front.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
+        auto testPos = refTestPos + core::ExactTRCoordinates(frontX, 0, frontZ);
+        auto sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        front.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
         if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
         {
             front.floor.distance = -32767;
@@ -79,9 +79,9 @@ namespace engine
         }
 
         // Front left
-        checkPos = core::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
-        sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
-        frontLeft.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
+        testPos = refTestPos + core::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
+        sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        frontLeft.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
         if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
         {
@@ -97,9 +97,9 @@ namespace engine
         }
 
         // Front right
-        checkPos = core::ExactTRCoordinates(frontRightX, 0, frontRightZ);
-        sector = level.findFloorSectorWithClampedPosition((reachablePos + checkPos).toInexact(), &room);
-        frontRight.init(sector, (laraPos + checkPos).toInexact(), level.m_cameraController, height);
+        testPos = refTestPos + core::ExactTRCoordinates(frontRightX, 0, frontRightZ);
+        sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        frontRight.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
         if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
         {

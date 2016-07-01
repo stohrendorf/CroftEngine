@@ -33,15 +33,15 @@ namespace engine
         HeightInfo floor;
         HeightInfo ceiling;
 
-        void init(const loader::Sector* roomSector, const core::TRCoordinates& position, const CameraController* camera, int scalpHeight)
+        void init(const loader::Sector* roomSector, const core::TRCoordinates& position, const CameraController* camera, int floorHeight, int scalpHeight)
         {
             floor = HeightInfo::fromFloor(roomSector, position, camera);
             if( floor.distance != -loader::HeightLimit )
-                floor.distance -= position.Y;
+                floor.distance -= floorHeight;
 
             ceiling = HeightInfo::fromCeiling(roomSector, position, camera);
             if( ceiling.distance != -loader::HeightLimit )
-                ceiling.distance -= position.Y - scalpHeight;
+                ceiling.distance -= floorHeight - scalpHeight;
         }
     };
 }
