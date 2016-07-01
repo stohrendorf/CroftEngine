@@ -123,6 +123,13 @@ namespace engine
             m_floorHeight = h;
         }
 
+        void copyTimings(const ItemController& ctrl)
+        {
+            m_currentFrameTime = ctrl.m_currentFrameTime;
+            m_lastFrameTime = ctrl.m_lastFrameTime;
+            m_lastEngineFrameTime = ctrl.m_lastEngineFrameTime;
+        }
+
         void setCurrentRoom(const loader::Room* newRoom);
 
         void applyRotation();

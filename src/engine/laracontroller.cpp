@@ -278,6 +278,8 @@ namespace engine
         {
             for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
             {
+                ctrl->copyTimings(*this);
+
                 if(ctrl->m_isActive && ctrl->m_hasProcessAnimCommandsOverride)
                     ctrl->processAnimCommands();
             }
