@@ -382,14 +382,14 @@ namespace engine
 
     void ItemController_Door::onInteract(LaraController& /*lara*/, LaraState& /*state*/)
     {
-        
+
     }
 
     void ItemController_35_CollapsibleFloor::processAnimCommands(bool advanceFrame)
     {
         if(getCurrentAnimState() == 0) // stationary
         {
-            if(!irr::core::equals(getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 0.5f))
+            if(!irr::core::equals(getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f))
             {
                 m_flags2_02_toggledOn = false;
                 m_flags2_04_ready = false;
