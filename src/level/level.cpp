@@ -503,6 +503,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animationController, node, name + ":controller", &room, &item);
                 animationController->playLocalAnimation(0);
             }
+            else if(item.type == 52)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_TallBlock>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
             else if(item.type == 55)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
@@ -529,8 +534,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 node->getMaterial(i).SpecularColor = room.lightColor.toSColor(room.darkness / 8191.0f / 4);
                 node->getMaterial(i).EmissiveColor.set(0);
             }
-            if( item.isInitiallyInvisible() )
-                node->setVisible(false);
 
             continue;
         }

@@ -565,4 +565,30 @@ namespace engine
         bool canPushBlock(int height, core::Axis axis) const;
         bool canPullBlock(int height, core::Axis axis) const;
     };
+
+    class ItemController_TallBlock final : public ItemController
+    {
+    public:
+        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        {
+            loader::Room::patchHeightsForBlock(*this, -2*loader::SectorSize);
+        }
+
+        void animate(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
+        {
+        }
+
+        void processAnimCommands(bool advanceFrame = false) override;
+
+    private:
+        bool isOnFloor(int height) const;
+
+        bool canPushBlock(int height, core::Axis axis) const;
+        bool canPullBlock(int height, core::Axis axis) const;
+    };
 }

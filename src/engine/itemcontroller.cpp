@@ -81,6 +81,9 @@ namespace engine
         sceneNode->addAnimator(this);
         this->drop();
 
+        if(m_itemFlags & Oneshot)
+            m_sceneNode->setVisible(false);
+
         if((m_itemFlags & Oneshot) != 0)
         {
             m_itemFlags &= ~Oneshot;
@@ -515,7 +518,7 @@ namespace engine
                 return;
 
             setTargetState(3);
-            lara.setTargetState(loader::LaraStateId::PushablePush);
+            lara.setTargetState(loader::LaraStateId::PushablePull);
         }
         else
         {
@@ -686,5 +689,40 @@ namespace engine
         tmp.collisionRadius = 100;
 
         return !tmp.checkStaticMeshCollisions(laraPos, core::ScalpHeight, getLevel());
+    }
+
+    void ItemController_TallBlock::processAnimCommands(bool advanceFrame)
+    {
+        if(updateTriggerTimeout())
+        {
+            if(getCurrentAnimState() == 0)
+            {
+                loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                setTargetState(1);
+            }
+        }
+        else
+        {
+            if(getCurrentAnimState() == 1)
+            {
+                loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                setTargetState(0);
+            }
+        }
+
+        ItemController::processAnimCommands(advanceFrame);
+        auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), getCurrentRoom());
+        //! @todo move item to room
+
+        if(m_flags2_02_toggledOn || !m_flags2_04_ready)
+            return;
+
+        m_flags2_02_toggledOn = true;
+        m_flags2_04_ready = false;
+        loader::Room::patchHeightsForBlock(*this, -2 * loader::SectorSize);
+        auto pos = getPosition();
+        pos.X = std::floor(pos.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
+        pos.Z = std::floor(pos.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
+        setPosition(pos);
     }
 }
