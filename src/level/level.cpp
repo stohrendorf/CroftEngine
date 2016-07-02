@@ -487,7 +487,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
             if( item.type == 0 )
             {
-                animationController->playLocalAnimation(static_cast<uint16_t>(loader::AnimationId::STAY_IDLE));
                 lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
 #ifndef NDEBUG

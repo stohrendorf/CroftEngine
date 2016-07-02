@@ -418,7 +418,7 @@ namespace engine
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)
     {
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
-        bool newFrame = false;
+        bool newFrame = advanceFrame;
 
         if( advanceFrame )
         {
@@ -786,6 +786,11 @@ namespace engine
     void LaraController::setCameraDistance(int d)
     {
         getLevel().m_cameraController->setLocalDistance(d);
+    }
+
+    void LaraController::setCameraUnknown1(int k)
+    {
+        getLevel().m_cameraController->setUnknown1(k);
     }
 
     void LaraController::testInteractions(LaraState& state)

@@ -172,5 +172,6 @@ namespace engine
         void setCameraRotationX(core::Angle x);
         void setCameraRotationY(core::Angle y);
         void setCameraDistance(int d);
+        void setCameraUnknown1(int k);
     };
 }

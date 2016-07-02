@@ -99,6 +99,11 @@ namespace engine
             m_distanceFromLookAt = d;
         }
 
+        void setUnknown1(int k)
+        {
+            m_unknown1 = k;
+        }
+
         void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
 
         void setLookAtItem(const ItemController* item)

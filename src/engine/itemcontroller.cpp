@@ -235,6 +235,11 @@ namespace engine
             }
         }
 
+        if(newFrame && isAnimEnd)
+        {
+            setTargetState(getCurrentAnimState());
+        }
+
         if(m_falling)
         {
             m_horizontalSpeed.add(getAnimAccelleration(), getCurrentDeltaTime());

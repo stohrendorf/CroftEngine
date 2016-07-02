@@ -2152,6 +2152,68 @@ namespace engine
         }
     };
 
+    class StateHandler_Pushable : public AbstractStateHandler
+    {
+    public:
+        explicit StateHandler_Pushable(LaraController& lara)
+            : AbstractStateHandler(lara)
+        {
+        }
+
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override final
+        {
+            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            setCameraUnknown1(1);
+            setCameraRotation(-25_deg, 35_deg);
+            return nullptr;
+        }
+
+        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override final
+        {
+        }
+
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override final
+        {
+            setMovementAngle(getRotation().Y);
+            state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+            state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            state.neededCeilingDistance = 0;
+            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+
+            state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+
+            return nullptr;
+        }
+    };
+
+    class StateHandler_36 final : public StateHandler_Pushable
+    {
+    public:
+        explicit StateHandler_36(LaraController& lara)
+            : StateHandler_Pushable(lara)
+        {
+        }
+
+        loader::LaraStateId getId() const noexcept override
+        {
+            return LaraStateId::PushablePush;
+        }
+    };
+
+    class StateHandler_37 final : public StateHandler_Pushable
+    {
+    public:
+        explicit StateHandler_37(LaraController& lara)
+            : StateHandler_Pushable(lara)
+        {
+        }
+
+        loader::LaraStateId getId() const noexcept override
+        {
+            return LaraStateId::PushablePull;
+        }
+    };
+
     class StateHandler_38 final : public AbstractStateHandler
     {
     public:
@@ -2779,6 +2841,10 @@ namespace engine
             return std::make_unique<StateHandler_34>(controller);
         case LaraStateId::UnderwaterDiving:
             return std::make_unique<StateHandler_35>(controller);
+        case LaraStateId::PushablePush:
+            return std::make_unique<StateHandler_36>(controller);
+        case LaraStateId::PushablePull:
+            return std::make_unique<StateHandler_37>(controller);
         case LaraStateId::PushableGrab:
             return std::make_unique<StateHandler_38>(controller);
         case LaraStateId::SwitchDown:
@@ -3496,6 +3562,12 @@ namespace engine
     {
         m_controller.setCameraDistance(d);
     }
+
+    void AbstractStateHandler::setCameraUnknown1(int k)
+    {
+        m_controller.setCameraUnknown1(k);
+    }
+
 
     void AbstractStateHandler::jumpAgainstWall(LaraState& state)
     {

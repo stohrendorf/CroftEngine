@@ -24,14 +24,14 @@ private:
 public:
 
     static std::shared_ptr<AnimationController> create(irr::scene::IAnimatedMeshSceneNode* node, const level::Level* level, const loader::AnimatedModel& model, const std::string& name);
-    
+
     uint16_t getCurrentAnimState() const;
 
     void setTargetState(uint16_t state) noexcept
     {
         if(state == m_targetState)
             return;
-        
+
         BOOST_LOG_TRIVIAL(debug) << m_name << " -- set target state=" << state << " (was " << m_targetState << "), current state=" << getCurrentAnimState();
         m_targetState = state;
     }
@@ -44,18 +44,18 @@ public:
     /**
      * @brief Play a specific animation.
      * @param anim Animation ID
-     * 
+     *
      * @details
      * Plays the animation specified; if the animation does not exist, nothing happens;
      * if it exists, the target state is changed to the animation's state.
      */
     void playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none);
-    
+
     void playLocalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none)
     {
         playGlobalAnimation(m_model.animationIndex + anim, firstFrame);
     }
-    
+
     uint16_t getCurrentAnimationId() const noexcept
     {
         return m_currentAnimationId;
@@ -119,7 +119,7 @@ public:
 
 /**
  * @brief Handles transitions while playing animations.
- * 
+ *
  * @note Transitions are only checked once per frame.
  */
 class IntermediateTransitionControllerHelper final : public irr::scene::ISceneNodeAnimator
@@ -138,12 +138,12 @@ public:
     {
         BOOST_ASSERT(node->getType() == irr::scene::ESNT_ANIMATED_MESH);
         irr::scene::IAnimatedMeshSceneNode* animNode = static_cast<irr::scene::IAnimatedMeshSceneNode*>(node);
-        
+
         BOOST_ASSERT(animNode->getFrameNr() >= 0);
         const auto currentFrame = static_cast<irr::u32>(animNode->getFrameNr());
         if(currentFrame == m_lastCheckedFrame)
             return;
-        
+
         m_animationController->handleTRTransitions();
 
         m_lastCheckedFrame = currentFrame;

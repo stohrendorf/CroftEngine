@@ -52,6 +52,7 @@ namespace engine
             : ItemController(level, dispatcher, lara, name, room, item, false, 0x3c)
         {
             playAnimation(loader::AnimationId::STAY_IDLE);
+            setTargetState(loader::LaraStateId::Stop);
             setMovementAngle(getRotation().Y);
         }
 
@@ -197,5 +198,6 @@ namespace engine
         void setCameraRotationX(core::Angle x);
         void setCameraRotationY(core::Angle y);
         void setCameraDistance(int d);
+        void setCameraUnknown1(int k);
     };
 }

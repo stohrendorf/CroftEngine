@@ -156,5 +156,7 @@ namespace engine
 
         m_currentAnimationId = currentAnim.nextAnimation;
         startAnimLoop(currentAnim.nextFrame);
+
+        setTargetState(getCurrentAnimState());
     }
 }
