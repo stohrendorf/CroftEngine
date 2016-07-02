@@ -241,22 +241,25 @@ namespace core
         return {};
     }
 
+    inline core::Angle alignRotation(const Axis& axis)
+    {
+        switch(axis)
+        {
+            case Axis::PosZ: return core::Angle(0_deg);
+            case Axis::PosX: return core::Angle(90_deg);
+            case Axis::NegZ: return core::Angle(-180_deg);
+            case Axis::NegX: return core::Angle(-90_deg);
+            default: return 0_deg;
+        }
+    }
+
     inline boost::optional<core::Angle> alignRotation(const core::Angle& angle, const core::Angle& margin)
     {
         auto axis = axisFromAngle(angle, margin);
         if( !axis )
             return {};
 
-        switch( *axis )
-        {
-        case Axis::PosZ: return boost::optional<core::Angle>(0_deg);
-        case Axis::PosX: return boost::optional<core::Angle>(90_deg);
-        case Axis::NegZ: return boost::optional<core::Angle>(-180_deg);
-        case Axis::NegX: return boost::optional<core::Angle>(-90_deg);
-        }
-
-        // silence compiler warning
-        return {};
+        return alignRotation(*axis);
     }
 }
 

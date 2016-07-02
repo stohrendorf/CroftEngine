@@ -217,6 +217,11 @@ namespace engine
             return *m_level;
         }
 
+        const core::RoomBoundPosition& getRoomBoundPosition() const noexcept
+        {
+            return m_position;
+        }
+
         bool isFalling() const noexcept
         {
             return m_falling;
@@ -287,7 +292,7 @@ namespace engine
         }
 
         virtual void processAnimCommands(bool advanceFrame = false);
-        
+
         void activate();
         void deactivate();
 
@@ -394,7 +399,7 @@ namespace engine
             {
                 return !isInvertedActivation();
             }
-            
+
             if(m_triggerTimeout < 0)
             {
                 return isInvertedActivation();
@@ -435,7 +440,7 @@ namespace engine
         }
 
         void onInteract(LaraController& lara, LaraState& state) override;
-      
+
         void processAnimCommands(bool advanceFrame = false) override
         {
             m_itemFlags |= ActivationMask;
@@ -464,7 +469,7 @@ namespace engine
         void onInteract(LaraController& lara, LaraState& state) override
         {
         }
-      
+
         void processAnimCommands(bool advanceFrame = false) override;
 
         void patchFloor(const core::TRCoordinates& pos, int& y) override
@@ -503,7 +508,7 @@ namespace engine
         }
 
         void onInteract(LaraController& lara, LaraState& state) override;
-      
+
         void processAnimCommands(bool /*advanceFrame*/ = false) override
         {
             //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
@@ -533,5 +538,30 @@ namespace engine
             }
             ItemController::processAnimCommands();
         }
+    };
+
+    class ItemController_Block final : public ItemController
+    {
+    public:
+        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        {
+            if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
+                loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
+        }
+
+        void animate(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override;
+
+        void processAnimCommands(bool advanceFrame = false) override;
+
+    private:
+        bool isOnFloor(int height) const;
+
+        bool canPushBlock(int height, core::Axis axis) const;
+        bool canPullBlock(int height, core::Axis axis) const;
     };
 }

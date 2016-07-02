@@ -26,10 +26,15 @@
 
 /**
  * @defgroup native Native data interface
- * 
+ *
  * Contains structs and constants directly interfacing the native
  * TR level data or engine internals.
  */
+
+namespace engine
+{
+    class ItemController;
+}
 
 namespace level
 {
@@ -91,7 +96,7 @@ namespace loader
     {
         /**
          * @brief Index into FloorData[]
-         * 
+         *
          * @note If this is 0, no floor data is attached to this sector.
          */
         uint16_t floorDataIndex;
@@ -1103,6 +1108,8 @@ namespace loader
             }
             return getSectorByIndex(dx, dz);
         }
+
+        static void patchHeightsForBlock(const engine::ItemController& ctrl, int height);
     };
 
     enum class TimerState
@@ -1227,7 +1234,7 @@ namespace loader
         int32_t xmin;
         int32_t xmax;
         int16_t true_floor; // Y value (no scaling)
-        int16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
+        uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
         // occurs in front of swinging doors and the like.
 
         static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
@@ -1238,7 +1245,7 @@ namespace loader
             box->xmin = reader.readI32();
             box->xmax = reader.readI32();
             box->true_floor = reader.readI16();
-            box->overlap_index = reader.readI16();
+            box->overlap_index = reader.readU16();
             return box;
         }
 
@@ -1250,7 +1257,7 @@ namespace loader
             box->xmin = 1024 * reader.readU8();
             box->xmax = 1024 * reader.readU8();
             box->true_floor = reader.readI16();
-            box->overlap_index = reader.readI16();
+            box->overlap_index = reader.readU16();
             return box;
         }
     };

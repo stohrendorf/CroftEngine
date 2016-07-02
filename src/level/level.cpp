@@ -499,6 +499,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animationController, node, name + ":controller", &room, &item);
                 animationController->playLocalAnimation(0);
             }
+            else if(item.type >= 48 && item.type <= 51)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
             else if(item.type == 55)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
@@ -539,7 +544,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             BOOST_ASSERT(findAnimatedModelIndexByType(item.type) < 0);
             BOOST_ASSERT(static_cast<size_t>(meshIdx) < m_spriteSequences.size());
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[meshIdx];
-            
+
             BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
 
             const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
@@ -555,7 +560,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             node->setMaterialFlag(irr::video::EMF_LIGHTING, true);
             node->setMaterialTexture(0, textures[tex.texture]);
             node->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
-            
+
             std::string name = "item";
             name += std::to_string(id);
             name += "(type";

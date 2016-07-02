@@ -50,7 +50,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         if(texBuffers.find(proxy.textureKey) == texBuffers.end())
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
-        
+
         animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices));
         animator.registerVertex(quad.proxyId, buf, 1, addVertex(*buf, quad.vertices[1], proxy.uvCoordinates[1], vertices));
         animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices));
@@ -68,10 +68,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         for(int i=0; i<3; ++i)
             addVertex(*buf, poly.vertices[i], proxy.uvCoordinates[i], vertices);
     }
-    
+
     for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
         buffer->recalculateBoundingBox();
-    
+
     irr::scene::SMesh* result = new irr::scene::SMesh();
     for(auto& buffer : texBuffers)
     {
@@ -93,7 +93,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         result->addMeshBuffer(buffer.second);
         buffer.second->drop();
     }
-    
+
     result->recalculateBoundingBox();
 
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
@@ -153,7 +153,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         //light.node->setDebugDataVisible(irr::scene::EDS_FULL);
 #endif
     }
-    
+
     for(const RoomStaticMesh& sm : this->staticMeshes)
     {
         auto idx = level.findStaticMeshIndexById(sm.meshId);
@@ -167,20 +167,20 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     }
     resultNode->setPosition(position.toIrrlicht());
     resultNode->updateAbsolutePosition();
-    
+
     resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
-    
+
     for(const Sprite& sprite : sprites)
     {
         BOOST_ASSERT(sprite.vertex < vertices.size());
         BOOST_ASSERT(sprite.texture < level.m_spriteTextures.size());
-        
+
         const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
-        
+
         irr::core::vector2df dim{ static_cast<irr::f32>(tex.right_side - tex.left_side + 1), static_cast<irr::f32>(tex.bottom_side - tex.top_side + 1) };
         BOOST_ASSERT(dim.X > 0);
         BOOST_ASSERT(dim.Y > 0);
-        
+
         irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex - core::TRCoordinates{0, tex.bottom_side/2, 0}).toIrrlicht(), -1, 0, 0);
         n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
         n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
@@ -195,10 +195,10 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
             n->getMaterial(0).SpecularColor = col;
             n->getMaterial(0).Lighting = true;
         }
-        
+
         n->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
     }
-    
+
     if(dumpIdx >= 0)
     {
         mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
@@ -212,13 +212,13 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         meshWriter->writeMesh( file, result );
         file->drop();
         meshWriter->drop();
-        
+
         mgr->getFileSystem()->changeWorkingDirectoryTo("..");
     }
-    
+
     // resultNode->addShadowVolumeSceneNode();
     node = resultNode;
-    
+
     return resultNode;
 }
 
@@ -237,7 +237,7 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
     mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
     mgr->getVideoDriver()->writeImageToFile(img, p);
     mgr->getFileSystem()->changeWorkingDirectoryTo("..");
-    
+
     img->drop();
     return tex;
 }
@@ -277,4 +277,39 @@ irr::core::aabbox3di StaticMesh::getCollisionBox(const core::TRCoordinates & pos
     result.repair();
     return result;
 }
+
+void Room::patchHeightsForBlock(const engine::ItemController& ctrl, int height)
+{
+    core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
+    //! @todo Ugly const_cast
+    auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findFloorSectorWithClampedPosition(pos).get());
+    pos.position.Y += height - loader::SectorSize;
+    const auto topSector = ctrl.getLevel().findFloorSectorWithClampedPosition(pos);
+
+    const auto q = height / loader::QuarterSectorSize;
+    if(groundSector->floorHeight == -127)
+    {
+        groundSector->floorHeight = topSector->ceilingHeight + q;
+    }
+    else
+    {
+        groundSector->floorHeight += q;
+        if(groundSector->floorHeight == topSector->ceilingHeight)
+            groundSector->floorHeight = -127;
+    }
+
+    if(groundSector->boxIndex == 0xffff)
+        return;
+
+    //! @todo Ugly const_cast
+    loader::Box& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
+    if((box.overlap_index & 0x8000) == 0)
+        return;
+
+    if(height >= 0)
+        box.overlap_index &= ~0x4000;
+    else
+        box.overlap_index |= 0x4000;
+}
+
 }
