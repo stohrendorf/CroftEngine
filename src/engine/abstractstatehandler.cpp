@@ -2152,6 +2152,48 @@ namespace engine
         }
     };
 
+    class StateHandler_38 final : public AbstractStateHandler
+    {
+    public:
+        explicit StateHandler_38(LaraController& lara)
+            : AbstractStateHandler(lara)
+        {
+        }
+
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        {
+            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            setCameraRotationY(75_deg);
+            if(!getInputState().action)
+                setTargetState(LaraStateId::Stop);
+            else
+                setTargetState(LaraStateId::PushableGrab);
+            return nullptr;
+        }
+
+        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        {
+        }
+
+        loader::LaraStateId getId() const noexcept override
+        {
+            return LaraStateId::PushableGrab;
+        }
+
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        {
+            setMovementAngle(getRotation().Y);
+            state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
+            state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            state.neededCeilingDistance = 0;
+            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+
+            state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
+
+            return nullptr;
+        }
+    };
+
     class StateHandler_40 final : public AbstractStateHandler
     {
     public:
@@ -2737,6 +2779,8 @@ namespace engine
             return std::make_unique<StateHandler_34>(controller);
         case LaraStateId::UnderwaterDiving:
             return std::make_unique<StateHandler_35>(controller);
+        case LaraStateId::PushableGrab:
+            return std::make_unique<StateHandler_38>(controller);
         case LaraStateId::SwitchDown:
             return std::make_unique<StateHandler_40>(controller);
         case LaraStateId::SwitchUp:
