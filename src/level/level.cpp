@@ -520,8 +520,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 animationController->playLocalAnimation(0);
             }
 
-            m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
-            m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position));
             node->addShadowVolumeSceneNode();
 
             m_fx->addShadowToNode(m_itemControllers[id]->getSceneNode());

@@ -66,23 +66,16 @@ namespace engine
     }
 
     ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
-        : m_position(room)
+        : m_position(room, core::ExactTRCoordinates(item->position))
+        , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
         , m_sceneNode(sceneNode)
         , m_dispatcher(dispatcher)
         , m_name(name)
-        , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
         , m_itemFlags(item->flags)
+        , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
         , m_characteristics(characteristics)
     {
-        auto nodeRot = sceneNode->getRotation();
-        m_rotation.X = core::Angle::fromDegrees(nodeRot.X);
-        m_rotation.Y = core::Angle::fromDegrees(nodeRot.Y);
-        m_rotation.Z = core::Angle::fromDegrees(nodeRot.Z);
-
-        m_sceneNode->updateAbsolutePosition();
-        m_position.position = core::ExactTRCoordinates(m_sceneNode->getAbsolutePosition());
-
         setCurrentRoom(room);
 
         sceneNode->addAnimator(this);

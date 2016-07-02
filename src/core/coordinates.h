@@ -173,8 +173,9 @@ namespace core
         gsl::not_null<const loader::Room*> room;
         ExactTRCoordinates position;
 
-        explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r)
+        explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const ExactTRCoordinates& pos = {})
             : room(r)
+            , position(pos)
         {
         }
     };
