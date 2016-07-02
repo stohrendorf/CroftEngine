@@ -570,7 +570,7 @@ namespace engine
                 break;
             case loader::TriggerType::Pad:
             case loader::TriggerType::AntiPad:
-                runActions = getPosition().Y == getFloorHeight();
+                runActions = irr::core::equals(getPosition().Y, gsl::narrow_cast<float>(getFloorHeight()), 1.0f);
                 break;
             case loader::TriggerType::Switch:
                 {

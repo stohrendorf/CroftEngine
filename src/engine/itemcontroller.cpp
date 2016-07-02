@@ -429,7 +429,7 @@ namespace engine
 
     void ItemController_Block::onInteract(LaraController& lara, LaraState & state)
     {
-        if(!lara.getInputState().action || !m_flags2_02_toggledOn || m_flags2_04_ready || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
+        if(!lara.getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
             return;
 
         static const InteractionLimits limits{
@@ -438,7 +438,7 @@ namespace engine
             { +10_deg,+30_deg,+10_deg }
         };
 
-        auto axis = core::axisFromAngle(getRotation().Y, 45_deg);
+        auto axis = core::axisFromAngle(lara.getRotation().Y, 45_deg);
         Expects(axis.is_initialized());
 
         if(lara.getCurrentAnimState() == loader::LaraStateId::Stop)
