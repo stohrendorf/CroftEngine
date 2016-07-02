@@ -48,7 +48,7 @@ namespace engine
             setTargetState(LaraStateId::JumpForward);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(true);
-            return nullptr;
+            return createWithRetainedAnimation(LaraStateId::JumpForward);
         }
     };
 
@@ -2159,13 +2159,13 @@ namespace engine
             : AbstractStateHandler(lara)
         {
         }
-        
+
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
         {
             state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
             setCameraRotation(-25_deg, 80_deg);
             setCameraDistance(1024);
-            
+
             return nullptr;
         }
 
@@ -2200,13 +2200,13 @@ namespace engine
             : AbstractStateHandler(lara)
         {
         }
-        
+
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
         {
             state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
             setCameraRotation(-25_deg, 80_deg);
             setCameraDistance(1024);
-            
+
             return nullptr;
         }
 
