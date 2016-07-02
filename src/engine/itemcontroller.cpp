@@ -536,7 +536,7 @@ namespace engine
         {
             loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
             m_isActive = false;
-            m_itemFlags |= 0x8000;
+            m_itemFlags |= Locked;
             return;
         }
 

@@ -60,6 +60,7 @@ namespace engine
         static constexpr const uint16_t Oneshot = 0x100;
         static constexpr const uint16_t ActivationMask = 0x3e00;
         static constexpr const uint16_t InvertedActivation = 0x4000;
+        static constexpr const uint16_t Locked = 0x8000;
 
         uint16_t m_itemFlags;
         bool m_isActive = false;
