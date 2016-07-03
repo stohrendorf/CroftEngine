@@ -37,7 +37,7 @@ namespace engine
         LaraController* m_laraController;
 
         // TR state
-        const ItemController* m_lookAtItem = nullptr;
+        ItemController* m_lookAtItem = nullptr;
         const ItemController* m_lookAtItem2 = nullptr;
         ItemController* m_enemy = nullptr;
         irr::core::vector3d<core::Angle> m_enemyLookRot;
@@ -106,7 +106,7 @@ namespace engine
 
         void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
 
-        void setLookAtItem(const ItemController* item)
+        void setLookAtItem(ItemController* item)
         {
             if( item == nullptr || (m_camOverrideType != 1 && m_camOverrideType != 5) )
                 return;

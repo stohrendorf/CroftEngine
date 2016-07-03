@@ -1012,7 +1012,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
     return room;
 }
 
-const engine::ItemController* Level::getItemController(uint16_t id) const
+engine::ItemController* Level::getItemController(uint16_t id) const
 {
     auto it = m_itemControllers.find(id);
     if(it == m_itemControllers.end())

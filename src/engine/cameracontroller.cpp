@@ -243,7 +243,6 @@ namespace engine
 
             ++floorData;
 
-
             if( triggerFunc == loader::TriggerFunction::LookAt && m_camOverrideType != 2 && m_camOverrideType != 3 )
             {
                 m_lookAtItem = m_level->getItemController(param);
@@ -276,7 +275,7 @@ namespace engine
                 break;
         }
 
-        if( type == 0 || (type == 2 /** @todo && lookAtItem->flags2 & 0x40 */ && m_lookAtItem != m_lookAtItem2) )
+        if( type == 0 || (type == 2 && m_lookAtItem != nullptr && m_lookAtItem->m_flags2_40 && m_lookAtItem != m_lookAtItem2) )
             m_lookAtItem = nullptr;
     }
 
@@ -571,7 +570,7 @@ namespace engine
 
         bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
 
-        const ItemController* lookAtItem = m_lookAtItem != nullptr ? m_lookAtItem : m_laraController;
+        ItemController* lookAtItem = m_lookAtItem != nullptr ? m_lookAtItem : m_laraController;
         auto lookAtItemBbox = lookAtItem->getBoundingBox();
         auto lookAtBbox = lookAtItemBbox;
         int lookAtY = lookAtItem->getPosition().Y;
@@ -610,7 +609,7 @@ namespace engine
                 m_freeLookRotation.X = m_headRotation.X;
 
                 m_camOverrideType = 2;
-                //! @todo set item flag 0x40
+                m_lookAtItem->m_flags2_40 = true;
             }
         }
 

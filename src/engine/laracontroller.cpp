@@ -613,7 +613,7 @@ namespace engine
         if( !runActions )
             return;
 
-        const ItemController* lookAtItem = nullptr;
+        ItemController* lookAtItem = nullptr;
 
         while( true )
         {

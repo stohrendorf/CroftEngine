@@ -41,18 +41,18 @@ int main()
     irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
     if(!device)
         return EXIT_FAILURE;
-    
+
     auto l = level::Level::createLoader("data/tr1/data/LEVEL3B.PHD", level::Game::Unknown);
     BOOST_ASSERT(l != nullptr);
     auto driver = device->getVideoDriver();
     l->load(driver);
     l->toIrrlicht(device);
-    
+
     device->setWindowCaption(L"EdisonEngine");
-    
+
     auto timer = device->getTimer();
     auto lastTime = timer->getTime();
-    
+
     while(device->run())
     {
         if(!device->isWindowActive())
@@ -66,9 +66,9 @@ int main()
             device->yield();
             continue;
         }
-        
+
         lastTime = timer->getTime();
-        
+
         device->getVideoDriver()->beginScene(true, true);
         //device->getSceneManager()->drawAll();
         l->m_fx->update();
@@ -76,6 +76,7 @@ int main()
 
         drawText(device->getGUIEnvironment(), 10, 40, l->m_lara->getCurrentRoom()->node->getName());
         drawText(device->getGUIEnvironment(), 10, 60, toString(l->m_lara->getCurrentAnimState()));
+        drawText(device->getGUIEnvironment(), 100, 60, toString(l->m_lara->getTargetState()));
         drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(l->m_lara->getCurrentAnimationId()));
         drawText(device->getGUIEnvironment(), 30, 80, irr::core::stringw(l->m_lara->getCurrentFrame()));
         {
@@ -98,7 +99,7 @@ int main()
         device->getGUIEnvironment()->drawAll();
 
         device->getVideoDriver()->endScene();
-        
+
         // update information about current frame-rate
         irr::core::stringw str(L"FPS: ");
         str.append(irr::core::stringw(driver->getFPS()));
@@ -106,8 +107,8 @@ int main()
         str.append(irr::core::stringw(driver->getPrimitiveCountDrawn()));
         device->setWindowCaption(str.c_str());
     }
-    
+
     //device->drop();
-    
+
     return EXIT_SUCCESS;
 }

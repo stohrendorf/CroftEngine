@@ -148,7 +148,7 @@ namespace level
         std::shared_ptr<render::TextureAnimator> m_textureAnimator;
         std::shared_ptr<EffectHandler> m_fx = nullptr;
 
-        const engine::ItemController* getItemController(uint16_t id) const;
+        engine::ItemController* getItemController(uint16_t id) const;
 
         void drawBars(irr::video::IVideoDriver* drv) const;
 
