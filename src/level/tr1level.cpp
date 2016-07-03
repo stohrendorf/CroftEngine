@@ -72,11 +72,9 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     BOOST_LOG_TRIVIAL(debug) << "Reading pose data and models";
     readPoseDataAndModels(m_reader);
 
-    // try to fix ugly stick
-    for(size_t i = 0; i < m_animations.size(); i++)
+    for(loader::Animation& anim : m_animations)
     {
-        uint32_t frame_offset = m_animations[i].poseDataOffset / 2;
-        m_animations[i].poseDataSize = m_poseData[frame_offset + 9] * 2 + 10;
+        anim.poseDataSize = m_poseData[anim.poseDataOffset / 2 + 9] * 2 + 10;
     }
 
     BOOST_LOG_TRIVIAL(debug) << "Reading static meshes";

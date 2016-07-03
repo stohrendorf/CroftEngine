@@ -2751,7 +2751,7 @@ namespace engine
         }
     };
 
-    void AbstractStateHandler::animate(LaraState& state, int deltaTimeMs)
+    void AbstractStateHandler::animate(LaraState& state, uint32_t deltaTimeMs)
     {
         animateImpl(state, deltaTimeMs);
 

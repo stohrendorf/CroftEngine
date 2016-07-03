@@ -36,17 +36,17 @@ int main()
     driverParams.Bits = 24;
     driverParams.Fullscreen = false;
     driverParams.DriverType = driverType;
-    driverParams.WindowSize = irr::core::dimension2d<irr::u32>(1680, 1050);
+    driverParams.WindowSize = irr::core::dimension2d<irr::u32>(1024, 768);
 
     irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
     if(!device)
         return EXIT_FAILURE;
 
-    auto l = level::Level::createLoader("data/tr1/data/LEVEL3B.PHD", level::Game::Unknown);
-    BOOST_ASSERT(l != nullptr);
+    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL7A.PHD", level::Game::Unknown);
+    BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
-    l->load(driver);
-    l->toIrrlicht(device);
+    lvl->load(driver);
+    lvl->toIrrlicht(device);
 
     device->setWindowCaption(L"EdisonEngine");
 
@@ -57,11 +57,12 @@ int main()
     {
         if(!device->isWindowActive())
         {
+            lastTime = timer->getTime();
             device->yield();
             continue;
         }
-        auto currentTime = timer->getTime()-lastTime;
-        if(currentTime <= 0)
+        auto deltaTime = timer->getTime() - lastTime;
+        if(deltaTime <= 0)
         {
             device->yield();
             continue;
@@ -69,19 +70,24 @@ int main()
 
         lastTime = timer->getTime();
 
+        for(const std::unique_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
+        {
+            ctrl->update(deltaTime);
+        }
+
         device->getVideoDriver()->beginScene(true, true);
         //device->getSceneManager()->drawAll();
-        l->m_fx->update();
-        l->drawBars(device->getVideoDriver());
+        lvl->m_fx->update();
+        lvl->drawBars(device->getVideoDriver());
 
-        drawText(device->getGUIEnvironment(), 10, 40, l->m_lara->getCurrentRoom()->node->getName());
-        drawText(device->getGUIEnvironment(), 10, 60, toString(l->m_lara->getCurrentAnimState()));
-        drawText(device->getGUIEnvironment(), 100, 60, toString(l->m_lara->getTargetState()));
-        drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(l->m_lara->getCurrentAnimationId()));
-        drawText(device->getGUIEnvironment(), 30, 80, irr::core::stringw(l->m_lara->getCurrentFrame()));
+        drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
+        drawText(device->getGUIEnvironment(), 10, 60, toString(lvl->m_lara->getCurrentAnimState()));
+        drawText(device->getGUIEnvironment(), 100, 60, toString(lvl->m_lara->getTargetState()));
+        drawText(device->getGUIEnvironment(), 10, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
+        drawText(device->getGUIEnvironment(), 100, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
         {
             int y = 100;
-            for(const std::unique_ptr<engine::ItemController>& item : l->m_itemControllers | boost::adaptors::map_values)
+            for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
             {
                 if(!item->m_isActive)
                     continue;

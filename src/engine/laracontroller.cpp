@@ -272,19 +272,8 @@ namespace engine
 
     LaraController::~LaraController() = default;
 
-    void LaraController::animate(bool isNewFrame)
+    void LaraController::animateImpl(bool isNewFrame)
     {
-        if(isNewFrame)
-        {
-            for(const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values)
-            {
-                ctrl->copyTimings(*this);
-
-                if(ctrl->m_isActive && ctrl->m_hasProcessAnimCommandsOverride)
-                    ctrl->processAnimCommands();
-            }
-        }
-
         static constexpr int UVAnimTime = 1000 / 10;
 
         m_uvAnimTime += getCurrentDeltaTime();
@@ -496,6 +485,11 @@ namespace engine
                     break;
                 }
             }
+        }
+
+        if(isAnimEnd)
+        {
+            handleAnimationEnd();
         }
 
         if( isFalling() )

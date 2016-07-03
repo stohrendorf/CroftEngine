@@ -30,7 +30,7 @@ namespace engine
 
         virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) = 0;
 
-        void animate(LaraState& state, int deltaTimeMs);
+        void animate(LaraState& state, uint32_t deltaTimeMs);
 
         std::unique_ptr<AbstractStateHandler> handleInput(LaraState& state)
         {

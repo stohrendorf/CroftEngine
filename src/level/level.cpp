@@ -305,22 +305,22 @@ int Level::findStaticMeshIndexById(uint32_t meshId) const
     return -1;
 }
 
-int Level::findAnimatedModelIndexByType(uint32_t type) const
+boost::optional<size_t> Level::findAnimatedModelIndexForType(uint32_t type) const
 {
     for( size_t i = 0; i < m_animatedModels.size(); i++ )
         if( m_animatedModels[i]->type == type )
             return i;
 
-    return -1;
+    return boost::none;
 }
 
-int Level::findSpriteSequenceByType(uint32_t type) const
+boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 {
     for( size_t i = 0; i < m_spriteSequences.size(); i++ )
         if( m_spriteSequences[i].type == type )
             return i;
 
-    return -1;
+    return boost::none;
 }
 
 loader::Item* Level::findItemByType(int32_t type)
@@ -455,20 +455,19 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
         BOOST_ASSERT(item.room < m_rooms.size());
         loader::Room& room = m_rooms[item.room];
 
-        auto meshIdx = findAnimatedModelIndexByType(item.type);
-        if( meshIdx >= 0 )
+        if(const auto meshIdx = findAnimatedModelIndexForType(item.type))
         {
-            BOOST_ASSERT(findSpriteSequenceByType(item.type) < 0);
-            BOOST_ASSERT(static_cast<size_t>(meshIdx) < skinnedMeshes.size());
+            BOOST_ASSERT(!findSpriteSequenceForType(item.type));
+            BOOST_ASSERT(*meshIdx < skinnedMeshes.size());
             irr::scene::IAnimatedMeshSceneNode* node;
 
             if( item.type == 0 )
             {
-                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], nullptr); // Lara doesn't have a scene graph owner
+                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[*meshIdx], nullptr); // Lara doesn't have a scene graph owner
             }
             else
             {
-                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[meshIdx], room.node);
+                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[*meshIdx], room.node);
             }
 
             std::string name = "item";
@@ -483,14 +482,14 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             node->setAnimationSpeed(30);
             node->setLoopMode(false);
-            auto animationController = engine::AnimationController::create(node, this, *m_animatedModels[meshIdx], name + ":animator");
+            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], node, name + ":animator");
 
             if( item.type == 0 )
             {
                 lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
                 m_itemControllers[id].reset( lara );
 #ifndef NDEBUG
-                dumpAnims(*m_animatedModels[meshIdx], this);
+                dumpAnims(*m_animatedModels[*meshIdx], this);
 #endif
             }
             else if(item.type == 35)
@@ -538,12 +537,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             continue;
         }
 
-        meshIdx = findSpriteSequenceByType(item.type);
-        if( meshIdx >= 0 )
+        if(const auto sequenceId = findSpriteSequenceForType(item.type))
         {
-            BOOST_ASSERT(findAnimatedModelIndexByType(item.type) < 0);
-            BOOST_ASSERT(static_cast<size_t>(meshIdx) < m_spriteSequences.size());
-            const loader::SpriteSequence& spriteSequence = m_spriteSequences[meshIdx];
+            BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
+            BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
+            const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
             BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
 
@@ -625,8 +623,8 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const loader:
 
 loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, irr::scene::ISkinnedMesh* skinnedMesh)
 {
-    const auto meshPositionIndex = animation.poseDataOffset / 2;
-    gsl::not_null<const int16_t*> pData = &m_poseData[meshPositionIndex];
+    BOOST_ASSERT(animation.poseDataOffset % 2 == 0);
+    gsl::not_null<const int16_t*> pData = &m_poseData[animation.poseDataOffset / 2];
     const int16_t* lastPData = nullptr;
 
     irr::core::aabbox3di bbox;
@@ -637,7 +635,7 @@ loader::AnimatedModel::FrameRange Level::loadAnimation(irr::u32& frameOffset, co
     const auto firstLinearFrame = frameOffset;
 
     std::map<irr::u32, irr::core::aabbox3di> bboxes;
-    pData = &m_poseData[meshPositionIndex];
+    pData = &m_poseData[animation.poseDataOffset / 2];
     for( irr::u32 i = 0; i <= gsl::narrow<irr::u32>(animation.lastFrame - animation.firstFrame); i += animation.stretchFactor )
     {
         lastPData = pData;

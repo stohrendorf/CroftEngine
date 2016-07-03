@@ -44,7 +44,7 @@ namespace engine
 
     public:
         LaraController(gsl::not_null<level::Level*> level,
-                       const std::shared_ptr<engine::AnimationController>& dispatcher,
+                       const std::shared_ptr<engine::MeshAnimationController>& dispatcher,
                        gsl::not_null<irr::scene::ISceneNode*> lara,
                        const std::string& name,
                        gsl::not_null<const loader::Room*> room,
@@ -58,7 +58,7 @@ namespace engine
 
         ~LaraController();
 
-        void animate(bool isNewFrame) override;
+        void animateImpl(bool isNewFrame) override;
 
         std::unique_ptr<AbstractStateHandler> processLaraAnimCommands(bool advanceFrame = false);
 
@@ -199,5 +199,9 @@ namespace engine
         void setCameraRotationY(core::Angle y);
         void setCameraDistance(int d);
         void setCameraUnknown1(int k);
+        void processAnimCommands(bool /*advanceFrame*/) override
+        {
+            // no-op
+        }
     };
 }

@@ -15,6 +15,12 @@ namespace engine
         return m_dispatcher->handleTRTransitions();
     }
 
+    void ItemController::handleAnimationEnd()
+    {
+        m_dispatcher->handleAnimationEnd();
+    }
+
+
     void ItemController::applyRotation()
     {
         //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
@@ -65,7 +71,7 @@ namespace engine
         return m_dispatcher->getAnimEndFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room, core::ExactTRCoordinates(item->position))
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
@@ -77,9 +83,6 @@ namespace engine
         , m_characteristics(characteristics)
     {
         setCurrentRoom(room);
-
-        sceneNode->addAnimator(this);
-        this->drop();
 
         if(m_itemFlags & Oneshot)
             m_sceneNode->setVisible(false);
@@ -103,6 +106,12 @@ namespace engine
 
     irr::core::aabbox3di ItemController::getBoundingBox() const
     {
+        if(m_dispatcher == nullptr)
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Trying to get bounding box from non-animated item: " << getName();
+            return irr::core::aabbox3di(0, 0, 0, 0, 0, 0);
+        }
+
         Expects(m_dispatcher != nullptr);
         return m_dispatcher->getBoundingBox();
     }
@@ -238,9 +247,9 @@ namespace engine
             }
         }
 
-        if(newFrame && isAnimEnd)
+        if(isAnimEnd)
         {
-            setTargetState(getCurrentAnimState());
+            handleAnimationEnd();
         }
 
         if(m_falling)
@@ -597,16 +606,14 @@ namespace engine
             default: break;
         }
 
-        auto room = getCurrentRoom();
-        auto sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), &room);
-
         LaraState tmp;
         tmp.orientationAxis = axis;
         tmp.collisionRadius = 500;
         if(tmp.checkStaticMeshCollisions(pos, 1000, getLevel()))
             return false;
 
-        if(!irr::core::equals(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
+        auto targetSector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), getCurrentRoom());
+        if(!irr::core::equals(gsl::narrow_cast<float>(targetSector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
             return false;
 
         pos.Y -= height;

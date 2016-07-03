@@ -19,7 +19,7 @@ namespace level
 
 namespace engine
 {
-    class AnimationController;
+    class MeshAnimationController;
     struct LaraState;
 
     struct InteractionLimits
@@ -31,7 +31,7 @@ namespace engine
         bool canInteract(const ItemController& item, const LaraController& lara) const;
     };
 
-    class ItemController : public irr::scene::ISceneNodeAnimator
+    class ItemController
     {
         core::RoomBoundPosition m_position;
 
@@ -42,15 +42,14 @@ namespace engine
 
         gsl::not_null<irr::scene::ISceneNode*> const m_sceneNode;
 
-        std::shared_ptr<engine::AnimationController> m_dispatcher;
+        std::shared_ptr<engine::MeshAnimationController> m_dispatcher;
         const std::string m_name;
 
         int m_lastAnimFrame = -1;
         core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
         core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
-        int m_currentFrameTime = 0;
-        int m_lastFrameTime = -1;
-        int m_lastEngineFrameTime = -1;
+        uint32_t m_currentDeltaTime = 0;
+        uint32_t m_subFrameTime = 0;
 
         bool m_falling = false; // flags2_08
 
@@ -89,7 +88,7 @@ namespace engine
         static constexpr int FrameTime = 1000 / 30;
 
         ItemController(const gsl::not_null<level::Level*>& level,
-                       const std::shared_ptr<engine::AnimationController>& dispatcher,
+                       const std::shared_ptr<engine::MeshAnimationController>& dispatcher,
                        const gsl::not_null<irr::scene::ISceneNode*>& sceneNode,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
@@ -122,13 +121,6 @@ namespace engine
         void setFloorHeight(int h) noexcept
         {
             m_floorHeight = h;
-        }
-
-        void copyTimings(const ItemController& ctrl)
-        {
-            m_currentFrameTime = ctrl.m_currentFrameTime;
-            m_lastFrameTime = ctrl.m_lastFrameTime;
-            m_lastEngineFrameTime = ctrl.m_lastEngineFrameTime;
         }
 
         void setCurrentRoom(const loader::Room* newRoom);
@@ -258,9 +250,9 @@ namespace engine
             m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
         }
 
-        int getCurrentDeltaTime() const
+        uint32_t getCurrentDeltaTime() const
         {
-            return m_currentFrameTime - m_lastFrameTime;
+            return m_currentDeltaTime;
         }
 
         void setTargetState(uint16_t st);
@@ -275,6 +267,7 @@ namespace engine
         uint16_t getCurrentAnimationId() const;
 
         bool handleTRTransitions();
+        void handleAnimationEnd();
 
         float calculateAnimFloorSpeed() const;
         int getAnimAccelleration() const;
@@ -297,41 +290,32 @@ namespace engine
         void activate();
         void deactivate();
 
-        void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override final
+        void update(uint32_t deltaTimeMs)
         {
-            Expects(node == m_sceneNode);
+            m_currentDeltaTime = deltaTimeMs;
 
-            if(m_lastFrameTime < 0)
-                m_lastFrameTime = m_lastEngineFrameTime = m_currentFrameTime = timeMs;
-
-            if(m_lastFrameTime == timeMs)
+            if(m_currentDeltaTime <= 0)
                 return;
 
-            m_currentFrameTime = timeMs;
-
             bool isNewFrame = m_dispatcher == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
+            m_subFrameTime += deltaTimeMs;
 
-            if(timeMs - m_lastEngineFrameTime >= FrameTime)
+            if(m_subFrameTime >= FrameTime)
             {
                 isNewFrame = true;
-                m_lastEngineFrameTime -= (timeMs - m_lastEngineFrameTime) / FrameTime * FrameTime;
+                m_subFrameTime -= m_subFrameTime / FrameTime * FrameTime;
             }
 
-            animate(isNewFrame);
+            animateImpl(isNewFrame);
+
+            if(isNewFrame && m_isActive && m_hasProcessAnimCommandsOverride)
+                processAnimCommands();
 
             applyRotation();
             applyPosition();
-
-            m_lastFrameTime = m_currentFrameTime;
         }
 
-        ISceneNodeAnimator* createClone(irr::scene::ISceneNode* node, irr::scene::ISceneManager* newManager) override final
-        {
-            BOOST_ASSERT(false);
-            return nullptr;
-        }
-
-        virtual void animate(bool isNewFrame) = 0;
+        virtual void animateImpl(bool isNewFrame) = 0;
 
         core::InterpolatedValue<float>& getHorizontalSpeed()
         {
@@ -418,12 +402,12 @@ namespace engine
     class DummyItemController final : public ItemController
     {
     public:
-        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
         {
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
     };
@@ -431,12 +415,12 @@ namespace engine
     class ItemController_55_Switch final : public ItemController
     {
     public:
-        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
         {
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
@@ -458,12 +442,12 @@ namespace engine
     class ItemController_35_CollapsibleFloor final : public ItemController
     {
     public:
-        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
         {
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
@@ -499,12 +483,12 @@ namespace engine
     class ItemController_Door final : public ItemController
     {
     public:
-        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
         {
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
@@ -544,14 +528,14 @@ namespace engine
     class ItemController_Block final : public ItemController
     {
     public:
-        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
         {
             if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
                 loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
@@ -569,13 +553,13 @@ namespace engine
     class ItemController_TallBlock final : public ItemController
     {
     public:
-        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::AnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
             : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
         {
             loader::Room::patchHeightsForBlock(*this, -2*loader::SectorSize);
         }
 
-        void animate(bool /*isNewFrame*/) override
+        void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
