@@ -26,7 +26,7 @@ namespace level
     public:
         Level(Game gameVersion, loader::io::SDLReader&& reader)
             : m_gameVersion(gameVersion)
-              , m_reader(std::move(reader))
+            , m_reader(std::move(reader))
         {
         }
 

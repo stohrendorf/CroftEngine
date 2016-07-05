@@ -427,8 +427,7 @@ namespace engine
 
         auto room = getCurrentRoom();
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
-
-        //! @todo Move floor controller to other room
+        setCurrentRoom(room);
 
         HeightInfo h = HeightInfo::fromFloor(sector, getPosition().toInexact(), getLevel().m_cameraController);
         setFloorHeight(h.distance);
@@ -571,6 +570,8 @@ namespace engine
             //! @todo Shake camera
             //! @todo play sound 70
         }
+
+        setCurrentRoom(pos.room);
 
         if(m_flags2_02_toggledOn || !m_flags2_04_ready)
             return;
@@ -718,8 +719,9 @@ namespace engine
         }
 
         ItemController::processAnimCommands(advanceFrame);
-        auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), getCurrentRoom());
-        //! @todo move item to room
+        auto room = getCurrentRoom();
+        auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
+        setCurrentRoom(room);
 
         if(m_flags2_02_toggledOn || !m_flags2_04_ready)
             return;
@@ -731,5 +733,16 @@ namespace engine
         pos.X = std::floor(pos.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
         pos.Z = std::floor(pos.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
         setPosition(pos);
+    }
+    void ItemController_41_TrapDoorUp::processAnimCommands(bool advanceFrame)
+    {
+        if(updateTriggerTimeout())
+            setTargetState(1);
+        else
+            setTargetState(0);
+        ItemController::processAnimCommands(advanceFrame);
+        auto pos = getRoomBoundPosition();
+        getLevel().findFloorSectorWithClampedPosition(pos);
+        setCurrentRoom(pos.room);
     }
 }

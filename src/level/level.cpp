@@ -497,6 +497,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animationController, node, name + ":controller", &room, &item);
                 animationController->playLocalAnimation(0);
             }
+            else if(item.type == 41)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_41_TrapDoorUp>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
             else if(item.type >= 48 && item.type <= 51)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animationController, node, name + ":controller", &room, &item);
@@ -515,6 +520,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
             else if(item.type >= 57 && item.type <= 64)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
+            else if(item.type >= 65 && item.type <= 66)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_TrapDoorDown>(this, animationController, node, name + ":controller", &room, &item);
                 animationController->playLocalAnimation(0);
             }
             else

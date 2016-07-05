@@ -1217,11 +1217,26 @@ namespace loader
           *
           * length is negative when read and thus gets negated.
           */
+        static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
+        {
+            std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
+            sprite_sequence->type = reader.readU32();
+            sprite_sequence->length = reader.readI16();
+            sprite_sequence->offset = reader.readI16();
+
+            if(sprite_sequence->type > 191)
+            {
+                sprite_sequence->type -= 191;
+                sprite_sequence->length = 0;
+            }
+            return sprite_sequence;
+        }
+
         static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
         {
             std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
             sprite_sequence->type = reader.readU32();
-            sprite_sequence->length = -reader.readI16();
+            sprite_sequence->length = reader.readI16();
             sprite_sequence->offset = reader.readI16();
             return sprite_sequence;
         }

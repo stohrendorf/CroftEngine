@@ -96,6 +96,8 @@ namespace engine
                        bool hasProcessAnimCommandsOverride,
                        uint8_t characteristics);
 
+        virtual ~ItemController() = default;
+
         irr::core::aabbox3di getBoundingBox() const;
 
         const core::ExactTRCoordinates& getPosition() const noexcept
@@ -477,6 +479,144 @@ namespace engine
                 return;
 
             y = getPosition().Y - 256;
+        }
+    };
+
+    class ItemController_41_TrapDoorUp final : public ItemController
+    {
+    public:
+        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool advanceFrame = false) override;
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y)
+                return;
+
+            y = getPosition().Y;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y)
+                return;
+
+            y = getPosition().Y + loader::QuarterSectorSize;
+        }
+
+    private:
+        bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
+        {
+            auto sx = std::lround(std::floor(getPosition().X / loader::SectorSize));
+            auto sz = std::lround(std::floor(getPosition().Z / loader::SectorSize));
+            auto psx = pos.X / loader::SectorSize;
+            auto psz = pos.Z / loader::SectorSize;
+            auto axis = core::axisFromAngle(getRotation().Y, 0_au);
+            BOOST_ASSERT(axis.is_initialized());
+            if(*axis == core::Axis::PosZ && sx == psx && sz - 1 == psz && sz - 2 == psz)
+            {
+                return true;
+            }
+            if(*axis == core::Axis::NegZ && sx == psx && sz + 1 == psz && sz + 2 == psz)
+            {
+                return true;
+            }
+            if(*axis == core::Axis::PosX && sz == psz && sx - 1 == psx && sx - 2 == psx)
+            {
+                return true;
+            }
+            if(*axis != core::Axis::NegX || sz != psz || sx + 1 != psx || sx + 2 != psx)
+            {
+                return false;
+            }
+            return true;
+        }
+    };
+
+    class ItemController_TrapDoorDown final : public ItemController
+    {
+    public:
+        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool advanceFrame = false) override
+        {
+            if(updateTriggerTimeout())
+            {
+                if(getCurrentAnimState() == 0)
+                    setTargetState(1);
+            }
+            else if(getCurrentAnimState() == 1)
+            {
+                setTargetState(0);
+            }
+            ItemController::processAnimCommands(advanceFrame);
+        }
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            if(getCurrentAnimState() != 0 || !possiblyOnTrapdoorDown(pos) || pos.Y > getPosition().Y || y <= getPosition().Y)
+                return;
+
+            y = getPosition().Y;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoorDown(pos) || pos.Y <= getPosition().Y || y > getPosition().Y)
+                return;
+
+            y = getPosition().Y + loader::QuarterSectorSize;
+        }
+
+    private:
+        bool possiblyOnTrapdoorDown(const core::TRCoordinates& pos) const
+        {
+            auto sx = std::lround(std::floor(getPosition().X / loader::SectorSize));
+            auto sz = std::lround(std::floor(getPosition().Z / loader::SectorSize));
+            auto psx = pos.X / loader::SectorSize;
+            auto psz = pos.Z / loader::SectorSize;
+            auto axis = core::axisFromAngle(getRotation().Y, 1_au);
+            BOOST_ASSERT(axis.is_initialized());
+            if(*axis == core::Axis::PosZ && sx == psx && sz + 1 == psz)
+            {
+                return true;
+            }
+            if(*axis == core::Axis::NegZ && sx == psx && sz - 1 == psz)
+            {
+                return true;
+            }
+            if(*axis == core::Axis::PosX && sz == psz && sx + 1 == psx)
+            {
+                return true;
+            }
+            if(*axis != core::Axis::NegX || sz != psz || sx - 1 != psx)
+            {
+                return false;
+            }
+            return true;
         }
     };
 

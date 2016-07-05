@@ -87,7 +87,7 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     m_reader.readVector(m_spriteTextures, m_reader.readU32(), &loader::SpriteTexture::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite sequences";
-    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::read);
+    m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::readTr1);
 
     if(m_demoOrUb)
     {
