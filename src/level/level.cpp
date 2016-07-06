@@ -892,8 +892,9 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
     m_cameraController = new engine::CameraController(device->getCursorControl(), this, m_lara, device->getSceneManager()->getVideoDriver(), camera);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
-    camera->setNearValue(1);
-    camera->setFarValue(2e5);
+    camera->setNearValue(10);
+    camera->setFarValue(20480);
+    camera->setFOV(irr::core::degToRad(80.0f));
 }
 
 void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst)
