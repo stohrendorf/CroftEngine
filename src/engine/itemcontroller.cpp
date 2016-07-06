@@ -121,7 +121,7 @@ namespace engine
         if( newRoom == m_position.room )
             return;
 
-        BOOST_LOG_TRIVIAL(debug) << "Room switch to " << newRoom->node->getName();
+        BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getName();
         if( newRoom == nullptr )
         {
             BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
@@ -135,6 +135,8 @@ namespace engine
             }
             return;
         }
+
+        m_sceneNode->setParent(newRoom->node);
 
         m_position.room = newRoom;
         for( irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i )

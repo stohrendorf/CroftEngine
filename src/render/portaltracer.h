@@ -100,6 +100,9 @@ namespace render
             boundingBox.clipAgainst(portalBB);
             lastPortal = portal;
 
+            drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
+            drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
+
             return boundingBox.getArea() * drv->getScreenSize().getArea() >= 1;
         }
 

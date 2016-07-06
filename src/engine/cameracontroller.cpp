@@ -1077,8 +1077,8 @@ namespace engine
         const auto backRightDistSq = targetBackDistSq + targetRightDistSq;
         if( backRightDistSq > lookAtDistanceSq )
         {
-            BOOST_LOG_TRIVIAL(debug) << "Clamp back right: " << currentFrontBack << " => " << back;
-            BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
+            //BOOST_LOG_TRIVIAL(debug) << "Clamp back right: " << currentFrontBack << " => " << back;
+            //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
             currentFrontBack = back;
             if( lookAtDistanceSq >= targetBackDistSq )
             {
@@ -1102,8 +1102,8 @@ namespace engine
         const auto targetBackLeftDistSq = targetBackDistSq + targetLeftDistSq;
         if( targetBackLeftDistSq > lookAtDistanceSq )
         {
-            BOOST_LOG_TRIVIAL(debug) << "Clamp back left: " << currentFrontBack << " => " << back;
-            BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
+            //BOOST_LOG_TRIVIAL(debug) << "Clamp back left: " << currentFrontBack << " => " << back;
+            //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
             currentFrontBack = back;
             if( lookAtDistanceSq >= targetBackDistSq )
             {
@@ -1128,8 +1128,8 @@ namespace engine
 
         if( targetFrontRightDistSq > lookAtDistanceSq )
         {
-            BOOST_LOG_TRIVIAL(debug) << "Clamp front right";
-            BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
+            //BOOST_LOG_TRIVIAL(debug) << "Clamp front right";
+            //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
             if( lookAtDistanceSq >= targetRightDistSq )
             {
                 currentLeftRight = right;
@@ -1141,8 +1141,8 @@ namespace engine
             return;
         }
 
-        BOOST_LOG_TRIVIAL(debug) << "Clamp front right: " << currentFrontBack << " => " << front << ", " << currentLeftRight << " => " << right;
-        BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
+        //BOOST_LOG_TRIVIAL(debug) << "Clamp front right: " << currentFrontBack << " => " << front << ", " << currentLeftRight << " => " << right;
+        //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = front;
         currentLeftRight = right;
     }
