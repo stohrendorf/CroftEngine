@@ -19,22 +19,86 @@ namespace render
             const auto& proj = camera.getProjectionMatrix();
             const auto& view = camera.getViewMatrix();
 
-            bool allBehind = true;
-            irr::core::rectf portalBB;
-            portalBB.UpperLeftCorner = project(portal->vertices[0].toIrrlicht(), view, proj, allBehind);
-            portalBB.LowerRightCorner = project(portal->vertices[1].toIrrlicht(), view, proj, allBehind);
-            portalBB.repair();
-            portalBB.addInternalPoint(project(portal->vertices[2].toIrrlicht(), view, proj, allBehind));
-            portalBB.addInternalPoint(project(portal->vertices[3].toIrrlicht(), view, proj, allBehind));
+            int numBehind = 0;
+            std::pair<irr::core::vector3df, bool> screen[4];
 
-            if( allBehind )
+            irr::core::rectf portalBB;
+            {
+                bool validBB = false;
+                for(int i = 0; i < 4; ++i)
+                {
+                    screen[i] = projectOnScreen(portal->vertices[i].toIrrlicht(), view, proj, numBehind);
+                    if(!screen[i].second)
+                        continue;
+
+                    if(!validBB)
+                        portalBB.LowerRightCorner = portalBB.UpperLeftCorner = irr::core::vector2df{ screen[i].first.X, screen[i].first.Y };
+                    else
+                        portalBB.addInternalPoint(screen[i].first.X, screen[i].first.Y);
+
+                    validBB = true;
+                }
+            }
+
+            if(numBehind == 4)
                 return false;
+
+            if(numBehind == 0)
+            {
+                boundingBox.clipAgainst(portalBB);
+                lastPortal = portal;
+
+                drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
+                drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
+
+                return boundingBox.getArea() * drv->getScreenSize().getArea() >= 1;
+            }
+
+            BOOST_ASSERT(numBehind >= 1 && numBehind <= 3);
+            const irr::core::vector3df* prev = &screen[3].first;
+            for(int i = 0; i < 4; ++i)
+            {
+                const irr::core::vector3df* curr = &screen[i].first;
+
+                if(prev->Z < 0 == curr->Z < 0)
+                {
+                    prev = curr;
+                    continue;
+                }
+
+                if(prev->X >= 0 || curr->X >= 0)
+                {
+                    portalBB.LowerRightCorner.X = 1;
+                    if(prev->X <= 0 || curr->X <= 0)
+                    {
+                        portalBB.UpperLeftCorner.X = -1;
+                    }
+                }
+                else
+                {
+                    portalBB.UpperLeftCorner.X = -1;
+                }
+
+                if(prev->Y >= 0 || curr->Y >= 0)
+                {
+                    portalBB.UpperLeftCorner.Y = 1;
+                    if(prev->Y <= 0 || curr->Y <= 0)
+                    {
+                        portalBB.LowerRightCorner.Y = -1;
+                    }
+                }
+                else
+                {
+                    portalBB.LowerRightCorner.Y = -1;
+                }
+
+                prev = curr;
+            }
+
+            portalBB.repair();
 
             boundingBox.clipAgainst(portalBB);
             lastPortal = portal;
-
-            drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
-            drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
 
             return boundingBox.getArea() * drv->getScreenSize().getArea() >= 1;
         }
@@ -51,21 +115,17 @@ namespace render
         }
 
     private:
-        static irr::core::position2df project(irr::core::vector3df pos, const irr::core::matrix4& view, const irr::core::matrix4& proj, bool& allBehind)
+        static std::pair<irr::core::vector3df, bool> projectOnScreen(irr::core::vector3df vertex, const irr::core::matrix4& viewMatrix, const irr::core::matrix4& projectionMatrix, int& numBehind)
         {
-            view.transformVect(pos);
-            if( pos.Z >= 0 )
-                allBehind = false;
-
-            // clamp Z value to if too close to the eye
-            if( pos.Z < 0.001f )
-                pos.Z = 0.001f;
+            viewMatrix.transformVect(vertex);
+            if(vertex.Z <= 0)
+                ++numBehind;
 
             irr::f32 tmp[4];
-            proj.transformVect(tmp, pos);
-            irr::core::position2df res{tmp[0] / tmp[3], tmp[1] / tmp[3]};
+            projectionMatrix.transformVect(tmp, vertex);
 
-            return res;
+            irr::core::vector3df screen{tmp[0] / tmp[3], tmp[1] / tmp[3], vertex.Z};
+            return{ screen, vertex.Z > 0 };
         }
 
         static void drawBB(irr::video::IVideoDriver* drv, const irr::core::rectf& bb, const irr::video::SColor& col)
