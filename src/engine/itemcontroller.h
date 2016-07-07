@@ -715,4 +715,155 @@ namespace engine
         bool canPushBlock(int height, core::Axis axis) const;
         bool canPullBlock(int height, core::Axis axis) const;
     };
+
+    class ItemController_68_BridgeFlat final : public ItemController
+    {
+    public:
+        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
+        {
+        }
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            if(pos.Y <= getPosition().Y)
+                y = getPosition().Y;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            if(pos.Y <= getPosition().Y)
+                return;
+
+            y = getPosition().Y + loader::QuarterSectorSize;
+        }
+    };
+
+    class ItemController_69_BridgeSlope1 final : public ItemController
+    {
+    public:
+        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
+        {
+        }
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 4;
+            if(pos.Y <= tmp)
+                y = tmp;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 4;
+            if(pos.Y <= tmp)
+                return;
+
+            y = tmp + loader::QuarterSectorSize;
+        }
+
+    private:
+        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+        {
+            auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
+            Expects(axis.is_initialized());
+
+            switch(*axis)
+            {
+            case core::Axis::PosZ:
+                return (loader::SectorSize - pos.X) % loader::SectorSize;
+            case core::Axis::PosX:
+                return pos.Z % loader::SectorSize;
+            case core::Axis::NegZ:
+                return pos.X % loader::SectorSize;
+            case core::Axis::NegX:
+                return (loader::SectorSize - pos.Z) % loader::SectorSize;
+            default:
+                return 0;
+            }
+        }
+    };
+
+    class ItemController_70_BridgeSlope2 final : public ItemController
+    {
+    public:
+        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
+        {
+        }
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 2;
+            if(pos.Y <= tmp)
+                y = tmp;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 2;
+            if(pos.Y <= tmp)
+                return;
+
+            y = tmp + loader::QuarterSectorSize;
+        }
+
+    private:
+        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+        {
+            auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
+            Expects(axis.is_initialized());
+
+            switch(*axis)
+            {
+            case core::Axis::PosZ:
+                return (loader::SectorSize - pos.X) % loader::SectorSize;
+            case core::Axis::PosX:
+                return pos.Z % loader::SectorSize;
+            case core::Axis::NegZ:
+                return pos.X % loader::SectorSize;
+            case core::Axis::NegX:
+                return (loader::SectorSize - pos.Z) % loader::SectorSize;
+            default:
+                return 0;
+            }
+        }
+    };
 }
