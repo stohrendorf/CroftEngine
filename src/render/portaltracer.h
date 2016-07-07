@@ -16,31 +16,24 @@ namespace render
                 return false; // wrong orientation (normals must face the camera)
             }
 
-            const auto& proj = camera.getProjectionMatrix();
-            const auto& view = camera.getViewMatrix();
-
-            int numBehind = 0;
+            int numBehind = 0, numTooFar = 0;
             std::pair<irr::core::vector3df, bool> screen[4];
 
             irr::core::rectf portalBB;
+            portalBB.UpperLeftCorner = irr::core::vector2df{ 1,1 };
+            portalBB.LowerRightCorner = irr::core::vector2df{ -1,-1 };
             {
-                bool validBB = false;
                 for(int i = 0; i < 4; ++i)
                 {
-                    screen[i] = projectOnScreen(portal->vertices[i].toIrrlicht(), view, proj, numBehind);
+                    screen[i] = projectOnScreen(portal->vertices[i].toIrrlicht(), camera, numBehind, numTooFar);
                     if(!screen[i].second)
                         continue;
 
-                    if(!validBB)
-                        portalBB.LowerRightCorner = portalBB.UpperLeftCorner = irr::core::vector2df{ screen[i].first.X, screen[i].first.Y };
-                    else
-                        portalBB.addInternalPoint(screen[i].first.X, screen[i].first.Y);
-
-                    validBB = true;
+                    portalBB.addInternalPoint(screen[i].first.X, screen[i].first.Y);
                 }
             }
 
-            if(numBehind == 4)
+            if(numBehind == 4 || numTooFar == 4)
                 return false;
 
             if(numBehind == 0)
@@ -66,10 +59,10 @@ namespace render
                     continue;
                 }
 
-                if(prev->X >= 0 || curr->X >= 0)
+                if(prev->X <= 0 || curr->X <= 0)
                 {
                     portalBB.LowerRightCorner.X = 1;
-                    if(prev->X <= 0 || curr->X <= 0)
+                    if(prev->X >= 0 || curr->X >= 0)
                     {
                         portalBB.UpperLeftCorner.X = -1;
                     }
@@ -79,17 +72,17 @@ namespace render
                     portalBB.UpperLeftCorner.X = -1;
                 }
 
-                if(prev->Y >= 0 || curr->Y >= 0)
+                if(prev->Y <= 0 || curr->Y <= 0)
                 {
-                    portalBB.UpperLeftCorner.Y = 1;
-                    if(prev->Y <= 0 || curr->Y <= 0)
+                    portalBB.LowerRightCorner.Y = 1;
+                    if(prev->Y >= 0 || curr->Y >= 0)
                     {
-                        portalBB.LowerRightCorner.Y = -1;
+                        portalBB.UpperLeftCorner.Y = -1;
                     }
                 }
                 else
                 {
-                    portalBB.LowerRightCorner.Y = -1;
+                    portalBB.UpperLeftCorner.Y = -1;
                 }
 
                 prev = curr;
@@ -118,17 +111,30 @@ namespace render
         }
 
     private:
-        static std::pair<irr::core::vector3df, bool> projectOnScreen(irr::core::vector3df vertex, const irr::core::matrix4& viewMatrix, const irr::core::matrix4& projectionMatrix, int& numBehind)
+        static std::pair<irr::core::vector3df, bool> projectOnScreen(irr::core::vector3df vertex,
+                                                                     const irr::scene::ICameraSceneNode& camera,
+                                                                     int& numBehind,
+                                                                     int& numTooFar)
         {
-            viewMatrix.transformVect(vertex);
-            if(vertex.Z <= 0)
+            camera.getViewMatrix().transformVect(vertex);
+            if(vertex.Z <= camera.getNearValue())
                 ++numBehind;
+            else if(vertex.Z > camera.getFarValue())
+                ++numTooFar;
 
             irr::f32 tmp[4];
-            projectionMatrix.transformVect(tmp, vertex);
+            camera.getProjectionMatrix().transformVect(tmp, vertex);
+
+            auto signToLimits = [](float f) -> float
+            {
+                return f <= 0 ? -1 : 1;
+            };
+
+            if(std::abs(vertex.Z) <= camera.getNearValue())
+                return{ {signToLimits(vertex.X), signToLimits(vertex.Y), vertex.Z}, false };
 
             irr::core::vector3df screen{tmp[0] / tmp[3], tmp[1] / tmp[3], vertex.Z};
-            return{ screen, vertex.Z > 0 };
+            return{ screen, vertex.Z > camera.getNearValue() };
         }
 
         static void drawBB(irr::video::IVideoDriver* drv, const irr::core::rectf& bb, const irr::video::SColor& col)
