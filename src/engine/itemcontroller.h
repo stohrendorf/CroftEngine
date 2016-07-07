@@ -424,6 +424,11 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override
         {
+            if(!updateTriggerTimeout())
+            {
+                setTargetState(1);
+                m_triggerTimeout = 0;
+            }
         }
 
         void onInteract(LaraController& lara, LaraState& state) override;
@@ -431,11 +436,6 @@ namespace engine
         void processAnimCommands(bool advanceFrame = false) override
         {
             m_itemFlags |= ActivationMask;
-            if(!updateTriggerTimeout())
-            {
-                setTargetState(1);
-                m_triggerTimeout = 0;
-            }
 
             ItemController::processAnimCommands();
         }
@@ -555,14 +555,6 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override
         {
-        }
-
-        void onInteract(LaraController& lara, LaraState& state) override
-        {
-        }
-
-        void processAnimCommands(bool advanceFrame = false) override
-        {
             if(updateTriggerTimeout())
             {
                 if(getCurrentAnimState() == 0)
@@ -572,6 +564,14 @@ namespace engine
             {
                 setTargetState(0);
             }
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+        }
+
+        void processAnimCommands(bool advanceFrame = false) override
+        {
             ItemController::processAnimCommands(advanceFrame);
         }
 
@@ -630,14 +630,6 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override
         {
-        }
-
-        void onInteract(LaraController& lara, LaraState& state) override;
-
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
-        {
-            //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
-
             if(updateTriggerTimeout())
             {
                 if(getCurrentAnimState() != 0)
@@ -661,6 +653,14 @@ namespace engine
                 }
                 //! @todo Patch original sector data with blocking heights
             }
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override;
+
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
+        {
+            //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
+
             ItemController::processAnimCommands();
         }
     };
@@ -677,6 +677,10 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override
         {
+            if(updateTriggerTimeout())
+                setTargetState(1);
+            else
+                setTargetState(0);
         }
 
         void onInteract(LaraController& lara, LaraState& state) override;
@@ -701,6 +705,22 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override
         {
+            if(updateTriggerTimeout())
+            {
+                if(getCurrentAnimState() == 0)
+                {
+                    loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                    setTargetState(1);
+                }
+            }
+            else
+            {
+                if(getCurrentAnimState() == 1)
+                {
+                    loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                    setTargetState(0);
+                }
+            }
         }
 
         void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
@@ -751,119 +771,83 @@ namespace engine
         }
     };
 
-    class ItemController_69_BridgeSlope1 final : public ItemController
+    class ItemController_SlopedBridge : public ItemController
+    {
+    private:
+        const int m_div;
+    public:
+        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+            , m_div(div)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override final
+        {
+        }
+
+        void onInteract(LaraController& lara, LaraState& state) override final
+        {
+        }
+
+        void processAnimCommands(bool /*advanceFrame*/ = false) override final
+        {
+        }
+
+        void patchFloor(const core::TRCoordinates& pos, int& y) override final
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+            if(pos.Y <= tmp)
+                y = tmp;
+        }
+
+        void patchCeiling(const core::TRCoordinates& pos, int& y) override final
+        {
+            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+            if(pos.Y <= tmp)
+                return;
+
+            y = tmp + loader::QuarterSectorSize;
+        }
+
+    private:
+        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+        {
+            auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
+            Expects(axis.is_initialized());
+
+            switch(*axis)
+            {
+            case core::Axis::PosZ:
+                return loader::SectorSize - 1 - pos.X % loader::SectorSize;
+            case core::Axis::PosX:
+                return pos.Z % loader::SectorSize;
+            case core::Axis::NegZ:
+                return pos.X % loader::SectorSize;
+            case core::Axis::NegX:
+                return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
+            default:
+                return 0;
+            }
+        }
+    };
+
+    class ItemController_69_BridgeSlope1 final : public ItemController_SlopedBridge
     {
     public:
         ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+            : ItemController_SlopedBridge(level, dispatcher, sceneNode, name, room, item, 4)
         {
-        }
-
-        void animateImpl(bool /*isNewFrame*/) override
-        {
-        }
-
-        void onInteract(LaraController& lara, LaraState& state) override
-        {
-        }
-
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
-        {
-        }
-
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
-        {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 4;
-            if(pos.Y <= tmp)
-                y = tmp;
-        }
-
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
-        {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 4;
-            if(pos.Y <= tmp)
-                return;
-
-            y = tmp + loader::QuarterSectorSize;
-        }
-
-    private:
-        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
-        {
-            auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
-            Expects(axis.is_initialized());
-
-            switch(*axis)
-            {
-            case core::Axis::PosZ:
-                return (loader::SectorSize - pos.X) % loader::SectorSize;
-            case core::Axis::PosX:
-                return pos.Z % loader::SectorSize;
-            case core::Axis::NegZ:
-                return pos.X % loader::SectorSize;
-            case core::Axis::NegX:
-                return (loader::SectorSize - pos.Z) % loader::SectorSize;
-            default:
-                return 0;
-            }
         }
     };
 
-    class ItemController_70_BridgeSlope2 final : public ItemController
+    class ItemController_70_BridgeSlope2 final : public ItemController_SlopedBridge
     {
     public:
         ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+            : ItemController_SlopedBridge(level, dispatcher, sceneNode, name, room, item, 2)
         {
-        }
-
-        void animateImpl(bool /*isNewFrame*/) override
-        {
-        }
-
-        void onInteract(LaraController& lara, LaraState& state) override
-        {
-        }
-
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
-        {
-        }
-
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
-        {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 2;
-            if(pos.Y <= tmp)
-                y = tmp;
-        }
-
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
-        {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / 2;
-            if(pos.Y <= tmp)
-                return;
-
-            y = tmp + loader::QuarterSectorSize;
-        }
-
-    private:
-        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
-        {
-            auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
-            Expects(axis.is_initialized());
-
-            switch(*axis)
-            {
-            case core::Axis::PosZ:
-                return (loader::SectorSize - pos.X) % loader::SectorSize;
-            case core::Axis::PosX:
-                return pos.Z % loader::SectorSize;
-            case core::Axis::NegZ:
-                return pos.X % loader::SectorSize;
-            case core::Axis::NegX:
-                return (loader::SectorSize - pos.Z) % loader::SectorSize;
-            default:
-                return 0;
-            }
         }
     };
+
 }

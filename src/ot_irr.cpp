@@ -42,7 +42,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL7A.PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL1.PHD", level::Game::Unknown);
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
     lvl->load(driver);
@@ -83,8 +83,8 @@ int main()
         drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
         drawText(device->getGUIEnvironment(), 10, 60, toString(lvl->m_lara->getCurrentAnimState()));
         drawText(device->getGUIEnvironment(), 100, 60, toString(lvl->m_lara->getTargetState()));
-        drawText(device->getGUIEnvironment(), 10, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
-        drawText(device->getGUIEnvironment(), 100, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
+        drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
+        drawText(device->getGUIEnvironment(), 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
         {
             int y = 100;
             for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)

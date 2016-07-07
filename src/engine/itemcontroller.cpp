@@ -703,23 +703,6 @@ namespace engine
 
     void ItemController_TallBlock::processAnimCommands(bool advanceFrame)
     {
-        if(updateTriggerTimeout())
-        {
-            if(getCurrentAnimState() == 0)
-            {
-                loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                setTargetState(1);
-            }
-        }
-        else
-        {
-            if(getCurrentAnimState() == 1)
-            {
-                loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                setTargetState(0);
-            }
-        }
-
         ItemController::processAnimCommands(advanceFrame);
         auto room = getCurrentRoom();
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
@@ -738,10 +721,6 @@ namespace engine
     }
     void ItemController_41_TrapDoorUp::processAnimCommands(bool advanceFrame)
     {
-        if(updateTriggerTimeout())
-            setTargetState(1);
-        else
-            setTargetState(0);
         ItemController::processAnimCommands(advanceFrame);
         auto pos = getRoomBoundPosition();
         getLevel().findFloorSectorWithClampedPosition(pos);
