@@ -153,8 +153,7 @@ namespace engine
         }
 
         applyRotation();
-        getSceneNode()->setPosition(getPosition().toIrrlicht());
-        getSceneNode()->updateAbsolutePosition();
+        applyPosition();
 
         auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
@@ -227,8 +226,7 @@ namespace engine
                                                             ));
 
         applyRotation();
-        getSceneNode()->setPosition(getPosition().toIrrlicht());
-        getSceneNode()->updateAbsolutePosition();
+        applyPosition();
 
         auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )

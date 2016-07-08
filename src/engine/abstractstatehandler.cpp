@@ -997,7 +997,7 @@ namespace engine
             if( state.current.floor.distance >= 0 )
                 return nullptr;
 
-            setPosition(getPosition() + core::ExactTRCoordinates(0, state.current.floor.distance, 0));
+            setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(state.current.floor.distance), 0));
             m_xRotationSpeed = m_xRotationSpeed + 2_deg;
 
             return nullptr;
@@ -1427,7 +1427,7 @@ namespace engine
             }
 
             if( !tryStartSlide(state, nextHandler) )
-                setPosition(getPosition() + core::ExactTRCoordinates(0, state.current.floor.distance, 0));
+                setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(state.current.floor.distance), 0));
 
             return nextHandler;
         }
@@ -1494,7 +1494,7 @@ namespace engine
             }
 
             if( !tryStartSlide(state, nextHandler) )
-                setPosition(getPosition() + core::ExactTRCoordinates(0, state.current.floor.distance, 0));
+                setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(state.current.floor.distance), 0));
 
             return nextHandler;
         }
@@ -1974,7 +1974,7 @@ namespace engine
             if( !yRot )
                 return nullptr;
 
-            setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + state.front.floor.distance, 0));
+            setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(state.current.floor.distance), 0));
             getController().updateFloorHeight(-381);
             core::ExactTRCoordinates d = getPosition();
             if( *yRot == 0_deg )
@@ -3106,10 +3106,8 @@ namespace engine
         if( state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin || state.current.floor.distance < 200 )
             return nullptr;
 
-        getLara()->updateAbsolutePosition();
-
         const auto bbox = getBoundingBox();
-        auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3176,7 +3174,7 @@ namespace engine
             setTargetState(LaraStateId::Stop);
             nextHandler = createWithRetainedAnimation(LaraStateId::Climbing);
             playAnimation(loader::AnimationId::CLIMB_2CLICK, 759);
-            m_yMovement = 2 * loader::QuarterSectorSize + climbHeight;
+            m_yMovement = 2.0f * loader::QuarterSectorSize + climbHeight;
             setHandStatus(1);
         }
         else if( climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax )
@@ -3189,7 +3187,7 @@ namespace engine
             setTargetState(LaraStateId::Stop);
             nextHandler = createWithRetainedAnimation(LaraStateId::Climbing);
             playAnimation(loader::AnimationId::CLIMB_3CLICK, 614);
-            m_yMovement = 3 * loader::QuarterSectorSize + climbHeight;
+            m_yMovement = 3.0f * loader::QuarterSectorSize + climbHeight;
             setHandStatus(1);
         }
         else
@@ -3300,10 +3298,8 @@ namespace engine
         if( state.front.ceiling.distance > 0 || state.current.ceiling.distance > -core::ClimbLimit2ClickMin )
             return nullptr;
 
-        getLara()->updateAbsolutePosition();
-
         auto bbox = getBoundingBox();
-        auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3342,7 +3338,7 @@ namespace engine
         HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
 
         if( h.distance != -loader::HeightLimit )
-            h.distance -= getPosition().Y;
+            h.distance -= std::lround(getPosition().Y);
 
         return h.distance;
     }
@@ -3452,7 +3448,7 @@ namespace engine
             playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
             setHandStatus(0);
             const auto bbox = getBoundingBox();
-            const auto hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
+            const float hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
             setPosition(getPosition() + core::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
             setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
             setFallSpeed(core::makeInterpolatedValue(1.0f));
@@ -3487,7 +3483,7 @@ namespace engine
         }
 
         const auto bbox = getBoundingBox();
-        const auto spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        const float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
             setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));

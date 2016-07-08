@@ -101,8 +101,6 @@ namespace engine
             m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
         }
 
-        update(localTime);
-
         tracePortals();
     }
 

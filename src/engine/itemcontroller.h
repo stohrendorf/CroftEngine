@@ -638,7 +638,6 @@ namespace engine
                 }
                 else
                 {
-                    BOOST_LOG_TRIVIAL(debug) << "Door " << getName() << ": opening";
                     setTargetState(1);
                 }
             }
@@ -646,7 +645,6 @@ namespace engine
             {
                 if(getCurrentAnimState() == 1)
                 {
-                    BOOST_LOG_TRIVIAL(debug) << "Door " << getName() << ": closing";
                     setTargetState(0);
                     ItemController::processAnimCommands();
                     return;
@@ -728,12 +726,6 @@ namespace engine
         }
 
         void processAnimCommands(bool advanceFrame = false) override;
-
-    private:
-        bool isOnFloor(int height) const;
-
-        bool canPushBlock(int height, core::Axis axis) const;
-        bool canPullBlock(int height, core::Axis axis) const;
     };
 
     class ItemController_68_BridgeFlat final : public ItemController

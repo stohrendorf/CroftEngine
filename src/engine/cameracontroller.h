@@ -116,6 +116,8 @@ namespace engine
 
         void findCameraTarget(const loader::FloorData::value_type* floorData);
 
+        void update(int deltaTimeMs);
+
     private:
         void tracePortals();
         bool clampY(const core::ExactTRCoordinates& lookAt, core::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
@@ -131,7 +133,6 @@ namespace engine
         ClampType clampZ(core::RoomBoundPosition& origin) const;
         bool clamp(core::RoomBoundPosition& origin) const;
 
-        void update(int deltaTimeMs);
         void handleCamOverride(int deltaTimeMs);
         int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
