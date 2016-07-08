@@ -18,6 +18,8 @@ irr::u16 addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, co
     irr::video::S3DVertex iv;
     BOOST_ASSERT(vertexIndex < vertices.size());
     iv.Pos = vertices[vertexIndex].vertex.toIrrlicht();
+    // TR5 only: iv.Normal = vertices[vertexIndex].normal.toIrrlicht();
+    iv.Normal = { 1,0,0 };
     iv.TCoords.X = uvCoordinates.xpixel/255.0f;
     iv.TCoords.Y = uvCoordinates.ypixel/255.0f;
     iv.Color = vertices[vertexIndex].color;
@@ -65,8 +67,8 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
             texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
         auto buf = texBuffers[proxy.textureKey];
 
-        for(int i=0; i<3; ++i)
-            addVertex(*buf, poly.vertices[i], proxy.uvCoordinates[i], vertices);
+        for(int i = 0; i < 3; ++i)
+            animator.registerVertex(poly.proxyId, buf, i, addVertex(*buf, poly.vertices[i], proxy.uvCoordinates[i], vertices));
     }
 
     for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
@@ -95,10 +97,12 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
     }
 
     result->recalculateBoundingBox();
+    mgr->getMeshManipulator()->recalculateNormals(result);
 
     irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
     result->drop();
     level.m_fx->addShadowToNode(resultNode);
+    level.m_fx->addNodeToDepthPass(resultNode);
     // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
     // resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
     for(Light& light : lights)
@@ -164,6 +168,7 @@ irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr
         smNode->setPosition((sm.position - position).toIrrlicht());
         level.m_fx->addShadowToNode(smNode);
         resultNode->addChild(smNode);
+        level.m_fx->addNodeToDepthPass(smNode);
     }
     resultNode->setPosition(position.toIrrlicht());
     resultNode->updateAbsolutePosition();

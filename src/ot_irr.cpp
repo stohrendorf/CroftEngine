@@ -22,7 +22,7 @@ namespace
 
 int main()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
     const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_DIRECT3D9;
 #else
     const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_OPENGL;
@@ -30,7 +30,7 @@ int main()
 
     irr::SIrrlichtCreationParameters driverParams;
     driverParams.AntiAlias = 255;
-    driverParams.ZBufferBits = 16;
+    driverParams.ZBufferBits = 32;
     driverParams.Stencilbuffer = true;
     driverParams.Vsync = false;
     driverParams.Bits = 24;
@@ -42,7 +42,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL1.PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL2.PHD", level::Game::Unknown);
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
     lvl->load(driver);
@@ -75,12 +75,19 @@ int main()
             ctrl->update(deltaTime);
         }
 
+        lvl->m_cameraController->update(deltaTime);
+
         device->getVideoDriver()->beginScene(true, true);
         //device->getSceneManager()->drawAll();
         lvl->m_fx->update();
         lvl->drawBars(device->getVideoDriver());
 
         drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
+        drawText(device->getGUIEnvironment(), 100, 40, irr::core::stringw(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
+        drawText(device->getGUIEnvironment(), 140, 20, irr::core::stringw(std::lround(lvl->m_lara->getPosition().X)));
+        drawText(device->getGUIEnvironment(), 140, 30, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Y)));
+        drawText(device->getGUIEnvironment(), 140, 40, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Z)));
+        drawText(device->getGUIEnvironment(), 180, 40, irr::core::stringw(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
         drawText(device->getGUIEnvironment(), 10, 60, toString(lvl->m_lara->getCurrentAnimState()));
         drawText(device->getGUIEnvironment(), 100, 60, toString(lvl->m_lara->getTargetState()));
         drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));

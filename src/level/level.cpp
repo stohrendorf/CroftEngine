@@ -457,7 +457,7 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
         if(const auto meshIdx = findAnimatedModelIndexForType(item.type))
         {
-            BOOST_ASSERT(!findSpriteSequenceForType(item.type));
+            //BOOST_ASSERT(!findSpriteSequenceForType(item.type));
             BOOST_ASSERT(*meshIdx < skinnedMeshes.size());
             irr::scene::IAnimatedMeshSceneNode* node;
 
@@ -858,9 +858,11 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
     device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
     device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
+    device->getSceneManager()->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 
-    m_fx = std::make_shared<EffectHandler>(device, device->getVideoDriver()->getScreenSize(), true, true, true);
+    m_fx = std::make_shared<EffectHandler>(device, device->getVideoDriver()->getScreenSize());
     m_fx->setClearColour(irr::video::SColor(0));
+    m_fx->enableDepthPass(true);
 
     std::vector<irr::video::ITexture*> textures = createTextures(device->getSceneManager());
     std::map<loader::TextureLayoutProxy::TextureKey, irr::video::SMaterial> materials = createMaterials(textures);
@@ -871,7 +873,7 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
         // Set some defaults
         result.setTexture(0, createSolidColorTex(device->getSceneManager(), i));
         //result.BackfaceCulling = false;
-        result.ColorMaterial = irr::video::ECM_AMBIENT;
+        result.ColorMaterial = irr::video::ECM_DIFFUSE;
         result.Lighting = true;
         result.AmbientColor.set(0);
 
@@ -902,6 +904,16 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
 
     for( auto& ptr : skinnedMeshes )
         ptr->drop();
+
+    for(const auto& i : m_itemControllers)
+        m_fx->addNodeToDepthPass(i.second->getSceneNode());
+
+    if(device->getVideoDriver()->getDriverType() == irr::video::EDT_DIRECT3D9)
+        m_fx->addPostProcessingEffectFromFile("shaders/black_depth.hlsl");
+    else if(device->getVideoDriver()->getDriverType() == irr::video::EDT_OPENGL)
+        m_fx->addPostProcessingEffectFromFile("shaders/black_depth.glsl");
+    else
+        throw std::runtime_error("Unsupported driver type");
 
     irr::scene::ICameraSceneNode* camera = device->getSceneManager()->addCameraSceneNode();
     m_cameraController = new engine::CameraController(device->getCursorControl(), this, m_lara, device->getSceneManager()->getVideoDriver(), camera);

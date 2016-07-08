@@ -248,7 +248,7 @@ namespace loader
             switch( bmode )
             {
             case BlendingMode::Solid:
-                result.BlendOperation = irr::video::EBO_ADD;
+                //result.BlendOperation = irr::video::EBO_ADD;
                 break;
 
             case BlendingMode::AlphaTransparency:
