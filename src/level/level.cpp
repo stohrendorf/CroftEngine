@@ -859,7 +859,6 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
     device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
     device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
-    device->getSceneManager()->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
     m_inputHandler = std::make_unique<engine::InputHandler>(device->getCursorControl());
     device->setEventReceiver(m_inputHandler.get());
 
