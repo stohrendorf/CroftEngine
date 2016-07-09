@@ -9,16 +9,15 @@
 
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
+    CameraController::CameraController(gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
         : ISceneNodeAnimator()
-          , m_cursorControl(cursorControl)
-          , m_camera(camera)
-          , m_level(level)
-          , m_laraController(laraController)
-          , m_lookAtY(laraController->getPosition().Y - 1024)
-          , m_currentLookAt(laraController->getCurrentRoom())
-          , m_currentPosition(laraController->getCurrentRoom())
-          , m_driver(drv)
+        , m_camera(camera)
+        , m_level(level)
+        , m_laraController(laraController)
+        , m_lookAtY(laraController->getPosition().Y - 1024)
+        , m_currentLookAt(laraController->getCurrentRoom())
+        , m_currentPosition(laraController->getCurrentRoom())
+        , m_driver(drv)
     {
         m_currentLookAt.position = m_laraController->getPosition();
         m_currentLookAt.position.Y -= m_lookAtY;
@@ -37,18 +36,10 @@ namespace engine
         if( smgr && smgr->getActiveCamera() != m_camera )
             return;
 
-        m_inputState.setXAxisMovement(m_left, m_right);
-        m_inputState.setZAxisMovement(m_backward, m_forward);
-        m_inputState.setStepMovement(m_stepLeft, m_stepRight);
-        m_laraController->setInputState(m_inputState);
 
         if( m_firstUpdate )
         {
-            m_cursorControl->setPosition(0.5f, 0.5f);
-            m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
-
             m_lastAnimationTime = timeMs;
-
             m_firstUpdate = false;
         }
 
@@ -61,7 +52,6 @@ namespace engine
 
         if( m_firstInput )
         {
-            m_left = m_right = m_stepLeft = m_stepRight = m_forward = m_backward = false;
             m_firstInput = false;
         }
 
@@ -73,33 +63,10 @@ namespace engine
         m_lastAnimationTime = timeMs;
 
         // Update mouse rotation
-        if( m_currentCursorPos != m_prevCursorPos )
-        {
-            static const core::Angle rotationSpeed = 100_deg;
-            m_localRotation.Y -= rotationSpeed * (0.5f - m_currentCursorPos.X);
-            m_localRotation.X -= rotationSpeed * (0.5f - m_currentCursorPos.Y);
-            m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
-
-            // Do the fix as normal, special case below
-            // reset cursor position to the centre of the window.
-            m_cursorControl->setPosition(0.5f, 0.5f);
-
-            // needed to avoid problems when the event receiver is disabled
-            m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
-        }
-
-        // Special case, mouse is whipped outside of window before it can update.
-        irr::video::IVideoDriver* driver = smgr->getVideoDriver();
-        irr::core::vector2d<irr::u32> mousepos(m_cursorControl->getPosition().X, m_cursorControl->getPosition().Y);
-        irr::core::rect<irr::u32> screenRect(0, 0, driver->getScreenSize().Width, driver->getScreenSize().Height);
-
-        // Only if we are moving outside quickly.
-        if( !screenRect.isPointInside(mousepos) )
-        {
-            // Force a reset.
-            m_cursorControl->setPosition(0.5f, 0.5f);
-            m_currentCursorPos = m_prevCursorPos = m_cursorControl->getRelativePosition();
-        }
+        static const core::Angle rotationSpeed = 100_deg;
+        m_localRotation.Y += rotationSpeed * getLevel()->m_inputHandler->getInputState().mouseMovement.X;
+        m_localRotation.X += rotationSpeed * getLevel()->m_inputHandler->getInputState().mouseMovement.Y;
+        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
 
         tracePortals();
     }
@@ -108,75 +75,6 @@ namespace engine
     {
         BOOST_ASSERT(false);
         return nullptr;
-    }
-
-    bool CameraController::OnEvent(const irr::SEvent& evt)
-    {
-        switch( evt.EventType )
-        {
-        case irr::EET_KEY_INPUT_EVENT:
-            switch( evt.KeyInput.Key )
-            {
-            case irr::KEY_KEY_A:
-                m_left = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_D:
-                m_right = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_Q:
-                m_stepLeft = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_E:
-                m_stepRight = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_W:
-                m_forward = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_S:
-                m_backward = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_LSHIFT:
-            case irr::KEY_RSHIFT:
-            case irr::KEY_SHIFT:
-                m_inputState.moveSlow = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_LCONTROL:
-            case irr::KEY_RCONTROL:
-            case irr::KEY_CONTROL:
-                m_inputState.action = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_SPACE:
-                m_inputState.jump = evt.KeyInput.PressedDown;
-                return true;
-            case irr::KEY_KEY_X:
-                m_inputState.roll = evt.KeyInput.PressedDown;
-                break;
-            default:
-                return false;
-            }
-            break;
-
-        case irr::EET_MOUSE_INPUT_EVENT:
-            switch( evt.MouseInput.Event )
-            {
-            case irr::EMIE_MOUSE_MOVED:
-                m_currentCursorPos = m_cursorControl->getRelativePosition();
-                return true;
-            case irr::EMIE_LMOUSE_PRESSED_DOWN:
-                m_inputState.action = true;
-                return true;
-            case irr::EMIE_LMOUSE_LEFT_UP:
-                m_inputState.action = false;
-                return true;
-            default:
-                return false;
-            }
-
-        default:
-            break;
-        }
-
-        return false;
     }
 
     void CameraController::setLocalRotation(core::Angle x, core::Angle y)

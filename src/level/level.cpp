@@ -20,6 +20,7 @@
  */
 
 #include "engine/animationcontroller.h"
+#include "engine/inputhandler.h"
 #include "engine/laracontroller.h"
 #include "level.h"
 #include "render/lightselector.h"
@@ -859,6 +860,8 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
     device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
     device->getSceneManager()->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
+    m_inputHandler = std::make_unique<engine::InputHandler>(device->getCursorControl());
+    device->setEventReceiver(m_inputHandler.get());
 
     m_fx = std::make_shared<EffectHandler>(device, device->getVideoDriver()->getScreenSize());
     m_fx->setClearColour(irr::video::SColor(0));
@@ -916,7 +919,7 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
         throw std::runtime_error("Unsupported driver type");
 
     irr::scene::ICameraSceneNode* camera = device->getSceneManager()->addCameraSceneNode();
-    m_cameraController = new engine::CameraController(device->getCursorControl(), this, m_lara, device->getSceneManager()->getVideoDriver(), camera);
+    m_cameraController = new engine::CameraController(this, m_lara, device->getSceneManager()->getVideoDriver(), camera);
     camera->addAnimator(m_cameraController);
     camera->bindTargetAndRotation(true);
     camera->setNearValue(10);

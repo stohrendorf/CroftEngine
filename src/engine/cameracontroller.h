@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/angle.h"
-#include "inputstate.h"
 #include "loader/datatypes.h"
 #include "loader/floordata.h"
 
@@ -15,22 +14,9 @@ namespace engine
     private:
         // Internals
         bool m_firstUpdate = true;
-        irr::gui::ICursorControl* m_cursorControl;
-        irr::core::vector2df m_prevCursorPos;
-        irr::core::vector2df m_currentCursorPos;
         irr::u32 m_lastAnimationTime = 0;
         bool m_firstInput = true;
         gsl::not_null<irr::scene::ICameraSceneNode*> m_camera;
-
-        // Input
-        bool m_forward = false;
-        bool m_backward = false;
-        bool m_left = false;
-        bool m_right = false;
-        bool m_stepLeft = false;
-        bool m_stepRight = false;
-
-        InputState m_inputState;
 
         // For interactions
         const level::Level* m_level;
@@ -63,7 +49,7 @@ namespace engine
         irr::video::IVideoDriver* m_driver;
 
     public:
-        explicit CameraController(gsl::not_null<irr::gui::ICursorControl*> cursorControl, gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+        explicit CameraController(gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
 
         //! Animates a scene node.
         /** \param node Node to animate.
@@ -82,9 +68,6 @@ namespace engine
         {
             return true;
         }
-
-        //! Event receiver, override this function for camera controlling animators
-        bool OnEvent(const irr::SEvent& evt) override;
 
         const level::Level* getLevel() const noexcept
         {

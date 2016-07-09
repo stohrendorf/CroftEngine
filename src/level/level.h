@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/cameracontroller.h"
+#include "engine/inputhandler.h"
 #include "engine/itemcontroller.h"
 #include "game.h"
 #include "loader/animation.h"
@@ -153,6 +154,8 @@ namespace level
         void drawBars(irr::video::IVideoDriver* drv) const;
 
         engine::ItemController* findControllerForNode(const irr::scene::ISceneNode* node);
+
+        std::unique_ptr<engine::InputHandler> m_inputHandler;
 
     protected:
         loader::io::SDLReader m_reader;

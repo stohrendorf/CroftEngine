@@ -72,8 +72,6 @@ namespace engine
         void setHealth(const core::InterpolatedValue<float>& h) noexcept;
         void setAir(const core::InterpolatedValue<float>& a) noexcept;
 
-        const InputState& getInputState() const noexcept;
-
         void setMovementAngle(core::Angle angle) noexcept;
 
         core::Angle getMovementAngle() const noexcept;

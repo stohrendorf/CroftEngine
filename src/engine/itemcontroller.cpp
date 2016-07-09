@@ -304,7 +304,7 @@ namespace engine
 
     void ItemController_55_Switch::onInteract(LaraController& lara, LaraState& /*state*/)
     {
-        if(!lara.getInputState().action)
+        if(!getLevel().m_inputHandler->getInputState().action)
             return;
 
         if(lara.getHandStatus() != 0)
@@ -446,7 +446,7 @@ namespace engine
 
     void ItemController_Block::onInteract(LaraController& lara, LaraState & state)
     {
-        if(!lara.getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
+        if(!getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
             return;
 
         static const InteractionLimits limits{
@@ -460,7 +460,7 @@ namespace engine
 
         if(lara.getCurrentAnimState() == loader::LaraStateId::Stop)
         {
-            if(lara.getInputState().zMovement != AxisMovement::Null || lara.getHandStatus() != 0)
+            if(getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null || lara.getHandStatus() != 0)
                 return;
 
             setYRotation(core::alignRotation(*axis));
@@ -513,7 +513,7 @@ namespace engine
         if(lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab || lara.getCurrentFrame() != 2091 || !limits.canInteract(*this, lara))
             return;
 
-        if(lara.getInputState().zMovement == AxisMovement::Forward)
+        if(getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward)
         {
             if(!canPushBlock(loader::SectorSize, *axis))
                 return;
@@ -521,7 +521,7 @@ namespace engine
             setTargetState(2);
             lara.setTargetState(loader::LaraStateId::PushablePush);
         }
-        else if(lara.getInputState().zMovement == AxisMovement::Backward)
+        else if(getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward)
         {
             if(!canPullBlock(loader::SectorSize, *axis))
                 return;

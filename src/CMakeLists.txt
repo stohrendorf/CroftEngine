@@ -62,6 +62,7 @@ set(OT_IRR_SRCS
     engine/cameracontroller.h
     engine/heightinfo.cpp
     engine/heightinfo.h
+    engine/inputhandler.h
     engine/inputstate.h
     engine/itemcontroller.cpp
     engine/itemcontroller.h

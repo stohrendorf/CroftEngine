@@ -69,9 +69,9 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().zMovement == AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
             {
-                if( getInputState().moveSlow )
+                if( getLevel().m_inputHandler->getInputState().moveSlow )
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
@@ -86,9 +86,9 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
         {
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 addYRotationSpeed(2.25_deg, 4_deg);
         }
 
@@ -194,26 +194,26 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().roll )
+            if( getLevel().m_inputHandler->getInputState().roll )
             {
                 playAnimation(loader::AnimationId::ROLL_BEGIN, 3857);
                 setTargetState(LaraStateId::Stop);
                 return createWithRetainedAnimation(LaraStateId::RollForward);
             }
 
-            if( getInputState().jump && !isFalling() )
+            if( getLevel().m_inputHandler->getInputState().jump && !isFalling() )
             {
                 setTargetState(LaraStateId::JumpForward);
                 return nullptr;
             }
 
-            if( getInputState().zMovement != AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
             {
                 setTargetState(LaraStateId::Stop);
                 return nullptr;
             }
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setTargetState(LaraStateId::WalkForward);
             else
                 setTargetState(LaraStateId::RunForward);
@@ -223,12 +223,12 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
         {
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 subYRotationSpeed(2.25_deg, -8_deg);
                 setZRotation(std::max(-11_deg, getRotation().Z - core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTimeMs)));
             }
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 addYRotationSpeed(2.25_deg, 8_deg);
                 setZRotation(std::min(+11_deg, getRotation().Z + core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTimeMs)));
@@ -327,7 +327,7 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().roll )
+            if( getLevel().m_inputHandler->getInputState().roll )
             {
                 playAnimation(loader::AnimationId::ROLL_BEGIN);
                 setTargetState(LaraStateId::Stop);
@@ -336,38 +336,38 @@ namespace engine
 
             setTargetState(LaraStateId::Stop);
 
-            if( getInputState().stepMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
             {
                 setTargetState(LaraStateId::StepLeft);
             }
-            else if( getInputState().stepMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
             {
                 setTargetState(LaraStateId::StepRight);
             }
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 setTargetState(LaraStateId::TurnLeftSlow);
             }
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 setTargetState(LaraStateId::TurnRightSlow);
             }
 
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
             {
                 setTargetState(LaraStateId::JumpPrepare);
             }
-            else if( getInputState().zMovement == AxisMovement::Forward )
+            else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
             {
-                if( getInputState().moveSlow )
+                if( getLevel().m_inputHandler->getInputState().moveSlow )
                     createWithRetainedAnimation(LaraStateId::WalkForward)->handleInputImpl(state);
                 else
                     createWithRetainedAnimation(LaraStateId::RunForward)->handleInputImpl(state);
             }
-            else if( getInputState().zMovement == AxisMovement::Backward )
+            else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
             {
-                if( getInputState().moveSlow )
+                if( getLevel().m_inputHandler->getInputState().moveSlow )
                     createWithRetainedAnimation(LaraStateId::WalkBackward)->handleInputImpl(state);
                 else
                     setTargetState(LaraStateId::RunBack);
@@ -402,10 +402,10 @@ namespace engine
             if( getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop )
                 return nullptr;
 
-            if( getInputState().action && getHandStatus() == 0 )
+            if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
                 setTargetState(LaraStateId::Reach);
 
-            if( getInputState().moveSlow && getHandStatus() == 0 )
+            if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0 )
                 setTargetState(LaraStateId::SwandiveBegin);
 
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
@@ -416,11 +416,11 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
         {
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 subYRotationSpeed(2.25_deg, -3_deg);
             }
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 addYRotationSpeed(2.25_deg, 3_deg);
             }
@@ -443,7 +443,7 @@ namespace engine
             {
                 setTargetState(LaraStateId::Death);
             }
-            else if( getInputState().zMovement != AxisMovement::Forward || getInputState().moveSlow )
+            else if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward || getLevel().m_inputHandler->getInputState().moveSlow )
             {
                 setTargetState(LaraStateId::Stop);
             }
@@ -504,9 +504,9 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
         {
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -6_deg);
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 addYRotationSpeed(2.25_deg, 6_deg);
         }
 
@@ -609,14 +609,14 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().zMovement != AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
             {
-                if( getInputState().xMovement != AxisMovement::Right )
+                if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right )
                     setTargetState(LaraStateId::Stop);
                 return nullptr;
             }
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setTargetState(LaraStateId::WalkForward);
             else
                 setTargetState(LaraStateId::RunForward);
@@ -630,7 +630,7 @@ namespace engine
             if( getYRotationSpeed() <= 4_deg )
                 return;
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setYRotationSpeed(4_deg);
             else
                 setTargetState(LaraStateId::TurnFast);
@@ -664,14 +664,14 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().zMovement != AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
             {
-                if( getInputState().xMovement != AxisMovement::Left )
+                if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left )
                     setTargetState(LaraStateId::Stop);
                 return nullptr;
             }
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setTargetState(LaraStateId::WalkForward);
             else
                 setTargetState(LaraStateId::RunForward);
@@ -685,7 +685,7 @@ namespace engine
             if( getYRotationSpeed() >= -4_deg )
                 return;
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setYRotationSpeed(-4_deg);
             else
                 setTargetState(LaraStateId::TurnFast);
@@ -807,9 +807,9 @@ namespace engine
         {
             setCameraRotation(-60_deg, 0_deg);
             state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-            if( getInputState().xMovement == AxisMovement::Left || getInputState().stepMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left || getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
                 setTargetState(LaraStateId::ShimmyLeft);
-            else if( getInputState().xMovement == AxisMovement::Right || getInputState().stepMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right || getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
                 setTargetState(LaraStateId::ShimmyRight);
 
             return nullptr;
@@ -822,7 +822,7 @@ namespace engine
             if( getTargetState() != LaraStateId::Hang )
                 return nextHandler;
 
-            if( getInputState().zMovement != AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 return nextHandler;
 
             const auto frontHeight = state.front.floor.distance;
@@ -834,7 +834,7 @@ namespace engine
                 return nextHandler;
             }
 
-            if( getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().moveSlow )
                 setTargetState(LaraStateId::Handstand);
             else
                 setTargetState(LaraStateId::Climbing);
@@ -1006,18 +1006,18 @@ namespace engine
     protected:
         void handleDiveInput()
         {
-            if( getInputState().zMovement == AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 m_xRotationSpeed = -2_deg;
-            else if( getInputState().zMovement == AxisMovement::Backward )
+            else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
                 m_xRotationSpeed = 2_deg;
             else
                 m_xRotationSpeed = 0_deg;
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 m_yRotationSpeed = -6_deg;
                 m_zRotationSpeed = -3_deg;
             }
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 m_yRotationSpeed = 6_deg;
                 m_zRotationSpeed = 3_deg;
@@ -1048,7 +1048,7 @@ namespace engine
 
             handleDiveInput();
 
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::UnderwaterForward);
 
             return nullptr;
@@ -1075,22 +1075,22 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
         {
-            if( getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getRotation().Y);
                 setTargetState(LaraStateId::JumpForward);
             }
-            else if( getInputState().xMovement == AxisMovement::Left && getRelativeHeightAtDirection(getRotation().Y - 90_deg, 256) >= -core::ClimbLimit2ClickMin )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left && getRelativeHeightAtDirection(getRotation().Y - 90_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getRotation().Y - 90_deg);
                 setTargetState(LaraStateId::JumpRight);
             }
-            else if( getInputState().xMovement == AxisMovement::Right && getRelativeHeightAtDirection(getRotation().Y + 90_deg, 256) >= -core::ClimbLimit2ClickMin )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right && getRelativeHeightAtDirection(getRotation().Y + 90_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getRotation().Y + 90_deg);
                 setTargetState(LaraStateId::JumpLeft);
             }
-            else if( getInputState().zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(getRotation().Y + 180_deg, 256) >= -core::ClimbLimit2ClickMin )
+            else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward && getRelativeHeightAtDirection(getRotation().Y + 180_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getRotation().Y + 180_deg);
                 setTargetState(LaraStateId::JumpBack);
@@ -1151,7 +1151,7 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().zMovement == AxisMovement::Backward && getInputState().moveSlow )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward && getLevel().m_inputHandler->getInputState().moveSlow )
                 setTargetState(LaraStateId::WalkBackward);
             else
                 setTargetState(LaraStateId::Stop);
@@ -1161,9 +1161,9 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
         {
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 addYRotationSpeed(2.25_deg, 4_deg);
         }
 
@@ -1232,7 +1232,7 @@ namespace engine
 
             handleDiveInput();
 
-            if( !getInputState().jump )
+            if( !getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::UnderwaterInertia);
 
             return nullptr;
@@ -1267,7 +1267,7 @@ namespace engine
 
             handleDiveInput();
 
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::UnderwaterForward);
 
             if( getFallSpeed() <= 133 )
@@ -1342,13 +1342,13 @@ namespace engine
             if( getYRotationSpeed() >= 0_deg )
             {
                 setYRotationSpeed(8_deg);
-                if( getInputState().xMovement == AxisMovement::Right )
+                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                     return nullptr;
             }
             else
             {
                 setYRotationSpeed(-8_deg);
-                if( getInputState().xMovement == AxisMovement::Left )
+                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     return nullptr;
             }
 
@@ -1382,12 +1382,12 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().stepMovement != AxisMovement::Right )
+            if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::Stop);
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 setYRotationSpeed(std::max(-4_deg, getYRotationSpeed() - 2.25_deg));
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
 
             return nullptr;
@@ -1449,12 +1449,12 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().stepMovement != AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::Stop);
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 setYRotationSpeed(std::max(-4_deg, getYRotationSpeed() - 2.25_deg));
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
 
             return nullptr;
@@ -1567,7 +1567,7 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
         {
             setCameraRotationX(-45_deg);
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::JumpForward);
 
             return nullptr;
@@ -1751,7 +1751,7 @@ namespace engine
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::FreeFall);
 
-            if( getInputState().action && getHandStatus() == 0 )
+            if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
                 setTargetState(LaraStateId::Reach);
 
             return nullptr;
@@ -1802,7 +1802,7 @@ namespace engine
         {
             setCameraRotation(-60_deg, 0_deg);
             state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-            if( getInputState().xMovement != AxisMovement::Left && getInputState().stepMovement != AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::Hang);
 
             return nullptr;
@@ -1838,7 +1838,7 @@ namespace engine
         {
             setCameraRotation(-60_deg, 0_deg);
             state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
-            if( getInputState().xMovement != AxisMovement::Right && getInputState().stepMovement != AxisMovement::Right )
+            if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::Hang);
 
             return nullptr;
@@ -1872,7 +1872,7 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
         {
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::JumpBack);
 
             return nullptr;
@@ -1951,7 +1951,7 @@ namespace engine
             if( state.axisCollisions != LaraState::AxisColl_FrontBlocked )
                 return nullptr;
 
-            if( !getInputState().action )
+            if( !getLevel().m_inputHandler->getInputState().action )
                 return nullptr;
 
             const auto gradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
@@ -2020,17 +2020,17 @@ namespace engine
                 return nullptr;
             }
 
-            if( getInputState().zMovement == AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 setTargetState(LaraStateId::OnWaterForward);
-            else if( getInputState().zMovement == AxisMovement::Backward )
+            else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
                 setTargetState(LaraStateId::OnWaterBackward);
 
-            if( getInputState().stepMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
                 setTargetState(LaraStateId::OnWaterLeft);
-            else if( getInputState().stepMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
                 setTargetState(LaraStateId::OnWaterRight);
 
-            if( !getInputState().jump )
+            if( !getLevel().m_inputHandler->getInputState().jump )
             {
                 setSwimToDiveKeypressDuration(0);
                 return nullptr;
@@ -2051,9 +2051,9 @@ namespace engine
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4.0f).getScaled(deltaTimeMs)));
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 m_yRotationSpeed = -4_deg;
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 m_yRotationSpeed = 4_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2091,10 +2091,10 @@ namespace engine
 
             setSwimToDiveKeypressDuration(0);
 
-            if( getInputState().zMovement != AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 setTargetState(LaraStateId::OnWaterStop);
 
-            if( getInputState().jump )
+            if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::OnWaterStop);
 
             return nullptr;
@@ -2104,9 +2104,9 @@ namespace engine
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 m_yRotationSpeed = -4_deg;
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 m_yRotationSpeed = 4_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2134,7 +2134,7 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
         {
-            if( getInputState().zMovement == AxisMovement::Forward )
+            if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 m_yRotationSpeed = -1_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2226,7 +2226,7 @@ namespace engine
         {
             state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
             setCameraRotationY(75_deg);
-            if(!getInputState().action)
+            if(!getLevel().m_inputHandler->getInputState().action)
                 setTargetState(LaraStateId::Stop);
             else
                 setTargetState(LaraStateId::PushableGrab);
@@ -2455,7 +2455,7 @@ namespace engine
 
             setSwimToDiveKeypressDuration(0);
 
-            if( getInputState().zMovement != AxisMovement::Backward )
+            if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Backward )
                 setTargetState(LaraStateId::OnWaterStop);
 
             return nullptr;
@@ -2465,9 +2465,9 @@ namespace engine
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 m_yRotationSpeed = -2_deg;
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 m_yRotationSpeed = 2_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2503,7 +2503,7 @@ namespace engine
 
             setSwimToDiveKeypressDuration(0);
 
-            if( getInputState().stepMovement != AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::OnWaterStop);
 
             return nullptr;
@@ -2513,9 +2513,9 @@ namespace engine
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 m_yRotationSpeed = -2_deg;
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 m_yRotationSpeed = 2_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2551,7 +2551,7 @@ namespace engine
 
             setSwimToDiveKeypressDuration(0);
 
-            if( getInputState().stepMovement != AxisMovement::Right )
+            if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::OnWaterStop);
 
             return nullptr;
@@ -2561,9 +2561,9 @@ namespace engine
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
-            if( getInputState().xMovement == AxisMovement::Left )
+            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 m_yRotationSpeed = -2_deg;
-            else if( getInputState().xMovement == AxisMovement::Right )
+            else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 m_yRotationSpeed = 2_deg;
             else
                 m_yRotationSpeed = 0_deg;
@@ -2904,11 +2904,6 @@ namespace engine
         m_controller.setAir(a);
     }
 
-    const InputState& AbstractStateHandler::getInputState() const noexcept
-    {
-        return m_controller.getInputState();
-    }
-
     void AbstractStateHandler::setMovementAngle(core::Angle angle) noexcept
     {
         m_controller.setMovementAngle(angle);
@@ -3097,7 +3092,7 @@ namespace engine
 
     std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getInputState().action || getHandStatus() != 0 )
+        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
             return nullptr;
 
         if( std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= core::MaxGrabbableGradient )
@@ -3150,7 +3145,7 @@ namespace engine
 
     std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getInputState().jump || getHandStatus() != 0 )
+        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().jump || getHandStatus() != 0 )
             return nullptr;
 
         const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
@@ -3288,7 +3283,7 @@ namespace engine
 
     std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraState& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getInputState().action || getHandStatus() != 0 )
+        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
             return nullptr;
 
         const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
@@ -3442,7 +3437,7 @@ namespace engine
         state.neededCeilingDistance = 0;
         state.yAngle = getMovementAngle();
         state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-        if( !getInputState().action || getHealth() <= 0 )
+        if( !getLevel().m_inputHandler->getInputState().action || getHealth() <= 0 )
         {
             setTargetState(LaraStateId::JumpUp);
             playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);

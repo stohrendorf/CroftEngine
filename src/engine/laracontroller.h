@@ -34,8 +34,6 @@ namespace engine
         core::InterpolatedValue<float> m_air{1800.0f};
         core::Angle m_currentSlideAngle{0};
 
-        InputState m_inputState;
-
         int m_handStatus = 0;
         int m_uvAnimTime = 0;
 
@@ -61,11 +59,6 @@ namespace engine
         void animateImpl(bool isNewFrame) override;
 
         std::unique_ptr<AbstractStateHandler> processLaraAnimCommands(bool advanceFrame = false);
-
-        void setInputState(const InputState& state)
-        {
-            m_inputState = state;
-        }
 
         bool isInWater() const
         {
@@ -100,11 +93,6 @@ namespace engine
         void setAir(const core::InterpolatedValue<float>& a) noexcept
         {
             m_air = a;
-        }
-
-        const InputState& getInputState() const noexcept
-        {
-            return m_inputState;
         }
 
         void setMovementAngle(core::Angle angle) noexcept
