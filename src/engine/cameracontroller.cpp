@@ -14,16 +14,16 @@ namespace engine
         , m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
-        , m_lookAtY(laraController->getPosition().Y - 1024)
+        , m_currentYOffset(laraController->getPosition().Y - 1024)
         , m_currentLookAt(laraController->getCurrentRoom())
         , m_currentPosition(laraController->getCurrentRoom())
         , m_driver(drv)
     {
         m_currentLookAt.position = m_laraController->getPosition();
-        m_currentLookAt.position.Y -= m_lookAtY;
+        m_currentLookAt.position.Y -= m_currentYOffset;
         m_currentPosition = m_currentLookAt;
         m_currentPosition.position.Z -= 100;
-        m_lookAtY = m_laraController->getPosition().Y - 1024;
+        m_currentYOffset = m_laraController->getPosition().Y - 1024;
 
         update(1000 / core::FrameRate);
     }
@@ -430,9 +430,8 @@ namespace engine
         }
     }
 
-    bool CameraController::clamp(core::RoomBoundPosition& origin) const
+    bool CameraController::clampCurrentPosition(core::RoomBoundPosition& origin) const
     {
-        //BOOST_ASSERT(m_currentLookAt.position.distanceTo(origin.position) <= 2 * m_distanceFromLookAt); // sanity check
         bool firstUnclamped;
         ClampType secondClamp;
         if( std::abs(origin.position.Z - m_currentLookAt.position.Z) <= std::abs(origin.position.X - m_currentLookAt.position.X) )
@@ -455,6 +454,8 @@ namespace engine
 
     void CameraController::update(int deltaTimeMs)
     {
+        //! @todo Underwater ambient sound
+
         if( m_camOverrideType == 4 )
         {
             //! @todo nextCinematicFrame();
@@ -464,42 +465,42 @@ namespace engine
         if( m_unknown1 != 2 )
             HeightInfo::skipSteepSlants = true;
 
-        bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
+        const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
 
-        ItemController* lookAtItem = m_lookAtItem != nullptr ? m_lookAtItem : m_laraController;
-        auto lookAtItemBbox = lookAtItem->getBoundingBox();
-        auto lookAtBbox = lookAtItemBbox;
+        ItemController* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
+        auto lookAtBbox = lookAtItem->getBoundingBox();
         int lookAtY = lookAtItem->getPosition().Y;
         if( lookingAtSomething )
-            lookAtY += (lookAtItemBbox.MinEdge.Y + lookAtItemBbox.MaxEdge.Y) / 2;
+            lookAtY += (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2;
         else
-            lookAtY += (lookAtItemBbox.MinEdge.Y - lookAtItemBbox.MaxEdge.Y) * 3 / 4 + lookAtItemBbox.MaxEdge.Y;
+            lookAtY += (lookAtBbox.MinEdge.Y - lookAtBbox.MaxEdge.Y) * 3 / 4 + lookAtBbox.MaxEdge.Y;
 
         if( m_lookAtItem != nullptr && !lookingAtSomething )
         {
-            const auto dist = m_lookAtItem->getPosition().distanceTo(lookAtItem->getPosition());
-            auto y = core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
-            y *= 0.5;
+            BOOST_ASSERT(m_lookAtItem != lookAtItem);
+            const auto distToLookAt = m_lookAtItem->getPosition().distanceTo(lookAtItem->getPosition());
+            auto lookAtYAngle = -core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
+            lookAtYAngle *= 0.5;
             lookAtBbox = m_lookAtItem->getBoundingBox();
-            auto x = core::Angle::fromRad(std::atan2(dist, lookAtY - (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2 + m_lookAtItem->getPosition().Y));
-            x *= 0.5;
+            auto lookAtXAngle = -core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2 + m_lookAtItem->getPosition().Y));
+            lookAtXAngle *= 0.5;
 
-            if( y < 50_deg && y > -50_deg && x < 85_deg && x > -85_deg )
+            if( lookAtYAngle < 50_deg && lookAtYAngle > -50_deg && lookAtXAngle < 85_deg && lookAtXAngle > -85_deg )
             {
-                y -= m_headRotation.Y;
-                if( y > 4_deg )
+                lookAtYAngle -= m_headRotation.Y;
+                if( lookAtYAngle > 4_deg )
                     m_headRotation.Y += 4_deg;
-                else if( y >= -4_deg )
-                    m_headRotation.Y += y;
+                else if( lookAtYAngle >= -4_deg )
+                    m_headRotation.Y += lookAtYAngle;
                 else
                     m_headRotation.Y -= 4_deg;
                 m_freeLookRotation.Y = m_headRotation.Y;
 
-                x -= m_headRotation.X;
-                if( x > 4_deg )
+                lookAtXAngle -= m_headRotation.X;
+                if( lookAtXAngle > 4_deg )
                     m_headRotation.X += 4_deg;
-                else if( x >= -4_deg )
-                    m_headRotation.X += x;
+                else if( lookAtXAngle >= -4_deg )
+                    m_headRotation.X += lookAtXAngle;
                 else
                     m_headRotation.X -= 4_deg;
                 m_freeLookRotation.X = m_headRotation.X;
@@ -518,7 +519,7 @@ namespace engine
 
             if( m_unknown1 == 1 )
             {
-                auto midZ = (lookAtItemBbox.MinEdge.Z + lookAtItemBbox.MaxEdge.Z) / 2;
+                const auto midZ = (lookAtBbox.MinEdge.Z + lookAtBbox.MaxEdge.Z) / 2;
                 m_currentLookAt.position.Z += midZ * lookAtItem->getRotation().Y.cos();
                 m_currentLookAt.position.X += midZ * lookAtItem->getRotation().Y.sin();
             }
@@ -526,7 +527,7 @@ namespace engine
             if( m_lookingAtSomething == lookingAtSomething )
             {
                 //! @todo check formula
-                m_currentLookAt.position.Y += (lookAtY - m_currentLookAt.position.Y) * 4 / 5;
+                m_currentLookAt.position.Y += (lookAtY - m_currentLookAt.position.Y) / 4;
                 m_lookingAtSomething = false;
             }
             else
@@ -592,7 +593,7 @@ namespace engine
         pos.position.Y = m_level->m_cameras[m_camOverrideId].y;
         pos.position.Z = m_level->m_cameras[m_camOverrideId].z;
 
-        if( !clamp(pos) )
+        if( !clampCurrentPosition(pos) )
             moveIntoGeometry(pos, loader::QuarterSectorSize);
 
         m_lookingAtSomething = true;
@@ -644,24 +645,24 @@ namespace engine
         return pos.Y >= floor || pos.Y <= ceiling;
     }
 
-    void CameraController::updatePosition(const core::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs)
+    void CameraController::updatePosition(const core::RoomBoundPosition& position, int smoothFactor, int deltaTimeMs)
     {
-        m_currentPosition.position += (pos.position - m_currentPosition.position) * core::FrameRate * deltaTimeMs / 1000 / smoothFactor;
+        m_currentPosition.position += (position.position - m_currentPosition.position) * deltaTimeMs / 1000 * core::FrameRate / smoothFactor;
         HeightInfo::skipSteepSlants = false;
-        m_currentPosition.room = pos.room;
+        m_currentPosition.room = position.room;
         auto sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
-        auto height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
-        if( height <= m_currentPosition.position.Y && height <= pos.position.Y )
+        auto floor = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
+        if( floor <= m_currentPosition.position.Y && floor <= position.position.Y )
         {
-            clamp(m_currentPosition);
+            clampCurrentPosition(m_currentPosition);
             sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
-            height = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
+            floor = HeightInfo::fromFloor(sector, m_currentPosition.position.toInexact(), this).distance - loader::QuarterSectorSize;
         }
 
         auto ceiling = HeightInfo::fromCeiling(sector, m_currentPosition.position.toInexact(), this).distance + loader::QuarterSectorSize;
-        if( height < ceiling )
+        if( floor < ceiling )
         {
-            height = ceiling = (height + ceiling) / 2;
+            floor = ceiling = (floor + ceiling) / 2;
         }
 
         if( m_camShakeRadius != 0 )
@@ -677,20 +678,15 @@ namespace engine
             }
         }
 
-        if( height >= m_currentPosition.position.Y )
-        {
-            if( ceiling <= m_currentPosition.position.Y )
-                m_lookAtY = 0;
-            else
-                m_lookAtY = ceiling - m_currentPosition.position.Y;
-        }
+        if( m_currentPosition.position.Y > floor )
+            m_currentYOffset = floor - m_currentPosition.position.Y;
+        else if( m_currentPosition.position.Y < ceiling )
+            m_currentYOffset = ceiling - m_currentPosition.position.Y;
         else
-        {
-            m_lookAtY = height - m_currentPosition.position.Y;
-        }
+            m_currentYOffset = 0;
 
         auto camPos = m_currentPosition.position;
-        camPos.Y += m_lookAtY;
+        camPos.Y += m_currentYOffset;
 
         m_level->findFloorSectorWithClampedPosition(camPos.toInexact(), &m_currentPosition.room);
 
@@ -723,10 +719,7 @@ namespace engine
                      clampToCorners(m_lookAtDistanceSq, a, b, c, d, e, f, g, h);
                  });
 
-        if( m_lookingAtSomething )
-            updatePosition(targetPos, m_smoothFactor, deltaTimeMs);
-        else
-            updatePosition(targetPos, 12, deltaTimeMs);
+        updatePosition(targetPos, m_lookingAtSomething ? m_smoothFactor : 12, deltaTimeMs);
     }
 
     void CameraController::handleFreeLook(const ItemController& item, int deltaTimeMs)
@@ -737,9 +730,9 @@ namespace engine
         m_localRotation.X = m_freeLookRotation.X + m_headRotation.X + item.getRotation().X;
         m_localRotation.Y = m_freeLookRotation.Y + m_headRotation.Y + item.getRotation().Y;
         m_distanceFromLookAt = 1536;
-        m_lookAtY = -2 * loader::QuarterSectorSize * m_localRotation.Y.sin();
-        m_currentLookAt.position.X += m_lookAtY * item.getRotation().Y.sin();
-        m_currentLookAt.position.Z += m_lookAtY * item.getRotation().Y.cos();
+        m_currentYOffset = -2 * loader::QuarterSectorSize * m_localRotation.Y.sin();
+        m_currentLookAt.position.X += m_currentYOffset * item.getRotation().Y.sin();
+        m_currentLookAt.position.Z += m_currentYOffset * item.getRotation().Y.cos();
 
         if( isVerticallyOutsideRoom(m_currentLookAt.position.toInexact(), m_currentPosition.room) )
         {
@@ -796,7 +789,7 @@ namespace engine
 
     void CameraController::clampBox(core::RoomBoundPosition& camTargetPos, const std::function<ClampCallback>& callback) const
     {
-        clamp(camTargetPos);
+        clampCurrentPosition(camTargetPos);
         Expects(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex < m_level->m_boxes.size());
         auto clampBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position.toInexact())->boxIndex];
         Expects(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position.toInexact()) != nullptr);

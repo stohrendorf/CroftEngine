@@ -29,7 +29,7 @@ namespace engine
         irr::core::vector3d<core::Angle> m_enemyLookRot;
         int m_unknown1 = 0;
         int m_camShakeRadius = 0;
-        int m_lookAtY = 0;
+        int m_currentYOffset = 0;
         int m_distanceFromLookAt = 1536;
         int m_smoothFactor = 8;
         int m_camOverrideId = -1;
@@ -114,7 +114,7 @@ namespace engine
 
         ClampType clampX(core::RoomBoundPosition& origin) const;
         ClampType clampZ(core::RoomBoundPosition& origin) const;
-        bool clamp(core::RoomBoundPosition& origin) const;
+        bool clampCurrentPosition(core::RoomBoundPosition& origin) const;
 
         void handleCamOverride(int deltaTimeMs);
         int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;

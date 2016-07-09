@@ -72,9 +72,13 @@ int main()
 
         for(const std::unique_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
         {
+            if(ctrl.get() == lvl->m_lara) // Lara is special and needs to be updated last
+                continue;
+
             ctrl->update(deltaTime);
         }
 
+        lvl->m_lara->update(deltaTime);
         lvl->m_cameraController->update(deltaTime);
 
         device->getVideoDriver()->beginScene(true, true);
