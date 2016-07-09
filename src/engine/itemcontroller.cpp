@@ -143,8 +143,7 @@ namespace engine
         {
             irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
             const auto col = m_position.room->lightColor.toSColor(1 - m_position.room->darkness / 8191.0f);
-            material.EmissiveColor = col;
-            material.AmbientColor = col;
+            material.DiffuseColor = col;
         }
     }
 

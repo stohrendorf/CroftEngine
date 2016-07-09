@@ -412,7 +412,7 @@ namespace loader
     struct RoomVertex
     {
         core::TRCoordinates vertex; // where this vertex lies (relative to tr2_room_info::x/z)
-        int16_t lighting1;
+        int16_t darkness;
         uint16_t attributes; // A set of flags for special rendering effects [absent from TR1 data files]
         // 0x8000 something to do with water surface
         // 0x4000 under water lighting modulation and
@@ -436,15 +436,13 @@ namespace loader
             RoomVertex room_vertex;
             room_vertex.vertex = readCoordinates16(reader);
             // read and make consistent
-            int tmp = reader.readU16();
-            BOOST_ASSERT(tmp < 8192);
-            room_vertex.lighting1 = (32768 - tmp * 4);
+            room_vertex.darkness = reader.readU16();
             // only in TR2
-            room_vertex.lighting2 = room_vertex.lighting1;
+            room_vertex.lighting2 = room_vertex.darkness;
             room_vertex.attributes = 0;
             // only in TR5
             room_vertex.normal = {0,0,0};
-            auto f = gsl::narrow_cast<irr::u8>(room_vertex.lighting1 / 32768.0f * 255);
+            auto f = gsl::narrow_cast<irr::u8>(255 - 255 * room_vertex.darkness / 0x1fff);
             room_vertex.color.set(255, f, f, f);
             return room_vertex;
         }
@@ -454,7 +452,7 @@ namespace loader
             RoomVertex room_vertex;
             room_vertex.vertex = readCoordinates16(reader);
             // read and make consistent
-            room_vertex.lighting1 = (8191 - reader.readI16()) << 2;
+            room_vertex.darkness = (8191 - reader.readI16()) << 2;
             room_vertex.attributes = reader.readU16();
             room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
             // only in TR5
@@ -469,7 +467,7 @@ namespace loader
             RoomVertex room_vertex;
             room_vertex.vertex = readCoordinates16(reader);
             // read and make consistent
-            room_vertex.lighting1 = reader.readI16();
+            room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
             room_vertex.lighting2 = reader.readI16();
             // only in TR5
@@ -486,7 +484,7 @@ namespace loader
             RoomVertex room_vertex;
             room_vertex.vertex = readCoordinates16(reader);
             // read and make consistent
-            room_vertex.lighting1 = reader.readI16();
+            room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
             room_vertex.lighting2 = reader.readI16();
             // only in TR5

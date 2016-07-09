@@ -2,8 +2,8 @@ uniform sampler2D ScreenMapSampler;
 uniform sampler2D DepthMapSampler;
 
 #define CLIP_FAR 20480
-#define DEPTH_START (1024*0.0/CLIP_FAR)
-#define DEPTH_END (1024*10.0/CLIP_FAR)
+#define DEPTH_START (1024*12.0/CLIP_FAR)
+#define DEPTH_END 1.0
 
 #define BLACK vec4(0,0,0,0)
 

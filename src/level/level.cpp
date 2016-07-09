@@ -554,8 +554,8 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
             for( irr::u32 i = 0; i < node->getMaterialCount(); ++i )
             {
-                node->getMaterial(i).DiffuseColor = room.lightColor.toSColor(room.darkness / 8191.0f);
-                node->getMaterial(i).SpecularColor = room.lightColor.toSColor(room.darkness / 8191.0f / 4);
+                node->getMaterial(i).DiffuseColor = room.lightColor.toSColor(1 - room.darkness / 8191.0f);
+                node->getMaterial(i).SpecularColor = node->getMaterial(i).DiffuseColor;
                 node->getMaterial(i).EmissiveColor.set(0);
             }
 

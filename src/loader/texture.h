@@ -239,7 +239,7 @@ namespace loader
             // Set some defaults
             result.setTexture(0, texture);
             //result.BackfaceCulling = false;
-            result.ColorMaterial = irr::video::ECM_DIFFUSE_AND_AMBIENT;
+            result.ColorMaterial = irr::video::ECM_DIFFUSE;
             result.Lighting = true;
             result.AmbientColor.set(0);
             result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
