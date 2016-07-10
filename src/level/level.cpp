@@ -856,7 +856,7 @@ irr::video::ITexture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr,
 
 void Level::toIrrlicht(irr::IrrlichtDevice* device)
 {
-    device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 32, .003f, true, false);
+    device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
     m_inputHandler = std::make_unique<engine::InputHandler>(device->getCursorControl());
@@ -986,7 +986,7 @@ gsl::not_null<const loader::Sector*> Level::findFloorSectorWithClampedPosition(c
     Expects(sector != nullptr);
     if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
+        while( sector->ceilingHeight * loader::QuarterSectorSize >= position.Y && sector->roomAbove != 0xff )
         {
             BOOST_ASSERT(sector->roomAbove < m_rooms.size());
             *room = &m_rooms[sector->roomAbove];

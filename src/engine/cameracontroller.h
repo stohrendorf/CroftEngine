@@ -36,11 +36,11 @@ namespace engine
         int m_activeCamOverrideId = -1;
         int m_camOverrideTimeout = -1;
         int m_camOverrideType = 0;
-        core::RoomBoundPosition m_currentLookAt;
+        core::RoomBoundIntPosition m_currentLookAt;
         irr::core::vector3d<core::Angle> m_localRotation;
-        core::RoomBoundPosition m_currentPosition;
+        core::RoomBoundIntPosition m_currentPosition;
         bool m_lookingAtSomething = false;
-        float m_lookAtDistanceSq = 0;
+        long m_lookAtDistanceSq = 0;
 
         // hacks
         irr::core::vector3d<core::Angle> m_headRotation;
@@ -129,7 +129,7 @@ namespace engine
 
     private:
         void tracePortals();
-        bool clampY(const core::ExactTRCoordinates& lookAt, core::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
+        bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
 
         enum class ClampType
         {
@@ -138,22 +138,22 @@ namespace engine
             None
         };
 
-        ClampType clampX(core::RoomBoundPosition& origin) const;
-        ClampType clampZ(core::RoomBoundPosition& origin) const;
-        bool clampPosition(core::RoomBoundPosition& origin) const;
+        ClampType clampAlongX(core::RoomBoundIntPosition& origin) const;
+        ClampType clampAlongZ(core::RoomBoundIntPosition& origin) const;
+        bool clampPosition(core::RoomBoundIntPosition& origin) const;
 
         void handleCamOverride(int deltaTimeMs);
-        int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
+        int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-        void updatePosition(const core::RoomBoundPosition& pos, int smoothFactor, int deltaTimeMs);
+        void updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, int deltaTimeMs);
         void doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs);
         void handleFreeLook(const ItemController& item, int deltaTimeMs);
         void handleEnemy(const ItemController& item, int deltaTimeMs);
 
-        using ClampCallback = void(float& current1, float& current2, float target1, float target2, float lowLimit1, float lowLimit2, float highLimit1, float highLimit2);
+        using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 
-        void clampBox(core::RoomBoundPosition& pos, const std::function<ClampCallback>& callback) const;
-        static void freeLookClamp(float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
-        static void clampToCorners(const float lookAtDistanceSq, float& currentFrontBack, float& currentLeftRight, float targetFrontBack, float targetLeftRight, float back, float right, float front, float left);
+        void clampBox(core::RoomBoundIntPosition& camTargetPos, const std::function<ClampCallback>& callback) const;
+        static void freeLookClamp(long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
+        static void clampToCorners(const long lookAtDistanceSq, long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
     };
 }

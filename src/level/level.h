@@ -122,6 +122,11 @@ namespace level
             return findFloorSectorWithClampedPosition(rbs.position.toInexact(), &rbs.room);
         }
 
+        gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(core::RoomBoundIntPosition& rbs) const
+        {
+            return findFloorSectorWithClampedPosition(rbs.position, &rbs.room);
+        }
+
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const loader::Room*>*> room) const;
 
         gsl::not_null<const loader::Room*> findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const loader::Room*> room) const;

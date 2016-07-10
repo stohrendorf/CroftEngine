@@ -74,15 +74,15 @@ namespace core
 
         explicit ExactTRCoordinates(const irr::core::vector3df& v)
             : X(v.X)
-              , Y(-v.Y)
-              , Z(v.Z)
+            , Y(-v.Y)
+            , Z(v.Z)
         {
         }
 
         explicit ExactTRCoordinates(const TRCoordinates& v)
             : X(float(v.X))
-              , Y(float(v.Y))
-              , Z(float(v.Z))
+            , Y(float(v.Y))
+            , Z(float(v.Z))
         {
         }
 
@@ -174,6 +174,18 @@ namespace core
         ExactTRCoordinates position;
 
         explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const ExactTRCoordinates& pos = {})
+            : room(r)
+            , position(pos)
+        {
+        }
+    };
+
+    struct RoomBoundIntPosition
+    {
+        gsl::not_null<const loader::Room*> room;
+        TRCoordinates position;
+
+        explicit RoomBoundIntPosition(const gsl::not_null<const loader::Room*>& r, const TRCoordinates& pos = {})
             : room(r)
             , position(pos)
         {
