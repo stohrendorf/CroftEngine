@@ -338,7 +338,7 @@ namespace engine
                 setTargetState(LaraStateId::JumpForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
-                setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
+                setHorizontalSpeed(getHorizontalSpeed() / 4);
                 setFalling(true);
             }
             else
