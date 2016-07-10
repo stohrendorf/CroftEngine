@@ -19,9 +19,10 @@ namespace render
             int numBehind = 0, numTooFar = 0;
             std::pair<irr::core::vector3df, bool> screen[4];
 
-            irr::core::rectf portalBB;
+            irr::core::rectf portalBB{0, 0, 0, 0};
             portalBB.UpperLeftCorner = irr::core::vector2df{ 1,1 };
             portalBB.LowerRightCorner = irr::core::vector2df{ -1,-1 };
+            BOOST_ASSERT(!portalBB.isValid());
             {
                 for(int i = 0; i < 4; ++i)
                 {
@@ -36,6 +37,8 @@ namespace render
             if(numBehind == 4 || numTooFar == 4)
                 return false;
 
+            BOOST_ASSERT(portalBB.isValid());
+
             if(numBehind == 0)
             {
                 boundingBox.clipAgainst(portalBB);
@@ -48,49 +51,9 @@ namespace render
             }
 
             BOOST_ASSERT(numBehind >= 1 && numBehind <= 3);
-            const irr::core::vector3df* prev = &screen[3].first;
-            for(int i = 0; i < 4; ++i)
-            {
-                const irr::core::vector3df* curr = &screen[i].first;
 
-                if(prev->Z < 0 == curr->Z < 0)
-                {
-                    prev = curr;
-                    continue;
-                }
+            // consider everything is visible if the camera is in the midst of a portal
 
-                if(prev->X <= 0 || curr->X <= 0)
-                {
-                    portalBB.LowerRightCorner.X = 1;
-                    if(prev->X >= 0 || curr->X >= 0)
-                    {
-                        portalBB.UpperLeftCorner.X = -1;
-                    }
-                }
-                else
-                {
-                    portalBB.UpperLeftCorner.X = -1;
-                }
-
-                if(prev->Y <= 0 || curr->Y <= 0)
-                {
-                    portalBB.LowerRightCorner.Y = 1;
-                    if(prev->Y >= 0 || curr->Y >= 0)
-                    {
-                        portalBB.UpperLeftCorner.Y = -1;
-                    }
-                }
-                else
-                {
-                    portalBB.UpperLeftCorner.Y = -1;
-                }
-
-                prev = curr;
-            }
-
-            portalBB.repair();
-
-            boundingBox.clipAgainst(portalBB);
             lastPortal = portal;
 
             drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
@@ -124,14 +87,6 @@ namespace render
 
             irr::f32 tmp[4];
             camera.getProjectionMatrix().transformVect(tmp, vertex);
-
-            auto signToLimits = [](float f) -> float
-            {
-                return f <= 0 ? -1 : 1;
-            };
-
-            if(std::abs(vertex.Z) <= camera.getNearValue())
-                return{ {signToLimits(vertex.X), signToLimits(vertex.Y), vertex.Z}, false };
 
             irr::core::vector3df screen{tmp[0] / tmp[3], tmp[1] / tmp[3], vertex.Z};
             return{ screen, vertex.Z > camera.getNearValue() };
