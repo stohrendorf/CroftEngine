@@ -1993,7 +1993,7 @@ namespace engine
             if( !yRot )
                 return nullptr;
 
-            setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(state.current.floor.distance), 0));
+            setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(state.front.floor.distance), 0));
             getController().updateFloorHeight(-381);
             core::ExactTRCoordinates d = getPosition();
             if( *yRot == 0_deg )
