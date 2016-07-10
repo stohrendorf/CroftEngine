@@ -326,19 +326,20 @@ namespace engine
         else if( m_underwaterState == UnderwaterState::Diving && !getCurrentRoom()->isWaterRoom() )
         {
             auto waterSurfaceHeight = getWaterSurfaceHeight();
-            if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= 256 )
+            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setXRotation(0_deg);
+            setZRotation(0_deg);
+            m_handStatus = 0;
+
+            if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
             {
                 m_underwaterState = UnderwaterState::OnLand;
                 playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
                 //! @todo Check formula
                 setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
                 setFalling(true);
-                m_handStatus = 0;
-                setXRotation(0_deg);
-                setZRotation(0_deg);
             }
             else
             {
@@ -346,15 +347,12 @@ namespace engine
                 playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
                 setTargetState(LaraStateId::OnWaterStop);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
-                m_handStatus = 0;
-                setXRotation(0_deg);
-                setZRotation(0_deg);
                 {
                     auto pos = getPosition();
                     pos.Y = *waterSurfaceHeight + 1;
                     setPosition(pos);
                 }
-                m_swimToDiveKeypressDuration = 11 * 1000 / 30;
+                m_swimToDiveKeypressDuration = boost::none;
                 updateFloorHeight(-381);
                 //! @todo play sound 36
             }
@@ -722,7 +720,7 @@ namespace engine
 
     boost::optional<int> LaraController::getWaterSurfaceHeight() const
     {
-        auto sector = getCurrentRoom()->getSectorByAbsolutePosition(getPosition().toInexact());
+        gsl::not_null<const loader::Sector*> sector = getCurrentRoom()->getSectorByAbsolutePosition(getPosition().toInexact());
 
         if( getCurrentRoom()->isWaterRoom() )
         {

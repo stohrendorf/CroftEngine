@@ -162,7 +162,7 @@ namespace engine
 
         void setSwimToDiveKeypressDuration(int ms) noexcept;
 
-        int getSwimToDiveKeypressDuration() const noexcept;
+        const boost::optional<int> & getSwimToDiveKeypressDuration() const;
 
         void setUnderwaterState(UnderwaterState u) noexcept;
 

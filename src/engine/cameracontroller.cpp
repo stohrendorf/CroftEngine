@@ -14,7 +14,7 @@ namespace engine
         , m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
-        , m_currentYOffset(laraController->getPosition().Y - 1024)
+        , m_currentYOffset(gsl::narrow_cast<int>(laraController->getPosition().Y - 1024))
         , m_currentLookAt(laraController->getCurrentRoom(), m_laraController->getPosition().toInexact())
         , m_currentPosition(laraController->getCurrentRoom())
         , m_driver(drv)
@@ -22,7 +22,6 @@ namespace engine
         m_currentLookAt.position.Y -= m_currentYOffset;
         m_currentPosition = m_currentLookAt;
         m_currentPosition.position.Z -= 100;
-        m_currentYOffset = m_laraController->getPosition().Y - 1024;
 
         update(1000 / core::FrameRate);
     }
@@ -463,7 +462,7 @@ namespace engine
 
         ItemController* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
         auto lookAtBbox = lookAtItem->getBoundingBox();
-        int lookAtY = lookAtItem->getPosition().Y;
+        int lookAtY = gsl::narrow_cast<int>(lookAtItem->getPosition().Y);
         if( lookingAtSomething )
             lookAtY += (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2;
         else
@@ -508,14 +507,14 @@ namespace engine
 
         if( m_camOverrideType != 2 && m_camOverrideType != 3 )
         {
-            m_currentLookAt.position.X = lookAtItem->getPosition().X;
-            m_currentLookAt.position.Z = lookAtItem->getPosition().Z;
+            m_currentLookAt.position.X = std::lround(lookAtItem->getPosition().X);
+            m_currentLookAt.position.Z = std::lround(lookAtItem->getPosition().Z);
 
             if( m_unknown1 == 1 )
             {
                 const auto midZ = (lookAtBbox.MinEdge.Z + lookAtBbox.MaxEdge.Z) / 2;
-                m_currentLookAt.position.Z += midZ * lookAtItem->getRotation().Y.cos();
-                m_currentLookAt.position.X += midZ * lookAtItem->getRotation().Y.sin();
+                m_currentLookAt.position.Z += std::lround(midZ * lookAtItem->getRotation().Y.cos());
+                m_currentLookAt.position.X += std::lround(midZ * lookAtItem->getRotation().Y.sin());
             }
 
             if( m_lookingAtSomething == lookingAtSomething )
@@ -579,7 +578,7 @@ namespace engine
 
     void CameraController::handleCamOverride(int deltaTimeMs)
     {
-        Expects(m_camOverrideId >= 0 && m_camOverrideId < m_level->m_cameras.size());
+        Expects(m_camOverrideId >= 0 && gsl::narrow_cast<size_t>(m_camOverrideId) < m_level->m_cameras.size());
         Expects(m_level->m_cameras[m_camOverrideId].room < m_level->m_rooms.size());
 
         core::RoomBoundIntPosition pos(&m_level->m_rooms[m_level->m_cameras[m_camOverrideId].room]);
@@ -699,14 +698,14 @@ namespace engine
             m_localRotation.X = -85_deg;
 
         auto dist = m_localRotation.X.cos() * m_distanceFromLookAt;
-        m_lookAtDistanceSq = dist * dist;
+        m_lookAtDistanceSq = gsl::narrow_cast<long>(dist * dist);
 
         core::RoomBoundIntPosition targetPos(m_currentPosition.room);
-        targetPos.position.Y = m_distanceFromLookAt * m_localRotation.X.sin() + m_currentLookAt.position.Y;
+        targetPos.position.Y = std::lround(m_distanceFromLookAt * m_localRotation.X.sin() + m_currentLookAt.position.Y);
 
         core::Angle y = m_localRotation.Y + item->getRotation().Y;
-        targetPos.position.X = m_currentLookAt.position.X - dist * y.sin();
-        targetPos.position.Z = m_currentLookAt.position.Z - dist * y.cos();
+        targetPos.position.X = std::lround(m_currentLookAt.position.X - dist * y.sin());
+        targetPos.position.Z = std::lround(m_currentLookAt.position.Z - dist * y.cos());
         clampBox(targetPos, [this](long& a, long& b, long c, long d, long e, long f, long g, long h)
                  {
                      clampToCorners(m_lookAtDistanceSq, a, b, c, d, e, f, g, h);
@@ -718,27 +717,27 @@ namespace engine
     void CameraController::handleFreeLook(const ItemController& item, int deltaTimeMs)
     {
         const auto origLook = m_currentLookAt.position;
-        m_currentLookAt.position.X = item.getPosition().X;
-        m_currentLookAt.position.Z = item.getPosition().Z;
+        m_currentLookAt.position.X = std::lround(item.getPosition().X);
+        m_currentLookAt.position.Z = std::lround(item.getPosition().Z);
         m_localRotation.X = m_freeLookRotation.X + m_headRotation.X + item.getRotation().X;
         m_localRotation.Y = m_freeLookRotation.Y + m_headRotation.Y + item.getRotation().Y;
         m_distanceFromLookAt = 1536;
-        m_currentYOffset = -2 * loader::QuarterSectorSize * m_localRotation.Y.sin();
-        m_currentLookAt.position.X += m_currentYOffset * item.getRotation().Y.sin();
-        m_currentLookAt.position.Z += m_currentYOffset * item.getRotation().Y.cos();
+        m_currentYOffset = gsl::narrow_cast<int>(-2 * loader::QuarterSectorSize * m_localRotation.Y.sin());
+        m_currentLookAt.position.X += std::lround(m_currentYOffset * item.getRotation().Y.sin());
+        m_currentLookAt.position.Z += std::lround(m_currentYOffset * item.getRotation().Y.cos());
 
         if( isVerticallyOutsideRoom(m_currentLookAt.position, m_currentPosition.room) )
         {
-            m_currentLookAt.position.X = item.getPosition().X;
-            m_currentLookAt.position.Z = item.getPosition().Z;
+            m_currentLookAt.position.X = std::lround(item.getPosition().X);
+            m_currentLookAt.position.Z = std::lround(item.getPosition().Z);
         }
 
         m_currentLookAt.position.Y += moveIntoGeometry(m_currentLookAt, 306);
 
         auto tmp = m_currentLookAt;
-        tmp.position.X -= m_distanceFromLookAt * m_localRotation.Y.sin();
-        tmp.position.Z -= m_distanceFromLookAt * m_localRotation.Y.cos();
-        tmp.position.Y += m_distanceFromLookAt * m_localRotation.X.sin();
+        tmp.position.X -= std::lround(m_distanceFromLookAt * m_localRotation.Y.sin());
+        tmp.position.Z -= std::lround(m_distanceFromLookAt * m_localRotation.Y.cos());
+        tmp.position.Y += std::lround(m_distanceFromLookAt * m_localRotation.X.sin());
         tmp.room = m_currentPosition.room;
 
         clampBox(tmp, &freeLookClamp);
@@ -751,8 +750,8 @@ namespace engine
 
     void CameraController::handleEnemy(const ItemController& item, int deltaTimeMs)
     {
-        m_currentLookAt.position.X = item.getPosition().X;
-        m_currentLookAt.position.Z = item.getPosition().Z;
+        m_currentLookAt.position.X = std::lround(item.getPosition().X);
+        m_currentLookAt.position.Z = std::lround(item.getPosition().Z);
 
         if( m_enemy != nullptr )
         {
@@ -768,9 +767,9 @@ namespace engine
         m_distanceFromLookAt = 2560;
         auto tmp = m_currentLookAt;
         auto d = m_distanceFromLookAt * m_localRotation.X.cos();
-        tmp.position.X -= d * m_localRotation.Y.sin();
-        tmp.position.Z -= d * m_localRotation.Y.cos();
-        tmp.position.Y += m_distanceFromLookAt * m_localRotation.X.sin();
+        tmp.position.X -= std::lround(d * m_localRotation.Y.sin());
+        tmp.position.Z -= std::lround(d * m_localRotation.Y.cos());
+        tmp.position.Y += std::lround(m_distanceFromLookAt * m_localRotation.X.sin());
         tmp.room = m_currentPosition.room;
 
         clampBox(tmp, [this](long& a, long& b, long c, long d, long e, long f, long g, long h)
@@ -960,7 +959,7 @@ namespace engine
             currentFrontBack = back;
             if( lookAtDistanceSq >= targetBackDistSq )
             {
-                auto tmp = std::sqrt(lookAtDistanceSq - targetBackDistSq);
+                auto tmp = std::lround(std::sqrt(lookAtDistanceSq - targetBackDistSq));
                 if( right < left )
                     tmp = -tmp;
                 currentLeftRight = tmp + targetLeftRight;
@@ -985,7 +984,7 @@ namespace engine
             currentFrontBack = back;
             if( lookAtDistanceSq >= targetBackDistSq )
             {
-                auto tmp = std::sqrt(lookAtDistanceSq - targetBackDistSq);
+                auto tmp = std::lround(std::sqrt(lookAtDistanceSq - targetBackDistSq));
                 if( right >= left )
                     tmp = -tmp;
                 currentLeftRight = tmp + targetLeftRight;
@@ -1011,7 +1010,7 @@ namespace engine
             if( lookAtDistanceSq >= targetRightDistSq )
             {
                 currentLeftRight = right;
-                auto tmp = std::sqrt(lookAtDistanceSq - targetRightDistSq);
+                auto tmp = std::lround(std::sqrt(lookAtDistanceSq - targetRightDistSq));
                 if( back >= front )
                     tmp = -tmp;
                 currentFrontBack = tmp + targetFrontBack;

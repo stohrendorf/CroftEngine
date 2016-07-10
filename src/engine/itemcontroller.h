@@ -274,11 +274,11 @@ namespace engine
         float calculateAnimFloorSpeed() const;
         int getAnimAccelleration() const;
 
-        virtual void patchFloor(const core::TRCoordinates& pos, int& y)
+        virtual void patchFloor(const core::TRCoordinates& pos, long& y)
         {
         }
 
-        virtual void patchCeiling(const core::TRCoordinates& pos, int& y)
+        virtual void patchCeiling(const core::TRCoordinates& pos, long& y)
         {
         }
 
@@ -459,7 +459,7 @@ namespace engine
 
         void processAnimCommands(bool advanceFrame = false) override;
 
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
             if(pos.Y > getPosition().Y - 512)
                 return;
@@ -467,10 +467,10 @@ namespace engine
             if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
                 return;
 
-            y = getPosition().Y - 512;
+            y = std::lround(getPosition().Y - 512);
         }
 
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
             if(pos.Y <= getPosition().Y - 512)
                 return;
@@ -478,7 +478,7 @@ namespace engine
             if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
                 return;
 
-            y = getPosition().Y - 256;
+            y = std::lround(getPosition().Y - 256);
         }
     };
 
@@ -500,20 +500,20 @@ namespace engine
 
         void processAnimCommands(bool advanceFrame = false) override;
 
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
             if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y)
                 return;
 
-            y = getPosition().Y;
+            y = std::lround(getPosition().Y);
         }
 
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
             if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y)
                 return;
 
-            y = getPosition().Y + loader::QuarterSectorSize;
+            y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
 
     private:
@@ -575,20 +575,20 @@ namespace engine
             ItemController::processAnimCommands(advanceFrame);
         }
 
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
             if(getCurrentAnimState() != 0 || !possiblyOnTrapdoorDown(pos) || pos.Y > getPosition().Y || y <= getPosition().Y)
                 return;
 
-            y = getPosition().Y;
+            y = std::lround(getPosition().Y);
         }
 
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
             if(getCurrentAnimState() != 1 || !possiblyOnTrapdoorDown(pos) || pos.Y <= getPosition().Y || y > getPosition().Y)
                 return;
 
-            y = getPosition().Y + loader::QuarterSectorSize;
+            y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
 
     private:
@@ -748,18 +748,18 @@ namespace engine
         {
         }
 
-        void patchFloor(const core::TRCoordinates& pos, int& y) override
+        void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
             if(pos.Y <= getPosition().Y)
-                y = getPosition().Y;
+                y = std::lround(getPosition().Y);
         }
 
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override
+        void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
             if(pos.Y <= getPosition().Y)
                 return;
 
-            y = getPosition().Y + loader::QuarterSectorSize;
+            y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
     };
 
@@ -786,16 +786,16 @@ namespace engine
         {
         }
 
-        void patchFloor(const core::TRCoordinates& pos, int& y) override final
+        void patchFloor(const core::TRCoordinates& pos, long& y) override final
         {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+            auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
             if(pos.Y <= tmp)
                 y = tmp;
         }
 
-        void patchCeiling(const core::TRCoordinates& pos, int& y) override final
+        void patchCeiling(const core::TRCoordinates& pos, long& y) override final
         {
-            auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+            auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
             if(pos.Y <= tmp)
                 return;
 
@@ -803,7 +803,7 @@ namespace engine
         }
 
     private:
-        float getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+        long getBridgeSlopeHeight(const core::TRCoordinates& pos) const
         {
             auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
             Expects(axis.is_initialized());

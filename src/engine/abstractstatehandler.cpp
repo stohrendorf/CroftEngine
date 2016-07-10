@@ -2055,8 +2055,11 @@ namespace engine
                 return nullptr;
             }
 
-            if( getSwimToDiveKeypressDuration() * 30 / 1000 < 10 )
-                return nullptr;
+            if(!getSwimToDiveKeypressDuration())
+                return nullptr; // not allowed to dive at all
+
+            if(*getSwimToDiveKeypressDuration() * 30 / 1000 < 10)
+                return nullptr; // not yet allowed to dive
 
             setTargetState(LaraStateId::UnderwaterForward);
             playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
@@ -3558,7 +3561,7 @@ namespace engine
         m_controller.setSwimToDiveKeypressDuration(ms);
     }
 
-    int AbstractStateHandler::getSwimToDiveKeypressDuration() const noexcept
+    const boost::optional<int>& AbstractStateHandler::getSwimToDiveKeypressDuration() const
     {
         return m_controller.getSwimToDiveKeypressDuration();
     }

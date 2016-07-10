@@ -111,8 +111,8 @@ namespace render
 
         static void drawBBLine(irr::video::IVideoDriver* drv, int w, int h, const irr::core::vector2df& a, const irr::core::vector2df& b, const irr::video::SColor& col)
         {
-            const auto a_ = irr::core::dimension2di(w * (a.X + 1) / 2, h - h * (a.Y + 1) / 2);
-            const auto b_ = irr::core::dimension2di(w * (b.X + 1) / 2, h - h * (b.Y + 1) / 2);
+            const auto a_ = irr::core::dimension2di(gsl::narrow_cast<int>(w * (a.X + 1) / 2), gsl::narrow_cast<int>(h - h * (a.Y + 1) / 2));
+            const auto b_ = irr::core::dimension2di(gsl::narrow_cast<int>(w * (b.X + 1) / 2), gsl::narrow_cast<int>(h - h * (b.Y + 1) / 2));
             drv->draw2DLine(a_, b_, col);
         }
     };
