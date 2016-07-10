@@ -7,6 +7,11 @@
 
 namespace engine
 {
+    namespace
+    {
+        const core::Angle FreeLookMouseMovementScale{ 100_deg };
+    }
+
     using LaraStateId = loader::LaraStateId;
 
     class StateHandler_Standing : public AbstractStateHandler
@@ -378,6 +383,20 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
         {
+            if(getLevel().m_inputHandler->getInputState().freeLook)
+            {
+                getLevel().m_cameraController->setCamOverrideType(2);
+                getLevel().m_cameraController->addHeadRotationXY(
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                );
+
+                getLevel().m_cameraController->setFreeLookRotation(getLevel().m_cameraController->getHeadRotation());
+            }
+            else if(getLevel().m_cameraController->getCamOverrideType() == 2)
+            {
+                getLevel().m_cameraController->setCamOverrideType(0);
+            }
         }
 
         loader::LaraStateId getId() const noexcept override
@@ -2049,6 +2068,21 @@ namespace engine
 
         void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
         {
+            if(getLevel().m_inputHandler->getInputState().freeLook)
+            {
+                getLevel().m_cameraController->setCamOverrideType(2);
+                getLevel().m_cameraController->addHeadRotationXY(
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                );
+
+                getLevel().m_cameraController->setFreeLookRotation(getLevel().m_cameraController->getHeadRotation());
+            }
+            else if(getLevel().m_cameraController->getCamOverrideType() == 2)
+            {
+                getLevel().m_cameraController->setCamOverrideType(0);
+            }
+
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4.0f).getScaled(deltaTimeMs)));
 
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )

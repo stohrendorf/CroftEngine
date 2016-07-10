@@ -101,6 +101,32 @@ namespace engine
 
         void update(int deltaTimeMs);
 
+        void setCamOverrideType(int t)
+        {
+            m_camOverrideType = t;
+        }
+
+        int getCamOverrideType() const noexcept
+        {
+            return m_camOverrideType;
+        }
+
+        void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
+        {
+            m_headRotation.X += x;
+            m_headRotation.Y += y;
+        }
+
+        const irr::core::vector3d<core::Angle>& getHeadRotation() const noexcept
+        {
+            return m_headRotation;
+        }
+
+        void setFreeLookRotation(const irr::core::vector3d<core::Angle>& r)
+        {
+            m_freeLookRotation = r;
+        }
+
     private:
         void tracePortals();
         bool clampY(const core::ExactTRCoordinates& lookAt, core::ExactTRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;

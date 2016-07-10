@@ -82,6 +82,12 @@ public:
                     case irr::EMIE_LMOUSE_LEFT_UP:
                         m_inputState.action = false;
                         return true;
+                    case irr::EMIE_RMOUSE_PRESSED_DOWN:
+                        m_inputState.freeLook = true;
+                        return true;
+                    case irr::EMIE_RMOUSE_LEFT_UP:
+                        m_inputState.freeLook = false;
+                        return true;
                     default:
                         return false;
                 }

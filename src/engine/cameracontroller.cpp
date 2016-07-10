@@ -62,10 +62,6 @@ namespace engine
 
         m_lastAnimationTime = timeMs;
 
-        // Update mouse rotation
-        static const core::Angle rotationSpeed = 100_deg;
-        m_localRotation.Y += rotationSpeed * getLevel()->m_inputHandler->getInputState().mouseMovement.X;
-        m_localRotation.X += rotationSpeed * getLevel()->m_inputHandler->getInputState().mouseMovement.Y;
         m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
 
         tracePortals();

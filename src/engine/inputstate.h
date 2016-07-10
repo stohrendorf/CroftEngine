@@ -22,6 +22,7 @@ namespace engine
         bool moveSlow = false;
         bool roll = false;
         bool action = false;
+        bool freeLook = false;
         irr::core::vector2df mouseMovement;
 
         void setXAxisMovement(bool left, bool right)
