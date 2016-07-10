@@ -333,9 +333,9 @@ namespace engine
         if(getCurrentAnimState() == 1)
         {
             BOOST_LOG_TRIVIAL(debug) << "Switch " << getName() << ": pull down";
-            lara.setTargetState(loader::LaraStateId::SwitchDown);
             do
             {
+                lara.setTargetState(loader::LaraStateId::SwitchDown);
                 lara.processLaraAnimCommands(true);
             } while(lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown);
             lara.setTargetState(loader::LaraStateId::Stop);
@@ -348,9 +348,9 @@ namespace engine
                 return;
 
             BOOST_LOG_TRIVIAL(debug) << "Switch " << getName() << ": pull up";
-            lara.setTargetState(loader::LaraStateId::SwitchUp);
             do
             {
+                lara.setTargetState(loader::LaraStateId::SwitchUp);
                 lara.processLaraAnimCommands(true);
             } while(lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp);
             lara.setTargetState(loader::LaraStateId::Stop);

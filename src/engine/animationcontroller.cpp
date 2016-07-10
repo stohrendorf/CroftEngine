@@ -33,7 +33,7 @@ namespace engine
     void MeshAnimationController::advanceFrame()
     {
         BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << m_node->getFrameNr() << ", end=" << m_node->getEndFrame();
-        if(m_node->getFrameNr() >= m_node->getEndFrame())
+        if(m_node->getFrameNr() + 1 >= m_node->getEndFrame())
         {
             handleAnimationEnd();
         }
