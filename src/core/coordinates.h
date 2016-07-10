@@ -158,7 +158,7 @@ namespace core
 
         TRCoordinates toInexact() const noexcept
         {
-            return {long(std::lround(X)), long(std::lround(Y)), long(std::lround(Z))};
+            return{ std::lround(X), std::lround(Y), std::lround(Z) };
         }
 
         float distanceTo(const ExactTRCoordinates& b) const

@@ -1073,6 +1073,28 @@ namespace loader
             return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
         }
 
+        bool isInnerPositionX(core::TRCoordinates position) const
+        {
+            position -= this->position;
+            int sx = position.X / SectorSize;
+            return sx > 0 && sx < sectorCountX - 1;
+        }
+
+        bool isInnerPositionZ(core::TRCoordinates position) const
+        {
+            position -= this->position;
+            int sz = position.Z / SectorSize;
+            return sz > 0 && sz < sectorCountZ - 1;
+        }
+
+        bool isInnerPositionXZ(core::TRCoordinates position) const
+        {
+            position -= this->position;
+            int sx = position.X / SectorSize;
+            int sz = position.Z / SectorSize;
+            return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
+        }
+
         gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(core::TRCoordinates position) const
         {
             position -= this->position;
@@ -1081,10 +1103,16 @@ namespace loader
 
         const Sector* getSectorByIndex(int dx, int dz) const
         {
-            if( dx < 0 || dx >= sectorCountX )
+            if(dx < 0 || dx >= sectorCountX)
+            {
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
                 return nullptr;
+            }
             if( dz < 0 || dz >= sectorCountZ )
+            {
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
                 return nullptr;
+            }
             return &sectors[sectorCountZ * dx + dz];
         }
 

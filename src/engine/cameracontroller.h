@@ -107,14 +107,14 @@ namespace engine
 
         enum class ClampType
         {
-            Ceiling,
-            Wall,
+            Vertical,
+            Horizonal,
             None
         };
 
         ClampType clampX(core::RoomBoundPosition& origin) const;
         ClampType clampZ(core::RoomBoundPosition& origin) const;
-        bool clampCurrentPosition(core::RoomBoundPosition& origin) const;
+        bool clampPosition(core::RoomBoundPosition& origin) const;
 
         void handleCamOverride(int deltaTimeMs);
         int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
