@@ -112,6 +112,9 @@ set(OT_IRR_SRCS
     audio/positionalemitter.cpp
     audio/utils.h
     audio/utils.cpp
+    audio/bufferhandle.h
+    audio/filterhandle.h
+    audio/sourcehandle.h
 
     util/helpers.h
     util/vmath.h
