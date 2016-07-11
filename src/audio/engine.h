@@ -54,20 +54,6 @@ class Engine
     DISABLE_COPY(Engine);
     TRACK_LIFETIME();
 
-    struct DeviceManager
-    {
-        DISABLE_COPY(DeviceManager);
-        TRACK_LIFETIME();
-
-        explicit DeviceManager(Engine* engine);
-        ~DeviceManager();
-
-    private:
-        Engine* m_engine;
-        ALCdevice* m_device = nullptr;
-        ALCcontext* m_context = nullptr;
-    };
-
 public:
     explicit Engine(engine::Engine* engine, boost::property_tree::ptree& config);
     ~Engine();

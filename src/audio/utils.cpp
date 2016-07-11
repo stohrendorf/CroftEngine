@@ -1,13 +1,8 @@
-#include "audio.h"
-
 #include <SDL2/SDL.h>
 
-#include "engine/engine.h"
-#include "gui/console.h"
+#include <al.h>
 
 #include <boost/log/trivial.hpp>
-
-using gui::Console;
 
 namespace audio
 {
@@ -26,10 +21,5 @@ bool checkALError(const char* func, int line)
         return true;
     }
     return false;
-}
-
-void logSndfileError(int code)
-{
-    BOOST_LOG_TRIVIAL(error) << "Sndfile error: " << sf_error_number(code);
 }
 } // namespace audio

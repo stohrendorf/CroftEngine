@@ -104,6 +104,15 @@ set(OT_IRR_SRCS
     render/portaltracer.h
     render/textureanimator.h
 
+    audio/alext.h
+    audio/alext.cpp
+    audio/device.h
+    audio/device.cpp
+    audio/positionalemitter.h
+    audio/positionalemitter.cpp
+    audio/utils.h
+    audio/utils.cpp
+
     util/helpers.h
     util/vmath.h
 
@@ -132,6 +141,7 @@ target_link_libraries(
     Boost
     Irrlicht
     ZLIB
+    OpenAL
 )
 
 target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include ../3rdparty/xeffects/Source)

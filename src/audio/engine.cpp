@@ -953,7 +953,7 @@ void Engine::loadSampleOverrideInfo()
     }
 }
 
-Engine::DeviceManager::~DeviceManager()
+DeviceManager::~DeviceManager()
 {
     if(m_context)  // T4Larson <t4larson@gmail.com>: fixed
     {
@@ -970,8 +970,7 @@ Engine::DeviceManager::~DeviceManager()
     }
 }
 
-Engine::DeviceManager::DeviceManager(Engine* engine)
-    : m_engine(engine)
+DeviceManager::DeviceManager()
 {
     ALCint paramList[] = {
         ALC_STEREO_SOURCES,  StreamSourceCount,

@@ -87,15 +87,6 @@ FxManager::FxManager(Engine* engine)
     DEBUG_CHECK_AL_ERROR();
     alGenEffects(m_effects.size(), m_effects.data());
     DEBUG_CHECK_AL_ERROR();
-    alGenFilters(1, &m_filter);
-    DEBUG_CHECK_AL_ERROR();
-
-    alFilteri(m_filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
-    DEBUG_CHECK_AL_ERROR();
-    alFilterf(m_filter, AL_LOWPASS_GAIN, 0.7f);      // Low frequencies gain.
-    DEBUG_CHECK_AL_ERROR();
-    alFilterf(m_filter, AL_LOWPASS_GAINHF, 0.0f);    // High frequencies gain.
-    DEBUG_CHECK_AL_ERROR();
 
     // Fill up effects with reverb presets.
 

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <AL/alext.h>
+#include <gsl.h>
 
 #ifdef AL_ALEXT_PROTOTYPES
 
 namespace audio
 {
-inline void loadALExtFunctions(ALCdevice*)
+inline void loadALExtFunctions(const gsl::not_null<ALCdevice*>&)
 {
     // Nothing to do here
 }
@@ -16,7 +17,7 @@ inline void loadALExtFunctions(ALCdevice*)
 
 namespace audio
 {
-void loadALExtFunctions(ALCdevice* device);
+void loadALExtFunctions(const gsl::not_null<ALCdevice*>&);
 } // namespace audio
 
 // Effect objects
