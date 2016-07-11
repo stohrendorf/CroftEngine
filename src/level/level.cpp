@@ -498,6 +498,11 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animationController, node, name + ":controller", &room, &item);
                 animationController->playLocalAnimation(0);
             }
+            else if(item.type == 36)
+            {
+                m_itemControllers[id] = std::make_unique<engine::ItemController_SwingingBlade>(this, animationController, node, name + ":controller", &room, &item);
+                animationController->playLocalAnimation(0);
+            }
             else if(item.type == 41)
             {
                 m_itemControllers[id] = std::make_unique<engine::ItemController_41_TrapDoorUp>(this, animationController, node, name + ":controller", &room, &item);

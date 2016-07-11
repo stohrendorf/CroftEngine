@@ -725,4 +725,27 @@ namespace engine
         getLevel().findFloorSectorWithClampedPosition(pos);
         setCurrentRoom(pos.room);
     }
+
+    void ItemController_SwingingBlade::animateImpl(bool)
+    {
+        if(updateTriggerTimeout())
+        {
+            if(getCurrentAnimState() == 0)
+                setTargetState(2);
+        }
+        else if(getCurrentAnimState() == 2)
+        {
+            setTargetState(0);
+        }
+    }
+
+    void ItemController_SwingingBlade::processAnimCommands(bool advanceFrame)
+    {
+        auto room = getCurrentRoom();
+        auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
+        setCurrentRoom(room);
+        setFloorHeight(HeightInfo::fromFloor(sector, getPosition().toInexact(), getLevel().m_cameraController).distance);
+
+        ItemController::processAnimCommands(advanceFrame);
+    }
 }

@@ -842,4 +842,22 @@ namespace engine
         }
     };
 
+    class ItemController_SwingingBlade final : public ItemController
+    {
+    public:
+        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        {
+        }
+
+        void animateImpl(bool /*isNewFrame*/) override;
+
+        void onInteract(LaraController& lara, LaraState& state) override
+        {
+
+        }
+
+        void processAnimCommands(bool advanceFrame = false) override;
+    };
+
 }
