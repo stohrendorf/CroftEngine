@@ -98,6 +98,7 @@ set(OT_IRR_SRCS
     loader/primitives.h
     loader/texture.h
     loader/util.h
+    loader/io/sdlreader.h
 
     render/lightselector.h
     render/portaltracer.h
@@ -123,14 +124,13 @@ add_executable(ot_irr
 GROUP_FILES(${OT_IRR_SRCS})
 
 if(NOT MSVC)
-    target_compile_options(ot_irr PRIVATE -std=c++14 -Wall -Wextra -msse3)
+    target_compile_options(ot_irr PRIVATE -std=c++14 -Wall -Wextra)
 endif()
 
 target_link_libraries(
     ot_irr
     Boost
     Irrlicht
-    SDL2
     ZLIB
 )
 

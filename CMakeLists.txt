@@ -4,7 +4,7 @@
 #   $ cmake .. && make
 
 cmake_minimum_required(VERSION 3.2)
- 
+
 include("cmake/HunterGate.cmake")
 
 HunterGate(
@@ -26,7 +26,7 @@ message(STATUS "Always ignore system-provided libraries: ${DEFAULT_EXTERNAL_HUNT
 
 
 function(GROUP_FILES)
-    foreach(fn ${ARGV}) 
+    foreach(fn ${ARGV})
         get_filename_component(parentDir "${fn}" PATH)
 
         # change /'s to \\'s, and reduce redundant // or \\.
@@ -84,14 +84,6 @@ ot_find_dependency(Lua)
 target_link_libraries(Lua INTERFACE ${LUA_LIBRARIES})
 target_include_directories(Lua INTERFACE ${LUA_INCLUDE_DIR})
 
-
-# Dependency: SDL2
-ot_find_dependency(SDL2)
-if(WIN32)
-    target_link_libraries(SDL2 INTERFACE winmm imm32 version)
-endif()
-target_link_libraries(SDL2 INTERFACE ${SDL2_LIBRARY})
-target_include_directories(SDL2 INTERFACE ${SDL2_INCLUDE_DIR})
 
 
 # Dependency: Boost

@@ -1,7 +1,11 @@
 #pragma once
 
-#include <SDL2/SDL_rwops.h>
-#include <SDL2/SDL_endian.h>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+
+#include <iostream>
 
 #include <zlib.h>
 
@@ -38,56 +42,66 @@ struct TypeInfo
 
 namespace io
 {
+using DataStreamBuf = boost::iostreams::filtering_istreambuf;
+
 class SDLReader
 {
     SDLReader(const SDLReader&) = delete;
     SDLReader& operator=(const SDLReader&) = delete;
 public:
-    explicit SDLReader(SDL_RWops* ops)
-        : m_rwOps(ops)
-        , m_memory()
+    explicit SDLReader(const std::shared_ptr<DataStreamBuf>& stream)
+        : m_memory()
+        , m_file()
+        , m_array()
+        , m_streamBuf(stream)
+        , m_stream(m_streamBuf.get())
     {
     }
 
     SDLReader(SDLReader&& rhs)
-        : m_rwOps(rhs.m_rwOps)
-        , m_memory(std::move(rhs.m_memory))
+        : m_memory(std::move(rhs.m_memory))
+        , m_file(std::move(rhs.m_file))
+        , m_array(std::move(rhs.m_array))
+        , m_streamBuf(std::move(rhs.m_streamBuf))
+        , m_stream(m_streamBuf.get())
     {
-        rhs.m_rwOps = nullptr;
     }
 
     explicit SDLReader(const std::string& filename)
-        : m_rwOps(SDL_RWFromFile(filename.c_str(), "rb"))
-        , m_memory()
+        : m_memory()
+        , m_file(std::make_unique<boost::iostreams::file>(filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary))
+        , m_array()
+        , m_streamBuf( std::make_shared<DataStreamBuf>( *m_file ) )
+        , m_stream(m_streamBuf.get())
     {
     }
 
-    explicit SDLReader(const std::vector<uint8_t>& data)
-        : m_rwOps(nullptr)
-        , m_memory(data)
+    explicit SDLReader(const std::vector<char>& data)
+        : m_memory(data)
+        , m_file()
+        , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
+        , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
+        , m_stream(m_streamBuf.get())
     {
-        m_rwOps = SDL_RWFromConstMem(m_memory.data(), static_cast<int>(m_memory.size()));
     }
 
-    explicit SDLReader(std::vector<uint8_t>&& data)
-        : m_rwOps(nullptr)
-        , m_memory(std::move(data))
+    explicit SDLReader(std::vector<char>&& data)
+        : m_memory(std::move(data))
+        , m_file()
+        , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
+        , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
+        , m_stream(m_streamBuf.get())
     {
-        m_rwOps = SDL_RWFromConstMem(m_memory.data(), static_cast<int>(m_memory.size()));
     }
 
-    ~SDLReader()
-    {
-        if(m_rwOps)
-            SDL_RWclose(m_rwOps);
-    }
+    ~SDLReader() = default;
 
     static SDLReader decompress(const std::vector<uint8_t>& compressed, size_t uncompressedSize)
     {
-        std::vector<uint8_t> uncomp_buffer(uncompressedSize);
+        std::vector<char> uncomp_buffer(uncompressedSize);
 
         uLongf size = static_cast<uLongf>(uncompressedSize);
-        if(uncompress(uncomp_buffer.data(), &size, compressed.data(), static_cast<uLong>(compressed.size())) != Z_OK)
+        if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), &size, compressed.data(), static_cast<uLong>(compressed.size())) != Z_OK)
             BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
 
         if(size != uncompressedSize)
@@ -102,34 +116,40 @@ public:
 
     bool isOpen() const
     {
-        return m_rwOps != nullptr;
+        return !m_stream.bad();
     }
 
-    Sint64 tell() const
+    size_t tell()
     {
-        return SDL_RWseek(m_rwOps, 0, RW_SEEK_CUR);
+        return m_stream.tellg();
     }
 
-    Sint64 size() const
+    size_t size()
     {
-        return SDL_RWsize(m_rwOps);
+        const auto pos = m_stream.tellg();
+        m_stream.seekg(0, std::ios::end);
+        const auto size = m_stream.tellg();
+        m_stream.seekg(pos, std::ios::beg);
+        return size;
     }
 
-    void skip(Sint64 delta)
+    void skip(std::streamoff delta)
     {
-        SDL_RWseek(m_rwOps, delta, RW_SEEK_CUR);
+        m_stream.seekg(delta, std::ios::cur);
     }
 
-    void seek(Sint64 position)
+    void seek(std::streampos position)
     {
-        SDL_RWseek(m_rwOps, position, RW_SEEK_SET);
+        m_stream.seekg(position, std::ios::beg);
     }
 
     template<typename T>
     void readBytes(T* dest, size_t n)
     {
         static_assert(std::is_integral<T>::value && sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
-        if(SDL_RWread(m_rwOps, dest, 1, n) != n)
+        std::cerr << m_stream.tellg() << std::endl;
+        m_stream.read(reinterpret_cast<char*>(dest), n);
+        if(m_stream.gcount() != n)
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
         }
@@ -214,7 +234,8 @@ public:
     T read()
     {
         T result;
-        if(SDL_RWread(m_rwOps, &result, sizeof(T), 1) != 1)
+        m_stream.read(reinterpret_cast<char*>(&result), sizeof(T));
+        if(m_stream.gcount() != sizeof(T))
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
         }
@@ -254,38 +275,24 @@ public:
     }
 
 private:
-    SDL_RWops* m_rwOps;
-    std::vector<uint8_t> m_memory;
+    // Do not change the order of these member variables.
+    std::vector<char> m_memory;
+    std::unique_ptr<boost::iostreams::file> m_file;
+    std::unique_ptr<boost::iostreams::array> m_array;
+    std::shared_ptr<DataStreamBuf> m_streamBuf;
+    std::istream m_stream;
 
     template<typename T, int dataSize, bool isIntegral>
     struct SwapTraits
     {
     };
 
-    template<typename T>
-    struct SwapTraits<T, 1, true>
-    {
-        static void doSwap(T&)
-        {
-            // no-op
-        }
-    };
-
-    template<typename T>
-    struct SwapTraits<T, 2, true>
+    template<typename T, int dataSize>
+    struct SwapTraits<T, dataSize, true>
     {
         static void doSwap(T& data)
         {
-            data = SDL_SwapLE16(data);
-        }
-    };
-
-    template<typename T>
-    struct SwapTraits<T, 4, true>
-    {
-        static void doSwap(T& data)
-        {
-            data = SDL_SwapLE32(data);
+            //! @todo For now, no endian conversion
         }
     };
 };
