@@ -3,6 +3,7 @@
 #include "engine/laracontroller.h"
 
 #include <boost/range/adaptors.hpp>
+#include "audio/device.h"
 
 namespace
 {
@@ -41,6 +42,8 @@ int main()
     irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
     if(!device)
         return EXIT_FAILURE;
+
+    audio::Device audioDev;
 
     auto lvl = level::Level::createLoader("data/tr1/data/LEVEL2.PHD", level::Game::Unknown);
     BOOST_ASSERT(lvl != nullptr);

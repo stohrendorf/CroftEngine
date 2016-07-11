@@ -63,7 +63,7 @@ Device::Device()
         BOOST_LOG_TRIVIAL(warning) << BOOST_CURRENT_FUNCTION << ": Failed to create OpenAL context.";
         alcCloseDevice(m_device);
         m_device = nullptr;
-        return;
+        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create OpenAL device and context"));
     }
 
     alcMakeContextCurrent(m_context);
@@ -76,14 +76,13 @@ Device::Device()
     alDopplerVelocity(330.0 * 510.0);
     alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
 
-    alGenFilters(1, &m_underwaterFilter);
-    DEBUG_CHECK_AL_ERROR();
+    m_underwaterFilter = std::make_shared<FilterHandle>();
 
-    alFilteri(m_underwaterFilter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+    alFilteri(m_underwaterFilter->get(), AL_FILTER_TYPE, AL_FILTER_LOWPASS);
     DEBUG_CHECK_AL_ERROR();
-    alFilterf(m_underwaterFilter, AL_LOWPASS_GAIN, 0.7f);      // Low frequencies gain.
+    alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAIN, 0.7f);      // Low frequencies gain.
     DEBUG_CHECK_AL_ERROR();
-    alFilterf(m_underwaterFilter, AL_LOWPASS_GAINHF, 0.0f);    // High frequencies gain.
+    alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.0f);    // High frequencies gain.
     DEBUG_CHECK_AL_ERROR();
 }
 }
