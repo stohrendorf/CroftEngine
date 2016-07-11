@@ -3139,7 +3139,7 @@ namespace engine
             return nullptr;
 
         const auto bbox = getBoundingBox();
-        float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3331,7 +3331,7 @@ namespace engine
             return nullptr;
 
         auto bbox = getBoundingBox();
-        float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3480,7 +3480,7 @@ namespace engine
             playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
             setHandStatus(0);
             const auto bbox = getBoundingBox();
-            const float hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
+            const long hangDistance = state.front.floor.distance - bbox.MinEdge.Y + 2;
             setPosition(getPosition() + core::ExactTRCoordinates(state.collisionFeedback.X, hangDistance, state.collisionFeedback.Z));
             setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
             setFallSpeed(core::makeInterpolatedValue(1.0f));
@@ -3515,7 +3515,7 @@ namespace engine
         }
 
         const auto bbox = getBoundingBox();
-        const float spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
+        const long spaceToReach = state.front.floor.distance - bbox.MinEdge.Y;
 
         if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
             setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));

@@ -704,7 +704,7 @@ namespace engine
     {
         ItemController::processAnimCommands(advanceFrame);
         auto room = getCurrentRoom();
-        auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
+        getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
         setCurrentRoom(room);
 
         if(m_flags2_02_toggledOn || !m_flags2_04_ready)

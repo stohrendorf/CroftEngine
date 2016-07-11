@@ -1237,7 +1237,7 @@ namespace loader
     {
         uint32_t type; // Item identifier (matched in Items[])
         int16_t length; // negative of "how many sprites are in this sequence"
-        int16_t offset; // where (in sprite texture list) this sequence starts
+        uint16_t offset; // where (in sprite texture list) this sequence starts
 
         /** \brief reads sprite sequence definition.
           *
@@ -1248,7 +1248,7 @@ namespace loader
             std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
             sprite_sequence->type = reader.readU32();
             sprite_sequence->length = reader.readI16();
-            sprite_sequence->offset = reader.readI16();
+            sprite_sequence->offset = reader.readU16();
 
             if(sprite_sequence->type > 191)
             {

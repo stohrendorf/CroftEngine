@@ -274,15 +274,15 @@ namespace engine
         float calculateAnimFloorSpeed() const;
         int getAnimAccelleration() const;
 
-        virtual void patchFloor(const core::TRCoordinates& pos, long& y)
+        virtual void patchFloor(const core::TRCoordinates& /*pos*/, long& /*y*/)
         {
         }
 
-        virtual void patchCeiling(const core::TRCoordinates& pos, long& y)
+        virtual void patchCeiling(const core::TRCoordinates& /*pos*/, long& /*y*/)
         {
         }
 
-        virtual void onInteract(LaraController& lara, LaraState& state)
+        virtual void onInteract(LaraController& /*lara*/, LaraState& /*state*/)
         {
             //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
@@ -433,7 +433,7 @@ namespace engine
 
         void onInteract(LaraController& lara, LaraState& state) override;
 
-        void processAnimCommands(bool advanceFrame = false) override
+        void processAnimCommands(bool /*advanceFrame*/ = false) override
         {
             m_itemFlags |= ActivationMask;
 
@@ -453,7 +453,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& lara, LaraState& state) override
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
         {
         }
 
@@ -494,7 +494,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& lara, LaraState& state) override
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
         {
         }
 
@@ -566,7 +566,7 @@ namespace engine
             }
         }
 
-        void onInteract(LaraController& lara, LaraState& state) override
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
         {
         }
 
@@ -740,7 +740,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& lara, LaraState& state) override
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override
         {
         }
 
@@ -778,7 +778,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& lara, LaraState& state) override final
+        void onInteract(LaraController& /*lara*/, LaraState& /*state*/) override final
         {
         }
 
