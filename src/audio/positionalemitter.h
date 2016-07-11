@@ -6,6 +6,7 @@
 #include "core/coordinates.h"
 
 #include <al.h>
+#include "device.h"
 
 namespace audio
 {
@@ -13,8 +14,8 @@ class PositionalEmitter
 {
     DISABLE_COPY(PositionalEmitter);
 public:
-    explicit PositionalEmitter(ALuint bufferHandle, ALuint underwaterFilter);
-    ~PositionalEmitter();
+    explicit PositionalEmitter(const std::shared_ptr<BufferHandle>& bufferHandle, const std::shared_ptr<FilterHandle>& underwaterFilter);
+    ~PositionalEmitter() = default;
 
     void play(const core::ExactTRCoordinates& coords, bool underwater);
     void pause();
@@ -31,11 +32,11 @@ public:
     bool isActive() const;
 
 private:
-    ALuint m_handle = 0;
+    SourceHandle m_handle;
     bool m_active = false;
 
-    const ALuint m_bufferHandle;
-    const ALuint m_underwaterFilter;
+    const std::shared_ptr<BufferHandle> m_bufferHandle;
+    const std::shared_ptr<FilterHandle> m_underwaterFilter;
 
     void setPosition(const irr::core::vector3df& position);   // Set source position.
 };
