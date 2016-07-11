@@ -152,9 +152,6 @@ namespace engine
             setPosition(pos);
         }
 
-        applyRotation();
-        applyPosition();
-
         auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
         {
@@ -224,9 +221,6 @@ namespace engine
                                                              0,
                                                              getMovementAngle().cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4
                                                             ));
-
-        applyRotation();
-        applyPosition();
 
         auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
@@ -506,8 +500,6 @@ namespace engine
              isFalling() ? getFallSpeed().getScaled(getCurrentDeltaTime()) : 0,
              getMovementAngle().cos() * getHorizontalSpeed().getScaled(getCurrentDeltaTime())
             );
-
-        applyPosition();
 
         return nextHandler;
     }

@@ -271,8 +271,6 @@ namespace engine
             m_falling ? m_fallSpeed.getScaled(getCurrentDeltaTime()) : 0,
             getRotation().Y.cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
         );
-
-        applyPosition();
     }
 
     void ItemController::activate()
