@@ -3,7 +3,6 @@
 #include "engine/laracontroller.h"
 
 #include <boost/range/adaptors.hpp>
-#include "audio/device.h"
 
 namespace
 {
@@ -43,8 +42,6 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    audio::Device audioDev;
-
     auto lvl = level::Level::createLoader("data/tr1/data/LEVEL2.PHD", level::Game::Unknown);
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
@@ -59,6 +56,10 @@ int main()
     while(device->run())
     {
         lvl->m_inputHandler->update();
+        lvl->m_audioDev.removeStoppedSources();
+        lvl->m_audioDev.setOrientation(lvl->m_cameraController->getPosition(),
+                                       lvl->m_cameraController->getFrontVector(),
+                                       lvl->m_cameraController->getUpVector());
 
         if(!device->isWindowActive())
         {

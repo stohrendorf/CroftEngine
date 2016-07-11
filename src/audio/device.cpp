@@ -72,9 +72,10 @@ Device::Device()
 
     BOOST_LOG_TRIVIAL(info) << "Using OpenAL device " << alcGetString(m_device, ALC_DEVICE_SPECIFIER);
 
-    alSpeedOfSound(330.0 * 512.0);
-    alDopplerVelocity(330.0 * 510.0);
+    alSpeedOfSound(330.0);
+    alDopplerVelocity(330.0 * 0.99);
     alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
+    alListenerf(AL_METERS_PER_UNIT, 1/512.0f);
 
     m_underwaterFilter = std::make_shared<FilterHandle>();
 

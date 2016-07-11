@@ -7,6 +7,7 @@
 #include "loader/animation.h"
 #include "loader/datatypes.h"
 #include "loader/item.h"
+#include "audio/device.h"
 
 #include <memory>
 #include <vector>
@@ -161,6 +162,27 @@ namespace level
         engine::ItemController* findControllerForNode(const irr::scene::ISceneNode* node);
 
         std::unique_ptr<engine::InputHandler> m_inputHandler;
+
+        audio::Device m_audioDev;
+
+        void playSample(size_t sample, float pitch, float volume, const core::ExactTRCoordinates& pos)
+        {
+            Expects(sample < m_sampleIndices.size());
+            pitch = irr::core::clamp(pitch, 0.5f, 2.0f);
+            volume = irr::core::clamp(volume, 0.0f, 1.0f);
+
+            std::shared_ptr<audio::BufferHandle> buf = std::make_shared<audio::BufferHandle>();
+            const auto idx = m_sampleIndices[sample];
+            buf->fillFromWav(&m_samplesData[idx]);
+
+            std::shared_ptr<audio::SourceHandle> src = std::make_shared<audio::SourceHandle>();
+            src->setBuffer(buf);
+            m_audioDev.registerSource(src);
+            src->setPitch(pitch);
+            src->setGain(volume);
+            src->setPosition(pos.toIrrlicht());
+            src->play();
+        }
 
     protected:
         loader::io::SDLReader m_reader;

@@ -79,6 +79,12 @@ namespace audio
             DEBUG_CHECK_AL_ERROR();
         }
 
+        void set(ALenum e, ALfloat a, ALfloat b, ALfloat c)
+        {
+            alSource3f(m_handle, e, a, b, c);
+            DEBUG_CHECK_AL_ERROR();
+        }
+
         void set(ALenum e, const ALfloat* v)
         {
             alSourcefv(m_handle, e, v);
@@ -103,6 +109,15 @@ namespace audio
             DEBUG_CHECK_AL_ERROR();
         }
 
+        bool isStopped() const
+        {
+            ALenum state = AL_STOPPED;
+            alGetSourcei(m_handle, AL_SOURCE_STATE, &state);
+            DEBUG_CHECK_AL_ERROR();
+
+            return state == AL_STOPPED;
+        }
+
         void setLooping(bool is_looping)
         {
             set(AL_LOOPING, is_looping ? AL_TRUE : AL_FALSE);
@@ -115,7 +130,7 @@ namespace audio
 
         void setPosition(const irr::core::vector3df& position)
         {
-            set(AL_POSITION, &position.X);
+            set(AL_POSITION, position.X, position.Y, position.Z);
         }
 
         void setPitch(ALfloat pitch_value)

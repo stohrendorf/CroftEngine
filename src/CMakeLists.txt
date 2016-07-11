@@ -145,6 +145,7 @@ target_link_libraries(
     Irrlicht
     ZLIB
     OpenAL
+    SndFile
 )
 
 target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include ../3rdparty/xeffects/Source)

@@ -359,6 +359,8 @@ namespace engine
             return m_name;
         }
 
+        bool playSound(int id);
+
     protected:
         int getLastAnimFrame() const noexcept
         {

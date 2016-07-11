@@ -348,7 +348,7 @@ namespace engine
                 }
                 m_swimToDiveKeypressDuration = boost::none;
                 updateFloorHeight(-381);
-                //! @todo play sound 36
+                playSound(36);
             }
         }
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
@@ -453,9 +453,9 @@ namespace engine
                     }
                     break;
                 case AnimCommandOpcode::PlaySound:
-                    if( getCurrentFrame() == cmd[0] )
+                    if( newFrame && getCurrentFrame() == cmd[0] )
                     {
-                        //! @todo playsound(cmd[1])
+                        playSound(cmd[1]);
                     }
                     cmd += 2;
                     break;
@@ -614,7 +614,7 @@ namespace engine
                     if( item.m_triggerTimeout != 1 )
                         item.m_triggerTimeout *= 1000;
 
-                    BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
+                    //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                     if( srcTriggerType == loader::TriggerType::Switch )
                         item.m_itemFlags ^= srcTriggerArg & ActivationMask;

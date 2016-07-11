@@ -774,7 +774,7 @@ namespace engine
             dampenHorizontalSpeed(0.05f);
             if( getFallSpeed() > 154 )
             {
-                //! @todo playSound(30)
+                getController().playSound(30);
             }
         }
 
@@ -3596,7 +3596,6 @@ namespace engine
         m_controller.setCameraUnknown1(k);
     }
 
-
     void AbstractStateHandler::jumpAgainstWall(LaraState& state)
     {
         applyCollisionFeedback(state);
@@ -3665,4 +3664,5 @@ namespace engine
 
         return nullptr;
     }
+
 }

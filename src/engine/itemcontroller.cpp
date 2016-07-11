@@ -217,9 +217,9 @@ namespace engine
                     case AnimCommandOpcode::EmptyHands:
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if(getCurrentFrame() == cmd[0])
+                        if(newFrame && getCurrentFrame() == cmd[0])
                         {
-                            //! @todo playsound(cmd[1])
+                            playSound(cmd[1]);
                         }
                         cmd += 2;
                         break;
@@ -298,6 +298,40 @@ namespace engine
             BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << m_name;
 
         m_isActive = false;
+    }
+
+    bool ItemController::playSound(int id)
+    {
+        Expects(id >= 0 && static_cast<size_t>(id) < getLevel().m_soundmap.size())
+            auto snd = getLevel().m_soundmap[id];
+        if(snd < 0)
+        {
+            BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << id;
+            return false;
+        }
+
+        BOOST_ASSERT(snd >= 0 && static_cast<size_t>(snd) < getLevel().m_soundDetails.size());
+        const loader::SoundDetails& details = getLevel().m_soundDetails[snd];
+        if(details.chance != 0 && (rand() & 0x7fff) > details.chance)
+            return false;
+
+        size_t sample = details.sample;
+        if(details.getSampleCount() > 1)
+            sample += rand() % details.getSampleCount();
+        BOOST_ASSERT(sample < getLevel().m_sampleIndices.size());
+
+        float pitch = 1;
+        if(details.useRandomPitch())
+            pitch = 0.9f + 0.2f * rand() / RAND_MAX;
+
+        float volume = irr::core::clamp(static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f);
+        if(details.useRandomVolume())
+            volume -= 0.25f * rand() / RAND_MAX;
+        if(volume <= 0)
+            return false;
+
+        m_level->playSample(sample, pitch, volume, getPosition());
+        return true;
     }
 
     void ItemController_55_Switch::onInteract(LaraController& lara, LaraState& /*state*/)
@@ -567,7 +601,7 @@ namespace engine
             m_flags2_02_toggledOn = false;
             m_flags2_04_ready = true;
             //! @todo Shake camera
-            //! @todo play sound 70
+            playSound(70);
         }
 
         setCurrentRoom(pos.room);

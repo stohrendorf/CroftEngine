@@ -127,6 +127,21 @@ namespace engine
             m_freeLookRotation = r;
         }
 
+        const irr::core::vector3df& getPosition() const
+        {
+            return m_camera->getPosition();
+        }
+
+        const irr::core::vector3df& getFrontVector() const
+        {
+            return m_camera->getTarget() - m_camera->getPosition();
+        }
+
+        const irr::core::vector3df& getUpVector() const
+        {
+            return m_camera->getUpVector();
+        }
+
     private:
         void tracePortals();
         bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
