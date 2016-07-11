@@ -482,20 +482,20 @@ namespace engine
             {
                 lookAtYAngle -= m_headRotation.Y;
                 if( lookAtYAngle > 4_deg )
-                    m_headRotation.Y += 4_deg;
-                else if( lookAtYAngle >= -4_deg )
-                    m_headRotation.Y += lookAtYAngle;
+                    m_headRotation.Y += core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                else if( lookAtYAngle < -4_deg )
+                    m_headRotation.Y -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
                 else
-                    m_headRotation.Y -= 4_deg;
+                    m_headRotation.Y += core::makeInterpolatedValue(lookAtYAngle).getScaled(deltaTimeMs);
                 m_freeLookRotation.Y = m_headRotation.Y;
 
                 lookAtXAngle -= m_headRotation.X;
                 if( lookAtXAngle > 4_deg )
-                    m_headRotation.X += 4_deg;
-                else if( lookAtXAngle >= -4_deg )
-                    m_headRotation.X += lookAtXAngle;
+                    m_headRotation.X += core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                else if( lookAtXAngle < -4_deg )
+                    m_headRotation.X -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
                 else
-                    m_headRotation.X -= 4_deg;
+                    m_headRotation.X += core::makeInterpolatedValue(lookAtXAngle).getScaled(deltaTimeMs);
                 m_freeLookRotation.X = m_headRotation.X;
 
                 m_camOverrideType = 2;
@@ -732,11 +732,11 @@ namespace engine
             m_currentLookAt.position.Z = std::lround(item.getPosition().Z);
         }
 
-        m_currentLookAt.position.Y += moveIntoGeometry(m_currentLookAt, 306);
+        m_currentLookAt.position.Y += moveIntoGeometry(m_currentLookAt, loader::QuarterSectorSize + 50);
 
         auto tmp = m_currentLookAt;
-        tmp.position.X -= std::lround(m_distanceFromLookAt * m_localRotation.Y.sin());
-        tmp.position.Z -= std::lround(m_distanceFromLookAt * m_localRotation.Y.cos());
+        tmp.position.X -= std::lround(m_distanceFromLookAt * m_localRotation.Y.sin() * m_localRotation.X.cos());
+        tmp.position.Z -= std::lround(m_distanceFromLookAt * m_localRotation.Y.cos() * m_localRotation.X.cos());
         tmp.position.Y += std::lround(m_distanceFromLookAt * m_localRotation.X.sin());
         tmp.room = m_currentPosition.room;
 
@@ -755,8 +755,8 @@ namespace engine
 
         if( m_enemy != nullptr )
         {
-            m_localRotation.X += m_enemyLookRot.X;
-            m_localRotation.Y += m_enemyLookRot.Y;
+            m_localRotation.X = m_enemyLookRot.X + item.getRotation().X;
+            m_localRotation.Y = m_enemyLookRot.Y + item.getRotation().Y;
         }
         else
         {

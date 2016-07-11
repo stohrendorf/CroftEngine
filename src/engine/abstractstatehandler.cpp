@@ -9,7 +9,7 @@ namespace engine
 {
     namespace
     {
-        const core::Angle FreeLookMouseMovementScale{ 100_deg };
+        const core::Angle FreeLookMouseMovementScale{ 50_deg };
     }
 
     using LaraStateId = loader::LaraStateId;
@@ -387,7 +387,7 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
+                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
                     FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
                 );
 
@@ -2075,7 +2075,7 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
+                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
                     FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
                 );
 

@@ -15,7 +15,7 @@ public:
         cursorControl->setPosition(0.5f, 0.5f);
     }
 
-    const InputState& getInputState()
+    void update()
     {
         m_inputState.setXAxisMovement(m_left, m_right);
         m_inputState.setZAxisMovement(m_backward, m_forward);
@@ -23,7 +23,10 @@ public:
 
         m_inputState.mouseMovement = m_cursorControl->getRelativePosition() - irr::core::vector2df{ 0.5f, 0.5f };
         m_cursorControl->setPosition(0.5f, 0.5f);
+    }
 
+    const InputState& getInputState() const
+    {
         return m_inputState;
     }
 

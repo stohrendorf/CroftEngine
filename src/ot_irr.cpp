@@ -55,6 +55,8 @@ int main()
 
     while(device->run())
     {
+        lvl->m_inputHandler->update();
+
         if(!device->isWindowActive())
         {
             lastTime = timer->getTime();
