@@ -114,6 +114,7 @@ set(OT_IRR_SRCS
     audio/filterhandle.h
     audio/sourcehandle.h
     audio/streamsource.h
+    audio/sndfile/helpers.h
 
     util/helpers.h
     util/vmath.h

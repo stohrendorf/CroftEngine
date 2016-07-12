@@ -1,7 +1,8 @@
 #pragma once
 
-#include <fstream>
-#include <string>
+#include "bufferhandle.h"
+#include "sourcehandle.h"
+#include "sndfile/helpers.h"
 
 #include <boost/throw_exception.hpp>
 #include <boost/log/trivial.hpp>
@@ -9,105 +10,68 @@
 #include <gsl.h>
 
 #include <sndfile.h>
-#include "bufferhandle.h"
-#include "sourcehandle.h"
+
+#include <fstream>
 
 namespace audio
 {
-    class IStreamSource
+    class AbstractStreamSource
     {
     public:
-        virtual ~IStreamSource() = default;
+        virtual ~AbstractStreamSource() = default;
 
-        virtual bool atEnd() const = 0;
+        bool atEnd() const noexcept
+        {
+            return m_eof;
+        }
+
         virtual size_t readStereo(int16_t* buffer, size_t bufferSize) = 0;
         virtual int getSampleRate() const = 0;
+
+    protected:
+        size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, int sourceIsMono)
+        {
+            sf_count_t count = 0;
+            while( count < frameCount )
+            {
+                const auto n = sf_readf_short(sndFile, frameBuffer + count, frameCount - count);
+                count += n;
+                if( n == 0 )
+                    break;
+
+                // restart if there are not enough samples
+                if( count < frameCount )
+                    sf_seek(sndFile, 0, SF_SEEK_SET);
+            }
+
+            if( sourceIsMono )
+            {
+                // Need to duplicate the samples from mono to stereo
+                for( size_t i = 0; i < frameCount; ++i )
+                {
+                    const size_t src = frameCount - i - 1;
+                    const size_t dest = 2 * frameCount - i - 2;
+                    frameBuffer[dest] = frameBuffer[dest + 1] = frameBuffer[src];
+                }
+            }
+
+            if( count < frameCount )
+                m_eof = true;
+
+            return count;
+        }
+
+    private:
+        bool m_eof = false;
     };
 
-    class WadStreamSource final : public IStreamSource
+    class WadStreamSource final : public AbstractStreamSource
     {
     private:
-        struct InputStreamViewWrapper : public SF_VIRTUAL_IO
-        {
-            InputStreamViewWrapper(std::istream& stream, std::streamoff begin, std::streamoff end)
-                : SF_VIRTUAL_IO()
-                , m_stream(stream)
-                , m_begin(begin)
-                , m_end(end)
-            {
-                Expects(begin <= end);
-
-                get_filelen = &InputStreamViewWrapper::getFileLength;
-                seek = &InputStreamViewWrapper::doSeek;
-                read = &InputStreamViewWrapper::doRead;
-                write = &InputStreamViewWrapper::doWrite;
-                tell = &InputStreamViewWrapper::doTell;
-            }
-
-            static sf_count_t getFileLength(void* user_data)
-            {
-                auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                return self->m_end - self->m_begin;
-            }
-
-            static sf_count_t doSeek(sf_count_t offset, int whence, void* user_data)
-            {
-                auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                switch(whence)
-                {
-                    case SEEK_SET:
-                        BOOST_ASSERT(offset >= 0 && offset <= self->m_end - self->m_begin);
-                        self->m_stream.seekg(offset + self->m_begin, std::ios::beg);
-                        break;
-                    case SEEK_CUR:
-                        BOOST_ASSERT(self->m_stream.tellg() + offset <= self->m_end && self->m_stream.tellg() + offset >= 0);
-                        self->m_stream.seekg(offset, std::ios::cur);
-                        break;
-                    case SEEK_END:
-                        BOOST_ASSERT(offset >= 0 && offset <= self->m_end - self->m_begin);
-                        self->m_stream.seekg(self->m_end - offset, std::ios::beg);
-                        break;
-                    default:
-                        BOOST_ASSERT(false);
-                }
-                return self->m_stream.tellg();
-            }
-
-            static sf_count_t doRead(void* ptr, sf_count_t count, void* user_data)
-            {
-                auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                if(self->m_stream.tellg() + count > self->m_end)
-                    count = self->m_end - self->m_stream.tellg();
-
-                BOOST_ASSERT(self->m_stream.tellg() + count <= self->m_end);
-
-                char* buf = static_cast<char*>(ptr);
-                self->m_stream.read(buf, count);
-                return self->m_stream.gcount();
-            }
-
-            static sf_count_t doWrite(const void* /*ptr*/, sf_count_t /*count*/, void* /*user_data*/)
-            {
-                return 0; // read-only
-            }
-
-            static sf_count_t doTell(void* user_data)
-            {
-                auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                return self->m_stream.tellg();
-            }
-
-        private:
-            std::istream& m_stream;
-            const std::streamoff m_begin;
-            const std::streamoff m_end;
-        };
-
         std::ifstream m_wadFile;
         SF_INFO m_sfInfo;
         SNDFILE* m_sndFile = nullptr;
-        std::unique_ptr<InputStreamViewWrapper> m_wrapper;
-        bool m_eof = false;
+        std::unique_ptr<sndfile::InputStreamViewWrapper> m_wrapper;
 
         // CDAUDIO.WAD step size defines CDAUDIO's header stride, on which each track
         // info is placed. Also CDAUDIO count specifies static amount of tracks existing
@@ -118,12 +82,12 @@ namespace audio
 
     public:
         WadStreamSource(const std::string& filename, size_t trackIndex)
-            : m_wadFile(filename, std::ios::in|std::ios::binary)
+            : m_wadFile(filename, std::ios::in | std::ios::binary)
         {
             memset(&m_sfInfo, 0, sizeof(m_sfInfo));
 
-            if(!m_wadFile.is_open())
-                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
+            if( !m_wadFile.is_open() )
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
 
             m_wadFile.seekg(trackIndex * WADStride, std::ios::beg);
 
@@ -139,51 +103,19 @@ namespace audio
             m_wadFile.read(reinterpret_cast<char*>(&length), 4);
 
             m_wadFile.seekg(offset, std::ios::beg);
-            m_wrapper = std::make_unique<InputStreamViewWrapper>(m_wadFile, offset, offset + length);
+            m_wrapper = std::make_unique<sndfile::InputStreamViewWrapper>(m_wadFile, offset, offset + length);
 
             m_sndFile = sf_open_virtual(m_wrapper.get(), SFM_READ, &m_sfInfo, m_wrapper.get());
-            if(m_sndFile == nullptr)
+            if( m_sndFile == nullptr )
             {
                 BOOST_LOG_TRIVIAL(error) << "Failed to open WAD file: " << sf_strerror(nullptr);
                 BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
             }
         }
 
-        bool atEnd() const override
-        {
-            return m_eof;
-        }
-
         size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
         {
-            sf_count_t count = 0;
-            while(count < frameCount)
-            {
-                const auto n = sf_readf_short(m_sndFile, frameBuffer + count, frameCount - count);
-                count += n;
-                if(n == 0)
-                    break;
-
-                // restart if there are not enough samples
-                if(count < frameCount)
-                    sf_seek(m_sndFile, 0, SF_SEEK_SET);
-            }
-
-            if(m_sfInfo.channels != 2)
-            {
-                // Need to duplicate the samples from mono to stereo
-                for(size_t i = 0; i < frameCount; ++i)
-                {
-                    const size_t src = frameCount - i - 1;
-                    const size_t dest = 2*frameCount - i - 2;
-                    frameBuffer[dest] = frameBuffer[dest + 1] = frameBuffer[src];
-                }
-            }
-
-            if(count < frameCount)
-                m_eof = true;
-
-            return count;
+            return AbstractStreamSource::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1);
         }
 
         int getSampleRate() const override
@@ -192,7 +124,7 @@ namespace audio
         }
     };
 
-    class SndfileStreamSource final : public IStreamSource
+    class SndfileStreamSource final : public AbstractStreamSource
     {
     private:
         SF_INFO m_sfInfo;
@@ -212,48 +144,16 @@ namespace audio
             memset(&m_sfInfo, 0, sizeof(m_sfInfo));
 
             m_sndFile = sf_open(filename.c_str(), SFM_READ, &m_sfInfo);
-            if(m_sndFile == nullptr)
+            if( m_sndFile == nullptr )
             {
-                BOOST_LOG_TRIVIAL(error) << "Failed to open OGG file: " << sf_strerror(nullptr);
-                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
+                BOOST_LOG_TRIVIAL(error) << "Failed to open audio file: " << sf_strerror(nullptr);
+                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open audio file"));
             }
-        }
-
-        bool atEnd() const override
-        {
-            return m_eof;
         }
 
         size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
         {
-            sf_count_t count = 0;
-            while(count < frameCount)
-            {
-                const auto n = sf_readf_short(m_sndFile, frameBuffer + count, frameCount - count);
-                count += n;
-                if(n == 0)
-                    break;
-
-                // restart if there are not enough samples
-                if(count < frameCount)
-                    sf_seek(m_sndFile, 0, SF_SEEK_SET);
-            }
-
-            if(m_sfInfo.channels != 2)
-            {
-                // Need to duplicate the samples from mono to stereo
-                for(size_t i = 0; i < frameCount; ++i)
-                {
-                    const size_t src = frameCount - i - 1;
-                    const size_t dest = 2 * frameCount - i - 2;
-                    frameBuffer[dest] = frameBuffer[dest + 1] = frameBuffer[src];
-                }
-            }
-
-            if(count < frameCount)
-                m_eof = true;
-
-            return count;
+            return AbstractStreamSource::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1);
         }
 
         int getSampleRate() const override
@@ -265,15 +165,15 @@ namespace audio
     class Stream
     {
     private:
-        std::unique_ptr<IStreamSource> m_stream;
+        std::unique_ptr<AbstractStreamSource> m_stream;
         SourceHandle m_source;
         BufferHandle m_buffers[2];
         std::vector<int16_t> m_sampleBuffer;
 
     public:
-        explicit Stream(std::unique_ptr<IStreamSource>&& src, size_t bufferSize)
+        explicit Stream(std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize)
             : m_stream(std::move(src))
-            , m_sampleBuffer(bufferSize*2)
+              , m_sampleBuffer(bufferSize * 2)
         {
             fillBuffer(m_buffers[0]);
             fillBuffer(m_buffers[1]);
@@ -290,18 +190,18 @@ namespace audio
         {
             ALint processed = 0;
             alGetSourcei(m_source.get(), AL_BUFFERS_PROCESSED, &processed);
-            if(processed == 0)
+            if( processed == 0 )
                 return;
 
             ALuint bufId;
             alSourceUnqueueBuffers(m_source.get(), 1, &bufId);
 
-            if(bufId == m_buffers[0].get())
+            if( bufId == m_buffers[0].get() )
                 fillBuffer(m_buffers[0]);
-            else if(bufId == m_buffers[1].get())
+            else if( bufId == m_buffers[1].get() )
                 fillBuffer(m_buffers[1]);
             else
-                BOOST_THROW_EXCEPTION(std::runtime_error("Stream buffer handle curruption"));
+            BOOST_THROW_EXCEPTION(std::runtime_error("Stream buffer handle curruption"));
 
             alSourceQueueBuffers(m_source.get(), 1, &bufId);
         }
