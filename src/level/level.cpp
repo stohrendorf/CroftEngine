@@ -34,6 +34,8 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 
 #include <algorithm>
 #include <stack>
@@ -1107,7 +1109,7 @@ void Level::drawBars(irr::video::IVideoDriver* drv) const
     }
 }
 
-engine::ItemController * level::Level::findControllerForNode(const irr::scene::ISceneNode* node)
+engine::ItemController* level::Level::findControllerForNode(const irr::scene::ISceneNode* node)
 {
     for(const auto& ctrl : m_itemControllers | boost::adaptors::map_values)
     {
@@ -1116,4 +1118,182 @@ engine::ItemController * level::Level::findControllerForNode(const irr::scene::I
     }
 
     return nullptr;
+}
+
+void Level::playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+{
+    if(trackId < 1 || trackId >= 64)
+        return;
+
+    if(trackId < 28)
+    {
+        triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId == 28)
+    {
+        if((m_cdTrackTriggerValues[trackId] & 0x100) != 0 && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp)
+            trackId = 29;
+        triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId == 37 || trackId == 41)
+    {
+        if(m_lara->getCurrentAnimState() == loader::LaraStateId::Hang)
+            triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId >= 29 && trackId <= 40)
+    {
+        triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId >= 42 && trackId <= 48)
+    {
+        if(trackId == 42 && (m_cdTrackTriggerValues[42] & 0x100) != 0 && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang)
+            trackId = 43;
+        triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId == 49)
+    {
+        if(m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop)
+            triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId == 50)
+    {
+        if((m_cdTrackTriggerValues[50] & 0x100) != 0)
+        {
+            if(++m_cdTrack50time == 120)
+            {
+                //! @todo End level
+                m_cdTrack50time = 0;
+            }
+            triggerTrack(trackId, triggerArg, triggerType);
+            return;
+        }
+
+        if(m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit)
+            triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+
+    if(trackId >= 51 && trackId <= 63)
+    {
+        triggerTrack(trackId, triggerArg, triggerType);
+        return;
+    }
+}
+
+void Level::triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+{
+    if((m_cdTrackTriggerValues[trackId] & 0x100) != 0)
+        return;
+
+    const auto mask = triggerArg & 0x3e00;
+    if(triggerType == loader::TriggerType::Switch)
+        m_cdTrackTriggerValues[trackId] ^= mask;
+    else if(triggerType == loader::TriggerType::AntiPad)
+        m_cdTrackTriggerValues[trackId] &= ~mask;
+    else
+        m_cdTrackTriggerValues[trackId] |= mask;
+
+    if((m_cdTrackTriggerValues[trackId] & 0x3e00) == 0x3e00)
+    {
+        m_cdTrackTriggerValues[trackId] |= (triggerArg & 0x100);
+
+        if(m_activeCDTrack != trackId)
+            startTrack(trackId);
+    }
+    else
+    {
+        stopTrack(trackId);
+    }
+}
+
+void Level::startTrack(uint16_t trackId)
+{
+    if(trackId == 13)
+    {
+        m_lara->playSound(173);
+        return;
+    }
+
+    if(trackId > 2 && trackId < 22)
+        return;
+
+    if(m_activeCDTrack > 0)
+    {
+        if(m_activeCDTrack < 26 || m_activeCDTrack > 56)
+        {
+            m_cdStream.reset();
+        }
+        else
+        {
+            //! @todo Stop sound m_activeCDTrack+148
+        }
+        m_activeCDTrack = 0;
+    }
+
+    if(m_activeCDTrack >= 26 && m_activeCDTrack <= 56)
+    {
+        m_lara->playSound(trackId + 148);
+        m_activeCDTrack = trackId;
+        return;
+    }
+
+    if(trackId == 2)
+    {
+        trackId = 2;
+    }
+    else if(trackId >= 22 && trackId <= 25)
+    {
+        trackId -= 15;
+    }
+    else
+    {
+        if(trackId <= 56)
+        {
+            m_activeCDTrack = trackId;
+            return;
+        }
+        trackId -= 54;
+    }
+
+    playStream(trackId);
+    m_activeCDTrack = trackId;
+}
+
+void Level::stopTrack(uint16_t trackId)
+{
+    if(m_activeCDTrack == 0)
+        return;
+
+    if(m_activeCDTrack < 26 || m_activeCDTrack > 56)
+    {
+        m_cdStream.reset();
+    }
+    else
+    {
+        //! @todo Stop sound trackId+148
+    }
+
+    m_activeCDTrack = 0;
+}
+
+void Level::playStream(uint16_t trackId)
+{
+    static constexpr size_t DefaultBufferSize = 16384;
+
+    if(boost::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD"))
+        m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId), DefaultBufferSize);
+    else
+        m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::SndfileStreamSource>((boost::format("data/tr1/audio/%03d.ogg") % trackId).str()), DefaultBufferSize);
 }

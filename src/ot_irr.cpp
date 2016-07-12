@@ -42,7 +42,8 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL3B.PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL1.PHD", level::Game::Unknown);
+
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
     lvl->load(driver);
@@ -53,9 +54,20 @@ int main()
     auto timer = device->getTimer();
     auto lastTime = timer->getTime();
 
+    //! @todo Map these values from level IDs
+    /*
+    0, 57, 57, 57, 57, 59, 59, 59, 58, 58, 59, 59, 59, 58, 60, 60, 0, 0, 0, 0, 2, 0
+    */
+    lvl->startTrack(57);
+
     while(device->run())
     {
         lvl->m_audioDev.removeStoppedSources();
+        if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
+            lvl->playStream(lvl->m_activeCDTrack);
+
+        if(lvl->m_cdStream)
+            lvl->m_cdStream->update();
 
         if(!device->isWindowActive())
         {

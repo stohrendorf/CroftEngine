@@ -8,6 +8,7 @@
 #include "loader/datatypes.h"
 #include "loader/item.h"
 #include "audio/device.h"
+#include "audio/streamsource.h"
 
 #include <memory>
 #include <vector>
@@ -30,10 +31,10 @@ namespace level
             : m_gameVersion(gameVersion)
             , m_reader(std::move(reader))
         {
+            m_cdTrackTriggerValues.fill(0);
         }
 
         virtual ~Level();
-
         const Game m_gameVersion;
 
         std::vector<loader::DWordTexture> m_textures;
@@ -184,6 +185,15 @@ namespace level
             src->play();
         }
 
+        void playStream(uint16_t trackId);
+        void startTrack(uint16_t trackId);
+        void stopTrack(uint16_t trackId);
+        void triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+        void playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+
+        std::unique_ptr<audio::Stream> m_cdStream;
+        int m_activeCDTrack = 0;
+
     protected:
         loader::io::SDLReader m_reader;
         bool m_demoOrUb = false;
@@ -199,5 +209,8 @@ namespace level
     private:
         static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);
         static std::unique_ptr<Level> createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
+
+        std::array<uint16_t, 64> m_cdTrackTriggerValues;
+        int m_cdTrack50time = 0;
     };
 }

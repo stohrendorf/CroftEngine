@@ -129,6 +129,11 @@ namespace audio
             return m_handle;
         }
 
+        void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate)
+        {
+            alBufferData(m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples, sampleCount * sizeof(samples[0]), sampleRate);
+        }
+
         bool fillFromWav(const uint8_t* data)
         {
             Expects(data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F');

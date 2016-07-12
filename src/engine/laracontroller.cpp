@@ -692,7 +692,7 @@ namespace engine
                 //! @todo handle level end
                 break;
             case loader::TriggerFunction::PlayTrack:
-                //! @todo handle "play track"
+                getLevel().playTrack(actionParam, srcTriggerArg, srcTriggerType);
                 break;
             case loader::TriggerFunction::Secret:
                 //! @todo handle secrets

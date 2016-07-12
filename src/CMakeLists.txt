@@ -108,13 +108,12 @@ set(OT_IRR_SRCS
     audio/alext.cpp
     audio/device.h
     audio/device.cpp
-    audio/positionalemitter.h
-    audio/positionalemitter.cpp
     audio/utils.h
     audio/utils.cpp
     audio/bufferhandle.h
     audio/filterhandle.h
     audio/sourcehandle.h
+    audio/streamsource.h
 
     util/helpers.h
     util/vmath.h

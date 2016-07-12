@@ -47,8 +47,13 @@ namespace audio
         void setBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& b)
         {
             m_buffer = b;
-            alSourcei(m_handle, AL_BUFFER, b->get());
+            alSourcei(m_handle, AL_BUFFER, m_buffer->get());
             DEBUG_CHECK_AL_ERROR();
+        }
+
+        const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
+        {
+            return m_buffer;
         }
 
         void setDirectFilter(const std::shared_ptr<FilterHandle>& f)
