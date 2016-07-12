@@ -52,18 +52,15 @@ namespace loader
         }
     };
 
-    // Looped field is located at offset 6 of SoundDetail structure and
-    // combined with SampleIndexes value. This field is responsible for
-    // looping behaviour of each sound.
-    // L flag sets sound to continous looped state, while W flag waits
-    // for any sound with similar ID to finish, and only then plays it
-    // again. R flag rewinds sound, if sound with similar ID is being
-    // sent to sources.
-    enum class LoopType
+    enum class PlaybackType
     {
+        //! Play the sample once, then release the resources
         None,
-        Forward,
-        PingPong,
+        //! Loop the sample
+        Looping,
+        //! Restart already playing sample
+        Restart,
+        //! Sample cannot be played more than once at the same time
         Wait
     };
 
@@ -76,72 +73,6 @@ namespace loader
     */
     struct SoundDetails
     {
-        size_t sample; // Index into SampleIndices -- NOT USED IN TR4-5!!!
-        uint16_t volume; // Global sample value
-        uint16_t sound_range; // Sound range
-        uint16_t chance; // Chance to play
-        int16_t pitch; // Pitch shift
-        uint8_t num_samples_and_flags_1; // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
-        uint8_t flags_2; // Bit 4: UNKNOWN, bit 5: Randomize pitch, bit 6: randomize volume
-        // All other bits in flags_2 are unused.
-
-        LoopType getLoopType(level::Engine engine) const
-        {
-            if( engine == level::Engine::TR1 )
-            {
-                switch( num_samples_and_flags_1 & 3 )
-                {
-                case 1:
-                    return LoopType::PingPong;
-                case 2:
-                    return LoopType::Forward;
-                default:
-                    return LoopType::None;
-                }
-            }
-            else if( engine == level::Engine::TR2 )
-            {
-                switch( num_samples_and_flags_1 & 3 )
-                {
-                case 1:
-                    return LoopType::PingPong;
-                case 3:
-                    return LoopType::Forward;
-                default:
-                    return LoopType::None;
-                }
-            }
-            else
-            {
-                switch( num_samples_and_flags_1 & 3 )
-                {
-                case 1:
-                    return LoopType::Wait;
-                case 2:
-                    return LoopType::PingPong;
-                case 3:
-                    return LoopType::Forward;
-                default:
-                    return LoopType::None;
-                }
-            }
-        }
-
-        uint8_t getSampleCount() const
-        {
-            return (num_samples_and_flags_1 >> 2) & 0x0f;
-        }
-
-        bool useRandomPitch() const
-        {
-            return (flags_2 & 0x20) != 0;
-        }
-
-        bool useRandomVolume() const
-        {
-            return (flags_2 & 0x40) != 0;
-        }
-
         // Default range and pitch values are required for compatibility with
         // TR1 and TR2 levels, as there is no such parameters in SoundDetails
         // structures.
@@ -150,16 +81,85 @@ namespace loader
         //! @todo Check default value
         static constexpr const int DefaultPitch = 128; // 0.0 - only noise
 
+        size_t sample; // Index into SampleIndices -- NOT USED IN TR4-5!!!
+        uint16_t volume; // Global sample value
+        uint16_t sound_range = DefaultRange; // Sound range
+        uint16_t chance; // Chance to play
+        int16_t pitch = DefaultPitch; // Pitch shift
+        uint8_t sampleCountAndLoopType; // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
+        uint8_t flags;
+
+        PlaybackType getPlaybackType(level::Engine engine) const
+        {
+            if( engine == level::Engine::TR1 )
+            {
+                switch( sampleCountAndLoopType & 3 )
+                {
+                case 1:
+                    return PlaybackType::Restart;
+                case 2:
+                    return PlaybackType::Looping;
+                default:
+                    return PlaybackType::None;
+                }
+            }
+            else if( engine == level::Engine::TR2 )
+            {
+                switch( sampleCountAndLoopType & 3 )
+                {
+                case 1:
+                    return PlaybackType::Restart;
+                case 3:
+                    return PlaybackType::Looping;
+                default:
+                    return PlaybackType::None;
+                }
+            }
+            else
+            {
+                switch( sampleCountAndLoopType & 3 )
+                {
+                case 1:
+                    return PlaybackType::Wait;
+                case 2:
+                    return PlaybackType::Restart;
+                case 3:
+                    return PlaybackType::Looping;
+                default:
+                    return PlaybackType::None;
+                }
+            }
+        }
+
+        uint8_t getSampleCount() const
+        {
+            return (sampleCountAndLoopType >> 2) & 0x0f;
+        }
+
+        //! @brief Whether to play this sample without orientation (no panning).
+        bool ignoreOrientation() const
+        {
+            return (flags & 0x10) != 0;
+        }
+
+        bool useRandomPitch() const
+        {
+            return (flags & 0x20) != 0;
+        }
+
+        bool useRandomVolume() const
+        {
+            return (flags & 0x40) != 0;
+        }
+
         static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<SoundDetails> sound_details{new SoundDetails()};
             sound_details->sample = reader.readU16();
             sound_details->volume = reader.readU16();
             sound_details->chance = reader.readU16();
-            sound_details->num_samples_and_flags_1 = reader.readU8();
-            sound_details->flags_2 = reader.readU8();
-            sound_details->sound_range = DefaultRange;
-            sound_details->pitch = DefaultPitch;
+            sound_details->sampleCountAndLoopType = reader.readU8();
+            sound_details->flags = reader.readU8();
             return sound_details;
         }
 
@@ -171,8 +171,8 @@ namespace loader
             sound_details->sound_range = reader.readU8();
             sound_details->chance = reader.readU8();
             sound_details->pitch = reader.readI8();
-            sound_details->num_samples_and_flags_1 = reader.readU8();
-            sound_details->flags_2 = reader.readU8();
+            sound_details->sampleCountAndLoopType = reader.readU8();
+            sound_details->flags = reader.readU8();
             return sound_details;
         }
     };
