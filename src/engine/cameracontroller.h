@@ -127,17 +127,17 @@ namespace engine
             m_freeLookRotation = r;
         }
 
-        const irr::core::vector3df& getPosition() const
+        irr::core::vector3df getPosition() const
         {
-            return m_camera->getPosition();
+            return m_camera->getAbsolutePosition();
         }
 
-        const irr::core::vector3df& getFrontVector() const
+        irr::core::vector3df getFrontVector() const
         {
-            return m_camera->getTarget() - m_camera->getPosition();
+            return m_camera->getTarget() - m_camera->getAbsolutePosition();
         }
 
-        const irr::core::vector3df& getUpVector() const
+        irr::core::vector3df getUpVector() const
         {
             return m_camera->getUpVector();
         }

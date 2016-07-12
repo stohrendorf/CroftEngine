@@ -39,11 +39,11 @@ public:
 
     void setOrientation(const irr::core::vector3df& pos, const irr::core::vector3df& front, const irr::core::vector3df& up)
     {
-        alListener3f(AL_POSITION, pos.X, pos.Y, pos.Z);
+        alListener3f(AL_POSITION, pos.X, pos.Y, -pos.Z);
 
         const ALfloat o[6] = {
-            front.X, front.Y, front.Z,
-            up.X, up.Y, up.Z
+            front.X, front.Y, -front.Z,
+            up.X, up.Y, -up.Z
         };
         alListenerfv(AL_ORIENTATION, o);
     }

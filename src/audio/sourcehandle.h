@@ -24,15 +24,11 @@ namespace audio
         }
 
     public:
-        explicit SourceHandle(ALuint h)
+        explicit SourceHandle(ALuint h = createHandle())
             : m_handle(h)
         {
             Expects(alIsSource(h));
-        }
-
-        explicit SourceHandle()
-            : m_handle(createHandle())
-        {
+            set(AL_MAX_DISTANCE, 8 * 1024);
         }
 
         ~SourceHandle()
@@ -130,7 +126,7 @@ namespace audio
 
         void setPosition(const irr::core::vector3df& position)
         {
-            set(AL_POSITION, position.X, position.Y, position.Z);
+            set(AL_POSITION, position.X, position.Y, -position.Z);
         }
 
         void setPitch(ALfloat pitch_value)

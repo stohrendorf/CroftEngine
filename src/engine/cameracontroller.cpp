@@ -574,6 +574,8 @@ namespace engine
             m_unknown1 = 0;
         }
         HeightInfo::skipSteepSlants = false;
+
+        m_camera->updateAbsolutePosition();
     }
 
     void CameraController::handleCamOverride(int deltaTimeMs)
@@ -684,9 +686,7 @@ namespace engine
         m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
 
         m_camera->setPosition(camPos.toIrrlicht());
-        m_camera->updateAbsolutePosition();
         m_camera->setTarget(m_currentLookAt.position.toIrrlicht());
-        m_camera->updateAbsolutePosition();
     }
 
     void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs)

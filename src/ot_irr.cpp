@@ -42,7 +42,7 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL2.PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL3B.PHD", level::Game::Unknown);
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
     lvl->load(driver);
@@ -55,11 +55,7 @@ int main()
 
     while(device->run())
     {
-        lvl->m_inputHandler->update();
         lvl->m_audioDev.removeStoppedSources();
-        lvl->m_audioDev.setOrientation(lvl->m_cameraController->getPosition(),
-                                       lvl->m_cameraController->getFrontVector(),
-                                       lvl->m_cameraController->getUpVector());
 
         if(!device->isWindowActive())
         {
@@ -67,6 +63,9 @@ int main()
             device->yield();
             continue;
         }
+
+        lvl->m_inputHandler->update();
+
         auto deltaTime = timer->getTime() - lastTime;
         if(deltaTime <= 0)
         {
@@ -86,6 +85,10 @@ int main()
 
         lvl->m_lara->update(deltaTime);
         lvl->m_cameraController->update(deltaTime);
+
+        lvl->m_audioDev.setOrientation(lvl->m_cameraController->getPosition(),
+                                       lvl->m_cameraController->getFrontVector(),
+                                       lvl->m_cameraController->getUpVector());
 
         device->getVideoDriver()->beginScene(true, true);
         //device->getSceneManager()->drawAll();
