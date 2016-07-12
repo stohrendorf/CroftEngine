@@ -695,7 +695,15 @@ namespace engine
                 getLevel().playTrack(actionParam, srcTriggerArg, srcTriggerType);
                 break;
             case loader::TriggerFunction::Secret:
-                //! @todo handle secrets
+                {
+                    BOOST_ASSERT(actionParam < 16);
+                    const uint16_t mask = 1u << actionParam;
+                    if((m_secretsFoundBitmask & mask) == 0)
+                    {
+                        m_secretsFoundBitmask |= mask;
+                        getLevel().startTrack(13);
+                    }
+                }
                 break;
             default:
                 break;

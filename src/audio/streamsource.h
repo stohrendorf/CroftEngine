@@ -156,7 +156,18 @@ namespace audio
 
         size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
         {
-            const auto count = sf_readf_short(m_sndFile, frameBuffer, frameCount);
+            sf_count_t count = 0;
+            while(count < frameCount)
+            {
+                const auto n = sf_readf_short(m_sndFile, frameBuffer + count, frameCount - count);
+                count += n;
+                if(n == 0)
+                    break;
+
+                // restart if there are not enough samples
+                if(count < frameCount)
+                    sf_seek(m_sndFile, 0, SF_SEEK_SET);
+            }
 
             if(m_sfInfo.channels != 2)
             {
@@ -215,7 +226,18 @@ namespace audio
 
         size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
         {
-            const auto count = sf_readf_short(m_sndFile, frameBuffer, frameCount);
+            sf_count_t count = 0;
+            while(count < frameCount)
+            {
+                const auto n = sf_readf_short(m_sndFile, frameBuffer + count, frameCount - count);
+                count += n;
+                if(n == 0)
+                    break;
+
+                // restart if there are not enough samples
+                if(count < frameCount)
+                    sf_seek(m_sndFile, 0, SF_SEEK_SET);
+            }
 
             if(m_sfInfo.channels != 2)
             {
@@ -279,7 +301,7 @@ namespace audio
             else if(bufId == m_buffers[1].get())
                 fillBuffer(m_buffers[1]);
             else
-                BOOST_THROW_EXCEPTION(std::runtime_error("Stream buffer handles curruption"));
+                BOOST_THROW_EXCEPTION(std::runtime_error("Stream buffer handle curruption"));
 
             alSourceQueueBuffers(m_source.get(), 1, &bufId);
         }

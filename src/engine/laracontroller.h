@@ -80,6 +80,7 @@ namespace engine
         //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
         //!          diving immediately again.
         boost::optional<int> m_swimToDiveKeypressDuration = boost::none;
+        uint16_t m_secretsFoundBitmask = 0;
 
         ///////////////////////////////////////
 
