@@ -84,12 +84,10 @@ int main()
 
     while(device->run())
     {
-        lvl->m_audioDev.removeStoppedSources();
+        lvl->m_audioDev.update();
+
         if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
             lvl->playStream(lvl->m_activeCDTrack);
-
-        if(lvl->m_cdStream)
-            lvl->m_cdStream->update();
 
         if(!device->isWindowActive())
         {
@@ -120,9 +118,9 @@ int main()
         lvl->m_lara->update(deltaTime);
         lvl->m_cameraController->update(deltaTime);
 
-        lvl->m_audioDev.setOrientation(lvl->m_cameraController->getPosition(),
-                                       lvl->m_cameraController->getFrontVector(),
-                                       lvl->m_cameraController->getUpVector());
+        lvl->m_audioDev.setListenerTransform(lvl->m_cameraController->getPosition(),
+                                             lvl->m_cameraController->getFrontVector(),
+                                             lvl->m_cameraController->getUpVector());
 
         device->getVideoDriver()->beginScene(true, true);
         //device->getSceneManager()->drawAll();

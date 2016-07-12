@@ -222,7 +222,7 @@ namespace level
                 handle->stop();
         }
 
-        std::unique_ptr<audio::Stream> m_cdStream;
+        std::shared_ptr<audio::Stream> m_cdStream;
         int m_activeCDTrack = 0;
 
     protected:

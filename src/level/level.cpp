@@ -1233,6 +1233,7 @@ void Level::startTrack(uint16_t trackId)
     {
         if(m_activeCDTrack < 26 || m_activeCDTrack > 56)
         {
+            m_audioDev.removeStream(m_cdStream);
             m_cdStream.reset();
         }
         else
@@ -1278,6 +1279,7 @@ void Level::stopTrack(uint16_t trackId)
 
     if(m_activeCDTrack < 26 || m_activeCDTrack > 56)
     {
+        m_audioDev.removeStream(m_cdStream);
         m_cdStream.reset();
     }
     else
@@ -1296,4 +1298,6 @@ void Level::playStream(uint16_t trackId)
         m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId), DefaultBufferSize);
     else
         m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::SndfileStreamSource>((boost::format("data/tr1/audio/%03d.ogg") % trackId).str()), DefaultBufferSize);
+
+    m_audioDev.registerStream(m_cdStream);
 }

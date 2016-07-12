@@ -2,6 +2,7 @@
 
 #include "filterhandle.h"
 #include "sourcehandle.h"
+#include "stream.h"
 
 #include <alc.h>
 #include <gsl.h>
@@ -10,20 +11,36 @@
 namespace audio
 {
 
-class Device : public boost::noncopyable
+class Device final : public boost::noncopyable
 {
 public:
     explicit Device();
     ~Device();
+
+    void update()
+    {
+        removeStoppedSources();
+        updateStreams();
+    }
 
     const std::shared_ptr<FilterHandle>& getUnderwaterFilter() const
     {
         return m_underwaterFilter;
     }
 
-    void registerSource(const std::shared_ptr<SourceHandle>& src)
+    void registerSource(const gsl::not_null<std::shared_ptr<SourceHandle>>& src)
     {
         m_sources.insert(src);
+    }
+
+    void registerStream(const gsl::not_null<std::shared_ptr<Stream>>& stream)
+    {
+        m_streams.insert(stream);
+    }
+
+    void removeStream(const std::shared_ptr<Stream>& stream)
+    {
+        m_streams.erase(stream);
     }
 
     void removeStoppedSources()
@@ -37,7 +54,13 @@ public:
         m_sources = std::move(cleaned);
     }
 
-    void setOrientation(const irr::core::vector3df& pos, const irr::core::vector3df& front, const irr::core::vector3df& up)
+    void updateStreams()
+    {
+        for(const auto& stream : m_streams)
+            stream->update();
+    }
+
+    void setListenerTransform(const irr::core::vector3df& pos, const irr::core::vector3df& front, const irr::core::vector3df& up)
     {
         alListener3f(AL_POSITION, pos.X, pos.Y, -pos.Z);
 
@@ -53,6 +76,7 @@ private:
     ALCcontext* m_context = nullptr;
     std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;
     std::set<std::shared_ptr<SourceHandle>> m_sources;
+    std::set<std::shared_ptr<Stream>> m_streams;
 };
 
 }
