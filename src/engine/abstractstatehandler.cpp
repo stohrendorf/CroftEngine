@@ -801,6 +801,7 @@ namespace engine
                 nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
                 playAnimation(loader::AnimationId::LANDING_HARD, 358);
             }
+            getLevel().stopSound(30);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             placeOnFloor(state);
             setFalling(false);

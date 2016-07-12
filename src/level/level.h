@@ -165,8 +165,9 @@ namespace level
         std::unique_ptr<engine::InputHandler> m_inputHandler;
 
         audio::Device m_audioDev;
+        std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
 
-        void playSample(size_t sample, float pitch, float volume, const core::ExactTRCoordinates& pos)
+        std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const core::ExactTRCoordinates& pos)
         {
             Expects(sample < m_sampleIndices.size());
             pitch = irr::core::clamp(pitch, 0.5f, 2.0f);
@@ -183,6 +184,19 @@ namespace level
             src->setGain(volume);
             src->setPosition(pos.toIrrlicht());
             src->play();
+
+            m_samples[sample] = src;
+
+            return src;
+        }
+
+        std::shared_ptr<audio::SourceHandle> findSample(size_t sample) const
+        {
+            auto it = m_samples.find(sample);
+            if(it == m_samples.end())
+                return nullptr;
+
+            return it->second.lock();
         }
 
         void playStream(uint16_t trackId);
@@ -190,6 +204,23 @@ namespace level
         void stopTrack(uint16_t trackId);
         void triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
         void playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+        void stopSound(uint16_t soundId) const
+        {
+            BOOST_ASSERT(soundId < m_soundmap.size());
+            const auto& details = m_soundDetails[m_soundmap[soundId]];
+            const size_t first = details.sample;
+            const size_t last = first + details.getSampleCount();
+
+            for(size_t i = first; i < last; ++i)
+            {
+                stopSample(i);
+            }
+        }
+        void stopSample(size_t id) const
+        {
+            if(auto handle = findSample(id))
+                handle->stop();
+        }
 
         std::unique_ptr<audio::Stream> m_cdStream;
         int m_activeCDTrack = 0;

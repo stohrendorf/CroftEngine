@@ -287,7 +287,7 @@ namespace engine
             setFalling(false);
             setPosition(getPosition() + core::ExactTRCoordinates(0, 100, 0));
             updateFloorHeight(0);
-            //! @todo stop sound 30
+            getLevel().stopSound(30);
             if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
             {
                 setXRotation(-45_deg);

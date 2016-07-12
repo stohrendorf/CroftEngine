@@ -330,8 +330,53 @@ namespace engine
         if(volume <= 0)
             return false;
 
-        m_level->playSample(sample, pitch, volume, getPosition());
+        std::shared_ptr<audio::SourceHandle> handle;
+        if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Looping)
+        {
+            handle = m_level->playSample(sample, pitch, volume, getPosition());
+            handle->setLooping(true);
+        }
+        else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Restart)
+        {
+            handle = m_level->findSample(sample);
+            if(handle != nullptr)
+            {
+                handle->play();
+            }
+            else
+            {
+                handle = m_level->playSample(sample, pitch, volume, getPosition());
+            }
+        }
+        else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Wait)
+        {
+            handle = m_level->findSample(sample);
+            if(handle == nullptr)
+            {
+                handle = m_level->playSample(sample, pitch, volume, getPosition());
+            }
+        }
+        else
+        {
+            handle = m_level->playSample(sample, pitch, volume, getPosition());
+        }
+
+
+        m_sounds.emplace_back(handle);
         return true;
+    }
+
+    void ItemController::updateSounds()
+    {
+        m_sounds.erase(std::remove_if(m_sounds.begin(), m_sounds.end(), [](const std::weak_ptr<audio::SourceHandle>& h) {
+            return h.expired();
+        }), m_sounds.end());
+
+        for(const std::weak_ptr<audio::SourceHandle>& handle : m_sounds)
+        {
+            std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
+            lockedHandle->setPosition(getPosition().toIrrlicht());
+        }
     }
 
     void ItemController_55_Switch::onInteract(LaraController& lara, LaraState& /*state*/)

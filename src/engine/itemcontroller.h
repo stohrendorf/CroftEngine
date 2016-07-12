@@ -4,6 +4,7 @@
 #include "core/coordinates.h"
 #include "level/level.h"
 #include "core/interpolatedvalue.h"
+#include "audio/sourcehandle.h"
 
 #include <irrlicht.h>
 
@@ -54,6 +55,10 @@ namespace engine
         bool m_falling = false; // flags2_08
 
         int m_floorHeight = 0;
+
+        std::vector<std::weak_ptr<audio::SourceHandle>> m_sounds;
+
+        void updateSounds();
 
     public:
         static constexpr const uint16_t Oneshot = 0x100;
@@ -135,6 +140,8 @@ namespace engine
                 m_sceneNode->setPosition(m_position.position.toIrrlicht() - parent->getAbsolutePosition());
             else
                 m_sceneNode->setPosition(m_position.position.toIrrlicht());
+
+            updateSounds();
 
             m_sceneNode->updateAbsolutePosition();
         }
@@ -310,7 +317,7 @@ namespace engine
 
             animateImpl(isNewFrame);
 
-            if(isNewFrame && m_isActive && m_hasProcessAnimCommandsOverride)
+            if(m_isActive && m_hasProcessAnimCommandsOverride)
                 processAnimCommands();
 
             applyRotation();

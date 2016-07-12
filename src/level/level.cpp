@@ -1237,7 +1237,7 @@ void Level::startTrack(uint16_t trackId)
         }
         else
         {
-            //! @todo Stop sound m_activeCDTrack+148
+            stopSound(trackId + 148);
         }
         m_activeCDTrack = 0;
     }
@@ -1282,7 +1282,7 @@ void Level::stopTrack(uint16_t trackId)
     }
     else
     {
-        //! @todo Stop sound trackId+148
+        stopSound(trackId + 148);
     }
 
     m_activeCDTrack = 0;
