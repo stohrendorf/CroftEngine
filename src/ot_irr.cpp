@@ -42,7 +42,33 @@ int main()
     if(!device)
         return EXIT_FAILURE;
 
-    auto lvl = level::Level::createLoader("data/tr1/data/LEVEL1.PHD", level::Game::Unknown);
+    struct LevelInfo
+    {
+        std::string name;
+        int track;
+    };
+
+    LevelInfo levels[] = {
+        {"LEVEL1", 57},
+        {"LEVEL2", 57},
+        {"LEVEL3A", 57},
+        {"LEVEL3B", 57},
+        {"LEVEL4", 59},
+        {"LEVEL5", 59},
+        {"LEVEL6", 59},
+        {"LEVEL7A", 58},
+        {"LEVEL7B", 58},
+        {"LEVEL8A", 59},
+        {"LEVEL8B", 59},
+        {"LEVEL8C", 59},
+        {"LEVEL10A", 58},
+        {"LEVEL10B", 60},
+        {"LEVEL10C", 60}
+    };
+
+    const LevelInfo& lvlInfo = levels[4];
+
+    auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.name + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
@@ -54,11 +80,7 @@ int main()
     auto timer = device->getTimer();
     auto lastTime = timer->getTime();
 
-    //! @todo Map these values from level IDs
-    /*
-    0, 57, 57, 57, 57, 59, 59, 59, 58, 58, 59, 59, 59, 58, 60, 60, 0, 0, 0, 0, 2, 0
-    */
-    lvl->startTrack(57);
+    lvl->startTrack(lvlInfo.track);
 
     while(device->run())
     {
