@@ -7,7 +7,6 @@
 #include <boost/assert.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/log/trivial.hpp>
-#include <gsl.h>
 
 #include <vector>
 

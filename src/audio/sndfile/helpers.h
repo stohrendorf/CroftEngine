@@ -2,9 +2,9 @@
 
 #include <sndfile.h>
 #include <boost/assert.hpp>
+#include <boost/iostreams/restrict.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <gsl.h>
-
-#include <iostream>
 
 namespace audio
 {
@@ -92,9 +92,8 @@ namespace audio
         public:
             InputStreamViewWrapper(std::istream& stream, std::streamoff begin, std::streamoff end)
                 : SF_VIRTUAL_IO()
-                  , m_stream(stream)
-                  , m_begin(begin)
-                  , m_end(end)
+                , m_restriction(boost::iostreams::restrict(stream, begin, end-begin))
+                , m_stream(m_restriction)
             {
                 Expects(begin <= end);
 
@@ -108,7 +107,11 @@ namespace audio
             static sf_count_t getFileLength(void* user_data)
             {
                 auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                return self->m_end - self->m_begin;
+                const auto pos = self->m_stream.tellg();
+                self->m_stream.seekg(0, std::ios::end);
+                const auto len = self->m_stream.tellg();
+                self->m_stream.seekg(pos, std::ios::beg);
+                return len;
             }
 
             static sf_count_t doSeek(sf_count_t offset, int whence, void* user_data)
@@ -117,16 +120,16 @@ namespace audio
                 switch( whence )
                 {
                 case SEEK_SET:
-                    BOOST_ASSERT(offset >= 0 && offset <= self->m_end - self->m_begin);
-                    self->m_stream.seekg(offset + self->m_begin, std::ios::beg);
+                    BOOST_ASSERT(offset >= 0 && offset <= getFileLength(user_data));
+                    self->m_stream.seekg(offset, std::ios::beg);
                     break;
                 case SEEK_CUR:
-                    BOOST_ASSERT(self->m_stream.tellg() + offset <= self->m_end && self->m_stream.tellg() + offset >= 0);
+                    BOOST_ASSERT(self->m_stream.tellg() + offset <= getFileLength(user_data) && self->m_stream.tellg() + offset >= 0);
                     self->m_stream.seekg(offset, std::ios::cur);
                     break;
                 case SEEK_END:
-                    BOOST_ASSERT(offset >= 0 && offset <= self->m_end - self->m_begin);
-                    self->m_stream.seekg(self->m_end - offset, std::ios::beg);
+                    BOOST_ASSERT(offset >= 0 && offset <= getFileLength(user_data));
+                    self->m_stream.seekg(offset, std::ios::end);
                     break;
                 default:
                     BOOST_ASSERT(false);
@@ -137,10 +140,10 @@ namespace audio
             static sf_count_t doRead(void* ptr, sf_count_t count, void* user_data)
             {
                 auto self = static_cast<InputStreamViewWrapper*>(user_data);
-                if( self->m_stream.tellg() + count > self->m_end )
-                    count = self->m_end - self->m_stream.tellg();
+                if( self->m_stream.tellg() + count > getFileLength(user_data) )
+                    count = getFileLength(user_data) - self->m_stream.tellg();
 
-                BOOST_ASSERT(self->m_stream.tellg() + count <= self->m_end);
+                BOOST_ASSERT(self->m_stream.tellg() + count <= getFileLength(user_data));
 
                 char* buf = static_cast<char*>(ptr);
                 self->m_stream.read(buf, count);
@@ -159,9 +162,8 @@ namespace audio
             }
 
         private:
-            std::istream& m_stream;
-            const std::streamoff m_begin;
-            const std::streamoff m_end;
+            boost::iostreams::restriction<std::istream> m_restriction;
+            boost::iostreams::filtering_istream m_stream;
         };
     }
 }
