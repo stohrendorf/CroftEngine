@@ -29,7 +29,7 @@ namespace audio
         virtual int getSampleRate() const = 0;
 
     protected:
-        size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, int sourceIsMono)
+        size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, bool sourceIsMono)
         {
             sf_count_t count = 0;
             while( count < frameCount )
