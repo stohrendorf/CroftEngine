@@ -229,8 +229,11 @@ namespace engine
             BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
         }
 
-        if( !newFrame )
+        if(!newFrame)
+        {
+            updateFloorHeight(100);
             return;
+        }
 
         testInteractions(laraState);
 

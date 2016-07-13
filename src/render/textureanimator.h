@@ -95,7 +95,7 @@ namespace render
                             }
                             break;
                         default:
-                            throw std::runtime_error("Unexpected vertex format");
+                            BOOST_THROW_EXCEPTION(std::runtime_error("Unexpected vertex format"));
                         }
 
                         BOOST_ASSERT(vref.queueOffset < proxyIds.size());
@@ -116,6 +116,10 @@ namespace render
     public:
         explicit TextureAnimator(const std::vector<uint16_t>& data)
         {
+            /*
+             * We have N rotating sequences, each consisting of M+1 proxy ids.
+             */
+
             const uint16_t* ptr = data.data();
             const auto sequenceCount = *ptr++;
 
@@ -123,10 +127,10 @@ namespace render
             {
                 Sequence sequence;
                 const auto n = *ptr++;
-                for( size_t j = 0; j < n + 1u; ++j )
+                for( size_t j = 0; j <= n; ++j )
                 {
+                    BOOST_ASSERT(ptr <= &data.back());
                     const auto proxyId = *ptr++;
-                    BOOST_ASSERT(ptr <= &data.back() + 1);
                     sequence.proxyIds.emplace_back(proxyId);
                     m_sequenceByProxyId.insert(std::make_pair(proxyId, m_sequences.size()));
                 }
