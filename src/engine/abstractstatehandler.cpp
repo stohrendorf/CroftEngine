@@ -3032,12 +3032,12 @@ namespace engine
         m_controller.setPosition(pos);
     }
 
-    int AbstractStateHandler::getFloorHeight() const noexcept
+    long AbstractStateHandler::getFloorHeight() const
     {
         return m_controller.getFloorHeight();
     }
 
-    void AbstractStateHandler::setFloorHeight(int h) noexcept
+    void AbstractStateHandler::setFloorHeight(long h)
     {
         m_controller.setFloorHeight(h);
     }

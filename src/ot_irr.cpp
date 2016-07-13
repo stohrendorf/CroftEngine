@@ -49,24 +49,24 @@ int main()
     };
 
     LevelInfo levels[] = {
-        {"LEVEL1", 57},
+        {"LEVEL1", 57}, // 0
         {"LEVEL2", 57},
         {"LEVEL3A", 57},
         {"LEVEL3B", 57},
         {"LEVEL4", 59},
-        {"LEVEL5", 59},
+        {"LEVEL5", 59}, // 5
         {"LEVEL6", 59},
         {"LEVEL7A", 58},
         {"LEVEL7B", 58},
         {"LEVEL8A", 59},
-        {"LEVEL8B", 59},
+        {"LEVEL8B", 59}, // 10
         {"LEVEL8C", 59},
         {"LEVEL10A", 58},
         {"LEVEL10B", 60},
-        {"LEVEL10C", 60}
+        {"LEVEL10C", 60} // 14
     };
 
-    const LevelInfo& lvlInfo = levels[4];
+    const LevelInfo& lvlInfo = levels[14];
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.name + ".PHD", level::Game::Unknown);
 

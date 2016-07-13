@@ -108,9 +108,9 @@ namespace engine
 
         void setPosition(const core::ExactTRCoordinates& pos);
 
-        int getFloorHeight() const noexcept;
+        long getFloorHeight() const;
 
-        void setFloorHeight(int h) noexcept;
+        void setFloorHeight(long h);
 
         void setYRotationSpeed(core::Angle spd);
 

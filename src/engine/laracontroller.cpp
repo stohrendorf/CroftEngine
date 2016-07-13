@@ -524,7 +524,7 @@ namespace engine
         {
             if( !isDoppelganger )
             {
-                if( irr::core::equals(gsl::narrow<int>(getPosition().Y), getFloorHeight(), 1) )
+                if( irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
                     //! @todo kill Lara
                 }
@@ -552,7 +552,7 @@ namespace engine
                 break;
             case loader::TriggerType::Pad:
             case loader::TriggerType::AntiPad:
-                runActions = irr::core::equals(getPosition().Y, gsl::narrow_cast<float>(getFloorHeight()), 1.0f);
+                runActions = irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L);
                 break;
             case loader::TriggerType::Switch:
                 {

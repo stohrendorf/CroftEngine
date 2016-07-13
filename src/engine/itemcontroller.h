@@ -54,7 +54,7 @@ namespace engine
 
         bool m_falling = false; // flags2_08
 
-        int m_floorHeight = 0;
+        long m_floorHeight = 0;
 
         std::vector<std::weak_ptr<audio::SourceHandle>> m_sounds;
 
@@ -120,12 +120,12 @@ namespace engine
             return m_position.room;
         }
 
-        int getFloorHeight() const noexcept
+        long getFloorHeight() const noexcept
         {
             return m_floorHeight;
         }
 
-        void setFloorHeight(int h) noexcept
+        void setFloorHeight(long h) noexcept
         {
             m_floorHeight = h;
         }
