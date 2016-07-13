@@ -8,7 +8,7 @@
 
 namespace audio
 {
-    class FilterHandle : public boost::noncopyable
+    class FilterHandle final : public boost::noncopyable
     {
         const ALuint m_handle;
 
@@ -24,12 +24,6 @@ namespace audio
         }
 
     public:
-        explicit FilterHandle(ALuint h)
-            : m_handle(h)
-        {
-            Expects(alIsFilter(h));
-        }
-
         explicit FilterHandle()
             : m_handle(createHandle())
         {

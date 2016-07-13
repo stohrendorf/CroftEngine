@@ -7,7 +7,7 @@
 
 namespace audio
 {
-    class SourceHandle : public boost::noncopyable
+    class SourceHandle final : public boost::noncopyable
     {
         const ALuint m_handle;
         std::shared_ptr<BufferHandle> m_buffer;
@@ -24,10 +24,10 @@ namespace audio
         }
 
     public:
-        explicit SourceHandle(ALuint h = createHandle())
-            : m_handle(h)
+        explicit SourceHandle()
+            : m_handle(createHandle())
         {
-            Expects(alIsSource(h));
+            Expects(alIsSource(m_handle));
             set(AL_MAX_DISTANCE, 8 * 1024);
         }
 

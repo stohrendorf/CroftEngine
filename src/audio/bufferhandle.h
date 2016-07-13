@@ -12,7 +12,7 @@
 
 namespace audio
 {
-    class BufferHandle : public boost::noncopyable
+    class BufferHandle final : public boost::noncopyable
     {
         const ALuint m_handle;
 
@@ -28,12 +28,6 @@ namespace audio
         }
 
     public:
-        explicit BufferHandle(ALuint h)
-            : m_handle(h)
-        {
-            Expects(alIsBuffer(h));
-        }
-
         explicit BufferHandle()
             : m_handle(createHandle())
         {
