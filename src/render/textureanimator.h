@@ -48,6 +48,7 @@ namespace render
 
             void rotate()
             {
+                BOOST_ASSERT(!proxyIds.empty());
                 auto first = proxyIds.front();
                 proxyIds.erase(proxyIds.begin(), std::next(proxyIds.begin()));
                 proxyIds.emplace_back(first);
@@ -102,6 +103,8 @@ namespace render
 
                         uv->X = proxy.uvCoordinates[vref.sourceIndex].xpixel / 255.0f;
                         uv->Y = proxy.uvCoordinates[vref.sourceIndex].ypixel / 255.0f;
+
+                        buffer->setDirty(irr::scene::EBT_VERTEX);
                     }
                 }
             }

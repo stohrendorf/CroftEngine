@@ -599,7 +599,7 @@ namespace engine
 
         while( true )
         {
-            const bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
+            bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
             const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
             switch( loader::extractTriggerFunction(*actionFloorData++) )
             {
@@ -668,6 +668,7 @@ namespace engine
                 break;
             case loader::TriggerFunction::CameraTarget:
                 getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, srcTriggerType, isDoppelganger, srcTriggerArg, switchIsOn);
+                isLastAction = loader::isLastFloordataEntry(*actionFloorData);
                 ++actionFloorData;
                 break;
             case loader::TriggerFunction::LookAt:

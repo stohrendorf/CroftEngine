@@ -66,7 +66,7 @@ int main()
         {"LEVEL10C", 60} // 14
     };
 
-    const LevelInfo& lvlInfo = levels[14];
+    const LevelInfo& lvlInfo = levels[12];
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.name + ".PHD", level::Game::Unknown);
 

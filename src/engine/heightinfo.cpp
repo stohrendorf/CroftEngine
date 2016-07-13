@@ -137,54 +137,75 @@ namespace engine
 
         hi.distance = roomSector->ceilingHeight * loader::QuarterSectorSize;
 
-        if( roomSector->floorDataIndex == 0 )
+        if( roomSector->floorDataIndex != 0 )
         {
-            return hi;
+            const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
+            auto fdFunc = loader::extractFDFunction(*floorData);
+            const bool isLast = loader::isLastFloordataEntry(*floorData);
+            ++floorData;
+
+            if(fdFunc == loader::FDFunction::FloorSlant)
+            {
+                ++floorData;
+            }
+
+            fdFunc = loader::extractFDFunction(*floorData);
+            if(!isLast && fdFunc == loader::FDFunction::CeilingSlant)
+            {
+                const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
+                const auto absX = std::abs(xSlant);
+                const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
+                const auto absZ = std::abs(zSlant);
+                if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+                {
+                    const auto localX = pos.X % loader::SectorSize;
+                    const auto localZ = pos.Z % loader::SectorSize;
+
+                    if(zSlant > 0) // lower edge at -Z
+                    {
+                        auto dist = loader::SectorSize - localZ;
+                        hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    }
+                    else if(zSlant < 0) // lower edge at +Z
+                    {
+                        auto dist = localZ;
+                        hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    }
+
+                    if(xSlant > 0) // lower edge at -X
+                    {
+                        auto dist = localX;
+                        hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    }
+                    else if(xSlant < 0) // lower edge at +X
+                    {
+                        auto dist = loader::SectorSize - localX;
+                        hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    }
+                }
+            }
         }
+
+        while(true)
+        {
+            if(roomSector->roomBelow == 255)
+                break;
+
+            roomSector = camera->getLevel()->m_rooms[roomSector->roomBelow].getSectorByAbsolutePosition(pos);
+        }
+
+        if(roomSector->floorDataIndex == 0)
+            return hi;
 
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
             const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto currentFd = *floorData;
+            const auto fdFunc = loader::extractFDFunction(*floorData);
             ++floorData;
-            switch( loader::extractFDFunction(currentFd) )
+            switch(fdFunc)
             {
             case loader::FDFunction::CeilingSlant:
-                {
-                    const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
-                    const auto absX = std::abs(xSlant);
-                    const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
-                    const auto absZ = std::abs(zSlant);
-                    if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
-                    {
-                        const auto localX = pos.X % loader::SectorSize;
-                        const auto localZ = pos.Z % loader::SectorSize;
-
-                        if( zSlant > 0 ) // lower edge at -Z
-                        {
-                            auto dist = loader::SectorSize - localZ;
-                            hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
-                        }
-                        else if( zSlant < 0 ) // lower edge at +Z
-                        {
-                            auto dist = localZ;
-                            hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
-                        }
-
-                        if( xSlant > 0 ) // lower edge at -X
-                        {
-                            auto dist = localX;
-                            hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
-                        }
-                        else if( xSlant < 0 ) // lower edge at +X
-                        {
-                            auto dist = loader::SectorSize - localX;
-                            hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
-                        }
-                    }
-                }
-                // Fall-through
             case loader::FDFunction::FloorSlant:
             case loader::FDFunction::PortalSector:
                 ++floorData;
@@ -195,7 +216,7 @@ namespace engine
                 ++floorData;
                 while( true )
                 {
-                    const bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                    bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
                     const auto func = loader::extractTriggerFunction(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
@@ -205,6 +226,7 @@ namespace engine
                     {
                         if( func == loader::TriggerFunction::CameraTarget )
                         {
+                            isLastTrigger = loader::isLastFloordataEntry(*floorData);
                             ++floorData;
                         }
                     }
