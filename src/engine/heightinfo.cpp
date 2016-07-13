@@ -141,16 +141,17 @@ namespace engine
         {
             const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
             auto fdFunc = loader::extractFDFunction(*floorData);
-            const bool isLast = loader::isLastFloordataEntry(*floorData);
             ++floorData;
 
             if(fdFunc == loader::FDFunction::FloorSlant)
             {
                 ++floorData;
+
+                fdFunc = loader::extractFDFunction(*floorData);
+                ++floorData;
             }
 
-            fdFunc = loader::extractFDFunction(*floorData);
-            if(!isLast && fdFunc == loader::FDFunction::CeilingSlant)
+            if(fdFunc == loader::FDFunction::CeilingSlant)
             {
                 const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);

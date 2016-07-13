@@ -27,16 +27,10 @@ namespace loader
                 iv.TCoords.X = uvCoordinates->xpixel / 255.0f;
                 iv.TCoords.Y = uvCoordinates->ypixel / 255.0f;
             }
-            irr::s32 ivIdx = meshBuffer.Vertices.linear_search(iv);
-            if( ivIdx < 0 )
-            {
-                ivIdx = meshBuffer.Vertices.size();
-                meshBuffer.Vertices.push_back(iv);
-            }
-            BOOST_ASSERT(ivIdx >= 0);
-            BOOST_ASSERT(static_cast<irr::u32>(ivIdx) < meshBuffer.Vertices.size());
-            meshBuffer.Indices.push_back(gsl::narrow<irr::u16>(ivIdx));
-            return gsl::narrow_cast<irr::u16>(ivIdx);
+            const auto ivIdx = gsl::narrow<irr::u16>(meshBuffer.Vertices.size());
+            meshBuffer.Vertices.push_back(iv);
+            meshBuffer.Indices.push_back(ivIdx);
+            return ivIdx;
         }
     }
 
