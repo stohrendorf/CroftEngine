@@ -167,7 +167,7 @@ namespace level
         audio::Device m_audioDev;
         std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
 
-        std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const core::ExactTRCoordinates& pos)
+        std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const boost::optional<core::ExactTRCoordinates>& pos)
         {
             Expects(sample < m_sampleIndices.size());
             pitch = irr::core::clamp(pitch, 0.5f, 2.0f);
@@ -182,12 +182,77 @@ namespace level
             m_audioDev.registerSource(src);
             src->setPitch(pitch);
             src->setGain(volume);
-            src->setPosition(pos.toIrrlicht());
+            if(pos)
+                src->setPosition(pos->toIrrlicht());
             src->play();
 
             m_samples[sample] = src;
 
             return src;
+        }
+
+        std::shared_ptr<audio::SourceHandle> playSound(int id, const boost::optional<core::ExactTRCoordinates>& position)
+        {
+            Expects(id >= 0 && static_cast<size_t>(id) < m_soundmap.size());
+            auto snd = m_soundmap[id];
+            if(snd < 0)
+            {
+                BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << id;
+                return nullptr;
+            }
+
+            BOOST_ASSERT(snd >= 0 && static_cast<size_t>(snd) < m_soundDetails.size());
+            const loader::SoundDetails& details = m_soundDetails[snd];
+            if(details.chance != 0 && (rand() & 0x7fff) > details.chance)
+                return nullptr;
+
+            size_t sample = details.sample;
+            if(details.getSampleCount() > 1)
+                sample += rand() % details.getSampleCount();
+            BOOST_ASSERT(sample < m_sampleIndices.size());
+
+            float pitch = 1;
+            if(details.useRandomPitch())
+                pitch = 0.9f + 0.2f * rand() / RAND_MAX;
+
+            float volume = irr::core::clamp(static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f);
+            if(details.useRandomVolume())
+                volume -= 0.25f * rand() / RAND_MAX;
+            if(volume <= 0)
+                return nullptr;
+
+            std::shared_ptr<audio::SourceHandle> handle;
+            if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Looping)
+            {
+                handle = playSample(sample, pitch, volume, position);
+                handle->setLooping(true);
+            }
+            else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Restart)
+            {
+                handle = findSample(sample);
+                if(handle != nullptr)
+                {
+                    handle->play();
+                }
+                else
+                {
+                    handle = playSample(sample, pitch, volume, position);
+                }
+            }
+            else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Wait)
+            {
+                handle = findSample(sample);
+                if(handle == nullptr)
+                {
+                    handle = playSample(sample, pitch, volume, position);
+                }
+            }
+            else
+            {
+                handle = playSample(sample, pitch, volume, position);
+            }
+
+            return handle;
         }
 
         std::shared_ptr<audio::SourceHandle> findSample(size_t sample) const

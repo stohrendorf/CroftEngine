@@ -9,7 +9,7 @@
 
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
+    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
         : ISceneNodeAnimator()
         , m_camera(camera)
         , m_level(level)
@@ -447,7 +447,22 @@ namespace engine
 
     void CameraController::update(int deltaTimeMs)
     {
-        //! @todo Underwater ambient sound
+        if(m_currentPosition.room->isWaterRoom())
+        {
+            if(m_level->m_cdStream != nullptr)
+                m_level->m_cdStream->getSource().setDirectFilter(m_level->m_audioDev.getUnderwaterFilter());
+            if(m_underwaterAmbience == nullptr)
+            {
+                m_underwaterAmbience = m_level->playSound(60, boost::none);
+            }
+        }
+        else if(m_underwaterAmbience != nullptr)
+        {
+            if(m_level->m_cdStream != nullptr)
+                m_level->m_cdStream->getSource().setDirectFilter(nullptr);
+            m_level->stopSound(60);
+            m_underwaterAmbience.reset();
+        }
 
         if( m_camOverrideType == 4 )
         {

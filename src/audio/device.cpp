@@ -80,7 +80,7 @@ Device::Device()
     DEBUG_CHECK_AL_ERROR();
     alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAIN, 0.7f);      // Low frequencies gain.
     DEBUG_CHECK_AL_ERROR();
-    alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.0f);    // High frequencies gain.
+    alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.1f);    // High frequencies gain.
     DEBUG_CHECK_AL_ERROR();
 }
 }

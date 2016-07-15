@@ -71,6 +71,12 @@ public:
         alListenerfv(AL_ORIENTATION, o);
     }
 
+    void applyDirectFilterToAllSources(const std::shared_ptr<FilterHandle>& filter)
+    {
+        for(const auto& src : m_sources)
+            src->setDirectFilter(filter);
+    }
+
 private:
     ALCdevice* m_device = nullptr;
     ALCcontext* m_context = nullptr;

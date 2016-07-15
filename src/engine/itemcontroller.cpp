@@ -300,70 +300,12 @@ namespace engine
         m_isActive = false;
     }
 
-    bool ItemController::playSound(int id)
+    std::shared_ptr<audio::SourceHandle> ItemController::playSound(int id)
     {
-        Expects(id >= 0 && static_cast<size_t>(id) < getLevel().m_soundmap.size())
-            auto snd = getLevel().m_soundmap[id];
-        if(snd < 0)
-        {
-            BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << id;
-            return false;
-        }
-
-        BOOST_ASSERT(snd >= 0 && static_cast<size_t>(snd) < getLevel().m_soundDetails.size());
-        const loader::SoundDetails& details = getLevel().m_soundDetails[snd];
-        if(details.chance != 0 && (rand() & 0x7fff) > details.chance)
-            return false;
-
-        size_t sample = details.sample;
-        if(details.getSampleCount() > 1)
-            sample += rand() % details.getSampleCount();
-        BOOST_ASSERT(sample < getLevel().m_sampleIndices.size());
-
-        float pitch = 1;
-        if(details.useRandomPitch())
-            pitch = 0.9f + 0.2f * rand() / RAND_MAX;
-
-        float volume = irr::core::clamp(static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f);
-        if(details.useRandomVolume())
-            volume -= 0.25f * rand() / RAND_MAX;
-        if(volume <= 0)
-            return false;
-
-        std::shared_ptr<audio::SourceHandle> handle;
-        if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Looping)
-        {
-            handle = m_level->playSample(sample, pitch, volume, getPosition());
-            handle->setLooping(true);
-        }
-        else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Restart)
-        {
-            handle = m_level->findSample(sample);
-            if(handle != nullptr)
-            {
-                handle->play();
-            }
-            else
-            {
-                handle = m_level->playSample(sample, pitch, volume, getPosition());
-            }
-        }
-        else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Wait)
-        {
-            handle = m_level->findSample(sample);
-            if(handle == nullptr)
-            {
-                handle = m_level->playSample(sample, pitch, volume, getPosition());
-            }
-        }
-        else
-        {
-            handle = m_level->playSample(sample, pitch, volume, getPosition());
-        }
-
-
-        m_sounds.emplace_back(handle);
-        return true;
+        auto handle = getLevel().playSound(id, getPosition());
+        if(handle != nullptr)
+            m_sounds.emplace_back(handle);
+        return handle;
     }
 
     void ItemController::updateSounds()

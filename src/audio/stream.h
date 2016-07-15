@@ -48,6 +48,16 @@ namespace audio
             alSourceQueueBuffers(m_source.get(), 1, &bufId);
         }
 
+        const SourceHandle& getSource() const noexcept
+        {
+            return m_source;
+        }
+
+        SourceHandle& getSource() noexcept
+        {
+            return m_source;
+        }
+
     private:
         void fillBuffer(BufferHandle& buffer)
         {

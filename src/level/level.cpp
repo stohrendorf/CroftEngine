@@ -1294,6 +1294,9 @@ void Level::playStream(uint16_t trackId)
 {
     static constexpr size_t DefaultBufferSize = 16384;
 
+    m_audioDev.removeStream(m_cdStream);
+    m_cdStream.reset();
+
     if(boost::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD"))
         m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId), DefaultBufferSize);
     else

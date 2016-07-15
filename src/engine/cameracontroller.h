@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "loader/datatypes.h"
 #include "loader/floordata.h"
+#include "audio/sourcehandle.h"
 
 namespace engine
 {
@@ -19,7 +20,7 @@ namespace engine
         gsl::not_null<irr::scene::ICameraSceneNode*> m_camera;
 
         // For interactions
-        const level::Level* m_level;
+        level::Level* m_level;
         LaraController* m_laraController;
 
         // TR state
@@ -48,8 +49,10 @@ namespace engine
 
         irr::video::IVideoDriver* m_driver;
 
+        std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
+
     public:
-        explicit CameraController(gsl::not_null<const level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
 
         //! Animates a scene node.
         /** \param node Node to animate.
