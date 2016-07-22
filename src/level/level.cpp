@@ -931,6 +931,13 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
     camera->setNearValue(10);
     camera->setFarValue(20480);
     camera->setFOV(irr::core::degToRad(80.0f));
+
+    for(const loader::SoundSource& src : m_soundSources)
+    {
+        auto handle = playSound(src.sound_id, core::ExactTRCoordinates(src.position));
+        handle->setLooping(true);
+        m_audioDev.registerSource(handle);
+    }
 }
 
 void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst)

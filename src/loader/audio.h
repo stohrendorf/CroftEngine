@@ -33,19 +33,14 @@ namespace loader
     */
     struct SoundSource
     {
-        int32_t x; // absolute X position of sound source (world coordinates)
-        int32_t y; // absolute Y position of sound source (world coordinates)
-        int32_t z; // absolute Z position of sound source (world coordinates)
+        core::TRCoordinates position;
         uint16_t sound_id; // internal sound index
         uint16_t flags; // 0x40, 0x80, or 0xc0
 
         static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
         {
             std::unique_ptr<SoundSource> sound_source{new SoundSource()};
-            sound_source->x = reader.readI32();
-            sound_source->y = reader.readI32();
-            sound_source->z = reader.readI32();
-
+            sound_source->position = readCoordinates32(reader);
             sound_source->sound_id = reader.readU16();
             sound_source->flags = reader.readU16();
             return sound_source;

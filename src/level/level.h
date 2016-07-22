@@ -174,8 +174,9 @@ namespace level
             volume = irr::core::clamp(volume, 0.0f, 1.0f);
 
             std::shared_ptr<audio::BufferHandle> buf = std::make_shared<audio::BufferHandle>();
-            const auto idx = m_sampleIndices[sample];
-            buf->fillFromWav(&m_samplesData[idx]);
+            const auto offset = m_sampleIndices[sample];
+            BOOST_ASSERT(offset >= 0 && offset < m_samplesData.size());
+            buf->fillFromWav(&m_samplesData[offset]);
 
             std::shared_ptr<audio::SourceHandle> src = std::make_shared<audio::SourceHandle>();
             src->setBuffer(buf);
