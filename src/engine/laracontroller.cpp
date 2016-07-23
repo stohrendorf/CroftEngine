@@ -79,6 +79,15 @@ namespace engine
 
         applyRotation();
 
+
+        if(getLevel().m_cameraController->getCamOverrideType() != 2)
+        {
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(getCurrentDeltaTime());
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(getCurrentDeltaTime());
+            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
+            getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+        }
+
         //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
         auto animCommandOverride = processLaraAnimCommands();
@@ -222,6 +231,14 @@ namespace engine
                                                              getMovementAngle().cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4
                                                             ));
 
+        if(getLevel().m_cameraController->getCamOverrideType() != 2)
+        {
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(getCurrentDeltaTime());
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(getCurrentDeltaTime());
+            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
+            getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+        }
+
         auto animCommandOverride = processLaraAnimCommands();
         if( animCommandOverride )
         {
@@ -318,6 +335,8 @@ namespace engine
                 setFallSpeed(getFallSpeed() * 1.5f);
             }
 
+            getLevel().m_cameraController->resetHeadTorsoRotation();
+
             //! @todo Show water splash effect
         }
         else if( m_underwaterState == UnderwaterState::Diving && !getCurrentRoom()->isWaterRoom() )
@@ -326,6 +345,7 @@ namespace engine
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setXRotation(0_deg);
             setZRotation(0_deg);
+            getLevel().m_cameraController->resetHeadTorsoRotation();
             m_handStatus = 0;
 
             if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
@@ -367,6 +387,7 @@ namespace engine
             m_handStatus = 0;
             setXRotation(0_deg);
             setZRotation(0_deg);
+            getLevel().m_cameraController->resetHeadTorsoRotation();
         }
 
         if( m_underwaterState == UnderwaterState::OnLand )

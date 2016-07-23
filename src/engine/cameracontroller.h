@@ -150,6 +150,12 @@ namespace engine
             return m_camera->getUpVector();
         }
 
+        void resetHeadTorsoRotation()
+        {
+            m_headRotation = { 0_deg, 0_deg, 0_deg };
+            m_torsoRotation = { 0_deg, 0_deg, 0_deg };
+        }
+
     private:
         void tracePortals();
         bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
