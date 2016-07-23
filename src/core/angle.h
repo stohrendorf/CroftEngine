@@ -261,6 +261,61 @@ namespace core
 
         return alignRotation(*axis);
     }
+
+    class TRRotation final : public irr::core::vector3d<Angle>
+    {
+    public:
+        TRRotation()
+            : vector3d{}
+        {
+        }
+
+        TRRotation(const Angle& x, const Angle& y, const Angle& z)
+            : vector3d{ x, y, z }
+        {
+        }
+
+        irr::core::vector3df toDegrees() const
+        {
+            return{
+                X.toDegrees(),
+                Y.toDegrees(),
+                Z.toDegrees()
+            };
+        }
+
+        irr::core::vector3df toRad() const
+        {
+            return{
+                X.toRad(),
+                Y.toRad(),
+                Z.toRad()
+            };
+        }
+    };
+
+    inline irr::core::quaternion xyzToQuat(const TRRotation& r)
+    {
+        //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
+        irr::core::quaternion q;
+        q.makeIdentity();
+        q *= irr::core::quaternion().fromAngleAxis(r.Y.toRad(), { 0,1,0 });
+        q *= irr::core::quaternion().fromAngleAxis(r.X.toRad(), { -1,0,0 });
+        q *= irr::core::quaternion().fromAngleAxis(r.Z.toRad(), { 0,0,-1 });
+        return q;
+    }
+
+    inline irr::core::vector3df xyzToYprRad(const TRRotation& r)
+    {
+        irr::core::vector3df euler;
+        xyzToQuat(r).toEuler(euler);
+        return euler;
+    }
+
+    inline irr::core::vector3df xyzToYprDeg(const TRRotation& r)
+    {
+        return xyzToYprRad(r) * 180 / irr::core::PI;
+    }
 }
 
 using core::detail::operator "" _au;

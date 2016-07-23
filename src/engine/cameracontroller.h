@@ -27,7 +27,7 @@ namespace engine
         ItemController* m_lookAtItem = nullptr;
         const ItemController* m_lookAtItem2 = nullptr;
         ItemController* m_enemy = nullptr;
-        irr::core::vector3d<core::Angle> m_enemyLookRot;
+        core::TRRotation m_enemyLookRot;
         int m_unknown1 = 0;
         int m_camShakeRadius = 0;
         int m_currentYOffset = 0;
@@ -38,14 +38,14 @@ namespace engine
         int m_camOverrideTimeout = -1;
         int m_camOverrideType = 0;
         core::RoomBoundIntPosition m_currentLookAt;
-        irr::core::vector3d<core::Angle> m_localRotation;
+        core::TRRotation m_localRotation;
         core::RoomBoundIntPosition m_currentPosition;
         bool m_lookingAtSomething = false;
         long m_lookAtDistanceSq = 0;
 
         // hacks
-        irr::core::vector3d<core::Angle> m_headRotation;
-        irr::core::vector3d<core::Angle> m_freeLookRotation;
+        core::TRRotation m_headRotation;
+        core::TRRotation m_torsoRotation;
 
         irr::video::IVideoDriver* m_driver;
 
@@ -120,14 +120,19 @@ namespace engine
             m_headRotation.Y += y;
         }
 
-        const irr::core::vector3d<core::Angle>& getHeadRotation() const noexcept
+        const core::TRRotation& getHeadRotation() const noexcept
         {
             return m_headRotation;
         }
 
-        void setFreeLookRotation(const irr::core::vector3d<core::Angle>& r)
+        void setTorsoRotation(const core::TRRotation& r)
         {
-            m_freeLookRotation = r;
+            m_torsoRotation = r;
+        }
+
+        const core::TRRotation& getTorsoRotation() const noexcept
+        {
+            return m_torsoRotation;
         }
 
         irr::core::vector3df getPosition() const

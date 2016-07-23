@@ -94,7 +94,7 @@ namespace engine
 
         void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
 
-        const irr::core::vector3d<core::Angle>& getRotation() const noexcept;
+        const core::TRRotation& getRotation() const noexcept;
 
         void setHorizontalSpeed(const core::InterpolatedValue<float>& speed);
 

@@ -395,6 +395,10 @@ namespace engine
             }
             handleLaraStateSwimming(isNewFrame);
         }
+
+        getMeshAnimationController()->resetPose();
+        getMeshAnimationController()->rotateBone(7, getLevel().m_cameraController->getTorsoRotation());
+        getMeshAnimationController()->rotateBone(14, getLevel().m_cameraController->getHeadRotation());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)

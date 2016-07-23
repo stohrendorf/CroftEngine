@@ -107,6 +107,21 @@ public:
 
     irr::core::aabbox3di getBoundingBox() const override;
 
+    void resetPose()
+    {
+        m_node->setJointMode(irr::scene::EJUOR_CONTROL);
+        m_node->animateJoints();
+    }
+
+    void rotateBone(irr::u32 id, const core::TRRotation& dr)
+    {
+        Expects(id < m_node->getJointCount());
+        auto bone = m_node->getJointNode(id);
+        bone->getAbsoluteTransformation();
+
+        bone->setRotation(bone->getRotation() + xyzToYprDeg(dr));
+    }
+
 private:
     /**
     * @brief Starts to play the current animation at the specified frame.

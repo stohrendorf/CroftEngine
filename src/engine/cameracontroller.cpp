@@ -454,6 +454,7 @@ namespace engine
             if(m_underwaterAmbience == nullptr)
             {
                 m_underwaterAmbience = m_level->playSound(60, boost::none);
+                m_underwaterAmbience->setLooping(true);
             }
         }
         else if(m_underwaterAmbience != nullptr)
@@ -502,7 +503,7 @@ namespace engine
                     m_headRotation.Y -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
                 else
                     m_headRotation.Y += core::makeInterpolatedValue(lookAtYAngle).getScaled(deltaTimeMs);
-                m_freeLookRotation.Y = m_headRotation.Y;
+                m_torsoRotation.Y = m_headRotation.Y;
 
                 lookAtXAngle -= m_headRotation.X;
                 if( lookAtXAngle > 4_deg )
@@ -511,7 +512,7 @@ namespace engine
                     m_headRotation.X -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
                 else
                     m_headRotation.X += core::makeInterpolatedValue(lookAtXAngle).getScaled(deltaTimeMs);
-                m_freeLookRotation.X = m_headRotation.X;
+                m_torsoRotation.X = m_headRotation.X;
 
                 m_camOverrideType = 2;
                 m_lookAtItem->m_flags2_40 = true;
@@ -734,8 +735,8 @@ namespace engine
         const auto origLook = m_currentLookAt.position;
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
         m_currentLookAt.position.Z = std::lround(item.getPosition().Z);
-        m_localRotation.X = m_freeLookRotation.X + m_headRotation.X + item.getRotation().X;
-        m_localRotation.Y = m_freeLookRotation.Y + m_headRotation.Y + item.getRotation().Y;
+        m_localRotation.X = m_torsoRotation.X + m_headRotation.X + item.getRotation().X;
+        m_localRotation.Y = m_torsoRotation.Y + m_headRotation.Y + item.getRotation().Y;
         m_distanceFromLookAt = 1536;
         m_currentYOffset = gsl::narrow_cast<int>(-2 * loader::QuarterSectorSize * m_localRotation.Y.sin());
         m_currentLookAt.position.X += std::lround(m_currentYOffset * item.getRotation().Y.sin());
@@ -775,8 +776,8 @@ namespace engine
         }
         else
         {
-            m_localRotation.X = m_freeLookRotation.X + m_headRotation.X + item.getRotation().X;
-            m_localRotation.Y = m_freeLookRotation.Y + m_headRotation.Y + item.getRotation().Y;
+            m_localRotation.X = m_torsoRotation.X + m_headRotation.X + item.getRotation().X;
+            m_localRotation.Y = m_torsoRotation.Y + m_headRotation.Y + item.getRotation().Y;
         }
 
         m_distanceFromLookAt = 2560;

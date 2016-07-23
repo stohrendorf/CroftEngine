@@ -26,8 +26,8 @@ namespace engine
     struct InteractionLimits
     {
         irr::core::aabbox3di distance;
-        irr::core::vector3d<core::Angle> minAngle;
-        irr::core::vector3d<core::Angle> maxAngle;
+        core::TRRotation minAngle;
+        core::TRRotation maxAngle;
 
         bool canInteract(const ItemController& item, const LaraController& lara) const;
     };
@@ -37,13 +37,13 @@ namespace engine
         core::RoomBoundPosition m_position;
 
         // needed for YPR rotation, because the scene node uses XYZ rotation
-        irr::core::vector3d<core::Angle> m_rotation;
+        core::TRRotation m_rotation;
 
         gsl::not_null<level::Level*> const m_level;
 
         gsl::not_null<irr::scene::ISceneNode*> const m_sceneNode;
 
-        std::shared_ptr<engine::MeshAnimationController> m_dispatcher;
+        std::shared_ptr<MeshAnimationController> m_meshAnimationController;
         const std::string m_name;
 
         int m_lastAnimFrame = -1;
@@ -110,7 +110,7 @@ namespace engine
             return m_position.position;
         }
 
-        const irr::core::vector3d<core::Angle>& getRotation() const noexcept
+        const core::TRRotation& getRotation() const noexcept
         {
             return m_rotation;
         }
@@ -306,7 +306,7 @@ namespace engine
             if(m_currentDeltaTime <= 0)
                 return;
 
-            bool isNewFrame = m_dispatcher == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
+            bool isNewFrame = m_meshAnimationController == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
             m_subFrameTime += deltaTimeMs;
 
             if(m_subFrameTime >= FrameTime)
@@ -407,6 +407,11 @@ namespace engine
                 m_triggerTimeout = -1;
 
             return !isInvertedActivation();
+        }
+
+        const std::shared_ptr<MeshAnimationController>& getMeshAnimationController() const
+        {
+            return m_meshAnimationController;
         }
     };
 

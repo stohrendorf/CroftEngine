@@ -391,7 +391,7 @@ namespace engine
                     FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
                 );
 
-                getLevel().m_cameraController->setFreeLookRotation(getLevel().m_cameraController->getHeadRotation());
+                getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
             }
             else if(getLevel().m_cameraController->getCamOverrideType() == 2)
             {
@@ -2080,7 +2080,7 @@ namespace engine
                     FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
                 );
 
-                getLevel().m_cameraController->setFreeLookRotation(getLevel().m_cameraController->getHeadRotation());
+                getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
             }
             else if(getLevel().m_cameraController->getCamOverrideType() == 2)
             {
@@ -2997,7 +2997,7 @@ namespace engine
         m_controller.playAnimation(anim, firstFrame);
     }
 
-    const irr::core::vector3d<core::Angle>& AbstractStateHandler::getRotation() const noexcept
+    const core::TRRotation& AbstractStateHandler::getRotation() const noexcept
     {
         return m_controller.getRotation();
     }

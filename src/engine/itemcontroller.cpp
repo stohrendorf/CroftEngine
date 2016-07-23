@@ -7,68 +7,59 @@ namespace engine
 {
     uint16_t ItemController::getCurrentAnimState() const
     {
-        return m_dispatcher->getCurrentAnimState();
+        return m_meshAnimationController->getCurrentAnimState();
     }
 
     bool ItemController::handleTRTransitions()
     {
-        return m_dispatcher->handleTRTransitions();
+        return m_meshAnimationController->handleTRTransitions();
     }
 
     void ItemController::handleAnimationEnd()
     {
-        m_dispatcher->handleAnimationEnd();
+        m_meshAnimationController->handleAnimationEnd();
     }
 
 
     void ItemController::applyRotation()
     {
-        //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        irr::core::quaternion q;
-        q.makeIdentity();
-        q *= irr::core::quaternion().fromAngleAxis(getRotation().Y.toRad(), {0,1,0});
-        q *= irr::core::quaternion().fromAngleAxis(getRotation().X.toRad(), {-1,0,0});
-        q *= irr::core::quaternion().fromAngleAxis(getRotation().Z.toRad(), {0,0,-1});
-
-        irr::core::vector3df euler;
-        q.toEuler(euler);
-        m_sceneNode->setRotation(euler * 180 / irr::core::PI);
+        m_sceneNode->setRotation(xyzToYprRad(getRotation()) * 180 / irr::core::PI);
     }
 
     void ItemController::setTargetState(uint16_t st)
     {
-        Expects(m_dispatcher != nullptr);
-        m_dispatcher->setTargetState(st);
+        Expects(m_meshAnimationController != nullptr);
+        m_meshAnimationController->setTargetState(st);
     }
 
     uint16_t ItemController::getTargetState() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getTargetState();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getTargetState();
     }
 
     void ItemController::playAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame)
     {
-        Expects(m_dispatcher != nullptr);
-        m_dispatcher->playLocalAnimation(anim, firstFrame);
+        Expects(m_meshAnimationController != nullptr);
+        m_meshAnimationController->playLocalAnimation(anim, firstFrame);
     }
 
     void ItemController::nextFrame()
     {
-        Expects(m_dispatcher != nullptr);
-        m_dispatcher->advanceFrame();
+        Expects(m_meshAnimationController != nullptr);
+        m_meshAnimationController->advanceFrame();
     }
 
     irr::u32 ItemController::getCurrentFrame() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getCurrentFrame();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getCurrentFrame();
     }
 
     irr::u32 ItemController::getAnimEndFrame() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getAnimEndFrame();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getAnimEndFrame();
     }
 
     ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
@@ -76,7 +67,7 @@ namespace engine
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
         , m_sceneNode(sceneNode)
-        , m_dispatcher(dispatcher)
+        , m_meshAnimationController(dispatcher)
         , m_name(name)
         , m_itemFlags(item->flags)
         , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
@@ -106,14 +97,14 @@ namespace engine
 
     irr::core::aabbox3di ItemController::getBoundingBox() const
     {
-        if(m_dispatcher == nullptr)
+        if(m_meshAnimationController == nullptr)
         {
             BOOST_LOG_TRIVIAL(warning) << "Trying to get bounding box from non-animated item: " << getName();
             return irr::core::aabbox3di(0, 0, 0, 0, 0, 0);
         }
 
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getBoundingBox();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getBoundingBox();
     }
 
     void ItemController::setCurrentRoom(const loader::Room* newRoom)
@@ -149,20 +140,20 @@ namespace engine
 
     uint16_t ItemController::getCurrentAnimationId() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getCurrentAnimationId();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getCurrentAnimationId();
     }
 
     float ItemController::calculateAnimFloorSpeed() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->calculateFloorSpeed();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->calculateFloorSpeed();
     }
 
     int ItemController::getAnimAccelleration() const
     {
-        Expects(m_dispatcher != nullptr);
-        return m_dispatcher->getAccelleration();
+        Expects(m_meshAnimationController != nullptr);
+        return m_meshAnimationController->getAccelleration();
     }
 
     void ItemController::processAnimCommands(bool advanceFrame)

@@ -646,7 +646,6 @@ void Level::loadAnimFrame(irr::u32 frameIdx, irr::u32 frameOffset, const loader:
         rot.Y = -static_cast<irr::f32>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
         rot.Z = static_cast<irr::f32>(temp2 & 0x03ff);
         rot *= 360 / 1024.0;
-        // rot *= 2*M_PI / 1024.0;
 
         rKey->rotation = util::trRotationToQuat(rot);
     }
