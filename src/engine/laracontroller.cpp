@@ -236,7 +236,10 @@ namespace engine
             auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(getCurrentDeltaTime());
             auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(getCurrentDeltaTime());
             getLevel().m_cameraController->addHeadRotationXY(-x, -y);
-            getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+            auto r = getLevel().m_cameraController->getHeadRotation();
+            r.X = 0_deg;
+            r.Y *= 0.5f;
+            getLevel().m_cameraController->setTorsoRotation(r);
         }
 
         auto animCommandOverride = processLaraAnimCommands();
