@@ -368,6 +368,18 @@ namespace engine
 
         std::shared_ptr<audio::SourceHandle> playSound(int id);
 
+        bool triggerPickUp()
+        {
+            if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
+                return false;
+
+            m_flags2_02_toggledOn = false;
+            m_flags2_04_ready = true;
+            return true;
+        }
+
+        bool triggerKey();
+
     protected:
         int getLastAnimFrame() const noexcept
         {

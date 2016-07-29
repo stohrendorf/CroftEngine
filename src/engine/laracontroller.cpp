@@ -598,14 +598,22 @@ namespace engine
                 runActions = true;
                 break;
             case loader::TriggerType::Key:
-                //! @todo Handle key
+                {
+                    Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
+                    ItemController& key = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    if(key.triggerKey())
+                        runActions = true;
+                }
                 ++actionFloorData;
-                runActions = true;
                 return;
             case loader::TriggerType::Pickup:
-                //! @todo Handle pickup
+                {
+                    Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
+                    ItemController& pickup = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    if(pickup.triggerPickUp())
+                        runActions = true;
+                }
                 ++actionFloorData;
-                runActions = true;
                 return;
             case loader::TriggerType::Combat:
                 runActions = getHandStatus() == 4;

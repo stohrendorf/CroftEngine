@@ -299,6 +299,19 @@ namespace engine
         return handle;
     }
 
+    bool ItemController::triggerKey()
+    {
+        if(getLevel().m_lara->getHandStatus() != 0)
+            return false;
+
+        if(m_flags2_04_ready || !m_flags2_02_toggledOn)
+            return false;
+
+        m_flags2_02_toggledOn = false;
+        m_flags2_04_ready = true;
+        return true;
+    }
+
     void ItemController::updateSounds()
     {
         m_sounds.erase(std::remove_if(m_sounds.begin(), m_sounds.end(), [](const std::weak_ptr<audio::SourceHandle>& h) {
