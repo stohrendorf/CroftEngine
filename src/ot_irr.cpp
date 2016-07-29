@@ -44,31 +44,34 @@ int main()
 
     struct LevelInfo
     {
-        std::string name;
+        std::string filename;
+        std::string title;
         int track;
+        int secrets;
     };
 
     LevelInfo levels[] = {
-        {"LEVEL1", 57}, // 0
-        {"LEVEL2", 57},
-        {"LEVEL3A", 57},
-        {"LEVEL3B", 57},
-        {"LEVEL4", 59},
-        {"LEVEL5", 59}, // 5
-        {"LEVEL6", 59},
-        {"LEVEL7A", 58},
-        {"LEVEL7B", 58},
-        {"LEVEL8A", 59},
-        {"LEVEL8B", 59}, // 10
-        {"LEVEL8C", 59},
-        {"LEVEL10A", 58},
-        {"LEVEL10B", 60},
-        {"LEVEL10C", 60} // 14
+        {"GYM", "Lara's Home", 0, 0},
+        {"LEVEL1", "Caves", 57, 3}, // 1
+        {"LEVEL2", "City of Vilcabamba", 57, 3},
+        {"LEVEL3A", "Lost Valley", 57, 5},
+        {"LEVEL3B", "Tomb of Qualopec", 57, 3},
+        {"LEVEL4", "St. Francis' Folly", 59, 4},
+        {"LEVEL5", "Colosseum", 59, 3}, // 6
+        {"LEVEL6", "Palace Midas", 59, 3},
+        {"LEVEL7A", "The Cistern", 58, 3},
+        {"LEVEL7B", "Tomb of Tihocan", 58, 2},
+        {"LEVEL8A", "City of Khamoon", 59, 3},
+        {"LEVEL8B", "Obelisk of Khamoon", 59, 3}, // 11
+        {"LEVEL8C", "Sanctuary of the Scion", 59, 1},
+        {"LEVEL10A", "Natla's Mines", 58, 3},
+        {"LEVEL10B", "Atlantis", 60, 3},
+        {"LEVEL10C", "The Great Pyramid", 60, 3} // 15
     };
 
-    const LevelInfo& lvlInfo = levels[12];
+    const LevelInfo& lvlInfo = levels[0];
 
-    auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.name + ".PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     auto driver = device->getVideoDriver();
@@ -80,14 +83,15 @@ int main()
     auto timer = device->getTimer();
     auto lastTime = timer->getTime();
 
-    lvl->startTrack(lvlInfo.track);
+    if(lvlInfo.track > 0)
+        lvl->startTrack(lvlInfo.track);
 
     while(device->run())
     {
         lvl->m_audioDev.update();
 
-        if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
-            lvl->playStream(lvl->m_activeCDTrack);
+        //if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
+        //    lvl->playStream(lvl->m_activeCDTrack);
 
         if(!device->isWindowActive())
         {

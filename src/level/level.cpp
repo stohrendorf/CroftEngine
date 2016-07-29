@@ -279,7 +279,7 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
 loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId)
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
-        if( m_staticMeshes[i].id == meshId && m_meshIndices[m_staticMeshes[i].mesh] )
+        if( m_staticMeshes[i].id == meshId )
             return &m_staticMeshes[i];
 
     return nullptr;
@@ -288,7 +288,7 @@ loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId)
 const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
 {
     for( size_t i = 0; i < m_staticMeshes.size(); i++ )
-        if( m_staticMeshes[i].id == meshId && m_meshIndices[m_staticMeshes[i].mesh] )
+        if( m_staticMeshes[i].id == meshId )
             return &m_staticMeshes[i];
 
     return nullptr;
@@ -1249,7 +1249,7 @@ void Level::startTrack(uint16_t trackId)
         m_activeCDTrack = 0;
     }
 
-    if(m_activeCDTrack >= 26 && m_activeCDTrack <= 56)
+    if(trackId >= 26 && trackId <= 56)
     {
         m_lara->playSound(trackId + 148);
         m_activeCDTrack = trackId;
