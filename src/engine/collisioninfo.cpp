@@ -1,4 +1,4 @@
-#include "larastate.h"
+#include "collisioninfo.h"
 
 #include "core/magic.h"
 #include "level/level.h"
@@ -7,7 +7,7 @@
 
 namespace engine
 {
-    void LaraState::initHeightInfo(const core::ExactTRCoordinates& laraPos, const level::Level& level, int height)
+    void CollisionInfo::initHeightInfo(const core::ExactTRCoordinates& laraPos, const level::Level& level, int height)
     {
         axisCollisions = AxisColl_None;
         collisionFeedback = {0,0,0};
@@ -119,7 +119,7 @@ namespace engine
         if( current.floor.distance == -loader::HeightLimit )
         {
             collisionFeedback = position - laraPos;
-            axisCollisions = AxisColl_FrontBlocked;
+            axisCollisions = AxisColl_FrontForwardBlocked;
             return;
         }
 
@@ -132,13 +132,13 @@ namespace engine
 
         if( current.ceiling.distance >= 0 )
         {
-            axisCollisions = AxisColl_FrontCeilingBlocked;
+            axisCollisions = AxisColl_ScalpCollision;
             collisionFeedback.Y = current.ceiling.distance;
         }
 
         if( front.floor.distance > neededFloorDistanceBottom || front.floor.distance < neededFloorDistanceTop || front.ceiling.distance > neededCeilingDistance )
         {
-            axisCollisions = AxisColl_FrontBlocked;
+            axisCollisions = AxisColl_FrontForwardBlocked;
             switch( orientationAxis )
             {
             case core::Axis::PosZ:
@@ -157,7 +157,7 @@ namespace engine
 
         if( front.ceiling.distance >= neededCeilingDistance )
         {
-            axisCollisions = AxisColl_InsufficientCeilingSpace;
+            axisCollisions = AxisColl_InsufficientFrontCeilingSpace;
             collisionFeedback = position - laraPos;
             return;
         }
@@ -196,7 +196,7 @@ namespace engine
         }
     }
 
-    std::set<const loader::Room*> LaraState::collectNeighborRooms(const core::ExactTRCoordinates& position, int radius, int height, const level::Level& level)
+    std::set<const loader::Room*> CollisionInfo::collectNeighborRooms(const core::ExactTRCoordinates& position, int radius, int height, const level::Level& level)
     {
         std::set<const loader::Room*> result;
         result.insert(level.m_lara->getCurrentRoom());
@@ -211,7 +211,7 @@ namespace engine
         return result;
     }
 
-    bool LaraState::checkStaticMeshCollisions(const core::ExactTRCoordinates& position, int height, const level::Level& level)
+    bool CollisionInfo::checkStaticMeshCollisions(const core::ExactTRCoordinates& position, int height, const level::Level& level)
     {
         auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 
@@ -248,7 +248,7 @@ namespace engine
                     {
                         collisionFeedback.X = dx;
                         collisionFeedback.Z = this->position.Z - position.Z;
-                        axisCollisions = AxisColl_FrontBlocked;
+                        axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
                     }
@@ -275,7 +275,7 @@ namespace engine
                     {
                         collisionFeedback.X = this->position.X - position.X;
                         collisionFeedback.Z = dz;
-                        axisCollisions = AxisColl_FrontBlocked;
+                        axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
                     }
@@ -302,7 +302,7 @@ namespace engine
                     {
                         collisionFeedback.X = dx;
                         collisionFeedback.Z = this->position.Z - position.Z;
-                        axisCollisions = AxisColl_FrontBlocked;
+                        axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
                     }
@@ -329,7 +329,7 @@ namespace engine
                     {
                         collisionFeedback.X = this->position.X - position.X;
                         collisionFeedback.Z = dz;
-                        axisCollisions = AxisColl_FrontBlocked;
+                        axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
                     }

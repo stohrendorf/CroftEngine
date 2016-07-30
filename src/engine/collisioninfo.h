@@ -9,14 +9,14 @@ namespace engine
 {
     class LaraController;
 
-    struct LaraState
+    struct CollisionInfo
     {
         static constexpr int AxisColl_None = 0x00;
-        static constexpr int AxisColl_FrontBlocked = 0x01;
+        static constexpr int AxisColl_FrontForwardBlocked = 0x01;
         static constexpr int AxisColl_FrontLeftBlocked = 0x02;
         static constexpr int AxisColl_FrontRightBlocked = 0x04;
-        static constexpr int AxisColl_FrontCeilingBlocked = 0x08;
-        static constexpr int AxisColl_InsufficientCeilingSpace = 0x10;
+        static constexpr int AxisColl_ScalpCollision = 0x08;
+        static constexpr int AxisColl_InsufficientFrontCeilingSpace = 0x10;
         static constexpr int AxisColl_InvalidPosition = 0x20;
         static constexpr int AxisColl40 = 0x40;
         static constexpr int AxisColl80 = 0x80;

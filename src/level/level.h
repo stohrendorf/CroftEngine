@@ -266,11 +266,11 @@ namespace level
         }
 
         void playStream(uint16_t trackId);
-        void startTrack(uint16_t trackId);
-        void stopTrack(uint16_t trackId);
-        void triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
-        void playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
-        void stopSound(uint16_t soundId) const
+        void playCdTrack(uint16_t trackId);
+        void stopCdTrack(uint16_t trackId);
+        void triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+        void triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+        void stopSoundEffect(uint16_t soundId) const
         {
             BOOST_ASSERT(soundId < m_soundmap.size());
             const auto& details = m_soundDetails[m_soundmap[soundId]];
@@ -282,6 +282,7 @@ namespace level
                 stopSample(i);
             }
         }
+
         void stopSample(size_t id) const
         {
             if(auto handle = findSample(id))

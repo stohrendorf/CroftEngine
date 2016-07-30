@@ -68,8 +68,8 @@ set(OT_IRR_SRCS
     engine/itemcontroller.h
     engine/laracontroller.cpp
     engine/laracontroller.h
-    engine/larastate.cpp
-    engine/larastate.h
+    engine/collisioninfo.cpp
+    engine/collisioninfo.h
 
     level/game.h
     level/level.cpp

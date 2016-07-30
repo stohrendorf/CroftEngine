@@ -4,7 +4,7 @@
 #include "animationcontroller.h"
 #include "cameracontroller.h"
 #include "heightinfo.h"
-#include "larastate.h"
+#include "collisioninfo.h"
 #include "render/textureanimator.h"
 
 #include <boost/range/adaptors.hpp>
@@ -28,10 +28,10 @@ namespace engine
 
     void LaraController::handleLaraStateOnLand(bool newFrame)
     {
-        LaraState laraState;
+        CollisionInfo laraState;
         laraState.position = getPosition();
         laraState.collisionRadius = 100; //!< @todo MAGICK 100
-        laraState.frobbelFlags = LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08;
+        laraState.frobbelFlags = CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08;
 
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
         if( newFrame )
@@ -115,10 +115,10 @@ namespace engine
 
     void LaraController::handleLaraStateDiving(bool newFrame)
     {
-        LaraState laraState;
+        CollisionInfo laraState;
         laraState.position = getPosition();
         laraState.collisionRadius = 300; //!< @todo MAGICK 300
-        laraState.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08 | LaraState::FrobbelFlag_UnwalkableDeadlyFloor | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant);
+        laraState.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
         laraState.neededCeilingDistance = 400;
         laraState.neededFloorDistanceBottom = loader::HeightLimit;
         laraState.neededFloorDistanceTop = -400;
@@ -186,10 +186,10 @@ namespace engine
 
     void LaraController::handleLaraStateSwimming(bool newFrame)
     {
-        LaraState laraState;
+        CollisionInfo laraState;
         laraState.position = getPosition();
         laraState.collisionRadius = 100; //!< @todo MAGICK 100
-        laraState.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08 | LaraState::FrobbelFlag_UnwalkableDeadlyFloor | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant);
+        laraState.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
         laraState.neededCeilingDistance = 100;
         laraState.neededFloorDistanceBottom = loader::HeightLimit;
         laraState.neededFloorDistanceTop = -100;
@@ -268,7 +268,7 @@ namespace engine
         handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
     }
 
-    void LaraController::placeOnFloor(const LaraState& state)
+    void LaraController::placeOnFloor(const CollisionInfo& state)
     {
         auto pos = getPosition();
         pos.Y += state.current.floor.distance;
@@ -310,7 +310,7 @@ namespace engine
             setFalling(false);
             setPosition(getPosition() + core::ExactTRCoordinates(0, 100, 0));
             updateFloorHeight(0);
-            getLevel().stopSound(30);
+            getLevel().stopSoundEffect(30);
             if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
             {
                 setXRotation(-45_deg);
@@ -374,7 +374,7 @@ namespace engine
                 }
                 m_swimToDiveKeypressDuration = boost::none;
                 updateFloorHeight(-381);
-                playSound(36);
+                playSoundEffect(36);
             }
         }
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
@@ -486,7 +486,7 @@ namespace engine
                 case AnimCommandOpcode::PlaySound:
                     if( newFrame && getCurrentFrame() == cmd[0] )
                     {
-                        playSound(cmd[1]);
+                        playSoundEffect(cmd[1]);
                     }
                     cmd += 2;
                     break;
@@ -732,7 +732,7 @@ namespace engine
                 //! @todo handle level end
                 break;
             case loader::TriggerFunction::PlayTrack:
-                getLevel().playTrack(actionParam, srcTriggerArg, srcTriggerType);
+                getLevel().triggerCdTrack(actionParam, srcTriggerArg, srcTriggerType);
                 break;
             case loader::TriggerFunction::Secret:
                 {
@@ -741,7 +741,7 @@ namespace engine
                     if((m_secretsFoundBitmask & mask) == 0)
                     {
                         m_secretsFoundBitmask |= mask;
-                        getLevel().startTrack(13);
+                        getLevel().playCdTrack(13);
                     }
                 }
                 break;
@@ -823,7 +823,7 @@ namespace engine
         getLevel().m_cameraController->setUnknown1(k);
     }
 
-    void LaraController::testInteractions(LaraState& state)
+    void LaraController::testInteractions(CollisionInfo& state)
     {
         m_flags2_10 = false;
 

@@ -84,7 +84,7 @@ int main()
     auto lastTime = timer->getTime();
 
     if(lvlInfo.track > 0)
-        lvl->startTrack(lvlInfo.track);
+        lvl->playCdTrack(lvlInfo.track);
 
     while(device->run())
     {

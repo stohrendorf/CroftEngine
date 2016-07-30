@@ -210,7 +210,7 @@ namespace engine
                     case AnimCommandOpcode::PlaySound:
                         if(newFrame && getCurrentFrame() == cmd[0])
                         {
-                            playSound(cmd[1]);
+                            playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
@@ -291,7 +291,7 @@ namespace engine
         m_isActive = false;
     }
 
-    std::shared_ptr<audio::SourceHandle> ItemController::playSound(int id)
+    std::shared_ptr<audio::SourceHandle> ItemController::playSoundEffect(int id)
     {
         auto handle = getLevel().playSound(id, getPosition());
         if(handle != nullptr)
@@ -325,7 +325,7 @@ namespace engine
         }
     }
 
-    void ItemController_55_Switch::onInteract(LaraController& lara, LaraState& /*state*/)
+    void ItemController_55_Switch::onInteract(LaraController& lara, CollisionInfo& /*state*/)
     {
         if(!getLevel().m_inputHandler->getInputState().action)
             return;
@@ -414,7 +414,7 @@ namespace engine
         return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
     }
 
-    void ItemController_Door::onInteract(LaraController& /*lara*/, LaraState& /*state*/)
+    void ItemController_Door::onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/)
     {
 
     }
@@ -467,7 +467,7 @@ namespace engine
         setFalling(false);
     }
 
-    void ItemController_Block::onInteract(LaraController& lara, LaraState & state)
+    void ItemController_Block::onInteract(LaraController& lara, CollisionInfo & state)
     {
         if(!getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
             return;
@@ -592,7 +592,7 @@ namespace engine
             m_flags2_02_toggledOn = false;
             m_flags2_04_ready = true;
             //! @todo Shake camera
-            playSound(70);
+            playSoundEffect(70);
         }
 
         setCurrentRoom(pos.room);
@@ -631,7 +631,7 @@ namespace engine
             default: break;
         }
 
-        LaraState tmp;
+        CollisionInfo tmp;
         tmp.orientationAxis = axis;
         tmp.collisionRadius = 500;
         if(tmp.checkStaticMeshCollisions(pos, 1000, getLevel()))
@@ -663,7 +663,7 @@ namespace engine
         auto room = getCurrentRoom();
         auto sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), &room);
 
-        LaraState tmp;
+        CollisionInfo tmp;
         tmp.orientationAxis = axis;
         tmp.collisionRadius = 500;
         if(tmp.checkStaticMeshCollisions(pos, 1000, getLevel()))

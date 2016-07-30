@@ -461,7 +461,7 @@ namespace engine
         {
             if(m_level->m_cdStream != nullptr)
                 m_level->m_cdStream->getSource().setDirectFilter(nullptr);
-            m_level->stopSound(60);
+            m_level->stopSoundEffect(60);
             m_underwaterAmbience.reset();
         }
 

@@ -1126,14 +1126,14 @@ engine::ItemController* level::Level::findControllerForNode(const irr::scene::IS
     return nullptr;
 }
 
-void Level::playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
 {
     if(trackId < 1 || trackId >= 64)
         return;
 
     if(trackId < 28)
     {
-        triggerTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
@@ -1141,20 +1141,20 @@ void Level::playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType
     {
         if((m_cdTrackTriggerValues[trackId] & 0x100) != 0 && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp)
             trackId = 29;
-        triggerTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
     if(trackId == 37 || trackId == 41)
     {
         if(m_lara->getCurrentAnimState() == loader::LaraStateId::Hang)
-            triggerTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
     if(trackId >= 29 && trackId <= 40)
     {
-        triggerTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
@@ -1162,14 +1162,14 @@ void Level::playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType
     {
         if(trackId == 42 && (m_cdTrackTriggerValues[42] & 0x100) != 0 && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang)
             trackId = 43;
-        triggerTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
     if(trackId == 49)
     {
         if(m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop)
-            triggerTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
@@ -1182,23 +1182,23 @@ void Level::playTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType
                 //! @todo End level
                 m_cdTrack50time = 0;
             }
-            triggerTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, triggerArg, triggerType);
             return;
         }
 
         if(m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit)
-            triggerTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 
     if(trackId >= 51 && trackId <= 63)
     {
-        triggerTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, triggerArg, triggerType);
         return;
     }
 }
 
-void Level::triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
 {
     if((m_cdTrackTriggerValues[trackId] & 0x100) != 0)
         return;
@@ -1216,42 +1216,39 @@ void Level::triggerTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerT
         m_cdTrackTriggerValues[trackId] |= (triggerArg & 0x100);
 
         if(m_activeCDTrack != trackId)
-            startTrack(trackId);
+            playCdTrack(trackId);
     }
     else
     {
-        stopTrack(trackId);
+        stopCdTrack(trackId);
     }
 }
 
-void Level::startTrack(uint16_t trackId)
+void Level::playCdTrack(uint16_t trackId)
 {
     if(trackId == 13)
     {
-        m_lara->playSound(173);
+        m_lara->playSoundEffect(173);
         return;
     }
 
     if(trackId > 2 && trackId < 22)
         return;
 
-    if(m_activeCDTrack > 0)
+    if(m_activeCDTrack >= 26 && m_activeCDTrack <= 56)
     {
-        if(m_activeCDTrack < 26 || m_activeCDTrack > 56)
-        {
-            m_audioDev.removeStream(m_cdStream);
-            m_cdStream.reset();
-        }
-        else
-        {
-            stopSound(trackId + 148);
-        }
-        m_activeCDTrack = 0;
+        stopSoundEffect(trackId + 148);
     }
+    else if(m_activeCDTrack > 0)
+    {
+        m_audioDev.removeStream(m_cdStream);
+        m_cdStream.reset();
+    }
+    m_activeCDTrack = 0;
 
     if(trackId >= 26 && trackId <= 56)
     {
-        m_lara->playSound(trackId + 148);
+        m_lara->playSoundEffect(trackId + 148);
         m_activeCDTrack = trackId;
         return;
     }
@@ -1278,7 +1275,7 @@ void Level::startTrack(uint16_t trackId)
     m_activeCDTrack = trackId;
 }
 
-void Level::stopTrack(uint16_t trackId)
+void Level::stopCdTrack(uint16_t trackId)
 {
     if(m_activeCDTrack == 0)
         return;
@@ -1290,7 +1287,7 @@ void Level::stopTrack(uint16_t trackId)
     }
     else
     {
-        stopSound(trackId + 148);
+        stopSoundEffect(trackId + 148);
     }
 
     m_activeCDTrack = 0;

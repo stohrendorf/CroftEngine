@@ -3,7 +3,7 @@
 #include "core/magic.h"
 #include "inputstate.h"
 #include "laracontroller.h"
-#include "larastate.h"
+#include "collisioninfo.h"
 
 namespace engine
 {
@@ -23,7 +23,7 @@ namespace engine
         }
 
     public:
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override final
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override final
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -32,7 +32,7 @@ namespace engine
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             auto nextHandler = stopIfCeilingBlocked(state);
@@ -66,7 +66,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -89,7 +89,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
@@ -97,7 +97,7 @@ namespace engine
                 addYRotationSpeed(2.25_deg, 4_deg);
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -106,7 +106,7 @@ namespace engine
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnwalkableDeadlyFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             auto nextHandler = stopIfCeilingBlocked(state);
@@ -191,7 +191,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -226,7 +226,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
@@ -240,14 +240,14 @@ namespace engine
             }
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.yAngle = getRotation().Y;
             setMovementAngle(state.yAngle);
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             auto nextHandler = stopIfCeilingBlocked(state);
@@ -324,7 +324,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
             if( getHealth() <= 0 )
             {
@@ -381,7 +381,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             if(getLevel().m_inputHandler->getInputState().freeLook)
             {
@@ -413,7 +413,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
                 setTargetState(LaraStateId::JumpForward);
@@ -433,7 +433,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
@@ -445,7 +445,7 @@ namespace engine
             }
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -492,12 +492,12 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -515,13 +515,13 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             setTargetState(LaraStateId::Stop);
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -6_deg);
@@ -529,14 +529,14 @@ namespace engine
                 addYRotationSpeed(2.25_deg, 6_deg);
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.yAngle = getRotation().Y + 180_deg;
             setMovementAngle(state.yAngle);
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -577,7 +577,7 @@ namespace engine
         }
 
     public:
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override final
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override final
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -586,7 +586,7 @@ namespace engine
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             if( state.current.floor.distance <= 100 )
@@ -614,7 +614,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -643,7 +643,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             addYRotationSpeed(2.25_deg);
             if( getYRotationSpeed() <= 4_deg )
@@ -669,7 +669,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -698,7 +698,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             subYRotationSpeed(2.25_deg);
             if( getYRotationSpeed() >= -4_deg )
@@ -724,13 +724,13 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -751,7 +751,7 @@ namespace engine
             return LaraStateId::Death;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
@@ -764,21 +764,21 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             dampenHorizontalSpeed(0.05f);
             if( getFallSpeed() > 154 )
             {
-                getController().playSound(30);
+                getController().playSoundEffect(30);
             }
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -801,7 +801,7 @@ namespace engine
                 nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
                 playAnimation(loader::AnimationId::LANDING_HARD, 358);
             }
-            getLevel().stopSound(30);
+            getLevel().stopSoundEffect(30);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             placeOnFloor(state);
             setFalling(false);
@@ -823,10 +823,10 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
             setCameraRotation(-60_deg, 0_deg);
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left || getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
                 setTargetState(LaraStateId::ShimmyLeft);
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right || getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
@@ -835,7 +835,7 @@ namespace engine
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             auto nextHandler = commonEdgeHangHandling(state);
 
@@ -867,7 +867,7 @@ namespace engine
             return LaraStateId::Hang;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
@@ -880,7 +880,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             setCameraRotationY(85_deg);
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
@@ -888,11 +888,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFalling(true);
             state.yAngle = getRotation().Y;
@@ -936,22 +936,22 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
             state.yAngle = getMovementAngle();
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             applyCollisionFeedback(state);
             return nullptr;
@@ -971,7 +971,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.yAngle = getRotation().Y;
             if( irr::core::abs_(getRotation().X) > 90_deg )
@@ -986,23 +986,23 @@ namespace engine
 
             switch( state.axisCollisions )
             {
-            case LaraState::AxisColl_FrontLeftBlocked:
+            case CollisionInfo::AxisColl_FrontLeftBlocked:
                 m_yRotationSpeed = 5_deg;
                 break;
-            case LaraState::AxisColl_FrontRightBlocked:
+            case CollisionInfo::AxisColl_FrontRightBlocked:
                 m_yRotationSpeed = -5_deg;
                 break;
-            case LaraState::AxisColl_InvalidPosition:
+            case CollisionInfo::AxisColl_InvalidPosition:
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 return nullptr;
-            case LaraState::AxisColl_InsufficientCeilingSpace:
+            case CollisionInfo::AxisColl_InsufficientFrontCeilingSpace:
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 break;
-            case LaraState::AxisColl_FrontCeilingBlocked:
+            case CollisionInfo::AxisColl_ScalpCollision:
                 if( getRotation().X > -45_deg )
                     m_xRotationSpeed = -2_deg; // setXRotation(getRotation().X - 364);
                 break;
-            case LaraState::AxisColl_FrontBlocked:
+            case CollisionInfo::AxisColl_FrontForwardBlocked:
                 if( getRotation().X > 35_deg )
                     m_xRotationSpeed = 2_deg; // setXRotation(getRotation().X + 364);
                 else if( getRotation().X < -35_deg )
@@ -1058,7 +1058,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() < 0 )
             {
@@ -1074,7 +1074,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
         }
@@ -1093,7 +1093,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
             {
@@ -1124,11 +1124,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -1163,7 +1163,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -1179,7 +1179,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
@@ -1187,7 +1187,7 @@ namespace engine
                 addYRotationSpeed(2.25_deg, 4_deg);
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -1196,7 +1196,7 @@ namespace engine
             state.neededCeilingDistance = 0;
             state.yAngle = getRotation().Y + 180_deg;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             if( auto nextHandler = stopIfCeilingBlocked(state) )
@@ -1242,7 +1242,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() < 0 )
             {
@@ -1258,7 +1258,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)).limitMax(200.0f));
         }
@@ -1277,7 +1277,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() < 0 )
             {
@@ -1296,7 +1296,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
         }
@@ -1315,24 +1315,24 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
             state.yAngle = getRotation().Y;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             return nullptr;
         }
@@ -1351,7 +1351,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -1376,7 +1376,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -1394,7 +1394,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -1413,7 +1413,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -1422,7 +1422,7 @@ namespace engine
             return LaraStateId::StepRight;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -1431,7 +1431,7 @@ namespace engine
             state.neededCeilingDistance = 0;
             state.yAngle = getRotation().Y + 90_deg;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             auto nextHandler = stopIfCeilingBlocked(state);
@@ -1461,7 +1461,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -1480,7 +1480,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -1489,7 +1489,7 @@ namespace engine
             return LaraStateId::StepLeft;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -1498,7 +1498,7 @@ namespace engine
             state.neededCeilingDistance = 0;
             state.yAngle = getRotation().Y - 90_deg;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant | LaraState::FrobbelFlag_UnwalkableSteepFloor;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
             auto nextHandler = stopIfCeilingBlocked(state);
@@ -1528,22 +1528,22 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFalling(false);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             state.yAngle = getRotation().Y + 180_deg;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
@@ -1584,7 +1584,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             setCameraRotationX(-45_deg);
             if( getLevel().m_inputHandler->getInputState().jump )
@@ -1593,11 +1593,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             return commonSlideHandling(state);
@@ -1617,7 +1617,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             setCameraRotationY(135_deg);
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
@@ -1626,11 +1626,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 180_deg);
             return commonJumpHandling(state);
@@ -1650,7 +1650,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::FreeFall);
@@ -1658,11 +1658,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 90_deg);
             return commonJumpHandling(state);
@@ -1682,7 +1682,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::FreeFall);
@@ -1690,11 +1690,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y - 90_deg);
             return commonJumpHandling(state);
@@ -1714,7 +1714,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::FreeFall);
@@ -1722,11 +1722,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -1766,7 +1766,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::FreeFall);
@@ -1777,11 +1777,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -1818,17 +1818,17 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
             setCameraRotation(-60_deg, 0_deg);
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::Hang);
 
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y - 90_deg);
             auto nextHandler = commonEdgeHangHandling(state);
@@ -1841,7 +1841,7 @@ namespace engine
             return LaraStateId::ShimmyLeft;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
@@ -1854,17 +1854,17 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
             setCameraRotation(-60_deg, 0_deg);
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::Hang);
 
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 90_deg);
             auto nextHandler = commonEdgeHangHandling(state);
@@ -1877,7 +1877,7 @@ namespace engine
             return LaraStateId::ShimmyRight;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
@@ -1890,7 +1890,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getLevel().m_inputHandler->getInputState().jump )
                 setTargetState(LaraStateId::JumpBack);
@@ -1898,11 +1898,11 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 180_deg);
             return commonSlideHandling(state);
@@ -1923,16 +1923,16 @@ namespace engine
         }
 
     protected:
-        std::unique_ptr<AbstractStateHandler> commonOnWaterHandling(LaraState& state)
+        std::unique_ptr<AbstractStateHandler> commonOnWaterHandling(CollisionInfo& state)
         {
             state.yAngle = getMovementAngle();
             state.initHeightInfo(getPosition() + core::ExactTRCoordinates(0, 700, 0), getLevel(), 700);
             applyCollisionFeedback(state);
             if( state.current.floor.distance < 0
-                || state.axisCollisions == LaraState::AxisColl_InvalidPosition
-                || state.axisCollisions == LaraState::AxisColl_InsufficientCeilingSpace
-                || state.axisCollisions == LaraState::AxisColl_FrontCeilingBlocked
-                || state.axisCollisions == LaraState::AxisColl_FrontBlocked
+                || state.axisCollisions == CollisionInfo::AxisColl_InvalidPosition
+                || state.axisCollisions == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace
+                || state.axisCollisions == CollisionInfo::AxisColl_ScalpCollision
+                || state.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked
             )
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -1940,9 +1940,9 @@ namespace engine
             }
             else
             {
-                if( state.axisCollisions == LaraState::AxisColl_FrontLeftBlocked )
+                if( state.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
                     m_yRotationSpeed = 5_deg;
-                else if( state.axisCollisions == LaraState::AxisColl_FrontRightBlocked )
+                else if( state.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
                     m_yRotationSpeed = -5_deg;
                 else
                     m_yRotationSpeed = 0_deg;
@@ -1963,12 +1963,12 @@ namespace engine
         }
 
     private:
-        std::unique_ptr<AbstractStateHandler> tryClimbOutOfWater(LaraState& state)
+        std::unique_ptr<AbstractStateHandler> tryClimbOutOfWater(CollisionInfo& state)
         {
             if( getMovementAngle() != getRotation().Y )
                 return nullptr;
 
-            if( state.axisCollisions != LaraState::AxisColl_FrontBlocked )
+            if( state.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked )
                 return nullptr;
 
             if( !getLevel().m_inputHandler->getInputState().action )
@@ -2032,7 +2032,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -2070,7 +2070,7 @@ namespace engine
             return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             if(getLevel().m_inputHandler->getInputState().freeLook)
             {
@@ -2099,7 +2099,7 @@ namespace engine
             addSwimToDiveKeypressDuration(deltaTimeMs);
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             return commonOnWaterHandling(state);
@@ -2119,7 +2119,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -2138,7 +2138,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2150,7 +2150,7 @@ namespace engine
                 m_yRotationSpeed = 0_deg;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             return commonOnWaterHandling(state);
@@ -2170,7 +2170,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 m_yRotationSpeed = -1_deg;
@@ -2180,7 +2180,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -2198,25 +2198,25 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override final
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override final
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             setCameraUnknown1(1);
             setCameraRotation(-25_deg, 35_deg);
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override final
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override final
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override final
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override final
         {
             setMovementAngle(getRotation().Y);
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
 
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -2260,9 +2260,9 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             setCameraRotationY(75_deg);
             if(!getLevel().m_inputHandler->getInputState().action)
                 setTargetState(LaraStateId::Stop);
@@ -2271,7 +2271,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -2280,13 +2280,13 @@ namespace engine
             return LaraStateId::PushableGrab;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
 
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -2302,16 +2302,16 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08);
             setCameraRotation(-25_deg, 80_deg);
             setCameraDistance(1024);
 
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -2320,14 +2320,14 @@ namespace engine
             return LaraStateId::SwitchDown;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             state.yAngle = getRotation().Y;
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
 
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -2343,16 +2343,16 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag10 | LaraState::FrobbelFlag08);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08);
             setCameraRotation(-25_deg, 80_deg);
             setCameraDistance(1024);
 
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
@@ -2361,14 +2361,14 @@ namespace engine
             return LaraStateId::SwitchUp;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y);
             state.yAngle = getRotation().Y;
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
 
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -2384,7 +2384,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getRotation().X < 0_deg )
                 m_xRotationSpeed = -2_deg;
@@ -2396,7 +2396,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
         }
@@ -2406,7 +2406,7 @@ namespace engine
             return LaraStateId::WaterDeath;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setHealth(core::makeInterpolatedValue(-1.0f));
             setAir(core::makeInterpolatedValue(-1.0f));
@@ -2427,22 +2427,22 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setFalling(false);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             state.yAngle = getRotation().Y;
             setMovementAngle(state.yAngle);
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
@@ -2483,7 +2483,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -2499,7 +2499,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2511,7 +2511,7 @@ namespace engine
                 m_yRotationSpeed = 0_deg;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 180_deg);
             return commonOnWaterHandling(state);
@@ -2531,7 +2531,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -2547,7 +2547,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2559,7 +2559,7 @@ namespace engine
                 m_yRotationSpeed = 0_deg;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y - 90_deg);
             return commonOnWaterHandling(state);
@@ -2579,7 +2579,7 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& /*state*/) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*state*/) override
         {
             if( getHealth() <= 0 )
             {
@@ -2595,7 +2595,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*state*/, int deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2607,7 +2607,7 @@ namespace engine
                 m_yRotationSpeed = 0_deg;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             setMovementAngle(getRotation().Y + 90_deg);
             return commonOnWaterHandling(state);
@@ -2627,21 +2627,21 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~LaraState::FrobbelFlag10;
-            state.frobbelFlags |= LaraState::FrobbelFlag08;
+            state.frobbelFlags &= ~CollisionInfo::FrobbelFlag10;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag08;
             if( getFallSpeed() > core::FreeFallSpeedThreshold )
                 setTargetState(LaraStateId::SwandiveEnd);
 
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -2675,19 +2675,19 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~LaraState::FrobbelFlag10;
-            state.frobbelFlags |= LaraState::FrobbelFlag08;
+            state.frobbelFlags &= ~CollisionInfo::FrobbelFlag10;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag08;
             return nullptr;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
             dampenHorizontalSpeed(0.05f);
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = loader::HeightLimit;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -2725,18 +2725,18 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
             state.yAngle = getRotation().Y;
             setMovementAngle(state.yAngle);
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -2748,7 +2748,7 @@ namespace engine
             return LaraStateId::Handstand;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
@@ -2761,18 +2761,18 @@ namespace engine
         {
         }
 
-        std::unique_ptr<AbstractStateHandler> handleInputImpl(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) override
         {
-            state.frobbelFlags &= ~(LaraState::FrobbelFlag08 | LaraState::FrobbelFlag10);
+            state.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
             return nullptr;
         }
 
-        std::unique_ptr<AbstractStateHandler> postprocessFrame(LaraState& state) override
+        std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) override
         {
             state.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
             state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
             state.neededCeilingDistance = 0;
-            state.frobbelFlags |= LaraState::FrobbelFlag_UnwalkableSteepFloor | LaraState::FrobbelFlag_UnpassableSteepUpslant;
+            state.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
             state.yAngle = getRotation().Y;
             setMovementAngle(state.yAngle);
             state.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -2784,12 +2784,12 @@ namespace engine
             return LaraStateId::OnWaterExit;
         }
 
-        void animateImpl(LaraState& /*state*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*state*/, int /*deltaTimeMs*/) override
         {
         }
     };
 
-    void AbstractStateHandler::animate(LaraState& state, uint32_t deltaTimeMs)
+    void AbstractStateHandler::animate(CollisionInfo& state, uint32_t deltaTimeMs)
     {
         animateImpl(state, deltaTimeMs);
 
@@ -3017,7 +3017,7 @@ namespace engine
         return m_controller.getLevel();
     }
 
-    void AbstractStateHandler::placeOnFloor(const LaraState& state)
+    void AbstractStateHandler::placeOnFloor(const CollisionInfo& state)
     {
         m_controller.placeOnFloor(state);
     }
@@ -3128,9 +3128,9 @@ namespace engine
         return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryReach(CollisionInfo& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
+        if( state.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
             return nullptr;
 
         if( std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance) >= core::MaxGrabbableGradient )
@@ -3166,9 +3166,9 @@ namespace engine
         return createWithRetainedAnimation(LaraStateId::Hang);
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::stopIfCeilingBlocked(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::stopIfCeilingBlocked(CollisionInfo& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontCeilingBlocked && state.axisCollisions != LaraState::AxisColl_InvalidPosition )
+        if( state.axisCollisions != CollisionInfo::AxisColl_ScalpCollision && state.axisCollisions != CollisionInfo::AxisColl_InvalidPosition )
             return nullptr;
 
         setPosition(state.position);
@@ -3181,9 +3181,9 @@ namespace engine
         return createWithRetainedAnimation(LaraStateId::Stop);
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(CollisionInfo& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().jump || getHandStatus() != 0 )
+        if( state.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || !getLevel().m_inputHandler->getInputState().jump || getHandStatus() != 0 )
             return nullptr;
 
         const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
@@ -3244,15 +3244,15 @@ namespace engine
         return nextHandler;
     }
 
-    void AbstractStateHandler::applyCollisionFeedback(LaraState& state)
+    void AbstractStateHandler::applyCollisionFeedback(CollisionInfo& state)
     {
         setPosition(getPosition() + state.collisionFeedback);
         state.collisionFeedback = {0,0,0};
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkWallCollision(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkWallCollision(CollisionInfo& state)
     {
-        if( state.axisCollisions == LaraState::AxisColl_FrontBlocked || state.axisCollisions == LaraState::AxisColl_InsufficientCeilingSpace )
+        if( state.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked || state.axisCollisions == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace )
         {
             applyCollisionFeedback(state);
             setTargetState(LaraStateId::Stop);
@@ -3261,12 +3261,12 @@ namespace engine
             return createWithRetainedAnimation(LaraStateId::Stop);
         }
 
-        if( state.axisCollisions == LaraState::AxisColl_FrontLeftBlocked )
+        if( state.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
         {
             applyCollisionFeedback(state);
             m_yRotationSpeed = 5_deg;
         }
-        else if( state.axisCollisions == LaraState::AxisColl_FrontRightBlocked )
+        else if( state.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
         {
             applyCollisionFeedback(state);
             m_yRotationSpeed = -5_deg;
@@ -3275,7 +3275,7 @@ namespace engine
         return nullptr;
     }
 
-    bool AbstractStateHandler::tryStartSlide(LaraState& state, std::unique_ptr<AbstractStateHandler>& nextHandler)
+    bool AbstractStateHandler::tryStartSlide(CollisionInfo& state, std::unique_ptr<AbstractStateHandler>& nextHandler)
     {
         auto slantX = irr::core::abs_(state.floorSlantX);
         auto slantZ = irr::core::abs_(state.floorSlantZ);
@@ -3319,9 +3319,9 @@ namespace engine
         return true;
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryGrabEdge(CollisionInfo& state)
     {
-        if( state.axisCollisions != LaraState::AxisColl_FrontBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
+        if( state.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
             return nullptr;
 
         const auto floorGradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
@@ -3376,7 +3376,7 @@ namespace engine
         return h.distance;
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonJumpHandling(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonJumpHandling(CollisionInfo& state)
     {
         state.neededFloorDistanceBottom = loader::HeightLimit;
         state.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -3398,7 +3398,7 @@ namespace engine
         return nextHandler;
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonSlideHandling(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonSlideHandling(CollisionInfo& state)
     {
         state.neededFloorDistanceBottom = loader::HeightLimit;
         state.neededFloorDistanceTop = -loader::QuarterSectorSize * 2;
@@ -3442,7 +3442,7 @@ namespace engine
         return nextHandler;
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandling(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& state)
     {
         state.neededFloorDistanceBottom = loader::HeightLimit;
         state.neededFloorDistanceTop = -loader::HeightLimit;
@@ -3490,7 +3490,7 @@ namespace engine
         }
 
         auto gradient = std::abs(state.frontLeft.floor.distance - state.frontRight.floor.distance);
-        if( gradient >= core::MaxGrabbableGradient || state.current.ceiling.distance >= 0 || state.axisCollisions != LaraState::AxisColl_FrontBlocked || frobbel )
+        if( gradient >= core::MaxGrabbableGradient || state.current.ceiling.distance >= 0 || state.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || frobbel )
         {
             setPosition(state.position);
             if( getCurrentAnimState() != LaraStateId::ShimmyLeft && getCurrentAnimState() != LaraStateId::ShimmyRight )
@@ -3597,19 +3597,19 @@ namespace engine
         m_controller.setCameraUnknown1(k);
     }
 
-    void AbstractStateHandler::jumpAgainstWall(LaraState& state)
+    void AbstractStateHandler::jumpAgainstWall(CollisionInfo& state)
     {
         applyCollisionFeedback(state);
-        if( state.axisCollisions == LaraState::AxisColl_FrontLeftBlocked )
+        if( state.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
             m_yRotationSpeed = 5_deg;
-        else if( state.axisCollisions == LaraState::AxisColl_FrontRightBlocked )
+        else if( state.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
             m_yRotationSpeed = -5_deg;
-        else if( state.axisCollisions == LaraState::AxisColl_FrontCeilingBlocked )
+        else if( state.axisCollisions == CollisionInfo::AxisColl_ScalpCollision )
         {
             if( getFallSpeed() <= 0 )
                 setFallSpeed(core::makeInterpolatedValue(1.0f));
         }
-        else if( state.axisCollisions == LaraState::AxisColl_InvalidPosition )
+        else if( state.axisCollisions == CollisionInfo::AxisColl_InvalidPosition )
         {
             m_xMovement = 100 * getRotation().Y.sin();
             m_zMovement = 100 * getRotation().Y.cos();
@@ -3620,14 +3620,14 @@ namespace engine
         }
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkJumpWallSmash(LaraState& state)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::checkJumpWallSmash(CollisionInfo& state)
     {
         applyCollisionFeedback(state);
 
-        if( state.axisCollisions == LaraState::AxisColl_None )
+        if( state.axisCollisions == CollisionInfo::AxisColl_None )
             return nullptr;
 
-        if( state.axisCollisions == LaraState::AxisColl_FrontBlocked || state.axisCollisions == LaraState::AxisColl_InsufficientCeilingSpace )
+        if( state.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked || state.axisCollisions == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace )
         {
             setTargetState(LaraStateId::FreeFall);
             //! @todo Check formula
@@ -3639,18 +3639,18 @@ namespace engine
             return createWithRetainedAnimation(LaraStateId::FreeFall);
         }
 
-        if( state.axisCollisions == LaraState::AxisColl_FrontLeftBlocked )
+        if( state.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
         {
             m_yRotationSpeed = 5_deg;
             return nullptr;
         }
-        else if( state.axisCollisions == LaraState::AxisColl_FrontRightBlocked )
+        else if( state.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
         {
             m_yRotationSpeed = -5_deg;
             return nullptr;
         }
 
-        if( state.axisCollisions == LaraState::AxisColl_InvalidPosition )
+        if( state.axisCollisions == CollisionInfo::AxisColl_InvalidPosition )
         {
             m_xMovement = 100 * state.yAngle.sin();
             m_zMovement = 100 * state.yAngle.cos();
@@ -3660,7 +3660,7 @@ namespace engine
                 setFallSpeed(core::makeInterpolatedValue(16.0f));
         }
 
-        if( state.axisCollisions == LaraState::AxisColl_FrontCeilingBlocked && getFallSpeed() <= 0 )
+        if( state.axisCollisions == CollisionInfo::AxisColl_ScalpCollision && getFallSpeed() <= 0 )
             setFallSpeed(core::makeInterpolatedValue(1.0f));
 
         return nullptr;
