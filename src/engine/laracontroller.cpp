@@ -28,19 +28,19 @@ namespace engine
 
     void LaraController::handleLaraStateOnLand(bool newFrame)
     {
-        CollisionInfo laraState;
-        laraState.position = getPosition();
-        laraState.collisionRadius = 100; //!< @todo MAGICK 100
-        laraState.frobbelFlags = CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08;
+        CollisionInfo collisionInfo;
+        collisionInfo.position = getPosition();
+        collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
+        collisionInfo.frobbelFlags = CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08;
 
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
         if( newFrame )
         {
             //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
-            nextHandler = m_currentStateHandler->handleInput(laraState);
+            nextHandler = m_currentStateHandler->handleInput(collisionInfo);
         }
 
-        m_currentStateHandler->animate(laraState, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
 
         if( nextHandler != nullptr )
         {
@@ -100,9 +100,9 @@ namespace engine
         if( !newFrame )
             return;
 
-        testInteractions(laraState);
+        testInteractions(collisionInfo);
 
-        nextHandler = m_currentStateHandler->postprocessFrame(laraState);
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
         {
             m_currentStateHandler = std::move(nextHandler);
@@ -110,27 +110,27 @@ namespace engine
         }
 
         updateFloorHeight(-381);
-        handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
     }
 
     void LaraController::handleLaraStateDiving(bool newFrame)
     {
-        CollisionInfo laraState;
-        laraState.position = getPosition();
-        laraState.collisionRadius = 300; //!< @todo MAGICK 300
-        laraState.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
-        laraState.neededCeilingDistance = 400;
-        laraState.neededFloorDistanceBottom = loader::HeightLimit;
-        laraState.neededFloorDistanceTop = -400;
+        CollisionInfo collisionInfo;
+        collisionInfo.position = getPosition();
+        collisionInfo.collisionRadius = 300; //!< @todo MAGICK 300
+        collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
+        collisionInfo.neededCeilingDistance = 400;
+        collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
+        collisionInfo.neededFloorDistanceTop = -400;
 
         std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
         if( newFrame )
         {
             //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
-            nextHandler = m_currentStateHandler->handleInput(laraState);
+            nextHandler = m_currentStateHandler->handleInput(collisionInfo);
         }
 
-        m_currentStateHandler->animate(laraState, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
 
         if( nextHandler != nullptr )
         {
@@ -171,9 +171,9 @@ namespace engine
         if( !newFrame )
             return;
 
-        testInteractions(laraState);
+        testInteractions(collisionInfo);
 
-        nextHandler = m_currentStateHandler->postprocessFrame(laraState);
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
         {
             m_currentStateHandler = std::move(nextHandler);
@@ -181,18 +181,18 @@ namespace engine
         }
 
         updateFloorHeight(0);
-        handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
     }
 
     void LaraController::handleLaraStateSwimming(bool newFrame)
     {
-        CollisionInfo laraState;
-        laraState.position = getPosition();
-        laraState.collisionRadius = 100; //!< @todo MAGICK 100
-        laraState.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
-        laraState.neededCeilingDistance = 100;
-        laraState.neededFloorDistanceBottom = loader::HeightLimit;
-        laraState.neededFloorDistanceTop = -100;
+        CollisionInfo collisionInfo;
+        collisionInfo.position = getPosition();
+        collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
+        collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
+        collisionInfo.neededCeilingDistance = 100;
+        collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
+        collisionInfo.neededFloorDistanceTop = -100;
 
         setCameraRotationX(-22_deg);
 
@@ -200,10 +200,10 @@ namespace engine
         if( newFrame )
         {
             //BOOST_LOG_TRIVIAL(debug) << "Input state: " << loader::toString(m_currentStateHandler->getId());
-            nextHandler = m_currentStateHandler->handleInput(laraState);
+            nextHandler = m_currentStateHandler->handleInput(collisionInfo);
         }
 
-        m_currentStateHandler->animate(laraState, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
 
         if( nextHandler != nullptr )
         {
@@ -255,9 +255,9 @@ namespace engine
             return;
         }
 
-        testInteractions(laraState);
+        testInteractions(collisionInfo);
 
-        nextHandler = m_currentStateHandler->postprocessFrame(laraState);
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
         {
             m_currentStateHandler = std::move(nextHandler);
@@ -265,13 +265,13 @@ namespace engine
         }
 
         updateFloorHeight(100);
-        handleTriggers(laraState.current.floor.lastTriggerOrKill, false);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
     }
 
-    void LaraController::placeOnFloor(const CollisionInfo& state)
+    void LaraController::placeOnFloor(const CollisionInfo& collisionInfo)
     {
         auto pos = getPosition();
-        pos.Y += state.current.floor.distance;
+        pos.Y += collisionInfo.current.floor.distance;
         setPosition(pos);
     }
 
@@ -823,7 +823,7 @@ namespace engine
         getLevel().m_cameraController->setUnknown1(k);
     }
 
-    void LaraController::testInteractions(CollisionInfo& state)
+    void LaraController::testInteractions(CollisionInfo& collisionInfo)
     {
         m_flags2_10 = false;
 
@@ -850,7 +850,7 @@ namespace engine
             if( std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096 )
                 continue;
 
-            ctrl->onInteract(*this, state);
+            ctrl->onInteract(*this, collisionInfo);
         }
     }
 }

@@ -325,7 +325,7 @@ namespace engine
         }
     }
 
-    void ItemController_55_Switch::onInteract(LaraController& lara, CollisionInfo& /*state*/)
+    void ItemController_55_Switch::onInteract(LaraController& lara, CollisionInfo& /*collisionInfo*/)
     {
         if(!getLevel().m_inputHandler->getInputState().action)
             return;
@@ -414,7 +414,7 @@ namespace engine
         return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
     }
 
-    void ItemController_Door::onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/)
+    void ItemController_Door::onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/)
     {
 
     }
@@ -467,7 +467,7 @@ namespace engine
         setFalling(false);
     }
 
-    void ItemController_Block::onInteract(LaraController& lara, CollisionInfo & state)
+    void ItemController_Block::onInteract(LaraController& lara, CollisionInfo& collisionInfo)
     {
         if(!getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
             return;

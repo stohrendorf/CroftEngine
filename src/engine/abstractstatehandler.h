@@ -28,11 +28,11 @@ namespace engine
 
         virtual ~AbstractStateHandler() = default;
 
-        virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& state) = 0;
+        virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
-        void animate(CollisionInfo& state, uint32_t deltaTimeMs);
+        void animate(CollisionInfo& collisionInfo, uint32_t deltaTimeMs);
 
-        std::unique_ptr<AbstractStateHandler> handleInput(CollisionInfo& state)
+        std::unique_ptr<AbstractStateHandler> handleInput(CollisionInfo& collisionInfo)
         {
             m_xMovement = 0;
             m_yMovement = 0;
@@ -40,7 +40,7 @@ namespace engine
             m_xRotationSpeed = 0_deg;
             m_yRotationSpeed = 0_deg;
             m_zRotationSpeed = 0_deg;
-            return handleInputImpl(state);
+            return handleInputImpl(collisionInfo);
         }
 
         static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraController& controller);
@@ -51,8 +51,8 @@ namespace engine
     private:
         friend class StateHandler_2;
 
-        virtual void animateImpl(CollisionInfo& state, int deltaTimeMs) = 0;
-        virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& state) = 0;
+        virtual void animateImpl(CollisionInfo& collisionInfo, int deltaTimeMs) = 0;
+        virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) = 0;
 
     protected:
         core::InterpolatedValue<core::Angle> m_xRotationSpeed{0_deg};
@@ -102,7 +102,7 @@ namespace engine
 
         const level::Level& getLevel() const;
 
-        void placeOnFloor(const CollisionInfo& state);
+        void placeOnFloor(const CollisionInfo& collisionInfo);
 
         const core::ExactTRCoordinates& getPosition() const;
 
@@ -137,20 +137,20 @@ namespace engine
         void setTargetState(loader::LaraStateId state);
         loader::LaraStateId getTargetState() const;
 
-        std::unique_ptr<AbstractStateHandler> stopIfCeilingBlocked(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> tryClimb(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> checkWallCollision(CollisionInfo& state);
-        bool tryStartSlide(CollisionInfo& state, std::unique_ptr<AbstractStateHandler>& nextHandler);
-        std::unique_ptr<AbstractStateHandler> tryGrabEdge(CollisionInfo& state);
-        void jumpAgainstWall(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> checkJumpWallSmash(CollisionInfo& state);
+        std::unique_ptr<AbstractStateHandler> stopIfCeilingBlocked(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> tryClimb(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> checkWallCollision(CollisionInfo& collisionInfo);
+        bool tryStartSlide(CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler);
+        std::unique_ptr<AbstractStateHandler> tryGrabEdge(CollisionInfo& collisionInfo);
+        void jumpAgainstWall(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> checkJumpWallSmash(CollisionInfo& collisionInfo);
 
-        void applyCollisionFeedback(CollisionInfo& state);
+        void applyCollisionFeedback(CollisionInfo& collisionInfo);
         int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
-        std::unique_ptr<AbstractStateHandler> commonJumpHandling(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> commonSlideHandling(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> commonEdgeHangHandling(CollisionInfo& state);
-        std::unique_ptr<AbstractStateHandler> tryReach(CollisionInfo& state);
+        std::unique_ptr<AbstractStateHandler> commonJumpHandling(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> commonSlideHandling(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> commonEdgeHangHandling(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> tryReach(CollisionInfo& collisionInfo);
         bool canClimbOnto(core::Axis axis) const;
 
         bool applyLandingDamage();

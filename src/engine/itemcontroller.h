@@ -289,7 +289,7 @@ namespace engine
         {
         }
 
-        virtual void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/)
+        virtual void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/)
         {
             //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
@@ -457,7 +457,7 @@ namespace engine
             }
         }
 
-        void onInteract(LaraController& lara, CollisionInfo& state) override;
+        void onInteract(LaraController& lara, CollisionInfo& collisionInfo) override;
 
         void processAnimCommands(bool /*advanceFrame*/ = false) override
         {
@@ -479,7 +479,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override
         {
         }
 
@@ -520,7 +520,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override
         {
         }
 
@@ -592,7 +592,7 @@ namespace engine
             }
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override
         {
         }
 
@@ -679,7 +679,7 @@ namespace engine
             }
         }
 
-        void onInteract(LaraController& lara, CollisionInfo& state) override;
+        void onInteract(LaraController& lara, CollisionInfo& collisionInfo) override;
 
         void processAnimCommands(bool /*advanceFrame*/ = false) override
         {
@@ -707,7 +707,7 @@ namespace engine
                 setTargetState(0);
         }
 
-        void onInteract(LaraController& lara, CollisionInfo& state) override;
+        void onInteract(LaraController& lara, CollisionInfo& collisionInfo) override;
 
         void processAnimCommands(bool advanceFrame = false) override;
 
@@ -747,7 +747,7 @@ namespace engine
             }
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override
         {
         }
 
@@ -766,7 +766,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override
         {
         }
 
@@ -804,7 +804,7 @@ namespace engine
         {
         }
 
-        void onInteract(LaraController& /*lara*/, CollisionInfo& /*state*/) override final
+        void onInteract(LaraController& /*lara*/, CollisionInfo& /*collisionInfo*/) override final
         {
         }
 
@@ -878,7 +878,7 @@ namespace engine
 
         void animateImpl(bool /*isNewFrame*/) override;
 
-        void onInteract(LaraController& lara, CollisionInfo& state) override
+        void onInteract(LaraController& lara, CollisionInfo& collisionInfo) override
         {
 
         }

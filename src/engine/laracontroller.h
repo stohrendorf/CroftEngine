@@ -73,7 +73,7 @@ namespace engine
         void handleLaraStateOnLand(bool newFrame);
         void handleLaraStateDiving(bool newFrame);
         void handleLaraStateSwimming(bool newFrame);
-        void testInteractions(CollisionInfo& state);
+        void testInteractions(CollisionInfo& collisionInfo);
         //! @brief If "none", we are not allowed to dive until the "Dive" action key is released
         //! @remarks This happens e.g. just after dive-to-swim transition, when players still
         //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
@@ -119,7 +119,7 @@ namespace engine
             m_handStatus = status;
         }
 
-        void placeOnFloor(const CollisionInfo& state);
+        void placeOnFloor(const CollisionInfo& collisionInfo);
 
         void setYRotationSpeed(core::Angle spd)
         {
