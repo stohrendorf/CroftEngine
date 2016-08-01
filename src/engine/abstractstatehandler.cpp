@@ -3194,7 +3194,7 @@ namespace engine
 
     std::unique_ptr<AbstractStateHandler> AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
     {
-        if( collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || !getLevel().m_inputHandler->getInputState().jump || getHandStatus() != 0 )
+        if( collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
             return nullptr;
 
         const auto floorGradient = std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
@@ -3234,11 +3234,8 @@ namespace engine
             m_yMovement = 3.0f * loader::QuarterSectorSize + climbHeight;
             setHandStatus(1);
         }
-        else
+        else if(climbHeight >= -core::JumpReachableHeight && climbHeight <= -core::ClimbLimit3ClickMax)
         {
-            if( climbHeight < -core::JumpReachableHeight || climbHeight > -core::ClimbLimit3ClickMax )
-                return nullptr;
-
             setTargetState(LaraStateId::JumpUp);
             nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
             playAnimation(loader::AnimationId::STAY_SOLID, 185);
@@ -3246,6 +3243,10 @@ namespace engine
             auto tmp = getController().processLaraAnimCommands();
             if( tmp )
                 nextHandler = std::move(tmp);
+        }
+        else
+        {
+            return nullptr;
         }
 
         setYRotation(*alignedRotation);
