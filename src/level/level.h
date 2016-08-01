@@ -169,6 +169,8 @@ namespace level
 
         std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const boost::optional<core::ExactTRCoordinates>& pos)
         {
+            BOOST_LOG_TRIVIAL(debug) << "Playing sample #" << sample;
+
             Expects(sample < m_sampleIndices.size());
             pitch = irr::core::clamp(pitch, 0.5f, 2.0f);
             volume = irr::core::clamp(volume, 0.0f, 1.0f);
@@ -277,16 +279,27 @@ namespace level
             const size_t first = details.sample;
             const size_t last = first + details.getSampleCount();
 
+            bool anyStopped = false;
             for(size_t i = first; i < last; ++i)
             {
-                stopSample(i);
+                anyStopped |= stopSample(i);
             }
+
+            if(!anyStopped)
+                BOOST_LOG_TRIVIAL(debug) << "Attempting to stop sound #" << soundId << " (samples " << first << ".." << (last-1) << ") didn't stop any samples";
+            else
+                BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound #" << soundId;
         }
 
-        void stopSample(size_t id) const
+        bool stopSample(size_t id) const
         {
             if(auto handle = findSample(id))
+            {
                 handle->stop();
+                return true;
+            }
+
+            return false;
         }
 
         std::shared_ptr<audio::Stream> m_cdStream;

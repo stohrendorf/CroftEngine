@@ -1235,9 +1235,11 @@ void Level::playCdTrack(uint16_t trackId)
     if(trackId > 2 && trackId < 22)
         return;
 
+    BOOST_LOG_TRIVIAL(debug) << "Stopping track #" << m_activeCDTrack;
+
     if(m_activeCDTrack >= 26 && m_activeCDTrack <= 56)
     {
-        stopSoundEffect(trackId + 148);
+        stopSoundEffect(m_activeCDTrack + 148);
     }
     else if(m_activeCDTrack > 0)
     {
@@ -1245,6 +1247,8 @@ void Level::playCdTrack(uint16_t trackId)
         m_cdStream.reset();
     }
     m_activeCDTrack = 0;
+
+    BOOST_LOG_TRIVIAL(debug) << "Playing track #" << trackId;
 
     if(trackId >= 26 && trackId <= 56)
     {
