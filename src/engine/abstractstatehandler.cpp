@@ -274,9 +274,9 @@ namespace engine
                         playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815);
                         return nextHandler;
                     }
-
-                    playAnimation(loader::AnimationId::STAY_SOLID, 185);
                 }
+
+                playAnimation(loader::AnimationId::STAY_SOLID, 185);
             }
 
             if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
