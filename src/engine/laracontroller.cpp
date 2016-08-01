@@ -97,10 +97,15 @@ namespace engine
             BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
         }
 
-        if( !newFrame )
+        if(!newFrame)
+        {
+#ifndef NDEBUG
+            //lastUsedCollisionInfo = collisionInfo;
+#endif
             return;
+        }
 
-        testInteractions(collisionInfo);
+        testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
@@ -111,6 +116,10 @@ namespace engine
 
         updateFloorHeight(-381);
         handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+
+#ifndef NDEBUG
+        lastUsedCollisionInfo = collisionInfo;
+#endif
     }
 
     void LaraController::handleLaraStateDiving(bool newFrame)
@@ -168,10 +177,15 @@ namespace engine
             BOOST_LOG_TRIVIAL(debug) << "New anim command state override: " << loader::toString(m_currentStateHandler->getId());
         }
 
-        if( !newFrame )
+        if(!newFrame)
+        {
+#ifndef NDEBUG
+            lastUsedCollisionInfo = collisionInfo;
+#endif
             return;
+        }
 
-        testInteractions(collisionInfo);
+        testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
@@ -182,6 +196,9 @@ namespace engine
 
         updateFloorHeight(0);
         handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+#ifndef NDEBUG
+        lastUsedCollisionInfo = collisionInfo;
+#endif
     }
 
     void LaraController::handleLaraStateSwimming(bool newFrame)
@@ -252,10 +269,13 @@ namespace engine
         if(!newFrame)
         {
             updateFloorHeight(100);
+#ifndef NDEBUG
+            lastUsedCollisionInfo = collisionInfo;
+#endif
             return;
         }
 
-        testInteractions(collisionInfo);
+        testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler != nullptr )
@@ -266,6 +286,9 @@ namespace engine
 
         updateFloorHeight(100);
         handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+#ifndef NDEBUG
+        lastUsedCollisionInfo = collisionInfo;
+#endif
     }
 
     void LaraController::placeOnFloor(const CollisionInfo& collisionInfo)
@@ -823,7 +846,7 @@ namespace engine
         getLevel().m_cameraController->setUnknown1(k);
     }
 
-    void LaraController::testInteractions(CollisionInfo& collisionInfo)
+    void LaraController::testInteractions()
     {
         m_flags2_10 = false;
 
@@ -850,7 +873,7 @@ namespace engine
             if( std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096 )
                 continue;
 
-            ctrl->onInteract(*this, collisionInfo);
+            ctrl->onInteract(*this);
         }
     }
 }

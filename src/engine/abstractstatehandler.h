@@ -137,15 +137,15 @@ namespace engine
         void setTargetState(loader::LaraStateId state);
         loader::LaraStateId getTargetState() const;
 
-        std::unique_ptr<AbstractStateHandler> stopIfCeilingBlocked(CollisionInfo& collisionInfo);
+        std::unique_ptr<AbstractStateHandler> stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
         std::unique_ptr<AbstractStateHandler> tryClimb(CollisionInfo& collisionInfo);
         std::unique_ptr<AbstractStateHandler> checkWallCollision(CollisionInfo& collisionInfo);
-        bool tryStartSlide(CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler);
+        bool tryStartSlide(const CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler);
         std::unique_ptr<AbstractStateHandler> tryGrabEdge(CollisionInfo& collisionInfo);
         void jumpAgainstWall(CollisionInfo& collisionInfo);
         std::unique_ptr<AbstractStateHandler> checkJumpWallSmash(CollisionInfo& collisionInfo);
 
-        void applyCollisionFeedback(CollisionInfo& collisionInfo);
+        void applyCollisionFeedback(const CollisionInfo& collisionInfo);
         int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
         std::unique_ptr<AbstractStateHandler> commonJumpHandling(CollisionInfo& collisionInfo);
         std::unique_ptr<AbstractStateHandler> commonSlideHandling(CollisionInfo& collisionInfo);

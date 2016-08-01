@@ -3166,7 +3166,7 @@ namespace engine
         return createWithRetainedAnimation(LaraStateId::Hang);
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::stopIfCeilingBlocked(CollisionInfo& collisionInfo)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionInfo)
     {
         if( collisionInfo.axisCollisions != CollisionInfo::AxisColl_ScalpCollision && collisionInfo.axisCollisions != CollisionInfo::AxisColl_InvalidPosition )
             return nullptr;
@@ -3244,7 +3244,7 @@ namespace engine
         return nextHandler;
     }
 
-    void AbstractStateHandler::applyCollisionFeedback(CollisionInfo& collisionInfo)
+    void AbstractStateHandler::applyCollisionFeedback(const CollisionInfo& collisionInfo)
     {
         setPosition(getPosition() + collisionInfo.collisionFeedback);
         collisionInfo.collisionFeedback = {0,0,0};
@@ -3275,7 +3275,7 @@ namespace engine
         return nullptr;
     }
 
-    bool AbstractStateHandler::tryStartSlide(CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler)
+    bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler)
     {
         auto slantX = irr::core::abs_(collisionInfo.floorSlantX);
         auto slantZ = irr::core::abs_(collisionInfo.floorSlantZ);
@@ -3449,7 +3449,7 @@ namespace engine
         collisionInfo.neededCeilingDistance = 0;
         collisionInfo.yAngle = getMovementAngle();
         collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-        const bool frobbel = collisionInfo.front.floor.distance < 200;
+        const bool tooSteepToGrab = collisionInfo.front.floor.distance < 200;
         setFallSpeed(core::makeInterpolatedValue(0.0f));
         setFalling(false);
         setMovementAngle(getRotation().Y);
@@ -3490,7 +3490,7 @@ namespace engine
         }
 
         auto gradient = std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
-        if( gradient >= core::MaxGrabbableGradient || collisionInfo.current.ceiling.distance >= 0 || collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || frobbel )
+        if( gradient >= core::MaxGrabbableGradient || collisionInfo.current.ceiling.distance >= 0 || collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || tooSteepToGrab )
         {
             setPosition(collisionInfo.position);
             if( getCurrentAnimState() != LaraStateId::ShimmyLeft && getCurrentAnimState() != LaraStateId::ShimmyRight )

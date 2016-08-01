@@ -30,24 +30,24 @@ namespace engine
         static constexpr int FrobbelFlag40 = 0x40;
         static constexpr int FrobbelFlag80 = 0x80;
 
-        int axisCollisions;
-        core::ExactTRCoordinates collisionFeedback;
-        core::Axis orientationAxis;
-        core::Angle yAngle; // external
-        int collisionRadius; // external
-        int frobbelFlags; // external
+        int axisCollisions = AxisColl_None;
+        mutable core::ExactTRCoordinates collisionFeedback;
+        core::Axis orientationAxis = core::Axis::PosZ;
+        core::Angle yAngle = 0_deg; // external
+        int collisionRadius = 0; // external
+        int frobbelFlags = 0; // external
         core::ExactTRCoordinates position; // external
-        int neededFloorDistanceBottom; // external
-        int neededFloorDistanceTop; // external
-        int neededCeilingDistance; // external
+        int neededFloorDistanceBottom = 0; // external
+        int neededFloorDistanceTop = 0; // external
+        int neededCeilingDistance = 0; // external
 
         VerticalInfo current;
         VerticalInfo front;
         VerticalInfo frontLeft;
         VerticalInfo frontRight;
 
-        int8_t floorSlantX;
-        int8_t floorSlantZ;
+        int8_t floorSlantX = 0;
+        int8_t floorSlantZ = 0;
 
         bool hasStaticMeshCollision = false;
 

@@ -221,6 +221,8 @@ namespace engine
                                              );
         baseCollisionBox.repair();
 
+        hasStaticMeshCollision = false;
+
         for( const loader::Room* room : rooms )
         {
             for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
@@ -244,9 +246,9 @@ namespace engine
                 switch( orientationAxis )
                 {
                 case core::Axis::PosX:
-                    if( dz > collisionRadius || -collisionRadius > dz )
+                    if( dz > collisionRadius || dz < -collisionRadius )
                     {
-                        collisionFeedback.X = dx;
+                        collisionFeedback.X = dx - 1;
                         collisionFeedback.Z = this->position.Z - position.Z;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
@@ -271,10 +273,10 @@ namespace engine
                     hasStaticMeshCollision = true;
                     return true;
                 case core::Axis::PosZ:
-                    if( dx > collisionRadius || -collisionRadius > dx )
+                    if( dx > collisionRadius || dx < -collisionRadius )
                     {
                         collisionFeedback.X = this->position.X - position.X;
-                        collisionFeedback.Z = dz;
+                        collisionFeedback.Z = dz - 1;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
@@ -287,7 +289,7 @@ namespace engine
                         hasStaticMeshCollision = true;
                         return true;
                     }
-                    if( dx >= 0 || -collisionRadius > dx )
+                    if( dx >= 0 || dx < -collisionRadius )
                     {
                         hasStaticMeshCollision = true;
                         return true;
@@ -298,9 +300,9 @@ namespace engine
                     hasStaticMeshCollision = true;
                     return true;
                 case core::Axis::NegX:
-                    if( dz > collisionRadius || -collisionRadius > dz )
+                    if( dz > collisionRadius || dz < -collisionRadius )
                     {
-                        collisionFeedback.X = dx;
+                        collisionFeedback.X = dx + 1;
                         collisionFeedback.Z = this->position.Z - position.Z;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
@@ -314,7 +316,7 @@ namespace engine
                         hasStaticMeshCollision = true;
                         return true;
                     }
-                    if( dz >= 0 || -collisionRadius > dz )
+                    if( dz >= 0 || dz < -collisionRadius )
                     {
                         hasStaticMeshCollision = true;
                         return true;
@@ -325,10 +327,10 @@ namespace engine
                     hasStaticMeshCollision = true;
                     return true;
                 case core::Axis::NegZ:
-                    if( dx > collisionRadius || -collisionRadius > dx )
+                    if( dx > collisionRadius || dx < -collisionRadius )
                     {
                         collisionFeedback.X = this->position.X - position.X;
-                        collisionFeedback.Z = dz;
+                        collisionFeedback.Z = dz + 1;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
@@ -341,7 +343,7 @@ namespace engine
                         hasStaticMeshCollision = true;
                         return true;
                     }
-                    if( dx >= 0 || -collisionRadius > dx )
+                    if( dx >= 0 || dx < -collisionRadius )
                     {
                         hasStaticMeshCollision = true;
                         return true;

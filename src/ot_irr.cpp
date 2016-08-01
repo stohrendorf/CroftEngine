@@ -18,6 +18,59 @@ namespace
         r.LowerRightCorner.Y += dim.Height;
         fnt->draw(txt, r, col);
     }
+
+    void drawDebugInfo(gsl::not_null<irr::IrrlichtDevice*> device, gsl::not_null<level::Level*> lvl)
+    {
+        // position/rotation
+        drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
+        drawText(device->getGUIEnvironment(), 100, 40, irr::core::stringw(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
+        drawText(device->getGUIEnvironment(), 140, 20, irr::core::stringw(std::lround(lvl->m_lara->getPosition().X)));
+        drawText(device->getGUIEnvironment(), 140, 30, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Y)));
+        drawText(device->getGUIEnvironment(), 140, 40, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Z)));
+
+        // physics
+        drawText(device->getGUIEnvironment(), 180, 40, irr::core::stringw(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
+
+        // animation
+        drawText(device->getGUIEnvironment(), 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
+        drawText(device->getGUIEnvironment(), 100, 60, loader::toString(lvl->m_lara->getTargetState()));
+        drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
+        drawText(device->getGUIEnvironment(), 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
+
+        // triggers
+        {
+            int y = 100;
+            for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
+            {
+                if(!item->m_isActive)
+                    continue;
+
+                drawText(device->getGUIEnvironment(), 10, y, item->getName().c_str());
+                if(item->m_flags2_02_toggledOn)
+                    drawText(device->getGUIEnvironment(), 180, y, "toggled");
+                if(item->m_flags2_04_ready)
+                    drawText(device->getGUIEnvironment(), 220, y, "ready");
+                drawText(device->getGUIEnvironment(), 260, y, irr::core::stringw(item->m_triggerTimeout));
+                y += 20;
+            }
+        }
+
+        // collision
+        drawText(device->getGUIEnvironment(), 200, 20,  irr::core::stringw("AxisColl: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.axisCollisions));
+        drawText(device->getGUIEnvironment(), 200, 40,  irr::core::stringw("Current floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.current.floor.distance));
+        drawText(device->getGUIEnvironment(), 200, 60,  irr::core::stringw("Current ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.current.ceiling.distance));
+        drawText(device->getGUIEnvironment(), 200, 80,  irr::core::stringw("Front floor:     ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.front.floor.distance));
+        drawText(device->getGUIEnvironment(), 200, 100, irr::core::stringw("Front ceiling:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.front.ceiling.distance));
+        drawText(device->getGUIEnvironment(), 200, 120, irr::core::stringw("Front/L floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontLeft.floor.distance));
+        drawText(device->getGUIEnvironment(), 200, 140, irr::core::stringw("Front/L ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontLeft.ceiling.distance));
+        drawText(device->getGUIEnvironment(), 200, 160, irr::core::stringw("Front/R floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontRight.floor.distance));
+        drawText(device->getGUIEnvironment(), 200, 180, irr::core::stringw("Front/R ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontRight.ceiling.distance));
+        drawText(device->getGUIEnvironment(), 200, 200, irr::core::stringw("Need bottom:     ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceBottom));
+        drawText(device->getGUIEnvironment(), 200, 220, irr::core::stringw("Need top:        ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceTop));
+        drawText(device->getGUIEnvironment(), 200, 240, irr::core::stringw("Need ceiling:    ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
+
+        device->getGUIEnvironment()->drawAll();
+    }
 }
 
 int main()
@@ -131,34 +184,7 @@ int main()
         lvl->m_fx->update();
         lvl->drawBars(device->getVideoDriver());
 
-        drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
-        drawText(device->getGUIEnvironment(), 100, 40, irr::core::stringw(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
-        drawText(device->getGUIEnvironment(), 140, 20, irr::core::stringw(std::lround(lvl->m_lara->getPosition().X)));
-        drawText(device->getGUIEnvironment(), 140, 30, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Y)));
-        drawText(device->getGUIEnvironment(), 140, 40, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Z)));
-        drawText(device->getGUIEnvironment(), 180, 40, irr::core::stringw(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
-        drawText(device->getGUIEnvironment(), 10, 60, toString(lvl->m_lara->getCurrentAnimState()));
-        drawText(device->getGUIEnvironment(), 100, 60, toString(lvl->m_lara->getTargetState()));
-        drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
-        drawText(device->getGUIEnvironment(), 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
-        {
-            int y = 100;
-            for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
-            {
-                if(!item->m_isActive)
-                    continue;
-
-                drawText(device->getGUIEnvironment(), 10, y, item->getName().c_str());
-                if(item->m_flags2_02_toggledOn)
-                    drawText(device->getGUIEnvironment(), 180, y, "toggled");
-                if(item->m_flags2_04_ready)
-                    drawText(device->getGUIEnvironment(), 220, y, "ready");
-                drawText(device->getGUIEnvironment(), 260, y, irr::core::stringw(item->m_triggerTimeout));
-                y += 20;
-            }
-        }
-
-        device->getGUIEnvironment()->drawAll();
+        drawDebugInfo(device, lvl.get());
 
         device->getVideoDriver()->endScene();
 

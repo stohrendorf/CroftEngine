@@ -240,7 +240,7 @@ irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, in
     return tex;
 }
 
-irr::core::aabbox3di StaticMesh::getCollisionBox(const core::TRCoordinates & pos, core::Angle angle) const
+irr::core::aabbox3di StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
 {
     auto result = collision_box;
 
