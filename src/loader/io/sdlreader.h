@@ -119,12 +119,12 @@ public:
         return !m_stream.bad();
     }
 
-    size_t tell()
+    std::streampos tell()
     {
         return m_stream.tellg();
     }
 
-    size_t size()
+    std::streamsize size()
     {
         const auto pos = m_stream.tellg();
         m_stream.seekg(0, std::ios::end);

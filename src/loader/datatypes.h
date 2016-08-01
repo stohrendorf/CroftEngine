@@ -610,7 +610,7 @@ namespace loader
             room->lowestHeight = -reader.readI32();
             room->greatestHeight = -reader.readI32();
 
-            auto num_data_words = reader.readU32();
+            std::streamsize num_data_words = reader.readU32();
 
             auto position = reader.tell();
 
@@ -663,7 +663,7 @@ namespace loader
             room->lowestHeight = reader.readI32();
             room->greatestHeight = reader.readI32();
 
-            auto num_data_words = reader.readU32();
+            std::streamsize num_data_words = reader.readU32();
 
             auto position = reader.tell();
 
@@ -723,7 +723,7 @@ namespace loader
             room->lowestHeight = reader.readI32();
             room->greatestHeight = reader.readI32();
 
-            auto num_data_words = reader.readU32();
+            std::streamsize num_data_words = reader.readU32();
 
             auto position = reader.tell();
 
@@ -787,7 +787,7 @@ namespace loader
             room->lowestHeight = reader.readI32();
             room->greatestHeight = reader.readI32();
 
-            auto num_data_words = reader.readU32();
+            std::streamsize num_data_words = reader.readU32();
 
             auto position = reader.tell();
 
@@ -840,9 +840,9 @@ namespace loader
             if( reader.readU32() != 0x414C4558 )
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: 'XELA' not found";
 
-            const auto room_data_size = reader.readU32();
-            const auto position = reader.tell();
-            const auto endPos = position + room_data_size;
+            const std::streamsize room_data_size = reader.readU32();
+            const std::streampos position = reader.tell();
+            const std::streampos endPos = position + room_data_size;
 
             std::unique_ptr<Room> room{new Room()};
             room->darkness = 32767;
@@ -854,12 +854,12 @@ namespace loader
 
             /*portal_offset = */
             reader.readI32(); // StartPortalOffset?   // endSDOffset
-            auto sector_data_offset = reader.readU32(); // StartSDOffset
+            std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
             auto temp = reader.readU32();
             if( temp != 0 && temp != 0xCDCDCDCD )
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: seperator2 has wrong value";
 
-            auto static_meshes_offset = reader.readU32(); // endPortalOffset
+            std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
             // static_meshes_offset or room_layer_offset
             // read and change coordinate system
             room->position.X = reader.readI32();
@@ -971,12 +971,12 @@ namespace loader
 
             room->layers.resize(reader.readU32());
 
-            auto layer_offset = reader.readU32();
-            auto vertices_offset = reader.readU32();
-            auto poly_offset = reader.readU32();
-            auto poly_offset2 = reader.readU32();
+            std::streampos layer_offset = reader.readU32();
+            std::streampos vertices_offset = reader.readU32();
+            std::streampos poly_offset = reader.readU32();
+            std::streampos poly_offset2 = reader.readU32();
             if( poly_offset != poly_offset2 )
-            BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: poly_offset != poly_offset2"));
+                BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: poly_offset != poly_offset2"));
 
             auto vertices_size = reader.readU32();
             if( vertices_size % 28 != 0 )
@@ -997,7 +997,7 @@ namespace loader
             for( size_t i = 0; i < room->lights.size(); i++ )
                 room->lights[i] = Light::readTr5(reader);
 
-            reader.seek(position + 208 + sector_data_offset);
+            reader.seek(position + std::streamoff(208) + sector_data_offset);
 
             reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
@@ -1005,17 +1005,17 @@ namespace loader
             for( size_t i = 0; i < room->portals.size(); i++ )
                 room->portals[i] = Portal::read(reader, room->position);
 
-            reader.seek(position + 208 + static_meshes_offset);
+            reader.seek(position + std::streamoff(208) + static_meshes_offset);
 
             for( size_t i = 0; i < room->staticMeshes.size(); i++ )
                 room->staticMeshes[i] = RoomStaticMesh::readTr4(reader);
 
-            reader.seek(position + 208 + layer_offset);
+            reader.seek(position + std::streamoff(208) + layer_offset);
 
             for( size_t i = 0; i < room->layers.size(); i++ )
                 room->layers[i] = Layer::read(reader);
 
-            reader.seek(position + 208 + poly_offset);
+            reader.seek(position + std::streamoff(208) + poly_offset);
 
             {
                 uint32_t vertex_index = 0;
@@ -1047,7 +1047,7 @@ namespace loader
                 }
             }
 
-            reader.seek(position + 208 + vertices_offset);
+            reader.seek(position + std::streamoff(208) + vertices_offset);
 
             {
                 uint32_t vertex_index = 0;

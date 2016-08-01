@@ -70,7 +70,7 @@ void Level::readMeshData(loader::io::SDLReader& reader)
     {
         std::replace(m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i);
 
-        reader.seek(basePos + meshDataPos);
+        reader.seek(basePos + std::streamoff(meshDataPos));
 
         if( gameToEngine(m_gameVersion) >= Engine::TR4 )
             m_meshes.emplace_back(*loader::Mesh::readTr4(reader));
