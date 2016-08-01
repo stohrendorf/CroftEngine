@@ -130,6 +130,11 @@ namespace engine
             m_torsoRotation = r;
         }
 
+        void setHeadRotation(const core::TRRotation& r)
+        {
+            m_headRotation = r;
+        }
+
         const core::TRRotation& getTorsoRotation() const noexcept
         {
             return m_torsoRotation;

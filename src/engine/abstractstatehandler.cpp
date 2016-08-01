@@ -390,8 +390,19 @@ namespace engine
                     -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
                     FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
                 );
+                auto r = getLevel().m_cameraController->getHeadRotation();
+                if(r.Y < -44_deg)
+                    r.Y = -44_deg;
+                else if(r.Y > 44_deg)
+                    r.Y = 44_deg;
 
-                getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+                if(r.X < -42_deg)
+                    r.X = -42_deg;
+                else if(r.X > 22_deg)
+                    r.X = 22_deg;
+
+                getLevel().m_cameraController->setHeadRotation(r);
+                getLevel().m_cameraController->setTorsoRotation(r);
             }
             else if(getLevel().m_cameraController->getCamOverrideType() == 2)
             {
