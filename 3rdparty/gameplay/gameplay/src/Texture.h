@@ -72,7 +72,7 @@ public:
         POSITIVE_Z,
         NEGATIVE_Z
     };
-    
+
     /**
      * Defines a texture sampler.
      *
@@ -101,17 +101,6 @@ public:
          * @script{create}
          */
         static Sampler* create(Texture* texture);
-
-        /**
-         * Creates a sampler for the specified texture.
-         *
-         * @param path Path to the texture to create a sampler for.
-         * @param generateMipmaps True to force a full mipmap chain to be generated for the texture, false otherwise.
-         *
-         * @return The new sampler.
-         * @script{create}
-         */
-        static Sampler* create(const char* path, bool generateMipmaps = false);
 
         /**
          * Sets the wrap mode for this sampler.
@@ -163,20 +152,6 @@ public:
     };
 
     /**
-     * Creates a texture from the given image resource.
-     *
-     * Note that for textures that include mipmap data in the source data (such as most compressed textures),
-     * the generateMipmaps flags should NOT be set to true.
-     *
-     * @param path The image resource path.
-     * @param generateMipmaps true to auto-generate a full mipmap chain, false otherwise.
-     * 
-     * @return The new texture, or NULL if the texture could not be loaded/created.
-     * @script{create}
-     */
-    static Texture* create(const char* path, bool generateMipmaps = false);
-
-    /**
      * Creates a texture from the given image.
      *
      * @param image The image containing the texture data.
@@ -195,7 +170,7 @@ public:
      * @param format Format of the texture data.
      * @param width Width of the texture data. If type is TEX_CUBE, then this is the cube face width.
      * @param height Height of the texture data. If type is TEX_CUBE, then this is the cube face height.
-     * @param data Raw texture data (expected to be tightly packed). If the type parameter is set 
+     * @param data Raw texture data (expected to be tightly packed). If the type parameter is set
      *   to TEXTURE_CUBE, then data is expected to be each face stored back contiguously within the
      *   array.
      * @param generateMipmaps True to generate a full mipmap chain, false otherwise.
@@ -228,8 +203,8 @@ public:
 
     /**
      * Set texture data to replace current texture image.
-     * 
-     * @param data Raw texture data (expected to be tightly packed). If the type parameter is set 
+     *
+     * @param data Raw texture data (expected to be tightly packed). If the type parameter is set
      *   to TEXTURE_CUBE, then data is expected to be each face stored back contiguously within the
      *   array.
      */

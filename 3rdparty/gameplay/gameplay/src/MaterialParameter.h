@@ -28,7 +28,7 @@ namespace gameplay
  * to the Matrix will automatically be reflected in the technique the
  * next time the parameter is applied to the render state.
  *
- * Note that for parameter values to arrays or pointers, the 
+ * Note that for parameter values to arrays or pointers, the
  * MaterialParameter will keep a long-lived reference to the passed
  * in array/pointer. Therefore, you must ensure that the pointers
  * you pass in are valid for the lifetime of the MaterialParameter
@@ -52,7 +52,7 @@ public:
 
     /**
      * Returns the texture sampler or NULL if this MaterialParameter is not a sampler type.
-     * 
+     *
      * @param index Index of the sampler (if the parameter is a sampler array),
      *      or zero if it is a single sampler value.
      *
@@ -131,16 +131,6 @@ public:
      * @script{ignore}
      */
     void setValue(const Texture::Sampler** samplers, unsigned int count);
-
-    /**
-     * Loads a texture sampler from the specified path and sets it as the value of this parameter.
-     *
-     * @param texturePath The path to the texture to set.
-     * @param generateMipmaps True to generate a full mipmap chain for the texture, false otherwise.
-     *
-     * @return The texture sampler that was set for this material parameter.
-     */
-    Texture::Sampler* setValue(const char* texturePath, bool generateMipmaps);
 
     /**
      * Stores a float value in this parameter.
@@ -239,16 +229,6 @@ public:
     void setMatrixArray(const Matrix* values, unsigned int count, bool copy = false);
 
     /**
-     * Loads a texture sampler from the specified path and sets it as the value of this parameter.
-     *
-     * @param texturePath The path to the texture to set.
-     * @param generateMipmaps True to generate a full mipmap chain for the texture, false otherwise.
-     *
-     * @return The texture sampler that was set for this material parameter.
-     */
-    Texture::Sampler* setSampler(const char* texturePath, bool generateMipmaps);
-
-    /**
      * Stores a Sampler value in this parameter.
      *
      * @param value The value to set.
@@ -302,9 +282,9 @@ public:
 
     /**
      * Binds the return value of the supported class method for the given node to this material parameter.
-     * 
+     *
      * Note: intended for use from Lua scripts.
-     * 
+     *
      * @param node The node containing the the member method to bind.
      * @param binding The name of the class method to bind (in the format '&class::method').
      *      Note: this name must be one of the following supported methods:
@@ -347,12 +327,12 @@ public:
     void setAnimationPropertyValue(int propertyId, AnimationValue* value, float blendWeight = 1.0f);
 
 private:
-   
+
     /**
      * Constructor.
      */
     MaterialParameter(const char* name);
-    
+
     /**
      * Destructor.
      */
@@ -362,7 +342,7 @@ private:
      * Hidden copy assignment operator.
      */
     MaterialParameter& operator=(const MaterialParameter&);
-    
+
     /**
      * Interface implemented by templated method bindings for simple storage and iteration.
      */
@@ -441,7 +421,7 @@ private:
         UNIFORM_NOT_FOUND = 0x01,
         PARAMETER_VALUE_NOT_SET = 0x02
     };
-    
+
     union
     {
         /** @script{ignore} */
@@ -459,7 +439,7 @@ private:
         /** @script{ignore} */
         MethodBinding* method;
     } _value;
-    
+
     enum
     {
         NONE,
@@ -475,7 +455,7 @@ private:
         SAMPLER_ARRAY,
         METHOD
     } _type;
-    
+
     unsigned int _count;
     bool _dynamic;
     std::string _name;

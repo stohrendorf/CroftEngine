@@ -3,7 +3,6 @@
 #include "Text.h"
 #include "Game.h"
 #include "FileSystem.h"
-#include "Bundle.h"
 #include "Material.h"
 
 // Default font shaders
@@ -40,62 +39,6 @@ Font::~Font()
     {
         SAFE_RELEASE(_sizes[i]);
     }
-}
-
-Font* Font::create(const char* path, const char* id)
-{
-    GP_ASSERT(path);
-
-    // Search the font cache for a font with the given path and ID.
-    for (size_t i = 0, count = __fontCache.size(); i < count; ++i)
-    {
-        Font* f = __fontCache[i];
-        GP_ASSERT(f);
-        if (f->_path == path && (id == NULL || f->_id == id))
-        {
-            // Found a match.
-            f->addRef();
-            return f;
-        }
-    }
-
-    // Load the bundle.
-    Bundle* bundle = Bundle::create(path);
-    if (bundle == NULL)
-    {
-        GP_WARN("Failed to load font bundle '%s'.", path);
-        return NULL;
-    }
-
-    Font* font = NULL;
-    if (id == NULL)
-    {
-        // Get the ID of the first object in the bundle (assume it's a Font).
-        const char* id;
-        if ((id = bundle->getObjectId(0)) == NULL)
-        {
-            GP_WARN("Failed to load font without explicit id; the first object in the font bundle has a null id.");
-            return NULL;
-        }
-
-        // Load the font using the ID of the first object in the bundle.
-        font = bundle->loadFont(bundle->getObjectId(0));
-    }
-    else
-    {
-        // Load the font with the given ID.
-        font = bundle->loadFont(id);
-    }
-
-    if (font)
-    {
-        // Add this font to the cache.
-        __fontCache.push_back(font);
-    }
-
-    SAFE_RELEASE(bundle);
-
-    return font;
 }
 
 Font* Font::create(const char* family, Style style, unsigned int size, Glyph* glyphs, int glyphCount, Texture* texture, Font::Format format)

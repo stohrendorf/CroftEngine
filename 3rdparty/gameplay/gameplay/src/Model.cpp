@@ -183,25 +183,6 @@ Material* Model::setMaterial(const char* vshPath, const char* fshPath, const cha
     return material;
 }
 
-Material* Model::setMaterial(const char* materialPath, int partIndex)
-{
-    // Try to create a Material from the specified material file.
-    Material* material = Material::create(materialPath);
-    if (material == NULL)
-    {
-        GP_ERROR("Failed to create material for model.");
-        return NULL;
-    }
-
-    // Assign the material to us
-    setMaterial(material, partIndex);
-
-    // Release the material since we now have a reference to it
-    material->release();
-
-    return material;
-}
-
 bool Model::hasMaterial(unsigned int partIndex) const
 {
     return (partIndex < _partCount && _partMaterials && _partMaterials[partIndex]);

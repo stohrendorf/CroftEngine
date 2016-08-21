@@ -42,23 +42,6 @@ ParticleEmitter::~ParticleEmitter()
     SAFE_DELETE_ARRAY(_spriteTextureCoords);
 }
 
-ParticleEmitter* ParticleEmitter::create(const char* textureFile, BlendMode blendMode, unsigned int particleCountMax)
-{
-    Texture* texture = Texture::create(textureFile, true);
-
-    if (!texture)
-    {
-        GP_ERROR("Failed to create texture for particle emitter.");
-        return NULL;
-    }
-    GP_ASSERT(texture->getWidth());
-    GP_ASSERT(texture->getHeight());
-
-    ParticleEmitter* emitter = ParticleEmitter::create(texture, blendMode, particleCountMax);
-    SAFE_RELEASE(texture);
-    return emitter;
-}
-
 ParticleEmitter* ParticleEmitter::create(Texture* texture, BlendMode blendMode,  unsigned int particleCountMax)
 {
     ParticleEmitter* emitter = new ParticleEmitter(particleCountMax);
@@ -67,154 +50,6 @@ ParticleEmitter* ParticleEmitter::create(Texture* texture, BlendMode blendMode, 
     emitter->setTexture(texture, blendMode);
 
     return emitter;
-}
-
-ParticleEmitter* ParticleEmitter::create(const char* url)
-{
-    Properties* properties = Properties::create(url);
-    if (!properties)
-    {
-        GP_ERROR("Failed to create particle emitter from file.");
-        return NULL;
-    }
-    
-    ParticleEmitter* particle = create((strlen(properties->getNamespace()) > 0) ? properties : properties->getNextNamespace());
-    SAFE_DELETE(properties);
-
-    return particle;
-}
-
-ParticleEmitter* ParticleEmitter::create(Properties* properties)
-{
-    if (!properties || strcmp(properties->getNamespace(), "particle") != 0)
-    {
-        GP_ERROR("Properties object must be non-null and have namespace equal to 'particle'.");
-        return NULL;
-    }
-
-    Properties* sprite = properties->getNextNamespace();
-    if (!sprite || strcmp(sprite->getNamespace(), "sprite") != 0)
-    {
-        GP_ERROR("Failed to load particle emitter: required namespace 'sprite' is missing.");
-        return NULL;
-    }
-
-    // Load sprite properties.
-    // Path to image file is required.
-    std::string texturePath;
-    if (!sprite->getPath("path", &texturePath))
-    {
-        GP_ERROR("Failed to load particle emitter: required image file path ('path') is missing.");
-        return NULL;
-    }
-
-    const char* blendModeString = sprite->getString("blendMode");
-    // Check for the old naming
-    if (blendModeString == NULL)
-        blendModeString = sprite->getString("blending");
-    BlendMode blendMode = getBlendModeFromString(blendModeString);
-    int spriteWidth = sprite->getInt("width");
-    int spriteHeight = sprite->getInt("height");
-    bool spriteAnimated = sprite->getBool("animated");
-    bool spriteLooped = sprite->getBool("looped");
-    int spriteFrameCount = sprite->getInt("frameCount");
-    int spriteFrameRandomOffset = sprite->getInt("frameRandomOffset");
-    float spriteFrameDuration = sprite->getFloat("frameDuration");
-
-    // Emitter properties.
-    unsigned int particleCountMax = (unsigned int)properties->getInt("particleCountMax");
-    if (particleCountMax == 0)
-    {
-        // Set sensible default.
-        particleCountMax = PARTICLE_COUNT_MAX;
-    }
-
-    unsigned int emissionRate = (unsigned int)properties->getInt("emissionRate");
-    if (emissionRate == 0)
-    {
-        emissionRate = PARTICLE_EMISSION_RATE;
-    }
-
-    bool ellipsoid = properties->getBool("ellipsoid");
-    float sizeStartMin = properties->getFloat("sizeStartMin");
-    float sizeStartMax = properties->getFloat("sizeStartMax");
-    float sizeEndMin = properties->getFloat("sizeEndMin");
-    float sizeEndMax = properties->getFloat("sizeEndMax");
-    long energyMin = properties->getLong("energyMin");
-    long energyMax = properties->getLong("energyMax");
-
-    Vector4 colorStart;
-    Vector4 colorStartVar;
-    Vector4 colorEnd;
-    Vector4 colorEndVar;
-    properties->getVector4("colorStart", &colorStart);
-    properties->getVector4("colorStartVar", &colorStartVar);
-    properties->getVector4("colorEnd", &colorEnd);
-    properties->getVector4("colorEndVar", &colorEndVar);
-
-    Vector3 position;
-    Vector3 positionVar;
-    Vector3 velocity;
-    Vector3 velocityVar;
-    Vector3 acceleration;
-    Vector3 accelerationVar;
-    Vector3 rotationAxis;
-    Vector3 rotationAxisVar;
-    properties->getVector3("position", &position);
-    properties->getVector3("positionVar", &positionVar);
-    properties->getVector3("velocity", &velocity);
-    properties->getVector3("velocityVar", &velocityVar);
-    properties->getVector3("acceleration", &acceleration);
-    properties->getVector3("accelerationVar", &accelerationVar);
-    float rotationPerParticleSpeedMin = properties->getFloat("rotationPerParticleSpeedMin");
-    float rotationPerParticleSpeedMax = properties->getFloat("rotationPerParticleSpeedMax");
-    float rotationSpeedMin = properties->getFloat("rotationSpeedMin");
-    float rotationSpeedMax = properties->getFloat("rotationSpeedMax");
-    properties->getVector3("rotationAxis", &rotationAxis);
-    properties->getVector3("rotationAxisVar", &rotationAxisVar);
-    bool orbitPosition = properties->getBool("orbitPosition");
-    bool orbitVelocity = properties->getBool("orbitVelocity");
-    bool orbitAcceleration = properties->getBool("orbitAcceleration");
-
-    // Apply all properties to a newly created ParticleEmitter.
-    ParticleEmitter* emitter = ParticleEmitter::create(texturePath.c_str(), blendMode, particleCountMax);
-    if (!emitter)
-    {
-        GP_ERROR("Failed to create particle emitter.");
-        return NULL;
-    }
-    emitter->setEmissionRate(emissionRate);
-    emitter->setEllipsoid(ellipsoid);
-    emitter->setSize(sizeStartMin, sizeStartMax, sizeEndMin, sizeEndMax);
-    emitter->setEnergy(energyMin, energyMax);
-    emitter->setColor(colorStart, colorStartVar, colorEnd, colorEndVar);
-    emitter->setPosition(position, positionVar);
-    emitter->setVelocity(velocity, velocityVar);
-    emitter->setAcceleration(acceleration, accelerationVar);
-    emitter->setRotationPerParticle(rotationPerParticleSpeedMin, rotationPerParticleSpeedMax);
-    emitter->setRotation(rotationSpeedMin, rotationSpeedMax, rotationAxis, rotationAxisVar);
-    emitter->setSpriteAnimated(spriteAnimated);
-    emitter->setSpriteLooped(spriteLooped);
-    emitter->setSpriteFrameRandomOffset(spriteFrameRandomOffset);
-    emitter->setSpriteFrameDuration(spriteFrameDuration);
-    emitter->setSpriteFrameCoords(spriteFrameCount, spriteWidth, spriteHeight);
-    emitter->setOrbit(orbitPosition, orbitVelocity, orbitAcceleration);
-
-    return emitter;
-}
-
-void ParticleEmitter::setTexture(const char* texturePath, BlendMode blendMode)
-{
-    Texture* texture = Texture::create(texturePath, true);
-    if (texture)
-    {
-        setTexture(texture, blendMode);
-        texture->release();
-    }
-    else
-    {
-        GP_WARN("Failed set new texture on particle emitter: %s", texturePath);
-    }
 }
 
 void ParticleEmitter::setTexture(Texture* texture, BlendMode blendMode)
@@ -788,7 +623,7 @@ void ParticleEmitter::generateVectorInEllipsoid(const Vector3& center, const Vec
         dst->y = MATH_RANDOM_MINUS1_1();
         dst->z = MATH_RANDOM_MINUS1_1();
     } while (dst->length() > 1.0f);
-    
+
     // Scale this point by the scaling vector.
     dst->x *= scale.x;
     dst->y *= scale.y;
@@ -867,7 +702,7 @@ void ParticleEmitter::update(float elapsedTime)
     static double runningTime = 0;
     runningTime += elapsedTime;
     if (runningTime < PARTICLE_UPDATE_RATE_MAX)
-        return;    
+        return;
 
     float elapsedMs = runningTime;
     runningTime = 0;

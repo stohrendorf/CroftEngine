@@ -2,13 +2,7 @@
 #include "Base.h"
 #include "Platform.h"
 #include "Game.h"
-#include "Keyboard.h"
-#include "Mouse.h"
-#include "Touch.h"
-#include "Gesture.h"
-#include "Gamepad.h"
 #include "FileSystem.h"
-#include "Bundle.h"
 #include "MathUtil.h"
 #include "Logger.h"
 
@@ -54,15 +48,6 @@
 #include "RenderTarget.h"
 #include "DepthStencilTarget.h"
 #include "ScreenDisplayer.h"
-#include "HeightField.h"
-#include "Terrain.h"
-#include "TerrainPatch.h"
-
-// Audio
-#include "AudioController.h"
-#include "AudioListener.h"
-#include "AudioBuffer.h"
-#include "AudioSource.h"
 
 // Animation
 #include "AnimationController.h"
@@ -71,43 +56,8 @@
 #include "Animation.h"
 #include "AnimationClip.h"
 
-// Physics
-#include "PhysicsController.h"
-#include "PhysicsConstraint.h"
-#include "PhysicsFixedConstraint.h"
-#include "PhysicsGenericConstraint.h"
-#include "PhysicsHingeConstraint.h"
-#include "PhysicsSocketConstraint.h"
-#include "PhysicsSpringConstraint.h"
-#include "PhysicsCollisionObject.h"
-#include "PhysicsCollisionShape.h"
-#include "PhysicsRigidBody.h"
-#include "PhysicsGhostObject.h"
-#include "PhysicsCharacter.h"
-#include "PhysicsVehicle.h"
-#include "PhysicsVehicleWheel.h"
-
 // AI
 #include "AIController.h"
 #include "AIAgent.h"
 #include "AIState.h"
 #include "AIStateMachine.h"
-
-// UI
-#include "Theme.h"
-#include "Control.h"
-#include "ControlFactory.h"
-#include "Container.h"
-#include "Form.h"
-#include "Label.h"
-#include "Button.h"
-#include "CheckBox.h"
-#include "TextBox.h"
-#include "RadioButton.h"
-#include "Slider.h"
-#include "ImageControl.h"
-#include "JoystickControl.h"
-#include "Layout.h"
-#include "AbsoluteLayout.h"
-#include "VerticalLayout.h"
-#include "FlowLayout.h"

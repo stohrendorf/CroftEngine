@@ -115,8 +115,10 @@ ot_find_dependency_alt(freetype Freetype)
 target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(freetype INTERFACE ${FREETYPE_LIBRARIES})
 
-find_package(Irrlicht REQUIRED)
-
+find_package(GLEW REQUIRED)
+add_library(GLEW INTERFACE)
+target_include_directories(GLEW INTERFACE ${GLEW_INCLUDE_DIRS})
+target_link_libraries(GLEW INTERFACE ${GLEW_LIBRARIES})
 
 if(MSVC)
     # C4503: Name too long
@@ -138,5 +140,6 @@ endif()
 
 add_definitions(-DGIT_SHA="${GIT_SHA}")
 
+add_subdirectory(3rdparty/gameplay)
 add_subdirectory(doc)
 add_subdirectory(src)

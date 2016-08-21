@@ -75,76 +75,6 @@ Texture::~Texture()
     }
 }
 
-Texture* Texture::create(const char* path, bool generateMipmaps)
-{
-    GP_ASSERT( path );
-
-    // Search texture cache first.
-    for (size_t i = 0, count = __textureCache.size(); i < count; ++i)
-    {
-        Texture* t = __textureCache[i];
-        GP_ASSERT( t );
-        if (t->_path == path)
-        {
-            // If 'generateMipmaps' is true, call Texture::generateMipamps() to force the
-            // texture to generate its mipmap chain if it hasn't already done so.
-            if (generateMipmaps)
-            {
-                t->generateMipmaps();
-            }
-
-            // Found a match.
-            t->addRef();
-
-            return t;
-        }
-    }
-
-    Texture* texture = NULL;
-
-    // Filter loading based on file extension.
-    const char* ext = strrchr(FileSystem::resolvePath(path), '.');
-    if (ext)
-    {
-        switch (strlen(ext))
-        {
-        case 4:
-            if (tolower(ext[1]) == 'p' && tolower(ext[2]) == 'n' && tolower(ext[3]) == 'g')
-            {
-                Image* image = Image::create(path);
-                if (image)
-                    texture = create(image, generateMipmaps);
-                SAFE_RELEASE(image);
-            }
-            else if (tolower(ext[1]) == 'p' && tolower(ext[2]) == 'v' && tolower(ext[3]) == 'r')
-            {
-                // PowerVR Compressed Texture RGBA.
-                texture = createCompressedPVRTC(path);
-            }
-            else if (tolower(ext[1]) == 'd' && tolower(ext[2]) == 'd' && tolower(ext[3]) == 's')
-            {
-                // DDS file format (DXT/S3TC) compressed textures
-                texture = createCompressedDDS(path);
-            }
-            break;
-        }
-    }
-
-    if (texture)
-    {
-        texture->_path = path;
-        texture->_cached = true;
-
-        // Add to texture cache.
-        __textureCache.push_back(texture);
-
-        return texture;
-    }
-
-    GP_ERROR("Failed to load texture from file '%s'.", path);
-    return NULL;
-}
-
 Texture* Texture::create(Image* image, bool generateMipmaps)
 {
     GP_ASSERT( image );
@@ -1155,12 +1085,6 @@ Texture::Sampler* Texture::Sampler::create(Texture* texture)
     GP_ASSERT( texture->_type == Texture::TEXTURE_2D || texture->_type == Texture::TEXTURE_CUBE );
     texture->addRef();
     return new Sampler(texture);
-}
-
-Texture::Sampler* Texture::Sampler::create(const char* path, bool generateMipmaps)
-{
-    Texture* texture = Texture::create(path, generateMipmaps);
-    return texture ? new Sampler(texture) : NULL;
 }
 
 void Texture::Sampler::setWrapMode(Wrap wrapS, Wrap wrapT, Wrap wrapR)

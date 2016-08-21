@@ -60,24 +60,6 @@ public:
     };
 
     /**
-     * Creates a font from the given bundle.
-     *
-     * If the 'id' parameter is NULL, it is assumed that the Bundle at 'path'
-     * contains exactly one Font resource. If the Bundle does not meet this criteria,
-     * NULL is returned.
-     *
-     * If a font for the given path has already been loaded, the existing font will be
-     * returned with its reference count increased.
-     *
-     * @param path The path to a bundle file containing a font resource.
-     * @param id An optional ID of the font resource within the bundle (NULL for the first/only resource).
-     *
-     * @return The specified Font or NULL if there was an error.
-     * @script{create}
-     */
-    static Font* create(const char* path, const char* id = NULL);
-
-    /**
      * Gets the font size (max height of glyphs) in pixels, at the specified index.
      *
      * The Font class can store multiple sizes of glyphs for a font. The number of font

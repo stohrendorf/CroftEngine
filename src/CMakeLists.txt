@@ -119,15 +119,6 @@ set(OT_IRR_SRCS
 
     util/helpers.h
     util/vmath.h
-
-    ../3rdparty/xeffects/Source/CScreenQuad.h
-    ../3rdparty/xeffects/Source/CShaderPre.h
-    ../3rdparty/xeffects/Source/CShaderPre.cpp
-    ../3rdparty/xeffects/Source/EffectCB.h
-    ../3rdparty/xeffects/Source/EffectHandler.h
-    ../3rdparty/xeffects/Source/EffectHandler.cpp
-    ../3rdparty/xeffects/Source/EffectShaders.h
-    ../3rdparty/xeffects/Source/XEffects.h
 )
 
 add_executable(ot_irr
@@ -143,7 +134,7 @@ endif()
 target_link_libraries(
     ot_irr
     Boost
-    Irrlicht
+    gameplay
     ZLIB
     OpenAL
     SndFile

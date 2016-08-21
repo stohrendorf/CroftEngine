@@ -25,7 +25,7 @@ void ScreenDisplayer::start(const char* function, unsigned long time)
     }
 
     __scriptInstance->_time = time;
-    Game::getInstance()->renderOnce(function);
+    Game::getInstance()->renderOnce();
     __scriptInstance->_startTime = Game::getInstance()->getGameTime();
 }
 

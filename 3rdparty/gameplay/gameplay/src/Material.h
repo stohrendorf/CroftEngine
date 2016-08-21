@@ -36,54 +36,13 @@ public:
     typedef std::string(*PassCallback)(Pass*, void*);
 
     /**
-     * Creates a material using the data from the Properties object defined at the specified URL, 
-     * where the URL is of the format "<file-path>.<extension>#<namespace-id>/<namespace-id>/.../<namespace-id>"
-     * (and "#<namespace-id>/<namespace-id>/.../<namespace-id>" is optional). 
-     * 
-     * @param url The URL pointing to the Properties object defining the material.
-     * 
-     * @return A new Material or NULL if there was an error.
-     * @script{create}
-     */
-    static Material* create(const char* url);
-
-    /**
-     * Creates a material from a Properties file.
-     *
-     * This overloaded method allows you to pass a function pointer to be called back for each
-     * pass that is loaded for the material. The passed in callback receives a pointer to each
-     * Pass being created and returns a string of optional defines to append to the shaders
-     * being compiled for each Pass. The function is called during Pass creation, prior to
-     * compiling the shaders for that Pass. MaterialParameters can be safely modified in this
-     * callback even though the shader is not yet compiled.
-     *
-     * @param url The URL pointing to the Properties object defining the material.
-     * @param callback Function pointer to be called during Pass creation.
-     * @param cookie Optional custom parameter to be passed to the callback function.
-     *
-     * @return A new Material or NULL if there was an error.
-     * @script{ignore}
-     */
-    static Material* create(const char* url, PassCallback callback, void* cookie = NULL);
-
-    /**
-     * Creates a material from the specified properties object.
-     * 
-     * @param materialProperties The properties object defining the 
-     *      material (must have namespace equal to 'material').
-     * @return A new Material.
-     * @script{create}
-     */
-    static Material* create(Properties* materialProperties);
-
-    /**
      * Creates a material from the specified effect.
      *
      * The returned material has a single technique and a single pass for the
      * given effect.
      *
      * @param effect Effect for the new material.
-     * 
+     *
      * @return A new Material.
      * @script{create}
      */
@@ -98,7 +57,7 @@ public:
      * @param vshPath Path to the vertex shader file.
      * @param fshPath Path to the fragment shader file.
      * @param defines New-line delimited list of preprocessor defines.
-     * 
+     *
      * @return A new Material.
      * @script{create}
      */
@@ -115,7 +74,7 @@ public:
      * Returns the technique at the specified index in this material.
      *
      * @param index The index of the technique to return.
-     * 
+     *
      * @return The specified technique.
      */
     Technique* getTechniqueByIndex(unsigned int index) const;
@@ -124,7 +83,7 @@ public:
      * Returns the technique with the specified ID in this material.
      *
      * @param id The ID of the technique to return.
-     * 
+     *
      * @return The specified technique.
      */
     Technique* getTechnique(const char* id) const;
@@ -137,7 +96,7 @@ public:
     Technique* getTechnique() const;
 
     /**
-     * Sets the current material technique. 
+     * Sets the current material technique.
      *
      * @param id ID of the technique to set.
      */
@@ -159,7 +118,7 @@ private:
      * Constructor.
      */
     Material(const Material& m);
-    
+
     /**
      * Destructor.
      */
@@ -167,18 +126,13 @@ private:
 
     /**
      * Clones this material.
-     * 
+     *
      * @param context The clone context.
-     * 
+     *
      * @return The newly created material.
      * @script{create}
      */
     Material* clone(NodeCloneContext &context) const;
-
-    /**
-     * Creates a new material with optional pass callback function.
-     */
-    static Material* create(Properties* materialProperties, PassCallback callback, void* cookie);
 
     /**
      * Loads a technique from the given properties object into the specified material.

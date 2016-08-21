@@ -48,37 +48,10 @@ public:
      * <li>The fragment shader must define at least a single sampler/texture uniform.
      * </ol>
      *
-     * @param texturePath The path of the texture for this sprite batch.
-     * @param effect An optional effect to use with the SpriteBatch.
-     * @param initialCapacity An optional initial capacity of the batch (number of sprites).
-     * 
-     * @return A new SpriteBatch for drawing sprites using the given texture.
-     * @script{create}
-     */
-    static SpriteBatch* create(const char* texturePath, Effect* effect = NULL, unsigned int initialCapacity = 0);
-
-    /**
-     * Creates a new SpriteBatch for drawing sprites with the given texture.
-     *
-     * If the effect parameter is NULL, a default effect is used which
-     * applies an orthographic projection for the currently bound viewport.
-     * A custom projection matrix can be used with the default effect by passing
-     * a new projection matrix into the SpriteBatch via the setProjectionMatrix
-     * method.
-     *
-     * If a custom effect is specified, it must meet the following requirements:
-     * <ol>
-     * <li>The vertex shader inputs must include a vec3 position, a vec2 tex coord
-     * and a vec4 color.
-     * <li>The names of the the vertex shader inputs must match the names defined
-     * by the VERTEX_ATTRIBUTE_XXX constants.
-     * <li>The fragment shader must define at least a single sampler/texture uniform.
-     * </ol>
-     *
      * @param texture The texture for this sprite batch.
      * @param effect An optional effect to use with the SpriteBatch.
      * @param initialCapacity An optional initial capacity of the batch (number of sprites).
-     * 
+     *
      * @return A new SpriteBatch for drawing sprites using the given texture.
      * @script{create}
      */
@@ -106,7 +79,7 @@ public:
 
     /**
      * Draws a single sprite.
-     * 
+     *
      * @param dst The destination rectangle.
      * @param src The source rectangle.
      * @param color The color to tint the sprite. Use white for no tint.
@@ -115,7 +88,7 @@ public:
 
     /**
      * Draws a single sprite.
-     * 
+     *
      * @param dst The destination position.
      * @param src The source rectangle.
      * @param scale The X and Y scale.
@@ -139,7 +112,7 @@ public:
 
     /**
      * Draws a single sprite, rotated around rotationPoint by rotationAngle.
-     * 
+     *
      * @param dst The destination position.
      * @param width The source width.
      * @param height The source height.
@@ -155,10 +128,10 @@ public:
      */
     void draw(const Vector3& dst, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
               const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
-    
+
     /**
      * Draws a single sprite, rotated around rotationPoint by rotationAngle.
-     * 
+     *
      * @param x The destination x position.
      * @param y The destination y position.
      * @param z The destination z position.
@@ -179,7 +152,7 @@ public:
 
     /**
      * Draws a single sprite, rotated about the implied up vector.
-     * 
+     *
      * @param position The destination position.
      * @param right The right vector of the sprite quad (should be normalized).
      * @param forward The forward vector of the sprite quad (should be normalized).
@@ -194,12 +167,12 @@ public:
      *                      (e.g. Use Vector2(0.5f, 0.5f) to rotate around the quad's center.)
      * @param rotationAngle The rotation angle in radians.
      */
-    void draw(const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height, 
+    void draw(const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height,
               float u1, float v1, float u2, float v2, const Vector4& color, const Vector2& rotationPoint, float rotationAngle);
 
     /**
      * Draws a single sprite.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param width The sprite width.
@@ -214,7 +187,7 @@ public:
 
     /**
      * Draws a single sprite, clipped within a rectangle.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param width The sprite width.
@@ -230,7 +203,7 @@ public:
 
     /**
      * Draws a single sprite, clipped within a rectangle.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param z The z coordinate.
@@ -247,7 +220,7 @@ public:
 
     /**
      * Draws a single sprite.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param z The z coordinate.
@@ -286,7 +259,7 @@ public:
         /** Vertex color alpha component */
         float a;
     };
-    
+
     /**
      * Draws an array of vertices.
      *
@@ -298,7 +271,7 @@ public:
      * @param indexCount The number of indices within the index array.
      */
     void draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount);
-    
+
     /**
      * Finishes sprite drawing.
      *
@@ -308,7 +281,7 @@ public:
     void finish();
 
     /**
-     * Gets the texture sampler. 
+     * Gets the texture sampler.
      *
      * This return texture sampler is used when sampling the texture in the
      * effect. This can be modified for controlling sampler setting such as
@@ -329,7 +302,7 @@ public:
 
     /**
      * Gets the material used by this batch.
-     * 
+     *
      * @return The material.
      */
     Material* getMaterial() const;
@@ -348,7 +321,7 @@ public:
 
     /**
      * Gets the projection matrix for the SpriteBatch.
-     * 
+     *
      * @return The projection matrix.
      */
     const Matrix& getProjectionMatrix() const;
@@ -362,14 +335,14 @@ private:
 
     /**
      * Copy constructor.
-     * 
+     *
      * @param copy The SpriteBatch to copy.
      */
     SpriteBatch(const SpriteBatch& copy);
 
     /**
      * Adds a single sprite to a SpriteVertex array.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param width The sprite width.
@@ -385,7 +358,7 @@ private:
 
     /**
      * Adds a single sprite to a SpriteVertex array, clipped within a rectangle.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      * @param width The sprite width.

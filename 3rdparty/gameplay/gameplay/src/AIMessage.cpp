@@ -1,204 +1,233 @@
 #include "Base.h"
 #include "AIMessage.h"
 
+
 namespace gameplay
 {
+    AIMessage::AIMessage()
+        : _id(0)
+        , _deliveryTime(0)
+        , _parameters(nullptr)
+        , _parameterCount(0)
+        , _messageType(MESSAGE_TYPE_CUSTOM)
+        , _next(nullptr)
+    {
+    }
 
-AIMessage::AIMessage()
-    : _id(0), _deliveryTime(0), _parameters(NULL), _parameterCount(0), _messageType(MESSAGE_TYPE_CUSTOM), _next(NULL)
-{
-}
 
-AIMessage::~AIMessage()
-{
-    SAFE_DELETE_ARRAY(_parameters);
-}
+    AIMessage::~AIMessage()
+    {
+        SAFE_DELETE_ARRAY(_parameters);
+    }
 
-AIMessage* AIMessage::create(unsigned int id, const char* sender, const char* receiver, unsigned int parameterCount)
-{
-    AIMessage* message = new AIMessage();
-    message->_id = id;
-    message->_sender = sender;
-    message->_receiver = receiver;
-    message->_parameterCount = parameterCount;
-    if (parameterCount > 0)
-        message->_parameters = new AIMessage::Parameter[parameterCount];
-    return message;
-}
 
-void AIMessage::destroy(AIMessage* message)
-{
-    SAFE_DELETE(message);
-}
+    AIMessage* AIMessage::create(unsigned int id, const char* sender, const char* receiver, unsigned int parameterCount)
+    {
+        AIMessage* message = new AIMessage();
+        message->_id = id;
+        message->_sender = sender;
+        message->_receiver = receiver;
+        message->_parameterCount = parameterCount;
+        if( parameterCount > 0 )
+            message->_parameters = new AIMessage::Parameter[parameterCount];
+        return message;
+    }
 
-unsigned int AIMessage::getId() const
-{
-    return _id;
-}
 
-const char* AIMessage::getSender() const
-{
-    return _sender.c_str();
-}
+    void AIMessage::destroy(AIMessage* message)
+    {
+        SAFE_DELETE(message);
+    }
 
-const char* AIMessage::getReceiver() const
-{
-    return _receiver.c_str();
-}
 
-double AIMessage::getDeliveryTime() const
-{
-    return _deliveryTime;
-}
+    unsigned int AIMessage::getId() const
+    {
+        return _id;
+    }
 
-int AIMessage::getInt(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::INTEGER);
 
-    return _parameters[index].intValue;
-}
+    const char* AIMessage::getSender() const
+    {
+        return _sender.c_str();
+    }
 
-void AIMessage::setInt(unsigned int index, int value)
-{
-    GP_ASSERT(index < _parameterCount);
 
-    clearParameter(index);
+    const char* AIMessage::getReceiver() const
+    {
+        return _receiver.c_str();
+    }
 
-    _parameters[index].intValue = value;
-    _parameters[index].type = AIMessage::INTEGER;
-}
 
-long AIMessage::getLong(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::LONG);
+    double AIMessage::getDeliveryTime() const
+    {
+        return _deliveryTime;
+    }
 
-    return _parameters[index].longValue;
-}
 
-void AIMessage::setLong(unsigned int index, long value)
-{
-    GP_ASSERT(index < _parameterCount);
+    int AIMessage::getInt(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::INTEGER);
 
-    clearParameter(index);
+        return _parameters[index].intValue;
+    }
 
-    _parameters[index].longValue = value;
-    _parameters[index].type = AIMessage::LONG;
-}
 
-float AIMessage::getFloat(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::FLOAT);
+    void AIMessage::setInt(unsigned int index, int value)
+    {
+        GP_ASSERT(index < _parameterCount);
 
-    return _parameters[index].floatValue;
-}
+        clearParameter(index);
 
-void AIMessage::setFloat(unsigned int index, float value)
-{
-    GP_ASSERT(index < _parameterCount);
+        _parameters[index].intValue = value;
+        _parameters[index].type = AIMessage::INTEGER;
+    }
 
-    clearParameter(index);
 
-    _parameters[index].floatValue = value;
-    _parameters[index].type = AIMessage::FLOAT;
-}
+    long AIMessage::getLong(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::LONG);
 
-double AIMessage::getDouble(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::DOUBLE);
+        return _parameters[index].longValue;
+    }
 
-    return _parameters[index].doubleValue;
-}
 
-void AIMessage::setDouble(unsigned int index, double value)
-{
-    GP_ASSERT(index < _parameterCount);
+    void AIMessage::setLong(unsigned int index, long value)
+    {
+        GP_ASSERT(index < _parameterCount);
 
-    clearParameter(index);
+        clearParameter(index);
 
-    _parameters[index].doubleValue = value;
-    _parameters[index].type = AIMessage::DOUBLE;
-}
+        _parameters[index].longValue = value;
+        _parameters[index].type = AIMessage::LONG;
+    }
 
-bool AIMessage::getBoolean(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::BOOLEAN);
 
-    return _parameters[index].boolValue;
-}
+    float AIMessage::getFloat(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::FLOAT);
 
-void AIMessage::setBoolean(unsigned int index, bool value)
-{
-    GP_ASSERT(index < _parameterCount);
+        return _parameters[index].floatValue;
+    }
 
-    clearParameter(index);
 
-    _parameters[index].boolValue = value;
-    _parameters[index].type = AIMessage::BOOLEAN;
-}
+    void AIMessage::setFloat(unsigned int index, float value)
+    {
+        GP_ASSERT(index < _parameterCount);
 
-const char* AIMessage::getString(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(_parameters[index].type == AIMessage::STRING);
+        clearParameter(index);
 
-    return _parameters[index].stringValue;
-}
+        _parameters[index].floatValue = value;
+        _parameters[index].type = AIMessage::FLOAT;
+    }
 
-void AIMessage::setString(unsigned int index, const char* value)
-{
-    GP_ASSERT(index < _parameterCount);
-    GP_ASSERT(value);
 
-    clearParameter(index);
+    double AIMessage::getDouble(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::DOUBLE);
 
-    // Copy the string into our parameter
-    size_t len = strlen(value);
-    char* buffer = new char[len + 1];
-    strcpy(buffer, value);
-    _parameters[index].stringValue = buffer;
-    _parameters[index].type = AIMessage::STRING;
-}
+        return _parameters[index].doubleValue;
+    }
 
-unsigned int AIMessage::getParameterCount() const
-{
-    return _parameterCount;
-}
 
-AIMessage::ParameterType AIMessage::getParameterType(unsigned int index) const
-{
-    GP_ASSERT(index < _parameterCount);
+    void AIMessage::setDouble(unsigned int index, double value)
+    {
+        GP_ASSERT(index < _parameterCount);
 
-    return _parameters[index].type;
-}
+        clearParameter(index);
 
-void AIMessage::clearParameter(unsigned int index)
-{
-    GP_ASSERT(index < _parameterCount);
+        _parameters[index].doubleValue = value;
+        _parameters[index].type = AIMessage::DOUBLE;
+    }
 
-    _parameters[index].clear();
-}
 
-AIMessage::Parameter::Parameter()
-    : type(UNDEFINED)
-{
-}
+    bool AIMessage::getBoolean(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::BOOLEAN);
 
-AIMessage::Parameter::~Parameter()
-{
-    clear();
-}
+        return _parameters[index].boolValue;
+    }
 
-void AIMessage::Parameter::clear()
-{
-    if (type == AIMessage::STRING)
+
+    void AIMessage::setBoolean(unsigned int index, bool value)
+    {
+        GP_ASSERT(index < _parameterCount);
+
+        clearParameter(index);
+
+        _parameters[index].boolValue = value;
+        _parameters[index].type = AIMessage::BOOLEAN;
+    }
+
+
+    const char* AIMessage::getString(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(_parameters[index].type == AIMessage::STRING);
+
+        return _parameters[index].stringValue;
+    }
+
+
+    void AIMessage::setString(unsigned int index, const char* value)
+    {
+        GP_ASSERT(index < _parameterCount);
+        GP_ASSERT(value);
+
+        clearParameter(index);
+
+        // Copy the string into our parameter
+        size_t len = strlen(value);
+        char* buffer = new char[len + 1];
+        strcpy(buffer, value);
+        _parameters[index].stringValue = buffer;
+        _parameters[index].type = AIMessage::STRING;
+    }
+
+
+    unsigned int AIMessage::getParameterCount() const
+    {
+        return _parameterCount;
+    }
+
+
+    AIMessage::ParameterType AIMessage::getParameterType(unsigned int index) const
+    {
+        GP_ASSERT(index < _parameterCount);
+
+        return _parameters[index].type;
+    }
+
+
+    void AIMessage::clearParameter(unsigned int index)
+    {
+        GP_ASSERT(index < _parameterCount);
+
+        _parameters[index].clear();
+    }
+
+
+    AIMessage::Parameter::Parameter()
+        : type(UNDEFINED)
+    {
+    }
+
+
+    AIMessage::Parameter::~Parameter()
+    {
+        clear();
+    }
+
+
+    void AIMessage::Parameter::clear()
+    {
+        if( type == AIMessage::STRING )
         SAFE_DELETE_ARRAY(stringValue);
 
-    type = AIMessage::UNDEFINED;
-}
-
+        type = AIMessage::UNDEFINED;
+    }
 }

@@ -20,7 +20,7 @@ namespace gameplay
  * in the tile set. Specifying a source (x,y) of -1, -1 will allow
  * for tiles in the set to be empty.
  * The size of all the tiles must be equal to the tileWidth/tileHeight
- * provided. 
+ * provided.
  *
  * To avoid seams in the tiles the tile should be padded with
  * a gutter of duplicate pixels on each side of the region.
@@ -33,28 +33,6 @@ class TileSet : public Ref, public Drawable
 
 public:
 
-    /**
-     * Creates a tile set.
-     *
-     * @param imagePath The path to the image to create the sprite from.
-     * @param tileWidth The width of each tile in the tile set.
-     * @param tileHeight The height of each tile in the tile set.
-     * @param rowCount The number of tile rows.
-     * @param columnCount The number of tile columns.
-     *
-     * @return The tile set created.
-     */
-    static TileSet* create(const char* imagePath, float tileWidth, float tileHeight,
-                           unsigned int rowCount, unsigned int columnCount);
-    
-    /**
-     * Creates a tile set from a properties object.
-     *
-     * @param properties The properties object to load from.
-     * @return The tile set created.
-     */
-    static TileSet* create(Properties* properties);
-    
     /**
      * Sets the tile source location for the specified column and row.
      *
@@ -101,21 +79,21 @@ public:
      * @return The number of tile columns.
      */
     unsigned int getColumnCount() const;
-    
+
     /**
      * Gets the overall width of the tileset.
      *
      * @return The overall width of the tileset.
      */
     float getWidth() const;
-    
+
     /**
      * Gets the overall width of the tileset.
      *
      * @return The overall width of the tileset.
      */
     float getHeight() const;
-    
+
     /**
      * Sets the opacity for the sprite.
      *
@@ -124,7 +102,7 @@ public:
      * @param opacity The opacity for the sprite.
      */
     void setOpacity(float opacity);
-    
+
     /**
      * Gets the opacity for the sprite.
      *
@@ -133,26 +111,26 @@ public:
      * @return The opacity for the sprite.
      */
     float getOpacity() const;
-    
+
     /**
      * Sets the color (RGBA) for the sprite.
      *
      * @param color The color(RGBA) for the sprite.
      */
     void setColor(const Vector4& color);
-    
+
     /**
      * Gets the color (RGBA) for the sprite.
      *
      * @return The color(RGBA) for the sprite.
      */
     const Vector4& getColor() const;
-   
+
     /**
      * @see Drawable::draw
      */
     unsigned int draw(bool wireframe = false);
-    
+
 protected:
     /**
      * Constructor
@@ -168,7 +146,7 @@ protected:
      * operator=
      */
     TileSet& operator=(const TileSet& set);
-    
+
     /**
      * @see Drawable::clone
      */
@@ -187,7 +165,7 @@ private:
     float _opacity;
     Vector4 _color;
 };
-    
+
 }
 
 #endif

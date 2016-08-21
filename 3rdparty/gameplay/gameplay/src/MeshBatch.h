@@ -20,21 +20,6 @@ public:
      *
      * @param vertexFormat The format of vertices in the new batch.
      * @param primitiveType The type of primitives that will be added to the batch.
-     * @param materialPath Path to a material file to be used for drawing the batch.
-     * @param indexed True if the batched primitives will contain index data, false otherwise.
-     * @param initialCapacity The initial capacity of the batch, in triangles.
-     * @param growSize Amount to grow the batch by when it overflows (a value of zero prevents batch growing).
-     *
-     * @return A new mesh batch.
-     * @script{create}
-     */
-    static MeshBatch* create(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const char* materialPath, bool indexed, unsigned int initialCapacity = 1024, unsigned int growSize = 1024);
-
-    /**
-     * Creates a new mesh batch.
-     *
-     * @param vertexFormat The format of vertices in the new batch.
-     * @param primitiveType The type of primitives that will be added to the batch.
      * @param material Material to be used for drawing the batch.
      * @param indexed True if the batched primitives will contain index data, false otherwise.
      * @param initialCapacity The initial capacity of the batch, in triangles.

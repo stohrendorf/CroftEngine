@@ -47,14 +47,6 @@ SpriteBatch::~SpriteBatch()
     }
 }
 
-SpriteBatch* SpriteBatch::create(const char* texturePath, Effect* effect, unsigned int initialCapacity)
-{
-    Texture* texture = Texture::create(texturePath);
-    SpriteBatch* batch = SpriteBatch::create(texture, effect, initialCapacity);
-    SAFE_RELEASE(texture);
-    return batch;
-}
-
 SpriteBatch* SpriteBatch::create(Texture* texture,  Effect* effect, unsigned int initialCapacity)
 {
     GP_ASSERT(texture != NULL);
@@ -110,7 +102,7 @@ SpriteBatch* SpriteBatch::create(Texture* texture,  Effect* effect, unsigned int
     // Bind the texture to the material as a sampler
     Texture::Sampler* sampler = Texture::Sampler::create(texture);
     material->getParameter(samplerUniform->getName())->setValue(sampler);
-    
+
     // Define the vertex format for the batch
     VertexFormat::Element vertexElements[] =
     {
@@ -132,11 +124,11 @@ SpriteBatch* SpriteBatch::create(Texture* texture,  Effect* effect, unsigned int
     batch->_textureWidthRatio = 1.0f / (float)texture->getWidth();
     batch->_textureHeightRatio = 1.0f / (float)texture->getHeight();
 
-	// Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
-	Game* game = Game::getInstance();
+        // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
+        Game* game = Game::getInstance();
     Matrix::createOrthographicOffCenter(0, game->getViewport().width, game->getViewport().height, 0, 0, 1, &batch->_projectionMatrix);
-	material->getParameter("u_projectionMatrix")->bindValue(batch, &SpriteBatch::getProjectionMatrix);
-	
+        material->getParameter("u_projectionMatrix")->bindValue(batch, &SpriteBatch::getProjectionMatrix);
+
     return batch;
 }
 
@@ -203,7 +195,7 @@ void SpriteBatch::draw(float x, float y, float z, float width, float height, flo
     // Expand the destination position by scale into 4 points.
     float x2 = x + width;
     float y2 = y + height;
-    
+
     Vector2 upLeft(x, y);
     Vector2 upRight(x2, y);
     Vector2 downLeft(x, y2);
@@ -229,7 +221,7 @@ void SpriteBatch::draw(float x, float y, float z, float width, float height, flo
     SPRITE_ADD_VERTEX(v[1], upLeft.x, upLeft.y, z, u1, v2, color.x, color.y, color.z, color.w);
     SPRITE_ADD_VERTEX(v[2], downRight.x, downRight.y, z, u2, v1, color.x, color.y, color.z, color.w);
     SPRITE_ADD_VERTEX(v[3], upRight.x, upRight.y, z, u2, v2, color.x, color.y, color.z, color.w);
-    
+
     static unsigned short indices[4] = { 0, 1, 2, 3 };
 
     _batch->add(v, 4, indices, 4);
@@ -243,7 +235,7 @@ void SpriteBatch::draw(const Vector3& position, const Vector3& right, const Vect
     tRight *= width * 0.5f;
     Vector3 tForward(forward);
     tForward *= height * 0.5f;
-    
+
     Vector3 p0 = position;
     p0 -= tRight;
     p0 -= tForward;
@@ -295,7 +287,7 @@ void SpriteBatch::draw(const Vector3& position, const Vector3& right, const Vect
     SPRITE_ADD_VERTEX(v[1], p1.x, p1.y, p1.z, u2, v1, color.x, color.y, color.z, color.w);
     SPRITE_ADD_VERTEX(v[2], p2.x, p2.y, p2.z, u1, v2, color.x, color.y, color.z, color.w);
     SPRITE_ADD_VERTEX(v[3], p3.x, p3.y, p3.z, u2, v2, color.x, color.y, color.z, color.w);
-    
+
     static const unsigned short indices[4] = { 0, 1, 2, 3 };
     _batch->add(v, 4, const_cast<unsigned short*>(indices), 4);
 }
