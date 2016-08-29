@@ -21,6 +21,113 @@ namespace loader
 {
     struct Mesh
     {
+#pragma pack(push,1)
+        struct RenderVertex
+        {
+            gameplay::Vector3 position;
+            gameplay::Vector2 texcoord0;
+
+            static const gameplay::VertexFormat& getFormat()
+            {
+                static const gameplay::VertexFormat::Element elems[2] = {
+                    { gameplay::VertexFormat::POSITION, 3 },
+                    { gameplay::VertexFormat::TEXCOORD0, 2 }
+                };
+                static const gameplay::VertexFormat fmt{ elems, 2 };
+
+                return fmt;
+            }
+        };
+
+        struct RenderVertexWithNormal
+        {
+            gameplay::Vector3 position;
+            gameplay::Vector3 normal;
+            gameplay::Vector2 texcoord0;
+
+            static const gameplay::VertexFormat& getFormat()
+            {
+                static const gameplay::VertexFormat::Element elems[3] = {
+                    { gameplay::VertexFormat::POSITION, 3 },
+                    { gameplay::VertexFormat::NORMAL, 3 },
+                    { gameplay::VertexFormat::TEXCOORD0, 2 }
+                };
+                static const gameplay::VertexFormat fmt{ elems, 3 };
+
+                return fmt;
+            }
+        };
+#pragma pack(pop)
+
+        using IndexBuffer = std::vector<uint16_t>;
+
+        struct MeshPart
+        {
+            IndexBuffer indices;
+            gameplay::Material* material;
+        };
+
+        template<typename VertexType>
+        struct RenderModel
+        {
+            std::vector<VertexType> m_vertices;
+            std::vector<MeshPart> m_parts;
+
+            gameplay::Model* toModel(bool dynamic)
+            {
+                gameplay::Mesh* mesh = gameplay::Mesh::createMesh(VertexType::getFormat(), m_vertices.size(), dynamic);
+                mesh->setVertexData(reinterpret_cast<float*>(m_vertices.data()));
+                mesh->setPrimitiveType(gameplay::Mesh::PrimitiveType::TRIANGLES);
+
+                for(const MeshPart& localPart : m_parts)
+                {
+                    gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), dynamic);
+                    part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
+                }
+
+                gameplay::Model* model = gameplay::Model::create(mesh);
+                mesh->release();
+
+                for(size_t i = 0; i < m_parts.size(); ++i)
+                {
+                    model->setMaterial(m_parts[i].material, i);
+                }
+
+                return model;
+            }
+
+            typename std::enable_if<std::is_same<VertexType, RenderVertexWithNormal>::value, uint16_t>::type addVertex(size_t partId, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<core::TRCoordinates>& vertices, const std::vector<core::TRCoordinates>& normals)
+            {
+                BOOST_ASSERT(normals.size() == vertices.size());
+
+                Mesh::RenderVertexWithNormal iv;
+                BOOST_ASSERT(vertexIndex < vertices.size());
+                iv.position = vertices[vertexIndex].toRenderSystem();
+                iv.normal = normals[vertexIndex].toRenderSystem();
+                iv.texcoord0.x = uvCoordinates.xpixel / 255.0f;
+                iv.texcoord0.y = uvCoordinates.ypixel / 255.0f;
+                const auto ivIdx = gsl::narrow<uint16_t>(m_vertices.size());
+                m_vertices.push_back(iv);
+                m_parts[partId].indices.push_back(ivIdx);
+                return ivIdx;
+            }
+
+            typename std::enable_if<std::is_same<VertexType, RenderVertex>::value, uint16_t>::type addVertex(size_t partId, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<core::TRCoordinates>& vertices, const std::vector<core::TRCoordinates>& normals)
+            {
+                BOOST_ASSERT(normals.empty());
+
+                Mesh::RenderVertex iv;
+                BOOST_ASSERT(vertexIndex < vertices.size());
+                iv.position = vertices[vertexIndex].toRenderSystem();
+                iv.texcoord0.x = uvCoordinates.xpixel / 255.0f;
+                iv.texcoord0.y = uvCoordinates.ypixel / 255.0f;
+                const auto ivIdx = gsl::narrow<uint16_t>(m_vertices.size());
+                m_vertices.push_back(iv);
+                m_parts[partId].indices.push_back(ivIdx);
+                return ivIdx;
+            }
+        };
+
         core::TRCoordinates center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
         int32_t collision_size; // This appears to be the radius of that aforementioned collisional sphere.
         std::vector<core::TRCoordinates> vertices; //[NumVertices]; // list of vertices (relative coordinates)
@@ -87,7 +194,8 @@ namespace loader
             return mesh;
         }
 
-        irr::scene::SMesh* createMesh(irr::scene::ISceneManager* mgr, int dumpIdx, const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::SMaterial>& colorMaterials, render::TextureAnimator& animator) const;
+
+        gameplay::Model* createMesh(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials, const std::vector<gameplay::Material*>& colorMaterials, render::TextureAnimator& animator) const;
     };
 
     struct RoomStaticMesh
@@ -184,8 +292,8 @@ namespace loader
     {
         uint32_t id; // Object Identifier (matched in Items[])
         uint16_t mesh; // mesh (offset into MeshPointers[])
-        irr::core::aabbox3di visibility_box;
-        irr::core::aabbox3di collision_box;
+        gameplay::BoundingBox visibility_box;
+        gameplay::BoundingBox collision_box;
         uint16_t flags; // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
         // like TR2's skeletons and underwater vegetation
 
@@ -194,7 +302,7 @@ namespace loader
             return (flags & 1) != 0;
         }
 
-        irr::core::aabbox3di getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
+        gameplay::BoundingBox getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
 
         static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
         {
@@ -202,19 +310,19 @@ namespace loader
             mesh->id = reader.readU32();
             mesh->mesh = reader.readU16();
 
-            mesh->visibility_box.MinEdge.X = reader.readI16();
-            mesh->visibility_box.MaxEdge.X = reader.readI16();
-            mesh->visibility_box.MinEdge.Y = reader.readI16();
-            mesh->visibility_box.MaxEdge.Y = reader.readI16();
-            mesh->visibility_box.MinEdge.Z = reader.readI16();
-            mesh->visibility_box.MaxEdge.Z = reader.readI16();
+            mesh->visibility_box.min.x = reader.readI16();
+            mesh->visibility_box.max.x = reader.readI16();
+            mesh->visibility_box.min.y = reader.readI16();
+            mesh->visibility_box.max.y = reader.readI16();
+            mesh->visibility_box.min.z = reader.readI16();
+            mesh->visibility_box.max.z = reader.readI16();
 
-            mesh->collision_box.MinEdge.X = reader.readI16();
-            mesh->collision_box.MaxEdge.X = reader.readI16();
-            mesh->collision_box.MinEdge.Y = reader.readI16();
-            mesh->collision_box.MaxEdge.Y = reader.readI16();
-            mesh->collision_box.MinEdge.Z = reader.readI16();
-            mesh->collision_box.MaxEdge.Z = reader.readI16();
+            mesh->collision_box.min.x = reader.readI16();
+            mesh->collision_box.max.x = reader.readI16();
+            mesh->collision_box.min.y = reader.readI16();
+            mesh->collision_box.max.y = reader.readI16();
+            mesh->collision_box.min.z = reader.readI16();
+            mesh->collision_box.max.z = reader.readI16();
 
             mesh->flags = reader.readU16();
             return mesh;

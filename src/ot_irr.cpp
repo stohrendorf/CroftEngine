@@ -1,5 +1,4 @@
 #include "level/level.h"
-#include <EffectHandler.h>
 #include "engine/laracontroller.h"
 
 #include <boost/range/adaptors.hpp>

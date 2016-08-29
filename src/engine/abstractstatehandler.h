@@ -92,7 +92,7 @@ namespace engine
 
         loader::LaraStateId getCurrentAnimState() const;
 
-        void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
+        void playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame = boost::none);
 
         const core::TRRotation& getRotation() const noexcept;
 
@@ -155,8 +155,8 @@ namespace engine
 
         bool applyLandingDamage();
 
-        irr::scene::ISceneNode* getLara();
-        irr::core::aabbox3di getBoundingBox() const;
+        gameplay::Node* getLara();
+        gameplay::BoundingBox getBoundingBox() const;
 
         void addSwimToDiveKeypressDuration(int ms) noexcept;
 

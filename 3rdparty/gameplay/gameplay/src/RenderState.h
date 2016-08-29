@@ -10,7 +10,6 @@ namespace gameplay
 
 class MaterialParameter;
 class Node;
-class NodeCloneContext;
 class Pass;
 
 /**
@@ -225,43 +224,43 @@ public:
         FRONT_FACE_CCW = GL_CCW
     };
 
-	/**
+        /**
      * Defines the supported stencil compare functions.
-	 * 
-	 * Stencil compare functions determine if a new pixel will be drawn.
-	 * 
-	 * The initial stencil compare function is STENCIL_ALWAYS.
+         * 
+         * Stencil compare functions determine if a new pixel will be drawn.
+         * 
+         * The initial stencil compare function is STENCIL_ALWAYS.
      */
     enum StencilFunction
     {
-		STENCIL_NEVER = GL_NEVER,
-		STENCIL_ALWAYS = GL_ALWAYS,
-		STENCIL_LESS = GL_LESS,
-		STENCIL_LEQUAL = GL_LEQUAL,
-		STENCIL_EQUAL = GL_EQUAL,
-		STENCIL_GREATER = GL_GREATER,
-		STENCIL_GEQUAL = GL_GEQUAL,
-		STENCIL_NOTEQUAL = GL_NOTEQUAL
+                STENCIL_NEVER = GL_NEVER,
+                STENCIL_ALWAYS = GL_ALWAYS,
+                STENCIL_LESS = GL_LESS,
+                STENCIL_LEQUAL = GL_LEQUAL,
+                STENCIL_EQUAL = GL_EQUAL,
+                STENCIL_GREATER = GL_GREATER,
+                STENCIL_GEQUAL = GL_GEQUAL,
+                STENCIL_NOTEQUAL = GL_NOTEQUAL
     };
 
-	/**
+        /**
      * Defines the supported stencil operations to perform.
-	 * 
-	 * Stencil operations determine what should happen to the pixel if the 
-	 * stencil test fails, passes, or passes but fails the depth test.
-	 * 
-	 * The initial stencil operation is STENCIL_OP_KEEP.
+         * 
+         * Stencil operations determine what should happen to the pixel if the 
+         * stencil test fails, passes, or passes but fails the depth test.
+         * 
+         * The initial stencil operation is STENCIL_OP_KEEP.
      */
     enum StencilOperation
     {
-		STENCIL_OP_KEEP = GL_KEEP,
-		STENCIL_OP_ZERO = GL_ZERO,
-		STENCIL_OP_REPLACE = GL_REPLACE,
-		STENCIL_OP_INCR = GL_INCR,
-		STENCIL_OP_DECR = GL_DECR,
-		STENCIL_OP_INVERT = GL_INVERT,
-		STENCIL_OP_INCR_WRAP = GL_INCR_WRAP,
-		STENCIL_OP_DECR_WRAP = GL_DECR_WRAP
+                STENCIL_OP_KEEP = GL_KEEP,
+                STENCIL_OP_ZERO = GL_ZERO,
+                STENCIL_OP_REPLACE = GL_REPLACE,
+                STENCIL_OP_INCR = GL_INCR,
+                STENCIL_OP_DECR = GL_DECR,
+                STENCIL_OP_INVERT = GL_INVERT,
+                STENCIL_OP_INCR_WRAP = GL_INCR_WRAP,
+                STENCIL_OP_DECR_WRAP = GL_DECR_WRAP
     };
 
     /**
@@ -365,45 +364,45 @@ public:
          */
         void setDepthFunction(DepthFunction func);
 
-		/**
+                /**
          * Toggles stencil testing.
          *
          * By default, stencil testing is disabled.
          *
          * @param enabled true to enable, false to disable.
          */
-		void setStencilTest(bool enabled);
+                void setStencilTest(bool enabled);
 
-		/** 
+                /** 
          * Sets the stencil writing mask.
          *
          * By default, the stencil writing mask is all 1's.
          *
          * @param mask Bit mask controlling writing to individual stencil planes.
          */
-		void setStencilWrite(unsigned int mask);
+                void setStencilWrite(unsigned int mask);
 
-		/** 
+                /** 
          * Sets the stencil function.
          *
          * By default, the function is set to STENCIL_ALWAYS, the reference value is 0, and the mask is all 1's.
          *
          * @param func The stencil function.
-		 * @param ref The stencil reference value.
-		 * @param mask The stencil mask.
+                 * @param ref The stencil reference value.
+                 * @param mask The stencil mask.
          */
-		void setStencilFunction(StencilFunction func, int ref, unsigned int mask);
+                void setStencilFunction(StencilFunction func, int ref, unsigned int mask);
 
-		/** 
+                /** 
          * Sets the stencil operation.
          *
          * By default, stencil fail, stencil pass/depth fail, and stencil and depth pass are set to STENCIL_OP_KEEP.
          *
          * @param sfail The stencil operation if the stencil test fails.
-		 * @param dpfail The stencil operation if the stencil test passes, but the depth test fails.
-		 * @param dppass The stencil operation if both the stencil test and depth test pass.
+                 * @param dpfail The stencil operation if the stencil test passes, but the depth test fails.
+                 * @param dppass The stencil operation if both the stencil test and depth test pass.
          */
-		void setStencilOperation(StencilOperation sfail, StencilOperation dpfail, StencilOperation dppass);
+                void setStencilOperation(StencilOperation sfail, StencilOperation dpfail, StencilOperation dppass);
 
         /**
          * Sets a render state from the given name and value strings.
@@ -452,14 +451,14 @@ public:
         Blend _blendDst;
         CullFaceSide _cullFaceSide;
         FrontFace _frontFace;
-		bool _stencilTestEnabled;
-		unsigned int _stencilWrite;
-		StencilFunction _stencilFunction;
-		int _stencilFunctionRef;
-		unsigned int _stencilFunctionMask;
-		StencilOperation _stencilOpSfail;
-		StencilOperation _stencilOpDpfail;
-		StencilOperation _stencilOpDppass;
+                bool _stencilTestEnabled;
+                unsigned int _stencilWrite;
+                StencilFunction _stencilFunction;
+                int _stencilFunctionRef;
+                unsigned int _stencilFunctionMask;
+                StencilOperation _stencilOpSfail;
+                StencilOperation _stencilOpDpfail;
+                StencilOperation _stencilOpDppass;
         long _bits;
 
         static StateBlock* _defaultState;
@@ -611,14 +610,6 @@ protected:
      * Returns the topmost RenderState in the hierarchy below the given RenderState.
      */
     RenderState* getTopmost(RenderState* below);
-
-    /**
-     * Copies the data from this RenderState into the given RenderState.
-     * 
-     * @param renderState The RenderState to copy the data to.
-     * @param context The clone context.
-     */
-    void cloneInto(RenderState* renderState, NodeCloneContext& context) const;
 
 private:
 

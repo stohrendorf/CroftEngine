@@ -2,7 +2,6 @@
 
 #include "loader/texture.h"
 
-#include <irrlicht.h>
 #include <gsl.h>
 #include <boost/assert.hpp>
 
@@ -15,17 +14,17 @@ namespace render
 {
     class TextureAnimator
     {
-        std::vector<irr::scene::IMeshBuffer*> m_meshBuffers;
+        std::vector<gameplay::Mesh*> m_meshBuffers;
 
         struct Sequence
         {
             struct VertexReference
             {
-                const irr::u16 bufferIndex;
+                const uint16_t bufferIndex;
                 const int sourceIndex;
                 size_t queueOffset = 0;
 
-                VertexReference(irr::u16 bufferIdx, int sourceIdx)
+                VertexReference(uint16_t bufferIdx, int sourceIdx)
                     : bufferIndex(bufferIdx)
                       , sourceIndex(sourceIdx)
                 {
@@ -44,7 +43,7 @@ namespace render
             };
 
             std::vector<uint16_t> proxyIds;
-            std::map<irr::scene::IMeshBuffer*, std::set<VertexReference>> affectedVertices;
+            std::map<gameplay::Mesh*, std::set<VertexReference>> affectedVertices;
 
             void rotate()
             {
@@ -54,7 +53,7 @@ namespace render
                 proxyIds.emplace_back(first);
             }
 
-            void registerVertex(gsl::not_null<irr::scene::IMeshBuffer*> buffer, VertexReference vertex, uint16_t proxyId)
+            void registerVertex(gsl::not_null<gameplay::Mesh*> buffer, VertexReference vertex, uint16_t proxyId)
             {
                 auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
                 Expects(it != proxyIds.end());
@@ -68,12 +67,12 @@ namespace render
 
                 for( const auto& bufferAndVertices : affectedVertices )
                 {
-                    irr::scene::IMeshBuffer* buffer = bufferAndVertices.first;
+                    gameplay::Mesh* buffer = bufferAndVertices.first;
                     const std::set<VertexReference>& vertices = bufferAndVertices.second;
                     for( const VertexReference& vref : vertices )
                     {
                         BOOST_ASSERT(vref.bufferIndex < buffer->getVertexCount());
-                        irr::core::vector2df* uv = nullptr;
+                        gameplay::Vector2* uv = nullptr;
                         switch( buffer->getVertexType() )
                         {
                         case irr::video::EVT_STANDARD:
@@ -101,8 +100,8 @@ namespace render
                         BOOST_ASSERT(vref.queueOffset < proxyIds.size());
                         const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
 
-                        uv->X = proxy.uvCoordinates[vref.sourceIndex].xpixel / 255.0f;
-                        uv->Y = proxy.uvCoordinates[vref.sourceIndex].ypixel / 255.0f;
+                        uv->x = proxy.uvCoordinates[vref.sourceIndex].xpixel / 255.0f;
+                        uv->y = proxy.uvCoordinates[vref.sourceIndex].ypixel / 255.0f;
 
                         buffer->setDirty(irr::scene::EBT_VERTEX);
                     }
@@ -138,7 +137,7 @@ namespace render
             }
         }
 
-        void registerVertex(uint16_t proxyId, gsl::not_null<irr::scene::IMeshBuffer*> buffer, int sourceIndex, irr::u16 bufferIndex)
+        void registerVertex(uint16_t proxyId, gsl::not_null<gameplay::Mesh*> buffer, int sourceIndex, uint16_t bufferIndex)
         {
             if( m_sequenceByProxyId.find(proxyId) == m_sequenceByProxyId.end() )
                 return;

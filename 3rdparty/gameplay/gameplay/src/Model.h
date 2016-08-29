@@ -8,7 +8,6 @@
 
 namespace gameplay
 {
-    class Bundle;
     class MeshSkin;
 
 
@@ -23,7 +22,6 @@ namespace gameplay
         friend class Node;
         friend class Scene;
         friend class Mesh;
-        friend class Bundle;
 
     public:
 
@@ -148,11 +146,6 @@ namespace gameplay
          * @see Drawable::setNode
          */
         void setNode(Node* node);
-
-        /**
-         * @see Drawable::clone
-         */
-        Drawable* clone(NodeCloneContext& context);
 
         /**
          * Sets the MeshSkin for this model.

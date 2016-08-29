@@ -10,7 +10,6 @@
 namespace gameplay
 {
     class Node;
-    class NodeCloneContext;
 
 
     /**
@@ -344,14 +343,6 @@ namespace gameplay
          * Hidden copy assignment operator.
          */
         Camera& operator=(const Camera&);
-
-        /**
-         * Clones the camera and returns a new camera.
-         *
-         * @param context The clone context.
-         * @return The newly created camera.
-         */
-        Camera* clone(NodeCloneContext& context) const;
 
         /**
          * Sets the node associated with this camera.

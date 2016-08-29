@@ -3,7 +3,9 @@
 #include "bufferhandle.h"
 #include "filterhandle.h"
 
-#include <irrlicht.h>
+#include "gameplay.h"
+#include "util/helpers.h"
+
 
 namespace audio
 {
@@ -126,18 +128,18 @@ namespace audio
 
         void setGain(ALfloat gain_value)
         {
-            set(AL_GAIN, irr::core::clamp(gain_value, 0.0f, 1.0f));
+            set(AL_GAIN, util::clamp(gain_value, 0.0f, 1.0f));
         }
 
-        void setPosition(const irr::core::vector3df& position)
+        void setPosition(const gameplay::Vector3& position)
         {
-            set(AL_POSITION, position.X, position.Y, -position.Z);
+            set(AL_POSITION, position.x, position.y, -position.z);
         }
 
         void setPitch(ALfloat pitch_value)
         {
             // Clamp pitch value according to specs
-            set(AL_PITCH, irr::core::clamp(pitch_value, 0.5f, 2.0f));
+            set(AL_PITCH, util::clamp(pitch_value, 0.5f, 2.0f));
         }
     };
 }

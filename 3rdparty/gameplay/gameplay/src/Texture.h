@@ -211,13 +211,6 @@ public:
     void setData(const unsigned char* data);
 
     /**
-     * Returns the path that the texture was originally loaded from (if applicable).
-     *
-     * @return The texture path, or an empty string if the texture was not loaded from file.
-     */
-    const char* getPath() const;
-
-    /**
      * Gets the format of the texture.
      *
      * @return The texture format.
@@ -289,19 +282,10 @@ private:
     /**
      * Hidden copy assignment operator.
      */
-    Texture& operator=(const Texture&);
-
-    static Texture* createCompressedPVRTC(const char* path);
-
-    static Texture* createCompressedDDS(const char* path);
-
-    static GLubyte* readCompressedPVRTC(const char* path, Stream* stream, GLsizei* width, GLsizei* height, GLenum* format, unsigned int* mipMapCount, unsigned int* faceCount, GLenum faces[6]);
-
-    static GLubyte* readCompressedPVRTCLegacy(const char* path, Stream* stream, GLsizei* width, GLsizei* height, GLenum* format, unsigned int* mipMapCount, unsigned int* faceCount, GLenum faces[6]);
+    Texture& operator=(const Texture&) = delete;
 
     static int getMaskByteIndex(unsigned int mask);
 
-    std::string _path;
     TextureHandle _handle;
     Format _format;
     Type _type;

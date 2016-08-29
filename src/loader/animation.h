@@ -2,7 +2,6 @@
 
 #include "io/sdlreader.h"
 
-#include <irrlicht.h>
 #include <gsl.h>
 
 #include <map>
@@ -161,24 +160,26 @@ namespace loader
         struct FrameRange
         {
             //! The first real frame in the linearized animation this range describes
-            const irr::u32 offset;
+            const uint32_t offset;
             //! The first frame of the source animation frame range
-            const irr::u32 firstFrame;
+            const uint32_t firstFrame;
             //! The last frame of the source animation frame range
-            const irr::u32 lastFrame;
-            const std::map<irr::u32, irr::core::aabbox3di> bboxes;
+            const uint32_t lastFrame;
+            const std::map<uint32_t, gameplay::BoundingBox> bboxes;
+            const gsl::not_null<gameplay::AnimationClip*> animation;
 
-            FrameRange(irr::u32 o, irr::u32 f, irr::u32 l, std::map<irr::u32, irr::core::aabbox3di>&& bb)
+            FrameRange(uint32_t o, uint32_t f, uint32_t l, std::map<uint32_t, gameplay::BoundingBox>&& bb, const gsl::not_null<gameplay::AnimationClip*>& anim)
                 : offset(o)
                 , firstFrame(f)
                 , lastFrame(l)
                 , bboxes(std::move(bb))
+                , animation(anim)
             {
                 BOOST_ASSERT(firstFrame <= lastFrame);
                 BOOST_ASSERT(!bboxes.empty());
             }
 
-            void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 localFrame) const
+            void apply(gameplay::AnimationController& ctrl, uint32_t localFrame) const
             {
                 BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
 
@@ -187,17 +188,11 @@ namespace loader
                 const auto realLast = offset + lastFrame - firstFrame;
 
                 BOOST_ASSERT(realFirst <= realLast);
-                if( !node->setFrameLoop(realFirst, realLast) )
-                {
-                    BOOST_LOG_TRIVIAL(error) << "  - Failed to set frame loop (" << node->getName() << ") " << realFirst << ".." << realLast;
-                    return;
-                }
-                // BOOST_LOG_TRIVIAL(debug) << "  - Frame loop (" << node->getName() << ") " << realFirst << ".." << realLast << " @ " << realOffset;
-                node->setCurrentFrame(gsl::narrow_cast<irr::f32>(realOffset));
-                node->animateJoints();
+                ctrl.stopAllAnimations();
+                animation->play(gsl::narrow_cast<double>(realOffset) / core::FrameRate);
             }
 
-            irr::core::aabbox3di getBoundingBox(irr::u32 localFrame) const
+            gameplay::BoundingBox getBoundingBox(uint32_t localFrame) const
             {
                 BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
                 localFrame -= firstFrame;
@@ -214,22 +209,8 @@ namespace loader
                 BOOST_ASSERT(dist > 0);
                 auto lambda = float(localFrame - before->first) / dist;
 
-                auto lerpInt = [](int a, int b, float d) -> int
-                    {
-                        return static_cast<int>(a * (1.0f - d) + b * d);
-                    };
-
-                auto lerpIVec = [&lerpInt](const irr::core::vector3di& a, const irr::core::vector3di& b, float d) -> irr::core::vector3di
-                    {
-                        return irr::core::vector3di{
-                            lerpInt(a.X, b.X, d),
-                            lerpInt(a.Y, b.Y, d),
-                            lerpInt(a.Z, b.Z, d)
-                        };
-                    };
-
                 // aabbox's getInterpolated does wrong rounding for ints, so we need to do it manually
-                irr::core::aabbox3di interp(lerpIVec(before->second.MinEdge, it->second.MinEdge, lambda), lerpIVec(before->second.MaxEdge, it->second.MaxEdge, lambda));
+                gameplay::BoundingBox interp(before->second.min.lerp(it->second.min, lambda), before->second.max.lerp(it->second.max, lambda));
                 return interp;
             }
         };

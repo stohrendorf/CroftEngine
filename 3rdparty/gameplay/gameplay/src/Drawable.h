@@ -5,7 +5,6 @@ namespace gameplay
 {
 
 class Node;
-class NodeCloneContext;
 
 /**
  * Defines a drawable object that can be attached to a Node.
@@ -43,14 +42,6 @@ public:
     Node* getNode() const;
 
 protected:
-
-    /**
-     * Clones the drawable and returns a new drawable.
-     *
-     * @param context The clone context.
-     * @return The newly created drawable.
-     */
-    virtual Drawable* clone(NodeCloneContext& context) = 0;
 
     /**
      * Sets the node this drawable is attached to.

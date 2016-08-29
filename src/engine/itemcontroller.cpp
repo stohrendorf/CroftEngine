@@ -23,7 +23,7 @@ namespace engine
 
     void ItemController::applyRotation()
     {
-        m_sceneNode->setRotation(xyzToYprRad(getRotation()) * 180 / irr::core::PI);
+        m_sceneNode->setRotation(xyzToQuat(getRotation()));
     }
 
     void ItemController::setTargetState(uint16_t st)
@@ -38,7 +38,7 @@ namespace engine
         return m_meshAnimationController->getTargetState();
     }
 
-    void ItemController::playAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame)
+    void ItemController::playAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame)
     {
         Expects(m_meshAnimationController != nullptr);
         m_meshAnimationController->playLocalAnimation(anim, firstFrame);
@@ -50,19 +50,19 @@ namespace engine
         m_meshAnimationController->advanceFrame();
     }
 
-    irr::u32 ItemController::getCurrentFrame() const
+    uint32_t ItemController::getCurrentFrame() const
     {
         Expects(m_meshAnimationController != nullptr);
         return m_meshAnimationController->getCurrentFrame();
     }
 
-    irr::u32 ItemController::getAnimEndFrame() const
+    uint32_t ItemController::getAnimEndFrame() const
     {
         Expects(m_meshAnimationController != nullptr);
         return m_meshAnimationController->getAnimEndFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<irr::scene::ISceneNode*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<gameplay::Node*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room, core::ExactTRCoordinates(item->position))
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
@@ -76,7 +76,7 @@ namespace engine
         setCurrentRoom(room);
 
         if(m_itemFlags & Oneshot)
-            m_sceneNode->setVisible(false);
+            m_sceneNode->setEnabled(false);
 
         if((m_itemFlags & Oneshot) != 0)
         {
@@ -95,12 +95,12 @@ namespace engine
         }
     }
 
-    irr::core::aabbox3di ItemController::getBoundingBox() const
+    gameplay::BoundingBox ItemController::getBoundingBox() const
     {
         if(m_meshAnimationController == nullptr)
         {
             BOOST_LOG_TRIVIAL(warning) << "Trying to get bounding box from non-animated item: " << getName();
-            return irr::core::aabbox3di(0, 0, 0, 0, 0, 0);
+            return gameplay::BoundingBox(0, 0, 0, 0, 0, 0);
         }
 
         Expects(m_meshAnimationController != nullptr);
@@ -119,7 +119,7 @@ namespace engine
             for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
             {
                 const loader::Room& room = m_level->m_rooms[i];
-                if( room.node->getTransformedBoundingBox().isPointInside(m_sceneNode->getAbsolutePosition()) )
+                if( room.node->getTransformedBoundingBox().isPointInside(m_sceneNode->getTranslationWorld()) )
                 {
                     BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
                 }
@@ -127,10 +127,11 @@ namespace engine
             return;
         }
 
-        m_sceneNode->setParent(newRoom->node);
+        m_sceneNode->getParent()->removeChild(m_sceneNode);
+        newRoom->node->addChild(m_sceneNode);
 
         m_position.room = newRoom;
-        for( irr::u32 i = 0; i < m_sceneNode->getMaterialCount(); ++i )
+        for( uint32_t i = 0; i < m_sceneNode->getMaterialCount(); ++i )
         {
             irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
             const auto col = m_position.room->lightColor.toSColor(1 - m_position.room->darkness / 8191.0f);
@@ -343,7 +344,7 @@ namespace engine
             return;
 
         static const InteractionLimits limits{
-            irr::core::aabbox3di{{-200, 0, 312}, {200, 0, 512}},
+            gameplay::BoundingBox{{-200, 0, 312}, {200, 0, 512}},
             {-10_deg,-30_deg,-10_deg},
             {+10_deg,+30_deg,+10_deg}
         };
@@ -398,13 +399,13 @@ namespace engine
             return false;
         }
 
-        irr::core::quaternion q;
-        q.makeIdentity();
-        q *= irr::core::quaternion().fromAngleAxis(item.getRotation().Y.toRad(), { 0,1,0 });
-        q *= irr::core::quaternion().fromAngleAxis(item.getRotation().X.toRad(), { -1,0,0 });
-        q *= irr::core::quaternion().fromAngleAxis(item.getRotation().Z.toRad(), { 0,0,-1 });
+        gameplay::Quaternion q;
+        q *= gameplay::Quaternion({ 0,1,0 }, item.getRotation().Y.toRad());
+        q *= gameplay::Quaternion({ -1,0,0 }, item.getRotation().X.toRad());
+        q *= gameplay::Quaternion({ 0,0,-1 }, item.getRotation().Z.toRad());
 
-        irr::core::matrix4 m = q.getMatrix();
+        gameplay::Matrix m;
+        gameplay::Matrix::createRotation(q, &m);
 
         const auto dist = lara.getPosition() - item.getPosition();
         const auto dx = m(0, 0) * dist.X + m(0, 1) * dist.Y + m(0, 2) * dist.Z;
@@ -423,7 +424,7 @@ namespace engine
     {
         if(getCurrentAnimState() == 0) // stationary
         {
-            if(!irr::core::equals(getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f))
+            if(!util::fuzzyEqual(getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f))
             {
                 m_flags2_02_toggledOn = false;
                 m_flags2_04_ready = false;
@@ -469,11 +470,11 @@ namespace engine
 
     void ItemController_Block::onInteract(LaraController& lara)
     {
-        if(!getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !irr::core::equals(lara.getPosition().Y, getPosition().Y, 1.0f))
+        if(!getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !util::fuzzyEqual(lara.getPosition().Y, getPosition().Y, 1.0f))
             return;
 
         static const InteractionLimits limits{
-            irr::core::aabbox3di{ { -300, 0, -692 },{ 200, 0, -512 } },
+            gameplay::BoundingBox{ { -300, 0, -692 },{ 200, 0, -512 } },
             { -10_deg,-30_deg,-10_deg },
             { +10_deg,+30_deg,+10_deg }
         };
@@ -613,7 +614,7 @@ namespace engine
     bool ItemController_Block::isOnFloor(int height) const
     {
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), getCurrentRoom());
-        return sector->floorHeight == -127 || irr::core::equals(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), getPosition().Y - height, 1.0f);
+        return sector->floorHeight == -127 || util::fuzzyEqual(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), getPosition().Y - height, 1.0f);
     }
 
     bool ItemController_Block::canPushBlock(int height, core::Axis axis) const
@@ -638,7 +639,7 @@ namespace engine
             return false;
 
         auto targetSector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), getCurrentRoom());
-        if(!irr::core::equals(gsl::narrow_cast<float>(targetSector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
+        if(!util::fuzzyEqual(gsl::narrow_cast<float>(targetSector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
             return false;
 
         pos.Y -= height;
@@ -669,7 +670,7 @@ namespace engine
         if(tmp.checkStaticMeshCollisions(pos, 1000, getLevel()))
             return false;
 
-        if(!irr::core::equals(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
+        if(!util::fuzzyEqual(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
             return false;
 
         auto topPos = pos;
@@ -689,7 +690,7 @@ namespace engine
         }
 
         sector = getLevel().findFloorSectorWithClampedPosition(laraPos.toInexact(), &room);
-        if(!irr::core::equals(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
+        if(!util::fuzzyEqual(gsl::narrow_cast<float>(sector->floorHeight*loader::QuarterSectorSize), pos.Y, 1.0f))
             return false;
 
         laraPos.Y -= core::ScalpHeight;

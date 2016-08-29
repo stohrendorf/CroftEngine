@@ -10,14 +10,14 @@ namespace engine
     class ItemController;
     class LaraController;
 
-    class CameraController final : public irr::scene::ISceneNodeAnimator
+    class CameraController final
     {
     private:
         // Internals
         bool m_firstUpdate = true;
-        irr::u32 m_lastAnimationTime = 0;
+        uint32_t m_lastAnimationTime = 0;
         bool m_firstInput = true;
-        gsl::not_null<irr::scene::ICameraSceneNode*> m_camera;
+        gsl::not_null<gameplay::Camera*> m_camera;
 
         // For interactions
         level::Level* m_level;
@@ -47,30 +47,12 @@ namespace engine
         core::TRRotation m_headRotation;
         core::TRRotation m_torsoRotation;
 
-        irr::video::IVideoDriver* m_driver;
-
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     public:
-        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<gameplay::Camera*>& camera);
 
-        //! Animates a scene node.
-        /** \param node Node to animate.
-        \param timeMs Current time in milli seconds. */
-        void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
-
-        //! Creates a clone of this animator.
-        /** Please note that you will have to drop
-        (IReferenceCounted::drop()) the returned pointer after calling this. */
-        irr::scene::ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override;
-
-        //! Returns true if this animator receives events.
-        /** When attached to an active camera, this animator will be
-        able to respond to events such as mouse and keyboard events. */
-        bool isEventReceiverEnabled() const override
-        {
-            return true;
-        }
+        void animateNode(uint32_t timeMs);
 
         const level::Level* getLevel() const noexcept
         {
@@ -140,19 +122,25 @@ namespace engine
             return m_torsoRotation;
         }
 
-        irr::core::vector3df getPosition() const
+        gameplay::Vector3 getPosition() const
         {
-            return m_camera->getAbsolutePosition();
+            gameplay::Vector3 tmp;
+            m_camera->getViewMatrix().getTranslation(&tmp);
+            return tmp;
         }
 
-        irr::core::vector3df getFrontVector() const
+        gameplay::Vector3 getFrontVector() const
         {
-            return m_camera->getTarget() - m_camera->getAbsolutePosition();
+            gameplay::Vector3 tmp;
+            m_camera->getViewMatrix().getForwardVector(&tmp);
+            return tmp;
         }
 
-        irr::core::vector3df getUpVector() const
+        gameplay::Vector3 getUpVector() const
         {
-            return m_camera->getUpVector();
+            gameplay::Vector3 tmp;
+            m_camera->getViewMatrix().getUpVector(&tmp);
+            return tmp;
         }
 
         void resetHeadTorsoRotation()

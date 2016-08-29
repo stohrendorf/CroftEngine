@@ -490,14 +490,6 @@ namespace gameplay
          */
         const BoundingSphere& getBoundingSphere() const;
 
-        /**
-         * Clones the node and all of its child nodes.
-         *
-         * @return A new node.
-         * @script{create}
-         */
-        Node* clone() const;
-
     protected:
 
         /**
@@ -509,32 +501,6 @@ namespace gameplay
          * Destructor.
          */
         virtual ~Node();
-
-        /**
-         * Clones a single node and its data but not its children.
-         *
-         * @param context The clone context.
-         *
-         * @return Pointer to the newly created node.
-         */
-        virtual Node* cloneSingleNode(NodeCloneContext& context) const;
-
-        /**
-         * Recursively clones this node and its children.
-         *
-         * @param context The clone context.
-         *
-         * @return The newly created node.
-         */
-        Node* cloneRecursive(NodeCloneContext& context) const;
-
-        /**
-         * Copies the data from this node into the given node.
-         *
-         * @param node The node to copy the data to.
-         * @param context The clone context.
-         */
-        void cloneInto(Node* node, NodeCloneContext& context) const;
 
         /**
          * Removes this node from its parent.
@@ -604,74 +570,5 @@ namespace gameplay
         mutable BoundingSphere _bounds;
         /** The dirty bits used for optimization. */
         mutable int _dirtyBits;
-    };
-
-
-    /**
-     * NodeCloneContext represents the context data that is kept when cloning a node.
-     * The NodeCloneContext is used to make sure objects don't get cloned twice.
-     */
-    class NodeCloneContext
-    {
-    public:
-
-        /**
-         * Constructor.
-         */
-        NodeCloneContext();
-
-        /**
-         * Destructor.
-         */
-        ~NodeCloneContext();
-
-        /**
-         * Finds the cloned animation of the given animation or NULL if this animation was not registered with this context.
-         *
-         * @param animation The animation to search for the cloned copy of.
-         *
-         * @return The cloned animation or NULL if not found.
-         */
-        Animation* findClonedAnimation(const Animation* animation);
-
-        /**
-         * Registers the cloned animation with this context so that it doesn't get cloned twice.
-         *
-         * @param original The pointer to the original animation.
-         * @param clone The pointer to the cloned animation.
-         */
-        void registerClonedAnimation(const Animation* original, Animation* clone);
-
-        /**
-         * Finds the cloned node of the given node or NULL if this node was not registered with this context.
-         *
-         * @param node The node to search for the cloned copy of.
-         *
-         * @return The cloned node or NULL if not found.
-         */
-        Node* findClonedNode(const Node* node);
-
-        /**
-         * Registers the cloned node with this context so that it doens't get cloned twice.
-         *
-         * @param original The pointer to the original node.
-         * @param clone The pointer to the cloned node.
-         */
-        void registerClonedNode(const Node* original, Node* clone);
-
-    private:
-
-        /**
-         * Hidden copy constructor.
-         */
-        NodeCloneContext(const NodeCloneContext&);
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        NodeCloneContext& operator=(const NodeCloneContext&);
-
-        std::map<const Animation*, Animation*> _clonedAnimations;
-        std::map<const Node*, Node*> _clonedNodes;
     };
 }

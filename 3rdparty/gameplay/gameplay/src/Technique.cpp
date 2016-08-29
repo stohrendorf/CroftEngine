@@ -63,20 +63,4 @@ void Technique::setNodeBinding(Node* node)
     }
 }
 
-Technique* Technique::clone(Material* material, NodeCloneContext &context) const
-{
-    Technique* technique = new Technique(getId(), material);
-    for (std::vector<Pass*>::const_iterator it = _passes.begin(); it != _passes.end(); ++it)
-    {
-        Pass* pass = *it;
-        GP_ASSERT(pass);
-        Pass* passCopy = pass->clone(technique, context);
-        GP_ASSERT(passCopy);
-        technique->_passes.push_back(passCopy);
-    }
-    RenderState::cloneInto(technique, context);
-    technique->_parent = material;
-    return technique;
-}
-
 }

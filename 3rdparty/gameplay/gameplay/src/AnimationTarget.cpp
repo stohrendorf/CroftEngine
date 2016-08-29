@@ -131,7 +131,7 @@ Animation* AnimationTarget::createAnimation(const char* id, Properties* animatio
     }
 
     // Get animation target property id
-	int propertyId = getPropertyId(_targetType, propertyIdStr);
+        int propertyId = getPropertyId(_targetType, propertyIdStr);
     if (propertyId == -1)
     {
         GP_ERROR("Property ID is invalid.");
@@ -278,7 +278,7 @@ Animation* AnimationTarget::createAnimation(const char* id, Properties* animatio
             animation->getClip()->setRepeatCount(value);
         }
     }
-    
+
     SAFE_DELETE_ARRAY(keyOut);
     SAFE_DELETE_ARRAY(keyIn);
     SAFE_DELETE_ARRAY(keyValues);
@@ -295,7 +295,7 @@ Animation* AnimationTarget::createAnimation(const char* id, Properties* animatio
         }
         animation->createClips(animationProperties, (unsigned int) frameCount);
     }
-    
+
     return animation;
 }
 
@@ -454,32 +454,6 @@ Animation::Channel* AnimationTarget::getChannel(const char* id) const
     }
 
     return NULL;
-}
-
-void AnimationTarget::cloneInto(AnimationTarget* target, NodeCloneContext &context) const
-{
-    if (_animationChannels)
-    {
-        for (std::vector<Animation::Channel*>::const_iterator it = _animationChannels->begin(); it != _animationChannels->end(); ++it)
-        {
-            Animation::Channel* channel = *it;
-            GP_ASSERT(channel);
-            GP_ASSERT(channel->_animation);
-
-            Animation* animation = context.findClonedAnimation(channel->_animation);
-            if (animation != NULL)
-            {
-                Animation::Channel* channelCopy = new Animation::Channel(*channel, animation, target);
-                animation->addChannel(channelCopy);
-            }
-            else
-            {
-                // Clone the animation and register it with the context so that it only gets cloned once.
-                animation = channel->_animation->clone(channel, target);
-                context.registerClonedAnimation(channel->_animation, animation);
-            }
-        }
-    }
 }
 
 void AnimationTarget::convertByValues(unsigned int propertyId, unsigned int componentCount, float* from, float* by)

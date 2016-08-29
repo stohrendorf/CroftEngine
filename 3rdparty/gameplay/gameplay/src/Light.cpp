@@ -270,34 +270,6 @@ namespace gameplay
     }
 
 
-    Light* Light::clone(NodeCloneContext& context)
-    {
-        Light* lightClone = NULL;
-        switch( _type )
-        {
-            case DIRECTIONAL:
-                lightClone = createDirectional(getColor());
-                break;
-            case POINT:
-                lightClone = createPoint(getColor(), getRange());
-                break;
-            case SPOT:
-                lightClone = createSpot(getColor(), getRange(), getInnerAngle(), getOuterAngle());
-                break;
-            default:
-                GP_ERROR("Unsupported light type (%d).", _type);
-                return NULL;
-        }
-        GP_ASSERT(lightClone);
-
-        if( Node* node = context.findClonedNode(getNode()) )
-        {
-            lightClone->setNode(node);
-        }
-        return lightClone;
-    }
-
-
     Light::Directional::Directional(const Vector3& color)
         : color(color)
     {

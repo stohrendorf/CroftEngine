@@ -2,8 +2,9 @@
 
 #include "io/sdlreader.h"
 
-#include <irrlicht.h>
 #include <gsl.h>
+
+#include "gameplay.h"
 
 namespace loader
 {
@@ -27,9 +28,9 @@ namespace loader
             return read(reader, true);
         }
 
-        irr::video::SColor toSColor() const
+        gameplay::Vector4 toSColor() const
         {
-            return irr::video::SColor(a, r, g, b);
+            return gameplay::Vector4(a, r, g, b);
         }
 
     private:
@@ -55,14 +56,14 @@ namespace loader
     {
         float r, g, b, a;
 
-        irr::video::SColor toSColor(irr::f32 intensity) const
+        gameplay::Vector4 toSColor(float intensity) const
         {
             BOOST_ASSERT(intensity >= 0 && intensity <= 1);
-            irr::video::SColor col;
-            col.setRed(gsl::narrow<irr::u8>(std::lround(r * intensity * 255)));
-            col.setGreen(gsl::narrow<irr::u8>(std::lround(g * intensity * 255)));
-            col.setBlue(gsl::narrow<irr::u8>(std::lround(b * intensity * 255)));
-            col.setAlpha(gsl::narrow<irr::u8>(std::lround(a * intensity * 255)));
+            gameplay::Vector4 col;
+            col.x = r * intensity;
+            col.y = g * intensity;
+            col.z = b * intensity;
+            col.w = a * intensity;
             return col;
         }
     };

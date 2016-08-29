@@ -22,10 +22,8 @@ set(GAMEPLAY_SRC
     src/Base.h
     src/BoundingBox.cpp
     src/BoundingBox.h
-    src/BoundingBox.inl
     src/BoundingSphere.cpp
     src/BoundingSphere.h
-    src/BoundingSphere.inl
     src/Camera.cpp
     src/Camera.h
     src/Curve.cpp
@@ -48,13 +46,11 @@ set(GAMEPLAY_SRC
     src/Frustum.h
     src/Game.cpp
     src/Game.h
-    src/Game.inl
     src/gameplay-main-android.cpp
     src/gameplay-main-linux.cpp
     src/gameplay-main-windows.cpp
     src/Image.cpp
     src/Image.h
-    src/Image.inl
     src/Joint.cpp
     src/Joint.h
     src/Light.cpp
@@ -67,16 +63,12 @@ set(GAMEPLAY_SRC
     src/MaterialParameter.h
     src/MathUtil.cpp
     src/MathUtil.h
-    src/MathUtil.inl
-    src/MathUtilNeon.inl
     src/Matrix.cpp
     src/Matrix.h
-    src/Matrix.inl
     src/Mesh.cpp
     src/Mesh.h
     src/MeshBatch.cpp
     src/MeshBatch.h
-    src/MeshBatch.inl
     src/MeshPart.cpp
     src/MeshPart.h
     src/MeshSkin.cpp
@@ -91,24 +83,14 @@ set(GAMEPLAY_SRC
     src/Pass.h
     src/Plane.cpp
     src/Plane.h
-    src/Plane.inl
     src/Platform.h
     src/Platform.cpp
-    src/PlatformAndroid.cpp
-    src/PlatformLinux.cpp
-    src/PlatformWindows.cpp
-    src/Properties.cpp
-    src/Properties.h
     src/Quaternion.cpp
     src/Quaternion.h
-    src/Quaternion.inl
     src/Ray.cpp
     src/Ray.h
-    src/Ray.inl
     src/Rectangle.cpp
     src/Rectangle.h
-    src/Ref.cpp
-    src/Ref.h
     src/RenderState.cpp
     src/RenderState.h
     src/RenderTarget.cpp
@@ -133,13 +115,10 @@ set(GAMEPLAY_SRC
     src/Transform.h
     src/Vector2.cpp
     src/Vector2.h
-    src/Vector2.inl
     src/Vector3.cpp
     src/Vector3.h
-    src/Vector3.inl
     src/Vector4.cpp
     src/Vector4.h
-    src/Vector4.inl
     src/VertexAttributeBinding.cpp
     src/VertexAttributeBinding.h
     src/VertexFormat.cpp
@@ -190,7 +169,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
     target_compile_definitions(gameplay PUBLIC -D_DEBUG -DNOMINMAX)
 endif()
 
-target_link_libraries(gameplay PUBLIC GLEW Boost)
+target_link_libraries(gameplay PUBLIC GLEW GLFW Boost)
 
 set_target_properties(gameplay PROPERTIES
     OUTPUT_NAME "gameplay"

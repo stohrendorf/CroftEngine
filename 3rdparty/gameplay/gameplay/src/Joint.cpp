@@ -20,16 +20,6 @@ Joint* Joint::create(const char* id)
     return new Joint(id);
 }
 
-Node* Joint::cloneSingleNode(NodeCloneContext &context) const
-{
-    Joint* copy = Joint::create(getId());
-    GP_ASSERT(copy);
-    context.registerClonedNode(this, copy);
-    copy->_bindPose = _bindPose;
-    Node::cloneInto(copy, context);
-    return copy;
-}
-
 Node::Type Joint::getType() const
 {
     return Node::JOINT;

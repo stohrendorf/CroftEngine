@@ -148,25 +148,6 @@ namespace gameplay
     }
 
 
-    Drawable* Text::clone(NodeCloneContext& context)
-    {
-        Text* textClone = new Text();
-        textClone->_font = _font;
-        _font->addRef();
-        textClone->_text = _text;
-        textClone->_size = _size;
-        textClone->_width = _width;
-        textClone->_height = _height;
-        textClone->_wrap = _wrap;
-        textClone->_rightToLeft = _rightToLeft;
-        textClone->_align = _align;
-        textClone->_clip = _clip;
-        textClone->_opacity = _opacity;
-        textClone->_color = _color;
-        return textClone;
-    }
-
-
     unsigned int Text::draw(bool wireframe)
     {
         // Apply scene camera projection and translation offsets

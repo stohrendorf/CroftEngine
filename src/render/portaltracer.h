@@ -6,48 +6,50 @@ namespace render
 {
     struct PortalTracer
     {
-        irr::core::rectf boundingBox{-1, -1, 1, 1};
+        gameplay::BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
         const loader::Portal* lastPortal = nullptr;
 
-        bool checkVisibility(const loader::Portal* portal, const irr::scene::ICameraSceneNode& camera, irr::video::IVideoDriver* drv)
+        bool checkVisibility(const loader::Portal* portal, const gameplay::Camera& camera)
         {
-            if( portal->normal.toIrrlicht().dotProduct(portal->vertices[0].toIrrlicht() - camera.getAbsolutePosition()) >= 0 )
+            gameplay::Vector3 camPos;
+            camera.getViewMatrix().getTranslation(&camPos);
+            if( portal->normal.toRenderSystem().dot(portal->vertices[0].toRenderSystem() - camPos) >= 0 )
             {
                 return false; // wrong orientation (normals must face the camera)
             }
 
             int numBehind = 0, numTooFar = 0;
-            std::pair<irr::core::vector3df, bool> screen[4];
+            std::pair<gameplay::Vector3, bool> screen[4];
 
-            irr::core::rectf portalBB{0, 0, 0, 0};
-            portalBB.UpperLeftCorner = irr::core::vector2df{ 1,1 };
-            portalBB.LowerRightCorner = irr::core::vector2df{ -1,-1 };
-            BOOST_ASSERT(!portalBB.isValid());
+            gameplay::BoundingBox portalBB{0, 0, 0, 0, 0, 0};
+            portalBB.min = { 1,1,0 };
+            portalBB.max = { -1,-1,0 };
+
+            for(int i = 0; i < 4; ++i)
             {
-                for(int i = 0; i < 4; ++i)
-                {
-                    screen[i] = projectOnScreen(portal->vertices[i].toIrrlicht(), camera, numBehind, numTooFar);
-                    if(!screen[i].second)
-                        continue;
+                screen[i] = projectOnScreen(portal->vertices[i].toRenderSystem(), camera, numBehind, numTooFar);
+                if(!screen[i].second)
+                    continue;
 
-                    portalBB.addInternalPoint(screen[i].first.X, screen[i].first.Y);
-                }
+                portalBB.min.x = std::min(portalBB.min.x, screen[i].first.x);
+                portalBB.min.y = std::min(portalBB.min.y, screen[i].first.y);
+                portalBB.max.x = std::max(portalBB.max.x, screen[i].first.x);
+                portalBB.max.y = std::max(portalBB.max.y, screen[i].first.y);
             }
 
             if(numBehind == 4 || numTooFar == 4)
                 return false;
 
-            BOOST_ASSERT(portalBB.isValid());
-
             if(numBehind == 0)
             {
-                boundingBox.clipAgainst(portalBB);
+                boundingBox.min.x = std::max(portalBB.min.x, boundingBox.min.x);
+                boundingBox.min.y = std::max(portalBB.min.y, boundingBox.min.y);
+                boundingBox.max.x = std::min(portalBB.max.x, boundingBox.max.x);
+                boundingBox.max.y = std::min(portalBB.max.y, boundingBox.max.y);
+
                 lastPortal = portal;
 
-                drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
-                drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
-
-                return boundingBox.getArea() * drv->getScreenSize().getArea() >= 1;
+                return boundingBox.min.x < boundingBox.max.x && boundingBox.min.y < boundingBox.max.y;
             }
 
             BOOST_ASSERT(numBehind >= 1 && numBehind <= 3);
@@ -56,10 +58,7 @@ namespace render
 
             lastPortal = portal;
 
-            drawBB(drv, portalBB, irr::video::SColor(255, 0, 255, 0));
-            drawBB(drv, boundingBox, irr::video::SColor(255, 0, 0, 255));
-
-            return boundingBox.getArea() * drv->getScreenSize().getArea() >= 1;
+            return boundingBox.min.x < boundingBox.max.x && boundingBox.min.y < boundingBox.max.y;
         }
 
         uint16_t getLastDestinationRoom() const
@@ -74,46 +73,27 @@ namespace render
         }
 
     private:
-        static std::pair<irr::core::vector3df, bool> projectOnScreen(irr::core::vector3df vertex,
-                                                                     const irr::scene::ICameraSceneNode& camera,
+        static std::pair<gameplay::Vector3, bool> projectOnScreen(gameplay::Vector3 vertex,
+                                                                     const gameplay::Camera& camera,
                                                                      int& numBehind,
                                                                      int& numTooFar)
         {
-            camera.getViewMatrix().transformVect(vertex);
-            if(vertex.Z <= camera.getNearValue())
+            camera.getViewMatrix().transformVector(&vertex);
+            if(vertex.z <= camera.getNearPlane())
                 ++numBehind;
-            else if(vertex.Z > camera.getFarValue())
+            else if(vertex.z > camera.getFarPlane())
                 ++numTooFar;
 
-            irr::f32 tmp[4];
-            camera.getProjectionMatrix().transformVect(tmp, vertex);
+            gameplay::Vector4 tmp;
+            tmp.x = vertex.x;
+            tmp.y = vertex.y;
+            tmp.z = vertex.z;
+            tmp.w = 1;
 
-            irr::core::vector3df screen{tmp[0] / tmp[3], tmp[1] / tmp[3], vertex.Z};
-            return{ screen, vertex.Z > camera.getNearValue() };
-        }
+            camera.getProjectionMatrix().transformVector(&tmp);
 
-        static void drawBB(irr::video::IVideoDriver* drv, const irr::core::rectf& bb, const irr::video::SColor& col)
-        {
-            const auto w = drv->getScreenSize().Width;
-            const auto h = drv->getScreenSize().Height;
-            // top
-            drawBBLine(drv, w, h, {bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y}, {bb.LowerRightCorner.X, bb.UpperLeftCorner.Y}, col);
-            // bottom
-            drawBBLine(drv, w, h, {bb.UpperLeftCorner.X, bb.LowerRightCorner.Y}, {bb.LowerRightCorner.X, bb.LowerRightCorner.Y}, col);
-            // left
-            drawBBLine(drv, w, h, {bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y}, {bb.UpperLeftCorner.X, bb.LowerRightCorner.Y}, col);
-            // right
-            drawBBLine(drv, w, h, {bb.LowerRightCorner.X, bb.UpperLeftCorner.Y}, {bb.LowerRightCorner.X, bb.LowerRightCorner.Y}, col);
-
-            drawBBLine(drv, w, h, {bb.UpperLeftCorner.X, bb.UpperLeftCorner.Y}, {bb.LowerRightCorner.X, bb.LowerRightCorner.Y}, col);
-            drawBBLine(drv, w, h, {bb.UpperLeftCorner.X, bb.LowerRightCorner.Y}, {bb.LowerRightCorner.X, bb.UpperLeftCorner.Y}, col);
-        }
-
-        static void drawBBLine(irr::video::IVideoDriver* drv, int w, int h, const irr::core::vector2df& a, const irr::core::vector2df& b, const irr::video::SColor& col)
-        {
-            const auto a_ = irr::core::dimension2di(gsl::narrow_cast<int>(w * (a.X + 1) / 2), gsl::narrow_cast<int>(h - h * (a.Y + 1) / 2));
-            const auto b_ = irr::core::dimension2di(gsl::narrow_cast<int>(w * (b.X + 1) / 2), gsl::narrow_cast<int>(h - h * (b.Y + 1) / 2));
-            drv->draw2DLine(a_, b_, col);
+            gameplay::Vector3 screen{tmp.x / tmp.w, tmp.y / tmp.w, vertex.z};
+            return{ screen, vertex.z > camera.getNearPlane() };
         }
     };
 }

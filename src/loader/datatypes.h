@@ -11,7 +11,6 @@
 #include "texture.h"
 #include "audio.h"
 
-#include <irrlicht.h>
 #include <gsl.h>
 
 #include <array>
@@ -164,7 +163,7 @@ namespace loader
 
     struct Light
     {
-        irr::scene::ILightSceneNode* node = nullptr;
+        gameplay::Light* node = nullptr;
 
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
@@ -215,7 +214,7 @@ namespace loader
             // only in TR2
             light.intensity2 = light.specularIntensity;
 
-            light.intensity = irr::core::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
+            light.intensity = util::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
 
             light.fade2 = light.specularFade;
 
@@ -422,7 +421,7 @@ namespace loader
         int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
         // TR5 -->
         core::TRCoordinates normal;
-        irr::video::SColor color;
+        gameplay::Vector4 color;
 
         /** \brief reads a room vertex definition.
           *
@@ -442,8 +441,8 @@ namespace loader
             room_vertex.attributes = 0;
             // only in TR5
             room_vertex.normal = {0,0,0};
-            auto f = gsl::narrow_cast<irr::u8>(255 - 255 * room_vertex.darkness / 0x1fff);
-            room_vertex.color.set(255, f, f, f);
+            auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
+            room_vertex.color.set(f, f, f, 1);
             return room_vertex;
         }
 
@@ -457,8 +456,8 @@ namespace loader
             room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
             // only in TR5
             room_vertex.normal = {0,0,0};
-            auto f = gsl::narrow<irr::u8>(room_vertex.lighting2 / 32768.0f * 255);
-            room_vertex.color.set(255, f, f, f);
+            auto f = room_vertex.lighting2 / 32768.0f;
+            room_vertex.color.set(f, f, f, 1);
             return room_vertex;
         }
 
@@ -472,10 +471,10 @@ namespace loader
             room_vertex.lighting2 = reader.readI16();
             // only in TR5
             room_vertex.normal = {0,0,0};
-            room_vertex.color.set(255,
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255),
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255),
-                                  gsl::narrow<irr::u8>((room_vertex.lighting2 & 0x001F) / 62.0f * 255));
+            room_vertex.color.set(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                                  (room_vertex.lighting2 & 0x001F) / 62.0f,
+                                  1);
             return room_vertex;
         }
 
@@ -490,10 +489,10 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
 
-            room_vertex.color.set(255,
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255),
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f * 255),
-                                  gsl::narrow<irr::u8>((room_vertex.lighting2 & 0x001F) / 31.0f * 255));
+            room_vertex.color.set(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                                  (room_vertex.lighting2 & 0x001F) / 31.0f,
+                                  1);
             return room_vertex;
         }
 
@@ -513,7 +512,81 @@ namespace loader
 
     struct Room
     {
-        irr::scene::ISceneNode* node = nullptr;
+#pragma pack(push,1)
+        struct RenderVertex
+        {
+            gameplay::Vector3 position;
+            gameplay::Vector2 texcoord0;
+            gameplay::Vector4 color;
+
+            static const gameplay::VertexFormat& getFormat()
+            {
+                static const gameplay::VertexFormat::Element elems[3] = {
+                    { gameplay::VertexFormat::POSITION, 3 },
+                    { gameplay::VertexFormat::TEXCOORD0, 2 },
+                    { gameplay::VertexFormat::COLOR, 4 }
+                };
+                static const gameplay::VertexFormat fmt{ elems, 3 };
+
+                return fmt;
+            }
+        };
+#pragma pack(pop)
+
+        using IndexBuffer = std::vector<uint16_t>;
+
+        struct MeshPart
+        {
+            IndexBuffer indices;
+            gameplay::Material* material;
+        };
+
+        struct RenderModel
+        {
+            std::vector<RenderVertex> m_vertices;
+            std::vector<MeshPart> m_parts;
+
+            gameplay::Model* toModel(bool dynamic)
+            {
+                gameplay::Mesh* mesh = gameplay::Mesh::createMesh(RenderVertex::getFormat(), m_vertices.size(), dynamic);
+                mesh->setVertexData(reinterpret_cast<float*>(m_vertices.data()));
+                mesh->setPrimitiveType(gameplay::Mesh::PrimitiveType::TRIANGLES);
+
+                for(const MeshPart& localPart : m_parts)
+                {
+                    gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), dynamic);
+                    part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
+                }
+
+                gameplay::Model* model = gameplay::Model::create(mesh);
+                mesh->release();
+
+                for(size_t i = 0; i < m_parts.size(); ++i)
+                {
+                    model->setMaterial(m_parts[i].material, i);
+                }
+
+                return model;
+            }
+
+            uint16_t addVertex(size_t partId, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
+            {
+                Room::RenderVertex iv;
+                BOOST_ASSERT(vertexIndex < vertices.size());
+                iv.position = vertices[vertexIndex].vertex.toRenderSystem();
+                // TR5 only: iv.Normal = vertices[vertexIndex].normal.toIrrlicht();
+                //iv.Normal = { 1,0,0 };
+                iv.texcoord0.x = uvCoordinates.xpixel / 255.0f;
+                iv.texcoord0.y = uvCoordinates.ypixel / 255.0f;
+                iv.color = vertices[vertexIndex].color;
+                const auto ivIdx = gsl::narrow<uint16_t>(m_vertices.size());
+                m_vertices.push_back(iv);
+                m_parts[partId].indices.push_back(ivIdx);
+                return ivIdx;
+            }
+        };
+
+        gameplay::Node* node = nullptr;
 
         // Various room flags specify various room options. Mostly, they
         // specify environment type and some additional actions which should
@@ -1065,7 +1138,7 @@ namespace loader
             return room;
         }
 
-        irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes, render::TextureAnimator& animator);
+        gameplay::Node* createSceneNode(int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials, const std::vector<gameplay::Texture*>& textures, const std::vector<gameplay::Mesh*>& staticMeshes, render::TextureAnimator& animator);
 
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {
@@ -1105,12 +1178,12 @@ namespace loader
         {
             if(dx < 0 || dx >= sectorCountX)
             {
-                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
             }
             if( dz < 0 || dz >= sectorCountZ )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
             }
             return &sectors[sectorCountZ * dx + dz];
@@ -1121,16 +1194,16 @@ namespace loader
             if( dz <= 0 )
             {
                 dz = 0;
-                dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+                dx = util::clamp(dx, 1, sectorCountX - 2);
             }
             else if( dz >= sectorCountZ - 1 )
             {
                 dz = sectorCountZ - 1;
-                dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+                dx = util::clamp(dx, 1, sectorCountX - 2);
             }
             else
             {
-                dx = irr::core::clamp(dx, 0, sectorCountX - 1);
+                dx = util::clamp(dx, 0, sectorCountX - 1);
             }
             return getSectorByIndex(dx, dz);
         }
@@ -1148,8 +1221,8 @@ namespace loader
     struct SpriteTexture
     {
         uint16_t texture;
-        irr::core::vector2df t0;
-        irr::core::vector2df t1;
+        gameplay::Vector2 t0;
+        gameplay::Vector2 t1;
 
         int16_t left_side;
         int16_t top_side;
@@ -1179,10 +1252,10 @@ namespace loader
 
             float w = tw / 256.0f;
             float h = th / 256.0f;
-            sprite_texture->t0.X = tx / 255.0f;
-            sprite_texture->t0.Y = ty / 255.0f;
-            sprite_texture->t1.X = sprite_texture->t0.X + w / 255.0f;
-            sprite_texture->t1.Y = sprite_texture->t0.Y + h / 255.0f;
+            sprite_texture->t0.x = tx / 255.0f;
+            sprite_texture->t0.y = ty / 255.0f;
+            sprite_texture->t1.x = sprite_texture->t0.x + w / 255.0f;
+            sprite_texture->t1.y = sprite_texture->t0.y + h / 255.0f;
 
             sprite_texture->left_side = tleft;
             sprite_texture->right_side = tright;
@@ -1207,10 +1280,10 @@ namespace loader
             int tright = reader.readI16();
             int tbottom = reader.readI16();
 
-            sprite_texture->t0.X = tleft / 255.0f;
-            sprite_texture->t0.Y = tright / 255.0f;
-            sprite_texture->t1.X = tbottom / 255.0f;
-            sprite_texture->t1.Y = ttop / 255.0f;
+            sprite_texture->t0.x = tleft / 255.0f;
+            sprite_texture->t0.y = tright / 255.0f;
+            sprite_texture->t1.x = tbottom / 255.0f;
+            sprite_texture->t1.y = ttop / 255.0f;
 
             sprite_texture->left_side = tx;
             sprite_texture->right_side = tx + tw / 256;
@@ -1219,18 +1292,20 @@ namespace loader
             return sprite_texture;
         }
 
+#if 0
         irr::core::matrix4 buildTextureMatrix() const
         {
             auto tscale = t1 - t0;
-            BOOST_ASSERT(tscale.X > 0);
-            BOOST_ASSERT(tscale.Y > 0);
+            BOOST_ASSERT(tscale.x > 0);
+            BOOST_ASSERT(tscale.y > 0);
 
             irr::core::matrix4 mat;
-            mat.setTextureScale(tscale.X, tscale.Y);
-            mat.setTextureTranslate(t0.X, t0.Y);
+            mat.setTextureScale(tscale.x, tscale.y);
+            mat.setTextureTranslate(t0.x, t0.y);
 
             return mat;
         }
+#endif
     };
 
     struct SpriteSequence

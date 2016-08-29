@@ -9,7 +9,6 @@ namespace gameplay
 {
 
 class Node;
-class NodeCloneContext;
 
 /**
  * Defines a light.
@@ -281,14 +280,6 @@ private:
      * @param node The node to be associated with this light.
      */
     void setNode(Node* node);
-
-    /**
-     * Clones the light and returns a new light.
-     *
-     * @param context The clone context.
-     * @return The newly created light.
-     */
-    Light* clone(NodeCloneContext& context);
 
     Light::Type _type;
 

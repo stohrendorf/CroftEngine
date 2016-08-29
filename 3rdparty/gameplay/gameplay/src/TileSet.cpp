@@ -172,25 +172,4 @@ namespace gameplay
         return 1;
     }
 
-
-    Drawable* TileSet::clone(NodeCloneContext& context)
-    {
-        TileSet* tilesetClone = new TileSet();
-
-        // Clone properties
-        tilesetClone->_tiles = new Vector2[tilesetClone->_rowCount * tilesetClone->_columnCount];
-        memset(tilesetClone->_tiles, -1, sizeof(float) * tilesetClone->_rowCount * tilesetClone->_columnCount * 2);
-        memcpy(tilesetClone->_tiles, _tiles, sizeof(Vector2) * tilesetClone->_rowCount * tilesetClone->_columnCount);
-        tilesetClone->_tileWidth = _tileWidth;
-        tilesetClone->_tileHeight = _tileHeight;
-        tilesetClone->_rowCount = _rowCount;
-        tilesetClone->_columnCount = _columnCount;
-        tilesetClone->_width = _tileWidth * _columnCount;
-        tilesetClone->_height = _tileHeight * _rowCount;
-        tilesetClone->_opacity = _opacity;
-        tilesetClone->_color = _color;
-        tilesetClone->_batch = _batch;
-
-        return tilesetClone;
-    }
 }

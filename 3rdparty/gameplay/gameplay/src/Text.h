@@ -201,11 +201,6 @@ namespace gameplay
         Text& operator=(const Text& text);
 
         /**
-         * @see Drawable::clone
-         */
-        Drawable* clone(NodeCloneContext& context) override;
-
-        /**
          * @see AnimationTarget::getPropertyId
          */
         int getPropertyId(TargetType type, const char* propertyIdStr) override;

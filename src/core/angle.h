@@ -2,11 +2,11 @@
 
 #include <cmath>
 
-#include <irrlicht.h>
-
 #include <gsl.h>
 
 #include <boost/optional.hpp>
+
+#include "gameplay.h"
 
 namespace core
 {
@@ -47,7 +47,7 @@ namespace core
 
         static Angle fromRad(float r)
         {
-            return Angle{gsl::narrow_cast<int32_t>(r / 2 / irr::core::PI * 65536 * Scale), RawTag()};
+            return Angle{gsl::narrow_cast<int32_t>(r / 2 / MATH_PI * 65536 * Scale), RawTag()};
         }
 
         static Angle fromDegrees(float val)
@@ -62,7 +62,7 @@ namespace core
 
         float toRad() const noexcept
         {
-            return m_value * irr::core::PI * 2 / Scale / 65536;
+            return m_value * MATH_PI * 2 / Scale / 65536;
         }
 
         float sin() const noexcept
@@ -262,20 +262,23 @@ namespace core
         return alignRotation(*axis);
     }
 
-    class TRRotation final : public irr::core::vector3d<Angle>
+    class TRRotation final
     {
     public:
-        TRRotation()
-            : vector3d{}
-        {
-        }
+        Angle X;
+        Angle Y;
+        Angle Z;
+
+        TRRotation() = default;
 
         TRRotation(const Angle& x, const Angle& y, const Angle& z)
-            : vector3d{ x, y, z }
+            : X{x}
+            , Y{y}
+            , Z{z}
         {
         }
 
-        irr::core::vector3df toDegrees() const
+        gameplay::Vector3 toDegrees() const
         {
             return{
                 X.toDegrees(),
@@ -284,7 +287,7 @@ namespace core
             };
         }
 
-        irr::core::vector3df toRad() const
+        gameplay::Vector3 toRad() const
         {
             return{
                 X.toRad(),
@@ -294,27 +297,14 @@ namespace core
         }
     };
 
-    inline irr::core::quaternion xyzToQuat(const TRRotation& r)
+    inline gameplay::Quaternion xyzToQuat(const TRRotation& r)
     {
         //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        irr::core::quaternion q;
-        q.makeIdentity();
-        q *= irr::core::quaternion().fromAngleAxis(r.Y.toRad(), { 0,1,0 });
-        q *= irr::core::quaternion().fromAngleAxis(r.X.toRad(), { -1,0,0 });
-        q *= irr::core::quaternion().fromAngleAxis(r.Z.toRad(), { 0,0,-1 });
+        gameplay::Quaternion q;
+        q *= gameplay::Quaternion({ 0,1,0 }, r.Y.toRad());
+        q *= gameplay::Quaternion({ -1,0,0 }, r.X.toRad());
+        q *= gameplay::Quaternion({ 0,0,-1 }, r.Z.toRad());
         return q;
-    }
-
-    inline irr::core::vector3df xyzToYprRad(const TRRotation& r)
-    {
-        irr::core::vector3df euler;
-        xyzToQuat(r).toEuler(euler);
-        return euler;
-    }
-
-    inline irr::core::vector3df xyzToYprDeg(const TRRotation& r)
-    {
-        return xyzToYprRad(r) * 180 / irr::core::PI;
     }
 }
 

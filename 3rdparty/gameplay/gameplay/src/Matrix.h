@@ -1,5 +1,4 @@
-#ifndef MATRIX_H_
-#define MATRIX_H_
+#pragma once
 
 #include "Vector3.h"
 #include "Vector4.h"
@@ -398,7 +397,7 @@ public:
      * Gets the rotational component of this matrix in the specified quaternion.
      *
      * @param rotation A quaternion to receive the rotation.
-     * 
+     *
      * @return true if the rotation is successfully extracted, false otherwise.
      */
     bool getRotation(Quaternion* rotation) const;
@@ -463,7 +462,7 @@ public:
      * Stores the inverse of this matrix in the specified matrix.
      *
      * @param dst A matrix to store the invert of this matrix in.
-     * 
+     *
      * @return true if the the matrix can be inverted, false otherwise.
      */
     bool invert(Matrix* dst) const;
@@ -850,17 +849,17 @@ public:
 
     /**
      * Calculates the sum of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param m The matrix to add.
      * @return The matrix sum.
      */
-    inline const Matrix operator+(const Matrix& m) const;
-    
+    inline Matrix operator+(const Matrix& m) const;
+
     /**
      * Adds the given matrix to this matrix.
-     * 
+     *
      * @param m The matrix to add.
      * @return This matrix, after the addition occurs.
      */
@@ -868,17 +867,17 @@ public:
 
     /**
      * Calculates the difference of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param m The matrix to subtract.
      * @return The matrix difference.
      */
-    inline const Matrix operator-(const Matrix& m) const;
+    inline Matrix operator-(const Matrix& m) const;
 
     /**
      * Subtracts the given matrix from this matrix.
-     * 
+     *
      * @param m The matrix to subtract.
      * @return This matrix, after the subtraction occurs.
      */
@@ -886,31 +885,31 @@ public:
 
     /**
      * Calculates the negation of this matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @return The negation of this matrix.
      */
-    inline const Matrix operator-() const;
+    inline Matrix operator-() const;
 
     /**
      * Calculates the matrix product of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param m The matrix to multiply by.
      * @return The matrix product.
      */
-    inline const Matrix operator*(const Matrix& m) const;
+    inline Matrix operator*(const Matrix& m) const;
 
     /**
      * Right-multiplies this matrix by the given matrix.
-     * 
+     *
      * @param m The matrix to multiply by.
      * @return This matrix, after the multiplication occurs.
      */
     inline Matrix& operator*=(const Matrix& m);
-    
+
 private:
 
     static void createBillboardHelper(const Vector3& objectPosition, const Vector3& cameraPosition,
@@ -920,9 +919,9 @@ private:
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param v The vector to transform.
  * @param m The matrix to transform by.
  * @return This vector, after the transformation occurs.
@@ -931,20 +930,20 @@ inline Vector3& operator*=(Vector3& v, const Matrix& m);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param m The matrix to transform by.
  * @param v The vector to transform.
  * @return The resulting transformed vector.
  */
-inline const Vector3 operator*(const Matrix& m, const Vector3& v);
+inline Vector3 operator*(const Matrix& m, const Vector3& v);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param v The vector to transform.
  * @param m The matrix to transform by.
  * @return This vector, after the transformation occurs.
@@ -953,17 +952,85 @@ inline Vector4& operator*=(Vector4& v, const Matrix& m);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param m The matrix to transform by.
  * @param v The vector to transform.
  * @return The resulting transformed vector.
  */
-inline const Vector4 operator*(const Matrix& m, const Vector4& v);
+inline Vector4 operator*(const Matrix& m, const Vector4& v);
 
+
+inline Matrix Matrix::operator+(const Matrix& m) const
+{
+    Matrix result(*this);
+    result.add(m);
+    return result;
 }
 
-#include "Matrix.inl"
+inline Matrix& Matrix::operator+=(const Matrix& m)
+{
+    add(m);
+    return *this;
+}
 
-#endif
+inline Matrix Matrix::operator-(const Matrix& m) const
+{
+    Matrix result(*this);
+    result.subtract(m);
+    return result;
+}
+
+inline Matrix& Matrix::operator-=(const Matrix& m)
+{
+    subtract(m);
+    return *this;
+}
+
+inline Matrix Matrix::operator-() const
+{
+    Matrix m(*this);
+    m.negate();
+    return m;
+}
+
+inline Matrix Matrix::operator*(const Matrix& m) const
+{
+    Matrix result(*this);
+    result.multiply(m);
+    return result;
+}
+
+inline Matrix& Matrix::operator*=(const Matrix& m)
+{
+    multiply(m);
+    return *this;
+}
+
+inline Vector3& operator*=(Vector3& v, const Matrix& m)
+{
+    m.transformVector(&v);
+    return v;
+}
+
+inline Vector3 operator*(const Matrix& m, const Vector3& v)
+{
+    Vector3 x;
+    m.transformVector(v, &x);
+    return x;
+}
+
+inline Vector4& operator*=(Vector4& v, const Matrix& m)
+{
+    m.transformVector(&v);
+    return v;
+}
+
+inline Vector4 operator*(const Matrix& m, const Vector4& v)
+{
+    Vector4 x;
+    m.transformVector(v, &x);
+    return x;
+}
+}

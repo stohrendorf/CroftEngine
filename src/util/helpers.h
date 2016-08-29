@@ -28,6 +28,13 @@ inline bool fuzzyEqual(T a, T b) noexcept
 }
 
 template<typename T>
+inline bool fuzzyEqual(T a, T b, T margin) noexcept
+{
+    Expects(margin > 0);
+    return std::abs(a-b) <= margin;
+}
+
+template<typename T>
 inline bool fuzzyOne(T value) noexcept
 {
     return fuzzyEqual(value, static_cast<T>(1));
@@ -55,6 +62,17 @@ constexpr inline util::Duration fromSeconds(FloatDuration d) noexcept
 inline TimePoint now() noexcept
 {
     return ClockType::now();
+}
+
+template<typename T>
+inline T clamp(const T& v, const T& min, const T& max)
+{
+    if(v < min)
+        return min;
+    else if(max < v)
+        return max;
+    else
+        return v;
 }
 
 } // namespace util

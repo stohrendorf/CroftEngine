@@ -414,8 +414,6 @@ private:
 
     void applyAnimationValue(AnimationValue* value, float blendWeight, int components);
 
-    void cloneInto(MaterialParameter* materialParameter) const;
-
     enum LOGGER_DIRTYBITS
     {
         UNIFORM_NOT_FOUND = 0x01,

@@ -6,8 +6,6 @@
 #include "abstractstatehandler.h"
 #include "itemcontroller.h"
 
-#include <irrlicht.h>
-
 namespace engine
 {
     struct CollisionInfo;
@@ -42,7 +40,7 @@ namespace engine
     public:
         LaraController(gsl::not_null<level::Level*> level,
                        const std::shared_ptr<engine::MeshAnimationController>& dispatcher,
-                       gsl::not_null<irr::scene::ISceneNode*> lara,
+                       gsl::not_null<gameplay::Node*> lara,
                        const std::string& name,
                        gsl::not_null<const loader::Room*> room,
                        gsl::not_null<loader::Item*> item)
@@ -160,7 +158,7 @@ namespace engine
         void setTargetState(loader::LaraStateId st);
         loader::LaraStateId getCurrentState() const;
         loader::LaraStateId getCurrentAnimState() const;
-        void playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame = boost::none);
+        void playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame = boost::none);
         void updateFloorHeight(int dy);
         void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 

@@ -21,7 +21,7 @@ namespace engine
         return static_cast<LaraStateId>(ItemController::getTargetState());
     }
 
-    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
+    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame)
     {
         ItemController::playAnimation(static_cast<uint16_t>(anim), firstFrame);
     }
@@ -160,8 +160,8 @@ namespace engine
             if( getRotation().Z <= 0_deg )
                 setZRotation(0_deg);
         }
-        setXRotation(irr::core::clamp(getRotation().X, -100_deg, +100_deg));
-        setZRotation(irr::core::clamp(getRotation().Z, -22_deg, +22_deg));
+        setXRotation(util::clamp(getRotation().X, -100_deg, +100_deg));
+        setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
         {
             auto pos = getPosition();
             pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;

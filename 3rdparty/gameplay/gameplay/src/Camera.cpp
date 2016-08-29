@@ -474,27 +474,6 @@ namespace gameplay
     }
 
 
-    Camera* Camera::clone(NodeCloneContext& context) const
-    {
-        Camera* cameraClone = nullptr;
-        if( getCameraType() == PERSPECTIVE )
-        {
-            cameraClone = createPerspective(_fieldOfView, _aspectRatio, _nearPlane, _farPlane);
-        }
-        else if( getCameraType() == ORTHOGRAPHIC )
-        {
-            cameraClone = createOrthographic(getZoomX(), getZoomY(), getAspectRatio(), _nearPlane, _farPlane);
-        }
-        GP_ASSERT(cameraClone);
-
-        if( Node* node = context.findClonedNode(getNode()) )
-        {
-            cameraClone->setNode(node);
-        }
-        return cameraClone;
-    }
-
-
     void Camera::transformChanged(Transform* transform, long cookie)
     {
         _bits |= CAMERA_DIRTY_VIEW | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;

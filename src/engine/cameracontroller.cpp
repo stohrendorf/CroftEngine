@@ -9,15 +9,13 @@
 
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
-        : ISceneNodeAnimator()
-        , m_camera(camera)
+    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<gameplay::Camera*>& camera)
+        : m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
         , m_currentYOffset(gsl::narrow_cast<int>(laraController->getPosition().Y - 1024))
         , m_currentLookAt(laraController->getCurrentRoom(), m_laraController->getPosition().toInexact())
         , m_currentPosition(laraController->getCurrentRoom())
-        , m_driver(drv)
     {
         m_currentLookAt.position.Y -= m_currentYOffset;
         m_currentPosition = m_currentLookAt;
@@ -26,26 +24,12 @@ namespace engine
         update(1000 / core::FrameRate);
     }
 
-    void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+    void CameraController::animateNode(uint32_t timeMs)
     {
-        Expects(node == m_camera);
-
-        irr::scene::ISceneManager* smgr = node->getSceneManager();
-        if( smgr && smgr->getActiveCamera() != m_camera )
-            return;
-
-
         if( m_firstUpdate )
         {
             m_lastAnimationTime = timeMs;
             m_firstUpdate = false;
-        }
-
-        // If the camera isn't the active camera, and receiving input, then don't process it.
-        if( !m_camera->isInputReceiverEnabled() )
-        {
-            m_firstInput = true;
-            return;
         }
 
         if( m_firstInput )
@@ -60,15 +44,9 @@ namespace engine
 
         m_lastAnimationTime = timeMs;
 
-        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
+        m_localRotation.X = util::clamp(m_localRotation.X, -85_deg, +85_deg);
 
         tracePortals();
-    }
-
-    irr::scene::ISceneNodeAnimator* CameraController::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
-    {
-        BOOST_ASSERT(false);
-        return nullptr;
     }
 
     void CameraController::setLocalRotation(core::Angle x, core::Angle y)
@@ -171,6 +149,7 @@ namespace engine
 
     void CameraController::tracePortals()
     {
+#if 0
         bool cameraOutOfGeometry = true;
         for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
         {
@@ -189,6 +168,10 @@ namespace engine
         {
             return;
         }
+#else
+        for(const loader::Room& room : m_level->m_rooms)
+            room.node->setEnabled(false);
+#endif
 
 #if 0
         // First, find the room the camera is actually in.
@@ -221,7 +204,7 @@ namespace engine
         auto startRoom = m_currentPosition.room;
 #endif
 
-        startRoom->node->setVisible(true);
+        startRoom->node->setEnabled(true);
 
         // Breadth-first queue
         std::queue<render::PortalTracer> toVisit;
@@ -230,10 +213,10 @@ namespace engine
         for( const loader::Portal& portal : startRoom->portals )
         {
             render::PortalTracer path;
-            if( !path.checkVisibility(&portal, *m_camera, m_driver) )
+            if( !path.checkVisibility(&portal, *m_camera) )
                 continue;
 
-            m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
+            m_level->m_rooms[portal.adjoining_room].node->setEnabled(true);
 
             toVisit.emplace(std::move(path));
         }
@@ -255,10 +238,10 @@ namespace engine
             for( const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals )
             {
                 render::PortalTracer newPath = currentPath;
-                if( !newPath.checkVisibility(&srcPortal, *m_camera, m_driver) )
+                if( !newPath.checkVisibility(&srcPortal, *m_camera) )
                     continue;
 
-                m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
+                m_level->m_rooms[srcPortal.adjoining_room].node->setEnabled(true);
                 toVisit.emplace(std::move(newPath));
             }
         }
@@ -480,9 +463,9 @@ namespace engine
         auto lookAtBbox = lookAtItem->getBoundingBox();
         int lookAtY = gsl::narrow_cast<int>(lookAtItem->getPosition().Y);
         if( lookingAtSomething )
-            lookAtY += (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2;
+            lookAtY += (lookAtBbox.min.y + lookAtBbox.max.y) / 2;
         else
-            lookAtY += (lookAtBbox.MinEdge.Y - lookAtBbox.MaxEdge.Y) * 3 / 4 + lookAtBbox.MaxEdge.Y;
+            lookAtY += (lookAtBbox.min.y - lookAtBbox.max.y) * 3 / 4 + lookAtBbox.max.y;
 
         if( m_lookAtItem != nullptr && !lookingAtSomething )
         {
@@ -491,7 +474,7 @@ namespace engine
             auto lookAtYAngle = -core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
             lookAtYAngle *= 0.5f;
             lookAtBbox = m_lookAtItem->getBoundingBox();
-            auto lookAtXAngle = -core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2 + m_lookAtItem->getPosition().Y));
+            auto lookAtXAngle = -core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.min.y + lookAtBbox.max.y) / 2 + m_lookAtItem->getPosition().Y));
             lookAtXAngle *= 0.5f;
 
             if( lookAtYAngle < 50_deg && lookAtYAngle > -50_deg && lookAtXAngle < 85_deg && lookAtXAngle > -85_deg )
@@ -528,7 +511,7 @@ namespace engine
 
             if( m_unknown1 == 1 )
             {
-                const auto midZ = (lookAtBbox.MinEdge.Z + lookAtBbox.MaxEdge.Z) / 2;
+                const auto midZ = (lookAtBbox.min.z + lookAtBbox.max.z) / 2;
                 m_currentLookAt.position.Z += std::lround(midZ * lookAtItem->getRotation().Y.cos());
                 m_currentLookAt.position.X += std::lround(midZ * lookAtItem->getRotation().Y.sin());
             }
@@ -590,8 +573,6 @@ namespace engine
             m_unknown1 = 0;
         }
         HeightInfo::skipSteepSlants = false;
-
-        m_camera->updateAbsolutePosition();
     }
 
     void CameraController::handleCamOverride(int deltaTimeMs)
@@ -701,8 +682,8 @@ namespace engine
         // update current room
         m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
 
-        m_camera->setPosition(camPos.toIrrlicht());
-        m_camera->setTarget(m_currentLookAt.position.toIrrlicht());
+        m_camera->setPosition(camPos.toRenderSystem());
+        m_camera->setTarget(m_currentLookAt.position.toRenderSystem());
     }
 
     void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs)

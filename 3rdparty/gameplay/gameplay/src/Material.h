@@ -8,8 +8,6 @@
 namespace gameplay
 {
 
-class NodeCloneContext;
-
 /**
  * Defines a material for an object to be rendered.
  *
@@ -123,16 +121,6 @@ private:
      * Destructor.
      */
     ~Material();
-
-    /**
-     * Clones this material.
-     *
-     * @param context The clone context.
-     *
-     * @return The newly created material.
-     * @script{create}
-     */
-    Material* clone(NodeCloneContext &context) const;
 
     /**
      * Loads a technique from the given properties object into the specified material.

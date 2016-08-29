@@ -2,15 +2,15 @@
 
 #include "laracontroller.h"
 
-#include <set>
 
 namespace engine
 {
-    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name)
+    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::Node*> node, gsl::not_null<gameplay::AnimationController*> ctrl, const std::string& name)
         : AnimationController(level, name)
         , m_model(model)
         , m_currentAnimationId(model.animationIndex)
         , m_node(node)
+        , m_animController{ctrl}
     {
         auto it = model.frameMapping.find(m_currentAnimationId);
         if( it == model.frameMapping.end() )
@@ -23,40 +23,50 @@ namespace engine
         m_targetState = getCurrentAnimState();
     }
 
-    void MeshAnimationController::startAnimLoop(irr::u32 localFrame)
+
+    void MeshAnimationController::startAnimLoop(uint32_t localFrame)
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);
         BOOST_ASSERT(it != m_model.frameMapping.end());
-        it->second.apply(m_node, localFrame);
+        it->second.apply(*m_animController, localFrame);
     }
+
 
     void MeshAnimationController::advanceFrame()
     {
-        BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << m_node->getFrameNr() << ", end=" << m_node->getEndFrame();
-        if(m_node->getFrameNr() + 1 >= m_node->getEndFrame())
+        if( m_animController->getRunningClips().empty() )
+            return;
+
+        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
+        Expects(clip != nullptr);
+
+        BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << clip->getElapsedTime() << ", end=" << clip->getEndTime();
+        if( clip->getElapsedTime() + 1000.0 / core::FrameRate >= clip->getEndTime() )
         {
             handleAnimationEnd();
         }
         else
         {
-            m_node->setCurrentFrame(m_node->getFrameNr() + 1);
+            clip->setElapsedTime(clip->getElapsedTime() + 1000.0 / core::FrameRate);
         }
 
         handleTRTransitions();
-
-        m_node->animateJoints();
     }
 
 
-    irr::u32 MeshAnimationController::getCurrentFrame() const
+    uint32_t MeshAnimationController::getCurrentFrame() const
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);
         BOOST_ASSERT(it != m_model.frameMapping.end());
 
-        return std::lround(m_node->getFrameNr() - it->second.offset + it->second.firstFrame);
+        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
+        Expects(clip != nullptr);
+
+        return std::lround(clip->getElapsedTime() * core::FrameRate / 1000 - it->second.offset + it->second.firstFrame);
     }
 
-    irr::u32 MeshAnimationController::getAnimEndFrame() const
+
+    uint32_t MeshAnimationController::getAnimEndFrame() const
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);
         BOOST_ASSERT(it != m_model.frameMapping.end());
@@ -64,7 +74,8 @@ namespace engine
         return it->second.lastFrame;
     }
 
-    irr::core::aabbox3di MeshAnimationController::getBoundingBox() const
+
+    gameplay::BoundingBox MeshAnimationController::getBoundingBox() const
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);
         BOOST_ASSERT(it != m_model.frameMapping.end());
@@ -72,13 +83,18 @@ namespace engine
         return it->second.getBoundingBox(getCurrentFrame());
     }
 
-    irr::u32 MeshAnimationController::getCurrentRelativeFrame() const
+
+    uint32_t MeshAnimationController::getCurrentRelativeFrame() const
     {
         auto it = m_model.frameMapping.find(m_currentAnimationId);
         BOOST_ASSERT(it != m_model.frameMapping.end());
 
-        return std::lround(m_node->getFrameNr() - it->second.offset);
+        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
+        Expects(clip != nullptr);
+
+        return std::lround(clip->getElapsedTime() * core::FrameRate / 1000 - it->second.offset);
     }
+
 
     uint16_t MeshAnimationController::getCurrentAnimState() const
     {
@@ -87,7 +103,8 @@ namespace engine
         return currentAnim.state_id;
     }
 
-    void MeshAnimationController::playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame)
+
+    void MeshAnimationController::playGlobalAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame)
     {
         auto it = m_model.frameMapping.find(anim);
         if( it == m_model.frameMapping.end() )
@@ -97,11 +114,12 @@ namespace engine
         }
 
         m_currentAnimationId = anim;
-        it->second.apply(m_node, firstFrame.get_value_or(it->second.firstFrame));
+        it->second.apply(*m_animController, firstFrame.get_value_or(it->second.firstFrame));
         //m_targetState = getCurrentState();
 
         BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << getCurrentAnimState();
     }
+
 
     bool MeshAnimationController::handleTRTransitions()
     {
@@ -137,6 +155,7 @@ namespace engine
 
         return false;
     }
+
 
     void MeshAnimationController::handleAnimationEnd()
     {

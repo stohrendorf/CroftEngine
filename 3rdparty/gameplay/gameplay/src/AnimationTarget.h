@@ -8,8 +8,6 @@ namespace gameplay
 {
     class Animation;
     class AnimationValue;
-    class NodeCloneContext;
-
 
     /**
      * Defines an interface allowing animation to target
@@ -197,14 +195,6 @@ namespace gameplay
          * @param id The ID of the Animation the Channel belongs to.
          */
         Animation::Channel* getChannel(const char* id) const;
-
-        /**
-         * Copies data from this animation target into the given target for the purpose of cloning.
-         *
-         * @param target The target to copy into.
-         * @param context The clone context.
-         */
-        void cloneInto(AnimationTarget* target, NodeCloneContext& context) const;
 
         /**
          * The target's type.

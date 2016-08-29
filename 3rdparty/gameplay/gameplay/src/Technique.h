@@ -7,7 +7,6 @@ namespace gameplay
 {
 
 class Material;
-class NodeCloneContext;
 
 /**
  * Defines a technique for how an object to be rendered.
@@ -81,8 +80,6 @@ private:
      * Hidden copy assignment operator.
      */
     Technique& operator=(const Technique&);
-
-    Technique* clone(Material* material, NodeCloneContext &context) const;
 
     std::string _id;
     Material* _material;

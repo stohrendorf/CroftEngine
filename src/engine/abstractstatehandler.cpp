@@ -387,8 +387,8 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.y,
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.x
                 );
                 auto r = getLevel().m_cameraController->getHeadRotation();
                 if(r.Y < -44_deg)
@@ -985,7 +985,7 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
         {
             collisionInfo.yAngle = getRotation().Y;
-            if( irr::core::abs_(getRotation().X) > 90_deg )
+            if( std::abs(getRotation().X) > 90_deg )
                 collisionInfo.yAngle += 180_deg;
             setMovementAngle(collisionInfo.yAngle);
             collisionInfo.initHeightInfo(getPosition() + core::ExactTRCoordinates{0, 200, 0}, getLevel(), 400);
@@ -2087,8 +2087,8 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.y,
+                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.x
                 );
 
                 getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
@@ -3003,7 +3003,7 @@ namespace engine
         return m_controller.getCurrentAnimState();
     }
 
-    void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
+    void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame)
     {
         m_controller.playAnimation(anim, firstFrame);
     }
@@ -3151,7 +3151,7 @@ namespace engine
             return nullptr;
 
         const auto bbox = getBoundingBox();
-        long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3289,8 +3289,8 @@ namespace engine
 
     bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler)
     {
-        auto slantX = irr::core::abs_(collisionInfo.floorSlantX);
-        auto slantZ = irr::core::abs_(collisionInfo.floorSlantZ);
+        auto slantX = std::abs(collisionInfo.floorSlantX);
+        auto slantZ = std::abs(collisionInfo.floorSlantZ);
         if( slantX <= 2 && slantZ <= 2 )
             return false;
 
@@ -3300,12 +3300,12 @@ namespace engine
         else if( collisionInfo.floorSlantX > 2 )
             targetAngle = -90_deg;
 
-        if( collisionInfo.floorSlantZ > std::max(int8_t(2), slantX) )
+        if( collisionInfo.floorSlantZ > std::max(2, slantX) )
             targetAngle = 180_deg;
         else if( collisionInfo.floorSlantZ < std::min(-2, -slantX) )
             targetAngle = 0_deg;
 
-        core::Angle dy = irr::core::abs_(targetAngle - getRotation().Y);
+        core::Angle dy = std::abs(targetAngle - getRotation().Y);
         applyCollisionFeedback(collisionInfo);
         if( dy > 90_deg || dy < -90_deg )
         {
@@ -3344,7 +3344,7 @@ namespace engine
             return nullptr;
 
         auto bbox = getBoundingBox();
-        long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3358,7 +3358,7 @@ namespace engine
         setTargetState(LaraStateId::Hang);
         playAnimation(loader::AnimationId::HANG_IDLE, 1505);
         bbox = getBoundingBox();
-        spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
         applyCollisionFeedback(collisionInfo);
@@ -3493,7 +3493,7 @@ namespace engine
             playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
             setHandStatus(0);
             const auto bbox = getBoundingBox();
-            const long hangDistance = collisionInfo.front.floor.distance - bbox.MinEdge.Y + 2;
+            const long hangDistance = collisionInfo.front.floor.distance - bbox.min.y + 2;
             setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, hangDistance, collisionInfo.collisionFeedback.Z));
             setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
             setFallSpeed(core::makeInterpolatedValue(1.0f));
@@ -3528,7 +3528,7 @@ namespace engine
         }
 
         const auto bbox = getBoundingBox();
-        const long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        const long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
             setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
@@ -3554,12 +3554,12 @@ namespace engine
         return getHealth() <= 0;
     }
 
-    irr::scene::ISceneNode* AbstractStateHandler::getLara()
+    gameplay::Node* AbstractStateHandler::getLara()
     {
         return m_controller.getSceneNode();
     }
 
-    irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const
+    gameplay::BoundingBox AbstractStateHandler::getBoundingBox() const
     {
         return m_controller.getBoundingBox();
     }

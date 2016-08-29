@@ -35,7 +35,7 @@ public:
         return m_level;
     }
 
-    virtual irr::core::aabbox3di getBoundingBox() const = 0;
+    virtual gameplay::BoundingBox getBoundingBox() const = 0;
 };
 
 class MeshAnimationController final : public AnimationController
@@ -43,10 +43,11 @@ class MeshAnimationController final : public AnimationController
     const loader::AnimatedModel& m_model;
     uint16_t m_currentAnimationId;
     uint16_t m_targetState = 0;
-    irr::scene::IAnimatedMeshSceneNode* const m_node;
+    gameplay::Node* const m_node;
+    gameplay::AnimationController* m_animController;
 
 public:
-    MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<irr::scene::IAnimatedMeshSceneNode*> node, const std::string& name);
+    MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::Node*> node, gsl::not_null<gameplay::AnimationController*> ctrl, const std::string& name);
 
     void setTargetState(uint16_t state) noexcept
     {
@@ -72,9 +73,9 @@ public:
     * Plays the animation specified; if the animation does not exist, nothing happens;
     * if it exists, the target state is changed to the animation's state.
     */
-    void playGlobalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none);
+    void playGlobalAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame = boost::none);
 
-    void playLocalAnimation(uint16_t anim, const boost::optional<irr::u32>& firstFrame = boost::none)
+    void playLocalAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame = boost::none)
     {
         playGlobalAnimation(m_model.animationIndex + anim, firstFrame);
     }
@@ -102,10 +103,10 @@ public:
     }
 
     void advanceFrame();
-    irr::u32 getCurrentFrame() const;
-    irr::u32 getAnimEndFrame() const;
+    uint32_t getCurrentFrame() const;
+    uint32_t getAnimEndFrame() const;
 
-    irr::core::aabbox3di getBoundingBox() const override;
+    gameplay::BoundingBox getBoundingBox() const override;
 
     void resetPose()
     {
@@ -113,7 +114,7 @@ public:
         m_node->animateJoints();
     }
 
-    void rotateBone(irr::u32 id, const core::TRRotation& dr)
+    void rotateBone(uint32_t id, const core::TRRotation& dr)
     {
         Expects(id < m_node->getJointCount());
         auto bone = m_node->getJointNode(id);
@@ -127,8 +128,8 @@ private:
     * @brief Starts to play the current animation at the specified frame.
     * @param[in] localFrame The animation-local frame number.
     */
-    void startAnimLoop(irr::u32 localFrame);
-    irr::u32 getCurrentRelativeFrame() const;
+    void startAnimLoop(uint32_t localFrame);
+    uint32_t getCurrentRelativeFrame() const;
 };
 
 }

@@ -1,5 +1,4 @@
-#ifndef RAY_H_
-#define RAY_H_
+#pragma once
 
 #include "Vector3.h"
 
@@ -41,7 +40,7 @@ public:
 
     /**
      * Constructs a new ray initialized to the specified values.
-     * 
+     *
      * @param originX The x coordinate of the origin.
      * @param originY The y coordinate of the origin.
      * @param originZ The z coordinate of the origin.
@@ -79,7 +78,7 @@ public:
 
     /**
      * Sets the ray's origin.
-     * 
+     *
      * @param x The x coordinate of the origin.
      * @param y The y coordinate of the origin.
      * @param z The z coordinate of the origin.
@@ -102,7 +101,7 @@ public:
 
     /**
      * Sets the ray's direction.
-     * 
+     *
      * @param x The x coordinate of the direction.
      * @param y The y coordinate of the direction.
      * @param z The z coordinate of the direction.
@@ -113,7 +112,7 @@ public:
      * Tests whether this ray intersects the specified bounding sphere.
      *
      * @param sphere The bounding sphere to test intersection with.
-     * 
+     *
      * @return The distance from the origin of this ray to the bounding object or
      *     INTERSECTS_NONE if this ray does not intersect the bounding object.
      */
@@ -123,7 +122,7 @@ public:
      * Tests whether this ray intersects the specified bounding box.
      *
      * @param box The bounding box to test intersection with.
-     * 
+     *
      * @return The distance from the origin of this ray to the bounding object or
      *     INTERSECTS_NONE if this ray does not intersect the bounding object.
      */
@@ -133,7 +132,7 @@ public:
      * Tests whether this ray intersects the specified frustum.
      *
      * @param frustum The frustum to test intersection with.
-     * 
+     *
      * @return The distance from the origin of this ray to the frustum or
      *     INTERSECTS_NONE if this ray does not intersect the frustum.
      */
@@ -144,7 +143,7 @@ public:
      * from the origin of the ray to the plane.
      *
      * @param plane The plane to test intersection with.
-     * 
+     *
      * @return The distance from the origin of this ray to the plane or
      *     INTERSECTS_NONE if this ray does not intersect the plane.
      */
@@ -174,7 +173,7 @@ public:
 
     /**
      * Transforms this ray by the given matrix.
-     * 
+     *
      * @param matrix The matrix to transform by.
      * @return This ray, after the transformation occurs.
      */
@@ -193,15 +192,24 @@ private:
 
 /**
  * Transforms the given ray by the given matrix.
- * 
+ *
  * @param matrix The matrix to transform by.
  * @param ray The ray to transform.
  * @return The resulting transformed ray.
  */
 inline const Ray operator*(const Matrix& matrix, const Ray& ray);
 
+
+inline Ray& Ray::operator*=(const Matrix& matrix)
+{
+    transform(matrix);
+    return *this;
 }
 
-#include "Ray.inl"
-
-#endif
+inline const Ray operator*(const Matrix& matrix, const Ray& ray)
+{
+    Ray r(ray);
+    r.transform(matrix);
+    return r;
+}
+}

@@ -132,26 +132,6 @@ namespace gameplay
     }
 
 
-    Material* Material::clone(NodeCloneContext& context) const
-    {
-        Material* material = new Material();
-        RenderState::cloneInto(material, context);
-
-        for( std::vector<Technique*>::const_iterator it = _techniques.begin(); it != _techniques.end(); ++it )
-        {
-            const Technique* technique = *it;
-            GP_ASSERT(technique);
-            Technique* techniqueClone = technique->clone(material, context);
-            material->_techniques.push_back(techniqueClone);
-            if( _currentTechnique == technique )
-            {
-                material->_currentTechnique = techniqueClone;
-            }
-        }
-        return material;
-    }
-
-
     bool Material::loadTechnique(Material* material, Properties* techniqueProperties, PassCallback callback, void* cookie)
     {
         GP_ASSERT(material);

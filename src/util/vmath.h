@@ -1,20 +1,25 @@
 #pragma once
 
-#include <irrlicht.h>
+#include "gameplay.h"
 
 namespace util
 {
-inline irr::core::quaternion trRotationToQuat(const irr::core::vector3df& rotation)
+inline gameplay::Quaternion trRotationToQuat(const gameplay::Vector3& rotation)
 {
-    irr::core::quaternion v;
-    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.Z), {0,0,1});
-    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.X), {1,0,0});
-    v *= irr::core::quaternion().fromAngleAxis(irr::core::degToRad(rotation.Y), {0,1,0});
+    gameplay::Quaternion v;
+    v *= gameplay::Quaternion({0,0,1}, rotation.z);
+    v *= gameplay::Quaternion({1,0,0}, rotation.x);
+    v *= gameplay::Quaternion({0,1,0}, rotation.y);
     return v;
 }
 
 constexpr float auToDeg(int16_t au)
 {
     return au / 65536.0f * 360;
+}
+
+constexpr float auToRad(int16_t au)
+{
+    return au / 65536.0f * 2 * MATH_PI;
 }
 } // namespace util

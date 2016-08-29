@@ -147,11 +147,6 @@ protected:
      */
     TileSet& operator=(const TileSet& set);
 
-    /**
-     * @see Drawable::clone
-     */
-    Drawable* clone(NodeCloneContext &context);
-
 private:
 
     Vector2* _tiles;

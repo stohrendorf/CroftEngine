@@ -685,11 +685,6 @@ private:
     ~ParticleEmitter();
 
     /**
-     * @see Drawable::clone
-     */
-    Drawable* clone(NodeCloneContext& context);
-
-    /**
      * Creates an uninitialized ParticleEmitter.
      *
      * @param texture the texture to use.

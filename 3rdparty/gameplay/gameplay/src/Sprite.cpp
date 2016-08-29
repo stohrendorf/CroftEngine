@@ -498,44 +498,6 @@ namespace gameplay
     }
 
 
-    Drawable* Sprite::clone(NodeCloneContext& context)
-    {
-        Sprite* spriteClone = new Sprite();
-
-        // Clone animations
-        AnimationTarget::cloneInto(static_cast<AnimationTarget*>(spriteClone), context);
-
-        // Get copied node if it exists
-        if( Node* node = getNode() )
-        {
-            Node* clonedNode = context.findClonedNode(node);
-            if( clonedNode )
-            {
-                spriteClone->setNode(clonedNode);
-            }
-        }
-
-        // Clone properties
-        spriteClone->_width = _width;
-        spriteClone->_height = _height;
-        spriteClone->_offset = _offset;
-        spriteClone->_anchor = _anchor;
-        spriteClone->_flipFlags = _flipFlags;
-        spriteClone->_opacity = _opacity;
-        spriteClone->_color = _color;
-        spriteClone->_blendMode = _blendMode;
-        spriteClone->_frames = new Rectangle[_frameCount];
-        memcpy(spriteClone->_frames, _frames, sizeof(Rectangle) * _frameCount);
-        spriteClone->_frameCount = _frameCount;
-        spriteClone->_frameStride = _frameStride;
-        spriteClone->_framePadding = _framePadding;
-        spriteClone->_frameIndex = _frameIndex;
-        spriteClone->_batch = _batch;
-
-        return spriteClone;
-    }
-
-
     int Sprite::getPropertyId(TargetType type, const char* propertyIdStr)
     {
         GP_ASSERT(propertyIdStr);

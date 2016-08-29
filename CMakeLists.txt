@@ -120,6 +120,11 @@ add_library(GLEW INTERFACE)
 target_include_directories(GLEW INTERFACE ${GLEW_INCLUDE_DIRS})
 target_link_libraries(GLEW INTERFACE ${GLEW_LIBRARIES})
 
+find_package(GLFW REQUIRED)
+add_library(GLFW INTERFACE)
+target_include_directories(GLFW INTERFACE ${GLFW_INCLUDE_DIR})
+target_link_libraries(GLFW INTERFACE ${GLFW_LIBRARIES})
+
 if(MSVC)
     # C4503: Name too long
     add_definitions(/wd4503)
