@@ -132,7 +132,7 @@ private:
         Channel(const Channel& copy, Animation* animation, AnimationTarget* target);
         Channel(const Channel&); // Hidden copy constructor.
         ~Channel();
-        Channel& operator=(const Channel&); // Hidden copy assignment operator.
+        Channel& operator=(const Channel&) = delete; // Hidden copy assignment operator.
         Curve* getCurve() const;
 
         Animation* _animation;                // Reference to the animation this channel belongs to.
@@ -170,7 +170,7 @@ private:
     /**
      * Hidden copy assignment operator.
      */
-    Animation& operator=(const Animation&);
+    Animation& operator=(const Animation&) = delete;
 
     /**
      * Creates the default clip.
@@ -216,16 +216,6 @@ private:
      * Sets the rotation offset in a Curve representing a Transform's animation data.
      */
     void setTransformRotationOffset(Curve* curve, unsigned int propertyId);
-
-    /**
-     * Clones this animation.
-     *
-     * @param channel The channel to clone and add to the animation.
-     * @param target The target of the animation.
-     *
-     * @return The newly created animation.
-     */
-    Animation* clone(Channel* channel, AnimationTarget* target);
 
     AnimationController* _controller;       // The AnimationController that this Animation will run on.
     std::string _id;                        // The Animation's ID.

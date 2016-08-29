@@ -46,9 +46,6 @@ set(GAMEPLAY_SRC
     src/Frustum.h
     src/Game.cpp
     src/Game.h
-    src/gameplay-main-android.cpp
-    src/gameplay-main-linux.cpp
-    src/gameplay-main-windows.cpp
     src/Image.cpp
     src/Image.h
     src/Joint.cpp

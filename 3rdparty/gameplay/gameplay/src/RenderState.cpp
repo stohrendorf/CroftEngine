@@ -745,31 +745,6 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::cloneInto(StateBlock* state)
-    {
-        GP_ASSERT(state);
-
-        state->_cullFaceEnabled = _cullFaceEnabled;
-        state->_depthTestEnabled = _depthTestEnabled;
-        state->_depthWriteEnabled = _depthWriteEnabled;
-        state->_depthFunction = _depthFunction;
-        state->_blendEnabled = _blendEnabled;
-        state->_blendSrc = _blendSrc;
-        state->_blendDst = _blendDst;
-        state->_cullFaceSide = _cullFaceSide;
-        state->_frontFace = _frontFace;
-        state->_stencilTestEnabled = _stencilTestEnabled;
-        state->_stencilWrite = _stencilWrite;
-        state->_stencilFunction = _stencilFunction;
-        state->_stencilFunctionRef = _stencilFunctionRef;
-        state->_stencilFunctionMask = _stencilFunctionMask;
-        state->_stencilOpSfail = _stencilOpSfail;
-        state->_stencilOpDpfail = _stencilOpDpfail;
-        state->_stencilOpDppass = _stencilOpDppass;
-        state->_bits = _bits;
-    }
-
-
     static bool parseBoolean(const char* value)
     {
         GP_ASSERT(value);

@@ -439,8 +439,6 @@ public:
 
         static void enableDepthWrite();
 
-        void cloneInto(StateBlock* state);
-
         // States
         bool _cullFaceEnabled;
         bool _depthTestEnabled;

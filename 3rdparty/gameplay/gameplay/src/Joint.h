@@ -25,12 +25,12 @@ public:
     /**
      * @see Node::getType()
      */
-    Node::Type getType() const;
+    Node::Type getType() const override;
 
     /**
      * @see Node::getScene()
      */
-    Scene* getScene() const;
+    Scene* getScene() const override;
 
     /**
      * Returns the inverse bind pose matrix for this joint.
@@ -44,7 +44,7 @@ protected:
     /**
      * Constructor.
      */
-    Joint(const char* id);
+    explicit Joint(const char* id);
 
     /**
      * Destructor.
@@ -78,7 +78,7 @@ protected:
     /**
      * Called when this Joint's transform changes.
      */
-    void transformChanged();
+    void transformChanged() override;
 
 private:
 
@@ -97,12 +97,12 @@ private:
     /**
      * Constructor.
      */
-    Joint(const Joint& copy);
+    Joint(const Joint& copy) = delete;
 
     /**
      * Hidden copy assignment operator.
      */
-    Joint& operator=(const Joint&);
+    Joint& operator=(const Joint&) = delete;
 
     void addSkin(MeshSkin* skin);
 

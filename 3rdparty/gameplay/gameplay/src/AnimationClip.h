@@ -323,12 +323,12 @@ namespace gameplay
         /**
          * Constructor.
          */
-        AnimationClip();
+        AnimationClip() = delete;
 
         /**
          * Constructor.
          */
-        AnimationClip(const AnimationClip& copy);
+        AnimationClip(const AnimationClip& copy) = delete;
 
         /**
          * Destructor.
@@ -338,7 +338,7 @@ namespace gameplay
         /**
          * Hidden copy assignment operator.
          */
-        AnimationClip& operator=(const AnimationClip&);
+        AnimationClip& operator=(const AnimationClip&) = delete;
 
         /**
          * Updates the animation with the elapsed time.
@@ -369,15 +369,6 @@ namespace gameplay
          * Resets the given bit in the AnimationClip's state.
          */
         void resetClipStateBit(unsigned char bit);
-
-        /**
-         * Clones the animation clip.
-         *
-         * @param animation The animation that the new clip belongs to.
-         *
-         * @return The newly created animation clip.
-         */
-        AnimationClip* clone(Animation* animation) const;
 
         std::string _id; // AnimationClip ID.
         Animation* _animation; // The Animation this clip is created from.
