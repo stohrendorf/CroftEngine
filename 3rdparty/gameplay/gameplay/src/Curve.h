@@ -320,7 +320,7 @@ public:
      * @param value The point to add.
      * @param type The curve interpolation type.
      */
-    void setPoint(unsigned int index, float time, float* value, InterpolationType type);
+    void setPoint(unsigned index, float time, const float* value, InterpolationType type);
 
     /**
      * Sets the given point on the curve for the specified index and the specified parameters.
@@ -332,8 +332,8 @@ public:
      * @param inValue The tangent approaching the point.
      * @param outValue The tangent leaving the point.
      */
-    void setPoint(unsigned int index, float time, float* value, InterpolationType type,
-                  float* inValue, float* outValue);
+    void setPoint(unsigned index, float time, const float* value, InterpolationType type,
+                  const float* inValue, const float* outValue);
 
     /**
      * Sets the tangents for a point on the curve specified by the index.
@@ -345,7 +345,7 @@ public:
      * @param outValue The tangent leaving the point.
      */
     void setTangent(unsigned int index, InterpolationType type, float* inValue, float* outValue);
-    
+
     /**
      * Gets the time at a specified point.
      *
@@ -354,16 +354,16 @@ public:
      * @return The time for a key point.
      */
     float getPointTime(unsigned int index) const;
-    
+
     /**
      * Gets the interpolation type at the specified point
      *
      * @param index The index of the point.
-     * 
+     *
      * @return The interpolation type at the specified index.
      */
     InterpolationType getPointInterpolation(unsigned int index) const;
-    
+
     /**
      * Gets the values and in/out tangent value at a spedified point.
      *

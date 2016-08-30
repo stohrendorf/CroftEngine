@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 
+struct SkeletonKeyFrames;
 class EffectHandler;
 
 namespace level
@@ -109,7 +110,7 @@ namespace level
         std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> createMaterials(const std::vector<gameplay::Texture::Sampler*>& textures);
         engine::LaraController* createItems(irr::scene::ISceneManager* mgr, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures);
         std::vector<gameplay::MeshSkin*> createSkinnedMeshes(const std::vector<gameplay::Drawable*>& staticMeshes);
-        loader::AnimatedModel::FrameRange loadAnimation(uint32_t& frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, gameplay::MeshSkin* skinnedMesh);
+        loader::AnimatedModel::FrameRange loadAnimation(SkeletonKeyFrames& keyFrames, const loader::AnimatedModel& model, const loader::Animation& trAnim, gameplay::MeshSkin* skinnedMesh);
         gameplay::Texture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;
 
         void toIrrlicht(irr::IrrlichtDevice* device);
@@ -315,7 +316,7 @@ namespace level
         static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
         static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);
 
-        void loadAnimFrame(uint32_t frameIdx, uint32_t frameOffset, const loader::AnimatedModel& model, const loader::Animation& animation, gameplay::MeshSkin* skinnedMesh, gsl::not_null<const int16_t*>& pData, gameplay::BoundingBox& bbox);
+        void loadAnimFrame(SkeletonKeyFrames& keyFrames, size_t frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gameplay::MeshSkin* skinnedMesh, gsl::not_null<const int16_t*>& pData, gameplay::BoundingBox& bbox);
 
     private:
         static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);

@@ -15,7 +15,7 @@
 namespace gameplay
 {
 
-Animation::Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, unsigned int type)
+Animation::Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, unsigned int type)
     : _controller(Game::getInstance()->getAnimationController()), _id(id), _duration(0L), _defaultClip(NULL), _clips(NULL)
 {
     createChannel(target, propertyId, keyCount, keyTimes, keyValues, type);
@@ -25,7 +25,7 @@ Animation::Animation(const char* id, AnimationTarget* target, int propertyId, un
     GP_ASSERT(getRefCount() == 1);
 }
 
-Animation::Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, unsigned int type)
+Animation::Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, unsigned int type)
     : _controller(Game::getInstance()->getAnimationController()), _id(id), _duration(0L), _defaultClip(NULL), _clips(NULL)
 {
     createChannel(target, propertyId, keyCount, keyTimes, keyValues, keyInValue, keyOutValue, type);
@@ -313,7 +313,7 @@ AnimationClip* Animation::findClip(const char* id) const
     return NULL;
 }
 
-Animation::Channel* Animation::createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, unsigned int type)
+Animation::Channel* Animation::createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, unsigned int type)
 {
     GP_ASSERT(target);
     GP_ASSERT(keyTimes);
@@ -357,7 +357,7 @@ Animation::Channel* Animation::createChannel(AnimationTarget* target, int proper
     return channel;
 }
 
-Animation::Channel* Animation::createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, unsigned int type)
+Animation::Channel* Animation::createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, unsigned int type)
 {
     GP_ASSERT(target);
     GP_ASSERT(keyTimes);
@@ -421,7 +421,7 @@ void Animation::removeChannel(Channel* channel)
         }
         else
         {
-            itr++;
+            ++itr;
         }
     }
 }

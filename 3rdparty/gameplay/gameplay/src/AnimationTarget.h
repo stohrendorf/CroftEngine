@@ -33,7 +33,7 @@ namespace gameplay
          *
          * @return The newly created animation.
          */
-        Animation* createAnimation(const char* id, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, Curve::InterpolationType type);
+        Animation* createAnimation(const char* id, int propertyId, unsigned int keyCount, const unsigned* keyTimes, const float* keyValues, Curve::InterpolationType type);
 
         /**
          * Creates an animation on this target from a set of key value and key time pairs.
@@ -49,7 +49,7 @@ namespace gameplay
          *
          * @return The newly created animation.
          */
-        Animation* createAnimation(const char* id, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, Curve::InterpolationType type);
+        Animation* createAnimation(const char* id, int propertyId, unsigned int keyCount, const unsigned* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, Curve::InterpolationType type);
 
         /**
          * Creates an animation on this target using the data from the Properties object defined at the specified URL,

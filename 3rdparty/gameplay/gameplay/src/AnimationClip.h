@@ -318,7 +318,7 @@ namespace gameplay
         /**
          * Constructor.
          */
-        AnimationClip(const char* id, Animation* animation, unsigned long startTime, unsigned long endTime);
+        AnimationClip(const std::string& id, Animation* animation, unsigned long startTime, unsigned long endTime);
 
         /**
          * Constructor.

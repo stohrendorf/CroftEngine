@@ -34,7 +34,7 @@ AnimationTarget::~AnimationTarget()
     }
 }
 
-Animation* AnimationTarget::createAnimation(const char* id, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, Curve::InterpolationType type)
+Animation* AnimationTarget::createAnimation(const char* id, int propertyId, unsigned int keyCount, const unsigned* keyTimes, const float* keyValues, Curve::InterpolationType type)
 {
     GP_ASSERT(type != Curve::BEZIER && type != Curve::HERMITE);
     GP_ASSERT(keyCount >= 1 && keyTimes && keyValues);
@@ -44,7 +44,7 @@ Animation* AnimationTarget::createAnimation(const char* id, int propertyId, unsi
     return animation;
 }
 
-Animation* AnimationTarget::createAnimation(const char* id, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, Curve::InterpolationType type)
+Animation* AnimationTarget::createAnimation(const char* id, int propertyId, unsigned int keyCount, const unsigned* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, Curve::InterpolationType type)
 {
     GP_ASSERT(keyCount >= 1 && keyTimes && keyValues && keyInValue && keyOutValue);
     Animation* animation = new Animation(id, this, propertyId, keyCount, keyTimes, keyValues, keyInValue, keyOutValue, type);

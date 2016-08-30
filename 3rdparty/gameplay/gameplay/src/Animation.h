@@ -150,12 +150,12 @@ private:
     /**
      * Constructor.
      */
-    Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, unsigned int type);
+    Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, unsigned int type);
 
     /**
      * Constructor.
      */
-    Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, unsigned int type);
+    Animation(const char* id, AnimationTarget* target, int propertyId, unsigned int keyCount, const unsigned int* keyTimes, const float* keyValues, unsigned int type);
 
     /**
      * Constructor.
@@ -195,12 +195,12 @@ private:
     /**
      * Creates a channel within this animation.
      */
-    Channel* createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, unsigned int type);
+    Channel* createChannel(AnimationTarget* target, int propertyId, unsigned keyCount, const unsigned* keyTimes, const float* keyValues, unsigned type);
 
     /**
      * Creates a channel within this animation.
      */
-    Channel* createChannel(AnimationTarget* target, int propertyId, unsigned int keyCount, unsigned int* keyTimes, float* keyValues, float* keyInValue, float* keyOutValue, unsigned int type);
+    Channel* createChannel(AnimationTarget* target, int propertyId, unsigned keyCount, const unsigned* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, unsigned type);
 
     /**
      * Adds a channel to the animation.

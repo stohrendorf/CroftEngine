@@ -8,10 +8,7 @@
 
 namespace gameplay
 {
-    extern void splitURL(const std::string& url, std::string* file, std::string* id);
-
-
-    AnimationClip::AnimationClip(const char* id, Animation* animation, unsigned long startTime, unsigned long endTime)
+    AnimationClip::AnimationClip(const std::string& id, Animation* animation, unsigned long startTime, unsigned long endTime)
         : _id(id)
         , _animation(animation)
         , _startTime(startTime)

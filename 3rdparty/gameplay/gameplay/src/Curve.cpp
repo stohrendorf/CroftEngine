@@ -22,7 +22,7 @@ using std::strcmp;
 #define MATH_PI 3.14159265358979323846f
 #endif
 
-#ifndef MATH_PIOVER2 
+#ifndef MATH_PIOVER2
 #define MATH_PIOVER2 1.57079632679489661923f
 #endif
 
@@ -157,23 +157,23 @@ Curve::InterpolationType Curve::getPointInterpolation(unsigned int index) const
 void Curve::getPointValues(unsigned int index, float* value, float* inValue, float* outValue) const
 {
     assert(index < _pointCount);
-    
+
     if (value)
         memcpy(value, _points[index].value, _componentSize);
-    
+
     if (inValue)
         memcpy(inValue, _points[index].inValue, _componentSize);
-    
+
     if (outValue)
         memcpy(outValue, _points[index].outValue, _componentSize);
 }
 
-void Curve::setPoint(unsigned int index, float time, float* value, InterpolationType type)
+void Curve::setPoint(unsigned int index, float time, const float* value, InterpolationType type)
 {
     setPoint(index, time, value, type, NULL, NULL);
 }
 
-void Curve::setPoint(unsigned int index, float time, float* value, InterpolationType type, float* inValue, float* outValue)
+void Curve::setPoint(unsigned int index, float time, const float* value, InterpolationType type, const float* inValue, const float* outValue)
 {
     assert(index < _pointCount && time >= 0.0f && time <= 1.0f && !(_pointCount > 1 && index == 0 && time != 0.0f) && !(_pointCount != 1 && index == _pointCount - 1 && time != 1.0f));
 
@@ -313,7 +313,7 @@ void Curve::evaluate(float time, float startTime, float endTime, float loopBlend
             {
                 c0 = (_points + index - 1);
             }
-            
+
             if (index == _pointCount - 2)
             {
                 c1 = to;
@@ -839,7 +839,7 @@ void Curve::setQuaternionOffset(unsigned int offset)
 
     if (!_quaternionOffset)
         _quaternionOffset = new unsigned int[1];
-    
+
     *_quaternionOffset = offset;
 }
 
@@ -885,7 +885,7 @@ void Curve::interpolateBezier(float s, Point* from, Point* to, float* dst) const
         // Handle quaternion component.
         float interpTime = bezier(eq1, eq2, eq3, eq4, from->time, outValue[i], to->time, inValue[i]);
         interpolateQuaternion(interpTime, (fromValue + i), (toValue + i), (dst + i));
-        
+
         // Handle remaining components (if any) as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -898,7 +898,7 @@ void Curve::interpolateBezier(float s, Point* from, Point* to, float* dst) const
 }
 
 void Curve::interpolateBSpline(float s, Point* c0, Point* c1, Point* c2, Point* c3, float* dst) const
-{   
+{
     float s_2 = s * s;
     float s_3 = s_2 * s;
     float eq0 = (-s_3 + 3 * s_2 - 3 * s + 1) / 6.0f;
@@ -939,11 +939,11 @@ void Curve::interpolateBSpline(float s, Point* c0, Point* c1, Point* c2, Point* 
         if (c0->time == c1->time)
             interpTime = bspline(eq0, eq1, eq2, eq3, -c0->time, c1->time, c2->time, c3->time);
         else if (c2->time == c3->time)
-            interpTime = bspline(eq0, eq1, eq2, eq3, c0->time, c1->time, c2->time, -c3->time); 
+            interpTime = bspline(eq0, eq1, eq2, eq3, c0->time, c1->time, c2->time, -c3->time);
         else
             interpTime = bspline(eq0, eq1, eq2, eq3, c0->time, c1->time, c2->time, c3->time);
         interpolateQuaternion(s, (c1Value + i) , (c2Value + i), (dst + i));
-            
+
         // Handle remaining components (if any) as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -996,7 +996,7 @@ void Curve::interpolateHermite(float s, Point* from, Point* to, float* dst) cons
         // Handle quaternion component.
         float interpTime = hermite(h00, h01, h10, h11, from->time, outValue[i], to->time, inValue[i]);
         interpolateQuaternion(interpTime, (fromValue + i), (toValue + i), (dst + i));
-        
+
         // Handle remaining components (if any) as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -1045,7 +1045,7 @@ void Curve::interpolateHermiteFlat(float s, Point* from, Point* to, float* dst) 
         // Handle quaternion component.
         float interpTime = hermiteFlat(h00, h01, from->time, to->time);
         interpolateQuaternion(interpTime, (fromValue + i), (toValue + i), (dst + i));
-        
+
         // Handle remaining components (if any) as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -1111,13 +1111,13 @@ void Curve::interpolateHermiteSmooth(float s, unsigned int index, Point* from, P
         unsigned int quaternionOffset = *_quaternionOffset;
         unsigned int i = 0;
         for (i = 0; i < quaternionOffset; i++)
-        {   
+        {
             if (fromValue[i] == toValue[i])
             {
                 dst[i] = fromValue[i];
             }
             else
-            {    
+            {
                 if (index == 0)
                 {
                     outValue = toValue[i] - fromValue[i];
@@ -1161,7 +1161,7 @@ void Curve::interpolateHermiteSmooth(float s, unsigned int index, Point* from, P
 
         float interpTime = hermiteSmooth(h00, h01, h10, h11, from->time, outValue, to->time, inValue);
         interpolateQuaternion(interpTime, (fromValue + i), (toValue + i), (dst + i));
-        
+
         // Handle remaining components (if any) as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -1226,7 +1226,7 @@ void Curve::interpolateLinear(float s, Point* from, Point* to, float* dst) const
 
         // Handle quaternion component.
         interpolateQuaternion(s, (fromValue + i), (toValue + i), (dst + i));
-        
+
         // handle any remaining components as scalars
         for (i += 4; i < _componentCount; i++)
         {
@@ -1252,7 +1252,7 @@ int Curve::determineIndex(float time, unsigned int min, unsigned int max) const
     unsigned int mid;
 
     // Do a binary search to determine the index.
-    do 
+    do
     {
         mid = (min + max) >> 1;
 
@@ -1263,7 +1263,7 @@ int Curve::determineIndex(float time, unsigned int min, unsigned int max) const
         else
             min = mid + 1;
     } while (min <= max);
-    
+
     return max;
 }
 
