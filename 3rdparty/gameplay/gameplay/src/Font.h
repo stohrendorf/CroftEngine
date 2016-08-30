@@ -119,7 +119,7 @@ public:
      * @param size The size to draw text (0 for default size).
      * @param rightToLeft Whether to draw text from right to left.
      */
-    void drawText(const char* text, int x, int y, float red, float green, float blue, float alpha, unsigned int size = 0,
+    void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size = 0,
                   bool rightToLeft = false);
 
     /**
@@ -135,7 +135,7 @@ public:
      * @param rightToLeft Whether to draw text from right to left.
      * @param clip A region to clip text within after applying justification to the viewport area.
      */
-    void drawText(const char* text, const Rectangle& area, const Vector4& color, unsigned int size = 0,
+    void drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size = 0,
                   Justify justify = ALIGN_TOP_LEFT, bool wrap = true, bool rightToLeft = false,
                   const Rectangle& clip = Rectangle(0, 0, 0, 0));
 

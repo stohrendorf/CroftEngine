@@ -480,7 +480,7 @@ namespace gameplay
                 if( (_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
                 {
                     // This parameter was not found in the specified effect, so do nothing.
-                    GP_WARN("Material parameter for uniform '%s' not found in effect: '%s'.", _name.c_str(), effect->getId());
+                    GP_WARN("Material parameter for uniform '%s' not found in effect: '%s'.", _name.c_str(), effect->getId().c_str());
                     _loggerDirtyBits |= UNIFORM_NOT_FOUND;
                 }
                 return;
@@ -527,7 +527,7 @@ namespace gameplay
             {
                 if( (_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
                 {
-                    GP_WARN("Material parameter value not set for: '%s' in effect: '%s'.", _name.c_str(), effect->getId());
+                    GP_WARN("Material parameter value not set for: '%s' in effect: '%s'.", _name.c_str(), effect->getId().c_str());
                     _loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
                 }
                 break;

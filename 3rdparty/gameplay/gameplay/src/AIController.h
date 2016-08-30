@@ -40,7 +40,7 @@ namespace gameplay
          *
          * @return The first agent matching the specified ID, or NULL if no matching agent could be found.
          */
-        AIAgent* findAgent(const char* id) const;
+        AIAgent* findAgent(const std::string& id) const;
 
     private:
 
@@ -89,7 +89,7 @@ namespace gameplay
          *
          * @param elapsedTime The elapsed time, in milliseconds.
          */
-        void update(float elapsedTime);
+        void update(const std::chrono::microseconds& elapsedTime);
 
         void addAgent(AIAgent* agent);
 

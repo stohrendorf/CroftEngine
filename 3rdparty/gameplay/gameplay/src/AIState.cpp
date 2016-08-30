@@ -53,7 +53,7 @@ namespace gameplay
     }
 
 
-    void AIState::update(AIStateMachine* stateMachine, float elapsedTime)
+    void AIState::update(AIStateMachine* stateMachine, const std::chrono::microseconds& elapsedTime)
     {
         if( _listener )
             _listener->stateUpdate(stateMachine->getAgent(), this, elapsedTime);
@@ -75,7 +75,7 @@ namespace gameplay
     }
 
 
-    void AIState::Listener::stateUpdate(AIAgent* agent, AIState* state, float elapsedTime)
+    void AIState::Listener::stateUpdate(AIAgent* agent, AIState* state, const std::chrono::microseconds& elapsedTime)
     {
     }
 }

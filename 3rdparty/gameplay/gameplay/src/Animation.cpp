@@ -111,34 +111,17 @@ Curve* Animation::Channel::getCurve() const
     return _curve;
 }
 
-const char* Animation::getId() const
+const std::string& Animation::getId() const
 {
-    return _id.c_str();
+    return _id;
 }
 
-unsigned long Animation::getDuration() const
+std::chrono::microseconds Animation::getDuration() const
 {
     return _duration;
 }
 
-void Animation::createClips(const char* url)
-{
-    Properties* properties = Properties::create(url);
-    GP_ASSERT(properties);
-
-    Properties* pAnimation = (strlen(properties->getNamespace()) > 0) ? properties : properties->getNextNamespace();
-    GP_ASSERT(pAnimation);
-
-    int frameCount = pAnimation->getInt("frameCount");
-    if (frameCount <= 0)
-        GP_ERROR("The animation's frame count must be greater than 0.");
-
-    createClips(pAnimation, (unsigned int)frameCount);
-
-    SAFE_DELETE(properties);
-}
-
-AnimationClip* Animation::createClip(const char* id, unsigned long begin, unsigned long end)
+AnimationClip* Animation::createClip(const char* id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end)
 {
     AnimationClip* clip = new AnimationClip(id, this, begin, end);
     addClip(clip);
@@ -241,49 +224,7 @@ bool Animation::targets(AnimationTarget* target) const
 
 void Animation::createDefaultClip()
 {
-    _defaultClip = new AnimationClip("default_clip", this, 0.0f, _duration);
-}
-
-void Animation::createClips(Properties* animationProperties, unsigned int frameCount)
-{
-    GP_ASSERT(animationProperties);
-
-    Properties* pClip = animationProperties->getNextNamespace();
-
-    while (pClip != NULL && std::strcmp(pClip->getNamespace(), "clip") == 0)
-    {
-        int begin = pClip->getInt("begin");
-        int end = pClip->getInt("end");
-
-        AnimationClip* clip = createClip(pClip->getId(), ((float)begin / frameCount) * _duration, ((float)end / frameCount) * _duration);
-
-        const char* repeat = pClip->getString("repeatCount");
-        if (repeat)
-        {
-            if (strcmp(repeat, ANIMATION_INDEFINITE_STR) == 0)
-            {
-                clip->setRepeatCount(AnimationClip::REPEAT_INDEFINITE);
-            }
-            else
-            {
-                float value;
-                sscanf(repeat, "%f", &value);
-                clip->setRepeatCount(value);
-            }
-        }
-
-        const char* speed = pClip->getString("speed");
-        if (speed)
-        {
-            float value;
-            sscanf(speed, "%f", &value);
-            clip->setSpeed(value);
-        }
-
-        clip->setLoopBlendTime(pClip->getFloat("loopBlendTime")); // returns zero if not specified
-
-        pClip = animationProperties->getNextNamespace();
-    }
+    _defaultClip = new AnimationClip("default_clip", this, std::chrono::microseconds::zero(), _duration);
 }
 
 void Animation::addClip(AnimationClip* clip)

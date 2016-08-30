@@ -93,7 +93,7 @@ namespace gameplay
         /**
          * Callback for when the controller receives a frame update event.
          */
-        void update(float elapsedTime);
+        void update(const std::chrono::microseconds& elapsedTime);
 
         State _state; // The current state of the AnimationController.
         std::list<AnimationClip*> _runningClips; // A list of running AnimationClips.

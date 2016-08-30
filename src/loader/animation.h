@@ -159,43 +159,29 @@ namespace loader
         */
         struct FrameRange
         {
-            //! The first real frame in the linearized animation this range describes
-            const uint32_t offset;
-            //! The first frame of the source animation frame range
-            const uint32_t firstFrame;
-            //! The last frame of the source animation frame range
-            const uint32_t lastFrame;
             const std::map<uint32_t, gameplay::BoundingBox> bboxes;
-            const gsl::not_null<gameplay::AnimationClip*> animation;
+            const gsl::not_null<gameplay::AnimationClip*> clip;
 
-            FrameRange(uint32_t o, uint32_t f, uint32_t l, std::map<uint32_t, gameplay::BoundingBox>&& bb, const gsl::not_null<gameplay::AnimationClip*>& anim)
-                : offset(o)
-                , firstFrame(f)
-                , lastFrame(l)
-                , bboxes(std::move(bb))
-                , animation(anim)
+            FrameRange(std::map<uint32_t, gameplay::BoundingBox>&& bb, const gsl::not_null<gameplay::AnimationClip*>& anim)
+                : bboxes(std::move(bb))
+                , clip(anim)
             {
-                BOOST_ASSERT(firstFrame <= lastFrame);
                 BOOST_ASSERT(!bboxes.empty());
             }
 
             void apply(gameplay::AnimationController& ctrl, uint32_t localFrame) const
             {
-                BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
+                BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
 
-                const auto realOffset = offset + (localFrame - firstFrame);
-                const auto realFirst = offset;
-                const auto realLast = offset + lastFrame - firstFrame;
 
-                BOOST_ASSERT(realFirst <= realLast);
                 ctrl.stopAllAnimations();
-                animation->play(gsl::narrow_cast<double>(realOffset) / core::FrameRate);
+                clip->getAnimation();
+                clip->play(gsl::narrow_cast<double>(localFrame - getFirstFrame()) / core::FrameRate);
             }
 
             gameplay::BoundingBox getBoundingBox(uint32_t localFrame) const
             {
-                BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
-                localFrame -= firstFrame;
+                BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
                 auto it = bboxes.lower_bound(localFrame);
                 if( it == bboxes.end() )
                     return std::prev(it)->second;
@@ -209,9 +195,18 @@ namespace loader
                 BOOST_ASSERT(dist > 0);
                 auto lambda = float(localFrame - before->first) / dist;
 
-                // aabbox's getInterpolated does wrong rounding for ints, so we need to do it manually
                 gameplay::BoundingBox interp(before->second.min.lerp(it->second.min, lambda), before->second.max.lerp(it->second.max, lambda));
                 return interp;
+            }
+
+            uint32_t getFirstFrame() const
+            {
+                return clip->getStartTime() / core::FrameRate;
+            }
+
+            uint32_t getLastFrame() const
+            {
+                return clip->getEndTime() / core::FrameRate;
             }
         };
 

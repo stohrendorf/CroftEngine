@@ -35,23 +35,14 @@ public:
      *
      * @return The Animation's ID.
      */
-    const char* getId() const;
+    const std::string& getId() const;
 
     /**
      * Gets the Animation's duration.
      *
      * @return The Animation's duration (in milliseconds).
      */
-    unsigned long getDuration() const;
-
-    /**
-     * Creates an AnimationClip from the Properties object defined at the specified URL,
-     * where the URL is of the format "<file-path>.<extension>#<namespace-id>/<namespace-id>/.../<namespace-id>"
-     * (and "#<namespace-id>/<namespace-id>/.../<namespace-id>" is optional).
-     *
-     * @param url The URL pointing to the Properties object containing the clip definitions.
-     */
-    void createClips(const char* url);
+    std::chrono::microseconds getDuration() const;
 
     /**
      * Creates an AnimationClip from the Animation.
@@ -63,7 +54,7 @@ public:
      * @return The newly created AnimationClip; NULL if an AnimationClip already exists with the same ID.
      * @script{create}
      */
-    AnimationClip* createClip(const char* id, unsigned long begin, unsigned long end);
+    AnimationClip* createClip(const char* id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end);
 
     /**
      * Finds the AnimationClip with the specified name. If NULL, gets the default clip.
@@ -139,7 +130,7 @@ private:
         AnimationTarget* _target;             // The target of this channel.
         int _propertyId;                      // The target property this channel targets.
         Curve* _curve;                        // The curve used to represent the animation data.
-        unsigned long _duration;              // The length of the animation (in milliseconds).
+        std::chrono::microseconds _duration;              // The length of the animation (in milliseconds).
     };
 
     /**
@@ -178,11 +169,6 @@ private:
     void createDefaultClip();
 
     /**
-     * Creates AnimationClip's for this Animation from the specified Property object.
-     */
-    void createClips(Properties* animationProperties, unsigned int frameCount);
-
-    /**
      * Adds a clip to this Animation.
      */
     void addClip(AnimationClip* clip);
@@ -219,7 +205,7 @@ private:
 
     AnimationController* _controller;       // The AnimationController that this Animation will run on.
     std::string _id;                        // The Animation's ID.
-    unsigned long _duration;                // the length of the animation (in milliseconds).
+    std::chrono::microseconds _duration;                // the length of the animation (in milliseconds).
     std::vector<Channel*> _channels;        // The channels within this Animation.
     AnimationClip* _defaultClip;            // The Animation's default clip.
     std::vector<AnimationClip*>* _clips;    // All the clips created from this Animation.

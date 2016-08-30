@@ -76,7 +76,7 @@ namespace gameplay
          *
          * @return The identifier for the agent.
          */
-        const char* getId() const;
+        const std::string& getId() const;
 
         /**
          * Returns the Node this AIAgent is assigned to.
@@ -163,7 +163,7 @@ namespace gameplay
         /**
          * Called once per frame by the AIController to update the agent.
          */
-        void update(float elapsedTime);
+        void update(const std::chrono::microseconds& elapsedTime);
 
         AIStateMachine* _stateMachine;
         Node* _node;

@@ -330,14 +330,13 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
     }
 }
 
-void Font::drawText(const char* text, int x, int y, float red, float green, float blue, float alpha, unsigned int size, bool rightToLeft)
+void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size, bool rightToLeft)
 {
-    drawText(text, x, y, Vector4(red, green, blue, alpha), size, rightToLeft);
+    drawText(text.c_str(), x, y, Vector4(red, green, blue, alpha), size, rightToLeft);
 }
 
-void Font::drawText(const char* text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, bool rightToLeft, const Rectangle& clip)
+void Font::drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, bool rightToLeft, const Rectangle& clip)
 {
-    GP_ASSERT(text);
     GP_ASSERT(_size);
 
     if (size == 0)
@@ -364,7 +363,7 @@ void Font::drawText(const char* text, const Rectangle& area, const Vector4& colo
     std::vector<int> xPositions;
     std::vector<unsigned int> lineLengths;
 
-    getMeasurementInfo(text, area, size, justify, wrap, rightToLeft, &xPositions, &yPos, &lineLengths);
+    getMeasurementInfo(text.c_str(), area, size, justify, wrap, rightToLeft, &xPositions, &yPos, &lineLengths);
 
     // Now we have the info we need in order to render.
     int xPos = area.x;
@@ -374,7 +373,7 @@ void Font::drawText(const char* text, const Rectangle& area, const Vector4& colo
         xPos = *xPositionsIt++;
     }
 
-    const char* token = text;
+    const char* token = text.c_str();
     int iteration = 1;
     unsigned int lineLength;
     unsigned int currentLineLength = 0;
@@ -403,7 +402,7 @@ void Font::drawText(const char* text, const Rectangle& area, const Vector4& colo
         unsigned int startIndex;
         if (rightToLeft)
         {
-            tokenLength = getReversedTokenLength(token, text);
+            tokenLength = getReversedTokenLength(token, text.c_str());
             currentLineLength += tokenLength;
             token -= (tokenLength - 1);
             tokenWidth = getTokenWidth(token, tokenLength, size, scale);
@@ -703,7 +702,7 @@ void Font::measureText(const char* text, const Rectangle& clip, unsigned int siz
                         {
                             // Record the existence of an empty line.
                             emptyLines.push_back(true);
-                            lines.push_back(Vector2(FLT_MAX, 0));
+                            lines.push_back(Vector2(std::numeric_limits<float>::max(), 0));
                         }
 
                         lineWidth = 0;
@@ -791,7 +790,7 @@ void Font::measureText(const char* text, const Rectangle& clip, unsigned int siz
                     // Record the existence of an empty line.
                     ++emptyLinesCount;
                     emptyLines.push_back(true);
-                    lines.push_back(Vector2(FLT_MAX, 0));
+                    lines.push_back(Vector2(std::numeric_limits<float>::max(), 0));
                 }
 
                 token++;
@@ -839,7 +838,7 @@ void Font::measureText(const char* text, const Rectangle& clip, unsigned int siz
         lines.push_back(Vector2(xPos, lineWidth));
     }
 
-    int x = INT_MAX;
+    int x = std::numeric_limits<int>::max();
     int y = clip.y;
     unsigned int width = 0;
     int height = yPos - clip.y;

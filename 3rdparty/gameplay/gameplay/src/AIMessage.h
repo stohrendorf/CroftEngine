@@ -50,7 +50,7 @@ namespace gameplay
          *
          * @return A new AIMessage.
          */
-        static AIMessage* create(unsigned int id, const char* sender, const char* receiver, unsigned int parameterCount);
+        static AIMessage* create(unsigned int id, const std::string& sender, const std::string& receiver, unsigned int parameterCount);
 
         /**
          * Destroys an AIMessage.
@@ -266,14 +266,14 @@ namespace gameplay
          *
          * @return The delivery time for the message, or zero if the message is not currently scheduled to be delivered.
          */
-        double getDeliveryTime() const;
+        std::chrono::microseconds getDeliveryTime() const;
 
         void clearParameter(unsigned int index);
 
         unsigned int _id;
         std::string _sender;
         std::string _receiver;
-        double _deliveryTime;
+        std::chrono::microseconds _deliveryTime;
         Parameter* _parameters;
         unsigned int _parameterCount;
         MessageType _messageType;

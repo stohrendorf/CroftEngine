@@ -15,8 +15,9 @@
 
 namespace gameplay
 {
-    Node::Node(const char* id)
+    Node::Node(const std::string& id)
         : _scene(nullptr)
+        , _id(id)
         , _firstChild(nullptr)
         , _nextSibling(nullptr)
         , _prevSibling(nullptr)
@@ -31,10 +32,6 @@ namespace gameplay
         , _userObject(nullptr)
         , _dirtyBits(NODE_DIRTY_ALL)
     {
-        if( id )
-        {
-            _id = id;
-        }
     }
 
 
@@ -59,18 +56,15 @@ namespace gameplay
     }
 
 
-    const char* Node::getId() const
+    const std::string& Node::getId() const
     {
-        return _id.c_str();
+        return _id;
     }
 
 
-    void Node::setId(const char* id)
+    void Node::setId(const std::string& id)
     {
-        if( id )
-        {
-            _id = id;
-        }
+        _id = id;
     }
 
 
@@ -705,7 +699,7 @@ namespace gameplay
 
     Animation* Node::getAnimation(const char* id) const
     {
-        Animation* animation = ((AnimationTarget*)this)->getAnimation(id);
+        Animation* animation = AnimationTarget::getAnimation(id);
         if( animation )
             return animation;
 

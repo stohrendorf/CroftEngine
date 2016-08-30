@@ -148,7 +148,7 @@ private:
     /**
      * Called by AIController to update the state machine each frame.
      */
-    void update(float elapsedTime);
+    void update(const std::chrono::microseconds& elapsedTime);
 
     AIAgent* _agent;
     AIState* _currentState;

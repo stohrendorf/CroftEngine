@@ -459,6 +459,8 @@ namespace gameplay
          * @return True if this vector is not equal to the given vector, false otherwise.
          */
         inline bool operator!=(const Vector3& v) const;
+
+        inline Vector3 lerp(const Vector3& b, float lambda) const;
     };
 
 
@@ -556,6 +558,10 @@ namespace gameplay
         return x != v.x || y != v.y || z != v.z;
     }
 
+    Vector3 Vector3::lerp(const Vector3& b, float lambda) const
+    {
+        return *this * lambda + (1-lambda) * b;
+    }
 
     inline Vector3 operator*(float x, const Vector3& v)
     {

@@ -582,9 +582,9 @@ struct BoneKeyFrames
 
 struct SkeletonKeyFrames
 {
-    std::vector<BoneKeyFrames> bones;
+    std::map<BoneKeyFrames> bones;
     std::vector<unsigned int> times;
-
+    std::map<uint32_t, std::map<uint32_t, gameplay::BoundingBox>> bboxes;
 
     std::vector<gameplay::Animation*> createAnims() const
     {
@@ -615,7 +615,7 @@ struct SkeletonKeyFrames
 };
 
 
-void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, size_t frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gameplay::MeshSkin* skinnedMesh, gsl::not_null<const int16_t*>& pData, gameplay::BoundingBox& bbox)
+void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, uint32_t frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData)
 {
     uint16_t angleSetOfs = 10;
 
@@ -624,8 +624,11 @@ void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, size_t frameIdx, const l
         gameplay::Vector3 pos;
         if( meshIdx == 0 )
         {
+            gameplay::BoundingBox bbox;
             bbox.min = {pData[0], pData[2], pData[4]};
             bbox.max = {pData[1], pData[3], pData[5]};
+            keyFrames.bboxes[animId][frameIdx].emplace_back(bbox);
+
             pos.set(pData[6], static_cast<float>(-pData[7]), pData[8]);
         }
         else
@@ -653,20 +656,15 @@ void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, size_t frameIdx, const l
 }
 
 
-loader::AnimatedModel::FrameRange Level::loadAnimation(SkeletonKeyFrames& keyFrames, const loader::AnimatedModel& model, const loader::Animation& trAnim, gameplay::MeshSkin* skinnedMesh)
+void Level::loadAnimation(SkeletonKeyFrames& keyFrames, uint32_t animId, const loader::AnimatedModel& model, const loader::Animation& trAnim)
 {
     BOOST_ASSERT(trAnim.poseDataOffset % 2 == 0);
 
-    std::map<uint32_t, gameplay::BoundingBox> bboxes;
     gsl::not_null<const int16_t*> pData = &m_poseData[trAnim.poseDataOffset / 2];
     for( uint32_t i = trAnim.firstFrame; i <= trAnim.lastFrame; i += trAnim.stretchFactor )
     {
-        gameplay::BoundingBox bbox;
-        loadAnimFrame(keyFrames, i, model, trAnim, skinnedMesh, pData, bbox);
-        bboxes.insert(std::make_pair(i, bbox));
+        loadAnimFrame(keyFrames, animId, i, model, trAnim, pData);
     }
-
-    return loader::AnimatedModel::FrameRange{frameId, trAnim.firstFrame, trAnim.lastFrame, std::move(bboxes), clip};
 }
 
 
@@ -788,16 +786,26 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
         if( currentAnimIt == animStarts.end() )
             continue;
 
-        uint32_t currentAnimOffset = 0;
         const auto nextAnimIdx = *std::next(currentAnimIt);
 
+        SkeletonKeyFrames keyFrames;
         for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
         {
             if( currentAnimIdx >= m_animations.size() )
                 continue;
 
             const loader::Animation& animation = m_animations[currentAnimIdx];
-            model->frameMapping.emplace(std::make_pair(currentAnimIdx, loadAnimation(currentAnimOffset, *model, animation, skinnedMesh)));
+            loadAnimation(keyFrames, currentAnimIdx, *model, animation);
+        }
+
+        auto anims = keyFrames.createAnims();
+
+        for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
+        {
+            if( currentAnimIdx >= m_animations.size() )
+                continue;
+
+            model->frameMapping.emplace(std::make_pair(currentAnimIdx, loader::AnimatedModel::FrameRange{keyFrames.bboxes[currentAnimIdx], anims[currentAnimIdx]}));
         }
 
 #ifndef NDEBUG

@@ -135,7 +135,7 @@ void AIStateMachine::setStateInternal(AIState* state)
     _currentState->enter(this);
 }
 
-void AIStateMachine::update(float elapsedTime)
+void AIStateMachine::update(const std::chrono::microseconds& elapsedTime)
 {
     _currentState->update(this, elapsedTime);
 }

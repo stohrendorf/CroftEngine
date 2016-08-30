@@ -12,8 +12,8 @@ GLenum __gl_error_code = GL_NO_ERROR;
 namespace gameplay
 {
     static Game* __gameInstance = nullptr;
-    double Game::_pausedTimeLast = 0.0;
-    double Game::_pausedTimeTotal = 0.0;
+    std::chrono::microseconds Game::_pausedTimeLast = std::chrono::microseconds::zero();
+    std::chrono::microseconds Game::_pausedTimeTotal = std::chrono::microseconds::zero();
 
 
     Game::Game()
@@ -72,25 +72,25 @@ namespace gameplay
     }
 
 
-    void Game::update(float elapsedTime)
+    void Game::update(const std::chrono::microseconds& elapsedTime)
     {
         // stub
     }
 
 
-    void Game::render(float elapsedTime)
+    void Game::render(const std::chrono::microseconds& elapsedTime)
     {
         // stub
     }
 
 
-    double Game::getAbsoluteTime()
+    std::chrono::microseconds Game::getAbsoluteTime()
     {
         return Platform::getAbsoluteTime();
     }
 
 
-    double Game::getGameTime()
+    std::chrono::microseconds Game::getGameTime()
     {
         return Platform::getAbsoluteTime() - _pausedTimeTotal;
     }
@@ -248,8 +248,8 @@ namespace gameplay
             _initialized = true;
         }
 
-        static double lastFrameTime = Game::getGameTime();
-        double frameTime = getGameTime();
+        static std::chrono::microseconds lastFrameTime = Game::getGameTime();
+        std::chrono::microseconds frameTime = getGameTime();
 
         // Fire time events to scheduled TimeListeners
         fireTimeEvents(frameTime);
@@ -260,7 +260,7 @@ namespace gameplay
             GP_ASSERT(_aiController);
 
             // Update Time.
-            float elapsedTime = (frameTime - lastFrameTime);
+            std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
             lastFrameTime = frameTime;
 
             // Update the scheduled and running animations.
@@ -277,7 +277,7 @@ namespace gameplay
 
             // Update FPS.
             ++_frameCount;
-            if( (Game::getGameTime() - _frameLastFPS) >= 1000 )
+            if( (Game::getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
             {
                 _frameRate = _frameCount;
                 _frameCount = 0;
@@ -287,10 +287,10 @@ namespace gameplay
         else if( _state == Game::PAUSED )
         {
             // Application Update.
-            update(0);
+            update(std::chrono::microseconds::zero());
 
             // Graphics Rendering.
-            render(0);
+            render(std::chrono::microseconds::zero());
         }
     }
 
@@ -307,9 +307,9 @@ namespace gameplay
         GP_ASSERT(_aiController);
 
         // Update Time.
-        static double lastFrameTime = getGameTime();
-        double frameTime = getGameTime();
-        float elapsedTime = (frameTime - lastFrameTime);
+        static std::chrono::microseconds lastFrameTime = getGameTime();
+        std::chrono::microseconds frameTime = getGameTime();
+        std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
         lastFrameTime = frameTime;
 
         // Update the internal controllers.
@@ -387,7 +387,7 @@ namespace gameplay
     }
 
 
-    void Game::schedule(float timeOffset, TimeListener* timeListener, void* cookie)
+    void Game::schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie)
     {
         GP_ASSERT(_timeEvents);
         TimeEvent timeEvent(getGameTime() + timeOffset, timeListener, cookie);
@@ -402,7 +402,7 @@ namespace gameplay
     }
 
 
-    void Game::fireTimeEvents(double frameTime)
+    void Game::fireTimeEvents(const std::chrono::microseconds& frameTime)
     {
         while( _timeEvents->size() > 0 )
         {
@@ -420,7 +420,7 @@ namespace gameplay
     }
 
 
-    Game::TimeEvent::TimeEvent(double time, TimeListener* timeListener, void* cookie)
+    Game::TimeEvent::TimeEvent(const std::chrono::microseconds& time, TimeListener* timeListener, void* cookie)
         : time(time)
         , listener(timeListener)
         , cookie(cookie)
@@ -469,7 +469,7 @@ namespace gameplay
     }
 
 
-    void Game::ShutdownListener::timeEvent(long timeDiff, void* cookie)
+    void Game::ShutdownListener::timeEvent(const std::chrono::microseconds& timeDiff, void* cookie)
     {
         Game::getInstance()->shutdown();
     }

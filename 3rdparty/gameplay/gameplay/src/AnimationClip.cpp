@@ -8,7 +8,7 @@
 
 namespace gameplay
 {
-    AnimationClip::AnimationClip(const std::string& id, Animation* animation, unsigned long startTime, unsigned long endTime)
+    AnimationClip::AnimationClip(const std::string& id, Animation* animation, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime)
         : _id(id)
         , _animation(animation)
         , _startTime(startTime)
@@ -16,14 +16,14 @@ namespace gameplay
         , _duration(_endTime - _startTime)
         , _stateBits(0x00)
         , _repeatCount(1.0f)
-        , _loopBlendTime(0)
-        , _activeDuration(_duration * _repeatCount)
+        , _loopBlendTime(std::chrono::microseconds::zero())
+        , _activeDuration(std::chrono::duration_cast<std::chrono::microseconds>( _duration * _repeatCount ))
         , _speed(1.0f)
-        , _timeStarted(0)
-        , _elapsedTime(0)
+        , _timeStarted(std::chrono::microseconds::zero())
+        , _elapsedTime(std::chrono::microseconds::zero())
         , _crossFadeToClip(nullptr)
-        , _crossFadeOutElapsed(0)
-        , _crossFadeOutDuration(0)
+        , _crossFadeOutElapsed(std::chrono::microseconds::zero())
+        , _crossFadeOutDuration(std::chrono::microseconds::zero())
         , _blendWeight(1.0f)
         , _beginListeners(nullptr)
         , _endListeners(nullptr)
@@ -31,7 +31,7 @@ namespace gameplay
         , _listenerItr(nullptr)
     {
         GP_ASSERT(_animation);
-        GP_ASSERT(0 <= startTime && startTime <= _animation->_duration && 0 <= endTime && endTime <= _animation->_duration);
+        GP_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= _animation->_duration && std::chrono::microseconds::zero() <= endTime && endTime <= _animation->_duration);
 
         for( size_t i = 0, count = _animation->_channels.size(); i < count; i++ )
         {
@@ -71,7 +71,7 @@ namespace gameplay
     }
 
 
-    AnimationClip::ListenerEvent::ListenerEvent(Listener* listener, unsigned long eventTime)
+    AnimationClip::ListenerEvent::ListenerEvent(Listener* listener, const std::chrono::microseconds& eventTime)
     {
         _listener = listener;
         _eventTime = eventTime;
@@ -83,9 +83,9 @@ namespace gameplay
     }
 
 
-    const char* AnimationClip::getId() const
+    const std::string& AnimationClip::getId() const
     {
-        return _id.c_str();
+        return _id;
     }
 
 
@@ -95,19 +95,19 @@ namespace gameplay
     }
 
 
-    unsigned long AnimationClip::getStartTime() const
+    std::chrono::microseconds AnimationClip::getStartTime() const
     {
         return _startTime;
     }
 
 
-    unsigned long AnimationClip::getEndTime() const
+    std::chrono::microseconds AnimationClip::getEndTime() const
     {
         return _endTime;
     }
 
 
-    float AnimationClip::getElapsedTime() const
+    std::chrono::microseconds AnimationClip::getElapsedTime() const
     {
         return _elapsedTime;
     }
@@ -125,10 +125,10 @@ namespace gameplay
         }
         else
         {
-            _activeDuration = _duration * _repeatCount;
+            _activeDuration = std::chrono::duration_cast<std::chrono::microseconds>( _duration * _repeatCount );
 
-            if( repeatCount > 1.0f && _loopBlendTime > 0.0f )
-                _activeDuration += std::ceil(repeatCount - 1.0f) * _loopBlendTime;
+            if( repeatCount > 1.0f && _loopBlendTime > std::chrono::microseconds::zero() )
+                _activeDuration += std::chrono::duration_cast<std::chrono::microseconds>( std::ceil(repeatCount - 1.0f) * _loopBlendTime );
         }
     }
 
@@ -139,32 +139,32 @@ namespace gameplay
     }
 
 
-    void AnimationClip::setActiveDuration(unsigned long duration)
+    void AnimationClip::setActiveDuration(const std::chrono::microseconds& duration)
     {
-        GP_ASSERT(duration >= 0);
+        GP_ASSERT(duration >= std::chrono::microseconds::zero());
 
-        if( duration == REPEAT_INDEFINITE )
+        if( duration == std::chrono::microseconds::max() )
         {
             _activeDuration = _duration + _loopBlendTime;
         }
         else
         {
             _activeDuration = duration;
-            _repeatCount = (float)_activeDuration / (float)_duration;
+            _repeatCount = static_cast<float>(_activeDuration.count()) / _duration.count();
         }
     }
 
 
-    unsigned long AnimationClip::getActiveDuration() const
+    std::chrono::microseconds AnimationClip::getActiveDuration() const
     {
         if( _repeatCount == REPEAT_INDEFINITE )
-            return REPEAT_INDEFINITE;
+            return std::chrono::microseconds::max();
 
         return _activeDuration;
     }
 
 
-    unsigned long AnimationClip::getDuration() const
+    std::chrono::microseconds AnimationClip::getDuration() const
     {
         return _duration;
     }
@@ -194,20 +194,20 @@ namespace gameplay
     }
 
 
-    void AnimationClip::setLoopBlendTime(float loopBlendTime)
+    void AnimationClip::setLoopBlendTime(const std::chrono::microseconds& loopBlendTime)
     {
-        if( loopBlendTime < 0.0f )
+        if( loopBlendTime < std::chrono::microseconds::zero() )
         {
-            _loopBlendTime = 0;
+            _loopBlendTime = std::chrono::microseconds::zero();
         }
         else
         {
-            _loopBlendTime = (unsigned int)loopBlendTime;
+            _loopBlendTime = loopBlendTime;
         }
     }
 
 
-    float AnimationClip::getLoopBlendTime() const
+    std::chrono::microseconds AnimationClip::getLoopBlendTime() const
     {
         return _loopBlendTime;
     }
@@ -219,7 +219,7 @@ namespace gameplay
     }
 
 
-    void AnimationClip::play()
+    void AnimationClip::play(const std::chrono::microseconds& timeOffset)
     {
         if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
         {
@@ -245,7 +245,7 @@ namespace gameplay
             _animation->_controller->schedule(this);
         }
 
-        _timeStarted = Game::getGameTime();
+        _timeStarted = Game::getGameTime() - timeOffset;
     }
 
 
@@ -272,7 +272,7 @@ namespace gameplay
     }
 
 
-    void AnimationClip::crossFade(AnimationClip* clip, unsigned long duration)
+    void AnimationClip::crossFade(AnimationClip* clip, const std::chrono::microseconds& duration)
     {
         GP_ASSERT(clip);
 
@@ -302,7 +302,7 @@ namespace gameplay
         // Set and initialize this clip to fade out
         setClipStateBit(CLIP_IS_FADING_OUT_STARTED_BIT);
         setClipStateBit(CLIP_IS_FADING_OUT_BIT);
-        _crossFadeOutElapsed = 0.0f;
+        _crossFadeOutElapsed = std::chrono::microseconds::zero();
         _crossFadeOutDuration = duration;
 
         // If this clip is currently not playing, we should start playing it.
@@ -314,7 +314,7 @@ namespace gameplay
     }
 
 
-    void AnimationClip::addListener(AnimationClip::Listener* listener, unsigned long eventTime)
+    void AnimationClip::addListener(AnimationClip::Listener* listener, const std::chrono::microseconds& eventTime)
     {
         GP_ASSERT(listener);
         GP_ASSERT(eventTime < _activeDuration);
@@ -343,7 +343,7 @@ namespace gameplay
                     // otherwise, it will just be set the next time the clip gets played.
                     if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
                     {
-                        float currentTime = fmodf(_elapsedTime, (float)_duration);
+                        std::chrono::microseconds currentTime = _elapsedTime % _duration;
                         GP_ASSERT(**_listenerItr || *_listenerItr == _listeners->end());
                         if( (_speed >= 0.0f && currentTime < eventTime && (*_listenerItr == _listeners->end() || eventTime < (**_listenerItr)->_eventTime)) ||
                             (_speed <= 0 && currentTime > eventTime && (*_listenerItr == _listeners->begin() || eventTime > (**_listenerItr)->_eventTime)) )
@@ -359,7 +359,7 @@ namespace gameplay
     }
 
 
-    void AnimationClip::removeListener(AnimationClip::Listener* listener, unsigned long eventTime)
+    void AnimationClip::removeListener(AnimationClip::Listener* listener, const std::chrono::microseconds& eventTime)
     {
         if( _listeners )
         {
@@ -372,7 +372,7 @@ namespace gameplay
             {
                 if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
                 {
-                    float currentTime = fmodf(_elapsedTime, (float)_duration);
+                    std::chrono::microseconds currentTime = _elapsedTime % _duration;
                     GP_ASSERT(**_listenerItr || *_listenerItr == _listeners->end());
 
                     // We the listener has not been triggered yet, then check if it is next to be triggered, remove it, and update the iterator
@@ -437,7 +437,7 @@ namespace gameplay
     }
 
 
-    bool AnimationClip::update(float elapsedTime)
+    bool AnimationClip::update(const std::chrono::microseconds& elapsedTime)
     {
         if( isClipStateBitSet(CLIP_IS_PAUSED_BIT) )
         {
@@ -461,9 +461,9 @@ namespace gameplay
         else
         {
             // Clip was already running
-            _elapsedTime += elapsedTime * _speed;
+            _elapsedTime += std::chrono::duration_cast<std::chrono::microseconds>( elapsedTime * _speed );
 
-            if( _repeatCount == REPEAT_INDEFINITE && _elapsedTime <= 0 )
+            if( _repeatCount == REPEAT_INDEFINITE && _elapsedTime <= std::chrono::microseconds::zero() )
             {
                 // Elapsed time is moving backwards, so wrap it back around the end when it falls below zero
                 _elapsedTime = _activeDuration + _elapsedTime;
@@ -473,28 +473,28 @@ namespace gameplay
         }
 
         // Current time within a loop of the clip
-        float currentTime = 0.0f;
+        std::chrono::microseconds currentTime = std::chrono::microseconds::zero();
 
         // Check to see if clip is complete.
-        if( _repeatCount != REPEAT_INDEFINITE && ((_speed >= 0.0f && _elapsedTime >= _activeDuration) || (_speed <= 0.0f && _elapsedTime <= 0.0f)) )
+        if( _repeatCount != REPEAT_INDEFINITE && ((_speed >= 0.0f && _elapsedTime >= _activeDuration) || (_speed <= 0.0f && _elapsedTime <= std::chrono::microseconds::zero())) )
         {
             // We finished our active duration (including repeats), so clamp to our end value.
             resetClipStateBit(CLIP_IS_STARTED_BIT);
 
             // Ensure we end off at the endpoints of our clip (-speed==0, +speed==_duration)
-            currentTime = _speed < 0.0f ? 0.0f : _duration;
+            currentTime = _speed < 0.0f ? std::chrono::microseconds::zero() : _duration;
         }
         else
         {
             // If _duration == 0, we have a "pose". Just set currentTime to 0.
-            if( _duration == 0 )
+            if( _duration == std::chrono::microseconds::zero() )
             {
-                currentTime = 0.0f;
+                currentTime = std::chrono::microseconds::zero();
             }
             else
             {
                 // Animation is running normally.
-                currentTime = fmodf(_elapsedTime, _duration + _loopBlendTime);
+                currentTime = _elapsedTime % (_duration + _loopBlendTime);
             }
         }
 
@@ -505,7 +505,7 @@ namespace gameplay
 
             if( _speed >= 0.0f )
             {
-                while( *_listenerItr != _listeners->end() && _elapsedTime >= (long) (**_listenerItr)->_eventTime )
+                while( *_listenerItr != _listeners->end() && _elapsedTime >= (**_listenerItr)->_eventTime )
                 {
                     GP_ASSERT(_listenerItr);
                     GP_ASSERT(**_listenerItr);
@@ -517,7 +517,7 @@ namespace gameplay
             }
             else
             {
-                while( *_listenerItr != _listeners->begin() && _elapsedTime <= (long) (**_listenerItr)->_eventTime )
+                while( *_listenerItr != _listeners->begin() && _elapsedTime <= (**_listenerItr)->_eventTime )
                 {
                     GP_ASSERT(_listenerItr);
                     GP_ASSERT(**_listenerItr);
@@ -535,33 +535,33 @@ namespace gameplay
         // Compute percentage complete for the current loop (prevent a divide by zero if _duration==0).
         // Note that we don't use (currentTime/(_duration+_loopBlendTime)). That's because we want a
         // % value that is outside the 0-1 range for loop smoothing/blending purposes.
-        float percentComplete = _duration == 0 ? 1 : currentTime / (float)_duration;
+        float percentComplete = _duration == std::chrono::microseconds::zero() ? 1 : static_cast<float>(currentTime.count()) / _duration.count();
 
-        if( _loopBlendTime == 0.0f )
+        if( _loopBlendTime == std::chrono::microseconds::zero() )
             percentComplete = MATH_CLAMP(percentComplete, 0.0f, 1.0f);
 
         // If we're cross fading, compute blend weights
         if( isClipStateBitSet(CLIP_IS_FADING_OUT_BIT) )
         {
             GP_ASSERT(_crossFadeToClip);
-            GP_ASSERT(_crossFadeOutDuration > 0);
+            GP_ASSERT(_crossFadeOutDuration > std::chrono::microseconds::zero());
 
             if( isClipStateBitSet(CLIP_IS_FADING_OUT_STARTED_BIT) ) // Calculate elapsed time since the fade out begin.
             {
                 GP_ASSERT(_crossFadeToClip);
-                _crossFadeOutElapsed = (Game::getGameTime() - _crossFadeToClip->_timeStarted) * fabs(_speed);
+                _crossFadeOutElapsed = std::chrono::duration_cast<std::chrono::microseconds>( (Game::getGameTime() - _crossFadeToClip->_timeStarted) * std::abs(_speed) );
                 resetClipStateBit(CLIP_IS_FADING_OUT_STARTED_BIT);
             }
             else
             {
                 // continue tracking elapsed time.
-                _crossFadeOutElapsed += elapsedTime * fabs(_speed);
+                _crossFadeOutElapsed += std::chrono::duration_cast<std::chrono::microseconds>( elapsedTime * std::abs(_speed) );
             }
 
             if( _crossFadeOutElapsed < _crossFadeOutDuration )
             {
                 // Calculate this clip's blend weight.
-                float tempBlendWeight = ((float)_crossFadeOutDuration - _crossFadeOutElapsed) / (float)_crossFadeOutDuration;
+                float tempBlendWeight = static_cast<float>((_crossFadeOutDuration - _crossFadeOutElapsed).count()) / _crossFadeOutDuration.count();
 
                 // If this clip is fading in, adjust the crossfade clip's weight to be a percentage of your current blend weight
                 if( isClipStateBitSet(CLIP_IS_FADING_IN_BIT) )
@@ -593,9 +593,9 @@ namespace gameplay
         AnimationValue* value = nullptr;
         AnimationTarget* target = nullptr;
         size_t channelCount = _animation->_channels.size();
-        float percentageStart = (float)_startTime / (float)_animation->_duration;
-        float percentageEnd = (float)_endTime / (float)_animation->_duration;
-        float percentageBlend = (float)_loopBlendTime / (float)_animation->_duration;
+        float percentageStart = static_cast<float>(_startTime.count()) / _animation->_duration.count();
+        float percentageEnd = static_cast<float>(_endTime.count()) / _animation->_duration.count();
+        float percentageBlend = static_cast<float>(_loopBlendTime.count()) / _animation->_duration.count();
         for( size_t i = 0; i < channelCount; i++ )
         {
             channel = _animation->_channels[i];
@@ -632,14 +632,14 @@ namespace gameplay
         setClipStateBit(CLIP_IS_STARTED_BIT);
         if( _speed >= 0 )
         {
-            _elapsedTime = (Game::getGameTime() - _timeStarted) * _speed;
+            _elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>( (Game::getGameTime() - _timeStarted) * _speed );
 
             if( _listeners )
                 *_listenerItr = _listeners->begin();
         }
         else
         {
-            _elapsedTime = _activeDuration + (Game::getGameTime() - _timeStarted) * _speed;
+            _elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>( _activeDuration + (Game::getGameTime() - _timeStarted) * _speed );
 
             if( _listeners )
                 *_listenerItr = _listeners->end();

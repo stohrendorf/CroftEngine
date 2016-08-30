@@ -28,12 +28,14 @@ namespace gameplay
     }
 
 
-    const char* AIAgent::getId() const
+    const std::string& AIAgent::getId() const
     {
         if( _node )
             return _node->getId();
 
-        return "";
+        static const std::string empty;
+
+        return empty;
     }
 
 
@@ -73,7 +75,7 @@ namespace gameplay
     }
 
 
-    void AIAgent::update(float elapsedTime)
+    void AIAgent::update(const std::chrono::microseconds& elapsedTime)
     {
         _stateMachine->update(elapsedTime);
     }

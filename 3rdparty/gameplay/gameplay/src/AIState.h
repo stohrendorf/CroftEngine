@@ -59,7 +59,7 @@ namespace gameplay
              * @param state The active AIState.
              * @param elapsedTime The elapsed time, in milliseconds.
              */
-            virtual void stateUpdate(AIAgent* agent, AIState* state, float elapsedTime);
+            virtual void stateUpdate(AIAgent* agent, AIState* state, const std::chrono::microseconds& elapsedTime);
         };
 
 
@@ -122,7 +122,7 @@ namespace gameplay
         /**
          * Called by AIStateMachine once per frame to update this state when it is active.
          */
-        void update(AIStateMachine* stateMachine, float elapsedTime);
+        void update(AIStateMachine* stateMachine, const std::chrono::microseconds& elapsedTime);
 
         std::string _id;
         Listener* _listener;

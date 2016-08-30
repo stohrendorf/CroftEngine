@@ -52,28 +52,6 @@ namespace gameplay
         Animation* createAnimation(const char* id, int propertyId, unsigned int keyCount, const unsigned* keyTimes, const float* keyValues, const float* keyInValue, const float* keyOutValue, Curve::InterpolationType type);
 
         /**
-         * Creates an animation on this target using the data from the Properties object defined at the specified URL,
-         * where the URL is of the format "<file-path>.<extension>#<namespace-id>/<namespace-id>/.../<namespace-id>"
-         * (and "#<namespace-id>/<namespace-id>/.../<namespace-id>" is optional).
-         *
-         * @param id The ID of the animation.
-         * @param url The URL pointing to the Properties object defining the animation data.
-         *
-         * @return The newly created animation.
-         */
-        Animation* createAnimation(const char* id, const char* url);
-
-        /**
-         * Creates an animation on this target using the data from the given properties object.
-         *
-         * @param id The ID of the animation.
-         * @param animationProperties The properties object defining the animation data.
-         *
-         * @return The newly created animation.
-         */
-        Animation* createAnimation(const char* id, Properties* animationProperties);
-
-        /**
          * Creates a simple two keyframe from-to animation.
          * Cannot use Curve::BEZIER or CURVE::HERMITE as the interpolation type since they require tangents/control points.
          *

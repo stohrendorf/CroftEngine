@@ -102,7 +102,7 @@ namespace gameplay
     }
 
 
-    void AIController::update(float elapsedTime)
+    void AIController::update(const std::chrono::microseconds& elapsedTime)
     {
         if( _paused )
             return;
@@ -181,14 +181,12 @@ namespace gameplay
     }
 
 
-    AIAgent* AIController::findAgent(const char* id) const
+    AIAgent* AIController::findAgent(const std::string& id) const
     {
-        GP_ASSERT(id);
-
         AIAgent* agent = _firstAgent;
         while( agent )
         {
-            if( strcmp(id, agent->getId()) == 0 )
+            if( id == agent->getId() )
                 return agent;
 
             agent = agent->_next;

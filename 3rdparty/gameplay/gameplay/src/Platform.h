@@ -90,14 +90,14 @@ namespace gameplay
          *
          * @return The absolute platform time. (in milliseconds)
          */
-        static double getAbsoluteTime();
+        static std::chrono::microseconds getAbsoluteTime();
 
         /**
          * Sets the absolute platform time since the start of the message pump.
          *
          * @param time The time to set (in milliseconds).
          */
-        static void setAbsoluteTime(double time);
+        static void setAbsoluteTime(const std::chrono::microseconds& time);
 
         /**
          * Gets whether vertical sync is enabled for the game display.
@@ -118,7 +118,7 @@ namespace gameplay
          *
          * @param ms How long to sleep (in milliseconds).
          */
-        static void sleep(long ms);
+        static void sleep(const std::chrono::microseconds& time);
 
         /**
          * Set if multi-sampling is enabled on the platform.

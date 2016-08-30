@@ -57,14 +57,14 @@ namespace gameplay
          *
          * @return The node identifier.
          */
-        const char* getId() const;
+        const std::string& getId() const;
 
         /**
          * Sets the identifier for the node.
          *
          * @param id The identifier to set for the node.
          */
-        void setId(const char* id);
+        void setId(const std::string& id);
 
         /**
          * Returns the type of the node.
@@ -495,7 +495,7 @@ namespace gameplay
         /**
          * Constructor.
          */
-        Node(const char* id);
+        Node(const std::string& id);
 
         /**
          * Destructor.

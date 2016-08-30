@@ -34,7 +34,7 @@ public:
      * @param cookie See Game::renderOnce().
      * @param time The minimum amount of time to display the screen (in milliseconds).
      */
-    template <typename T> void run(T* instance, void (T::*method) (void*), void* cookie, unsigned long time);
+    template <typename T> void run(T* instance, void (T::*method) (void*), void* cookie, const std::chrono::microseconds& time);
 
     /**
      * Starts a new screen displayer running; draws a screen using the {@link Game::renderOnce} mechanism for at least the given amount of time.
@@ -44,7 +44,7 @@ public:
      * @param function See {@link Game::renderOnce(const char*)}.
      * @param time The minimum amount of time to display the screen (in milliseconds).
      */
-    static void start(const char* function, unsigned long time);
+    static void start(const char* function, const std::chrono::microseconds& time);
 
     /**
      * Finishes running the current screen displayer.
@@ -55,12 +55,12 @@ public:
 
 private:
 
-    long _time;
-    double _startTime;
+    std::chrono::microseconds _time;
+    std::chrono::microseconds _startTime;
     static ScreenDisplayer* __scriptInstance;
 };
 
-template <typename T> void ScreenDisplayer::run(T* instance, void (T::*method) (void*), void* cookie, unsigned long time)
+template <typename T> void ScreenDisplayer::run(T* instance, void (T::*method) (void*), void* cookie, const std::chrono::microseconds& time)
 {
     _time = time;
     Game::getInstance()->renderOnce(instance, method, cookie);

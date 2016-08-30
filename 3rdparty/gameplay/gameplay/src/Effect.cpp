@@ -458,9 +458,9 @@ Effect* Effect::createFromSource(const char* vshPath, const char* vshSource, con
     return effect;
 }
 
-const char* Effect::getId() const
+const std::string& Effect::getId() const
 {
-    return _id.c_str();
+    return _id;
 }
 
 VertexAttribute Effect::getVertexAttribute(const char* name) const
@@ -677,7 +677,7 @@ const char* Uniform::getName() const
     return _name.c_str();
 }
 
-const GLenum Uniform::getType() const
+GLenum Uniform::getType() const
 {
     return _type;
 }

@@ -51,14 +51,12 @@ namespace gameplay
     }
 
 
-    Joint* MeshSkin::getJoint(const char* id) const
+    Joint* MeshSkin::getJoint(const std::string& id) const
     {
-        GP_ASSERT(id);
-
         for( size_t i = 0, count = _joints.size(); i < count; ++i )
         {
             Joint* j = _joints[i];
-            if( j && j->getId() != NULL && strcmp(j->getId(), id) == 0 )
+            if( j && j->getId() == id )
             {
                 return j;
             }

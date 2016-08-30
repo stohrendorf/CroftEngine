@@ -103,7 +103,7 @@ namespace gameplay
     }
 
 
-    void AnimationController::update(float elapsedTime)
+    void AnimationController::update(const std::chrono::microseconds& elapsedTime)
     {
         if( _state != RUNNING )
             return;

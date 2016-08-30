@@ -20,7 +20,7 @@ public:
      *                 The time differences will always be non-negative because scheduled events will not fire early.
      * @param cookie The cookie data that was passed when the event was scheduled.
      */
-    virtual void timeEvent(long timeDiff, void* cookie) = 0;
+    virtual void timeEvent(const std::chrono::microseconds& timeDiff, void* cookie) = 0;
 };
 
 }

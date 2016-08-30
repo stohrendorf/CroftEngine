@@ -290,7 +290,7 @@ private:
     template<typename T, int dataSize>
     struct SwapTraits<T, dataSize, true>
     {
-        static void doSwap(T& data)
+        static void doSwap(T& /*data*/)
         {
             //! @todo For now, no endian conversion
         }

@@ -86,7 +86,7 @@ namespace gameplay
          *
          * @return The total absolute running time (in milliseconds).
          */
-        static double getAbsoluteTime();
+        static std::chrono::microseconds getAbsoluteTime();
 
         /**
          * Gets the total game time (in milliseconds). This is the total accumulated game time (unpaused).
@@ -96,7 +96,7 @@ namespace gameplay
          *
          * @return The total game time (in milliseconds).
          */
-        static double getGameTime();
+        static std::chrono::microseconds getGameTime();
 
         /**
          * Gets the game state.
@@ -286,7 +286,7 @@ namespace gameplay
          * @param cookie The cookie data that the time event will contain.
          * @script{ignore}
          */
-        void schedule(float timeOffset, TimeListener* timeListener, void* cookie = nullptr);
+        void schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie = nullptr);
 
         /**
          * Clears all scheduled time events.
@@ -313,7 +313,7 @@ namespace gameplay
          *
          * @param elapsedTime The elapsed game time.
          */
-        virtual void update(float elapsedTime);
+        virtual void update(const std::chrono::microseconds& elapsedTime);
 
         /**
          * Render callback for handling rendering routines.
@@ -323,7 +323,7 @@ namespace gameplay
          *
          * @param elapsedTime The elapsed game time.
          */
-        virtual void render(float elapsedTime);
+        virtual void render(const std::chrono::microseconds& elapsedTime);
 
         /**
          * Renders a single frame once and then swaps it to the display.
@@ -356,7 +356,7 @@ namespace gameplay
         {
             virtual ~ShutdownListener() = default;
 
-            void timeEvent(long timeDiff, void* cookie) override;
+            void timeEvent(const std::chrono::microseconds& timeDiff, void* cookie) override;
         };
 
 
@@ -367,9 +367,9 @@ namespace gameplay
         {
         public:
 
-            TimeEvent(double time, TimeListener* timeListener, void* cookie);
+            TimeEvent(const std::chrono::microseconds& time, TimeListener* timeListener, void* cookie);
             bool operator<(const TimeEvent& v) const;
-            double time;
+            std::chrono::microseconds time;
             TimeListener* listener;
             void* cookie;
         };
@@ -397,7 +397,7 @@ namespace gameplay
          *
          * @param frameTime The current game frame time. Used to determine which time events need to be fired.
          */
-        void fireTimeEvents(double frameTime);
+        void fireTimeEvents(const std::chrono::microseconds& frameTime);
 
         /**
          * Loads the game configuration.
@@ -407,9 +407,9 @@ namespace gameplay
         bool _initialized; // If game has initialized yet.
         State _state; // The game state.
         unsigned int _pausedCount; // Number of times pause() has been called.
-        static double _pausedTimeLast; // The last time paused.
-        static double _pausedTimeTotal; // The total time paused.
-        double _frameLastFPS; // The last time the frame count was updated.
+        static std::chrono::microseconds _pausedTimeLast; // The last time paused.
+        static std::chrono::microseconds _pausedTimeTotal; // The total time paused.
+        std::chrono::microseconds _frameLastFPS; // The last time the frame count was updated.
         unsigned int _frameCount; // The current frame count.
         unsigned int _frameRate; // The current frame rate.
         unsigned int _width; // The game's display width.

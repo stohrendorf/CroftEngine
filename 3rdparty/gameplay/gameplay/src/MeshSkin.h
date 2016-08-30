@@ -63,7 +63,7 @@ public:
      *
      * @return The joint, or NULL if not found.
      */
-    Joint* getJoint(const char* id) const;
+    Joint* getJoint(const std::string& id) const;
 
     /**
      * Returns the root most joint for this MeshSkin.

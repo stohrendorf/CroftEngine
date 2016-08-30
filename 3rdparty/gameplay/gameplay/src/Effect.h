@@ -53,7 +53,7 @@ public:
      * Returns the unique string identifier for the effect, which is a concatenation of
      * the shader paths it was loaded from.
      */
-    const char* getId() const;
+    const std::string& getId() const;
 
     /**
      * Returns the vertex attribute handle for the vertex attribute with the specified name.
@@ -269,7 +269,7 @@ public:
      * 
      * @return The OpenGL uniform type.
      */
-    const GLenum getType() const;
+    GLenum getType() const;
 
     /**
      * Returns the effect for this uniform.
