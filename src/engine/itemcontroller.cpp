@@ -38,7 +38,7 @@ namespace engine
         return m_meshAnimationController->getTargetState();
     }
 
-    void ItemController::playAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame)
+    void ItemController::playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame)
     {
         Expects(m_meshAnimationController != nullptr);
         m_meshAnimationController->playLocalAnimation(anim, firstFrame);
@@ -50,13 +50,13 @@ namespace engine
         m_meshAnimationController->advanceFrame();
     }
 
-    uint32_t ItemController::getCurrentFrame() const
+    core::Frame ItemController::getCurrentFrame() const
     {
         Expects(m_meshAnimationController != nullptr);
         return m_meshAnimationController->getCurrentFrame();
     }
 
-    uint32_t ItemController::getAnimEndFrame() const
+    core::Frame ItemController::getAnimEndFrame() const
     {
         Expects(m_meshAnimationController != nullptr);
         return m_meshAnimationController->getAnimEndFrame();
@@ -112,7 +112,7 @@ namespace engine
         if( newRoom == m_position.room )
             return;
 
-        BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getName();
+        BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
         if( newRoom == nullptr )
         {
             BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
@@ -209,14 +209,14 @@ namespace engine
                     case AnimCommandOpcode::EmptyHands:
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if(newFrame && getCurrentFrame() == cmd[0])
+                        if(newFrame && getCurrentFrame() == core::Frame(cmd[0]))
                         {
                             playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if(getCurrentFrame() == cmd[0])
+                        if(getCurrentFrame() == core::Frame(cmd[0]))
                         {
                             BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                             if(cmd[1] == 0 && newFrame)
@@ -534,7 +534,7 @@ namespace engine
             return;
         }
 
-        if(lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab || lara.getCurrentFrame() != 2091 || !limits.canInteract(*this, lara))
+        if(lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab || lara.getCurrentFrame() != 2091_frame || !limits.canInteract(*this, lara))
             return;
 
         if(getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward)

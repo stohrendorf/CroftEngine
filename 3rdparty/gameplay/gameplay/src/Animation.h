@@ -54,7 +54,7 @@ public:
      * @return The newly created AnimationClip; NULL if an AnimationClip already exists with the same ID.
      * @script{create}
      */
-    AnimationClip* createClip(const char* id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end);
+    AnimationClip* createClip(const std::string& id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end);
 
     /**
      * Finds the AnimationClip with the specified name. If NULL, gets the default clip.

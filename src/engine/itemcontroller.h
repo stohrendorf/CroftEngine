@@ -44,11 +44,11 @@ namespace engine
         std::shared_ptr<MeshAnimationController> m_meshAnimationController;
         const std::string m_name;
 
-        int m_lastAnimFrame = -1;
+        core::Frame m_lastAnimFrame{ -1 };
         core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
         core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
-        uint32_t m_currentDeltaTime = 0;
-        uint32_t m_subFrameTime = 0;
+        std::chrono::microseconds m_currentDeltaTime{ 0 };
+        std::chrono::microseconds m_subFrameTime{ 0 };
 
         bool m_falling = false; // flags2_08
 
@@ -72,7 +72,7 @@ namespace engine
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
         bool m_flags2_80 = false;
-        int m_triggerTimeout = 0;
+        std::chrono::microseconds m_triggerTimeout{ 0 };
 
         const bool m_hasProcessAnimCommandsOverride;
         const uint8_t m_characteristics;
@@ -87,8 +87,6 @@ namespace engine
             PlayEffect = 6,
             Interact = 7
         };
-
-        static constexpr int FrameTime = 1000 / 30;
 
         ItemController(const gsl::not_null<level::Level*>& level,
                        const std::shared_ptr<engine::MeshAnimationController>& dispatcher,
@@ -255,7 +253,7 @@ namespace engine
             m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
         }
 
-        uint32_t getCurrentDeltaTime() const
+        std::chrono::microseconds getCurrentDeltaTime() const
         {
             return m_currentDeltaTime;
         }
@@ -263,11 +261,11 @@ namespace engine
         void setTargetState(uint16_t st);
         uint16_t getTargetState() const;
 
-        void playAnimation(uint16_t anim, const boost::optional<uint32_t>& firstFrame);
+        void playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame);
 
         void nextFrame();
-        uint32_t getCurrentFrame() const;
-        uint32_t getAnimEndFrame() const;
+        core::Frame getCurrentFrame() const;
+        core::Frame getAnimEndFrame() const;
         uint16_t getCurrentAnimState() const;
         uint16_t getCurrentAnimationId() const;
 
@@ -295,20 +293,20 @@ namespace engine
         void activate();
         void deactivate();
 
-        void update(uint32_t deltaTimeMs)
+        void update(const std::chrono::microseconds& deltaTimeMs)
         {
             m_currentDeltaTime = deltaTimeMs;
 
-            if(m_currentDeltaTime <= 0)
+            if(m_currentDeltaTime <= std::chrono::microseconds::zero())
                 return;
 
             bool isNewFrame = m_meshAnimationController == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
             m_subFrameTime += deltaTimeMs;
 
-            if(m_subFrameTime >= FrameTime)
+            if(m_subFrameTime >= core::FrameTime)
             {
                 isNewFrame = true;
-                m_subFrameTime -= m_subFrameTime / FrameTime * FrameTime;
+                m_subFrameTime -= m_subFrameTime / core::FrameTime * core::FrameTime;
             }
 
             animateImpl(isNewFrame);
@@ -348,8 +346,8 @@ namespace engine
             }
             else
             {
-                m_triggerTimeout = gsl::narrow_cast<uint8_t>(arg);
-                if(m_triggerTimeout != 1)
+                m_triggerTimeout = std::chrono::milliseconds(gsl::narrow_cast<uint8_t>(arg));
+                if(m_triggerTimeout.count() != 1)
                     m_triggerTimeout *= 1000;
                 m_flags2_02_toggledOn = true;
             }
@@ -377,12 +375,12 @@ namespace engine
         bool triggerKey();
 
     protected:
-        int getLastAnimFrame() const noexcept
+        core::Frame getLastAnimFrame() const noexcept
         {
             return m_lastAnimFrame;
         }
 
-        void setLastAnimFrame(int f) noexcept
+        void setLastAnimFrame(const core::Frame& f) noexcept
         {
             m_lastAnimFrame = f;
         }
@@ -399,20 +397,20 @@ namespace engine
                 return isInvertedActivation();
             }
 
-            if(m_triggerTimeout == 0)
+            if(m_triggerTimeout == std::chrono::microseconds::zero())
             {
                 return !isInvertedActivation();
             }
 
-            if(m_triggerTimeout < 0)
+            if(m_triggerTimeout < std::chrono::microseconds::zero())
             {
                 return isInvertedActivation();
             }
 
-            BOOST_ASSERT(getCurrentDeltaTime() > 0);
+            BOOST_ASSERT(getCurrentDeltaTime() > std::chrono::microseconds::zero());
             m_triggerTimeout -= getCurrentDeltaTime();
-            if(m_triggerTimeout <= 0)
-                m_triggerTimeout = -1;
+            if(m_triggerTimeout <= std::chrono::microseconds::zero())
+                m_triggerTimeout = std::chrono::microseconds(-1);
 
             return !isInvertedActivation();
         }
@@ -449,7 +447,7 @@ namespace engine
             if(!updateTriggerTimeout())
             {
                 setTargetState(1);
-                m_triggerTimeout = 0;
+                m_triggerTimeout = std::chrono::microseconds::zero();
             }
         }
 

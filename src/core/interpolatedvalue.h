@@ -36,31 +36,31 @@ namespace core
             return m_value;
         }
 
-        SelfType& add(const T& v, uint32_t ms)
+        SelfType& add(const T& v, const std::chrono::microseconds& ms)
         {
             m_value += scale(v, ms);
             return *this;
         }
 
-        SelfType& add(const SelfType& v, uint32_t ms)
+        SelfType& add(const SelfType& v, const std::chrono::microseconds& ms)
         {
             m_value += v.getScaled(ms);
             return *this;
         }
 
-        SelfType& sub(const T& v, uint32_t ms)
+        SelfType& sub(const T& v, const std::chrono::microseconds& ms)
         {
             m_value -= scale(v, ms);
             return *this;
         }
 
-        SelfType& sub(const SelfType& v, uint32_t ms)
+        SelfType& sub(const SelfType& v, const std::chrono::microseconds& ms)
         {
             m_value -= v.getScaled(ms);
             return *this;
         }
 
-        T getScaled(uint32_t ms) const noexcept
+        T getScaled(const std::chrono::microseconds& ms) const noexcept
         {
             return scale(m_value, ms);
         }
@@ -84,9 +84,9 @@ namespace core
             return limitMin(min).limitMax(max);
         }
 
-        static constexpr T scale(const T& v, uint32_t ms)
+        static constexpr T scale(const T& v, const std::chrono::microseconds& ms)
         {
-            return v * (FrameRate * ms / 1000.0f);
+            return v * ms / core::FrameTime.count();
         }
 
         template <typename U>

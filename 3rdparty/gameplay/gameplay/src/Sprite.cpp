@@ -37,165 +37,6 @@ namespace gameplay
     }
 
 
-    static bool parseBlendMode(const char* str, Sprite::BlendMode* blend)
-    {
-        GP_ASSERT(blend);
-
-        if( !str )
-        {
-            *blend = Sprite::BLEND_NONE;
-            return false;
-        }
-
-        if( strcmp(str, "BLEND_ALPHA") == 0 )
-        {
-            *blend = Sprite::BLEND_ALPHA;
-        }
-        else if( strcmp(str, "BLEND_ADDITIVE") == 0 )
-        {
-            *blend = Sprite::BLEND_ADDITIVE;
-        }
-        else if( strcmp(str, "BLEND_MULTIPLIED") == 0 )
-        {
-            *blend = Sprite::BLEND_MULTIPLIED;
-        }
-        else if( strcmp(str, "BLEND_NONE") != 0 )
-        {
-            GP_ERROR("Failed to get corresponding sprite blend mode for unsupported value '%s'.", str);
-            *blend = Sprite::BLEND_NONE;
-            return false;
-        }
-        else
-        {
-            *blend = Sprite::BLEND_NONE;
-        }
-
-        return true;
-    }
-
-
-    static bool parseFlipFlags(const char* str, Sprite::FlipFlags* flip)
-    {
-        GP_ASSERT(flip);
-
-        if( !str )
-        {
-            *flip = Sprite::FLIP_NONE;
-            return false;
-        }
-
-        if( strcmp(str, "FLIP_VERTICAL") == 0 )
-        {
-            *flip = Sprite::FLIP_VERTICAL;
-        }
-        else if( strcmp(str, "FLIP_HORIZONTAL") == 0 )
-        {
-            *flip = Sprite::FLIP_HORIZONTAL;
-        }
-        else if( strcmp(str, "FLIP_VERTICAL_HORIZONTAL") == 0 )
-        {
-            *flip = (Sprite::FlipFlags)(Sprite::FLIP_VERTICAL | Sprite::FLIP_HORIZONTAL);
-        }
-        else if( strcmp(str, "FLIP_NONE") != 0 )
-        {
-            GP_ERROR("Failed to get corresponding sprite flip flag for unsupported value '%s'.", str);
-            *flip = Sprite::FLIP_NONE;
-            return false;
-        }
-        else
-        {
-            *flip = Sprite::FLIP_NONE;
-        }
-
-        return true;
-    }
-
-
-    static bool parseOffset(const char* str, Sprite::Offset* offset)
-    {
-        GP_ASSERT(offset);
-
-        if( !str )
-        {
-            *offset = Sprite::OFFSET_LEFT;
-            return false;
-        }
-
-        if( strcmp(str, "OFFSET_LEFT") == 0 )
-        {
-            *offset = Sprite::OFFSET_LEFT;
-        }
-        else if( strcmp(str, "OFFSET_HCENTER") == 0 )
-        {
-            *offset = Sprite::OFFSET_HCENTER;
-        }
-        else if( strcmp(str, "OFFSET_RIGHT") == 0 )
-        {
-            *offset = Sprite::OFFSET_RIGHT;
-        }
-        else if( strcmp(str, "OFFSET_TOP") == 0 )
-        {
-            *offset = Sprite::OFFSET_TOP;
-        }
-        else if( strcmp(str, "OFFSET_VCENTER") == 0 )
-        {
-            *offset = Sprite::OFFSET_VCENTER;
-        }
-        else if( strcmp(str, "OFFSET_BOTTOM") == 0 )
-        {
-            *offset = Sprite::OFFSET_BOTTOM;
-        }
-        else if( strcmp(str, "OFFSET_ANCHOR") == 0 )
-        {
-            *offset = Sprite::OFFSET_ANCHOR;
-        }
-        else if( strcmp(str, "OFFSET_TOP_LEFT") == 0 )
-        {
-            *offset = Sprite::OFFSET_TOP_LEFT;
-        }
-        else if( strcmp(str, "OFFSET_VCENTER_LEFT") == 0 )
-        {
-            *offset = Sprite::OFFSET_VCENTER_LEFT;
-        }
-        else if( strcmp(str, "OFFSET_BOTTOM_LEFT") == 0 )
-        {
-            *offset = Sprite::OFFSET_BOTTOM_LEFT;
-        }
-        else if( strcmp(str, "OFFSET_TOP_HCENTER") == 0 )
-        {
-            *offset = Sprite::OFFSET_TOP_HCENTER;
-        }
-        else if( strcmp(str, "OFFSET_VCENTER_HCENTER") == 0 )
-        {
-            *offset = Sprite::OFFSET_VCENTER_HCENTER;
-        }
-        else if( strcmp(str, "OFFSET_BOTTOM_HCENTER") == 0 )
-        {
-            *offset = Sprite::OFFSET_BOTTOM_HCENTER;
-        }
-        else if( strcmp(str, "OFFSET_TOP_RIGHT") == 0 )
-        {
-            *offset = Sprite::OFFSET_TOP_RIGHT;
-        }
-        else if( strcmp(str, "OFFSET_VCENTER_RIGHT") == 0 )
-        {
-            *offset = Sprite::OFFSET_VCENTER_RIGHT;
-        }
-        else if( strcmp(str, "OFFSET_BOTTOM_RIGHT") != 0 )
-        {
-            GP_ERROR("Failed to get corresponding sprite offset for unsupported value '%s'.", str);
-            *offset = Sprite::OFFSET_LEFT;
-            return false;
-        }
-        else
-        {
-            *offset = Sprite::OFFSET_BOTTOM_RIGHT;
-        }
-
-        return true;
-    }
-
-
     float Sprite::getWidth() const
     {
         return _width;
@@ -583,5 +424,39 @@ namespace gameplay
             default:
                 break;
         }
+    }
+
+    Sprite* Sprite::create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount, Effect* effect)
+    {
+        GP_ASSERT(texture != nullptr);
+        GP_ASSERT(width >= -1 && height >= -1);
+        GP_ASSERT(source.width >= -1 && source.height >= -1);
+        GP_ASSERT(frameCount > 0);
+
+        SpriteBatch* batch = SpriteBatch::create(texture, effect);
+        batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
+        batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
+        batch->getStateBlock()->setDepthWrite(false);
+        batch->getStateBlock()->setDepthTest(true);
+
+        unsigned int imageWidth = batch->getSampler()->getTexture()->getWidth();
+        unsigned int imageHeight = batch->getSampler()->getTexture()->getHeight();
+        if(width == -1)
+            width = imageWidth;
+        if(height == -1)
+            height = imageHeight;
+
+        Sprite* sprite = new Sprite();
+        sprite->_width = width;
+        sprite->_height = height;
+        sprite->_batch = batch;
+        sprite->_frameCount = frameCount;
+        sprite->_frames = new Rectangle[frameCount];
+        sprite->_frames[0] = source;
+        if(sprite->_frames[0].width == -1.0f)
+            sprite->_frames[0].width = imageWidth;
+        if(sprite->_frames[0].height == -1.0f)
+            sprite->_frames[0].height = imageHeight;
+        return sprite;
     }
 }

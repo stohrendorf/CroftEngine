@@ -32,7 +32,7 @@ namespace engine
         core::Angle m_currentSlideAngle{0};
 
         int m_handStatus = 0;
-        int m_uvAnimTime = 0;
+        std::chrono::microseconds m_uvAnimTime{ 0 };
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
         std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
@@ -76,7 +76,7 @@ namespace engine
         //! @remarks This happens e.g. just after dive-to-swim transition, when players still
         //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
         //!          diving immediately again.
-        boost::optional<int> m_swimToDiveKeypressDuration = boost::none;
+        boost::optional<std::chrono::microseconds> m_swimToDiveKeypressDuration = boost::none;
         uint16_t m_secretsFoundBitmask = 0;
 
         ///////////////////////////////////////
@@ -158,13 +158,13 @@ namespace engine
         void setTargetState(loader::LaraStateId st);
         loader::LaraStateId getCurrentState() const;
         loader::LaraStateId getCurrentAnimState() const;
-        void playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame = boost::none);
+        void playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
         void updateFloorHeight(int dy);
         void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 
         boost::optional<int> getWaterSurfaceHeight() const;
 
-        void addSwimToDiveKeypressDuration(int ms) noexcept
+        void addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
         {
             if(!m_swimToDiveKeypressDuration)
                 return;
@@ -172,12 +172,12 @@ namespace engine
             *m_swimToDiveKeypressDuration += ms;
         }
 
-        void setSwimToDiveKeypressDuration(int ms) noexcept
+        void setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
         {
             m_swimToDiveKeypressDuration = ms;
         }
 
-        const boost::optional<int>& getSwimToDiveKeypressDuration() const noexcept
+        const boost::optional<std::chrono::microseconds>& getSwimToDiveKeypressDuration() const noexcept
         {
             return m_swimToDiveKeypressDuration;
         }

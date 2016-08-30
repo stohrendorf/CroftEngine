@@ -84,7 +84,7 @@ namespace engine
 
         void findCameraTarget(const loader::FloorData::value_type* floorData);
 
-        void update(int deltaTimeMs);
+        void update(const std::chrono::microseconds& deltaTimeMs);
 
         void setCamOverrideType(int t)
         {

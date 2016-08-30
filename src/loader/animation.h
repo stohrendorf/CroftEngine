@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io/sdlreader.h"
+#include "core/magic.h"
 
 #include <gsl.h>
 
@@ -159,29 +160,48 @@ namespace loader
         */
         struct FrameRange
         {
-            const std::map<uint32_t, gameplay::BoundingBox> bboxes;
-            const gsl::not_null<gameplay::AnimationClip*> clip;
+            const std::map<core::Frame, gameplay::BoundingBox> bboxes;
+            const std::vector<gsl::not_null<gameplay::AnimationClip*>> clips;
+            const std::chrono::microseconds startTime;
+            const std::chrono::microseconds endTime;
 
-            FrameRange(std::map<uint32_t, gameplay::BoundingBox>&& bb, const gsl::not_null<gameplay::AnimationClip*>& anim)
+            FrameRange(std::map<core::Frame, gameplay::BoundingBox>&& bb, const std::vector<gsl::not_null<gameplay::AnimationClip*>>& c)
                 : bboxes(std::move(bb))
-                , clip(anim)
+                , clips(c)
+                , startTime(c.front()->getStartTime())
+                , endTime(c.front()->getEndTime())
             {
                 BOOST_ASSERT(!bboxes.empty());
+
+#ifndef NDEBUG
+                for(const auto& clip : clips)
+                {
+                    BOOST_ASSERT(clip->getStartTime() == startTime);
+                    BOOST_ASSERT(clip->getEndTime() == endTime);
+                }
+#endif
             }
 
-            void apply(gameplay::AnimationController& ctrl, uint32_t localFrame) const
+            void apply(gameplay::AnimationController& ctrl, const core::Frame& localFrame) const
             {
-                BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
+                apply(ctrl, core::toTime(localFrame) );
+            }
 
+            void apply(gameplay::AnimationController& ctrl, const std::chrono::microseconds& time) const
+            {
+                BOOST_ASSERT(time >= startTime && time <= endTime);
 
                 ctrl.stopAllAnimations();
-                clip->getAnimation();
-                clip->play(gsl::narrow_cast<double>(localFrame - getFirstFrame()) / core::FrameRate);
+                for(const auto &clip : clips)
+                {
+                    clip->getAnimation();
+                    clip->play(time - startTime);
+                }
             }
 
-            gameplay::BoundingBox getBoundingBox(uint32_t localFrame) const
+            gameplay::BoundingBox getBoundingBox(const core::Frame& localFrame) const
             {
-                BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
+                //BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
                 auto it = bboxes.lower_bound(localFrame);
                 if( it == bboxes.end() )
                     return std::prev(it)->second;
@@ -192,21 +212,11 @@ namespace loader
                 // the iterator points behind the searched frame
                 auto before = std::prev(it);
                 auto dist = it->first - before->first;
-                BOOST_ASSERT(dist > 0);
-                auto lambda = float(localFrame - before->first) / dist;
+                BOOST_ASSERT(dist > core::Frame::zero());
+                auto lambda = static_cast<float>((localFrame - before->first).count()) / dist.count();
 
                 gameplay::BoundingBox interp(before->second.min.lerp(it->second.min, lambda), before->second.max.lerp(it->second.max, lambda));
                 return interp;
-            }
-
-            uint32_t getFirstFrame() const
-            {
-                return clip->getStartTime() / core::FrameRate;
-            }
-
-            uint32_t getLastFrame() const
-            {
-                return clip->getEndTime() / core::FrameRate;
             }
         };
 

@@ -4,10 +4,7 @@
 #include "Game.h"
 
 #include <GL/glew.h>
-#include <glfw3.h>
-
-int __argc = 0;
-char** __argv = 0;
+#include <GLFW/glfw3.h>
 
 static std::chrono::high_resolution_clock::time_point __timeStart;
 static std::chrono::high_resolution_clock::duration __timeAbsolute;

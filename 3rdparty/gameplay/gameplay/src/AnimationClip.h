@@ -116,6 +116,11 @@ namespace gameplay
          */
         std::chrono::microseconds getElapsedTime() const;
 
+        void setElapsedTime(const std::chrono::microseconds& time)
+        {
+            _elapsedTime = time;
+        }
+
         /**
          * Sets the AnimationClip's repeat count. Overrides repeat duration.
          *

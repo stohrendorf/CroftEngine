@@ -47,7 +47,7 @@ SpriteBatch::~SpriteBatch()
     }
 }
 
-SpriteBatch* SpriteBatch::create(Texture* texture,  Effect* effect, unsigned int initialCapacity)
+SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int initialCapacity)
 {
     GP_ASSERT(texture != NULL);
     GP_ASSERT(texture->getType() == Texture::TEXTURE_2D);

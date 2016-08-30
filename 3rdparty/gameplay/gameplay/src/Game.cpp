@@ -381,12 +381,6 @@ namespace gameplay
     }
 
 
-    void Game::getArguments(int* argc, char*** argv)
-    {
-        Platform::getArguments(argc, argv);
-    }
-
-
     void Game::schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie)
     {
         GP_ASSERT(_timeEvents);

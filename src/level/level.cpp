@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <stack>
 #include <set>
+#include <chrono>
 
 using namespace level;
 
@@ -386,7 +387,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> Level::cre
 }
 
 
-engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures)
+engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -401,30 +402,32 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
         {
             //BOOST_ASSERT(!findSpriteSequenceForType(item.type));
             BOOST_ASSERT(*meshIdx < skinnedMeshes.size());
-            irr::scene::IAnimatedMeshSceneNode* node;
-
-            if( item.type == 0 )
-            {
-                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[*meshIdx], nullptr); // Lara doesn't have a scene graph owner
-            }
-            else
-            {
-                node = mgr->addAnimatedMeshSceneNode(skinnedMeshes[*meshIdx], room.node);
-            }
+            gameplay::MeshSkin* mesh = skinnedMeshes[*meshIdx];
 
             std::string name = "item";
             name += std::to_string(id);
             name += "(type";
             name += std::to_string(item.type);
             name += "/animatedModel)";
-            node->setName(name.c_str());
+            gameplay::Node* node = gameplay::Node::create(name.c_str());
+            node->setDrawable(mesh->getModel());
+
+            if(item.type == 0)
+            {
+                // Lara doesn't have a scene graph owner
+            }
+            else
+            {
+                room.node->addChild(node);
+            }
+
 
             //node->setAutomaticCulling(false);
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
-            node->setAnimationSpeed(30);
-            node->setLoopMode(false);
-            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], node, name + ":animator");
+            //node->setAnimationSpeed(30);
+            //node->setLoopMode(false);
+            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], mesh, game->getAnimationController(), name + ":animator");
 
             if( item.type == 0 )
             {
@@ -492,15 +495,6 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
                 animationController->playLocalAnimation(0);
             }
 
-            node->addShadowVolumeSceneNode();
-
-            for( uint32_t i = 0; i < node->getMaterialCount(); ++i )
-            {
-                node->getMaterial(i).DiffuseColor = room.lightColor.toSColor(1 - room.darkness / 8191.0f);
-                node->getMaterial(i).SpecularColor = node->getMaterial(i).DiffuseColor;
-                node->getMaterial(i).EmissiveColor.set(0);
-            }
-
             continue;
         }
 
@@ -514,24 +508,17 @@ engine::LaraController* Level::createItems(irr::scene::ISceneManager* mgr, const
 
             const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
 
-            gameplay::Vector2 dim{static_cast<float>(tex.right_side - tex.left_side + 1), static_cast<float>(tex.bottom_side - tex.top_side + 1)};
-            BOOST_ASSERT(dim.x > 0);
-            BOOST_ASSERT(dim.y > 0);
-
-            irr::scene::IBillboardSceneNode* node = mgr->addBillboardSceneNode(room.node, dim, {0,0,0}, -1, 0, 0);
-            node->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
-            node->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
-            node->getMaterial(0).EmissiveColor.set(0);
-            node->setMaterialFlag(irr::video::EMF_LIGHTING, true);
-            node->setMaterialTexture(0, textures[tex.texture]);
-            node->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
+            gameplay::Sprite* sprite = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            sprite->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             std::string name = "item";
             name += std::to_string(id);
             name += "(type";
             name += std::to_string(item.type);
             name += "/spriteSequence)";
-            node->setName(name.c_str());
+
+            auto node = gameplay::Node::create(name.c_str());
+            node->setDrawable(sprite);
 
             m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -582,11 +569,11 @@ struct BoneKeyFrames
 
 struct SkeletonKeyFrames
 {
-    std::map<BoneKeyFrames> bones;
+    std::vector<BoneKeyFrames> bones;
     std::vector<unsigned int> times;
-    std::map<uint32_t, std::map<uint32_t, gameplay::BoundingBox>> bboxes;
+    std::map<uint32_t, std::map<core::Frame, gameplay::BoundingBox>> bboxes;
 
-    std::vector<gameplay::Animation*> createAnims() const
+    std::vector<gameplay::Animation*> createBoneAnims() const
     {
         std::vector<gameplay::Animation*> result;
         for(const BoneKeyFrames& keyFrames : bones)
@@ -601,21 +588,32 @@ struct SkeletonKeyFrames
         return result;
     }
 
-    void addKey(size_t boneId, unsigned int time, const gameplay::Quaternion& rot, const gameplay::Vector3& pos)
+    loader::AnimatedModel::FrameRange createFrameRange(const std::vector<gameplay::Animation*>& boneAnims, uint32_t animId, const core::Frame& firstFrame, const core::Frame& lastFrame)
+    {
+        std::vector<gsl::not_null<gameplay::AnimationClip*>> clips;
+        for(const auto& boneAnim : boneAnims)
+        {
+            clips.emplace_back(boneAnim->createClip("", core::toTime(firstFrame), core::toTime(lastFrame)));
+        }
+
+        return loader::AnimatedModel::FrameRange{ std::move(bboxes[animId]), clips };
+    }
+
+    void addKey(size_t boneId, const core::Frame& frame, const gameplay::Quaternion& rot, const gameplay::Vector3& pos)
     {
         Expects(boneId < bones.size());
-        Expects(times.empty() || time >= times.back());
+        Expects(times.empty() || frame.count() >= times.back());
 
         bones[boneId].keyframes.emplace_back(rot, pos);
-        if(times.empty() || times.back() < time)
-            times.emplace_back(time);
+        if(times.empty() || times.back() < frame.count())
+            times.emplace_back(frame.count());
 
         Expects(bones[boneId].keyframes.size() == times.size());
     }
 };
 
 
-void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, uint32_t frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData)
+void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, const core::Frame& frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData)
 {
     uint16_t angleSetOfs = 10;
 
@@ -627,7 +625,7 @@ void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, uint32_
             gameplay::BoundingBox bbox;
             bbox.min = {pData[0], pData[2], pData[4]};
             bbox.max = {pData[1], pData[3], pData[5]};
-            keyFrames.bboxes[animId][frameIdx].emplace_back(bbox);
+            keyFrames.bboxes[animId][frameIdx] = bbox;
 
             pos.set(pData[6], static_cast<float>(-pData[7]), pData[8]);
         }
@@ -663,12 +661,12 @@ void Level::loadAnimation(SkeletonKeyFrames& keyFrames, uint32_t animId, const l
     gsl::not_null<const int16_t*> pData = &m_poseData[trAnim.poseDataOffset / 2];
     for( uint32_t i = trAnim.firstFrame; i <= trAnim.lastFrame; i += trAnim.stretchFactor )
     {
-        loadAnimFrame(keyFrames, animId, i, model, trAnim, pData);
+        loadAnimFrame(keyFrames, animId, core::Frame(i), model, trAnim, pData);
     }
 }
 
 
-std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<gameplay::Drawable*>& staticMeshes)
+std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<gameplay::Model*>& staticModels)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
 
@@ -686,45 +684,47 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
     }
     animStarts.insert(gsl::narrow<uint16_t>(m_animations.size()));
 
-    std::vector<gameplay::MeshSkin*> skinnedMeshes;
+    std::vector<gameplay::Model*> skinnedMeshes;
 
     for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         Expects(model != nullptr);
-        gameplay::MeshSkin* skinnedMesh = new gameplay::MeshSkin();
+
+        gameplay::Model* skinnedMesh = gameplay::Model::create();
         skinnedMeshes.emplace_back(skinnedMesh);
 
         std::stack<gameplay::Joint*> parentStack;
 
-        for( size_t modelMeshIdx = 0; modelMeshIdx < model->meshCount; ++modelMeshIdx )
+        for( size_t boneIndex = 0; boneIndex < model->meshCount; ++boneIndex )
         {
-            BOOST_ASSERT(model->firstMesh + modelMeshIdx < m_meshIndices.size());
-            const auto meshIndex = m_meshIndices[model->firstMesh + modelMeshIdx];
-            BOOST_ASSERT(meshIndex < staticMeshes.size());
-            const auto staticMesh = staticMeshes[meshIndex];
+            BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
+            const auto meshIndex = m_meshIndices[model->firstMesh + boneIndex];
+            BOOST_ASSERT(meshIndex < staticModels.size());
+            const auto staticModel = staticModels[meshIndex];
+
             gameplay::Joint* joint = new gameplay::Joint();
             if( model->type == 0 )
             {
-                if( modelMeshIdx == 7 )
+                if( boneIndex == 7 )
                     joint->setId("chest");
-                else if( modelMeshIdx == 0 )
+                else if( boneIndex == 0 )
                     joint->setId("hips");
             }
 
-            joint->setDrawable(staticMesh);
+            joint->setDrawable(staticModel);
 
             // clone static mesh buffers to skinned mesh buffers
-            for( uint32_t meshBufIdx = 0; meshBufIdx < staticMesh->MeshBuffers.size(); ++meshBufIdx )
+            for( uint32_t meshBufIdx = 0; meshBufIdx < staticModel->MeshBuffers.size(); ++meshBufIdx )
             {
                 gsl::not_null<irr::scene::SSkinMeshBuffer*> skinMeshBuffer = skinnedMesh->addMeshBuffer();
-                Expects(staticMesh->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
-                Expects(staticMesh->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
-                for( uint32_t i = 0; i < staticMesh->MeshBuffers[meshBufIdx]->getIndexCount(); ++i )
-                    skinMeshBuffer->Indices.push_back(staticMesh->MeshBuffers[meshBufIdx]->getIndices()[i]);
+                Expects(staticModel->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
+                Expects(staticModel->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
+                for( uint32_t i = 0; i < staticModel->MeshBuffers[meshBufIdx]->getIndexCount(); ++i )
+                    skinMeshBuffer->Indices.push_back(staticModel->MeshBuffers[meshBufIdx]->getIndices()[i]);
 
-                for( uint32_t i = 0; i < staticMesh->MeshBuffers[meshBufIdx]->getVertexCount(); ++i )
+                for( uint32_t i = 0; i < staticModel->MeshBuffers[meshBufIdx]->getVertexCount(); ++i )
                 {
-                    skinMeshBuffer->Vertices_Standard.push_back(static_cast<irr::video::S3DVertex*>(staticMesh->MeshBuffers[meshBufIdx]->getVertices())[i]);
+                    skinMeshBuffer->Vertices_Standard.push_back(static_cast<irr::video::S3DVertex*>(staticModel->MeshBuffers[meshBufIdx]->getVertices())[i]);
 
                     auto w = skinnedMesh->addWeight(joint);
                     w->buffer_id = skinnedMesh->getMeshBuffers().size() - 1;
@@ -732,25 +732,25 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
                     w->vertex_id = i;
                 }
 
-                skinMeshBuffer->Material = staticMesh->MeshBuffers[meshBufIdx]->getMaterial();
+                skinMeshBuffer->Material = staticModel->MeshBuffers[meshBufIdx]->getMaterial();
 
                 skinMeshBuffer->setDirty();
                 skinMeshBuffer->boundingBoxNeedsRecalculated();
                 skinMeshBuffer->recalculateBoundingBox();
             }
 
-            if( modelMeshIdx == 0 )
+            if( boneIndex == 0 )
             {
                 parentStack.push(joint);
                 skinnedMesh->setRootJoint(joint);
                 continue;
             }
 
-            auto pred = skinnedMesh->getJoint(modelMeshIdx - 1);
+            auto pred = skinnedMesh->getJoint(boneIndex - 1);
 
             gameplay::Joint* parent = nullptr;
-            BOOST_ASSERT(model->boneTreeIndex + 4 * modelMeshIdx <= m_boneTrees.size());
-            const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex + (modelMeshIdx - 1) * 4];
+            BOOST_ASSERT(model->boneTreeIndex + 4 * boneIndex <= m_boneTrees.size());
+            const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex + (boneIndex - 1) * 4];
 
             switch( boneTreeData[0] )
             {
@@ -798,14 +798,15 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
             loadAnimation(keyFrames, currentAnimIdx, *model, animation);
         }
 
-        auto anims = keyFrames.createAnims();
+        auto boneAnims = keyFrames.createBoneAnims();
 
         for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
         {
             if( currentAnimIdx >= m_animations.size() )
                 continue;
 
-            model->frameMapping.emplace(std::make_pair(currentAnimIdx, loader::AnimatedModel::FrameRange{keyFrames.bboxes[currentAnimIdx], anims[currentAnimIdx]}));
+            const loader::Animation& animation = m_animations[currentAnimIdx];
+            model->frameMapping.emplace(std::make_pair(currentAnimIdx, keyFrames.createFrameRange(boneAnims, currentAnimIdx, core::Frame(animation.firstFrame), core::Frame(animation.lastFrame))));
         }
 
 #ifndef NDEBUG
@@ -821,10 +822,10 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
 }
 
 
-gameplay::Texture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const
+gameplay::Texture* Level::createSolidColorTex(uint8_t color) const
 {
-    irr::video::SColor pixels[2][2];
-    pixels[0][0].set(m_palette->color[color].a, m_palette->color[color].r, m_palette->color[color].g, m_palette->color[color].b);
+    gameplay::Vector4 pixels[2][2];
+    pixels[0][0] = m_palette->color[color].toSColor());
     pixels[1][0] = pixels[0][0];
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
@@ -837,7 +838,7 @@ gameplay::Texture* Level::createSolidColorTex(irr::scene::ISceneManager* mgr, ui
 }
 
 
-void Level::toIrrlicht(irr::IrrlichtDevice* device)
+void Level::toIrrlicht(gameplay::Game* game)
 {
     device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
@@ -867,7 +868,7 @@ void Level::toIrrlicht(irr::IrrlichtDevice* device)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    std::vector<irr::scene::SMesh*> staticMeshes;
+    std::vector<gameplay::Model*> staticMeshes;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
         staticMeshes.emplace_back(m_meshes[i].createMesh(device->getSceneManager(), i, m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
@@ -1055,7 +1056,7 @@ engine::ItemController* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(irr::video::IVideoDriver* drv) const
+void Level::drawBars(gameplay::Game* game) const
 {
     if( m_lara->isInWater() )
     {

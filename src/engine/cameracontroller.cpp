@@ -6,6 +6,8 @@
 
 #include <queue>
 #include <set>
+#include <chrono>
+
 
 namespace engine
 {
@@ -428,7 +430,7 @@ namespace engine
         return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
-    void CameraController::update(int deltaTimeMs)
+    void CameraController::update(const std::chrono::microseconds& deltaTimeMs)
     {
         if(m_currentPosition.room->isWaterRoom())
         {

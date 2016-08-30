@@ -96,7 +96,7 @@ namespace level
         engine::CameraController* m_cameraController = nullptr;
 
         static std::unique_ptr<Level> createLoader(const std::string& filename, Game game_version);
-        virtual void load(irr::video::IVideoDriver* drv) = 0;
+        virtual void load() = 0;
 
         loader::StaticMesh* findStaticMeshById(uint32_t object_id);
         const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
@@ -108,12 +108,12 @@ namespace level
 
         std::vector<gameplay::Texture*> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> createMaterials(const std::vector<gameplay::Texture::Sampler*>& textures);
-        engine::LaraController* createItems(irr::scene::ISceneManager* mgr, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures);
-        std::vector<gameplay::MeshSkin*> createSkinnedMeshes(const std::vector<gameplay::Drawable*>& staticMeshes);
+        engine::LaraController* createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures);
+        std::vector<gameplay::MeshSkin*> createSkinnedMeshes(const std::vector<gameplay::Model*>& staticMeshes);
         void loadAnimation(SkeletonKeyFrames& keyFrames, uint32_t animId, const loader::AnimatedModel& model, const loader::Animation& trAnim);
-        gameplay::Texture* createSolidColorTex(irr::scene::ISceneManager* mgr, uint8_t color) const;
+        gameplay::Texture* createSolidColorTex(uint8_t color) const;
 
-        void toIrrlicht(irr::IrrlichtDevice* device);
+        void toIrrlicht(gameplay::Game* game);
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
         {
@@ -159,7 +159,7 @@ namespace level
 
         engine::ItemController* getItemController(uint16_t id) const;
 
-        void drawBars(irr::video::IVideoDriver* drv) const;
+        void drawBars(gameplay::Game* game) const;
 
         engine::ItemController* findControllerForNode(const gameplay::Node* node);
 
@@ -316,7 +316,7 @@ namespace level
         static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
         static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);
 
-        void loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, uint32_t frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData);
+        void loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, const core::Frame& frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData);
 
     private:
         static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);

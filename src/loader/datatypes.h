@@ -1292,6 +1292,15 @@ namespace loader
             return sprite_texture;
         }
 
+        gameplay::Rectangle buildSourceRectangle() const
+        {
+            auto size = t1 - t0;
+            return gameplay::Rectangle{
+                t0.x, t0.y,
+                size.x, size.y
+            };
+        }
+
 #if 0
         irr::core::matrix4 buildTextureMatrix() const
         {

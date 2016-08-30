@@ -24,6 +24,11 @@ namespace gameplay
          */
         void stopAllAnimations();
 
+        const std::list<AnimationClip*>& getRunningClips() const
+        {
+            return _runningClips;
+        }
+
     private:
 
         /**

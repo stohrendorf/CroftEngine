@@ -21,7 +21,7 @@ namespace engine
         return static_cast<LaraStateId>(ItemController::getTargetState());
     }
 
-    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame)
+    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
     {
         ItemController::playAnimation(static_cast<uint16_t>(anim), firstFrame);
     }
@@ -312,7 +312,7 @@ namespace engine
 
     void LaraController::animateImpl(bool isNewFrame)
     {
-        static constexpr int UVAnimTime = 1000 / 10;
+        static constexpr core::Frame UVAnimTime = core::Frame(3);
 
         m_uvAnimTime += getCurrentDeltaTime();
         if( m_uvAnimTime >= UVAnimTime )
@@ -353,7 +353,7 @@ namespace engine
             else
             {
                 setXRotation(-45_deg);
-                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
+                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame);
                 setTargetState(LaraStateId::UnderwaterForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
                 if( auto tmp = processLaraAnimCommands() )
@@ -377,7 +377,7 @@ namespace engine
             if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
             {
                 m_underwaterState = UnderwaterState::OnLand;
-                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
                 setTargetState(LaraStateId::JumpForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
@@ -387,7 +387,7 @@ namespace engine
             else
             {
                 m_underwaterState = UnderwaterState::Swimming;
-                playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
+                playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937_frame);
                 setTargetState(LaraStateId::OnWaterStop);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
                 {
@@ -403,7 +403,7 @@ namespace engine
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -507,7 +507,7 @@ namespace engine
                     }
                     break;
                 case AnimCommandOpcode::PlaySound:
-                    if( newFrame && getCurrentFrame() == cmd[0] )
+                    if( newFrame && getCurrentFrame() == core::Frame(cmd[0]) )
                     {
                         playSoundEffect(cmd[1]);
                     }
@@ -672,8 +672,8 @@ namespace engine
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
-                    item.m_triggerTimeout = gsl::narrow_cast<uint8_t>(srcTriggerArg);
-                    if( item.m_triggerTimeout != 1 )
+                    item.m_triggerTimeout = std::chrono::microseconds( gsl::narrow_cast<uint8_t>(srcTriggerArg) );
+                    if( item.m_triggerTimeout.count() != 1 )
                         item.m_triggerTimeout *= 1000;
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";

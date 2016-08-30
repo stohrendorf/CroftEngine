@@ -30,7 +30,7 @@ namespace engine
 
         virtual std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
-        void animate(CollisionInfo& collisionInfo, uint32_t deltaTimeMs);
+        void animate(::engine::CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs);
 
         std::unique_ptr<AbstractStateHandler> handleInput(CollisionInfo& collisionInfo)
         {
@@ -51,7 +51,7 @@ namespace engine
     private:
         friend class StateHandler_2;
 
-        virtual void animateImpl(CollisionInfo& collisionInfo, int deltaTimeMs) = 0;
+        virtual void animateImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs) = 0;
         virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) = 0;
 
     protected:
@@ -88,11 +88,11 @@ namespace engine
 
         void setHandStatus(int status) noexcept;
 
-        uint32_t getCurrentFrame() const;
+        core::Frame getCurrentFrame() const;
 
         loader::LaraStateId getCurrentAnimState() const;
 
-        void playAnimation(loader::AnimationId anim, const boost::optional<uint32_t>& firstFrame = boost::none);
+        void playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
         const core::TRRotation& getRotation() const noexcept;
 
@@ -158,11 +158,11 @@ namespace engine
         gameplay::Node* getLara();
         gameplay::BoundingBox getBoundingBox() const;
 
-        void addSwimToDiveKeypressDuration(int ms) noexcept;
+        void addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept;
 
-        void setSwimToDiveKeypressDuration(int ms) noexcept;
+        void setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept;
 
-        const boost::optional<int> & getSwimToDiveKeypressDuration() const;
+        const boost::optional<std::chrono::microseconds>& getSwimToDiveKeypressDuration() const;
 
         void setUnderwaterState(UnderwaterState u) noexcept;
 

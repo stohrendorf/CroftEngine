@@ -25,7 +25,7 @@ using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR3  370
 
-void TR3Level::load(irr::video::IVideoDriver* /*drv*/)
+void TR3Level::load()
 {
     // Version
     uint32_t file_version = m_reader.readU32();

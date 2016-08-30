@@ -115,7 +115,7 @@ int main()
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
-    lvl->load(game);
+    lvl->load();
     lvl->toIrrlicht(game);
 
     // device->setWindowCaption("EdisonEngine");

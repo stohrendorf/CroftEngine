@@ -133,14 +133,6 @@ namespace gameplay
         static bool isMultiSampling();
 
         /**
-          * Gets the command line arguments.
-          *
-          * @param argc The number of command line arguments.
-          * @param argv The array of command line arguments.
-          */
-        static void getArguments(int* argc, char*** argv);
-
-        /**
          * Constructor.
          */
         Platform(Game* game);

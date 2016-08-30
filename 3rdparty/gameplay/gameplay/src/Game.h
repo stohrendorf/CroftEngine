@@ -269,15 +269,6 @@ namespace gameplay
         inline bool canExit() const;
 
         /**
-         * Gets the command line arguments.
-         *
-         * @param argc The number of command line arguments.
-         * @param argv The array of command line arguments.
-         * @script{ignore}
-         */
-        static void getArguments(int* argc, char*** argv);
-
-        /**
          * Schedules a time event to be sent to the given TimeListener a given number of game milliseconds from now.
          * Game time stops while the game is paused. A time offset of zero will fire the time event in the next frame.
          *

@@ -121,7 +121,7 @@ std::chrono::microseconds Animation::getDuration() const
     return _duration;
 }
 
-AnimationClip* Animation::createClip(const char* id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end)
+AnimationClip* Animation::createClip(const std::string& id, const std::chrono::microseconds& begin, const std::chrono::microseconds& end)
 {
     AnimationClip* clip = new AnimationClip(id, this, begin, end);
     addClip(clip);
