@@ -120,87 +120,11 @@ namespace gameplay
         }
 
         /**
-         * Sets the AnimationClip's repeat count. Overrides repeat duration.
-         *
-         * Use REPEAT_INDEFINITE to play the AnimationClip indefinitely.
-         *
-         * @param repeatCount The repeat count to set on the AnimationClip.
-         */
-        void setRepeatCount(float repeatCount);
-
-        /**
-         * Gets the AnimationClip's repeat count.
-         *
-         * @return The repeat count that is set on the AnimationClip.
-         */
-        float getRepeatCount() const;
-
-        /**
-         * Sets the AnimationClip's active duration. Overrides repeat count.
-         *
-         * Use REPEAT_INDEFINITE to play the AnimationClip indefinitely.
-         *
-         * @param duration The active duration that is set on the AnimationClip, in milliseconds.
-         */
-        void setActiveDuration(const std::chrono::microseconds& duration);
-
-        /**
-         * Gets the AnimationClip's active duration.
-         *
-         * @return the AnimationClip's active duration.
-         */
-        std::chrono::microseconds getActiveDuration() const;
-
-        /**
          * Gets the AnimationClip's duration.
          *
          * @return the AnimationClip's duration, in milliseconds.
          */
         std::chrono::microseconds getDuration() const;
-
-        /**
-         * Set the AnimationClip's running speed.
-         *
-         * @param speed The clips running speed.
-         */
-        void setSpeed(float speed);
-
-        /**
-         * Gets the AninimationClip's running speed.
-         *
-         * @return The AninimationClip's running speed.
-         */
-        float getSpeed() const;
-
-        /**
-         * Sets the blend weight of the AnimationClip.
-         *
-         * @param blendWeight The blend weight to apply to the clip.
-         */
-        void setBlendWeight(float blendWeight);
-
-        /**
-         * Gets the blend weight of the AnimationClip.
-         *
-         * @return The blendweight of the AnimationClip.
-         */
-        float getBlendWeight() const;
-
-        /**
-         * Sets the time (in milliseconds) to append to the clip's active duration
-         * to use for blending the end points of the clip when looping.
-         *
-         * @param loopBlendTime Time spent blending end points of clip when looping.
-         */
-        void setLoopBlendTime(const std::chrono::microseconds& loopBlendTime);
-
-        /**
-         * Returns the amount of time (in milliseconds) spent blending the clip's
-         * end points when looping.
-         *
-         * @return Time spent blending end points of the clip when looping.
-         */
-        std::chrono::microseconds getLoopBlendTime() const;
 
         /**
          * Checks if the AnimationClip is playing.
@@ -223,14 +147,6 @@ namespace gameplay
          * Pauses the AnimationClip.
          */
         void pause();
-
-        /**
-         * Fades this clip out, and the specified clip in over the given duration.
-         *
-         * @param clip The clip to fade into.
-         * @param duration The duration of the fade.
-         */
-        void crossFade(AnimationClip* clip, const std::chrono::microseconds& duration);
 
         /**
          * Adds an animation begin listener.
@@ -283,9 +199,6 @@ namespace gameplay
 
         static const unsigned char CLIP_IS_PLAYING_BIT = 0x01; // Bit representing whether AnimationClip is a running clip in AnimationController
         static const unsigned char CLIP_IS_STARTED_BIT = 0x02; // Bit representing whether the AnimationClip has actually been started (ie: received first call to update())
-        static const unsigned char CLIP_IS_FADING_OUT_STARTED_BIT = 0x04; // Bit representing that a cross fade has started.
-        static const unsigned char CLIP_IS_FADING_OUT_BIT = 0x08; // Bit representing whether the clip is fading out.
-        static const unsigned char CLIP_IS_FADING_IN_BIT = 0x10; // Bit representing whether the clip is fading out.
         static const unsigned char CLIP_IS_MARKED_FOR_REMOVAL_BIT = 0x20; // Bit representing whether the clip has ended and should be removed from the AnimationController.
         static const unsigned char CLIP_IS_RESTARTED_BIT = 0x40; // Bit representing if the clip should be restarted by the AnimationController.
         static const unsigned char CLIP_IS_PAUSED_BIT = 0x80; // Bit representing if the clip is currently paused.
@@ -377,21 +290,12 @@ namespace gameplay
         Animation* _animation; // The Animation this clip is created from.
         std::chrono::microseconds _startTime; // Start time of the clip.
         std::chrono::microseconds _endTime; // End time of the clip.
-        std::chrono::microseconds _duration; // The total duration.
         unsigned char _stateBits; // Bit flag used to keep track of the clip's current state.
-        float _repeatCount; // The clip's repeat count.
-        std::chrono::microseconds _loopBlendTime; // Time spent blending the last frame of animation with the first frame, when looping.
-        std::chrono::microseconds _activeDuration; // The active duration of the clip.
-        float _speed; // The speed that the clip is playing. Default is 1.0. Negative goes in reverse.
         std::chrono::microseconds _timeStarted; // The game time when this clip was actually started.
         std::chrono::microseconds _elapsedTime; // Time elapsed while the clip is running.
-        AnimationClip* _crossFadeToClip; // The clip to cross fade to.
-        std::chrono::microseconds _crossFadeOutElapsed; // The amount of time that has elapsed for the crossfade.
-        std::chrono::microseconds _crossFadeOutDuration; // The duration of the cross fade.
-        float _blendWeight; // The clip's blendweight.
-        std::vector<Listener*>* _beginListeners; // Collection of begin listeners on the clip.
-        std::vector<Listener*>* _endListeners; // Collection of end listeners on the clip.
-        std::list<ListenerEvent*>* _listeners; // Ordered collection of listeners on the clip.
+        std::vector<Listener*> _beginListeners; // Collection of begin listeners on the clip.
+        std::vector<Listener*> _endListeners; // Collection of end listeners on the clip.
+        std::list<ListenerEvent*> _listeners; // Ordered collection of listeners on the clip.
         std::list<ListenerEvent*>::iterator* _listenerItr; // Iterator that points to the next listener event to be triggered.
     };
 }

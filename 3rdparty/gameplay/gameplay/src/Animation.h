@@ -100,7 +100,7 @@ namespace gameplay
         /**
          * Hidden copy constructor.
          */
-        Animation(const Animation& copy) = delete;
+        Animation(const Animation&) = delete;
 
         /**
          * Constructor.
