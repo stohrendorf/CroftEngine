@@ -45,7 +45,7 @@ public:
     /**
      * Returns the number of joints in this MeshSkin.
      */
-    unsigned int getJointCount() const;
+    size_t getJointCount() const;
 
     /**
      * Returns the joint at the given index.
@@ -54,7 +54,7 @@ public:
      *
      * @return The joint.
      */
-    Joint* getJoint(unsigned int index) const;
+    Joint* getJoint(size_t index) const;
 
     /**
      * Returns the joint with the given ID.

@@ -13,9 +13,6 @@
 #include <memory>
 #include <vector>
 
-struct SkeletonKeyFrames;
-class EffectHandler;
-
 namespace level
 {
     /** \brief A complete TR level.
@@ -109,8 +106,7 @@ namespace level
         std::vector<gameplay::Texture*> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> createMaterials(const std::vector<gameplay::Texture::Sampler*>& textures);
         engine::LaraController* createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures);
-        std::vector<gameplay::MeshSkin*> createSkinnedMeshes(const std::vector<gameplay::Model*>& staticMeshes);
-        void loadAnimation(SkeletonKeyFrames& keyFrames, uint32_t animId, const loader::AnimatedModel& model, const loader::Animation& trAnim);
+        std::vector<gameplay::MeshSkin*> createSkinnedMeshes(gameplay::Game* game, const std::vector<gameplay::Model*>& staticMeshes);
         gameplay::Texture* createSolidColorTex(uint8_t color) const;
 
         void toIrrlicht(gameplay::Game* game);
@@ -155,7 +151,6 @@ namespace level
 
         engine::LaraController* m_lara = nullptr;
         std::shared_ptr<render::TextureAnimator> m_textureAnimator;
-        std::shared_ptr<EffectHandler> m_fx = nullptr;
 
         engine::ItemController* getItemController(uint16_t id) const;
 
@@ -315,8 +310,6 @@ namespace level
 
         static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
         static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);
-
-        void loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, const core::Frame& frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData);
 
     private:
         static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);

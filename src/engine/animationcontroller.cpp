@@ -1,27 +1,25 @@
 #include "animationcontroller.h"
 
 #include "laracontroller.h"
-#include <boost/optional/optional_fwd.hpp>
 #include <chrono>
 
 
 namespace engine
 {
-    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, gsl::not_null<gameplay::AnimationController*> ctrl, const std::string& name)
+    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, const std::string& name)
         : AnimationController(level, name)
         , m_model(model)
         , m_currentAnimationId(model.animationIndex)
         , m_node(node)
-        , m_animController{ctrl}
     {
-        auto it = model.frameMapping.find(m_currentAnimationId);
-        if( it == model.frameMapping.end() )
+        auto it = model.animationClips.find(m_currentAnimationId);
+        if( it == model.animationClips.end() )
         {
             BOOST_LOG_TRIVIAL(error) << "No initial animation for " << name;
             return;
         }
 
-        startAnimLoop(it->second.clip->getStartTime());
+        startAnimLoop(it->second->getStartTime());
         m_targetState = getCurrentAnimState();
     }
 
@@ -34,19 +32,17 @@ namespace engine
 
     void MeshAnimationController::startAnimLoop(const std::chrono::microseconds& time)
     {
-        auto it = m_model.frameMapping.find(m_currentAnimationId);
-        BOOST_ASSERT(it != m_model.frameMapping.end());
-        it->second.apply(*m_animController, time);
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
+        it->second->play(time);
     }
 
 
     void MeshAnimationController::advanceFrame()
     {
-        if( m_animController->getRunningClips().empty() )
-            return;
-
-        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
-        Expects(clip != nullptr);
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
+        const auto& clip = it->second;
 
         BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << clip->getElapsedTime() << ", end=" << clip->getEndTime();
         if( clip->getElapsedTime() + std::chrono::seconds(1) / core::FrameRate >= clip->getEndTime() )
@@ -64,46 +60,37 @@ namespace engine
 
     core::Frame MeshAnimationController::getCurrentFrame() const
     {
-        auto it = m_model.frameMapping.find(m_currentAnimationId);
-        BOOST_ASSERT(it != m_model.frameMapping.end());
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
 
-        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
-        Expects(clip != nullptr);
-
-        return core::toFrame(clip->getElapsedTime());
+        return core::toFrame(it->second->getElapsedTime());
     }
 
 
     core::Frame MeshAnimationController::getAnimEndFrame() const
     {
-        auto it = m_model.frameMapping.find(m_currentAnimationId);
-        BOOST_ASSERT(it != m_model.frameMapping.end());
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
 
-        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
-        Expects(clip != nullptr);
-
-        return core::toFrame(clip->getEndTime());
+        return core::toFrame(it->second->getEndTime());
     }
 
 
     gameplay::BoundingBox MeshAnimationController::getBoundingBox() const
     {
-        auto it = m_model.frameMapping.find(m_currentAnimationId);
-        BOOST_ASSERT(it != m_model.frameMapping.end());
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
 
-        return it->second.getBoundingBox(getCurrentFrame());
+        return it->second->getBoundingBox();
     }
 
 
     core::Frame MeshAnimationController::getCurrentRelativeFrame() const
     {
-        auto it = m_model.frameMapping.find(m_currentAnimationId);
-        BOOST_ASSERT(it != m_model.frameMapping.end());
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
 
-        gameplay::AnimationClip* clip = m_animController->getRunningClips().front();
-        Expects(clip != nullptr);
-
-        return core::toFrame(clip->getElapsedTime() - clip->getStartTime());
+        return core::toFrame(it->second->getElapsedTime() - it->second->getStartTime());
     }
 
 
@@ -117,15 +104,18 @@ namespace engine
 
     void MeshAnimationController::playGlobalAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame)
     {
-        auto it = m_model.frameMapping.find(anim);
-        if( it == m_model.frameMapping.end() )
+        auto it = m_model.animationClips.find(anim);
+        if( it == m_model.animationClips.end() )
         {
             BOOST_LOG_TRIVIAL(error) << "No animation " << anim << " for " << getName();
             return;
         }
 
         m_currentAnimationId = anim;
-        it->second.apply(*m_animController, firstFrame.get_value_or(core::toFrame(it->second.clip->getStartTime())));
+        if(firstFrame.is_initialized())
+            it->second->play(core::toTime(*firstFrame));
+        else
+            it->second->play();
         //m_targetState = getCurrentState();
 
         BOOST_LOG_TRIVIAL(debug) << "Playing animation " << anim << ", state " << getCurrentAnimState();

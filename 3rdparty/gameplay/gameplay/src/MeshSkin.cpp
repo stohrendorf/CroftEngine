@@ -38,13 +38,13 @@ namespace gameplay
     }
 
 
-    unsigned int MeshSkin::getJointCount() const
+    size_t MeshSkin::getJointCount() const
     {
-        return (unsigned int)_joints.size();
+        return _joints.size();
     }
 
 
-    Joint* MeshSkin::getJoint(unsigned int index) const
+    Joint* MeshSkin::getJoint(size_t index) const
     {
         GP_ASSERT(index < _joints.size());
         return _joints[index];

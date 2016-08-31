@@ -29,7 +29,6 @@ namespace gameplay
         friend class Light;
         friend class MeshSkin;
         friend class Scene;
-        friend class SceneLoader;
 
     public:
 

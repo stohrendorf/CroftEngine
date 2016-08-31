@@ -155,72 +155,7 @@ namespace loader
         uint32_t meshPositionOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
         uint16_t animationIndex; // offset into Animations[]
 
-        /**
-        * @brief Describes a range of frames of the linearized animations in an Irrlicht IAnimatedMeshSceneNode
-        */
-        struct FrameRange
-        {
-            const std::map<core::Frame, gameplay::BoundingBox> bboxes;
-            const std::vector<gsl::not_null<gameplay::AnimationClip*>> clips;
-            const std::chrono::microseconds startTime;
-            const std::chrono::microseconds endTime;
-
-            FrameRange(std::map<core::Frame, gameplay::BoundingBox>&& bb, const std::vector<gsl::not_null<gameplay::AnimationClip*>>& c)
-                : bboxes(std::move(bb))
-                , clips(c)
-                , startTime(c.front()->getStartTime())
-                , endTime(c.front()->getEndTime())
-            {
-                BOOST_ASSERT(!bboxes.empty());
-
-#ifndef NDEBUG
-                for(const auto& clip : clips)
-                {
-                    BOOST_ASSERT(clip->getStartTime() == startTime);
-                    BOOST_ASSERT(clip->getEndTime() == endTime);
-                }
-#endif
-            }
-
-            void apply(gameplay::AnimationController& ctrl, const core::Frame& localFrame) const
-            {
-                apply(ctrl, core::toTime(localFrame) );
-            }
-
-            void apply(gameplay::AnimationController& ctrl, const std::chrono::microseconds& time) const
-            {
-                BOOST_ASSERT(time >= startTime && time <= endTime);
-
-                ctrl.stopAllAnimations();
-                for(const auto &clip : clips)
-                {
-                    clip->getAnimation();
-                    clip->play(time - startTime);
-                }
-            }
-
-            gameplay::BoundingBox getBoundingBox(const core::Frame& localFrame) const
-            {
-                //BOOST_ASSERT(localFrame >= getFirstFrame() && localFrame <= getLastFrame());
-                auto it = bboxes.lower_bound(localFrame);
-                if( it == bboxes.end() )
-                    return std::prev(it)->second;
-
-                if( it->first == localFrame || it == bboxes.begin() )
-                    return it->second;
-
-                // the iterator points behind the searched frame
-                auto before = std::prev(it);
-                auto dist = it->first - before->first;
-                BOOST_ASSERT(dist > core::Frame::zero());
-                auto lambda = static_cast<float>((localFrame - before->first).count()) / dist.count();
-
-                gameplay::BoundingBox interp(before->second.min.lerp(it->second.min, lambda), before->second.max.lerp(it->second.max, lambda));
-                return interp;
-            }
-        };
-
-        std::map<uint16_t, FrameRange> frameMapping;
+        std::map<uint16_t, std::unique_ptr<gameplay::AnimationClip>> animationClips;
 
         /** \brief reads a moveable definition.
         *

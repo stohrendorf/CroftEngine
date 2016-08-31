@@ -1,28 +1,125 @@
 #pragma once
 
-#include "Curve.h"
-#include "Animation.h"
+#include "BoundingBox.h"
+#include "Quaternion.h"
 
 
 namespace gameplay
 {
-    class Animation;
+    class AnimationController;
+    class MeshSkin;
 
 
     /**
      * Defines the runtime session of an Animation to be played.
      */
-    class AnimationClip : public Ref
+    class AnimationClip
     {
         friend class AnimationController;
-        friend class Animation;
 
     public:
+        AnimationClip(MeshSkin* skin,
+                      AnimationController* controller,
+                      const std::chrono::microseconds& startTime,
+                      const std::chrono::microseconds& endTime,
+                      const std::chrono::microseconds& step,
+                      const int16_t* poseData,
+                      size_t poseDataStride,
+                      const int32_t* boneTreeData);
 
-        /**
-         * Defines a constant for indefinitely repeating an AnimationClip.
-         */
-        static const unsigned int REPEAT_INDEFINITE = 0;
+        ~AnimationClip();
+
+
+        struct BonePose
+        {
+            Vector3 translation;
+            Quaternion rotation;
+        };
+
+
+        struct Pose
+        {
+            std::vector<BonePose> bones;
+            BoundingBox bbox;
+
+
+            Pose(size_t boneCount, const int16_t* poseData, const int32_t* boneTreeData)
+                : bones(boneCount)
+            {
+                uint16_t angleSetOfs = 10;
+
+                bool first = true;
+
+                for( BonePose& bone : bones )
+                {
+                    if( first )
+                    {
+                        bbox.min = Vector3(poseData[0], poseData[2], poseData[4]);
+                        bbox.max = Vector3(poseData[1], poseData[3], poseData[5]);
+
+                        bone.translation.set(poseData[6], static_cast<float>(-poseData[7]), poseData[8]);
+
+                        first = false;
+                    }
+                    else
+                    {
+                        // GP_ASSERT(model.boneTreeIndex + 4 * boneId <= m_boneTrees.size());
+                        // const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (boneId - 1) * 4];
+
+                        bone.translation.set(static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]));
+                        boneTreeData += 4;
+                    }
+
+                    const auto temp2 = poseData[angleSetOfs++];
+                    const auto temp1 = poseData[angleSetOfs++];
+
+                    Vector3 rot;
+                    rot.x = static_cast<float>((temp1 & 0x3ff0) >> 4);
+                    rot.y = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
+                    rot.z = static_cast<float>(temp2 & 0x03ff);
+                    rot *= MATH_PIX2 / 1024;
+
+                    bone.rotation = trRotationToQuat(rot);
+                }
+            }
+
+
+            Pose mix(const Pose& next, float lambda) const
+            {
+                GP_ASSERT(lambda >= 0 && lambda <= 1);
+                GP_ASSERT(bones.size() == next.bones.size());
+
+                Pose result{bones.size()};
+
+                for( size_t i = 0; i < bones.size(); ++i )
+                {
+                    Quaternion::slerp(bones[i].rotation, next.bones[i].rotation, lambda, &result.bones[i].rotation);
+                    result.bones[i].translation = bones[i].translation.lerp(next.bones[i].translation, lambda);
+                }
+
+                result.bbox.min = bbox.min.lerp(next.bbox.min, lambda);
+                result.bbox.max = bbox.max.lerp(next.bbox.max, lambda);
+
+                return result;
+            }
+
+
+        private:
+            static Quaternion trRotationToQuat(const Vector3& rotation)
+            {
+                Quaternion v;
+                v *= Quaternion({0,0,1}, rotation.z);
+                v *= Quaternion({1,0,0}, rotation.x);
+                v *= Quaternion({0,1,0}, rotation.y);
+                return v;
+            }
+
+
+            explicit Pose(size_t boneCount)
+                : bones(boneCount)
+            {
+            }
+        };
 
 
         /**
@@ -80,20 +177,6 @@ namespace gameplay
 
 
         /**
-         * Gets the AnimationClip's ID.
-         *
-         * @return The AnimationClip's ID.
-         */
-        const std::string& getId() const;
-
-        /**
-         * Gets the Animation that this AnimationClip was created from.
-         *
-         * @return The Animation that this clip was created from.
-         */
-        Animation* getAnimation() const;
-
-        /**
          * Gets the AnimationClip's start time.
          *
          * @return The time (in milliseconds) that the AnimationClip starts playing from.
@@ -114,10 +197,12 @@ namespace gameplay
          */
         std::chrono::microseconds getElapsedTime() const;
 
+
         void setElapsedTime(const std::chrono::microseconds& time)
         {
             _elapsedTime = time;
         }
+
 
         /**
          * Gets the AnimationClip's duration.
@@ -136,7 +221,14 @@ namespace gameplay
         /**
          * Plays the AnimationClip.
          */
-        void play(const std::chrono::microseconds& timeOffset = std::chrono::microseconds::zero());
+        void play(const std::chrono::microseconds& time);
+
+
+        void play()
+        {
+            play(_startTime);
+        }
+
 
         /**
          * Stops the AnimationClip.
@@ -195,6 +287,13 @@ namespace gameplay
          */
         void removeListener(AnimationClip::Listener* listener, const std::chrono::microseconds& eventTime);
 
+
+        const BoundingBox& getBoundingBox() const
+        {
+            return _bbox;
+        }
+
+
     private:
 
         static const unsigned char CLIP_IS_PLAYING_BIT = 0x01; // Bit representing whether AnimationClip is a running clip in AnimationController
@@ -231,29 +330,8 @@ namespace gameplay
         };
 
 
-        /**
-         * Constructor.
-         */
-        AnimationClip(const std::string& id, Animation* animation, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime);
-
-        /**
-         * Constructor.
-         */
         AnimationClip() = delete;
-
-        /**
-         * Constructor.
-         */
         AnimationClip(const AnimationClip& copy) = delete;
-
-        /**
-         * Destructor.
-         */
-        ~AnimationClip();
-
-        /**
-         * Hidden copy assignment operator.
-         */
         AnimationClip& operator=(const AnimationClip&) = delete;
 
         /**
@@ -286,8 +364,9 @@ namespace gameplay
          */
         void resetClipStateBit(unsigned char bit);
 
-        std::string _id; // AnimationClip ID.
-        Animation* _animation; // The Animation this clip is created from.
+        void setPose(const Pose& pose);
+
+        MeshSkin* _skin;
         std::chrono::microseconds _startTime; // Start time of the clip.
         std::chrono::microseconds _endTime; // End time of the clip.
         unsigned char _stateBits; // Bit flag used to keep track of the clip's current state.
@@ -297,5 +376,8 @@ namespace gameplay
         std::vector<Listener*> _endListeners; // Collection of end listeners on the clip.
         std::list<ListenerEvent*> _listeners; // Ordered collection of listeners on the clip.
         std::list<ListenerEvent*>::iterator* _listenerItr; // Iterator that points to the next listener event to be triggered.
+        std::map<std::chrono::microseconds, Pose> _poses;
+        AnimationController* _controller; // The AnimationController that this Animation will run on.
+        BoundingBox _bbox;
     };
 }

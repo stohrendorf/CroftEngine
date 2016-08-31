@@ -44,12 +44,6 @@ namespace gameplay
 
     void AnimationController::finalize()
     {
-        std::list<AnimationClip*>::iterator itr = _runningClips.begin();
-        for( ; itr != _runningClips.end(); ++itr )
-        {
-            AnimationClip* clip = *itr;
-            SAFE_RELEASE(clip);
-        }
         _runningClips.clear();
         _state = STOPPED;
     }
@@ -78,7 +72,6 @@ namespace gameplay
         }
 
         GP_ASSERT(clip);
-        clip->addRef();
         _runningClips.push_back(clip);
     }
 
@@ -92,7 +85,6 @@ namespace gameplay
             if( rClip == clip )
             {
                 _runningClips.erase(clipItr);
-                SAFE_RELEASE(clip);
                 break;
             }
             ++clipItr;
@@ -116,7 +108,6 @@ namespace gameplay
         {
             AnimationClip* clip = (*clipIter);
             GP_ASSERT(clip);
-            clip->addRef();
             if( clip->isClipStateBitSet(AnimationClip::CLIP_IS_RESTARTED_BIT) )
             { // If the CLIP_IS_RESTARTED_BIT is set, we should end the clip and
                 // move it from where it is in the running clips list to the back.
@@ -127,14 +118,12 @@ namespace gameplay
             }
             else if( clip->update(elapsedTime) )
             {
-                clip->release();
                 clipIter = _runningClips.erase(clipIter);
             }
             else
             {
                 ++clipIter;
             }
-            clip->release();
         }
 
         Transform::resumeTransformChanged();

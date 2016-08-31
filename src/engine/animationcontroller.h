@@ -44,10 +44,9 @@ class MeshAnimationController final : public AnimationController
     uint16_t m_currentAnimationId;
     uint16_t m_targetState = 0;
     gameplay::MeshSkin* const m_node;
-    gameplay::AnimationController* m_animController;
 
 public:
-    MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, gsl::not_null<gameplay::AnimationController*> ctrl, const std::string& name);
+    MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, const std::string& name);
 
     void setTargetState(uint16_t state) noexcept
     {

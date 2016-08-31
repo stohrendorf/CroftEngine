@@ -1,15 +1,14 @@
 #include "Base.h"
 #include "AnimationClip.h"
-#include "Animation.h"
 #include "Game.h"
-#include "Quaternion.h"
+#include "MeshSkin.h"
+#include "Joint.h"
 
 
 namespace gameplay
 {
-    AnimationClip::AnimationClip(const std::string& id, Animation* animation, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime)
-        : _id(id)
-        , _animation{animation}
+AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime, const std::chrono::microseconds& step, const int16_t* poseData, size_t poseDataStride, const int32_t* boneTreeData)
+        : _skin{skin}
         , _startTime{startTime}
         , _endTime{endTime}
         , _stateBits{0x00}
@@ -19,9 +18,17 @@ namespace gameplay
         , _endListeners{}
         , _listeners{}
         , _listenerItr{}
+        , _controller{controller}
     {
-        GP_ASSERT(_animation);
-        GP_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= _animation->_duration && std::chrono::microseconds::zero() <= endTime && endTime <= _animation->_duration);
+        GP_ASSERT(_skin);
+        GP_ASSERT(_controller);
+        GP_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= endTime);
+
+        for(auto i = startTime; i < endTime; i += step)
+        {
+            _poses.emplace(std::make_pair( i, Pose{_skin->getJointCount(), poseData, boneTreeData} ));
+            poseData += poseDataStride;
+        }
     }
 
 
@@ -49,21 +56,7 @@ namespace gameplay
     }
 
 
-    AnimationClip::ListenerEvent::~ListenerEvent()
-    {
-    }
-
-
-    const std::string& AnimationClip::getId() const
-    {
-        return _id;
-    }
-
-
-    Animation* AnimationClip::getAnimation() const
-    {
-        return _animation;
-    }
+    AnimationClip::ListenerEvent::~ListenerEvent() = default;
 
 
     std::chrono::microseconds AnimationClip::getStartTime() const
@@ -96,7 +89,7 @@ namespace gameplay
     }
 
 
-    void AnimationClip::play(const std::chrono::microseconds& timeOffset)
+    void AnimationClip::play(const std::chrono::microseconds& time)
     {
         if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
         {
@@ -117,11 +110,11 @@ namespace gameplay
         else
         {
             setClipStateBit(CLIP_IS_PLAYING_BIT);
-            GP_ASSERT(_animation);
-            GP_ASSERT(_animation->_controller);
-            _animation->_controller->schedule(this);
+            GP_ASSERT(_controller);
+            _controller->schedule(this);
         }
 
+        const auto timeOffset = time - _startTime;
         _timeStarted = Game::getGameTime() - timeOffset;
     }
 
@@ -265,6 +258,8 @@ namespace gameplay
 
     bool AnimationClip::update(const std::chrono::microseconds& elapsedTime)
     {
+        GP_ASSERT(!_poses.empty());
+
         if( isClipStateBitSet(CLIP_IS_PAUSED_BIT) )
         {
             return false;
@@ -316,44 +311,30 @@ namespace gameplay
         }
 
         // Add back in start time, and divide by the total animation's duration to get the actual percentage complete
-        GP_ASSERT(_animation);
-
-        // Compute percentage complete for the current loop (prevent a divide by zero if _duration==0).
-        // Note that we don't use (currentTime/(_duration+_loopBlendTime)). That's because we want a
-        // % value that is outside the 0-1 range for loop smoothing/blending purposes.
-        float percentComplete = getDuration() == std::chrono::microseconds::zero()
-                                    ? 1
-                                    : static_cast<float>(currentTime.count()) / getDuration().count();
-
-        percentComplete = MATH_CLAMP(percentComplete, 0.0f, 1.0f);
+        GP_ASSERT(_skin);
 
         // Evaluate this clip.
-        //! @todo Implement me
-#if 0
-        Animation::Channel* channel = nullptr;
-        AnimationValue* value = nullptr;
-        AnimationTarget* target = nullptr;
-        size_t channelCount = _animation->_channels.size();
-        float percentageStart = static_cast<float>(_startTime.count()) / _animation->_duration.count();
-        float percentageEnd = static_cast<float>(_endTime.count()) / _animation->_duration.count();
-        float percentageBlend = static_cast<float>(_loopBlendTime.count()) / _animation->_duration.count();
-        for( size_t i = 0; i < channelCount; i++ )
+
+        auto next = _poses.upper_bound(currentTime);
+        if(next == _poses.begin())
         {
-            channel = _animation->_channels[i];
-            GP_ASSERT(channel);
-            target = channel->_target;
-            GP_ASSERT(target);
-            value = _values[i];
-            GP_ASSERT(value);
-
-        // Evaluate the point on Curve
-            GP_ASSERT(channel->getCurve());
-            channel->getCurve()->evaluate(percentComplete, percentageStart, percentageEnd, percentageBlend, value->_value);
-
-        // Set the animation value on the target property.
-            target->setAnimationPropertyValue(channel->_propertyId, value, _blendWeight);
+            setPose(next->second);
         }
-#endif
+        else if(next == _poses.end())
+        {
+            setPose(std::prev(next)->second);
+        }
+        else
+        {
+            auto prev = std::prev(next);
+            const auto dist = next->first - prev->first;
+            const auto lambdaDist = currentTime - prev->first;
+            const auto lambda = static_cast<float>(lambdaDist.count()) / dist.count();
+            GP_ASSERT(lambda >= 0 && lambda <= 1);
+
+            const auto interpolated = prev->second.mix(next->second, lambda);
+            setPose(interpolated);
+        }
 
         // When ended. Probably should move to it's own method so we can call it when the clip is ended early.
         if( isClipStateBitSet(CLIP_IS_MARKED_FOR_REMOVAL_BIT) || !isClipStateBitSet(CLIP_IS_STARTED_BIT) )
@@ -368,8 +349,6 @@ namespace gameplay
 
     void AnimationClip::onBegin()
     {
-        addRef();
-
         // Initialize animation to play.
         setClipStateBit(CLIP_IS_STARTED_BIT);
 
@@ -389,15 +368,11 @@ namespace gameplay
                 ++listener;
             }
         }
-
-        release();
     }
 
 
     void AnimationClip::onEnd()
     {
-        addRef();
-
         resetClipStateBit(CLIP_ALL_BITS);
 
         // Notify end listeners if any.
@@ -411,8 +386,6 @@ namespace gameplay
                 ++listener;
             }
         }
-
-        release();
     }
 
 
@@ -431,5 +404,20 @@ namespace gameplay
     void AnimationClip::resetClipStateBit(unsigned char bit)
     {
         _stateBits &= ~bit;
+    }
+
+    void AnimationClip::setPose(const Pose& pose)
+    {
+        GP_ASSERT(_skin);
+        GP_ASSERT(_skin->getJointCount() == pose.bones.size());
+
+        _bbox = pose.bbox;
+
+        for(size_t i = 0; i<pose.bones.size(); ++i)
+        {
+            auto joint = _skin->getJoint(i);
+            joint->setRotation(pose.bones[i].rotation);
+            joint->setTranslation(pose.bones[i].translation);
+        }
     }
 }

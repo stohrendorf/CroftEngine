@@ -9,8 +9,6 @@ set(GAMEPLAY_SRC
     src/AIState.h
     src/AIStateMachine.cpp
     src/AIStateMachine.h
-    src/Animation.cpp
-    src/Animation.h
     src/AnimationClip.cpp
     src/AnimationClip.h
     src/AnimationController.cpp

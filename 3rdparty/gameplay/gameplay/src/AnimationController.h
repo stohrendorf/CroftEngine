@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AnimationClip.h"
-#include "Animation.h"
 #include "Properties.h"
 
 
@@ -13,9 +12,7 @@ namespace gameplay
     class AnimationController
     {
         friend class Game;
-        friend class Animation;
         friend class AnimationClip;
-        friend class SceneLoader;
 
     public:
 

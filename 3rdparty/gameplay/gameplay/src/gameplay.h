@@ -51,9 +51,6 @@
 
 // Animation
 #include "AnimationController.h"
-#include "AnimationTarget.h"
-#include "AnimationValue.h"
-#include "Animation.h"
 #include "AnimationClip.h"
 
 // AI

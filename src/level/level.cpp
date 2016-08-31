@@ -428,7 +428,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             //node->setAnimationSpeed(30);
             //node->setLoopMode(false);
-            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], mesh, game->getAnimationController(), name + ":animator");
+            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], mesh, name + ":animator");
 
             if( item.type == 0 )
             {
@@ -536,139 +536,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 }
 
 
-struct BoneKeyFrame
-{
-    gameplay::Quaternion rotation;
-    gameplay::Vector3 position;
-
-    BoneKeyFrame(const gameplay::Quaternion& r, const gameplay::Vector3& p)
-        : rotation(r)
-        , position(p)
-    {
-    }
-};
-
-
-struct BoneKeyFrames
-{
-    gameplay::Joint* joint;
-    std::vector<BoneKeyFrame> keyframes;
-
-
-    explicit BoneKeyFrames(gameplay::Joint* j)
-        : joint(j)
-    {
-        joint->addRef();
-    }
-
-
-    ~BoneKeyFrames()
-    {
-        joint->release();
-    }
-};
-
-
-struct SkeletonKeyFrames
-{
-    std::vector<BoneKeyFrames> bones;
-    std::vector<unsigned int> times;
-    std::map<uint32_t, std::map<core::Frame, gameplay::BoundingBox>> bboxes;
-
-    std::vector<gameplay::Animation*> createBoneAnims() const
-    {
-        std::vector<gameplay::Animation*> result;
-        for(const BoneKeyFrames& keyFrames : bones)
-        {
-            BOOST_ASSERT(keyFrames.keyframes.size() == times.size());
-
-            auto anim = keyFrames.joint->createAnimation("anim", gameplay::Transform::ANIMATE_ROTATE_TRANSLATE, times.size(), times.data(), reinterpret_cast<const float*>(keyFrames.keyframes.data()), gameplay::Curve::SMOOTH);
-
-            result.emplace_back(anim);
-        }
-
-        return result;
-    }
-
-    loader::AnimatedModel::FrameRange createFrameRange(const std::vector<gameplay::Animation*>& boneAnims, uint32_t animId, const core::Frame& firstFrame, const core::Frame& lastFrame)
-    {
-        std::vector<gsl::not_null<gameplay::AnimationClip*>> clips;
-        for(const auto& boneAnim : boneAnims)
-        {
-            clips.emplace_back(boneAnim->createClip("", core::toTime(firstFrame), core::toTime(lastFrame)));
-        }
-
-        return loader::AnimatedModel::FrameRange{ std::move(bboxes[animId]), clips };
-    }
-
-    void addKey(size_t boneId, const core::Frame& frame, const gameplay::Quaternion& rot, const gameplay::Vector3& pos)
-    {
-        Expects(boneId < bones.size());
-        Expects(times.empty() || frame.count() >= times.back());
-
-        bones[boneId].keyframes.emplace_back(rot, pos);
-        if(times.empty() || times.back() < frame.count())
-            times.emplace_back(frame.count());
-
-        Expects(bones[boneId].keyframes.size() == times.size());
-    }
-};
-
-
-void Level::loadAnimFrame(SkeletonKeyFrames& keyFrames, uint32_t animId, const core::Frame& frameIdx, const loader::AnimatedModel& model, const loader::Animation& animation, gsl::not_null<const int16_t*>& pData)
-{
-    uint16_t angleSetOfs = 10;
-
-    for( size_t meshIdx = 0; meshIdx < model.meshCount; meshIdx++ )
-    {
-        gameplay::Vector3 pos;
-        if( meshIdx == 0 )
-        {
-            gameplay::BoundingBox bbox;
-            bbox.min = {pData[0], pData[2], pData[4]};
-            bbox.max = {pData[1], pData[3], pData[5]};
-            keyFrames.bboxes[animId][frameIdx] = bbox;
-
-            pos.set(pData[6], static_cast<float>(-pData[7]), pData[8]);
-        }
-        else
-        {
-            BOOST_ASSERT(model.boneTreeIndex + 4 * meshIdx <= m_boneTrees.size());
-            const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (meshIdx - 1) * 4];
-            pos.set(static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]));
-        }
-
-        auto temp2 = pData[angleSetOfs++];
-        auto temp1 = pData[angleSetOfs++];
-
-        gameplay::Vector3 rot;
-        rot.x = static_cast<float>((temp1 & 0x3ff0) >> 4);
-        rot.y = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
-        rot.z = static_cast<float>(temp2 & 0x03ff);
-        rot *= MATH_PIX2 / 1024;
-
-        auto qrot = util::trRotationToQuat(rot);
-
-        keyFrames.addKey(meshIdx, frameIdx, qrot, pos);
-    }
-
-    pData = pData.get() + animation.poseDataSize;
-}
-
-
-void Level::loadAnimation(SkeletonKeyFrames& keyFrames, uint32_t animId, const loader::AnimatedModel& model, const loader::Animation& trAnim)
-{
-    BOOST_ASSERT(trAnim.poseDataOffset % 2 == 0);
-
-    gsl::not_null<const int16_t*> pData = &m_poseData[trAnim.poseDataOffset / 2];
-    for( uint32_t i = trAnim.firstFrame; i <= trAnim.lastFrame; i += trAnim.stretchFactor )
-    {
-        loadAnimFrame(keyFrames, animId, core::Frame(i), model, trAnim, pData);
-    }
-}
-
-
-std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<gameplay::Model*>& staticModels)
+std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game, const std::vector<gameplay::Model*>& staticModels)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
 
@@ -790,34 +658,21 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(const std::vector<ga
 
         const auto nextAnimIdx = *std::next(currentAnimIt);
 
-        SkeletonKeyFrames keyFrames;
         for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
         {
             if( currentAnimIdx >= m_animations.size() )
                 continue;
 
             const loader::Animation& animation = m_animations[currentAnimIdx];
-            loadAnimation(keyFrames, currentAnimIdx, *model, animation);
+
+            const auto start = core::Frame(animation.firstFrame);
+            const auto end = core::Frame(animation.lastFrame + 1);
+            const auto step = core::Frame(animation.stretchFactor);
+            const int16_t* pData = &m_poseData[animation.poseDataOffset / 2];
+            const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex];
+
+            model->animationClips.emplace(std::make_pair( currentAnimIdx, std::make_unique<gameplay::AnimationClip>(skin, game->getAnimationController(), start, end, step, pData, animation.poseDataSize, boneTreeData) ));
         }
-
-        auto boneAnims = keyFrames.createBoneAnims();
-
-        for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
-        {
-            if( currentAnimIdx >= m_animations.size() )
-                continue;
-
-            const loader::Animation& animation = m_animations[currentAnimIdx];
-            model->frameMapping.emplace(std::make_pair(currentAnimIdx, keyFrames.createFrameRange(boneAnims, currentAnimIdx, core::Frame(animation.firstFrame), core::Frame(animation.lastFrame))));
-        }
-
-#ifndef NDEBUG
-        BOOST_LOG_TRIVIAL(debug) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(model.get()) << std::dec << " frame mapping:";
-        for( const auto& fm : model->frameMapping )
-        {
-            BOOST_LOG_TRIVIAL(debug) << "  - anim " << fm.first << ": offset=" << fm.second.offset << ", first=" << fm.second.firstFrame << ", last=" << fm.second.lastFrame;
-        }
-#endif
     }
 
     return skinnedMeshes;
