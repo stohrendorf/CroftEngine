@@ -4,7 +4,7 @@
 
 namespace gameplay
 {
-    Image* Image::create(unsigned int width, unsigned int height, Image::Format format, unsigned char* data)
+    Image* Image::create(unsigned int width, unsigned int height, Image::Format format, const unsigned char* data)
     {
         GP_ASSERT(width > 0 && height > 0);
         GP_ASSERT(format >= RGB && format <= RGBA);

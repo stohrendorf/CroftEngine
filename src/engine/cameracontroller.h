@@ -35,7 +35,7 @@ namespace engine
         int m_smoothFactor = 8;
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
-        int m_camOverrideTimeout = -1;
+        std::chrono::microseconds m_camOverrideTimeout{ -1 };
         int m_camOverrideType = 0;
         core::RoomBoundIntPosition m_currentLookAt;
         core::TRRotation m_localRotation;
@@ -164,13 +164,13 @@ namespace engine
         ClampType clampAlongZ(core::RoomBoundIntPosition& origin) const;
         bool clampPosition(core::RoomBoundIntPosition& origin) const;
 
-        void handleCamOverride(int deltaTimeMs);
+        void handleCamOverride(const std::chrono::microseconds& deltaTimeMs);
         int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-        void updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, int deltaTimeMs);
-        void doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs);
-        void handleFreeLook(const ItemController& item, int deltaTimeMs);
-        void handleEnemy(const ItemController& item, int deltaTimeMs);
+        void updatePosition(const ::core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs);
+        void doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleFreeLook(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleEnemy(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
 
         using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 

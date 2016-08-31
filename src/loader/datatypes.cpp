@@ -121,26 +121,14 @@ gameplay::Node* Room::createSceneNode(int dumpIdx,
 
         const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
 
-        gameplay::Vector2 dim{ static_cast<float>(tex.right_side - tex.left_side + 1), static_cast<float>(tex.bottom_side - tex.top_side + 1) };
-        BOOST_ASSERT(dim.x > 0);
-        BOOST_ASSERT(dim.y > 0);
+        gameplay::Sprite* spriteNode = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+        spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex - core::TRCoordinates{0, tex.bottom_side/2, 0}).toRenderSystem(), -1, 0, 0);
-        n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
-        n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
-        n->getMaterial(0).EmissiveColor.set(0);
-        n->setMaterialFlag(irr::video::EMF_LIGHTING, true);
-        n->setMaterialTexture( 0, textures[tex.texture] );
-        {
-            irr::video::SColor col;
-            col.set(gsl::narrow<irr::u8>(lightColor.a * 255), gsl::narrow<irr::u8>(lightColor.r * 255), gsl::narrow<irr::u8>(lightColor.g * 255), gsl::narrow<irr::u8>(lightColor.b * 255));
-            n->getMaterial(0).AmbientColor = col;
-            n->getMaterial(0).DiffuseColor = col;
-            n->getMaterial(0).SpecularColor = col;
-            n->getMaterial(0).Lighting = true;
-        }
+        auto n = gameplay::Node::create("");
+        n->setDrawable(spriteNode);
+        n->setTranslation((vertices[sprite.vertex].vertex - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem());
 
-        n->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
+        node->addChild(n);
     }
 
     // resultNode->addShadowVolumeSceneNode();
@@ -150,7 +138,7 @@ gameplay::Node* Room::createSceneNode(int dumpIdx,
 
 gameplay::Texture* DWordTexture::toTexture() const
 {
-    gameplay::Image* img = gameplay::Image::create(256, 256, gameplay::Image::Format::RGBA, reinterpret_cast<uint8_t*>(img->getData()));
+    gameplay::Image* img = gameplay::Image::create(256, 256, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
     gameplay::Texture* tex = gameplay::Texture::create(img, false);
     img->release();
     return tex;

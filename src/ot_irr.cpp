@@ -134,21 +134,21 @@ int main()
 
         if(!device->isWindowActive())
         {
-            lastTime = timer->getTime();
+            lastTime = game->getAbsoluteTime();
             device->yield();
             continue;
         }
 
         lvl->m_inputHandler->update();
 
-        auto deltaTime = timer->getTime() - lastTime;
+        auto deltaTime = game->getAbsoluteTime() - lastTime;
         if(deltaTime <= 0)
         {
             device->yield();
             continue;
         }
 
-        lastTime = timer->getTime();
+        lastTime = game->getAbsoluteTime();
 
         for(const std::unique_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
         {
@@ -165,13 +165,9 @@ int main()
                                              lvl->m_cameraController->getFrontVector(),
                                              lvl->m_cameraController->getUpVector());
 
-        device->getVideoDriver()->beginScene(true, true);
-        //device->getSceneManager()->drawAll();
-        lvl->drawBars(device->getVideoDriver());
+        lvl->drawBars(game);
 
-        drawDebugInfo(device, lvl.get());
-
-        device->getVideoDriver()->endScene();
+        drawDebugInfo(game, lvl.get());
 
         // update information about current frame-rate
         std::string str = "FPS: ";

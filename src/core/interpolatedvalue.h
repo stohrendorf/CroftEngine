@@ -86,7 +86,7 @@ namespace core
 
         static constexpr T scale(const T& v, const std::chrono::microseconds& ms)
         {
-            return v * ms / core::FrameTime.count();
+            return v * ms.count() / core::FrameTime.count();
         }
 
         template <typename U>

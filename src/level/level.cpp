@@ -411,6 +411,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             name += "/animatedModel)";
             gameplay::Node* node = gameplay::Node::create(name.c_str());
             node->setDrawable(mesh->getModel());
+            node->setTranslation(item.position.toRenderSystem());
 
             if(item.type == 0)
             {
@@ -519,6 +520,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 
             auto node = gameplay::Node::create(name.c_str());
             node->setDrawable(sprite);
+            node->setTranslation(item.position.toRenderSystem());
 
             m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -1060,7 +1062,7 @@ void Level::drawBars(gameplay::Game* game) const
 {
     if( m_lara->isInWater() )
     {
-        const int x0 = drv->getScreenSize().Width - 110;
+        const int x0 = game->getViewport().width - 110;
 
         for( int i = 7; i <= 13; ++i )
             drv->draw2DLine({x0 - 1, i}, {x0 + 101, i}, m_palette->color[0].toSColor());

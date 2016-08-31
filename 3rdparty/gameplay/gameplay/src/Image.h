@@ -34,7 +34,7 @@ namespace gameplay
          * @return The newly created image.
          * @script{create}
          */
-        static Image* create(unsigned int width, unsigned int height, Format format, unsigned char* data = nullptr);
+        static Image* create(unsigned width, unsigned height, Format format, const unsigned char* data = nullptr);
 
         /**
          * Gets the image's raw pixel data.

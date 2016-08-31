@@ -120,7 +120,7 @@ public:
         auto bone = m_node->getJoint(id);
         bone->getAbsoluteTransformation();
 
-        bone->setRotation(bone->getRotation() + xyzToYprDeg(dr));
+        bone->setRotation(bone->getRotation() + xyzToYpr(dr));
     }
 
 private:
