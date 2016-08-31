@@ -9,11 +9,11 @@
 
 namespace gameplay
 {
-    class Scene;
-    class Camera;
-    class Light;
     class AIAgent;
+    class Camera;
     class Drawable;
+    class Light;
+    class Scene;
 
 
     /**
@@ -26,11 +26,10 @@ namespace gameplay
      */
     class Node : public Transform, public Ref
     {
+        friend class Light;
+        friend class MeshSkin;
         friend class Scene;
         friend class SceneLoader;
-        friend class Bundle;
-        friend class MeshSkin;
-        friend class Light;
 
     public:
 
@@ -381,14 +380,6 @@ namespace gameplay
         Vector3 getActiveCameraTranslationView() const;
 
         /**
-         * Gets the first animation in the node hierarchy with the specified ID.
-         *
-         * @param id The ID of the animation to get. Returns the first animation if ID is NULL.
-         * @return The first animation with the specified ID.
-         */
-        Animation* getAnimation(const char* id = nullptr) const override;
-
-        /**
          * Gets the drawable object attached to this node.
          *
          * @return The drawable component attached to this node.
@@ -532,7 +523,7 @@ namespace gameplay
         /**
          * Hidden copy assignment operator.
          */
-        Node& operator=(const Node&);
+        Node& operator=(const Node&) = delete;
 
     protected:
 

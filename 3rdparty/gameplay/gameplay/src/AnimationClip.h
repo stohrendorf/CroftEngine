@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AnimationValue.h"
 #include "Curve.h"
 #include "Animation.h"
 
@@ -8,7 +7,6 @@
 namespace gameplay
 {
     class Animation;
-    class AnimationValue;
 
 
     /**
@@ -391,7 +389,6 @@ namespace gameplay
         std::chrono::microseconds _crossFadeOutElapsed; // The amount of time that has elapsed for the crossfade.
         std::chrono::microseconds _crossFadeOutDuration; // The duration of the cross fade.
         float _blendWeight; // The clip's blendweight.
-        std::vector<AnimationValue*> _values; // AnimationValue holder.
         std::vector<Listener*>* _beginListeners; // Collection of begin listeners on the clip.
         std::vector<Listener*>* _endListeners; // Collection of end listeners on the clip.
         std::list<ListenerEvent*>* _listeners; // Ordered collection of listeners on the clip.

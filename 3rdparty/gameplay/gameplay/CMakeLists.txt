@@ -15,10 +15,6 @@ set(GAMEPLAY_SRC
     src/AnimationClip.h
     src/AnimationController.cpp
     src/AnimationController.h
-    src/AnimationTarget.cpp
-    src/AnimationTarget.h
-    src/AnimationValue.cpp
-    src/AnimationValue.h
     src/Base.h
     src/BoundingBox.cpp
     src/BoundingBox.h

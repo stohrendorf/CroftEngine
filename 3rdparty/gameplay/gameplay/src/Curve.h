@@ -11,7 +11,6 @@ namespace gameplay
  */
 class Curve : public Ref
 {
-    friend class AnimationTarget;
     friend class Animation;
     friend class AnimationClip;
     friend class AnimationController;
@@ -452,13 +451,13 @@ private:
         /**
          * Hidden copy assignment operator.
          */
-        Point& operator=(const Point&);
+        Point& operator=(const Point&) = delete;
     };
 
     /**
      * Constructor.
      */
-    Curve();
+    Curve() = delete;
 
     /**
      * Constructs a new curve and the specified parameters.
@@ -481,7 +480,7 @@ private:
     /**
      * Hidden copy assignment operator.
      */
-    Curve& operator=(const Curve&);
+    Curve& operator=(const Curve&) = delete;
 
     /**
      * Bezier interpolation function.

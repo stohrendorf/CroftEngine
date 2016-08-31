@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "AnimationClip.h"
 #include "Animation.h"
-#include "AnimationTarget.h"
 #include "Game.h"
 #include "Quaternion.h"
 
@@ -32,26 +31,11 @@ namespace gameplay
     {
         GP_ASSERT(_animation);
         GP_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= _animation->_duration && std::chrono::microseconds::zero() <= endTime && endTime <= _animation->_duration);
-
-        for( size_t i = 0, count = _animation->_channels.size(); i < count; i++ )
-        {
-            GP_ASSERT(_animation->_channels[i]);
-            GP_ASSERT(_animation->_channels[i]->getCurve());
-            _values.push_back(new AnimationValue(_animation->_channels[i]->getCurve()->getComponentCount()));
-        }
     }
 
 
     AnimationClip::~AnimationClip()
     {
-        std::vector<AnimationValue*>::iterator valueIter = _values.begin();
-        while( valueIter != _values.end() )
-        {
-            SAFE_DELETE(*valueIter);
-            ++valueIter;
-        }
-        _values.clear();
-
         SAFE_RELEASE(_crossFadeToClip);
         SAFE_DELETE(_beginListeners);
         SAFE_DELETE(_endListeners);
@@ -589,6 +573,8 @@ namespace gameplay
         }
 
         // Evaluate this clip.
+        //! @todo Implement me
+#if 0
         Animation::Channel* channel = nullptr;
         AnimationValue* value = nullptr;
         AnimationTarget* target = nullptr;
@@ -612,6 +598,7 @@ namespace gameplay
             // Set the animation value on the target property.
             target->setAnimationPropertyValue(channel->_propertyId, value, _blendWeight);
         }
+#endif
 
         // When ended. Probably should move to it's own method so we can call it when the clip is ended early.
         if( isClipStateBitSet(CLIP_IS_MARKED_FOR_REMOVAL_BIT) || !isClipStateBitSet(CLIP_IS_STARTED_BIT) )

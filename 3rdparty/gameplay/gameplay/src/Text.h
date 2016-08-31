@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Ref.h"
-#include "AnimationTarget.h"
 #include "Properties.h"
 #include "Font.h"
 #include "Vector4.h"
@@ -15,21 +14,11 @@ namespace gameplay
      *
      * Text can be attached to a node.
      */
-    class Text : public Ref, public Drawable, public AnimationTarget
+    class Text : public Ref, public Drawable
     {
         friend class Node;
 
     public:
-
-        /**
-         * Opacity property. Data=opacity
-         */
-        static const int ANIMATE_OPACITY = 1;
-
-        /**
-         * Color property. Data = red, green, blue, alpha
-         */
-        static const int ANIMATE_COLOR = 2;
 
         /**
          * Sets the text to be drawn.
@@ -199,26 +188,6 @@ namespace gameplay
          * operator=
          */
         Text& operator=(const Text& text);
-
-        /**
-         * @see AnimationTarget::getPropertyId
-         */
-        int getPropertyId(TargetType type, const char* propertyIdStr) override;
-
-        /**
-         * @see AnimationTarget::getAnimationPropertyComponentCount
-         */
-        unsigned int getAnimationPropertyComponentCount(int propertyId) const override;
-
-        /**
-         * @see AnimationTarget::getAnimationProperty
-         */
-        void getAnimationPropertyValue(int propertyId, AnimationValue* value) override;
-
-        /**
-         * @see AnimationTarget::setAnimationProperty
-         */
-        void setAnimationPropertyValue(int propertyId, AnimationValue* value, float blendWeight = 1.0f) override;
 
     private:
 

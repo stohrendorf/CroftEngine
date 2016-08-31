@@ -3,7 +3,6 @@
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "Matrix.h"
-#include "AnimationTarget.h"
 
 
 namespace gameplay
@@ -26,79 +25,9 @@ namespace gameplay
      * components using matrix.decompose(Vector3, Quaternion, Vector3) and then pass
      * those arguments to the appropriate constructor or set methods of Transform.
      */
-    class Transform : public AnimationTarget
+    class Transform
     {
     public:
-
-        /**
-         * Scale animation property. Data=scale
-         */
-        static const int ANIMATE_SCALE_UNIT = 0;
-
-        /**
-         * Scale animation property. Data=sx,sy,sz
-         */
-        static const int ANIMATE_SCALE = 1;
-
-        /**
-         * Scale x animation property. Data=sx
-         */
-        static const int ANIMATE_SCALE_X = 2;
-
-        /**
-         * Scale y animation property. Data=sy
-         */
-        static const int ANIMATE_SCALE_Y = 3;
-
-        /**
-         * Scale z animation property. Data=sz
-         */
-        static const int ANIMATE_SCALE_Z = 4;
-
-        /**
-         * Rotation animation property. Data=qx,qy,qz,qw (as quaternion).
-         */
-        static const int ANIMATE_ROTATE = 8;
-
-        /**
-         * Translate animation property. Data=tx,ty,tz
-         */
-        static const int ANIMATE_TRANSLATE = 9;
-
-        /**
-         * Translate x animation property. Data=tx
-         */
-        static const int ANIMATE_TRANSLATE_X = 10;
-
-        /**
-         * Translate y animation property. Data=ty
-         */
-        static const int ANIMATE_TRANSLATE_Y = 11;
-
-        /**
-         * Translate z animation property. Data=tz
-         */
-        static const int ANIMATE_TRANSLATE_Z = 12;
-
-        /**
-         * Rotation + Translation animation property (Rigid Body). Data=qx,qy,qz,qw,tx,ty,tz
-         */
-        static const int ANIMATE_ROTATE_TRANSLATE = 16;
-
-        /**
-         * Scale, Rotation + Translation animation property. Data=sx,sy,sz,qx,qy,qz,qw,tx,ty,tz
-         */
-        static const int ANIMATE_SCALE_ROTATE_TRANSLATE = 17;
-
-        /**
-         * Scale + Translation animation property. Data=sx,sy,sz,tx,ty,tz
-         */
-        static const int ANIMATE_SCALE_TRANSLATE = 18;
-
-        /**
-         * Scale + Rotation animation property. Data=sx,sy,sz,qx,qy,qz,qw
-         */
-        static const int ANIMATE_SCALE_ROTATE = 19;
 
         /**
          * Globally suspends all transform changed events.
@@ -774,21 +703,6 @@ namespace gameplay
          */
         void removeListener(Transform::Listener* listener);
 
-        /**
-         * @see AnimationTarget::getAnimationPropertyComponentCount
-         */
-        unsigned int getAnimationPropertyComponentCount(int propertyId) const;
-
-        /**
-         * @see AnimationTarget::getAnimationProperty
-         */
-        void getAnimationPropertyValue(int propertyId, AnimationValue* value);
-
-        /**
-         * @see AnimationTarget::setAnimationProperty
-         */
-        void setAnimationPropertyValue(int propertyId, AnimationValue* value, float blendWeight = 1.0f);
-
     protected:
 
         /**
@@ -876,8 +790,6 @@ namespace gameplay
         std::list<TransformListener>* _listeners;
 
     private:
-
-        void applyAnimationValueRotation(AnimationValue* value, unsigned int index, float blendWeight);
 
         static int _suspendTransformChanged;
         static std::vector<Transform*> _transformsChanged;

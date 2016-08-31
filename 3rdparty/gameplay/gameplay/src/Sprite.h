@@ -1,10 +1,7 @@
-#ifndef SPRITE_H_
-#define SPRITE_H_
+#pragma once
 
 #include "Ref.h"
 #include "Drawable.h"
-#include "AnimationTarget.h"
-#include "Properties.h"
 #include "Rectangle.h"
 #include "Vector4.h"
 #include "SpriteBatch.h"
@@ -26,27 +23,11 @@ namespace gameplay
      * Sprites can be animated using the animation system.
      * Sprites can have physics applied to them via their node binding.
      */
-    class Sprite : public Ref, public Drawable, public AnimationTarget
+    class Sprite : public Ref, public Drawable
     {
         friend class Node;
 
     public:
-
-        /**
-         * Opacity property. Data=opacity
-         */
-        static const int ANIMATE_OPACITY = 1;
-
-        /**
-         * Color property. Data = red, green, blue, alpha
-         */
-        static const int ANIMATE_COLOR = 2;
-
-        /**
-         * Image keyframe index property. Data=index
-         */
-        static const int ANIMATE_KEYFRAME = 3;
-
 
         /**
          * Defines the offset for position.
@@ -320,26 +301,6 @@ namespace gameplay
          */
         Sprite& operator=(const Sprite& sprite);
 
-        /**
-         * @see AnimationTarget::getPropertyId
-         */
-        int getPropertyId(TargetType type, const char* propertyIdStr);
-
-        /**
-         * @see AnimationTarget::getAnimationPropertyComponentCount
-         */
-        unsigned int getAnimationPropertyComponentCount(int propertyId) const;
-
-        /**
-         * @see AnimationTarget::getAnimationProperty
-         */
-        void getAnimationPropertyValue(int propertyId, AnimationValue* value);
-
-        /**
-         * @see AnimationTarget::setAnimationProperty
-         */
-        void setAnimationPropertyValue(int propertyId, AnimationValue* value, float blendWeight = 1.0f);
-
     private:
 
         float _width;
@@ -358,4 +319,3 @@ namespace gameplay
         BlendMode _blendMode;
     };
 }
-#endif

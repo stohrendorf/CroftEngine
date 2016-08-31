@@ -697,58 +697,6 @@ namespace gameplay
     }
 
 
-    Animation* Node::getAnimation(const char* id) const
-    {
-        Animation* animation = AnimationTarget::getAnimation(id);
-        if( animation )
-            return animation;
-
-        // See if this node has a model, then drill down.
-        Model* model = dynamic_cast<Model*>(_drawable);
-        if( model )
-        {
-            // Check to see if there's any animations with the ID on the joints.
-            MeshSkin* skin = model->getSkin();
-            if( skin )
-            {
-                Node* rootNode = skin->_rootNode;
-                if( rootNode )
-                {
-                    animation = rootNode->getAnimation(id);
-                    if( animation )
-                        return animation;
-                }
-            }
-
-            // Check to see if any of the model's material parameter's has an animation
-            // with the given ID.
-            Material* material = model->getMaterial();
-            if( material )
-            {
-                // How to access material parameters? hidden on the Material::RenderState.
-                std::vector<MaterialParameter*>::iterator itr = material->_parameters.begin();
-                for( ; itr != material->_parameters.end(); ++itr )
-                {
-                    GP_ASSERT(*itr);
-                    animation = static_cast<MaterialParameter*>(*itr)->getAnimation(id);
-                    if( animation )
-                        return animation;
-                }
-            }
-        }
-
-        // Look through this node's children for an animation with the specified ID.
-        for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
-        {
-            animation = child->getAnimation(id);
-            if( animation )
-                return animation;
-        }
-
-        return nullptr;
-    }
-
-
     Camera* Node::getCamera() const
     {
         return _camera;

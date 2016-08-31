@@ -5,21 +5,22 @@
 
 namespace gameplay
 {
-    Sprite::Sprite() : Drawable()
-                     , _width(0)
-                     , _height(0)
-                     , _offset(OFFSET_BOTTOM_LEFT)
-                     , _anchor(Vector2(0.5f, 0.5f))
-                     , _flipFlags(FLIP_NONE)
-                     , _frames(NULL)
-                     , _frameCount(1)
-                     , _frameStride(0)
-                     , _framePadding(1)
-                     , _frameIndex(0)
-                     , _opacity(1.0f)
-                     , _color(Vector4::one())
-                     , _blendMode(BLEND_ALPHA)
-                     , _batch(NULL)
+    Sprite::Sprite()
+        : Drawable()
+        , _width(0)
+        , _height(0)
+        , _offset(OFFSET_BOTTOM_LEFT)
+        , _anchor(Vector2(0.5f, 0.5f))
+        , _flipFlags(FLIP_NONE)
+        , _frames(nullptr)
+        , _frameCount(1)
+        , _frameStride(0)
+        , _framePadding(1)
+        , _frameIndex(0)
+        , _batch(nullptr)
+        , _opacity(1.0f)
+        , _color(Vector4::one())
+        , _blendMode(BLEND_ALPHA)
     {
     }
 
@@ -308,7 +309,7 @@ namespace gameplay
             // Apply node rotation
             const Quaternion& rot = _node->getRotation();
             if( rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f )
-                rotationAngle = rot.toAxisAngle(NULL);
+                rotationAngle = rot.toAxisAngle(nullptr);
 
             // Apply node scale
             if( _node->getScaleX() != 1.0f )
@@ -339,93 +340,6 @@ namespace gameplay
     }
 
 
-    int Sprite::getPropertyId(TargetType type, const char* propertyIdStr)
-    {
-        GP_ASSERT(propertyIdStr);
-
-        if( type == AnimationTarget::TRANSFORM )
-        {
-            if( strcmp(propertyIdStr, "ANIMATE_OPACITY") == 0 )
-            {
-                return Sprite::ANIMATE_OPACITY;
-            }
-            else if( strcmp(propertyIdStr, "ANIMATE_COLOR") == 0 )
-            {
-                return Sprite::ANIMATE_COLOR;
-            }
-            else if( strcmp(propertyIdStr, "ANIMATE_KEYFRAME") == 0 )
-            {
-                return Sprite::ANIMATE_KEYFRAME;
-            }
-        }
-
-        return AnimationTarget::getPropertyId(type, propertyIdStr);
-    }
-
-
-    unsigned int Sprite::getAnimationPropertyComponentCount(int propertyId) const
-    {
-        switch( propertyId )
-        {
-            case ANIMATE_OPACITY:
-                return 1;
-            case ANIMATE_COLOR:
-                return 4;
-            case ANIMATE_KEYFRAME:
-                return 1;
-            default:
-                return -1;
-        }
-    }
-
-
-    void Sprite::getAnimationPropertyValue(int propertyId, AnimationValue* value)
-    {
-        GP_ASSERT(value);
-
-        switch( propertyId )
-        {
-            case ANIMATE_OPACITY:
-                value->setFloat(0, _opacity);
-                break;
-            case ANIMATE_COLOR:
-                value->setFloat(0, _color.x);
-                value->setFloat(1, _color.y);
-                value->setFloat(2, _color.z);
-                value->setFloat(3, _color.w);
-                break;
-            case ANIMATE_KEYFRAME:
-                value->setFloat(0, (float)_frameIndex);
-                break;
-            default:
-                break;
-        }
-    }
-
-
-    void Sprite::setAnimationPropertyValue(int propertyId, AnimationValue* value, float blendWeight)
-    {
-        GP_ASSERT(value);
-
-        switch( propertyId )
-        {
-            case ANIMATE_OPACITY:
-                setOpacity(Curve::lerp(blendWeight, _opacity, value->getFloat(0)));
-                break;
-            case ANIMATE_COLOR:
-                setColor(Vector4(Curve::lerp(blendWeight, _color.x, value->getFloat(0)),
-                                 Curve::lerp(blendWeight, _color.x, value->getFloat(1)),
-                                 Curve::lerp(blendWeight, _color.x, value->getFloat(2)),
-                                 Curve::lerp(blendWeight, _color.x, value->getFloat(3))));
-                break;
-            case ANIMATE_KEYFRAME:
-                _frameIndex = (unsigned int)value->getFloat(0);
-                break;
-            default:
-                break;
-        }
-    }
-
     Sprite* Sprite::create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount, Effect* effect)
     {
         GP_ASSERT(texture != nullptr);
@@ -441,9 +355,9 @@ namespace gameplay
 
         unsigned int imageWidth = batch->getSampler()->getTexture()->getWidth();
         unsigned int imageHeight = batch->getSampler()->getTexture()->getHeight();
-        if(width == -1)
+        if( width == -1 )
             width = imageWidth;
-        if(height == -1)
+        if( height == -1 )
             height = imageHeight;
 
         Sprite* sprite = new Sprite();
@@ -453,9 +367,9 @@ namespace gameplay
         sprite->_frameCount = frameCount;
         sprite->_frames = new Rectangle[frameCount];
         sprite->_frames[0] = source;
-        if(sprite->_frames[0].width == -1.0f)
+        if( sprite->_frames[0].width == -1.0f )
             sprite->_frames[0].width = imageWidth;
-        if(sprite->_frames[0].height == -1.0f)
+        if( sprite->_frames[0].height == -1.0f )
             sprite->_frames[0].height = imageHeight;
         return sprite;
     }
