@@ -143,7 +143,20 @@ namespace core
 
         Angle& operator*=(float v)
         {
-            m_value = gsl::narrow_cast<int32_t>(v);
+            m_value = gsl::narrow_cast<int32_t>(m_value * v);
+            return *this;
+        }
+
+
+        Angle operator/(float v) const
+        {
+            return Angle{gsl::narrow_cast<int32_t>(std::lround(m_value / v)), RawTag()};
+        }
+
+
+        Angle& operator/=(float v)
+        {
+            m_value = gsl::narrow_cast<int32_t>(m_value / v);
             return *this;
         }
 
@@ -339,6 +352,11 @@ namespace core
                 Y.toRad(),
                 Z.toRad()
             };
+        }
+
+        TRRotation operator-(const TRRotation& rhs) const
+        {
+            return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
         }
     };
 

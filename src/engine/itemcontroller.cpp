@@ -112,31 +112,17 @@ namespace engine
         if( newRoom == m_position.room )
             return;
 
-        BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
         if( newRoom == nullptr )
         {
-            BOOST_LOG_TRIVIAL(fatal) << "No room to switch to. Matching rooms by position:";
-            for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
-            {
-                const loader::Room& room = m_level->m_rooms[i];
-                if( room.node->getTransformedBoundingBox().isPointInside(m_sceneNode->getTranslationWorld()) )
-                {
-                    BOOST_LOG_TRIVIAL(fatal) << "  - " << i;
-                }
-            }
+            BOOST_LOG_TRIVIAL(fatal) << "No room to switch to.";
             return;
         }
+        BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
         m_sceneNode->getParent()->removeChild(m_sceneNode);
         newRoom->node->addChild(m_sceneNode);
 
         m_position.room = newRoom;
-        for( uint32_t i = 0; i < m_sceneNode->getMaterialCount(); ++i )
-        {
-            irr::video::SMaterial& material = m_sceneNode->getMaterial(i);
-            const auto col = m_position.room->lightColor.toSColor(1 - m_position.room->darkness / 8191.0f);
-            material.DiffuseColor = col;
-        }
     }
 
     uint16_t ItemController::getCurrentAnimationId() const
@@ -407,12 +393,11 @@ namespace engine
         gameplay::Matrix m;
         gameplay::Matrix::createRotation(q, &m);
 
-        const auto dist = lara.getPosition() - item.getPosition();
-        const auto dx = m(0, 0) * dist.X + m(0, 1) * dist.Y + m(0, 2) * dist.Z;
-        const auto dy = m(1, 0) * dist.X + m(1, 1) * dist.Y + m(1, 2) * dist.Z;
-        const auto dz = m(2, 0) * dist.X + m(2, 1) * dist.Y + m(2, 2) * dist.Z;
+        auto dist = lara.getPosition() - item.getPosition();
+        gameplay::Vector3 tdist;
+        m.transformVector(dist.X, dist.Y, dist.Z, 0, &tdist);
 
-        return distance.isPointInside(irr::core::vector3di(dx, dy, dz));
+        return distance.contains(tdist);
     }
 
     void ItemController_Door::onInteract(LaraController& /*lara*/)

@@ -318,7 +318,7 @@ namespace engine
         if( m_uvAnimTime >= UVAnimTime )
         {
             getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
-            m_uvAnimTime -= UVAnimTime;
+            m_uvAnimTime -= core::toTime(UVAnimTime);
         }
 
         if( m_currentStateHandler == nullptr )
@@ -514,7 +514,7 @@ namespace engine
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlayEffect:
-                    if( getCurrentFrame() == cmd[0] )
+                    if( getCurrentFrame() == core::Frame(cmd[0]) )
                     {
                         BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                         if( cmd[1] == 0 && newFrame )
@@ -578,7 +578,7 @@ namespace engine
         {
             if( !isDoppelganger )
             {
-                if( irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L) )
+                if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
                     //! @todo kill Lara
                 }
@@ -606,7 +606,7 @@ namespace engine
                 break;
             case loader::TriggerType::Pad:
             case loader::TriggerType::AntiPad:
-                runActions = irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L);
+                runActions = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                 break;
             case loader::TriggerType::Switch:
                 {

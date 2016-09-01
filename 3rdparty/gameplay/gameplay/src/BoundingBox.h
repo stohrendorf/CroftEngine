@@ -22,6 +22,11 @@ namespace gameplay
          */
         Vector3 max;
 
+        bool contains(const Vector3& v) const
+        {
+            return min.x <= v.x && min.y <= v.y && min.z <= v.z && max.x >= v.x && max.y >= v.y && max.z >= v.z;
+        }
+
         /**
          * Constructs an empty bounding box at the origin.
          */
