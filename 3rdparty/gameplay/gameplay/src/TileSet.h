@@ -145,7 +145,7 @@ protected:
     /**
      * operator=
      */
-    TileSet& operator=(const TileSet& set);
+    TileSet& operator=(const TileSet& set) = delete;
 
 private:
 

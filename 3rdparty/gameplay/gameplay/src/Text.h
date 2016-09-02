@@ -187,7 +187,7 @@ namespace gameplay
         /**
          * operator=
          */
-        Text& operator=(const Text& text);
+        Text& operator=(const Text& text) = delete;
 
     private:
 

@@ -28,12 +28,6 @@ namespace gameplay
     }
 
 
-    Text& Text::operator=(const Text& text)
-    {
-        return *this;
-    }
-
-
     void Text::setText(const char* str)
     {
         _text = str;
@@ -148,7 +142,7 @@ namespace gameplay
     }
 
 
-    unsigned int Text::draw(bool wireframe)
+    unsigned int Text::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Rectangle viewport = Game::getInstance()->getViewport();

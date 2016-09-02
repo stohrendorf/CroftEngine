@@ -197,7 +197,7 @@ private:
     /**
      * Constructor.
      */
-    FrameBuffer(const char* id, unsigned int width, unsigned int height, FrameBufferHandle handle);
+    FrameBuffer(const char* id, FrameBufferHandle handle);
 
     /**
      * Destructor.

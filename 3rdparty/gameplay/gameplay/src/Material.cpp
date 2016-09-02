@@ -235,68 +235,6 @@ namespace gameplay
     }
 
 
-    static Texture::Filter parseTextureFilterMode(const char* str, Texture::Filter defaultValue)
-    {
-        if( str == nullptr || strlen(str) == 0 )
-        {
-            GP_ERROR("Texture filter mode string must be non-nullptr and non-empty.");
-            return defaultValue;
-        }
-        else if( strcmp(str, "NEAREST") == 0 )
-        {
-            return Texture::NEAREST;
-        }
-        else if( strcmp(str, "LINEAR") == 0 )
-        {
-            return Texture::LINEAR;
-        }
-        else if( strcmp(str, "NEAREST_MIPMAP_NEAREST") == 0 )
-        {
-            return Texture::NEAREST_MIPMAP_NEAREST;
-        }
-        else if( strcmp(str, "LINEAR_MIPMAP_NEAREST") == 0 )
-        {
-            return Texture::LINEAR_MIPMAP_NEAREST;
-        }
-        else if( strcmp(str, "NEAREST_MIPMAP_LINEAR") == 0 )
-        {
-            return Texture::NEAREST_MIPMAP_LINEAR;
-        }
-        else if( strcmp(str, "LINEAR_MIPMAP_LINEAR") == 0 )
-        {
-            return Texture::LINEAR_MIPMAP_LINEAR;
-        }
-        else
-        {
-            GP_ERROR("Unsupported texture filter mode string ('%s').", str);
-            return defaultValue;
-        }
-    }
-
-
-    static Texture::Wrap parseTextureWrapMode(const char* str, Texture::Wrap defaultValue)
-    {
-        if( str == nullptr || strlen(str) == 0 )
-        {
-            GP_ERROR("Texture wrap mode string must be non-nullptr and non-empty.");
-            return defaultValue;
-        }
-        else if( strcmp(str, "REPEAT") == 0 )
-        {
-            return Texture::REPEAT;
-        }
-        else if( strcmp(str, "CLAMP") == 0 )
-        {
-            return Texture::CLAMP;
-        }
-        else
-        {
-            GP_ERROR("Unsupported texture wrap mode string ('%s').", str);
-            return defaultValue;
-        }
-    }
-
-
     void Material::loadRenderState(RenderState* renderState, Properties* properties)
     {
         GP_ASSERT(renderState);

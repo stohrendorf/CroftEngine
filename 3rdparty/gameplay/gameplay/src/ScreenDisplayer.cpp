@@ -17,7 +17,7 @@ ScreenDisplayer::~ScreenDisplayer()
         Platform::sleep(_time - elapsedTime);
 }
 
-void ScreenDisplayer::start(const char* function, const std::chrono::microseconds& time)
+void ScreenDisplayer::start(const std::chrono::microseconds& time)
 {
     if (__scriptInstance == NULL)
     {

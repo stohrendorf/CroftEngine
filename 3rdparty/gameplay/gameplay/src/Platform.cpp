@@ -10,7 +10,6 @@ static std::chrono::high_resolution_clock::time_point __timeStart;
 static std::chrono::high_resolution_clock::duration __timeAbsolute;
 static bool __vsync = WINDOW_VSYNC;
 static bool __multiSampling = false;
-static bool __cursorVisible = true;
 static GLFWwindow* __window;
 
 namespace gameplay

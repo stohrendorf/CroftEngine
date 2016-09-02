@@ -426,7 +426,7 @@ public:
         /**
          * Copy constructor.
          */
-        StateBlock(const StateBlock& copy);
+        StateBlock(const StateBlock& copy) = delete;
 
         /**
          * Destructor.

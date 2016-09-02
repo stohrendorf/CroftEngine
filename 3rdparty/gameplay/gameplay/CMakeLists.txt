@@ -151,6 +151,9 @@ set(GAMEPLAY_RES_SHADERS
 add_library(gameplay STATIC
     ${GAMEPLAY_SRC}
 )
+if(NOT MSVC)
+    target_compile_options(gameplay PRIVATE -Wall -Wextra)
+endif()
 target_include_directories(gameplay PUBLIC src)
 
 set(GAMEPLAY_VERSION 3.0.0)

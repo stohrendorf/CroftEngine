@@ -12,7 +12,7 @@ std::vector<FrameBuffer*> FrameBuffer::_frameBuffers;
 FrameBuffer* FrameBuffer::_defaultFrameBuffer = NULL;
 FrameBuffer* FrameBuffer::_currentFrameBuffer = NULL;
 
-FrameBuffer::FrameBuffer(const char* id, unsigned int width, unsigned int height, FrameBufferHandle handle) 
+FrameBuffer::FrameBuffer(const char* id, FrameBufferHandle handle)
     : _id(id ? id : ""), _handle(handle), _renderTargets(NULL), _renderTargetCount(0), _depthStencilTarget(NULL)
 {
 }
@@ -52,7 +52,7 @@ void FrameBuffer::initialize()
     // On many platforms this will simply be the zero (0) handle, but this is not always the case.
     GLint fbo;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-    _defaultFrameBuffer = new FrameBuffer(FRAMEBUFFER_ID_DEFAULT, 0, 0, (FrameBufferHandle)fbo);
+    _defaultFrameBuffer = new FrameBuffer(FRAMEBUFFER_ID_DEFAULT, (FrameBufferHandle)fbo);
     _currentFrameBuffer = _defaultFrameBuffer;
 
     // Query the max supported color attachments. This glGet operation is not supported
@@ -93,7 +93,7 @@ FrameBuffer* FrameBuffer::create(const char* id, unsigned int width, unsigned in
     // Create the frame buffer
     GLuint handle = 0;
     GL_ASSERT( glGenFramebuffers(1, &handle) );
-    FrameBuffer* frameBuffer = new FrameBuffer(id, width, height, handle);
+    FrameBuffer* frameBuffer = new FrameBuffer(id, handle);
     
     // Create the render target array for the new frame buffer
     frameBuffer->_renderTargets = new RenderTarget*[_maxRenderTargets];

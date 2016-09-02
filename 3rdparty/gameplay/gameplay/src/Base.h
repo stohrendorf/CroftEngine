@@ -1,7 +1,5 @@
-#ifndef BASE_H_
-#define BASE_H_
+#pragma once
 
-// C/C++
 #include <new>
 #include <memory>
 #include <cstdio>
@@ -159,11 +157,6 @@ namespace gameplay
 #define M_1_PI                      0.31830988618379067154
 #endif
 
-// NOMINMAX makes sure that windef.h doesn't add macros min and max
-#ifdef WIN32
-#define NOMINMAX
-#endif
-
 #define WINDOW_VSYNC        1
 
 #define WIN32_LEAN_AND_MEAN
@@ -199,11 +192,7 @@ namespace gameplay
     typedef GLuint RenderBufferHandle;
 
     /** Gamepad handle */
-#ifdef __ANDROID__
-    typedef unsigned int GamepadHandle;
-#else
     typedef unsigned long GamepadHandle;
-#endif
 }
 
 
@@ -215,7 +204,7 @@ namespace gameplay
  * mode and is therefore safe to use for realtime/per-frame GL
  * function calls.
  */
-#if defined(NDEBUG) || (defined(__APPLE__) && !defined(DEBUG))
+#ifndef NDEBUG
 #define GL_ASSERT( gl_code ) gl_code
 #else
 #define GL_ASSERT( gl_code ) do \
@@ -252,5 +241,3 @@ extern GLenum __gl_error_code;
  * Accesses the most recently set global AL error.
  */
 #define AL_LAST_ERROR() __al_error_code
-
-#endif

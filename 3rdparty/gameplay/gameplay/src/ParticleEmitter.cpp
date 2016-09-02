@@ -922,7 +922,7 @@ namespace gameplay
     }
 
 
-    unsigned int ParticleEmitter::draw(bool wireframe)
+    unsigned int ParticleEmitter::draw(bool /*wireframe*/)
     {
         if( !isActive() )
             return 0;

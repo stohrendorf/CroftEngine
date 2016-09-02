@@ -219,30 +219,6 @@ namespace gameplay
     }
 
 
-    // Computes the size of a PVRTC data chunk for a mipmap level of the given size.
-    static unsigned int computePVRTCDataSize(int width, int height, int bpp)
-    {
-        int blockSize;
-        int widthBlocks;
-        int heightBlocks;
-
-        if( bpp == 4 )
-        {
-            blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
-            widthBlocks = std::max(width >> 2, 2);
-            heightBlocks = std::max(height >> 2, 2);
-        }
-        else
-        {
-            blockSize = 8 * 4; // Pixel by pixel block size for 2bpp
-            widthBlocks = std::max(width >> 3, 2);
-            heightBlocks = std::max(height >> 2, 2);
-        }
-
-        return widthBlocks * heightBlocks * ((blockSize * bpp) >> 3);
-    }
-
-
     int Texture::getMaskByteIndex(unsigned int mask)
     {
         switch( mask )

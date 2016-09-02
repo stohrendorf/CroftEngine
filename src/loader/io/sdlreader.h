@@ -149,7 +149,7 @@ public:
         static_assert(std::is_integral<T>::value && sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
         std::cerr << m_stream.tellg() << std::endl;
         m_stream.read(reinterpret_cast<char*>(dest), n);
-        if(m_stream.gcount() != n)
+        if(static_cast<size_t>(m_stream.gcount()) != n)
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
         }

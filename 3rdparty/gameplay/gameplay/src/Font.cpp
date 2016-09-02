@@ -141,7 +141,7 @@ void Font::lazyStart()
     const Rectangle& vp = Game::getInstance()->getViewport();
     if (!vp.isEmpty())
     {
-        Game* game = Game::getInstance();
+        Game::getInstance();
         Matrix projectionMatrix;
         Matrix::createOrthographicOffCenter(vp.x, vp.width, vp.height, vp.y, 0, 1, &projectionMatrix);
         _batch->setProjectionMatrix(projectionMatrix);

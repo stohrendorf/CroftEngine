@@ -474,7 +474,7 @@ namespace gameplay
     }
 
 
-    void Camera::transformChanged(Transform* transform, long cookie)
+    void Camera::transformChanged(Transform* /*transform*/, long /*cookie*/)
     {
         _bits |= CAMERA_DIRTY_VIEW | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
 

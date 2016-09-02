@@ -419,8 +419,6 @@ private:
         std::string fullPath;
         getFullPath(filePath, fullPath);
 
-        createFileFromAsset(filePath);
-
         FILE* fp = fopen(fullPath.c_str(), mode);
         return fp;
     }
@@ -486,59 +484,6 @@ private:
     const char* FileSystem::getAssetPath()
     {
         return __assetPath.c_str();
-    }
-
-
-    void FileSystem::createFileFromAsset(const char* path)
-    {
-#ifdef __ANDROID__
-    static std::set<std::string> upToDateAssets;
-
-    GP_ASSERT(path);
-    std::string fullPath(__resourcePath);
-    std::string resolvedPath = FileSystem::resolvePath(path);
-    fullPath += resolvedPath;
-
-    std::string directoryPath = fullPath.substr(0, fullPath.rfind('/'));
-    struct stat s;
-    if (stat(directoryPath.c_str(), &s) != 0)
-        makepath(directoryPath, 0777);
-
-        // To ensure that the files on the file system corresponding to the assets in the APK bundle
-        // are always up to date (and in sync), we copy them from the APK to the file system once
-        // for each time the process (game) runs.
-    if (upToDateAssets.find(fullPath) == upToDateAssets.end())
-    {
-        AAsset* asset = AAssetManager_open(__assetManager, resolvedPath.c_str(), AASSET_MODE_RANDOM);
-        if (asset)
-        {
-            const void* data = AAsset_getBuffer(asset);
-            int length = AAsset_getLength(asset);
-            FILE* file = fopen(fullPath.c_str(), "wb");
-            if (file != NULL)
-            {
-                int ret = fwrite(data, sizeof(unsigned char), length, file);
-                if (fclose(file) != 0)
-                {
-                    GP_ERROR("Failed to close file on file system created from APK asset '%s'.", path);
-                    return;
-                }
-                if (ret != length)
-                {
-                    GP_ERROR("Failed to write all data from APK asset '%s' to file on file system.", path);
-                    return;
-                }
-            }
-            else
-            {
-                GP_ERROR("Failed to create file on file system from APK asset '%s'.", path);
-                return;
-            }
-
-            upToDateAssets.insert(fullPath);
-        }
-    }
-#endif
     }
 
 

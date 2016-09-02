@@ -72,13 +72,13 @@ namespace gameplay
     }
 
 
-    void Game::update(const std::chrono::microseconds& elapsedTime)
+    void Game::update(const std::chrono::microseconds& /*elapsedTime*/)
     {
         // stub
     }
 
 
-    void Game::render(const std::chrono::microseconds& elapsedTime)
+    void Game::render(const std::chrono::microseconds& /*elapsedTime*/)
     {
         // stub
     }
@@ -375,7 +375,7 @@ namespace gameplay
     }
 
 
-    void Game::resizeEvent(unsigned int width, unsigned int height)
+    void Game::resizeEvent(unsigned int /*width*/, unsigned int /*height*/)
     {
         // stub
     }
@@ -463,7 +463,7 @@ namespace gameplay
     }
 
 
-    void Game::ShutdownListener::timeEvent(const std::chrono::microseconds& timeDiff, void* cookie)
+    void Game::ShutdownListener::timeEvent(const std::chrono::microseconds& /*timeDiff*/, void* /*cookie*/)
     {
         Game::getInstance()->shutdown();
     }

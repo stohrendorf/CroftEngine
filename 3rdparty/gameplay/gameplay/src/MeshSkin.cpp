@@ -180,7 +180,7 @@ namespace gameplay
     }
 
 
-    void MeshSkin::transformChanged(Transform* transform, long cookie)
+    void MeshSkin::transformChanged(Transform* /*transform*/, long cookie)
     {
         switch( cookie )
         {

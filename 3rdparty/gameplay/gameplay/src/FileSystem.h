@@ -208,13 +208,6 @@ namespace gameplay
         static const char* getAssetPath();
 
         /**
-         * Creates a file on the file system from the specified asset (Android-specific).
-         *
-         * @param path The path to the file.
-         */
-        static void createFileFromAsset(const char* path);
-
-        /**
          * Returns the directory name up to and including the trailing '/'.
          *
          * This is a lexical method so it does not verify that the directory exists.

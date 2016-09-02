@@ -28,12 +28,6 @@ namespace gameplay
     }
 
 
-    TileSet& TileSet::operator=(const TileSet& set)
-    {
-        return *this;
-    }
-
-
     void TileSet::setTileSource(unsigned int column, unsigned int row, const Vector2& source)
     {
         GP_ASSERT(column < _columnCount);
@@ -114,7 +108,7 @@ namespace gameplay
     }
 
 
-    unsigned int TileSet::draw(bool wireframe)
+    unsigned int TileSet::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Vector3 position = Vector3::zero();

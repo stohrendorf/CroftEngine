@@ -283,7 +283,7 @@ namespace gameplay
          */
         unsigned int draw(bool wireframe = false);
 
-        static Sprite* Sprite::create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount = 1, Effect* effect = nullptr);
+        static Sprite* create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount = 1, Effect* effect = nullptr);
     protected:
 
         /**
@@ -299,7 +299,7 @@ namespace gameplay
         /**
          * operator=
          */
-        Sprite& operator=(const Sprite& sprite);
+        Sprite& operator=(const Sprite& sprite) = delete;
 
     private:
 

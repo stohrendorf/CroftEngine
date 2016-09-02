@@ -44,7 +44,7 @@ public:
      * @param function See {@link Game::renderOnce(const char*)}.
      * @param time The minimum amount of time to display the screen (in milliseconds).
      */
-    static void start(const char* function, const std::chrono::microseconds& time);
+    static void start(const std::chrono::microseconds& time);
 
     /**
      * Finishes running the current screen displayer.

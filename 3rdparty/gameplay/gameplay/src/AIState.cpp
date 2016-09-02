@@ -65,17 +65,17 @@ namespace gameplay
     }
 
 
-    void AIState::Listener::stateEnter(AIAgent* agent, AIState* state)
+    void AIState::Listener::stateEnter(AIAgent* /*agent*/, AIState* /*state*/)
     {
     }
 
 
-    void AIState::Listener::stateExit(AIAgent* agent, AIState* state)
+    void AIState::Listener::stateExit(AIAgent* /*agent*/, AIState* /*state*/)
     {
     }
 
 
-    void AIState::Listener::stateUpdate(AIAgent* agent, AIState* state, const std::chrono::microseconds& elapsedTime)
+    void AIState::Listener::stateUpdate(AIAgent* /*agent*/, AIState* /*state*/, const std::chrono::microseconds& /*elapsedTime*/)
     {
     }
 }

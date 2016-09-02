@@ -32,12 +32,6 @@ namespace gameplay
     }
 
 
-    Sprite& Sprite::operator=(const Sprite& sprite)
-    {
-        return *this;
-    }
-
-
     float Sprite::getWidth() const
     {
         return _width;
@@ -111,8 +105,6 @@ namespace gameplay
             return;
         unsigned int imageWidth = _batch->getSampler()->getTexture()->getWidth();
         unsigned int imageHeight = _batch->getSampler()->getTexture()->getHeight();
-        float textureWidthRatio = 1.0f / imageWidth;
-        float textureHeightRatio = 1.0f / imageHeight;
 
         // If we have a stride then compute the wrap width
         float strideWidth;
@@ -124,8 +116,6 @@ namespace gameplay
         // Mark the start as reference
         float x = _frames[0].x;
         float y = _frames[0].y;
-        float width = _frames[0].width;
-        float height = _frames[0].height;
 
         // Compute frames 1+
         for( unsigned int frameIndex = 1; frameIndex < _frameCount; frameIndex++ )
@@ -256,7 +246,7 @@ namespace gameplay
     }
 
 
-    unsigned int Sprite::draw(bool wireframe)
+    unsigned int Sprite::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Vector3 position = Vector3::zero();

@@ -517,15 +517,7 @@ namespace gameplay
     }
 
 
-    RenderState::StateBlock::StateBlock(const StateBlock& copy)
-    {
-        // Hidden
-    }
-
-
-    RenderState::StateBlock::~StateBlock()
-    {
-    }
+    RenderState::StateBlock::~StateBlock() = default;
 
 
     RenderState::StateBlock* RenderState::StateBlock::create()
