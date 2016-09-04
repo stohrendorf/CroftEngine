@@ -554,13 +554,13 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
     }
     animStarts.insert(gsl::narrow<uint16_t>(m_animations.size()));
 
-    std::vector<gameplay::Model*> skinnedMeshes;
+    std::vector<gameplay::Node*> skinnedMeshes;
 
     for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         Expects(model != nullptr);
 
-        gameplay::Model* skinnedMesh = gameplay::Model::create();
+        gameplay::Node* skinnedMesh = gameplay::Node::create();
         skinnedMeshes.emplace_back(skinnedMesh);
 
         std::stack<gameplay::Joint*> parentStack;
@@ -572,7 +572,11 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
             BOOST_ASSERT(meshIndex < staticModels.size());
             const auto staticModel = staticModels[meshIndex];
 
-            gameplay::Joint* joint = new gameplay::Joint();
+            gameplay::Model* clone = staticModel->clone();
+            clone->setSkin(new gameplay::MeshSkin());
+            skinnedMesh->addChild(clone);
+
+            gameplay::Joint* joint = new gameplay::Joint("bone:" + boost::lexical_cast<std::string>(boneIndex));
             if( model->type == 0 )
             {
                 if( boneIndex == 7 )
@@ -583,40 +587,14 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
 
             joint->setDrawable(staticModel);
 
-            // clone static mesh buffers to skinned mesh buffers
-            for( uint32_t meshBufIdx = 0; meshBufIdx < staticModel->MeshBuffers.size(); ++meshBufIdx )
-            {
-                gsl::not_null<irr::scene::SSkinMeshBuffer*> skinMeshBuffer = skinnedMesh->addMeshBuffer();
-                Expects(staticModel->MeshBuffers[meshBufIdx]->getIndexType() == skinMeshBuffer->getIndexType());
-                Expects(staticModel->MeshBuffers[meshBufIdx]->getVertexType() == skinMeshBuffer->getVertexType());
-                for( uint32_t i = 0; i < staticModel->MeshBuffers[meshBufIdx]->getIndexCount(); ++i )
-                    skinMeshBuffer->Indices.push_back(staticModel->MeshBuffers[meshBufIdx]->getIndices()[i]);
-
-                for( uint32_t i = 0; i < staticModel->MeshBuffers[meshBufIdx]->getVertexCount(); ++i )
-                {
-                    skinMeshBuffer->Vertices_Standard.push_back(static_cast<irr::video::S3DVertex*>(staticModel->MeshBuffers[meshBufIdx]->getVertices())[i]);
-
-                    auto w = skinnedMesh->addWeight(joint);
-                    w->buffer_id = skinnedMesh->getMeshBuffers().size() - 1;
-                    w->strength = 1.0f;
-                    w->vertex_id = i;
-                }
-
-                skinMeshBuffer->Material = staticModel->MeshBuffers[meshBufIdx]->getMaterial();
-
-                skinMeshBuffer->setDirty();
-                skinMeshBuffer->boundingBoxNeedsRecalculated();
-                skinMeshBuffer->recalculateBoundingBox();
-            }
-
             if( boneIndex == 0 )
             {
                 parentStack.push(joint);
-                skinnedMesh->setRootJoint(joint);
+                clone->getSkin()->setRootJoint(joint);
                 continue;
             }
 
-            auto pred = skinnedMesh->getJoint(boneIndex - 1);
+            auto pred = clone->getSkin()->getJoint(boneIndex - 1);
 
             gameplay::Joint* parent = nullptr;
             BOOST_ASSERT(model->boneTreeIndex + 4 * boneIndex <= m_boneTrees.size());
@@ -697,24 +675,20 @@ gameplay::Texture* Level::createSolidColorTex(uint8_t color) const
 
 void Level::toIrrlicht(gameplay::Game* game)
 {
-    device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
-    device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-    device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
+    //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
+    //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
+    //device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
     m_inputHandler = std::make_unique<engine::InputHandler>(device->getCursorControl());
-    device->setEventReceiver(m_inputHandler.get());
-
-    m_fx = std::make_shared<EffectHandler>(device, device->getVideoDriver()->getScreenSize());
-    m_fx->setClearColour(irr::video::SColor(0));
-    m_fx->enableDepthPass(true);
+    //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<gameplay::Texture*> textures = createTextures();
     std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> materials = createMaterials(textures);
     std::vector<gameplay::Material*> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
-        gameplay::Material* result;
+        gameplay::Material* result = gameplay::Material::create();
         // Set some defaults
-        result.setTexture(0, createSolidColorTex(device->getSceneManager(), i));
+        result.setTexture(0, createSolidColorTex(i));
         //result.BackfaceCulling = false;
         result.ColorMaterial = irr::video::ECM_DIFFUSE;
         result.Lighting = true;
@@ -736,35 +710,24 @@ void Level::toIrrlicht(gameplay::Game* game)
         m_rooms[i].createSceneNode(device->getSceneManager(), i, *this, materials, textures, staticMeshes, *m_textureAnimator);
     }
 
-    std::vector<irr::scene::ISkinnedMesh*> skinnedMeshes = createSkinnedMeshes(staticMeshes);
+    std::vector<gameplay::MeshSkin*> skinnedMeshes = createSkinnedMeshes(game, staticMeshes);
 
-    m_lara = createItems(device->getSceneManager(), skinnedMeshes, textures);
+    m_lara = createItems(game, skinnedMeshes, textures);
     if( m_lara == nullptr )
         return;
 
     for( auto* ptr : staticMeshes )
-        ptr->drop();
+        ptr->release();
 
     for( auto& ptr : skinnedMeshes )
-        ptr->drop();
+        ptr->release();
 
-    for( const auto& i : m_itemControllers )
-        m_fx->addNodeToDepthPass(i.second->getSceneNode());
-
-    if( device->getVideoDriver()->getDriverType() == irr::video::EDT_DIRECT3D9 )
-        m_fx->addPostProcessingEffectFromFile("shaders/black_depth.hlsl");
-    else if( device->getVideoDriver()->getDriverType() == irr::video::EDT_OPENGL )
-        m_fx->addPostProcessingEffectFromFile("shaders/black_depth.glsl");
-    else
-        throw std::runtime_error("Unsupported driver type");
-
-    irr::scene::ICameraSceneNode* camera = device->getSceneManager()->addCameraSceneNode();
-    m_cameraController = new engine::CameraController(this, m_lara, device->getSceneManager()->getVideoDriver(), camera);
-    camera->addAnimator(m_cameraController);
-    camera->bindTargetAndRotation(true);
-    camera->setNearValue(10);
-    camera->setFarValue(20480);
-    camera->setFOV(irr::core::degToRad(80.0f));
+    gameplay::Camera* camera = device->getSceneManager()->addCameraSceneNode();
+    m_cameraController = new engine::CameraController(this, m_lara, camera);
+    // camera->addListener(m_cameraController);
+    camera->setNearPlane(10);
+    camera->setFarPlane(20480);
+    camera->setFieldOfView(MATH_DEG_TO_RAD(80.0f));
 
     for( const loader::SoundSource& src : m_soundSources )
     {

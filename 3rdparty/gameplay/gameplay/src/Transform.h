@@ -768,6 +768,7 @@ namespace gameplay
          * The rotation component of the Transform.
          */
         Quaternion _rotation;
+        Quaternion _rotationPatch;
 
         /**
          * The translation component of the Transform.

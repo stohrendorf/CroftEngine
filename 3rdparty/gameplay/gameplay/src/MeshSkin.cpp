@@ -10,10 +10,10 @@
 namespace gameplay
 {
     MeshSkin::MeshSkin()
-        : _rootJoint(NULL)
-        , _rootNode(NULL)
-        , _matrixPalette(NULL)
-        , _model(NULL)
+        : _rootJoint(nullptr)
+        , _rootNode(nullptr)
+        , _matrixPalette()
+        , _model(nullptr)
     {
     }
 
@@ -21,20 +21,6 @@ namespace gameplay
     MeshSkin::~MeshSkin()
     {
         clearJoints();
-
-        SAFE_DELETE_ARRAY(_matrixPalette);
-    }
-
-
-    const Matrix& MeshSkin::getBindShape() const
-    {
-        return _bindShape;
-    }
-
-
-    void MeshSkin::setBindShape(const float* matrix)
-    {
-        _bindShape.set(matrix);
     }
 
 
@@ -62,29 +48,28 @@ namespace gameplay
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
 
-    void MeshSkin::setJointCount(unsigned int jointCount)
+    void MeshSkin::setJointCount(size_t jointCount)
     {
         // Erase the joints vector and release all joints.
         clearJoints();
 
-        // Resize the joints vector and initialize to NULL.
+        // Resize the joints vector and initialize to nullptr.
         _joints.resize(jointCount);
-        for( unsigned int i = 0; i < jointCount; i++ )
+        for( size_t i = 0; i < jointCount; i++ )
         {
-            _joints[i] = NULL;
+            _joints[i] = nullptr;
         }
 
         // Rebuild the matrix palette. Each matrix is 3 rows of Vector4.
-        SAFE_DELETE_ARRAY(_matrixPalette);
-
+        _matrixPalette.clear();
         if( jointCount > 0 )
         {
-            _matrixPalette = new Vector4[jointCount * PALETTE_ROWS];
-            for( unsigned int i = 0; i < jointCount * PALETTE_ROWS; i += PALETTE_ROWS )
+            _matrixPalette.resize(jointCount * PALETTE_ROWS);
+            for(size_t i = 0; i < jointCount * PALETTE_ROWS; i += PALETTE_ROWS )
             {
                 _matrixPalette[i + 0].set(1.0f, 0.0f, 0.0f, 0.0f);
                 _matrixPalette[i + 1].set(0.0f, 1.0f, 0.0f, 0.0f);
@@ -94,7 +79,7 @@ namespace gameplay
     }
 
 
-    void MeshSkin::setJoint(Joint* joint, unsigned int index)
+    void MeshSkin::setJoint(Joint* joint, size_t index)
     {
         GP_ASSERT(index < _joints.size());
 
@@ -116,20 +101,18 @@ namespace gameplay
 
     Vector4* MeshSkin::getMatrixPalette() const
     {
-        GP_ASSERT(_matrixPalette);
-
         for( size_t i = 0, count = _joints.size(); i < count; i++ )
         {
             GP_ASSERT(_joints[i]);
-            _joints[i]->updateJointMatrix(getBindShape(), &_matrixPalette[i * PALETTE_ROWS]);
+            _joints[i]->updateJointMatrix(&_matrixPalette[i * PALETTE_ROWS]);
         }
-        return _matrixPalette;
+        return _matrixPalette.data();
     }
 
 
-    unsigned int MeshSkin::getMatrixPaletteSize() const
+    size_t MeshSkin::getMatrixPaletteSize() const
     {
-        return (unsigned int)_joints.size() * PALETTE_ROWS;
+        return _joints.size() * PALETTE_ROWS;
     }
 
 
@@ -167,9 +150,9 @@ namespace gameplay
         if( newRootNode )
         {
             // Find the top level parent node of the root joint
-            for( Node* node = newRootNode->getParent(); node != NULL; node = node->getParent() )
+            for( Node* node = newRootNode->getParent(); node != nullptr; node = node->getParent() )
             {
-                if( node->getParent() == NULL )
+                if( node->getParent() == nullptr )
                 {
                     newRootNode = node;
                     break;
@@ -230,7 +213,7 @@ namespace gameplay
 
     void MeshSkin::clearJoints()
     {
-        setRootJoint(NULL);
+        setRootJoint(nullptr);
 
         for( size_t i = 0, count = _joints.size(); i < count; ++i )
         {

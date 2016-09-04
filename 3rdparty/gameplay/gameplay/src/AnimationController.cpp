@@ -7,7 +7,7 @@
 namespace gameplay
 {
     AnimationController::AnimationController()
-        : _state(STOPPED)
+        : m_state(STOPPED)
     {
     }
 
@@ -19,8 +19,8 @@ namespace gameplay
 
     void AnimationController::stopAllAnimations()
     {
-        std::list<AnimationClip*>::iterator clipIter = _runningClips.begin();
-        while( clipIter != _runningClips.end() )
+        std::list<AnimationClip*>::iterator clipIter = m_runningClips.begin();
+        while( clipIter != m_runningClips.end() )
         {
             AnimationClip* clip = *clipIter;
             GP_ASSERT(clip);
@@ -32,79 +32,79 @@ namespace gameplay
 
     AnimationController::State AnimationController::getState() const
     {
-        return _state;
+        return m_state;
     }
 
 
     void AnimationController::initialize()
     {
-        _state = IDLE;
+        m_state = IDLE;
     }
 
 
     void AnimationController::finalize()
     {
-        _runningClips.clear();
-        _state = STOPPED;
+        m_runningClips.clear();
+        m_state = STOPPED;
     }
 
 
     void AnimationController::resume()
     {
-        if( _runningClips.empty() )
-            _state = IDLE;
+        if( m_runningClips.empty() )
+            m_state = IDLE;
         else
-            _state = RUNNING;
+            m_state = RUNNING;
     }
 
 
     void AnimationController::pause()
     {
-        _state = PAUSED;
+        m_state = PAUSED;
     }
 
 
     void AnimationController::schedule(AnimationClip* clip)
     {
-        if( _runningClips.empty() )
+        if( m_runningClips.empty() )
         {
-            _state = RUNNING;
+            m_state = RUNNING;
         }
 
         GP_ASSERT(clip);
-        _runningClips.push_back(clip);
+        m_runningClips.push_back(clip);
     }
 
 
     void AnimationController::unschedule(AnimationClip* clip)
     {
-        std::list<AnimationClip*>::iterator clipItr = _runningClips.begin();
-        while( clipItr != _runningClips.end() )
+        std::list<AnimationClip*>::iterator clipItr = m_runningClips.begin();
+        while( clipItr != m_runningClips.end() )
         {
             AnimationClip* rClip = (*clipItr);
             if( rClip == clip )
             {
-                _runningClips.erase(clipItr);
+                m_runningClips.erase(clipItr);
                 break;
             }
             ++clipItr;
         }
 
-        if( _runningClips.empty() )
-            _state = IDLE;
+        if( m_runningClips.empty() )
+            m_state = IDLE;
     }
 
 
     void AnimationController::update(const std::chrono::microseconds& elapsedTime)
     {
-        if( _state != RUNNING )
+        if( m_state != RUNNING )
             return;
 
         Transform::suspendTransformChanged();
 
         // Loop through running clips and call update() on them.
-        std::list<AnimationClip*>::iterator clipIter = _runningClips.begin();
-        while( clipIter != _runningClips.end() )
+        std::list<AnimationClip*>::iterator clipIter = m_runningClips.begin();
+        while( clipIter != m_runningClips.end() )
         {
             AnimationClip* clip = (*clipIter);
             GP_ASSERT(clip);
@@ -113,12 +113,12 @@ namespace gameplay
                 // move it from where it is in the running clips list to the back.
                 clip->onEnd();
                 clip->setClipStateBit(AnimationClip::CLIP_IS_PLAYING_BIT);
-                _runningClips.push_back(clip);
-                clipIter = _runningClips.erase(clipIter);
+                m_runningClips.push_back(clip);
+                clipIter = m_runningClips.erase(clipIter);
             }
             else if( clip->update(elapsedTime) )
             {
-                clipIter = _runningClips.erase(clipIter);
+                clipIter = m_runningClips.erase(clipIter);
             }
             else
             {
@@ -128,7 +128,7 @@ namespace gameplay
 
         Transform::resumeTransformChanged();
 
-        if( _runningClips.empty() )
-            _state = IDLE;
+        if( m_runningClips.empty() )
+            m_state = IDLE;
     }
 }

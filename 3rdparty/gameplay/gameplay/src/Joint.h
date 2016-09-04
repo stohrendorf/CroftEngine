@@ -1,129 +1,75 @@
-#ifndef JOINT_H_
-#define JOINT_H_
+#pragma once
 
 #include "Node.h"
 
+
 namespace gameplay
 {
+    class MeshSkin;
 
-class MeshSkin;
-
-/**
- * Defines a joint node.
- *
- * This represent a joint in a skeleton that is hierarchially part of
- * a MeshSkin. This allows the vertices in the mesh to be blended and
- * animated using the sum of the blend weight that must add up to 1.0.
- */
-class Joint : public Node
-{
-    friend class Node;
-    friend class MeshSkin;
-
-public:
 
     /**
-     * @see Node::getType()
-     */
-    Node::Type getType() const override;
-
-    /**
-     * @see Node::getScene()
-     */
-    Scene* getScene() const override;
-
-    /**
-     * Returns the inverse bind pose matrix for this joint.
+     * Defines a joint node.
      *
-     * @return Inverse bind pose matrix.
+     * This represent a joint in a skeleton that is hierarchially part of
+     * a MeshSkin. This allows the vertices in the mesh to be blended and
+     * animated using the sum of the blend weight that must add up to 1.0.
      */
-    const Matrix& getInverseBindPose() const;
-
-protected:
-
-    /**
-     * Constructor.
-     */
-    explicit Joint(const char* id);
-
-    /**
-     * Destructor.
-     */
-    virtual ~Joint();
-
-    /**
-     * Creates a new joint with the given id.
-     *
-     * @param id ID string.
-     *
-     * @return Newly created joint.
-     */
-    static Joint* create(const char* id);
-
-    /**
-     * Sets the inverse bind pose matrix.
-     *
-     * @param m Matrix representing the inverse bind pose for this Joint.
-     */
-    void setInverseBindPose(const Matrix& m);
-
-    /**
-     * Updates the joint matrix.
-     *
-     * @param bindShape The bind shape matrix.
-     * @param matrixPalette The matrix palette to update.
-     */
-    void updateJointMatrix(const Matrix& bindShape, Vector4* matrixPalette);
-
-    /**
-     * Called when this Joint's transform changes.
-     */
-    void transformChanged() override;
-
-private:
-
-    /**
-     * Internal structure to track mesh skins referencing a joint.
-     */
-    struct SkinReference
+    class Joint : public Node
     {
-        MeshSkin* skin;
-        SkinReference* next;
+        friend class Node;
+        friend class MeshSkin;
 
-        SkinReference();
-        ~SkinReference();
+    public:
+
+        explicit Joint(const std::string& id);
+
+        /**
+         * @see Node::getType()
+         */
+        Node::Type getType() const override;
+
+        /**
+         * @see Node::getScene()
+         */
+        Scene* getScene() const override;
+
+    protected:
+
+        /**
+         * Destructor.
+         */
+        virtual ~Joint();
+
+        /**
+         * Updates the joint matrix.
+         *
+         * @param bindShape The bind shape matrix.
+         * @param matrixPalette The matrix palette to update.
+         */
+        void updateJointMatrix(Vector4* matrixPalette);
+
+        /**
+         * Called when this Joint's transform changes.
+         */
+        void transformChanged() override;
+
+    private:
+
+        Joint(const Joint& copy) = delete;
+        Joint& operator=(const Joint&) = delete;
+
+        void addSkin(MeshSkin* skin);
+        void removeSkin(MeshSkin* skin);
+
+        /**
+         * Flag used to mark if the Joint's matrix is dirty.
+         */
+        bool _jointMatrixDirty = true;
+
+        /**
+         * Linked list of mesh skins that are referenced by this joint.
+         */
+        std::list<MeshSkin*> _skins;
     };
-
-    /**
-     * Constructor.
-     */
-    Joint(const Joint& copy) = delete;
-
-    /**
-     * Hidden copy assignment operator.
-     */
-    Joint& operator=(const Joint&) = delete;
-
-    void addSkin(MeshSkin* skin);
-
-    void removeSkin(MeshSkin* skin);
-
-    /**
-     * The Matrix representation of the Joint's bind pose.
-     */
-    Matrix _bindPose;
-
-    /**
-     * Flag used to mark if the Joint's matrix is dirty.
-     */
-    bool _jointMatrixDirty;
-
-    /**
-     * Linked list of mesh skins that are referenced by this joint.
-     */
-    SkinReference _skin;
-};
-
 }
-
-#endif

@@ -684,8 +684,13 @@ namespace engine
         // update current room
         m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
 
-        m_camera->setPosition(camPos.toRenderSystem());
-        m_camera->setTarget(m_currentLookAt.position.toRenderSystem());
+        m_camera->getNode()->setTranslation(camPos.toRenderSystem());
+
+        const auto delta = m_currentLookAt.position - camPos;
+
+        const auto angle = std::atan2(delta.Z, delta.X);
+
+        m_camera->getNode()->setRotation({0, 1, 0}, angle);
     }
 
     void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs)

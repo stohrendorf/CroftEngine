@@ -4,6 +4,8 @@
 
 namespace render
 {
+    //! @todo Re-enable later
+#if 0
     class LightSelector final : public irr::scene::ILightManager
     {
     private:
@@ -66,4 +68,5 @@ namespace render
             // nop
         }
     };
+#endif
 }

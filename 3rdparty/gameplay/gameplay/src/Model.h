@@ -118,7 +118,15 @@ namespace gameplay
          * rendering states, shader state, and so on, should be set
          * up before calling this method.
          */
-        unsigned int draw(bool wireframe = false);
+        unsigned int draw(bool wireframe = false) override;
+
+
+        /**
+        * Sets the MeshSkin for this model.
+        *
+        * @param skin The MeshSkin for this model.
+        */
+        void setSkin(MeshSkin* skin);
 
     private:
 
@@ -145,14 +153,7 @@ namespace gameplay
         /**
          * @see Drawable::setNode
          */
-        void setNode(Node* node);
-
-        /**
-         * Sets the MeshSkin for this model.
-         *
-         * @param skin The MeshSkin for this model.
-         */
-        void setSkin(MeshSkin* skin);
+        void setNode(Node* node) override;
 
         /**
          * Sets the specified material's node binding to this model's node.

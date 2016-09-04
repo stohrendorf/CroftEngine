@@ -410,7 +410,7 @@ namespace loader
 
     struct RoomVertex
     {
-        core::TRCoordinates vertex; // where this vertex lies (relative to tr2_room_info::x/z)
+        core::TRCoordinates position; // where this vertex lies (relative to tr2_room_info::x/z)
         int16_t darkness;
         uint16_t attributes; // A set of flags for special rendering effects [absent from TR1 data files]
         // 0x8000 something to do with water surface
@@ -433,7 +433,7 @@ namespace loader
         static RoomVertex readTr1(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readU16();
             // only in TR2
@@ -449,7 +449,7 @@ namespace loader
         static RoomVertex readTr2(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = (8191 - reader.readI16()) << 2;
             room_vertex.attributes = reader.readU16();
@@ -464,7 +464,7 @@ namespace loader
         static RoomVertex readTr3(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
@@ -481,7 +481,7 @@ namespace loader
         static RoomVertex readTr4(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
@@ -499,7 +499,7 @@ namespace loader
         static RoomVertex readTr5(io::SDLReader& reader)
         {
             RoomVertex vert;
-            vert.vertex = readCoordinatesF(reader);
+            vert.position = readCoordinatesF(reader);
             vert.normal = readCoordinatesF(reader);
             auto b = reader.readU8();
             auto g = reader.readU8();
@@ -512,80 +512,6 @@ namespace loader
 
     struct Room
     {
-#pragma pack(push,1)
-        struct RenderVertex
-        {
-            gameplay::Vector3 position;
-            gameplay::Vector2 texcoord0;
-            gameplay::Vector4 color;
-
-            static const gameplay::VertexFormat& getFormat()
-            {
-                static const gameplay::VertexFormat::Element elems[3] = {
-                    { gameplay::VertexFormat::POSITION, 3 },
-                    { gameplay::VertexFormat::TEXCOORD0, 2 },
-                    { gameplay::VertexFormat::COLOR, 4 }
-                };
-                static const gameplay::VertexFormat fmt{ elems, 3 };
-
-                return fmt;
-            }
-        };
-#pragma pack(pop)
-
-        using IndexBuffer = std::vector<uint16_t>;
-
-        struct MeshPart
-        {
-            IndexBuffer indices;
-            gameplay::Material* material;
-        };
-
-        struct RenderModel
-        {
-            std::vector<RenderVertex> m_vertices;
-            std::vector<MeshPart> m_parts;
-
-            gameplay::Model* toModel(bool dynamic)
-            {
-                gameplay::Mesh* mesh = gameplay::Mesh::createMesh(RenderVertex::getFormat(), m_vertices.size(), dynamic);
-                mesh->setVertexData(reinterpret_cast<float*>(m_vertices.data()));
-                mesh->setPrimitiveType(gameplay::Mesh::PrimitiveType::TRIANGLES);
-
-                for(const MeshPart& localPart : m_parts)
-                {
-                    gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), dynamic);
-                    part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
-                }
-
-                gameplay::Model* model = gameplay::Model::create(mesh);
-                mesh->release();
-
-                for(size_t i = 0; i < m_parts.size(); ++i)
-                {
-                    model->setMaterial(m_parts[i].material, i);
-                }
-
-                return model;
-            }
-
-            uint16_t addVertex(size_t partId, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
-            {
-                Room::RenderVertex iv;
-                BOOST_ASSERT(vertexIndex < vertices.size());
-                iv.position = vertices[vertexIndex].vertex.toRenderSystem();
-                // TR5 only: iv.Normal = vertices[vertexIndex].normal.toIrrlicht();
-                //iv.Normal = { 1,0,0 };
-                iv.texcoord0.x = uvCoordinates.xpixel / 255.0f;
-                iv.texcoord0.y = uvCoordinates.ypixel / 255.0f;
-                iv.color = vertices[vertexIndex].color;
-                const auto ivIdx = gsl::narrow<uint16_t>(m_vertices.size());
-                m_vertices.push_back(iv);
-                m_parts[partId].indices.push_back(ivIdx);
-                return ivIdx;
-            }
-        };
-
         gameplay::Node* node = nullptr;
 
         // Various room flags specify various room options. Mostly, they

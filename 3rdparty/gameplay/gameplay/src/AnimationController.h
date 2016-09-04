@@ -23,7 +23,7 @@ namespace gameplay
 
         const std::list<AnimationClip*>& getRunningClips() const
         {
-            return _runningClips;
+            return m_runningClips;
         }
 
     private:
@@ -97,7 +97,7 @@ namespace gameplay
          */
         void update(const std::chrono::microseconds& elapsedTime);
 
-        State _state; // The current state of the AnimationController.
-        std::list<AnimationClip*> _runningClips; // A list of running AnimationClips.
+        State m_state; // The current state of the AnimationController.
+        std::list<AnimationClip*> m_runningClips; // A list of running AnimationClips.
     };
 }

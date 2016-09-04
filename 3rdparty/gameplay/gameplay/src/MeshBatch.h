@@ -16,19 +16,19 @@ namespace gameplay
     public:
 
         /**
-         * Creates a new mesh batch.
-         *
-         * @param vertexFormat The format of vertices in the new batch.
-         * @param primitiveType The type of primitives that will be added to the batch.
-         * @param material Material to be used for drawing the batch.
-         * @param indexed True if the batched primitives will contain index data, false otherwise.
-         * @param initialCapacity The initial capacity of the batch, in triangles.
-         * @param growSize Amount to grow the batch by when it overflows (a value of zero prevents batch growing).
-         *
-         * @return A new mesh batch.
-         * @script{create}
-         */
-        static MeshBatch* create(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, Material* material, bool indexed, unsigned int initialCapacity = 1024, unsigned int growSize = 1024);
+        * Creates a new mesh batch.
+        *
+        * @param vertexFormat The format of vertices in the new batch.
+        * @param primitiveType The type of primitives that will be added to the batch.
+        * @param material Material to be used for drawing the batch.
+        * @param indexed True if the batched primitives will contain index data, false otherwise.
+        * @param initialCapacity The initial capacity of the batch, in triangles.
+        * @param growSize Amount to grow the batch by when it overflows (a value of zero prevents batch growing).
+        *
+        * @return A new mesh batch.
+        * @script{create}
+        */
+        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, Material* material, bool indexed, unsigned int initialCapacity, unsigned int growSize = 1024);
 
         /**
          * Destructor.
@@ -107,20 +107,8 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, Material* material, bool indexed, unsigned int initialCapacity, unsigned int growSize);
-
-        /**
-         * Hidden copy constructor.
-         */
-        MeshBatch(const MeshBatch& copy);
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        MeshBatch& operator=(const MeshBatch&);
+        MeshBatch(const MeshBatch& copy) = delete;
+        MeshBatch& operator=(const MeshBatch&) = delete;
 
         void add(const void* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount);
 
@@ -128,34 +116,34 @@ namespace gameplay
 
         bool resize(unsigned int capacity);
 
-        const VertexFormat _vertexFormat;
-        Mesh::PrimitiveType _primitiveType;
-        Material* _material;
-        bool _indexed;
-        unsigned int _capacity;
-        unsigned int _growSize;
-        unsigned int _vertexCapacity;
-        unsigned int _indexCapacity;
-        unsigned int _vertexCount;
-        unsigned int _indexCount;
-        unsigned char* _vertices;
-        unsigned char* _verticesPtr;
-        unsigned short* _indices;
-        unsigned short* _indicesPtr;
-        bool _started;
+        const VertexFormat m_vertexFormat;
+        Mesh::PrimitiveType m_primitiveType;
+        Material* m_material;
+        bool m_indexed;
+        unsigned int m_capacity;
+        unsigned int m_growSize;
+        unsigned int m_vertexCapacity;
+        unsigned int m_indexCapacity;
+        unsigned int m_vertexCount;
+        unsigned int m_indexCount;
+        unsigned char* m_vertices;
+        unsigned char* m_verticesPtr;
+        unsigned short* m_indices;
+        unsigned short* m_indicesPtr;
+        bool m_started;
     };
 
 
     Material* MeshBatch::getMaterial() const
     {
-        return _material;
+        return m_material;
     }
 
 
     template<class T>
     void MeshBatch::add(const T* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount)
     {
-        GP_ASSERT(sizeof(T) == _vertexFormat.getVertexSize());
-        add(vertices, vertexCount, indices, indexCount);
+        GP_ASSERT(sizeof(T) == m_vertexFormat.getVertexSize());
+        add(static_cast<const void*>(vertices), vertexCount, indices, indexCount);
     }
 }

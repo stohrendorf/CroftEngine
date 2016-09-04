@@ -142,7 +142,7 @@ int main()
         lvl->m_inputHandler->update();
 
         auto deltaTime = game->getAbsoluteTime() - lastTime;
-        if(deltaTime <= 0)
+        if(deltaTime <= std::chrono::microseconds::zero())
         {
             device->yield();
             continue;

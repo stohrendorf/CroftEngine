@@ -119,6 +119,7 @@ namespace gameplay
                 else if( hasRotation || (_matrixDirtyBits & DIRTY_ROTATION) == DIRTY_ROTATION )
                 {
                     Matrix::createRotation(_rotation, &_matrix);
+                    _matrix.rotate(_rotationPatch);
                     if( hasScale || (_matrixDirtyBits & DIRTY_SCALE) == DIRTY_SCALE )
                     {
                         _matrix.scale(_scale);

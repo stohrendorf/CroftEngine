@@ -480,6 +480,18 @@ namespace gameplay
          */
         const BoundingSphere& getBoundingSphere() const;
 
+        void resetRotationPatch()
+        {
+            _rotationPatch.setIdentity();
+            dirty(DIRTY_ROTATION);
+        }
+
+        void setRotationPatch(const Quaternion& q)
+        {
+            _rotationPatch = q;
+            dirty(DIRTY_ROTATION);
+        }
+
     protected:
 
         /**

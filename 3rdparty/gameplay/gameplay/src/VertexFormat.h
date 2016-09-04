@@ -1,5 +1,4 @@
-#ifndef VERTEXFORMAT_H_
-#define VERTEXFORMAT_H_
+#pragma once
 
 namespace gameplay
 {
@@ -49,12 +48,12 @@ public:
         /**
          * The vertex element usage semantic.
          */
-        Usage usage;
+        Usage usage = POSITION;
 
         /**
          * The number of values in the vertex element.
          */
-        unsigned int size;
+        size_t size = 0;
 
         /**
          * Constructor.
@@ -67,7 +66,7 @@ public:
          * @param usage The vertex element usage semantic.
          * @param size The number of float values in the vertex element.
          */
-        Element(Usage usage, unsigned int size);
+        Element(Usage usage, size_t size);
 
         /**
          * Compares two vertex elements for equality.
@@ -96,7 +95,7 @@ public:
      * @param elements The list of vertex elements defining the vertex format.
      * @param elementCount The number of items in the elements array.
      */
-    VertexFormat(const Element* elements, unsigned int elementCount);
+    VertexFormat(const Element* elements, size_t elementCount);
 
     /**
      * Destructor.
@@ -108,19 +107,19 @@ public:
      *
      * @param index The index of the element to retrieve.
      */
-    const Element& getElement(unsigned int index) const;
+    const Element& getElement(size_t index) const;
 
     /**
      * Gets the number of elements in this VertexFormat.
      *
      * @return The number of items in the elements array.
      */
-    unsigned int getElementCount() const;
+    size_t getElementCount() const;
 
     /**
      * Gets the size (in bytes) of a single vertex using this format.
      */
-    unsigned int getVertexSize() const;
+    size_t getVertexSize() const;
 
     /**
      * Compares two vertex formats for equality.
@@ -140,17 +139,10 @@ public:
      */
     bool operator != (const VertexFormat& f) const;
 
-    /**
-     * Returns a string representation of a Usage enumeration value.
-     */
-    static const char* toString(Usage usage);
-
 private:
 
     std::vector<Element> _elements;
-    unsigned int _vertexSize;
+    size_t _vertexSize;
 };
 
 }
-
-#endif

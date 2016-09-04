@@ -44,7 +44,7 @@ namespace engine
         BOOST_ASSERT(it != m_model.animationClips.end());
         const auto& clip = it->second;
 
-        BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << clip->getElapsedTime() << ", end=" << clip->getEndTime();
+        BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << clip->getElapsedTime().count() << ", end=" << clip->getEndTime().count();
         if( clip->getElapsedTime() + std::chrono::seconds(1) / core::FrameRate >= clip->getEndTime() )
         {
             handleAnimationEnd();
