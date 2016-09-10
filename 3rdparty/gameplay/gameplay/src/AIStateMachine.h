@@ -48,7 +48,7 @@ public:
      *
      * @return The newly created and added state.
      */
-    AIState* addState(const char* id);
+    std::shared_ptr<AIState> addState(const char* id);
 
     /**
      * Adds a state to the state machine.
@@ -59,14 +59,14 @@ public:
      *
      * @param state The state to add.
      */
-    void addState(AIState* state);
+    void addState(const std::shared_ptr<AIState>& state);
 
     /**
      * Removes a state from the state machine.
      *
      * @param state The state to remove.
      */
-    void removeState(AIState* state);
+    void removeState(const std::shared_ptr<AIState>& state);
 
     /**
      * Returns a state registered with this state machine.
@@ -75,14 +75,14 @@ public:
      *
      * @return The state with the given ID, or NULL if no such state exists.
      */
-    AIState* getState(const char* id) const;
+    std::shared_ptr<AIState> getState(const char* id) const;
 
     /**
      * Returns the active state for this state machine.
      *
      * @return The active state for this state machine.
      */
-    AIState* getActiveState() const;
+    const std::shared_ptr<AIState>& getActiveState() const;
 
     /**
      * Changes the state of this state machine to the given state.
@@ -94,7 +94,7 @@ public:
      *
      * @return The new state, or NULL if no matching state could be found.
      */
-    AIState* setState(const char* id);
+    std::shared_ptr<AIState> setState(const char* id);
 
     /**
      * Changes the state of this state machine to the given state.
@@ -106,7 +106,7 @@ public:
      *
      * @return true if the state is successfully changed, false otherwise.
      */
-    bool setState(AIState* state);
+    bool setState(const std::shared_ptr<AIState>& state);
 
 private:
 
@@ -133,17 +133,17 @@ private:
     /**
      * Sends a message to change the state of this state machine.
      */
-    void sendChangeStateMessage(AIState* newState);
+    void sendChangeStateMessage(const std::shared_ptr<AIState>& newState);
 
     /**
      * Changes the active state of the state machine.
      */
-    void setStateInternal(AIState* state);
+    void setStateInternal(const std::shared_ptr<AIState>& state);
 
     /**
      * Determines if the specified state exists within this state machine.
      */
-    bool hasState(AIState* state) const;
+    bool hasState(const std::shared_ptr<AIState>& state) const;
 
     /**
      * Called by AIController to update the state machine each frame.
@@ -151,8 +151,8 @@ private:
     void update(const std::chrono::microseconds& elapsedTime);
 
     AIAgent* _agent;
-    AIState* _currentState;
-    std::list<AIState*> _states;
+    std::shared_ptr<AIState> _currentState;
+    std::list<std::shared_ptr<AIState>> _states;
 
 };
 

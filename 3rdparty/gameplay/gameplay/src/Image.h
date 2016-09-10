@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Ref.h"
-
-
 namespace gameplay
 {
     /**
@@ -10,9 +7,11 @@ namespace gameplay
      *
      * Currently only supports loading from .png image files.
      */
-    class Image : public Ref
+    class Image
     {
     public:
+        explicit Image();
+        ~Image();
 
         /**
          * Defines the set of supported color formats.
@@ -34,7 +33,7 @@ namespace gameplay
          * @return The newly created image.
          * @script{create}
          */
-        static Image* create(unsigned width, unsigned height, Format format, const unsigned char* data = nullptr);
+        static std::shared_ptr<Image> create(unsigned width, unsigned height, Format format, const unsigned char* data = nullptr);
 
         /**
          * Gets the image's raw pixel data.
@@ -67,20 +66,7 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        Image();
-
-        /**
-         * Destructor.
-         */
-        ~Image();
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        Image& operator=(const Image&);
+        Image& operator=(const Image&) = delete;
 
         unsigned char* _data;
         Format _format;

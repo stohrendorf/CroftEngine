@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Ref.h"
-
-
 namespace gameplay
 {
     class AIAgent;
@@ -16,11 +13,17 @@ namespace gameplay
      * state machine. Events can be programmed or scripted when the
      * state is entered, exited and each frame/tick in its update event.
      */
-    class AIState : public Ref
+    class AIState
     {
         friend class AIStateMachine;
 
     public:
+        /**
+        * Constructs a new AIState.
+        */
+        explicit AIState(const char* id);
+
+        ~AIState();
 
         /**
          * Interface for listening to AIState events.
@@ -71,7 +74,7 @@ namespace gameplay
          * @return The new AIState.
          * @script{create}
          */
-        static AIState* create(const char* id);
+        static std::shared_ptr<AIState> create(const char* id);
 
         /**
          * Returns the ID of this state.
@@ -89,25 +92,9 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructs a new AIState.
-         */
-        AIState(const char* id);
+        AIState(const AIState&) = delete;
 
-        /**
-         * Destructor.
-         */
-        ~AIState();
-
-        /**
-         * Hidden copy constructor.
-         */
-        AIState(const AIState&);
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        AIState& operator=(const AIState&);
+        AIState& operator=(const AIState&) = delete;
 
         /**
          * Called by AIStateMachine when this state is being entered.
@@ -128,6 +115,6 @@ namespace gameplay
         Listener* _listener;
 
         // The default/empty state.
-        static AIState* _empty;
+        static std::shared_ptr<AIState> _empty;
     };
 }

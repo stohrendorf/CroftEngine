@@ -5,7 +5,6 @@
 #include <gsl.h>
 #include <boost/assert.hpp>
 
-#include <deque>
 #include <map>
 #include <set>
 #include <vector>
@@ -14,7 +13,7 @@ namespace render
 {
     class TextureAnimator
     {
-        using MeshPartReference = std::pair<gsl::not_null<gameplay::Mesh*>, size_t>;
+        using MeshPartReference = std::pair<std::shared_ptr<gameplay::Mesh>, size_t>;
 
         std::vector<gameplay::Mesh*> m_meshBuffers;
 
@@ -73,11 +72,10 @@ namespace render
                 for( const auto& partAndVertices : affectedVertices )
                 {
                     const MeshPartReference& partReference = partAndVertices.first;
-                    gameplay::Mesh* mesh = partReference.first;
+                    auto mesh = partReference.first;
 
                     const size_t partId = partReference.second;
                     BOOST_ASSERT(partId < mesh->getPartCount());
-                    const auto vsize = mesh->getVertexSize();
 
                     const std::set<VertexReference>& vertices = partAndVertices.second;
 

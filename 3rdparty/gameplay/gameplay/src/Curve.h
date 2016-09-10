@@ -1,15 +1,13 @@
 #ifndef CURVE_H_
 #define CURVE_H_
 
-#include "Ref.h"
-
 namespace gameplay
 {
 
 /**
  * Defines an n-dimensional curve.
  */
-class Curve : public Ref
+class Curve
 {
     friend class Animation;
     friend class AnimationClip;

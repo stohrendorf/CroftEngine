@@ -3,10 +3,9 @@
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
-#include "Matrix.h"
 #include "Texture.h"
 #include "Effect.h"
-
+#include <boost/variant.hpp>
 
 namespace gameplay
 {
@@ -34,11 +33,13 @@ namespace gameplay
      * you pass in are valid for the lifetime of the MaterialParameter
      * object.
      */
-    class MaterialParameter : public Ref
+    class MaterialParameter
     {
         friend class RenderState;
 
     public:
+        explicit MaterialParameter(const char* name);
+        ~MaterialParameter();
 
         /**
          * Returns the name of this material parameter.
@@ -53,7 +54,7 @@ namespace gameplay
          *
          * @return The texture sampler or NULL if this MaterialParameter is not a sampler type.
          */
-        Texture::Sampler* getSampler(unsigned int index = 0) const;
+        std::shared_ptr<Texture::Sampler> getSampler(size_t index = 0) const;
 
         /**
          * Sets the value of this parameter to a float value.
@@ -118,14 +119,14 @@ namespace gameplay
         /**
          * Sets the value of this parameter to the specified texture sampler.
          */
-        void setValue(const Texture::Sampler* sampler);
+        void setValue(const std::shared_ptr<Texture::Sampler>& sampler);
 
         /**
          * Sets the value of this parameter to the specified texture sampler array.
          *
          * @script{ignore}
          */
-        void setValue(const Texture::Sampler** samplers, unsigned int count);
+        void setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
 
         /**
          * Stores a float value in this parameter.
@@ -228,19 +229,15 @@ namespace gameplay
          *
          * @param value The value to set.
          */
-        void setSampler(const Texture::Sampler* value);
+        void setSampler(const std::shared_ptr<Texture::Sampler>& value);
 
         /**
          * Stores an array of Sampler values in this parameter.
          *
          * @param values The array of values.
-         * @param count The number of values in the array.
-         * @param copy True to make a copy of the array in the material parameter, or false
-         *      to point to the passed in array/pointer (which must be valid for the lifetime
-         *      of the MaterialParameter).
          * @script{ignore}
          */
-        void setSamplerArray(const Texture::Sampler** values, unsigned int count, bool copy = false);
+        void setSamplerArray(const std::vector<std::shared_ptr<Texture::Sampler>>& values);
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -308,32 +305,19 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        MaterialParameter(const char* name);
-
-        /**
-         * Destructor.
-         */
-        ~MaterialParameter();
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        MaterialParameter& operator=(const MaterialParameter&);
+        MaterialParameter& operator=(const MaterialParameter&) = delete;
 
 
         /**
          * Interface implemented by templated method bindings for simple storage and iteration.
          */
-        class MethodBinding : public Ref
+        class MethodBinding
         {
             friend class RenderState;
 
         public:
 
-            virtual void setValue(Effect* effect) = 0;
+            virtual void setValue(const std::shared_ptr<Effect>& effect) = 0;
 
         protected:
 
@@ -370,7 +354,7 @@ namespace gameplay
             typedef ParameterType (ClassType::*ValueMethod)() const;
         public:
             MethodValueBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod);
-            void setValue(Effect* effect);
+            void setValue(const std::shared_ptr<Effect>& effect) override;
         private:
             ClassType* _instance;
             ValueMethod _valueMethod;
@@ -387,7 +371,7 @@ namespace gameplay
             typedef unsigned int (ClassType::*CountMethod)() const;
         public:
             MethodArrayBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod, CountMethod countMethod);
-            void setValue(Effect* effect);
+            void setValue(const std::shared_ptr<Effect>& effect) override;
         private:
             ClassType* _instance;
             ValueMethod _valueMethod;
@@ -397,7 +381,7 @@ namespace gameplay
 
         void clearValue();
 
-        void bind(Effect* effect);
+        void bind(const std::shared_ptr<Effect>& effect);
 
 
         enum LOGGER_DIRTYBITS
@@ -406,25 +390,7 @@ namespace gameplay
             PARAMETER_VALUE_NOT_SET = 0x02
         };
 
-
-        union
-        {
-            /** @script{ignore} */
-            float floatValue;
-            /** @script{ignore} */
-            int intValue;
-            /** @script{ignore} */
-            float* floatPtrValue;
-            /** @script{ignore} */
-            int* intPtrValue;
-            /** @script{ignore} */
-            const Texture::Sampler* samplerValue;
-            /** @script{ignore} */
-            const Texture::Sampler** samplerArrayValue;
-            /** @script{ignore} */
-            MethodBinding* method;
-        } _value;
-
+        boost::variant<float, int, float*, int*, std::shared_ptr<Texture::Sampler>, std::vector<std::shared_ptr<Texture::Sampler>>, std::shared_ptr<MethodBinding>> _value;
 
         enum
         {
@@ -456,7 +422,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.method = new MethodValueBinding<ClassType, ParameterType>(this, classInstance, valueMethod);
+        _value = std::make_shared<MethodValueBinding<ClassType, ParameterType>>(this, classInstance, valueMethod);
         _dynamic = true;
         _type = MaterialParameter::METHOD;
     }
@@ -467,7 +433,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.method = new MethodArrayBinding<ClassType, ParameterType>(this, classInstance, valueMethod, countMethod);
+        _value = std::make_shared<MethodArrayBinding<ClassType, ParameterType>>(this, classInstance, valueMethod, countMethod);
         _dynamic = true;
         _type = MaterialParameter::METHOD;
     }
@@ -483,7 +449,7 @@ namespace gameplay
 
 
     template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(Effect* effect)
+    void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<Effect>& effect)
     {
         effect->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
     }
@@ -500,8 +466,8 @@ namespace gameplay
 
 
     template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(Effect* effect)
+    void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<Effect>& effect)
     {
-        effect->setValue(_parameter->_uniform, (_instance ->* _valueMethod)(), (_instance ->* _countMethod)());
+        effect->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
     }
 }

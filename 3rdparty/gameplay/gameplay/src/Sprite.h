@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Ref.h"
 #include "Drawable.h"
 #include "Rectangle.h"
 #include "Vector4.h"
@@ -23,11 +22,13 @@ namespace gameplay
      * Sprites can be animated using the animation system.
      * Sprites can have physics applied to them via their node binding.
      */
-    class Sprite : public Ref, public Drawable
+    class Sprite : public Drawable
     {
         friend class Node;
 
     public:
+        Sprite();
+        ~Sprite();
 
         /**
          * Defines the offset for position.
@@ -258,7 +259,7 @@ namespace gameplay
          *
          * @return The texture sampler used when sampling the texture.
          */
-        Texture::Sampler* getSampler() const;
+        const std::shared_ptr<Texture::Sampler>& getSampler() const;
 
         /**
          * Gets the StateBlock for the SpriteBatch.
@@ -269,36 +270,23 @@ namespace gameplay
          *
          * @return The StateBlock for this SpriteBatch.
          */
-        RenderState::StateBlock* getStateBlock() const;
+        std::shared_ptr<RenderState::StateBlock> getStateBlock() const;
 
         /**
          * Gets the material used by sprite batch.
          *
          * @return The material used by the sprite batch.
          */
-        Material* getMaterial() const;
+        const std::shared_ptr<Material>& getMaterial() const;
 
         /**
          * @see Drawable::draw
          */
-        unsigned int draw(bool wireframe = false);
+        size_t draw(bool wireframe = false) override;
 
-        static Sprite* create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount = 1, Effect* effect = nullptr);
+        static std::shared_ptr<Sprite> create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<Effect>& effect = nullptr);
     protected:
 
-        /**
-         * Constructor.
-         */
-        Sprite();
-
-        /**
-         * Destructor.
-         */
-        ~Sprite();
-
-        /**
-         * operator=
-         */
         Sprite& operator=(const Sprite& sprite) = delete;
 
     private:

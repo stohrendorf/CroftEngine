@@ -23,7 +23,6 @@
 #include "engine/inputhandler.h"
 #include "engine/laracontroller.h"
 #include "level.h"
-#include "render/lightselector.h"
 #include "render/textureanimator.h"
 #include "tr1level.h"
 #include "tr2level.h"
@@ -358,10 +357,10 @@ loader::AnimatedModel* Level::findModelByType(uint32_t type)
 }
 
 
-std::vector<gameplay::Texture*> Level::createTextures()
+std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures()
 {
     BOOST_ASSERT(!m_textures.empty());
-    std::vector<gameplay::Texture*> textures;
+    std::vector<std::shared_ptr<gameplay::Texture>> textures;
     for( size_t i = 0; i < m_textures.size(); ++i )
     {
         loader::DWordTexture& texture = m_textures[i];
@@ -371,10 +370,10 @@ std::vector<gameplay::Texture*> Level::createTextures()
 }
 
 
-std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> Level::createMaterials(const std::vector<gameplay::Texture::Sampler*>& textures)
+std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4 : loader::TextureIndexMask;
-    std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> materials;
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials;
     for( loader::TextureLayoutProxy& proxy : m_textureProxies )
     {
         const auto& key = proxy.textureKey;
@@ -387,7 +386,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> Level::cre
 }
 
 
-engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures)
+engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -409,7 +408,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             name += "(type";
             name += std::to_string(item.type);
             name += "/animatedModel)";
-            gameplay::Node* node = gameplay::Node::create(name.c_str());
+            auto node = gameplay::Node::create(name.c_str());
             node->setDrawable(mesh->getModel());
             node->setTranslation(item.position.toRenderSystem());
 
@@ -509,7 +508,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 
             const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
 
-            gameplay::Sprite* sprite = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto sprite = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             sprite->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             std::string name = "item";
@@ -536,7 +535,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 }
 
 
-std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game, const std::vector<gameplay::Model*>& staticModels)
+std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& staticModels)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
 
@@ -560,10 +559,10 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
     {
         Expects(model != nullptr);
 
-        gameplay::Node* skinnedMesh = gameplay::Node::create();
+        auto skinnedMesh = gameplay::Node::create();
         skinnedMeshes.emplace_back(skinnedMesh);
 
-        std::stack<gameplay::Joint*> parentStack;
+        std::stack<std::shared_ptr<gameplay::Joint>> parentStack;
 
         for( size_t boneIndex = 0; boneIndex < model->meshCount; ++boneIndex )
         {
@@ -572,11 +571,11 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
             BOOST_ASSERT(meshIndex < staticModels.size());
             const auto staticModel = staticModels[meshIndex];
 
-            gameplay::Model* clone = staticModel->clone();
+            std::shared_ptr<gameplay::Model> clone = staticModel->clone();
             clone->setSkin(new gameplay::MeshSkin());
             skinnedMesh->addChild(clone);
 
-            gameplay::Joint* joint = new gameplay::Joint("bone:" + boost::lexical_cast<std::string>(boneIndex));
+            auto joint = std::make_shared<gameplay::Joint>("bone:" + boost::lexical_cast<std::string>(boneIndex));
             if( model->type == 0 )
             {
                 if( boneIndex == 7 )
@@ -596,7 +595,7 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
 
             auto pred = clone->getSkin()->getJoint(boneIndex - 1);
 
-            gameplay::Joint* parent = nullptr;
+            std::shared_ptr<gameplay::Joint> parent = nullptr;
             BOOST_ASSERT(model->boneTreeIndex + 4 * boneIndex <= m_boneTrees.size());
             const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex + (boneIndex - 1) * 4];
 
@@ -657,18 +656,16 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
 }
 
 
-gameplay::Texture* Level::createSolidColorTex(uint8_t color) const
+std::shared_ptr<gameplay::Texture> Level::createSolidColorTex(uint8_t color) const
 {
     gameplay::Vector4 pixels[2][2];
-    pixels[0][0] = m_palette->color[color].toSColor());
+    pixels[0][0] = m_palette->color[color].toSColor();
     pixels[1][0] = pixels[0][0];
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
 
-    auto img = mgr->getVideoDriver()->createImageFromData(irr::video::ECF_A8R8G8B8, {2, 2}, &pixels[0][0]);
-    auto tex = mgr->getVideoDriver()->addTexture(img);
-
-    img->drop();
+    auto img = gameplay::Image::create(2, 2, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
+    auto tex = gameplay::Texture::create(img, false);
     return tex;
 }
 
@@ -678,11 +675,11 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     //device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
-    m_inputHandler = std::make_unique<engine::InputHandler>(device->getCursorControl());
+    m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
     //device->setEventReceiver(m_inputHandler.get());
 
-    std::vector<gameplay::Texture*> textures = createTextures();
-    std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> materials = createMaterials(textures);
+    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
     std::vector<gameplay::Material*> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
@@ -715,12 +712,6 @@ void Level::toIrrlicht(gameplay::Game* game)
     m_lara = createItems(game, skinnedMeshes, textures);
     if( m_lara == nullptr )
         return;
-
-    for( auto* ptr : staticMeshes )
-        ptr->release();
-
-    for( auto& ptr : skinnedMeshes )
-        ptr->release();
 
     gameplay::Camera* camera = device->getSceneManager()->addCameraSceneNode();
     m_cameraController = new engine::CameraController(this, m_lara, camera);
@@ -920,7 +911,7 @@ void Level::drawBars(gameplay::Game* game) const
 }
 
 
-engine::ItemController* level::Level::findControllerForNode(const gameplay::Node* node)
+engine::ItemController* level::Level::findControllerForNode(const std::shared_ptr<gameplay::Node>& node)
 {
     for( const auto& ctrl : m_itemControllers | boost::adaptors::map_values )
     {

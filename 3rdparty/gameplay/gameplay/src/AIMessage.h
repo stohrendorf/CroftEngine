@@ -17,6 +17,8 @@ namespace gameplay
         friend class AIStateMachine;
 
     public:
+        explicit AIMessage();
+        ~AIMessage();
 
         /**
          * Enumeration of supported AIMessage parameter types.
@@ -50,18 +52,7 @@ namespace gameplay
          *
          * @return A new AIMessage.
          */
-        static AIMessage* create(unsigned int id, const std::string& sender, const std::string& receiver, unsigned int parameterCount);
-
-        /**
-         * Destroys an AIMessage.
-         *
-         * Under normal circumstances this method does not need to be called since the
-         * AIController will automatically destroy an AIMessage once it has been
-         * sent. However, in the rare case where an AIMessage is constructed and not
-         * passed to AIController::sendMessage, this method should be called to destroy
-         * the message.
-         */
-        static void destroy(AIMessage* message);
+        static std::shared_ptr<AIMessage> create(unsigned int id, const std::string& sender, const std::string& receiver, unsigned int parameterCount);
 
         /**
          * Returns the message ID.
@@ -241,25 +232,9 @@ namespace gameplay
         };
 
 
-        /**
-         * Constructor.
-         */
-        AIMessage();
+        AIMessage(const AIMessage&) = delete;
 
-        /**
-         * Hidden copy constructor.
-         */
-        AIMessage(const AIMessage&);
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        AIMessage& operator=(const AIMessage&);
-
-        /**
-         * Destructor (hidden - use AIMessage::destroy instead).
-         */
-        ~AIMessage();
+        AIMessage& operator=(const AIMessage&) = delete;
 
         /**
          * Returns the delivery time for the message.
@@ -277,6 +252,5 @@ namespace gameplay
         Parameter* _parameters;
         unsigned int _parameterCount;
         MessageType _messageType;
-        AIMessage* _next;
     };
 }

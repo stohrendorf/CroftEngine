@@ -6,51 +6,45 @@
 namespace gameplay
 {
 
-Technique::Technique(const char* id, Material* material)
+Technique::Technique(const char* id, const std::shared_ptr<Material>& material)
     : _id(id ? id : ""), _material(material)
 {
     RenderState::_parent = material;
 }
 
-Technique::~Technique()
-{
-    // Destroy all the passes.
-    for (size_t i = 0, count = _passes.size(); i < count; ++i)
-    {
-        SAFE_RELEASE(_passes[i]);
-    }
-}
+Technique::~Technique() = default;
 
 const char* Technique::getId() const
 {
     return _id.c_str();
 }
 
-unsigned int Technique::getPassCount() const
+size_t Technique::getPassCount() const
 {
-    return (unsigned int)_passes.size();
+    return _passes.size();
 }
 
-Pass* Technique::getPassByIndex(unsigned int index) const
+const std::shared_ptr<Pass>& Technique::getPassByIndex(size_t index) const
 {
     GP_ASSERT(index < _passes.size());
     return _passes[index];
 }
 
-Pass* Technique::getPass(const char* id) const
+
+    std::shared_ptr<Pass> Technique::getPass(const char* id) const
 {
     GP_ASSERT(id);
 
     for (size_t i = 0, count = _passes.size(); i < count; ++i)
     {
-        Pass* pass = _passes[i];
+        auto pass = _passes[i];
         GP_ASSERT(pass);
         if (strcmp(pass->getId(), id) == 0)
         {
             return pass;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void Technique::setNodeBinding(Node* node)

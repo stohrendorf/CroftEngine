@@ -53,7 +53,7 @@ namespace gameplay
          * @return A new SpriteBatch for drawing sprites using the given texture.
          * @script{create}
          */
-        static SpriteBatch* create(Texture* texture, Effect* effect = nullptr, unsigned int initialCapacity = 0);
+        static SpriteBatch* create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Effect>& effect = nullptr, unsigned initialCapacity = 0);
 
         /**
          * Destructor.
@@ -287,7 +287,7 @@ namespace gameplay
          * effect. This can be modified for controlling sampler setting such as
          * filtering modes.
          */
-        Texture::Sampler* getSampler() const;
+        const std::shared_ptr<Texture::Sampler>& getSampler() const;
 
         /**
          * Gets the StateBlock for the SpriteBatch.
@@ -298,14 +298,14 @@ namespace gameplay
          *
          * @return The StateBlock for this SpriteBatch.
          */
-        RenderState::StateBlock* getStateBlock() const;
+        std::shared_ptr<RenderState::StateBlock> getStateBlock() const;
 
         /**
          * Gets the material used by this batch.
          *
          * @return The material.
          */
-        Material* getMaterial() const;
+        const std::shared_ptr<Material>& getMaterial() const;
 
         /**
          * Sets a custom projection matrix to use with the sprite batch.
@@ -371,7 +371,7 @@ namespace gameplay
         bool clipSprite(const Rectangle& clip, float& x, float& y, float& width, float& height, float& u1, float& v1, float& u2, float& v2);
 
         MeshBatch* _batch;
-        Texture::Sampler* _sampler;
+        std::shared_ptr<Texture::Sampler> _sampler;
         bool _customEffect;
         float _textureWidthRatio;
         float _textureHeightRatio;

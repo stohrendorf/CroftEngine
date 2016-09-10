@@ -48,7 +48,7 @@ namespace gameplay
     }
 
 
-    Texture* Texture::create(Image* image, bool generateMipmaps)
+    std::shared_ptr<Texture> Texture::create(const std::shared_ptr<Image>& image, bool generateMipmaps)
     {
         GP_ASSERT( image );
 
@@ -65,7 +65,7 @@ namespace gameplay
     }
 
 
-    Texture* Texture::create(Format format, unsigned int width, unsigned int height, const unsigned char* data, bool generateMipmaps, Texture::Type type)
+    std::shared_ptr<Texture> Texture::create(Format format, unsigned int width, unsigned int height, const unsigned char* data, bool generateMipmaps, Texture::Type type)
     {
         GP_ASSERT( type == Texture::TEXTURE_2D || type == Texture::TEXTURE_CUBE );
 
@@ -124,7 +124,7 @@ namespace gameplay
         Filter minFilter = generateMipmaps ? NEAREST_MIPMAP_LINEAR : LINEAR;
         GL_ASSERT( glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter) );
 
-        Texture* texture = new Texture();
+        auto texture = std::make_shared<Texture>();
         texture->_handle = textureId;
         texture->_format = format;
         texture->_type = type;
@@ -297,7 +297,7 @@ namespace gameplay
     }
 
 
-    Texture::Sampler::Sampler(Texture* texture)
+    Texture::Sampler::Sampler(const std::shared_ptr<Texture>& texture)
         : _texture(texture)
         , _wrapS(Texture::REPEAT)
         , _wrapT(Texture::REPEAT)
@@ -309,18 +309,14 @@ namespace gameplay
     }
 
 
-    Texture::Sampler::~Sampler()
-    {
-        SAFE_RELEASE(_texture);
-    }
+    Texture::Sampler::~Sampler() = default;
 
 
-    Texture::Sampler* Texture::Sampler::create(Texture* texture)
+    std::shared_ptr<Texture::Sampler> Texture::Sampler::create(const std::shared_ptr<Texture>& texture)
     {
         GP_ASSERT( texture );
         GP_ASSERT( texture->_type == Texture::TEXTURE_2D || texture->_type == Texture::TEXTURE_CUBE );
-        texture->addRef();
-        return new Sampler(texture);
+        return std::make_shared<Sampler>(texture);
     }
 
 
@@ -339,7 +335,7 @@ namespace gameplay
     }
 
 
-    Texture* Texture::Sampler::getTexture() const
+    const std::shared_ptr<Texture>& Texture::Sampler::getTexture() const
     {
         return _texture;
     }

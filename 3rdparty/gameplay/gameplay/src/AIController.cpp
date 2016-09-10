@@ -7,8 +7,8 @@ namespace gameplay
 {
     AIController::AIController()
         : _paused(false)
-        , _firstMessage(nullptr)
-        , _firstAgent(nullptr)
+        , _firstMessage()
+        , _firstAgent()
     {
     }
 
@@ -26,24 +26,10 @@ namespace gameplay
     void AIController::finalize()
     {
         // Remove all agents
-        AIAgent* agent = _firstAgent;
-        while( agent )
-        {
-            AIAgent* temp = agent;
-            agent = agent->_next;
-            SAFE_RELEASE(temp);
-        }
-        _firstAgent = nullptr;
+        _firstAgent.clear();
 
         // Remove all messages
-        AIMessage* message = _firstMessage;
-        while( message )
-        {
-            AIMessage* temp = message;
-            message = message->_next;
-            AIMessage::destroy(temp);
-        }
-        _firstMessage = nullptr;
+        _firstMessage.clear();
     }
 
 
@@ -59,7 +45,7 @@ namespace gameplay
     }
 
 
-    void AIController::sendMessage(AIMessage* message, float delay)
+    void AIController::sendMessage(const std::shared_ptr<AIMessage>& message, float delay)
     {
         if( delay <= 0 )
         {
@@ -67,18 +53,16 @@ namespace gameplay
             if( message->getReceiver() == nullptr || strlen(message->getReceiver()) == 0 )
             {
                 // Broadcast message to all agents
-                AIAgent* agent = _firstAgent;
-                while( agent )
+                for(const auto& agent : _firstAgent)
                 {
-                    if( agent->processMessage(message) )
+                    if(agent->processMessage(message))
                         break; // message consumed by this agent - stop bubbling
-                    agent = agent->_next;
                 }
             }
             else
             {
                 // Single recipient
-                AIAgent* agent = findAgent(message->getReceiver());
+                auto agent = findAgent(message->getReceiver());
                 if( agent )
                 {
                     agent->processMessage(message);
@@ -88,16 +72,11 @@ namespace gameplay
                     GP_WARN("Failed to locate AIAgent for message recipient: %s", message->getReceiver());
                 }
             }
-
-            // Delete the message, since it is finished being processed
-            AIMessage::destroy(message);
         }
         else
         {
             // Queue for later delivery
-            if( _firstMessage )
-                message->_next = _firstMessage;
-            _firstMessage = message;
+            _firstMessage.push_front(message);
         }
     }
 
@@ -110,86 +89,45 @@ namespace gameplay
         static Game* game = Game::getInstance();
 
         // Send all pending messages that have expired
-        AIMessage* prevMsg = nullptr;
-        AIMessage* msg = _firstMessage;
-        while( msg )
+        for(auto msg = _firstMessage.begin(); msg != _firstMessage.end(); ++msg)
         {
             // If the message delivery time has expired, send it (this also deletes it)
-            if( msg->getDeliveryTime() >= game->getGameTime() )
+            if( (*msg)->getDeliveryTime() >= game->getGameTime() )
             {
-                // Link the message out of our list
-                if( prevMsg )
-                    prevMsg->_next = msg->_next;
-
-                AIMessage* temp = msg;
-                msg = msg->_next;
-                temp->_next = nullptr;
-                sendMessage(temp);
-            }
-            else
-            {
-                prevMsg = msg;
-                msg = msg->_next;
+                sendMessage(*msg);
+                _firstMessage.erase(msg);
             }
         }
 
         // Update all enabled agents
-        AIAgent* agent = _firstAgent;
-        while( agent )
+        for( const auto& agent : _firstAgent )
         {
             if( agent->isEnabled() )
                 agent->update(elapsedTime);
-
-            agent = agent->_next;
         }
     }
 
 
-    void AIController::addAgent(AIAgent* agent)
+    void AIController::addAgent(const std::shared_ptr<AIAgent>& agent)
     {
-        agent->addRef();
-
-        if( _firstAgent )
-            agent->_next = _firstAgent;
-
-        _firstAgent = agent;
+        _firstAgent.push_front(agent);
     }
 
 
-    void AIController::removeAgent(AIAgent* agent)
+    void AIController::removeAgent(const std::shared_ptr<AIAgent>& agent)
     {
-        // Search our linked list of agents and link this agent out.
-        AIAgent* prevAgent = nullptr;
-        AIAgent* itr = _firstAgent;
-        while( itr )
-        {
-            if( itr == agent )
-            {
-                if( prevAgent )
-                    prevAgent->_next = agent->_next;
-                else
-                    _firstAgent = agent->_next;
-
-                agent->_next = nullptr;
-                agent->release();
-                break;
-            }
-
-            prevAgent = itr;
-            itr = itr->_next;
-        }
+        auto itr = std::find(_firstAgent.begin(), _firstAgent.end(), agent);
+        if(itr != _firstAgent.end())
+            _firstAgent.erase(itr);
     }
 
 
-    AIAgent* AIController::findAgent(const std::string& id) const
+    std::shared_ptr<AIAgent> AIController::findAgent(const std::string& id) const
     {
-        AIAgent* agent = _firstAgent;
-        while( agent )
+        for( const auto& agent : _firstAgent )
         {
             if( id == agent->getId() )
                 return agent;
-
-            agent = agent->_next;
         }
 
         return nullptr;

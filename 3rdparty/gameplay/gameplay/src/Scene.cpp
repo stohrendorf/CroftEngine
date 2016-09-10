@@ -25,17 +25,11 @@ namespace gameplay
 
     Scene::~Scene()
     {
-        // Unbind our active camera from the audio listener
-        if( _activeCamera )
-        {
-            SAFE_RELEASE(_activeCamera);
-        }
-
         // Remove all nodes from the scene
         removeAllNodes();
 
         // Remove the scene from global list
-        std::vector<Scene*>::iterator itr = std::find(__sceneList.begin(), __sceneList.end(), this);
+        auto itr = std::find(__sceneList.begin(), __sceneList.end(), this);
         if( itr != __sceneList.end() )
             __sceneList.erase(itr);
     }
@@ -76,12 +70,12 @@ namespace gameplay
     }
 
 
-    Node* Scene::findNode(const char* id, bool recursive, bool exactMatch) const
+    std::shared_ptr<Node> Scene::findNode(const char* id, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
         // Search immediate children first.
-        for( Node* child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
+        for( auto child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -93,9 +87,9 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( Node* child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
+            for( auto child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
             {
-                Node* match = child->findNode(id, true, exactMatch);
+                auto match = child->findNode(id, true, exactMatch);
                 if( match )
                 {
                     return match;
@@ -106,14 +100,14 @@ namespace gameplay
     }
 
 
-    unsigned int Scene::findNodes(const char* id, std::vector<Node*>& nodes, bool recursive, bool exactMatch) const
+    unsigned int Scene::findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
         unsigned int count = 0;
 
         // Search immediate children first.
-        for( Node* child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
+        for( auto child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -126,7 +120,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( Node* child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
+            for( auto child = getFirstNode(); child != nullptr; child = child->getNextSibling() )
             {
                 count += child->findNodes(id, nodes, true, exactMatch);
             }
@@ -136,40 +130,37 @@ namespace gameplay
     }
 
 
-    void Scene::visitNode(Node* node, const char* visitMethod)
+    void Scene::visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const
     {
         // If this node has a model with a mesh skin, visit the joint hierarchy within it
         // since we don't add joint hierarcies directly to the scene. If joints are never
         // visited, it's possible that nodes embedded within the joint hierarchy that contain
         // models will never get visited (and therefore never get drawn).
-        Model* model = dynamic_cast<Model*>(node->getDrawable());
+        auto model = std::dynamic_pointer_cast<Model>(node->getDrawable());
         if( model && model->_skin && model->_skin->_rootNode )
         {
             visitNode(model->_skin->_rootNode, visitMethod);
         }
 
         // Recurse for all children.
-        for( Node* child = node->getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( auto child = node->getFirstChild(); child != nullptr; child = child->getNextSibling() )
         {
             visitNode(child, visitMethod);
         }
     }
 
 
-    Node* Scene::addNode(const char* id)
+    std::shared_ptr<Node> Scene::addNode(const char* id)
     {
-        Node* node = Node::create(id);
+        auto node = Node::create(id);
         GP_ASSERT(node);
         addNode(node);
-
-        // Call release to decrement the ref count to 1 before returning.
-        node->release();
 
         return node;
     }
 
 
-    void Scene::addNode(Node* node)
+    void Scene::addNode(const std::shared_ptr<Node>& node)
     {
         GP_ASSERT(node);
 
@@ -179,8 +170,6 @@ namespace gameplay
             return;
         }
 
-        node->addRef();
-
         // If the node is part of another scene, remove it.
         if( node->_scene && node->_scene != this )
         {
@@ -188,9 +177,9 @@ namespace gameplay
         }
 
         // If the node is part of another node hierarchy, remove it.
-        if( node->getParent() )
+        if( !node->getParent().expired() )
         {
-            node->getParent()->removeChild(node);
+            node->getParent().lock()->removeChild(node);
         }
 
         // Link the new node into the end of our list.
@@ -212,7 +201,7 @@ namespace gameplay
         // If we don't have an active camera set, then check for one and set it.
         if( _activeCamera == nullptr )
         {
-            Camera* camera = node->getCamera();
+            auto camera = node->getCamera();
             if( camera )
             {
                 setActiveCamera(camera);
@@ -221,7 +210,7 @@ namespace gameplay
     }
 
 
-    void Scene::removeNode(Node* node)
+    void Scene::removeNode(const std::shared_ptr<Node>& node)
     {
         GP_ASSERT(node);
 
@@ -239,8 +228,6 @@ namespace gameplay
 
         node->remove();
         node->_scene = nullptr;
-
-        SAFE_RELEASE(node);
 
         --_nodeCount;
     }
@@ -261,35 +248,21 @@ namespace gameplay
     }
 
 
-    Node* Scene::getFirstNode() const
+    const std::shared_ptr<Node>& Scene::getFirstNode() const
     {
         return _firstNode;
     }
 
 
-    Camera* Scene::getActiveCamera()
+    const std::shared_ptr<Camera>& Scene::getActiveCamera() const
     {
         return _activeCamera;
     }
 
 
-    void Scene::setActiveCamera(Camera* camera)
+    void Scene::setActiveCamera(const std::shared_ptr<Camera>& camera)
     {
-        // Make sure we don't release the camera if the same camera is set twice.
-        if( _activeCamera != camera )
-        {
-            if( _activeCamera )
-            {
-                SAFE_RELEASE(_activeCamera);
-            }
-
-            _activeCamera = camera;
-
-            if( _activeCamera )
-            {
-                _activeCamera->addRef();
-            }
-        }
+        _activeCamera = camera;
     }
 
 
@@ -307,7 +280,7 @@ namespace gameplay
 
     void Scene::update(float elapsedTime)
     {
-        for( Node* node = _firstNode; node != nullptr; node = node->_nextSibling )
+        for( auto node = _firstNode; node != nullptr; node = node->_nextSibling )
         {
             if( node->isEnabled() )
                 node->update(elapsedTime);
@@ -322,7 +295,7 @@ namespace gameplay
     }
 
 
-    Node* Scene::getNext()
+    std::shared_ptr<Node> Scene::getNext()
     {
         if( _nextReset )
         {
@@ -331,17 +304,17 @@ namespace gameplay
         }
         else if( _nextItr )
         {
-            Node* node = findNextVisibleSibling(_nextItr->getFirstChild());
+            auto node = findNextVisibleSibling(_nextItr->getFirstChild());
             if( node == nullptr )
             {
                 node = findNextVisibleSibling(_nextItr->getNextSibling());
                 if( node == nullptr )
                 {
                     // Find first parent with a sibling
-                    node = _nextItr->getParent();
+                    node = _nextItr->getParent().lock();
                     while( node && (!findNextVisibleSibling(node->getNextSibling())) )
                     {
-                        node = node->getParent();
+                        node = node->getParent().lock();
                     }
                     if( node )
                     {
@@ -355,17 +328,18 @@ namespace gameplay
     }
 
 
-    Node* Scene::findNextVisibleSibling(Node* node)
+    std::shared_ptr<Node> Scene::findNextVisibleSibling(const std::shared_ptr<Node>& node) const
     {
-        while( node != nullptr && !isNodeVisible(node) )
+        auto n = node;
+        while( n != nullptr && !isNodeVisible(n) )
         {
-            node = node->getNextSibling();
+            n = n->getNextSibling();
         }
-        return node;
+        return n;
     }
 
 
-    bool Scene::isNodeVisible(Node* node)
+    bool Scene::isNodeVisible(const std::shared_ptr<Node>& node) const
     {
         if( !node->isEnabled() )
             return false;

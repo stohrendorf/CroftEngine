@@ -9,7 +9,6 @@ namespace gameplay
 {
     class BoundingBox;
     class BoundingSphere;
-    class ScriptListener;
 
 
     /**
@@ -25,7 +24,7 @@ namespace gameplay
      * components using matrix.decompose(Vector3, Quaternion, Vector3) and then pass
      * those arguments to the appropriate constructor or set methods of Transform.
      */
-    class Transform
+    class Transform : public std::enable_shared_from_this<Transform>
     {
     public:
 
@@ -54,9 +53,7 @@ namespace gameplay
         {
         public:
 
-            virtual ~Listener()
-            {
-            }
+            virtual ~Listener() = default;
 
 
             /**
@@ -638,7 +635,7 @@ namespace gameplay
          *
          * @param point The point to transform.
          */
-        void transformPoint(Vector3* point);
+        void transformPoint(Vector3* point) const;
 
         /**
          * Transforms the specified point and stores the
@@ -647,7 +644,7 @@ namespace gameplay
          * @param point The point to transform.
          * @param dst The point to store the result in.
          */
-        void transformPoint(const Vector3& point, Vector3* dst);
+        void transformPoint(const Vector3& point, Vector3* dst) const;
 
         /**
          * Transforms the specified vector and stores the
@@ -655,7 +652,7 @@ namespace gameplay
          *
          * @param vector The vector to transform.
          */
-        void transformVector(Vector3* vector);
+        void transformVector(Vector3* vector) const;
 
         /**
          * Transforms the specified vector and stores the result
@@ -664,7 +661,7 @@ namespace gameplay
          * @param transformVector The vector to transform.
          * @param dst The vector to store the result in.
          */
-        void transformVector(const Vector3& transformVector, Vector3* dst);
+        void transformVector(const Vector3& transformVector, Vector3* dst) const;
 
         /**
          * Transforms the specified vector and stores the result
@@ -676,7 +673,7 @@ namespace gameplay
          * @param w The w factor to transform.
          * @param dst The vector to store the result in.
          */
-        void transformVector(float x, float y, float z, float w, Vector3* dst);
+        void transformVector(float x, float y, float z, float w, Vector3* dst) const;
 
         /**
          * Returns whether or not this Transform object is static.
@@ -752,7 +749,7 @@ namespace gameplay
          * Adds the specified transform to the list of transforms waiting to be notified of a change.
          * Sets the DIRTY_NOTIFY bit on the transform.
          */
-        static void suspendTransformChange(Transform* transform);
+        static void suspendTransformChange(const std::shared_ptr<Transform>& transform);
 
         /**
          * Called when the transform changes.
@@ -788,11 +785,11 @@ namespace gameplay
         /**
          * List of TransformListener's on the Transform.
          */
-        std::list<TransformListener>* _listeners;
+        std::list<TransformListener> _listeners;
 
     private:
 
         static int _suspendTransformChanged;
-        static std::vector<Transform*> _transformsChanged;
+        static std::vector<std::shared_ptr<Transform>> _transformsChanged;
     };
 }

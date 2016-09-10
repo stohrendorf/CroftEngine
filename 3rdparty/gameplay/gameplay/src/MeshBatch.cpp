@@ -5,18 +5,16 @@
 namespace gameplay
 {
 
-MeshBatch::MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, Material* material, bool indexed, unsigned int initialCapacity, unsigned int growSize)
+MeshBatch::MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material, bool indexed, unsigned int initialCapacity, unsigned int growSize)
     : m_vertexFormat(vertexFormat), m_primitiveType(primitiveType), m_material(material), m_indexed(indexed), m_capacity(0), m_growSize(growSize),
-    m_vertexCapacity(0), m_indexCapacity(0), m_vertexCount(0), m_indexCount(0), m_vertices(NULL), m_verticesPtr(NULL), m_indices(NULL), m_indicesPtr(NULL), m_started(false)
+    m_vertexCapacity(0), m_indexCapacity(0), m_vertexCount(0), m_indexCount(0), m_vertices(nullptr), m_verticesPtr(nullptr), m_indices(nullptr), m_indicesPtr(nullptr), m_started(false)
 {
     GP_ASSERT(material);
-    material->addRef();
     resize(initialCapacity);
 }
 
 MeshBatch::~MeshBatch()
 {
-    SAFE_RELEASE(m_material);
     SAFE_DELETE_ARRAY(m_vertices);
     SAFE_DELETE_ARRAY(m_indices);
 }
@@ -88,15 +86,14 @@ void MeshBatch::updateVertexAttributeBinding()
     // Update our vertex attribute bindings.
     for (unsigned int i = 0, techniqueCount = m_material->getTechniqueCount(); i < techniqueCount; ++i)
     {
-        Technique* t = m_material->getTechniqueByIndex(i);
+        auto t = m_material->getTechniqueByIndex(i);
         GP_ASSERT(t);
         for (unsigned int j = 0, passCount = t->getPassCount(); j < passCount; ++j)
         {
-            Pass* p = t->getPassByIndex(j);
+            auto p = t->getPassByIndex(j);
             GP_ASSERT(p);
-            VertexAttributeBinding* b = VertexAttributeBinding::create(m_vertexFormat, m_vertices, p->getEffect());
+            auto b = VertexAttributeBinding::create(m_vertexFormat, m_vertices, p->getEffect());
             p->setVertexAttributeBinding(b);
-            SAFE_RELEASE(b);
         }
     }
 }
@@ -228,18 +225,18 @@ void MeshBatch::draw()
         GP_ASSERT(m_indices);
 
     // Bind the material.
-    Technique* technique = m_material->getTechnique();
+    auto technique = m_material->getTechnique();
     GP_ASSERT(technique);
     unsigned int passCount = technique->getPassCount();
     for (unsigned int i = 0; i < passCount; ++i)
     {
-        Pass* pass = technique->getPassByIndex(i);
+        auto pass = technique->getPassByIndex(i);
         GP_ASSERT(pass);
         pass->bind();
 
         if (m_indexed)
         {
-            GL_ASSERT( glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, (GLvoid*)m_indices) );
+            GL_ASSERT( glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, static_cast<GLvoid*>(m_indices)) );
         }
         else
         {

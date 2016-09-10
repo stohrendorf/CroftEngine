@@ -26,7 +26,7 @@ namespace gameplay
         // Overrides Node::getScene() to search the node our skins.
         for( const MeshSkin* itr : _skins )
         {
-            Model* model = itr ? itr->getModel() : nullptr;
+            std::shared_ptr<Model> model = itr ? itr->getModel() : nullptr;
             if( !model )
                 continue;
 

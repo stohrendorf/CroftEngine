@@ -3,7 +3,6 @@
 #include "Scene.h"
 #include "Game.h"
 #include "Drawable.h"
-#include "Ref.h"
 #include "Joint.h"
 
 // Node dirty flags
@@ -21,7 +20,7 @@ namespace gameplay
         , _firstChild(nullptr)
         , _nextSibling(nullptr)
         , _prevSibling(nullptr)
-        , _parent(nullptr)
+        , _parent()
         , _childCount(0)
         , _enabled(true)
         , _tags(nullptr)
@@ -40,19 +39,14 @@ namespace gameplay
         removeAllChildren();
         if( _drawable )
             _drawable->setNode(nullptr);
-        Ref* ref = dynamic_cast<Ref*>(_drawable);
-        SAFE_RELEASE(ref);
-        SAFE_RELEASE(_camera);
-        SAFE_RELEASE(_light);
-        SAFE_RELEASE(_userObject);
         SAFE_DELETE(_tags);
         setAgent(nullptr);
     }
 
 
-    Node* Node::create(const char* id)
+    std::shared_ptr<Node> Node::create(const char* id)
     {
-        return new Node(id);
+        return std::make_shared<Node>(id);
     }
 
 
@@ -74,21 +68,20 @@ namespace gameplay
     }
 
 
-    void Node::addChild(Node* child)
+    void Node::addChild(const std::shared_ptr<Node>& child)
     {
         GP_ASSERT(child);
 
-        if( child->_parent == this )
+        if( child->_parent.lock() == shared_from_this() )
         {
             // This node is already present in our hierarchy
             return;
         }
-        child->addRef();
 
         // If the item belongs to another hierarchy, remove it first.
-        if( child->_parent )
+        if( !child->_parent.expired() )
         {
-            child->_parent->removeChild(child);
+            child->_parent.lock()->removeChild(child);
         }
         else if( child->_scene )
         {
@@ -101,7 +94,7 @@ namespace gameplay
         // predictable, so I've changed it.
         if( _firstChild )
         {
-            Node* n = _firstChild;
+            auto n = _firstChild;
             while( n->_nextSibling )
                 n = n->_nextSibling;
             n->_nextSibling = child;
@@ -111,7 +104,7 @@ namespace gameplay
         {
             _firstChild = child;
         }
-        child->_parent = this;
+        child->_parent = std::static_pointer_cast<Node>( shared_from_this() );
         ++_childCount;
         setBoundsDirty();
 
@@ -122,16 +115,15 @@ namespace gameplay
     }
 
 
-    void Node::removeChild(Node* child)
+    void Node::removeChild(const std::shared_ptr<Node>& child)
     {
-        if( child == nullptr || child->_parent != this )
+        if( child == nullptr || child->_parent.lock() != shared_from_this() )
         {
             // The child is not in our hierarchy.
             return;
         }
         // Call remove on the child.
         child->remove();
-        SAFE_RELEASE(child);
     }
 
 
@@ -159,45 +151,45 @@ namespace gameplay
             _nextSibling->_prevSibling = _prevSibling;
         }
         // Update our parent.
-        Node* parent = _parent;
-        if( parent )
+        auto parent = _parent;
+        if( !parent.expired() )
         {
-            if( this == parent->_firstChild )
+            if( this == parent.lock()->_firstChild.get() )
             {
-                parent->_firstChild = _nextSibling;
+                parent.lock()->_firstChild = _nextSibling;
             }
-            --parent->_childCount;
+            --parent.lock()->_childCount;
         }
         _nextSibling = nullptr;
         _prevSibling = nullptr;
-        _parent = nullptr;
+        _parent.reset();
 
-        if( parent && parent->_dirtyBits & NODE_DIRTY_HIERARCHY )
+        if( !parent.expired() && parent.lock()->_dirtyBits & NODE_DIRTY_HIERARCHY )
         {
-            parent->hierarchyChanged();
+            parent.lock()->hierarchyChanged();
         }
     }
 
 
-    Node* Node::getFirstChild() const
+    const std::shared_ptr<Node>& Node::getFirstChild() const
     {
         return _firstChild;
     }
 
 
-    Node* Node::getNextSibling() const
+    const std::shared_ptr<Node>& Node::getNextSibling() const
     {
         return _nextSibling;
     }
 
 
-    Node* Node::getPreviousSibling() const
+    const std::shared_ptr<Node>& Node::getPreviousSibling() const
     {
         return _prevSibling;
     }
 
 
-    Node* Node::getParent() const
+    const std::weak_ptr<Node>& Node::getParent() const
     {
         return _parent;
     }
@@ -212,21 +204,21 @@ namespace gameplay
     Node* Node::getRootNode() const
     {
         Node* n = const_cast<Node*>(this);
-        while( n->getParent() )
+        while( !n->getParent().expired() )
         {
-            n = n->getParent();
+            n = n->getParent().lock().get();
         }
         return n;
     }
 
 
-    Node* Node::findNode(const char* id, bool recursive, bool exactMatch) const
+    std::shared_ptr<Node> Node::findNode(const char* id, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
-        Node* rootNode = nullptr;
-        Model* model = dynamic_cast<Model*>(_drawable);
+        std::shared_ptr<Node> rootNode = nullptr;
+        auto model = std::dynamic_pointer_cast<Model>(_drawable);
         if( model )
         {
             if( model->getSkin() != nullptr && (rootNode = model->getSkin()->_rootNode) != nullptr )
@@ -234,7 +226,7 @@ namespace gameplay
                 if( (exactMatch && rootNode->_id == id) || (!exactMatch && rootNode->_id.find(id) == 0) )
                     return rootNode;
 
-                Node* match = rootNode->findNode(id, true, exactMatch);
+                auto match = rootNode->findNode(id, true, exactMatch);
                 if( match )
                 {
                     return match;
@@ -242,7 +234,7 @@ namespace gameplay
             }
         }
         // Search immediate children first.
-        for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -253,9 +245,9 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+            for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
             {
-                Node* match = child->findNode(id, true, exactMatch);
+                auto match = child->findNode(id, true, exactMatch);
                 if( match )
                 {
                     return match;
@@ -266,14 +258,14 @@ namespace gameplay
     }
 
 
-    unsigned int Node::findNodes(const char* id, std::vector<Node*>& nodes, bool recursive, bool exactMatch) const
+    unsigned int Node::findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         unsigned int count = 0;
-        Node* rootNode = nullptr;
-        Model* model = dynamic_cast<Model*>(_drawable);
+        std::shared_ptr<Node> rootNode = nullptr;
+        auto model = std::dynamic_pointer_cast<Model>(_drawable);
         if( model )
         {
             if( model->getSkin() != nullptr && (rootNode = model->getSkin()->_rootNode) != nullptr )
@@ -287,7 +279,7 @@ namespace gameplay
             }
         }
         // Search immediate children first.
-        for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -299,7 +291,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+            for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
             {
                 count += child->findNodes(id, nodes, true, exactMatch);
             }
@@ -315,9 +307,9 @@ namespace gameplay
             return _scene;
 
         // Search our parent for the scene
-        if( _parent )
+        if( !_parent.expired() )
         {
-            Scene* scene = _parent->getScene();
+            Scene* scene = _parent.lock()->getScene();
             if( scene )
                 return scene;
         }
@@ -389,14 +381,14 @@ namespace gameplay
         if( !_enabled )
             return false;
 
-        Node* node = _parent;
-        while( node )
+        auto node = _parent;
+        while( !node.expired() )
         {
-            if( !node->_enabled )
+            if( !node.lock()->_enabled )
             {
                 return false;
             }
-            node = node->_parent;
+            node = node.lock()->_parent;
         }
         return true;
     }
@@ -404,7 +396,7 @@ namespace gameplay
 
     void Node::update(float elapsedTime)
     {
-        for( Node* node = _firstChild; node != nullptr; node = node->_nextSibling )
+        for( auto node = _firstChild; node != nullptr; node = node->_nextSibling )
         {
             if( node->isEnabled() )
             {
@@ -432,10 +424,10 @@ namespace gameplay
             {
                 // If we have a parent, multiply our parent world transform by our local
                 // transform to obtain our final resolved world transform.
-                Node* parent = getParent();
-                if( parent )
+                auto parent = getParent();
+                if( !parent.expired() )
                 {
-                    Matrix::multiply(parent->getWorldMatrix(), getMatrix(), &_world);
+                    Matrix::multiply(parent.lock()->getWorldMatrix(), getMatrix(), &_world);
                 }
                 else
                 {
@@ -444,7 +436,7 @@ namespace gameplay
 
                 // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
                 // to force their resolved world matrices to be updated.
-                for( Node* child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+                for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
                 {
                     child->getWorldMatrix();
                 }
@@ -485,7 +477,7 @@ namespace gameplay
     const Matrix& Node::getViewMatrix() const
     {
         Scene* scene = getScene();
-        Camera* camera = scene ? scene->getActiveCamera() : nullptr;
+        auto camera = scene ? scene->getActiveCamera() : nullptr;
         if( camera )
         {
             return camera->getViewMatrix();
@@ -500,7 +492,7 @@ namespace gameplay
     const Matrix& Node::getInverseViewMatrix() const
     {
         Scene* scene = getScene();
-        Camera* camera = scene ? scene->getActiveCamera() : nullptr;
+        auto camera = scene ? scene->getActiveCamera() : nullptr;
         if( camera )
         {
             return camera->getInverseViewMatrix();
@@ -515,7 +507,7 @@ namespace gameplay
     const Matrix& Node::getProjectionMatrix() const
     {
         Scene* scene = getScene();
-        Camera* camera = scene ? scene->getActiveCamera() : nullptr;
+        auto camera = scene ? scene->getActiveCamera() : nullptr;
         if( camera )
         {
             return camera->getProjectionMatrix();
@@ -530,7 +522,7 @@ namespace gameplay
     const Matrix& Node::getViewProjectionMatrix() const
     {
         Scene* scene = getScene();
-        Camera* camera = scene ? scene->getActiveCamera() : nullptr;
+        auto camera = scene ? scene->getActiveCamera() : nullptr;
         if( camera )
         {
             return camera->getViewProjectionMatrix();
@@ -545,7 +537,7 @@ namespace gameplay
     const Matrix& Node::getInverseViewProjectionMatrix() const
     {
         Scene* scene = getScene();
-        Camera* camera = scene ? scene->getActiveCamera() : nullptr;
+        auto camera = scene ? scene->getActiveCamera() : nullptr;
         if( camera )
         {
             return camera->getInverseViewProjectionMatrix();
@@ -619,7 +611,7 @@ namespace gameplay
         Scene* scene = getScene();
         if( scene )
         {
-            Camera* camera = scene->getActiveCamera();
+            auto camera = scene->getActiveCamera();
             if( camera )
             {
                 Node* cameraNode = camera->getNode();
@@ -638,7 +630,7 @@ namespace gameplay
         Scene* scene = getScene();
         if( scene )
         {
-            Camera* camera = scene->getActiveCamera();
+            auto camera = scene->getActiveCamera();
             if( camera )
             {
                 Node* cameraNode = camera->getNode();
@@ -666,7 +658,7 @@ namespace gameplay
         _dirtyBits |= NODE_DIRTY_WORLD | NODE_DIRTY_BOUNDS;
 
         // Notify our children that their transform has also changed (since transforms are inherited).
-        for( Node* n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
+        for( auto n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
         {
             if( Transform::isTransformChangedSuspended() )
             {
@@ -692,18 +684,18 @@ namespace gameplay
         _dirtyBits |= NODE_DIRTY_BOUNDS;
 
         // Mark our parent bounds as dirty as well
-        if( _parent )
-            _parent->setBoundsDirty();
+        if( !_parent.expired() )
+            _parent.lock()->setBoundsDirty();
     }
 
 
-    Camera* Node::getCamera() const
+    const std::shared_ptr<Camera>& Node::getCamera() const
     {
         return _camera;
     }
 
 
-    void Node::setCamera(Camera* camera)
+    void Node::setCamera(const std::shared_ptr<Camera>& camera)
     {
         if( _camera == camera )
             return;
@@ -711,26 +703,24 @@ namespace gameplay
         if( _camera )
         {
             _camera->setNode(nullptr);
-            SAFE_RELEASE(_camera);
         }
 
         _camera = camera;
 
         if( _camera )
         {
-            _camera->addRef();
             _camera->setNode(this);
         }
     }
 
 
-    Light* Node::getLight() const
+    const std::shared_ptr<Light>& Node::getLight() const
     {
         return _light;
     }
 
 
-    void Node::setLight(Light* light)
+    void Node::setLight(const std::shared_ptr<Light>& light)
     {
         if( _light == light )
             return;
@@ -738,14 +728,12 @@ namespace gameplay
         if( _light )
         {
             _light->setNode(nullptr);
-            SAFE_RELEASE(_light);
         }
 
         _light = light;
 
         if( _light )
         {
-            _light->addRef();
             _light->setNode(this);
         }
 
@@ -753,31 +741,25 @@ namespace gameplay
     }
 
 
-    Drawable* Node::getDrawable() const
+    const std::shared_ptr<Drawable>& Node::getDrawable() const
     {
         return _drawable;
     }
 
 
-    void Node::setDrawable(Drawable* drawable)
+    void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
     {
         if( _drawable != drawable )
         {
             if( _drawable )
             {
                 _drawable->setNode(nullptr);
-                Ref* ref = dynamic_cast<Ref*>(_drawable);
-                if( ref )
-                    ref->release();
             }
 
             _drawable = drawable;
 
             if( _drawable )
             {
-                Ref* ref = dynamic_cast<Ref*>(_drawable);
-                if( ref )
-                    ref->addRef();
                 _drawable->setNode(this);
             }
         }
@@ -796,7 +778,7 @@ namespace gameplay
             // Start with our local bounding sphere
             // TODO: Incorporate bounds from entities other than mesh (i.e. particleemitters, audiosource, etc)
             bool empty = true;
-            Model* model = dynamic_cast<Model*>(_drawable);
+            auto model = std::dynamic_pointer_cast<Model>(_drawable);
             if( model && model->getMesh() )
             {
                 if( empty )
@@ -851,7 +833,7 @@ namespace gameplay
                     // be considered as directly transforming vertices on the GPU (they can instead
                     // be applied directly to the bounding volume transformation below).
                     GP_ASSERT(model->getSkin()->getRootJoint());
-                    Node* jointParent = model->getSkin()->getRootJoint()->getParent();
+                    auto jointParent = model->getSkin()->getRootJoint()->getParent().lock();
                     if( jointParent )
                     {
                         // TODO: Should we protect against the case where joints are nested directly
@@ -869,7 +851,7 @@ namespace gameplay
             }
 
             // Merge this world-space bounding sphere with our childrens' bounding volumes.
-            for( Node* n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
+            for(auto n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
             {
                 const BoundingSphere& childSphere = n->getBoundingSphere();
                 if( !childSphere.isEmpty() )
@@ -891,7 +873,7 @@ namespace gameplay
     }
 
 
-    AIAgent* Node::getAgent() const
+    std::shared_ptr<AIAgent> Node::getAgent() const
     {
         // Lazily create a new Agent for this Node if we don't have one yet.
         // Basically, all Nodes by default can have an Agent, we just won't
@@ -907,7 +889,7 @@ namespace gameplay
     }
 
 
-    void Node::setAgent(AIAgent* agent)
+    void Node::setAgent(const std::shared_ptr<AIAgent>& agent)
     {
         if( agent == _agent )
             return;
@@ -916,27 +898,25 @@ namespace gameplay
         {
             Game::getInstance()->getAIController()->removeAgent(_agent);
             _agent->setNode(nullptr);
-            SAFE_RELEASE(_agent);
         }
 
         _agent = agent;
 
         if( _agent )
         {
-            _agent->addRef();
             _agent->setNode(this);
             Game::getInstance()->getAIController()->addAgent(_agent);
         }
     }
 
 
-    Ref* Node::getUserObject() const
+    void* Node::getUserObject() const
     {
         return _userObject;
     }
 
 
-    void Node::setUserObject(Ref* obj)
+    void Node::setUserObject(void* obj)
     {
         _userObject = obj;
     }

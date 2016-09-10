@@ -6,41 +6,30 @@
 #include "Pass.h"
 #include "Properties.h"
 #include "Node.h"
+#include "MaterialParameter.h"
 
 
 namespace gameplay
 {
-    Material::Material() :
-                         _currentTechnique(nullptr)
-    {
-    }
+    Material::Material() = default;
 
 
-    Material::~Material()
-    {
-        // Destroy all the techniques.
-        for( size_t i = 0, count = _techniques.size(); i < count; ++i )
-        {
-            Technique* technique = _techniques[i];
-            SAFE_RELEASE(technique);
-        }
-    }
+    Material::~Material() = default;
 
 
-    Material* Material::create(Effect* effect)
+    std::shared_ptr<Material> Material::create(const std::shared_ptr<Effect>& effect)
     {
         GP_ASSERT(effect);
 
         // Create a new material with a single technique and pass for the given effect.
-        Material* material = new Material();
+        std::shared_ptr<Material> material{ std::make_shared<Material>() };
 
-        Technique* technique = new Technique(nullptr, material);
-        material->_techniques.push_back(technique);
+        auto technique = std::make_shared<Technique>(nullptr, material);
+        material->_techniques.emplace_back(technique);
 
         Pass* pass = new Pass(nullptr, technique);
         pass->_effect = effect;
-        technique->_passes.push_back(pass);
-        effect->addRef();
+        technique->_passes.emplace_back(pass);
 
         material->_currentTechnique = technique;
 
@@ -48,26 +37,24 @@ namespace gameplay
     }
 
 
-    Material* Material::create(const char* vshPath, const char* fshPath, const char* defines)
+    std::shared_ptr<Material> Material::create(const char* vshPath, const char* fshPath, const char* defines)
     {
         GP_ASSERT(vshPath);
         GP_ASSERT(fshPath);
 
         // Create a new material with a single technique and pass for the given effect
-        Material* material = new Material();
+        std::shared_ptr<Material> material{ std::make_shared<Material>() };
 
-        Technique* technique = new Technique(nullptr, material);
+        auto technique = std::make_shared<Technique>(nullptr, material);
         material->_techniques.push_back(technique);
 
-        Pass* pass = new Pass(nullptr, technique);
+        auto pass = std::make_shared<Pass>(nullptr, technique);
         if( !pass->initialize(vshPath, fshPath, defines) )
         {
             GP_WARN("Failed to create pass for material: vertexShader = %s, fragmentShader = %s, defines = %s", vshPath, fshPath, defines ? defines : "");
-            SAFE_RELEASE(pass);
-            SAFE_RELEASE(material);
             return nullptr;
         }
-        technique->_passes.push_back(pass);
+        technique->_passes.emplace_back(pass);
 
         material->_currentTechnique = technique;
 
@@ -75,25 +62,25 @@ namespace gameplay
     }
 
 
-    unsigned int Material::getTechniqueCount() const
+    size_t Material::getTechniqueCount() const
     {
-        return (unsigned int)_techniques.size();
+        return _techniques.size();
     }
 
 
-    Technique* Material::getTechniqueByIndex(unsigned int index) const
+    const std::shared_ptr<Technique>& Material::getTechniqueByIndex(size_t index) const
     {
         GP_ASSERT(index < _techniques.size());
         return _techniques[index];
     }
 
 
-    Technique* Material::getTechnique(const char* id) const
+    std::shared_ptr<Technique> Material::getTechnique(const char* id) const
     {
         GP_ASSERT(id);
         for( size_t i = 0, count = _techniques.size(); i < count; ++i )
         {
-            Technique* t = _techniques[i];
+            auto t = _techniques[i];
             GP_ASSERT(t);
             if( strcmp(t->getId(), id) == 0 )
             {
@@ -105,7 +92,7 @@ namespace gameplay
     }
 
 
-    Technique* Material::getTechnique() const
+    const std::shared_ptr<Technique>& Material::getTechnique() const
     {
         return _currentTechnique;
     }
@@ -113,7 +100,7 @@ namespace gameplay
 
     void Material::setTechnique(const char* id)
     {
-        Technique* t = getTechnique(id);
+        auto t = getTechnique(id);
         if( t )
         {
             _currentTechnique = t;
@@ -132,21 +119,20 @@ namespace gameplay
     }
 
 
-    bool Material::loadTechnique(Material* material, Properties* techniqueProperties, PassCallback callback, void* cookie)
+    bool Material::loadTechnique(const std::shared_ptr<Material>& material, Properties* techniqueProperties, PassCallback callback, void* cookie)
     {
         GP_ASSERT(material);
         GP_ASSERT(techniqueProperties);
 
         // Create a new technique.
-        Technique* technique = new Technique(techniqueProperties->getId(), material);
+        auto technique = std::make_shared<Technique>(techniqueProperties->getId(), material);
 
         // Load uniform value parameters for this technique.
         loadRenderState(technique, techniqueProperties);
 
         // Go through all the properties and create passes under this technique.
         techniqueProperties->rewind();
-        Properties* passProperties = nullptr;
-        while( (passProperties = techniqueProperties->getNextNamespace()) )
+        while(Properties* passProperties = techniqueProperties->getNextNamespace())
         {
             if( strcmp(passProperties->getNamespace(), "pass") == 0 )
             {
@@ -154,20 +140,19 @@ namespace gameplay
                 if( !loadPass(technique, passProperties, callback, cookie) )
                 {
                     GP_ERROR("Failed to create pass for technique.");
-                    SAFE_RELEASE(technique);
                     return false;
                 }
             }
         }
 
         // Add the new technique to the material.
-        material->_techniques.push_back(technique);
+        material->_techniques.emplace_back(technique);
 
         return true;
     }
 
 
-    bool Material::loadPass(Technique* technique, Properties* passProperties, PassCallback callback, void* cookie)
+    bool Material::loadPass(const std::shared_ptr<Technique>& technique, Properties* passProperties, PassCallback callback, void* cookie)
     {
         GP_ASSERT(passProperties);
         GP_ASSERT(technique);
@@ -180,7 +165,7 @@ namespace gameplay
         const char* passDefines = passProperties->getString("defines");
 
         // Create the pass
-        Pass* pass = new Pass(passProperties->getId(), technique);
+        auto pass = std::make_shared<Pass>(passProperties->getId(), technique);
 
         // Load render state.
         loadRenderState(pass, passProperties);
@@ -202,7 +187,6 @@ namespace gameplay
         if( !pass->initialize(vertexShaderPath, fragmentShaderPath, allDefines.c_str()) )
         {
             GP_WARN("Failed to create pass for technique.");
-            SAFE_RELEASE(pass);
             return false;
         }
 
@@ -235,7 +219,7 @@ namespace gameplay
     }
 
 
-    void Material::loadRenderState(RenderState* renderState, Properties* properties)
+    void Material::loadRenderState(const std::shared_ptr<RenderState>& renderState, Properties* properties)
     {
         GP_ASSERT(renderState);
         GP_ASSERT(properties);

@@ -58,3 +58,5 @@
 #include "AIAgent.h"
 #include "AIState.h"
 #include "AIStateMachine.h"
+
+#include "MaterialParameter.h"

@@ -10,7 +10,6 @@ namespace gameplay
         , _node(nullptr)
         , _enabled(true)
         , _listener(nullptr)
-        , _next(nullptr)
     {
         _stateMachine = new AIStateMachine(this);
     }
@@ -22,9 +21,9 @@ namespace gameplay
     }
 
 
-    AIAgent* AIAgent::create()
+    std::shared_ptr<AIAgent> AIAgent::create()
     {
-        return new AIAgent();
+        return std::make_shared<AIAgent>();
     }
 
 
@@ -51,7 +50,7 @@ namespace gameplay
     }
 
 
-    AIStateMachine* AIAgent::getStateMachine()
+    AIStateMachine* AIAgent::getStateMachine() const
     {
         return _stateMachine;
     }
@@ -81,7 +80,7 @@ namespace gameplay
     }
 
 
-    bool AIAgent::processMessage(AIMessage* message)
+    bool AIAgent::processMessage(const std::shared_ptr<AIMessage>& message)
     {
         // Handle built-in message types.
         switch( message->_messageType )
@@ -92,7 +91,7 @@ namespace gameplay
                 const char* stateId = message->getString(0);
                 if( stateId )
                 {
-                    AIState* state = _stateMachine->getState(stateId);
+                    auto state = _stateMachine->getState(stateId);
                     if( state )
                         _stateMachine->setStateInternal(state);
                 }

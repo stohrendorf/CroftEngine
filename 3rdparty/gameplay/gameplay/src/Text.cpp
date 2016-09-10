@@ -6,26 +6,23 @@
 
 namespace gameplay
 {
-    Text::Text() :
-                 _font(nullptr)
-                 , _text("")
-                 , _size(0)
-                 , _width(0)
-                 , _height(0)
-                 , _wrap(true)
-                 , _rightToLeft(false)
-                 , _align(Font::ALIGN_TOP_LEFT)
-                 , _clip(Rectangle(0, 0, 0, 0))
-                 , _opacity(1.0f)
-                 , _color(Vector4::one())
+    Text::Text()
+        : _font(nullptr)
+        , _text("")
+        , _size(0)
+        , _width(0)
+        , _height(0)
+        , _wrap(true)
+        , _rightToLeft(false)
+        , _align(Font::ALIGN_TOP_LEFT)
+        , _clip(Rectangle(0, 0, 0, 0))
+        , _opacity(1.0f)
+        , _color(Vector4::one())
     {
     }
 
 
-    Text::~Text()
-    {
-        SAFE_RELEASE(_font);
-    }
+    Text::~Text() = default;
 
 
     void Text::setText(const char* str)
@@ -142,7 +139,7 @@ namespace gameplay
     }
 
 
-    unsigned int Text::draw(bool /*wireframe*/)
+    size_t Text::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Rectangle viewport = Game::getInstance()->getViewport();
@@ -154,7 +151,7 @@ namespace gameplay
         Rectangle clipViewport = _clip;
         if( _node && _node->getScene() )
         {
-            Camera* activeCamera = _node->getScene()->getActiveCamera();
+            auto activeCamera = _node->getScene()->getActiveCamera();
             if( activeCamera )
             {
                 Node* cameraNode = _node->getScene()->getActiveCamera()->getNode();
@@ -184,5 +181,4 @@ namespace gameplay
         _font->finish();
         return 1;
     }
-
 }

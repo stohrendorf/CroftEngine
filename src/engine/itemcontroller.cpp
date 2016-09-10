@@ -62,7 +62,7 @@ namespace engine
         return m_meshAnimationController->getAnimEndFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<gameplay::Node*>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room, core::ExactTRCoordinates(item->position))
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
@@ -119,7 +119,7 @@ namespace engine
         }
         BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
-        m_sceneNode->getParent()->removeChild(m_sceneNode);
+        m_sceneNode->getParent().lock()->removeChild(m_sceneNode);
         newRoom->node->addChild(m_sceneNode);
 
         m_position.room = newRoom;

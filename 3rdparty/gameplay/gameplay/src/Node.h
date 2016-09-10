@@ -24,13 +24,15 @@ namespace gameplay
      *
      * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Node
      */
-    class Node : public Transform, public Ref
+    class Node : public Transform
     {
         friend class Light;
         friend class MeshSkin;
         friend class Scene;
 
     public:
+        explicit Node(const std::string& id);
+        virtual ~Node();
 
         /**
          * Defines the types of nodes.
@@ -48,7 +50,7 @@ namespace gameplay
          * @param id The ID for the new node.
          * @script{create}
          */
-        static Node* create(const char* id = nullptr);
+        static std::shared_ptr<Node> create(const char* id = nullptr);
 
         /**
          * Gets the identifier for the node.
@@ -74,14 +76,14 @@ namespace gameplay
          *
          * @param child The child to add.
          */
-        virtual void addChild(Node* child);
+        virtual void addChild(const std::shared_ptr<Node>& child);
 
         /**
          * Removes a child node.
          *
          * @param child The child to remove.
          */
-        virtual void removeChild(Node* child);
+        virtual void removeChild(const std::shared_ptr<Node>& child);
 
         /**
          * Removes all child nodes.
@@ -93,28 +95,28 @@ namespace gameplay
          *
          * @return The first child.
          */
-        Node* getFirstChild() const;
+        const std::shared_ptr<Node>& getFirstChild() const;
 
         /**
          * Returns the first sibling of this node.
          *
          * @return The first sibling.
          */
-        Node* getNextSibling() const;
+        const std::shared_ptr<Node>& getNextSibling() const;
 
         /**
          * Returns the previous sibling to this node.
          *
          * @return The previous sibling.
          */
-        Node* getPreviousSibling() const;
+        const std::shared_ptr<Node>& getPreviousSibling() const;
 
         /**
          * Returns the parent of this node.
          *
          * @return The parent.
          */
-        Node* getParent() const;
+        const std::weak_ptr<Node>& getParent() const;
 
         /**
          * Returns the number of direct children of this item.
@@ -142,7 +144,7 @@ namespace gameplay
          *
          * @return The Node found or NULL if not found.
          */
-        Node* findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
+        std::shared_ptr<Node> findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Returns all child nodes that match the given ID.
@@ -156,7 +158,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const char* id, std::vector<Node*>& nodes, bool recursive = true, bool exactMatch = true) const;
+        unsigned int findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Gets the scene this node is currenlty within.
@@ -383,7 +385,7 @@ namespace gameplay
          *
          * @return The drawable component attached to this node.
          */
-        Drawable* getDrawable() const;
+        const std::shared_ptr<Drawable>& getDrawable() const;
 
         /**
          * Set the drawable object to be attached to this node
@@ -395,14 +397,14 @@ namespace gameplay
          *
          * @param drawable The new drawable component. May be NULL.
          */
-        void setDrawable(Drawable* drawable);
+        void setDrawable(const std::shared_ptr<Drawable>& drawable);
 
         /**
          * Gets the camera attached to this node.
          *
          * @return Gets the camera attached to this node.
          */
-        Camera* getCamera() const;
+        const std::shared_ptr<Camera>& getCamera() const;
 
         /**
          * Attaches a camera to this node.
@@ -412,14 +414,14 @@ namespace gameplay
          *
          * @param camera The new camera. May be NULL.
          */
-        void setCamera(Camera* camera);
+        void setCamera(const std::shared_ptr<Camera>& camera);
 
         /**
          * Get the light attached to this node.
          *
          * @return The light attached to this node.
          */
-        Light* getLight() const;
+        const std::shared_ptr<Light>& getLight() const;
 
         /**
          * Attaches a light to this node.
@@ -429,35 +431,35 @@ namespace gameplay
          *
          * @param light The new light. May be NULL.
          */
-        void setLight(Light* light);
+        void setLight(const std::shared_ptr<Light>& light);
 
         /**
          * Gets the AI agent assigned to this node
          *
          * @return The AI agent for this node.
          */
-        AIAgent* getAgent() const;
+        std::shared_ptr<AIAgent> getAgent() const;
 
         /**
          * Sets the AI agent for this node.
          *
          * @param agent The AI agent to set.
          */
-        void setAgent(AIAgent* agent);
+        void setAgent(const std::shared_ptr<AIAgent>& agent);
 
         /**
          * Gets the user object assigned to this node.
          *
          * @return The user object assigned object to this node.
          */
-        Ref* getUserObject() const;
+        void* getUserObject() const;
 
         /**
         * Sets a user object to be assigned object to this node.
         *
         * @param obj The user object assigned object to this node.
         */
-        void setUserObject(Ref* obj);
+        void setUserObject(void* obj);
 
         /**
          * Returns the bounding sphere for the Node, in world space.
@@ -493,16 +495,6 @@ namespace gameplay
         }
 
     protected:
-
-        /**
-         * Constructor.
-         */
-        Node(const std::string& id);
-
-        /**
-         * Destructor.
-         */
-        virtual ~Node();
 
         /**
          * Removes this node from its parent.
@@ -543,13 +535,13 @@ namespace gameplay
         /** The nodes id. */
         std::string _id;
         /** The nodes first child. */
-        Node* _firstChild;
+        std::shared_ptr<Node> _firstChild;
         /** The nodes next sibiling. */
-        Node* _nextSibling;
+        std::shared_ptr<Node> _nextSibling;
         /** The nodes previous sibiling. */
-        Node* _prevSibling;
+        std::shared_ptr<Node> _prevSibling;
         /** The nodes parent. */
-        Node* _parent;
+        std::weak_ptr<Node> _parent;
         /** The number of child nodes. */
         unsigned int _childCount;
         /** If this node is enabled. Maybe different if parent is enabled/disabled. */
@@ -557,15 +549,15 @@ namespace gameplay
         /** Tags assigned to this node. */
         std::map<std::string, std::string>* _tags;
         /** The drawble component attached to this node. */
-        Drawable* _drawable;
+        std::shared_ptr<Drawable> _drawable;
         /** The camera component attached to this node. */
-        Camera* _camera;
+        std::shared_ptr<Camera> _camera;
         /** The light component attached to this node. */
-        Light* _light;
+        std::shared_ptr<Light> _light;
         /** The AI agent component attached to this node. */
-        mutable AIAgent* _agent;
+        mutable std::shared_ptr<AIAgent> _agent;
         /** The user object component attached to this node. */
-        Ref* _userObject;
+        void* _userObject;
         /** The world matrix for this node. */
         mutable Matrix _world;
         /** The bounding sphere for this node. */

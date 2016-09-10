@@ -2,6 +2,7 @@
 #include "SpriteBatch.h"
 #include "Game.h"
 #include "Material.h"
+#include "MaterialParameter.h"
 
 // Default size of a newly created sprite batch
 #define SPRITE_BATCH_DEFAULT_SIZE 128
@@ -22,7 +23,7 @@
 namespace gameplay
 {
 
-static Effect* __spriteEffect = nullptr;
+static std::shared_ptr<Effect> __spriteEffect = nullptr;
 
 SpriteBatch::SpriteBatch()
         : _batch(nullptr)
@@ -37,27 +38,15 @@ SpriteBatch::SpriteBatch()
 SpriteBatch::~SpriteBatch()
 {
     SAFE_DELETE(_batch);
-    SAFE_RELEASE(_sampler);
-    if (!_customEffect)
-    {
-        if (__spriteEffect && __spriteEffect->getRefCount() == 1)
-        {
-            __spriteEffect->release();
-            __spriteEffect = nullptr;
-        }
-        else
-        {
-            __spriteEffect->release();
-        }
-    }
 }
 
-SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int initialCapacity)
+SpriteBatch* SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Effect>& effect, unsigned int initialCapacity)
 {
     GP_ASSERT(texture != nullptr);
     GP_ASSERT(texture->getType() == Texture::TEXTURE_2D);
 
-    bool customEffect = (effect != nullptr);
+    auto fx = effect;
+    bool customEffect = (fx != nullptr);
     if (!customEffect)
     {
         // Create our static sprite effect.
@@ -69,20 +58,19 @@ SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int 
                 GP_ERROR("Unable to load sprite effect.");
                 return nullptr;
             }
-            effect = __spriteEffect;
+            fx = __spriteEffect;
         }
         else
         {
-            effect = __spriteEffect;
-            __spriteEffect->addRef();
+            fx = __spriteEffect;
         }
     }
 
     // Search for the first sampler uniform in the effect.
     Uniform* samplerUniform = nullptr;
-    for (unsigned int i = 0, count = effect->getUniformCount(); i < count; ++i)
+    for (unsigned int i = 0, count = fx->getUniformCount(); i < count; ++i)
     {
-        Uniform* uniform = effect->getUniform(i);
+        Uniform* uniform = fx->getUniform(i);
         if (uniform && uniform->getType() == GL_SAMPLER_2D)
         {
             samplerUniform = uniform;
@@ -92,12 +80,11 @@ SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int 
     if (!samplerUniform)
     {
         GP_ERROR("No uniform of type GL_SAMPLER_2D found in sprite effect.");
-        SAFE_RELEASE(effect);
         return nullptr;
     }
 
     // Wrap the effect in a material
-    Material* material = Material::create(effect);
+    auto material = Material::create(fx);
 
     // Set initial material state
     material->getStateBlock()->setBlend(true);
@@ -105,7 +92,7 @@ SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int 
     material->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
 
     // Bind the texture to the material as a sampler
-    Texture::Sampler* sampler = Texture::Sampler::create(texture);
+    auto sampler = Texture::Sampler::create(texture);
     material->getParameter(samplerUniform->getName())->setValue(sampler);
 
     // Define the vertex format for the batch
@@ -119,7 +106,6 @@ SpriteBatch* SpriteBatch::create(Texture* texture, Effect* effect, unsigned int 
 
     // Create the mesh batch
     MeshBatch* meshBatch = new MeshBatch(vertexFormat, Mesh::TRIANGLE_STRIP, material, true, initialCapacity > 0 ? initialCapacity : SPRITE_BATCH_DEFAULT_SIZE);
-    material->release(); // don't call SAFE_RELEASE since material is used below
 
     // Create the batch
     SpriteBatch* batch = new SpriteBatch();
@@ -382,17 +368,19 @@ void SpriteBatch::finish()
     _batch->draw();
 }
 
-RenderState::StateBlock* SpriteBatch::getStateBlock() const
+
+    std::shared_ptr<RenderState::StateBlock> SpriteBatch::getStateBlock() const
 {
     return _batch->getMaterial()->getStateBlock();
 }
 
-Texture::Sampler* SpriteBatch::getSampler() const
+
+    const std::shared_ptr<Texture::Sampler>& SpriteBatch::getSampler() const
 {
     return _sampler;
 }
 
-Material* SpriteBatch::getMaterial() const
+const std::shared_ptr<Material>& SpriteBatch::getMaterial() const
 {
     return _batch->getMaterial();
 }

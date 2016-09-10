@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io/sdlreader.h"
+#include "gameplay.h"
 
 namespace loader
 {
@@ -66,7 +67,8 @@ namespace loader
             return textile;
         }
 
-        gameplay::Texture* toTexture() const;
+
+        std::shared_ptr<gameplay::Texture> toTexture() const;
     };
 
     enum class BlendingMode : uint16_t
@@ -235,9 +237,9 @@ namespace loader
             return proxy;
         }
 
-        static gameplay::Material* createMaterial(gameplay::Texture::Sampler* texture, BlendingMode bmode)
+        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture::Sampler>& texture, BlendingMode bmode)
         {
-            gameplay::Material* result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.vert");
+            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.vert");
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setSampler(texture);
             result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));

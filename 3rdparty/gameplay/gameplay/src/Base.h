@@ -129,14 +129,6 @@ namespace gameplay
         x = NULL; \
     }
 
-// Ref cleanup macro
-#define SAFE_RELEASE(x) \
-    if (x) \
-    { \
-        (x)->release(); \
-        x = NULL; \
-    }
-
 // Math
 #define MATH_DEG_TO_RAD(x)          ((x) * 0.0174532925f)
 #define MATH_RAD_TO_DEG(x)          ((x)* 57.29577951f)
@@ -162,7 +154,6 @@ namespace gameplay
 #define WIN32_LEAN_AND_MEAN
 #define GLEW_STATIC
 #include <GL/glew.h>
-#define GP_USE_VAO
 
 // Graphics (GLSL)
 #define VERTEX_ATTRIBUTE_POSITION_NAME              "a_position"

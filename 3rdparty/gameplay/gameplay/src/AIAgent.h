@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Ref.h"
 #include "AIStateMachine.h"
 #include "AIMessage.h"
 
@@ -18,13 +17,15 @@ namespace gameplay
      * such as state machines. By default, an AIAgent has an empty state
      * machine.
      */
-    class AIAgent : public Ref
+    class AIAgent
     {
         friend class Node;
         friend class AIState;
         friend class AIController;
 
     public:
+        explicit AIAgent();
+        virtual ~AIAgent();
 
         /**
          * Interface for listening to AIAgent events.
@@ -55,7 +56,7 @@ namespace gameplay
              *
              * @return true to mark the message as handled, false otherwise.
              */
-            virtual bool messageReceived(AIMessage* message) = 0;
+            virtual bool messageReceived(const std::shared_ptr<AIMessage>& message) = 0;
         };
 
 
@@ -65,7 +66,7 @@ namespace gameplay
          * @return A new AIAgent.
          * @script{create}
          */
-        static AIAgent* create();
+        static std::shared_ptr<AIAgent> create();
 
         /**
          * Returns the identifier for the AIAgent.
@@ -90,7 +91,7 @@ namespace gameplay
          *
          * @return The agent's state machine.
          */
-        AIStateMachine* getStateMachine();
+        AIStateMachine* getStateMachine() const;
 
         /**
          * Determines if this AIAgent is currently enabled.
@@ -124,27 +125,9 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        AIAgent();
+        AIAgent(const AIAgent&) = delete;
 
-        /**
-         * Destructor.
-         *
-         * Hidden, use SAFE_RELEASE instead.
-         */
-        virtual ~AIAgent();
-
-        /**
-         * Hidden copy constructor.
-         */
-        AIAgent(const AIAgent&);
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        AIAgent& operator=(const AIAgent&);
+        AIAgent& operator=(const AIAgent&) = delete;
 
         /**
          * Set the node this agent is attached to.
@@ -158,7 +141,7 @@ namespace gameplay
          *
          * @return true if the message was handled, false otherwise.
          */
-        bool processMessage(AIMessage* message);
+        bool processMessage(const std::shared_ptr<AIMessage>& message);
 
         /**
          * Called once per frame by the AIController to update the agent.
@@ -169,6 +152,5 @@ namespace gameplay
         Node* _node;
         bool _enabled;
         Listener* _listener;
-        AIAgent* _next;
     };
 }

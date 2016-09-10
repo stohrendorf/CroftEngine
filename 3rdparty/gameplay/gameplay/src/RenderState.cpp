@@ -2,9 +2,8 @@
 #include "RenderState.h"
 #include "Node.h"
 #include "Pass.h"
-#include "Technique.h"
-#include "Node.h"
 #include "Scene.h"
+#include "MaterialParameter.h"
 
 // Render state override bits
 #define RS_BLEND 1
@@ -25,7 +24,7 @@
 
 namespace gameplay
 {
-    RenderState::StateBlock* RenderState::StateBlock::_defaultState = nullptr;
+    std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::_defaultState = nullptr;
     std::vector<RenderState::AutoBindingResolver*> RenderState::_customAutoBindingResolvers;
 
 
@@ -37,16 +36,7 @@ namespace gameplay
     }
 
 
-    RenderState::~RenderState()
-    {
-        SAFE_RELEASE(_state);
-
-        // Destroy all the material parameters
-        for( size_t i = 0, count = _parameters.size(); i < count; ++i )
-        {
-            SAFE_RELEASE(_parameters[i]);
-        }
-    }
+    RenderState::~RenderState() = default;
 
 
     void RenderState::initialize()
@@ -60,19 +50,18 @@ namespace gameplay
 
     void RenderState::finalize()
     {
-        SAFE_RELEASE(StateBlock::_defaultState);
+        StateBlock::_defaultState.reset();
     }
 
 
-    MaterialParameter* RenderState::getParameter(const char* name) const
+    std::shared_ptr<MaterialParameter> RenderState::getParameter(const char* name) const
     {
         GP_ASSERT(name);
 
         // Search for an existing parameter with this name.
-        MaterialParameter* param;
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
         {
-            param = _parameters[i];
+            auto param = _parameters[i];
             GP_ASSERT(param);
             if( strcmp(param->getName(), name) == 0 )
             {
@@ -81,7 +70,7 @@ namespace gameplay
         }
 
         // Create a new parameter and store it in our list.
-        param = new MaterialParameter(name);
+        auto param = std::make_shared<MaterialParameter>(name);
         _parameters.push_back(param);
 
         return param;
@@ -94,16 +83,15 @@ namespace gameplay
     }
 
 
-    MaterialParameter* RenderState::getParameterByIndex(unsigned int index)
+    const std::shared_ptr<MaterialParameter>& RenderState::getParameterByIndex(size_t index)
     {
         return _parameters[index];
     }
 
 
-    void RenderState::addParameter(MaterialParameter* param)
+    void RenderState::addParameter(const std::shared_ptr<MaterialParameter>& param)
     {
         _parameters.push_back(param);
-        param->addRef();
     }
 
 
@@ -111,11 +99,10 @@ namespace gameplay
     {
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
         {
-            MaterialParameter* p = _parameters[i];
+            auto p = _parameters[i];
             if( p->_name == name )
             {
                 _parameters.erase(_parameters.begin() + i);
-                SAFE_RELEASE(p);
                 break;
             }
         }
@@ -204,23 +191,13 @@ namespace gameplay
     }
 
 
-    void RenderState::setStateBlock(StateBlock* state)
+    void RenderState::setStateBlock(const std::shared_ptr<StateBlock>& state)
     {
-        if( _state != state )
-        {
-            SAFE_RELEASE(_state);
-
-            _state = state;
-
-            if( _state )
-            {
-                _state->addRef();
-            }
-        }
+        _state = state;
     }
 
 
-    RenderState::StateBlock* RenderState::getStateBlock() const
+    const std::shared_ptr<RenderState::StateBlock>& RenderState::getStateBlock() const
     {
         if( _state == nullptr )
         {
@@ -255,7 +232,7 @@ namespace gameplay
     {
         GP_ASSERT(_nodeBinding);
 
-        MaterialParameter* param = getParameter(uniformName);
+        auto param = getParameter(uniformName);
         GP_ASSERT(param);
 
         bool bound = false;
@@ -334,8 +311,8 @@ namespace gameplay
         if( bound )
         {
             // Mark parameter as an auto binding
-            if( param->_type == MaterialParameter::METHOD && param->_value.method )
-                param->_value.method->_autoBinding = true;
+            if( param->_type == MaterialParameter::METHOD && boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value))
+                boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value)->_autoBinding = true;
         }
     }
 
@@ -402,7 +379,7 @@ namespace gameplay
 
     const Vector4* RenderState::autoBindingGetMatrixPalette() const
     {
-        Model* model = dynamic_cast<Model*>(_nodeBinding->getDrawable());
+        auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
         if( model )
         {
             MeshSkin* skin = model->getSkin();
@@ -415,7 +392,7 @@ namespace gameplay
 
     unsigned int RenderState::autoBindingGetMatrixPaletteSize() const
     {
-        Model* model = dynamic_cast<Model*>(_nodeBinding->getDrawable());
+        auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
         if( model )
         {
             MeshSkin* skin = model->getSkin();
@@ -439,14 +416,14 @@ namespace gameplay
 
         // Get the combined modified state bits for our RenderState hierarchy.
         long stateOverrideBits = _state ? _state->_bits : 0;
-        RenderState* rs = _parent;
+        auto rs = _parent.get();
         while( rs )
         {
             if( rs->_state )
             {
                 stateOverrideBits |= rs->_state->_bits;
             }
-            rs = rs->_parent;
+            rs = rs->_parent.get();
         }
 
         // Restore renderer state to its default, except for explicitly specified states
@@ -454,7 +431,7 @@ namespace gameplay
 
         // Apply parameter bindings and renderer state for the entire hierarchy, top-down.
         rs = nullptr;
-        Effect* effect = pass->getEffect();
+        auto effect = pass->getEffect();
         while( (rs = getTopmost(rs)) )
         {
             for( size_t i = 0, count = rs->_parameters.size(); i < count; ++i )
@@ -471,7 +448,7 @@ namespace gameplay
     }
 
 
-    RenderState* RenderState::getTopmost(RenderState* below)
+    RenderState* RenderState::getTopmost(const RenderState* below)
     {
         RenderState* rs = this;
         if( rs == below )
@@ -482,12 +459,12 @@ namespace gameplay
 
         while( rs )
         {
-            if( rs->_parent == below || rs->_parent == nullptr )
+            if( rs->_parent.get() == below || rs->_parent == nullptr )
             {
                 // Stop traversing up here.
                 return rs;
             }
-            rs = rs->_parent;
+            rs = rs->_parent.get();
         }
 
         return nullptr;
@@ -520,9 +497,9 @@ namespace gameplay
     RenderState::StateBlock::~StateBlock() = default;
 
 
-    RenderState::StateBlock* RenderState::StateBlock::create()
+    std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::create()
     {
-        return new RenderState::StateBlock();
+        return std::make_shared<RenderState::StateBlock>();
     }
 
 

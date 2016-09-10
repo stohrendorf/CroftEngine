@@ -1,146 +1,131 @@
-#ifndef MATERIAL_H_
-#define MATERIAL_H_
+#pragma once
 
 #include "RenderState.h"
 #include "Technique.h"
 #include "Properties.h"
 
+
 namespace gameplay
 {
-
-/**
- * Defines a material for an object to be rendered.
- *
- * This class encapsulates a set of rendering techniques that can be used to render an
- * object. This class facilitates loading of techniques using specified shaders or
- * material files (.material). When multiple techniques are loaded using a material file,
- * the current technique for an object can be set at runtime.
- *
- * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Materials
- */
-class Material : public RenderState
-{
-    friend class Technique;
-    friend class Pass;
-    friend class RenderState;
-    friend class Node;
-    friend class Model;
-
-public:
-
     /**
-     * Pass creation callback function definition.
-     */
-    typedef std::string(*PassCallback)(Pass*, void*);
-
-    /**
-     * Creates a material from the specified effect.
+     * Defines a material for an object to be rendered.
      *
-     * The returned material has a single technique and a single pass for the
-     * given effect.
+     * This class encapsulates a set of rendering techniques that can be used to render an
+     * object. This class facilitates loading of techniques using specified shaders or
+     * material files (.material). When multiple techniques are loaded using a material file,
+     * the current technique for an object can be set at runtime.
      *
-     * @param effect Effect for the new material.
-     *
-     * @return A new Material.
-     * @script{create}
+     * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Materials
      */
-    static Material* create(Effect* effect);
+    class Material : public RenderState
+    {
+        friend class Technique;
+        friend class Pass;
+        friend class RenderState;
+        friend class Node;
+        friend class Model;
 
-    /**
-     * Creates a material using the specified vertex and fragment shader.
-     *
-     * The returned material has a single technique and a single pass for the
-     * given effect.
-     *
-     * @param vshPath Path to the vertex shader file.
-     * @param fshPath Path to the fragment shader file.
-     * @param defines New-line delimited list of preprocessor defines.
-     *
-     * @return A new Material.
-     * @script{create}
-     */
-    static Material* create(const char* vshPath, const char* fshPath, const char* defines = NULL);
+    public:
+        explicit Material();
+        ~Material();
 
-    /**
-     * Returns the number of techniques in the material.
-     *
-     * @return The technique count.
-     */
-    unsigned int getTechniqueCount() const;
+        /**
+         * Pass creation callback function definition.
+         */
+        typedef std::string (*PassCallback)(const std::shared_ptr<Pass>&, void*);
 
-    /**
-     * Returns the technique at the specified index in this material.
-     *
-     * @param index The index of the technique to return.
-     *
-     * @return The specified technique.
-     */
-    Technique* getTechniqueByIndex(unsigned int index) const;
+        /**
+         * Creates a material from the specified effect.
+         *
+         * The returned material has a single technique and a single pass for the
+         * given effect.
+         *
+         * @param effect Effect for the new material.
+         *
+         * @return A new Material.
+         * @script{create}
+         */
+        static std::shared_ptr<Material> create(const std::shared_ptr<Effect>& effect);
 
-    /**
-     * Returns the technique with the specified ID in this material.
-     *
-     * @param id The ID of the technique to return.
-     *
-     * @return The specified technique.
-     */
-    Technique* getTechnique(const char* id) const;
+        /**
+         * Creates a material using the specified vertex and fragment shader.
+         *
+         * The returned material has a single technique and a single pass for the
+         * given effect.
+         *
+         * @param vshPath Path to the vertex shader file.
+         * @param fshPath Path to the fragment shader file.
+         * @param defines New-line delimited list of preprocessor defines.
+         *
+         * @return A new Material.
+         * @script{create}
+         */
+        static std::shared_ptr<Material> create(const char* vshPath, const char* fshPath, const char* defines = NULL);
 
-    /**
-     * Returns this material's current technique.
-     *
-     * @return The current technique.
-     */
-    Technique* getTechnique() const;
+        /**
+         * Returns the number of techniques in the material.
+         *
+         * @return The technique count.
+         */
+        size_t getTechniqueCount() const;
 
-    /**
-     * Sets the current material technique.
-     *
-     * @param id ID of the technique to set.
-     */
-    void setTechnique(const char* id);
+        /**
+         * Returns the technique at the specified index in this material.
+         *
+         * @param index The index of the technique to return.
+         *
+         * @return The specified technique.
+         */
+        const std::shared_ptr<Technique>& getTechniqueByIndex(size_t index) const;
 
-    /**
-     * @see RenderState::setNodeBinding
-     */
-    void setNodeBinding(Node* node);
+        /**
+         * Returns the technique with the specified ID in this material.
+         *
+         * @param id The ID of the technique to return.
+         *
+         * @return The specified technique.
+         */
+        std::shared_ptr<Technique> getTechnique(const char* id) const;
 
-private:
+        /**
+         * Returns this material's current technique.
+         *
+         * @return The current technique.
+         */
+        const std::shared_ptr<Technique>& getTechnique() const;
 
-    /**
-     * Constructor.
-     */
-    Material();
+        /**
+         * Sets the current material technique.
+         *
+         * @param id ID of the technique to set.
+         */
+        void setTechnique(const char* id);
 
-    /**
-     * Constructor.
-     */
-    Material(const Material& m);
+        /**
+         * @see RenderState::setNodeBinding
+         */
+        void setNodeBinding(Node* node);
 
-    /**
-     * Destructor.
-     */
-    ~Material();
+    private:
 
-    /**
-     * Loads a technique from the given properties object into the specified material.
-     */
-    static bool loadTechnique(Material* material, Properties* techniqueProperties, PassCallback callback, void* cookie);
+        Material(const Material& m) = delete;
 
-    /**
-     * Load a pass from the given properties object into the specified technique.
-     */
-    static bool loadPass(Technique* technique, Properties* passProperites, PassCallback callback, void* cookie);
+        /**
+         * Loads a technique from the given properties object into the specified material.
+         */
+        static bool loadTechnique(const std::shared_ptr<Material>& material, Properties* techniqueProperties, PassCallback callback, void* cookie);
 
-    /**
-     * Loads render state from the specified properties object.
-     */
-    static void loadRenderState(RenderState* renderState, Properties* properties);
+        /**
+         * Load a pass from the given properties object into the specified technique.
+         */
+        static bool loadPass(const std::shared_ptr<Technique>& technique, Properties* passProperties, PassCallback callback, void* cookie);
 
-    Technique* _currentTechnique;
-    std::vector<Technique*> _techniques;
-};
+        /**
+         * Loads render state from the specified properties object.
+         */
+        static void loadRenderState(const std::shared_ptr<RenderState>& renderState, Properties* properties);
 
+        std::shared_ptr<Technique> _currentTechnique = nullptr;
+        std::vector<std::shared_ptr<Technique>> _techniques;
+    };
 }
-
-#endif

@@ -30,18 +30,18 @@ namespace gameplay
     }
 
 
-    Joint* MeshSkin::getJoint(size_t index) const
+    const std::shared_ptr<Joint>& MeshSkin::getJoint(size_t index) const
     {
         GP_ASSERT(index < _joints.size());
         return _joints[index];
     }
 
 
-    Joint* MeshSkin::getJoint(const std::string& id) const
+    std::shared_ptr<Joint> MeshSkin::getJoint(const std::string& id) const
     {
         for( size_t i = 0, count = _joints.size(); i < count; ++i )
         {
-            Joint* j = _joints[i];
+            auto j = _joints[i];
             if( j && j->getId() == id )
             {
                 return j;
@@ -79,21 +79,19 @@ namespace gameplay
     }
 
 
-    void MeshSkin::setJoint(Joint* joint, size_t index)
+    void MeshSkin::setJoint(const std::shared_ptr<Joint>& joint, size_t index)
     {
         GP_ASSERT(index < _joints.size());
 
         if( _joints[index] )
         {
             _joints[index]->removeSkin(this);
-            SAFE_RELEASE(_joints[index]);
         }
 
         _joints[index] = joint;
 
         if( joint )
         {
-            joint->addRef();
             joint->addSkin(this);
         }
     }
@@ -116,45 +114,45 @@ namespace gameplay
     }
 
 
-    Model* MeshSkin::getModel() const
+    const std::shared_ptr<Model>& MeshSkin::getModel() const
     {
         return _model;
     }
 
 
-    Joint* MeshSkin::getRootJoint() const
+    const std::shared_ptr<Joint>& MeshSkin::getRootJoint() const
     {
         return _rootJoint;
     }
 
 
-    void MeshSkin::setRootJoint(Joint* joint)
+    void MeshSkin::setRootJoint(const std::shared_ptr<Joint>& joint)
     {
         if( _rootJoint )
         {
-            if( _rootJoint->getParent() )
+            if( !_rootJoint->getParent().expired() )
             {
-                _rootJoint->getParent()->removeListener(this);
+                _rootJoint->getParent().lock()->removeListener(this);
             }
         }
 
         _rootJoint = joint;
 
         // If the root joint has a parent node, register for its transformChanged event
-        if( _rootJoint && _rootJoint->getParent() )
+        if( _rootJoint && !_rootJoint->getParent().expired() )
         {
-            _rootJoint->getParent()->addListener(this, 1);
+            _rootJoint->getParent().lock()->addListener(this, 1);
         }
 
-        Node* newRootNode = _rootJoint;
+        std::shared_ptr<Node> newRootNode = _rootJoint;
         if( newRootNode )
         {
             // Find the top level parent node of the root joint
-            for( Node* node = newRootNode->getParent(); node != nullptr; node = node->getParent() )
+            for( auto node = newRootNode->getParent(); !node.expired(); node = node.lock()->getParent() )
             {
-                if( node->getParent() == nullptr )
+                if( node.lock()->getParent().expired() )
                 {
-                    newRootNode = node;
+                    newRootNode = node.lock();
                     break;
                 }
             }
@@ -183,7 +181,7 @@ namespace gameplay
     }
 
 
-    int MeshSkin::getJointIndex(Joint* joint) const
+    int MeshSkin::getJointIndex(const std::shared_ptr<Joint>& joint) const
     {
         for( size_t i = 0, count = _joints.size(); i < count; ++i )
         {
@@ -197,17 +195,9 @@ namespace gameplay
     }
 
 
-    void MeshSkin::setRootNode(Node* node)
+    void MeshSkin::setRootNode(const std::shared_ptr<Node>& node)
     {
-        if( _rootNode != node )
-        {
-            SAFE_RELEASE(_rootNode);
-            _rootNode = node;
-            if( _rootNode )
-            {
-                _rootNode->addRef();
-            }
-        }
+        _rootNode = node;
     }
 
 
@@ -215,10 +205,6 @@ namespace gameplay
     {
         setRootJoint(nullptr);
 
-        for( size_t i = 0, count = _joints.size(); i < count; ++i )
-        {
-            SAFE_RELEASE(_joints[i]);
-        }
         _joints.clear();
     }
 }

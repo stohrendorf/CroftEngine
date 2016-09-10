@@ -3556,7 +3556,7 @@ namespace engine
         return getHealth() <= 0;
     }
 
-    gameplay::Node* AbstractStateHandler::getLara()
+    const std::shared_ptr<gameplay::Node>& AbstractStateHandler::getLara()
     {
         return m_controller.getSceneNode();
     }

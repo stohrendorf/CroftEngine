@@ -17,26 +17,22 @@ namespace gameplay
      * A model has a mesh that can be drawn with the specified materials for
      * each of the mesh parts within it.
      */
-    class Model : public Ref, public Drawable
+    class Model : public Drawable
     {
         friend class Node;
         friend class Scene;
         friend class Mesh;
 
     public:
-
-        /**
-         * Creates a new Model.
-         * @script{create}
-         */
-        static Model* create(Mesh* mesh);
+        explicit Model(const std::shared_ptr<Mesh>& mesh);
+        ~Model();
 
         /**
          * Returns the Mesh for this Model.
          *
          * @return The Mesh for this Model.
          */
-        Mesh* getMesh() const;
+        const std::shared_ptr<Mesh>& getMesh() const;
 
         /**
          * Returns the number of parts in the Mesh for this Model.
@@ -55,7 +51,7 @@ namespace gameplay
          *
          * @return The requested Material, or nullptr if no Material is set.
          */
-        Material* getMaterial(int partIndex = -1);
+        std::shared_ptr<Material> getMaterial(int partIndex = -1);
 
         /**
          * Sets a material to be used for drawing this Model.
@@ -71,7 +67,7 @@ namespace gameplay
          * @param material The new material.
          * @param partIndex The index of the mesh part to set the material for (-1 for shared material).
          */
-        void setMaterial(Material* material, int partIndex = -1);
+        void setMaterial(const std::shared_ptr<Material>& material, int partIndex = -1);
 
         /**
          * Sets a material to be used for drawing this Model.
@@ -91,7 +87,7 @@ namespace gameplay
          *
          * @return The newly created and bound Material, or nullptr if the Material could not be created.
          */
-        Material* setMaterial(const char* vshPath, const char* fshPath, const char* defines = nullptr, int partIndex = -1);
+        std::shared_ptr<Material> setMaterial(const char* vshPath, const char* fshPath, const char* defines = nullptr, int partIndex = -1);
 
         /**
          * Determines if a custom (non-shared) material is set for the specified part index.
@@ -118,7 +114,7 @@ namespace gameplay
          * rendering states, shader state, and so on, should be set
          * up before calling this method.
          */
-        unsigned int draw(bool wireframe = false) override;
+        size_t draw(bool wireframe = false) override;
 
 
         /**
@@ -135,20 +131,7 @@ namespace gameplay
          */
         Model();
 
-        /**
-         * Constructor.
-         */
-        Model(Mesh* mesh);
-
-        /**
-         * Destructor. Hidden use release() instead.
-         */
-        ~Model();
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        Model& operator=(const Model&);
+        Model& operator=(const Model&) = delete;
 
         /**
          * @see Drawable::setNode
@@ -158,14 +141,14 @@ namespace gameplay
         /**
          * Sets the specified material's node binding to this model's node.
          */
-        void setMaterialNodeBinding(Material* m);
+        void setMaterialNodeBinding(const std::shared_ptr<Material>& m);
 
         void validatePartCount();
 
-        Mesh* _mesh;
-        Material* _material;
-        unsigned int _partCount;
-        Material** _partMaterials;
+        std::shared_ptr<Mesh> _mesh;
+        std::shared_ptr<Material> _material;
+        size_t _partCount;
+        std::vector<std::shared_ptr<Material>> _partMaterials;
         MeshSkin* _skin;
     };
 }

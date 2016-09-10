@@ -9,7 +9,7 @@ class Node;
 /**
  * Defines a drawable object that can be attached to a Node.
  */
-class Drawable
+class Drawable : public std::enable_shared_from_this<Drawable>
 {
     friend class Node;
 
@@ -32,7 +32,7 @@ public:
      * @return The number of graphics draw calls required to draw the object.
      */
 
-    virtual unsigned int draw(bool wireframe = false) = 0;
+    virtual size_t draw(bool wireframe = false) = 0;
 
     /**
      * Gets the node this drawable is attached to.

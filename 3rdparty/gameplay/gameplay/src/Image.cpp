@@ -4,7 +4,7 @@
 
 namespace gameplay
 {
-    Image* Image::create(unsigned int width, unsigned int height, Image::Format format, const unsigned char* data)
+    std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, Image::Format format, const unsigned char* data)
     {
         GP_ASSERT(width > 0 && height > 0);
         GP_ASSERT(format >= RGB && format <= RGBA);
@@ -20,7 +20,7 @@ namespace gameplay
                 break;
         }
 
-        Image* image = new Image();
+        auto image = std::make_shared<Image>();
 
         unsigned int dataSize = width * height * pixelSize;
 

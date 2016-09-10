@@ -2,26 +2,22 @@
 #include "Pass.h"
 #include "Technique.h"
 #include "Material.h"
-#include "Node.h"
+#include "Effect.h"
 
 
 namespace gameplay
 {
-    Pass::Pass(const char* id, Technique* technique)
+    Pass::Pass(const char* id, const std::shared_ptr<Technique>& technique)
         : _id(id ? id : "")
         , _technique(technique)
-        , _effect(NULL)
-        , _vaBinding(NULL)
+        , _effect(nullptr)
+        , _vaBinding(nullptr)
     {
         RenderState::_parent = _technique;
     }
 
 
-    Pass::~Pass()
-    {
-        SAFE_RELEASE(_effect);
-        SAFE_RELEASE(_vaBinding);
-    }
+    Pass::~Pass() = default;
 
 
     bool Pass::initialize(const char* vshPath, const char* fshPath, const char* defines)
@@ -29,12 +25,11 @@ namespace gameplay
         GP_ASSERT(vshPath);
         GP_ASSERT(fshPath);
 
-        SAFE_RELEASE(_effect);
-        SAFE_RELEASE(_vaBinding);
+        _vaBinding.reset();
 
         // Attempt to create/load the effect.
         _effect = Effect::createFromFile(vshPath, fshPath, defines);
-        if( _effect == NULL )
+        if( _effect == nullptr )
         {
             GP_WARN("Failed to create effect for pass. vertexShader = %s, fragmentShader = %s, defines = %s", vshPath, fshPath, defines ? defines : "");
             return false;
@@ -50,25 +45,19 @@ namespace gameplay
     }
 
 
-    Effect* Pass::getEffect() const
+    const std::shared_ptr<Effect>& Pass::getEffect() const
     {
         return _effect;
     }
 
 
-    void Pass::setVertexAttributeBinding(VertexAttributeBinding* binding)
+    void Pass::setVertexAttributeBinding(const std::shared_ptr<VertexAttributeBinding>& binding)
     {
-        SAFE_RELEASE(_vaBinding);
-
-        if( binding )
-        {
-            _vaBinding = binding;
-            binding->addRef();
-        }
+        _vaBinding = binding;
     }
 
 
-    VertexAttributeBinding* Pass::getVertexAttributeBinding() const
+    const std::shared_ptr<VertexAttributeBinding>& Pass::getVertexAttributeBinding() const
     {
         return _vaBinding;
     }

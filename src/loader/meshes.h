@@ -88,7 +88,7 @@ namespace loader
         }
 
 
-        gameplay::Model* createMesh(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials, const std::vector<gameplay::Material*>& colorMaterials, render::TextureAnimator& animator) const;
+        std::shared_ptr<gameplay::Model> createMesh(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<gameplay::Material*>& colorMaterials, render::TextureAnimator& animator) const;
     };
 
     struct RoomStaticMesh

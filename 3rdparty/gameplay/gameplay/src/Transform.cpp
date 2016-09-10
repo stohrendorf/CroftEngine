@@ -6,12 +6,12 @@
 namespace gameplay
 {
     int Transform::_suspendTransformChanged(0);
-    std::vector<Transform*> Transform::_transformsChanged;
+    std::vector<std::shared_ptr<Transform>> Transform::_transformsChanged;
 
 
     Transform::Transform()
         : _matrixDirtyBits(0)
-        , _listeners(nullptr)
+        , _listeners()
     {
         _scale.set(Vector3::one());
     }
@@ -19,7 +19,7 @@ namespace gameplay
 
     Transform::Transform(const Vector3& scale, const Quaternion& rotation, const Vector3& translation)
         : _matrixDirtyBits(0)
-        , _listeners(nullptr)
+        , _listeners()
     {
         set(scale, rotation, translation);
     }
@@ -27,7 +27,7 @@ namespace gameplay
 
     Transform::Transform(const Vector3& scale, const Matrix& rotation, const Vector3& translation)
         : _matrixDirtyBits(0)
-        , _listeners(nullptr)
+        , _listeners()
     {
         set(scale, rotation, translation);
     }
@@ -35,16 +35,13 @@ namespace gameplay
 
     Transform::Transform(const Transform& copy)
         : _matrixDirtyBits(0)
-        , _listeners(nullptr)
+        , _listeners()
     {
         set(copy);
     }
 
 
-    Transform::~Transform()
-    {
-        SAFE_DELETE(_listeners);
-    }
+    Transform::~Transform() = default;
 
 
     void Transform::suspendTransformChanged()
@@ -64,7 +61,7 @@ namespace gameplay
             size_t transformCount = _transformsChanged.size();
             for( size_t i = 0; i < transformCount; i++ )
             {
-                Transform* t = _transformsChanged.at(i);
+                auto t = _transformsChanged.at(i);
                 GP_ASSERT(t);
                 t->transformChanged();
             }
@@ -74,7 +71,7 @@ namespace gameplay
             transformCount = _transformsChanged.size();
             for( size_t i = 0; i < transformCount; i++ )
             {
-                Transform* t = _transformsChanged.at(i);
+                auto t = _transformsChanged.at(i);
                 GP_ASSERT(t);
                 t->_matrixDirtyBits &= ~DIRTY_NOTIFY;
             }
@@ -786,35 +783,35 @@ namespace gameplay
     }
 
 
-    void Transform::transformPoint(Vector3* point)
+    void Transform::transformPoint(Vector3* point) const
     {
         getMatrix();
         _matrix.transformPoint(point);
     }
 
 
-    void Transform::transformPoint(const Vector3& point, Vector3* dst)
+    void Transform::transformPoint(const Vector3& point, Vector3* dst) const
     {
         getMatrix();
         _matrix.transformPoint(point, dst);
     }
 
 
-    void Transform::transformVector(Vector3* normal)
+    void Transform::transformVector(Vector3* normal) const
     {
         getMatrix();
         _matrix.transformVector(normal);
     }
 
 
-    void Transform::transformVector(const Vector3& normal, Vector3* dst)
+    void Transform::transformVector(const Vector3& normal, Vector3* dst) const
     {
         getMatrix();
         _matrix.transformVector(normal, dst);
     }
 
 
-    void Transform::transformVector(float x, float y, float z, float w, Vector3* dst)
+    void Transform::transformVector(float x, float y, float z, float w, Vector3* dst) const
     {
         getMatrix();
         _matrix.transformVector(x, y, z, w, dst);
@@ -834,7 +831,7 @@ namespace gameplay
         {
             if( !isDirty(DIRTY_NOTIFY) )
             {
-                suspendTransformChange(this);
+                suspendTransformChange(shared_from_this());
             }
         }
         else
@@ -850,7 +847,7 @@ namespace gameplay
     }
 
 
-    void Transform::suspendTransformChange(Transform* transform)
+    void Transform::suspendTransformChange(const std::shared_ptr<Transform>& transform)
     {
         GP_ASSERT(transform);
         transform->_matrixDirtyBits |= DIRTY_NOTIFY;
@@ -862,13 +859,10 @@ namespace gameplay
     {
         GP_ASSERT(listener);
 
-        if( _listeners == nullptr )
-            _listeners = new std::list<TransformListener>();
-
         TransformListener l;
         l.listener = listener;
         l.cookie = cookie;
-        _listeners->push_back(l);
+        _listeners.push_back(l);
     }
 
 
@@ -876,15 +870,12 @@ namespace gameplay
     {
         GP_ASSERT(listener);
 
-        if( _listeners )
+        for( auto itr = _listeners.begin(); itr != _listeners.end(); ++itr )
         {
-            for( std::list<TransformListener>::iterator itr = _listeners->begin(); itr != _listeners->end(); ++itr )
+            if( (*itr).listener == listener )
             {
-                if( (*itr).listener == listener )
-                {
-                    _listeners->erase(itr);
-                    break;
-                }
+                _listeners.erase(itr);
+                break;
             }
         }
     }
@@ -892,14 +883,11 @@ namespace gameplay
 
     void Transform::transformChanged()
     {
-        if( _listeners )
+        for( auto itr = _listeners.begin(); itr != _listeners.end(); ++itr )
         {
-            for( std::list<TransformListener>::iterator itr = _listeners->begin(); itr != _listeners->end(); ++itr )
-            {
-                TransformListener& l = *itr;
-                GP_ASSERT(l.listener);
-                l.listener->transformChanged(this, l.cookie);
-            }
+            TransformListener& l = *itr;
+            GP_ASSERT(l.listener);
+            l.listener->transformChanged(this, l.cookie);
         }
     }
 }

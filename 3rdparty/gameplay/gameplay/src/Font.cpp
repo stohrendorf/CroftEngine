@@ -2,8 +2,8 @@
 #include "Font.h"
 #include "Text.h"
 #include "Game.h"
-#include "FileSystem.h"
 #include "Material.h"
+#include "MaterialParameter.h"
 
 // Default font shaders
 #define FONT_VSH "res/shaders/font.vert"
@@ -14,10 +14,10 @@ namespace gameplay
 
 static std::vector<Font*> __fontCache;
 
-static Effect* __fontEffect = NULL;
+static std::shared_ptr<Effect> __fontEffect = nullptr;
 
 Font::Font() :
-    _format(BITMAP), _style(PLAIN), _size(0), _spacing(0.0f), _glyphs(NULL), _glyphCount(0), _texture(NULL), _batch(NULL), _cutoffParam(NULL)
+    _format(BITMAP), _style(PLAIN), _size(0), _spacing(0.0f), _glyphs(nullptr), _glyphCount(0), _texture(nullptr), _batch(nullptr), _cutoffParam(nullptr)
 {
 }
 
@@ -32,59 +32,41 @@ Font::~Font()
 
     SAFE_DELETE(_batch);
     SAFE_DELETE_ARRAY(_glyphs);
-    SAFE_RELEASE(_texture);
-
-    // Free child fonts
-    for (size_t i = 0, count = _sizes.size(); i < count; ++i)
-    {
-        SAFE_RELEASE(_sizes[i]);
-    }
 }
 
-Font* Font::create(const char* family, Style style, unsigned int size, Glyph* glyphs, int glyphCount, Texture* texture, Font::Format format)
+Font* Font::create(const char* family, Style style, unsigned int size, Glyph* glyphs, int glyphCount, const std::shared_ptr<Texture>& texture, Font::Format format)
 {
     GP_ASSERT(family);
     GP_ASSERT(glyphs);
     GP_ASSERT(texture);
 
     // Create the effect for the font's sprite batch.
-    if (__fontEffect == NULL)
+    if (__fontEffect == nullptr)
     {
-        const char* defines = NULL;
+        const char* defines = nullptr;
         if (format == DISTANCE_FIELD)
             defines = "DISTANCE_FIELD";
         __fontEffect = Effect::createFromFile(FONT_VSH, FONT_FSH, defines);
-        if (__fontEffect == NULL)
+        if (__fontEffect == nullptr)
         {
             GP_WARN("Failed to create effect for font.");
-            SAFE_RELEASE(texture);
-            return NULL;
+            return nullptr;
         }
-    }
-    else
-    {
-        __fontEffect->addRef();
     }
 
     // Create batch for the font.
     SpriteBatch* batch = SpriteBatch::create(texture, __fontEffect, 128);
 
-    // Release __fontEffect since the SpriteBatch keeps a reference to it
-    SAFE_RELEASE(__fontEffect);
-
-    if (batch == NULL)
+    if (batch == nullptr)
     {
         GP_WARN("Failed to create batch for font.");
-        return NULL;
+        return nullptr;
     }
 
     // Add linear filtering for better font quality.
-    Texture::Sampler* sampler = batch->getSampler();
+    auto sampler = batch->getSampler();
     sampler->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
     sampler->setWrapMode(Texture::CLAMP, Texture::CLAMP);
-
-    // Increase the ref count of the texture to retain it.
-    texture->addRef();
 
     Font* font = new Font();
     font->_format = format;
@@ -173,12 +155,12 @@ Font* Font::findClosestSize(int size)
     Font* closest = this;
     for (size_t i = 0, count = _sizes.size(); i < count; ++i)
     {
-        Font* f = _sizes[i];
+        auto f = _sizes[i];
         int d = abs(size - (int)f->_size);
         if (d < diff || (d == diff && f->_size > closest->_size)) // prefer scaling down instead of up
         {
             diff = d;
-            closest = f;
+            closest = f.get();
         }
     }
 
@@ -209,7 +191,7 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
 
     float scale = (float)size / _size;
     int spacing = (int)(size * _spacing);
-    const char* cursor = NULL;
+    const char* cursor = nullptr;
 
     if (rightToLeft)
     {
@@ -306,7 +288,7 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
 
                     if (getFormat() == DISTANCE_FIELD )
                     {
-                        if (_cutoffParam == NULL)
+                        if (_cutoffParam == nullptr)
                             _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
                         // TODO: Fix me so that smaller font are much smoother
                         _cutoffParam->setVector2(Vector2(1.0, 1.0));
@@ -469,7 +451,7 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
                     {
                         if (getFormat() == DISTANCE_FIELD)
                         {
-                            if (_cutoffParam == NULL)
+                            if (_cutoffParam == nullptr)
                                 _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
                             // TODO: Fix me so that smaller font are much smoother
                             _cutoffParam->setVector2(Vector2(1.0, 1.0));
@@ -1043,7 +1025,7 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
                     delimiter = token[0];
                 }
 
-                if (reachedEOF || token == NULL)
+                if (reachedEOF || token == nullptr)
                 {
                     break;
                 }
@@ -1230,7 +1212,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
         }
         else
         {
-            result = handleDelimiters(&token, size, iteration, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, NULL, charIndex, destIndex);
+            result = handleDelimiters(&token, size, iteration, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, nullptr, charIndex, destIndex);
         }
 
         currentLineLength += delimLength;

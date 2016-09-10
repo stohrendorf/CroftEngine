@@ -39,7 +39,7 @@ namespace loader
             using IndexBuffer = std::vector<uint16_t>;
 
             IndexBuffer indices;
-            gameplay::Material* material;
+            std::shared_ptr<gameplay::Material> material;
         };
 
 
@@ -48,7 +48,7 @@ namespace loader
             std::vector<MeshPart> m_parts;
 
 
-            gameplay::Model* toModel(const gsl::not_null<gameplay::Mesh*>& mesh)
+            std::shared_ptr<gameplay::Model> toModel(const gsl::not_null<std::shared_ptr<gameplay::Mesh>>& mesh)
             {
                 for( const MeshPart& localPart : m_parts )
                 {
@@ -56,8 +56,7 @@ namespace loader
                     part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
                 }
 
-                gameplay::Model* model = gameplay::Model::create(mesh);
-                mesh->release();
+                auto model = std::make_shared<gameplay::Model>(mesh);
 
                 for( size_t i = 0; i < m_parts.size(); ++i )
                 {
@@ -70,17 +69,17 @@ namespace loader
     }
 
 
-    gameplay::Node* Room::createSceneNode(int dumpIdx,
-                                          const level::Level& level,
-                                          const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials,
-                                          const std::vector<gameplay::Texture*>& textures,
-                                          const std::vector<gameplay::Mesh*>& staticMeshes,
-                                          render::TextureAnimator& animator)
+    std::shared_ptr<gameplay::Node> Room::createSceneNode(int dumpIdx,
+                                                          const level::Level& level,
+                                                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
+                                                          const std::vector<std::shared_ptr<gameplay::Mesh>>& staticMeshes,
+                                                          render::TextureAnimator& animator)
     {
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
-        gameplay::Mesh* mesh = gameplay::Mesh::createMesh(RenderVertex::getFormat(), vbuf.size(), true);
+        auto mesh = gameplay::Mesh::createMesh(RenderVertex::getFormat(), vbuf.size(), true);
 
         for( const QuadFace& quad : rectangles )
         {
@@ -147,10 +146,9 @@ namespace loader
         }
 
         mesh->setVertexData(reinterpret_cast<float*>(vbuf.data()), 0, vbuf.size());
-        gameplay::Model* resModel = renderModel.toModel(mesh);
+        auto resModel = renderModel.toModel(mesh);
         node = gameplay::Node::create();
         node->setDrawable(resModel);
-        resModel->release();
 
         for( Light& light : lights )
         {
@@ -194,7 +192,7 @@ namespace loader
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = gameplay::Node::create();
-            subNode->setDrawable(gameplay::Model::create(staticMeshes[idx]));
+            subNode->setDrawable(std::make_shared<gameplay::Model>(staticMeshes[idx]));
             subNode->setRotation({0,1,0}, util::auToRad(sm.rotation));
             subNode->setTranslation((sm.position - position).toRenderSystem());
             node->addChild(subNode);
@@ -210,7 +208,7 @@ namespace loader
 
             const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
 
-            gameplay::Sprite* spriteNode = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto spriteNode = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             auto n = gameplay::Node::create("");
@@ -226,11 +224,10 @@ namespace loader
     }
 
 
-    gameplay::Texture* DWordTexture::toTexture() const
+    std::shared_ptr<gameplay::Texture> DWordTexture::toTexture() const
     {
-        gameplay::Image* img = gameplay::Image::create(256, 256, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
-        gameplay::Texture* tex = gameplay::Texture::create(img, false);
-        img->release();
+        auto img = gameplay::Image::create(256, 256, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
+        auto tex = gameplay::Texture::create(img, false);
         return tex;
     }
 

@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "Model.h"
 #include "MeshPart.h"
-#include "Scene.h"
 #include "Technique.h"
 #include "Pass.h"
 #include "Node.h"
@@ -11,22 +10,22 @@ namespace gameplay
 {
     Model::Model()
         : Drawable()
-        , _mesh(NULL)
-        , _material(NULL)
+        , _mesh(nullptr)
+        , _material(nullptr)
         , _partCount(0)
-        , _partMaterials(NULL)
-        , _skin(NULL)
+        , _partMaterials()
+        , _skin(nullptr)
     {
     }
 
 
-    Model::Model(Mesh* mesh)
+    Model::Model(const std::shared_ptr<Mesh>& mesh)
         : Drawable()
         , _mesh(mesh)
-        , _material(NULL)
+        , _material(nullptr)
         , _partCount(0)
-        , _partMaterials(NULL)
-        , _skin(NULL)
+        , _partMaterials()
+        , _skin(nullptr)
     {
         GP_ASSERT(mesh);
         _partCount = mesh->getPartCount();
@@ -35,29 +34,11 @@ namespace gameplay
 
     Model::~Model()
     {
-        SAFE_RELEASE(_material);
-        if( _partMaterials )
-        {
-            for( unsigned int i = 0; i < _partCount; ++i )
-            {
-                SAFE_RELEASE(_partMaterials[i]);
-            }
-            SAFE_DELETE_ARRAY(_partMaterials);
-        }
-        SAFE_RELEASE(_mesh);
         SAFE_DELETE(_skin);
     }
 
 
-    Model* Model::create(Mesh* mesh)
-    {
-        GP_ASSERT(mesh);
-        mesh->addRef();
-        return new Model(mesh);
-    }
-
-
-    Mesh* Model::getMesh() const
+    const std::shared_ptr<Mesh>& Model::getMesh() const
     {
         return _mesh;
     }
@@ -70,23 +51,23 @@ namespace gameplay
     }
 
 
-    Material* Model::getMaterial(int partIndex)
+    std::shared_ptr<Material> Model::getMaterial(int partIndex)
     {
         GP_ASSERT(partIndex == -1 || partIndex >= 0);
 
-        Material* m = NULL;
+        std::shared_ptr<Material> m = nullptr;
 
         if( partIndex < 0 )
             return _material;
         if( partIndex >= (int)_partCount )
-            return NULL;
+            return nullptr;
 
         // Look up explicitly specified part material.
-        if( _partMaterials )
+        if( !_partMaterials.empty() )
         {
             m = _partMaterials[partIndex];
         }
-        if( m == NULL )
+        if( m == nullptr )
         {
             // Return the shared material.
             m = _material;
@@ -96,11 +77,11 @@ namespace gameplay
     }
 
 
-    void Model::setMaterial(Material* material, int partIndex)
+    void Model::setMaterial(const std::shared_ptr<Material>& material, int partIndex)
     {
         GP_ASSERT(partIndex == -1 || (partIndex >= 0 && partIndex < (int)getMeshPartCount()));
 
-        Material* oldMaterial = NULL;
+        std::shared_ptr<Material> oldMaterial = nullptr;
 
         if( partIndex == -1 )
         {
@@ -110,7 +91,6 @@ namespace gameplay
             if( material )
             {
                 _material = material;
-                _material->addRef();
             }
         }
         else if( partIndex >= 0 && partIndex < (int)getMeshPartCount() )
@@ -119,17 +99,16 @@ namespace gameplay
             validatePartCount();
 
             // Release existing part material and part binding.
-            if( _partMaterials )
+            if( !_partMaterials.empty() )
             {
                 oldMaterial = _partMaterials[partIndex];
             }
             else
             {
                 // Allocate part arrays for the first time.
-                if( _partMaterials == NULL )
+                if( _partMaterials.empty() )
                 {
-                    _partMaterials = new Material*[_partCount];
-                    memset(_partMaterials, 0, sizeof(Material*) * _partCount);
+                    _partMaterials.resize(_partCount);
                 }
             }
 
@@ -137,7 +116,6 @@ namespace gameplay
             if( material )
             {
                 _partMaterials[partIndex] = material;
-                material->addRef();
             }
         }
 
@@ -146,15 +124,14 @@ namespace gameplay
         {
             for( unsigned int i = 0, tCount = oldMaterial->getTechniqueCount(); i < tCount; ++i )
             {
-                Technique* t = oldMaterial->getTechniqueByIndex(i);
+                auto t = oldMaterial->getTechniqueByIndex(i);
                 GP_ASSERT(t);
                 for( unsigned int j = 0, pCount = t->getPassCount(); j < pCount; ++j )
                 {
                     GP_ASSERT(t->getPassByIndex(j));
-                    t->getPassByIndex(j)->setVertexAttributeBinding(NULL);
+                    t->getPassByIndex(j)->setVertexAttributeBinding(nullptr);
                 }
             }
-            SAFE_RELEASE(oldMaterial);
         }
 
         if( material )
@@ -162,15 +139,14 @@ namespace gameplay
             // Hookup vertex attribute bindings for all passes in the new material.
             for( unsigned int i = 0, tCount = material->getTechniqueCount(); i < tCount; ++i )
             {
-                Technique* t = material->getTechniqueByIndex(i);
+                auto t = material->getTechniqueByIndex(i);
                 GP_ASSERT(t);
                 for( unsigned int j = 0, pCount = t->getPassCount(); j < pCount; ++j )
                 {
-                    Pass* p = t->getPassByIndex(j);
+                    auto p = t->getPassByIndex(j);
                     GP_ASSERT(p);
-                    VertexAttributeBinding* b = VertexAttributeBinding::create(_mesh, p->getEffect());
+                    auto b = VertexAttributeBinding::create(_mesh, p->getEffect());
                     p->setVertexAttributeBinding(b);
-                    SAFE_RELEASE(b);
                 }
             }
             // Apply node binding for the new material.
@@ -182,21 +158,18 @@ namespace gameplay
     }
 
 
-    Material* Model::setMaterial(const char* vshPath, const char* fshPath, const char* defines, int partIndex)
+    std::shared_ptr<Material> Model::setMaterial(const char* vshPath, const char* fshPath, const char* defines, int partIndex)
     {
         // Try to create a Material with the given parameters.
-        Material* material = Material::create(vshPath, fshPath, defines);
-        if( material == NULL )
+        auto material = Material::create(vshPath, fshPath, defines);
+        if( material == nullptr )
         {
             GP_ERROR("Failed to create material for model.");
-            return NULL;
+            return nullptr;
         }
 
         // Assign the material to us.
         setMaterial(material, partIndex);
-
-        // Release the material since we now have a reference to it.
-        material->release();
 
         return material;
     }
@@ -204,7 +177,7 @@ namespace gameplay
 
     bool Model::hasMaterial(unsigned int partIndex) const
     {
-        return (partIndex < _partCount && _partMaterials && _partMaterials[partIndex]);
+        return (partIndex < _partCount && !_partMaterials.empty() && _partMaterials[partIndex]);
     }
 
 
@@ -224,7 +197,7 @@ namespace gameplay
             // Assign the new skin
             _skin = skin;
             if( _skin )
-                _skin->_model = this;
+                _skin->_model = std::static_pointer_cast<Model>( shared_from_this() );
         }
     }
 
@@ -240,9 +213,9 @@ namespace gameplay
             {
                 setMaterialNodeBinding(_material);
             }
-            if( _partMaterials )
+            if( !_partMaterials.empty() )
             {
-                for( unsigned int i = 0; i < _partCount; ++i )
+                for( size_t i = 0; i < _partCount; ++i )
                 {
                     if( _partMaterials[i] )
                     {
@@ -254,7 +227,7 @@ namespace gameplay
     }
 
 
-    static bool drawWireframe(Mesh* mesh)
+    static bool drawWireframe(const std::shared_ptr<Mesh>& mesh)
     {
         switch( mesh->getPrimitiveType() )
         {
@@ -287,8 +260,8 @@ namespace gameplay
 
     static bool drawWireframe(MeshPart* part)
     {
-        unsigned int indexCount = part->getIndexCount();
-        unsigned int indexSize = 0;
+        size_t indexCount = part->getIndexCount();
+        size_t indexSize = 0;
         switch( part->getIndexFormat() )
         {
             case Mesh::INDEX8:
@@ -332,22 +305,22 @@ namespace gameplay
     }
 
 
-    unsigned int Model::draw(bool wireframe)
+    size_t Model::draw(bool wireframe)
     {
         GP_ASSERT(_mesh);
 
-        unsigned int partCount = _mesh->getPartCount();
+        size_t partCount = _mesh->getPartCount();
         if( partCount == 0 )
         {
             // No mesh parts (index buffers).
             if( _material )
             {
-                Technique* technique = _material->getTechnique();
+                auto technique = _material->getTechnique();
                 GP_ASSERT(technique);
-                unsigned int passCount = technique->getPassCount();
-                for( unsigned int i = 0; i < passCount; ++i )
+                size_t passCount = technique->getPassCount();
+                for(size_t i = 0; i < passCount; ++i )
                 {
-                    Pass* pass = technique->getPassByIndex(i);
+                    auto pass = technique->getPassByIndex(i);
                     GP_ASSERT(pass);
                     pass->bind();
                     GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0) );
@@ -361,21 +334,21 @@ namespace gameplay
         }
         else
         {
-            for( unsigned int i = 0; i < partCount; ++i )
+            for(size_t i = 0; i < partCount; ++i )
             {
                 MeshPart* part = _mesh->getPart(i);
                 GP_ASSERT(part);
 
                 // Get the material for this mesh part.
-                Material* material = getMaterial(i);
+                auto material = getMaterial(i);
                 if( material )
                 {
-                    Technique* technique = material->getTechnique();
+                    auto technique = material->getTechnique();
                     GP_ASSERT(technique);
-                    unsigned int passCount = technique->getPassCount();
-                    for( unsigned int j = 0; j < passCount; ++j )
+                    size_t passCount = technique->getPassCount();
+                    for(size_t j = 0; j < passCount; ++j )
                     {
-                        Pass* pass = technique->getPassByIndex(j);
+                        auto pass = technique->getPassByIndex(j);
                         GP_ASSERT(pass);
                         pass->bind();
                         GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
@@ -392,7 +365,7 @@ namespace gameplay
     }
 
 
-    void Model::setMaterialNodeBinding(Material* material)
+    void Model::setMaterialNodeBinding(const std::shared_ptr<Material>& material)
     {
         GP_ASSERT(material);
 
@@ -406,27 +379,7 @@ namespace gameplay
     void Model::validatePartCount()
     {
         GP_ASSERT(_mesh);
-        unsigned int partCount = _mesh->getPartCount();
-
-        if( _partCount != partCount )
-        {
-            // Allocate new arrays and copy old items to them.
-            if( _partMaterials )
-            {
-                Material** oldArray = _partMaterials;
-                _partMaterials = new Material*[partCount];
-                memset(_partMaterials, 0, sizeof(Material*) * partCount);
-                if( oldArray )
-                {
-                    for( unsigned int i = 0; i < _partCount; ++i )
-                    {
-                        _partMaterials[i] = oldArray[i];
-                    }
-                }
-                SAFE_DELETE_ARRAY(oldArray);
-            }
-            // Update local part count.
-            _partCount = _mesh->getPartCount();
-        }
+        _partCount = _mesh->getPartCount();
+        _partMaterials.resize(_partCount);
     }
 }

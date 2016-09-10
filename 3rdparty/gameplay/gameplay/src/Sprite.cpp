@@ -106,13 +106,6 @@ namespace gameplay
         unsigned int imageWidth = _batch->getSampler()->getTexture()->getWidth();
         unsigned int imageHeight = _batch->getSampler()->getTexture()->getHeight();
 
-        // If we have a stride then compute the wrap width
-        float strideWidth;
-        if( _frameStride > 0 )
-            strideWidth = _frameStride * _frames[0].width;
-        else
-            strideWidth = imageWidth;
-
         // Mark the start as reference
         float x = _frames[0].x;
         float y = _frames[0].y;
@@ -228,31 +221,31 @@ namespace gameplay
     }
 
 
-    Texture::Sampler* Sprite::getSampler() const
+    const std::shared_ptr<Texture::Sampler>& Sprite::getSampler() const
     {
         return _batch->getSampler();
     }
 
 
-    RenderState::StateBlock* Sprite::getStateBlock() const
+    std::shared_ptr<RenderState::StateBlock> Sprite::getStateBlock() const
     {
         return _batch->getStateBlock();
     }
 
 
-    Material* Sprite::getMaterial() const
+    const std::shared_ptr<Material>& Sprite::getMaterial() const
     {
         return _batch->getMaterial();
     }
 
 
-    unsigned int Sprite::draw(bool /*wireframe*/)
+    size_t Sprite::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Vector3 position = Vector3::zero();
         if( _node && _node->getScene() )
         {
-            Camera* activeCamera = _node->getScene()->getActiveCamera();
+            auto activeCamera = _node->getScene()->getActiveCamera();
             if( activeCamera )
             {
                 Node* cameraNode = _node->getScene()->getActiveCamera()->getNode();
@@ -330,7 +323,7 @@ namespace gameplay
     }
 
 
-    Sprite* Sprite::create(Texture* texture, float width, float height, const Rectangle& source, unsigned int frameCount, Effect* effect)
+    std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<Effect>& effect)
     {
         GP_ASSERT(texture != nullptr);
         GP_ASSERT(width >= -1 && height >= -1);
@@ -350,7 +343,7 @@ namespace gameplay
         if( height == -1 )
             height = imageHeight;
 
-        Sprite* sprite = new Sprite();
+        std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
         sprite->_width = width;
         sprite->_height = height;
         sprite->_batch = batch;

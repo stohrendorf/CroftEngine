@@ -512,7 +512,7 @@ namespace loader
 
     struct Room
     {
-        gameplay::Node* node = nullptr;
+        std::shared_ptr<gameplay::Node> node = nullptr;
 
         // Various room flags specify various room options. Mostly, they
         // specify environment type and some additional actions which should
@@ -1064,7 +1064,8 @@ namespace loader
             return room;
         }
 
-        gameplay::Node* createSceneNode(int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials, const std::vector<gameplay::Texture*>& textures, const std::vector<gameplay::Mesh*>& staticMeshes, render::TextureAnimator& animator);
+
+        std::shared_ptr<gameplay::Node> createSceneNode(int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Mesh>>& staticMeshes, render::TextureAnimator& animator);
 
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {

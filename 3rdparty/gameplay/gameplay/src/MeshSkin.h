@@ -42,7 +42,7 @@ namespace gameplay
          *
          * @return The joint.
          */
-        Joint* getJoint(size_t index) const;
+        const std::shared_ptr<Joint>& getJoint(size_t index) const;
 
         /**
          * Returns the joint with the given ID.
@@ -51,14 +51,14 @@ namespace gameplay
          *
          * @return The joint, or NULL if not found.
          */
-        Joint* getJoint(const std::string& id) const;
+        std::shared_ptr<Joint> getJoint(const std::string& id) const;
 
         /**
          * Returns the root most joint for this MeshSkin.
          *
          * @return The root joint.
          */
-        Joint* getRootJoint() const;
+        const std::shared_ptr<Joint>& getRootJoint() const;
 
         /**
          * Sets the root joint for this MeshSkin.
@@ -67,14 +67,14 @@ namespace gameplay
          *
          * @param joint The root joint.
          */
-        void setRootJoint(Joint* joint);
+        void setRootJoint(const std::shared_ptr<Joint>& joint);
 
         /**
          * Returns the index of the specified joint in this MeshSkin.
          *
          * @return The index of the joint in this MeshSkin, or -1 if the joint does not belong to this MeshSkin.
          */
-        int getJointIndex(Joint* joint) const;
+        int getJointIndex(const std::shared_ptr<Joint>& joint) const;
 
         /**
          * Returns the pointer to the Vector4 array for the purpose of binding to a shader.
@@ -95,7 +95,7 @@ namespace gameplay
         /**
          * Returns our parent Model.
          */
-        Model* getModel() const;
+        const std::shared_ptr<Model>& getModel() const;
 
         /**
          * Handles transform change events for joints.
@@ -127,33 +127,33 @@ namespace gameplay
          * @param joint The joint to be set.
          * @param index The index in the joints vector.
          */
-        void setJoint(Joint* joint, size_t index);
+        void setJoint(const std::shared_ptr<Joint>& joint, size_t index);
 
         /**
          * Sets the root node of this mesh skin.
          *
          * @param node The node to set as the root node, may be NULL.
          */
-        void setRootNode(Node* node);
+        void setRootNode(const std::shared_ptr<Node>& node);
 
         /**
          * Clears the list of joints and releases each joint.
          */
         void clearJoints();
 
-        std::vector<Joint*> _joints;
-        Joint* _rootJoint;
+        std::vector<std::shared_ptr<Joint>> _joints;
+        std::shared_ptr<Joint> _rootJoint;
 
         // Pointer to the root node of the mesh skin.
         // The purpose is so that the joint hierarchy doesn't need to be in the scene.
         // If the joints are not in the scene then something has to hold a reference to it.
-        Node* _rootNode;
+        std::shared_ptr<Node> _rootNode;
 
         // Pointer to the array of palette matrices.
         // This array is passed to the vertex shader as a uniform.
         // Each 4x3 row-wise matrix is represented as 3 Vector4's.
         // The number of Vector4's is (_joints.size() * 3).
         mutable std::vector<Vector4> _matrixPalette;
-        Model* _model;
+        std::shared_ptr<Model> _model;
     };
 }

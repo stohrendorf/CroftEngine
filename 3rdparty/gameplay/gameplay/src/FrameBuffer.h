@@ -22,11 +22,13 @@ namespace gameplay
  *
  * To bind the default frame buffer, call FrameBuffer::bindDefault.
  */
-class FrameBuffer : public Ref
+class FrameBuffer : public std::enable_shared_from_this<FrameBuffer>
 {
     friend class Game;
 
 public:
+    FrameBuffer(const char* id, FrameBufferHandle handle);
+    ~FrameBuffer();
 
     /**
      * Creates a new, empty FrameBuffer object.
@@ -104,7 +106,7 @@ public:
      * @param target The 2D RenderTarget to set.
      * @param index The index of the color attachment to set.
      */
-    void setRenderTarget(RenderTarget* target, unsigned int index = 0);
+    void setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned index = 0);
 
     /**
     * Set a RenderTarget on this FrameBuffer's color attachment at the specified index.
@@ -113,7 +115,7 @@ public:
     * @param face The face of the cubemap to target.
     * @param index The index of the color attachment to set.
     */
-    void setRenderTarget(RenderTarget* target, Texture::CubeFace face, unsigned int index = 0);
+    void setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, unsigned index = 0);
 
     /**
      * Get the RenderTarget attached to the FrameBuffer's color attachment at the specified index.
@@ -122,7 +124,7 @@ public:
      *
      * @return The RenderTarget attached at the specified index.
      */
-    RenderTarget* getRenderTarget(unsigned int index = 0) const;
+    std::shared_ptr<RenderTarget> getRenderTarget(size_t index = 0) const;
 
     /**
      * Returns the current number of render targets attached to this frame buffer.
@@ -136,14 +138,14 @@ public:
      *
      * @param target The DepthStencilTarget to set on this FrameBuffer.
      */
-    void setDepthStencilTarget(DepthStencilTarget* target);
+    void setDepthStencilTarget(const std::shared_ptr<DepthStencilTarget>& target);
 
     /**
      * Get this FrameBuffer's DepthStencilTarget.
      *
      * @return This FrameBuffer's DepthStencilTarget.
      */
-    DepthStencilTarget* getDepthStencilTarget() const;
+    const std::shared_ptr<DepthStencilTarget>& getDepthStencilTarget() const;
 
     /**
      * Determines whether this is the default frame buffer.
@@ -159,7 +161,7 @@ public:
      *
      * @ return The currently bound framebuffer.
      */
-    FrameBuffer* bind();
+    std::shared_ptr<FrameBuffer> bind();
 
     /**
      * Records a screenshot of what is stored on the current FrameBuffer.
@@ -167,7 +169,7 @@ public:
      * @param format The format the Image should be in.
      * @return A screenshot of the current framebuffer's content.
      */
-    static Image* createScreenshot(Image::Format format = Image::RGBA);
+    static std::shared_ptr<Image> createScreenshot(Image::Format format = Image::RGBA);
 
     /**
      * Records a screenshot of what is stored on the current FrameBuffer to an Image.
@@ -176,40 +178,30 @@ public:
      *
      * @param image The Image to write the current framebuffer's content to.
      */
-    static void getScreenshot(Image* image);
+    static void getScreenshot(const std::shared_ptr<Image>& image);
 
     /**
      * Binds the default FrameBuffer for rendering to the display.
      *
      * @ return The default framebuffer.
      */
-    static FrameBuffer* bindDefault();
+    static const std::shared_ptr<FrameBuffer>& bindDefault();
 
     /**
      * Gets the currently bound FrameBuffer.
      *
      * @return The currently bound FrameBuffer.
      */
-    static FrameBuffer* getCurrent();
+    static const std::shared_ptr<FrameBuffer>& getCurrent();
 
 private:
-
-    /**
-     * Constructor.
-     */
-    FrameBuffer(const char* id, FrameBufferHandle handle);
-
-    /**
-     * Destructor.
-     */
-    ~FrameBuffer();
 
     /**
      * Hidden copy assignment operator.
      */
     FrameBuffer& operator=(const FrameBuffer&);
 
-    void setRenderTarget(RenderTarget* target, unsigned int index, GLenum textureTarget);
+    void setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned index, GLenum textureTarget);
 
     static void initialize();
 
@@ -219,14 +211,14 @@ private:
 
     std::string _id;
     FrameBufferHandle _handle;
-    RenderTarget** _renderTargets;
+    std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
     unsigned int _renderTargetCount;
-    DepthStencilTarget* _depthStencilTarget;
+    std::shared_ptr<DepthStencilTarget> _depthStencilTarget;
 
     static unsigned int _maxRenderTargets;
     static std::vector<FrameBuffer*> _frameBuffers;
-    static FrameBuffer* _defaultFrameBuffer;
-    static FrameBuffer* _currentFrameBuffer;
+    static std::shared_ptr<FrameBuffer> _defaultFrameBuffer;
+    static std::shared_ptr<FrameBuffer> _currentFrameBuffer;
 };
 
 }

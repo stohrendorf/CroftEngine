@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Ref.h"
 #include "Properties.h"
 #include "Font.h"
 #include "Vector4.h"
@@ -14,7 +13,7 @@ namespace gameplay
      *
      * Text can be attached to a node.
      */
-    class Text : public Ref, public Drawable
+    class Text : public Drawable
     {
         friend class Node;
 
@@ -170,7 +169,7 @@ namespace gameplay
         /**
          * @see Drawable::draw
          */
-        unsigned int draw(bool wireframe = false) override;
+        size_t draw(bool wireframe = false) override;
 
     protected:
 
@@ -191,7 +190,7 @@ namespace gameplay
 
     private:
 
-        Font* _font;
+        std::shared_ptr<Font> _font;
         std::string _text;
         unsigned int _size;
         float _width;

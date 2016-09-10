@@ -10,7 +10,6 @@ namespace gameplay
         , _parameters(nullptr)
         , _parameterCount(0)
         , _messageType(MESSAGE_TYPE_CUSTOM)
-        , _next(nullptr)
     {
     }
 
@@ -21,9 +20,9 @@ namespace gameplay
     }
 
 
-    AIMessage* AIMessage::create(unsigned int id, const std::string& sender, const std::string& receiver, unsigned int parameterCount)
+    std::shared_ptr<AIMessage> AIMessage::create(unsigned int id, const std::string& sender, const std::string& receiver, unsigned int parameterCount)
     {
-        AIMessage* message = new AIMessage();
+        auto message = std::make_shared<AIMessage>();
         message->_id = id;
         message->_sender = sender;
         message->_receiver = receiver;
@@ -31,12 +30,6 @@ namespace gameplay
         if( parameterCount > 0 )
             message->_parameters = new AIMessage::Parameter[parameterCount];
         return message;
-    }
-
-
-    void AIMessage::destroy(AIMessage* message)
-    {
-        SAFE_DELETE(message);
     }
 
 

@@ -6,17 +6,18 @@
 
 namespace gameplay
 {
-    TileSet::TileSet() : Drawable()
-                       , _tiles(NULL)
-                       , _tileWidth(0)
-                       , _tileHeight(0)
-                       , _rowCount(0)
-                       , _columnCount(0)
-                       , _width(0)
-                       , _height(0)
-                       , _opacity(1.0f)
-                       , _color(Vector4::one())
-                       , _batch(NULL)
+    TileSet::TileSet()
+        : Drawable()
+        , _tiles(nullptr)
+        , _tileWidth(0)
+        , _tileHeight(0)
+        , _rowCount(0)
+        , _columnCount(0)
+        , _width(0)
+        , _height(0)
+        , _batch(nullptr)
+        , _opacity(1.0f)
+        , _color(Vector4::one())
     {
     }
 
@@ -108,13 +109,13 @@ namespace gameplay
     }
 
 
-    unsigned int TileSet::draw(bool /*wireframe*/)
+    size_t TileSet::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
         Vector3 position = Vector3::zero();
         if( _node && _node->getScene() )
         {
-            Camera* activeCamera = _node->getScene()->getActiveCamera();
+            auto activeCamera = _node->getScene()->getActiveCamera();
             if( activeCamera )
             {
                 Node* cameraNode = _node->getScene()->getActiveCamera()->getNode();
@@ -165,5 +166,4 @@ namespace gameplay
         _batch->finish();
         return 1;
     }
-
 }

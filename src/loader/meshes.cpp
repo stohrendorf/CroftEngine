@@ -61,12 +61,12 @@ namespace loader
                 using IndexBuffer = std::vector<uint16_t>;
 
                 IndexBuffer indices;
-                gameplay::Material* material;
+                std::shared_ptr<gameplay::Material> material;
             };
 
             std::vector<MeshPart> m_parts;
 
-            gameplay::Model* toModel(const gsl::not_null<gameplay::Mesh*>& mesh)
+            std::shared_ptr<gameplay::Model> toModel(const gsl::not_null<std::shared_ptr<gameplay::Mesh>>& mesh)
             {
                 for(const MeshPart& localPart : m_parts)
                 {
@@ -74,8 +74,7 @@ namespace loader
                     part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
                 }
 
-                gameplay::Model* model = gameplay::Model::create(mesh);
-                mesh->release();
+                auto model = std::make_shared<gameplay::Model>(mesh);
 
                 for(size_t i = 0; i < m_parts.size(); ++i)
                 {
@@ -88,14 +87,14 @@ namespace loader
     }
 
 
-    gameplay::Model* Mesh::createMesh(const std::vector<TextureLayoutProxy>& textureProxies,
-                                      const std::map<TextureLayoutProxy::TextureKey, gameplay::Material*>& materials,
-                                      const std::vector<gameplay::Material*>& colorMaterials,
-                                      render::TextureAnimator& animator) const
+    std::shared_ptr<gameplay::Model> Mesh::createMesh(const std::vector<TextureLayoutProxy>& textureProxies,
+                                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                      const std::vector<gameplay::Material*>& colorMaterials,
+                                                      render::TextureAnimator& animator) const
     {
         BOOST_ASSERT(colorMaterials.size() == 256);
 
-        gameplay::Mesh* mesh = nullptr;
+        std::shared_ptr<gameplay::Mesh> mesh = nullptr;
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
 

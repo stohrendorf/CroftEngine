@@ -18,7 +18,7 @@ namespace gameplay
         : Drawable()
         , _particleCountMax(particleCountMax)
         , _particleCount(0)
-        , _particles(NULL)
+        , _particles(nullptr)
         , _emissionRate(PARTICLE_EMISSION_RATE)
         , _started(false)
         , _ellipsoid(false)
@@ -44,13 +44,13 @@ namespace gameplay
         , _rotationSpeedMax(0.0f)
         , _rotationAxis(Vector3::zero())
         , _rotation(Matrix::identity())
-        , _spriteBatch(NULL)
+        , _spriteBatch(nullptr)
         , _spriteBlendMode(BLEND_ALPHA)
         , _spriteTextureWidth(0)
         , _spriteTextureHeight(0)
         , _spriteTextureWidthRatio(0)
         , _spriteTextureHeightRatio(0)
-        , _spriteTextureCoords(NULL)
+        , _spriteTextureCoords(nullptr)
         , _spriteAnimated(false)
         , _spriteLooped(false)
         , _spriteFrameCount(1)
@@ -78,7 +78,7 @@ namespace gameplay
     }
 
 
-    ParticleEmitter* ParticleEmitter::create(Texture* texture, BlendMode blendMode, unsigned int particleCountMax)
+    ParticleEmitter* ParticleEmitter::create(const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned int particleCountMax)
     {
         ParticleEmitter* emitter = new ParticleEmitter(particleCountMax);
         GP_ASSERT(emitter);
@@ -89,11 +89,11 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setTexture(Texture* texture, BlendMode blendMode)
+    void ParticleEmitter::setTexture(const std::shared_ptr<Texture>& texture, BlendMode blendMode)
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
-        SpriteBatch* batch = SpriteBatch::create(texture, NULL, _particleCountMax);
+        SpriteBatch* batch = SpriteBatch::create(texture, nullptr, _particleCountMax);
         batch->getSampler()->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
 
         // Free existing batch
@@ -115,10 +115,10 @@ namespace gameplay
     }
 
 
-    Texture* ParticleEmitter::getTexture() const
+    std::shared_ptr<Texture> ParticleEmitter::getTexture() const
     {
-        Texture::Sampler* sampler = _spriteBatch ? _spriteBatch->getSampler() : NULL;
-        return sampler ? sampler->getTexture() : NULL;
+        auto sampler = _spriteBatch ? _spriteBatch->getSampler() : nullptr;
+        return sampler ? sampler->getTexture() : nullptr;
     }
 
 
@@ -922,7 +922,7 @@ namespace gameplay
     }
 
 
-    unsigned int ParticleEmitter::draw(bool /*wireframe*/)
+    size_t ParticleEmitter::draw(bool /*wireframe*/)
     {
         if( !isActive() )
             return 0;

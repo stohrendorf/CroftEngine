@@ -28,7 +28,7 @@ namespace gameplay
         * @return A new mesh batch.
         * @script{create}
         */
-        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, Material* material, bool indexed, unsigned int initialCapacity, unsigned int growSize = 1024);
+        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material, bool indexed, unsigned int initialCapacity, unsigned int growSize = 1024);
 
         /**
          * Destructor.
@@ -54,7 +54,7 @@ namespace gameplay
          *
          * @return The material used to draw the batch.
          */
-        inline Material* getMaterial() const;
+        inline const std::shared_ptr<Material>& getMaterial() const;
 
         /**
          * Adds a group of primitives to the batch.
@@ -118,7 +118,7 @@ namespace gameplay
 
         const VertexFormat m_vertexFormat;
         Mesh::PrimitiveType m_primitiveType;
-        Material* m_material;
+        std::shared_ptr<Material> m_material;
         bool m_indexed;
         unsigned int m_capacity;
         unsigned int m_growSize;
@@ -134,7 +134,7 @@ namespace gameplay
     };
 
 
-    Material* MeshBatch::getMaterial() const
+    const std::shared_ptr<Material>& MeshBatch::getMaterial() const
     {
         return m_material;
     }

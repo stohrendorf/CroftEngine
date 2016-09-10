@@ -12,7 +12,7 @@ namespace gameplay
      *
      * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Scene
      */
-    class Scene : public Ref
+    class Scene
     {
     public:
 
@@ -61,7 +61,7 @@ namespace gameplay
          *
          * @return The first node found that matches the given ID.
          */
-        Node* findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
+        std::shared_ptr<Node> findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Returns all nodes in the scene that match the given ID.
@@ -75,7 +75,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const char* id, std::vector<Node*>& nodes, bool recursive = true, bool exactMatch = true) const;
+        unsigned int findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Creates and adds a new node to the scene.
@@ -84,21 +84,21 @@ namespace gameplay
          *
          * @return The new node.
          */
-        Node* addNode(const char* id = nullptr);
+        std::shared_ptr<Node> addNode(const char* id = nullptr);
 
         /**
          * Adds the specified node to the scene.
          *
          * @param node The node to be added to the scene.
          */
-        void addNode(Node* node);
+        void addNode(const std::shared_ptr<Node>& node);
 
         /**
          * Removes the specified node from the scene.
          *
          * @param node The node to remove.
          */
-        void removeNode(Node* node);
+        void removeNode(const std::shared_ptr<Node>& node);
 
         /**
          * Removes all nodes from the scene.
@@ -117,7 +117,7 @@ namespace gameplay
          *
          * @return The first node in the scene.
          */
-        Node* getFirstNode() const;
+        const std::shared_ptr<Node>& getFirstNode() const;
 
         /**
          * Gets the active camera for the scene.
@@ -125,14 +125,14 @@ namespace gameplay
          * @return The active camera for the scene.
          * @see VisibleSet#getActiveCamera
          */
-        Camera* getActiveCamera();
+        const std::shared_ptr<Camera>& getActiveCamera() const;
 
         /**
          * Sets the active camera on the scene.
          *
          * @param camera The active camera to be set on the scene.
          */
-        void setActiveCamera(Camera* camera);
+        void setActiveCamera(const std::shared_ptr<Camera>& camera);
 
         /**
          * Returns the ambient color of the scene.
@@ -228,7 +228,7 @@ namespace gameplay
         /**
          * @see VisibleSet#getNext
          */
-        Node* getNext();
+        std::shared_ptr<Node> getNext();
 
         /**
          * @see VisibleSet#reset
@@ -245,17 +245,14 @@ namespace gameplay
         /**
          * Hidden copy constructor.
          */
-        Scene(const Scene& copy);
+        Scene(const Scene& copy) = delete;
 
         /**
          * Destructor.
          */
         virtual ~Scene();
 
-        /**
-         * Hidden copy assignment operator.
-         */
-        Scene& operator=(const Scene&);
+        Scene& operator=(const Scene&) = delete;
 
         /**
          * Visits the given node and all of its children recursively.
@@ -272,19 +269,19 @@ namespace gameplay
         /**
          * Visits the given node and all of its children recursively.
          */
-        void visitNode(Node* node, const char* visitMethod);
+        void visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const;
 
-        Node* findNextVisibleSibling(Node* node);
+        std::shared_ptr<Node> findNextVisibleSibling(const std::shared_ptr<Node>& node) const;
 
-        bool isNodeVisible(Node* node);
+        bool isNodeVisible(const std::shared_ptr<Node>& node) const;
 
         std::string _id;
-        Camera* _activeCamera;
-        Node* _firstNode;
-        Node* _lastNode;
+        std::shared_ptr<Camera> _activeCamera;
+        std::shared_ptr<Node> _firstNode;
+        std::shared_ptr<Node> _lastNode;
         unsigned int _nodeCount;
         Vector3 _ambientColor;
-        Node* _nextItr;
+        std::shared_ptr<Node> _nextItr;
         bool _nextReset;
     };
 
@@ -292,7 +289,7 @@ namespace gameplay
     template<class T>
     void Scene::visit(T* instance, bool (T::*visitMethod)(Node*))
     {
-        for( Node* node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
         {
             visitNode(node, instance, visitMethod);
         }
@@ -302,7 +299,7 @@ namespace gameplay
     template<class T, class C>
     void Scene::visit(T* instance, bool (T::*visitMethod)(Node*, C), C cookie)
     {
-        for( Node* node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
         {
             visitNode(node, instance, visitMethod, cookie);
         }
@@ -311,7 +308,7 @@ namespace gameplay
 
     inline void Scene::visit(const char* visitMethod)
     {
-        for( Node* node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
         {
             visitNode(node, visitMethod);
         }

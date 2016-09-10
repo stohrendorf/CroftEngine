@@ -103,11 +103,11 @@ namespace level
         boost::optional<size_t> findAnimatedModelIndexForType(uint32_t object_id) const;
         boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
 
-        std::vector<gameplay::Texture*> createTextures();
-        std::map<loader::TextureLayoutProxy::TextureKey, gameplay::Material*> createMaterials(const std::vector<gameplay::Texture::Sampler*>& textures);
-        engine::LaraController* createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<gameplay::Texture*>& textures);
+        std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
+        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture::Sampler>>& textures);
+        engine::LaraController* createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
         std::vector<gameplay::MeshSkin*> createSkinnedMeshes(gameplay::Game* game, const std::vector<gameplay::Model*>& staticMeshes);
-        gameplay::Texture* createSolidColorTex(uint8_t color) const;
+        std::shared_ptr<gameplay::Texture> createSolidColorTex(uint8_t color) const;
 
         void toIrrlicht(gameplay::Game* game);
 
@@ -156,7 +156,7 @@ namespace level
 
         void drawBars(gameplay::Game* game) const;
 
-        engine::ItemController* findControllerForNode(const gameplay::Node* node);
+        engine::ItemController* findControllerForNode(const std::shared_ptr<gameplay::Node>& node);
 
         std::unique_ptr<engine::InputHandler> m_inputHandler;
 

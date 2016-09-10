@@ -31,7 +31,7 @@ namespace gameplay
          * @param message The message to send.
          * @param delay The delay (in milliseconds) to wait before sending the message.
          */
-        void sendMessage(AIMessage* message, float delay = 0);
+        void sendMessage(const std::shared_ptr<AIMessage>& message, float delay = 0);
 
         /**
          * Searches for an AIAgent that is registered with the AIController with the specified ID.
@@ -40,7 +40,7 @@ namespace gameplay
          *
          * @return The first agent matching the specified ID, or NULL if no matching agent could be found.
          */
-        AIAgent* findAgent(const std::string& id) const;
+        std::shared_ptr<AIAgent> findAgent(const std::string& id) const;
 
     private:
 
@@ -91,12 +91,12 @@ namespace gameplay
          */
         void update(const std::chrono::microseconds& elapsedTime);
 
-        void addAgent(AIAgent* agent);
+        void addAgent(const std::shared_ptr<AIAgent>& agent);
 
-        void removeAgent(AIAgent* agent);
+        void removeAgent(const std::shared_ptr<AIAgent>& agent);
 
         bool _paused;
-        AIMessage* _firstMessage;
-        AIAgent* _firstAgent;
+        std::list<std::shared_ptr<AIMessage>> _firstMessage;
+        std::list<std::shared_ptr<AIAgent>> _firstAgent;
     };
 }

@@ -6,7 +6,7 @@
 
 namespace gameplay
 {
-    AIState* AIState::_empty = nullptr;
+    std::shared_ptr<AIState> AIState::_empty = nullptr;
 
 
     AIState::AIState(const char* id)
@@ -16,14 +16,12 @@ namespace gameplay
     }
 
 
-    AIState::~AIState()
-    {
-    }
+    AIState::~AIState() = default;
 
 
-    AIState* AIState::create(const char* id)
+    std::shared_ptr<AIState> AIState::create(const char* id)
     {
-        return new AIState(id);
+        return std::make_shared<AIState>(id);
     }
 
 

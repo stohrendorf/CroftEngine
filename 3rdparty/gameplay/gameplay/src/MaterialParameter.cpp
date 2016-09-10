@@ -5,13 +5,13 @@
 
 namespace gameplay
 {
-    MaterialParameter::MaterialParameter(const char* name) :
-                                                           _type(MaterialParameter::NONE)
-                                                           , _count(1)
-                                                           , _dynamic(false)
-                                                           , _name(name ? name : "")
-                                                           , _uniform(NULL)
-                                                           , _loggerDirtyBits(0)
+    MaterialParameter::MaterialParameter(const char* name)
+        : _type(MaterialParameter::NONE)
+        , _count(1)
+        , _dynamic(false)
+        , _name(name ? name : "")
+        , _uniform(nullptr)
+        , _loggerDirtyBits(0)
     {
         clearValue();
     }
@@ -29,17 +29,10 @@ namespace gameplay
         switch( _type )
         {
             case MaterialParameter::SAMPLER:
-                if( _value.samplerValue )
-                    const_cast<Texture::Sampler*>(_value.samplerValue)->release();
+                boost::get<std::shared_ptr<Texture::Sampler>>(_value).reset();
                 break;
             case MaterialParameter::SAMPLER_ARRAY:
-                if( _value.samplerArrayValue )
-                {
-                    for( unsigned int i = 0; i < _count; ++i )
-                    {
-                        const_cast<Texture::Sampler*>(_value.samplerArrayValue[i])->release();
-                    }
-                }
+                boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value).clear();
                 break;
             default:
                 // Ignore all other cases.
@@ -57,17 +50,17 @@ namespace gameplay
                 case MaterialParameter::VECTOR3:
                 case MaterialParameter::VECTOR4:
                 case MaterialParameter::MATRIX:
-                    SAFE_DELETE_ARRAY(_value.floatPtrValue);
+                    SAFE_DELETE_ARRAY(boost::get<float*>(_value));
                     break;
                 case MaterialParameter::INT:
                 case MaterialParameter::INT_ARRAY:
-                    SAFE_DELETE_ARRAY(_value.intPtrValue);
+                    SAFE_DELETE_ARRAY(boost::get<int*>(_value));
                     break;
                 case MaterialParameter::METHOD:
-                    SAFE_RELEASE(_value.method);
+                    boost::get<std::shared_ptr<MethodBinding>>(_value).reset();
                     break;
                 case MaterialParameter::SAMPLER_ARRAY:
-                    SAFE_DELETE_ARRAY(_value.samplerArrayValue);
+                    boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value).clear();
                     break;
                 default:
                     // Ignore all other cases.
@@ -89,13 +82,13 @@ namespace gameplay
     }
 
 
-    Texture::Sampler* MaterialParameter::getSampler(unsigned int index) const
+    std::shared_ptr<Texture::Sampler> MaterialParameter::getSampler(size_t index) const
     {
         if( _type == MaterialParameter::SAMPLER )
-            return const_cast<Texture::Sampler*>(_value.samplerValue);
+            return boost::get<std::shared_ptr<Texture::Sampler>>(_value);
         if( _type == MaterialParameter::SAMPLER_ARRAY && index < _count )
-            return const_cast<Texture::Sampler*>(_value.samplerArrayValue[index]);
-        return NULL;
+            return boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value)[index];
+        return nullptr;
     }
 
 
@@ -103,7 +96,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.floatValue = value;
+        _value = value;
         _type = MaterialParameter::FLOAT;
     }
 
@@ -112,7 +105,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.intValue = value;
+        _value = value;
         _type = MaterialParameter::INT;
     }
 
@@ -121,7 +114,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.floatPtrValue = const_cast<float*>(values);
+        _value = const_cast<float*>(values);
         _count = count;
         _type = MaterialParameter::FLOAT_ARRAY;
     }
@@ -131,7 +124,7 @@ namespace gameplay
     {
         clearValue();
 
-        _value.intPtrValue = const_cast<int*>(values);
+        _value = const_cast<int*>(values);
         _count = count;
         _type = MaterialParameter::INT_ARRAY;
     }
@@ -145,7 +138,7 @@ namespace gameplay
         float* array = new float[2];
         memcpy(array, &value.x, sizeof(float) * 2);
 
-        _value.floatPtrValue = array;
+        _value = array;
         _dynamic = true;
         _count = 1;
         _type = MaterialParameter::VECTOR2;
@@ -157,7 +150,7 @@ namespace gameplay
         GP_ASSERT(values);
         clearValue();
 
-        _value.floatPtrValue = const_cast<float*>(&values[0].x);
+        _value = const_cast<float*>(&values[0].x);
         _count = count;
         _type = MaterialParameter::VECTOR2;
     }
@@ -171,7 +164,7 @@ namespace gameplay
         float* array = new float[3];
         memcpy(array, &value.x, sizeof(float) * 3);
 
-        _value.floatPtrValue = array;
+        _value = array;
         _dynamic = true;
         _count = 1;
         _type = MaterialParameter::VECTOR3;
@@ -183,7 +176,7 @@ namespace gameplay
         GP_ASSERT(values);
         clearValue();
 
-        _value.floatPtrValue = const_cast<float*>(&values[0].x);
+        _value = const_cast<float*>(&values[0].x);
         _count = count;
         _type = MaterialParameter::VECTOR3;
     }
@@ -197,7 +190,7 @@ namespace gameplay
         float* array = new float[4];
         memcpy(array, &value.x, sizeof(float) * 4);
 
-        _value.floatPtrValue = array;
+        _value = array;
         _dynamic = true;
         _count = 1;
         _type = MaterialParameter::VECTOR4;
@@ -209,7 +202,7 @@ namespace gameplay
         GP_ASSERT(values);
         clearValue();
 
-        _value.floatPtrValue = const_cast<float*>(&values[0].x);
+        _value = const_cast<float*>(&values[0].x);
         _count = count;
         _type = MaterialParameter::VECTOR4;
     }
@@ -218,15 +211,15 @@ namespace gameplay
     void MaterialParameter::setValue(const Matrix& value)
     {
         // If this parameter is already storing a single dynamic matrix, no need to clear it.
-        if( !(_dynamic && _count == 1 && _type == MaterialParameter::MATRIX && _value.floatPtrValue != NULL) )
+        if( !(_dynamic && _count == 1 && _type == MaterialParameter::MATRIX && boost::get<float*>(_value) != nullptr) )
         {
             clearValue();
 
             // Allocate a new dynamic matrix.
-            _value.floatPtrValue = new float[16];
+            _value = new float[16];
         }
 
-        memcpy(_value.floatPtrValue, value.m, sizeof(float) * 16);
+        memcpy(boost::get<float*>(_value), value.m, sizeof(float) * 16);
 
         _dynamic = true;
         _count = 1;
@@ -239,34 +232,28 @@ namespace gameplay
         GP_ASSERT(values);
         clearValue();
 
-        _value.floatPtrValue = const_cast<Matrix&>(values[0]).m;
+        _value = const_cast<float*>(values[0].m);
         _count = count;
         _type = MaterialParameter::MATRIX;
     }
 
 
-    void MaterialParameter::setValue(const Texture::Sampler* sampler)
+    void MaterialParameter::setValue(const std::shared_ptr<Texture::Sampler>& sampler)
     {
         GP_ASSERT(sampler);
         clearValue();
 
-        const_cast<Texture::Sampler*>(sampler)->addRef();
-        _value.samplerValue = sampler;
+        _value = sampler;
         _type = MaterialParameter::SAMPLER;
     }
 
 
-    void MaterialParameter::setValue(const Texture::Sampler** samplers, unsigned int count)
+    void MaterialParameter::setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers)
     {
-        GP_ASSERT(samplers);
         clearValue();
 
-        for( unsigned int i = 0; i < count; ++i )
-        {
-            const_cast<Texture::Sampler*>(samplers[i])->addRef();
-        }
-        _value.samplerArrayValue = samplers;
-        _count = count;
+        _value = samplers;
+        _count = samplers.size();
         _type = MaterialParameter::SAMPLER_ARRAY;
     }
 
@@ -284,13 +271,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.floatPtrValue = new float[count];
-            memcpy(_value.floatPtrValue, values, sizeof(float) * count);
+            _value = new float[count];
+            memcpy(boost::get<float*>(_value), values, sizeof(float) * count);
             _dynamic = true;
         }
         else
         {
-            _value.floatPtrValue = const_cast<float*>(values);
+            _value = const_cast<float*>(values);
         }
 
         _count = count;
@@ -311,13 +298,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.intPtrValue = new int[count];
-            memcpy(_value.intPtrValue, values, sizeof(int) * count);
+            _value = new int[count];
+            memcpy(boost::get<int*>(_value), values, sizeof(int) * count);
             _dynamic = true;
         }
         else
         {
-            _value.intPtrValue = const_cast<int*>(values);
+            _value = const_cast<int*>(values);
         }
 
         _count = count;
@@ -338,13 +325,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.floatPtrValue = new float[2 * count];
-            memcpy(_value.floatPtrValue, const_cast<float*>(&values[0].x), sizeof(float) * 2 * count);
+            _value = new float[2 * count];
+            memcpy(boost::get<float*>(_value), &values[0].x, sizeof(float) * 2 * count);
             _dynamic = true;
         }
         else
         {
-            _value.floatPtrValue = const_cast<float*>(&values[0].x);
+            _value = const_cast<float*>(&values[0].x);
         }
 
         _count = count;
@@ -365,13 +352,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.floatPtrValue = new float[3 * count];
-            memcpy(_value.floatPtrValue, const_cast<float*>(&values[0].x), sizeof(float) * 3 * count);
+            _value = new float[3 * count];
+            memcpy(boost::get<float*>(_value), &values[0].x, sizeof(float) * 3 * count);
             _dynamic = true;
         }
         else
         {
-            _value.floatPtrValue = const_cast<float*>(&values[0].x);
+            _value = const_cast<float*>(&values[0].x);
         }
 
         _count = count;
@@ -392,13 +379,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.floatPtrValue = new float[4 * count];
-            memcpy(_value.floatPtrValue, const_cast<float*>(&values[0].x), sizeof(float) * 4 * count);
+            _value = new float[4 * count];
+            memcpy(boost::get<float*>(_value), &values[0].x, sizeof(float) * 4 * count);
             _dynamic = true;
         }
         else
         {
-            _value.floatPtrValue = const_cast<float*>(&values[0].x);
+            _value = const_cast<float*>(&values[0].x);
         }
 
         _count = count;
@@ -419,13 +406,13 @@ namespace gameplay
 
         if( copy )
         {
-            _value.floatPtrValue = new float[16 * count];
-            memcpy(_value.floatPtrValue, const_cast<Matrix&>(values[0]).m, sizeof(float) * 16 * count);
+            _value = new float[16 * count];
+            memcpy(boost::get<float*>(_value), values[0].m, sizeof(float) * 16 * count);
             _dynamic = true;
         }
         else
         {
-            _value.floatPtrValue = const_cast<Matrix&>(values[0]).m;
+            _value = &const_cast<Matrix&>(values[0]).m[0];
         }
 
         _count = count;
@@ -433,39 +420,23 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setSampler(const Texture::Sampler* value)
+    void MaterialParameter::setSampler(const std::shared_ptr<Texture::Sampler>& value)
     {
         setValue(value);
     }
 
 
-    void MaterialParameter::setSamplerArray(const Texture::Sampler** values, unsigned int count, bool copy)
+    void MaterialParameter::setSamplerArray(const std::vector<std::shared_ptr<Texture::Sampler>>& values)
     {
-        GP_ASSERT(values);
         clearValue();
 
-        if( copy )
-        {
-            _value.samplerArrayValue = new const Texture::Sampler*[count];
-            memcpy(_value.samplerArrayValue, values, sizeof(Texture::Sampler*) * count);
-            _dynamic = true;
-        }
-        else
-        {
-            _value.samplerArrayValue = values;
-        }
-
-        for( unsigned int i = 0; i < count; ++i )
-        {
-            const_cast<Texture::Sampler*>(_value.samplerArrayValue[i])->addRef();
-        }
-
-        _count = count;
+        _value = values;
+        _count = values.size();
         _type = MaterialParameter::SAMPLER_ARRAY;
     }
 
 
-    void MaterialParameter::bind(Effect* effect)
+    void MaterialParameter::bind(const std::shared_ptr<Effect>& effect)
     {
         GP_ASSERT(effect);
 
@@ -490,38 +461,38 @@ namespace gameplay
         switch( _type )
         {
             case MaterialParameter::FLOAT:
-                effect->setValue(_uniform, _value.floatValue);
+                effect->setValue(_uniform, boost::get<float>(_value));
                 break;
             case MaterialParameter::FLOAT_ARRAY:
-                effect->setValue(_uniform, _value.floatPtrValue, _count);
+                effect->setValue(_uniform, boost::get<float*>(_value), _count);
                 break;
             case MaterialParameter::INT:
-                effect->setValue(_uniform, _value.intValue);
+                effect->setValue(_uniform, boost::get<int>(_value));
                 break;
             case MaterialParameter::INT_ARRAY:
-                effect->setValue(_uniform, _value.intPtrValue, _count);
+                effect->setValue(_uniform, boost::get<int*>(_value), _count);
                 break;
             case MaterialParameter::VECTOR2:
-                effect->setValue(_uniform, reinterpret_cast<Vector2*>(_value.floatPtrValue), _count);
+                effect->setValue(_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR3:
-                effect->setValue(_uniform, reinterpret_cast<Vector3*>(_value.floatPtrValue), _count);
+                effect->setValue(_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR4:
-                effect->setValue(_uniform, reinterpret_cast<Vector4*>(_value.floatPtrValue), _count);
+                effect->setValue(_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::MATRIX:
-                effect->setValue(_uniform, reinterpret_cast<Matrix*>(_value.floatPtrValue), _count);
+                effect->setValue(_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::SAMPLER:
-                effect->setValue(_uniform, _value.samplerValue);
+                effect->setValue(_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));
                 break;
             case MaterialParameter::SAMPLER_ARRAY:
-                effect->setValue(_uniform, _value.samplerArrayValue, _count);
+                effect->setValue(_uniform, boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value));
                 break;
             case MaterialParameter::METHOD:
-                if( _value.method )
-                    _value.method->setValue(effect);
+                if(boost::get<std::shared_ptr<MethodBinding>>(_value))
+                    boost::get<std::shared_ptr<MethodBinding>>(_value)->setValue(effect);
                 break;
             default:
             {

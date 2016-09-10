@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Ref.h"
 #include "Transform.h"
 #include "Frustum.h"
 #include "Rectangle.h"
@@ -15,7 +14,7 @@ namespace gameplay
     /**
      * Defines a camera which acts as a view of a scene to be rendered.
      */
-    class Camera : public Ref, public Transform::Listener
+    class Camera : public Transform::Listener
     {
         friend class Node;
 
@@ -260,11 +259,11 @@ namespace gameplay
          * @param position The world space position.
          * @param x The returned viewport x coordinate.
          * @param y The returned viewport y coordinate.
-         * @param depth The returned pixel depth (can be NULL).
+         * @param depth The returned pixel depth (can be nullptr).
          *
          * @script{ignore}
          */
-        void project(const Rectangle& viewport, const Vector3& position, float* x, float* y, float* depth = NULL) const;
+        void project(const Rectangle& viewport, const Vector3& position, float* x, float* y, float* depth = nullptr) const;
 
         /**
          * Projects the specified world position into the viewport coordinates.
@@ -339,10 +338,7 @@ namespace gameplay
          */
         virtual ~Camera();
 
-        /**
-         * Hidden copy assignment operator.
-         */
-        Camera& operator=(const Camera&);
+        Camera& operator=(const Camera&) = delete;
 
         /**
          * Sets the node associated with this camera.
@@ -352,7 +348,7 @@ namespace gameplay
         /**
          * @see Transform::Listener::transformChanged
          */
-        void transformChanged(Transform* transform, long cookie);
+        void transformChanged(Transform* transform, long cookie) override;
 
         void cameraChanged();
 
