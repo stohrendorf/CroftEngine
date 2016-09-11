@@ -73,7 +73,7 @@ namespace loader
                                                           const level::Level& level,
                                                           const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
-                                                          const std::vector<std::shared_ptr<gameplay::Mesh>>& staticMeshes,
+                                                          const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
                                                           render::TextureAnimator& animator)
     {
         RenderModel renderModel;
@@ -192,7 +192,7 @@ namespace loader
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = gameplay::Node::create();
-            subNode->setDrawable(std::make_shared<gameplay::Model>(staticMeshes[idx]));
+            subNode->setDrawable(staticMeshes[idx]);
             subNode->setRotation({0,1,0}, util::auToRad(sm.rotation));
             subNode->setTranslation((sm.position - position).toRenderSystem());
             node->addChild(subNode);

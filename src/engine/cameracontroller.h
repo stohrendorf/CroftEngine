@@ -17,7 +17,7 @@ namespace engine
         bool m_firstUpdate = true;
         uint32_t m_lastAnimationTime = 0;
         bool m_firstInput = true;
-        gsl::not_null<gameplay::Camera*> m_camera;
+        gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
         // For interactions
         level::Level* m_level;
@@ -50,7 +50,7 @@ namespace engine
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     public:
-        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<gameplay::Camera*>& camera);
+        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
 
         void animateNode(uint32_t timeMs);
 

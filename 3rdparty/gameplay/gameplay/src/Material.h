@@ -110,21 +110,6 @@ namespace gameplay
 
         Material(const Material& m) = delete;
 
-        /**
-         * Loads a technique from the given properties object into the specified material.
-         */
-        static bool loadTechnique(const std::shared_ptr<Material>& material, Properties* techniqueProperties, PassCallback callback, void* cookie);
-
-        /**
-         * Load a pass from the given properties object into the specified technique.
-         */
-        static bool loadPass(const std::shared_ptr<Technique>& technique, Properties* passProperties, PassCallback callback, void* cookie);
-
-        /**
-         * Loads render state from the specified properties object.
-         */
-        static void loadRenderState(const std::shared_ptr<RenderState>& renderState, Properties* properties);
-
         std::shared_ptr<Technique> _currentTechnique = nullptr;
         std::vector<std::shared_ptr<Technique>> _techniques;
     };

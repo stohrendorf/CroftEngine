@@ -61,7 +61,7 @@ namespace gameplay
          *
          * @return The new Camera.
          */
-        static Camera* createPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
+        static std::shared_ptr<Camera> createPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
         /**
          * Creates an orthographic camera.
@@ -74,20 +74,7 @@ namespace gameplay
          *
          * @return The new Camera.
          */
-        static Camera* createOrthographic(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane);
-
-        /**
-         * Creates a camera from a properties definition.
-         *
-         * The properties object must contain a "type" parameter, specifying either PERSPECTIVE or ORTHOGRAPHIC,
-         * as well as values for all required parameters in the Camera::createPerspective and Camera::createOrthographic
-         * methods.
-         *
-         * @param properties The properties definition of the Camera.
-         *
-         * @return The new Camera.
-         */
-        static Camera* create(Properties* properties);
+        static std::shared_ptr<Camera> createOrthographic(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane);
 
         /**
          * Gets the type of camera.

@@ -103,7 +103,7 @@ namespace gameplay
          *
          * @return The MeshSkin, or nullptr if one is not set.
          */
-        MeshSkin* getSkin() const;
+        const std::unique_ptr<MeshSkin>& getSkin() const;
 
         /**
          * @see Drawable::draw
@@ -122,7 +122,7 @@ namespace gameplay
         *
         * @param skin The MeshSkin for this model.
         */
-        void setSkin(MeshSkin* skin);
+        void setSkin(std::unique_ptr<MeshSkin>&& skin);
 
     private:
 
@@ -149,6 +149,6 @@ namespace gameplay
         std::shared_ptr<Material> _material;
         size_t _partCount;
         std::vector<std::shared_ptr<Material>> _partMaterials;
-        MeshSkin* _skin;
+        std::unique_ptr<MeshSkin> _skin;
     };
 }

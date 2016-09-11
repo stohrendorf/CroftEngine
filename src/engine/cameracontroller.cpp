@@ -11,7 +11,7 @@
 
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<gameplay::Camera*>& camera)
+    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
         : m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)

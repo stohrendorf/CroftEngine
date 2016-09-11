@@ -237,11 +237,11 @@ namespace loader
             return proxy;
         }
 
-        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture::Sampler>& texture, BlendingMode bmode)
+        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode)
         {
             auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.vert");
             // Set some defaults
-            result->getParameter("u_diffuseTexture")->setSampler(texture);
+            result->getParameter("u_diffuseTexture")->setSampler(std::make_shared<gameplay::Texture::Sampler>(texture));
             result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
             //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
             //result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;

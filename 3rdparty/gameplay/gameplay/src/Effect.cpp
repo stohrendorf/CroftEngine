@@ -114,11 +114,7 @@ namespace gameplay
         const char* globalDefines = graphicsConfig ? graphicsConfig->getString("shaderDefines") : nullptr;
 
         // Build full semicolon delimited list of defines
-#ifdef OPENGL_ES
-    out = OPENGL_ES_DEFINE;
-#else
-        out = "";
-#endif
+        out.clear();
         if( globalDefines && strlen(globalDefines) > 0 )
         {
             if( out.length() > 0 )

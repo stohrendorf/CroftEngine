@@ -412,18 +412,6 @@ namespace gameplay
      */
             void setStencilOperation(StencilOperation sfail, StencilOperation dpfail, StencilOperation dppass);
 
-            /**
-             * Sets a render state from the given name and value strings.
-             *
-             * This method attempts to interpret the passed in strings as render state
-             * name and value. This is normally used when loading render states from
-             * material files.
-             *
-             * @param name Name of the render state to set.
-             * @param value Value of the specified render state.
-             */
-            void setState(const char* name, const char* value);
-
         private:
 
             /**

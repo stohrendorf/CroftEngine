@@ -7,15 +7,18 @@
 
 #include <map>
 
+
 namespace core
 {
     class Angle;
 }
 
+
 namespace render
 {
     class TextureAnimator;
 }
+
 
 namespace loader
 {
@@ -63,6 +66,7 @@ namespace loader
             return mesh;
         }
 
+
         static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
         {
             std::unique_ptr<Mesh> mesh{new Mesh()};
@@ -88,8 +92,9 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Model> createMesh(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<gameplay::Material*>& colorMaterials, render::TextureAnimator& animator) const;
+        std::shared_ptr<gameplay::Model> createModel(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials, render::TextureAnimator& animator) const;
     };
+
 
     struct RoomStaticMesh
     {
@@ -125,6 +130,7 @@ namespace loader
             return room_static_mesh;
         }
 
+
         static RoomStaticMesh readTr2(io::SDLReader& reader)
         {
             RoomStaticMesh room_static_mesh;
@@ -144,6 +150,7 @@ namespace loader
             return room_static_mesh;
         }
 
+
         static RoomStaticMesh readTr3(io::SDLReader& reader)
         {
             RoomStaticMesh room_static_mesh;
@@ -161,6 +168,7 @@ namespace loader
             room_static_mesh.tint.a = 1.0f;
             return room_static_mesh;
         }
+
 
         static RoomStaticMesh readTr4(io::SDLReader& reader)
         {
@@ -181,6 +189,7 @@ namespace loader
         }
     };
 
+
     struct StaticMesh
     {
         uint32_t id; // Object Identifier (matched in Items[])
@@ -195,7 +204,9 @@ namespace loader
             return (flags & 1) != 0;
         }
 
+
         gameplay::BoundingBox getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
+
 
         static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
         {

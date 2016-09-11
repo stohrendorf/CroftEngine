@@ -279,7 +279,7 @@ namespace gameplay
         std::shared_ptr<Camera> _activeCamera;
         std::shared_ptr<Node> _firstNode;
         std::shared_ptr<Node> _lastNode;
-        unsigned int _nodeCount;
+        size_t _nodeCount;
         Vector3 _ambientColor;
         std::shared_ptr<Node> _nextItr;
         bool _nextReset;

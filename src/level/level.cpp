@@ -559,8 +559,8 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
     {
         Expects(model != nullptr);
 
-        auto skinnedMesh = gameplay::Node::create();
-        skinnedMeshes.emplace_back(skinnedMesh);
+        auto skinnedMeshNode = gameplay::Node::create();
+        skinnedMeshes.emplace_back(skinnedMeshNode);
 
         std::stack<std::shared_ptr<gameplay::Joint>> parentStack;
 
@@ -572,8 +572,8 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
             const auto staticModel = staticModels[meshIndex];
 
             std::shared_ptr<gameplay::Model> clone = staticModel->clone();
-            clone->setSkin(new gameplay::MeshSkin());
-            skinnedMesh->addChild(clone);
+            clone->setSkin(std::make_unique<gameplay::MeshSkin>());
+            skinnedMeshNode->setDrawable(clone);
 
             auto joint = std::make_shared<gameplay::Joint>("bone:" + boost::lexical_cast<std::string>(boneIndex));
             if( model->type == 0 )
@@ -680,45 +680,33 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
-    std::vector<gameplay::Material*> coloredMaterials;
+    std::vector<std::shared_ptr<gameplay::Material>> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
-        gameplay::Material* result = gameplay::Material::create();
-        // Set some defaults
-        result.setTexture(0, createSolidColorTex(i));
-        //result.BackfaceCulling = false;
-        result.ColorMaterial = irr::video::ECM_DIFFUSE;
-        result.Lighting = true;
-        result.AmbientColor.set(0);
-
-        coloredMaterials.emplace_back(result);
+        coloredMaterials.emplace_back(loader::TextureLayoutProxy::createMaterial(createSolidColorTex(i), loader::BlendingMode::Solid));
     }
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    std::vector<gameplay::Model*> staticMeshes;
+    std::vector<std::shared_ptr<gameplay::Model>> staticModels;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
-        staticMeshes.emplace_back(m_meshes[i].createMesh(device->getSceneManager(), i, m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
+        staticModels.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
     }
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(device->getSceneManager(), i, *this, materials, textures, staticMeshes, *m_textureAnimator);
+        m_rooms[i].createSceneNode(i, *this, materials, textures, staticModels, *m_textureAnimator);
     }
 
-    std::vector<gameplay::MeshSkin*> skinnedMeshes = createSkinnedMeshes(game, staticMeshes);
+    std::vector<gameplay::MeshSkin*> skinnedMeshes = createSkinnedMeshes(game, staticModels);
 
     m_lara = createItems(game, skinnedMeshes, textures);
     if( m_lara == nullptr )
         return;
 
-    gameplay::Camera* camera = device->getSceneManager()->addCameraSceneNode();
-    m_cameraController = new engine::CameraController(this, m_lara, camera);
-    // camera->addListener(m_cameraController);
-    camera->setNearPlane(10);
-    camera->setFarPlane(20480);
-    camera->setFieldOfView(MATH_DEG_TO_RAD(80.0f));
+    gameplay::Scene::getScene()->setActiveCamera(gameplay::Camera::createPerspective(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
+    m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
 
     for( const loader::SoundSource& src : m_soundSources )
     {
@@ -869,6 +857,7 @@ engine::ItemController* Level::getItemController(uint16_t id) const
 
 void Level::drawBars(gameplay::Game* game) const
 {
+#if 0
     if( m_lara->isInWater() )
     {
         const int x0 = game->getViewport().width - 110;
@@ -908,6 +897,7 @@ void Level::drawBars(gameplay::Game* game) const
         drv->draw2DLine({x0, 11}, {x0 + p, 11}, m_palette->color[6].toSColor());
         drv->draw2DLine({x0, 12}, {x0 + p, 12}, m_palette->color[24].toSColor());
     }
+#endif
 }
 
 

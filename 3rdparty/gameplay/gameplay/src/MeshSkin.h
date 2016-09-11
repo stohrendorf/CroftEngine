@@ -29,6 +29,7 @@ namespace gameplay
     public:
 
         MeshSkin();
+        ~MeshSkin();
 
         /**
          * Returns the number of joints in this MeshSkin.
@@ -105,12 +106,6 @@ namespace gameplay
     private:
 
         MeshSkin(const MeshSkin&) = delete;
-
-        /**
-         * Destructor.
-         */
-        ~MeshSkin();
-
         MeshSkin& operator=(const MeshSkin&) = delete;
 
         /**

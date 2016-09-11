@@ -32,10 +32,7 @@ namespace gameplay
     }
 
 
-    Model::~Model()
-    {
-        SAFE_DELETE(_skin);
-    }
+    Model::~Model() = default;
 
 
     const std::shared_ptr<Mesh>& Model::getMesh() const
@@ -181,21 +178,17 @@ namespace gameplay
     }
 
 
-    MeshSkin* Model::getSkin() const
+    const std::unique_ptr<MeshSkin>& Model::getSkin() const
     {
         return _skin;
     }
 
 
-    void Model::setSkin(MeshSkin* skin)
+    void Model::setSkin(std::unique_ptr<MeshSkin>&& skin)
     {
         if( _skin != skin )
         {
-            // Free the old skin
-            SAFE_DELETE(_skin);
-
-            // Assign the new skin
-            _skin = skin;
+            _skin = std::move(skin);
             if( _skin )
                 _skin->_model = std::static_pointer_cast<Model>( shared_from_this() );
         }
@@ -284,7 +277,7 @@ namespace gameplay
             {
                 for( size_t i = 0; i < indexCount; i += 3 )
                 {
-                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), ((const GLvoid*)(i*indexSize))) );
+                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>(i*indexSize))) );
                 }
             }
                 return true;
@@ -293,7 +286,7 @@ namespace gameplay
             {
                 for( size_t i = 2; i < indexCount; ++i )
                 {
-                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), ((const GLvoid*)((i-2)*indexSize))) );
+                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>((i-2)*indexSize))) );
                 }
             }
                 return true;
@@ -354,7 +347,7 @@ namespace gameplay
                         GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
                         if( !wireframe || !drawWireframe(part) )
                         {
-                            GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), 0) );
+                            GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );
                         }
                         pass->unbind();
                     }
