@@ -93,8 +93,9 @@ set(OT_IRR_SRCS
     loader/floordata.h
     loader/item.h
     loader/larastateid.h
-    loader/meshes.cpp
     loader/meshes.h
+    loader/mesh.cpp
+    loader/mesh.h
     loader/primitives.h
     loader/texture.h
     loader/util.h

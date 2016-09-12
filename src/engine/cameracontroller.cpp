@@ -215,7 +215,7 @@ namespace engine
         for( const loader::Portal& portal : startRoom->portals )
         {
             render::PortalTracer path;
-            if( !path.checkVisibility(&portal, *m_camera) )
+            if( !path.checkVisibility(&portal, *m_camera.get()) )
                 continue;
 
             m_level->m_rooms[portal.adjoining_room].node->setEnabled(true);
@@ -240,7 +240,7 @@ namespace engine
             for( const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals )
             {
                 render::PortalTracer newPath = currentPath;
-                if( !newPath.checkVisibility(&srcPortal, *m_camera) )
+                if( !newPath.checkVisibility(&srcPortal, *m_camera.get()) )
                     continue;
 
                 m_level->m_rooms[srcPortal.adjoining_room].node->setEnabled(true);

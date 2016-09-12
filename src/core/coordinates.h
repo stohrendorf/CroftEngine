@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gameplay.h"
+
 #include <gsl.h>
 
 #include <cmath>

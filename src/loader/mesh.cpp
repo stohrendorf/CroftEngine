@@ -1,12 +1,6 @@
-#include "meshes.h"
+#include "mesh.h"
 
 #include "render/textureanimator.h"
-#include "primitives.h"
-
-#include <gsl.h>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/range/adaptors.hpp>
 
 
 namespace loader

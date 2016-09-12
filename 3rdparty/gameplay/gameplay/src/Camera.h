@@ -19,6 +19,29 @@ namespace gameplay
         friend class Node;
 
     public:
+        /**
+         * Creates a perspective camera.
+         *
+         * @param fieldOfView The field of view in degrees for the perspective camera (normally in the range of 40-60 degrees).
+         * @param aspectRatio The aspect ratio of the camera (normally the width of the viewport divided by the height of the viewport).
+         * @param nearPlane The near plane distance.
+         * @param farPlane The far plane distance.
+         */
+        Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
+
+        /**
+         * Creates an orthographic camera.
+         *
+         * @param zoomX The zoom factor along the X-axis of the orthographic projection (the width of the ortho projection).
+         * @param zoomY The zoom factor along the Y-axis of the orthographic projection (the height of the ortho projection).
+         * @param aspectRatio The aspect ratio of the orthographic projection.
+         * @param nearPlane The near plane distance.
+         * @param farPlane The far plane distance.
+         */
+        Camera(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane);
+
+        virtual ~Camera();
+
 
         /**
          * The type of camera.
@@ -50,31 +73,6 @@ namespace gameplay
             virtual void cameraChanged(Camera* camera) = 0;
         };
 
-
-        /**
-         * Creates a perspective camera.
-         *
-         * @param fieldOfView The field of view in degrees for the perspective camera (normally in the range of 40-60 degrees).
-         * @param aspectRatio The aspect ratio of the camera (normally the width of the viewport divided by the height of the viewport).
-         * @param nearPlane The near plane distance.
-         * @param farPlane The far plane distance.
-         *
-         * @return The new Camera.
-         */
-        static std::shared_ptr<Camera> createPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
-
-        /**
-         * Creates an orthographic camera.
-         *
-         * @param zoomX The zoom factor along the X-axis of the orthographic projection (the width of the ortho projection).
-         * @param zoomY The zoom factor along the Y-axis of the orthographic projection (the height of the ortho projection).
-         * @param aspectRatio The aspect ratio of the orthographic projection.
-         * @param nearPlane The near plane distance.
-         * @param farPlane The far plane distance.
-         *
-         * @return The new Camera.
-         */
-        static std::shared_ptr<Camera> createOrthographic(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane);
 
         /**
          * Gets the type of camera.
@@ -310,21 +308,6 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
-
-        /**
-         * Constructor.
-         */
-        Camera(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane);
-
-        /**
-         * Destructor.
-         */
-        virtual ~Camera();
-
         Camera& operator=(const Camera&) = delete;
 
         /**
@@ -353,6 +336,6 @@ namespace gameplay
         mutable Frustum _bounds;
         mutable int _bits;
         Node* _node;
-        std::list<Camera::Listener*>* _listeners;
+        std::list<Camera::Listener*> _listeners;
     };
 }

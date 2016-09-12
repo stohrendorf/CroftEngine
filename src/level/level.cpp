@@ -705,7 +705,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     if( m_lara == nullptr )
         return;
 
-    gameplay::Scene::getScene()->setActiveCamera(gameplay::Camera::createPerspective(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
+    gameplay::Scene::getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
     m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
 
     for( const loader::SoundSource& src : m_soundSources )
@@ -728,7 +728,7 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             if( col > 0 )
                 dst.pixels[y][x].set(0xff, pal.color[col].r, pal.color[col].g, pal.color[col].b);
             else
-                dst.pixels[y][x].set(0);
+                dst.pixels[y][x].set(0, 0, 0, 0);
         }
     }
 }
@@ -752,7 +752,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
             }
             else
             {
-                dst.pixels[y][x].set(0);
+                dst.pixels[y][x].set(0, 0, 0, 0);
             }
         }
     }

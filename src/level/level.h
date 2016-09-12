@@ -7,6 +7,7 @@
 #include "loader/animation.h"
 #include "loader/datatypes.h"
 #include "loader/item.h"
+#include "loader/mesh.h"
 #include "audio/device.h"
 #include "audio/streamsource.h"
 

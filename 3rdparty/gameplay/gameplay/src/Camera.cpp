@@ -2,7 +2,6 @@
 #include "Camera.h"
 #include "Game.h"
 #include "Node.h"
-#include "Game.h"
 
 // Camera dirty bits
 #define CAMERA_DIRTY_VIEW 1
@@ -27,19 +26,20 @@ namespace gameplay
         , _farPlane(farPlane)
         , _bits(CAMERA_DIRTY_ALL)
         , _node(nullptr)
-        , _listeners(nullptr)
+        , _listeners()
     {
     }
 
 
     Camera::Camera(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane)
         : _type(ORTHOGRAPHIC)
+        , _fieldOfView(0)
         , _aspectRatio(aspectRatio)
         , _nearPlane(nearPlane)
         , _farPlane(farPlane)
         , _bits(CAMERA_DIRTY_ALL)
         , _node(nullptr)
-        , _listeners(nullptr)
+        , _listeners()
     {
         // Orthographic camera.
         _zoom[0] = zoomX;
@@ -47,22 +47,7 @@ namespace gameplay
     }
 
 
-    Camera::~Camera()
-    {
-        SAFE_DELETE(_listeners);
-    }
-
-
-    std::shared_ptr<Camera> Camera::createPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
-    {
-        return std::make_shared<Camera>(fieldOfView, aspectRatio, nearPlane, farPlane);
-    }
-
-
-    std::shared_ptr<Camera> Camera::createOrthographic(float zoomX, float zoomY, float aspectRatio, float nearPlane, float farPlane)
-    {
-        return std::make_shared<Camera>(zoomX, zoomY, aspectRatio, nearPlane, farPlane);
-    }
+    Camera::~Camera() = default;
 
 
     Camera::Type Camera::getCameraType() const
@@ -415,12 +400,11 @@ namespace gameplay
 
     void Camera::cameraChanged()
     {
-        if( _listeners == nullptr )
+        if( _listeners.empty() )
             return;
 
-        for( std::list<Camera::Listener*>::iterator itr = _listeners->begin(); itr != _listeners->end(); ++itr )
+        for( auto listener : _listeners )
         {
-            Camera::Listener* listener = (*itr);
             listener->cameraChanged(this);
         }
     }
@@ -428,29 +412,14 @@ namespace gameplay
 
     void Camera::addListener(Camera::Listener* listener)
     {
-        GP_ASSERT(listener);
-
-        if( _listeners == nullptr )
-            _listeners = new std::list<Camera::Listener*>();
-
-        _listeners->push_back(listener);
+        _listeners.push_back(listener);
     }
 
 
     void Camera::removeListener(Camera::Listener* listener)
     {
-        GP_ASSERT(listener);
-
-        if( _listeners )
-        {
-            for( std::list<Camera::Listener*>::iterator itr = _listeners->begin(); itr != _listeners->end(); ++itr )
-            {
-                if( (*itr) == listener )
-                {
-                    _listeners->erase(itr);
-                    break;
-                }
-            }
-        }
+        auto it = std::find(_listeners.begin(), _listeners.end(), listener);
+        if(it != _listeners.end())
+            _listeners.erase(it);
     }
 }
