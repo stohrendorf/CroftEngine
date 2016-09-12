@@ -30,7 +30,7 @@ namespace loader
 
         gameplay::Vector4 toSColor() const
         {
-            return gameplay::Vector4(a, r, g, b);
+            return gameplay::Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
         }
 
     private:

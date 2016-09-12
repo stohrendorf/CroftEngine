@@ -12,7 +12,6 @@ namespace gameplay
 
     Texture::Texture()
         : _handle(0)
-        , _format(UNKNOWN)
         , _type(static_cast<Texture::Type>(0))
         , _width(0)
         , _height(0)
@@ -52,20 +51,11 @@ namespace gameplay
     {
         GP_ASSERT( image );
 
-        switch( image->getFormat() )
-        {
-            case Image::RGB:
-                return create(Texture::RGB, image->getWidth(), image->getHeight(), image->getData(), generateMipmaps);
-            case Image::RGBA:
-                return create(Texture::RGBA, image->getWidth(), image->getHeight(), image->getData(), generateMipmaps);
-            default:
-                GP_ERROR("Unsupported image format (%d).", image->getFormat());
-                return nullptr;
-        }
+        return create(image->getWidth(), image->getHeight(), image->getData(), generateMipmaps);
     }
 
 
-    std::shared_ptr<Texture> Texture::create(Format format, unsigned int width, unsigned int height, const unsigned char* data, bool generateMipmaps, Texture::Type type)
+    std::shared_ptr<Texture> Texture::create(unsigned int width, unsigned int height, const std::vector<Vector4>& data, bool generateMipmaps, Texture::Type type)
     {
         GP_ASSERT( type == Texture::TEXTURE_2D || type == Texture::TEXTURE_CUBE );
 
@@ -76,47 +66,22 @@ namespace gameplay
         GL_ASSERT( glGenTextures(1, &textureId) );
         GL_ASSERT( glBindTexture(target, textureId) );
         GL_ASSERT( glPixelStorei(GL_UNPACK_ALIGNMENT, 1) );
-#ifndef OPENGL_ES
-        // glGenerateMipmap is new in OpenGL 3.0. For OpenGL 2.0 we must fallback to use glTexParameteri
-        // with GL_GENERATE_MIPMAP prior to actual texture creation (glTexImage2D)
         if( generateMipmaps && !std::addressof(glGenerateMipmap) )
         GL_ASSERT( glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE) );
-#endif
 
         // Load the texture
         if( type == Texture::TEXTURE_2D )
         {
             // Texture 2D
-            GL_ASSERT( glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLenum>(format), width, height, 0, static_cast<GLenum>(format), GL_UNSIGNED_BYTE, data) );
+            GL_ASSERT( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data()) );
         }
         else
         {
-            // Get texture size
-            unsigned int textureSize = width * height;
-            switch( format )
-            {
-                case Texture::RGB:
-                    textureSize *= 3;
-                    break;
-                case Texture::RGBA:
-                    textureSize *= 4;
-                    break;
-                case Texture::ALPHA:
-                    break;
-                case Texture::UNKNOWN:
-                    if( data )
-                    {
-                        glDeleteTextures(1, &textureId);
-                        GP_ERROR("Failed to determine texture size because format is UNKNOWN.");
-                        return nullptr;
-                    }
-                    break;
-            }
             // Texture Cube
             for( unsigned int i = 0; i < 6; i++ )
             {
-                const unsigned char* texturePtr = (data == nullptr) ? nullptr : &data[i * textureSize];
-                GL_ASSERT( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, static_cast<GLenum>(format), width, height, 0, static_cast<GLenum>(format), GL_UNSIGNED_BYTE, texturePtr) );
+                const Vector4* texturePtr = data.empty() ? nullptr : &data[i];
+                GL_ASSERT( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, texturePtr) );
             }
         }
 
@@ -126,7 +91,6 @@ namespace gameplay
 
         auto texture = std::make_shared<Texture>();
         texture->_handle = textureId;
-        texture->_format = format;
         texture->_type = type;
         texture->_width = width;
         texture->_height = height;
@@ -143,7 +107,7 @@ namespace gameplay
     }
 
 
-    Texture* Texture::create(TextureHandle handle, int width, int height, Format format)
+    Texture* Texture::create(TextureHandle handle, int width, int height)
     {
         GP_ASSERT( handle );
 
@@ -166,7 +130,6 @@ namespace gameplay
             GL_ASSERT( glBindTexture(static_cast<GLenum>(__currentTextureType), __currentTextureId) );
         }
         texture->_handle = handle;
-        texture->_format = format;
         texture->_width = width;
         texture->_height = height;
 
@@ -174,7 +137,7 @@ namespace gameplay
     }
 
 
-    void Texture::setData(const unsigned char* data)
+    void Texture::setData(const Vector4* data)
     {
         // Don't work with any compressed or cached textures
         GP_ASSERT( data );
@@ -185,27 +148,14 @@ namespace gameplay
 
         if( _type == Texture::TEXTURE_2D )
         {
-            GL_ASSERT( glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, static_cast<GLenum>(_format), GL_UNSIGNED_BYTE, data) );
+            GL_ASSERT( glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, GL_RGBA, GL_FLOAT, data) );
         }
         else
         {
-            // Get texture size
-            unsigned int textureSize = _width * _height;
-            switch( _format )
-            {
-                case Texture::RGB:
-                    textureSize *= 3;
-                    break;
-                case Texture::RGBA:
-                    textureSize *= 4;
-                    break;
-                case Texture::ALPHA:
-                    break;
-            }
             // Texture Cube
             for( unsigned int i = 0; i < 6; i++ )
             {
-                GL_ASSERT( glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 0, 0, _width, _height, static_cast<GLenum>(_format), GL_UNSIGNED_BYTE, &data[i * textureSize]) );
+                GL_ASSERT( glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 0, 0, _width, _height, GL_RGBA, GL_FLOAT, &data[i]) );
             }
         }
 
@@ -234,12 +184,6 @@ namespace gameplay
             default:
                 return -1; // no or invalid mask
         }
-    }
-
-
-    Texture::Format Texture::getFormat() const
-    {
-        return _format;
     }
 
 
@@ -274,8 +218,8 @@ namespace gameplay
             GLenum target = static_cast<GLenum>(_type);
             GL_ASSERT( glBindTexture(target, _handle) );
             GL_ASSERT( glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST) );
-            if( std::addressof(glGenerateMipmap) )
-            GL_ASSERT( glGenerateMipmap(target) );
+            if( std::addressof(glGenerateMipmap) != nullptr )
+                GL_ASSERT( glGenerateMipmap(target) );
 
             _mipmapped = true;
 
@@ -377,13 +321,11 @@ namespace gameplay
             GL_ASSERT( glTexParameteri(target, GL_TEXTURE_WRAP_T, static_cast<GLenum>(_wrapT)) );
         }
 
-#if defined(GL_TEXTURE_WRAP_R) // OpenGL ES 3.x and up, OpenGL 1.2 and up
         if( _texture->_wrapR != _wrapR )
         {
             _texture->_wrapR = _wrapR;
             if( target == GL_TEXTURE_CUBE_MAP ) // We don't want to run this on something that we know will fail
             GL_ASSERT( glTexParameteri(target, GL_TEXTURE_WRAP_R, static_cast<GLenum>(_wrapR)) );
         }
-#endif
     }
 }

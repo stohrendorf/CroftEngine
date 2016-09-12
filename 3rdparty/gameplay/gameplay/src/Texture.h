@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vector4.h"
+
 namespace gameplay
 {
     class Image;
@@ -15,18 +17,6 @@ namespace gameplay
     public:
         explicit Texture();
         virtual ~Texture();
-
-        /**
-         * Defines the set of supported texture formats.
-         */
-        enum Format
-        {
-            UNKNOWN = 0,
-            RGB = GL_RGB,
-            RGBA = GL_RGBA,
-            ALPHA = GL_ALPHA
-        };
-
 
         /**
          * Defines the set of supported texture filters.
@@ -164,7 +154,6 @@ namespace gameplay
          *
          * The data in the texture is expected to be tightly packed (no padding at the end of rows).
          *
-         * @param format Format of the texture data.
          * @param width Width of the texture data. If type is TEX_CUBE, then this is the cube face width.
          * @param height Height of the texture data. If type is TEX_CUBE, then this is the cube face height.
          * @param data Raw texture data (expected to be tightly packed). If the type parameter is set
@@ -176,7 +165,7 @@ namespace gameplay
          * @return The new texture.
          * @script{create}
          */
-        static std::shared_ptr<Texture> create(Format format, unsigned int width, unsigned int height, const unsigned char* data, bool generateMipmaps = false, Type type = TEXTURE_2D);
+        static std::shared_ptr<Texture> create(unsigned width, unsigned height, const std::vector<Vector4>& data, bool generateMipmaps = false, Type type = TEXTURE_2D);
 
         /**
          * Creates a texture object to wrap the specified pre-created native texture handle.
@@ -189,14 +178,11 @@ namespace gameplay
          * @param handle Native texture handle.
          * @param width The width of the texture represented by 'handle'.
          * @param height The height of the texture represented by 'handle'.
-         * @param format Optionally, the format of the texture represented by 'handle'.
-         *      If the format cannot be represented by any of the Texture::Format values,
-         *      use a value of UNKNOWN.
          *
          * @return The new texture.
          * @script{create}
          */
-        static Texture* create(TextureHandle handle, int width, int height, Format format = UNKNOWN);
+        static Texture* create(TextureHandle handle, int width, int height);
 
         /**
          * Set texture data to replace current texture image.
@@ -205,14 +191,7 @@ namespace gameplay
          *   to TEXTURE_CUBE, then data is expected to be each face stored back contiguously within the
          *   array.
          */
-        void setData(const unsigned char* data);
-
-        /**
-         * Gets the format of the texture.
-         *
-         * @return The texture format.
-         */
-        Format getFormat() const;
+        void setData(const Vector4* data);
 
         /**
          * Gets the texture type.
@@ -268,7 +247,6 @@ namespace gameplay
         static int getMaskByteIndex(unsigned int mask);
 
         TextureHandle _handle;
-        Format _format;
         Type _type;
         unsigned int _width;
         unsigned int _height;

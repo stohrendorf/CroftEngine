@@ -685,7 +685,7 @@ std::shared_ptr<gameplay::Texture> Level::createSolidColorTex(uint8_t color) con
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
 
-    auto img = gameplay::Image::create(2, 2, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
+    auto img = gameplay::Image::create(2, 2, &pixels[0][0]);
     auto tex = gameplay::Texture::create(img, false);
     return tex;
 }
@@ -752,7 +752,7 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x].set(0xff, pal.color[col].r, pal.color[col].g, pal.color[col].b);
+                dst.pixels[y][x].set(pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1);
             else
                 dst.pixels[y][x].set(0, 0, 0, 0);
         }
@@ -770,11 +770,10 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 
             if( col & 0x8000 )
             {
-                const uint32_t a = 0xff;
                 const uint32_t r = ((col & 0x00007c00) >> 7);
                 const uint32_t g = ((col & 0x000003e0) >> 2);
                 const uint32_t b = ((col & 0x0000001f) << 3);
-                dst.pixels[y][x].set(a, r, g, b);
+                dst.pixels[y][x].set(r / 255.0f, g / 255.0f, b / 255.0f, 1);
             }
             else
             {

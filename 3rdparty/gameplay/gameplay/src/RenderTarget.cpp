@@ -28,7 +28,7 @@ namespace gameplay
     std::shared_ptr<RenderTarget> RenderTarget::create(const char* id, unsigned int width, unsigned int height)
     {
         // Create a new texture with the given width.
-        auto texture = Texture::create(Texture::RGBA, width, height, nullptr, false);
+        auto texture = Texture::create(width, height, {}, false);
         if( texture == nullptr )
         {
             GP_ERROR("Failed to create texture for render target.");

@@ -2,6 +2,9 @@
 
 namespace gameplay
 {
+    class Vector4;
+
+
     /**
      * Defines an image buffer of RGB or RGBA color data.
      *
@@ -13,27 +16,17 @@ namespace gameplay
         explicit Image();
         ~Image();
 
-        /**
-         * Defines the set of supported color formats.
-         */
-        enum Format
-        {
-            RGB,
-            RGBA
-        };
-
 
         /**
          * Creates an image from the data provided
          *
          * @param width The width of the image data.
          * @param height The height of the image data.
-         * @param format The format of the image data.
          * @param data The image data. If NULL, the data will be allocated.
          * @return The newly created image.
          * @script{create}
          */
-        static std::shared_ptr<Image> create(unsigned width, unsigned height, Format format, const unsigned char* data = nullptr);
+        static std::shared_ptr<Image> create(unsigned width, unsigned height, const Vector4* data = nullptr);
 
         /**
          * Gets the image's raw pixel data.
@@ -41,14 +34,7 @@ namespace gameplay
          * @return The image's pixel data.
          * @script{ignore}
          */
-        inline unsigned char* getData() const;
-
-        /**
-         * Gets the image's format.
-         *
-         * @return The image's format.
-         */
-        inline Format getFormat() const;
+        inline const std::vector<Vector4>& getData() const;
 
         /**
          * Gets the height of the image.
@@ -68,22 +54,15 @@ namespace gameplay
 
         Image& operator=(const Image&) = delete;
 
-        unsigned char* _data;
-        Format _format;
+        std::vector<Vector4> _data;
         unsigned int _width;
         unsigned int _height;
     };
 
 
-    inline unsigned char* Image::getData() const
+    inline const std::vector<Vector4>& Image::getData() const
     {
         return _data;
-    }
-
-
-    inline Image::Format Image::getFormat() const
-    {
-        return _format;
     }
 
 

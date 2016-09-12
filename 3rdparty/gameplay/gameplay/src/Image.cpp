@@ -1,50 +1,31 @@
 #include "Base.h"
 #include "Image.h"
+#include "Vector4.h"
 
 
 namespace gameplay
 {
-    std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, Image::Format format, const unsigned char* data)
+    std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, const Vector4* data)
     {
         GP_ASSERT(width > 0 && height > 0);
-        GP_ASSERT(format >= RGB && format <= RGBA);
-
-        unsigned int pixelSize = 0;
-        switch( format )
-        {
-            case Image::RGB:
-                pixelSize = 3;
-                break;
-            case Image::RGBA:
-                pixelSize = 4;
-                break;
-        }
 
         auto image = std::make_shared<Image>();
 
-        unsigned int dataSize = width * height * pixelSize;
-
         image->_width = width;
         image->_height = height;
-        image->_format = format;
-        image->_data = new unsigned char[dataSize];
-        if( data )
-            memcpy(image->_data, data, dataSize);
+        image->_data.assign(data, data + width * height);
 
         return image;
     }
 
 
-    Image::Image() : _data(nullptr)
-                   , _format(RGB)
-                   , _width(0)
-                   , _height(0)
+    Image::Image()
+        : _data()
+        , _width(0)
+        , _height(0)
     {
     }
 
 
-    Image::~Image()
-    {
-        SAFE_DELETE_ARRAY(_data);
-    }
+    Image::~Image() = default;
 }

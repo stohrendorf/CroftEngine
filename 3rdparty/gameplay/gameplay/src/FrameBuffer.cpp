@@ -1,5 +1,6 @@
 #include "Base.h"
 #include "FrameBuffer.h"
+#include "Vector4.h"
 
 #define FRAMEBUFFER_ID_DEFAULT "org.gameplay3d.framebuffer.default"
 
@@ -43,18 +44,14 @@ namespace gameplay
         // On many platforms this will simply be the zero (0) handle, but this is not always the case.
         GLint fbo;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-        _defaultFrameBuffer = std::make_shared<FrameBuffer>(FRAMEBUFFER_ID_DEFAULT, (FrameBufferHandle)fbo);
+        _defaultFrameBuffer = std::make_shared<FrameBuffer>(FRAMEBUFFER_ID_DEFAULT, static_cast<FrameBufferHandle>(fbo));
         _currentFrameBuffer = _defaultFrameBuffer;
 
         // Query the max supported color attachments. This glGet operation is not supported
         // on GL ES 2.x, so if the define does not exist, assume a value of 1.
-#ifdef GL_MAX_COLOR_ATTACHMENTS
         GLint val;
         GL_ASSERT( glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &val) );
         _maxRenderTargets = (unsigned int)std::max(1, val);
-#else
-        _maxRenderTargets = 1;
-#endif
     }
 
 
@@ -288,15 +285,14 @@ namespace gameplay
 
         if( image->getWidth() == width && image->getHeight() == height )
         {
-            GLenum format = image->getFormat() == Image::RGB ? GL_RGB : GL_RGBA;
-            GL_ASSERT( glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, image->getData()) );
+            GL_ASSERT( glReadPixels(0, 0, width, height, GL_RGBA32F, GL_FLOAT, const_cast<float*>(&image->getData()[0].x)) );
         }
     }
 
 
-    std::shared_ptr<Image> FrameBuffer::createScreenshot(Image::Format format)
+    std::shared_ptr<Image> FrameBuffer::createScreenshot()
     {
-        auto screenshot = Image::create(_currentFrameBuffer->getWidth(), _currentFrameBuffer->getHeight(), format, nullptr);
+        auto screenshot = Image::create(_currentFrameBuffer->getWidth(), _currentFrameBuffer->getHeight(), nullptr);
         getScreenshot(screenshot);
 
         return screenshot;

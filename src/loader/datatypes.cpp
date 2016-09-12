@@ -103,16 +103,21 @@ namespace loader
                 iv.color = vertices[quad.vertices[i]].color;
                 iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                 iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                renderModel.m_parts[partId].indices.emplace_back(vbuf.size());
                 vbuf.push_back(iv);
             }
 
             animator.registerVertex(quad.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
             animator.registerVertex(quad.proxyId, { mesh, partId }, 1, firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
             animator.registerVertex(quad.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
             animator.registerVertex(quad.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
             animator.registerVertex(quad.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
             animator.registerVertex(quad.proxyId, { mesh, partId }, 3, firstVertex + 3);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 3);
         }
         for( const Triangle& tri : triangles )
         {
@@ -226,7 +231,7 @@ namespace loader
 
     std::shared_ptr<gameplay::Texture> DWordTexture::toTexture() const
     {
-        auto img = gameplay::Image::create(256, 256, gameplay::Image::Format::RGBA, reinterpret_cast<const uint8_t*>(&pixels[0][0]));
+        auto img = gameplay::Image::create(256, 256, &pixels[0][0]);
         auto tex = gameplay::Texture::create(img, false);
         return tex;
     }

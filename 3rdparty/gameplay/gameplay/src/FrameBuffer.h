@@ -169,7 +169,7 @@ public:
      * @param format The format the Image should be in.
      * @return A screenshot of the current framebuffer's content.
      */
-    static std::shared_ptr<Image> createScreenshot(Image::Format format = Image::RGBA);
+    static std::shared_ptr<Image> createScreenshot();
 
     /**
      * Records a screenshot of what is stored on the current FrameBuffer to an Image.
