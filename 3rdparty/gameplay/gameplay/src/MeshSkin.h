@@ -103,26 +103,26 @@ namespace gameplay
          */
         void transformChanged(Transform* transform, long cookie) override;
 
+        /**
+        * Sets the number of joints that can be stored in this skin.
+        * This method allocates the necessary memory.
+        *
+        * @param jointCount The new size of the joint vector.
+        */
+        void setJointCount(size_t jointCount);
+
+        /**
+        * Sets the joint at the given index and increments the ref count.
+        *
+        * @param joint The joint to be set.
+        * @param index The index in the joints vector.
+        */
+        void setJoint(const std::shared_ptr<Joint>& joint, size_t index);
+
     private:
 
         MeshSkin(const MeshSkin&) = delete;
         MeshSkin& operator=(const MeshSkin&) = delete;
-
-        /**
-         * Sets the number of joints that can be stored in this skin.
-         * This method allocates the necessary memory.
-         *
-         * @param jointCount The new size of the joint vector.
-         */
-        void setJointCount(size_t jointCount);
-
-        /**
-         * Sets the joint at the given index and increments the ref count.
-         *
-         * @param joint The joint to be set.
-         * @param index The index in the joints vector.
-         */
-        void setJoint(const std::shared_ptr<Joint>& joint, size_t index);
 
         /**
          * Sets the root node of this mesh skin.

@@ -23,6 +23,7 @@ namespace gameplay
     public:
 
         explicit Joint(const std::string& id);
+        virtual ~Joint();
 
         /**
          * @see Node::getType()
@@ -35,11 +36,6 @@ namespace gameplay
         Scene* getScene() const override;
 
     protected:
-
-        /**
-         * Destructor.
-         */
-        virtual ~Joint();
 
         /**
          * Updates the joint matrix.

@@ -50,6 +50,18 @@ namespace gameplay
     }
 
 
+    void Mesh::rebuild(const float* vertexData, size_t vertexCount)
+    {
+        GL_ASSERT(glDeleteBuffers(1, &_vertexBuffer));
+
+        GL_ASSERT(glGenBuffers(1, &_vertexBuffer));
+        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
+        GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
+
+        _vertexCount = vertexCount;
+    }
+
+
     std::shared_ptr<Mesh> Mesh::createQuad(float x, float y, float width, float height, float s1, float t1, float s2, float t2)
     {
         float x2 = x + width;

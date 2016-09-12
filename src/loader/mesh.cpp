@@ -282,7 +282,7 @@ namespace loader
     {
         Expects(m_vbuf.size() * sizeof(float) == m_vertexCount * m_mesh->getVertexSize())
 
-        m_mesh->setVertexData(m_vbuf.data(), 0, m_vertexCount);
+        m_mesh->rebuild(m_vbuf.data(), m_vertexCount);
 
         for( const MeshPart& localPart : m_parts )
         {

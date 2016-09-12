@@ -145,9 +145,9 @@ namespace loader
             animator.registerVertex(tri.proxyId, { mesh, partId }, 2, firstVertex + 2);
         }
 
-        mesh->setVertexData(reinterpret_cast<float*>(vbuf.data()), 0, vbuf.size());
+        mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
         auto resModel = renderModel.toModel(mesh);
-        node = gameplay::Node::create();
+        node = std::make_shared<gameplay::Node>("");
         node->setDrawable(resModel);
 
         for( Light& light : lights )
@@ -191,7 +191,7 @@ namespace loader
             auto idx = level.findStaticMeshIndexById(sm.meshId);
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
-            auto subNode = gameplay::Node::create();
+            auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
             subNode->setRotation({0,1,0}, util::auToRad(sm.rotation));
             subNode->setTranslation((sm.position - position).toRenderSystem());
@@ -211,7 +211,7 @@ namespace loader
             auto spriteNode = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
-            auto n = gameplay::Node::create("");
+            auto n = std::make_shared<gameplay::Node>("");
             n->setDrawable(spriteNode);
             n->setTranslation((vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem());
 

@@ -213,16 +213,6 @@ namespace gameplay
          */
         SpriteBatch* getSpriteBatch(unsigned int size) const;
 
-        /**
-         * Gets the Justify value from the given string.
-         * Returns ALIGN_TOP_LEFT if the string is unrecognized.
-         *
-         * @param justify The string such as "ALIGN_HCENTER" or "ALIGN_VCENTER_RIGHT".
-         *
-         * @return The Justify value.
-         */
-        static Justify getJustify(const char* justify);
-
     private:
 
         /**

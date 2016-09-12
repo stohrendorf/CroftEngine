@@ -3,9 +3,6 @@
 #include "FileSystem.h"
 #include "Game.h"
 
-#define OPENGL_ES_DEFINE  "OPENGL_ES"
-
-
 namespace gameplay
 {
     // Cache of unique effects.

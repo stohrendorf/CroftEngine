@@ -44,12 +44,6 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Node> Node::create(const char* id)
-    {
-        return std::make_shared<Node>(id);
-    }
-
-
     const std::string& Node::getId() const
     {
         return _id;
@@ -614,7 +608,7 @@ namespace gameplay
             auto camera = scene->getActiveCamera();
             if( camera )
             {
-                Node* cameraNode = camera->getNode();
+                auto cameraNode = camera->getNode();
                 if( cameraNode )
                 {
                     return cameraNode->getTranslationWorld();
@@ -633,7 +627,7 @@ namespace gameplay
             auto camera = scene->getActiveCamera();
             if( camera )
             {
-                Node* cameraNode = camera->getNode();
+                auto cameraNode = camera->getNode();
                 if( cameraNode )
                 {
                     return cameraNode->getTranslationView();
@@ -709,7 +703,7 @@ namespace gameplay
 
         if( _camera )
         {
-            _camera->setNode(this);
+            _camera->setNode(std::static_pointer_cast<Node>(shared_from_this()));
         }
     }
 

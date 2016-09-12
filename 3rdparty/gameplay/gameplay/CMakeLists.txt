@@ -76,6 +76,8 @@ set(GAMEPLAY_SRC
     src/Plane.h
     src/Platform.h
     src/Platform.cpp
+    src/Properties.h
+    src/Properties.cpp
     src/Quaternion.cpp
     src/Quaternion.h
     src/Ray.cpp
@@ -148,6 +150,8 @@ set(GAMEPLAY_RES_SHADERS
     res/ui/default.theme
 )
 
+find_package(OpenGL REQUIRED)
+
 add_library(gameplay STATIC
     ${GAMEPLAY_SRC}
 )
@@ -163,7 +167,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
     target_compile_definitions(gameplay PUBLIC -D_DEBUG -DNOMINMAX)
 endif()
 
-target_link_libraries(gameplay PUBLIC GLEW GLFW Boost)
+target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL)
 
 set_target_properties(gameplay PROPERTIES
     OUTPUT_NAME "gameplay"

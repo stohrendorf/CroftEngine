@@ -26,7 +26,7 @@ namespace
         // animation
         drawText(font, 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 100, 60, loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 80, boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame()));
+        drawText(font, 10, 80, boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame().count()));
         drawText(font, 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
 
         // triggers
@@ -37,12 +37,12 @@ namespace
                 if(!item->m_isActive)
                     continue;
 
-                drawText(font, 10, y, item->getName().c_str());
+                drawText(font, 10, y, item->getName());
                 if(item->m_flags2_02_toggledOn)
                     drawText(font, 180, y, "toggled");
                 if(item->m_flags2_04_ready)
                     drawText(font, 220, y, "ready");
-                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_triggerTimeout));
+                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_triggerTimeout.count()));
                 y += 20;
             }
         }
@@ -65,8 +65,9 @@ namespace
 
 int main()
 {
-    gameplay::Game* game = gameplay::Game::getInstance();
+    gameplay::Game* game = new gameplay::Game();
     std::unique_ptr<gameplay::Platform> platform{gameplay::Platform::create(game)};
+    game->run();
 #if 0
     irr::SIrrlichtCreationParameters driverParams;
     driverParams.AntiAlias = 255;
@@ -120,31 +121,19 @@ int main()
 
     // device->setWindowCaption("EdisonEngine");
 
-    auto lastTime = game->getAbsoluteTime();
-
     if(lvlInfo.track > 0)
         lvl->playCdTrack(lvlInfo.track);
 
-    while(!game->loop())
+    platform->boot();
+    auto lastTime = game->getAbsoluteTime();
+    while(platform->loop())
     {
         lvl->m_audioDev.update();
-
-        //if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
-        //    lvl->playStream(lvl->m_activeCDTrack);
-
-        if(!device->isWindowActive())
-        {
-            lastTime = game->getAbsoluteTime();
-            device->yield();
-            continue;
-        }
-
         lvl->m_inputHandler->update();
 
         auto deltaTime = game->getAbsoluteTime() - lastTime;
         if(deltaTime <= std::chrono::microseconds::zero())
         {
-            device->yield();
             continue;
         }
 
@@ -167,14 +156,16 @@ int main()
 
         lvl->drawBars(game);
 
-        drawDebugInfo(game, lvl.get());
+        //drawDebugInfo(game, lvl.get());
 
         // update information about current frame-rate
-        std::string str = "FPS: ";
-        str += boost::lexical_cast<std::string>(driver->getFPS());
-        str += " Tris: ";
-        str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
-        device->setWindowCaption(str.c_str());
+        //std::string str = "FPS: ";
+        //str += boost::lexical_cast<std::string>(driver->getFPS());
+        //str += " Tris: ";
+        //str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
+        //device->setWindowCaption(str.c_str());
+
+        platform->frame();
     }
 
     //device->drop();

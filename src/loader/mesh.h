@@ -133,9 +133,7 @@ namespace loader
                 {
                     m_texBuffers[tk] = m_parts.size();
                     m_parts.emplace_back();
-                    auto it = m_materials.find(tk);
-                    Expects(it != m_materials.end());
-                    m_parts.back().material = it->second;
+                    m_parts.back().material = m_colorMaterials[tk.colorId];
                 }
 
                 return m_texBuffers[tk];

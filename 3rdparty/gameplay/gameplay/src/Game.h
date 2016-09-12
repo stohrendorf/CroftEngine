@@ -417,6 +417,8 @@ namespace gameplay
         // Note: Do not add STL object member variables on the stack; this will cause false memory leaks to be reported.
 
         friend class ScreenDisplayer;
+
+        bool drawScene(const std::shared_ptr<Node>& node);
     };
 
     inline Game::State Game::getState() const

@@ -49,19 +49,6 @@ using std::max;
 using std::modf;
 using std::atoi;
 
-namespace gameplay
-{
-    /**
-     * Print logging (implemented per platform).
-     * @script{ignore}
-     */
-    extern void print(const char* format, ...);
-
-    // Define a platform-independent case-insensitive ASCII string comparison function.
-    extern int strcmpnocase(const char* s1, const char* s2);
-}
-
-
 // Current function macro.
 #ifdef WIN32
 #define __current__func__ __FUNCTION__

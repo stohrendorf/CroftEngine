@@ -239,7 +239,7 @@ namespace loader
 
         static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode)
         {
-            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.vert");
+            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag");
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setSampler(std::make_shared<gameplay::Texture::Sampler>(texture));
             result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));

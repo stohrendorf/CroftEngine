@@ -4,6 +4,7 @@
 #include "RenderState.h"
 #include "FileSystem.h"
 #include "FrameBuffer.h"
+#include "Scene.h"
 
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
@@ -78,9 +79,19 @@ namespace gameplay
     }
 
 
+    bool Game::drawScene(const std::shared_ptr<Node>& node)
+    {
+        auto dr = node->getDrawable();
+        if(dr != nullptr)
+            dr->draw();
+
+        return true;
+    }
+
     void Game::render(const std::chrono::microseconds& /*elapsedTime*/)
     {
-        // stub
+        clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1, 0);
+        Scene::getScene()->visit(this, &Game::drawScene);
     }
 
 

@@ -408,7 +408,7 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
             name += "(type";
             name += std::to_string(item.type);
             name += "/animatedModel)";
-            auto node = gameplay::Node::create(name.c_str());
+            auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(model);
             node->setTranslation(item.position.toRenderSystem());
 
@@ -516,7 +516,7 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
             name += std::to_string(item.type);
             name += "/spriteSequence)";
 
-            auto node = gameplay::Node::create(name.c_str());
+            auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(sprite);
             node->setTranslation(item.position.toRenderSystem());
 
@@ -635,6 +635,10 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
         auto renderModel = builder.finalize();
         renderModel->setSkin(std::make_unique<gameplay::MeshSkin>());
         renderModel->getSkin()->setRootJoint(joints[0]);
+        renderModel->getSkin()->setJointCount(joints.size());
+        for(size_t i=0; i<joints.size(); ++i)
+            renderModel->getSkin()->setJoint(joints[i], i);
+
         renderModels.emplace_back(renderModel);
 
         const auto currentAnimIt = animStarts.find(model->animationIndex);
@@ -692,7 +696,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     //device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
-    m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
+    m_inputHandler = std::make_unique<engine::InputHandler>(gameplay::Platform::getWindow());
     //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
@@ -711,9 +715,11 @@ void Level::toIrrlicht(gameplay::Game* game)
         staticModels.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
     }
 
-    for( size_t i = 0; i < m_rooms.size(); ++i )
+    auto scene = gameplay::Scene::create();
+    for(size_t i = 0; i < m_rooms.size(); ++i)
     {
         m_rooms[i].createSceneNode(i, *this, materials, textures, staticModels, *m_textureAnimator);
+        scene->addNode(m_rooms[i].node);
     }
 
     auto skinnedModels = createSkinnedModels(game, materials, coloredMaterials);
@@ -722,7 +728,10 @@ void Level::toIrrlicht(gameplay::Game* game)
     if( m_lara == nullptr )
         return;
 
-    gameplay::Scene::getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
+    scene->setActiveCamera(std::make_shared<gameplay::Camera>(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
+    auto camNode = std::make_shared<gameplay::Node>("cameraNode");
+    camNode->setCamera(scene->getActiveCamera());
+    scene->addNode(camNode);
     m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
 
     for( const loader::SoundSource& src : m_soundSources )

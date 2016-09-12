@@ -118,7 +118,7 @@ namespace gameplay
             auto activeCamera = _node->getScene()->getActiveCamera();
             if( activeCamera )
             {
-                Node* cameraNode = _node->getScene()->getActiveCamera()->getNode();
+                auto cameraNode = _node->getScene()->getActiveCamera()->getNode();
                 if( cameraNode )
                 {
                     // Scene projection

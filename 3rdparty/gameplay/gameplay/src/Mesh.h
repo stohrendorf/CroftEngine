@@ -61,6 +61,8 @@ namespace gameplay
          */
         static std::shared_ptr<Mesh> createMesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic = false);
 
+        void rebuild(const float* vertexData, size_t vertexCount);
+
         /**
          * Creates a new textured 3D quad.
          *

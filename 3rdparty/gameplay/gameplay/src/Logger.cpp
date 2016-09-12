@@ -67,7 +67,7 @@ namespace gameplay
         else
         {
             // Log to the default output
-            gameplay::print("%s", str);
+            std::cout << str;
         }
     }
 

@@ -46,7 +46,7 @@ namespace gameplay
     Scene* Scene::getScene(const char* id)
     {
         if( id == nullptr )
-            return __sceneList.size() ? __sceneList[0] : nullptr;
+            return !__sceneList.empty() ? __sceneList[0] : nullptr;
 
         for( size_t i = 0, count = __sceneList.size(); i < count; ++i )
         {
@@ -150,9 +150,9 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Node> Scene::addNode(const char* id)
+    std::shared_ptr<Node> Scene::addNode(const std::string& id)
     {
-        auto node = Node::create(id);
+        auto node = std::make_shared<Node>(id);
         GP_ASSERT(node);
         addNode(node);
 

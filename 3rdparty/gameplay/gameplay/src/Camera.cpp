@@ -152,13 +152,13 @@ namespace gameplay
     }
 
 
-    Node* Camera::getNode() const
+    const std::shared_ptr<Node>& Camera::getNode() const
     {
         return _node;
     }
 
 
-    void Camera::setNode(Node* node)
+    void Camera::setNode(const std::shared_ptr<Node>& node)
     {
         if( _node != node )
         {

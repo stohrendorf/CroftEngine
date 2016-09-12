@@ -43,15 +43,6 @@ namespace gameplay
             JOINT
         };
 
-
-        /**
-         * Creates a new node with the specified ID.
-         *
-         * @param id The ID for the new node.
-         * @script{create}
-         */
-        static std::shared_ptr<Node> create(const char* id = nullptr);
-
         /**
          * Gets the identifier for the node.
          *

@@ -173,7 +173,7 @@ namespace gameplay
          *
          * @return The node that this camera is attached to.
          */
-        Node* getNode() const;
+        const std::shared_ptr<Node>& getNode() const;
 
         /**
          * Gets the camera's view matrix.
@@ -313,7 +313,7 @@ namespace gameplay
         /**
          * Sets the node associated with this camera.
          */
-        void setNode(Node* node);
+        void setNode(const std::shared_ptr<Node>& node);
 
         /**
          * @see Transform::Listener::transformChanged
@@ -335,7 +335,7 @@ namespace gameplay
         mutable Matrix _inverseViewProjection;
         mutable Frustum _bounds;
         mutable int _bits;
-        Node* _node;
+        std::shared_ptr<Node> _node;
         std::list<Camera::Listener*> _listeners;
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileSystem.h"
+#include <GLFW/glfw3.h>
 
 
 namespace gameplay
@@ -47,12 +48,17 @@ namespace gameplay
          *
          * @return The platform message pump return code.
          */
-        int enterMessagePump();
+        void enterMessagePump();
 
         /**
          * Swaps the frame buffer on the device.
          */
         static void swapBuffers();
+
+        static GLFWwindow* getWindow();
+        void boot();
+        bool loop();
+        void frame();
 
     private:
 
