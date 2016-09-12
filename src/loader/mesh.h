@@ -86,6 +86,93 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Model> createModel(const std::vector<TextureLayoutProxy>& textureProxies, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials, render::TextureAnimator& animator) const;
+        class ModelBuilder
+        {
+            struct RenderVertex;
+            struct RenderVertexWithNormal;
+
+            const bool m_hasNormals;
+            std::vector<float> m_vbuf;
+            const std::vector<TextureLayoutProxy>& m_textureProxies;
+            const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& m_materials;
+            const std::vector<std::shared_ptr<gameplay::Material>>& m_colorMaterials;
+            render::TextureAnimator& m_animator;
+            std::map<TextureLayoutProxy::TextureKey, size_t> m_texBuffers;
+            size_t m_vertexCount = 0;
+            std::shared_ptr<gameplay::Mesh> m_mesh;
+
+
+            struct MeshPart
+            {
+                using IndexBuffer = std::vector<uint16_t>;
+
+                IndexBuffer indices;
+                std::shared_ptr<gameplay::Material> material;
+            };
+
+
+            std::vector<MeshPart> m_parts;
+
+            void append(const RenderVertex& v);
+            void append(const RenderVertexWithNormal& v);
+
+
+            size_t getPartForColor(uint16_t proxyId)
+            {
+                const TextureLayoutProxy& proxy = m_textureProxies.at(proxyId);
+
+                TextureLayoutProxy::TextureKey tk;
+                tk.blendingMode = BlendingMode::Solid;
+                tk.flags = 0;
+                tk.tileAndFlag = 0;
+                tk.colorId = proxyId & 0xff;
+
+                if( m_texBuffers.find(tk) == m_texBuffers.end() )
+                {
+                    m_texBuffers[tk] = m_parts.size();
+                    m_parts.emplace_back();
+                    auto it = m_materials.find(tk);
+                    Expects(it != m_materials.end());
+                    m_parts.back().material = it->second;
+                }
+
+                return m_texBuffers[tk];
+            }
+
+
+            size_t getPartForTexture(const TextureLayoutProxy& proxy)
+            {
+                if( m_texBuffers.find(proxy.textureKey) == m_texBuffers.end() )
+                {
+                    m_texBuffers[proxy.textureKey] = m_parts.size();
+                    m_parts.emplace_back();
+                    auto it = m_materials.find(proxy.textureKey);
+                    Expects(it != m_materials.end());
+                    m_parts.back().material = it->second;
+                }
+                return m_texBuffers[proxy.textureKey];
+            }
+
+
+        public:
+            explicit ModelBuilder(bool withNormals,
+                                  bool dynamic,
+                                  const std::vector<TextureLayoutProxy>& textureProxies,
+                                  const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                  const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
+                                  render::TextureAnimator& animator);
+            ~ModelBuilder();
+
+
+            void append(const Mesh& mesh);
+
+            std::shared_ptr<gameplay::Model> finalize();
+        };
+
+
+        std::shared_ptr<gameplay::Model> createModel(const std::vector<TextureLayoutProxy>& textureProxies,
+                                                     const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                     const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
+                                                     render::TextureAnimator& animator) const;
     };
 }
