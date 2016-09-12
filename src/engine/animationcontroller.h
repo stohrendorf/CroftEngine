@@ -50,10 +50,10 @@ namespace engine
         const loader::AnimatedModel& m_model;
         uint16_t m_currentAnimationId;
         uint16_t m_targetState = 0;
-        gameplay::MeshSkin* const m_node;
+        const std::shared_ptr<gameplay::Model> m_gpModel;
 
     public:
-        MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, const std::string& name);
+        MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<std::shared_ptr<gameplay::Model>> gpModel, const std::string& name);
 
 
         void setTargetState(uint16_t state) noexcept
@@ -126,17 +126,17 @@ namespace engine
 
         void resetPose()
         {
-            for( size_t i = 0; i < m_node->getJointCount(); ++i )
+            for( size_t i = 0; i < m_gpModel->getSkin()->getJointCount(); ++i )
             {
-                m_node->getJoint(i)->resetRotationPatch();
+                m_gpModel->getSkin()->getJoint(i)->resetRotationPatch();
             }
         }
 
 
         void rotateBone(uint32_t id, const core::TRRotation& dr)
         {
-            Expects(id < m_node->getJointCount());
-            auto bone = m_node->getJoint(id);
+            Expects(id < m_gpModel->getSkin()->getJointCount());
+            auto bone = m_gpModel->getSkin()->getJoint(id);
             bone->setRotationPatch(util::xyzToYpr(dr.toRad()));
         }
 

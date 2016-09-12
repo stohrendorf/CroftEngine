@@ -92,6 +92,7 @@ namespace loader
             struct RenderVertexWithNormal;
 
             const bool m_hasNormals;
+            const bool m_withWeights;
             std::vector<float> m_vbuf;
             const std::vector<TextureLayoutProxy>& m_textureProxies;
             const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& m_materials;
@@ -101,6 +102,7 @@ namespace loader
             size_t m_vertexCount = 0;
             std::shared_ptr<gameplay::Mesh> m_mesh;
 
+            static gameplay::VertexFormat getFormat(bool withNormals, bool withWeights);
 
             struct MeshPart
             {
@@ -157,6 +159,7 @@ namespace loader
         public:
             explicit ModelBuilder(bool withNormals,
                                   bool dynamic,
+                                  bool withWeights,
                                   const std::vector<TextureLayoutProxy>& textureProxies,
                                   const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                   const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
@@ -164,7 +167,7 @@ namespace loader
             ~ModelBuilder();
 
 
-            void append(const Mesh& mesh);
+            void append(const Mesh& mesh, float blendWeight = 0, int blendIndex = 0);
 
             std::shared_ptr<gameplay::Model> finalize();
         };

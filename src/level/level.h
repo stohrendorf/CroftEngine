@@ -106,8 +106,10 @@ namespace level
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
-        engine::LaraController* createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
-        std::vector<gameplay::MeshSkin*> createSkinnedMeshes(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes);
+        engine::LaraController* createItems(const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
+        std::vector<std::shared_ptr<gameplay::Model>> createSkinnedModels(gameplay::Game* game,
+                                                                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                                          const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials);
         std::shared_ptr<gameplay::Texture> createSolidColorTex(uint8_t color) const;
 
         void toIrrlicht(gameplay::Game* game);

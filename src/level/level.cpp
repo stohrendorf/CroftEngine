@@ -386,7 +386,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
 }
 
 
-engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<gameplay::MeshSkin*>& skinnedMeshes, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
+engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -397,11 +397,11 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
         BOOST_ASSERT(item.room < m_rooms.size());
         loader::Room& room = m_rooms[item.room];
 
-        if( const auto meshIdx = findAnimatedModelIndexForType(item.type) )
+        if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
         {
             //BOOST_ASSERT(!findSpriteSequenceForType(item.type));
-            BOOST_ASSERT(*meshIdx < skinnedMeshes.size());
-            gameplay::MeshSkin* mesh = skinnedMeshes[*meshIdx];
+            BOOST_ASSERT(*modelIdx < skinnedModels.size());
+            auto model = skinnedModels[*modelIdx];
 
             std::string name = "item";
             name += std::to_string(id);
@@ -409,10 +409,10 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             name += std::to_string(item.type);
             name += "/animatedModel)";
             auto node = gameplay::Node::create(name.c_str());
-            node->setDrawable(mesh->getModel());
+            node->setDrawable(model);
             node->setTranslation(item.position.toRenderSystem());
 
-            if(item.type == 0)
+            if( item.type == 0 )
             {
                 // Lara doesn't have a scene graph owner
             }
@@ -421,13 +421,12 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
                 room.node->addChild(node);
             }
 
-
             //node->setAutomaticCulling(false);
             //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             //node->setAnimationSpeed(30);
             //node->setLoopMode(false);
-            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*meshIdx], mesh, name + ":animator");
+            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*modelIdx], model, name + ":animator");
 
             if( item.type == 0 )
             {
@@ -535,7 +534,9 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 }
 
 
-std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& staticModels)
+std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gameplay::Game* game,
+                                                                         const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                                         const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
 
@@ -553,29 +554,35 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
     }
     animStarts.insert(gsl::narrow<uint16_t>(m_animations.size()));
 
-    std::vector<gameplay::Node*> skinnedMeshes;
+    std::vector<std::shared_ptr<gameplay::Model>> renderModels;
 
     for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         Expects(model != nullptr);
 
-        auto skinnedMeshNode = gameplay::Node::create();
-        skinnedMeshes.emplace_back(skinnedMeshNode);
-
         std::stack<std::shared_ptr<gameplay::Joint>> parentStack;
+
+        Expects(model->meshCount > 0);
+
+        loader::Mesh::ModelBuilder builder{
+            !m_meshes[m_meshIndices[model->firstMesh]].normals.empty(),
+            true,
+            true,
+            m_textureProxies,
+            materials,
+            colorMaterials,
+            *m_textureAnimator
+        };
+
+        std::vector<std::shared_ptr<gameplay::Joint>> joints;
 
         for( size_t boneIndex = 0; boneIndex < model->meshCount; ++boneIndex )
         {
             BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
-            const auto meshIndex = m_meshIndices[model->firstMesh + boneIndex];
-            BOOST_ASSERT(meshIndex < staticModels.size());
-            const auto staticModel = staticModels[meshIndex];
-
-            std::shared_ptr<gameplay::Model> clone = staticModel->clone();
-            clone->setSkin(std::make_unique<gameplay::MeshSkin>());
-            skinnedMeshNode->setDrawable(clone);
+            builder.append(m_meshes[m_meshIndices[model->firstMesh + boneIndex]], 1, boneIndex);
 
             auto joint = std::make_shared<gameplay::Joint>("bone:" + boost::lexical_cast<std::string>(boneIndex));
+            joints.emplace_back(joint);
             if( model->type == 0 )
             {
                 if( boneIndex == 7 )
@@ -584,16 +591,13 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
                     joint->setId("hips");
             }
 
-            joint->setDrawable(staticModel);
-
             if( boneIndex == 0 )
             {
                 parentStack.push(joint);
-                clone->getSkin()->setRootJoint(joint);
                 continue;
             }
 
-            auto pred = clone->getSkin()->getJoint(boneIndex - 1);
+            auto pred = joints[boneIndex - 1];
 
             std::shared_ptr<gameplay::Joint> parent = nullptr;
             BOOST_ASSERT(model->boneTreeIndex + 4 * boneIndex <= m_boneTrees.size());
@@ -628,6 +632,11 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
             }
         }
 
+        auto renderModel = builder.finalize();
+        renderModel->setSkin(std::make_unique<gameplay::MeshSkin>());
+        renderModel->getSkin()->setRootJoint(joints[0]);
+        renderModels.emplace_back(renderModel);
+
         const auto currentAnimIt = animStarts.find(model->animationIndex);
 
         if( currentAnimIt == animStarts.end() )
@@ -648,11 +657,19 @@ std::vector<gameplay::MeshSkin*> Level::createSkinnedMeshes(gameplay::Game* game
             const int16_t* pData = &m_poseData[animation.poseDataOffset / 2];
             const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex];
 
-            model->animationClips.emplace(std::make_pair( currentAnimIdx, std::make_unique<gameplay::AnimationClip>(skin, game->getAnimationController(), start, end, step, pData, animation.poseDataSize, boneTreeData) ));
+            auto clip = std::make_unique<gameplay::AnimationClip>(renderModel->getSkin().get(),
+                                                                  game->getAnimationController(),
+                                                                  core::toTime(start),
+                                                                  core::toTime(end),
+                                                                  core::toTime(step),
+                                                                  pData,
+                                                                  animation.poseDataSize,
+                                                                  boneTreeData);
+            model->animationClips.emplace(std::make_pair(currentAnimIdx, std::move(clip)));
         }
     }
 
-    return skinnedMeshes;
+    return renderModels;
 }
 
 
@@ -699,9 +716,9 @@ void Level::toIrrlicht(gameplay::Game* game)
         m_rooms[i].createSceneNode(i, *this, materials, textures, staticModels, *m_textureAnimator);
     }
 
-    std::vector<gameplay::MeshSkin*> skinnedMeshes = createSkinnedMeshes(game, staticModels);
+    auto skinnedModels = createSkinnedModels(game, materials, coloredMaterials);
 
-    m_lara = createItems(game, skinnedMeshes, textures);
+    m_lara = createItems(skinnedModels, textures);
     if( m_lara == nullptr )
         return;
 

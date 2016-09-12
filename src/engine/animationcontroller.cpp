@@ -6,11 +6,11 @@
 
 namespace engine
 {
-    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<gameplay::MeshSkin*> node, const std::string& name)
+    MeshAnimationController::MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<std::shared_ptr<gameplay::Model>> gpModel, const std::string& name)
         : AnimationController(level, name)
         , m_model(model)
         , m_currentAnimationId(model.animationIndex)
-        , m_node(node)
+        , m_gpModel(gpModel)
     {
         auto it = model.animationClips.find(m_currentAnimationId);
         if( it == model.animationClips.end() )
