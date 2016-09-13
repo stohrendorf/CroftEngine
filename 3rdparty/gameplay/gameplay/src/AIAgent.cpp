@@ -74,12 +74,14 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void AIAgent::update(const std::chrono::microseconds& elapsedTime)
     {
         _stateMachine->update(elapsedTime);
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     bool AIAgent::processMessage(const std::shared_ptr<AIMessage>& message)
     {
         // Handle built-in message types.

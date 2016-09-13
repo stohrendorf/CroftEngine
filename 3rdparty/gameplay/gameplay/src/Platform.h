@@ -122,7 +122,7 @@ namespace gameplay
         /**
          * Sleeps synchronously for the given amount of time (in milliseconds).
          *
-         * @param ms How long to sleep (in milliseconds).
+         * @param time How long to sleep (in milliseconds).
          */
         static void sleep(const std::chrono::microseconds& time);
 

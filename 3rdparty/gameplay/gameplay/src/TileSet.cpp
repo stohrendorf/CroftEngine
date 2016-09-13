@@ -29,6 +29,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void TileSet::setTileSource(unsigned int column, unsigned int row, const Vector2& source)
     {
         GP_ASSERT(column < _columnCount);
@@ -38,6 +39,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void TileSet::getTileSource(unsigned int column, unsigned int row, Vector2* source)
     {
         GP_ASSERT(column < _columnCount);

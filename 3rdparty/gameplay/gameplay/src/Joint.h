@@ -40,7 +40,6 @@ namespace gameplay
         /**
          * Updates the joint matrix.
          *
-         * @param bindShape The bind shape matrix.
          * @param matrixPalette The matrix palette to update.
          */
         void updateJointMatrix(Vector4* matrixPalette);

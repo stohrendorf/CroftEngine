@@ -17,11 +17,7 @@ namespace gameplay
     Node::Node(const std::string& id)
         : _scene(nullptr)
         , _id(id)
-        , _firstChild(nullptr)
-        , _nextSibling(nullptr)
-        , _prevSibling(nullptr)
         , _parent()
-        , _childCount(0)
         , _enabled(true)
         , _tags(nullptr)
         , _drawable(nullptr)
@@ -81,25 +77,9 @@ namespace gameplay
         {
             child->_scene->removeNode(child);
         }
-        // Add child to the end of the list.
-        // NOTE: This is different than the original behavior which inserted nodes
-        // into the beginning of the list. Although slightly slower to add to the
-        // end of the list, it makes scene traversal and drawing order more
-        // predictable, so I've changed it.
-        if( _firstChild )
-        {
-            auto n = _firstChild;
-            while( n->_nextSibling )
-                n = n->_nextSibling;
-            n->_nextSibling = child;
-            child->_prevSibling = n;
-        }
-        else
-        {
-            _firstChild = child;
-        }
-        child->_parent = std::static_pointer_cast<Node>( shared_from_this() );
-        ++_childCount;
+
+        _children.push_back(child);
+        child->_parent = std::static_pointer_cast<Node>(shared_from_this());
         setBoundsDirty();
 
         if( _dirtyBits & NODE_DIRTY_HIERARCHY )
@@ -124,9 +104,9 @@ namespace gameplay
     void Node::removeAllChildren()
     {
         _dirtyBits &= ~NODE_DIRTY_HIERARCHY;
-        while( _firstChild )
+        while( !_children.empty() )
         {
-            removeChild(_firstChild);
+            removeChild(_children.back());
         }
         _dirtyBits |= NODE_DIRTY_HIERARCHY;
         hierarchyChanged();
@@ -135,27 +115,13 @@ namespace gameplay
 
     void Node::remove()
     {
-        // Re-link our neighbours.
-        if( _prevSibling )
-        {
-            _prevSibling->_nextSibling = _nextSibling;
-        }
-        if( _nextSibling )
-        {
-            _nextSibling->_prevSibling = _prevSibling;
-        }
         // Update our parent.
         auto parent = _parent;
         if( !parent.expired() )
         {
-            if( this == parent.lock()->_firstChild.get() )
-            {
-                parent.lock()->_firstChild = _nextSibling;
-            }
-            --parent.lock()->_childCount;
+            auto p = parent.lock();
+            p->_children.erase(std::find(p->_children.begin(), p->_children.end(), shared_from_this()));
         }
-        _nextSibling = nullptr;
-        _prevSibling = nullptr;
         _parent.reset();
 
         if( !parent.expired() && parent.lock()->_dirtyBits & NODE_DIRTY_HIERARCHY )
@@ -165,33 +131,15 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<Node>& Node::getFirstChild() const
-    {
-        return _firstChild;
-    }
-
-
-    const std::shared_ptr<Node>& Node::getNextSibling() const
-    {
-        return _nextSibling;
-    }
-
-
-    const std::shared_ptr<Node>& Node::getPreviousSibling() const
-    {
-        return _prevSibling;
-    }
-
-
     const std::weak_ptr<Node>& Node::getParent() const
     {
         return _parent;
     }
 
 
-    unsigned int Node::getChildCount() const
+    size_t Node::getChildCount() const
     {
-        return _childCount;
+        return _children.size();
     }
 
 
@@ -211,7 +159,7 @@ namespace gameplay
         GP_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
-        std::shared_ptr<Node> rootNode = nullptr;
+        std::shared_ptr<Node> rootNode;
         auto model = std::dynamic_pointer_cast<Model>(_drawable);
         if( model )
         {
@@ -228,7 +176,7 @@ namespace gameplay
             }
         }
         // Search immediate children first.
-        for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( const auto& child : _children )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -239,7 +187,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+            for( const auto& child : _children )
             {
                 auto match = child->findNode(id, true, exactMatch);
                 if( match )
@@ -252,13 +200,13 @@ namespace gameplay
     }
 
 
-    unsigned int Node::findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive, bool exactMatch) const
+    unsigned int Node::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         unsigned int count = 0;
-        std::shared_ptr<Node> rootNode = nullptr;
+        std::shared_ptr<Node> rootNode;
         auto model = std::dynamic_pointer_cast<Model>(_drawable);
         if( model )
         {
@@ -273,7 +221,7 @@ namespace gameplay
             }
         }
         // Search immediate children first.
-        for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( const auto& child : _children )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -285,7 +233,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+            for( const auto& child : _children )
             {
                 count += child->findNodes(id, nodes, true, exactMatch);
             }
@@ -390,11 +338,11 @@ namespace gameplay
 
     void Node::update(float elapsedTime)
     {
-        for( auto node = _firstChild; node != nullptr; node = node->_nextSibling )
+        for( const auto& child : _children )
         {
-            if( node->isEnabled() )
+            if( child->isEnabled() )
             {
-                node->update(elapsedTime);
+                child->update(elapsedTime);
             }
         }
     }
@@ -430,7 +378,7 @@ namespace gameplay
 
                 // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
                 // to force their resolved world matrices to be updated.
-                for( auto child = getFirstChild(); child != nullptr; child = child->getNextSibling() )
+                for( const auto& child : _children )
                 {
                     child->getWorldMatrix();
                 }
@@ -652,26 +600,27 @@ namespace gameplay
         _dirtyBits |= NODE_DIRTY_WORLD | NODE_DIRTY_BOUNDS;
 
         // Notify our children that their transform has also changed (since transforms are inherited).
-        for( auto n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
+        for( const auto& child : _children )
         {
             if( Transform::isTransformChangedSuspended() )
             {
                 // If the DIRTY_NOTIFY bit is not set
-                if( !n->isDirty(Transform::DIRTY_NOTIFY) )
+                if( !child->isDirty(Transform::DIRTY_NOTIFY) )
                 {
-                    n->transformChanged();
-                    suspendTransformChange(n);
+                    child->transformChanged();
+                    suspendTransformChange(child);
                 }
             }
             else
             {
-                n->transformChanged();
+                child->transformChanged();
             }
         }
         Transform::transformChanged();
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Node::setBoundsDirty()
     {
         // Mark ourself and our parent nodes as dirty
@@ -845,9 +794,9 @@ namespace gameplay
             }
 
             // Merge this world-space bounding sphere with our childrens' bounding volumes.
-            for(auto n = getFirstChild(); n != nullptr; n = n->getNextSibling() )
+            for( const auto& child : _children )
             {
-                const BoundingSphere& childSphere = n->getBoundingSphere();
+                const BoundingSphere& childSphere = child->getBoundingSphere();
                 if( !childSphere.isEmpty() )
                 {
                     if( empty )

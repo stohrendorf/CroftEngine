@@ -81,6 +81,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Pass::unbind()
     {
         // If we have a vertex attribute binding, unbind it

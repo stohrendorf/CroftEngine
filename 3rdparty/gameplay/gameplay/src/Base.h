@@ -136,7 +136,7 @@ using std::atoi;
 #define M_1_PI                      0.31830988618379067154
 #endif
 
-#define WINDOW_VSYNC        1
+#define WINDOW_VSYNC        true
 
 #define WIN32_LEAN_AND_MEAN
 #define GLEW_STATIC

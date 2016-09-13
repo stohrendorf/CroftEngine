@@ -420,7 +420,7 @@ void Matrix::add(float scalar)
     add(scalar, this);
 }
 
-void Matrix::add(float scalar, Matrix* dst)
+void Matrix::add(float scalar, Matrix* dst) const
 {
     GP_ASSERT(dst);
 

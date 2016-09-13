@@ -80,6 +80,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Sprite::setFrameSource(unsigned int frameIndex, const Rectangle& source)
     {
         GP_ASSERT(frameIndex < _frameCount);

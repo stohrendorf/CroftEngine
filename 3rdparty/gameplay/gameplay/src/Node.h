@@ -31,6 +31,8 @@ namespace gameplay
         friend class Scene;
 
     public:
+        using List = std::vector<std::shared_ptr<Node>>;
+
         explicit Node(const std::string& id);
         virtual ~Node();
 
@@ -67,40 +69,19 @@ namespace gameplay
          *
          * @param child The child to add.
          */
-        virtual void addChild(const std::shared_ptr<Node>& child);
+        void addChild(const std::shared_ptr<Node>& child);
 
         /**
          * Removes a child node.
          *
          * @param child The child to remove.
          */
-        virtual void removeChild(const std::shared_ptr<Node>& child);
+        void removeChild(const std::shared_ptr<Node>& child);
 
         /**
          * Removes all child nodes.
          */
-        virtual void removeAllChildren();
-
-        /**
-         * Returns the first child for this node.
-         *
-         * @return The first child.
-         */
-        const std::shared_ptr<Node>& getFirstChild() const;
-
-        /**
-         * Returns the first sibling of this node.
-         *
-         * @return The first sibling.
-         */
-        const std::shared_ptr<Node>& getNextSibling() const;
-
-        /**
-         * Returns the previous sibling to this node.
-         *
-         * @return The previous sibling.
-         */
-        const std::shared_ptr<Node>& getPreviousSibling() const;
+        void removeAllChildren();
 
         /**
          * Returns the parent of this node.
@@ -114,7 +95,7 @@ namespace gameplay
          *
          * @return The number of children.
          */
-        unsigned int getChildCount() const;
+        size_t getChildCount() const;
 
         /**
          * Gets the top level node in this node's parent hierarchy.
@@ -149,7 +130,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive = true, bool exactMatch = true) const;
+        unsigned int findNodes(const char* id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Gets the scene this node is currenlty within.
@@ -485,6 +466,11 @@ namespace gameplay
             dirty(DIRTY_ROTATION);
         }
 
+        const List& getChildren() const
+        {
+            return _children;
+        }
+
     protected:
 
         /**
@@ -525,16 +511,12 @@ namespace gameplay
         Scene* _scene;
         /** The nodes id. */
         std::string _id;
-        /** The nodes first child. */
-        std::shared_ptr<Node> _firstChild;
-        /** The nodes next sibiling. */
-        std::shared_ptr<Node> _nextSibling;
-        /** The nodes previous sibiling. */
-        std::shared_ptr<Node> _prevSibling;
+
+        List _children;
+
         /** The nodes parent. */
         std::weak_ptr<Node> _parent;
-        /** The number of child nodes. */
-        unsigned int _childCount;
+
         /** If this node is enabled. Maybe different if parent is enabled/disabled. */
         bool _enabled;
         /** Tags assigned to this node. */

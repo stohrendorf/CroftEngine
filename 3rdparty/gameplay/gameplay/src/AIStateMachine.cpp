@@ -101,6 +101,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void AIStateMachine::sendChangeStateMessage(const std::shared_ptr<AIState>& newState)
     {
         auto message = AIMessage::create(0, _agent->getId(), _agent->getId(), 1);

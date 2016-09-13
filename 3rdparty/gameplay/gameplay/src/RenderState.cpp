@@ -83,18 +83,20 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<MaterialParameter>& RenderState::getParameterByIndex(size_t index)
+    const std::shared_ptr<MaterialParameter>& RenderState::getParameterByIndex(size_t index) const
     {
         return _parameters[index];
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::addParameter(const std::shared_ptr<MaterialParameter>& param)
     {
         _parameters.push_back(param);
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::removeParameter(const char* name)
     {
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
@@ -434,6 +436,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::StateBlock::bindNoRestore()
     {
         GP_ASSERT(_defaultState);

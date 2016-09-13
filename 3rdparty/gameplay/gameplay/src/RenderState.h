@@ -475,7 +475,7 @@ namespace gameplay
          *
          * @return A MaterialParameter for the specified index.
          */
-        const std::shared_ptr<MaterialParameter>& getParameterByIndex(size_t index);
+        const std::shared_ptr<MaterialParameter>& getParameterByIndex(size_t index) const;
 
         /**
          * Adds a MaterialParameter to the render state.

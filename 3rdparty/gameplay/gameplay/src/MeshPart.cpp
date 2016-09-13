@@ -102,6 +102,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void MeshPart::setIndexData(const void* indexData, unsigned int indexStart, unsigned int indexCount)
     {
         GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer) );

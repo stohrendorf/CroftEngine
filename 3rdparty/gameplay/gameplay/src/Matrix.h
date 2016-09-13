@@ -347,7 +347,7 @@ public:
      * @param scalar The scalar value to add.
      * @param dst A matrix to store the result in.
      */
-    void add(float scalar, Matrix* dst);
+    void add(float scalar, Matrix* dst) const;
 
     /**
      * Adds the specified matrix to this matrix.

@@ -400,6 +400,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Game::schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie)
     {
         GP_ASSERT(_timeEvents);
@@ -415,6 +416,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Game::fireTimeEvents(const std::chrono::microseconds& frameTime)
     {
         while( _timeEvents->size() > 0 )

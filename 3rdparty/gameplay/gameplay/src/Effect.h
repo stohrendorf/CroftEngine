@@ -204,7 +204,6 @@ namespace gameplay
          *
          * @param uniform The uniform to set.
          * @param values The sampler array to set.
-         * @param count The number of elements in the array.
          *
          * @script{ignore}
          */

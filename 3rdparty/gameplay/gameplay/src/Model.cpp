@@ -358,6 +358,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Model::setMaterialNodeBinding(const std::shared_ptr<Material>& material)
     {
         GP_ASSERT(material);

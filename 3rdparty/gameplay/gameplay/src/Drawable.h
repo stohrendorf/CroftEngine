@@ -1,61 +1,57 @@
-#ifndef DRAWABLE_H_
-#define DRAWABLE_H_
+#pragma once
 
 namespace gameplay
 {
+    class Node;
 
-class Node;
-
-/**
- * Defines a drawable object that can be attached to a Node.
- */
-class Drawable : public std::enable_shared_from_this<Drawable>
-{
-    friend class Node;
-
-public:
 
     /**
-     * Constructor.
+     * Defines a drawable object that can be attached to a Node.
      */
-    Drawable();
+    class Drawable : public std::enable_shared_from_this<Drawable>
+    {
+        friend class Node;
 
-    /**
-     * Destructor.
-     */
-    virtual ~Drawable();
+    public:
 
-    /**
-     * Draws the object.
-     *
-     * @param wireframe true if you want to request to draw the wireframe only.
-     * @return The number of graphics draw calls required to draw the object.
-     */
+        /**
+         * Constructor.
+         */
+        Drawable();
 
-    virtual size_t draw(bool wireframe = false) = 0;
+        /**
+         * Destructor.
+         */
+        virtual ~Drawable();
 
-    /**
-     * Gets the node this drawable is attached to.
-     *
-     * @return The node this drawable is attached to.
-     */
-    Node* getNode() const;
+        /**
+         * Draws the object.
+         *
+         * @param wireframe true if you want to request to draw the wireframe only.
+         * @return The number of graphics draw calls required to draw the object.
+         */
 
-protected:
+        virtual size_t draw(bool wireframe = false) = 0;
 
-    /**
-     * Sets the node this drawable is attached to.
-     *
-     * @param node The node this drawable is attached to.
-     */
-    virtual void setNode(Node* node);
+        /**
+         * Gets the node this drawable is attached to.
+         *
+         * @return The node this drawable is attached to.
+         */
+        Node* getNode() const;
 
-    /**
-     * Node this drawable is attached to.
-     */
-    Node* _node;
-};
+    protected:
 
+        /**
+         * Sets the node this drawable is attached to.
+         *
+         * @param node The node this drawable is attached to.
+         */
+        virtual void setNode(Node* node);
+
+        /**
+         * Node this drawable is attached to.
+         */
+        Node* _node;
+    };
 }
-
-#endif

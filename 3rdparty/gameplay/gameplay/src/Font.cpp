@@ -1390,7 +1390,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
     return -1;
 }
 
-unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigned int size, float scale)
+unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigned int size, float scale) const
 {
     GP_ASSERT(token);
     GP_ASSERT(_glyphs);

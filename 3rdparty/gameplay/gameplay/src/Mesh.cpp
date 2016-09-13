@@ -308,6 +308,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setRawVertexData(const float* vertexData, size_t vertexId, size_t numFloats)
     {
         GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));

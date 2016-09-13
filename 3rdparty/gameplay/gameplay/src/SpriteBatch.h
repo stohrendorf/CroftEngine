@@ -231,7 +231,7 @@ namespace gameplay
          * @param color The color to tint the sprite. Use white for no tint.
          * @param positionIsCenter Specified whether the given destination is to be the center of the sprite or not (if not, it is treated as the bottom-left).
          */
-        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false);
+        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false) const;
 
 
         /**
@@ -270,7 +270,7 @@ namespace gameplay
          * @param indices The vertex indices.
          * @param indexCount The number of indices within the index array.
          */
-        void draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount);
+        void draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount) const;
 
         /**
          * Finishes sprite drawing.

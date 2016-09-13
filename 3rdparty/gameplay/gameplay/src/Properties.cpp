@@ -237,7 +237,7 @@ void Properties::readProperties(Stream* stream)
 
                 // Check for '}' on same line.
                 rccc = strchr(line, '}');
-            
+
                 // Get the name of the namespace.
                 name = strtok(line, " \t\n{");
                 name = trimWhiteSpace(name);
@@ -422,7 +422,7 @@ char* Properties::trimWhiteSpace(char *str)
         str++;
 
     // All spaces?
-    if (*str == 0)  
+    if (*str == 0)
     {
         return str;
     }
@@ -533,7 +533,7 @@ void Properties::mergeWith(Properties* overrides)
         {
             if (strcmp(derivedNamespace->getNamespace(), overridesNamespace->getNamespace()) == 0 &&
                 strcmp(derivedNamespace->getId(), overridesNamespace->getId()) == 0)
-            {   
+            {
                 derivedNamespace->mergeWith(overridesNamespace);
                 merged = true;
             }
@@ -606,7 +606,7 @@ Properties* Properties::getNamespace(const char* id, bool searchNames, bool recu
         Properties* p = *it;
         if (strcmp(searchNames ? p->_namespace.c_str() : p->_id.c_str(), id) == 0)
             return p;
-        
+
         if (recurse)
         {
             // Search recursively.
@@ -643,7 +643,7 @@ bool Properties::exists(const char* name) const
     return false;
 }
 
-static const bool isStringNumeric(const char* str)
+static bool isStringNumeric(const char* str)
 {
     GP_ASSERT(str);
 
@@ -1006,7 +1006,7 @@ void Properties::setVariable(const char* name, const char* value)
 Properties* Properties::clone()
 {
     Properties* p = new Properties();
-    
+
     p->_namespace = _namespace;
     p->_id = _id;
     p->_parentID = _parentID;
@@ -1104,7 +1104,7 @@ Properties* getPropertiesFromNamespacePath(Properties* properties, const std::ve
                     i++;
                     break;
                 }
-                
+
                 iter = properties->getNextNamespace();
             }
         }

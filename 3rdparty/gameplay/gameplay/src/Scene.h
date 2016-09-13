@@ -75,7 +75,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const char* id, std::vector<std::shared_ptr<Node>>& nodes, bool recursive = true, bool exactMatch = true) const;
+        size_t findNodes(const char* id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Creates and adds a new node to the scene.
@@ -110,14 +110,7 @@ namespace gameplay
          *
          * @return The node count.
          */
-        unsigned int getNodeCount() const;
-
-        /**
-         * Returns the first node in the scene.
-         *
-         * @return The first node in the scene.
-         */
-        const std::shared_ptr<Node>& getFirstNode() const;
+        size_t getNodeCount() const;
 
         /**
          * Gets the active camera for the scene.
@@ -225,16 +218,6 @@ namespace gameplay
          */
         inline void visit(const char* visitMethod);
 
-        /**
-         * @see VisibleSet#getNext
-         */
-        std::shared_ptr<Node> getNext();
-
-        /**
-         * @see VisibleSet#reset
-         */
-        void reset();
-
     private:
 
         /**
@@ -271,25 +254,19 @@ namespace gameplay
          */
         void visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const;
 
-        std::shared_ptr<Node> findNextVisibleSibling(const std::shared_ptr<Node>& node) const;
-
         bool isNodeVisible(const std::shared_ptr<Node>& node) const;
 
         std::string _id;
         std::shared_ptr<Camera> _activeCamera;
-        std::shared_ptr<Node> _firstNode;
-        std::shared_ptr<Node> _lastNode;
-        size_t _nodeCount;
+        Node::List _nodes;
         Vector3 _ambientColor;
-        std::shared_ptr<Node> _nextItr;
-        bool _nextReset;
     };
 
 
     template<class T>
     void Scene::visit(T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&))
     {
-        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( const auto& node : _nodes )
         {
             visitNode(node, instance, visitMethod);
         }
@@ -299,7 +276,7 @@ namespace gameplay
     template<class T, class C>
     void Scene::visit(T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&, C), C cookie)
     {
-        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( const auto& node : _nodes )
         {
             visitNode(node, instance, visitMethod, cookie);
         }
@@ -308,7 +285,7 @@ namespace gameplay
 
     inline void Scene::visit(const char* visitMethod)
     {
-        for( auto node = getFirstNode(); node != nullptr; node = node->getNextSibling() )
+        for( const auto& node : _nodes )
         {
             visitNode(node, visitMethod);
         }
@@ -333,7 +310,7 @@ namespace gameplay
         }
 
         // Recurse for all children.
-        for( auto child = node->getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( const auto& child : node->getChildren() )
         {
             visitNode(child, instance, visitMethod);
         }
@@ -358,7 +335,7 @@ namespace gameplay
         }
 
         // Recurse for all children.
-        for( auto child = node->getFirstChild(); child != nullptr; child = child->getNextSibling() )
+        for( const auto& child : node->getChildren() )
         {
             visitNode(child, instance, visitMethod, cookie);
         }
