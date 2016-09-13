@@ -728,7 +728,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     if( m_lara == nullptr )
         return;
 
-    scene->setActiveCamera(std::make_shared<gameplay::Camera>(MATH_DEG_TO_RAD(80.0f), game->getAspectRatio(), 10, 20480));
+    scene->setActiveCamera(std::make_shared<gameplay::Camera>(80.0f, game->getAspectRatio(), 10, 20480));
     auto camNode = std::make_shared<gameplay::Node>("cameraNode");
     camNode->setCamera(scene->getActiveCamera());
     scene->addNode(camNode);

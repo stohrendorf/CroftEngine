@@ -3,7 +3,7 @@
 uniform sampler2D u_texture;
 
 #ifdef DISTANCE_FIELD
-uniform vec2 u_cutoff;
+  uniform vec2 u_cutoff;
 #endif
 
 ///////////////////////////////////////////////////////////
