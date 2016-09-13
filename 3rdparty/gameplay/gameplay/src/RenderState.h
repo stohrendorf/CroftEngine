@@ -23,6 +23,74 @@ namespace gameplay
         friend class Model;
 
     public:
+        /**
+        * Built-in auto-bind targets for material parameters.
+        */
+        enum AutoBinding
+        {
+            NONE,
+
+            /**
+            * Binds a node's World matrix.
+            */
+            WORLD_MATRIX,
+
+            /**
+            * Binds the View matrix of the active camera for the node's scene.
+            */
+            VIEW_MATRIX,
+
+            /**
+            * Binds the Projection matrix of the active camera for the node's scene.
+            */
+            PROJECTION_MATRIX,
+
+            /**
+            * Binds a node's WorldView matrix.
+            */
+            WORLD_VIEW_MATRIX,
+
+            /**
+            * Binds the ViewProjection matrix of the active camera for the node's scene.
+            */
+            VIEW_PROJECTION_MATRIX,
+
+            /**
+            * Binds a node's WorldViewProjection matrix.
+            */
+            WORLD_VIEW_PROJECTION_MATRIX,
+
+            /**
+            * Binds a node's InverseTransposeWorl matrix.
+            */
+            INVERSE_TRANSPOSE_WORLD_MATRIX,
+
+            /**
+            * Binds a node's InverseTransposeWorldView matrix.
+            */
+            INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX,
+
+            /**
+            * Binds the position (Vector3) of the active camera for the node's scene.
+            */
+            CAMERA_WORLD_POSITION,
+
+            /**
+            * Binds the view-space position (Vector3) of the active camera for the node's scene.
+            */
+            CAMERA_VIEW_POSITION,
+
+            /**
+            * Binds the matrix palette of MeshSkin attached to a node's model.
+            */
+            MATRIX_PALETTE,
+
+            /**
+            * Binds the current scene's ambient color (Vector3).
+            */
+            SCENE_AMBIENT_COLOR
+        };
+
 
         /**
         * An abstract base class that can be extended to support custom material auto bindings.
@@ -81,7 +149,7 @@ namespace gameplay
             * @return True if the auto binding is handled and the associated parmeter is
             *      bound, false otherwise.
             */
-            virtual bool resolveAutoBinding(const char* autoBinding, Node* node, const std::shared_ptr<MaterialParameter>& parameter) = 0;
+            virtual bool resolveAutoBinding(AutoBinding autoBinding, Node* node, const std::shared_ptr<MaterialParameter>& parameter) = 0;
 
         protected:
 
@@ -89,75 +157,6 @@ namespace gameplay
              * Constructor.
              */
             AutoBindingResolver();
-        };
-
-
-        /**
-         * Built-in auto-bind targets for material parameters.
-         */
-        enum AutoBinding
-        {
-            NONE,
-
-            /**
-             * Binds a node's World matrix.
-             */
-            WORLD_MATRIX,
-
-            /**
-             * Binds the View matrix of the active camera for the node's scene.
-             */
-            VIEW_MATRIX,
-
-            /**
-             * Binds the Projection matrix of the active camera for the node's scene.
-             */
-            PROJECTION_MATRIX,
-
-            /**
-             * Binds a node's WorldView matrix.
-             */
-            WORLD_VIEW_MATRIX,
-
-            /**
-             * Binds the ViewProjection matrix of the active camera for the node's scene.
-             */
-            VIEW_PROJECTION_MATRIX,
-
-            /**
-             * Binds a node's WorldViewProjection matrix.
-             */
-            WORLD_VIEW_PROJECTION_MATRIX,
-
-            /**
-             * Binds a node's InverseTransposeWorl matrix.
-             */
-            INVERSE_TRANSPOSE_WORLD_MATRIX,
-
-            /**
-             * Binds a node's InverseTransposeWorldView matrix.
-             */
-            INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX,
-
-            /**
-             * Binds the position (Vector3) of the active camera for the node's scene.
-             */
-            CAMERA_WORLD_POSITION,
-
-            /**
-             * Binds the view-space position (Vector3) of the active camera for the node's scene.
-             */
-            CAMERA_VIEW_POSITION,
-
-            /**
-             * Binds the matrix palette of MeshSkin attached to a node's model.
-             */
-            MATRIX_PALETTE,
-
-            /**
-             * Binds the current scene's ambient color (Vector3).
-             */
-            SCENE_AMBIENT_COLOR
         };
 
 
@@ -504,17 +503,6 @@ namespace gameplay
         void setParameterAutoBinding(const char* name, AutoBinding autoBinding);
 
         /**
-         * Sets a material parameter auto-binding.
-         *
-         * This method parses the passed in autoBinding string and attempts to convert it
-         * to an AutoBinding enumeration value, which is then stored in this render state.
-         *
-         * @param name The name of the material parameter to store an auto-binding for.
-         * @param autoBinding A string matching one of the built-in AutoBinding enum constants.
-         */
-        void setParameterAutoBinding(const char* name, const char* autoBinding);
-
-        /**
          * Sets the fixed-function render state of this object to the state contained
          * in the specified StateBlock.
          *
@@ -583,7 +571,7 @@ namespace gameplay
          * @param uniformName Name of the shader uniform.
          * @param autoBinding Name of the auto binding.s
          */
-        void applyAutoBinding(const char* uniformName, const char* autoBinding);
+        void applyAutoBinding(const char* uniformName, RenderState::AutoBinding autoBinding);
 
         /**
          * Binds the render state for this RenderState and any of its parents, top-down,
@@ -629,7 +617,7 @@ namespace gameplay
         /**
          * Map of parameter names to auto binding strings.
          */
-        std::map<std::string, std::string> _autoBindings;
+        std::map<std::string, RenderState::AutoBinding> _autoBindings;
 
         /**
          * The Node bound to the RenderState.

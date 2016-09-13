@@ -14,7 +14,7 @@
 #endif
 
 ///////////////////////////////////////////////////////////
-// Atributes
+// Attributes
 attribute vec4 a_position;
 
 #if defined(SKINNING)

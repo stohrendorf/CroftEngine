@@ -60,7 +60,7 @@ namespace gameplay
          * @return A new Material.
          * @script{create}
          */
-        static std::shared_ptr<Material> create(const char* vshPath, const char* fshPath, const char* defines = NULL);
+        static std::shared_ptr<Material> create(const char* vshPath, const char* fshPath, const char* defines = nullptr);
 
         /**
          * Returns the number of techniques in the material.

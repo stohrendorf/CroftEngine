@@ -63,7 +63,12 @@ namespace gameplay
 
     void Game::initialize()
     {
-        // stub
+        _stateBlock = RenderState::StateBlock::create();
+        _stateBlock->setDepthTest(true);
+        _stateBlock->setCullFace(true);
+        _stateBlock->setBlend(true);
+        _stateBlock->setBlendSrc(RenderState::BLEND_SRC_ALPHA);
+        _stateBlock->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
     }
 
 
@@ -81,9 +86,12 @@ namespace gameplay
 
     bool Game::drawScene(const std::shared_ptr<Node>& node)
     {
+
         auto dr = node->getDrawable();
         if(dr != nullptr)
+        {
             dr->draw();
+        }
 
         return true;
     }

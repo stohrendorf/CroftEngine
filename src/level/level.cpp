@@ -732,6 +732,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     auto camNode = std::make_shared<gameplay::Node>("cameraNode");
     camNode->setCamera(scene->getActiveCamera());
     scene->addNode(camNode);
+
     m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
 
     for( const loader::SoundSource& src : m_soundSources )

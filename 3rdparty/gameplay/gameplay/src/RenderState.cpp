@@ -109,79 +109,12 @@ namespace gameplay
     }
 
 
-    /**
-     * @script{ignore}
-     */
-    const char* autoBindingToString(RenderState::AutoBinding autoBinding)
-    {
-        // NOTE: As new AutoBinding values are added, this switch statement must be updatd.
-        switch( autoBinding )
-        {
-            case RenderState::NONE:
-                return nullptr;
-
-            case RenderState::VIEW_MATRIX:
-                return "VIEW_MATRIX";
-
-            case RenderState::PROJECTION_MATRIX:
-                return "PROJECTION_MATRIX";
-
-            case RenderState::WORLD_VIEW_MATRIX:
-                return "WORLD_VIEW_MATRIX";
-
-            case RenderState::VIEW_PROJECTION_MATRIX:
-                return "VIEW_PROJECTION_MATRIX";
-
-            case RenderState::WORLD_VIEW_PROJECTION_MATRIX:
-                return "WORLD_VIEW_PROJECTION_MATRIX";
-
-            case RenderState::INVERSE_TRANSPOSE_WORLD_MATRIX:
-                return "INVERSE_TRANSPOSE_WORLD_MATRIX";
-
-            case RenderState::INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX:
-                return "INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX";
-
-            case RenderState::CAMERA_WORLD_POSITION:
-                return "CAMERA_WORLD_POSITION";
-
-            case RenderState::CAMERA_VIEW_POSITION:
-                return "CAMERA_VIEW_POSITION";
-
-            case RenderState::MATRIX_PALETTE:
-                return "MATRIX_PALETTE";
-
-            case RenderState::SCENE_AMBIENT_COLOR:
-                return "SCENE_AMBIENT_COLOR";
-
-            default:
-                return "";
-        }
-    }
-
-
     void RenderState::setParameterAutoBinding(const char* name, AutoBinding autoBinding)
     {
-        setParameterAutoBinding(name, autoBindingToString(autoBinding));
-    }
-
-
-    void RenderState::setParameterAutoBinding(const char* name, const char* autoBinding)
-    {
         GP_ASSERT(name);
-        GP_ASSERT(autoBinding);
 
-        if( autoBinding == nullptr )
-        {
-            // Remove an existing auto-binding
-            std::map<std::string, std::string>::iterator itr = _autoBindings.find(name);
-            if( itr != _autoBindings.end() )
-                _autoBindings.erase(itr);
-        }
-        else
-        {
-            // Add/update an auto-binding
-            _autoBindings[name] = autoBinding;
-        }
+        // Add/update an auto-binding
+        _autoBindings[name] = autoBinding;
 
         // If we already have a node binding set, pass it to our handler now
         if( _nodeBinding )
@@ -210,25 +143,21 @@ namespace gameplay
 
     void RenderState::setNodeBinding(Node* node)
     {
-        if( _nodeBinding != node )
-        {
-            _nodeBinding = node;
+        if( _nodeBinding == node )
+            return;
+        _nodeBinding = node;
 
-            if( _nodeBinding )
-            {
-                // Apply all existing auto-bindings using this node.
-                std::map<std::string, std::string>::const_iterator itr = _autoBindings.begin();
-                while( itr != _autoBindings.end() )
-                {
-                    applyAutoBinding(itr->first.c_str(), itr->second.c_str());
-                    ++itr;
-                }
-            }
+        if( !_nodeBinding )
+            return;
+
+        for( const auto& binding : _autoBindings )
+        {
+            applyAutoBinding(binding.first.c_str(), binding.second);
         }
     }
 
 
-    void RenderState::applyAutoBinding(const char* uniformName, const char* autoBinding)
+    void RenderState::applyAutoBinding(const char* uniformName, RenderState::AutoBinding autoBinding)
     {
         GP_ASSERT(_nodeBinding);
 
@@ -252,66 +181,55 @@ namespace gameplay
         if( !bound )
         {
             bound = true;
-
-            if( strcmp(autoBinding, "WORLD_MATRIX") == 0 )
+            switch( autoBinding )
             {
-                param->bindValue(this, &RenderState::autoBindingGetWorldMatrix);
-            }
-            else if( strcmp(autoBinding, "VIEW_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetViewMatrix);
-            }
-            else if( strcmp(autoBinding, "PROJECTION_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetProjectionMatrix);
-            }
-            else if( strcmp(autoBinding, "WORLD_VIEW_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetWorldViewMatrix);
-            }
-            else if( strcmp(autoBinding, "VIEW_PROJECTION_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetViewProjectionMatrix);
-            }
-            else if( strcmp(autoBinding, "WORLD_VIEW_PROJECTION_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetWorldViewProjectionMatrix);
-            }
-            else if( strcmp(autoBinding, "INVERSE_TRANSPOSE_WORLD_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldMatrix);
-            }
-            else if( strcmp(autoBinding, "INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldViewMatrix);
-            }
-            else if( strcmp(autoBinding, "CAMERA_WORLD_POSITION") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
-            }
-            else if( strcmp(autoBinding, "CAMERA_VIEW_POSITION") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
-            }
-            else if( strcmp(autoBinding, "MATRIX_PALETTE") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetMatrixPalette, &RenderState::autoBindingGetMatrixPaletteSize);
-            }
-            else if( strcmp(autoBinding, "SCENE_AMBIENT_COLOR") == 0 )
-            {
-                param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
-            }
-            else
-            {
-                bound = false;
-                GP_WARN("Unsupported auto binding type (%s).", autoBinding);
+                case WORLD_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetWorldMatrix);
+                    break;
+                case VIEW_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetViewMatrix);
+                    break;
+                case PROJECTION_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetProjectionMatrix);
+                    break;
+                case WORLD_VIEW_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetWorldViewMatrix);
+                    break;
+                case VIEW_PROJECTION_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetViewProjectionMatrix);
+                    break;
+                case WORLD_VIEW_PROJECTION_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetWorldViewProjectionMatrix);
+                    break;
+                case INVERSE_TRANSPOSE_WORLD_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldMatrix);
+                    break;
+                case INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX:
+                    param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldViewMatrix);
+                    break;
+                case CAMERA_WORLD_POSITION:
+                    param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
+                    break;
+                case CAMERA_VIEW_POSITION:
+                    param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
+                    break;
+                case MATRIX_PALETTE:
+                    param->bindValue(this, &RenderState::autoBindingGetMatrixPalette, &RenderState::autoBindingGetMatrixPaletteSize);
+                    break;
+                case SCENE_AMBIENT_COLOR:
+                    param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
+                    break;
+                default:
+                    bound = false;
+                    GP_WARN("Unsupported auto binding type (%s).", autoBinding);
+                    break;
             }
         }
 
         if( bound )
         {
             // Mark parameter as an auto binding
-            if( param->_type == MaterialParameter::METHOD && boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value))
+            if( param->_type == MaterialParameter::METHOD && boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value) )
                 boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value)->_autoBinding = true;
         }
     }
@@ -916,7 +834,7 @@ namespace gameplay
 
     RenderState::AutoBindingResolver::~AutoBindingResolver()
     {
-        std::vector<RenderState::AutoBindingResolver*>::iterator itr = std::find(_customAutoBindingResolvers.begin(), _customAutoBindingResolvers.end(), this);
+        auto itr = std::find(_customAutoBindingResolvers.begin(), _customAutoBindingResolvers.end(), this);
         if( itr != _customAutoBindingResolvers.end() )
             _customAutoBindingResolvers.erase(itr);
     }
