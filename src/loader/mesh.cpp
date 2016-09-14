@@ -79,6 +79,10 @@ namespace loader
     void Mesh::ModelBuilder::append(const RenderVertex& v)
     {
         static_assert(sizeof(RenderVertex) % sizeof(float) == 0, "Invalid vertex structure");
+        Expects(!m_hasNormals);
+        Expects(sizeof(v) >= m_mesh->getVertexSize());
+        Expects(m_mesh->getVertexSize() % sizeof(float) == 0);
+
         const float* data = reinterpret_cast<const float*>(&v);
         const auto n = m_mesh->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
@@ -89,6 +93,10 @@ namespace loader
     void Mesh::ModelBuilder::append(const RenderVertexWithNormal& v)
     {
         static_assert(sizeof(RenderVertexWithNormal) % sizeof(float) == 0, "Invalid vertex structure");
+        Expects(m_hasNormals);
+        Expects(sizeof(v) >= m_mesh->getVertexSize());
+        Expects(m_mesh->getVertexSize() % sizeof(float) == 0);
+
         const float* data = reinterpret_cast<const float*>(&v);
         const auto n = m_mesh->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
@@ -119,16 +127,21 @@ namespace loader
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.blendWeights = { blendWeight, 0, 0, 0 };
                     iv.blendIndices = { blendIndex, 0, 0, 0 };
-                    m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
 
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
+                m_parts[partId].indices.emplace_back(firstVertex + 0);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
+                m_parts[partId].indices.emplace_back(firstVertex + 1);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_parts[partId].indices.emplace_back(firstVertex + 2);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
+                m_parts[partId].indices.emplace_back(firstVertex + 0);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_parts[partId].indices.emplace_back(firstVertex + 2);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 3, firstVertex + 3);
+                m_parts[partId].indices.emplace_back(firstVertex + 3);
             }
             for( const QuadFace& quad : mesh.colored_rectangles )
             {
@@ -204,16 +217,21 @@ namespace loader
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.blendWeights = { blendWeight, 0, 0, 0 };
                     iv.blendIndices = { blendIndex, 0, 0, 0 };
-                    m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
 
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
+                m_parts[partId].indices.emplace_back(firstVertex + 0);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
+                m_parts[partId].indices.emplace_back(firstVertex + 1);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_parts[partId].indices.emplace_back(firstVertex + 2);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
+                m_parts[partId].indices.emplace_back(firstVertex + 0);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_parts[partId].indices.emplace_back(firstVertex + 2);
                 m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 3, firstVertex + 3);
+                m_parts[partId].indices.emplace_back(firstVertex + 3);
             }
             for( const QuadFace& quad : mesh.colored_rectangles )
             {
@@ -287,6 +305,10 @@ namespace loader
         for( const MeshPart& localPart : m_parts )
         {
             static_assert(sizeof(localPart.indices[0]) == sizeof(uint16_t), "Wrong index type");
+#ifndef NDEBUG
+            for(auto idx : localPart.indices)
+                Expects(idx >= 0 && idx < m_vertexCount);
+#endif
             gameplay::MeshPart* part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
         }

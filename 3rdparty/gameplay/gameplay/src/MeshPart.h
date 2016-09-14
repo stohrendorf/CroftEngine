@@ -92,7 +92,7 @@ namespace gameplay
          * @param indexCount The number of indices.
          * @param dynamic true if the part if dynamic; false otherwise.
          */
-        static MeshPart* create(Mesh* mesh, unsigned int meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, unsigned int indexCount, bool dynamic = false);
+        static MeshPart* create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, unsigned int indexCount, bool dynamic = false);
 
         Mesh* _mesh;
         unsigned int _meshIndex;

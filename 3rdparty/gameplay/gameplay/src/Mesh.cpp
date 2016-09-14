@@ -316,7 +316,7 @@ namespace gameplay
     }
 
 
-    MeshPart* Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, unsigned int indexCount, bool dynamic)
+    MeshPart* Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
         MeshPart* part = MeshPart::create(this, _parts.size(), primitiveType, indexFormat, indexCount, dynamic);
         if( part )

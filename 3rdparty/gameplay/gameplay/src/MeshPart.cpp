@@ -25,7 +25,7 @@ namespace gameplay
     }
 
 
-    MeshPart* MeshPart::create(Mesh* mesh, unsigned int meshIndex, Mesh::PrimitiveType primitiveType,
+    MeshPart* MeshPart::create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType,
                                Mesh::IndexFormat indexFormat, unsigned int indexCount, bool dynamic)
     {
         // Create a VBO for our index buffer.

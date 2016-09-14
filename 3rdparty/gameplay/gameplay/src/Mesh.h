@@ -225,7 +225,7 @@ namespace gameplay
          *
          * @return The newly created/added mesh part.
          */
-        MeshPart* addPart(PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, unsigned int indexCount, bool dynamic = false);
+        MeshPart* addPart(PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Gets the number of mesh parts contained within the mesh.

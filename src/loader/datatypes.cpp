@@ -52,6 +52,11 @@ namespace loader
             {
                 for( const MeshPart& localPart : m_parts )
                 {
+#ifndef NDEBUG
+                    for(auto idx : localPart.indices)
+                        Expects(idx >= 0 && idx < mesh->getVertexCount());
+#endif
+
                     gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
                     part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
                 }
@@ -134,20 +139,22 @@ namespace loader
             const auto partId = texBuffers[proxy.textureKey];
 
             const auto firstVertex = vbuf.size();
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 3; ++i)
             {
                 RenderVertex iv;
                 iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[tri.vertices[i]].color;
                 iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                 iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                renderModel.m_parts[partId].indices.emplace_back(vbuf.size());
                 vbuf.push_back(iv);
             }
 
             animator.registerVertex(tri.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
             animator.registerVertex(tri.proxyId, { mesh, partId }, 1, firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
             animator.registerVertex(tri.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
         }
 
         mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
