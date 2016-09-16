@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
+#include "VertexAttributeBinding.h"
 
 
 namespace gameplay
@@ -73,6 +74,11 @@ namespace gameplay
          */
         void setIndexData(const void* indexData, unsigned int indexStart, unsigned int indexCount);
 
+        const std::shared_ptr<VertexAttributeBinding>& getVaBinding() const
+        {
+            return _vaBinding;
+        }
+
     private:
 
         /**
@@ -92,7 +98,7 @@ namespace gameplay
          * @param indexCount The number of indices.
          * @param dynamic true if the part if dynamic; false otherwise.
          */
-        static MeshPart* create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, unsigned int indexCount, bool dynamic = false);
+        static MeshPart* create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         Mesh* _mesh;
         unsigned int _meshIndex;
@@ -101,5 +107,7 @@ namespace gameplay
         unsigned int _indexCount;
         IndexBufferHandle _indexBuffer;
         bool _dynamic;
+        std::shared_ptr<VertexAttributeBinding> _vaBinding;
+        std::shared_ptr<Material> _material;
     };
 }

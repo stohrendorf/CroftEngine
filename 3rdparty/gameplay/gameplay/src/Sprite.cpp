@@ -324,14 +324,14 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<Effect>& effect)
+    std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         GP_ASSERT(texture != nullptr);
         GP_ASSERT(width >= -1 && height >= -1);
         GP_ASSERT(source.width >= -1 && source.height >= -1);
         GP_ASSERT(frameCount > 0);
 
-        SpriteBatch* batch = SpriteBatch::create(texture, effect);
+        SpriteBatch* batch = SpriteBatch::create(texture, shaderProgram);
         batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
         batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
         batch->getStateBlock()->setDepthWrite(false);

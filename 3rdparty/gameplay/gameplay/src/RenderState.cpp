@@ -351,7 +351,7 @@ namespace gameplay
 
         // Apply parameter bindings and renderer state for the entire hierarchy, top-down.
         rs = nullptr;
-        auto effect = pass->getEffect();
+        auto effect = pass->getShaderProgram();
         while( (rs = getTopmost(rs)) )
         {
             for( size_t i = 0, count = rs->_parameters.size(); i < count; ++i )

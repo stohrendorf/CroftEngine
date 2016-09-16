@@ -317,7 +317,7 @@ namespace gameplay
 
         public:
 
-            virtual void setValue(const std::shared_ptr<Effect>& effect) = 0;
+            virtual void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) = 0;
 
         protected:
 
@@ -354,7 +354,7 @@ namespace gameplay
             typedef ParameterType (ClassType::*ValueMethod)() const;
         public:
             MethodValueBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod);
-            void setValue(const std::shared_ptr<Effect>& effect) override;
+            void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) override;
         private:
             ClassType* _instance;
             ValueMethod _valueMethod;
@@ -371,7 +371,7 @@ namespace gameplay
             typedef unsigned int (ClassType::*CountMethod)() const;
         public:
             MethodArrayBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod, CountMethod countMethod);
-            void setValue(const std::shared_ptr<Effect>& effect) override;
+            void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) override;
         private:
             ClassType* _instance;
             ValueMethod _valueMethod;
@@ -381,7 +381,7 @@ namespace gameplay
 
         void clearValue();
 
-        void bind(const std::shared_ptr<Effect>& effect);
+        void bind(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
 
         enum LOGGER_DIRTYBITS
@@ -449,9 +449,9 @@ namespace gameplay
 
 
     template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<Effect>& effect)
+    void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        effect->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
+        shaderProgram->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
     }
 
 
@@ -466,8 +466,8 @@ namespace gameplay
 
 
     template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<Effect>& effect)
+    void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        effect->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
+        shaderProgram->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
     }
 }

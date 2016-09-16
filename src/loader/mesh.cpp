@@ -310,7 +310,7 @@ namespace loader
                 Expects(idx >= 0 && idx < m_vertexCount);
 #endif
             gameplay::MeshPart* part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
-            part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
+            part->setIndexData(localPart.indices.data(), 0, 0);
         }
 
         auto model = std::make_shared<gameplay::Model>(m_mesh);

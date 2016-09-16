@@ -40,6 +40,7 @@ namespace gameplay
         GL_ASSERT( glGenBuffers(1, &vbo) );
         GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, vbo) );
         GL_ASSERT( glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
+        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
 
         auto mesh = std::make_shared<Mesh>(vertexFormat);
         mesh->_vertexCount = vertexCount;
@@ -52,11 +53,9 @@ namespace gameplay
 
     void Mesh::rebuild(const float* vertexData, size_t vertexCount)
     {
-        GL_ASSERT(glDeleteBuffers(1, &_vertexBuffer));
-
-        GL_ASSERT(glGenBuffers(1, &_vertexBuffer));
         GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
         GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
+        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
         _vertexCount = vertexCount;
     }

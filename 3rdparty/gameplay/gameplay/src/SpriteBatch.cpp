@@ -17,13 +17,13 @@
     vtx.r = vr; vtx.g = vg; vtx.b = vb; vtx.a = va
 
 // Default sprite shaders
-#define SPRITE_VSH "res/shaders/sprite.vert"
-#define SPRITE_FSH "res/shaders/sprite.frag"
+#define SPRITE_VSH "shaders/sprite.vert"
+#define SPRITE_FSH "shaders/sprite.frag"
 
 
 namespace gameplay
 {
-    static std::shared_ptr<Effect> __spriteEffect = nullptr;
+    static std::shared_ptr<ShaderProgram> __spriteShaderProgram = nullptr;
 
 
     SpriteBatch::SpriteBatch()
@@ -42,29 +42,29 @@ namespace gameplay
     }
 
 
-    SpriteBatch* SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Effect>& effect, unsigned int initialCapacity)
+    SpriteBatch* SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, unsigned int initialCapacity)
     {
         GP_ASSERT(texture != nullptr);
         GP_ASSERT(texture->getType() == Texture::TEXTURE_2D);
 
-        auto fx = effect;
+        auto fx = shaderProgram;
         bool customEffect = (fx != nullptr);
         if( !customEffect )
         {
             // Create our static sprite effect.
-            if( __spriteEffect == nullptr )
+            if( __spriteShaderProgram == nullptr )
             {
-                __spriteEffect = Effect::createFromFile(SPRITE_VSH, SPRITE_FSH);
-                if( __spriteEffect == nullptr )
+                __spriteShaderProgram = ShaderProgram::createFromFile(SPRITE_VSH, SPRITE_FSH);
+                if( __spriteShaderProgram == nullptr )
                 {
                     GP_ERROR("Unable to load sprite effect.");
                     return nullptr;
                 }
-                fx = __spriteEffect;
+                fx = __spriteShaderProgram;
             }
             else
             {
-                fx = __spriteEffect;
+                fx = __spriteShaderProgram;
             }
         }
 

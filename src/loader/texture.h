@@ -239,10 +239,10 @@ namespace loader
 
         static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode)
         {
-            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag");
+            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag", "TEXTURE_DISCARD_ALPHA");
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setSampler(std::make_shared<gameplay::Texture::Sampler>(texture));
-            result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
+            //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
             result->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
             //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
             //result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;

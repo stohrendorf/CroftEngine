@@ -10,8 +10,7 @@ namespace gameplay
     Pass::Pass(const char* id, const std::shared_ptr<Technique>& technique)
         : _id(id ? id : "")
         , _technique(technique)
-        , _effect(nullptr)
-        , _vaBinding(nullptr)
+        , _shaderProgram(nullptr)
     {
         RenderState::_parent = _technique;
     }
@@ -25,11 +24,9 @@ namespace gameplay
         GP_ASSERT(vshPath);
         GP_ASSERT(fshPath);
 
-        _vaBinding.reset();
-
         // Attempt to create/load the effect.
-        _effect = Effect::createFromFile(vshPath, fshPath, defines);
-        if( _effect == nullptr )
+        _shaderProgram = ShaderProgram::createFromFile(vshPath, fshPath, defines);
+        if( _shaderProgram == nullptr )
         {
             GP_WARN("Failed to create effect for pass. vertexShader = %s, fragmentShader = %s, defines = %s", vshPath, fshPath, defines ? defines : "");
             return false;
@@ -45,38 +42,29 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<Effect>& Pass::getEffect() const
+    const std::shared_ptr<ShaderProgram>& Pass::getShaderProgram() const
     {
-        return _effect;
+        return _shaderProgram;
     }
 
 
-    void Pass::setVertexAttributeBinding(const std::shared_ptr<VertexAttributeBinding>& binding)
+    void Pass::bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding)
     {
-        _vaBinding = binding;
-    }
-
-
-    const std::shared_ptr<VertexAttributeBinding>& Pass::getVertexAttributeBinding() const
-    {
-        return _vaBinding;
-    }
-
-
-    void Pass::bind()
-    {
-        GP_ASSERT(_effect);
+        GP_ASSERT(_shaderProgram != nullptr);
 
         // Bind our effect.
-        _effect->bind();
+        _shaderProgram->bind();
 
         // Bind our render state
         RenderState::bind(this);
 
+        GP_ASSERT(_boundVaBinding == nullptr);
+        _boundVaBinding = vaBinding;
+
         // If we have a vertex attribute binding, bind it
-        if( _vaBinding )
+        if( vaBinding )
         {
-            _vaBinding->bind();
+            vaBinding->bind();
         }
     }
 
@@ -85,9 +73,10 @@ namespace gameplay
     void Pass::unbind()
     {
         // If we have a vertex attribute binding, unbind it
-        if( _vaBinding )
+        if( _boundVaBinding )
         {
-            _vaBinding->unbind();
+            _boundVaBinding->unbind();
+            _boundVaBinding.reset();
         }
     }
 }

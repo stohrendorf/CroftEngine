@@ -436,22 +436,22 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::bind(const std::shared_ptr<Effect>& effect)
+    void MaterialParameter::bind(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(effect);
+        GP_ASSERT(shaderProgram);
 
         // If we had a Uniform cached that is not from the passed in effect,
         // we need to update our uniform to point to the new effect's uniform.
-        if( !_uniform || _uniform->getEffect() != effect )
+        if( !_uniform || _uniform->getEffect() != shaderProgram )
         {
-            _uniform = effect->getUniform(_name.c_str());
+            _uniform = shaderProgram->getUniform(_name.c_str());
 
             if( !_uniform )
             {
                 if( (_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
                 {
                     // This parameter was not found in the specified effect, so do nothing.
-                    GP_WARN("Material parameter for uniform '%s' not found in effect: '%s'.", _name.c_str(), effect->getId().c_str());
+                    GP_WARN("Material parameter for uniform '%s' not found in effect: '%s'.", _name.c_str(), shaderProgram->getId().c_str());
                     _loggerDirtyBits |= UNIFORM_NOT_FOUND;
                 }
                 return;
@@ -461,44 +461,44 @@ namespace gameplay
         switch( _type )
         {
             case MaterialParameter::FLOAT:
-                effect->setValue(_uniform, boost::get<float>(_value));
+                shaderProgram->setValue(_uniform, boost::get<float>(_value));
                 break;
             case MaterialParameter::FLOAT_ARRAY:
-                effect->setValue(_uniform, boost::get<float*>(_value), _count);
+                shaderProgram->setValue(_uniform, boost::get<float*>(_value), _count);
                 break;
             case MaterialParameter::INT:
-                effect->setValue(_uniform, boost::get<int>(_value));
+                shaderProgram->setValue(_uniform, boost::get<int>(_value));
                 break;
             case MaterialParameter::INT_ARRAY:
-                effect->setValue(_uniform, boost::get<int*>(_value), _count);
+                shaderProgram->setValue(_uniform, boost::get<int*>(_value), _count);
                 break;
             case MaterialParameter::VECTOR2:
-                effect->setValue(_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR3:
-                effect->setValue(_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR4:
-                effect->setValue(_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::MATRIX:
-                effect->setValue(_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::SAMPLER:
-                effect->setValue(_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));
+                shaderProgram->setValue(_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));
                 break;
             case MaterialParameter::SAMPLER_ARRAY:
-                effect->setValue(_uniform, boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value));
+                shaderProgram->setValue(_uniform, boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value));
                 break;
             case MaterialParameter::METHOD:
                 if(boost::get<std::shared_ptr<MethodBinding>>(_value))
-                    boost::get<std::shared_ptr<MethodBinding>>(_value)->setValue(effect);
+                    boost::get<std::shared_ptr<MethodBinding>>(_value)->setValue(shaderProgram);
                 break;
             default:
             {
                 if( (_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
                 {
-                    GP_WARN("Material parameter value not set for: '%s' in effect: '%s'.", _name.c_str(), effect->getId().c_str());
+                    GP_WARN("Material parameter value not set for: '%s' in effect: '%s'.", _name.c_str(), shaderProgram->getId().c_str());
                     _loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
                 }
                 break;

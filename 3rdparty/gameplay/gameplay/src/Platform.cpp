@@ -134,6 +134,8 @@ namespace gameplay
 
     bool Platform::loop()
     {
+        glfwPollEvents();
+
         if(glfwWindowShouldClose(__window))
             return false;
 

@@ -84,18 +84,11 @@ void MeshBatch::updateVertexAttributeBinding()
     GP_ASSERT(m_material);
 
     // Update our vertex attribute bindings.
-    for (unsigned int i = 0, techniqueCount = m_material->getTechniqueCount(); i < techniqueCount; ++i)
-    {
-        auto t = m_material->getTechniqueByIndex(i);
-        GP_ASSERT(t);
-        for (unsigned int j = 0, passCount = t->getPassCount(); j < passCount; ++j)
-        {
-            auto p = t->getPassByIndex(j);
-            GP_ASSERT(p);
-            auto b = VertexAttributeBinding::create(m_vertexFormat, m_vertices, p->getEffect());
-            p->setVertexAttributeBinding(b);
-        }
-    }
+    auto t = m_material->getTechnique();
+    GP_ASSERT(t);
+    auto p = t->getPass();
+    GP_ASSERT(p);
+    _vaBinding = VertexAttributeBinding::create(m_vertexFormat, m_vertices, p->getShaderProgram());
 }
 
 unsigned int MeshBatch::getCapacity() const
@@ -103,12 +96,12 @@ unsigned int MeshBatch::getCapacity() const
     return m_capacity;
 }
 
-void MeshBatch::setCapacity(unsigned int capacity)
+void MeshBatch::setCapacity(size_t capacity)
 {
     resize(capacity);
 }
 
-bool MeshBatch::resize(unsigned int capacity)
+bool MeshBatch::resize(size_t capacity)
 {
     if (capacity == 0)
     {
@@ -227,24 +220,20 @@ void MeshBatch::draw()
     // Bind the material.
     auto technique = m_material->getTechnique();
     GP_ASSERT(technique);
-    unsigned int passCount = technique->getPassCount();
-    for (unsigned int i = 0; i < passCount; ++i)
+    auto pass = technique->getPass();
+    GP_ASSERT(pass);
+    pass->bind(_vaBinding);
+
+    if (m_indexed)
     {
-        auto pass = technique->getPassByIndex(i);
-        GP_ASSERT(pass);
-        pass->bind();
-
-        if (m_indexed)
-        {
-            GL_ASSERT( glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, static_cast<GLvoid*>(m_indices)) );
-        }
-        else
-        {
-            GL_ASSERT( glDrawArrays(m_primitiveType, 0, m_vertexCount) );
-        }
-
-        pass->unbind();
+        GL_ASSERT( glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, static_cast<GLvoid*>(m_indices)) );
     }
+    else
+    {
+        GL_ASSERT( glDrawArrays(m_primitiveType, 0, m_vertexCount) );
+    }
+
+    pass->unbind();
 }
 
 

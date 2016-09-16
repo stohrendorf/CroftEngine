@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
+#include "VertexAttributeBinding.h"
 
 
 namespace gameplay
@@ -47,7 +48,7 @@ namespace gameplay
          *
          * @param capacity The new batch capacity.
          */
-        void setCapacity(unsigned int capacity);
+        void setCapacity(size_t capacity);
 
         /**
          * Returns the material for this mesh batch.
@@ -114,23 +115,24 @@ namespace gameplay
 
         void updateVertexAttributeBinding();
 
-        bool resize(unsigned int capacity);
+        bool resize(size_t capacity);
 
         const VertexFormat m_vertexFormat;
         Mesh::PrimitiveType m_primitiveType;
         std::shared_ptr<Material> m_material;
         bool m_indexed;
-        unsigned int m_capacity;
-        unsigned int m_growSize;
-        unsigned int m_vertexCapacity;
-        unsigned int m_indexCapacity;
-        unsigned int m_vertexCount;
-        unsigned int m_indexCount;
-        unsigned char* m_vertices;
-        unsigned char* m_verticesPtr;
-        unsigned short* m_indices;
-        unsigned short* m_indicesPtr;
+        size_t m_capacity;
+        size_t m_growSize;
+        size_t m_vertexCapacity;
+        size_t m_indexCapacity;
+        size_t m_vertexCount;
+        size_t m_indexCount;
+        uint8_t* m_vertices;
+        uint8_t* m_verticesPtr;
+        uint16_t* m_indices;
+        uint16_t* m_indicesPtr;
         bool m_started;
+        std::shared_ptr<VertexAttributeBinding> _vaBinding;
     };
 
 

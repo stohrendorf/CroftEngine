@@ -35,13 +35,6 @@ namespace gameplay
         const std::shared_ptr<Mesh>& getMesh() const;
 
         /**
-         * Returns the number of parts in the Mesh for this Model.
-         *
-         * @return The number of parts in the Mesh for this Model.
-         */
-        unsigned int getMeshPartCount() const;
-
-        /**
          * Returns the Material currently bound to the specified mesh part.
          *
          * If partIndex is >= 0 and no Material is directly bound to the specified
@@ -51,7 +44,7 @@ namespace gameplay
          *
          * @return The requested Material, or nullptr if no Material is set.
          */
-        std::shared_ptr<Material> getMaterial(int partIndex = -1);
+        std::shared_ptr<Material> getMaterial(size_t partIndex = -1) const;
 
         /**
          * Sets a material to be used for drawing this Model.
@@ -67,7 +60,7 @@ namespace gameplay
          * @param material The new material.
          * @param partIndex The index of the mesh part to set the material for (-1 for shared material).
          */
-        void setMaterial(const std::shared_ptr<Material>& material, int partIndex = -1);
+        void setMaterial(const std::shared_ptr<Material>& material, size_t partIndex = -1);
 
         /**
          * Sets a material to be used for drawing this Model.
@@ -87,16 +80,7 @@ namespace gameplay
          *
          * @return The newly created and bound Material, or nullptr if the Material could not be created.
          */
-        std::shared_ptr<Material> setMaterial(const char* vshPath, const char* fshPath, const char* defines = nullptr, int partIndex = -1);
-
-        /**
-         * Determines if a custom (non-shared) material is set for the specified part index.
-         *
-         * @param partIndex MeshPart index.
-         *
-         * @return True if a custom MeshPart material is set for the specified index, false otherwise.
-         */
-        bool hasMaterial(unsigned int partIndex) const;
+        std::shared_ptr<Material> setMaterial(const char* vshPath, const char* fshPath, const char* defines = nullptr, size_t partIndex = -1);
 
         /**
          * Returns the MeshSkin.
@@ -143,12 +127,7 @@ namespace gameplay
          */
         void setMaterialNodeBinding(const std::shared_ptr<Material>& m);
 
-        void validatePartCount();
-
         std::shared_ptr<Mesh> _mesh;
-        std::shared_ptr<Material> _material;
-        size_t _partCount;
-        std::vector<std::shared_ptr<Material>> _partMaterials;
         std::unique_ptr<MeshSkin> _skin;
     };
 }

@@ -6,7 +6,7 @@
 namespace gameplay
 {
     class Mesh;
-    class Effect;
+    class ShaderProgram;
 
 
     /**
@@ -28,7 +28,7 @@ namespace gameplay
      * arrays, since it is slower than the server-side VAOs used by OpenGL
      * (when creating a VertexAttributeBinding between a Mesh and Effect).
      */
-    class VertexAttributeBinding : std::enable_shared_from_this<VertexAttributeBinding>
+    class VertexAttributeBinding
     {
     public:
         explicit VertexAttributeBinding();
@@ -45,12 +45,12 @@ namespace gameplay
          * array of vertex attribute bindings will be stored.
          *
          * @param mesh The mesh.
-         * @param effect The effect.
+         * @param shaderProgram The effect.
          *
          * @return A VertexAttributeBinding for the requested parameters.
          * @script{create}
          */
-        static std::shared_ptr<VertexAttributeBinding> create(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Effect>& effect);
+        static std::shared_ptr<VertexAttributeBinding> create(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Creates a client-side vertex attribute binding.
@@ -63,12 +63,12 @@ namespace gameplay
          *
          * @param vertexFormat The vertex format.
          * @param vertexPointer Pointer to beginning of client-side vertex array.
-         * @param effect The effect.
+         * @param shaderProgram The effect.
          *
          * @return A VertexAttributeBinding for the requested parameters.
          * @script{ignore}
          */
-        static std::shared_ptr<VertexAttributeBinding> create(const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<Effect>& effect);
+        static std::shared_ptr<VertexAttributeBinding> create(const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Binds this vertex array object.
@@ -96,13 +96,10 @@ namespace gameplay
 
         VertexAttributeBinding& operator=(const VertexAttributeBinding&) = delete;
 
-        static std::shared_ptr<VertexAttributeBinding> create(const std::shared_ptr<Mesh>& mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<Effect>& effect);
+        static std::shared_ptr<VertexAttributeBinding> create(const std::shared_ptr<Mesh>& mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         void setVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalize, GLsizei stride, void* pointer);
 
         GLuint _handle;
-        std::vector<VertexAttribute> _attributes;
-        std::shared_ptr<Mesh> _mesh;
-        std::shared_ptr<Effect> _effect;
     };
 }

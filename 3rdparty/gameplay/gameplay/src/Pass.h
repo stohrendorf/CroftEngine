@@ -34,24 +34,7 @@ namespace gameplay
         /**
          * Returns the effect for this Pass.
          */
-        const std::shared_ptr<Effect>& getEffect() const;
-
-        /**
-         * Sets a vertex attribute binding for this pass.
-         *
-         * When a mesh binding is set, the VertexAttributeBinding will be automatically
-         * bound when the bind() method is called for the pass.
-         *
-         * @param binding The VertexAttributeBinding to set (or NULL to remove an existing binding).
-         */
-        void setVertexAttributeBinding(const std::shared_ptr<VertexAttributeBinding>& binding);
-
-        /**
-         * Sets a vertex attribute binding for this pass.
-         *
-         * @return The vertex attribute binding for this pass.
-         */
-        const std::shared_ptr<VertexAttributeBinding>& getVertexAttributeBinding() const;
+        const std::shared_ptr<ShaderProgram>& getShaderProgram() const;
 
         /**
          * Binds the render state for this pass.
@@ -59,7 +42,7 @@ namespace gameplay
          * This method should be called before executing any drawing code that should
          * use this pass. When drawing code is complete, the unbind() method should be called.
          */
-        void bind();
+        void bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding);
 
         /**
          * Unbinds the render state for this pass.
@@ -82,7 +65,7 @@ namespace gameplay
 
         std::string _id;
         std::shared_ptr<Technique> _technique;
-        std::shared_ptr<Effect> _effect;
-        std::shared_ptr<VertexAttributeBinding> _vaBinding;
+        std::shared_ptr<ShaderProgram> _shaderProgram;
+        std::shared_ptr<VertexAttributeBinding> _boundVaBinding;
     };
 }

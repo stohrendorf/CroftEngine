@@ -1,5 +1,3 @@
-#version 150
-
 #ifndef DIRECTIONAL_LIGHT_COUNT
 # define DIRECTIONAL_LIGHT_COUNT 0
 #endif

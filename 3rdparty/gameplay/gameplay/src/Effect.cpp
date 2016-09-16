@@ -6,17 +6,17 @@
 namespace gameplay
 {
     // Cache of unique effects.
-    static std::map<std::string, std::shared_ptr<Effect>> __effectCache;
-    static Effect* __currentEffect = nullptr;
+    static std::map<std::string, std::shared_ptr<ShaderProgram>> __effectCache;
+    static ShaderProgram* __currentEffect = nullptr;
 
 
-    Effect::Effect()
+    ShaderProgram::ShaderProgram()
         : _program(0)
     {
     }
 
 
-    Effect::~Effect()
+    ShaderProgram::~ShaderProgram()
     {
         // Remove this effect from the cache.
         __effectCache.erase(_id);
@@ -42,7 +42,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Effect> Effect::createFromFile(const char* vshPath, const char* fshPath, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const char* vshPath, const char* fshPath, const char* defines)
     {
         GP_ASSERT(vshPath);
         GP_ASSERT(fshPath);
@@ -79,7 +79,7 @@ namespace gameplay
             return nullptr;
         }
 
-        std::shared_ptr<Effect> effect = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
+        std::shared_ptr<ShaderProgram> effect = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
 
         SAFE_DELETE_ARRAY(vshSource);
         SAFE_DELETE_ARRAY(fshSource);
@@ -99,7 +99,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Effect> Effect::createFromSource(const char* vshSource, const char* fshSource, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const char* vshSource, const char* fshSource, const char* defines)
     {
         return createFromSource(nullptr, vshSource, nullptr, fshSource, defines);
     }
@@ -227,7 +227,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Effect> Effect::createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines)
     {
         GP_ASSERT(vshSource);
         GP_ASSERT(fshSource);
@@ -244,9 +244,10 @@ namespace gameplay
         // Replace all comma separated definitions with #define prefix and \n suffix
         std::string definesStr = "";
         replaceDefines(defines, definesStr);
+        definesStr += "\n";
 
-        shaderSource[0] = definesStr.c_str();
-        shaderSource[1] = "\n";
+        shaderSource[0] = "#version 150\n";
+        shaderSource[1] = definesStr.c_str();
         std::string vshSourceStr = "";
         if( vshPath )
         {
@@ -364,8 +365,8 @@ namespace gameplay
         }
 
         // Create and return the new Effect.
-        auto effect = std::make_shared<Effect>();
-        effect->_program = program;
+        auto shaderProgram = std::make_shared<ShaderProgram>();
+        shaderProgram->_program = program;
 
         // Query and store vertex attribute meta-data from the program.
         // NOTE: Rather than using glBindAttribLocation to explicitly specify our own
@@ -395,7 +396,7 @@ namespace gameplay
                     GL_ASSERT( attribLocation = glGetAttribLocation(program, attribName) );
 
                     // Assign the vertex attribute mapping for the effect.
-                    effect->_vertexAttributes[attribName] = attribLocation;
+                    shaderProgram->_vertexAttributes[attribName] = attribLocation;
                 }
                 SAFE_DELETE_ARRAY(attribName);
             }
@@ -436,7 +437,7 @@ namespace gameplay
                     GL_ASSERT( uniformLocation = glGetUniformLocation(program, uniformName) );
 
                     Uniform* uniform = new Uniform();
-                    uniform->_effect = effect;
+                    uniform->_effect = shaderProgram;
                     uniform->_name = uniformName;
                     uniform->_location = uniformLocation;
                     uniform->_type = uniformType;
@@ -450,30 +451,30 @@ namespace gameplay
                         uniform->_index = 0;
                     }
 
-                    effect->_uniforms[uniformName] = uniform;
+                    shaderProgram->_uniforms[uniformName] = uniform;
                 }
                 SAFE_DELETE_ARRAY(uniformName);
             }
         }
 
-        return effect;
+        return shaderProgram;
     }
 
 
-    const std::string& Effect::getId() const
+    const std::string& ShaderProgram::getId() const
     {
         return _id;
     }
 
 
-    VertexAttribute Effect::getVertexAttribute(const char* name) const
+    VertexAttribute ShaderProgram::getVertexAttribute(const char* name) const
     {
-        std::map<std::string, VertexAttribute>::const_iterator itr = _vertexAttributes.find(name);
+        auto itr = _vertexAttributes.find(name);
         return (itr == _vertexAttributes.end() ? -1 : itr->second);
     }
 
 
-    Uniform* Effect::getUniform(const char* name) const
+    Uniform* ShaderProgram::getUniform(const char* name) const
     {
         std::map<std::string, Uniform*>::const_iterator itr = _uniforms.find(name);
 
@@ -498,7 +499,7 @@ namespace gameplay
                     Uniform* puniform = itr->second;
 
                     Uniform* uniform = new Uniform();
-                    uniform->_effect = std::const_pointer_cast<Effect>( shared_from_this() );
+                    uniform->_effect = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
                     uniform->_name = name;
                     uniform->_location = uniformLocation;
                     uniform->_index = 0;
@@ -517,7 +518,7 @@ namespace gameplay
     }
 
 
-    Uniform* Effect::getUniform(unsigned int index) const
+    Uniform* ShaderProgram::getUniform(unsigned int index) const
     {
         unsigned int i = 0;
         for( std::map<std::string, Uniform*>::const_iterator itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )
@@ -531,20 +532,20 @@ namespace gameplay
     }
 
 
-    size_t Effect::getUniformCount() const
+    size_t ShaderProgram::getUniformCount() const
     {
         return _uniforms.size();
     }
 
 
-    void Effect::setValue(Uniform* uniform, float value)
+    void ShaderProgram::setValue(Uniform* uniform, float value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniform1f(uniform->_location, value) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const float* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const float* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -552,14 +553,14 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, int value)
+    void ShaderProgram::setValue(Uniform* uniform, int value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniform1i(uniform->_location, value) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const int* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const int* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -567,14 +568,14 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Matrix& value)
+    void ShaderProgram::setValue(Uniform* uniform, const Matrix& value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniformMatrix4fv(uniform->_location, 1, GL_FALSE, value.m) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Matrix* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const Matrix* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -582,14 +583,14 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector2& value)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector2& value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniform2f(uniform->_location, value.x, value.y) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector2* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector2* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -597,14 +598,14 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector3& value)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector3& value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniform3f(uniform->_location, value.x, value.y, value.z) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector3* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector3* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -612,14 +613,14 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector4& value)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector4& value)
     {
         GP_ASSERT(uniform);
         GL_ASSERT( glUniform4f(uniform->_location, value.x, value.y, value.z, value.w) );
     }
 
 
-    void Effect::setValue(Uniform* uniform, const Vector4* values, unsigned int count)
+    void ShaderProgram::setValue(Uniform* uniform, const Vector4* values, unsigned int count)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(values);
@@ -627,7 +628,7 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const std::shared_ptr<Texture::Sampler>& sampler)
+    void ShaderProgram::setValue(Uniform* uniform, const std::shared_ptr<Texture::Sampler>& sampler)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(uniform->_type == GL_SAMPLER_2D || uniform->_type == GL_SAMPLER_CUBE);
@@ -644,7 +645,7 @@ namespace gameplay
     }
 
 
-    void Effect::setValue(Uniform* uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
+    void ShaderProgram::setValue(Uniform* uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
     {
         GP_ASSERT(uniform);
         GP_ASSERT(uniform->_type == GL_SAMPLER_2D || uniform->_type == GL_SAMPLER_CUBE);
@@ -668,7 +669,7 @@ namespace gameplay
     }
 
 
-    void Effect::bind()
+    void ShaderProgram::bind()
     {
         GL_ASSERT( glUseProgram(_program) );
 
@@ -676,7 +677,7 @@ namespace gameplay
     }
 
 
-    Effect* Effect::getCurrentEffect()
+    ShaderProgram* ShaderProgram::getCurrentEffect()
     {
         return __currentEffect;
     }
@@ -697,7 +698,7 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<Effect>& Uniform::getEffect() const
+    const std::shared_ptr<ShaderProgram>& Uniform::getEffect() const
     {
         return _effect;
     }

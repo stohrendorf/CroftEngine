@@ -47,13 +47,13 @@ namespace gameplay
          * </ol>
          *
          * @param texture The texture for this sprite batch.
-         * @param effect An optional effect to use with the SpriteBatch.
+         * @param shaderProgram An optional effect to use with the SpriteBatch.
          * @param initialCapacity An optional initial capacity of the batch (number of sprites).
          *
          * @return A new SpriteBatch for drawing sprites using the given texture.
          * @script{create}
          */
-        static SpriteBatch* create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Effect>& effect = nullptr, unsigned initialCapacity = 0);
+        static SpriteBatch* create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, unsigned initialCapacity = 0);
 
         /**
          * Destructor.

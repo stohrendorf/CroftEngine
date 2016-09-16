@@ -21,11 +21,11 @@ namespace gameplay
      * typical effect systems support, such as GPU render state management,
      * techniques and passes.
      */
-    class Effect : std::enable_shared_from_this<Effect>
+    class ShaderProgram : std::enable_shared_from_this<ShaderProgram>
     {
     public:
-        explicit Effect();
-        ~Effect();
+        explicit ShaderProgram();
+        ~ShaderProgram();
 
         /**
          * Creates an effect using the specified vertex and fragment shader.
@@ -36,7 +36,7 @@ namespace gameplay
          *
          * @return The created effect.
          */
-        static std::shared_ptr<Effect> createFromFile(const char* vshPath, const char* fshPath, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromFile(const char* vshPath, const char* fshPath, const char* defines = nullptr);
 
         /**
          * Creates an effect from the given vertex and fragment shader source code.
@@ -47,7 +47,7 @@ namespace gameplay
          *
          * @return The created effect.
          */
-        static std::shared_ptr<Effect> createFromSource(const char* vshSource, const char* fshSource, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromSource(const char* vshSource, const char* fshSource, const char* defines = nullptr);
 
         /**
          * Returns the unique string identifier for the effect, which is a concatenation of
@@ -219,13 +219,13 @@ namespace gameplay
          *
          * @return The currently bound effect, or nullptr if no effect is currently bound.
          */
-        static Effect* getCurrentEffect();
+        static ShaderProgram* getCurrentEffect();
 
     private:
 
-        Effect& operator=(const Effect&) = delete;
+        ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-        static std::shared_ptr<Effect> createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines = nullptr);
 
         GLuint _program;
         std::string _id;
@@ -240,7 +240,7 @@ namespace gameplay
      */
     class Uniform
     {
-        friend class Effect;
+        friend class ShaderProgram;
 
     public:
 
@@ -263,7 +263,7 @@ namespace gameplay
          *
          * @return The uniform's effect.
          */
-        const std::shared_ptr<Effect>& getEffect() const;
+        const std::shared_ptr<ShaderProgram>& getEffect() const;
 
     private:
 
@@ -291,6 +291,6 @@ namespace gameplay
         GLint _location;
         GLenum _type;
         unsigned int _index;
-        std::shared_ptr<Effect> _effect;
+        std::shared_ptr<ShaderProgram> _effect;
     };
 }

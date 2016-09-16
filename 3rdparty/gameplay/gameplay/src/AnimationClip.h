@@ -66,6 +66,7 @@ namespace gameplay
                         // GP_ASSERT(model.boneTreeIndex + 4 * boneId <= m_boneTrees.size());
                         // const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (boneId - 1) * 4];
 
+                        BOOST_ASSERT(boneTreeData != nullptr);
                         bone.translation.set(static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]));
                         boneTreeData += 4;
                     }

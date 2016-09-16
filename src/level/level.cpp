@@ -659,7 +659,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
             const auto end = core::Frame(animation.lastFrame + 1);
             const auto step = core::Frame(animation.stretchFactor);
             const int16_t* pData = &m_poseData[animation.poseDataOffset / 2];
-            const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex];
+            const int32_t* boneTreeData = model->boneTreeIndex >= m_boneTrees.size() ? nullptr : &m_boneTrees[model->boneTreeIndex];
 
             auto clip = std::make_unique<gameplay::AnimationClip>(renderModel->getSkin().get(),
                                                                   game->getAnimationController(),
@@ -718,7 +718,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     auto scene = gameplay::Scene::create();
     for(size_t i = 0; i < m_rooms.size(); ++i)
     {
-        m_rooms[i].createSceneNode(i, *this, materials, textures, staticModels, *m_textureAnimator);
+        m_rooms[i].createSceneNode(i, *this, textures, materials, staticModels, *m_textureAnimator);
         scene->addNode(m_rooms[i].node);
     }
 

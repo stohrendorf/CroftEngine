@@ -1065,7 +1065,7 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Node> createSceneNode(int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes, render::TextureAnimator& animator);
+        std::shared_ptr<gameplay::Node> createSceneNode(int dumpIdx, const level::Level& level, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes, render::TextureAnimator& animator);
 
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {

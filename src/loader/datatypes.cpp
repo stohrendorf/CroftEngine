@@ -29,6 +29,8 @@ namespace loader
                 };
                 static const gameplay::VertexFormat fmt{elems, 3};
 
+                Expects(fmt.getVertexSize() == sizeof(RenderVertex));
+
                 return fmt;
             }
         };
@@ -54,11 +56,11 @@ namespace loader
                 {
 #ifndef NDEBUG
                     for(auto idx : localPart.indices)
-                        Expects(idx >= 0 && idx < mesh->getVertexCount());
+                        BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
 #endif
 
                     gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
-                    part->setIndexData(localPart.indices.data(), 0, localPart.indices.size());
+                    part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 
                 auto model = std::make_shared<gameplay::Model>(mesh);
@@ -76,8 +78,8 @@ namespace loader
 
     std::shared_ptr<gameplay::Node> Room::createSceneNode(int dumpIdx,
                                                           const level::Level& level,
-                                                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
+                                                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                           const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
                                                           render::TextureAnimator& animator)
     {

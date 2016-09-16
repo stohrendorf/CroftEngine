@@ -33,28 +33,14 @@ namespace gameplay
          *
          * @return The Id of this technique.
          */
-        const char* getId() const;
-
-        /**
-         * Gets the number of passes in this technique.
-         *
-         * @return The number of passes in this technique.
-         */
-        size_t getPassCount() const;
-
-        /**
-         * Gets the pass at the specified index.
-         *
-         * @return The pass at the specified index.
-         */
-        const std::shared_ptr<Pass>& getPassByIndex(size_t index) const;
+        const std::string& getId() const;
 
         /**
          * Gets the pass with the specified id.
          *
          * @return The pass at the specified id.
          */
-        std::shared_ptr<Pass> getPass(const char* id) const;
+        std::shared_ptr<Pass> getPass() const;
 
         /**
          * @see RenderState::setNodeBinding
@@ -69,6 +55,6 @@ namespace gameplay
 
         std::string _id;
         std::shared_ptr<Material> _material;
-        std::vector<std::shared_ptr<Pass>> _passes;
+        std::shared_ptr<Pass> _pass;
     };
 }

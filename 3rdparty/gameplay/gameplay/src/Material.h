@@ -40,12 +40,12 @@ namespace gameplay
          * The returned material has a single technique and a single pass for the
          * given effect.
          *
-         * @param effect Effect for the new material.
+         * @param shaderProgram Effect for the new material.
          *
          * @return A new Material.
          * @script{create}
          */
-        static std::shared_ptr<Material> create(const std::shared_ptr<Effect>& effect);
+        static std::shared_ptr<Material> create(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Creates a material using the specified vertex and fragment shader.
@@ -63,54 +63,24 @@ namespace gameplay
         static std::shared_ptr<Material> create(const char* vshPath, const char* fshPath, const char* defines = nullptr);
 
         /**
-         * Returns the number of techniques in the material.
-         *
-         * @return The technique count.
-         */
-        size_t getTechniqueCount() const;
-
-        /**
          * Returns the technique at the specified index in this material.
          *
-         * @param index The index of the technique to return.
-         *
          * @return The specified technique.
          */
-        const std::shared_ptr<Technique>& getTechniqueByIndex(size_t index) const;
-
-        /**
-         * Returns the technique with the specified ID in this material.
-         *
-         * @param id The ID of the technique to return.
-         *
-         * @return The specified technique.
-         */
-        std::shared_ptr<Technique> getTechnique(const char* id) const;
-
-        /**
-         * Returns this material's current technique.
-         *
-         * @return The current technique.
-         */
-        const std::shared_ptr<Technique>& getTechnique() const;
-
-        /**
-         * Sets the current material technique.
-         *
-         * @param id ID of the technique to set.
-         */
-        void setTechnique(const char* id);
+        const std::shared_ptr<Technique>& getTechnique() const
+        {
+            return _technique;
+        }
 
         /**
          * @see RenderState::setNodeBinding
          */
-        void setNodeBinding(Node* node);
+        void setNodeBinding(Node* node) override;
 
     private:
 
         Material(const Material& m) = delete;
 
-        std::shared_ptr<Technique> _currentTechnique = nullptr;
-        std::vector<std::shared_ptr<Technique>> _techniques;
+        std::shared_ptr<Technique> _technique;
     };
 }
