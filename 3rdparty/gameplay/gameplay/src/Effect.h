@@ -71,7 +71,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if no such uniform exists.
          */
-        Uniform* getUniform(const char* name) const;
+        std::shared_ptr<Uniform> getUniform(const std::string& name) const;
 
         /**
          * Returns the specified active uniform.
@@ -80,7 +80,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if index is invalid.
          */
-        Uniform* getUniform(unsigned int index) const;
+        std::shared_ptr<Uniform> getUniform(size_t index) const;
 
         /**
          * Returns the number of active uniforms in this effect.
@@ -95,7 +95,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The float value to set.
          */
-        void setValue(Uniform* uniform, float value);
+        void setValue(const Uniform& uniform, float value);
 
         /**
          * Sets a float array uniform value.
@@ -104,7 +104,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const float* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const float* values, size_t count = 1);
 
         /**
          * Sets an integer uniform value.
@@ -112,7 +112,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(Uniform* uniform, int value);
+        void setValue(const Uniform& uniform, int value);
 
         /**
          * Sets an integer array uniform value.
@@ -121,7 +121,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const int* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const int* values, size_t count = 1);
 
         /**
          * Sets a matrix uniform value.
@@ -129,7 +129,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(Uniform* uniform, const Matrix& value);
+        void setValue(const Uniform& uniform, const Matrix& value);
 
         /**
          * Sets a matrix array uniform value.
@@ -138,7 +138,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const Matrix* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const Matrix* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -146,7 +146,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(Uniform* uniform, const Vector2& value);
+        void setValue(const Uniform& uniform, const Vector2& value);
 
         /**
          * Sets a vector array uniform value.
@@ -155,7 +155,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const Vector2* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const Vector2* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -163,7 +163,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(Uniform* uniform, const Vector3& value);
+        void setValue(const Uniform& uniform, const Vector3& value);
 
         /**
          * Sets a vector array uniform value.
@@ -172,7 +172,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const Vector3* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const Vector3* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -180,7 +180,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(Uniform* uniform, const Vector4& value);
+        void setValue(const Uniform& uniform, const Vector4& value);
 
         /**
          * Sets a vector array uniform value.
@@ -189,7 +189,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(Uniform* uniform, const Vector4* values, unsigned int count = 1);
+        void setValue(const Uniform& uniform, const Vector4* values, size_t count = 1);
 
         /**
          * Sets a sampler uniform value.
@@ -197,7 +197,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param sampler The sampler to set.
          */
-        void setValue(Uniform* uniform, const std::shared_ptr<Texture::Sampler>& sampler);
+        void setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler);
 
         /**
          * Sets a sampler array uniform value.
@@ -207,30 +207,24 @@ namespace gameplay
          *
          * @script{ignore}
          */
-        void setValue(Uniform* uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values);
+        void setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values);
 
         /**
          * Binds this effect to make it the currently active effect for the rendering system.
          */
         void bind();
 
-        /**
-         * Returns the currently bound effect for the rendering system.
-         *
-         * @return The currently bound effect, or nullptr if no effect is currently bound.
-         */
-        static ShaderProgram* getCurrentEffect();
-
     private:
 
+        ShaderProgram(const ShaderProgram&) = delete;
         ShaderProgram& operator=(const ShaderProgram&) = delete;
 
         static std::shared_ptr<ShaderProgram> createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines = nullptr);
 
-        GLuint _program;
+        GLuint _program = 0;
         std::string _id;
         std::map<std::string, VertexAttribute> _vertexAttributes;
-        mutable std::map<std::string, Uniform*> _uniforms;
+        mutable std::map<std::string, std::shared_ptr<Uniform>> _uniforms;
         static Uniform _emptyUniform;
     };
 
@@ -243,13 +237,15 @@ namespace gameplay
         friend class ShaderProgram;
 
     public:
+        Uniform();
+        ~Uniform();
 
         /**
          * Returns the name of this uniform.
          *
          * @return The name of the uniform.
          */
-        const char* getName() const;
+        const std::string& getName() const;
 
         /**
          * Returns the OpenGL uniform type.
@@ -263,34 +259,18 @@ namespace gameplay
          *
          * @return The uniform's effect.
          */
-        const std::shared_ptr<ShaderProgram>& getEffect() const;
+        const std::shared_ptr<ShaderProgram>& getShaderProgram() const;
 
     private:
 
-        /**
-         * Constructor.
-         */
-        Uniform();
+        Uniform(const Uniform& copy) = delete;
 
-        /**
-         * Copy constructor.
-         */
-        Uniform(const Uniform& copy);
-
-        /**
-         * Destructor.
-         */
-        ~Uniform();
-
-        /**
-         * Hidden copy assignment operator.
-         */
-        Uniform& operator=(const Uniform&);
+        Uniform& operator=(const Uniform&) = delete;
 
         std::string _name;
-        GLint _location;
-        GLenum _type;
-        unsigned int _index;
-        std::shared_ptr<ShaderProgram> _effect;
+        GLint _location = -1;
+        GLenum _type = 0;
+        unsigned int _index = 0;
+        std::shared_ptr<ShaderProgram> _shaderProgram = nullptr;
     };
 }

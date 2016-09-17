@@ -5,11 +5,11 @@
 
 namespace gameplay
 {
-    MaterialParameter::MaterialParameter(const char* name)
+    MaterialParameter::MaterialParameter(const std::string& name)
         : _type(MaterialParameter::NONE)
         , _count(1)
         , _dynamic(false)
-        , _name(name ? name : "")
+        , _name(name)
         , _uniform(nullptr)
         , _loggerDirtyBits(0)
     {
@@ -71,14 +71,14 @@ namespace gameplay
             _count = 1;
         }
 
-        memset(&_value, 0, sizeof(_value));
+        _value = nullptr;
         _type = MaterialParameter::NONE;
     }
 
 
-    const char* MaterialParameter::getName() const
+    const std::string& MaterialParameter::getName() const
     {
-        return _name.c_str();
+        return _name;
     }
 
 
@@ -110,7 +110,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const float* values, unsigned int count)
+    void MaterialParameter::setValue(const float* values, size_t count)
     {
         clearValue();
 
@@ -120,7 +120,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const int* values, unsigned int count)
+    void MaterialParameter::setValue(const int* values, size_t count)
     {
         clearValue();
 
@@ -145,7 +145,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector2* values, unsigned int count)
+    void MaterialParameter::setValue(const Vector2* values, size_t count)
     {
         GP_ASSERT(values);
         clearValue();
@@ -171,7 +171,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector3* values, unsigned int count)
+    void MaterialParameter::setValue(const Vector3* values, size_t count)
     {
         GP_ASSERT(values);
         clearValue();
@@ -197,7 +197,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector4* values, unsigned int count)
+    void MaterialParameter::setValue(const Vector4* values, size_t count)
     {
         GP_ASSERT(values);
         clearValue();
@@ -227,7 +227,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Matrix* values, unsigned int count)
+    void MaterialParameter::setValue(const Matrix* values, size_t count)
     {
         GP_ASSERT(values);
         clearValue();
@@ -264,7 +264,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setFloatArray(const float* values, unsigned int count, bool copy)
+    void MaterialParameter::setFloatArray(const float* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -291,7 +291,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setIntArray(const int* values, unsigned int count, bool copy)
+    void MaterialParameter::setIntArray(const int* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -318,7 +318,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector2Array(const Vector2* values, unsigned int count, bool copy)
+    void MaterialParameter::setVector2Array(const Vector2* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -345,7 +345,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector3Array(const Vector3* values, unsigned int count, bool copy)
+    void MaterialParameter::setVector3Array(const Vector3* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -372,7 +372,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector4Array(const Vector4* values, unsigned int count, bool copy)
+    void MaterialParameter::setVector4Array(const Vector4* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -399,7 +399,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setMatrixArray(const Matrix* values, unsigned int count, bool copy)
+    void MaterialParameter::setMatrixArray(const Matrix* values, size_t count, bool copy)
     {
         GP_ASSERT(values);
         clearValue();
@@ -442,9 +442,9 @@ namespace gameplay
 
         // If we had a Uniform cached that is not from the passed in effect,
         // we need to update our uniform to point to the new effect's uniform.
-        if( !_uniform || _uniform->getEffect() != shaderProgram )
+        if( !_uniform || _uniform->getShaderProgram() != shaderProgram )
         {
-            _uniform = shaderProgram->getUniform(_name.c_str());
+            _uniform = shaderProgram->getUniform(_name);
 
             if( !_uniform )
             {
@@ -461,34 +461,34 @@ namespace gameplay
         switch( _type )
         {
             case MaterialParameter::FLOAT:
-                shaderProgram->setValue(_uniform, boost::get<float>(_value));
+                shaderProgram->setValue(*_uniform, boost::get<float>(_value));
                 break;
             case MaterialParameter::FLOAT_ARRAY:
-                shaderProgram->setValue(_uniform, boost::get<float*>(_value), _count);
+                shaderProgram->setValue(*_uniform, boost::get<float*>(_value), _count);
                 break;
             case MaterialParameter::INT:
-                shaderProgram->setValue(_uniform, boost::get<int>(_value));
+                shaderProgram->setValue(*_uniform, boost::get<int>(_value));
                 break;
             case MaterialParameter::INT_ARRAY:
-                shaderProgram->setValue(_uniform, boost::get<int*>(_value), _count);
+                shaderProgram->setValue(*_uniform, boost::get<int*>(_value), _count);
                 break;
             case MaterialParameter::VECTOR2:
-                shaderProgram->setValue(_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR3:
-                shaderProgram->setValue(_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR4:
-                shaderProgram->setValue(_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::MATRIX:
-                shaderProgram->setValue(_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::SAMPLER:
-                shaderProgram->setValue(_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));
+                shaderProgram->setValue(*_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));
                 break;
             case MaterialParameter::SAMPLER_ARRAY:
-                shaderProgram->setValue(_uniform, boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value));
+                shaderProgram->setValue(*_uniform, boost::get<std::vector<std::shared_ptr<Texture::Sampler>>>(_value));
                 break;
             case MaterialParameter::METHOD:
                 if(boost::get<std::shared_ptr<MethodBinding>>(_value))
@@ -503,97 +503,6 @@ namespace gameplay
                 }
                 break;
             }
-        }
-    }
-
-
-    void MaterialParameter::bindValue(Node* node, const char* binding)
-    {
-        GP_ASSERT(binding);
-
-        if( strcmp(binding, "&Node::getBackVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getBackVector);
-        }
-        else if( strcmp(binding, "&Node::getDownVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getDownVector);
-        }
-        else if( strcmp(binding, "&Node::getTranslationWorld") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getTranslationWorld);
-        }
-        else if( strcmp(binding, "&Node::getTranslationView") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getTranslationView);
-        }
-        else if( strcmp(binding, "&Node::getForwardVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getForwardVector);
-        }
-        else if( strcmp(binding, "&Node::getForwardVectorWorld") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getForwardVectorWorld);
-        }
-        else if( strcmp(binding, "&Node::getForwardVectorView") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getForwardVectorView);
-        }
-        else if( strcmp(binding, "&Node::getLeftVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getLeftVector);
-        }
-        else if( strcmp(binding, "&Node::getRightVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getRightVector);
-        }
-        else if( strcmp(binding, "&Node::getRightVectorWorld") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getRightVectorWorld);
-        }
-        else if( strcmp(binding, "&Node::getUpVector") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getUpVector);
-        }
-        else if( strcmp(binding, "&Node::getUpVectorWorld") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getUpVectorWorld);
-        }
-        else if( strcmp(binding, "&Node::getActiveCameraTranslationWorld") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getActiveCameraTranslationWorld);
-        }
-        else if( strcmp(binding, "&Node::getActiveCameraTranslationView") == 0 )
-        {
-            bindValue<Node, Vector3>(node, &Node::getActiveCameraTranslationView);
-        }
-        else if( strcmp(binding, "&Node::getScaleX") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getScaleX);
-        }
-        else if( strcmp(binding, "&Node::getScaleY") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getScaleY);
-        }
-        else if( strcmp(binding, "&Node::getScaleZ") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getScaleZ);
-        }
-        else if( strcmp(binding, "&Node::getTranslationX") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getTranslationX);
-        }
-        else if( strcmp(binding, "&Node::getTranslationY") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getTranslationY);
-        }
-        else if( strcmp(binding, "&Node::getTranslationZ") == 0 )
-        {
-            bindValue<Node, float>(node, &Node::getTranslationZ);
-        }
-        else
-        {
-            GP_WARN("Unsupported material parameter binding '%s'.", binding);
         }
     }
 

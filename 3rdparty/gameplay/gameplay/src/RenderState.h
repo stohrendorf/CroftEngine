@@ -461,7 +461,7 @@ namespace gameplay
          *
          * @return A MaterialParameter for the specified name.
          */
-        std::shared_ptr<MaterialParameter> getParameter(const char* name) const;
+        std::shared_ptr<MaterialParameter> getParameter(const std::string& name) const;
 
         /**
          * Gets the number of material parameters.
@@ -500,7 +500,7 @@ namespace gameplay
          * @param name The name of the material parameter to store an auto-binding for.
          * @param autoBinding A valid AutoBinding value.
          */
-        void setParameterAutoBinding(const char* name, AutoBinding autoBinding);
+        void setParameterAutoBinding(const std::string& name, AutoBinding autoBinding);
 
         /**
          * Sets the fixed-function render state of this object to the state contained
@@ -571,7 +571,7 @@ namespace gameplay
          * @param uniformName Name of the shader uniform.
          * @param autoBinding Name of the auto binding.s
          */
-        void applyAutoBinding(const char* uniformName, RenderState::AutoBinding autoBinding);
+        void applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding);
 
         /**
          * Binds the render state for this RenderState and any of its parents, top-down,

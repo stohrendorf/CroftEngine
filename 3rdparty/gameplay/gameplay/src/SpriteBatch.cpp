@@ -69,10 +69,10 @@ namespace gameplay
         }
 
         // Search for the first sampler uniform in the effect.
-        Uniform* samplerUniform = nullptr;
+        std::shared_ptr<Uniform> samplerUniform = nullptr;
         for( unsigned int i = 0, count = fx->getUniformCount(); i < count; ++i )
         {
-            Uniform* uniform = fx->getUniform(i);
+            auto uniform = fx->getUniform(i);
             if( uniform && uniform->getType() == GL_SAMPLER_2D )
             {
                 samplerUniform = uniform;

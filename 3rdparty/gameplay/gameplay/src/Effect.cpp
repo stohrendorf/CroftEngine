@@ -6,26 +6,16 @@
 namespace gameplay
 {
     // Cache of unique effects.
-    static std::map<std::string, std::shared_ptr<ShaderProgram>> __effectCache;
     static ShaderProgram* __currentEffect = nullptr;
 
 
-    ShaderProgram::ShaderProgram()
-        : _program(0)
-    {
-    }
+    ShaderProgram::ShaderProgram() = default;
 
 
     ShaderProgram::~ShaderProgram()
     {
-        // Remove this effect from the cache.
-        __effectCache.erase(_id);
-
         // Free uniforms.
-        for( std::map<std::string, Uniform*>::iterator itr = _uniforms.begin(); itr != _uniforms.end(); ++itr )
-        {
-            SAFE_DELETE(itr->second);
-        }
+        _uniforms.clear();
 
         if( _program )
         {
@@ -56,13 +46,6 @@ namespace gameplay
         {
             uniqueId += defines;
         }
-        auto itr = __effectCache.find(uniqueId);
-        if( itr != __effectCache.end() )
-        {
-            // Found an exiting effect with this id, so increase its ref count and return it.
-            GP_ASSERT(itr->second);
-            return itr->second;
-        }
 
         // Read source from file.
         char* vshSource = FileSystem::readAll(vshPath);
@@ -79,23 +62,22 @@ namespace gameplay
             return nullptr;
         }
 
-        std::shared_ptr<ShaderProgram> effect = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
+        std::shared_ptr<ShaderProgram> shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
 
         SAFE_DELETE_ARRAY(vshSource);
         SAFE_DELETE_ARRAY(fshSource);
 
-        if( effect == nullptr )
+        if( shaderProgram == nullptr )
         {
             GP_ERROR("Failed to create effect from shaders '%s', '%s'.", vshPath, fshPath);
         }
         else
         {
             // Store this effect in the cache.
-            effect->_id = uniqueId;
-            __effectCache[uniqueId] = effect;
+            shaderProgram->_id = uniqueId;
         }
 
-        return effect;
+        return shaderProgram;
     }
 
 
@@ -143,13 +125,12 @@ namespace gameplay
     {
         // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
         std::string str = source;
-        size_t lastPos = 0;
         size_t headPos = 0;
-        size_t fileLen = str.length();
-        size_t tailPos = fileLen;
+        const auto fileLen = str.length();
+        const auto tailPos = fileLen;
         while( headPos < fileLen )
         {
-            lastPos = headPos;
+            const auto lastPos = headPos;
             if( headPos == 0 )
             {
                 // find the first "#include"
@@ -209,7 +190,7 @@ namespace gameplay
             else
             {
                 // Append the remaining
-                out.append(str.c_str(), lastPos, tailPos);
+                out.append(str, lastPos, tailPos);
             }
         }
     }
@@ -436,8 +417,8 @@ namespace gameplay
                     // Query the pre-assigned uniform location.
                     GL_ASSERT( uniformLocation = glGetUniformLocation(program, uniformName) );
 
-                    Uniform* uniform = new Uniform();
-                    uniform->_effect = shaderProgram;
+                    auto uniform = std::make_unique<Uniform>();
+                    uniform->_shaderProgram = shaderProgram;
                     uniform->_name = uniformName;
                     uniform->_location = uniformLocation;
                     uniform->_type = uniformType;
@@ -451,7 +432,7 @@ namespace gameplay
                         uniform->_index = 0;
                     }
 
-                    shaderProgram->_uniforms[uniformName] = uniform;
+                    shaderProgram->_uniforms[uniformName] = std::move(uniform);
                 }
                 SAFE_DELETE_ARRAY(uniformName);
             }
@@ -474,9 +455,9 @@ namespace gameplay
     }
 
 
-    Uniform* ShaderProgram::getUniform(const char* name) const
+    std::shared_ptr<Uniform> ShaderProgram::getUniform(const std::string& name) const
     {
-        std::map<std::string, Uniform*>::const_iterator itr = _uniforms.find(name);
+        auto itr = _uniforms.find(name);
 
         if( itr != _uniforms.end() )
         {
@@ -485,32 +466,31 @@ namespace gameplay
         }
 
         GLint uniformLocation;
-        GL_ASSERT( uniformLocation = glGetUniformLocation(_program, name) );
+        GL_ASSERT( uniformLocation = glGetUniformLocation(_program, name.c_str()) );
         if( uniformLocation > -1 )
         {
             // Check for array uniforms ("u_directionalLightColor[0]" -> "u_directionalLightColor")
-            char* parentname = new char[strlen(name) + 1];
-            strcpy(parentname, name);
-            if( strtok(parentname, "[") != nullptr )
+            std::string parentname = name;
+            auto bracketPos = parentname.find('[');
+            if( bracketPos != std::string::npos )
             {
+                parentname.erase(bracketPos);
                 auto itr = _uniforms.find(parentname);
                 if( itr != _uniforms.end() )
                 {
-                    Uniform* puniform = itr->second;
+                    const auto& puniform = itr->second;
 
-                    Uniform* uniform = new Uniform();
-                    uniform->_effect = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
+                    auto uniform = std::make_shared<Uniform>();
+                    uniform->_shaderProgram = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
                     uniform->_name = name;
                     uniform->_location = uniformLocation;
                     uniform->_index = 0;
                     uniform->_type = puniform->getType();
                     _uniforms[name] = uniform;
 
-                    SAFE_DELETE_ARRAY(parentname);
                     return uniform;
                 }
             }
-            SAFE_DELETE_ARRAY(parentname);
         }
 
         // No uniform variable found - return nullptr
@@ -518,10 +498,10 @@ namespace gameplay
     }
 
 
-    Uniform* ShaderProgram::getUniform(unsigned int index) const
+    std::shared_ptr<Uniform> ShaderProgram::getUniform(size_t index) const
     {
-        unsigned int i = 0;
-        for( std::map<std::string, Uniform*>::const_iterator itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )
+        size_t i = 0;
+        for( auto itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )
         {
             if( i == index )
             {
@@ -538,134 +518,120 @@ namespace gameplay
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, float value)
+    void ShaderProgram::setValue(const Uniform& uniform, float value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniform1f(uniform->_location, value) );
+        GL_ASSERT( glUniform1f(uniform._location, value) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const float* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const float* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniform1fv(uniform->_location, count, values) );
+        GL_ASSERT( glUniform1fv(uniform._location, count, values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, int value)
+    void ShaderProgram::setValue(const Uniform& uniform, int value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniform1i(uniform->_location, value) );
+        GL_ASSERT( glUniform1i(uniform._location, value) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const int* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const int* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniform1iv(uniform->_location, count, values) );
+        GL_ASSERT( glUniform1iv(uniform._location, count, values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Matrix& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const Matrix& value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniformMatrix4fv(uniform->_location, 1, GL_FALSE, value.m) );
+        GL_ASSERT( glUniformMatrix4fv(uniform._location, 1, GL_FALSE, value.m) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Matrix* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const Matrix* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniformMatrix4fv(uniform->_location, count, GL_FALSE, (GLfloat*)values) );
+        GL_ASSERT( glUniformMatrix4fv(uniform._location, count, GL_FALSE, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector2& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector2& value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniform2f(uniform->_location, value.x, value.y) );
+        GL_ASSERT( glUniform2f(uniform._location, value.x, value.y) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector2* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector2* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniform2fv(uniform->_location, count, (GLfloat*)values) );
+        GL_ASSERT( glUniform2fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector3& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector3& value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniform3f(uniform->_location, value.x, value.y, value.z) );
+        GL_ASSERT( glUniform3f(uniform._location, value.x, value.y, value.z) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector3* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector3* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniform3fv(uniform->_location, count, (GLfloat*)values) );
+        GL_ASSERT( glUniform3fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector4& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector4& value)
     {
-        GP_ASSERT(uniform);
-        GL_ASSERT( glUniform4f(uniform->_location, value.x, value.y, value.z, value.w) );
+        GL_ASSERT( glUniform4f(uniform._location, value.x, value.y, value.z, value.w) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const Vector4* values, unsigned int count)
+    void ShaderProgram::setValue(const Uniform& uniform, const Vector4* values, size_t count)
     {
-        GP_ASSERT(uniform);
         GP_ASSERT(values);
-        GL_ASSERT( glUniform4fv(uniform->_location, count, (GLfloat*)values) );
+        GL_ASSERT( glUniform4fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const std::shared_ptr<Texture::Sampler>& sampler)
+    void ShaderProgram::setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler)
     {
-        GP_ASSERT(uniform);
-        GP_ASSERT(uniform->_type == GL_SAMPLER_2D || uniform->_type == GL_SAMPLER_CUBE);
+        GP_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
         GP_ASSERT(sampler);
-        GP_ASSERT((sampler->getTexture()->getType() == Texture::TEXTURE_2D && uniform->_type == GL_SAMPLER_2D) ||
-            (sampler->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform->_type == GL_SAMPLER_CUBE));
+        GP_ASSERT((sampler->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
+            (sampler->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
 
-        GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform->_index) );
+        GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index) );
 
         // Bind the sampler - this binds the texture and applies sampler state
         sampler->bind();
 
-        GL_ASSERT( glUniform1i(uniform->_location, uniform->_index) );
+        GL_ASSERT( glUniform1i(uniform._location, uniform._index) );
     }
 
 
-    void ShaderProgram::setValue(Uniform* uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
+    void ShaderProgram::setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
     {
-        GP_ASSERT(uniform);
-        GP_ASSERT(uniform->_type == GL_SAMPLER_2D || uniform->_type == GL_SAMPLER_CUBE);
+        GP_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
 
         // Set samplers as active and load texture unit array
         GLint units[32];
         for( size_t i = 0; i < values.size(); ++i )
         {
-            GP_ASSERT((values[i]->getTexture()->getType() == Texture::TEXTURE_2D && uniform->_type == GL_SAMPLER_2D) ||
-                (values[i]->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform->_type == GL_SAMPLER_CUBE));
-            GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform->_index + i) );
+            GP_ASSERT((values[i]->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
+                (values[i]->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
+            GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index + i) );
 
             // Bind the sampler - this binds the texture and applies sampler state
             values[i]->bind();
 
-            units[i] = uniform->_index + i;
+            units[i] = uniform._index + i;
         }
 
         // Pass texture unit array to GL
-        GL_ASSERT( glUniform1iv(uniform->_location, values.size(), units) );
+        GL_ASSERT( glUniform1iv(uniform._location, values.size(), units) );
     }
 
 
@@ -677,36 +643,21 @@ namespace gameplay
     }
 
 
-    ShaderProgram* ShaderProgram::getCurrentEffect()
+    Uniform::Uniform() = default;
+
+
+    Uniform::~Uniform() = default;
+
+
+    const std::shared_ptr<ShaderProgram>& Uniform::getShaderProgram() const
     {
-        return __currentEffect;
+        return _shaderProgram;
     }
 
 
-    Uniform::Uniform() :
-                       _location(-1)
-                       , _type(0)
-                       , _index(0)
-                       , _effect(nullptr)
+    const std::string& Uniform::getName() const
     {
-    }
-
-
-    Uniform::~Uniform()
-    {
-        // hidden
-    }
-
-
-    const std::shared_ptr<ShaderProgram>& Uniform::getEffect() const
-    {
-        return _effect;
-    }
-
-
-    const char* Uniform::getName() const
-    {
-        return _name.c_str();
+        return _name;
     }
 
 

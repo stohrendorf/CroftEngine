@@ -38,13 +38,13 @@ namespace gameplay
         friend class RenderState;
 
     public:
-        explicit MaterialParameter(const char* name);
+        explicit MaterialParameter(const std::string& name);
         ~MaterialParameter();
 
         /**
          * Returns the name of this material parameter.
          */
-        const char* getName() const;
+        const std::string& getName() const;
 
         /**
          * Returns the texture sampler or NULL if this MaterialParameter is not a sampler type.
@@ -69,12 +69,12 @@ namespace gameplay
         /**
          * Stores a pointer/array of float values in this parameter.
          */
-        void setValue(const float* values, unsigned int count = 1);
+        void setValue(const float* values, size_t count = 1);
 
         /**
          * Stores a pointer/array of integer values in this parameter.
          */
-        void setValue(const int* values, unsigned int count = 1);
+        void setValue(const int* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified Vector2 value in this parameter.
@@ -84,7 +84,7 @@ namespace gameplay
         /**
          * Stores a pointer/array of Vector2 values in this parameter.
          */
-        void setValue(const Vector2* values, unsigned int count = 1);
+        void setValue(const Vector2* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified Vector3 value in this parameter.
@@ -94,7 +94,7 @@ namespace gameplay
         /**
          * Stores a pointer/array of Vector3 values in this parameter.
          */
-        void setValue(const Vector3* values, unsigned int count = 1);
+        void setValue(const Vector3* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified Vector4 value in this parameter.
@@ -104,7 +104,7 @@ namespace gameplay
         /**
          * Stores a pointer/array of Vector4 values in this parameter.
          */
-        void setValue(const Vector4* values, unsigned int count = 1);
+        void setValue(const Vector4* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified Matrix value in this parameter.
@@ -114,7 +114,7 @@ namespace gameplay
         /**
          * Stores a pointer/array of Matrix values in this parameter.
          */
-        void setValue(const Matrix* values, unsigned int count = 1);
+        void setValue(const Matrix* values, size_t count = 1);
 
         /**
          * Sets the value of this parameter to the specified texture sampler.
@@ -144,7 +144,7 @@ namespace gameplay
          *      to point to the passed in array/pointer (which must be valid for the lifetime
          *      of the MaterialParameter).
          */
-        void setFloatArray(const float* values, unsigned int count, bool copy = false);
+        void setFloatArray(const float* values, size_t count, bool copy = false);
 
         /**
          * Stores an integer value in this parameter.
@@ -156,7 +156,7 @@ namespace gameplay
         /**
          * Stores an array of integer values in this parameter.
          */
-        void setIntArray(const int* values, unsigned int count, bool copy = false);
+        void setIntArray(const int* values, size_t count, bool copy = false);
 
         /**
          * Stores a Vector2 value in this parameter.
@@ -174,7 +174,7 @@ namespace gameplay
          *      to point to the passed in array/pointer (which must be valid for the lifetime
          *      of the MaterialParameter).
          */
-        void setVector2Array(const Vector2* values, unsigned int count, bool copy = false);
+        void setVector2Array(const Vector2* values, size_t count, bool copy = false);
 
         /**
          * Stores a Vector3 value in this parameter.
@@ -186,7 +186,7 @@ namespace gameplay
         /**
          * Stores an array of Vector3 values in this parameter.
          */
-        void setVector3Array(const Vector3* values, unsigned int count, bool copy = false);
+        void setVector3Array(const Vector3* values, size_t count, bool copy = false);
 
         /**
          * Stores a Vector4 value in this parameter.
@@ -204,7 +204,7 @@ namespace gameplay
          *      to point to the passed in array/pointer (which must be valid for the lifetime
          *      of the MaterialParameter).
          */
-        void setVector4Array(const Vector4* values, unsigned int count, bool copy = false);
+        void setVector4Array(const Vector4* values, size_t count, bool copy = false);
 
         /**
          * Stores a Matrix value in this parameter.
@@ -222,7 +222,7 @@ namespace gameplay
          *      to point to the passed in array/pointer (which must be valid for the lifetime
          *      of the MaterialParameter).
          */
-        void setMatrixArray(const Matrix* values, unsigned int count, bool copy = false);
+        void setMatrixArray(const Matrix* values, size_t count, bool copy = false);
 
         /**
          * Stores a Sampler value in this parameter.
@@ -271,37 +271,6 @@ namespace gameplay
          */
         template<class ClassType, class ParameterType>
         void bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, unsigned int (ClassType::*countMethod)() const);
-
-        /**
-         * Binds the return value of the supported class method for the given node to this material parameter.
-         *
-         * Note: intended for use from Lua scripts.
-         *
-         * @param node The node containing the the member method to bind.
-         * @param binding The name of the class method to bind (in the format '&class::method').
-         *      Note: this name must be one of the following supported methods:
-         *      - "&Node::getBackVector"
-         *      - "&Node::getDownVector"
-         *      - "&Node::getTranslationWorld"
-         *      - "&Node::getTranslationView"
-         *      - "&Node::getForwardVector"
-         *      - "&Node::getForwardVectorWorld"
-         *      - "&Node::getForwardVectorView"
-         *      - "&Node::getLeftVector"
-         *      - "&Node::getRightVector"
-         *      - "&Node::getRightVectorWorld"
-         *      - "&Node::getUpVector"
-         *      - "&Node::getUpVectorWorld"
-         *      - "&Node::getActiveCameraTranslationWorld"
-         *      - "&Node::getActiveCameraTranslationView"
-         *      - "&Node::getScaleX"
-         *      - "&Node::getScaleY"
-         *      - "&Node::getScaleZ"
-         *      - "&Node::getTranslationX"
-         *      - "&Node::getTranslationY"
-         *      - "&Node::getTranslationZ"
-         */
-        void bindValue(Node* node, const char* binding);
 
     private:
 
@@ -368,7 +337,7 @@ namespace gameplay
         class MethodArrayBinding : public MethodBinding
         {
             typedef ParameterType (ClassType::*ValueMethod)() const;
-            typedef unsigned int (ClassType::*CountMethod)() const;
+            typedef size_t (ClassType::*CountMethod)() const;
         public:
             MethodArrayBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod, CountMethod countMethod);
             void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) override;
@@ -390,7 +359,7 @@ namespace gameplay
             PARAMETER_VALUE_NOT_SET = 0x02
         };
 
-        boost::variant<float, int, float*, int*, std::shared_ptr<Texture::Sampler>, std::vector<std::shared_ptr<Texture::Sampler>>, std::shared_ptr<MethodBinding>> _value;
+        boost::variant<std::nullptr_t, float, int, float*, int*, std::shared_ptr<Texture::Sampler>, std::vector<std::shared_ptr<Texture::Sampler>>, std::shared_ptr<MethodBinding>> _value;
 
         enum
         {
@@ -409,10 +378,10 @@ namespace gameplay
         } _type;
 
 
-        unsigned int _count;
+        size_t _count;
         bool _dynamic;
         std::string _name;
-        Uniform* _uniform;
+        std::shared_ptr<Uniform> _uniform;
         char _loggerDirtyBits;
     };
 
@@ -451,7 +420,7 @@ namespace gameplay
     template<class ClassType, class ParameterType>
     void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        shaderProgram->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
+        shaderProgram->setValue(*_parameter->_uniform, (_instance ->* _valueMethod)());
     }
 
 
@@ -468,6 +437,6 @@ namespace gameplay
     template<class ClassType, class ParameterType>
     void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        shaderProgram->setValue(_parameter->_uniform, (_instance ->* _valueMethod)());
+        shaderProgram->setValue(*_parameter->_uniform, (_instance ->* _valueMethod)());
     }
 }

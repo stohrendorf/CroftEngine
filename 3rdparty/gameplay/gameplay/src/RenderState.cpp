@@ -54,16 +54,14 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<MaterialParameter> RenderState::getParameter(const char* name) const
+    std::shared_ptr<MaterialParameter> RenderState::getParameter(const std::string& name) const
     {
-        GP_ASSERT(name);
-
         // Search for an existing parameter with this name.
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
         {
             auto param = _parameters[i];
             GP_ASSERT(param);
-            if( strcmp(param->getName(), name) == 0 )
+            if( param->getName() == name )
             {
                 return param;
             }
@@ -111,10 +109,8 @@ namespace gameplay
     }
 
 
-    void RenderState::setParameterAutoBinding(const char* name, AutoBinding autoBinding)
+    void RenderState::setParameterAutoBinding(const std::string& name, AutoBinding autoBinding)
     {
-        GP_ASSERT(name);
-
         // Add/update an auto-binding
         _autoBindings[name] = autoBinding;
 
@@ -154,12 +150,12 @@ namespace gameplay
 
         for( const auto& binding : _autoBindings )
         {
-            applyAutoBinding(binding.first.c_str(), binding.second);
+            applyAutoBinding(binding.first, binding.second);
         }
     }
 
 
-    void RenderState::applyAutoBinding(const char* uniformName, RenderState::AutoBinding autoBinding)
+    void RenderState::applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding)
     {
         GP_ASSERT(_nodeBinding);
 
