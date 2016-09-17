@@ -29,6 +29,9 @@ attribute vec2 a_texCoord;
   attribute vec3 a_normal;
 #endif
 
+attribute vec3 a_color;
+varying vec3 v_color;
+
 ///////////////////////////////////////////////////////////
 // Uniforms
 uniform mat4 u_worldViewProjectionMatrix;
@@ -143,4 +146,6 @@ void main()
   #if defined(CLIP_PLANE)
     v_clipDistance = dot(u_worldMatrix * position, u_clipPlane);
   #endif
+
+  v_color = a_color;
 }

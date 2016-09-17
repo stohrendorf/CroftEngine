@@ -441,9 +441,9 @@ namespace gameplay
         if( (_bits & RS_BLEND) && (_blendEnabled != _defaultState->_blendEnabled) )
         {
             if( _blendEnabled )
-            GL_ASSERT( glEnable(GL_BLEND) );
+                GL_ASSERT( glEnable(GL_BLEND) );
             else
-            GL_ASSERT( glDisable(GL_BLEND) );
+                GL_ASSERT( glDisable(GL_BLEND) );
             _defaultState->_blendEnabled = _blendEnabled;
         }
         if( (_bits & RS_BLEND_FUNC) && (_blendSrc != _defaultState->_blendSrc || _blendDst != _defaultState->_blendDst) )
@@ -455,9 +455,9 @@ namespace gameplay
         if( (_bits & RS_CULL_FACE) && (_cullFaceEnabled != _defaultState->_cullFaceEnabled) )
         {
             if( _cullFaceEnabled )
-            GL_ASSERT( glEnable(GL_CULL_FACE) );
+                GL_ASSERT( glEnable(GL_CULL_FACE) );
             else
-            GL_ASSERT( glDisable(GL_CULL_FACE) );
+                GL_ASSERT( glDisable(GL_CULL_FACE) );
             _defaultState->_cullFaceEnabled = _cullFaceEnabled;
         }
         if( (_bits & RS_CULL_FACE_SIDE) && (_cullFaceSide != _defaultState->_cullFaceSide) )
@@ -473,9 +473,9 @@ namespace gameplay
         if( (_bits & RS_DEPTH_TEST) && (_depthTestEnabled != _defaultState->_depthTestEnabled) )
         {
             if( _depthTestEnabled )
-            GL_ASSERT( glEnable(GL_DEPTH_TEST) );
+                GL_ASSERT( glEnable(GL_DEPTH_TEST) );
             else
-            GL_ASSERT( glDisable(GL_DEPTH_TEST) );
+                GL_ASSERT( glDisable(GL_DEPTH_TEST) );
             _defaultState->_depthTestEnabled = _depthTestEnabled;
         }
         if( (_bits & RS_DEPTH_WRITE) && (_depthWriteEnabled != _defaultState->_depthWriteEnabled) )
@@ -491,9 +491,9 @@ namespace gameplay
         if( (_bits & RS_STENCIL_TEST) && (_stencilTestEnabled != _defaultState->_stencilTestEnabled) )
         {
             if( _stencilTestEnabled )
-            GL_ASSERT( glEnable(GL_STENCIL_TEST) );
+                GL_ASSERT( glEnable(GL_STENCIL_TEST) );
             else
-            GL_ASSERT( glDisable(GL_STENCIL_TEST) );
+                GL_ASSERT( glDisable(GL_STENCIL_TEST) );
             _defaultState->_stencilTestEnabled = _stencilTestEnabled;
         }
         if( (_bits & RS_STENCIL_WRITE) && (_stencilWrite != _defaultState->_stencilWrite) )

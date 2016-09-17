@@ -308,7 +308,7 @@ namespace engine
         for(const std::weak_ptr<audio::SourceHandle>& handle : m_sounds)
         {
             std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-            lockedHandle->setPosition(getPosition().toIrrlicht());
+            lockedHandle->setPosition(getPosition().toRenderSystem());
         }
     }
 

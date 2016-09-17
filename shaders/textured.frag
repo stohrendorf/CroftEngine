@@ -62,6 +62,7 @@ vec4 _baseColor;
 ///////////////////////////////////////////////////////////
 // Varyings
 varying vec2 v_texCoord;
+varying vec3 v_color;
 
 #if defined(LIGHTING)
 
@@ -109,6 +110,7 @@ void main()
   #else
     gl_FragColor.rgb = _baseColor.rgb;
   #endif
+  gl_FragColor.rgb *= v_color.r;
 
   #if defined(MODULATE_COLOR)
     gl_FragColor *= u_modulateColor;

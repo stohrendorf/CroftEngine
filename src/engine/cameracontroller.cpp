@@ -172,7 +172,7 @@ namespace engine
         }
 #else
         for(const loader::Room& room : m_level->m_rooms)
-            room.node->setEnabled(false);
+            room.node->setEnabled(true);
 #endif
 
 #if 0

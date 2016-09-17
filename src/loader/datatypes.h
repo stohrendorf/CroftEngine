@@ -606,8 +606,8 @@ namespace loader
             room->position.X = reader.readI32();
             room->position.Y = 0;
             room->position.Z = reader.readI32();
-            room->lowestHeight = -reader.readI32();
-            room->greatestHeight = -reader.readI32();
+            room->lowestHeight = reader.readI32();
+            room->greatestHeight = reader.readI32();
 
             std::streamsize num_data_words = reader.readU32();
 

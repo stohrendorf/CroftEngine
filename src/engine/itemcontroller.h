@@ -133,9 +133,9 @@ namespace engine
         void applyPosition()
         {
             if(auto parent = m_sceneNode->getParent().lock())
-                m_sceneNode->setTranslation(m_position.position.toIrrlicht() - parent->getTranslationWorld());
+                m_sceneNode->setTranslation(m_position.position.toRenderSystem() - parent->getTranslationWorld());
             else
-                m_sceneNode->setTranslation(m_position.position.toIrrlicht());
+                m_sceneNode->setTranslation(m_position.position.toRenderSystem());
 
             updateSounds();
         }

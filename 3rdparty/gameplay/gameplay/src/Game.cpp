@@ -63,12 +63,7 @@ namespace gameplay
 
     void Game::initialize()
     {
-        _stateBlock = RenderState::StateBlock::create();
-        _stateBlock->setDepthTest(true);
-        _stateBlock->setCullFace(true);
-        _stateBlock->setBlend(true);
-        _stateBlock->setBlendSrc(RenderState::BLEND_SRC_ALPHA);
-        _stateBlock->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
+        // stub
     }
 
 

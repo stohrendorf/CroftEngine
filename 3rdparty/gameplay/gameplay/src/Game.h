@@ -421,7 +421,6 @@ namespace gameplay
         friend class ScreenDisplayer;
 
         bool drawScene(const std::shared_ptr<Node>& node);
-        std::shared_ptr<RenderState::StateBlock> _stateBlock;
     };
 
     inline Game::State Game::getState() const

@@ -213,8 +213,9 @@ namespace loader
         }
         node->setTranslation(position.toRenderSystem());
 
-        node->setId(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
+        node->setId("Room:" + boost::lexical_cast<std::string>(dumpIdx));
 
+#if 0
         for( const Sprite& sprite : sprites )
         {
             BOOST_ASSERT(sprite.vertex < vertices.size());
@@ -231,6 +232,7 @@ namespace loader
 
             node->addChild(n);
         }
+#endif
 
         // resultNode->addShadowVolumeSceneNode();
 

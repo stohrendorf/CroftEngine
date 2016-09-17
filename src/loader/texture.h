@@ -262,6 +262,16 @@ namespace loader
                 BOOST_ASSERT(false); // FIXME [irrlicht]
             }
 
+            auto stateBlock = gameplay::RenderState::StateBlock::create();
+            stateBlock->setDepthTest(true);
+            stateBlock->setDepthFunction(gameplay::RenderState::DEPTH_LESS);
+            stateBlock->setCullFace(true);
+            stateBlock->setBlend(true);
+            stateBlock->setBlendSrc(gameplay::RenderState::BLEND_SRC_ALPHA);
+            stateBlock->setBlendDst(gameplay::RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
+
+            result->setStateBlock(stateBlock);
+
             return result;
         }
     };

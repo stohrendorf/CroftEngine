@@ -185,7 +185,7 @@ namespace level
             src->setPitch(pitch);
             src->setGain(volume);
             if(pos)
-                src->setPosition(pos->toIrrlicht());
+                src->setPosition(pos->toRenderSystem());
             src->play();
 
             m_samples[sample] = src;

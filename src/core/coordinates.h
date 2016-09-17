@@ -6,10 +6,12 @@
 
 #include <cmath>
 
+
 namespace loader
 {
     struct Room;
 }
+
 
 namespace core
 {
@@ -20,22 +22,28 @@ namespace core
         TRCoordinates() = default;
         TRCoordinates(const TRCoordinates&) = default;
 
+
         explicit TRCoordinates(const gameplay::Vector3& v)
             : X(std::lround(v.x))
-              , Y(-std::lround(v.y))
-              , Z(std::lround(v.z))
+            , Y(-std::lround(v.y))
+            , Z(-std::lround(v.z))
         {
         }
 
+
         TRCoordinates(long x, long y, long z)
-            : X(x), Y(y), Z(z)
+            : X(x)
+            , Y(y)
+            , Z(z)
         {
         }
+
 
         TRCoordinates operator-(const TRCoordinates& rhs) const noexcept
         {
             return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
         }
+
 
         TRCoordinates& operator-=(const TRCoordinates& rhs) noexcept
         {
@@ -45,10 +53,12 @@ namespace core
             return *this;
         }
 
+
         TRCoordinates operator+(const TRCoordinates& rhs) const noexcept
         {
             return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
         }
+
 
         TRCoordinates& operator+=(const TRCoordinates& rhs) noexcept
         {
@@ -58,13 +68,16 @@ namespace core
             return *this;
         }
 
+
         TRCoordinates& operator=(const TRCoordinates&) = default;
+
 
         gameplay::Vector3 toRenderSystem() const noexcept
         {
-            return {gsl::narrow_cast<float>(X), -gsl::narrow_cast<float>(Y), gsl::narrow_cast<float>(Z)};
+            return {gsl::narrow_cast<float>(X), -gsl::narrow_cast<float>(Y), -gsl::narrow_cast<float>(Z)};
         }
     };
+
 
     struct ExactTRCoordinates
     {
@@ -73,12 +86,14 @@ namespace core
         ExactTRCoordinates() = default;
         ExactTRCoordinates(const ExactTRCoordinates&) = default;
 
+
         explicit ExactTRCoordinates(const gameplay::Vector3& v)
             : X(v.x)
             , Y(-v.y)
-            , Z(v.z)
+            , Z(-v.z)
         {
         }
+
 
         explicit ExactTRCoordinates(const TRCoordinates& v)
             : X(float(v.X))
@@ -87,15 +102,20 @@ namespace core
         {
         }
 
+
         ExactTRCoordinates(float x, float y, float z)
-            : X(x), Y(y), Z(z)
+            : X(x)
+            , Y(y)
+            , Z(z)
         {
         }
+
 
         ExactTRCoordinates operator-(const ExactTRCoordinates& rhs) const noexcept
         {
             return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
         }
+
 
         ExactTRCoordinates& operator-=(const ExactTRCoordinates& rhs) noexcept
         {
@@ -105,10 +125,12 @@ namespace core
             return *this;
         }
 
+
         ExactTRCoordinates operator+(const ExactTRCoordinates& rhs) const noexcept
         {
             return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
         }
+
 
         ExactTRCoordinates& operator+=(const ExactTRCoordinates& rhs) noexcept
         {
@@ -118,10 +140,12 @@ namespace core
             return *this;
         }
 
+
         ExactTRCoordinates operator*(float f) const noexcept
         {
             return {X * f, Y * f, Z * f};
         }
+
 
         ExactTRCoordinates& operator*=(float f) noexcept
         {
@@ -131,10 +155,12 @@ namespace core
             return *this;
         }
 
+
         ExactTRCoordinates operator/(float f) const noexcept
         {
             return {X / f, Y / f, Z / f};
         }
+
 
         ExactTRCoordinates& operator/=(float f) noexcept
         {
@@ -144,6 +170,7 @@ namespace core
             return *this;
         }
 
+
         ExactTRCoordinates& operator=(const ExactTRCoordinates& rhs)
         {
             X = rhs.X;
@@ -152,15 +179,18 @@ namespace core
             return *this;
         }
 
-        gameplay::Vector3 toIrrlicht() const noexcept
+
+        gameplay::Vector3 toRenderSystem() const noexcept
         {
-            return {X, -Y, Z};
+            return {X, -Y, -Z};
         }
+
 
         TRCoordinates toInexact() const noexcept
         {
-            return{ std::lround(X), std::lround(Y), std::lround(Z) };
+            return {std::lround(X), std::lround(Y), std::lround(Z)};
         }
+
 
         float distanceTo(const ExactTRCoordinates& b) const
         {
@@ -169,10 +199,12 @@ namespace core
         }
     };
 
+
     struct RoomBoundPosition
     {
         gsl::not_null<const loader::Room*> room;
         ExactTRCoordinates position;
+
 
         explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const ExactTRCoordinates& pos = {})
             : room(r)
@@ -181,10 +213,12 @@ namespace core
         }
     };
 
+
     struct RoomBoundIntPosition
     {
         gsl::not_null<const loader::Room*> room;
         TRCoordinates position;
+
 
         explicit RoomBoundIntPosition(const gsl::not_null<const loader::Room*>& r, const TRCoordinates& pos = {})
             : room(r)
