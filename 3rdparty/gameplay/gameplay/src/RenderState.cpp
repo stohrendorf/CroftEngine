@@ -306,7 +306,7 @@ namespace gameplay
     }
 
 
-    unsigned int RenderState::autoBindingGetMatrixPaletteSize() const
+    size_t RenderState::autoBindingGetMatrixPaletteSize() const
     {
         auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
         if( model )

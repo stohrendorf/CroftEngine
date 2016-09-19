@@ -116,7 +116,7 @@ bool MeshBatch::resize(size_t capacity)
     unsigned char* oldVertices = m_vertices;
     unsigned short* oldIndices = m_indices;
 
-    unsigned int vertexCapacity = 0;
+    size_t vertexCapacity = 0;
     switch (m_primitiveType)
     {
     case Mesh::LINES:
@@ -142,7 +142,7 @@ bool MeshBatch::resize(size_t capacity)
     // We have no way of knowing how many vertices will be stored in the batch
     // (we only know how many indices will be stored). Assume the worst case
     // for now, which is the same number of vertices as indices.
-    unsigned int indexCapacity = vertexCapacity;
+    size_t indexCapacity = vertexCapacity;
     if (m_indexed && indexCapacity > std::numeric_limits<unsigned short>::max())
     {
         GP_ERROR("Index capacity is greater than the maximum unsigned short value (%d > %d).", indexCapacity, std::numeric_limits<unsigned short>::max());
@@ -150,8 +150,8 @@ bool MeshBatch::resize(size_t capacity)
     }
 
     // Allocate new data and reset pointers.
-    unsigned int voffset = m_verticesPtr - m_vertices;
-    unsigned int vBytes = vertexCapacity * m_vertexFormat.getVertexSize();
+    size_t voffset = m_verticesPtr - m_vertices;
+    size_t vBytes = vertexCapacity * m_vertexFormat.getVertexSize();
     m_vertices = new unsigned char[vBytes];
     if (voffset >= vBytes)
         voffset = vBytes - 1;
@@ -159,7 +159,7 @@ bool MeshBatch::resize(size_t capacity)
 
     if (m_indexed)
     {
-        unsigned int ioffset = m_indicesPtr - m_indices;
+        size_t ioffset = m_indicesPtr - m_indices;
         m_indices = new unsigned short[indexCapacity];
         if (ioffset >= indexCapacity)
             ioffset = indexCapacity - 1;

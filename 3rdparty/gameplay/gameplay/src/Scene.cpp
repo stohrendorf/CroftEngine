@@ -95,11 +95,11 @@ namespace gameplay
     }
 
 
-    unsigned int Scene::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
+    size_t Scene::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
         GP_ASSERT(id);
 
-        unsigned int count = 0;
+        size_t count = 0;
 
         // Search immediate children first.
         for(const auto& child : _nodes)

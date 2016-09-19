@@ -602,7 +602,7 @@ namespace gameplay
         Vector3 autoBindingGetCameraWorldPosition() const;
         Vector3 autoBindingGetCameraViewPosition() const;
         const Vector4* autoBindingGetMatrixPalette() const;
-        unsigned int autoBindingGetMatrixPaletteSize() const;
+        size_t autoBindingGetMatrixPaletteSize() const;
         const Vector3& autoBindingGetAmbientColor() const;
         const Vector3& autoBindingGetLightColor() const;
         const Vector3& autoBindingGetLightDirection() const;

@@ -270,7 +270,7 @@ namespace gameplay
          * @param countMethod A pointer to a method that returns the number of entries in the array returned by valueMethod.
          */
         template<class ClassType, class ParameterType>
-        void bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, unsigned int (ClassType::*countMethod)() const);
+        void bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const);
 
     private:
 
@@ -398,7 +398,7 @@ namespace gameplay
 
 
     template<class ClassType, class ParameterType>
-    void MaterialParameter::bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, unsigned int (ClassType::*countMethod)() const)
+    void MaterialParameter::bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
     {
         clearValue();
 
