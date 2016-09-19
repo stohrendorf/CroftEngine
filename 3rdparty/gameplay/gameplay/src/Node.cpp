@@ -348,12 +348,6 @@ namespace gameplay
     }
 
 
-    bool Node::isStatic() const
-    {
-        return false;
-    }
-
-
     const Matrix& Node::getWorldMatrix() const
     {
         if( _dirtyBits & NODE_DIRTY_WORLD )
@@ -362,26 +356,23 @@ namespace gameplay
             // parent calls our getWorldMatrix() method as a result of the following calculations.
             _dirtyBits &= ~NODE_DIRTY_WORLD;
 
-            if( !isStatic() )
+            // If we have a parent, multiply our parent world transform by our local
+            // transform to obtain our final resolved world transform.
+            auto parent = getParent();
+            if( !parent.expired() )
             {
-                // If we have a parent, multiply our parent world transform by our local
-                // transform to obtain our final resolved world transform.
-                auto parent = getParent();
-                if( !parent.expired() )
-                {
-                    Matrix::multiply(parent.lock()->getWorldMatrix(), getMatrix(), &_world);
-                }
-                else
-                {
-                    _world = getMatrix();
-                }
+                Matrix::multiply(parent.lock()->getWorldMatrix(), getMatrix(), &_world);
+            }
+            else
+            {
+                _world = getMatrix();
+            }
 
-                // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
-                // to force their resolved world matrices to be updated.
-                for( const auto& child : _children )
-                {
-                    child->getWorldMatrix();
-                }
+            // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
+            // to force their resolved world matrices to be updated.
+            for( const auto& child : _children )
+            {
+                child->getWorldMatrix();
             }
         }
         return _world;

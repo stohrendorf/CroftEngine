@@ -676,16 +676,6 @@ namespace gameplay
         void transformVector(float x, float y, float z, float w, Vector3* dst) const;
 
         /**
-         * Returns whether or not this Transform object is static.
-         *
-         * A static transform object cannot be transformed. This may be the case for special
-         * types of Transform objects, such as Nodes that have a static rigid body attached to them.
-         *
-         * @return True if this Transform is static, false otherwise.
-         */
-        virtual bool isStatic() const;
-
-        /**
          * Adds a transform listener.
          *
          * @param listener The listener to add.
