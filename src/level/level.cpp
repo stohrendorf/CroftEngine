@@ -717,6 +717,12 @@ void Level::toIrrlicht(gameplay::Game* game)
     }
 
     auto scene = gameplay::Scene::create();
+
+    scene->setActiveCamera(std::make_shared<gameplay::Camera>(80.0f, game->getAspectRatio(), 10, 20480));
+    auto camNode = std::make_shared<gameplay::Node>("cameraNode");
+    camNode->setCamera(scene->getActiveCamera());
+    scene->addNode(camNode);
+
     for(size_t i = 0; i < m_rooms.size(); ++i)
     {
         m_rooms[i].createSceneNode(i, *this, textures, materials, staticModels, *m_textureAnimator);
@@ -728,11 +734,6 @@ void Level::toIrrlicht(gameplay::Game* game)
     m_lara = createItems(skinnedModels, textures);
     if( m_lara == nullptr )
         return;
-
-    scene->setActiveCamera(std::make_shared<gameplay::Camera>(80.0f, game->getAspectRatio(), 10, 20480));
-    auto camNode = std::make_shared<gameplay::Node>("cameraNode");
-    camNode->setCamera(scene->getActiveCamera());
-    scene->addNode(camNode);
 
     m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
 

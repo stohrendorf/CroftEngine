@@ -161,7 +161,7 @@ namespace loader
 
         mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
         auto resModel = renderModel.toModel(mesh);
-        node = std::make_shared<gameplay::Node>("");
+        node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(dumpIdx));
         node->setDrawable(resModel);
 
         for( Light& light : lights )
@@ -212,8 +212,6 @@ namespace loader
             node->addChild(subNode);
         }
         node->setTranslation(position.toRenderSystem());
-
-        node->setId("Room:" + boost::lexical_cast<std::string>(dumpIdx));
 
 #if 0
         for( const Sprite& sprite : sprites )

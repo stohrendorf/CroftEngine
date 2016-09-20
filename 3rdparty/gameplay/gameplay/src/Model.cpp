@@ -206,20 +206,22 @@ namespace gameplay
 
             // Get the material for this mesh part.
             auto material = getMaterial(i);
-            if( material )
+            if( !material )
+                continue;
+
+            material->setNodeBinding(getNode());
+
+            auto technique = material->getTechnique();
+            GP_ASSERT(technique);
+            auto pass = technique->getPass();
+            GP_ASSERT(pass);
+            pass->bind(part->getVaBinding());
+            GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
+            if( !wireframe || !drawWireframe(part) )
             {
-                auto technique = material->getTechnique();
-                GP_ASSERT(technique);
-                auto pass = technique->getPass();
-                GP_ASSERT(pass);
-                pass->bind(part->getVaBinding());
-                GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
-                if( !wireframe || !drawWireframe(part) )
-                {
-                    GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );
-                }
-                pass->unbind();
+                GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );
             }
+            pass->unbind();
         }
         return partCount;
     }

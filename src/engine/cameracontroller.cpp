@@ -172,7 +172,7 @@ namespace engine
         }
 #else
         for(const loader::Room& room : m_level->m_rooms)
-            room.node->setEnabled(true);
+            room.node->setEnabled(false);
 #endif
 
 #if 0
@@ -687,9 +687,7 @@ namespace engine
         m_camera->getNode()->setTranslation(camPos.toRenderSystem());
 
         const auto delta = m_currentLookAt.position - camPos;
-
         const auto angle = std::atan2(delta.Z, delta.X);
-
         m_camera->getNode()->setRotation({0, 1, 0}, angle);
     }
 
