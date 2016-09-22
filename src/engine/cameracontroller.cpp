@@ -637,7 +637,7 @@ namespace engine
 
         const auto delta = m_currentLookAt.position - camPos;
         const auto angle = std::atan2(delta.Z, delta.X);
-        m_camera->getNode()->setRotation({0, 1, 0}, angle);
+        m_camera->getNode()->setRotation(gameplay::Vector3::unitY(), angle);
     }
 
     void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs)

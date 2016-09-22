@@ -10,7 +10,7 @@ namespace loader
     {
         gameplay::Vector2 texcoord0;
         gameplay::Vector3 position;
-        std::array<int32_t, 4> blendIndices{ { 0, 0, 0, 0 } };
+        std::array<float, 4> blendIndices{ { 0, 0, 0, 0 } };
         std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
 
 
@@ -32,7 +32,7 @@ namespace loader
         gameplay::Vector2 texcoord0;
         gameplay::Vector3 position;
         gameplay::Vector3 normal;
-        std::array<int32_t, 4> blendIndices{ { 0,0,0,0 } };
+        std::array<float, 4> blendIndices{ { 0,0,0,0 } };
         std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
 
         static gameplay::VertexFormat getFormat(bool withWeights)
@@ -104,7 +104,7 @@ namespace loader
     }
 
 
-    void Mesh::ModelBuilder::append(const Mesh& mesh, float blendWeight, int blendIndex)
+    void Mesh::ModelBuilder::append(const Mesh& mesh, float blendWeight, float blendIndex)
     {
         if( mesh.normals.empty() && m_hasNormals )
         BOOST_THROW_EXCEPTION(std::runtime_error("Trying to append a mesh with normals to a buffer without normals"));

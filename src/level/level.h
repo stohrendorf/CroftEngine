@@ -105,11 +105,10 @@ namespace level
         boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
-        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
+        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, size_t jointCount);
         engine::LaraController* createItems(const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
         std::vector<std::shared_ptr<gameplay::Model>> createSkinnedModels(gameplay::Game* game,
-                                                                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                                          const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials);
+                                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
         std::shared_ptr<gameplay::Texture> createSolidColorTex(uint8_t color) const;
 
         void toIrrlicht(gameplay::Game* game);

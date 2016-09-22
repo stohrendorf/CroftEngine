@@ -370,7 +370,7 @@ std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures()
 }
 
 
-std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
+std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, size_t jointCount)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4 : loader::TextureIndexMask;
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials;
@@ -380,7 +380,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
         if( materials.find(key) != materials.end() )
             continue;
 
-        materials[key] = loader::TextureLayoutProxy::createMaterial(textures[key.tileAndFlag & texMask], key.blendingMode);
+        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask], jointCount);
     }
     return materials;
 }
@@ -535,12 +535,12 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
 
 
 std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gameplay::Game* game,
-                                                                         const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                                         const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials)
+                                                                         const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
 
     std::set<uint16_t> animStarts;
+
     for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
     {
         if( model->animationIndex == 0xffff )
@@ -562,7 +562,15 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
 
         std::stack<std::shared_ptr<gameplay::Joint>> parentStack;
 
-        Expects(model->meshCount > 0);
+        Expects(model->boneCount > 0);
+
+        std::vector<std::shared_ptr<gameplay::Material>> colorMaterials;
+        for(int i = 0; i < 256; ++i)
+        {
+            colorMaterials.emplace_back(loader::TextureLayoutProxy::createMaterial(createSolidColorTex(i), loader::BlendingMode::Solid, model->boneCount));
+        }
+
+        auto materials = createMaterials(textures, model->boneCount);
 
         loader::Mesh::ModelBuilder builder{
             !m_meshes[m_meshIndices[model->firstMesh]].normals.empty(),
@@ -576,7 +584,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
 
         std::vector<std::shared_ptr<gameplay::Joint>> joints;
 
-        for( size_t boneIndex = 0; boneIndex < model->meshCount; ++boneIndex )
+        for( size_t boneIndex = 0; boneIndex < model->boneCount; ++boneIndex )
         {
             BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
             builder.append(m_meshes[m_meshIndices[model->firstMesh + boneIndex]], 1, boneIndex);
@@ -700,11 +708,11 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures, 0);
     std::vector<std::shared_ptr<gameplay::Material>> coloredMaterials;
     for( int i = 0; i < 256; ++i )
     {
-        coloredMaterials.emplace_back(loader::TextureLayoutProxy::createMaterial(createSolidColorTex(i), loader::BlendingMode::Solid));
+        coloredMaterials.emplace_back(loader::TextureLayoutProxy::createMaterial(createSolidColorTex(i), loader::BlendingMode::Solid, 0));
     }
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
@@ -728,7 +736,7 @@ void Level::toIrrlicht(gameplay::Game* game)
         scene->addNode(m_rooms[i].node);
     }
 
-    auto skinnedModels = createSkinnedModels(game, materials, coloredMaterials);
+    auto skinnedModels = createSkinnedModels(game, textures);
 
     m_lara = createItems(skinnedModels, textures);
     if( m_lara == nullptr )

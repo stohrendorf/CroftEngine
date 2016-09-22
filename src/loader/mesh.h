@@ -165,7 +165,7 @@ namespace loader
             ~ModelBuilder();
 
 
-            void append(const Mesh& mesh, float blendWeight = 0, int blendIndex = 0);
+            void append(const Mesh& mesh, float blendWeight = 0, float blendIndex = 0);
 
             std::shared_ptr<gameplay::Model> finalize();
         };
