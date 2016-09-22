@@ -62,7 +62,7 @@ namespace gameplay
          *
          * @return The vertex attribute, or -1 if no such vertex attribute exists.
          */
-        VertexAttribute getVertexAttribute(const char* name) const;
+        VertexAttribute getVertexAttribute(const std::string& name) const;
 
         /**
          * Returns the uniform handle for the uniform with the specified name.

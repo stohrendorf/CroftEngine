@@ -151,61 +151,10 @@ namespace engine
 
     void CameraController::tracePortals()
     {
-#if 0
-        bool cameraOutOfGeometry = true;
-        for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
-        {
-            const loader::Room& room = m_level->m_rooms[i];
-            if( room.node->getTransformedBoundingBox().isPointInside(m_camera->getAbsolutePosition()) )
-            {
-                cameraOutOfGeometry = false;
-                break;
-            }
-        }
-
-        for( const loader::Room& room : m_level->m_rooms )
-            room.node->setVisible(cameraOutOfGeometry);
-
-        if( cameraOutOfGeometry )
-        {
-            return;
-        }
-#else
         for(const loader::Room& room : m_level->m_rooms)
             room.node->setEnabled(false);
-#endif
 
-#if 0
-        // First, find the room the camera is actually in.
-
-        const loader::Room* startRoom = m_laraController->getCurrentRoom();
-        {
-            std::queue<const loader::Room*> toVisit;
-            std::set<const loader::Room*> visited;
-            toVisit.push(m_laraController->getCurrentRoom());
-            while( !toVisit.empty() )
-            {
-                auto currentRoom = toVisit.front();
-                toVisit.pop();
-                if( !visited.insert(currentRoom).second )
-                    continue;
-
-                if( currentRoom->node->getTransformedBoundingBox().isPointInside(m_camera->getAbsolutePosition()) )
-                {
-                    startRoom = currentRoom;
-                    break;
-                }
-                for( const loader::Portal& portal : currentRoom->portals )
-                {
-                    BOOST_ASSERT(portal.adjoining_room < m_level->m_rooms.size());
-                    toVisit.push(&m_level->m_rooms[portal.adjoining_room]);
-                }
-            }
-        }
-#else
         auto startRoom = m_currentPosition.room;
-#endif
-
         startRoom->node->setEnabled(true);
 
         // Breadth-first queue

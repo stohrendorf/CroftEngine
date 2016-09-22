@@ -1227,21 +1227,6 @@ namespace loader
                 size.x, size.y
             };
         }
-
-#if 0
-        irr::core::matrix4 buildTextureMatrix() const
-        {
-            auto tscale = t1 - t0;
-            BOOST_ASSERT(tscale.x > 0);
-            BOOST_ASSERT(tscale.y > 0);
-
-            irr::core::matrix4 mat;
-            mat.setTextureScale(tscale.x, tscale.y);
-            mat.setTextureTranslate(t0.x, t0.y);
-
-            return mat;
-        }
-#endif
     };
 
     struct SpriteSequence

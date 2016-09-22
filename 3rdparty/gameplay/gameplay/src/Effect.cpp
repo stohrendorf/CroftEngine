@@ -448,7 +448,7 @@ namespace gameplay
     }
 
 
-    VertexAttribute ShaderProgram::getVertexAttribute(const char* name) const
+    VertexAttribute ShaderProgram::getVertexAttribute(const std::string& name) const
     {
         auto itr = _vertexAttributes.find(name);
         return (itr == _vertexAttributes.end() ? -1 : itr->second);

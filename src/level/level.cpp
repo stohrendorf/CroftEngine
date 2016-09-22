@@ -499,7 +499,6 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
 
         if( const auto sequenceId = findSpriteSequenceForType(item.type) )
         {
-#if 0
             BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
             BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
@@ -524,7 +523,7 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
             m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
             m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
             m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
-#endif
+
             continue;
         }
 

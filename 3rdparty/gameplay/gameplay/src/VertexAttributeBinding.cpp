@@ -38,8 +38,6 @@ namespace gameplay
 
     std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const std::shared_ptr<Mesh>& mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(mesh != nullptr);
-
         GP_ASSERT(shaderProgram);
 
         // One-time initialization.
@@ -57,28 +55,29 @@ namespace gameplay
         }
 
         // Create a new VertexAttributeBinding.
-        auto b = std::make_shared<VertexAttributeBinding>();
+        auto binding = std::make_shared<VertexAttributeBinding>();
 
-        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
-        GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0) );
-
-        // Use hardware VAOs.
-        GL_ASSERT( glGenVertexArrays(1, &b->_handle) );
-
-        if( b->_handle == 0 )
+        if(mesh != nullptr)
         {
-            GP_ERROR("Failed to create VAO handle.");
-            return nullptr;
+            GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
+            GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+            // Use hardware VAOs.
+            GL_ASSERT(glGenVertexArrays(1, &binding->_handle));
+
+            if(binding->_handle == 0)
+            {
+                GP_ERROR("Failed to create VAO handle.");
+                return nullptr;
+            }
+
+            GL_ASSERT(glBindVertexArray(binding->_handle));
+
+            // Bind the Mesh VBO so our glVertexAttribPointer calls use it.
+            GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()));
         }
 
-        // Bind the new VAO.
-        GL_ASSERT( glBindVertexArray(b->_handle) );
-
-        // Bind the Mesh VBO so our glVertexAttribPointer calls use it.
-        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()) );
-
         // Call setVertexAttribPointer for each vertex element.
-        std::string name;
         size_t offset = 0;
         for( size_t i = 0, count = vertexFormat.getElementCount(); i < count; ++i )
         {
@@ -120,9 +119,7 @@ namespace gameplay
                 case VertexFormat::TEXCOORD5:
                 case VertexFormat::TEXCOORD6:
                 case VertexFormat::TEXCOORD7:
-                    name = VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME;
-                    name += '0' + (e.usage - VertexFormat::TEXCOORD0);
-                    attrib = shaderProgram->getVertexAttribute(name.c_str());
+                    attrib = shaderProgram->getVertexAttribute(std::string(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME) + char('0' + (e.usage - VertexFormat::TEXCOORD0)));
                     break;
                 default:
                     // This happens whenever vertex data contains extra information (not an error).
@@ -137,7 +134,7 @@ namespace gameplay
             else
             {
                 void* pointer = vertexPointer ? static_cast<void*>(static_cast<unsigned char*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
-                b->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
             }
 
             offset += e.size * sizeof(float);
@@ -145,7 +142,7 @@ namespace gameplay
 
         GL_ASSERT( glBindVertexArray(0) );
 
-        return b;
+        return binding;
     }
 
 
