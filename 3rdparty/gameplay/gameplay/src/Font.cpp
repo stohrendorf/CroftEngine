@@ -6,8 +6,8 @@
 #include "MaterialParameter.h"
 
 // Default font shaders
-#define FONT_VSH "res/shaders/font.vert"
-#define FONT_FSH "res/shaders/font.frag"
+#define FONT_VSH "shaders/font.vert"
+#define FONT_FSH "shaders/font.frag"
 
 namespace gameplay
 {
@@ -17,7 +17,7 @@ static std::vector<Font*> __fontCache;
 static std::shared_ptr<ShaderProgram> __fontProgram = nullptr;
 
 Font::Font() :
-    _format(BITMAP), _style(PLAIN), _size(0), _spacing(0.0f), _glyphs(nullptr), _glyphCount(0), _texture(nullptr), _batch(nullptr), _cutoffParam(nullptr)
+    _format(BITMAP), _style(PLAIN), _size(0), _spacing(0.0f), _glyphs(), _texture(nullptr), _batch(nullptr), _cutoffParam(nullptr)
 {
 }
 
@@ -31,13 +31,11 @@ Font::~Font()
     }
 
     SAFE_DELETE(_batch);
-    SAFE_DELETE_ARRAY(_glyphs);
 }
 
-Font* Font::create(const char* family, Style style, unsigned int size, Glyph* glyphs, int glyphCount, const std::shared_ptr<Texture>& texture, Font::Format format)
+Font* Font::create(const char* family, Style style, unsigned int size, const std::vector<Font::Glyph>& glyphs, const std::shared_ptr<Texture>& texture, Font::Format format)
 {
     GP_ASSERT(family);
-    GP_ASSERT(glyphs);
     GP_ASSERT(texture);
 
     // Create the effect for the font's sprite batch.
@@ -76,10 +74,7 @@ Font* Font::create(const char* family, Style style, unsigned int size, Glyph* gl
     font->_texture = texture;
     font->_batch = batch;
 
-    // Copy the glyphs array.
-    font->_glyphs = new Glyph[glyphCount];
-    memcpy(font->_glyphs, glyphs, sizeof(Glyph) * glyphCount);
-    font->_glyphCount = glyphCount;
+    font->_glyphs = glyphs;
 
     return font;
 }
@@ -97,7 +92,7 @@ unsigned int Font::getSizeCount() const
     return _sizes.size() + 1; // +1 for "this" font
 }
 
-Font::Format Font::getFormat()
+Font::Format Font::getFormat() const
 {
     return _format;
 }
@@ -106,12 +101,7 @@ bool Font::isCharacterSupported(int character) const
 {
     // TODO: Update this once we support unicode fonts
     int glyphIndex = character - 32; // HACK for ASCII
-    return (glyphIndex >= 0 && glyphIndex < (int)_glyphCount);
-}
-
-void Font::start()
-{
-    // no-op : fonts now are lazily started on the first draw call
+    return (glyphIndex >= 0 && glyphIndex < (int)_glyphs.size());
 }
 
 void Font::lazyStart()
@@ -167,7 +157,7 @@ Font* Font::findClosestSize(int size)
     return closest;
 }
 
-void Font::drawText(const char* text, int x, int y, const Vector4& color, unsigned int size, bool rightToLeft)
+void Font::drawText(const char* text, int x, int y, const Vector4& color, unsigned int size)
 {
     GP_ASSERT(_size);
     GP_ASSERT(text);
@@ -182,7 +172,7 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
         Font* f = findClosestSize(size);
         if (f != this)
         {
-            f->drawText(text, x, y, color, size, rightToLeft);
+            f->drawText(text, x, y, color, size);
             return;
         }
     }
@@ -191,133 +181,58 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
 
     float scale = (float)size / _size;
     int spacing = (int)(size * _spacing);
-    const char* cursor = nullptr;
-
-    if (rightToLeft)
-    {
-        cursor = text;
-    }
 
     int xPos = x, yPos = y;
-    bool done = false;
 
-    while (!done)
+    size_t length = strlen(text);
+
+    GP_ASSERT(_batch);
+    for (size_t i = 0; i < length; ++i)
     {
-        size_t length;
-        size_t startIndex;
-        int iteration;
-        if (rightToLeft)
+        char c = text[i];
+
+        // Draw this character.
+        switch (c)
         {
-            char delimiter = cursor[0];
-            while (!done &&
-                   (delimiter == ' ' ||
-                   delimiter == '\t' ||
-                   delimiter == '\r' ||
-                   delimiter == '\n' ||
-                   delimiter == 0))
+        case ' ':
+            xPos += _glyphs[0].advance;
+            break;
+        case '\r':
+        case '\n':
+            yPos += size;
+            xPos = x;
+            break;
+        case '\t':
+            xPos += _glyphs[0].advance * 4;
+            break;
+        default:
+            int index = c - 32; // HACK for ASCII
+            if (index >= 0 && index < (int)_glyphs.size())
             {
-                switch (delimiter)
+                Glyph& g = _glyphs[index];
+
+                if (getFormat() == DISTANCE_FIELD )
                 {
-                case ' ':
-                    xPos += _glyphs[0].advance;
-                    break;
-                case '\r':
-                case '\n':
-                    yPos += size;
-                    xPos = x;
-                    break;
-                case '\t':
-                    xPos += _glyphs[0].advance * 4;
-                    break;
-                case 0:
-                    done = true;
-                    break;
+                    if (_cutoffParam == nullptr)
+                        _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
+                    // TODO: Fix me so that smaller font are much smoother
+                    _cutoffParam->setVector2(Vector2(1.0, 1.0));
                 }
-
-                if (!done)
-                {
-                    ++cursor;
-                    delimiter = cursor[0];
-                }
-            }
-
-            length = strcspn(cursor, "\r\n");
-            startIndex = length - 1;
-            iteration = -1;
-        }
-        else
-        {
-            length = strlen(text);
-            startIndex = 0;
-            iteration = 1;
-        }
-
-        GP_ASSERT(_glyphs);
-        GP_ASSERT(_batch);
-        for (size_t i = startIndex; i < length; i += (size_t)iteration)
-        {
-            char c = 0;
-            if (rightToLeft)
-            {
-                c = cursor[i];
-            }
-            else
-            {
-                c = text[i];
-            }
-
-            // Draw this character.
-            switch (c)
-            {
-            case ' ':
-                xPos += _glyphs[0].advance;
-                break;
-            case '\r':
-            case '\n':
-                yPos += size;
-                xPos = x;
-                break;
-            case '\t':
-                xPos += _glyphs[0].advance * 4;
-                break;
-            default:
-                int index = c - 32; // HACK for ASCII
-                if (index >= 0 && index < (int)_glyphCount)
-                {
-                    Glyph& g = _glyphs[index];
-
-                    if (getFormat() == DISTANCE_FIELD )
-                    {
-                        if (_cutoffParam == nullptr)
-                            _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
-                        // TODO: Fix me so that smaller font are much smoother
-                        _cutoffParam->setVector2(Vector2(1.0, 1.0));
-                    }
-                    _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0], g.uvs[1], g.uvs[2], g.uvs[3], color);
-                    xPos += floor(g.advance * scale + spacing);
-                    break;
-                }
+                _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0].x, g.uvs[0].y, g.uvs[1].x, g.uvs[1].y, color);
+                xPos += floor(g.advance * scale + spacing);
                 break;
             }
-        }
-
-        if (rightToLeft)
-        {
-            cursor += length;
-        }
-        else
-        {
-            done = true;
+            break;
         }
     }
 }
 
-void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size, bool rightToLeft)
+void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size)
 {
-    drawText(text.c_str(), x, y, Vector4(red, green, blue, alpha), size, rightToLeft);
+    drawText(text.c_str(), x, y, Vector4(red, green, blue, alpha), size);
 }
 
-void Font::drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, bool rightToLeft, const Rectangle& clip)
+void Font::drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, const Rectangle& clip)
 {
     GP_ASSERT(_size);
 
@@ -331,7 +246,7 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
         Font* f = findClosestSize(size);
         if (f != this)
         {
-            f->drawText(text, area, color, size, justify, wrap, rightToLeft, clip);
+            f->drawText(text, area, color, size, justify, wrap, clip);
             return;
         }
     }
@@ -345,7 +260,7 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
     std::vector<int> xPositions;
     std::vector<unsigned int> lineLengths;
 
-    getMeasurementInfo(text.c_str(), area, size, justify, wrap, rightToLeft, &xPositions, &yPos, &lineLengths);
+    getMeasurementInfo(text.c_str(), area, size, justify, wrap, &xPositions, &yPos, &lineLengths);
 
     // Now we have the info we need in order to render.
     int xPos = area.x;
@@ -356,51 +271,23 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
     }
 
     const char* token = text.c_str();
-    int iteration = 1;
-    unsigned int lineLength;
     unsigned int currentLineLength = 0;
-    const char* lineStart;
     std::vector<unsigned int>::const_iterator lineLengthsIt;
-    if (rightToLeft)
-    {
-        lineStart = token;
-        lineLengthsIt = lineLengths.begin();
-        lineLength = *lineLengthsIt++;
-        token += lineLength - 1;
-        iteration = -1;
-    }
 
     while (token[0] != 0)
     {
         // Handle delimiters until next token.
-        if (!handleDelimiters(&token, size, iteration, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
+        if (!handleDelimiters(&token, size, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
         {
             break;
         }
 
         bool truncated = false;
-        unsigned int tokenLength;
-        unsigned int tokenWidth;
-        unsigned int startIndex;
-        if (rightToLeft)
-        {
-            tokenLength = getReversedTokenLength(token, text.c_str());
-            currentLineLength += tokenLength;
-            token -= (tokenLength - 1);
-            tokenWidth = getTokenWidth(token, tokenLength, size, scale);
-            iteration = -1;
-            startIndex = tokenLength - 1;
-        }
-        else
-        {
-            tokenLength = (unsigned int)strcspn(token, " \r\n\t");
-            tokenWidth = getTokenWidth(token, tokenLength, size, scale);
-            iteration = 1;
-            startIndex = 0;
-        }
+        unsigned int tokenLength = (unsigned int)strcspn(token, " \r\n\t");
+        unsigned int tokenWidth = getTokenWidth(token, tokenLength, size, scale);
 
         // Wrap if necessary.
-        if (wrap && (xPos + (int)tokenWidth > area.x + area.width || (rightToLeft && currentLineLength > lineLength)))
+        if (wrap && (xPos + (int)tokenWidth > area.x + area.width))
         {
             yPos += (int)size;
             currentLineLength = tokenLength;
@@ -427,14 +314,13 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
             break;
         }
 
-        GP_ASSERT(_glyphs);
         GP_ASSERT(_batch);
-        for (int i = startIndex; i < (int)tokenLength && i >= 0; i += iteration)
+        for (size_t i = 0; i < tokenLength; ++i)
         {
             char c = token[i];
             int glyphIndex = c - 32; // HACK for ASCII
 
-            if (glyphIndex >= 0 && glyphIndex < (int)_glyphCount)
+            if (glyphIndex >= 0 && glyphIndex < (int)_glyphs.size())
             {
                 Glyph& g = _glyphs[glyphIndex];
 
@@ -458,11 +344,11 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
                         }
                         if (clip != Rectangle(0, 0, 0, 0))
                         {
-                            _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0], g.uvs[1], g.uvs[2], g.uvs[3], color, clip);
+                            _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0].x, g.uvs[0].y, g.uvs[1].x, g.uvs[1].y, color, clip);
                         }
                         else
                         {
-                            _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0], g.uvs[1], g.uvs[2], g.uvs[3], color);
+                            _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0].x, g.uvs[0].y, g.uvs[1].x, g.uvs[1].y, color);
                         }
                     }
                 }
@@ -472,63 +358,17 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
 
         if (!truncated)
         {
-            if (rightToLeft)
-            {
-                if (token == lineStart)
-                {
-                    token += lineLength;
-
-                    // Now handle delimiters going forwards.
-                    if (!handleDelimiters(&token, size, 1, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
-                    {
-                        break;
-                    }
-
-                    if (lineLengthsIt != lineLengths.end())
-                    {
-                        lineLength = *lineLengthsIt++;
-                    }
-                    lineStart = token;
-                    token += lineLength-1;
-                }
-                else
-                {
-                    token--;
-                }
-            }
-            else
-            {
-                token += tokenLength;
-            }
+            token += tokenLength;
         }
         else
         {
-            if (rightToLeft)
+            // Skip the rest of this line.
+            size_t tokenLength = strcspn(token, "\n");
+
+            if (tokenLength > 0)
             {
-                token = lineStart + lineLength;
-
-                if (!handleDelimiters(&token, size, 1, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
-                {
-                    break;
-                }
-
-                if (lineLengthsIt != lineLengths.end())
-                {
-                    lineLength = *lineLengthsIt++;
-                }
-                lineStart = token;
-                token += lineLength-1;
-            }
-            else
-            {
-                // Skip the rest of this line.
-                size_t tokenLength = strcspn(token, "\n");
-
-                if (tokenLength > 0)
-                {
-                    // Get first token of next line.
-                    token += tokenLength;
-                }
+                // Get first token of next line.
+                token += tokenLength;
             }
         }
     }
@@ -936,8 +776,8 @@ void Font::measureText(const char* text, const Rectangle& clip, unsigned int siz
     }
 }
 
-void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap, bool rightToLeft,
-        std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths)
+void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap,
+                              std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths)
 {
     GP_ASSERT(_size);
     GP_ASSERT(text);
@@ -966,7 +806,7 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
     // For alignments other than top-left, need to calculate the y position to begin drawing from
     // and the starting x position of each line.  For right-to-left text, need to determine
     // the number of characters on each line.
-    if (vAlign != ALIGN_TOP || hAlign != ALIGN_LEFT || rightToLeft)
+    if (vAlign != ALIGN_TOP || hAlign != ALIGN_LEFT)
     {
         int lineWidth = 0;
         int delimWidth = 0;
@@ -1000,7 +840,7 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
 
                             if (lineWidth > 0)
                             {
-                                addLineInfo(area, lineWidth, lineLength, hAlign, xPositions, lineLengths, rightToLeft);
+                                addLineInfo(area, lineWidth, lineLength, hAlign, xPositions, lineLengths);
                             }
 
                             lineWidth = 0;
@@ -1041,11 +881,11 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
                     // Push position of current line.
                     if (lineLength)
                     {
-                        addLineInfo(area, lineWidth, lineLength-1, hAlign, xPositions, lineLengths, rightToLeft);
+                        addLineInfo(area, lineWidth, lineLength-1, hAlign, xPositions, lineLengths);
                     }
                     else
                     {
-                        addLineInfo(area, lineWidth, tokenLength, hAlign, xPositions, lineLengths, rightToLeft);
+                        addLineInfo(area, lineWidth, tokenLength, hAlign, xPositions, lineLengths);
                     }
 
                     // Move token to the next line.
@@ -1077,7 +917,7 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
             }
 
             // Calculation of final horizontal position.
-            addLineInfo(area, lineWidth, lineLength, hAlign, xPositions, lineLengths, rightToLeft);
+            addLineInfo(area, lineWidth, lineLength, hAlign, xPositions, lineLengths);
         }
         else
         {
@@ -1092,14 +932,14 @@ void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned 
                     delimiter = token[0];
                 }
 
-                unsigned int tokenLength = (unsigned int)strcspn(token, "\n");
+                auto tokenLength = strcspn(token, "\n");
                 if (tokenLength == 0)
                 {
-                    tokenLength = (unsigned int)strlen(token);
+                    tokenLength = strlen(token);
                 }
 
                 int lineWidth = getTokenWidth(token, tokenLength, size, scale);
-                addLineInfo(area, lineWidth, tokenLength, hAlign, xPositions, lineLengths, rightToLeft);
+                addLineInfo(area, lineWidth, tokenLength, hAlign, xPositions, lineLengths);
 
                 token += tokenLength;
             }
@@ -1134,19 +974,19 @@ void Font::setCharacterSpacing(float spacing)
 }
 
 int Font::getIndexAtLocation(const char* text, const Rectangle& area, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
-                                      Justify justify, bool wrap, bool rightToLeft)
+                             Justify justify, bool wrap)
 {
-    return getIndexOrLocation(text, area, size, inLocation, outLocation, -1, justify, wrap, rightToLeft);
+    return getIndexOrLocation(text, area, size, inLocation, outLocation, -1, justify, wrap);
 }
 
 void Font::getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, Vector2* outLocation, const unsigned int destIndex,
-                              Justify justify, bool wrap, bool rightToLeft)
+                              Justify justify, bool wrap)
 {
-    getIndexOrLocation(text, clip, size, *outLocation, outLocation, (const int)destIndex, justify, wrap, rightToLeft);
+    getIndexOrLocation(text, clip, size, *outLocation, outLocation, (const int)destIndex, justify, wrap);
 }
 
 int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
-                                      const int destIndex, Justify justify, bool wrap, bool rightToLeft)
+                             const int destIndex, Justify justify, bool wrap)
 {
     GP_ASSERT(_size);
     GP_ASSERT(text);
@@ -1162,7 +1002,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
         Font* f = findClosestSize(size);
         if (f != this)
         {
-            return f->getIndexOrLocation(text, area, size, inLocation, outLocation, destIndex, justify, wrap, rightToLeft);
+            return f->getIndexOrLocation(text, area, size, inLocation, outLocation, destIndex, justify, wrap);
         }
     }
 
@@ -1176,7 +1016,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
     std::vector<int> xPositions;
     std::vector<unsigned int> lineLengths;
 
-    getMeasurementInfo(text, area, size, justify, wrap, rightToLeft, &xPositions, &yPos, &lineLengths);
+    getMeasurementInfo(text, area, size, justify, wrap, &xPositions, &yPos, &lineLengths);
 
     int xPos = area.x;
     std::vector<int>::const_iterator xPositionsIt = xPositions.begin();
@@ -1187,19 +1027,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
 
     const char* token = text;
 
-    int iteration = 1;
-    unsigned int lineLength;
     unsigned int currentLineLength = 0;
-    const char* lineStart;
-    std::vector<unsigned int>::const_iterator lineLengthsIt;
-    if (rightToLeft)
-    {
-        lineStart = token;
-        lineLengthsIt = lineLengths.begin();
-        lineLength = *lineLengthsIt++;
-        token += lineLength - 1;
-        iteration = -1;
-    }
 
     while (token[0] != 0)
     {
@@ -1208,11 +1036,11 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
         int result;
         if (destIndex == -1)
         {
-            result = handleDelimiters(&token, size, iteration, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, &inLocation);
+            result = handleDelimiters(&token, size, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, &inLocation);
         }
         else
         {
-            result = handleDelimiters(&token, size, iteration, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, nullptr, charIndex, destIndex);
+            result = handleDelimiters(&token, size, area.x, &xPos, &yPos, &delimLength, &xPositionsIt, xPositions.end(), &charIndex, nullptr, charIndex, destIndex);
         }
 
         currentLineLength += delimLength;
@@ -1234,29 +1062,11 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
         }
 
         bool truncated = false;
-        unsigned int tokenLength;
-        unsigned int tokenWidth;
-        unsigned int startIndex;
-        if (rightToLeft)
-        {
-            tokenLength = getReversedTokenLength(token, text);
-            currentLineLength += tokenLength;
-            charIndex += tokenLength;
-            token -= (tokenLength - 1);
-            tokenWidth = getTokenWidth(token, tokenLength, size, scale);
-            iteration = -1;
-            startIndex = tokenLength - 1;
-        }
-        else
-        {
-            tokenLength = (unsigned int)strcspn(token, " \r\n\t");
-            tokenWidth = getTokenWidth(token, tokenLength, size, scale);
-            iteration = 1;
-            startIndex = 0;
-        }
+        unsigned int tokenLength = (unsigned int)strcspn(token, " \r\n\t");
+        unsigned int tokenWidth = getTokenWidth(token, tokenLength, size, scale);
 
         // Wrap if necessary.
-        if (wrap && (xPos + (int)tokenWidth > area.x + area.width || (rightToLeft && currentLineLength > lineLength)))
+        if (wrap && (xPos + (int)tokenWidth > area.x + area.width))
         {
             yPos += size;
             currentLineLength = tokenLength;
@@ -1277,13 +1087,12 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
             break;
         }
 
-        GP_ASSERT(_glyphs);
-        for (int i = startIndex; i < (int)tokenLength && i >= 0; i += iteration)
+        for (size_t i = 0; i < tokenLength; ++i)
         {
             char c = token[i];
             int glyphIndex = c - 32; // HACK for ASCII
 
-            if (glyphIndex >= 0 && glyphIndex < (int)_glyphCount)
+            if (glyphIndex >= 0 && glyphIndex < (int)_glyphs.size())
             {
                 Glyph& g = _glyphs[glyphIndex];
 
@@ -1312,66 +1121,18 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
 
         if (!truncated)
         {
-            if (rightToLeft)
-            {
-                if (token == lineStart)
-                {
-                    token += lineLength;
-
-                    // Now handle delimiters going forwards.
-                    if (!handleDelimiters(&token, size, 1, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
-                    {
-                        break;
-                    }
-                    charIndex += currentLineLength;
-
-                    if (lineLengthsIt != lineLengths.end())
-                    {
-                        lineLength = *lineLengthsIt++;
-                    }
-                    lineStart = token;
-                    token += lineLength-1;
-                    charIndex += tokenLength;
-                }
-                else
-                {
-                    token--;
-                }
-            }
-            else
-            {
-                token += tokenLength;
-            }
+            token += tokenLength;
         }
         else
         {
-            if (rightToLeft)
+            // Skip the rest of this line.
+            unsigned int tokenLength = (unsigned int)strcspn(token, "\n");
+
+            if (tokenLength > 0)
             {
-                token = lineStart + lineLength;
-
-                if (!handleDelimiters(&token, size, 1, area.x, &xPos, &yPos, &currentLineLength, &xPositionsIt, xPositions.end()))
-                {
-                    break;
-                }
-
-                if (lineLengthsIt != lineLengths.end())
-                {
-                    lineLength = *lineLengthsIt++;
-                }
-                lineStart = token;
-                token += lineLength-1;
-            }
-            else
-            {
-                // Skip the rest of this line.
-                unsigned int tokenLength = (unsigned int)strcspn(token, "\n");
-
-                if (tokenLength > 0)
-                {
-                    // Get first token of next line.
-                    token += tokenLength;
-                    charIndex += tokenLength;
-                }
+                // Get first token of next line.
+                token += tokenLength;
+                charIndex += tokenLength;
             }
         }
     }
@@ -1393,7 +1154,6 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
 unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigned int size, float scale) const
 {
     GP_ASSERT(token);
-    GP_ASSERT(_glyphs);
 
     if (size == 0)
         size = _size;
@@ -1415,9 +1175,9 @@ unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigne
             break;
         default:
             int glyphIndex = c - 32;
-            if (glyphIndex >= 0 && glyphIndex < (int)_glyphCount)
+            if (glyphIndex >= 0 && glyphIndex < (int)_glyphs.size())
             {
-                Glyph& g = _glyphs[glyphIndex];
+                const Glyph& g = _glyphs[glyphIndex];
                 tokenWidth += floor(g.advance * scale + spacing);
             }
             break;
@@ -1451,7 +1211,7 @@ unsigned int Font::getReversedTokenLength(const char* token, const char* bufStar
     return length;
 }
 
-int Font::handleDelimiters(const char** token, const unsigned int size, const int iteration, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
+int Font::handleDelimiters(const char** token, const unsigned int size, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
                           std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex,
                           const Vector2* stopAtPosition, const int currentIndex, const int destIndex)
 {
@@ -1526,7 +1286,7 @@ int Font::handleDelimiters(const char** token, const unsigned int size, const in
                 return 0;
         }
 
-        *token += iteration;
+        ++*token;
         delimiter = *token[0];
     }
 
@@ -1535,7 +1295,7 @@ int Font::handleDelimiters(const char** token, const unsigned int size, const in
 }
 
 void Font::addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Justify hAlign,
-                       std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths, bool rightToLeft)
+                       std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths)
 {
     int hWhitespace = area.width - lineWidth;
     if (hAlign == ALIGN_HCENTER)
@@ -1547,12 +1307,6 @@ void Font::addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Jus
     {
         GP_ASSERT(xPositions);
         (*xPositions).push_back(area.x + hWhitespace);
-    }
-
-    if (rightToLeft)
-    {
-        GP_ASSERT(lineLengths);
-        (*lineLengths).push_back(lineLength);
     }
 }
 

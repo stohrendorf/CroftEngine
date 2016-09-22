@@ -85,22 +85,6 @@ namespace gameplay
         bool getWrap() const;
 
         /**
-         * Sets if the text is rendered right-to-left.
-         *
-         * @param rightToLeft true if the text is rendered right-to-left, false if left-to-right.
-         */
-        void setRightToLeft(bool rightToLeft);
-
-        /**
-         * Sets if the text is rendered right-to-left.
-         *
-         * Default is false (left-to-right)
-         *
-         * @return rightToLeft true if the text is rendered right-to-left, false if left-to-right.
-         */
-        bool getRightToLeft() const;
-
-        /**
          * Sets the justification to align the text within the text bounds.
          *
          * @param align The text justification alignment.
@@ -196,7 +180,6 @@ namespace gameplay
         float _width;
         float _height;
         bool _wrap;
-        bool _rightToLeft;
         Font::Justify _align;
         Rectangle _clip;
         float _opacity;

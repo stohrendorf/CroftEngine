@@ -8,12 +8,11 @@ namespace gameplay
 {
     Text::Text()
         : _font(nullptr)
-        , _text("")
+        , _text()
         , _size(0)
         , _width(0)
         , _height(0)
         , _wrap(true)
-        , _rightToLeft(false)
         , _align(Font::ALIGN_TOP_LEFT)
         , _clip(Rectangle(0, 0, 0, 0))
         , _opacity(1.0f)
@@ -76,18 +75,6 @@ namespace gameplay
     bool Text::getWrap() const
     {
         return _wrap;
-    }
-
-
-    void Text::setRightToLeft(bool rightToLeft)
-    {
-        _rightToLeft = rightToLeft;
-    }
-
-
-    bool Text::getRightToLeft() const
-    {
-        return _rightToLeft;
     }
 
 
@@ -174,10 +161,9 @@ namespace gameplay
                 clipViewport.y += position.y;
             }
         }
-        _font->start();
         _font->drawText(_text.c_str(), Rectangle(position.x, position.y, _width, _height),
                         Vector4(_color.x, _color.y, _color.z, _color.w * _opacity), _size,
-                        _align, _wrap, _rightToLeft, clipViewport);
+                        _align, _wrap, clipViewport);
         _font->finish();
         return 1;
     }

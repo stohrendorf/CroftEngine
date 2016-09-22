@@ -11,7 +11,6 @@ namespace gameplay
     class Font
     {
         friend class Text;
-        friend class TextBox;
 
     public:
 
@@ -79,7 +78,7 @@ namespace gameplay
         /**
          * Gets the font format. BITMAP or DISTANCEMAP.
          */
-        Format getFormat();
+        Format getFormat() const;
 
         /**
          * Determines if this font supports the specified character code.
@@ -88,11 +87,6 @@ namespace gameplay
          * @return True if this Font supports (can draw) the specified character, false otherwise.
          */
         bool isCharacterSupported(int character) const;
-
-        /**
-         * Starts text drawing for this font.
-         */
-        void start();
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -104,8 +98,7 @@ namespace gameplay
          * @param size The size to draw text (0 for default size).
          * @param rightToLeft Whether to draw text from right to left.
          */
-        void drawText(const char* text, int x, int y, const Vector4& color, unsigned int size = 0,
-                      bool rightToLeft = false);
+        void drawText(const char* text, int x, int y, const Vector4& color, unsigned int size = 0);
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -120,8 +113,7 @@ namespace gameplay
          * @param size The size to draw text (0 for default size).
          * @param rightToLeft Whether to draw text from right to left.
          */
-        void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size = 0,
-                      bool rightToLeft = false);
+        void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size = 0);
 
         /**
          * Draws the specified text within a rectangular area, with a specified alignment and scale.
@@ -137,7 +129,7 @@ namespace gameplay
          * @param clip A region to clip text within after applying justification to the viewport area.
          */
         void drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size = 0,
-                      Justify justify = ALIGN_TOP_LEFT, bool wrap = true, bool rightToLeft = false,
+                      Justify justify = ALIGN_TOP_LEFT, bool wrap = true,
                       const Rectangle& clip = Rectangle(0, 0, 0, 0));
 
         /**
@@ -195,14 +187,13 @@ namespace gameplay
          * Get an character index into a string corresponding to the character nearest the given location within the clip region.
          */
         int getIndexAtLocation(const char* text, const Rectangle& clip, unsigned int size, const Vector2& inLocation,
-                               Vector2* outLocation, Justify justify = ALIGN_TOP_LEFT, bool wrap = true, bool rightToLeft = false);
+                               Vector2* outLocation, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         /**
          * Get the location of the character at the given index.
          */
         void getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, Vector2* outLocation,
-                                const unsigned int destIndex, Justify justify = ALIGN_TOP_LEFT, bool wrap = true,
-                                bool rightToLeft = false);
+                                const unsigned int destIndex, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         /**
          * Gets the sprite batch used to draw this Font.
@@ -222,11 +213,6 @@ namespace gameplay
         {
         public:
             /**
-             * Glyph character code (decimal value).
-             */
-            unsigned int code;
-
-            /**
              * Glyph width (in pixels).
              */
             unsigned int width;
@@ -244,7 +230,7 @@ namespace gameplay
             /**
              * Glyph texture coordinates.
              */
-            float uvs[4];
+            Vector2 uvs[2];
         };
 
 
@@ -263,10 +249,7 @@ namespace gameplay
          */
         ~Font();
 
-        /**
-         * Hidden copy assignment operator.
-         */
-        Font& operator=(const Font&);
+        Font& operator=(const Font&) = delete;
 
         /**
          * Creates a font with the given characteristics from the specified glyph array and texture map.
@@ -284,24 +267,24 @@ namespace gameplay
          *
          * @return The new Font or nullptr if there was an error.
          */
-        static Font* create(const char* family, Style style, unsigned size, Glyph* glyphs, int glyphCount, const std::shared_ptr<Texture>& texture, Font::Format format);
+        static Font* create(const char* family, Style style, unsigned size, const std::vector<Glyph>& glyphs, const std::shared_ptr<Texture>& texture, Font::Format format);
 
-        void getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap, bool rightToLeft,
+        void getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap,
                                 std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths);
 
         int getIndexOrLocation(const char* text, const Rectangle& clip, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
-                               const int destIndex = -1, Justify justify = ALIGN_TOP_LEFT, bool wrap = true, bool rightToLeft = false);
+                               const int destIndex = -1, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         unsigned int getTokenWidth(const char* token, unsigned length, unsigned int size, float scale) const;
 
         unsigned int getReversedTokenLength(const char* token, const char* bufStart);
 
-        int handleDelimiters(const char** token, const unsigned int size, const int iteration, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
+        int handleDelimiters(const char** token, const unsigned int size, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
                              std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex = nullptr,
                              const Vector2* stopAtPosition = nullptr, const int currentIndex = -1, const int destIndex = -1);
 
         void addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Justify hAlign,
-                         std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths, bool rightToLeft);
+                         std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths);
 
         Font* findClosestSize(int size);
 
@@ -315,8 +298,7 @@ namespace gameplay
         unsigned int _size;
         std::vector<std::shared_ptr<Font>> _sizes; // stores additional font sizes of the same family
         float _spacing;
-        Glyph* _glyphs;
-        unsigned int _glyphCount;
+        std::vector<Glyph> _glyphs;
         std::shared_ptr<Texture> _texture;
         SpriteBatch* _batch;
         Rectangle _viewport;
