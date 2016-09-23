@@ -57,7 +57,7 @@ const Plane& Frustum::getTop() const
 
 void Frustum::getMatrix(Matrix* dst) const
 {
-    GP_ASSERT(dst);
+    BOOST_ASSERT(dst);
     dst->set(_matrix);
 }
 
@@ -69,7 +69,7 @@ void Frustum::getCorners(Vector3* corners) const
 
 void Frustum::getNearCorners(Vector3* corners) const
 {
-    GP_ASSERT(corners);
+    BOOST_ASSERT(corners);
 
     Plane::intersection(_near, _left, _top, &corners[0]);
     Plane::intersection(_near, _left, _bottom, &corners[1]);
@@ -79,7 +79,7 @@ void Frustum::getNearCorners(Vector3* corners) const
 
 void Frustum::getFarCorners(Vector3* corners) const
 {
-    GP_ASSERT(corners);
+    BOOST_ASSERT(corners);
 
     Plane::intersection(_far, _right, _top, &corners[0]);
     Plane::intersection(_far, _right, _bottom, &corners[1]);

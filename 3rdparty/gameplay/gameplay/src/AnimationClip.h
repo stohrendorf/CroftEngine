@@ -87,8 +87,8 @@ namespace gameplay
 
             Pose mix(const Pose& next, float lambda) const
             {
-                GP_ASSERT(lambda >= 0 && lambda <= 1);
-                GP_ASSERT(bones.size() == next.bones.size());
+                BOOST_ASSERT(lambda >= 0 && lambda <= 1);
+                BOOST_ASSERT(bones.size() == next.bones.size());
 
                 Pose result{bones.size()};
 

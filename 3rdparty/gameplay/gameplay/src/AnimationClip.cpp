@@ -20,9 +20,9 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         , _listenerItr{}
         , _controller{controller}
     {
-        GP_ASSERT(_skin);
-        GP_ASSERT(_controller);
-        GP_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= endTime);
+        BOOST_ASSERT(_skin);
+        BOOST_ASSERT(_controller);
+        BOOST_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= endTime);
 
         for(auto i = startTime; i < endTime; i += step)
         {
@@ -110,7 +110,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         else
         {
             setClipStateBit(CLIP_IS_PLAYING_BIT);
-            GP_ASSERT(_controller);
+            BOOST_ASSERT(_controller);
             _controller->schedule(this);
         }
 
@@ -144,8 +144,8 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
 
     void AnimationClip::addListener(AnimationClip::Listener* listener, const std::chrono::microseconds& eventTime)
     {
-        GP_ASSERT(listener);
-        GP_ASSERT(eventTime < getDuration());
+        BOOST_ASSERT(listener);
+        BOOST_ASSERT(eventTime < getDuration());
 
         ListenerEvent* listenerEvent = new ListenerEvent(listener, eventTime);
 
@@ -161,7 +161,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         {
             for( std::list<ListenerEvent*>::iterator itr = _listeners.begin(); itr != _listeners.end(); ++itr )
             {
-                GP_ASSERT(*itr);
+                BOOST_ASSERT(*itr);
                 if( eventTime < (*itr)->_eventTime )
                 {
                     itr = _listeners.insert(itr, listenerEvent);
@@ -171,7 +171,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
                     if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
                     {
                         std::chrono::microseconds currentTime = _elapsedTime % getDuration();
-                        GP_ASSERT(**_listenerItr || *_listenerItr == _listeners.end());
+                        BOOST_ASSERT(**_listenerItr || *_listenerItr == _listeners.end());
                         if( currentTime < eventTime && (*_listenerItr == _listeners.end() || eventTime < (**_listenerItr)->_eventTime) )
                         {
                             *_listenerItr = itr;
@@ -189,7 +189,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
     {
         if( !_listeners.empty() )
         {
-            GP_ASSERT(listener);
+            BOOST_ASSERT(listener);
             std::list<ListenerEvent*>::iterator iter = std::find_if(_listeners.begin(), _listeners.end(), [&](ListenerEvent* lst)
                                                                     {
                                                                         return lst->_eventTime == eventTime && lst->_listener == listener;
@@ -199,7 +199,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
                 if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
                 {
                     std::chrono::microseconds currentTime = _elapsedTime % getDuration();
-                    GP_ASSERT(**_listenerItr || *_listenerItr == _listeners.end());
+                    BOOST_ASSERT(**_listenerItr || *_listenerItr == _listeners.end());
 
                     // We the listener has not been triggered yet, then check if it is next to be triggered, remove it, and update the iterator
                     if( currentTime < eventTime && *iter == **_listenerItr )
@@ -216,7 +216,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
 
     void AnimationClip::addBeginListener(AnimationClip::Listener* listener)
     {
-        GP_ASSERT(listener);
+        BOOST_ASSERT(listener);
         _beginListeners.push_back(listener);
     }
 
@@ -225,7 +225,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
     {
         if( !_beginListeners.empty() )
         {
-            GP_ASSERT(listener);
+            BOOST_ASSERT(listener);
             auto iter = std::find(_beginListeners.begin(), _beginListeners.end(), listener);
             if( iter != _beginListeners.end() )
             {
@@ -237,7 +237,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
 
     void AnimationClip::addEndListener(AnimationClip::Listener* listener)
     {
-        GP_ASSERT(listener);
+        BOOST_ASSERT(listener);
         _endListeners.push_back(listener);
     }
 
@@ -246,7 +246,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
     {
         if( !_endListeners.empty() )
         {
-            GP_ASSERT(listener);
+            BOOST_ASSERT(listener);
             auto iter = std::find(_endListeners.begin(), _endListeners.end(), listener);
             if( iter != _endListeners.end() )
             {
@@ -258,7 +258,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
 
     bool AnimationClip::update(const std::chrono::microseconds& elapsedTime)
     {
-        GP_ASSERT(!_poses.empty());
+        BOOST_ASSERT(!_poses.empty());
 
         if( isClipStateBitSet(CLIP_IS_PAUSED_BIT) )
         {
@@ -297,13 +297,13 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         // Notify any listeners of Animation events.
         if( !_listeners.empty() )
         {
-            GP_ASSERT(_listenerItr);
+            BOOST_ASSERT(_listenerItr);
 
             while( *_listenerItr != _listeners.end() && _elapsedTime >= (**_listenerItr)->_eventTime )
             {
-                GP_ASSERT(_listenerItr);
-                GP_ASSERT(**_listenerItr);
-                GP_ASSERT((**_listenerItr)->_listener);
+                BOOST_ASSERT(_listenerItr);
+                BOOST_ASSERT(**_listenerItr);
+                BOOST_ASSERT((**_listenerItr)->_listener);
 
                 (**_listenerItr)->_listener->animationEvent(this, Listener::TIME);
                 ++(*_listenerItr);
@@ -311,7 +311,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         }
 
         // Add back in start time, and divide by the total animation's duration to get the actual percentage complete
-        GP_ASSERT(_skin);
+        BOOST_ASSERT(_skin);
 
         // Evaluate this clip.
 
@@ -330,7 +330,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
             const auto dist = next->first - prev->first;
             const auto lambdaDist = currentTime - prev->first;
             const auto lambda = static_cast<float>(lambdaDist.count()) / dist.count();
-            GP_ASSERT(lambda >= 0 && lambda <= 1);
+            BOOST_ASSERT(lambda >= 0 && lambda <= 1);
 
             const auto interpolated = prev->second.mix(next->second, lambda);
             setPose(interpolated);
@@ -363,7 +363,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
             auto listener = _beginListeners.begin();
             while( listener != _beginListeners.end() )
             {
-                GP_ASSERT(*listener);
+                BOOST_ASSERT(*listener);
                 (*listener)->animationEvent(this, Listener::BEGIN);
                 ++listener;
             }
@@ -381,7 +381,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
             auto listener = _endListeners.begin();
             while( listener != _endListeners.end() )
             {
-                GP_ASSERT(*listener);
+                BOOST_ASSERT(*listener);
                 (*listener)->animationEvent(this, Listener::END);
                 ++listener;
             }
@@ -408,8 +408,8 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
 
     void AnimationClip::setPose(const Pose& pose)
     {
-        GP_ASSERT(_skin);
-        GP_ASSERT(_skin->getJointCount() == pose.bones.size());
+        BOOST_ASSERT(_skin);
+        BOOST_ASSERT(_skin->getJointCount() == pose.bones.size());
 
         _bbox = pose.bbox;
 

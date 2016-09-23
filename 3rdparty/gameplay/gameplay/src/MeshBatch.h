@@ -145,7 +145,7 @@ namespace gameplay
     template<class T>
     void MeshBatch::add(const T* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount)
     {
-        GP_ASSERT(sizeof(T) == m_vertexFormat.getVertexSize());
+        BOOST_ASSERT(sizeof(T) == m_vertexFormat.getVertexSize());
         add(static_cast<const void*>(vertices), vertexCount, indices, indexCount);
     }
 }

@@ -21,7 +21,7 @@ namespace gameplay
         , _mesh(mesh)
         , _skin(nullptr)
     {
-        GP_ASSERT(mesh);
+        BOOST_ASSERT(mesh);
     }
 
 
@@ -36,7 +36,7 @@ namespace gameplay
 
     std::shared_ptr<Material> Model::getMaterial(size_t partIndex) const
     {
-        GP_ASSERT(partIndex == -1 || partIndex >= 0);
+        BOOST_ASSERT(partIndex == -1 || partIndex >= 0);
 
         if( partIndex >= _mesh->getPartCount() )
             return nullptr;
@@ -48,16 +48,16 @@ namespace gameplay
 
     void Model::setMaterial(const std::shared_ptr<Material>& material, size_t partIndex)
     {
-        GP_ASSERT(partIndex < _mesh->getPartCount());
-        GP_ASSERT(material != nullptr);
+        BOOST_ASSERT(partIndex < _mesh->getPartCount());
+        BOOST_ASSERT(material != nullptr);
 
         _mesh->getPart(partIndex)->_material = material;
 
         // Hookup vertex attribute bindings for all passes in the new material.
         auto t = material->getTechnique();
-        GP_ASSERT(t);
+        BOOST_ASSERT(t);
         auto p = t->getPass();
-        GP_ASSERT(p);
+        BOOST_ASSERT(p);
         _mesh->getPart(partIndex)->_vaBinding = VertexAttributeBinding::create(_mesh, p->getShaderProgram());
 
         // Apply node binding for the new material.
@@ -195,14 +195,14 @@ namespace gameplay
 
     size_t Model::draw(bool wireframe)
     {
-        GP_ASSERT(_mesh);
+        BOOST_ASSERT(_mesh);
 
         const size_t partCount = _mesh->getPartCount();
-        GP_ASSERT(partCount > 0);
+        BOOST_ASSERT(partCount > 0);
         for(size_t i = 0; i < partCount; ++i )
         {
             MeshPart* part = _mesh->getPart(i);
-            GP_ASSERT(part);
+            BOOST_ASSERT(part);
 
             // Get the material for this mesh part.
             auto material = getMaterial(i);
@@ -212,9 +212,9 @@ namespace gameplay
             material->setNodeBinding(getNode());
 
             auto technique = material->getTechnique();
-            GP_ASSERT(technique);
+            BOOST_ASSERT(technique);
             auto pass = technique->getPass();
-            GP_ASSERT(pass);
+            BOOST_ASSERT(pass);
             pass->bind(part->getVaBinding());
             GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
             if( !wireframe || !drawWireframe(part) )
@@ -230,7 +230,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Model::setMaterialNodeBinding(const std::shared_ptr<Material>& material)
     {
-        GP_ASSERT(material);
+        BOOST_ASSERT(material);
 
         if( _node )
         {

@@ -49,7 +49,7 @@ namespace gameplay
 
     std::shared_ptr<Texture> Texture::create(const std::shared_ptr<Image>& image, bool generateMipmaps)
     {
-        GP_ASSERT( image );
+        BOOST_ASSERT( image );
 
         return create(image->getWidth(), image->getHeight(), image->getData(), generateMipmaps);
     }
@@ -57,7 +57,7 @@ namespace gameplay
 
     std::shared_ptr<Texture> Texture::create(unsigned int width, unsigned int height, const std::vector<Vector4>& data, bool generateMipmaps, Texture::Type type)
     {
-        GP_ASSERT( type == Texture::TEXTURE_2D || type == Texture::TEXTURE_CUBE );
+        BOOST_ASSERT( type == Texture::TEXTURE_2D || type == Texture::TEXTURE_CUBE );
 
         GLenum target = static_cast<GLenum>(type);
 
@@ -109,7 +109,7 @@ namespace gameplay
 
     Texture* Texture::create(TextureHandle handle, int width, int height)
     {
-        GP_ASSERT( handle );
+        BOOST_ASSERT( handle );
 
         Texture* texture = new Texture();
         if( glIsTexture(handle) )
@@ -140,9 +140,9 @@ namespace gameplay
     void Texture::setData(const Vector4* data)
     {
         // Don't work with any compressed or cached textures
-        GP_ASSERT( data );
-        GP_ASSERT( (!_compressed) );
-        GP_ASSERT( (!_cached) );
+        BOOST_ASSERT( data );
+        BOOST_ASSERT( (!_compressed) );
+        BOOST_ASSERT( (!_cached) );
 
         GL_ASSERT( glBindTexture(static_cast<GLenum>(_type), _handle) );
 
@@ -247,7 +247,7 @@ namespace gameplay
         , _wrapT(Texture::REPEAT)
         , _wrapR(Texture::REPEAT)
     {
-        GP_ASSERT( texture );
+        BOOST_ASSERT( texture );
         _minFilter = texture->_minFilter;
         _magFilter = texture->_magFilter;
     }
@@ -258,8 +258,8 @@ namespace gameplay
 
     std::shared_ptr<Texture::Sampler> Texture::Sampler::create(const std::shared_ptr<Texture>& texture)
     {
-        GP_ASSERT( texture );
-        GP_ASSERT( texture->_type == Texture::TEXTURE_2D || texture->_type == Texture::TEXTURE_CUBE );
+        BOOST_ASSERT( texture );
+        BOOST_ASSERT( texture->_type == Texture::TEXTURE_2D || texture->_type == Texture::TEXTURE_CUBE );
         return std::make_shared<Sampler>(texture);
     }
 
@@ -287,7 +287,7 @@ namespace gameplay
 
     void Texture::Sampler::bind()
     {
-        GP_ASSERT( _texture );
+        BOOST_ASSERT( _texture );
 
         GLenum target = static_cast<GLenum>(_texture->_type);
         if( __currentTextureId != _texture->_handle )

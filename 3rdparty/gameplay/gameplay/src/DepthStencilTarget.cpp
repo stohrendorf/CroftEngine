@@ -43,7 +43,7 @@ DepthStencilTarget* DepthStencilTarget::create(const char* id, Format format, un
     GL_ASSERT( glGenRenderbuffers(1, &depthStencilTarget->_depthBuffer) );
     GL_ASSERT( glBindRenderbuffer(GL_RENDERBUFFER, depthStencilTarget->_depthBuffer) );
 
-    // First try to add storage for the most common standard GL_DEPTH24_STENCIL8 
+    // First try to add storage for the most common standard GL_DEPTH24_STENCIL8
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 
     // Fall back to less common GLES2 extension combination for seperate depth24 + stencil8 or depth16 + stencil8
@@ -89,20 +89,20 @@ DepthStencilTarget* DepthStencilTarget::create(const char* id, Format format, un
 
 DepthStencilTarget* DepthStencilTarget::getDepthStencilTarget(const char* id)
 {
-    GP_ASSERT(id);
+    BOOST_ASSERT(id);
 
     // Search the vector for a matching ID.
     std::vector<DepthStencilTarget*>::const_iterator it;
     for (it = __depthStencilTargets.begin(); it < __depthStencilTargets.end(); it++)
     {
         DepthStencilTarget* dst = *it;
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
         if (strcmp(id, dst->getId()) == 0)
         {
             return dst;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 const char* DepthStencilTarget::getId() const

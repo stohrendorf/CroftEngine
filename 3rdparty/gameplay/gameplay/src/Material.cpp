@@ -17,7 +17,7 @@ namespace gameplay
 
     std::shared_ptr<Material> Material::create(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(shaderProgram);
+        BOOST_ASSERT(shaderProgram);
 
         // Create a new material with a single technique and pass for the given effect.
         std::shared_ptr<Material> material{ std::make_shared<Material>() };
@@ -33,8 +33,8 @@ namespace gameplay
 
     std::shared_ptr<Material> Material::create(const char* vshPath, const char* fshPath, const char* defines)
     {
-        GP_ASSERT(vshPath);
-        GP_ASSERT(fshPath);
+        BOOST_ASSERT(vshPath);
+        BOOST_ASSERT(fshPath);
 
         // Create a new material with a single technique and pass for the given effect
         std::shared_ptr<Material> material{ std::make_shared<Material>() };

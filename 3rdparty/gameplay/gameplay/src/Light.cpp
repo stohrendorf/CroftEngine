@@ -109,13 +109,13 @@ namespace gameplay
         switch( _type )
         {
             case DIRECTIONAL:
-                GP_ASSERT(_directional);
+                BOOST_ASSERT(_directional);
                 return _directional->color;
             case POINT:
-                GP_ASSERT(_point);
+                BOOST_ASSERT(_point);
                 return _point->color;
             case SPOT:
-                GP_ASSERT(_spot);
+                BOOST_ASSERT(_spot);
                 return _spot->color;
             default:
                 GP_ERROR("Unsupported light type (%d).", _type);
@@ -129,15 +129,15 @@ namespace gameplay
         switch( _type )
         {
             case DIRECTIONAL:
-                GP_ASSERT(_directional);
+                BOOST_ASSERT(_directional);
                 _directional->color = color;
                 break;
             case POINT:
-                GP_ASSERT(_point);
+                BOOST_ASSERT(_point);
                 _point->color = color;
                 break;
             case SPOT:
-                GP_ASSERT(_spot);
+                BOOST_ASSERT(_spot);
                 _spot->color = color;
                 break;
             default:
@@ -155,15 +155,15 @@ namespace gameplay
 
     float Light::getRange() const
     {
-        GP_ASSERT(_type != DIRECTIONAL);
+        BOOST_ASSERT(_type != DIRECTIONAL);
 
         switch( _type )
         {
             case POINT:
-                GP_ASSERT(_point);
+                BOOST_ASSERT(_point);
                 return _point->range;
             case SPOT:
-                GP_ASSERT(_spot);
+                BOOST_ASSERT(_spot);
                 return _spot->range;
             default:
                 GP_ERROR("Unsupported light type (%d).", _type);
@@ -174,17 +174,17 @@ namespace gameplay
 
     void Light::setRange(float range)
     {
-        GP_ASSERT(_type != DIRECTIONAL);
+        BOOST_ASSERT(_type != DIRECTIONAL);
 
         switch( _type )
         {
             case POINT:
-                GP_ASSERT(_point);
+                BOOST_ASSERT(_point);
                 _point->range = range;
                 _point->rangeInverse = 1.0f / range;
                 break;
             case SPOT:
-                GP_ASSERT(_spot);
+                BOOST_ASSERT(_spot);
                 _spot->range = range;
                 _spot->rangeInverse = 1.0f / range;
                 break;
@@ -200,15 +200,15 @@ namespace gameplay
 
     float Light::getRangeInverse() const
     {
-        GP_ASSERT(_type != DIRECTIONAL);
+        BOOST_ASSERT(_type != DIRECTIONAL);
 
         switch( _type )
         {
             case POINT:
-                GP_ASSERT(_point);
+                BOOST_ASSERT(_point);
                 return _point->rangeInverse;
             case SPOT:
-                GP_ASSERT(_spot);
+                BOOST_ASSERT(_spot);
                 return _spot->rangeInverse;
             default:
                 GP_ERROR("Unsupported light type (%d).", _type);
@@ -219,7 +219,7 @@ namespace gameplay
 
     float Light::getInnerAngle() const
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         return _spot->innerAngle;
     }
@@ -227,7 +227,7 @@ namespace gameplay
 
     void Light::setInnerAngle(float innerAngle)
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         _spot->innerAngle = innerAngle;
         _spot->innerAngleCos = cos(innerAngle);
@@ -236,7 +236,7 @@ namespace gameplay
 
     float Light::getOuterAngle() const
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         return _spot->outerAngle;
     }
@@ -244,7 +244,7 @@ namespace gameplay
 
     void Light::setOuterAngle(float outerAngle)
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         _spot->outerAngle = outerAngle;
         _spot->outerAngleCos = cos(outerAngle);
@@ -256,7 +256,7 @@ namespace gameplay
 
     float Light::getInnerAngleCos() const
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         return _spot->innerAngleCos;
     }
@@ -264,7 +264,7 @@ namespace gameplay
 
     float Light::getOuterAngleCos() const
     {
-        GP_ASSERT(_type == SPOT);
+        BOOST_ASSERT(_type == SPOT);
 
         return _spot->outerAngleCos;
     }

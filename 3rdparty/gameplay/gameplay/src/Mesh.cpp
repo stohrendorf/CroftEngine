@@ -168,8 +168,8 @@ namespace gameplay
 
     std::shared_ptr<Mesh> Mesh::createLines(Vector3* points, size_t pointCount)
     {
-        GP_ASSERT(points);
-        GP_ASSERT(pointCount);
+        BOOST_ASSERT(points);
+        BOOST_ASSERT(pointCount);
 
         float* vertices = new float[pointCount * 3];
         memcpy(vertices, points, pointCount * 3 * sizeof(float));

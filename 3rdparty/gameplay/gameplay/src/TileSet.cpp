@@ -32,8 +32,8 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void TileSet::setTileSource(unsigned int column, unsigned int row, const Vector2& source)
     {
-        GP_ASSERT(column < _columnCount);
-        GP_ASSERT(row < _rowCount);
+        BOOST_ASSERT(column < _columnCount);
+        BOOST_ASSERT(row < _rowCount);
 
         _tiles[row * _columnCount + column] = source;
     }
@@ -42,9 +42,9 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void TileSet::getTileSource(unsigned int column, unsigned int row, Vector2* source)
     {
-        GP_ASSERT(column < _columnCount);
-        GP_ASSERT(row < _rowCount);
-        GP_ASSERT(source);
+        BOOST_ASSERT(column < _columnCount);
+        BOOST_ASSERT(row < _rowCount);
+        BOOST_ASSERT(source);
 
         source->x = _tiles[row * _columnCount + column].x;
         source->y = _tiles[row * _columnCount + column].y;

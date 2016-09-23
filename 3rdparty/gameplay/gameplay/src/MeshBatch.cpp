@@ -9,7 +9,7 @@ MeshBatch::MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primi
     : m_vertexFormat(vertexFormat), m_primitiveType(primitiveType), m_material(material), m_indexed(indexed), m_capacity(0), m_growSize(growSize),
     m_vertexCapacity(0), m_indexCapacity(0), m_vertexCount(0), m_indexCount(0), m_vertices(nullptr), m_verticesPtr(nullptr), m_indices(nullptr), m_indicesPtr(nullptr), m_started(false)
 {
-    GP_ASSERT(material);
+    BOOST_ASSERT(material);
     resize(initialCapacity);
 }
 
@@ -21,7 +21,7 @@ MeshBatch::~MeshBatch()
 
 void MeshBatch::add(const void* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount)
 {
-    GP_ASSERT(vertices);
+    BOOST_ASSERT(vertices);
 
     unsigned int newVertexCount = m_vertexCount + vertexCount;
     unsigned int newIndexCount = m_indexCount + indexCount;
@@ -38,15 +38,15 @@ void MeshBatch::add(const void* vertices, unsigned int vertexCount, const unsign
     }
 
     // Copy vertex data.
-    GP_ASSERT(m_verticesPtr);
+    BOOST_ASSERT(m_verticesPtr);
     unsigned int vBytes = vertexCount * m_vertexFormat.getVertexSize();
     memcpy(m_verticesPtr, vertices, vBytes);
 
     // Copy index data.
     if (m_indexed)
     {
-        GP_ASSERT(indices);
-        GP_ASSERT(m_indicesPtr);
+        BOOST_ASSERT(indices);
+        BOOST_ASSERT(m_indicesPtr);
 
         if (m_vertexCount == 0)
         {
@@ -81,13 +81,13 @@ void MeshBatch::add(const void* vertices, unsigned int vertexCount, const unsign
 
 void MeshBatch::updateVertexAttributeBinding()
 {
-    GP_ASSERT(m_material);
+    BOOST_ASSERT(m_material);
 
     // Update our vertex attribute bindings.
     auto t = m_material->getTechnique();
-    GP_ASSERT(t);
+    BOOST_ASSERT(t);
     auto p = t->getPass();
-    GP_ASSERT(p);
+    BOOST_ASSERT(p);
     _vaBinding = VertexAttributeBinding::create(m_vertexFormat, m_vertices, p->getShaderProgram());
 }
 
@@ -213,15 +213,15 @@ void MeshBatch::draw()
     // ARRAY_BUFFER will be unbound automatically during pass->bind().
     GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0 ) );
 
-    GP_ASSERT(m_material);
+    BOOST_ASSERT(m_material);
     if (m_indexed)
-        GP_ASSERT(m_indices);
+        BOOST_ASSERT(m_indices);
 
     // Bind the material.
     auto technique = m_material->getTechnique();
-    GP_ASSERT(technique);
+    BOOST_ASSERT(technique);
     auto pass = technique->getPass();
-    GP_ASSERT(pass);
+    BOOST_ASSERT(pass);
     pass->bind(_vaBinding);
 
     if (m_indexed)

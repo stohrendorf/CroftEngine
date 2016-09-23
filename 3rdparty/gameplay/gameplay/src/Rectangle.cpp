@@ -110,7 +110,7 @@ bool Rectangle::intersects(const Rectangle& r) const
 
 bool Rectangle::intersect(const Rectangle& r1, const Rectangle& r2, Rectangle* dst)
 {
-    GP_ASSERT(dst);
+    BOOST_ASSERT(dst);
 
     float xmin = max(r1.x, r2.x);
     float xmax = min(r1.right(), r2.right());
@@ -131,7 +131,7 @@ bool Rectangle::intersect(const Rectangle& r1, const Rectangle& r2, Rectangle* d
 
 void Rectangle::combine(const Rectangle& r1, const Rectangle& r2, Rectangle* dst)
 {
-    GP_ASSERT(dst);
+    BOOST_ASSERT(dst);
 
     dst->x = min(r1.x, r2.x);
     dst->y = min(r1.y, r2.y);

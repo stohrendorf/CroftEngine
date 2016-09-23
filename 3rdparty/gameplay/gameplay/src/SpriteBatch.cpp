@@ -44,8 +44,8 @@ namespace gameplay
 
     SpriteBatch* SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, unsigned int initialCapacity)
     {
-        GP_ASSERT(texture != nullptr);
-        GP_ASSERT(texture->getType() == Texture::TEXTURE_2D);
+        BOOST_ASSERT(texture != nullptr);
+        BOOST_ASSERT(texture->getType() == Texture::TEXTURE_2D);
 
         auto fx = shaderProgram;
         bool customEffect = (fx != nullptr);
@@ -317,7 +317,7 @@ namespace gameplay
 
     void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, SpriteBatch::SpriteVertex* vertices)
     {
-        GP_ASSERT(vertices);
+        BOOST_ASSERT(vertices);
 
         const float x2 = x + width;
         const float y2 = y + height;
@@ -330,7 +330,7 @@ namespace gameplay
 
     void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip, SpriteBatch::SpriteVertex* vertices)
     {
-        GP_ASSERT(vertices);
+        BOOST_ASSERT(vertices);
 
         // Only add a sprite if at least part of the sprite is within the clip region.
         if( clipSprite(clip, x, y, width, height, u1, v1, u2, v2) )
@@ -347,8 +347,8 @@ namespace gameplay
 
     void SpriteBatch::draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount) const
     {
-        GP_ASSERT(vertices);
-        GP_ASSERT(indices);
+        BOOST_ASSERT(vertices);
+        BOOST_ASSERT(indices);
 
         _batch->add(vertices, vertexCount, indices, indexCount);
     }

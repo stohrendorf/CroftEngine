@@ -12,8 +12,6 @@ set(GAMEPLAY_SRC
     src/Camera.h
     src/Curve.cpp
     src/Curve.h
-    src/DebugNew.cpp
-    src/DebugNew.h
     src/DepthStencilTarget.cpp
     src/DepthStencilTarget.h
     src/Drawable.cpp

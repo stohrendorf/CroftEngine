@@ -32,7 +32,7 @@ namespace gameplay
 
     const std::shared_ptr<Joint>& MeshSkin::getJoint(size_t index) const
     {
-        GP_ASSERT(index < _joints.size());
+        BOOST_ASSERT(index < _joints.size());
         return _joints[index];
     }
 
@@ -81,7 +81,7 @@ namespace gameplay
 
     void MeshSkin::setJoint(const std::shared_ptr<Joint>& joint, size_t index)
     {
-        GP_ASSERT(index < _joints.size());
+        BOOST_ASSERT(index < _joints.size());
 
         if( _joints[index] )
         {
@@ -101,7 +101,7 @@ namespace gameplay
     {
         for( size_t i = 0, count = _joints.size(); i < count; i++ )
         {
-            GP_ASSERT(_joints[i]);
+            BOOST_ASSERT(_joints[i]);
             _joints[i]->updateJointMatrix(&_matrixPalette[i * PALETTE_ROWS]);
         }
         return _matrixPalette.data();

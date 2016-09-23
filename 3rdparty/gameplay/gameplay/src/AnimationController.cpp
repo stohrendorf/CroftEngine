@@ -1,6 +1,5 @@
 #include "Base.h"
 #include "AnimationController.h"
-#include "Game.h"
 #include "Transform.h"
 
 
@@ -23,7 +22,7 @@ namespace gameplay
         while( clipIter != m_runningClips.end() )
         {
             AnimationClip* clip = *clipIter;
-            GP_ASSERT(clip);
+            BOOST_ASSERT(clip);
             clip->stop();
             ++clipIter;
         }
@@ -71,7 +70,7 @@ namespace gameplay
             m_state = RUNNING;
         }
 
-        GP_ASSERT(clip);
+        BOOST_ASSERT(clip);
         m_runningClips.push_back(clip);
     }
 
@@ -107,7 +106,7 @@ namespace gameplay
         while( clipIter != m_runningClips.end() )
         {
             AnimationClip* clip = (*clipIter);
-            GP_ASSERT(clip);
+            BOOST_ASSERT(clip);
             if( clip->isClipStateBitSet(AnimationClip::CLIP_IS_RESTARTED_BIT) )
             { // If the CLIP_IS_RESTARTED_BIT is set, we should end the clip and
                 // move it from where it is in the running clips list to the back.

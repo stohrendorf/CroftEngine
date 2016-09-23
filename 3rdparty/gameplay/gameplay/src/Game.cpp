@@ -32,7 +32,7 @@ namespace gameplay
         , _animationController(nullptr)
         , _timeEvents(nullptr)
     {
-        GP_ASSERT(__gameInstance == nullptr);
+        BOOST_ASSERT(__gameInstance == nullptr);
 
         __gameInstance = this;
         _timeEvents = new std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>();
@@ -55,7 +55,7 @@ namespace gameplay
 
     Game* Game::getInstance()
     {
-        GP_ASSERT(__gameInstance);
+        BOOST_ASSERT(__gameInstance);
         return __gameInstance;
     }
 
@@ -165,7 +165,7 @@ namespace gameplay
         // Call user finalization.
         if( _state != UNINITIALIZED )
         {
-            GP_ASSERT(_animationController);
+            BOOST_ASSERT(_animationController);
 
             Platform::signalShutdown();
 
@@ -189,7 +189,7 @@ namespace gameplay
     {
         if( _state == RUNNING )
         {
-            GP_ASSERT(_animationController);
+            BOOST_ASSERT(_animationController);
             _state = PAUSED;
             _pausedTimeLast = Platform::getAbsoluteTime();
             _animationController->pause();
@@ -207,7 +207,7 @@ namespace gameplay
 
             if( _pausedCount == 0 )
             {
-                GP_ASSERT(_animationController);
+                BOOST_ASSERT(_animationController);
                 _state = RUNNING;
                 _pausedTimeTotal += Platform::getAbsoluteTime() - _pausedTimeLast;
                 _animationController->resume();
@@ -258,7 +258,7 @@ namespace gameplay
 
         if( _state == Game::RUNNING )
         {
-            GP_ASSERT(_animationController);
+            BOOST_ASSERT(_animationController);
 
             // Update Time.
             std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
@@ -301,7 +301,7 @@ namespace gameplay
 
     void Game::updateOnce()
     {
-        GP_ASSERT(_animationController);
+        BOOST_ASSERT(_animationController);
 
         // Update Time.
         static std::chrono::microseconds lastFrameTime = getGameTime();
@@ -380,7 +380,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Game::schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie)
     {
-        GP_ASSERT(_timeEvents);
+        BOOST_ASSERT(_timeEvents);
         TimeEvent timeEvent(getGameTime() + timeOffset, timeListener, cookie);
         _timeEvents->push(timeEvent);
     }

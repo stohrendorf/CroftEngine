@@ -30,6 +30,8 @@
 #include <mutex>
 #include <chrono>
 #include <boost/assert.hpp>
+#include <boost/current_function.hpp>
+
 #include "Logger.h"
 
 // Bring common functions from C into global namespace
@@ -49,15 +51,6 @@ using std::max;
 using std::modf;
 using std::atoi;
 
-// Current function macro.
-#ifdef WIN32
-#define __current__func__ __FUNCTION__
-#else
-#define __current__func__ __func__
-#endif
-
-#define GP_ASSERT BOOST_ASSERT
-
 #if defined(WIN32) && defined(_MSC_VER)
 #define DEBUG_BREAK() __debugbreak()
 #else
@@ -70,11 +63,11 @@ using std::atoi;
 #else
 #define GP_ERROR(...) do \
     { \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, "%s -- ", __current__func__); \
+        gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, "%s -- ", BOOST_CURRENT_FUNCTION); \
         gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, __VA_ARGS__); \
         gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, "\n"); \
         DEBUG_BREAK(); \
-        assert(0); \
+        BOOST_ASSERT(false); \
         std::exit(-1); \
     } while (0)
 #endif
@@ -82,38 +75,23 @@ using std::atoi;
 // Warning macro.
 #define GP_WARN(...) do \
     { \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, "%s -- ", __current__func__); \
+        gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, "%s -- ", BOOST_CURRENT_FUNCTION); \
         gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, __VA_ARGS__); \
         gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, "\n"); \
     } while (0)
-
-#if defined(WIN32)
-#pragma warning( disable : 4005 )
-#pragma warning( disable : 4172 )
-#pragma warning( disable : 4244 )
-#pragma warning( disable : 4267 )
-#pragma warning( disable : 4311 )
-#pragma warning( disable : 4316 )
-#pragma warning( disable : 4390 )
-#pragma warning( disable : 4800 )
-#pragma warning( disable : 4996 )
-#endif
-
-// Debug new for memory leak detection
-#include "DebugNew.h"
 
 // Object deletion macro
 #define SAFE_DELETE(x) \
     { \
         delete x; \
-        x = NULL; \
+        x = nullptr; \
     }
 
 // Array deletion macro
 #define SAFE_DELETE_ARRAY(x) \
     { \
         delete[] x; \
-        x = NULL; \
+        x = nullptr; \
     }
 
 // Math
@@ -168,9 +146,6 @@ namespace gameplay
     typedef GLuint FrameBufferHandle;
     /** Render buffer handle. */
     typedef GLuint RenderBufferHandle;
-
-    /** Gamepad handle */
-    typedef unsigned long GamepadHandle;
 }
 
 
@@ -185,12 +160,12 @@ namespace gameplay
 #ifndef NDEBUG
 #define GL_ASSERT( gl_code ) gl_code
 #else
-#define GL_ASSERT( gl_code ) do \
+#define GL_ASSERT( gl_code ) \
     { \
         gl_code; \
         __gl_error_code = glGetError(); \
         GP_ASSERT(__gl_error_code == GL_NO_ERROR); \
-    } while(0)
+    }
 #endif
 
 /** Global variable to hold GL errors
@@ -204,7 +179,7 @@ extern GLenum __gl_error_code;
  * The AL_LAST_ERROR macro can be used afterwards to check whether a AL error was
  * encountered executing the specified code.
  */
-#define AL_CHECK( al_code ) do \
+#define AL_CHECK( al_code ) \
     { \
         while (alGetError() != AL_NO_ERROR) ; \
         al_code; \
@@ -213,7 +188,7 @@ extern GLenum __gl_error_code;
         { \
             GP_ERROR(#al_code ": %d", (int)__al_error_code); \
         } \
-    } while(0)
+    }
 
 /**
  * Accesses the most recently set global AL error.

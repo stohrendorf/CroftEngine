@@ -147,7 +147,7 @@ namespace gameplay
 
     void MaterialParameter::setValue(const Vector2* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         _value = const_cast<float*>(&values[0].x);
@@ -173,7 +173,7 @@ namespace gameplay
 
     void MaterialParameter::setValue(const Vector3* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         _value = const_cast<float*>(&values[0].x);
@@ -199,7 +199,7 @@ namespace gameplay
 
     void MaterialParameter::setValue(const Vector4* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         _value = const_cast<float*>(&values[0].x);
@@ -229,7 +229,7 @@ namespace gameplay
 
     void MaterialParameter::setValue(const Matrix* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         _value = const_cast<float*>(values[0].m);
@@ -240,7 +240,7 @@ namespace gameplay
 
     void MaterialParameter::setValue(const std::shared_ptr<Texture::Sampler>& sampler)
     {
-        GP_ASSERT(sampler);
+        BOOST_ASSERT(sampler);
         clearValue();
 
         _value = sampler;
@@ -266,7 +266,7 @@ namespace gameplay
 
     void MaterialParameter::setFloatArray(const float* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -293,7 +293,7 @@ namespace gameplay
 
     void MaterialParameter::setIntArray(const int* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -320,7 +320,7 @@ namespace gameplay
 
     void MaterialParameter::setVector2Array(const Vector2* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -347,7 +347,7 @@ namespace gameplay
 
     void MaterialParameter::setVector3Array(const Vector3* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -374,7 +374,7 @@ namespace gameplay
 
     void MaterialParameter::setVector4Array(const Vector4* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -401,7 +401,7 @@ namespace gameplay
 
     void MaterialParameter::setMatrixArray(const Matrix* values, size_t count, bool copy)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         clearValue();
 
         if( copy )
@@ -438,7 +438,7 @@ namespace gameplay
 
     void MaterialParameter::bind(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(shaderProgram);
+        BOOST_ASSERT(shaderProgram);
 
         // If we had a Uniform cached that is not from the passed in effect,
         // we need to update our uniform to point to the new effect's uniform.

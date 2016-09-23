@@ -232,7 +232,7 @@ private:
 
     const char* FileSystem::resolvePath(const char* path)
     {
-        GP_ASSERT(path);
+        BOOST_ASSERT(path);
 
         size_t len = strlen(path);
         if( len > 1 && path[0] == '@' )
@@ -343,7 +343,7 @@ private:
 
     bool FileSystem::fileExists(const char* filePath)
     {
-        GP_ASSERT(filePath);
+        BOOST_ASSERT(filePath);
 
         std::string fullPath;
 
@@ -413,8 +413,8 @@ private:
 
     FILE* FileSystem::openFile(const char* filePath, const char* mode)
     {
-        GP_ASSERT(filePath);
-        GP_ASSERT(mode);
+        BOOST_ASSERT(filePath);
+        BOOST_ASSERT(mode);
 
         std::string fullPath;
         getFullPath(filePath, fullPath);
@@ -426,7 +426,7 @@ private:
 
     char* FileSystem::readAll(const char* filePath, int* fileSize)
     {
-        GP_ASSERT(filePath);
+        BOOST_ASSERT(filePath);
 
         // Open file for reading.
         std::unique_ptr<Stream> stream(open(filePath));

@@ -58,7 +58,7 @@ namespace gameplay
 
     void Node::addChild(const std::shared_ptr<Node>& child)
     {
-        GP_ASSERT(child);
+        BOOST_ASSERT(child);
 
         if( child->_parent.lock() == shared_from_this() )
         {
@@ -154,7 +154,7 @@ namespace gameplay
 
     std::shared_ptr<Node> Node::findNode(const char* id, bool recursive, bool exactMatch) const
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         std::shared_ptr<Node> rootNode;
@@ -200,7 +200,7 @@ namespace gameplay
 
     unsigned int Node::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         unsigned int count = 0;
@@ -259,14 +259,14 @@ namespace gameplay
 
     bool Node::hasTag(const char* name) const
     {
-        GP_ASSERT(name);
+        BOOST_ASSERT(name);
         return (_tags ? _tags->find(name) != _tags->end() : false);
     }
 
 
     const char* Node::getTag(const char* name) const
     {
-        GP_ASSERT(name);
+        BOOST_ASSERT(name);
 
         if( !_tags )
             return nullptr;
@@ -278,7 +278,7 @@ namespace gameplay
 
     void Node::setTag(const char* name, const char* value)
     {
-        GP_ASSERT(name);
+        BOOST_ASSERT(name);
 
         if( value == nullptr )
         {
@@ -764,7 +764,7 @@ namespace gameplay
                     // since joint parent nodes that are not in the matrix palette do not need to
                     // be considered as directly transforming vertices on the GPU (they can instead
                     // be applied directly to the bounding volume transformation below).
-                    GP_ASSERT(model->getSkin()->getRootJoint());
+                    BOOST_ASSERT(model->getSkin()->getRootJoint());
                     auto jointParent = model->getSkin()->getRootJoint()->getParent().lock();
                     if( jointParent )
                     {

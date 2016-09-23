@@ -60,7 +60,7 @@ namespace gameplay
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
         {
             auto param = _parameters[i];
-            GP_ASSERT(param);
+            BOOST_ASSERT(param);
             if( param->getName() == name )
             {
                 return param;
@@ -157,10 +157,10 @@ namespace gameplay
 
     void RenderState::applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding)
     {
-        GP_ASSERT(_nodeBinding);
+        BOOST_ASSERT(_nodeBinding);
 
         auto param = getParameter(uniformName);
-        GP_ASSERT(param);
+        BOOST_ASSERT(param);
 
         bool bound = false;
 
@@ -328,7 +328,7 @@ namespace gameplay
 
     void RenderState::bind(Pass* pass)
     {
-        GP_ASSERT(pass);
+        BOOST_ASSERT(pass);
 
         // Get the combined modified state bits for our RenderState hierarchy.
         long stateOverrideBits = _state ? _state->_bits : 0;
@@ -352,7 +352,7 @@ namespace gameplay
         {
             for( size_t i = 0, count = rs->_parameters.size(); i < count; ++i )
             {
-                GP_ASSERT(rs->_parameters[i]);
+                BOOST_ASSERT(rs->_parameters[i]);
                 rs->_parameters[i]->bind(effect);
             }
 
@@ -435,7 +435,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::StateBlock::bindNoRestore()
     {
-        GP_ASSERT(_defaultState);
+        BOOST_ASSERT(_defaultState);
 
         // Update any state that differs from _defaultState and flip _defaultState bits
         if( (_bits & RS_BLEND) && (_blendEnabled != _defaultState->_blendEnabled) )
@@ -526,7 +526,7 @@ namespace gameplay
 
     void RenderState::StateBlock::restore(long stateOverrideBits)
     {
-        GP_ASSERT(_defaultState);
+        BOOST_ASSERT(_defaultState);
 
         // If there is no state to restore (i.e. no non-default state), do nothing.
         if( _defaultState->_bits == 0 )
@@ -617,7 +617,7 @@ namespace gameplay
 
     void RenderState::StateBlock::enableDepthWrite()
     {
-        GP_ASSERT(_defaultState);
+        BOOST_ASSERT(_defaultState);
 
         // Internal method used by Game::clear() to restore depth writing before a
         // clear operation. This is necessary if the last code to draw before the

@@ -65,7 +65,7 @@ namespace gameplay
         , _emitTime(0)
         , _lastUpdated(0)
     {
-        GP_ASSERT(particleCountMax);
+        BOOST_ASSERT(particleCountMax);
         _particles = new Particle[particleCountMax];
     }
 
@@ -81,7 +81,7 @@ namespace gameplay
     ParticleEmitter* ParticleEmitter::create(const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned int particleCountMax)
     {
         ParticleEmitter* emitter = new ParticleEmitter(particleCountMax);
-        GP_ASSERT(emitter);
+        BOOST_ASSERT(emitter);
 
         emitter->setTexture(texture, blendMode);
 
@@ -142,7 +142,7 @@ namespace gameplay
 
     void ParticleEmitter::setEmissionRate(unsigned int rate)
     {
-        GP_ASSERT(rate);
+        BOOST_ASSERT(rate);
         _emissionRate = rate;
         _timePerEmission = 1000.0f / (float)_emissionRate;
     }
@@ -181,8 +181,8 @@ namespace gameplay
 
     void ParticleEmitter::emitOnce(unsigned int particleCount)
     {
-        GP_ASSERT(_node);
-        GP_ASSERT(_particles);
+        BOOST_ASSERT(_node);
+        BOOST_ASSERT(_particles);
 
         // Limit particleCount so as not to go over _particleCountMax.
         if( particleCount + _particleCount > _particleCountMax )
@@ -477,8 +477,8 @@ namespace gameplay
 
     void ParticleEmitter::setBlendMode(BlendMode blendMode)
     {
-        GP_ASSERT(_spriteBatch);
-        GP_ASSERT(_spriteBatch->getStateBlock());
+        BOOST_ASSERT(_spriteBatch);
+        BOOST_ASSERT(_spriteBatch->getStateBlock());
 
         switch( blendMode )
         {
@@ -578,8 +578,8 @@ namespace gameplay
 
     void ParticleEmitter::setSpriteTexCoords(unsigned int frameCount, float* texCoords)
     {
-        GP_ASSERT(frameCount);
-        GP_ASSERT(texCoords);
+        BOOST_ASSERT(frameCount);
+        BOOST_ASSERT(texCoords);
 
         _spriteFrameCount = frameCount;
         _spritePercentPerFrame = 1.0f / (float)frameCount;
@@ -592,8 +592,8 @@ namespace gameplay
 
     void ParticleEmitter::setSpriteFrameCoords(unsigned int frameCount, Rectangle* frameCoords)
     {
-        GP_ASSERT(frameCount);
-        GP_ASSERT(frameCoords);
+        BOOST_ASSERT(frameCount);
+        BOOST_ASSERT(frameCoords);
 
         _spriteFrameCount = frameCount;
         _spritePercentPerFrame = 1.0f / (float)frameCount;
@@ -614,8 +614,8 @@ namespace gameplay
 
     void ParticleEmitter::setSpriteFrameCoords(unsigned int frameCount, int width, int height)
     {
-        GP_ASSERT(width);
-        GP_ASSERT(height);
+        BOOST_ASSERT(width);
+        BOOST_ASSERT(height);
 
         Rectangle* frameCoords = new Rectangle[frameCount];
         unsigned int cols = _spriteTextureWidth / width;
@@ -705,7 +705,7 @@ namespace gameplay
 
     void ParticleEmitter::generateVectorInRect(const Vector3& base, const Vector3& variance, Vector3* dst)
     {
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
 
         // Scale each component of the variance vector by a random float
         // between -1 and 1, then add this to the corresponding base component.
@@ -717,7 +717,7 @@ namespace gameplay
 
     void ParticleEmitter::generateVectorInEllipsoid(const Vector3& center, const Vector3& scale, Vector3* dst)
     {
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
 
         // Generate a point within a unit cube, then reject if the point is not in a unit sphere.
         do
@@ -752,7 +752,7 @@ namespace gameplay
 
     void ParticleEmitter::generateColor(const Vector4& base, const Vector4& variance, Vector4* dst)
     {
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
 
         // Scale each component of the variance color by a random float
         // between -1 and 1, then add this to the corresponding base component.
@@ -765,7 +765,7 @@ namespace gameplay
 
     ParticleEmitter::BlendMode ParticleEmitter::getBlendModeFromString(const char* str)
     {
-        GP_ASSERT(str);
+        BOOST_ASSERT(str);
 
         if( strcmp(str, "BLEND_NONE") == 0 || strcmp(str, "NONE") == 0 )
         {
@@ -822,7 +822,7 @@ namespace gameplay
             _emitTime += elapsedMs; //+= elapsedTime;
 
             // How many particles should we emit this frame?
-            GP_ASSERT(_timePerEmission);
+            BOOST_ASSERT(_timePerEmission);
             unsigned int emitCount = (unsigned int)(_emitTime / _timePerEmission);
 
             if( emitCount )
@@ -836,7 +836,7 @@ namespace gameplay
         }
 
         // Now update all currently living particles.
-        GP_ASSERT(_particles);
+        BOOST_ASSERT(_particles);
         for( unsigned int particlesIndex = 0; particlesIndex < _particleCount; ++particlesIndex )
         {
             Particle* p = &_particles[particlesIndex];
@@ -929,9 +929,9 @@ namespace gameplay
 
         if( _particleCount > 0 )
         {
-            GP_ASSERT(_spriteBatch);
-            GP_ASSERT(_particles);
-            GP_ASSERT(_spriteTextureCoords);
+            BOOST_ASSERT(_spriteBatch);
+            BOOST_ASSERT(_particles);
+            BOOST_ASSERT(_spriteTextureCoords);
 
             // Set our node's view projection matrix to this emitter's effect.
             if( _node )
@@ -946,7 +946,7 @@ namespace gameplay
             static const Vector2 pivot(0.5f, 0.5f);
 
             // 3D Rotation so that particles always face the camera.
-            GP_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera() && _node->getScene()->getActiveCamera()->getNode());
+            BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera() && _node->getScene()->getActiveCamera()->getNode());
             const Matrix& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getNode()->getWorldMatrix();
 
             Vector3 right;

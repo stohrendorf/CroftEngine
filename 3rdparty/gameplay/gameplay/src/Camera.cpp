@@ -58,7 +58,7 @@ namespace gameplay
 
     float Camera::getFieldOfView() const
     {
-        GP_ASSERT(_type == Camera::PERSPECTIVE);
+        BOOST_ASSERT(_type == Camera::PERSPECTIVE);
 
         return _fieldOfView;
     }
@@ -66,7 +66,7 @@ namespace gameplay
 
     void Camera::setFieldOfView(float fieldOfView)
     {
-        GP_ASSERT(_type == Camera::PERSPECTIVE);
+        BOOST_ASSERT(_type == Camera::PERSPECTIVE);
 
         _fieldOfView = fieldOfView;
         _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
@@ -76,7 +76,7 @@ namespace gameplay
 
     float Camera::getZoomX() const
     {
-        GP_ASSERT(_type == Camera::ORTHOGRAPHIC);
+        BOOST_ASSERT(_type == Camera::ORTHOGRAPHIC);
 
         return _zoom[0];
     }
@@ -84,7 +84,7 @@ namespace gameplay
 
     void Camera::setZoomX(float zoomX)
     {
-        GP_ASSERT(_type == Camera::ORTHOGRAPHIC);
+        BOOST_ASSERT(_type == Camera::ORTHOGRAPHIC);
 
         _zoom[0] = zoomX;
         _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
@@ -94,7 +94,7 @@ namespace gameplay
 
     float Camera::getZoomY() const
     {
-        GP_ASSERT(_type == Camera::ORTHOGRAPHIC);
+        BOOST_ASSERT(_type == Camera::ORTHOGRAPHIC);
 
         return _zoom[1];
     }
@@ -102,7 +102,7 @@ namespace gameplay
 
     void Camera::setZoomY(float zoomY)
     {
-        GP_ASSERT(_type == Camera::ORTHOGRAPHIC);
+        BOOST_ASSERT(_type == Camera::ORTHOGRAPHIC);
 
         _zoom[1] = zoomY;
         _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
@@ -300,15 +300,15 @@ namespace gameplay
 
     void Camera::project(const Rectangle& viewport, const Vector3& position, float* x, float* y, float* depth) const
     {
-        GP_ASSERT(x);
-        GP_ASSERT(y);
+        BOOST_ASSERT(x);
+        BOOST_ASSERT(y);
 
         // Transform the point to clip-space.
         Vector4 clipPos;
         getViewProjectionMatrix().transformVector(Vector4(position.x, position.y, position.z, 1.0f), &clipPos);
 
         // Compute normalized device coordinates.
-        GP_ASSERT(clipPos.w != 0.0f);
+        BOOST_ASSERT(clipPos.w != 0.0f);
         float ndcX = clipPos.x / clipPos.w;
         float ndcY = clipPos.y / clipPos.w;
 
@@ -325,7 +325,7 @@ namespace gameplay
 
     void Camera::project(const Rectangle& viewport, const Vector3& position, Vector2* out) const
     {
-        GP_ASSERT(out);
+        BOOST_ASSERT(out);
         float x, y;
         project(viewport, position, &x, &y);
         out->set(x, y);
@@ -334,7 +334,7 @@ namespace gameplay
 
     void Camera::project(const Rectangle& viewport, const Vector3& position, Vector3* out) const
     {
-        GP_ASSERT(out);
+        BOOST_ASSERT(out);
         float x, y, depth;
         project(viewport, position, &x, &y, &depth);
         out->set(x, y, depth);
@@ -343,10 +343,10 @@ namespace gameplay
 
     void Camera::unproject(const Rectangle& viewport, float x, float y, float depth, Vector3* dst) const
     {
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
 
         // Create our screen space position in NDC.
-        GP_ASSERT(viewport.width != 0.0f && viewport.height != 0.0f);
+        BOOST_ASSERT(viewport.width != 0.0f && viewport.height != 0.0f);
         Vector4 screen((x - viewport.x) / viewport.width, ((viewport.height - y) - viewport.y) / viewport.height, depth, 1.0f);
 
         // Map to range -1 to 1.
@@ -371,7 +371,7 @@ namespace gameplay
 
     void Camera::pickRay(const Rectangle& viewport, float x, float y, Ray* dst) const
     {
-        GP_ASSERT(dst);
+        BOOST_ASSERT(dst);
 
         // Get the world-space position at the near clip plane.
         Vector3 nearPoint;

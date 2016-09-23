@@ -62,7 +62,7 @@ namespace gameplay
 
             const Matrix &t = Node::getWorldMatrix();
 
-            GP_ASSERT(matrixPalette);
+            BOOST_ASSERT(matrixPalette);
             matrixPalette[0].set(t.m[0], t.m[4], t.m[8], t.m[12]);
             matrixPalette[1].set(t.m[1], t.m[5], t.m[9], t.m[13]);
             matrixPalette[2].set(t.m[2], t.m[6], t.m[10], t.m[14]);

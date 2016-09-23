@@ -62,7 +62,7 @@ namespace gameplay
             for( size_t i = 0; i < transformCount; i++ )
             {
                 auto t = _transformsChanged.at(i);
-                GP_ASSERT(t);
+                BOOST_ASSERT(t);
                 t->transformChanged();
             }
 
@@ -72,7 +72,7 @@ namespace gameplay
             for( size_t i = 0; i < transformCount; i++ )
             {
                 auto t = _transformsChanged.at(i);
-                GP_ASSERT(t);
+                BOOST_ASSERT(t);
                 t->_matrixDirtyBits &= ~DIRTY_NOTIFY;
             }
 
@@ -116,7 +116,7 @@ namespace gameplay
 
     void Transform::getScale(Vector3* scale) const
     {
-        GP_ASSERT(scale);
+        BOOST_ASSERT(scale);
         scale->set(_scale);
     }
 
@@ -147,21 +147,21 @@ namespace gameplay
 
     void Transform::getRotation(Quaternion* rotation) const
     {
-        GP_ASSERT(rotation);
+        BOOST_ASSERT(rotation);
         rotation->set(_rotation);
     }
 
 
     void Transform::getRotation(Matrix* rotation) const
     {
-        GP_ASSERT(rotation);
+        BOOST_ASSERT(rotation);
         Matrix::createRotation(_rotation, rotation);
     }
 
 
     float Transform::getRotation(Vector3* axis) const
     {
-        GP_ASSERT(axis);
+        BOOST_ASSERT(axis);
         return _rotation.toAxisAngle(axis);
     }
 
@@ -174,7 +174,7 @@ namespace gameplay
 
     void Transform::getTranslation(Vector3* translation) const
     {
-        GP_ASSERT(translation);
+        BOOST_ASSERT(translation);
         translation->set(_translation);
     }
 
@@ -693,7 +693,7 @@ namespace gameplay
 
     void Transform::suspendTransformChange(const std::shared_ptr<Transform>& transform)
     {
-        GP_ASSERT(transform);
+        BOOST_ASSERT(transform);
         transform->_matrixDirtyBits |= DIRTY_NOTIFY;
         _transformsChanged.push_back(transform);
     }
@@ -701,7 +701,7 @@ namespace gameplay
 
     void Transform::addListener(Transform::Listener* listener, long cookie)
     {
-        GP_ASSERT(listener);
+        BOOST_ASSERT(listener);
 
         TransformListener l;
         l.listener = listener;
@@ -712,7 +712,7 @@ namespace gameplay
 
     void Transform::removeListener(Transform::Listener* listener)
     {
-        GP_ASSERT(listener);
+        BOOST_ASSERT(listener);
 
         for( auto itr = _listeners.begin(); itr != _listeners.end(); ++itr )
         {
@@ -730,7 +730,7 @@ namespace gameplay
         for( auto itr = _listeners.begin(); itr != _listeners.end(); ++itr )
         {
             TransformListener& l = *itr;
-            GP_ASSERT(l.listener);
+            BOOST_ASSERT(l.listener);
             l.listener->transformChanged(this, l.cookie);
         }
     }

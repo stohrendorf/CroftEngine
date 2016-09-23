@@ -83,7 +83,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Sprite::setFrameSource(unsigned int frameIndex, const Rectangle& source)
     {
-        GP_ASSERT(frameIndex < _frameCount);
+        BOOST_ASSERT(frameIndex < _frameCount);
 
         _frames[frameIndex] = source;
     }
@@ -91,7 +91,7 @@ namespace gameplay
 
     const Rectangle& Sprite::getFrameSource(unsigned int frameIndex) const
     {
-        GP_ASSERT(frameIndex < _frameCount);
+        BOOST_ASSERT(frameIndex < _frameCount);
 
         return _frames[frameIndex];
     }
@@ -326,10 +326,10 @@ namespace gameplay
 
     std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(texture != nullptr);
-        GP_ASSERT(width >= -1 && height >= -1);
-        GP_ASSERT(source.width >= -1 && source.height >= -1);
-        GP_ASSERT(frameCount > 0);
+        BOOST_ASSERT(texture != nullptr);
+        BOOST_ASSERT(width >= -1 && height >= -1);
+        BOOST_ASSERT(source.width >= -1 && source.height >= -1);
+        BOOST_ASSERT(frameCount > 0);
 
         SpriteBatch* batch = SpriteBatch::create(texture, shaderProgram);
         batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);

@@ -101,14 +101,14 @@ namespace gameplay
 
     FrameBuffer* FrameBuffer::getFrameBuffer(const char* id)
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         // Search the vector for a matching ID.
         std::vector<FrameBuffer*>::const_iterator it;
         for( it = _frameBuffers.begin(); it < _frameBuffers.end(); ++it )
         {
             FrameBuffer* fb = *it;
-            GP_ASSERT(fb);
+            BOOST_ASSERT(fb);
             if( strcmp(id, fb->getId()) == 0 )
             {
                 return fb;
@@ -150,7 +150,7 @@ namespace gameplay
 
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned int index)
     {
-        GP_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_2D));
+        BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_2D));
 
         // No change
         if( _renderTargets[index] == target )
@@ -162,8 +162,8 @@ namespace gameplay
 
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, unsigned int index)
     {
-        GP_ASSERT(face >= Texture::POSITIVE_X && face <= Texture::NEGATIVE_Z);
-        GP_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_CUBE));
+        BOOST_ASSERT(face >= Texture::POSITIVE_X && face <= Texture::NEGATIVE_Z);
+        BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_CUBE));
 
         setRenderTarget(target, index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face);
     }
@@ -171,8 +171,8 @@ namespace gameplay
 
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned int index, GLenum textureTarget)
     {
-        GP_ASSERT(index < _maxRenderTargets);
-        GP_ASSERT(!_renderTargets.empty());
+        BOOST_ASSERT(index < _maxRenderTargets);
+        BOOST_ASSERT(!_renderTargets.empty());
 
         // Release our reference to the current RenderTarget at this index.
         if( _renderTargets[index] )
@@ -204,7 +204,7 @@ namespace gameplay
 
     std::shared_ptr<RenderTarget> FrameBuffer::getRenderTarget(size_t index) const
     {
-        GP_ASSERT(!_renderTargets.empty());
+        BOOST_ASSERT(!_renderTargets.empty());
         if( index < _maxRenderTargets )
         {
             return _renderTargets[index];
@@ -278,7 +278,7 @@ namespace gameplay
 
     void FrameBuffer::getScreenshot(const std::shared_ptr<Image>& image)
     {
-        GP_ASSERT( image );
+        BOOST_ASSERT( image );
 
         unsigned int width = _currentFrameBuffer->getWidth();
         unsigned int height = _currentFrameBuffer->getHeight();

@@ -24,7 +24,7 @@ namespace gameplay
 
     std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(mesh);
+        BOOST_ASSERT(mesh);
 
         return create(mesh, mesh->getVertexFormat(), nullptr, shaderProgram);
     }
@@ -38,7 +38,7 @@ namespace gameplay
 
     std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const std::shared_ptr<Mesh>& mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
-        GP_ASSERT(shaderProgram);
+        BOOST_ASSERT(shaderProgram);
 
         // One-time initialization.
         if( __maxVertexAttribs == 0 )
@@ -148,7 +148,7 @@ namespace gameplay
 
     void VertexAttributeBinding::setVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalize, GLsizei stride, void* pointer)
     {
-        GP_ASSERT(indx < (GLuint)__maxVertexAttribs);
+        BOOST_ASSERT(indx < (GLuint)__maxVertexAttribs);
 
         // Hardware mode.
         GL_ASSERT( glVertexAttribPointer(indx, size, type, normalize, stride, pointer) );

@@ -30,7 +30,7 @@ namespace gameplay
 
     Platform* Platform::create(Game* game)
     {
-        GP_ASSERT(game);
+        BOOST_ASSERT(game);
 
         glfwSetErrorCallback(&glErrorCallback);
 
@@ -122,7 +122,7 @@ namespace gameplay
 
     void Platform::boot()
     {
-        GP_ASSERT(_game);
+        BOOST_ASSERT(_game);
 
         // Get the initial time.
         __timeStart = std::chrono::high_resolution_clock::now();
@@ -158,7 +158,7 @@ namespace gameplay
 
     void Platform::enterMessagePump()
     {
-        GP_ASSERT(_game);
+        BOOST_ASSERT(_game);
 
         // Get the initial time.
         __timeStart = std::chrono::high_resolution_clock::now();

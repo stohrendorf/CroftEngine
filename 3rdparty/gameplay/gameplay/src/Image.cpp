@@ -7,7 +7,7 @@ namespace gameplay
 {
     std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, const Vector4* data)
     {
-        GP_ASSERT(width > 0 && height > 0);
+        BOOST_ASSERT(width > 0 && height > 0);
 
         auto image = std::make_shared<Image>();
 

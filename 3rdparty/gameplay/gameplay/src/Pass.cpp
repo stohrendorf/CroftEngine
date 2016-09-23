@@ -21,8 +21,8 @@ namespace gameplay
 
     bool Pass::initialize(const char* vshPath, const char* fshPath, const char* defines)
     {
-        GP_ASSERT(vshPath);
-        GP_ASSERT(fshPath);
+        BOOST_ASSERT(vshPath);
+        BOOST_ASSERT(fshPath);
 
         // Attempt to create/load the effect.
         _shaderProgram = ShaderProgram::createFromFile(vshPath, fshPath, defines);
@@ -50,7 +50,7 @@ namespace gameplay
 
     void Pass::bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding)
     {
-        GP_ASSERT(_shaderProgram != nullptr);
+        BOOST_ASSERT(_shaderProgram != nullptr);
 
         // Bind our effect.
         _shaderProgram->bind();
@@ -58,7 +58,7 @@ namespace gameplay
         // Bind our render state
         RenderState::bind(this);
 
-        GP_ASSERT(_boundVaBinding == nullptr);
+        BOOST_ASSERT(_boundVaBinding == nullptr);
         _boundVaBinding = vaBinding;
 
         // If we have a vertex attribute binding, bind it

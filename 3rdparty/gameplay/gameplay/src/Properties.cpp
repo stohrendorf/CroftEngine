@@ -38,7 +38,7 @@ Properties::Properties(const Properties& copy)
     std::vector<Properties*>::const_iterator it;
     for (it = copy._namespaces.begin(); it < copy._namespaces.end(); ++it)
     {
-        GP_ASSERT(*it);
+        BOOST_ASSERT(*it);
         _namespaces.push_back(new Properties(**it));
     }
     rewind();
@@ -130,7 +130,7 @@ static bool isVariable(const char* str, char* outName, size_t outSize)
 
 void Properties::readProperties(Stream* stream)
 {
-    GP_ASSERT(stream);
+    BOOST_ASSERT(stream);
 
     char line[2048];
     char variable[256];
@@ -479,7 +479,7 @@ void Properties::resolveInheritance(const char* id)
                 std::vector<Properties*>::const_iterator itt;
                 for (itt = parent->_namespaces.begin(); itt < parent->_namespaces.end(); ++itt)
                 {
-                    GP_ASSERT(*itt);
+                    BOOST_ASSERT(*itt);
                     derived->_namespaces.push_back(new Properties(**itt));
                 }
                 derived->rewind();
@@ -509,7 +509,7 @@ void Properties::resolveInheritance(const char* id)
 
 void Properties::mergeWith(Properties* overrides)
 {
-    GP_ASSERT(overrides);
+    BOOST_ASSERT(overrides);
 
     // Overwrite or add each property found in child.
     overrides->rewind();
@@ -599,7 +599,7 @@ void Properties::rewind()
 
 Properties* Properties::getNamespace(const char* id, bool searchNames, bool recurse) const
 {
-    GP_ASSERT(id);
+    BOOST_ASSERT(id);
 
     for (std::vector<Properties*>::const_iterator it = _namespaces.begin(); it < _namespaces.end(); ++it)
     {
@@ -645,7 +645,7 @@ bool Properties::exists(const char* name) const
 
 static bool isStringNumeric(const char* str)
 {
-    GP_ASSERT(str);
+    BOOST_ASSERT(str);
 
     // The first character may be '-'
     if (*str == '-')
@@ -853,7 +853,7 @@ long Properties::getLong(const char* name) const
 
 bool Properties::getMatrix(const char* name, Matrix* out) const
 {
-    GP_ASSERT(out);
+    BOOST_ASSERT(out);
 
     const char* valueString = getString(name);
     if (valueString)
@@ -911,7 +911,7 @@ bool Properties::getColor(const char* name, Vector4* out) const
 
 bool Properties::getPath(const char* name, std::string* path) const
 {
-    GP_ASSERT(name && path);
+    BOOST_ASSERT(name && path);
     const char* valueString = getString(name);
     if (valueString)
     {
@@ -966,7 +966,7 @@ const char* Properties::getVariable(const char* name, const char* defaultValue) 
 
 void Properties::setVariable(const char* name, const char* value)
 {
-    GP_ASSERT(name);
+    BOOST_ASSERT(name);
 
     Property* prop = NULL;
 
@@ -1016,7 +1016,7 @@ Properties* Properties::clone()
 
     for (size_t i = 0, count = _namespaces.size(); i < count; i++)
     {
-        GP_ASSERT(_namespaces[i]);
+        BOOST_ASSERT(_namespaces[i]);
         Properties* child = _namespaces[i]->clone();
         p->_namespaces.push_back(child);
         child->_parent = p;

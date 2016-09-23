@@ -7,7 +7,7 @@ namespace gameplay
     VertexFormat::VertexFormat(const Element* elements, size_t elementCount)
         : _vertexSize(0)
     {
-        GP_ASSERT(elements);
+        BOOST_ASSERT(elements);
 
         _elements.assign(elements + 0, elements + elementCount);
 
@@ -24,7 +24,7 @@ namespace gameplay
 
     const VertexFormat::Element& VertexFormat::getElement(size_t index) const
     {
-        GP_ASSERT(index < _elements.size());
+        BOOST_ASSERT(index < _elements.size());
         return _elements[index];
     }
 

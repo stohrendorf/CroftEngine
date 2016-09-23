@@ -34,8 +34,8 @@ namespace gameplay
 
     std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const char* vshPath, const char* fshPath, const char* defines)
     {
-        GP_ASSERT(vshPath);
-        GP_ASSERT(fshPath);
+        BOOST_ASSERT(vshPath);
+        BOOST_ASSERT(fshPath);
 
         // Search the effect cache for an identical effect that is already loaded.
         std::string uniqueId = vshPath;
@@ -210,8 +210,8 @@ namespace gameplay
 
     std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines)
     {
-        GP_ASSERT(vshSource);
-        GP_ASSERT(fshSource);
+        BOOST_ASSERT(vshSource);
+        BOOST_ASSERT(fshSource);
 
         const unsigned int SHADER_SOURCE_LENGTH = 3;
         const GLchar* shaderSource[SHADER_SOURCE_LENGTH];
@@ -526,7 +526,7 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const float* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniform1fv(uniform._location, count, values) );
     }
 
@@ -539,7 +539,7 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const int* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniform1iv(uniform._location, count, values) );
     }
 
@@ -552,7 +552,7 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const Matrix* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniformMatrix4fv(uniform._location, count, GL_FALSE, (GLfloat*)values) );
     }
 
@@ -565,7 +565,7 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const Vector2* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniform2fv(uniform._location, count, (GLfloat*)values) );
     }
 
@@ -578,7 +578,7 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const Vector3* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniform3fv(uniform._location, count, (GLfloat*)values) );
     }
 
@@ -591,16 +591,16 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const Vector4* values, size_t count)
     {
-        GP_ASSERT(values);
+        BOOST_ASSERT(values);
         GL_ASSERT( glUniform4fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
     void ShaderProgram::setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler)
     {
-        GP_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
-        GP_ASSERT(sampler);
-        GP_ASSERT((sampler->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
+        BOOST_ASSERT(sampler);
+        BOOST_ASSERT((sampler->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
             (sampler->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
 
         GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index) );
@@ -614,13 +614,13 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
     {
-        GP_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
 
         // Set samplers as active and load texture unit array
         GLint units[32];
         for( size_t i = 0; i < values.size(); ++i )
         {
-            GP_ASSERT((values[i]->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
+            BOOST_ASSERT((values[i]->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
                 (values[i]->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
             GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index + i) );
 

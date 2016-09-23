@@ -66,7 +66,7 @@ float Plane::distance(const Vector3& point) const
 
 void Plane::intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vector3* point)
 {
-    GP_ASSERT(point);
+    BOOST_ASSERT(point);
 
     // The planes' normals must be all normalized (which we guarantee in the Plane class).
     // Calculate the determinant of the matrix (i.e | n1 n2 n3 |).
@@ -267,7 +267,7 @@ void Plane::transform(const Matrix& matrix)
         float nz = _normal.x * inverted.m[8] + _normal.y * inverted.m[9] + _normal.z * inverted.m[10] + _distance * inverted.m[11];
         float d = _normal.x * inverted.m[12]+ _normal.y * inverted.m[13] + _normal.z * inverted.m[14] + _distance * inverted.m[15];
         float divisor = sqrt(nx * nx + ny * ny + nz * nz);
-        GP_ASSERT(divisor);
+        BOOST_ASSERT(divisor);
         float factor = 1.0f / divisor;
 
         _normal.x = nx * factor;

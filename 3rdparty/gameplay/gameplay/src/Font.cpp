@@ -35,8 +35,8 @@ Font::~Font()
 
 Font* Font::create(const char* family, Style style, unsigned int size, const std::vector<Font::Glyph>& glyphs, const std::shared_ptr<Texture>& texture, Font::Format format)
 {
-    GP_ASSERT(family);
-    GP_ASSERT(texture);
+    BOOST_ASSERT(family);
+    BOOST_ASSERT(texture);
 
     // Create the effect for the font's sprite batch.
     if (__fontProgram == nullptr)
@@ -81,7 +81,7 @@ Font* Font::create(const char* family, Style style, unsigned int size, const std
 
 unsigned int Font::getSize(unsigned int index) const
 {
-    GP_ASSERT(index <= _sizes.size());
+    BOOST_ASSERT(index <= _sizes.size());
 
     // index zero == this font
     return index == 0 ? _size : _sizes[index - 1]->_size;
@@ -159,8 +159,8 @@ Font* Font::findClosestSize(int size)
 
 void Font::drawText(const char* text, int x, int y, const Vector4& color, unsigned int size)
 {
-    GP_ASSERT(_size);
-    GP_ASSERT(text);
+    BOOST_ASSERT(_size);
+    BOOST_ASSERT(text);
 
     if (size == 0)
     {
@@ -186,7 +186,7 @@ void Font::drawText(const char* text, int x, int y, const Vector4& color, unsign
 
     size_t length = strlen(text);
 
-    GP_ASSERT(_batch);
+    BOOST_ASSERT(_batch);
     for (size_t i = 0; i < length; ++i)
     {
         char c = text[i];
@@ -234,7 +234,7 @@ void Font::drawText(const std::string& text, int x, int y, float red, float gree
 
 void Font::drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, const Rectangle& clip)
 {
-    GP_ASSERT(_size);
+    BOOST_ASSERT(_size);
 
     if (size == 0)
     {
@@ -314,7 +314,7 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
             break;
         }
 
-        GP_ASSERT(_batch);
+        BOOST_ASSERT(_batch);
         for (size_t i = 0; i < tokenLength; ++i)
         {
             char c = token[i];
@@ -376,10 +376,10 @@ void Font::drawText(const std::string& text, const Rectangle& area, const Vector
 
 void Font::measureText(const char* text, unsigned int size, unsigned int* width, unsigned int* height)
 {
-    GP_ASSERT(_size);
-    GP_ASSERT(text);
-    GP_ASSERT(width);
-    GP_ASSERT(height);
+    BOOST_ASSERT(_size);
+    BOOST_ASSERT(text);
+    BOOST_ASSERT(width);
+    BOOST_ASSERT(height);
 
     if (size == 0)
     {
@@ -432,9 +432,9 @@ void Font::measureText(const char* text, unsigned int size, unsigned int* width,
 
 void Font::measureText(const char* text, const Rectangle& clip, unsigned int size, Rectangle* out, Justify justify, bool wrap, bool ignoreClip)
 {
-    GP_ASSERT(_size);
-    GP_ASSERT(text);
-    GP_ASSERT(out);
+    BOOST_ASSERT(_size);
+    BOOST_ASSERT(text);
+    BOOST_ASSERT(out);
 
     if (size == 0)
     {
@@ -779,9 +779,9 @@ void Font::measureText(const char* text, const Rectangle& clip, unsigned int siz
 void Font::getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap,
                               std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths)
 {
-    GP_ASSERT(_size);
-    GP_ASSERT(text);
-    GP_ASSERT(yPosition);
+    BOOST_ASSERT(_size);
+    BOOST_ASSERT(text);
+    BOOST_ASSERT(yPosition);
 
     if (size == 0)
         size = _size;
@@ -988,9 +988,9 @@ void Font::getLocationAtIndex(const char* text, const Rectangle& clip, unsigned 
 int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
                              const int destIndex, Justify justify, bool wrap)
 {
-    GP_ASSERT(_size);
-    GP_ASSERT(text);
-    GP_ASSERT(outLocation);
+    BOOST_ASSERT(_size);
+    BOOST_ASSERT(text);
+    BOOST_ASSERT(outLocation);
 
     if (size == 0)
     {
@@ -1153,7 +1153,7 @@ int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned i
 
 unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigned int size, float scale) const
 {
-    GP_ASSERT(token);
+    BOOST_ASSERT(token);
 
     if (size == 0)
         size = _size;
@@ -1189,8 +1189,8 @@ unsigned int Font::getTokenWidth(const char* token, unsigned int length, unsigne
 
 unsigned int Font::getReversedTokenLength(const char* token, const char* bufStart)
 {
-    GP_ASSERT(token);
-    GP_ASSERT(bufStart);
+    BOOST_ASSERT(token);
+    BOOST_ASSERT(bufStart);
 
     const char* cursor = token;
     char c = cursor[0];
@@ -1215,12 +1215,12 @@ int Font::handleDelimiters(const char** token, const unsigned int size, const in
                           std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex,
                           const Vector2* stopAtPosition, const int currentIndex, const int destIndex)
 {
-    GP_ASSERT(token);
-    GP_ASSERT(*token);
-    GP_ASSERT(xPos);
-    GP_ASSERT(yPos);
-    GP_ASSERT(lineLength);
-    GP_ASSERT(xPositionsIt);
+    BOOST_ASSERT(token);
+    BOOST_ASSERT(*token);
+    BOOST_ASSERT(xPos);
+    BOOST_ASSERT(yPos);
+    BOOST_ASSERT(lineLength);
+    BOOST_ASSERT(xPositionsIt);
 
     char delimiter = *token[0];
     bool nextLine = true;
@@ -1300,12 +1300,12 @@ void Font::addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Jus
     int hWhitespace = area.width - lineWidth;
     if (hAlign == ALIGN_HCENTER)
     {
-        GP_ASSERT(xPositions);
+        BOOST_ASSERT(xPositions);
         (*xPositions).push_back(area.x + hWhitespace / 2);
     }
     else if (hAlign == ALIGN_RIGHT)
     {
-        GP_ASSERT(xPositions);
+        BOOST_ASSERT(xPositions);
         (*xPositions).push_back(area.x + hWhitespace);
     }
 }

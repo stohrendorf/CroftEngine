@@ -52,13 +52,13 @@ namespace gameplay
 
     std::shared_ptr<RenderTarget> RenderTarget::getRenderTarget(const char* id)
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         // Search the vector for a matching ID.
         for( auto it = __renderTargets.begin(); it < __renderTargets.end(); ++it )
         {
             auto dst = *it;
-            GP_ASSERT(dst);
+            BOOST_ASSERT(dst);
             if( strcmp(id, dst->getId()) == 0 )
             {
                 return dst;

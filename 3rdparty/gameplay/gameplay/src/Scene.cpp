@@ -67,7 +67,7 @@ namespace gameplay
 
     std::shared_ptr<Node> Scene::findNode(const char* id, bool recursive, bool exactMatch) const
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         // Search immediate children first.
         for( const auto& child : _nodes )
@@ -97,7 +97,7 @@ namespace gameplay
 
     size_t Scene::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
-        GP_ASSERT(id);
+        BOOST_ASSERT(id);
 
         size_t count = 0;
 
@@ -148,7 +148,7 @@ namespace gameplay
     std::shared_ptr<Node> Scene::addNode(const std::string& id)
     {
         auto node = std::make_shared<Node>(id);
-        GP_ASSERT(node);
+        BOOST_ASSERT(node);
         addNode(node);
 
         return node;
@@ -157,7 +157,7 @@ namespace gameplay
 
     void Scene::addNode(const std::shared_ptr<Node>& node)
     {
-        GP_ASSERT(node);
+        BOOST_ASSERT(node);
 
         if( node->_scene == this )
         {
@@ -194,7 +194,7 @@ namespace gameplay
 
     void Scene::removeNode(const std::shared_ptr<Node>& node)
     {
-        GP_ASSERT(node);
+        BOOST_ASSERT(node);
 
         if( node->_scene != this )
             return;
