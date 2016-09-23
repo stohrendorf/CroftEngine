@@ -111,12 +111,14 @@ int main()
         {"LEVEL10C", "The Great Pyramid", 60, 3} // 15
     };
 
-    const LevelInfo& lvlInfo = levels[0];
+    const LevelInfo& lvlInfo = levels[1];
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     lvl->load();
+
+    platform->boot();
     lvl->toIrrlicht(game);
 
     // device->setWindowCaption("EdisonEngine");
@@ -124,7 +126,6 @@ int main()
     if(lvlInfo.track > 0)
         lvl->playCdTrack(lvlInfo.track);
 
-    platform->boot();
     auto lastTime = game->getAbsoluteTime();
     while(platform->loop())
     {
