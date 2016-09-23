@@ -30,7 +30,6 @@ namespace gameplay
         , _clearStencil(0)
         , _properties(nullptr)
         , _animationController(nullptr)
-        , _aiController(nullptr)
         , _timeEvents(nullptr)
     {
         GP_ASSERT(__gameInstance == nullptr);
@@ -155,9 +154,6 @@ namespace gameplay
         _animationController = new AnimationController();
         _animationController->initialize();
 
-        _aiController = new AIController();
-        _aiController->initialize();
-
         _state = RUNNING;
 
         return true;
@@ -170,7 +166,6 @@ namespace gameplay
         if( _state != UNINITIALIZED )
         {
             GP_ASSERT(_animationController);
-            GP_ASSERT(_aiController);
 
             Platform::signalShutdown();
 
@@ -179,9 +174,6 @@ namespace gameplay
 
             _animationController->finalize();
             SAFE_DELETE(_animationController);
-
-            _aiController->finalize();
-            SAFE_DELETE(_aiController);
 
             FrameBuffer::finalize();
             RenderState::finalize();
@@ -198,11 +190,9 @@ namespace gameplay
         if( _state == RUNNING )
         {
             GP_ASSERT(_animationController);
-            GP_ASSERT(_aiController);
             _state = PAUSED;
             _pausedTimeLast = Platform::getAbsoluteTime();
             _animationController->pause();
-            _aiController->pause();
         }
 
         ++_pausedCount;
@@ -218,11 +208,9 @@ namespace gameplay
             if( _pausedCount == 0 )
             {
                 GP_ASSERT(_animationController);
-                GP_ASSERT(_aiController);
                 _state = RUNNING;
                 _pausedTimeTotal += Platform::getAbsoluteTime() - _pausedTimeLast;
                 _animationController->resume();
-                _aiController->resume();
             }
         }
     }
@@ -271,7 +259,6 @@ namespace gameplay
         if( _state == Game::RUNNING )
         {
             GP_ASSERT(_animationController);
-            GP_ASSERT(_aiController);
 
             // Update Time.
             std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
@@ -279,9 +266,6 @@ namespace gameplay
 
             // Update the scheduled and running animations.
             _animationController->update(elapsedTime);
-
-            // Update AI.
-            _aiController->update(elapsedTime);
 
             // Application Update.
             update(elapsedTime);
@@ -318,7 +302,6 @@ namespace gameplay
     void Game::updateOnce()
     {
         GP_ASSERT(_animationController);
-        GP_ASSERT(_aiController);
 
         // Update Time.
         static std::chrono::microseconds lastFrameTime = getGameTime();
@@ -328,7 +311,6 @@ namespace gameplay
 
         // Update the internal controllers.
         _animationController->update(elapsedTime);
-        _aiController->update(elapsedTime);
     }
 
 

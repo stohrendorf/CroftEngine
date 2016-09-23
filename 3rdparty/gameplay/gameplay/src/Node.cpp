@@ -23,7 +23,6 @@ namespace gameplay
         , _drawable(nullptr)
         , _camera(nullptr)
         , _light(nullptr)
-        , _agent(nullptr)
         , _userObject(nullptr)
         , _dirtyBits(NODE_DIRTY_ALL)
     {
@@ -36,7 +35,6 @@ namespace gameplay
         if( _drawable )
             _drawable->setNode(nullptr);
         SAFE_DELETE(_tags);
-        setAgent(nullptr);
     }
 
 
@@ -804,43 +802,6 @@ namespace gameplay
         }
 
         return _bounds;
-    }
-
-
-    std::shared_ptr<AIAgent> Node::getAgent() const
-    {
-        // Lazily create a new Agent for this Node if we don't have one yet.
-        // Basically, all Nodes by default can have an Agent, we just won't
-        // waste the memory unless they request one.
-        if( !_agent )
-        {
-            _agent = AIAgent::create();
-            _agent->_node = const_cast<Node*>(this);
-            Game::getInstance()->getAIController()->addAgent(_agent);
-        }
-
-        return _agent;
-    }
-
-
-    void Node::setAgent(const std::shared_ptr<AIAgent>& agent)
-    {
-        if( agent == _agent )
-            return;
-
-        if( _agent )
-        {
-            Game::getInstance()->getAIController()->removeAgent(_agent);
-            _agent->setNode(nullptr);
-        }
-
-        _agent = agent;
-
-        if( _agent )
-        {
-            _agent->setNode(this);
-            Game::getInstance()->getAIController()->addAgent(_agent);
-        }
     }
 
 

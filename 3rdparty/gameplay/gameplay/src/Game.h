@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AnimationController.h"
-#include "AIController.h"
 #include "Rectangle.h"
 #include "Vector4.h"
 #include "TimeListener.h"
@@ -229,14 +228,6 @@ namespace gameplay
          */
         inline AnimationController* getAnimationController() const;
 
-        /**
-         * Gets the AI controller for managing control of artificial
-         * intelligence associated with the game.
-         *
-         * @return The AI controller for this game.
-         */
-        inline AIController* getAIController() const;
-
 
         /**
          * Called when the game window has been resized.
@@ -413,7 +404,6 @@ namespace gameplay
         int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
         Properties* _properties; // Game configuration properties object.
         AnimationController* _animationController; // Controls the scheduling and running of animations.
-        AIController* _aiController; // Controls AI simulation.
         std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>* _timeEvents; // Contains the scheduled time events.
 
         // Note: Do not add STL object member variables on the stack; this will cause false memory leaks to be reported.
@@ -470,11 +460,6 @@ namespace gameplay
         return _animationController;
     }
 
-
-    inline AIController* Game::getAIController() const
-    {
-        return _aiController;
-    }
 
     template<class T>
     void Game::renderOnce(T* instance, void (T::*method)(void*), void* cookie)

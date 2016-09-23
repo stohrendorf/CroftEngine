@@ -53,10 +53,4 @@
 #include "AnimationController.h"
 #include "AnimationClip.h"
 
-// AI
-#include "AIController.h"
-#include "AIAgent.h"
-#include "AIState.h"
-#include "AIStateMachine.h"
-
 #include "MaterialParameter.h"

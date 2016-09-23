@@ -4,12 +4,10 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Light.h"
-#include "AIAgent.h"
 
 
 namespace gameplay
 {
-    class AIAgent;
     class Camera;
     class Drawable;
     class Light;
@@ -395,20 +393,6 @@ namespace gameplay
         void setLight(const std::shared_ptr<Light>& light);
 
         /**
-         * Gets the AI agent assigned to this node
-         *
-         * @return The AI agent for this node.
-         */
-        std::shared_ptr<AIAgent> getAgent() const;
-
-        /**
-         * Sets the AI agent for this node.
-         *
-         * @param agent The AI agent to set.
-         */
-        void setAgent(const std::shared_ptr<AIAgent>& agent);
-
-        /**
          * Gets the user object assigned to this node.
          *
          * @return The user object assigned object to this node.
@@ -516,8 +500,6 @@ namespace gameplay
         std::shared_ptr<Camera> _camera;
         /** The light component attached to this node. */
         std::shared_ptr<Light> _light;
-        /** The AI agent component attached to this node. */
-        mutable std::shared_ptr<AIAgent> _agent;
         /** The user object component attached to this node. */
         void* _userObject;
         /** The world matrix for this node. */
