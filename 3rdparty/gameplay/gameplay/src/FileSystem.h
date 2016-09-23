@@ -179,7 +179,7 @@ namespace gameplay
          * @return A newly allocated (NULL-terminated) character array containing the
          *      contents of the file, or NULL if the file could not be read.
          */
-        static char* readAll(const char* filePath, int* fileSize = nullptr);
+        static std::string readAll(const std::string& filePath, size_t* fileSize = nullptr);
 
         /**
          * Determines if the file path is an absolute path for the current platform.

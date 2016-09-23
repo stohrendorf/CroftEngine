@@ -36,7 +36,7 @@ namespace gameplay
          *
          * @return The created effect.
          */
-        static std::shared_ptr<ShaderProgram> createFromFile(const char* vshPath, const char* fshPath, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromFile(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
 
         /**
          * Creates an effect from the given vertex and fragment shader source code.
@@ -47,7 +47,7 @@ namespace gameplay
          *
          * @return The created effect.
          */
-        static std::shared_ptr<ShaderProgram> createFromSource(const char* vshSource, const char* fshSource, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshSource, const std::string& fshSource, const std::vector<std::string>& defines = {});
 
         /**
          * Returns the unique string identifier for the effect, which is a concatenation of
@@ -219,7 +219,7 @@ namespace gameplay
         ShaderProgram(const ShaderProgram&) = delete;
         ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-        static std::shared_ptr<ShaderProgram> createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines = nullptr);
+        static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines = {});
 
         GLuint _program = 0;
         std::string _id;

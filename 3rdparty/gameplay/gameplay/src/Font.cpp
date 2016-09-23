@@ -53,9 +53,9 @@ namespace gameplay
         // Create the effect for the font's sprite batch.
         if( __fontProgram == nullptr )
         {
-            const char* defines = nullptr;
+            std::vector<std::string> defines;
             if( format == DISTANCE_FIELD )
-                defines = "DISTANCE_FIELD";
+                defines.emplace_back( "DISTANCE_FIELD" );
             __fontProgram = ShaderProgram::createFromFile(FONT_VSH, FONT_FSH, defines);
             if( __fontProgram == nullptr )
             {

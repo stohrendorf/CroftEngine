@@ -3,13 +3,14 @@
 
 #include <boost/log/trivial.hpp>
 
+
 namespace gameplay
 {
     static std::vector<std::shared_ptr<RenderTarget>> __renderTargets;
 
 
-    RenderTarget::RenderTarget(const char* id)
-        : _id(id ? id : "")
+    RenderTarget::RenderTarget(const std::string& id)
+        : _id(id)
         , _texture(nullptr)
     {
     }
@@ -26,7 +27,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<RenderTarget> RenderTarget::create(const char* id, unsigned int width, unsigned int height)
+    std::shared_ptr<RenderTarget> RenderTarget::create(const std::string& id, unsigned int width, unsigned int height)
     {
         // Create a new texture with the given width.
         auto texture = Texture::create(width, height, {}, false);
@@ -40,7 +41,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<RenderTarget> RenderTarget::create(const char* id, const std::shared_ptr<Texture>& texture)
+    std::shared_ptr<RenderTarget> RenderTarget::create(const std::string& id, const std::shared_ptr<Texture>& texture)
     {
         auto renderTarget = std::make_shared<RenderTarget>(id);
         renderTarget->_texture = texture;
@@ -51,16 +52,14 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<RenderTarget> RenderTarget::getRenderTarget(const char* id)
+    std::shared_ptr<RenderTarget> RenderTarget::getRenderTarget(const std::string& id)
     {
-        BOOST_ASSERT(id);
-
         // Search the vector for a matching ID.
         for( auto it = __renderTargets.begin(); it < __renderTargets.end(); ++it )
         {
             auto dst = *it;
             BOOST_ASSERT(dst);
-            if( strcmp(id, dst->getId()) == 0 )
+            if( id == dst->getId() )
             {
                 return dst;
             }
@@ -70,9 +69,9 @@ namespace gameplay
     }
 
 
-    const char* RenderTarget::getId() const
+    const std::string& RenderTarget::getId() const
     {
-        return _id.c_str();
+        return _id;
     }
 
 

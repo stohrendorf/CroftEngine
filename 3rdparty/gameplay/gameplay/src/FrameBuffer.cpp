@@ -9,14 +9,14 @@
 
 namespace gameplay
 {
-    unsigned int FrameBuffer::_maxRenderTargets = 0;
+    size_t FrameBuffer::_maxRenderTargets = 0;
     std::vector<FrameBuffer*> FrameBuffer::_frameBuffers;
     std::shared_ptr<FrameBuffer> FrameBuffer::_defaultFrameBuffer = nullptr;
     std::shared_ptr<FrameBuffer> FrameBuffer::_currentFrameBuffer = nullptr;
 
 
-    FrameBuffer::FrameBuffer(const char* id, FrameBufferHandle handle)
-        : _id(id ? id : "")
+    FrameBuffer::FrameBuffer(const std::string& id, FrameBufferHandle handle)
+        : _id(id)
         , _handle(handle)
         , _renderTargets()
         , _renderTargetCount(0)
@@ -32,7 +32,7 @@ namespace gameplay
         GL_ASSERT( glDeleteFramebuffers(1, &_handle) );
 
         // Remove self from vector.
-        std::vector<FrameBuffer*>::iterator it = std::find(_frameBuffers.begin(), _frameBuffers.end(), this);
+        auto it = std::find(_frameBuffers.begin(), _frameBuffers.end(), this);
         if( it != _frameBuffers.end() )
         {
             _frameBuffers.erase(it);
@@ -53,7 +53,7 @@ namespace gameplay
         // on GL ES 2.x, so if the define does not exist, assume a value of 1.
         GLint val;
         GL_ASSERT( glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &val) );
-        _maxRenderTargets = (unsigned int)std::max(1, val);
+        _maxRenderTargets = static_cast<size_t>(std::max(1, val));
     }
 
 
@@ -63,13 +63,13 @@ namespace gameplay
     }
 
 
-    FrameBuffer* FrameBuffer::create(const char* id)
+    FrameBuffer* FrameBuffer::create(const std::string& id)
     {
         return create(id, 0, 0);
     }
 
 
-    FrameBuffer* FrameBuffer::create(const char* id, unsigned int width, unsigned int height)
+    FrameBuffer* FrameBuffer::create(const std::string& id, unsigned int width, unsigned int height)
     {
         std::shared_ptr<RenderTarget> renderTarget = nullptr;
         if( width > 0 && height > 0 )
@@ -101,17 +101,14 @@ namespace gameplay
     }
 
 
-    FrameBuffer* FrameBuffer::getFrameBuffer(const char* id)
+    FrameBuffer* FrameBuffer::getFrameBuffer(const std::string& id)
     {
-        BOOST_ASSERT(id);
-
         // Search the vector for a matching ID.
-        std::vector<FrameBuffer*>::const_iterator it;
-        for( it = _frameBuffers.begin(); it < _frameBuffers.end(); ++it )
+        for( auto it = _frameBuffers.begin(); it < _frameBuffers.end(); ++it )
         {
             FrameBuffer* fb = *it;
             BOOST_ASSERT(fb);
-            if( strcmp(id, fb->getId()) == 0 )
+            if( id == fb->getId() )
             {
                 return fb;
             }
@@ -120,9 +117,9 @@ namespace gameplay
     }
 
 
-    const char* FrameBuffer::getId() const
+    const std::string& FrameBuffer::getId() const
     {
-        return _id.c_str();
+        return _id;
     }
 
 
@@ -144,13 +141,13 @@ namespace gameplay
     }
 
 
-    unsigned int FrameBuffer::getMaxRenderTargets()
+    size_t FrameBuffer::getMaxRenderTargets()
     {
         return _maxRenderTargets;
     }
 
 
-    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned int index)
+    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index)
     {
         BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_2D));
 
@@ -162,7 +159,7 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, unsigned int index)
+    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, size_t index)
     {
         BOOST_ASSERT(face >= Texture::POSITIVE_X && face <= Texture::NEGATIVE_Z);
         BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_CUBE));
@@ -171,7 +168,7 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned int index, GLenum textureTarget)
+    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index, GLenum textureTarget)
     {
         BOOST_ASSERT(index < _maxRenderTargets);
         BOOST_ASSERT(!_renderTargets.empty());
@@ -215,7 +212,7 @@ namespace gameplay
     }
 
 
-    unsigned int FrameBuffer::getRenderTargetCount() const
+    size_t FrameBuffer::getRenderTargetCount() const
     {
         return _renderTargetCount;
     }

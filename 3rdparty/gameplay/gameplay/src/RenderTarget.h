@@ -15,7 +15,7 @@ namespace gameplay
         friend class FrameBuffer;
 
     public:
-        explicit RenderTarget(const char* id);
+        explicit RenderTarget(const std::string& id);
 
         ~RenderTarget();
 
@@ -31,7 +31,7 @@ namespace gameplay
          * @return A newly created RenderTarget.
          * @script{create}
          */
-        static std::shared_ptr<RenderTarget> create(const char* id, unsigned int width, unsigned int height);
+        static std::shared_ptr<RenderTarget> create(const std::string& id, unsigned int width, unsigned int height);
 
         /**
          * Create a RenderTarget from the given Texture and add it to the list of
@@ -46,7 +46,7 @@ namespace gameplay
          * @return A newly created RenderTarget.
          * @script{create}
          */
-        static std::shared_ptr<RenderTarget> create(const char* id, const std::shared_ptr<Texture>& texture);
+        static std::shared_ptr<RenderTarget> create(const std::string& id, const std::shared_ptr<Texture>& texture);
 
         /**
          * Get a named RenderTarget from its ID.
@@ -55,14 +55,14 @@ namespace gameplay
          *
          * @return The RenderTarget with the specified ID, or NULL if one was not found.
          */
-        static std::shared_ptr<RenderTarget> getRenderTarget(const char* id);
+        static std::shared_ptr<RenderTarget> getRenderTarget(const std::string& id);
 
         /**
          * Get the ID of this RenderTarget.
          *
          * @return The ID of this RenderTarget.
          */
-        const char* getId() const;
+        const std::string& getId() const;
 
         /**
          * Get the backing texture of this RenderTarget.

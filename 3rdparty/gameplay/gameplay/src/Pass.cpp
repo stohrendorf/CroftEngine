@@ -5,11 +5,12 @@
 #include "Effect.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 namespace gameplay
 {
-    Pass::Pass(const char* id, const std::shared_ptr<Technique>& technique)
-        : _id(id ? id : "")
+    Pass::Pass(const std::string& id, const std::shared_ptr<Technique>& technique)
+        : _id(id)
         , _technique(technique)
         , _shaderProgram(nullptr)
     {
@@ -20,16 +21,13 @@ namespace gameplay
     Pass::~Pass() = default;
 
 
-    bool Pass::initialize(const char* vshPath, const char* fshPath, const char* defines)
+    bool Pass::initialize(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
     {
-        BOOST_ASSERT(vshPath);
-        BOOST_ASSERT(fshPath);
-
         // Attempt to create/load the effect.
         _shaderProgram = ShaderProgram::createFromFile(vshPath, fshPath, defines);
         if( _shaderProgram == nullptr )
         {
-            BOOST_LOG_TRIVIAL(warning) << "Failed to create effect for pass. vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << (defines ? defines : "");
+            BOOST_LOG_TRIVIAL(warning) << "Failed to create effect for pass. vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << boost::algorithm::join(defines, "; ");
             return false;
         }
 
@@ -37,9 +35,9 @@ namespace gameplay
     }
 
 
-    const char* Pass::getId() const
+    const std::string& Pass::getId() const
     {
-        return _id.c_str();
+        return _id;
     }
 
 

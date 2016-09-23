@@ -4,6 +4,7 @@
 #include "Game.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace gameplay
 {
@@ -34,40 +35,30 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const char* vshPath, const char* fshPath, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
     {
-        BOOST_ASSERT(vshPath);
-        BOOST_ASSERT(fshPath);
-
         // Search the effect cache for an identical effect that is already loaded.
         std::string uniqueId = vshPath;
         uniqueId += ';';
         uniqueId += fshPath;
         uniqueId += ';';
-        if( defines )
-        {
-            uniqueId += defines;
-        }
+        uniqueId += boost::algorithm::join(defines, ";");
 
         // Read source from file.
-        char* vshSource = FileSystem::readAll(vshPath);
-        if( vshSource == nullptr )
+        std::string vshSource = FileSystem::readAll(vshPath);
+        if( vshSource.empty() )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
             return nullptr;
         }
-        char* fshSource = FileSystem::readAll(fshPath);
-        if( fshSource == nullptr )
+        std::string fshSource = FileSystem::readAll(fshPath);
+        if( fshSource.empty() )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
-            SAFE_DELETE_ARRAY(vshSource);
             return nullptr;
         }
 
         std::shared_ptr<ShaderProgram> shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
-
-        SAFE_DELETE_ARRAY(vshSource);
-        SAFE_DELETE_ARRAY(fshSource);
 
         if( shaderProgram == nullptr )
         {
@@ -83,47 +74,40 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const char* vshSource, const char* fshSource, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshSource, const std::string& fshSource, const std::vector<std::string>& defines)
     {
         return createFromSource(nullptr, vshSource, nullptr, fshSource, defines);
     }
 
 
-    static void replaceDefines(const char* defines, std::string& out)
+    static std::string replaceDefines(const std::vector<std::string>& defines)
     {
         Properties* graphicsConfig = Game::getInstance()->getConfig()->getNamespace("graphics", true);
         const char* globalDefines = graphicsConfig ? graphicsConfig->getString("shaderDefines") : nullptr;
 
-        // Build full semicolon delimited list of defines
-        out.clear();
-        if( globalDefines && strlen(globalDefines) > 0 )
+        std::string out;
+        if( globalDefines && globalDefines[0] )
         {
-            if( out.length() > 0 )
-                out += ';';
-            out += globalDefines;
+            std::string tmp = globalDefines;
+            boost::algorithm::replace_all(tmp, ";", "\n#define");
+            out += "#define ";
+            out += tmp;
         }
-        if( defines && strlen(defines) > 0 )
+        if( !defines.empty() )
         {
-            if( out.length() > 0 )
-                out += ';';
-            out += defines;
+            out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");
         }
 
-        // Replace semicolons
-        if( out.length() > 0 )
+        if( !out.empty() )
         {
-            size_t pos;
-            out.insert(0, "#define ");
-            while( (pos = out.find(';')) != std::string::npos )
-            {
-                out.replace(pos, 1, "\n#define ");
-            }
             out += "\n";
         }
+
+        return out;
     }
 
 
-    static void replaceIncludes(const char* filepath, const char* source, std::string& out)
+    static void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
     {
         // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
         std::string str = source;
@@ -176,8 +160,8 @@ namespace gameplay
                 size_t len = endQuote - (startQuote);
                 std::string includeStr = str.substr(startQuote, len);
                 directoryPath.append(includeStr);
-                const char* includedSource = FileSystem::readAll(directoryPath.c_str());
-                if( includedSource == nullptr )
+                std::string includedSource = FileSystem::readAll(directoryPath.c_str());
+                if( includedSource.empty() )
                 {
                     BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
                     return;
@@ -185,8 +169,7 @@ namespace gameplay
                 else
                 {
                     // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
-                    replaceIncludes(directoryPath.c_str(), includedSource, out);
-                    SAFE_DELETE_ARRAY(includedSource);
+                    replaceIncludes(directoryPath, includedSource, out);
                 }
             }
             else
@@ -198,23 +181,19 @@ namespace gameplay
     }
 
 
-    static void writeShaderToErrorFile(const char* filePath, const char* source)
+    static void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
     {
-        std::string path = filePath;
-        path += ".err";
+        std::string path = filePath + ".err";
         std::unique_ptr<Stream> stream(FileSystem::open(path.c_str(), FileSystem::WRITE));
         if( stream.get() != nullptr && stream->canWrite() )
         {
-            stream->write(source, 1, strlen(source));
+            stream->write(source.c_str(), 1, source.size());
         }
     }
 
 
-    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const char* vshPath, const char* vshSource, const char* fshPath, const char* fshSource, const char* defines)
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines)
     {
-        BOOST_ASSERT(vshSource);
-        BOOST_ASSERT(fshSource);
-
         const unsigned int SHADER_SOURCE_LENGTH = 3;
         const GLchar* shaderSource[SHADER_SOURCE_LENGTH];
         char* infoLog = nullptr;
@@ -225,21 +204,20 @@ namespace gameplay
         GLint success;
 
         // Replace all comma separated definitions with #define prefix and \n suffix
-        std::string definesStr = "";
-        replaceDefines(defines, definesStr);
+        std::string definesStr = replaceDefines(defines);
         definesStr += "\n";
 
         shaderSource[0] = "#version 150\n";
         shaderSource[1] = definesStr.c_str();
-        std::string vshSourceStr = "";
-        if( vshPath )
+        std::string vshSourceStr;
+        if( !vshPath.empty() )
         {
             // Replace the #include "xxxxx.xxx" with the sources that come from file paths
             replaceIncludes(vshPath, vshSource, vshSourceStr);
-            if( vshSource && strlen(vshSource) != 0 )
+            if( !vshSource.empty() )
                 vshSourceStr += "\n";
         }
-        shaderSource[2] = vshPath ? vshSourceStr.c_str() : vshSource;
+        shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
         GL_ASSERT( vertexShader = glCreateShader(GL_VERTEX_SHADER) );
         GL_ASSERT( glShaderSource(vertexShader, SHADER_SOURCE_LENGTH, shaderSource, nullptr) );
         GL_ASSERT( glCompileShader(vertexShader) );
@@ -259,10 +237,10 @@ namespace gameplay
             }
 
             // Write out the expanded shader file.
-            if( vshPath )
+            if( !vshPath.empty() )
                 writeShaderToErrorFile(vshPath, shaderSource[2]);
 
-            BOOST_LOG_TRIVIAL(error) << "Compile failed for vertex shader '" << (vshPath == nullptr ? vshSource : vshPath) << "' with error '" << (infoLog == nullptr ? "" : infoLog) << "'.";
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for vertex shader '" << (vshPath.empty() ? vshSource : vshPath) << "' with error '" << (infoLog == nullptr ? "" : infoLog) << "'.";
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.
@@ -273,14 +251,14 @@ namespace gameplay
 
         // Compile the fragment shader.
         std::string fshSourceStr;
-        if( fshPath )
+        if( !fshPath.empty() )
         {
             // Replace the #include "xxxxx.xxx" with the sources that come from file paths
             replaceIncludes(fshPath, fshSource, fshSourceStr);
-            if( fshSource && strlen(fshSource) != 0 )
+            if( !fshSource.empty() )
                 fshSourceStr += "\n";
         }
-        shaderSource[2] = fshPath ? fshSourceStr.c_str() : fshSource;
+        shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
         GL_ASSERT( fragmentShader = glCreateShader(GL_FRAGMENT_SHADER) );
         GL_ASSERT( glShaderSource(fragmentShader, SHADER_SOURCE_LENGTH, shaderSource, nullptr) );
         GL_ASSERT( glCompileShader(fragmentShader) );
@@ -300,10 +278,10 @@ namespace gameplay
             }
 
             // Write out the expanded shader file.
-            if( fshPath )
+            if( !fshPath.empty() )
                 writeShaderToErrorFile(fshPath, shaderSource[2]);
 
-            BOOST_LOG_TRIVIAL(error) << "Compile failed for fragment shader (" << (fshPath == nullptr ? fshSource : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for fragment shader (" << (fshPath.empty() ? fshSource : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.
@@ -338,7 +316,7 @@ namespace gameplay
                 GL_ASSERT( glGetProgramInfoLog(program, length, nullptr, infoLog) );
                 infoLog[length - 1] = '\0';
             }
-            BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath == nullptr ? "nullptr" : vshPath) << "," << (fshPath == nullptr ? "nullptr" : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
+            BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath.empty() ? "<none>" : vshPath) << "," << (fshPath.empty() ? "<none>" : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.

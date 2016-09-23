@@ -246,14 +246,15 @@ namespace loader
 
         static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, size_t jointCount)
         {
-            std::string defines = "TEXTURE_DISCARD_ALPHA";
+            std::vector<std::string> defines;
+            defines.emplace_back( "TEXTURE_DISCARD_ALPHA" );
             if(jointCount != 0)
             {
-                defines += ";SKINNING";
-                defines += ";SKINNING_JOINT_COUNT " + boost::lexical_cast<std::string>(jointCount);
+                defines.emplace_back( "SKINNING" );
+                defines.emplace_back( "SKINNING_JOINT_COUNT " + boost::lexical_cast<std::string>(jointCount) );
             }
 
-            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag", defines.c_str());
+            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag", defines);
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setSampler(std::make_shared<gameplay::Texture::Sampler>(texture));
             //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));

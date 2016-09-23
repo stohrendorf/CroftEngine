@@ -69,7 +69,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Material> Model::setMaterial(const char* vshPath, const char* fshPath, const char* defines, size_t partIndex)
+    std::shared_ptr<Material> Model::setMaterial(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines, size_t partIndex)
     {
         // Try to create a Material with the given parameters.
         auto material = Material::create(vshPath, fshPath, defines);

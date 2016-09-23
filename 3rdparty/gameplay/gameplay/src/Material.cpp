@@ -7,6 +7,7 @@
 #include "MaterialParameter.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 namespace gameplay
 {
@@ -25,27 +26,24 @@ namespace gameplay
 
         material->_technique = std::make_shared<Technique>(nullptr, material);
 
-        material->_technique->_pass = std::make_shared<Pass>(nullptr, material->_technique);
+        material->_technique->_pass = std::make_shared<Pass>(std::string(), material->_technique);
         material->_technique->_pass->_shaderProgram = shaderProgram;
 
         return material;
     }
 
 
-    std::shared_ptr<Material> Material::create(const char* vshPath, const char* fshPath, const char* defines)
+    std::shared_ptr<Material> Material::create(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
     {
-        BOOST_ASSERT(vshPath);
-        BOOST_ASSERT(fshPath);
-
         // Create a new material with a single technique and pass for the given effect
         std::shared_ptr<Material> material{ std::make_shared<Material>() };
 
         material->_technique = std::make_shared<Technique>(nullptr, material);
 
-        material->_technique->_pass = std::make_shared<Pass>(nullptr, material->_technique);
+        material->_technique->_pass = std::make_shared<Pass>(std::string(), material->_technique);
         if( !material->_technique->_pass->initialize(vshPath, fshPath, defines) )
         {
-            BOOST_LOG_TRIVIAL(warning) << "Failed to create pass for material: vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << (defines ? defines : "");
+            BOOST_LOG_TRIVIAL(warning) << "Failed to create pass for material: vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << boost::algorithm::join(defines, "; ");
             return nullptr;
         }
 

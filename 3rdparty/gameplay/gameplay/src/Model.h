@@ -80,7 +80,7 @@ namespace gameplay
          *
          * @return The newly created and bound Material, or nullptr if the Material could not be created.
          */
-        std::shared_ptr<Material> setMaterial(const char* vshPath, const char* fshPath, const char* defines = nullptr, size_t partIndex = -1);
+        std::shared_ptr<Material> setMaterial(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {}, size_t partIndex = -1);
 
         /**
          * Returns the MeshSkin.

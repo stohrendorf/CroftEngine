@@ -26,7 +26,7 @@ namespace gameplay
         friend class Game;
 
     public:
-        FrameBuffer(const char* id, FrameBufferHandle handle);
+        FrameBuffer(const std::string& id, FrameBufferHandle handle);
         ~FrameBuffer();
 
         /**
@@ -41,7 +41,7 @@ namespace gameplay
          * @return A newly created FrameBuffer.
          * @script{create}
          */
-        static FrameBuffer* create(const char* id);
+        static FrameBuffer* create(const std::string& id);
 
         /**
          * Creates a new FrameBuffer with a single RenderTarget of the specified width and height,
@@ -60,7 +60,7 @@ namespace gameplay
          * @return A newly created FrameBuffer.
          * @script{create}
          */
-        static FrameBuffer* create(const char* id, unsigned int width, unsigned int height);
+        static FrameBuffer* create(const std::string& id, unsigned int width, unsigned int height);
 
         /**
          * Get a named FrameBuffer from its ID.
@@ -69,14 +69,14 @@ namespace gameplay
          *
          * @return The FrameBuffer with the specified ID, or NULL if one was not found.
          */
-        static FrameBuffer* getFrameBuffer(const char* id);
+        static FrameBuffer* getFrameBuffer(const std::string& id);
 
         /**
          * Get the ID of this FrameBuffer.
          *
          * @return The ID of this FrameBuffer.
          */
-        const char* getId() const;
+        const std::string& getId() const;
 
         /**
          * Gets the width of the frame buffer.
@@ -97,7 +97,7 @@ namespace gameplay
          *
          * @return The number of color attachments available on the current hardware.
          */
-        static unsigned int getMaxRenderTargets();
+        static size_t getMaxRenderTargets();
 
         /**
          * Set a RenderTarget on this FrameBuffer's color attachment at the specified index.
@@ -105,7 +105,7 @@ namespace gameplay
          * @param target The 2D RenderTarget to set.
          * @param index The index of the color attachment to set.
          */
-        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned index = 0);
+        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index = 0);
 
         /**
         * Set a RenderTarget on this FrameBuffer's color attachment at the specified index.
@@ -114,7 +114,7 @@ namespace gameplay
         * @param face The face of the cubemap to target.
         * @param index The index of the color attachment to set.
         */
-        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, unsigned index = 0);
+        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, size_t index = 0);
 
         /**
          * Get the RenderTarget attached to the FrameBuffer's color attachment at the specified index.
@@ -130,7 +130,7 @@ namespace gameplay
          *
          * @return The number of render targets attached.
          */
-        unsigned int getRenderTargetCount() const;
+        size_t getRenderTargetCount() const;
 
         /**
          * Set this FrameBuffer's DepthStencilTarget.
@@ -194,26 +194,21 @@ namespace gameplay
 
     private:
 
-        /**
-         * Hidden copy assignment operator.
-         */
-        FrameBuffer& operator=(const FrameBuffer&);
+        FrameBuffer& operator=(const FrameBuffer&) = delete;
 
-        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, unsigned index, GLenum textureTarget);
+        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index, GLenum textureTarget);
 
         static void initialize();
 
         static void finalize();
 
-        static bool isPowerOfTwo(unsigned int value);
-
         std::string _id;
         FrameBufferHandle _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
-        unsigned int _renderTargetCount;
+        size_t _renderTargetCount;
         std::shared_ptr<DepthStencilTarget> _depthStencilTarget;
 
-        static unsigned int _maxRenderTargets;
+        static size_t _maxRenderTargets;
         static std::vector<FrameBuffer*> _frameBuffers;
         static std::shared_ptr<FrameBuffer> _defaultFrameBuffer;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;

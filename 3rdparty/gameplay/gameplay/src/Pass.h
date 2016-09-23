@@ -23,13 +23,13 @@ namespace gameplay
         friend class RenderState;
 
     public:
-        Pass(const char* id, const std::shared_ptr<Technique>& technique);
+        Pass(const std::string& id, const std::shared_ptr<Technique>& technique);
         ~Pass();
 
         /**
          * Returns the Id of this pass.
          */
-        const char* getId() const;
+        const std::string& getId() const;
 
         /**
          * Returns the effect for this Pass.
@@ -59,7 +59,7 @@ namespace gameplay
         /**
          * Creates a new pass for the given shaders.
          */
-        bool initialize(const char* vshPath, const char* fshPath, const char* defines);
+        bool initialize(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines);
 
         Pass& operator=(const Pass&) = delete;
 
