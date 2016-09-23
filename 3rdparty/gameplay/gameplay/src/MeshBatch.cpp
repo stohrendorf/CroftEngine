@@ -2,6 +2,8 @@
 #include "MeshBatch.h"
 #include "Material.h"
 
+#include <boost/log/trivial.hpp>
+
 namespace gameplay
 {
 
@@ -105,7 +107,7 @@ bool MeshBatch::resize(size_t capacity)
 {
     if (capacity == 0)
     {
-        GP_ERROR("Invalid resize capacity (0).");
+        BOOST_LOG_TRIVIAL(error) << "Invalid resize capacity (0).";
         return false;
     }
 
@@ -135,7 +137,7 @@ bool MeshBatch::resize(size_t capacity)
         vertexCapacity = capacity + 2;
         break;
     default:
-        GP_ERROR("Unsupported primitive type for mesh batch (%d).", m_primitiveType);
+        BOOST_LOG_TRIVIAL(error) << "Unsupported primitive type for mesh batch (" << m_primitiveType << ").";
         return false;
     }
 
@@ -145,7 +147,7 @@ bool MeshBatch::resize(size_t capacity)
     size_t indexCapacity = vertexCapacity;
     if (m_indexed && indexCapacity > std::numeric_limits<unsigned short>::max())
     {
-        GP_ERROR("Index capacity is greater than the maximum unsigned short value (%d > %d).", indexCapacity, std::numeric_limits<unsigned short>::max());
+        BOOST_LOG_TRIVIAL(error) << "Index capacity is greater than the maximum unsigned short value (" << indexCapacity << " > " << std::numeric_limits<unsigned short>::max() << ").";
         return false;
     }
 

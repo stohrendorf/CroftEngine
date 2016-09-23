@@ -6,6 +6,7 @@
 #include "Node.h"
 #include "MaterialParameter.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -44,7 +45,7 @@ namespace gameplay
         material->_technique->_pass = std::make_shared<Pass>(nullptr, material->_technique);
         if( !material->_technique->_pass->initialize(vshPath, fshPath, defines) )
         {
-            GP_WARN("Failed to create pass for material: vertexShader = %s, fragmentShader = %s, defines = %s", vshPath, fshPath, defines ? defines : "");
+            BOOST_LOG_TRIVIAL(warning) << "Failed to create pass for material: vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << (defines ? defines : "");
             return nullptr;
         }
 

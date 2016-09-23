@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Scene.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -216,7 +217,7 @@ namespace gameplay
                 _batch->getStateBlock()->setBlendDst(RenderState::BLEND_SRC_COLOR);
                 break;
             default:
-                GP_ERROR("Unsupported blend mode (%d).", mode);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported blend mode (" << mode << ").";
                 break;
         }
     }

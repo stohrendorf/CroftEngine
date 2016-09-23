@@ -5,6 +5,8 @@
 #include "MathUtil.h"
 
 
+#include <boost/log/trivial.hpp>
+
 namespace gameplay
 {
     static const float MATRIX_IDENTITY[16] =
@@ -130,7 +132,7 @@ namespace gameplay
         float theta = MATH_DEG_TO_RAD(fieldOfView) * 0.5f;
         if( fabs(fmod(theta, MATH_PIOVER2)) < MATH_EPSILON )
         {
-            GP_ERROR("Invalid field of view value (%d) causes attempted calculation tan(%d), which is undefined.", fieldOfView, theta);
+            BOOST_LOG_TRIVIAL(warning) << "Invalid field of view value (" << fieldOfView << ") causes attempted calculation tan(" << theta << "), which is undefined.";
             return;
         }
         float divisor = tan(theta);

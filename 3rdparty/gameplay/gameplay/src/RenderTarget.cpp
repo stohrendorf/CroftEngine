@@ -1,6 +1,7 @@
 #include "Base.h"
 #include "RenderTarget.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -31,7 +32,7 @@ namespace gameplay
         auto texture = Texture::create(width, height, {}, false);
         if( texture == nullptr )
         {
-            GP_ERROR("Failed to create texture for render target.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create texture for render target.";
             return nullptr;
         }
 

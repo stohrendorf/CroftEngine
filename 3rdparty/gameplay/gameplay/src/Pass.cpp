@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Effect.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -28,7 +29,7 @@ namespace gameplay
         _shaderProgram = ShaderProgram::createFromFile(vshPath, fshPath, defines);
         if( _shaderProgram == nullptr )
         {
-            GP_WARN("Failed to create effect for pass. vertexShader = %s, fragmentShader = %s, defines = %s", vshPath, fshPath, defines ? defines : "");
+            BOOST_LOG_TRIVIAL(warning) << "Failed to create effect for pass. vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << (defines ? defines : "");
             return false;
         }
 

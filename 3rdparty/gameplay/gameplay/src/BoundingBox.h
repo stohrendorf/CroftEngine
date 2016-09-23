@@ -146,7 +146,7 @@ namespace gameplay
          * @return The distance from the origin of the ray to this bounding box or
          *  INTERSECTS_NONE INTERSECTS_NONE if the ray does not intersect this bounding box.
          */
-        float intersects(const Ray& ray) const;
+        int intersects(const Ray& ray) const;
 
         /**
          * Determines if this bounding box is empty.

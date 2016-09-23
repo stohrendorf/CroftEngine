@@ -32,8 +32,6 @@
 #include <boost/assert.hpp>
 #include <boost/current_function.hpp>
 
-#include "Logger.h"
-
 // Bring common functions from C into global namespace
 using std::memcpy;
 using std::fabs;
@@ -56,29 +54,6 @@ using std::atoi;
 #else
 #define DEBUG_BREAK()
 #endif
-
-// Error macro.
-#ifdef GP_ERRORS_AS_WARNINGS
-#define GP_ERROR GP_WARN
-#else
-#define GP_ERROR(...) do \
-    { \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, "%s -- ", BOOST_CURRENT_FUNCTION); \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, __VA_ARGS__); \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_ERROR, "\n"); \
-        DEBUG_BREAK(); \
-        BOOST_ASSERT(false); \
-        std::exit(-1); \
-    } while (0)
-#endif
-
-// Warning macro.
-#define GP_WARN(...) do \
-    { \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, "%s -- ", BOOST_CURRENT_FUNCTION); \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, __VA_ARGS__); \
-        gameplay::Logger::log(gameplay::Logger::LEVEL_WARN, "\n"); \
-    } while (0)
 
 // Object deletion macro
 #define SAFE_DELETE(x) \

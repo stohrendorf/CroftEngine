@@ -2,9 +2,9 @@
 #include "Mesh.h"
 #include "MeshPart.h"
 #include "Effect.h"
-#include "Model.h"
 #include "Material.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -83,7 +83,7 @@ namespace gameplay
         auto mesh = Mesh::createMesh(VertexFormat(elements, 3), 4, false);
         if( mesh == nullptr )
         {
-            GP_ERROR("Failed to create mesh.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
             return nullptr;
         }
 
@@ -117,7 +117,7 @@ namespace gameplay
         auto mesh = Mesh::createMesh(VertexFormat(elements, 2), 4, false);
         if( mesh == nullptr )
         {
-            GP_ERROR("Failed to create mesh.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
             return nullptr;
         }
 
@@ -155,7 +155,7 @@ namespace gameplay
         auto mesh = Mesh::createMesh(VertexFormat(elements, 3), 4, false);
         if( mesh == nullptr )
         {
-            GP_ERROR("Failed to create mesh.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
             return nullptr;
         }
 
@@ -181,7 +181,7 @@ namespace gameplay
         auto mesh = Mesh::createMesh(VertexFormat(elements, 1), pointCount, false);
         if( mesh == nullptr )
         {
-            GP_ERROR("Failed to create mesh.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
             SAFE_DELETE_ARRAY(vertices);
             return nullptr;
         }
@@ -228,7 +228,7 @@ namespace gameplay
         auto mesh = Mesh::createMesh(VertexFormat(elements, 1), 18, false);
         if( mesh == nullptr )
         {
-            GP_ERROR("Failed to create mesh.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
             return nullptr;
         }
 

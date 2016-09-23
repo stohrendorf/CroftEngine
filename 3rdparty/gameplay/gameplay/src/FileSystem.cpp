@@ -3,7 +3,7 @@
 #include "Properties.h"
 #include "Stream.h"
 
-#include <sys/stat.h>
+#include <boost/log/trivial.hpp>
 
 #ifdef WIN32
 #include <windows.h>
@@ -432,7 +432,7 @@ private:
         std::unique_ptr<Stream> stream(open(filePath));
         if( stream.get() == NULL )
         {
-            GP_ERROR("Failed to load file: %s", filePath);
+            BOOST_LOG_TRIVIAL(error) << "Failed to load file: " << filePath;
             return NULL;
         }
         size_t size = stream->length();
@@ -442,7 +442,7 @@ private:
         size_t read = stream->read(buffer, 1, size);
         if( read != size )
         {
-            GP_ERROR("Failed to read complete contents of file '%s' (amount read vs. file size: %u < %u).", filePath, read, size);
+            BOOST_LOG_TRIVIAL(error) << "Failed to read complete contents of file '" << filePath << "' (amount read vs. file size: " << read << " < " << size << ").";
             SAFE_DELETE_ARRAY(buffer);
             return NULL;
         }

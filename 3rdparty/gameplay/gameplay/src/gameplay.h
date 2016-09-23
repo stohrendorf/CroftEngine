@@ -4,7 +4,6 @@
 #include "Game.h"
 #include "FileSystem.h"
 #include "MathUtil.h"
-#include "Logger.h"
 
 // Math
 #include "Rectangle.h"

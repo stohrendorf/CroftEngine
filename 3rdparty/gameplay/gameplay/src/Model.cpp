@@ -5,6 +5,7 @@
 #include "Pass.h"
 #include "Node.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -74,7 +75,7 @@ namespace gameplay
         auto material = Material::create(vshPath, fshPath, defines);
         if( material == nullptr )
         {
-            GP_ERROR("Failed to create material for model.");
+            BOOST_LOG_TRIVIAL(error) << "Failed to create material for model.";
             return nullptr;
         }
 
@@ -162,7 +163,7 @@ namespace gameplay
                 indexSize = 4;
                 break;
             default:
-                GP_ERROR("Unsupported index format (%d).", part->getIndexFormat());
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << part->getIndexFormat() << ").";
                 return false;
         }
 

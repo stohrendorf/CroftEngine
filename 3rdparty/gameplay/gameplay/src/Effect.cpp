@@ -3,6 +3,8 @@
 #include "FileSystem.h"
 #include "Game.h"
 
+#include <boost/log/trivial.hpp>
+
 namespace gameplay
 {
     // Cache of unique effects.
@@ -51,13 +53,13 @@ namespace gameplay
         char* vshSource = FileSystem::readAll(vshPath);
         if( vshSource == nullptr )
         {
-            GP_ERROR("Failed to read vertex shader from file '%s'.", vshPath);
+            BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
             return nullptr;
         }
         char* fshSource = FileSystem::readAll(fshPath);
         if( fshSource == nullptr )
         {
-            GP_ERROR("Failed to read fragment shader from file '%s'.", fshPath);
+            BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
             SAFE_DELETE_ARRAY(vshSource);
             return nullptr;
         }
@@ -69,7 +71,7 @@ namespace gameplay
 
         if( shaderProgram == nullptr )
         {
-            GP_ERROR("Failed to create effect from shaders '%s', '%s'.", vshPath, fshPath);
+            BOOST_LOG_TRIVIAL(error) << "Failed to create effect from shaders '" << vshPath << "', '" << fshPath << "'.";
         }
         else
         {
@@ -153,7 +155,7 @@ namespace gameplay
                 if( startQuote == std::string::npos )
                 {
                     // We have started an "#include" but missing the leading quote "
-                    GP_ERROR("Compile failed for shader '%s' missing leading \".", filepath);
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing leading \".";
                     return;
                 }
                 // find the end quote "
@@ -161,7 +163,7 @@ namespace gameplay
                 if( endQuote == std::string::npos )
                 {
                     // We have a start quote but missing the trailing quote "
-                    GP_ERROR("Compile failed for shader '%s' missing trailing \".", filepath);
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing trailing \".";
                     return;
                 }
 
@@ -177,7 +179,7 @@ namespace gameplay
                 const char* includedSource = FileSystem::readAll(directoryPath.c_str());
                 if( includedSource == nullptr )
                 {
-                    GP_ERROR("Compile failed for shader '%s' invalid filepath.", filepathStr.c_str());
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
                     return;
                 }
                 else
@@ -260,7 +262,7 @@ namespace gameplay
             if( vshPath )
                 writeShaderToErrorFile(vshPath, shaderSource[2]);
 
-            GP_ERROR("Compile failed for vertex shader '%s' with error '%s'.", vshPath == nullptr ? vshSource : vshPath, infoLog == nullptr ? "" : infoLog);
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for vertex shader '" << (vshPath == nullptr ? vshSource : vshPath) << "' with error '" << (infoLog == nullptr ? "" : infoLog) << "'.";
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.
@@ -301,7 +303,7 @@ namespace gameplay
             if( fshPath )
                 writeShaderToErrorFile(fshPath, shaderSource[2]);
 
-            GP_ERROR("Compile failed for fragment shader (%s): %s", fshPath == nullptr ? fshSource : fshPath, infoLog == nullptr ? "" : infoLog);
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for fragment shader (" << (fshPath == nullptr ? fshSource : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.
@@ -336,7 +338,7 @@ namespace gameplay
                 GL_ASSERT( glGetProgramInfoLog(program, length, nullptr, infoLog) );
                 infoLog[length - 1] = '\0';
             }
-            GP_ERROR("Linking program failed (%s,%s): %s", vshPath == nullptr ? "nullptr" : vshPath, fshPath == nullptr ? "nullptr" : fshPath, infoLog == nullptr ? "" : infoLog);
+            BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath == nullptr ? "nullptr" : vshPath) << "," << (fshPath == nullptr ? "nullptr" : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
             SAFE_DELETE_ARRAY(infoLog);
 
             // Clean up.

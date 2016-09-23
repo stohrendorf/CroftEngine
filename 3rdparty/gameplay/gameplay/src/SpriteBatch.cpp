@@ -4,6 +4,8 @@
 #include "Material.h"
 #include "MaterialParameter.h"
 
+#include <boost/log/trivial.hpp>
+
 // Default size of a newly created sprite batch
 #define SPRITE_BATCH_DEFAULT_SIZE 128
 
@@ -57,7 +59,7 @@ namespace gameplay
                 __spriteShaderProgram = ShaderProgram::createFromFile(SPRITE_VSH, SPRITE_FSH);
                 if( __spriteShaderProgram == nullptr )
                 {
-                    GP_ERROR("Unable to load sprite effect.");
+                    BOOST_LOG_TRIVIAL(error) << "Unable to load sprite effect.";
                     return nullptr;
                 }
                 fx = __spriteShaderProgram;
@@ -81,7 +83,7 @@ namespace gameplay
         }
         if( !samplerUniform )
         {
-            GP_ERROR("No uniform of type GL_SAMPLER_2D found in sprite effect.");
+            BOOST_LOG_TRIVIAL(error) << "No uniform of type GL_SAMPLER_2D found in sprite effect.";
             return nullptr;
         }
 

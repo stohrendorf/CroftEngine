@@ -34,8 +34,6 @@ set(GAMEPLAY_SRC
     src/Joint.h
     src/Light.cpp
     src/Light.h
-    src/Logger.cpp
-    src/Logger.h
     src/Material.cpp
     src/Material.h
     src/MaterialParameter.cpp

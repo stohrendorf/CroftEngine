@@ -2,28 +2,29 @@
 #include "Light.h"
 #include "Node.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
-    Light::Light(Light::Type type, const Vector3& color) :
-                                                         _type(type)
-                                                         , _node(NULL)
+    Light::Light(Light::Type type, const Vector3& color)
+        : _type(type)
+        , _node(nullptr)
     {
         _directional = new Directional(color);
     }
 
 
-    Light::Light(Light::Type type, const Vector3& color, float range) :
-                                                                      _type(type)
-                                                                      , _node(NULL)
+    Light::Light(Light::Type type, const Vector3& color, float range)
+        : _type(type)
+        , _node(nullptr)
     {
         _point = new Point(color, range);
     }
 
 
-    Light::Light(Light::Type type, const Vector3& color, float range, float innerAngle, float outerAngle) :
-                                                                                                          _type(type)
-                                                                                                          , _node(NULL)
+    Light::Light(Light::Type type, const Vector3& color, float range, float innerAngle, float outerAngle)
+        : _type(type)
+        , _node(nullptr)
     {
         _spot = new Spot(color, range, innerAngle, outerAngle);
     }
@@ -43,7 +44,7 @@ namespace gameplay
                 SAFE_DELETE(_spot);
                 break;
             default:
-                GP_ERROR("Invalid light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Invalid light type (" << _type << ").";
                 break;
         }
     }
@@ -118,7 +119,7 @@ namespace gameplay
                 BOOST_ASSERT(_spot);
                 return _spot->color;
             default:
-                GP_ERROR("Unsupported light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 return Vector3::zero();
         }
     }
@@ -141,7 +142,7 @@ namespace gameplay
                 _spot->color = color;
                 break;
             default:
-                GP_ERROR("Unsupported light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 break;
         }
     }
@@ -166,7 +167,7 @@ namespace gameplay
                 BOOST_ASSERT(_spot);
                 return _spot->range;
             default:
-                GP_ERROR("Unsupported light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 return 0.0f;
         }
     }
@@ -189,7 +190,7 @@ namespace gameplay
                 _spot->rangeInverse = 1.0f / range;
                 break;
             default:
-                GP_ERROR("Unsupported light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 break;
         }
 
@@ -211,7 +212,7 @@ namespace gameplay
                 BOOST_ASSERT(_spot);
                 return _spot->rangeInverse;
             default:
-                GP_ERROR("Unsupported light type (%d).", _type);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 return 0.0f;
         }
     }

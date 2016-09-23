@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Effect.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -49,7 +50,7 @@ namespace gameplay
             __maxVertexAttribs = temp;
             if( __maxVertexAttribs <= 0 )
             {
-                GP_ERROR("The maximum number of vertex attributes supported by OpenGL on the current device is 0 or less.");
+                BOOST_LOG_TRIVIAL(error) << "The maximum number of vertex attributes supported by OpenGL on the current device is 0 or less.";
                 return nullptr;
             }
         }
@@ -67,7 +68,7 @@ namespace gameplay
 
             if(binding->_handle == 0)
             {
-                GP_ERROR("Failed to create VAO handle.");
+                BOOST_LOG_TRIVIAL(error) << "Failed to create VAO handle.";
                 return nullptr;
             }
 

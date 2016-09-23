@@ -2,6 +2,7 @@
 #include "MaterialParameter.h"
 #include "Node.h"
 
+#include <boost/log/trivial.hpp>
 
 namespace gameplay
 {
@@ -451,7 +452,7 @@ namespace gameplay
                 if( (_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
                 {
                     // This parameter was not found in the specified effect, so do nothing.
-                    GP_WARN("Material parameter for uniform '%s' not found in effect: '%s'.", _name.c_str(), shaderProgram->getId().c_str());
+                    BOOST_LOG_TRIVIAL(warning) <<  "Material parameter for uniform '" << _name << "' not found in effect: '" << shaderProgram->getId() << "'.";
                     _loggerDirtyBits |= UNIFORM_NOT_FOUND;
                 }
                 return;
@@ -498,7 +499,7 @@ namespace gameplay
             {
                 if( (_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
                 {
-                    GP_WARN("Material parameter value not set for: '%s' in effect: '%s'.", _name.c_str(), shaderProgram->getId().c_str());
+                    BOOST_LOG_TRIVIAL(warning) << "Material parameter value not set for: '" << _name << "' in effect: '" << shaderProgram->getId() << "'.";
                     _loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
                 }
                 break;

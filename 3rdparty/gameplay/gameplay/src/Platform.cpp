@@ -3,6 +3,8 @@
 #include "FileSystem.h"
 #include "Game.h"
 
+#include <boost/log/trivial.hpp>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -17,10 +19,11 @@ namespace gameplay
 {
     void glErrorCallback(int err, const char* msg)
     {
-        GP_ERROR("glfw Error %d: %s", err, msg);
+        BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
     }
 
-    Platform::Platform(Game* game) : _game(game)
+    Platform::Platform(Game* game)
+        : _game(game)
     {
     }
 
@@ -36,7 +39,7 @@ namespace gameplay
 
         if( glfwInit() != GLFW_TRUE )
         {
-            GP_ERROR("Failed to initialize GLFW");
+            BOOST_LOG_TRIVIAL(error) << "Failed to initialize GLFW";
             return nullptr;
         }
 
@@ -112,7 +115,7 @@ namespace gameplay
         const auto err = glewInit();
         if( err != GLEW_OK )
         {
-            GP_ERROR("glewInit: %s", (const char*)glewGetErrorString(err));
+            BOOST_LOG_TRIVIAL(error) << "glewInit: " << (const char*)glewGetErrorString(err);
             return nullptr;
         }
 

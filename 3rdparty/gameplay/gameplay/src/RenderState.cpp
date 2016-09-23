@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include "MaterialParameter.h"
 
+#include <boost/log/trivial.hpp>
+
 // Render state override bits
 #define RS_BLEND 1
 #define RS_BLEND_FUNC 2
@@ -219,7 +221,7 @@ namespace gameplay
                     break;
                 default:
                     bound = false;
-                    GP_WARN("Unsupported auto binding type (%s).", autoBinding);
+                    BOOST_LOG_TRIVIAL(warning) << "Unsupported auto binding type (" << autoBinding << ").";
                     break;
             }
         }

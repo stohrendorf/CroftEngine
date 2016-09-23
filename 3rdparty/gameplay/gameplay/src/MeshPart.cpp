@@ -2,6 +2,8 @@
 #include "MeshPart.h"
 
 
+#include <boost/log/trivial.hpp>
+
 namespace gameplay
 {
     MeshPart::MeshPart()
@@ -46,7 +48,7 @@ namespace gameplay
                 indexSize = 4;
                 break;
             default:
-                GP_ERROR("Unsupported index format (%d).", indexFormat);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << indexFormat << ").";
                 glDeleteBuffers(1, &vbo);
                 return nullptr;
         }
@@ -120,7 +122,7 @@ namespace gameplay
                 indexSize = 4;
                 break;
             default:
-                GP_ERROR("Unsupported index format (%d).", _indexFormat);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << _indexFormat << ").";
                 return;
         }
 

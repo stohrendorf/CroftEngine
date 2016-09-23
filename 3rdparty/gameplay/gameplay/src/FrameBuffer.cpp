@@ -2,6 +2,8 @@
 #include "FrameBuffer.h"
 #include "Vector4.h"
 
+#include <boost/log/trivial.hpp>
+
 #define FRAMEBUFFER_ID_DEFAULT "org.gameplay3d.framebuffer.default"
 
 
@@ -76,7 +78,7 @@ namespace gameplay
             renderTarget = RenderTarget::create(id, width, height);
             if( renderTarget == nullptr )
             {
-                GP_ERROR("Failed to create render target for frame buffer.");
+                BOOST_LOG_TRIVIAL(error) << "Failed to create render target for frame buffer.";
                 return nullptr;
             }
         }
@@ -193,7 +195,7 @@ namespace gameplay
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
-                GP_ERROR("Framebuffer status incomplete: 0x%x", fboStatus);
+                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
             }
 
             // Restore the FBO binding
@@ -246,7 +248,7 @@ namespace gameplay
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
-                GP_ERROR("Framebuffer status incomplete: 0x%x", fboStatus);
+                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
             }
 
             // Restore the FBO binding

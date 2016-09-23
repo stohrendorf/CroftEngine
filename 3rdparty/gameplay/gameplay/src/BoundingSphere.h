@@ -88,7 +88,7 @@ namespace gameplay
          *  the plane, Plane::INTERSECTS_FRONT INTERSECTS_FRONT if it is in the positive half-space of the plane,
          *  and Plane::INTERSECTS_INTERSECTING INTERSECTS_INTERSECTING if it intersects the plane.
          */
-        float intersects(const Plane& plane) const;
+        int intersects(const Plane& plane) const;
 
         /**
          * Tests whether this bounding sphere intersects the specified ray.

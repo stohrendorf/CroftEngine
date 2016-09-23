@@ -3,8 +3,9 @@
 #include "Game.h"
 #include "Node.h"
 #include "Scene.h"
-#include "Quaternion.h"
 #include "Properties.h"
+
+#include <boost/log/trivial.hpp>
 
 #define PARTICLE_COUNT_MAX                       100
 #define PARTICLE_EMISSION_RATE                   10
@@ -501,7 +502,7 @@ namespace gameplay
                 _spriteBatch->getStateBlock()->setBlendDst(RenderState::BLEND_SRC_COLOR);
                 break;
             default:
-                GP_ERROR("Unsupported blend mode (%d).", blendMode);
+                BOOST_LOG_TRIVIAL(error) << "Unsupported blend mode (" << blendMode << ").";
                 break;
         }
 
