@@ -421,7 +421,7 @@ namespace loader
         int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
         // TR5 -->
         core::TRCoordinates normal;
-        gameplay::Vector4 color;
+        glm::vec4 color;
 
         /** \brief reads a room vertex definition.
           *
@@ -442,7 +442,7 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
-            room_vertex.color.set(f, f, f, 1);
+            room_vertex.color = { f, f, f, 1 };
             return room_vertex;
         }
 
@@ -457,7 +457,7 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = room_vertex.lighting2 / 32768.0f;
-            room_vertex.color.set(f, f, f, 1);
+            room_vertex.color = { f, f, f, 1 };
             return room_vertex;
         }
 
@@ -471,10 +471,10 @@ namespace loader
             room_vertex.lighting2 = reader.readI16();
             // only in TR5
             room_vertex.normal = {0,0,0};
-            room_vertex.color.set(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
                                   ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
                                   (room_vertex.lighting2 & 0x001F) / 62.0f,
-                                  1);
+                                  1 };
             return room_vertex;
         }
 
@@ -489,10 +489,10 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
 
-            room_vertex.color.set(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
                                   ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
                                   (room_vertex.lighting2 & 0x001F) / 31.0f,
-                                  1);
+                                  1 };
             return room_vertex;
         }
 
@@ -505,7 +505,7 @@ namespace loader
             auto g = reader.readU8();
             auto r = reader.readU8();
             auto a = reader.readU8();
-            vert.color.set(a, r, g, b);
+            vert.color = { r, g, b, a };
             return vert;
         }
     };
@@ -1148,8 +1148,8 @@ namespace loader
     struct SpriteTexture
     {
         uint16_t texture;
-        gameplay::Vector2 t0;
-        gameplay::Vector2 t1;
+        glm::vec2 t0;
+        glm::vec2 t1;
 
         int16_t left_side;
         int16_t top_side;

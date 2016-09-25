@@ -98,7 +98,7 @@ namespace gameplay
          * @param size The size to draw text (0 for default size).
          * @param rightToLeft Whether to draw text from right to left.
          */
-        void drawText(const char* text, int x, int y, const Vector4& color, unsigned int size = 0);
+        void drawText(const char* text, int x, int y, const glm::vec4& color, unsigned int size = 0);
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -128,7 +128,7 @@ namespace gameplay
          * @param rightToLeft Whether to draw text from right to left.
          * @param clip A region to clip text within after applying justification to the viewport area.
          */
-        void drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size = 0,
+        void drawText(const std::string& text, const Rectangle& area, const glm::vec4& color, unsigned int size = 0,
                       Justify justify = ALIGN_TOP_LEFT, bool wrap = true,
                       const Rectangle& clip = Rectangle(0, 0, 0, 0));
 
@@ -186,13 +186,13 @@ namespace gameplay
         /**
          * Get an character index into a string corresponding to the character nearest the given location within the clip region.
          */
-        int getIndexAtLocation(const char* text, const Rectangle& clip, unsigned int size, const Vector2& inLocation,
-                               Vector2* outLocation, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
+        int getIndexAtLocation(const char* text, const Rectangle& clip, unsigned int size, const glm::vec2& inLocation,
+                               glm::vec2* outLocation, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         /**
          * Get the location of the character at the given index.
          */
-        void getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, Vector2* outLocation,
+        void getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, glm::vec2* outLocation,
                                 const unsigned int destIndex, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         /**
@@ -230,7 +230,7 @@ namespace gameplay
             /**
              * Glyph texture coordinates.
              */
-            Vector2 uvs[2];
+            glm::vec2 uvs[2];
         };
 
 
@@ -272,7 +272,7 @@ namespace gameplay
         void getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap,
                                 std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths);
 
-        int getIndexOrLocation(const char* text, const Rectangle& clip, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
+        int getIndexOrLocation(const char* text, const Rectangle& clip, unsigned int size, const glm::vec2& inLocation, glm::vec2* outLocation,
                                const int destIndex = -1, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         unsigned int getTokenWidth(const char* token, unsigned length, unsigned int size, float scale) const;
@@ -281,7 +281,7 @@ namespace gameplay
 
         int handleDelimiters(const char** token, const unsigned int size, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
                              std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex = nullptr,
-                             const Vector2* stopAtPosition = nullptr, const int currentIndex = -1, const int destIndex = -1);
+                             const glm::vec2* stopAtPosition = nullptr, const int currentIndex = -1, const int destIndex = -1);
 
         void addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Justify hAlign,
                          std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths);

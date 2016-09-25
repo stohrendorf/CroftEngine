@@ -4,6 +4,9 @@
 #include "Material.h"
 #include "MaterialParameter.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
+
 #include <boost/log/trivial.hpp>
 
 // Default size of a newly created sprite batch
@@ -121,7 +124,7 @@ namespace gameplay
 
         // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
         Game* game = Game::getInstance();
-        Matrix::createOrthographicOffCenter(0, game->getViewport().width, game->getViewport().height, 0, 0, 1, &batch->_projectionMatrix);
+        batch->_projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
         material->getParameter("u_projectionMatrix")->bindValue(batch, &SpriteBatch::getProjectionMatrix);
 
         return batch;
@@ -140,7 +143,7 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(const Rectangle& dst, const Rectangle& src, const Vector4& color)
+    void SpriteBatch::draw(const Rectangle& dst, const Rectangle& src, const glm::vec4& color)
     {
         // Calculate uvs.
         float u1 = _textureWidthRatio * src.x;
@@ -152,7 +155,7 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color)
+    void SpriteBatch::draw(const glm::vec3& dst, const Rectangle& src, const glm::vec2& scale, const glm::vec4& color)
     {
         // Calculate uvs.
         float u1 = _textureWidthRatio * src.x;
@@ -164,8 +167,8 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color,
-                           const Vector2& rotationPoint, float rotationAngle)
+    void SpriteBatch::draw(const glm::vec3& dst, const Rectangle& src, const glm::vec2& scale, const glm::vec4& color,
+                           const glm::vec2& rotationPoint, float rotationAngle)
     {
         // Calculate uvs.
         float u1 = _textureWidthRatio * src.x;
@@ -177,15 +180,15 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(const Vector3& dst, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
-                           const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter)
+    void SpriteBatch::draw(const glm::vec3& dst, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color,
+                           const glm::vec2& rotationPoint, float rotationAngle, bool positionIsCenter)
     {
         draw(dst.x, dst.y, dst.z, width, height, u1, v1, u2, v2, color, rotationPoint, rotationAngle, positionIsCenter);
     }
 
 
-    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
-                           const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter)
+    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color,
+                           const glm::vec2& rotationPoint, float rotationAngle, bool positionIsCenter)
     {
         // Treat the given position as the center if the user specified it as such.
         if( positionIsCenter )
@@ -198,23 +201,36 @@ namespace gameplay
         float x2 = x + width;
         float y2 = y + height;
 
-        Vector2 upLeft(x, y);
-        Vector2 upRight(x2, y);
-        Vector2 downLeft(x, y2);
-        Vector2 downRight(x2, y2);
+        glm::vec2 upLeft(x, y);
+        glm::vec2 upRight(x2, y);
+        glm::vec2 downLeft(x, y2);
+        glm::vec2 downRight(x2, y2);
 
         // Rotate points around rotationAxis by rotationAngle.
         if( rotationAngle != 0 )
         {
-            Vector2 pivotPoint(rotationPoint);
+            glm::vec2 pivotPoint(rotationPoint);
             pivotPoint.x *= width;
             pivotPoint.y *= height;
             pivotPoint.x += x;
             pivotPoint.y += y;
-            upLeft.rotate(pivotPoint, rotationAngle);
-            upRight.rotate(pivotPoint, rotationAngle);
-            downLeft.rotate(pivotPoint, rotationAngle);
-            downRight.rotate(pivotPoint, rotationAngle);
+
+            auto rotate = [&pivotPoint, &rotationAngle](glm::vec2& vec) -> void
+            {
+                const auto sinAngle = glm::sin(rotationAngle);
+                const auto cosAngle = glm::cos(rotationAngle);
+
+                const auto tempX = vec.x - pivotPoint.x;
+                const auto tempY = vec.y - pivotPoint.y;
+
+                vec.x = tempX * cosAngle - tempY * sinAngle + pivotPoint.x;
+                vec.y = tempY * cosAngle + tempX * sinAngle + pivotPoint.y;
+            };
+
+            rotate(upLeft);
+            rotate(upRight);
+            rotate(downLeft);
+            rotate(downRight);
         }
 
         // Write sprite vertex data.
@@ -230,34 +246,34 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height,
-                           float u1, float v1, float u2, float v2, const Vector4& color, const Vector2& rotationPoint, float rotationAngle)
+    void SpriteBatch::draw(const glm::vec3& position, const glm::vec3& right, const glm::vec3& forward, float width, float height,
+                           float u1, float v1, float u2, float v2, const glm::vec4& color, const glm::vec2& rotationPoint, float rotationAngle)
     {
         // Calculate the vertex positions.
-        Vector3 tRight(right);
+        glm::vec3 tRight(right);
         tRight *= width * 0.5f;
-        Vector3 tForward(forward);
+        glm::vec3 tForward(forward);
         tForward *= height * 0.5f;
 
-        Vector3 p0 = position;
+        glm::vec3 p0 = position;
         p0 -= tRight;
         p0 -= tForward;
 
-        Vector3 p1 = position;
+        glm::vec3 p1 = position;
         p1 += tRight;
         p1 -= tForward;
 
         tForward = forward;
         tForward *= height;
-        Vector3 p2 = p0;
+        glm::vec3 p2 = p0;
         p2 += tForward;
-        Vector3 p3 = p1;
+        glm::vec3 p3 = p1;
         p3 += tForward;
 
         // Calculate the rotation point.
         if( rotationAngle != 0 )
         {
-            Vector3 rp = p0;
+            glm::vec3 rp = p0;
             tRight = right;
             tRight *= width * rotationPoint.x;
             tForward *= rotationPoint.y;
@@ -265,22 +281,11 @@ namespace gameplay
             rp += tForward;
 
             // Rotate all points the specified amount about the given point (about the up vector).
-            static Vector3 u;
-            Vector3::cross(right, forward, &u);
-            static Matrix rotation;
-            Matrix::createRotation(u, rotationAngle, &rotation);
-            p0 -= rp;
-            p0 *= rotation;
-            p0 += rp;
-            p1 -= rp;
-            p1 *= rotation;
-            p1 += rp;
-            p2 -= rp;
-            p2 *= rotation;
-            p2 += rp;
-            p3 -= rp;
-            p3 *= rotation;
-            p3 += rp;
+            const auto rotation = glm::angleAxis(rotationAngle, glm::cross(right, forward));
+            p0 = rotation * (p0 - rp) + rp;
+            p1 = rotation * (p1 - rp) + rp;
+            p2 = rotation * (p2 - rp) + rp;
+            p3 = rotation * (p3 - rp) + rp;
         }
 
         // Add the sprite vertex data to the batch.
@@ -295,19 +300,19 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color)
+    void SpriteBatch::draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color)
     {
         draw(x, y, 0, width, height, u1, v1, u2, v2, color);
     }
 
 
-    void SpriteBatch::draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip)
+    void SpriteBatch::draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip)
     {
         draw(x, y, 0, width, height, u1, v1, u2, v2, color, clip);
     }
 
 
-    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip)
+    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip)
     {
         // TODO: Perform software clipping instead of culling the entire sprite.
 
@@ -317,7 +322,7 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, SpriteBatch::SpriteVertex* vertices)
+    void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, SpriteBatch::SpriteVertex* vertices)
     {
         BOOST_ASSERT(vertices);
 
@@ -330,7 +335,7 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip, SpriteBatch::SpriteVertex* vertices)
+    void SpriteBatch::addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip, SpriteBatch::SpriteVertex* vertices)
     {
         BOOST_ASSERT(vertices);
 
@@ -356,7 +361,7 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter) const
+    void SpriteBatch::draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, bool positionIsCenter) const
     {
         // Treat the given position as the center if the user specified it as such.
         if( positionIsCenter )
@@ -408,13 +413,13 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void SpriteBatch::setProjectionMatrix(const Matrix& matrix)
+    void SpriteBatch::setProjectionMatrix(const glm::mat4& matrix)
     {
         _projectionMatrix = matrix;
     }
 
 
-    const Matrix& SpriteBatch::getProjectionMatrix() const
+    const glm::mat4& SpriteBatch::getProjectionMatrix() const
     {
         return _projectionMatrix;
     }

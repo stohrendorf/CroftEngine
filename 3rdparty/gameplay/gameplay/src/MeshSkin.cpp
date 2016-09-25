@@ -64,16 +64,16 @@ namespace gameplay
             _joints[i] = nullptr;
         }
 
-        // Rebuild the matrix palette. Each matrix is 3 rows of Vector4.
+        // Rebuild the matrix palette. Each matrix is 3 rows of glm::vec4.
         _matrixPalette.clear();
         if( jointCount > 0 )
         {
             _matrixPalette.resize(jointCount * PALETTE_ROWS);
             for(size_t i = 0; i < jointCount * PALETTE_ROWS; i += PALETTE_ROWS )
             {
-                _matrixPalette[i + 0].set(1.0f, 0.0f, 0.0f, 0.0f);
-                _matrixPalette[i + 1].set(0.0f, 1.0f, 0.0f, 0.0f);
-                _matrixPalette[i + 2].set(0.0f, 0.0f, 1.0f, 0.0f);
+                _matrixPalette[i + 0] = { 1.0f, 0.0f, 0.0f, 0.0f };
+                _matrixPalette[i + 1] = { 0.0f, 1.0f, 0.0f, 0.0f };
+                _matrixPalette[i + 2] = { 0.0f, 0.0f, 1.0f, 0.0f };
             }
         }
     }
@@ -97,7 +97,7 @@ namespace gameplay
     }
 
 
-    Vector4* MeshSkin::getMatrixPalette() const
+    glm::vec4* MeshSkin::getMatrixPalette() const
     {
         for( size_t i = 0, count = _joints.size(); i < count; i++ )
         {

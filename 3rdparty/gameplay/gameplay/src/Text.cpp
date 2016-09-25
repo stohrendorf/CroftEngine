@@ -16,7 +16,7 @@ namespace gameplay
         , _align(Font::ALIGN_TOP_LEFT)
         , _clip(Rectangle(0, 0, 0, 0))
         , _opacity(1.0f)
-        , _color(Vector4::one())
+        , _color{1,1,1,1}
     {
     }
 
@@ -114,13 +114,13 @@ namespace gameplay
     }
 
 
-    void Text::setColor(const Vector4& color)
+    void Text::setColor(const glm::vec4& color)
     {
         _color = color;
     }
 
 
-    const Vector4& Text::getColor() const
+    const glm::vec4& Text::getColor() const
     {
         return _color;
     }
@@ -130,7 +130,7 @@ namespace gameplay
     {
         // Apply scene camera projection and translation offsets
         Rectangle viewport = Game::getInstance()->getViewport();
-        Vector3 position = Vector3::zero();
+        glm::vec3 position = { 0,0,0 };
 
         // Font is always using a offset projection matrix to top-left. So we need to adjust it back to cartesian
         position.x += viewport.width / 2;
@@ -151,7 +151,7 @@ namespace gameplay
             }
 
             // Apply node translation offsets
-            Vector3 translation = _node->getTranslationWorld();
+            glm::vec3 translation = _node->getTranslationWorld();
             position.x += translation.x;
             position.y -= translation.y;
 
@@ -162,7 +162,7 @@ namespace gameplay
             }
         }
         _font->drawText(_text.c_str(), Rectangle(position.x, position.y, _width, _height),
-                        Vector4(_color.x, _color.y, _color.z, _color.w * _opacity), _size,
+                        glm::vec4(_color.x, _color.y, _color.z, _color.w * _opacity), _size,
                         _align, _wrap, clipViewport);
         _font->finish();
         return 1;

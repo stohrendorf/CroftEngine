@@ -11,7 +11,7 @@ namespace gameplay
         , _width(0)
         , _height(0)
         , _offset(OFFSET_BOTTOM_LEFT)
-        , _anchor(Vector2(0.5f, 0.5f))
+        , _anchor(glm::vec2(0.5f, 0.5f))
         , _flipFlags(FLIP_NONE)
         , _frames(nullptr)
         , _frameCount(1)
@@ -20,7 +20,7 @@ namespace gameplay
         , _frameIndex(0)
         , _batch(nullptr)
         , _opacity(1.0f)
-        , _color(Vector4::one())
+        , _color{ 1,1,1,1 }
         , _blendMode(BLEND_ALPHA)
     {
     }
@@ -57,13 +57,13 @@ namespace gameplay
     }
 
 
-    void Sprite::setAnchor(const Vector2& anchor)
+    void Sprite::setAnchor(const glm::vec2& anchor)
     {
         _anchor = anchor;
     }
 
 
-    const Vector2& Sprite::getAnchor() const
+    const glm::vec2& Sprite::getAnchor() const
     {
         return _anchor;
     }
@@ -176,13 +176,13 @@ namespace gameplay
     }
 
 
-    void Sprite::setColor(const Vector4& color)
+    void Sprite::setColor(const glm::vec4& color)
     {
         _color = color;
     }
 
 
-    const Vector4& Sprite::getColor() const
+    const glm::vec4& Sprite::getColor() const
     {
         return _color;
     }
@@ -244,7 +244,7 @@ namespace gameplay
     size_t Sprite::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
-        Vector3 position = Vector3::zero();
+        glm::vec3 position{ 0,0,0 };
         if( _node && _node->getScene() )
         {
             auto activeCamera = _node->getScene()->getActiveCamera();
@@ -254,7 +254,7 @@ namespace gameplay
                 if( cameraNode )
                 {
                     // Scene projection
-                    Matrix projectionMatrix;
+                    glm::mat4 projectionMatrix;
                     projectionMatrix = _node->getProjectionMatrix();
                     _batch->setProjectionMatrix(projectionMatrix);
 
@@ -265,7 +265,7 @@ namespace gameplay
             }
 
             // Apply node translation offsets
-            Vector3 translation = _node->getTranslationWorld();
+            glm::vec3 translation = _node->getTranslationWorld();
             position.x += translation.x;
             position.y += translation.y;
             position.z += translation.z;
@@ -288,13 +288,13 @@ namespace gameplay
 
         // Apply node scale and rotation
         float rotationAngle = 0.0f;
-        Vector2 scale = Vector2(_width, _height);
+        glm::vec2 scale = glm::vec2(_width, _height);
         if( _node )
         {
             // Apply node rotation
-            const Quaternion& rot = _node->getRotation();
-            if( rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f )
-                rotationAngle = rot.toAxisAngle(nullptr);
+            const glm::quat& rot = _node->getRotation();
+            if(rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f)
+                rotationAngle = glm::angle(rot);
 
             // Apply node scale
             if( _node->getScaleX() != 1.0f )
@@ -317,7 +317,7 @@ namespace gameplay
 
         // TODO: Proper batching from cache based on batching rules (image, layers, etc)
         _batch->start();
-        _batch->draw(position, _frames[_frameIndex], scale, Vector4(_color.x, _color.y, _color.z, _color.w * _opacity),
+        _batch->draw(position, _frames[_frameIndex], scale, glm::vec4(_color.x, _color.y, _color.z, _color.w * _opacity),
                      _anchor, rotationAngle);
         _batch->finish();
 

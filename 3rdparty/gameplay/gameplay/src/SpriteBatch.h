@@ -4,7 +4,6 @@
 #include "Effect.h"
 #include "Mesh.h"
 #include "Rectangle.h"
-#include "Matrix.h"
 #include "RenderState.h"
 #include "MeshBatch.h"
 
@@ -82,7 +81,7 @@ namespace gameplay
          * @param src The source rectangle.
          * @param color The color to tint the sprite. Use white for no tint.
          */
-        void draw(const Rectangle& dst, const Rectangle& src, const Vector4& color = Vector4::one());
+        void draw(const Rectangle& dst, const Rectangle& src, const glm::vec4& color = { 1,1,1,1 });
 
         /**
          * Draws a single sprite.
@@ -92,7 +91,7 @@ namespace gameplay
          * @param scale The X and Y scale.
          * @param color The color to tint the sprite. Use white for no tint.
          */
-        void draw(const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color = Vector4::one());
+        void draw(const glm::vec3& dst, const Rectangle& src, const glm::vec2& scale, const glm::vec4& color = { 1,1,1,1 });
 
         /**
          * Draws a single sprite, rotated around rotationPoint by rotationAngle.
@@ -102,11 +101,11 @@ namespace gameplay
          * @param scale The X and Y scale.
          * @param color The color to tint the sprite. Use white for no tint.
          * @param rotationPoint The point to rotate around, relative to dst's x and y values.
-         *                      (e.g. Use Vector2(0.5f, 0.5f) to rotate around the quad's center.)
+         *                      (e.g. Use glm::vec2(0.5f, 0.5f) to rotate around the quad's center.)
          * @param rotationAngle The rotation angle in radians.
          */
-        void draw(const Vector3& dst, const Rectangle& src, const Vector2& scale, const Vector4& color,
-                  const Vector2& rotationPoint, float rotationAngle);
+        void draw(const glm::vec3& dst, const Rectangle& src, const glm::vec2& scale, const glm::vec4& color,
+                  const glm::vec2& rotationPoint, float rotationAngle);
 
         /**
          * Draws a single sprite, rotated around rotationPoint by rotationAngle.
@@ -120,12 +119,12 @@ namespace gameplay
          * @param v2 Texture coordinate.
          * @param color The color to tint the sprite. Use white for no tint.
          * @param rotationPoint The point to rotate around, relative to dst's x and y values.
-         *                      (e.g. Use Vector2(0.5f, 0.5f) to rotate around the quad's center.)
+         *                      (e.g. Use glm::vec2(0.5f, 0.5f) to rotate around the quad's center.)
          * @param rotationAngle The rotation angle in radians.
          * @param positionIsCenter Specified whether the given destination is to be the center of the sprite or not (if not, it is treated as the bottom-left).
          */
-        void draw(const Vector3& dst, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
-                  const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
+        void draw(const glm::vec3& dst, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color,
+                  const glm::vec2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
 
         /**
          * Draws a single sprite, rotated around rotationPoint by rotationAngle.
@@ -141,12 +140,12 @@ namespace gameplay
          * @param v2 Texture coordinate.
          * @param color The color to tint the sprite. Use white for no tint.
          * @param rotationPoint The point to rotate around, relative to dst's x and y values.
-         *                      (e.g. Use Vector2(0.5f, 0.5f) to rotate around the quad's center.)
+         *                      (e.g. Use glm::vec2(0.5f, 0.5f) to rotate around the quad's center.)
          * @param rotationAngle The rotation angle in radians.
          * @param positionIsCenter Specified whether the given destination is to be the center of the sprite or not (if not, it is treated as the bottom-left).
          */
-        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color,
-                  const Vector2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
+        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color,
+                  const glm::vec2& rotationPoint, float rotationAngle, bool positionIsCenter = false);
 
         /**
          * Draws a single sprite, rotated about the implied up vector.
@@ -162,11 +161,11 @@ namespace gameplay
          * @param v2 Texture coordinate.
          * @param color The color to tint the sprite. Use white for no tint.
          * @param rotationPoint The point to rotate around, relative to dst's x and y values.
-         *                      (e.g. Use Vector2(0.5f, 0.5f) to rotate around the quad's center.)
+         *                      (e.g. Use glm::vec2(0.5f, 0.5f) to rotate around the quad's center.)
          * @param rotationAngle The rotation angle in radians.
          */
-        void draw(const Vector3& position, const Vector3& right, const Vector3& forward, float width, float height,
-                  float u1, float v1, float u2, float v2, const Vector4& color, const Vector2& rotationPoint, float rotationAngle);
+        void draw(const glm::vec3& position, const glm::vec3& right, const glm::vec3& forward, float width, float height,
+                  float u1, float v1, float u2, float v2, const glm::vec4& color, const glm::vec2& rotationPoint, float rotationAngle);
 
         /**
          * Draws a single sprite.
@@ -181,7 +180,7 @@ namespace gameplay
          * @param v2 Texture coordinate.
          * @param color The color to tint the sprite. Use white for no tint.
          */
-        void draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color);
+        void draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color);
 
         /**
          * Draws a single sprite, clipped within a rectangle.
@@ -197,7 +196,7 @@ namespace gameplay
          * @param color The color to tint the sprite. Use white for no tint.
          * @param clip The clip rectangle.
          */
-        void draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip);
+        void draw(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip);
 
         /**
          * Draws a single sprite, clipped within a rectangle.
@@ -214,7 +213,7 @@ namespace gameplay
          * @param color The color to tint the sprite. Use white for no tint.
          * @param clip The clip rectangle.
          */
-        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip);
+        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip);
 
         /**
          * Draws a single sprite.
@@ -231,7 +230,7 @@ namespace gameplay
          * @param color The color to tint the sprite. Use white for no tint.
          * @param positionIsCenter Specified whether the given destination is to be the center of the sprite or not (if not, it is treated as the bottom-left).
          */
-        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, bool positionIsCenter = false) const;
+        void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, bool positionIsCenter = false) const;
 
 
         /**
@@ -317,14 +316,14 @@ namespace gameplay
          *
          * @param matrix The new projection matrix to be used with the default effect.
          */
-        void setProjectionMatrix(const Matrix& matrix);
+        void setProjectionMatrix(const glm::mat4& matrix);
 
         /**
          * Gets the projection matrix for the SpriteBatch.
          *
          * @return The projection matrix.
          */
-        const Matrix& getProjectionMatrix() const;
+        const glm::mat4& getProjectionMatrix() const;
 
     private:
 
@@ -349,7 +348,7 @@ namespace gameplay
          * @param color The color to tint the sprite. Use white for no tint.
          * @param vertices The vertices to draw.
          */
-        void addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, SpriteBatch::SpriteVertex* vertices);
+        void addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, SpriteBatch::SpriteVertex* vertices);
 
         /**
          * Adds a single sprite to a SpriteVertex array, clipped within a rectangle.
@@ -366,7 +365,7 @@ namespace gameplay
          * @param clip The clip rectangle.
          * @param vertices The vertices to draw.
          */
-        void addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const Vector4& color, const Rectangle& clip, SpriteBatch::SpriteVertex* vertices);
+        void addSprite(float x, float y, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, const Rectangle& clip, SpriteBatch::SpriteVertex* vertices);
 
         bool clipSprite(const Rectangle& clip, float& x, float& y, float& width, float& height, float& u1, float& v1, float& u2, float& v2);
 
@@ -375,6 +374,6 @@ namespace gameplay
         bool _customEffect;
         float _textureWidthRatio;
         float _textureHeightRatio;
-        mutable Matrix _projectionMatrix;
+        mutable glm::mat4 _projectionMatrix;
     };
 }

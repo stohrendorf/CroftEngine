@@ -2,6 +2,8 @@
 #include "BoundingSphere.h"
 #include "BoundingBox.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/component_wise.hpp>
 
 namespace gameplay
 {
@@ -11,7 +13,7 @@ namespace gameplay
     }
 
 
-    BoundingSphere::BoundingSphere(const Vector3& center, float radius)
+    BoundingSphere::BoundingSphere(const glm::vec3& center, float radius)
     {
         set(center, radius);
     }
@@ -55,8 +57,8 @@ namespace gameplay
         float cpY = center.y;
         float cpZ = center.z;
 
-        const Vector3& boxMin = box.min;
-        const Vector3& boxMax = box.max;
+        const glm::vec3& boxMin = box.min;
+        const glm::vec3& boxMax = box.max;
         // Closest x value.
         if( center.x < boxMin.x )
         {
@@ -129,8 +131,8 @@ namespace gameplay
 
     float BoundingSphere::intersects(const Ray& ray) const
     {
-        const Vector3& origin = ray.getOrigin();
-        const Vector3& direction = ray.getDirection();
+        const glm::vec3& origin = ray.getOrigin();
+        const glm::vec3& direction = ray.getDirection();
 
         // Calculate the vector and the square of the distance from the ray's origin to this sphere's center.
         float vx = origin.x - center.x;
@@ -219,8 +221,8 @@ namespace gameplay
         if( box.isEmpty() )
             return;
 
-        const Vector3& min = box.min;
-        const Vector3& max = box.max;
+        const glm::vec3& min = box.min;
+        const glm::vec3& max = box.max;
 
         // Find the corner of the bounding box that is farthest away from this sphere's center.
         float v1x = min.x - center.x;
@@ -281,7 +283,7 @@ namespace gameplay
     }
 
 
-    void BoundingSphere::set(const Vector3& center, float radius)
+    void BoundingSphere::set(const glm::vec3& center, float radius)
     {
         this->center = center;
         this->radius = radius;
@@ -297,37 +299,33 @@ namespace gameplay
 
     void BoundingSphere::set(const BoundingBox& box)
     {
-        center.x = (box.min.x + box.max.x) * 0.5f;
-        center.y = (box.min.y + box.max.y) * 0.5f;
-        center.z = (box.min.z + box.max.z) * 0.5f;
-        radius = center.distance(box.max);
+        center = glm::mix(box.min, box.max, 0.5f);
+        radius = glm::distance(center, box.max);
     }
 
 
-    void BoundingSphere::transform(const Matrix& matrix)
+    void BoundingSphere::transform(const glm::mat4& matrix)
     {
         // Translate the center point.
-        matrix.transformPoint(center, &center);
+        center = glm::vec3(matrix * glm::vec4(center, 1));
 
         // Scale the sphere's radius by the scale fo the matrix
-        Vector3 scale;
-        matrix.decompose(&scale, NULL, NULL);
-        float r = radius * scale.x;
-        r = max(r, radius * scale.y);
-        r = max(r, radius * scale.z);
-        radius = r;
+        glm::vec3 scale;
+        glm::quat tmpQ;
+        glm::vec3 tmpV;
+        glm::vec4 tmpV4;
+        glm::decompose(matrix, scale, tmpQ, tmpV, tmpV, tmpV4);
+        radius *= glm::compMax(scale);
     }
 
 
-    float BoundingSphere::distance(const BoundingSphere& sphere, const Vector3& point)
+    float BoundingSphere::distance(const BoundingSphere& sphere, const glm::vec3& point)
     {
-        return sqrt((point.x - sphere.center.x) * (point.x - sphere.center.x) +
-            (point.y - sphere.center.y) * (point.y - sphere.center.x) +
-            (point.z - sphere.center.z) * (point.z - sphere.center.x));
+        return glm::distance(point, sphere.center);
     }
 
 
-    bool BoundingSphere::contains(const BoundingSphere& sphere, Vector3* points, unsigned int count)
+    bool BoundingSphere::contains(const BoundingSphere& sphere, glm::vec3* points, unsigned int count)
     {
         for( unsigned int i = 0; i < count; i++ )
         {

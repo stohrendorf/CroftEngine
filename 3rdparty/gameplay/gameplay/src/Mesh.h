@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VertexFormat.h"
-#include "Vector3.h"
 #include "BoundingBox.h"
 #include "BoundingSphere.h"
 
@@ -78,7 +77,7 @@ namespace gameplay
          * @return The created mesh.
          * @script{create}
          */
-        static std::shared_ptr<Mesh> createQuad(const Vector3& p1, const Vector3& p2, const Vector3& p3, const Vector3& p4);
+        static std::shared_ptr<Mesh> createQuad(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4);
 
         /**
          * Constructs a new textured 2D quad.
@@ -112,7 +111,7 @@ namespace gameplay
         static std::shared_ptr<Mesh> createQuadFullscreen();
 
         /**
-         * Creates lines between 2 or more points passed in as a Vector3 array.
+         * Creates lines between 2 or more points passed in as a glm::vec3 array.
          *
          * The mesh contains only position data using lines to connect the vertices.
          * This is useful for drawing basic color elements into a scene.
@@ -123,7 +122,7 @@ namespace gameplay
          * @return The newly created mesh.
          * @script{create}
          */
-        static std::shared_ptr<Mesh> createLines(Vector3* points, size_t pointCount);
+        static std::shared_ptr<Mesh> createLines(glm::vec3* points, size_t pointCount);
 
         /**
          * Creates a bounding box mesh when passed a BoundingBox.

@@ -8,8 +8,8 @@ namespace loader
 #pragma pack(push,1)
     struct Mesh::ModelBuilder::RenderVertex
     {
-        gameplay::Vector2 texcoord0;
-        gameplay::Vector3 position;
+        glm::vec2 texcoord0;
+        glm::vec3 position;
         std::array<float, 4> blendIndices{ { 0, 0, 0, 0 } };
         std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
 
@@ -29,9 +29,9 @@ namespace loader
 
     struct Mesh::ModelBuilder::RenderVertexWithNormal
     {
-        gameplay::Vector2 texcoord0;
-        gameplay::Vector3 position;
-        gameplay::Vector3 normal;
+        glm::vec2 texcoord0;
+        glm::vec3 position;
+        glm::vec3 normal;
         std::array<float, 4> blendIndices{ { 0,0,0,0 } };
         std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
 

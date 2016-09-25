@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
-#include "Vector4.h"
-
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -71,12 +69,12 @@ namespace gameplay
             INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX,
 
             /**
-            * Binds the position (Vector3) of the active camera for the node's scene.
+            * Binds the position (glm::vec3) of the active camera for the node's scene.
             */
             CAMERA_WORLD_POSITION,
 
             /**
-            * Binds the view-space position (Vector3) of the active camera for the node's scene.
+            * Binds the view-space position (glm::vec3) of the active camera for the node's scene.
             */
             CAMERA_VIEW_POSITION,
 
@@ -86,7 +84,7 @@ namespace gameplay
             MATRIX_PALETTE,
 
             /**
-            * Binds the current scene's ambient color (Vector3).
+            * Binds the current scene's ambient color (glm::vec3).
             */
             SCENE_AMBIENT_COLOR
         };
@@ -591,21 +589,21 @@ namespace gameplay
         RenderState& operator=(const RenderState&) = delete;
 
         // Internal auto binding handler methods.
-        const Matrix& autoBindingGetWorldMatrix() const;
-        const Matrix& autoBindingGetViewMatrix() const;
-        const Matrix& autoBindingGetProjectionMatrix() const;
-        const Matrix& autoBindingGetWorldViewMatrix() const;
-        const Matrix& autoBindingGetViewProjectionMatrix() const;
-        const Matrix& autoBindingGetWorldViewProjectionMatrix() const;
-        const Matrix& autoBindingGetInverseTransposeWorldMatrix() const;
-        const Matrix& autoBindingGetInverseTransposeWorldViewMatrix() const;
-        Vector3 autoBindingGetCameraWorldPosition() const;
-        Vector3 autoBindingGetCameraViewPosition() const;
-        const Vector4* autoBindingGetMatrixPalette() const;
+        const glm::mat4& autoBindingGetWorldMatrix() const;
+        const glm::mat4& autoBindingGetViewMatrix() const;
+        const glm::mat4& autoBindingGetProjectionMatrix() const;
+        const glm::mat4& autoBindingGetWorldViewMatrix() const;
+        const glm::mat4& autoBindingGetViewProjectionMatrix() const;
+        const glm::mat4& autoBindingGetWorldViewProjectionMatrix() const;
+        const glm::mat4& autoBindingGetInverseTransposeWorldMatrix() const;
+        const glm::mat4& autoBindingGetInverseTransposeWorldViewMatrix() const;
+        glm::vec3 autoBindingGetCameraWorldPosition() const;
+        glm::vec3 autoBindingGetCameraViewPosition() const;
+        const glm::vec4* autoBindingGetMatrixPalette() const;
         size_t autoBindingGetMatrixPaletteSize() const;
-        const Vector3& autoBindingGetAmbientColor() const;
-        const Vector3& autoBindingGetLightColor() const;
-        const Vector3& autoBindingGetLightDirection() const;
+        const glm::vec3& autoBindingGetAmbientColor() const;
+        const glm::vec3& autoBindingGetLightColor() const;
+        const glm::vec3& autoBindingGetLightDirection() const;
 
     protected:
 

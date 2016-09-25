@@ -87,6 +87,10 @@ target_link_libraries(Lua INTERFACE ${LUA_LIBRARIES})
 target_include_directories(Lua INTERFACE ${LUA_INCLUDE_DIR})
 
 
+ot_find_dependency(glm)
+target_link_libraries(glm INTERFACE ${GLM_LIBRARIES})
+target_include_directories(glm INTERFACE ${GLM_INCLUDE_DIR})
+
 
 # Dependency: Boost
 ot_find_dependency(Boost COMPONENTS system log filesystem thread)

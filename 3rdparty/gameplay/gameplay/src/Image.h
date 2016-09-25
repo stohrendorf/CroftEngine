@@ -1,10 +1,9 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace gameplay
 {
-    class Vector4;
-
-
     /**
      * Defines an image buffer of RGB or RGBA color data.
      *
@@ -26,7 +25,7 @@ namespace gameplay
          * @return The newly created image.
          * @script{create}
          */
-        static std::shared_ptr<Image> create(unsigned width, unsigned height, const Vector4* data = nullptr);
+        static std::shared_ptr<Image> create(unsigned width, unsigned height, const glm::vec4* data = nullptr);
 
         /**
          * Gets the image's raw pixel data.
@@ -34,7 +33,7 @@ namespace gameplay
          * @return The image's pixel data.
          * @script{ignore}
          */
-        inline const std::vector<Vector4>& getData() const;
+        inline const std::vector<glm::vec4>& getData() const;
 
         /**
          * Gets the height of the image.
@@ -54,13 +53,13 @@ namespace gameplay
 
         Image& operator=(const Image&) = delete;
 
-        std::vector<Vector4> _data;
+        std::vector<glm::vec4> _data;
         unsigned int _width;
         unsigned int _height;
     };
 
 
-    inline const std::vector<Vector4>& Image::getData() const
+    inline const std::vector<glm::vec4>& Image::getData() const
     {
         return _data;
     }

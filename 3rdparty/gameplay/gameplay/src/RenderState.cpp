@@ -235,67 +235,77 @@ namespace gameplay
     }
 
 
-    const Matrix& RenderState::autoBindingGetWorldMatrix() const
+    const glm::mat4& RenderState::autoBindingGetWorldMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getWorldMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getWorldMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetViewMatrix() const
+    const glm::mat4& RenderState::autoBindingGetViewMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getViewMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getViewMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetProjectionMatrix() const
+    const glm::mat4& RenderState::autoBindingGetProjectionMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getProjectionMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getProjectionMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetWorldViewMatrix() const
+    const glm::mat4& RenderState::autoBindingGetWorldViewMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getWorldViewMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getWorldViewMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetViewProjectionMatrix() const
+    const glm::mat4& RenderState::autoBindingGetViewProjectionMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getViewProjectionMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getViewProjectionMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetWorldViewProjectionMatrix() const
+    const glm::mat4& RenderState::autoBindingGetWorldViewProjectionMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getWorldViewProjectionMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getWorldViewProjectionMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetInverseTransposeWorldMatrix() const
+    const glm::mat4& RenderState::autoBindingGetInverseTransposeWorldMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldMatrix() : identity;
     }
 
 
-    const Matrix& RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
+    const glm::mat4& RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldViewMatrix() : Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldViewMatrix() : identity;
     }
 
 
-    Vector3 RenderState::autoBindingGetCameraWorldPosition() const
+    glm::vec3 RenderState::autoBindingGetCameraWorldPosition() const
     {
-        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationWorld() : Vector3::zero();
+        static const glm::vec3 zero{ 0, 0, 0 };
+        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationWorld() : zero;
     }
 
 
-    Vector3 RenderState::autoBindingGetCameraViewPosition() const
+    glm::vec3 RenderState::autoBindingGetCameraViewPosition() const
     {
-        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationView() : Vector3::zero();
+        static const glm::vec3 zero{ 0, 0, 0 };
+        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationView() : zero;
     }
 
 
-    const Vector4* RenderState::autoBindingGetMatrixPalette() const
+    const glm::vec4* RenderState::autoBindingGetMatrixPalette() const
     {
         auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
         if( model )
@@ -321,10 +331,12 @@ namespace gameplay
     }
 
 
-    const Vector3& RenderState::autoBindingGetAmbientColor() const
+    const glm::vec3& RenderState::autoBindingGetAmbientColor() const
     {
+        static const glm::vec3 zero{ 0, 0, 0 };
+
         Scene* scene = _nodeBinding ? _nodeBinding->getScene() : nullptr;
-        return scene ? scene->getAmbientColor() : Vector3::zero();
+        return scene ? scene->getAmbientColor() : zero;
     }
 
 

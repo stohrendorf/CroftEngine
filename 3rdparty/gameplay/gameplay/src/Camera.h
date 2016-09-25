@@ -180,21 +180,21 @@ namespace gameplay
          *
          * @return The camera view matrix.
          */
-        const Matrix& getViewMatrix() const;
+        const glm::mat4& getViewMatrix() const;
 
         /**
          * Gets the camera's inverse view matrix.
          *
          * @return The camera inverse view matrix.
          */
-        const Matrix& getInverseViewMatrix() const;
+        const glm::mat4& getInverseViewMatrix() const;
 
         /**
          * Gets the camera's projection matrix.
          *
          * @return The camera projection matrix.
          */
-        const Matrix& getProjectionMatrix() const;
+        const glm::mat4& getProjectionMatrix() const;
 
         /**
          * Sets a custom projection matrix to be used by the camera.
@@ -208,7 +208,7 @@ namespace gameplay
          *
          * @param matrix Custom projection matrix.
          */
-        void setProjectionMatrix(const Matrix& matrix);
+        void setProjectionMatrix(const glm::mat4& matrix);
 
         /**
          * Resets the camera to use the internally computed projection matrix
@@ -221,14 +221,14 @@ namespace gameplay
          *
          * @return The camera view * projection matrix.
          */
-        const Matrix& getViewProjectionMatrix() const;
+        const glm::mat4& getViewProjectionMatrix() const;
 
         /**
          * Gets the camera's inverse view * projection matrix.
          *
          * @return The camera inverse view * projection matrix.
          */
-        const Matrix& getInverseViewProjectionMatrix() const;
+        const glm::mat4& getInverseViewProjectionMatrix() const;
 
         /**
          * Gets the view bounding frustum.
@@ -248,7 +248,7 @@ namespace gameplay
          *
          * @script{ignore}
          */
-        void project(const Rectangle& viewport, const Vector3& position, float* x, float* y, float* depth = nullptr) const;
+        void project(const Rectangle& viewport, const glm::vec3& position, float* x, float* y, float* depth = nullptr) const;
 
         /**
          * Projects the specified world position into the viewport coordinates.
@@ -257,7 +257,7 @@ namespace gameplay
          * @param position The world space position.
          * @param out Populated with the resulting screen-space position.
          */
-        void project(const Rectangle& viewport, const Vector3& position, Vector2* out) const;
+        void project(const Rectangle& viewport, const glm::vec3& position, glm::vec2* out) const;
 
         /**
          * Projects the specified world position into the viewport coordinates.
@@ -266,7 +266,7 @@ namespace gameplay
          * @param position The world space position.
          * @param out Populated with the resulting screen-space position, with the pixel depth in the Z coordinate.
          */
-        void project(const Rectangle& viewport, const Vector3& position, Vector3* out) const;
+        void project(const Rectangle& viewport, const glm::vec3& position, glm::vec3* out) const;
 
         /**
          * Converts a viewport-space coordinate to a world-space position for the given depth value.
@@ -280,7 +280,7 @@ namespace gameplay
          * @param depth The depth range.
          * @param dst The world space position.
          */
-        void unproject(const Rectangle& viewport, float x, float y, float depth, Vector3* dst) const;
+        void unproject(const Rectangle& viewport, float x, float y, float depth, glm::vec3* dst) const;
 
         /**
          * Picks a ray that can be used for picking given the specified viewport-space coordinates.
@@ -328,11 +328,11 @@ namespace gameplay
         float _aspectRatio;
         float _nearPlane;
         float _farPlane;
-        mutable Matrix _view;
-        mutable Matrix _projection;
-        mutable Matrix _viewProjection;
-        mutable Matrix _inverseView;
-        mutable Matrix _inverseViewProjection;
+        mutable glm::mat4 _view;
+        mutable glm::mat4 _projection;
+        mutable glm::mat4 _viewProjection;
+        mutable glm::mat4 _inverseView;
+        mutable glm::mat4 _inverseViewProjection;
         mutable Frustum _bounds;
         mutable int _bits;
         std::shared_ptr<Node> _node;

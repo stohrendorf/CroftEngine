@@ -3,6 +3,8 @@
 #include "Game.h"
 #include "Node.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 // Camera dirty bits
 #define CAMERA_DIRTY_VIEW 1
 #define CAMERA_DIRTY_PROJ 2
@@ -181,18 +183,18 @@ namespace gameplay
     }
 
 
-    const Matrix& Camera::getViewMatrix() const
+    const glm::mat4& Camera::getViewMatrix() const
     {
         if( _bits & CAMERA_DIRTY_VIEW )
         {
             if( _node )
             {
                 // The view matrix is the inverse of our transform matrix.
-                _node->getWorldMatrix().invert(&_view);
+                _view = glm::inverse(_node->getWorldMatrix());
             }
             else
             {
-                _view.setIdentity();
+                _view = glm::mat4{ 1.0f };
             }
 
             _bits &= ~CAMERA_DIRTY_VIEW;
@@ -202,11 +204,11 @@ namespace gameplay
     }
 
 
-    const Matrix& Camera::getInverseViewMatrix() const
+    const glm::mat4& Camera::getInverseViewMatrix() const
     {
         if( _bits & CAMERA_DIRTY_INV_VIEW )
         {
-            getViewMatrix().invert(&_inverseView);
+            _inverseView = glm::inverse(getViewMatrix());
 
             _bits &= ~CAMERA_DIRTY_INV_VIEW;
         }
@@ -215,18 +217,18 @@ namespace gameplay
     }
 
 
-    const Matrix& Camera::getProjectionMatrix() const
+    const glm::mat4& Camera::getProjectionMatrix() const
     {
         if( !(_bits & CAMERA_CUSTOM_PROJECTION) && (_bits & CAMERA_DIRTY_PROJ) )
         {
             if( _type == PERSPECTIVE )
             {
-                Matrix::createPerspective(_fieldOfView, _aspectRatio, _nearPlane, _farPlane, &_projection);
+                _projection = glm::perspective(_fieldOfView, _aspectRatio, _nearPlane, _farPlane);
             }
             else
             {
                 // Create an ortho projection with the origin at the bottom left of the viewport, +X to the right and +Y up.
-                Matrix::createOrthographic(_zoom[0], _zoom[1], _nearPlane, _farPlane, &_projection);
+                _projection = glm::ortho(-_zoom[0]/2, _zoom[0]/2, -_zoom[1]/2, _zoom[1]/2, _nearPlane, _farPlane);
             }
 
             _bits &= ~CAMERA_DIRTY_PROJ;
@@ -236,7 +238,7 @@ namespace gameplay
     }
 
 
-    void Camera::setProjectionMatrix(const Matrix& matrix)
+    void Camera::setProjectionMatrix(const glm::mat4& matrix)
     {
         _projection = matrix;
         _bits |= CAMERA_CUSTOM_PROJECTION;
@@ -258,11 +260,11 @@ namespace gameplay
     }
 
 
-    const Matrix& Camera::getViewProjectionMatrix() const
+    const glm::mat4& Camera::getViewProjectionMatrix() const
     {
         if( _bits & CAMERA_DIRTY_VIEW_PROJ )
         {
-            Matrix::multiply(getProjectionMatrix(), getViewMatrix(), &_viewProjection);
+            _viewProjection = getProjectionMatrix() * getViewMatrix();
 
             _bits &= ~CAMERA_DIRTY_VIEW_PROJ;
         }
@@ -271,11 +273,11 @@ namespace gameplay
     }
 
 
-    const Matrix& Camera::getInverseViewProjectionMatrix() const
+    const glm::mat4& Camera::getInverseViewProjectionMatrix() const
     {
         if( _bits & CAMERA_DIRTY_INV_VIEW_PROJ )
         {
-            getViewProjectionMatrix().invert(&_inverseViewProjection);
+            _inverseViewProjection = glm::inverse(getViewProjectionMatrix());
 
             _bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
         }
@@ -298,14 +300,13 @@ namespace gameplay
     }
 
 
-    void Camera::project(const Rectangle& viewport, const Vector3& position, float* x, float* y, float* depth) const
+    void Camera::project(const Rectangle& viewport, const glm::vec3& position, float* x, float* y, float* depth) const
     {
         BOOST_ASSERT(x);
         BOOST_ASSERT(y);
 
         // Transform the point to clip-space.
-        Vector4 clipPos;
-        getViewProjectionMatrix().transformVector(Vector4(position.x, position.y, position.z, 1.0f), &clipPos);
+        glm::vec4 clipPos = getViewProjectionMatrix() * glm::vec4(position.x, position.y, position.z, 1.0f);
 
         // Compute normalized device coordinates.
         BOOST_ASSERT(clipPos.w != 0.0f);
@@ -323,31 +324,31 @@ namespace gameplay
     }
 
 
-    void Camera::project(const Rectangle& viewport, const Vector3& position, Vector2* out) const
+    void Camera::project(const Rectangle& viewport, const glm::vec3& position, glm::vec2* out) const
     {
         BOOST_ASSERT(out);
         float x, y;
         project(viewport, position, &x, &y);
-        out->set(x, y);
+        *out = { x,y };
     }
 
 
-    void Camera::project(const Rectangle& viewport, const Vector3& position, Vector3* out) const
+    void Camera::project(const Rectangle& viewport, const glm::vec3& position, glm::vec3* out) const
     {
         BOOST_ASSERT(out);
         float x, y, depth;
         project(viewport, position, &x, &y, &depth);
-        out->set(x, y, depth);
+        *out = { x, y, depth };
     }
 
 
-    void Camera::unproject(const Rectangle& viewport, float x, float y, float depth, Vector3* dst) const
+    void Camera::unproject(const Rectangle& viewport, float x, float y, float depth, glm::vec3* dst) const
     {
         BOOST_ASSERT(dst);
 
         // Create our screen space position in NDC.
         BOOST_ASSERT(viewport.width != 0.0f && viewport.height != 0.0f);
-        Vector4 screen((x - viewport.x) / viewport.width, ((viewport.height - y) - viewport.y) / viewport.height, depth, 1.0f);
+        glm::vec4 screen((x - viewport.x) / viewport.width, ((viewport.height - y) - viewport.y) / viewport.height, depth, 1.0f);
 
         // Map to range -1 to 1.
         screen.x = screen.x * 2.0f - 1.0f;
@@ -355,7 +356,7 @@ namespace gameplay
         screen.z = screen.z * 2.0f - 1.0f;
 
         // Transform the screen-space NDC by our inverse view projection matrix.
-        getInverseViewProjectionMatrix().transformVector(screen, &screen);
+        screen = getInverseViewProjectionMatrix() * screen;
 
         // Divide by our W coordinate.
         if( screen.w != 0.0f )
@@ -365,7 +366,7 @@ namespace gameplay
             screen.z /= screen.w;
         }
 
-        dst->set(screen.x, screen.y, screen.z);
+        *dst = glm::vec3{ screen };
     }
 
 
@@ -374,17 +375,15 @@ namespace gameplay
         BOOST_ASSERT(dst);
 
         // Get the world-space position at the near clip plane.
-        Vector3 nearPoint;
+        glm::vec3 nearPoint;
         unproject(viewport, x, y, 0.0f, &nearPoint);
 
         // Get the world-space position at the far clip plane.
-        Vector3 farPoint;
+        glm::vec3 farPoint;
         unproject(viewport, x, y, 1.0f, &farPoint);
 
         // Set the direction of the ray.
-        Vector3 direction;
-        Vector3::subtract(farPoint, nearPoint, &direction);
-        direction.normalize();
+        glm::vec3 direction = glm::normalize(farPoint - nearPoint);
 
         dst->set(nearPoint, direction);
     }

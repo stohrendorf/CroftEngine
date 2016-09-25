@@ -26,11 +26,6 @@ namespace gameplay
         virtual ~Joint();
 
         /**
-         * @see Node::getType()
-         */
-        Node::Type getType() const override;
-
-        /**
          * @see Node::getScene()
          */
         Scene* getScene() const override;
@@ -42,7 +37,7 @@ namespace gameplay
          *
          * @param matrixPalette The matrix palette to update.
          */
-        void updateJointMatrix(Vector4* matrixPalette);
+        void updateJointMatrix(glm::vec4* matrixPalette);
 
         /**
          * Called when this Joint's transform changes.

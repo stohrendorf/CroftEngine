@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BoundingBox.h"
-#include "Quaternion.h"
 
+#include <glm/gtx/quaternion.hpp>
 
 namespace gameplay
 {
@@ -32,8 +32,8 @@ namespace gameplay
 
         struct BonePose
         {
-            Vector3 translation;
-            Quaternion rotation;
+            glm::vec3 translation;
+            glm::quat rotation;
         };
 
 
@@ -54,10 +54,10 @@ namespace gameplay
                 {
                     if( first )
                     {
-                        bbox.min = Vector3(poseData[0], poseData[2], poseData[4]);
-                        bbox.max = Vector3(poseData[1], poseData[3], poseData[5]);
+                        bbox.min = glm::vec3(poseData[0], poseData[2], poseData[4]);
+                        bbox.max = glm::vec3(poseData[1], poseData[3], poseData[5]);
 
-                        bone.translation.set(poseData[6], static_cast<float>(-poseData[7]), poseData[8]);
+                        bone.translation = { poseData[6], static_cast<float>(-poseData[7]), poseData[8] };
 
                         first = false;
                     }
@@ -67,14 +67,14 @@ namespace gameplay
                         // const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (boneId - 1) * 4];
 
                         BOOST_ASSERT(boneTreeData != nullptr);
-                        bone.translation.set(static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]));
+                        bone.translation = { static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]) };
                         boneTreeData += 4;
                     }
 
                     const auto temp2 = poseData[angleSetOfs++];
                     const auto temp1 = poseData[angleSetOfs++];
 
-                    Vector3 rot;
+                    glm::vec3 rot;
                     rot.x = static_cast<float>((temp1 & 0x3ff0) >> 4);
                     rot.y = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
                     rot.z = static_cast<float>(temp2 & 0x03ff);
@@ -94,24 +94,24 @@ namespace gameplay
 
                 for( size_t i = 0; i < bones.size(); ++i )
                 {
-                    Quaternion::slerp(bones[i].rotation, next.bones[i].rotation, lambda, &result.bones[i].rotation);
-                    result.bones[i].translation = bones[i].translation.lerp(next.bones[i].translation, lambda);
+                    result.bones[i].rotation = glm::slerp(bones[i].rotation, next.bones[i].rotation, lambda);
+                    result.bones[i].translation = glm::mix(bones[i].translation, next.bones[i].translation, lambda);
                 }
 
-                result.bbox.min = bbox.min.lerp(next.bbox.min, lambda);
-                result.bbox.max = bbox.max.lerp(next.bbox.max, lambda);
+                result.bbox.min = glm::mix(bbox.min, next.bbox.min, lambda);
+                result.bbox.max = glm::mix(bbox.max, next.bbox.max, lambda);
 
                 return result;
             }
 
 
         private:
-            static Quaternion trRotationToQuat(const Vector3& rotation)
+            static glm::quat trRotationToQuat(const glm::vec3& rotation)
             {
-                Quaternion v;
-                v *= Quaternion({0,0,1}, rotation.z);
-                v *= Quaternion({1,0,0}, rotation.x);
-                v *= Quaternion({0,1,0}, rotation.y);
+                glm::quat v;
+                v *= glm::quat(rotation.z, {0,0,1});
+                v *= glm::quat(rotation.x, {1,0,0});
+                v *= glm::quat(rotation.y, {0,1,0});
                 return v;
             }
 

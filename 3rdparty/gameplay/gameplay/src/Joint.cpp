@@ -3,6 +3,7 @@
 #include "MeshSkin.h"
 #include "Model.h"
 
+#include <glm/gtc/matrix_access.hpp>
 
 namespace gameplay
 {
@@ -13,12 +14,6 @@ namespace gameplay
 
 
     Joint::~Joint() = default;
-
-
-    Node::Type Joint::getType() const
-    {
-        return Node::JOINT;
-    }
 
 
     Scene* Joint::getScene() const
@@ -50,7 +45,7 @@ namespace gameplay
     }
 
 
-    void Joint::updateJointMatrix(Vector4* matrixPalette)
+    void Joint::updateJointMatrix(glm::vec4* matrixPalette)
     {
         // Note: If more than one MeshSkin influences this Joint, we need to skip
         // the _jointMatrixDirty optimization since updateJointMatrix() may be
@@ -60,12 +55,12 @@ namespace gameplay
         {
             _jointMatrixDirty = false;
 
-            const Matrix &t = Node::getWorldMatrix();
+            const glm::mat4 &t = Node::getWorldMatrix();
 
             BOOST_ASSERT(matrixPalette);
-            matrixPalette[0].set(t.m[0], t.m[4], t.m[8], t.m[12]);
-            matrixPalette[1].set(t.m[1], t.m[5], t.m[9], t.m[13]);
-            matrixPalette[2].set(t.m[2], t.m[6], t.m[10], t.m[14]);
+            matrixPalette[0] = glm::row(t, 0);
+            matrixPalette[1] = glm::row(t, 1);
+            matrixPalette[2] = glm::row(t, 2);
         }
     }
 

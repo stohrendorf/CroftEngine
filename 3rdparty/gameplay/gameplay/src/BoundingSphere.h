@@ -15,7 +15,7 @@ namespace gameplay
         /**
          * The center point.
          */
-        Vector3 center;
+        glm::vec3 center;
 
         /**
          * The sphere radius.
@@ -33,7 +33,7 @@ namespace gameplay
          * @param center The center of the sphere.
          * @param radius The radius of the sphere.
          */
-        BoundingSphere(const Vector3& center, float radius);
+        BoundingSphere(const glm::vec3& center, float radius);
 
         /**
          * Constructs a bounding sphere from the given bounding sphere.
@@ -129,7 +129,7 @@ namespace gameplay
          * @param center The center of the sphere.
          * @param radius The radius of the sphere.
          */
-        void set(const Vector3& center, float radius);
+        void set(const glm::vec3& center, float radius);
 
         /**
          * Sets this bounding sphere to the specified bounding sphere.
@@ -150,7 +150,7 @@ namespace gameplay
          *
          * @param matrix The transformation matrix to transform by.
          */
-        void transform(const Matrix& matrix);
+        void transform(const glm::mat4& matrix);
 
         /**
          * Transforms this bounding sphere by the given matrix.
@@ -158,13 +158,13 @@ namespace gameplay
          * @param matrix The matrix to transform by.
          * @return This bounding sphere, after the transformation occurs.
          */
-        inline BoundingSphere& operator*=(const Matrix& matrix);
+        inline BoundingSphere& operator*=(const glm::mat4& matrix);
 
     private:
 
-        float distance(const BoundingSphere& sphere, const Vector3&);
+        float distance(const BoundingSphere& sphere, const glm::vec3&);
 
-        bool contains(const BoundingSphere& sphere, Vector3* points, unsigned int count);
+        bool contains(const BoundingSphere& sphere, glm::vec3* points, unsigned int count);
     };
 
 
@@ -175,17 +175,17 @@ namespace gameplay
      * @param sphere The bounding sphere to transform.
      * @return The resulting transformed bounding sphere.
      */
-    inline BoundingSphere operator*(const Matrix& matrix, const BoundingSphere& sphere);
+    inline BoundingSphere operator*(const glm::mat4& matrix, const BoundingSphere& sphere);
 
 
-    inline BoundingSphere& BoundingSphere::operator*=(const Matrix& matrix)
+    inline BoundingSphere& BoundingSphere::operator*=(const glm::mat4& matrix)
     {
         transform(matrix);
         return *this;
     }
 
 
-    inline BoundingSphere operator*(const Matrix& matrix, const BoundingSphere& sphere)
+    inline BoundingSphere operator*(const glm::mat4& matrix, const BoundingSphere& sphere)
     {
         BoundingSphere s(sphere);
         s.transform(matrix);

@@ -3,6 +3,8 @@
 #include "FileSystem.h"
 #include "Game.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -524,52 +526,52 @@ namespace gameplay
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Matrix& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::mat4& value)
     {
-        GL_ASSERT( glUniformMatrix4fv(uniform._location, 1, GL_FALSE, value.m) );
+        GL_ASSERT( glUniformMatrix4fv(uniform._location, 1, GL_FALSE, glm::value_ptr(value)) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Matrix* values, size_t count)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::mat4* values, size_t count)
     {
         BOOST_ASSERT(values);
         GL_ASSERT( glUniformMatrix4fv(uniform._location, count, GL_FALSE, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector2& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec2& value)
     {
         GL_ASSERT( glUniform2f(uniform._location, value.x, value.y) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector2* values, size_t count)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec2* values, size_t count)
     {
         BOOST_ASSERT(values);
         GL_ASSERT( glUniform2fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector3& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec3& value)
     {
         GL_ASSERT( glUniform3f(uniform._location, value.x, value.y, value.z) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector3* values, size_t count)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec3* values, size_t count)
     {
         BOOST_ASSERT(values);
         GL_ASSERT( glUniform3fv(uniform._location, count, (GLfloat*)values) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector4& value)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec4& value)
     {
         GL_ASSERT( glUniform4f(uniform._location, value.x, value.y, value.z, value.w) );
     }
 
 
-    void ShaderProgram::setValue(const Uniform& uniform, const Vector4* values, size_t count)
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec4* values, size_t count)
     {
         BOOST_ASSERT(values);
         GL_ASSERT( glUniform4fv(uniform._location, count, (GLfloat*)values) );

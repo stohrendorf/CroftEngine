@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 #include "Texture.h"
 
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -129,7 +127,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(const Uniform& uniform, const Matrix& value);
+        void setValue(const Uniform& uniform, const glm::mat4& value);
 
         /**
          * Sets a matrix array uniform value.
@@ -138,7 +136,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(const Uniform& uniform, const Matrix* values, size_t count = 1);
+        void setValue(const Uniform& uniform, const glm::mat4* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -146,7 +144,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(const Uniform& uniform, const Vector2& value);
+        void setValue(const Uniform& uniform, const glm::vec2& value);
 
         /**
          * Sets a vector array uniform value.
@@ -155,7 +153,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(const Uniform& uniform, const Vector2* values, size_t count = 1);
+        void setValue(const Uniform& uniform, const glm::vec2* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -163,7 +161,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(const Uniform& uniform, const Vector3& value);
+        void setValue(const Uniform& uniform, const glm::vec3& value);
 
         /**
          * Sets a vector array uniform value.
@@ -172,7 +170,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(const Uniform& uniform, const Vector3* values, size_t count = 1);
+        void setValue(const Uniform& uniform, const glm::vec3* values, size_t count = 1);
 
         /**
          * Sets a vector uniform value.
@@ -180,7 +178,7 @@ namespace gameplay
          * @param uniform The uniform to set.
          * @param value The value to set.
          */
-        void setValue(const Uniform& uniform, const Vector4& value);
+        void setValue(const Uniform& uniform, const glm::vec4& value);
 
         /**
          * Sets a vector array uniform value.
@@ -189,7 +187,7 @@ namespace gameplay
          * @param values The array to set.
          * @param count The number of elements in the array.
          */
-        void setValue(const Uniform& uniform, const Vector4* values, size_t count = 1);
+        void setValue(const Uniform& uniform, const glm::vec4* values, size_t count = 1);
 
         /**
          * Sets a sampler uniform value.

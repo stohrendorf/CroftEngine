@@ -11,7 +11,7 @@ namespace gameplay
     }
 
 
-    BoundingBox::BoundingBox(const Vector3& min, const Vector3& max)
+    BoundingBox::BoundingBox(const glm::vec3& min, const glm::vec3& max)
     {
         set(min, max);
     }
@@ -41,47 +41,45 @@ namespace gameplay
     }
 
 
-    void BoundingBox::getCorners(Vector3* dst) const
+    void BoundingBox::getCorners(glm::vec3* dst) const
     {
         BOOST_ASSERT(dst);
 
         // Near face, specified counter-clockwise looking towards the origin from the positive z-axis.
         // Left-top-front.
-        dst[0].set(min.x, max.y, max.z);
+        dst[0] = { min.x, max.y, max.z };
         // Left-bottom-front.
-        dst[1].set(min.x, min.y, max.z);
+        dst[1] = { min.x, min.y, max.z };
         // Right-bottom-front.
-        dst[2].set(max.x, min.y, max.z);
+        dst[2] = { max.x, min.y, max.z };
         // Right-top-front.
-        dst[3].set(max.x, max.y, max.z);
+        dst[3] = { max.x, max.y, max.z };
 
         // Far face, specified counter-clockwise looking towards the origin from the negative z-axis.
         // Right-top-back.
-        dst[4].set(max.x, max.y, min.z);
+        dst[4] = { max.x, max.y, min.z };
         // Right-bottom-back.
-        dst[5].set(max.x, min.y, min.z);
+        dst[5] = { max.x, min.y, min.z };
         // Left-bottom-back.
-        dst[6].set(min.x, min.y, min.z);
+        dst[6] = { min.x, min.y, min.z };
         // Left-top-back.
-        dst[7].set(min.x, max.y, min.z);
+        dst[7] = { min.x, max.y, min.z };
     }
 
 
-    Vector3 BoundingBox::getCenter() const
+    glm::vec3 BoundingBox::getCenter() const
     {
-        Vector3 center;
+        glm::vec3 center;
         getCenter(&center);
         return center;
     }
 
 
-    void BoundingBox::getCenter(Vector3* dst) const
+    void BoundingBox::getCenter(glm::vec3* dst) const
     {
         BOOST_ASSERT(dst);
 
-        dst->set(min, max);
-        dst->scale(0.5f);
-        dst->add(min);
+        *dst = glm::mix(min, max, 0.5f);
     }
 
 
@@ -114,7 +112,7 @@ namespace gameplay
     float BoundingBox::intersects(const Plane& plane) const
     {
         // Calculate the distance from the center of the box to the plane.
-        Vector3 center((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, (min.z + max.z) * 0.5f);
+        glm::vec3 center((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, (min.z + max.z) * 0.5f);
         float distance = plane.distance(center);
 
         // Get the extents of the box from its center along each axis.
@@ -122,7 +120,7 @@ namespace gameplay
         float extentY = (max.y - min.y) * 0.5f;
         float extentZ = (max.z - min.z) * 0.5f;
 
-        const Vector3& planeNormal = plane.getNormal();
+        const glm::vec3& planeNormal = plane.getNormal();
         if( fabsf(distance) <= (fabsf(extentX * planeNormal.x) + fabsf(extentY * planeNormal.y) + fabsf(
                                                                      extentZ * planeNormal.z)) )
         {
@@ -141,8 +139,8 @@ namespace gameplay
         float tmin = 0.0f;
         float tmax = 0.0f;
 
-        const Vector3& origin = ray.getOrigin();
-        const Vector3& direction = ray.getDirection();
+        const glm::vec3& origin = ray.getOrigin();
+        const glm::vec3& direction = ray.getDirection();
 
         // X direction.
         float div = 1.0f / direction.x;
@@ -248,7 +246,7 @@ namespace gameplay
 
     void BoundingBox::merge(const BoundingSphere& sphere)
     {
-        const Vector3& center = sphere.center;
+        const glm::vec3& center = sphere.center;
         float radius = sphere.radius;
 
         // Calculate the new minimum point for the merged bounding box.
@@ -263,7 +261,7 @@ namespace gameplay
     }
 
 
-    void BoundingBox::set(const Vector3& min, const Vector3& max)
+    void BoundingBox::set(const glm::vec3& min, const glm::vec3& max)
     {
         this->min = min;
         this->max = max;
@@ -272,12 +270,12 @@ namespace gameplay
 
     void BoundingBox::set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
     {
-        min.set(minX, minY, minZ);
-        max.set(maxX, maxY, maxZ);
+        min = { minX, minY, minZ };
+        max = { maxX, maxY, maxZ };
     }
 
 
-    static void updateMinMax(Vector3* point, Vector3* min, Vector3* max)
+    static void updateMinMax(glm::vec3* point, glm::vec3* min, glm::vec3* max)
     {
         BOOST_ASSERT(point);
         BOOST_ASSERT(min);
@@ -330,7 +328,7 @@ namespace gameplay
 
     void BoundingBox::set(const BoundingSphere& sphere)
     {
-        const Vector3& center = sphere.center;
+        const glm::vec3& center = sphere.center;
         float radius = sphere.radius;
 
         // Calculate the minimum point for the box.
@@ -345,19 +343,19 @@ namespace gameplay
     }
 
 
-    void BoundingBox::transform(const Matrix& matrix)
+    void BoundingBox::transform(const glm::mat4& matrix)
     {
         // Calculate the corners.
-        Vector3 corners[8];
+        glm::vec3 corners[8];
         getCorners(corners);
 
         // Transform the corners, recalculating the min and max points along the way.
-        matrix.transformPoint(&corners[0]);
-        Vector3 newMin = corners[0];
-        Vector3 newMax = corners[0];
+        corners[0] = glm::vec3(matrix * glm::vec4(corners[0], 1.0f));
+        glm::vec3 newMin = corners[0];
+        glm::vec3 newMax = corners[0];
         for( int i = 1; i < 8; i++ )
         {
-            matrix.transformPoint(&corners[i]);
+            corners[i] = glm::vec3(matrix * glm::vec4(corners[i], 1));
             updateMinMax(&corners[i], &newMin, &newMax);
         }
         this->min.x = newMin.x;

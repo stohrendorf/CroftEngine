@@ -60,7 +60,7 @@ public:
             stream->update();
     }
 
-    void setListenerTransform(const gameplay::Vector3& pos, const gameplay::Vector3& front, const gameplay::Vector3& up)
+    void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
         alListener3f(AL_POSITION, pos.x, pos.y, -pos.z);
 

@@ -7,6 +7,7 @@
 
 #include <boost/log/trivial.hpp>
 
+
 namespace gameplay
 {
     Ray::Ray()
@@ -15,7 +16,7 @@ namespace gameplay
     }
 
 
-    Ray::Ray(const Vector3& origin, const Vector3& direction)
+    Ray::Ray(const glm::vec3& origin, const glm::vec3& direction)
     {
         set(origin, direction);
     }
@@ -23,7 +24,7 @@ namespace gameplay
 
     Ray::Ray(float originX, float originY, float originZ, float dirX, float dirY, float dirZ)
     {
-        set(Vector3(originX, originY, originZ), Vector3(dirX, dirY, dirZ));
+        set(glm::vec3(originX, originY, originZ), glm::vec3(dirX, dirY, dirZ));
     }
 
 
@@ -38,13 +39,13 @@ namespace gameplay
     }
 
 
-    const Vector3& Ray::getOrigin() const
+    const glm::vec3& Ray::getOrigin() const
     {
         return _origin;
     }
 
 
-    void Ray::setOrigin(const Vector3& origin)
+    void Ray::setOrigin(const glm::vec3& origin)
     {
         _origin = origin;
     }
@@ -52,17 +53,17 @@ namespace gameplay
 
     void Ray::setOrigin(float x, float y, float z)
     {
-        _origin.set(x, y, z);
+        _origin = {x, y, z};
     }
 
 
-    const Vector3& Ray::getDirection() const
+    const glm::vec3& Ray::getDirection() const
     {
         return _direction;
     }
 
 
-    void Ray::setDirection(const Vector3& direction)
+    void Ray::setDirection(const glm::vec3& direction)
     {
         _direction = direction;
         normalize();
@@ -71,7 +72,7 @@ namespace gameplay
 
     void Ray::setDirection(float x, float y, float z)
     {
-        _direction.set(x, y, z);
+        _direction = {x, y, z};
         normalize();
     }
 
@@ -137,15 +138,15 @@ namespace gameplay
 
     float Ray::intersects(const Plane& plane) const
     {
-        const Vector3& normal = plane.getNormal();
+        const glm::vec3& normal = plane.getNormal();
         // If the origin of the ray is on the plane then the distance is zero.
-        float alpha = (normal.dot(_origin) + plane.getDistance());
+        float alpha = (glm::dot(normal, _origin) + plane.getDistance());
         if( fabs(alpha) < MATH_EPSILON )
         {
             return 0.0f;
         }
 
-        float dot = normal.dot(_direction);
+        float dot = glm::dot(normal, _direction);
 
         // If the dot product of the plane's normal and this ray's direction is zero,
         // then the ray is parallel to the plane and does not intersect it.
@@ -165,7 +166,7 @@ namespace gameplay
     }
 
 
-    void Ray::set(const Vector3& origin, const Vector3& direction)
+    void Ray::set(const glm::vec3& origin, const glm::vec3& direction)
     {
         _origin = origin;
         _direction = direction;
@@ -181,29 +182,21 @@ namespace gameplay
     }
 
 
-    void Ray::transform(const Matrix& matrix)
+    void Ray::transform(const glm::mat4& matrix)
     {
-        matrix.transformPoint(&_origin);
-        matrix.transformVector(&_direction);
-        _direction.normalize();
+        _origin = glm::vec3(matrix * glm::vec4(_origin, 1));
+        _direction = glm::normalize(glm::vec3(matrix * glm::vec4(_direction, 1)));
     }
 
 
     void Ray::normalize()
     {
-        if( _direction.isZero() )
+        if( glm::length(_direction) <= std::numeric_limits<float>::epsilon() )
         {
             BOOST_LOG_TRIVIAL(error) << "Invalid ray object; a ray's direction must be non-zero.";
             return;
         }
 
-        // Normalize the ray's direction vector.
-        float normalizeFactor = 1.0f / sqrt(_direction.x * _direction.x + _direction.y * _direction.y + _direction.z * _direction.z);
-        if( normalizeFactor != 1.0f )
-        {
-            _direction.x *= normalizeFactor;
-            _direction.y *= normalizeFactor;
-            _direction.z *= normalizeFactor;
-        }
+        _direction = glm::normalize(_direction);
     }
 }

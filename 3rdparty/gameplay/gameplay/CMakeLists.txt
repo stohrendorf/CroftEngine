@@ -40,8 +40,6 @@ set(GAMEPLAY_SRC
     src/MaterialParameter.h
     src/MathUtil.cpp
     src/MathUtil.h
-    src/Matrix.cpp
-    src/Matrix.h
     src/Mesh.cpp
     src/Mesh.h
     src/MeshBatch.cpp
@@ -64,8 +62,6 @@ set(GAMEPLAY_SRC
     src/Platform.cpp
     src/Properties.h
     src/Properties.cpp
-    src/Quaternion.cpp
-    src/Quaternion.h
     src/Ray.cpp
     src/Ray.h
     src/Rectangle.cpp
@@ -92,12 +88,6 @@ set(GAMEPLAY_SRC
     src/TileSet.h
     src/Transform.cpp
     src/Transform.h
-    src/Vector2.cpp
-    src/Vector2.h
-    src/Vector3.cpp
-    src/Vector3.h
-    src/Vector4.cpp
-    src/Vector4.h
     src/VertexAttributeBinding.cpp
     src/VertexAttributeBinding.h
     src/VertexFormat.cpp
@@ -121,7 +111,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
     target_compile_definitions(gameplay PUBLIC -D_DEBUG -DNOMINMAX)
 endif()
 
-target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL)
+target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm)
 
 set_target_properties(gameplay PROPERTIES
     OUTPUT_NAME "gameplay"

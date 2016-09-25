@@ -25,7 +25,7 @@ namespace engine
         bool roll = false;
         bool action = false;
         bool freeLook = false;
-        gameplay::Vector2 mouseMovement;
+        glm::vec2 mouseMovement;
 
         void setXAxisMovement(bool left, bool right)
         {

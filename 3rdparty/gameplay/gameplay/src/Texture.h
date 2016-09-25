@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector4.h"
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -165,7 +165,7 @@ namespace gameplay
          * @return The new texture.
          * @script{create}
          */
-        static std::shared_ptr<Texture> create(unsigned width, unsigned height, const std::vector<Vector4>& data, bool generateMipmaps = false, Type type = TEXTURE_2D);
+        static std::shared_ptr<Texture> create(unsigned width, unsigned height, const std::vector<glm::vec4>& data, bool generateMipmaps = false, Type type = TEXTURE_2D);
 
         /**
          * Creates a texture object to wrap the specified pre-created native texture handle.
@@ -191,7 +191,7 @@ namespace gameplay
          *   to TEXTURE_CUBE, then data is expected to be each face stored back contiguously within the
          *   array.
          */
-        void setData(const Vector4* data);
+        void setData(const glm::vec4* data);
 
         /**
          * Gets the texture type.

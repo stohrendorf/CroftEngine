@@ -2,7 +2,6 @@
 
 #include "Drawable.h"
 #include "Rectangle.h"
-#include "Vector4.h"
 #include "SpriteBatch.h"
 #include "Effect.h"
 
@@ -114,14 +113,14 @@ namespace gameplay
          *
          * @param anchor The anchor which is a origin ratio of the sprite width and height from [0.0,1.0].
          */
-        void setAnchor(const Vector2& anchor);
+        void setAnchor(const glm::vec2& anchor);
 
         /**
          * Gets the anchor which is a origin ratio of the sprite width and height from [0.0,1.0].
          *
          * @return The anchor which is a origin ratio of the sprite width and height from [0.0,1.0].
          */
-        const Vector2& getAnchor() const;
+        const glm::vec2& getAnchor() const;
 
         /**
          * Sets the flip flags used for rendering the sprite.
@@ -227,14 +226,14 @@ namespace gameplay
          *
          * @param color The color(RGBA) for the sprite.
          */
-        void setColor(const Vector4& color);
+        void setColor(const glm::vec4& color);
 
         /**
          * Gets the color (RGBA) for the sprite.
          *
          * @return The color(RGBA) for the sprite.
          */
-        const Vector4& getColor() const;
+        const glm::vec4& getColor() const;
 
         /**
          * Sets the blend mode for the sprite.
@@ -294,7 +293,7 @@ namespace gameplay
         float _width;
         float _height;
         Offset _offset;
-        Vector2 _anchor;
+        glm::vec2 _anchor;
         int _flipFlags;
         Rectangle* _frames;
         unsigned int _frameCount;
@@ -303,7 +302,7 @@ namespace gameplay
         unsigned int _frameIndex;
         SpriteBatch* _batch;
         float _opacity;
-        Vector4 _color;
+        glm::vec4 _color;
         BlendMode _blendMode;
     };
 }

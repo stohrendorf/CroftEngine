@@ -1,11 +1,10 @@
 #include "Base.h"
 #include "Image.h"
-#include "Vector4.h"
 
 
 namespace gameplay
 {
-    std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, const Vector4* data)
+    std::shared_ptr<Image> Image::create(unsigned int width, unsigned int height, const glm::vec4* data)
     {
         BOOST_ASSERT(width > 0 && height > 0);
 

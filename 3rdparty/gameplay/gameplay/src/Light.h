@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
-
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -39,7 +38,7 @@ namespace gameplay
          * @return The new directional light.
          * @script{create}
          */
-        static Light* createDirectional(const Vector3& color);
+        static Light* createDirectional(const glm::vec3& color);
 
         /**
          * Creates a directional light.
@@ -62,7 +61,7 @@ namespace gameplay
          * @return The new point light.
          * @script{create}
          */
-        static Light* createPoint(const Vector3& color, float range);
+        static Light* createPoint(const glm::vec3& color, float range);
 
         /**
          * Creates a point light.
@@ -88,7 +87,7 @@ namespace gameplay
          * @return The new spot light.
          * @script{create}
          */
-        static Light* createSpot(const Vector3& color, float range, float innerAngle, float outerAngle);
+        static Light* createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle);
 
         /**
          * Creates a spot light.
@@ -124,14 +123,14 @@ namespace gameplay
          *
          * @return The light color.
          */
-        const Vector3& getColor() const;
+        const glm::vec3& getColor() const;
 
         /**
          * Sets the light color.
          *
          * @param color The light color to set.
          */
-        void setColor(const Vector3& color);
+        void setColor(const glm::vec3& color);
 
         /**
          * Sets the light color.
@@ -220,9 +219,9 @@ namespace gameplay
         class Directional
         {
         public:
-            Vector3 color;
+            glm::vec3 color;
 
-            Directional(const Vector3& color);
+            Directional(const glm::vec3& color);
         };
 
 
@@ -232,11 +231,11 @@ namespace gameplay
         class Point
         {
         public:
-            Vector3 color;
+            glm::vec3 color;
             float range;
             float rangeInverse;
 
-            Point(const Vector3& color, float range);
+            Point(const glm::vec3& color, float range);
         };
 
 
@@ -246,7 +245,7 @@ namespace gameplay
         class Spot
         {
         public:
-            Vector3 color;
+            glm::vec3 color;
             float range;
             float rangeInverse;
             float innerAngle;
@@ -254,24 +253,24 @@ namespace gameplay
             float outerAngle;
             float outerAngleCos;
 
-            Spot(const Vector3& color, float range, float innerAngle, float outerAngle);
+            Spot(const glm::vec3& color, float range, float innerAngle, float outerAngle);
         };
 
 
         /**
          * Constructor for the directional light.
          */
-        Light(Light::Type type, const Vector3& color);
+        Light(Light::Type type, const glm::vec3& color);
 
         /**
          * Constructor for point light.
          */
-        Light(Light::Type type, const Vector3& color, float range);
+        Light(Light::Type type, const glm::vec3& color, float range);
 
         /**
          * Constructor for spot light.
          */
-        Light(Light::Type type, const Vector3& color, float range, float innerAngle, float outerAngle);
+        Light(Light::Type type, const glm::vec3& color, float range, float innerAngle, float outerAngle);
 
         /**
          * Sets the node associated with this light.

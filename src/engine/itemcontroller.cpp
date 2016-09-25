@@ -385,17 +385,13 @@ namespace engine
             return false;
         }
 
-        gameplay::Quaternion q;
-        q *= gameplay::Quaternion({ 0,1,0 }, item.getRotation().Y.toRad());
-        q *= gameplay::Quaternion({ -1,0,0 }, item.getRotation().X.toRad());
-        q *= gameplay::Quaternion({ 0,0,-1 }, item.getRotation().Z.toRad());
-
-        gameplay::Matrix m;
-        gameplay::Matrix::createRotation(q, &m);
+        glm::quat q;
+        q *= glm::quat(item.getRotation().Y.toRad(), { 0,1,0 });
+        q *= glm::quat(item.getRotation().X.toRad(), { -1,0,0 });
+        q *= glm::quat(item.getRotation().Z.toRad(), { 0,0,-1 });
 
         auto dist = lara.getPosition() - item.getPosition();
-        gameplay::Vector3 tdist;
-        m.transformVector(dist.X, dist.Y, dist.Z, 0, &tdist);
+        glm::vec3 tdist = dist.toRenderSystem() * q;
 
         return distance.contains(tdist);
     }

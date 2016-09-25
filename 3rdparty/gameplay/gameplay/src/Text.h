@@ -2,7 +2,6 @@
 
 #include "Properties.h"
 #include "Font.h"
-#include "Vector4.h"
 #include "Drawable.h"
 
 
@@ -141,14 +140,14 @@ namespace gameplay
          *
          * @param color The color(RGBA) for the sprite.
          */
-        void setColor(const Vector4& color);
+        void setColor(const glm::vec4& color);
 
         /**
          * Gets the color (RGBA) for the sprite.
          *
          * @return The color(RGBA) for the sprite.
          */
-        const Vector4& getColor() const;
+        const glm::vec4& getColor() const;
 
         /**
          * @see Drawable::draw
@@ -183,6 +182,6 @@ namespace gameplay
         Font::Justify _align;
         Rectangle _clip;
         float _opacity;
-        Vector4 _color;
+        glm::vec4 _color;
     };
 }

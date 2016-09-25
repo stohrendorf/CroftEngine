@@ -231,7 +231,7 @@ namespace gameplay
     }
 
 
-    const Vector3& Scene::getAmbientColor() const
+    const glm::vec3& Scene::getAmbientColor() const
     {
         return _ambientColor;
     }
@@ -239,7 +239,7 @@ namespace gameplay
 
     void Scene::setAmbientColor(float red, float green, float blue)
     {
-        _ambientColor.set(red, green, blue);
+        _ambientColor = { red, green, blue };
     }
 
 

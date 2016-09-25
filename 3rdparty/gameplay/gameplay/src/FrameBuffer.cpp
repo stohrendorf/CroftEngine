@@ -1,6 +1,5 @@
 #include "Base.h"
 #include "FrameBuffer.h"
-#include "Vector4.h"
 
 #include <boost/log/trivial.hpp>
 

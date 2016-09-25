@@ -85,7 +85,7 @@ namespace render
                         BOOST_ASSERT(vref.queueOffset < proxyIds.size());
                         const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
 
-                        gameplay::Vector2 newUv;
+                        glm::vec2 newUv;
                         newUv.x = proxy.uvCoordinates[vref.sourceIndex].xpixel / 255.0f;
                         newUv.y = proxy.uvCoordinates[vref.sourceIndex].ypixel / 255.0f;
 

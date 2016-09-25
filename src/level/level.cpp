@@ -46,7 +46,7 @@ using namespace level;
 
 namespace
 {
-    const gameplay::Vector4 WaterColor{149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 0};
+    const glm::vec4 WaterColor{149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 0};
 }
 
 
@@ -687,7 +687,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
 
 std::shared_ptr<gameplay::Texture> Level::createSolidColorTex(uint8_t color) const
 {
-    gameplay::Vector4 pixels[2][2];
+    glm::vec4 pixels[2][2];
     pixels[0][0] = m_palette->color[color].toSColor();
     pixels[1][0] = pixels[0][0];
     pixels[0][1] = pixels[0][0];
@@ -762,9 +762,9 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x].set(pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1);
+                dst.pixels[y][x] = { pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1 };
             else
-                dst.pixels[y][x].set(0, 0, 0, 0);
+                dst.pixels[y][x] = { 0, 0, 0, 0 };
         }
     }
 }
@@ -783,11 +783,11 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
                 const uint32_t r = ((col & 0x00007c00) >> 7);
                 const uint32_t g = ((col & 0x000003e0) >> 2);
                 const uint32_t b = ((col & 0x0000001f) << 3);
-                dst.pixels[y][x].set(r / 255.0f, g / 255.0f, b / 255.0f, 1);
+                dst.pixels[y][x] = { r / 255.0f, g / 255.0f, b / 255.0f, 1 };
             }
             else
             {
-                dst.pixels[y][x].set(0, 0, 0, 0);
+                dst.pixels[y][x] = { 0, 0, 0, 0 };
             }
         }
     }

@@ -47,7 +47,7 @@ namespace loader
 
     struct DWordTexture final
     {
-        gameplay::Vector4 pixels[256][256];
+        glm::vec4 pixels[256][256];
 
         static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
         {
@@ -62,7 +62,7 @@ namespace loader
                     const auto r = (tmp >> 16) & 0xff;
                     const auto g = (tmp >> 8) & 0xff;
                     const auto b = (tmp >> 0) & 0xff;
-                    textile->pixels[i][j].set(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+                    textile->pixels[i][j] = { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
                 }
             }
 

@@ -23,7 +23,7 @@ namespace core
         TRCoordinates(const TRCoordinates&) = default;
 
 
-        explicit TRCoordinates(const gameplay::Vector3& v)
+        explicit TRCoordinates(const glm::vec3& v)
             : X(std::lround(v.x))
             , Y(-std::lround(v.y))
             , Z(-std::lround(v.z))
@@ -72,7 +72,7 @@ namespace core
         TRCoordinates& operator=(const TRCoordinates&) = default;
 
 
-        gameplay::Vector3 toRenderSystem() const noexcept
+        glm::vec3 toRenderSystem() const noexcept
         {
             return {gsl::narrow_cast<float>(X), -gsl::narrow_cast<float>(Y), -gsl::narrow_cast<float>(Z)};
         }
@@ -87,7 +87,7 @@ namespace core
         ExactTRCoordinates(const ExactTRCoordinates&) = default;
 
 
-        explicit ExactTRCoordinates(const gameplay::Vector3& v)
+        explicit ExactTRCoordinates(const glm::vec3& v)
             : X(v.x)
             , Y(-v.y)
             , Z(-v.z)
@@ -180,7 +180,7 @@ namespace core
         }
 
 
-        gameplay::Vector3 toRenderSystem() const noexcept
+        glm::vec3 toRenderSystem() const noexcept
         {
             return {X, -Y, -Z};
         }

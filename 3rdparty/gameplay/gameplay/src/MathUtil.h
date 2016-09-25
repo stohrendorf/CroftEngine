@@ -12,9 +12,6 @@ namespace gameplay
      */
     class MathUtil
     {
-        friend class Matrix;
-        friend class Vector3;
-
     public:
 
         /**

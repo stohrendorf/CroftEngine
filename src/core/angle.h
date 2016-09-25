@@ -335,7 +335,7 @@ namespace core
         }
 
 
-        gameplay::Vector3 toDegrees() const
+        glm::vec3 toDegrees() const
         {
             return {
                 X.toDegrees(),
@@ -345,7 +345,7 @@ namespace core
         }
 
 
-        gameplay::Vector3 toRad() const
+        glm::vec3 toRad() const
         {
             return {
                 X.toRad(),
@@ -361,13 +361,13 @@ namespace core
     };
 
 
-    inline gameplay::Quaternion xyzToQuat(const TRRotation& r)
+    inline glm::quat xyzToQuat(const TRRotation& r)
     {
         //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        gameplay::Quaternion q;
-        q *= gameplay::Quaternion({0,1,0}, r.Y.toRad());
-        q *= gameplay::Quaternion({-1,0,0}, r.X.toRad());
-        q *= gameplay::Quaternion({0,0,-1}, r.Z.toRad());
+        glm::quat q;
+        q *= glm::quat(r.Y.toRad(), {0,1,0});
+        q *= glm::quat(r.X.toRad(), {-1,0,0});
+        q *= glm::quat(r.Z.toRad(), {0,0,-1});
         return q;
     }
 

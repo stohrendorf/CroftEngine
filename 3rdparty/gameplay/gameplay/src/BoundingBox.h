@@ -15,14 +15,14 @@ namespace gameplay
         /**
          * The minimum point.
          */
-        Vector3 min;
+        glm::vec3 min;
 
         /**
          * The maximum point.
          */
-        Vector3 max;
+        glm::vec3 max;
 
-        bool contains(const Vector3& v) const
+        bool contains(const glm::vec3& v) const
         {
             return min.x <= v.x && min.y <= v.y && min.z <= v.z && max.x >= v.x && max.y >= v.y && max.z >= v.z;
         }
@@ -38,7 +38,7 @@ namespace gameplay
          * @param min The minimum point of the bounding box.
          * @param max The maximum point of the bounding box.
          */
-        BoundingBox(const Vector3& min, const Vector3& max);
+        BoundingBox(const glm::vec3& min, const glm::vec3& max);
 
         /**
          * Constructs a new bounding box from the specified values.
@@ -76,7 +76,7 @@ namespace gameplay
          *
          * @return The center point of the bounding box.
          */
-        Vector3 getCenter() const;
+        glm::vec3 getCenter() const;
 
         /**
          * Gets the center point of the bounding box.
@@ -86,7 +86,7 @@ namespace gameplay
          *
          * @param dst The vector to store the result in.
          */
-        void getCenter(Vector3* dst) const;
+        void getCenter(glm::vec3* dst) const;
 
         /**
          * Gets the corners of the bounding box in the specified array.
@@ -98,7 +98,7 @@ namespace gameplay
          *
          * @param dst The array to store the corners in. Must be size 8.
          */
-        void getCorners(Vector3* dst) const;
+        void getCorners(glm::vec3* dst) const;
 
         /**
          * Tests whether this bounding box intersects the specified bounding object.
@@ -177,7 +177,7 @@ namespace gameplay
          * @param min The minimum point of the bounding box.
          * @param max The maximum point of the bounding box.
          */
-        void set(const Vector3& min, const Vector3& max);
+        void set(const glm::vec3& min, const glm::vec3& max);
 
         /**
          * Sets this bounding box to the specified values.
@@ -210,7 +210,7 @@ namespace gameplay
          *
          * @param matrix The transformation matrix to transform by.
          */
-        void transform(const Matrix& matrix);
+        void transform(const glm::mat4& matrix);
 
         /**
          * Transforms this bounding box by the given matrix.
@@ -218,7 +218,7 @@ namespace gameplay
          * @param matrix The matrix to transform by.
          * @return This bounding box, after the transformation occurs.
          */
-        inline BoundingBox& operator*=(const Matrix& matrix);
+        inline BoundingBox& operator*=(const glm::mat4& matrix);
     };
 
 
@@ -229,17 +229,17 @@ namespace gameplay
      * @param box The bounding box to transform.
      * @return The resulting transformed bounding box.
      */
-    inline BoundingBox operator*(const Matrix& matrix, const BoundingBox& box);
+    inline BoundingBox operator*(const glm::mat4& matrix, const BoundingBox& box);
 
 
-    inline BoundingBox& BoundingBox::operator*=(const Matrix& matrix)
+    inline BoundingBox& BoundingBox::operator*=(const glm::mat4& matrix)
     {
         transform(matrix);
         return *this;
     }
 
 
-    inline BoundingBox operator*(const Matrix& matrix, const BoundingBox& box)
+    inline BoundingBox operator*(const glm::mat4& matrix, const BoundingBox& box)
     {
         BoundingBox b(box);
         b.transform(matrix);

@@ -17,12 +17,12 @@ namespace util
     }
 
 
-    inline gameplay::Quaternion xyzToYpr(const gameplay::Vector3& rotation)
+    inline glm::quat xyzToYpr(const glm::vec3& rotation)
     {
-        gameplay::Quaternion v;
-        v *= gameplay::Quaternion({0,0,1}, rotation.z);
-        v *= gameplay::Quaternion({1,0,0}, rotation.x);
-        v *= gameplay::Quaternion({0,1,0}, rotation.y);
+        glm::quat v;
+        v *= glm::quat(rotation.z, {0,0,1});
+        v *= glm::quat(rotation.x, {1,0,0});
+        v *= glm::quat(rotation.y, {0,1,0});
         return v;
     }
 } // namespace util

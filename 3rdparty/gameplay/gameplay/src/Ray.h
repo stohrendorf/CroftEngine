@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -36,7 +36,7 @@ public:
      * @param origin The ray's origin.
      * @param direction The ray's direction.
      */
-    Ray(const Vector3& origin, const Vector3& direction);
+    Ray(const glm::vec3& origin, const glm::vec3& direction);
 
     /**
      * Constructs a new ray initialized to the specified values.
@@ -67,14 +67,14 @@ public:
      *
      * @return The ray's origin.
      */
-    const Vector3& getOrigin() const;
+    const glm::vec3& getOrigin() const;
 
     /**
      * Sets the ray's origin to the given point.
      *
      * @param origin The new origin.
      */
-    void setOrigin(const Vector3& origin);
+    void setOrigin(const glm::vec3& origin);
 
     /**
      * Sets the ray's origin.
@@ -90,14 +90,14 @@ public:
      *
      * @return The ray's direction.
      */
-    const Vector3& getDirection() const;
+    const glm::vec3& getDirection() const;
 
     /**
      * Sets the ray's direction to the given vector.
      *
      * @param direction The new direction vector.
      */
-    void setDirection(const Vector3& direction);
+    void setDirection(const glm::vec3& direction);
 
     /**
      * Sets the ray's direction.
@@ -155,7 +155,7 @@ public:
      * @param origin The ray's origin.
      * @param direction The ray's direction.
      */
-    void set(const Vector3& origin, const Vector3& direction);
+    void set(const glm::vec3& origin, const glm::vec3& direction);
 
     /**
      * Sets this ray to the given ray.
@@ -169,7 +169,7 @@ public:
      *
      * @param matrix The transformation matrix to transform by.
      */
-    void transform(const Matrix& matrix);
+    void transform(const glm::mat4& matrix);
 
     /**
      * Transforms this ray by the given matrix.
@@ -177,7 +177,7 @@ public:
      * @param matrix The matrix to transform by.
      * @return This ray, after the transformation occurs.
      */
-    inline Ray& operator*=(const Matrix& matrix);
+    inline Ray& operator*=(const glm::mat4& matrix);
 
 private:
 
@@ -186,8 +186,8 @@ private:
      */
     void normalize();
 
-    Vector3 _origin;        // The ray origin position.
-    Vector3 _direction;     // The ray direction vector.
+    glm::vec3 _origin;        // The ray origin position.
+    glm::vec3 _direction;     // The ray direction vector.
 };
 
 /**
@@ -197,14 +197,14 @@ private:
  * @param ray The ray to transform.
  * @return The resulting transformed ray.
  */
-inline Ray operator*(const Matrix& matrix, const Ray& ray)
+inline Ray operator*(const glm::mat4& matrix, const Ray& ray)
 {
     Ray r(ray);
     r.transform(matrix);
     return r;
 }
 
-inline Ray& Ray::operator*=(const Matrix& matrix)
+inline Ray& Ray::operator*=(const glm::mat4& matrix)
 {
     transform(matrix);
     return *this;

@@ -6,7 +6,7 @@
 
 namespace gameplay
 {
-    Light::Light(Light::Type type, const Vector3& color)
+    Light::Light(Light::Type type, const glm::vec3& color)
         : _type(type)
         , _node(nullptr)
     {
@@ -14,7 +14,7 @@ namespace gameplay
     }
 
 
-    Light::Light(Light::Type type, const Vector3& color, float range)
+    Light::Light(Light::Type type, const glm::vec3& color, float range)
         : _type(type)
         , _node(nullptr)
     {
@@ -22,7 +22,7 @@ namespace gameplay
     }
 
 
-    Light::Light(Light::Type type, const Vector3& color, float range, float innerAngle, float outerAngle)
+    Light::Light(Light::Type type, const glm::vec3& color, float range, float innerAngle, float outerAngle)
         : _type(type)
         , _node(nullptr)
     {
@@ -50,7 +50,7 @@ namespace gameplay
     }
 
 
-    Light* Light::createDirectional(const Vector3& color)
+    Light* Light::createDirectional(const glm::vec3& color)
     {
         return new Light(DIRECTIONAL, color);
     }
@@ -58,11 +58,11 @@ namespace gameplay
 
     Light* Light::createDirectional(float red, float green, float blue)
     {
-        return new Light(DIRECTIONAL, Vector3(red, green, blue));
+        return new Light(DIRECTIONAL, glm::vec3(red, green, blue));
     }
 
 
-    Light* Light::createPoint(const Vector3& color, float range)
+    Light* Light::createPoint(const glm::vec3& color, float range)
     {
         return new Light(POINT, color, range);
     }
@@ -70,11 +70,11 @@ namespace gameplay
 
     Light* Light::createPoint(float red, float green, float blue, float range)
     {
-        return new Light(POINT, Vector3(red, green, blue), range);
+        return new Light(POINT, glm::vec3(red, green, blue), range);
     }
 
 
-    Light* Light::createSpot(const Vector3& color, float range, float innerAngle, float outerAngle)
+    Light* Light::createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle)
     {
         return new Light(SPOT, color, range, innerAngle, outerAngle);
     }
@@ -82,7 +82,7 @@ namespace gameplay
 
     Light* Light::createSpot(float red, float green, float blue, float range, float innerAngle, float outerAngle)
     {
-        return new Light(SPOT, Vector3(red, green, blue), range, innerAngle, outerAngle);
+        return new Light(SPOT, glm::vec3(red, green, blue), range, innerAngle, outerAngle);
     }
 
 
@@ -105,7 +105,7 @@ namespace gameplay
     }
 
 
-    const Vector3& Light::getColor() const
+    const glm::vec3& Light::getColor() const
     {
         switch( _type )
         {
@@ -120,12 +120,13 @@ namespace gameplay
                 return _spot->color;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
-                return Vector3::zero();
         }
+        static const glm::vec3 zero{ 0,0,0 };
+        return zero;
     }
 
 
-    void Light::setColor(const Vector3& color)
+    void Light::setColor(const glm::vec3& color)
     {
         switch( _type )
         {
@@ -150,7 +151,7 @@ namespace gameplay
 
     void Light::setColor(float red, float green, float blue)
     {
-        setColor(Vector3(red, green, blue));
+        setColor(glm::vec3(red, green, blue));
     }
 
 
@@ -271,13 +272,13 @@ namespace gameplay
     }
 
 
-    Light::Directional::Directional(const Vector3& color)
+    Light::Directional::Directional(const glm::vec3& color)
         : color(color)
     {
     }
 
 
-    Light::Point::Point(const Vector3& color, float range)
+    Light::Point::Point(const glm::vec3& color, float range)
         : color(color)
         , range(range)
     {
@@ -285,7 +286,7 @@ namespace gameplay
     }
 
 
-    Light::Spot::Spot(const Vector3& color, float range, float innerAngle, float outerAngle)
+    Light::Spot::Spot(const glm::vec3& color, float range, float innerAngle, float outerAngle)
         : color(color)
         , range(range)
         , innerAngle(innerAngle)

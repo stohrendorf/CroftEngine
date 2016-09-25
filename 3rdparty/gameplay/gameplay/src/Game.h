@@ -2,7 +2,6 @@
 
 #include "AnimationController.h"
 #include "Rectangle.h"
-#include "Vector4.h"
 #include "TimeListener.h"
 #include "Platform.h"
 #include "RenderState.h"
@@ -205,7 +204,7 @@ namespace gameplay
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
          * @param clearStencil The stencil value to clear to when the flags includes the color buffer.
          */
-        void clear(ClearFlags flags, const Vector4& clearColor, float clearDepth, int clearStencil);
+        void clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth, int clearStencil);
 
         /**
          * Clears the specified resource buffers to the specified clear values.
@@ -399,7 +398,7 @@ namespace gameplay
         unsigned int _width; // The game's display width.
         unsigned int _height; // The game's display height.
         Rectangle _viewport; // the games's current viewport.
-        Vector4 _clearColor; // The clear color value last used for clearing the color buffer.
+        glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth; // The clear depth value last used for clearing the depth buffer.
         int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
         Properties* _properties; // Game configuration properties object.

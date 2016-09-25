@@ -55,7 +55,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Texture> Texture::create(unsigned int width, unsigned int height, const std::vector<Vector4>& data, bool generateMipmaps, Texture::Type type)
+    std::shared_ptr<Texture> Texture::create(unsigned int width, unsigned int height, const std::vector<glm::vec4>& data, bool generateMipmaps, Texture::Type type)
     {
         BOOST_ASSERT( type == Texture::TEXTURE_2D || type == Texture::TEXTURE_CUBE );
 
@@ -80,7 +80,7 @@ namespace gameplay
             // Texture Cube
             for( unsigned int i = 0; i < 6; i++ )
             {
-                const Vector4* texturePtr = data.empty() ? nullptr : &data[i];
+                const glm::vec4* texturePtr = data.empty() ? nullptr : &data[i];
                 GL_ASSERT( glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, texturePtr) );
             }
         }
@@ -137,7 +137,7 @@ namespace gameplay
     }
 
 
-    void Texture::setData(const Vector4* data)
+    void Texture::setData(const glm::vec4* data)
     {
         // Don't work with any compressed or cached textures
         BOOST_ASSERT( data );

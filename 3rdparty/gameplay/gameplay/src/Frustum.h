@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Matrix.h"
 #include "Ray.h"
 #include "Plane.h"
 
@@ -38,7 +37,7 @@ namespace gameplay
          *
          * @param matrix The view projection matrix to create this frustum from.
          */
-        Frustum(const Matrix& matrix);
+        Frustum(const glm::mat4& matrix);
 
         /**
          * Constructs a new frustum from the given frustum.
@@ -99,7 +98,7 @@ namespace gameplay
          *
          * @param dst The projection matrix to copy into.
          */
-        void getMatrix(Matrix* dst) const;
+        void getMatrix(glm::mat4* dst) const;
 
         /**
          * Gets the corners of the frustum in the specified array.
@@ -110,7 +109,7 @@ namespace gameplay
          *
          * @param corners The array (of at least size 8) to store the corners in.
          */
-        void getCorners(Vector3* corners) const;
+        void getCorners(glm::vec3* corners) const;
 
         /**
          * Gets the corners of the frustum's near plane in the specified array.
@@ -120,7 +119,7 @@ namespace gameplay
          *
          * @param corners The array (of at least size 4) to store the corners in.
          */
-        void getNearCorners(Vector3* corners) const;
+        void getNearCorners(glm::vec3* corners) const;
 
         /**
          * Gets the corners of the frustum's far plane in the specified array.
@@ -130,7 +129,7 @@ namespace gameplay
          *
          * @param corners The array (of at least size 4) to store the corners in.
          */
-        void getFarCorners(Vector3* corners) const;
+        void getFarCorners(glm::vec3* corners) const;
 
         /**
          * Tests whether this frustum intersects the specified point.
@@ -139,7 +138,7 @@ namespace gameplay
          *
          * @return true if the specified point intersects this frustum; false otherwise.
          */
-        bool intersects(const Vector3& point) const;
+        bool intersects(const glm::vec3& point) const;
 
         /**
          * Tests whether this frustum intersects the specified point.
@@ -204,7 +203,7 @@ namespace gameplay
          *
          * @param matrix The view projection matrix.
          */
-        void set(const Matrix& matrix);
+        void set(const glm::mat4& matrix);
 
     private:
 
@@ -219,6 +218,6 @@ namespace gameplay
         Plane _top;
         Plane _left;
         Plane _right;
-        Matrix _matrix;
+        glm::mat4 _matrix;
     };
 }

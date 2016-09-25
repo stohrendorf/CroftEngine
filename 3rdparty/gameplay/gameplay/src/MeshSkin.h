@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Matrix.h"
 #include "Transform.h"
 
 
@@ -78,16 +77,16 @@ namespace gameplay
         int getJointIndex(const std::shared_ptr<Joint>& joint) const;
 
         /**
-         * Returns the pointer to the Vector4 array for the purpose of binding to a shader.
+         * Returns the pointer to the glm::vec4 array for the purpose of binding to a shader.
          *
          * @return The pointer to the matrix palette.
          */
-        Vector4* getMatrixPalette() const;
+        glm::vec4* getMatrixPalette() const;
 
         /**
          * Returns the number of elements in the matrix palette array.
-         * Each element is a Vector4* that represents a row.
-         * Each matrix palette is represented by 3 rows of Vector4.
+         * Each element is a glm::vec4* that represents a row.
+         * Each matrix palette is represented by 3 rows of glm::vec4.
          *
          * @return The matrix palette size.
          */
@@ -146,9 +145,9 @@ namespace gameplay
 
         // Pointer to the array of palette matrices.
         // This array is passed to the vertex shader as a uniform.
-        // Each 4x3 row-wise matrix is represented as 3 Vector4's.
-        // The number of Vector4's is (_joints.size() * 3).
-        mutable std::vector<Vector4> _matrixPalette;
+        // Each 4x3 row-wise matrix is represented as 3 glm::vec4's.
+        // The number of glm::vec4's is (_joints.size() * 3).
+        mutable std::vector<glm::vec4> _matrixPalette;
         std::shared_ptr<Model> _model;
     };
 }

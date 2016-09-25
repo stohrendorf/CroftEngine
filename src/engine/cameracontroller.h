@@ -122,25 +122,19 @@ namespace engine
             return m_torsoRotation;
         }
 
-        gameplay::Vector3 getPosition() const
+        glm::vec3 getPosition() const
         {
-            gameplay::Vector3 tmp;
-            m_camera->getViewMatrix().getTranslation(&tmp);
-            return tmp;
+            return m_camera->getNode()->getTranslationWorld();
         }
 
-        gameplay::Vector3 getFrontVector() const
+        glm::vec3 getFrontVector() const
         {
-            gameplay::Vector3 tmp;
-            m_camera->getViewMatrix().getForwardVector(&tmp);
-            return tmp;
+            return glm::vec3{ m_camera->getViewMatrix() * glm::vec4{0, 0, -1, 1} };
         }
 
-        gameplay::Vector3 getUpVector() const
+        glm::vec3 getUpVector() const
         {
-            gameplay::Vector3 tmp;
-            m_camera->getViewMatrix().getUpVector(&tmp);
-            return tmp;
+            return glm::vec3{ m_camera->getViewMatrix() * glm::vec4{ 0, 1, 0, 1 } };
         }
 
         void resetHeadTorsoRotation()

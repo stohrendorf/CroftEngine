@@ -136,7 +136,7 @@ namespace gameplay
          *
          * @return The scene's ambient color.
          */
-        const Vector3& getAmbientColor() const;
+        const glm::vec3& getAmbientColor() const;
 
         /**
          * Sets the ambient color of the scene.
@@ -259,7 +259,7 @@ namespace gameplay
         std::string _id;
         std::shared_ptr<Camera> _activeCamera;
         Node::List _nodes;
-        Vector3 _ambientColor;
+        glm::vec3 _ambientColor;
     };
 
 

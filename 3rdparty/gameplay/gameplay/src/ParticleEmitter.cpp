@@ -29,22 +29,22 @@ namespace gameplay
         , _sizeEndMax(1.0f)
         , _energyMin(1000L)
         , _energyMax(1000L)
-        , _colorStart(Vector4::zero())
-        , _colorStartVar(Vector4::zero())
-        , _colorEnd(Vector4::one())
-        , _colorEndVar(Vector4::zero())
-        , _position(Vector3::zero())
-        , _positionVar(Vector3::zero())
-        , _velocity(Vector3::zero())
-        , _velocityVar(Vector3::one())
-        , _acceleration(Vector3::zero())
-        , _accelerationVar(Vector3::zero())
+        , _colorStart{0,0,0,0}
+        , _colorStartVar{0,0,0,0}
+        , _colorEnd{1,1,1,1}
+        , _colorEndVar{0,0,0,0}
+        , _position{0,0,0}
+        , _positionVar{0,0,0}
+        , _velocity{0,0,0}
+        , _velocityVar{1,1,1}
+        , _acceleration{0,0,0}
+        , _accelerationVar{0,0,0}
         , _rotationPerParticleSpeedMin(0.0f)
         , _rotationPerParticleSpeedMax(0.0f)
         , _rotationSpeedMin(0.0f)
         , _rotationSpeedMax(0.0f)
-        , _rotationAxis(Vector3::zero())
-        , _rotation(Matrix::identity())
+        , _rotationAxis{0,0,0}
+        , _rotation{}
         , _spriteBatch(nullptr)
         , _spriteBlendMode(BLEND_ALPHA)
         , _spriteTextureWidth(0)
@@ -191,14 +191,13 @@ namespace gameplay
             particleCount = _particleCountMax - _particleCount;
         }
 
-        Vector3 translation;
-        Matrix world = _node->getWorldMatrix();
-        world.getTranslation(&translation);
+        glm::mat4 world = _node->getWorldMatrix();
+        glm::vec3 translation{ world[3] };
 
         // Take translation out of world matrix so it can be used to rotate orbiting properties.
-        world.m[12] = 0.0f;
-        world.m[13] = 0.0f;
-        world.m[14] = 0.0f;
+        world[3][0] = 0.0f;
+        world[3][1] = 0.0f;
+        world[3][2] = 0.0f;
 
         // Emit the new particles.
         for( unsigned int i = 0; i < particleCount; i++ )
@@ -207,7 +206,7 @@ namespace gameplay
 
             generateColor(_colorStart, _colorStartVar, &p->_colorStart);
             generateColor(_colorEnd, _colorEndVar, &p->_colorEnd);
-            p->_color.set(p->_colorStart);
+            p->_color = p->_colorStart;
 
             p->_energy = p->_energyStart = generateScalar(_energyMin, _energyMax);
             p->_size = p->_sizeStart = generateScalar(_sizeStartMin, _sizeStartMax);
@@ -226,27 +225,27 @@ namespace gameplay
             // Rotate specified properties by the node's rotation.
             if( _orbitPosition )
             {
-                world.transformPoint(p->_position, &p->_position);
+                p->_position = glm::vec3(world * glm::vec4(p->_position, 1));
             }
 
             if( _orbitVelocity )
             {
-                world.transformPoint(p->_velocity, &p->_velocity);
+                p->_velocity = glm::vec3( world * glm::vec4(p->_velocity, 1) );
             }
 
             if( _orbitAcceleration )
             {
-                world.transformPoint(p->_acceleration, &p->_acceleration);
+                p->_acceleration = glm::vec3(world * glm::vec4(p->_acceleration, 1));
             }
 
             // The rotation axis always orbits the node.
-            if( p->_rotationSpeed != 0.0f && !p->_rotationAxis.isZero() )
+            if( p->_rotationSpeed != 0.0f && glm::length2(p->_rotationAxis) > std::numeric_limits<float>::epsilon() )
             {
-                world.transformPoint(p->_rotationAxis, &p->_rotationAxis);
+                p->_rotationAxis = glm::vec3(world * glm::vec4(p->_rotationAxis, 1));
             }
 
             // Translate position relative to the node's world space.
-            p->_position.add(translation);
+            p->_position += translation;
 
             // Initial sprite frame.
             if( _spriteFrameRandomOffset > 0 )
@@ -334,93 +333,93 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setColor(const Vector4& startColor, const Vector4& startColorVar, const Vector4& endColor, const Vector4& endColorVar)
+    void ParticleEmitter::setColor(const glm::vec4& startColor, const glm::vec4& startColorVar, const glm::vec4& endColor, const glm::vec4& endColorVar)
     {
-        _colorStart.set(startColor);
-        _colorStartVar.set(startColorVar);
-        _colorEnd.set(endColor);
-        _colorEndVar.set(endColorVar);
+        _colorStart = startColor;
+        _colorStartVar = startColorVar;
+        _colorEnd = endColor;
+        _colorEndVar = endColorVar;
     }
 
 
-    const Vector4& ParticleEmitter::getColorStart() const
+    const glm::vec4& ParticleEmitter::getColorStart() const
     {
         return _colorStart;
     }
 
 
-    const Vector4& ParticleEmitter::getColorStartVariance() const
+    const glm::vec4& ParticleEmitter::getColorStartVariance() const
     {
         return _colorStartVar;
     }
 
 
-    const Vector4& ParticleEmitter::getColorEnd() const
+    const glm::vec4& ParticleEmitter::getColorEnd() const
     {
         return _colorEnd;
     }
 
 
-    const Vector4& ParticleEmitter::getColorEndVariance() const
+    const glm::vec4& ParticleEmitter::getColorEndVariance() const
     {
         return _colorEndVar;
     }
 
 
-    void ParticleEmitter::setPosition(const Vector3& position, const Vector3& positionVar)
+    void ParticleEmitter::setPosition(const glm::vec3& position, const glm::vec3& positionVar)
     {
-        _position.set(position);
-        _positionVar.set(positionVar);
+        _position = position;
+        _positionVar = positionVar;
     }
 
 
-    const Vector3& ParticleEmitter::getPosition() const
+    const glm::vec3& ParticleEmitter::getPosition() const
     {
         return _position;
     }
 
 
-    const Vector3& ParticleEmitter::getPositionVariance() const
+    const glm::vec3& ParticleEmitter::getPositionVariance() const
     {
         return _positionVar;
     }
 
 
-    const Vector3& ParticleEmitter::getVelocity() const
+    const glm::vec3& ParticleEmitter::getVelocity() const
     {
         return _velocity;
     }
 
 
-    const Vector3& ParticleEmitter::getVelocityVariance() const
+    const glm::vec3& ParticleEmitter::getVelocityVariance() const
     {
         return _velocityVar;
     }
 
 
-    void ParticleEmitter::setVelocity(const Vector3& velocity, const Vector3& velocityVar)
+    void ParticleEmitter::setVelocity(const glm::vec3& velocity, const glm::vec3& velocityVar)
     {
-        _velocity.set(velocity);
-        _velocityVar.set(velocityVar);
+        _velocity = velocity;
+        _velocityVar = velocityVar;
     }
 
 
-    const Vector3& ParticleEmitter::getAcceleration() const
+    const glm::vec3& ParticleEmitter::getAcceleration() const
     {
         return _acceleration;
     }
 
 
-    const Vector3& ParticleEmitter::getAccelerationVariance() const
+    const glm::vec3& ParticleEmitter::getAccelerationVariance() const
     {
         return _accelerationVar;
     }
 
 
-    void ParticleEmitter::setAcceleration(const Vector3& acceleration, const Vector3& accelerationVar)
+    void ParticleEmitter::setAcceleration(const glm::vec3& acceleration, const glm::vec3& accelerationVar)
     {
-        _acceleration.set(acceleration);
-        _accelerationVar.set(accelerationVar);
+        _acceleration = acceleration;
+        _accelerationVar = accelerationVar;
     }
 
 
@@ -443,12 +442,12 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setRotation(float speedMin, float speedMax, const Vector3& axis, const Vector3& axisVariance)
+    void ParticleEmitter::setRotation(float speedMin, float speedMax, const glm::vec3& axis, const glm::vec3& axisVariance)
     {
         _rotationSpeedMin = speedMin;
         _rotationSpeedMax = speedMax;
-        _rotationAxis.set(axis);
-        _rotationAxisVar.set(axisVariance);
+        _rotationAxis = axis;
+        _rotationAxisVar = axisVariance;
     }
 
 
@@ -464,13 +463,13 @@ namespace gameplay
     }
 
 
-    const Vector3& ParticleEmitter::getRotationAxis() const
+    const glm::vec3& ParticleEmitter::getRotationAxis() const
     {
         return _rotationAxis;
     }
 
 
-    const Vector3& ParticleEmitter::getRotationAxisVariance() const
+    const glm::vec3& ParticleEmitter::getRotationAxisVariance() const
     {
         return _rotationAxisVar;
     }
@@ -704,7 +703,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::generateVectorInRect(const Vector3& base, const Vector3& variance, Vector3* dst)
+    void ParticleEmitter::generateVectorInRect(const glm::vec3& base, const glm::vec3& variance, glm::vec3* dst)
     {
         BOOST_ASSERT(dst);
 
@@ -716,7 +715,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::generateVectorInEllipsoid(const Vector3& center, const Vector3& scale, Vector3* dst)
+    void ParticleEmitter::generateVectorInEllipsoid(const glm::vec3& center, const glm::vec3& scale, glm::vec3* dst)
     {
         BOOST_ASSERT(dst);
 
@@ -734,11 +733,11 @@ namespace gameplay
         dst->z *= scale.z;
 
         // Translate by the center point.
-        dst->add(center);
+        *dst += center;
     }
 
 
-    void ParticleEmitter::generateVector(const Vector3& base, const Vector3& variance, Vector3* dst, bool ellipsoid)
+    void ParticleEmitter::generateVector(const glm::vec3& base, const glm::vec3& variance, glm::vec3* dst, bool ellipsoid)
     {
         if( ellipsoid )
         {
@@ -751,7 +750,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::generateColor(const Vector4& base, const Vector4& variance, Vector4* dst)
+    void ParticleEmitter::generateColor(const glm::vec4& base, const glm::vec4& variance, glm::vec4* dst)
     {
         BOOST_ASSERT(dst);
 
@@ -845,12 +844,12 @@ namespace gameplay
 
             if( p->_energy > 0L )
             {
-                if( p->_rotationSpeed != 0.0f && !p->_rotationAxis.isZero() )
+                if( p->_rotationSpeed != 0.0f && glm::length2(p->_rotationAxis) > std::numeric_limits<float>::epsilon() )
                 {
-                    Matrix::createRotation(p->_rotationAxis, p->_rotationSpeed * elapsedSecs, &_rotation);
+                    _rotation = glm::quat(p->_rotationSpeed*elapsedSecs, p->_rotationAxis);
 
-                    _rotation.transformPoint(p->_velocity, &p->_velocity);
-                    _rotation.transformPoint(p->_acceleration, &p->_acceleration);
+                    p->_velocity = _rotation * p->_velocity;
+                    p->_acceleration = _rotation * p->_acceleration;
                 }
 
                 // Particle is still alive.
@@ -944,16 +943,14 @@ namespace gameplay
             _spriteBatch->start();
 
             // 2D Rotation.
-            static const Vector2 pivot(0.5f, 0.5f);
+            static const glm::vec2 pivot(0.5f, 0.5f);
 
             // 3D Rotation so that particles always face the camera.
             BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera() && _node->getScene()->getActiveCamera()->getNode());
-            const Matrix& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getNode()->getWorldMatrix();
+            const glm::mat4& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getNode()->getWorldMatrix();
 
-            Vector3 right;
-            cameraWorldMatrix.getRightVector(&right);
-            Vector3 up;
-            cameraWorldMatrix.getUpVector(&up);
+            glm::vec3 right{ cameraWorldMatrix * glm::vec4{1,0,0,1} };
+            glm::vec3 up{ cameraWorldMatrix * glm::vec4{0,1,0,1} };
 
             for( unsigned int i = 0; i < _particleCount; i++ )
             {

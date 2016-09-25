@@ -131,7 +131,7 @@ namespace audio
             set(AL_GAIN, util::clamp(gain_value, 0.0f, 1.0f));
         }
 
-        void setPosition(const gameplay::Vector3& position)
+        void setPosition(const glm::vec3& position)
         {
             set(AL_POSITION, position.x, position.y, -position.z);
         }

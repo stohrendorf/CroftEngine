@@ -1,7 +1,7 @@
 #include "Base.h"
 #include "Transform.h"
-#include "Node.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace gameplay
 {
@@ -12,12 +12,12 @@ namespace gameplay
     Transform::Transform()
         : _matrixDirtyBits(0)
         , _listeners()
+        , _scale{1, 1, 1}
     {
-        _scale.set(Vector3::one());
     }
 
 
-    Transform::Transform(const Vector3& scale, const Quaternion& rotation, const Vector3& translation)
+    Transform::Transform(const glm::vec3& scale, const glm::quat& rotation, const glm::vec3& translation)
         : _matrixDirtyBits(0)
         , _listeners()
     {
@@ -25,7 +25,7 @@ namespace gameplay
     }
 
 
-    Transform::Transform(const Vector3& scale, const Matrix& rotation, const Vector3& translation)
+    Transform::Transform(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation)
         : _matrixDirtyBits(0)
         , _listeners()
     {
@@ -89,17 +89,18 @@ namespace gameplay
     }
 
 
-    const Matrix& Transform::getMatrix() const
+    const glm::mat4& Transform::getMatrix() const
     {
         if( _matrixDirtyBits )
         {
-            _matrix.setIdentity();
+            _matrix = glm::mat4(1);
 
             // Compose the matrix in TRS order since we use column-major matrices with column vectors and
             // multiply M*v (as opposed to XNA and DirectX that use row-major matrices with row vectors and multiply v*M).
-            _matrix.translate(_translation);
-            _matrix.rotate(_rotation);
-            _matrix.scale(_scale);
+            _matrix = glm::mat4(1);
+            _matrix = glm::translate(glm::mat4(1.0f), _translation);
+            _matrix *= glm::mat4_cast(_rotation);
+            _matrix = glm::scale(_matrix, _scale);
 
             _matrixDirtyBits &= ~DIRTY_TRANSLATION & ~DIRTY_ROTATION & ~DIRTY_SCALE;
         }
@@ -108,16 +109,16 @@ namespace gameplay
     }
 
 
-    const Vector3& Transform::getScale() const
+    const glm::vec3& Transform::getScale() const
     {
         return _scale;
     }
 
 
-    void Transform::getScale(Vector3* scale) const
+    void Transform::getScale(glm::vec3* scale) const
     {
         BOOST_ASSERT(scale);
-        scale->set(_scale);
+        *scale = _scale;
     }
 
 
@@ -139,43 +140,44 @@ namespace gameplay
     }
 
 
-    const Quaternion& Transform::getRotation() const
+    const glm::quat& Transform::getRotation() const
     {
         return _rotation;
     }
 
 
-    void Transform::getRotation(Quaternion* rotation) const
+    void Transform::getRotation(glm::quat* rotation) const
     {
         BOOST_ASSERT(rotation);
-        rotation->set(_rotation);
+        *rotation = _rotation;
     }
 
 
-    void Transform::getRotation(Matrix* rotation) const
+    void Transform::getRotation(glm::mat4* rotation) const
     {
         BOOST_ASSERT(rotation);
-        Matrix::createRotation(_rotation, rotation);
+        *rotation = glm::mat4_cast(_rotation);
     }
 
 
-    float Transform::getRotation(Vector3* axis) const
+    float Transform::getRotation(glm::vec3* axis) const
     {
         BOOST_ASSERT(axis);
-        return _rotation.toAxisAngle(axis);
+        *axis = glm::axis(_rotation);
+        return glm::angle(_rotation);
     }
 
 
-    const Vector3& Transform::getTranslation() const
+    const glm::vec3& Transform::getTranslation() const
     {
         return _translation;
     }
 
 
-    void Transform::getTranslation(Vector3* translation) const
+    void Transform::getTranslation(glm::vec3* translation) const
     {
         BOOST_ASSERT(translation);
-        translation->set(_translation);
+        *translation = _translation;
     }
 
 
@@ -197,154 +199,63 @@ namespace gameplay
     }
 
 
-    Vector3 Transform::getForwardVector() const
-    {
-        Vector3 v;
-        getForwardVector(&v);
-        return v;
-    }
-
-
-    void Transform::getForwardVector(Vector3* dst) const
-    {
-        getMatrix().getForwardVector(dst);
-    }
-
-
-    Vector3 Transform::getBackVector() const
-    {
-        Vector3 v;
-        getBackVector(&v);
-        return v;
-    }
-
-
-    void Transform::getBackVector(Vector3* dst) const
-    {
-        getMatrix().getBackVector(dst);
-    }
-
-
-    Vector3 Transform::getUpVector() const
-    {
-        Vector3 v;
-        getUpVector(&v);
-        return v;
-    }
-
-
-    void Transform::getUpVector(Vector3* dst) const
-    {
-        getMatrix().getUpVector(dst);
-    }
-
-
-    Vector3 Transform::getDownVector() const
-    {
-        Vector3 v;
-        getDownVector(&v);
-        return v;
-    }
-
-
-    void Transform::getDownVector(Vector3* dst) const
-    {
-        getMatrix().getDownVector(dst);
-    }
-
-
-    Vector3 Transform::getLeftVector() const
-    {
-        Vector3 v;
-        getLeftVector(&v);
-        return v;
-    }
-
-
-    void Transform::getLeftVector(Vector3* dst) const
-    {
-        getMatrix().getLeftVector(dst);
-    }
-
-
-    Vector3 Transform::getRightVector() const
-    {
-        Vector3 v;
-        getRightVector(&v);
-        return v;
-    }
-
-
-    void Transform::getRightVector(Vector3* dst) const
-    {
-        getMatrix().getRightVector(dst);
-    }
-
-
     void Transform::rotate(float qx, float qy, float qz, float qw)
     {
-        Quaternion q(qx, qy, qz, qw);
-        _rotation.multiply(q);
+        glm::quat q(qx, qy, qz, qw);
+        _rotation *= q;
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::rotate(const Quaternion& rotation)
+    void Transform::rotate(const glm::quat& rotation)
     {
-        _rotation.multiply(rotation);
+        _rotation *= rotation;
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::rotate(const Vector3& axis, float angle)
+    void Transform::rotate(const glm::vec3& axis, float angle)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromAxisAngle(axis, angle, &rotationQuat);
-        _rotation.multiply(rotationQuat);
-        _rotation.normalize();
+        glm::quat rotationQuat{ angle, axis };
+        _rotation = glm::normalize(_rotation * rotationQuat);
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::rotate(const Matrix& rotation)
+    void Transform::rotate(const glm::mat4& rotation)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromRotationMatrix(rotation, &rotationQuat);
-        _rotation.multiply(rotationQuat);
+        _rotation *= glm::quat_cast(rotation);
         dirty(DIRTY_ROTATION);
     }
 
 
     void Transform::rotateX(float angle)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromAxisAngle(Vector3::unitX(), angle, &rotationQuat);
-        _rotation.multiply(rotationQuat);
+        glm::quat rotationQuat{ angle, { 1,0,0 } };
+        _rotation *= rotationQuat;
         dirty(DIRTY_ROTATION);
     }
 
 
     void Transform::rotateY(float angle)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromAxisAngle(Vector3::unitY(), angle, &rotationQuat);
-        _rotation.multiply(rotationQuat);
+        glm::quat rotationQuat{ angle, { 0,1,0 } };
+        _rotation *= rotationQuat;
         dirty(DIRTY_ROTATION);
     }
 
 
     void Transform::rotateZ(float angle)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromAxisAngle(Vector3::unitZ(), angle, &rotationQuat);
-        _rotation.multiply(rotationQuat);
+        glm::quat rotationQuat{ angle, { 0,0,1 } };
+        _rotation *= rotationQuat;
         dirty(DIRTY_ROTATION);
     }
 
 
     void Transform::scale(float scale)
     {
-        _scale.scale(scale);
+        _scale *= scale;
         dirty(DIRTY_SCALE);
     }
 
@@ -358,7 +269,7 @@ namespace gameplay
     }
 
 
-    void Transform::scale(const Vector3& scale)
+    void Transform::scale(const glm::vec3& scale)
     {
         _scale.x *= scale.x;
         _scale.y *= scale.y;
@@ -388,70 +299,69 @@ namespace gameplay
     }
 
 
-    void Transform::set(const Vector3& scale, const Quaternion& rotation, const Vector3& translation)
+    void Transform::set(const glm::vec3& scale, const glm::quat& rotation, const glm::vec3& translation)
     {
-        _scale.set(scale);
-        _rotation.set(rotation);
-        _translation.set(translation);
+        _scale = scale;
+        _rotation = rotation;
+        _translation = translation;
         dirty(DIRTY_TRANSLATION | DIRTY_ROTATION | DIRTY_SCALE);
     }
 
 
-    void Transform::set(const Vector3& scale, const Matrix& rotation, const Vector3& translation)
+    void Transform::set(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation)
     {
-        _scale.set(scale);
-        Quaternion rotationQuat;
-        Quaternion::createFromRotationMatrix(rotation, &rotationQuat);
-        _rotation.set(rotationQuat);
-        _translation.set(translation);
+        _scale = scale;
+        glm::quat rotationQuat = glm::quat_cast(rotation);
+        _rotation = rotationQuat;
+        _translation = translation;
         dirty(DIRTY_TRANSLATION | DIRTY_ROTATION | DIRTY_SCALE);
     }
 
 
-    void Transform::set(const Vector3& scale, const Vector3& axis, float angle, const Vector3& translation)
+    void Transform::set(const glm::vec3& scale, const glm::vec3& axis, float angle, const glm::vec3& translation)
     {
-        _scale.set(scale);
-        _rotation.set(axis, angle);
-        _translation.set(translation);
+        _scale = scale;
+        _rotation = glm::quat(angle, axis);
+        _translation = translation;
         dirty(DIRTY_TRANSLATION | DIRTY_ROTATION | DIRTY_SCALE);
     }
 
 
     void Transform::set(const Transform& transform)
     {
-        _scale.set(transform._scale);
-        _rotation.set(transform._rotation);
-        _translation.set(transform._translation);
+        _scale = transform._scale;
+        _rotation = transform._rotation;
+        _translation = transform._translation;
         dirty(DIRTY_TRANSLATION | DIRTY_ROTATION | DIRTY_SCALE);
     }
 
 
     void Transform::setIdentity()
     {
-        _scale.set(1.0f, 1.0f, 1.0f);
-        _rotation.setIdentity();
-        _translation.set(0.0f, 0.0f, 0.0f);
+        _scale = { 1.0f, 1.0f, 1.0f };
+        _rotation = glm::quat();
+        _translation = { 0, 0, 0 };
         dirty(DIRTY_TRANSLATION | DIRTY_ROTATION | DIRTY_SCALE);
     }
 
 
     void Transform::setScale(float scale)
     {
-        _scale.set(scale, scale, scale);
+        _scale = { scale, scale, scale };
         dirty(DIRTY_SCALE);
     }
 
 
     void Transform::setScale(float sx, float sy, float sz)
     {
-        _scale.set(sx, sy, sz);
+        _scale = { sx, sy, sz };
         dirty(DIRTY_SCALE);
     }
 
 
-    void Transform::setScale(const Vector3& scale)
+    void Transform::setScale(const glm::vec3& scale)
     {
-        _scale.set(scale);
+        _scale = scale;
         dirty(DIRTY_SCALE);
     }
 
@@ -477,46 +387,45 @@ namespace gameplay
     }
 
 
-    void Transform::setRotation(const Quaternion& rotation)
+    void Transform::setRotation(const glm::quat& rotation)
     {
-        _rotation.set(rotation);
+        _rotation = rotation;
         dirty(DIRTY_ROTATION);
     }
 
 
     void Transform::setRotation(float qx, float qy, float qz, float qw)
     {
-        _rotation.set(qx, qy, qz, qw);
+        _rotation = { qx, qy, qz, qw };
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::setRotation(const Matrix& rotation)
+    void Transform::setRotation(const glm::mat4& rotation)
     {
-        Quaternion rotationQuat;
-        Quaternion::createFromRotationMatrix(rotation, &rotationQuat);
-        _rotation.set(rotationQuat);
+        glm::quat rotationQuat = glm::quat_cast(rotation);
+        _rotation = rotationQuat;
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::setRotation(const Vector3& axis, float angle)
+    void Transform::setRotation(const glm::vec3& axis, float angle)
     {
-        _rotation.set(axis, angle);
+        _rotation = glm::quat(angle, axis);
         dirty(DIRTY_ROTATION);
     }
 
 
-    void Transform::setTranslation(const Vector3& translation)
+    void Transform::setTranslation(const glm::vec3& translation)
     {
-        _translation.set(translation);
+        _translation = translation;
         dirty(DIRTY_TRANSLATION);
     }
 
 
     void Transform::setTranslation(float tx, float ty, float tz)
     {
-        _translation.set(tx, ty, tz);
+        _translation = { tx, ty, tz };
         dirty(DIRTY_TRANSLATION);
     }
 
@@ -551,11 +460,9 @@ namespace gameplay
     }
 
 
-    void Transform::translate(const Vector3& translation)
+    void Transform::translate(const glm::vec3& translation)
     {
-        _translation.x += translation.x;
-        _translation.y += translation.y;
-        _translation.z += translation.z;
+        _translation += translation;
         dirty(DIRTY_TRANSLATION);
     }
 
@@ -581,49 +488,7 @@ namespace gameplay
     }
 
 
-    void Transform::translateLeft(float amount)
-    {
-        // Force the current transform matrix to be updated.
-        getMatrix();
-
-        Vector3 left;
-        _matrix.getLeftVector(&left);
-        left.normalize();
-        left.scale(amount);
-
-        translate(left);
-    }
-
-
-    void Transform::translateUp(float amount)
-    {
-        // Force the current transform matrix to be updated.
-        getMatrix();
-
-        Vector3 up;
-        _matrix.getUpVector(&up);
-        up.normalize();
-        up.scale(amount);
-
-        translate(up);
-    }
-
-
-    void Transform::translateForward(float amount)
-    {
-        // Force the current transform matrix to be updated.
-        getMatrix();
-
-        Vector3 forward;
-        _matrix.getForwardVector(&forward);
-        forward.normalize();
-        forward.scale(amount);
-
-        translate(forward);
-    }
-
-
-    void Transform::translateSmooth(const Vector3& target, float elapsedTime, float responseTime)
+    void Transform::translateSmooth(const glm::vec3& target, float elapsedTime, float responseTime)
     {
         if( elapsedTime > 0 )
         {
@@ -633,38 +498,17 @@ namespace gameplay
     }
 
 
-    void Transform::transformPoint(Vector3* point) const
+    void Transform::transformVector(glm::vec3* normal) const
     {
         getMatrix();
-        _matrix.transformPoint(point);
+        *normal = glm::vec3(_matrix * glm::vec4(*normal, 1.0f));
     }
 
 
-    void Transform::transformPoint(const Vector3& point, Vector3* dst) const
+    void Transform::transformVector(const glm::vec3& normal, glm::vec3* dst) const
     {
         getMatrix();
-        _matrix.transformPoint(point, dst);
-    }
-
-
-    void Transform::transformVector(Vector3* normal) const
-    {
-        getMatrix();
-        _matrix.transformVector(normal);
-    }
-
-
-    void Transform::transformVector(const Vector3& normal, Vector3* dst) const
-    {
-        getMatrix();
-        _matrix.transformVector(normal, dst);
-    }
-
-
-    void Transform::transformVector(float x, float y, float z, float w, Vector3* dst) const
-    {
-        getMatrix();
-        _matrix.transformVector(x, y, z, w, dst);
+        *dst = glm::vec3(_matrix * glm::vec4(normal, 1.0f));
     }
 
 

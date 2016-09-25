@@ -1,6 +1,7 @@
 #include "Base.h"
 #include "MaterialParameter.h"
-#include "Node.h"
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -131,7 +132,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector2& value)
+    void MaterialParameter::setValue(const glm::vec2& value)
     {
         clearValue();
 
@@ -146,7 +147,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector2* values, size_t count)
+    void MaterialParameter::setValue(const glm::vec2* values, size_t count)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -157,7 +158,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector3& value)
+    void MaterialParameter::setValue(const glm::vec3& value)
     {
         clearValue();
 
@@ -172,7 +173,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector3* values, size_t count)
+    void MaterialParameter::setValue(const glm::vec3* values, size_t count)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -183,7 +184,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector4& value)
+    void MaterialParameter::setValue(const glm::vec4& value)
     {
         clearValue();
 
@@ -198,7 +199,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Vector4* values, size_t count)
+    void MaterialParameter::setValue(const glm::vec4* values, size_t count)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -209,7 +210,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Matrix& value)
+    void MaterialParameter::setValue(const glm::mat4& value)
     {
         // If this parameter is already storing a single dynamic matrix, no need to clear it.
         if( !(_dynamic && _count == 1 && _type == MaterialParameter::MATRIX && boost::get<float*>(_value) != nullptr) )
@@ -220,7 +221,7 @@ namespace gameplay
             _value = new float[16];
         }
 
-        memcpy(boost::get<float*>(_value), value.m, sizeof(float) * 16);
+        memcpy(boost::get<float*>(_value), glm::value_ptr(value), sizeof(float) * 16);
 
         _dynamic = true;
         _count = 1;
@@ -228,12 +229,12 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(const Matrix* values, size_t count)
+    void MaterialParameter::setValue(const glm::mat4* values, size_t count)
     {
         BOOST_ASSERT(values);
         clearValue();
 
-        _value = const_cast<float*>(values[0].m);
+        _value = const_cast<float*>(glm::value_ptr(values[0]));
         _count = count;
         _type = MaterialParameter::MATRIX;
     }
@@ -313,13 +314,13 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector2(const Vector2& value)
+    void MaterialParameter::setVector2(const glm::vec2& value)
     {
         setValue(value);
     }
 
 
-    void MaterialParameter::setVector2Array(const Vector2* values, size_t count, bool copy)
+    void MaterialParameter::setVector2Array(const glm::vec2* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -340,13 +341,13 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector3(const Vector3& value)
+    void MaterialParameter::setVector3(const glm::vec3& value)
     {
         setValue(value);
     }
 
 
-    void MaterialParameter::setVector3Array(const Vector3* values, size_t count, bool copy)
+    void MaterialParameter::setVector3Array(const glm::vec3* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -367,13 +368,13 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector4(const Vector4& value)
+    void MaterialParameter::setVector4(const glm::vec4& value)
     {
         setValue(value);
     }
 
 
-    void MaterialParameter::setVector4Array(const Vector4* values, size_t count, bool copy)
+    void MaterialParameter::setVector4Array(const glm::vec4* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -394,13 +395,13 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setMatrix(const Matrix& value)
+    void MaterialParameter::setMatrix(const glm::mat4& value)
     {
         setValue(value);
     }
 
 
-    void MaterialParameter::setMatrixArray(const Matrix* values, size_t count, bool copy)
+    void MaterialParameter::setMatrixArray(const glm::mat4* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
         clearValue();
@@ -408,12 +409,12 @@ namespace gameplay
         if( copy )
         {
             _value = new float[16 * count];
-            memcpy(boost::get<float*>(_value), values[0].m, sizeof(float) * 16 * count);
+            memcpy(boost::get<float*>(_value), glm::value_ptr(values[0]), sizeof(float) * 16 * count);
             _dynamic = true;
         }
         else
         {
-            _value = &const_cast<Matrix&>(values[0]).m[0];
+            _value = const_cast<float*>(glm::value_ptr(values[0]));
         }
 
         _count = count;
@@ -474,16 +475,16 @@ namespace gameplay
                 shaderProgram->setValue(*_uniform, boost::get<int*>(_value), _count);
                 break;
             case MaterialParameter::VECTOR2:
-                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector2*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<glm::vec2*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR3:
-                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector3*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<glm::vec3*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::VECTOR4:
-                shaderProgram->setValue(*_uniform, reinterpret_cast<Vector4*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<glm::vec4*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::MATRIX:
-                shaderProgram->setValue(*_uniform, reinterpret_cast<Matrix*>(boost::get<float*>(_value)), _count);
+                shaderProgram->setValue(*_uniform, reinterpret_cast<glm::mat4*>(boost::get<float*>(_value)), _count);
                 break;
             case MaterialParameter::SAMPLER:
                 shaderProgram->setValue(*_uniform, boost::get<std::shared_ptr<Texture::Sampler>>(_value));

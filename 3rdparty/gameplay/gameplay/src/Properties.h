@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Base.h"
-#include "Matrix.h"
-#include "Vector2.h"
 #include "Stream.h"
 
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -308,7 +307,7 @@ namespace gameplay
         long getLong(const char* name = NULL) const;
 
         /**
-         * Interpret the value of the given property as a Matrix.
+         * Interpret the value of the given property as a glm::mat4.
          * If the property does not exist, out will be set to the identity matrix.
          * If the property exists but could not be scanned, an error will be logged and out will be set
          * to the identity matrix.
@@ -318,87 +317,87 @@ namespace gameplay
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getMatrix(const char* name, Matrix* out) const;
+        bool getMatrix(const char* name, glm::mat4* out) const;
 
         /**
-         * Interpret the value of the given property as a Vector2.
-         * If the property does not exist, out will be set to Vector2(0.0f, 0.0f).
+         * Interpret the value of the given property as a glm::vec2.
+         * If the property does not exist, out will be set to glm::vec2(0.0f, 0.0f).
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Vector2(0.0f, 0.0f).
+         * to glm::vec2(0.0f, 0.0f).
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The vector to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getVector2(const char* name, Vector2* out) const;
+        bool getVector2(const char* name, glm::vec2* out) const;
 
         /**
-         * Interpret the value of the given property as a Vector3.
-         * If the property does not exist, out will be set to Vector3(0.0f, 0.0f, 0.0f).
+         * Interpret the value of the given property as a glm::vec3.
+         * If the property does not exist, out will be set to glm::vec3(0.0f, 0.0f, 0.0f).
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Vector3(0.0f, 0.0f, 0.0f).
+         * to glm::vec3(0.0f, 0.0f, 0.0f).
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The vector to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getVector3(const char* name, Vector3* out) const;
+        bool getVector3(const char* name, glm::vec3* out) const;
 
         /**
-         * Interpret the value of the given property as a Vector4.
-         * If the property does not exist, out will be set to Vector4(0.0f, 0.0f, 0.0f, 0.0f).
+         * Interpret the value of the given property as a glm::vec4.
+         * If the property does not exist, out will be set to glm::vec4(0.0f, 0.0f, 0.0f, 0.0f).
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Vector4(0.0f, 0.0f, 0.0f, 0.0f).
+         * to glm::vec4(0.0f, 0.0f, 0.0f, 0.0f).
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The vector to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getVector4(const char* name, Vector4* out) const;
+        bool getVector4(const char* name, glm::vec4* out) const;
 
         /**
-         * Interpret the value of the given property as a Quaternion specified as an axis angle.
-         * If the property does not exist, out will be set to Quaternion().
+         * Interpret the value of the given property as a glm::quat specified as an axis angle.
+         * If the property does not exist, out will be set to glm::quat().
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Quaternion().
+         * to glm::quat().
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The quaternion to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getQuaternionFromAxisAngle(const char* name, Quaternion* out) const;
+        bool getQuaternionFromAxisAngle(const char* name, glm::quat* out) const;
 
         /**
-         * Interpret the value of the given property as an RGB color in hex and write this color to a Vector3.
+         * Interpret the value of the given property as an RGB color in hex and write this color to a glm::vec3.
          * E.g. 0xff0000 represents red and sets the vector to (1, 0, 0).
-         * If the property does not exist, out will be set to Vector3(0.0f, 0.0f, 0.0f).
+         * If the property does not exist, out will be set to glm::vec3(0.0f, 0.0f, 0.0f).
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Vector3(0.0f, 0.0f, 0.0f).
+         * to glm::vec3(0.0f, 0.0f, 0.0f).
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The vector to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getColor(const char* name, Vector3* out) const;
+        bool getColor(const char* name, glm::vec3* out) const;
 
         /**
-         * Interpret the value of the given property as an RGBA color in hex and write this color to a Vector4.
+         * Interpret the value of the given property as an RGBA color in hex and write this color to a glm::vec4.
          * E.g. 0xff0000ff represents opaque red and sets the vector to (1, 0, 0, 1).
-         * If the property does not exist, out will be set to Vector4(0.0f, 0.0f, 0.0f, 0.0f).
+         * If the property does not exist, out will be set to glm::vec4(0.0f, 0.0f, 0.0f, 0.0f).
          * If the property exists but could not be scanned, an error will be logged and out will be set
-         * to Vector4(0.0f, 0.0f, 0.0f, 0.0f).
+         * to glm::vec4(0.0f, 0.0f, 0.0f, 0.0f).
          *
          * @param name The name of the property to interpret, or NULL to return the current property's value.
          * @param out The vector to set to this property's interpreted value.
          *
          * @return True on success, false if the property does not exist or could not be scanned.
          */
-        bool getColor(const char* name, Vector4* out) const;
+        bool getColor(const char* name, glm::vec4* out) const;
 
         /**
          * Gets the file path for the given property if the file exists.
@@ -436,40 +435,40 @@ namespace gameplay
         void setVariable(const char* name, const char* value);
 
         /**
-         * Attempts to parse the specified string as a Vector2 value.
+         * Attempts to parse the specified string as a glm::vec2 value.
          *
          * On error, false is returned and the output is set to all zero values.
          *
          * @param str The string to parse.
          * @param out The value to populate if successful.
          *
-         * @return True if a valid Vector2 was parsed, false otherwise.
+         * @return True if a valid glm::vec2 was parsed, false otherwise.
          */
-        static bool parseVector2(const char* str, Vector2* out);
+        static bool parseVector2(const char* str, glm::vec2* out);
 
         /**
-         * Attempts to parse the specified string as a Vector3 value.
+         * Attempts to parse the specified string as a glm::vec3 value.
          *
          * On error, false is returned and the output is set to all zero values.
          *
          * @param str The string to parse.
          * @param out The value to populate if successful.
          *
-         * @return True if a valid Vector3 was parsed, false otherwise.
+         * @return True if a valid glm::vec3 was parsed, false otherwise.
          */
-        static bool parseVector3(const char* str, Vector3* out);
+        static bool parseVector3(const char* str, glm::vec3* out);
 
         /**
-         * Attempts to parse the specified string as a Vector4 value.
+         * Attempts to parse the specified string as a glm::vec4 value.
          *
          * On error, false is returned and the output is set to all zero values.
          *
          * @param str The string to parse.
          * @param out The value to populate if successful.
          *
-         * @return True if a valid Vector4 was parsed, false otherwise.
+         * @return True if a valid glm::vec4 was parsed, false otherwise.
          */
-        static bool parseVector4(const char* str, Vector4* out);
+        static bool parseVector4(const char* str, glm::vec4* out);
 
         /**
          * Attempts to parse the specified string as an axis-angle value.
@@ -481,11 +480,11 @@ namespace gameplay
          * On error, false is returned and the output is set to all zero values.
          *
          * @param str The string to parse.
-         * @param out A Quaternion populated with the orientation of the axis-angle, if successful.
+         * @param out A glm::quat populated with the orientation of the axis-angle, if successful.
          *
          * @return True if a valid axis-angle was parsed, false otherwise.
          */
-        static bool parseAxisAngle(const char* str, Quaternion* out);
+        static bool parseAxisAngle(const char* str, glm::quat* out);
 
         /**
          * Atempts to parse the specified string as an RGB color value.
@@ -495,7 +494,7 @@ namespace gameplay
          *
          * @return True if a valid RGB color was parsed, false otherwise.
          */
-        static bool parseColor(const char* str, Vector3* out);
+        static bool parseColor(const char* str, glm::vec3* out);
 
         /**
          * Atempts to parse the specified string as an RGBA color value.
@@ -505,7 +504,7 @@ namespace gameplay
          *
          * @return True if a valid RGBA color was parsed, false otherwise.
          */
-        static bool parseColor(const char* str, Vector4* out);
+        static bool parseColor(const char* str, glm::vec4* out);
 
     private:
 

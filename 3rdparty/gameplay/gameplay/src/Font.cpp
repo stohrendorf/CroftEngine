@@ -1,9 +1,10 @@
 #include "Base.h"
 #include "Font.h"
-#include "Text.h"
 #include "Game.h"
 #include "MaterialParameter.h"
 #include "Material.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -131,8 +132,7 @@ namespace gameplay
         if( !vp.isEmpty() )
         {
             Game::getInstance();
-            Matrix projectionMatrix;
-            Matrix::createOrthographicOffCenter(vp.x, vp.width, vp.height, vp.y, 0, 1, &projectionMatrix);
+            glm::mat4 projectionMatrix = glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f);
             _batch->setProjectionMatrix(projectionMatrix);
         }
 
@@ -177,7 +177,7 @@ namespace gameplay
     }
 
 
-    void Font::drawText(const char* text, int x, int y, const Vector4& color, unsigned int size)
+    void Font::drawText(const char* text, int x, int y, const glm::vec4& color, unsigned int size)
     {
         BOOST_ASSERT(_size);
         BOOST_ASSERT(text);
@@ -236,7 +236,7 @@ namespace gameplay
                             if( _cutoffParam == nullptr )
                                 _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
                             // TODO: Fix me so that smaller font are much smoother
-                            _cutoffParam->setVector2(Vector2(1.0, 1.0));
+                            _cutoffParam->setVector2(glm::vec2(1.0, 1.0));
                         }
                         _batch->draw(xPos + (int)(g.bearingX * scale), yPos, g.width * scale, size, g.uvs[0].x, g.uvs[0].y, g.uvs[1].x, g.uvs[1].y, color);
                         xPos += floor(g.advance * scale + spacing);
@@ -250,11 +250,11 @@ namespace gameplay
 
     void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size)
     {
-        drawText(text.c_str(), x, y, Vector4(red, green, blue, alpha), size);
+        drawText(text.c_str(), x, y, glm::vec4(red, green, blue, alpha), size);
     }
 
 
-    void Font::drawText(const std::string& text, const Rectangle& area, const Vector4& color, unsigned int size, Justify justify, bool wrap, const Rectangle& clip)
+    void Font::drawText(const std::string& text, const Rectangle& area, const glm::vec4& color, unsigned int size, Justify justify, bool wrap, const Rectangle& clip)
     {
         BOOST_ASSERT(_size);
 
@@ -362,7 +362,7 @@ namespace gameplay
                                 if( _cutoffParam == nullptr )
                                     _cutoffParam = _batch->getMaterial()->getParameter("u_cutoff");
                                 // TODO: Fix me so that smaller font are much smoother
-                                _cutoffParam->setVector2(Vector2(1.0, 1.0));
+                                _cutoffParam->setVector2(glm::vec2(1.0, 1.0));
                             }
                             if( clip != Rectangle(0, 0, 0, 0) )
                             {
@@ -496,7 +496,7 @@ namespace gameplay
 
         const char* token = text;
         std::vector<bool> emptyLines;
-        std::vector<Vector2> lines;
+        std::vector<glm::vec2> lines;
 
         unsigned int lineWidth = 0;
         int yPos = clip.y + size;
@@ -542,13 +542,13 @@ namespace gameplay
 
                                 // Record this line's size.
                                 emptyLines.push_back(false);
-                                lines.push_back(Vector2(xPos, lineWidth));
+                                lines.push_back(glm::vec2(xPos, lineWidth));
                             }
                             else
                             {
                                 // Record the existence of an empty line.
                                 emptyLines.push_back(true);
-                                lines.push_back(Vector2(std::numeric_limits<float>::max(), 0));
+                                lines.push_back(glm::vec2(std::numeric_limits<float>::max(), 0));
                             }
 
                             lineWidth = 0;
@@ -600,7 +600,7 @@ namespace gameplay
 
                     // Record this line's size.
                     emptyLines.push_back(false);
-                    lines.push_back(Vector2(xPos, lineWidth));
+                    lines.push_back(glm::vec2(xPos, lineWidth));
                     lineWidth = 0;
                 }
                 else
@@ -636,7 +636,7 @@ namespace gameplay
                         // Record the existence of an empty line.
                         ++emptyLinesCount;
                         emptyLines.push_back(true);
-                        lines.push_back(Vector2(std::numeric_limits<float>::max(), 0));
+                        lines.push_back(glm::vec2(std::numeric_limits<float>::max(), 0));
                     }
 
                     token++;
@@ -659,7 +659,7 @@ namespace gameplay
                 }
 
                 // Record this line's size.
-                lines.push_back(Vector2(xPos, lineWidth));
+                lines.push_back(glm::vec2(xPos, lineWidth));
 
                 token += tokenLength;
             }
@@ -681,7 +681,7 @@ namespace gameplay
                 xPos += hWhitespace;
             }
 
-            lines.push_back(Vector2(xPos, lineWidth));
+            lines.push_back(glm::vec2(xPos, lineWidth));
         }
 
         int x = std::numeric_limits<int>::max();
@@ -1001,21 +1001,21 @@ namespace gameplay
     }
 
 
-    int Font::getIndexAtLocation(const char* text, const Rectangle& area, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
+    int Font::getIndexAtLocation(const char* text, const Rectangle& area, unsigned int size, const glm::vec2& inLocation, glm::vec2* outLocation,
                                  Justify justify, bool wrap)
     {
         return getIndexOrLocation(text, area, size, inLocation, outLocation, -1, justify, wrap);
     }
 
 
-    void Font::getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, Vector2* outLocation, const unsigned int destIndex,
+    void Font::getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, glm::vec2* outLocation, const unsigned int destIndex,
                                   Justify justify, bool wrap)
     {
         getIndexOrLocation(text, clip, size, *outLocation, outLocation, (const int)destIndex, justify, wrap);
     }
 
 
-    int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned int size, const Vector2& inLocation, Vector2* outLocation,
+    int Font::getIndexOrLocation(const char* text, const Rectangle& area, unsigned int size, const glm::vec2& inLocation, glm::vec2* outLocation,
                                  const int destIndex, Justify justify, bool wrap)
     {
         BOOST_ASSERT(_size);
@@ -1245,7 +1245,7 @@ namespace gameplay
 
     int Font::handleDelimiters(const char** token, const unsigned int size, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
                                std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex,
-                               const Vector2* stopAtPosition, const int currentIndex, const int destIndex)
+                               const glm::vec2* stopAtPosition, const int currentIndex, const int destIndex)
     {
         BOOST_ASSERT(token);
         BOOST_ASSERT(*token);

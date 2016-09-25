@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "Node.h"
 #include "Scene.h"
-#include "Game.h"
 #include "Drawable.h"
 #include "Joint.h"
 
@@ -19,7 +18,7 @@ namespace gameplay
         , _id(id)
         , _parent()
         , _enabled(true)
-        , _tags(nullptr)
+        , _tags()
         , _drawable(nullptr)
         , _camera(nullptr)
         , _light(nullptr)
@@ -34,7 +33,6 @@ namespace gameplay
         removeAllChildren();
         if( _drawable )
             _drawable->setNode(nullptr);
-        SAFE_DELETE(_tags);
     }
 
 
@@ -47,12 +45,6 @@ namespace gameplay
     void Node::setId(const std::string& id)
     {
         _id = id;
-    }
-
-
-    Node::Type Node::getType() const
-    {
-        return Node::NODE;
     }
 
 
@@ -257,50 +249,28 @@ namespace gameplay
     }
 
 
-    bool Node::hasTag(const char* name) const
+    bool Node::hasTag(const std::string& name) const
     {
-        BOOST_ASSERT(name);
-        return (_tags ? _tags->find(name) != _tags->end() : false);
+        return _tags.find(name) != _tags.end();
     }
 
 
-    const char* Node::getTag(const char* name) const
+    const char* Node::getTag(const std::string& name) const
     {
-        BOOST_ASSERT(name);
-
-        if( !_tags )
-            return nullptr;
-
-        std::map<std::string, std::string>::const_iterator itr = _tags->find(name);
-        return (itr == _tags->end() ? nullptr : itr->second.c_str());
+        auto itr = _tags.find(name);
+        return (itr == _tags.end() ? nullptr : itr->second.c_str());
     }
 
 
-    void Node::setTag(const char* name, const char* value)
+    void Node::setTag(const std::string& name, const std::string& value)
     {
-        BOOST_ASSERT(name);
+        _tags[name] = value;
+    }
 
-        if( value == nullptr )
-        {
-            // Removing tag
-            if( _tags )
-            {
-                _tags->erase(name);
-                if( _tags->size() == 0 )
-                {
-                    SAFE_DELETE(_tags);
-                }
-            }
-        }
-        else
-        {
-            // Setting tag
-            if( _tags == nullptr )
-            {
-                _tags = new std::map<std::string, std::string>();
-            }
-            (*_tags)[name] = value;
-        }
+
+    void Node::clearTag(const std::string& name)
+    {
+        _tags.erase(name);
     }
 
 
@@ -346,7 +316,7 @@ namespace gameplay
     }
 
 
-    const Matrix& Node::getWorldMatrix() const
+    const glm::mat4& Node::getWorldMatrix() const
     {
         if( _dirtyBits & NODE_DIRTY_WORLD )
         {
@@ -359,7 +329,7 @@ namespace gameplay
             auto parent = getParent();
             if( !parent.expired() )
             {
-                Matrix::multiply(parent.lock()->getWorldMatrix(), getMatrix(), &_world);
+                _world = parent.lock()->getWorldMatrix() * getMatrix();
             }
             else
             {
@@ -377,35 +347,25 @@ namespace gameplay
     }
 
 
-    const Matrix& Node::getWorldViewMatrix() const
+    glm::mat4 Node::getWorldViewMatrix() const
     {
-        static Matrix worldView;
-        Matrix::multiply(getViewMatrix(), getWorldMatrix(), &worldView);
-        return worldView;
+        return getViewMatrix() * getWorldMatrix();
     }
 
 
-    const Matrix& Node::getInverseTransposeWorldViewMatrix() const
+    glm::mat4 Node::getInverseTransposeWorldViewMatrix() const
     {
-        static Matrix invTransWorldView;
-        Matrix::multiply(getViewMatrix(), getWorldMatrix(), &invTransWorldView);
-        invTransWorldView.invert();
-        invTransWorldView.transpose();
-        return invTransWorldView;
+        return glm::transpose(glm::inverse(getViewMatrix() * getWorldMatrix()));
     }
 
 
-    const Matrix& Node::getInverseTransposeWorldMatrix() const
+    glm::mat4 Node::getInverseTransposeWorldMatrix() const
     {
-        static Matrix invTransWorld;
-        invTransWorld = getWorldMatrix();
-        invTransWorld.invert();
-        invTransWorld.transpose();
-        return invTransWorld;
+        return glm::transpose(glm::inverse(getWorldMatrix()));
     }
 
 
-    const Matrix& Node::getViewMatrix() const
+    const glm::mat4& Node::getViewMatrix() const
     {
         Scene* scene = getScene();
         auto camera = scene ? scene->getActiveCamera() : nullptr;
@@ -415,12 +375,13 @@ namespace gameplay
         }
         else
         {
-            return Matrix::identity();
+            static const glm::mat4 identity{ 1.0f };
+            return identity;
         }
     }
 
 
-    const Matrix& Node::getInverseViewMatrix() const
+    const glm::mat4& Node::getInverseViewMatrix() const
     {
         Scene* scene = getScene();
         auto camera = scene ? scene->getActiveCamera() : nullptr;
@@ -430,12 +391,13 @@ namespace gameplay
         }
         else
         {
-            return Matrix::identity();
+            static const glm::mat4 identity{ 1.0f };
+            return identity;
         }
     }
 
 
-    const Matrix& Node::getProjectionMatrix() const
+    const glm::mat4& Node::getProjectionMatrix() const
     {
         Scene* scene = getScene();
         auto camera = scene ? scene->getActiveCamera() : nullptr;
@@ -445,12 +407,13 @@ namespace gameplay
         }
         else
         {
-            return Matrix::identity();
+            static const glm::mat4 identity{ 1.0f };
+            return identity;
         }
     }
 
 
-    const Matrix& Node::getViewProjectionMatrix() const
+    const glm::mat4& Node::getViewProjectionMatrix() const
     {
         Scene* scene = getScene();
         auto camera = scene ? scene->getActiveCamera() : nullptr;
@@ -460,12 +423,13 @@ namespace gameplay
         }
         else
         {
-            return Matrix::identity();
+            static const glm::mat4 identity{ 1.0f };
+            return identity;
         }
     }
 
 
-    const Matrix& Node::getInverseViewProjectionMatrix() const
+    const glm::mat4& Node::getInverseViewProjectionMatrix() const
     {
         Scene* scene = getScene();
         auto camera = scene ? scene->getActiveCamera() : nullptr;
@@ -473,71 +437,32 @@ namespace gameplay
         {
             return camera->getInverseViewProjectionMatrix();
         }
-        return Matrix::identity();
+        static const glm::mat4 identity{ 1.0f };
+        return identity;
     }
 
 
-    const Matrix& Node::getWorldViewProjectionMatrix() const
+    glm::mat4 Node::getWorldViewProjectionMatrix() const
     {
         // Always re-calculate worldViewProjection matrix since it's extremely difficult
         // to track whether the camera has changed (it may frequently change every frame).
-        static Matrix worldViewProj;
-        Matrix::multiply(getViewProjectionMatrix(), getWorldMatrix(), &worldViewProj);
-        return worldViewProj;
+        return getViewProjectionMatrix() * getWorldMatrix();
     }
 
 
-    Vector3 Node::getTranslationWorld() const
+    glm::vec3 Node::getTranslationWorld() const
     {
-        Vector3 translation;
-        getWorldMatrix().getTranslation(&translation);
-        return translation;
+        return glm::vec3(getWorldMatrix()[3]);
     }
 
 
-    Vector3 Node::getTranslationView() const
+    glm::vec3 Node::getTranslationView() const
     {
-        Vector3 translation;
-        getWorldMatrix().getTranslation(&translation);
-        getViewMatrix().transformPoint(&translation);
-        return translation;
+        return glm::vec3(glm::vec4(getTranslationWorld(), 1.0f) * getViewMatrix());
     }
 
 
-    Vector3 Node::getForwardVectorWorld() const
-    {
-        Vector3 vector;
-        getWorldMatrix().getForwardVector(&vector);
-        return vector;
-    }
-
-
-    Vector3 Node::getForwardVectorView() const
-    {
-        Vector3 vector;
-        getWorldMatrix().getForwardVector(&vector);
-        getViewMatrix().transformVector(&vector);
-        return vector;
-    }
-
-
-    Vector3 Node::getRightVectorWorld() const
-    {
-        Vector3 vector;
-        getWorldMatrix().getRightVector(&vector);
-        return vector;
-    }
-
-
-    Vector3 Node::getUpVectorWorld() const
-    {
-        Vector3 vector;
-        getWorldMatrix().getUpVector(&vector);
-        return vector;
-    }
-
-
-    Vector3 Node::getActiveCameraTranslationWorld() const
+    glm::vec3 Node::getActiveCameraTranslationWorld() const
     {
         Scene* scene = getScene();
         if( scene )
@@ -552,11 +477,11 @@ namespace gameplay
                 }
             }
         }
-        return Vector3::zero();
+        return{ 0,0,0 };
     }
 
 
-    Vector3 Node::getActiveCameraTranslationView() const
+    glm::vec3 Node::getActiveCameraTranslationView() const
     {
         Scene* scene = getScene();
         if( scene )
@@ -571,7 +496,7 @@ namespace gameplay
                 }
             }
         }
-        return Vector3::zero();
+        return {0,0,0};
     }
 
 
@@ -705,7 +630,7 @@ namespace gameplay
         {
             _dirtyBits &= ~NODE_DIRTY_BOUNDS;
 
-            const Matrix& worldMatrix = getWorldMatrix();
+            const glm::mat4& worldMatrix = getWorldMatrix();
 
             // Start with our local bounding sphere
             // TODO: Incorporate bounds from entities other than mesh (i.e. particleemitters, audiosource, etc)
@@ -730,12 +655,12 @@ namespace gameplay
                     case Light::POINT:
                         if( empty )
                         {
-                            _bounds.set(Vector3::zero(), _light->getRange());
+                            _bounds.set({ 0,0,0 }, _light->getRange());
                             empty = false;
                         }
                         else
                         {
-                            _bounds.merge(BoundingSphere(Vector3::zero(), _light->getRange()));
+                            _bounds.merge(BoundingSphere({ 0,0,0 }, _light->getRange()));
                         }
                         break;
                     case Light::SPOT:
@@ -746,7 +671,7 @@ namespace gameplay
             if( empty )
             {
                 // Empty bounding sphere, set the world translation with zero radius
-                worldMatrix.getTranslation(&_bounds.center);
+                _bounds.center = glm::vec3(worldMatrix[3]);
                 _bounds.radius = 0;
             }
 
@@ -770,8 +695,7 @@ namespace gameplay
                     {
                         // TODO: Should we protect against the case where joints are nested directly
                         // in the node hierachy of the model (this is normally not the case)?
-                        Matrix boundsMatrix;
-                        Matrix::multiply(getWorldMatrix(), jointParent->getWorldMatrix(), &boundsMatrix);
+                        glm::mat4 boundsMatrix = getWorldMatrix() * jointParent->getWorldMatrix();
                         _bounds.transform(boundsMatrix);
                         applyWorldTransform = false;
                     }

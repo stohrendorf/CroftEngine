@@ -33,7 +33,7 @@ namespace engine
 
             double x, y;
             glfwGetCursorPos(m_window, &x, &y);
-            m_inputState.mouseMovement += gameplay::Vector2(x, y);
+            m_inputState.mouseMovement += glm::vec2(x, y);
 
             m_inputState.action = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             m_inputState.freeLook = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;

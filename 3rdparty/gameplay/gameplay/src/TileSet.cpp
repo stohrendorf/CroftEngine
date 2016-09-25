@@ -1,6 +1,5 @@
 #include "Base.h"
 #include "TileSet.h"
-#include "Matrix.h"
 #include "Scene.h"
 
 
@@ -17,7 +16,7 @@ namespace gameplay
         , _height(0)
         , _batch(nullptr)
         , _opacity(1.0f)
-        , _color(Vector4::one())
+        , _color{1,1,1,1}
     {
     }
 
@@ -30,7 +29,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void TileSet::setTileSource(unsigned int column, unsigned int row, const Vector2& source)
+    void TileSet::setTileSource(unsigned int column, unsigned int row, const glm::vec2& source)
     {
         BOOST_ASSERT(column < _columnCount);
         BOOST_ASSERT(row < _rowCount);
@@ -40,7 +39,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void TileSet::getTileSource(unsigned int column, unsigned int row, Vector2* source)
+    void TileSet::getTileSource(unsigned int column, unsigned int row, glm::vec2* source)
     {
         BOOST_ASSERT(column < _columnCount);
         BOOST_ASSERT(row < _rowCount);
@@ -99,13 +98,13 @@ namespace gameplay
     }
 
 
-    void TileSet::setColor(const Vector4& color)
+    void TileSet::setColor(const glm::vec4& color)
     {
         _color = color;
     }
 
 
-    const Vector4& TileSet::getColor() const
+    const glm::vec4& TileSet::getColor() const
     {
         return _color;
     }
@@ -114,7 +113,7 @@ namespace gameplay
     size_t TileSet::draw(bool /*wireframe*/)
     {
         // Apply scene camera projection and translation offsets
-        Vector3 position = Vector3::zero();
+        glm::vec3 position = {0,0,0};
         if( _node && _node->getScene() )
         {
             auto activeCamera = _node->getScene()->getActiveCamera();
@@ -124,7 +123,7 @@ namespace gameplay
                 if( cameraNode )
                 {
                     // Scene projection
-                    Matrix projectionMatrix;
+                    glm::mat4 projectionMatrix;
                     projectionMatrix = _node->getProjectionMatrix();
                     _batch->setProjectionMatrix(projectionMatrix);
 
@@ -134,7 +133,7 @@ namespace gameplay
             }
 
             // Apply node translation offsets
-            Vector3 translation = _node->getTranslationWorld();
+            glm::vec3 translation = _node->getTranslationWorld();
             position.x += translation.x;
             position.y += translation.y;
             position.z += translation.z;
@@ -148,7 +147,7 @@ namespace gameplay
         {
             for( unsigned int col = 0; col < _columnCount; col++ )
             {
-                Vector2 scale = Vector2(_tileWidth, _tileHeight);
+                glm::vec2 scale = glm::vec2(_tileWidth, _tileHeight);
 
                 // Negative values are skipped to allow blank tiles
                 if( _tiles[row * _columnCount + col].x >= 0 &&
@@ -156,8 +155,8 @@ namespace gameplay
                 {
                     Rectangle source = Rectangle(_tiles[row * _columnCount + col].x,
                                                  _tiles[row * _columnCount + col].y, _tileWidth, _tileHeight);
-                    _batch->draw(position, source, scale, Vector4(_color.x, _color.y, _color.z, _color.w * _opacity),
-                                 Vector2(0.5f, 0.5f), 0);
+                    _batch->draw(position, source, scale, glm::vec4(_color.x, _color.y, _color.z, _color.w * _opacity),
+                                 glm::vec2(0.5f, 0.5f), 0);
                 }
 
                 position.x += _tileWidth;

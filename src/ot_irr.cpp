@@ -6,7 +6,7 @@
 
 namespace
 {
-    void drawText(gameplay::Font* font, int x, int y, const std::string& txt, const gameplay::Vector4& col = gameplay::Vector4::one())
+    void drawText(gameplay::Font* font, int x, int y, const std::string& txt, const glm::vec4& col = {1,1,1,1})
     {
         font->drawText(txt, x, y, col.x, col.y, col.z, col.w);
     }

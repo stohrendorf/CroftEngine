@@ -15,9 +15,9 @@ namespace loader
 #pragma pack(push,1)
         struct RenderVertex
         {
-            gameplay::Vector2 texcoord0;
-            gameplay::Vector3 position;
-            gameplay::Vector4 color;
+            glm::vec2 texcoord0;
+            glm::vec3 position;
+            glm::vec4 color;
 
 
             static const gameplay::VertexFormat& getFormat()
@@ -274,8 +274,8 @@ namespace loader
                 break;
         }
 
-        result.min += gameplay::Vector3(pos.X, pos.Y, pos.Z);
-        result.max += gameplay::Vector3(pos.X, pos.Y, pos.Z);
+        result.min += glm::vec3(pos.X, pos.Y, pos.Z);
+        result.max += glm::vec3(pos.X, pos.Y, pos.Z);
         return result;
     }
 

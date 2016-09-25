@@ -28,9 +28,9 @@ namespace loader
             return read(reader, true);
         }
 
-        gameplay::Vector4 toSColor() const
+        glm::vec4 toSColor() const
         {
-            return gameplay::Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+            return glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
         }
 
     private:
@@ -56,10 +56,10 @@ namespace loader
     {
         float r, g, b, a;
 
-        gameplay::Vector4 toSColor(float intensity) const
+        glm::vec4 toSColor(float intensity) const
         {
             BOOST_ASSERT(intensity >= 0 && intensity <= 1);
-            gameplay::Vector4 col;
+            glm::vec4 col;
             col.x = r * intensity;
             col.y = g * intensity;
             col.z = b * intensity;

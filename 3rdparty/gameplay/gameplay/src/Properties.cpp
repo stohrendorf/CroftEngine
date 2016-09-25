@@ -1,7 +1,8 @@
 #include "Base.h"
 #include "Properties.h"
 #include "FileSystem.h"
-#include "Quaternion.h"
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -895,7 +896,7 @@ namespace gameplay
     }
 
 
-    bool Properties::getMatrix(const char* name, Matrix* out) const
+    bool Properties::getMatrix(const char* name, glm::mat4* out) const
     {
         BOOST_ASSERT(out);
 
@@ -911,50 +912,50 @@ namespace gameplay
             if( scanned != 16 )
             {
                 BOOST_LOG_TRIVIAL(error) << "Error attempting to parse property '" << name << "' as a matrix.";
-                out->setIdentity();
+                *out = glm::mat4(1);
                 return false;
             }
 
-            out->set(m);
+            std::copy_n(m, 16, glm::value_ptr(*out));
             return true;
         }
 
-        out->setIdentity();
+        *out = glm::mat4(1);
         return false;
     }
 
 
-    bool Properties::getVector2(const char* name, Vector2* out) const
+    bool Properties::getVector2(const char* name, glm::vec2* out) const
     {
         return parseVector2(getString(name), out);
     }
 
 
-    bool Properties::getVector3(const char* name, Vector3* out) const
+    bool Properties::getVector3(const char* name, glm::vec3* out) const
     {
         return parseVector3(getString(name), out);
     }
 
 
-    bool Properties::getVector4(const char* name, Vector4* out) const
+    bool Properties::getVector4(const char* name, glm::vec4* out) const
     {
         return parseVector4(getString(name), out);
     }
 
 
-    bool Properties::getQuaternionFromAxisAngle(const char* name, Quaternion* out) const
+    bool Properties::getQuaternionFromAxisAngle(const char* name, glm::quat* out) const
     {
         return parseAxisAngle(getString(name), out);
     }
 
 
-    bool Properties::getColor(const char* name, Vector3* out) const
+    bool Properties::getColor(const char* name, glm::vec3* out) const
     {
         return parseColor(getString(name), out);
     }
 
 
-    bool Properties::getColor(const char* name, Vector4* out) const
+    bool Properties::getColor(const char* name, glm::vec4* out) const
     {
         return parseColor(getString(name), out);
     }
@@ -1174,15 +1175,15 @@ namespace gameplay
     }
 
 
-    bool Properties::parseVector2(const char* str, Vector2* out)
+    bool Properties::parseVector2(const char* str, glm::vec2* out)
     {
         if( str )
         {
             float x, y;
             if( sscanf(str, "%f,%f", &x, &y) == 2 )
             {
-                if( out )
-                    out->set(x, y);
+                if(out)
+                    *out = { x,y };
                 return true;
             }
             else
@@ -1191,21 +1192,21 @@ namespace gameplay
             }
         }
 
-        if( out )
-            out->set(0.0f, 0.0f);
+        if(out)
+            *out = { 0,0 };
         return false;
     }
 
 
-    bool Properties::parseVector3(const char* str, Vector3* out)
+    bool Properties::parseVector3(const char* str, glm::vec3* out)
     {
         if( str )
         {
             float x, y, z;
             if( sscanf(str, "%f,%f,%f", &x, &y, &z) == 3 )
             {
-                if( out )
-                    out->set(x, y, z);
+                if(out)
+                    *out = { 0,0,0 };
                 return true;
             }
             else
@@ -1214,13 +1215,13 @@ namespace gameplay
             }
         }
 
-        if( out )
-            out->set(0.0f, 0.0f, 0.0f);
+        if(out)
+            *out = { 0,0,0 };
         return false;
     }
 
 
-    bool Properties::parseVector4(const char* str, Vector4* out)
+    bool Properties::parseVector4(const char* str, glm::vec4* out)
     {
         if( str )
         {
@@ -1228,7 +1229,7 @@ namespace gameplay
             if( sscanf(str, "%f,%f,%f,%f", &x, &y, &z, &w) == 4 )
             {
                 if( out )
-                    out->set(x, y, z, w);
+                    *out = { x,y,z,w };
                 return true;
             }
             else
@@ -1238,12 +1239,12 @@ namespace gameplay
         }
 
         if( out )
-            out->set(0.0f, 0.0f, 0.0f, 0.0f);
+            *out = { 0,0,0,0 };
         return false;
     }
 
 
-    bool Properties::parseAxisAngle(const char* str, Quaternion* out)
+    bool Properties::parseAxisAngle(const char* str, glm::quat* out)
     {
         if( str )
         {
@@ -1251,7 +1252,7 @@ namespace gameplay
             if( sscanf(str, "%f,%f,%f,%f", &x, &y, &z, &theta) == 4 )
             {
                 if( out )
-                    out->set(Vector3(x, y, z), MATH_DEG_TO_RAD(theta));
+                    *out = glm::quat{ MATH_DEG_TO_RAD(theta), glm::vec3(x, y, z) };
                 return true;
             }
             else
@@ -1261,23 +1262,23 @@ namespace gameplay
         }
 
         if( out )
-            out->set(0.0f, 0.0f, 0.0f, 1.0f);
+            *out = glm::quat();
         return false;
     }
 
 
-    bool Properties::parseColor(const char* str, Vector3* out)
+    bool Properties::parseColor(const char* str, glm::vec3* out)
     {
         if( str )
         {
             if( strlen(str) == 7 && str[0] == '#' )
             {
                 // Read the string into an int as hex.
-                unsigned int color;
-                if( sscanf(str + 1, "%x", &color) == 1 )
+                unsigned int color[3];
+                if( sscanf(str + 1, "%02x%02x%02x", &color[0], &color[1], &color[2]) == 3 )
                 {
-                    if( out )
-                        out->set(Vector3::fromColor(color));
+                    if(out)
+                        *out = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f };
                     return true;
                 }
                 else
@@ -1293,24 +1294,24 @@ namespace gameplay
             }
         }
 
-        if( out )
-            out->set(0.0f, 0.0f, 0.0f);
+        if(out)
+            *out = { 0,0,0 };
         return false;
     }
 
 
-    bool Properties::parseColor(const char* str, Vector4* out)
+    bool Properties::parseColor(const char* str, glm::vec4* out)
     {
         if( str )
         {
             if( strlen(str) == 9 && str[0] == '#' )
             {
                 // Read the string into an int as hex.
-                unsigned int color;
-                if( sscanf(str + 1, "%x", &color) == 1 )
+                unsigned int color[4];
+                if(sscanf(str + 1, "%02x%02x%02x%02x", &color[0], &color[1], &color[2], &color[3]) == 4)
                 {
-                    if( out )
-                        out->set(Vector4::fromColor(color));
+                    if(out)
+                        *out = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f,color[3] / 255.0f };
                     return true;
                 }
                 else
@@ -1326,8 +1327,8 @@ namespace gameplay
             }
         }
 
-        if( out )
-            out->set(0.0f, 0.0f, 0.0f, 0.0f);
+        if(out)
+            *out = { 0,0,0,0 };
         return false;
     }
 }

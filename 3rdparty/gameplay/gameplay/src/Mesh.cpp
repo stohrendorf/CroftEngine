@@ -128,14 +128,11 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Mesh> Mesh::createQuad(const Vector3& p1, const Vector3& p2, const Vector3& p3, const Vector3& p4)
+    std::shared_ptr<Mesh> Mesh::createQuad(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4)
     {
         // Calculate the normal vector of the plane.
-        Vector3 v1, v2, n;
-        Vector3::subtract(p2, p1, &v1);
-        Vector3::subtract(p3, p2, &v2);
-        Vector3::cross(v1, v2, &n);
-        n.normalize();
+        glm::vec3 v1 = p2 - p1, v2 = p3 - p2;
+        auto n = glm::normalize(glm::cross(v1, v2));
 
         float vertices[] =
         {
@@ -166,7 +163,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Mesh> Mesh::createLines(Vector3* points, size_t pointCount)
+    std::shared_ptr<Mesh> Mesh::createLines(glm::vec3* points, size_t pointCount)
     {
         BOOST_ASSERT(points);
         BOOST_ASSERT(pointCount);
@@ -196,7 +193,7 @@ namespace gameplay
 
     std::shared_ptr<Mesh> Mesh::createBoundingBox(const BoundingBox& box)
     {
-        Vector3 corners[8];
+        glm::vec3 corners[8];
         box.getCorners(corners);
 
         float vertices[] =

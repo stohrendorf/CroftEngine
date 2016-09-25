@@ -92,7 +92,7 @@ namespace gameplay
 
     void Game::render(const std::chrono::microseconds& /*elapsedTime*/)
     {
-        clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1, 0);
+        clear(CLEAR_COLOR_DEPTH, { 0,0,0,0 }, 1, 0);
         Scene::getScene()->visit(this, &Game::drawScene);
     }
 
@@ -321,7 +321,7 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, const Vector4& clearColor, float clearDepth, int clearStencil)
+    void Game::clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth, int clearStencil)
     {
         GLbitfield bits = 0;
         if( flags & CLEAR_COLOR )
@@ -332,7 +332,7 @@ namespace gameplay
                 clearColor.w != _clearColor.w )
             {
                 glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-                _clearColor.set(clearColor);
+                _clearColor = clearColor;
             }
             bits |= GL_COLOR_BUFFER_BIT;
         }
@@ -367,7 +367,7 @@ namespace gameplay
 
     void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil)
     {
-        clear(flags, Vector4(red, green, blue, alpha), clearDepth, clearStencil);
+        clear(flags, glm::vec4(red, green, blue, alpha), clearDepth, clearStencil);
     }
 
 

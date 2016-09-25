@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Drawable.h"
-#include "Vector2.h"
-#include "Vector4.h"
 #include "SpriteBatch.h"
 
 
@@ -36,7 +34,7 @@ namespace gameplay
          * @param row The row to set the source for.
          * @param source The source top-left corner where the tile is positioned.
          */
-        void setTileSource(unsigned int column, unsigned int row, const Vector2& source);
+        void setTileSource(unsigned int column, unsigned int row, const glm::vec2& source);
 
         /**
          * Gets the source clip region and flip flags for the specified column and row.
@@ -46,7 +44,7 @@ namespace gameplay
          * @param source The source region to be returned back.
          * @see Sprite::FlipFlags
          */
-        void getTileSource(unsigned int column, unsigned int row, Vector2* source);
+        void getTileSource(unsigned int column, unsigned int row, glm::vec2* source);
 
         /**
          * Gets the width of each tile in the tile set.
@@ -113,14 +111,14 @@ namespace gameplay
          *
          * @param color The color(RGBA) for the sprite.
          */
-        void setColor(const Vector4& color);
+        void setColor(const glm::vec4& color);
 
         /**
          * Gets the color (RGBA) for the sprite.
          *
          * @return The color(RGBA) for the sprite.
          */
-        const Vector4& getColor() const;
+        const glm::vec4& getColor() const;
 
         /**
          * @see Drawable::draw
@@ -145,7 +143,7 @@ namespace gameplay
 
     private:
 
-        Vector2* _tiles;
+        glm::vec2* _tiles;
         float _tileWidth;
         float _tileHeight;
         unsigned int _rowCount;
@@ -154,6 +152,6 @@ namespace gameplay
         float _height;
         SpriteBatch* _batch;
         float _opacity;
-        Vector4 _color;
+        glm::vec4 _color;
     };
 }

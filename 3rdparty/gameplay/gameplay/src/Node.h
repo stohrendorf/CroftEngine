@@ -4,6 +4,9 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Light.h"
+#include <glm/detail/_vectorize.hpp>
+#include <glm/detail/_vectorize.hpp>
+#include <glm/detail/_vectorize.hpp>
 
 
 namespace gameplay
@@ -56,11 +59,6 @@ namespace gameplay
          * @param id The identifier to set for the node.
          */
         void setId(const std::string& id);
-
-        /**
-         * Returns the type of the node.
-         */
-        virtual Node::Type getType() const;
 
         /**
          * Adds a child node.
@@ -150,7 +148,8 @@ namespace gameplay
          * @param name Name of the tag to set.
          * @param value Optional value of the tag (empty string by default).
          */
-        void setTag(const char* name, const char* value = "");
+        void setTag(const std::string& name, const std::string& value = {});
+        void clearTag(const std::string& name);
 
         /**
          * Returns the value of the custom tag with the given name.
@@ -159,7 +158,7 @@ namespace gameplay
          *
          * @return The value of the given tag, or NULL if the tag is not set.
          */
-        const char* getTag(const char* name) const;
+        const char* getTag(const std::string& name) const;
 
         /**
          * Determines if a custom tag with the specified name is set.
@@ -168,7 +167,7 @@ namespace gameplay
          *
          * @return true if the tag is set, false otherwise.
          */
-        bool hasTag(const char* name) const;
+        bool hasTag(const std::string& name) const;
 
         /**
          * Sets if the node is enabled in the scene.
@@ -197,8 +196,6 @@ namespace gameplay
          * This method is called by Scene::update(float) to update the state of all active
          * nodes in a scene. A Node is considered active if Node::isActive() returns true.
          *
-         * If any scripts are attached to the node, their update event will be fired.
-         *
          * @param elapsedTime Elapsed time in milliseconds.
          */
         void update(float elapsedTime);
@@ -208,14 +205,14 @@ namespace gameplay
          *
          * @return The world matrix of this node.
          */
-        virtual const Matrix& getWorldMatrix() const;
+        virtual const glm::mat4& getWorldMatrix() const;
 
         /**
          * Gets the world view matrix corresponding to this node.
          *
          * @return The world view matrix of this node.
          */
-        const Matrix& getWorldViewMatrix() const;
+        glm::mat4 getWorldViewMatrix() const;
 
         /**
          * Gets the inverse transpose world matrix corresponding to this node.
@@ -224,7 +221,7 @@ namespace gameplay
          *
          * @return The inverse world matrix of this node.
          */
-        const Matrix& getInverseTransposeWorldMatrix() const;
+        glm::mat4 getInverseTransposeWorldMatrix() const;
 
         /**
          * Gets the inverse transpose world view matrix corresponding to this node.
@@ -233,7 +230,7 @@ namespace gameplay
          *
          * @return The inverse world view matrix of this node.
          */
-        const Matrix& getInverseTransposeWorldViewMatrix() const;
+        glm::mat4 getInverseTransposeWorldViewMatrix() const;
 
         /**
          * Gets the view matrix corresponding to this node based
@@ -241,7 +238,7 @@ namespace gameplay
          *
          * @return The view matrix of this node.
          */
-        const Matrix& getViewMatrix() const;
+        const glm::mat4& getViewMatrix() const;
 
         /**
          * Gets the inverse view matrix corresponding to this node based
@@ -249,7 +246,7 @@ namespace gameplay
          *
          * @return The inverse view matrix of this node.
          */
-        const Matrix& getInverseViewMatrix() const;
+        const glm::mat4& getInverseViewMatrix() const;
 
         /**
          * Gets the projection matrix corresponding to this node based
@@ -257,7 +254,7 @@ namespace gameplay
          *
          * @return The projection matrix of this node.
          */
-        const Matrix& getProjectionMatrix() const;
+        const glm::mat4& getProjectionMatrix() const;
 
         /**
          * Gets the view * projection matrix corresponding to this node based
@@ -265,7 +262,7 @@ namespace gameplay
          *
          * @return The view * projection matrix of this node.
          */
-        const Matrix& getViewProjectionMatrix() const;
+        const glm::mat4& getViewProjectionMatrix() const;
 
         /**
          * Gets the inverse view * projection matrix corresponding to this node based
@@ -273,7 +270,7 @@ namespace gameplay
          *
          * @return The inverse view * projection matrix of this node.
          */
-        const Matrix& getInverseViewProjectionMatrix() const;
+        const glm::mat4& getInverseViewProjectionMatrix() const;
 
         /**
          * Gets the world * view * projection matrix corresponding to this node based
@@ -281,63 +278,35 @@ namespace gameplay
          *
          * @return The world * view * projection matrix of this node.
          */
-        const Matrix& getWorldViewProjectionMatrix() const;
+        glm::mat4 getWorldViewProjectionMatrix() const;
 
         /**
          * Gets the translation vector (or position) of this Node in world space.
          *
          * @return The world translation vector.
          */
-        Vector3 getTranslationWorld() const;
+        glm::vec3 getTranslationWorld() const;
 
         /**
          * Gets the translation vector (or position) of this Node in view space.
          *
          * @return The view space translation vector.
          */
-        Vector3 getTranslationView() const;
-
-        /**
-         * Returns the forward vector of the Node in world space.
-         *
-         * @return The forward vector in world space.
-         */
-        Vector3 getForwardVectorWorld() const;
-
-        /**
-         * Returns the forward vector of the Node in view space.
-         *
-         * @return The forward vector in view space.
-         */
-        Vector3 getForwardVectorView() const;
-
-        /**
-         * Returns the right vector of the Node in world space.
-         *
-         * @return The right vector in world space.
-         */
-        Vector3 getRightVectorWorld() const;
-
-        /**
-         * Returns the up vector of the Node in world space.
-         *
-         * @return The up vector in world space.
-         */
-        Vector3 getUpVectorWorld() const;
+        glm::vec3 getTranslationView() const;
 
         /**
          * Returns the translation vector of the currently active camera for this node's scene.
          *
          * @return The translation vector of the scene's active camera.
          */
-        Vector3 getActiveCameraTranslationWorld() const;
+        glm::vec3 getActiveCameraTranslationWorld() const;
 
         /**
          * Returns the view-space translation vector of the currently active camera for this node's scene.
          *
          * @return The translation vector of the scene's active camera, in view-space.
          */
-        Vector3 getActiveCameraTranslationView() const;
+        glm::vec3 getActiveCameraTranslationView() const;
 
         /**
          * Gets the drawable object attached to this node.
@@ -429,11 +398,11 @@ namespace gameplay
 
         void resetRotationPatch()
         {
-            _rotationPatch.setIdentity();
+            _rotationPatch = glm::quat();
             dirty(DIRTY_ROTATION);
         }
 
-        void setRotationPatch(const Quaternion& q)
+        void setRotationPatch(const glm::quat& q)
         {
             _rotationPatch = q;
             dirty(DIRTY_ROTATION);
@@ -468,14 +437,8 @@ namespace gameplay
 
     private:
 
-        /**
-         * Hidden copy constructor.
-         */
-        Node(const Node& copy);
+        Node(const Node& copy) = delete;
 
-        /**
-         * Hidden copy assignment operator.
-         */
         Node& operator=(const Node&) = delete;
 
     protected:
@@ -493,7 +456,7 @@ namespace gameplay
         /** If this node is enabled. Maybe different if parent is enabled/disabled. */
         bool _enabled;
         /** Tags assigned to this node. */
-        std::map<std::string, std::string>* _tags;
+        std::map<std::string, std::string> _tags;
         /** The drawble component attached to this node. */
         std::shared_ptr<Drawable> _drawable;
         /** The camera component attached to this node. */
@@ -503,7 +466,7 @@ namespace gameplay
         /** The user object component attached to this node. */
         void* _userObject;
         /** The world matrix for this node. */
-        mutable Matrix _world;
+        mutable glm::mat4 _world;
         /** The bounding sphere for this node. */
         mutable BoundingSphere _bounds;
         /** The dirty bits used for optimization. */

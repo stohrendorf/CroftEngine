@@ -11,15 +11,14 @@ namespace render
 
         bool checkVisibility(const loader::Portal* portal, const gameplay::Camera& camera)
         {
-            gameplay::Vector3 camPos;
-            camera.getViewMatrix().getTranslation(&camPos);
-            if( portal->normal.toRenderSystem().dot(portal->vertices[0].toRenderSystem() - camPos) >= 0 )
+            glm::vec3 camPos{ camera.getViewMatrix()[3] };
+            if( glm::dot(portal->normal.toRenderSystem(), portal->vertices[0].toRenderSystem() - camPos) >= 0 )
             {
                 return false; // wrong orientation (normals must face the camera)
             }
 
             int numBehind = 0, numTooFar = 0;
-            std::pair<gameplay::Vector3, bool> screen[4];
+            std::pair<glm::vec3, bool> screen[4];
 
             gameplay::BoundingBox portalBB{0, 0, 0, 0, 0, 0};
             portalBB.min = { 1,1,0 };
@@ -73,26 +72,21 @@ namespace render
         }
 
     private:
-        static std::pair<gameplay::Vector3, bool> projectOnScreen(gameplay::Vector3 vertex,
+        static std::pair<glm::vec3, bool> projectOnScreen(glm::vec3 vertex,
                                                                      const gameplay::Camera& camera,
                                                                      int& numBehind,
                                                                      int& numTooFar)
         {
-            camera.getViewMatrix().transformVector(&vertex);
+            vertex = glm::vec3(camera.getViewMatrix() * glm::vec4(vertex, 1));
             if(vertex.z <= camera.getNearPlane())
                 ++numBehind;
             else if(vertex.z > camera.getFarPlane())
                 ++numTooFar;
 
-            gameplay::Vector4 tmp;
-            tmp.x = vertex.x;
-            tmp.y = vertex.y;
-            tmp.z = vertex.z;
-            tmp.w = 1;
+            glm::vec4 tmp{vertex, 1};
+            tmp = camera.getProjectionMatrix() * tmp;
 
-            camera.getProjectionMatrix().transformVector(&tmp);
-
-            gameplay::Vector3 screen{tmp.x / tmp.w, tmp.y / tmp.w, vertex.z};
+            glm::vec3 screen{tmp.x / tmp.w, tmp.y / tmp.w, vertex.z};
             return{ screen, vertex.z > camera.getNearPlane() };
         }
     };
