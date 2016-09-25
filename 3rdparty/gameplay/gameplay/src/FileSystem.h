@@ -115,18 +115,6 @@ namespace gameplay
         static const char* resolvePath(const char* path);
 
         /**
-         * Lists the files in the specified directory and adds the files to the vector. Excludes directories.
-         *
-         * @param dirPath Directory path relative to the path set in <code>setResourcePath(const char*)</code>.
-         * @param files The vector to append the files to.
-         *
-         * @return True if successful, false if error.
-         *
-         * @script{ignore}
-         */
-        static bool listFiles(const char* dirPath, std::vector<std::string>& files);
-
-        /**
          * Checks if the file at the given path exists.
          *
          * @param filePath The path to the file.
