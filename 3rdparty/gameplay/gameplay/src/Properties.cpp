@@ -1252,7 +1252,7 @@ namespace gameplay
             if( sscanf(str, "%f,%f,%f,%f", &x, &y, &z, &theta) == 4 )
             {
                 if( out )
-                    *out = glm::quat{ MATH_DEG_TO_RAD(theta), glm::vec3(x, y, z) };
+                    *out = glm::angleAxis( glm::radians(theta), glm::vec3(x, y, z) );
                 return true;
             }
             else

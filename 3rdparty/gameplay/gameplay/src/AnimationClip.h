@@ -78,7 +78,7 @@ namespace gameplay
                     rot.x = static_cast<float>((temp1 & 0x3ff0) >> 4);
                     rot.y = -static_cast<float>(((temp1 & 0x000f) << 6) | ((temp2 & 0xfc00) >> 10));
                     rot.z = static_cast<float>(temp2 & 0x03ff);
-                    rot *= MATH_PIX2 / 1024;
+                    rot *= glm::pi<float>() * 2 / 1024;
 
                     bone.rotation = trRotationToQuat(rot);
                 }

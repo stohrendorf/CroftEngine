@@ -11,9 +11,9 @@ namespace util
     }
 
 
-    constexpr float auToRad(int16_t au)
+    inline float auToRad(int16_t au)
     {
-        return au / 65536.0f * 2 * MATH_PI;
+        return au / 65536.0f * 2 * glm::pi<float>();
     }
 
 

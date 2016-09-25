@@ -69,7 +69,7 @@ namespace core
 
         static Angle fromRad(float r)
         {
-            return Angle{gsl::narrow_cast<int32_t>(r / 2 / MATH_PI * 65536 * Scale), RawTag()};
+            return Angle{gsl::narrow_cast<int32_t>(r / 2 / glm::pi<float>() * 65536 * Scale), RawTag()};
         }
 
 
@@ -87,7 +87,7 @@ namespace core
 
         float toRad() const noexcept
         {
-            return m_value * MATH_PI * 2 / Scale / 65536;
+            return m_value * glm::pi<float>() * 2 / Scale / 65536;
         }
 
 

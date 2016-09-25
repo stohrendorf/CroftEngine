@@ -6,6 +6,7 @@
 #include "BoundingBox.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/gtc/constants.inl>
 
 
 namespace gameplay
@@ -138,8 +139,8 @@ namespace gameplay
     {
         const glm::vec3& normal = plane.getNormal();
         // If the origin of the ray is on the plane then the distance is zero.
-        float alpha = (glm::dot(normal, _origin) + plane.getDistance());
-        if( fabs(alpha) < MATH_EPSILON )
+        float alpha = glm::dot(normal, _origin) + plane.getDistance();
+        if( fabs(alpha) < glm::epsilon<float>() )
         {
             return true; // 0.0f;
         }

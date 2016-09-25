@@ -3,7 +3,8 @@
 #include "Game.h"
 #include "Node.h"
 #include "Scene.h"
-#include "Properties.h"
+
+#include <glm/gtc/random.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -699,7 +700,7 @@ namespace gameplay
 
     float ParticleEmitter::generateScalar(float min, float max)
     {
-        return min + (max - min) * MATH_RANDOM_0_1();
+        return min + (max - min) * glm::linearRand(0.0f, 1.0f);
     }
 
 
@@ -709,9 +710,9 @@ namespace gameplay
 
         // Scale each component of the variance vector by a random float
         // between -1 and 1, then add this to the corresponding base component.
-        dst->x = base.x + variance.x * MATH_RANDOM_MINUS1_1();
-        dst->y = base.y + variance.y * MATH_RANDOM_MINUS1_1();
-        dst->z = base.z + variance.z * MATH_RANDOM_MINUS1_1();
+        dst->x = base.x + variance.x * glm::linearRand(-1.0f, 1.0f);
+        dst->y = base.y + variance.y * glm::linearRand(-1.0f, 1.0f);
+        dst->z = base.z + variance.z * glm::linearRand(-1.0f, 1.0f);
     }
 
 
@@ -722,9 +723,9 @@ namespace gameplay
         // Generate a point within a unit cube, then reject if the point is not in a unit sphere.
         do
         {
-            dst->x = MATH_RANDOM_MINUS1_1();
-            dst->y = MATH_RANDOM_MINUS1_1();
-            dst->z = MATH_RANDOM_MINUS1_1();
+            dst->x = glm::linearRand(-1.0f, 1.0f);
+            dst->y = glm::linearRand(-1.0f, 1.0f);
+            dst->z = glm::linearRand(-1.0f, 1.0f);
         } while( dst->length() > 1.0f );
 
         // Scale this point by the scaling vector.
@@ -756,10 +757,10 @@ namespace gameplay
 
         // Scale each component of the variance color by a random float
         // between -1 and 1, then add this to the corresponding base component.
-        dst->x = base.x + variance.x * MATH_RANDOM_MINUS1_1();
-        dst->y = base.y + variance.y * MATH_RANDOM_MINUS1_1();
-        dst->z = base.z + variance.z * MATH_RANDOM_MINUS1_1();
-        dst->w = base.w + variance.w * MATH_RANDOM_MINUS1_1();
+        dst->x = base.x + variance.x * glm::linearRand(-1.0f, 1.0f);
+        dst->y = base.y + variance.y * glm::linearRand(-1.0f, 1.0f);
+        dst->z = base.z + variance.z * glm::linearRand(-1.0f, 1.0f);
+        dst->w = base.w + variance.w * glm::linearRand(-1.0f, 1.0f);
     }
 
 

@@ -4,6 +4,7 @@
 #include "Ray.h"
 #include "BoundingSphere.h"
 #include "BoundingBox.h"
+#include <glm/gtc/constants.inl>
 
 
 namespace gameplay
@@ -85,7 +86,7 @@ namespace gameplay
                 p1._normal.z * p3._normal.y) + p3._normal.x * (p1._normal.y * p2._normal.z - p1._normal.z * p2._normal.y);
 
         // If the determinant is zero, then the planes do not all intersect.
-        if( fabs(det) <= MATH_EPSILON )
+        if( fabs(det) <= glm::epsilon<float>() )
             return;
 
         // Create 3 points, one on each plane.
