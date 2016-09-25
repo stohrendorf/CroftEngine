@@ -83,7 +83,8 @@ namespace gameplay
         for( size_t i = 0, count = vertexFormat.getElementCount(); i < count; ++i )
         {
             const VertexFormat::Element& e = vertexFormat.getElement(i);
-            gameplay::VertexAttribute attrib;
+            gameplay::VertexAttribute attrib = -1;
+            void* pointer = vertexPointer ? static_cast<void*>(static_cast<unsigned char*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
 
             // Constructor vertex attribute name expected in shader.
             switch( e.usage )
@@ -110,7 +111,7 @@ namespace gameplay
                     attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_BLENDINDICES_NAME);
                     break;
                 case VertexFormat::TEXCOORD0:
-                    if( (attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)) != -1 )
+                    if((attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)) != -1)
                         break;
 
                 case VertexFormat::TEXCOORD1:
@@ -120,24 +121,25 @@ namespace gameplay
                 case VertexFormat::TEXCOORD5:
                 case VertexFormat::TEXCOORD6:
                 case VertexFormat::TEXCOORD7:
-                    attrib = shaderProgram->getVertexAttribute(std::string(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME) + char('0' + (e.usage - VertexFormat::TEXCOORD0)));
                     break;
+
                 default:
                     // This happens whenever vertex data contains extra information (not an error).
                     attrib = -1;
                     break;
             }
 
-            if( attrib == -1 )
+            if(attrib != -1)
             {
-                //GP_WARN("Warning: Vertex element with usage '%s' in mesh '%s' does not correspond to an attribute in effect '%s'.", VertexFormat::toString(e.usage), mesh->getUrl(), effect->getId());
+                if(e.usage != VertexFormat::BLENDINDICES)
+                    binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                else
+                    binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_INT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
             }
             else
             {
-                void* pointer = vertexPointer ? static_cast<void*>(static_cast<unsigned char*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
-                binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                BOOST_LOG_TRIVIAL(warning) << "Vertex element with usage '" << e.usage << "' in mesh '" << mesh->getUrl() << "' does not correspond to an attribute in shader '" << shaderProgram->getId() << "'.";
             }
-
             offset += e.size * sizeof(float);
         }
 

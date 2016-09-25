@@ -20,7 +20,7 @@ attribute vec4 a_position;
 
 #if defined(SKINNING)
   attribute vec4 a_blendWeights;
-  attribute vec4 a_blendIndices;
+  attribute ivec4 a_blendIndices;
 #endif
 
 attribute vec2 a_texCoord;

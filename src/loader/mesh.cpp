@@ -10,8 +10,8 @@ namespace loader
     {
         glm::vec2 texcoord0;
         glm::vec3 position;
-        std::array<float, 4> blendIndices{ { 0, 0, 0, 0 } };
-        std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
+        glm::ivec4 blendIndices{ 0, 0, 0, 0 };
+        glm::vec4 blendWeights{ 0, 0, 0, 0 };
 
 
         static gameplay::VertexFormat getFormat(bool withWeights)
@@ -32,8 +32,8 @@ namespace loader
         glm::vec2 texcoord0;
         glm::vec3 position;
         glm::vec3 normal;
-        std::array<float, 4> blendIndices{ { 0,0,0,0 } };
-        std::array<float, 4> blendWeights{ { 0, 0, 0, 0 } };
+        glm::ivec4 blendIndices{ 0, 0, 0, 0 };
+        glm::vec4 blendWeights{ 0, 0, 0, 0 };
 
         static gameplay::VertexFormat getFormat(bool withWeights)
         {
