@@ -93,13 +93,10 @@ namespace gameplay
     {
         if( _matrixDirtyBits )
         {
-            _matrix = glm::mat4(1);
-
             // Compose the matrix in TRS order since we use column-major matrices with column vectors and
             // multiply M*v (as opposed to XNA and DirectX that use row-major matrices with row vectors and multiply v*M).
-            _matrix = glm::mat4(1);
-            _matrix = glm::translate(glm::mat4(1.0f), _translation);
-            _matrix *= glm::mat4_cast(_rotation);
+            _matrix = glm::translate(glm::mat4(1), _translation);
+            _matrix = _matrix * glm::mat4_cast(_rotation);
             _matrix = glm::scale(_matrix, _scale);
 
             _matrixDirtyBits &= ~DIRTY_TRANSLATION & ~DIRTY_ROTATION & ~DIRTY_SCALE;
@@ -411,7 +408,7 @@ namespace gameplay
 
     void Transform::setRotation(const glm::vec3& axis, float angle)
     {
-        _rotation = glm::quat(angle, axis);
+        _rotation = glm::angleAxis(angle, axis);
         dirty(DIRTY_ROTATION);
     }
 
