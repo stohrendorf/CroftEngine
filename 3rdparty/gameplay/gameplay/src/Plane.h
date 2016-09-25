@@ -135,7 +135,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const BoundingSphere& sphere) const;
+        int intersects(const BoundingSphere& sphere) const;
 
         /**
          * Tests whether this plane intersects the specified bounding box.
@@ -146,7 +146,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const BoundingBox& box) const;
+        int intersects(const BoundingBox& box) const;
 
         /**
          * Tests whether this plane intersects the specified frustum.
@@ -157,7 +157,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const Frustum& frustum) const;
+        int intersects(const Frustum& frustum) const;
 
         /**
          * Tests whether this plane intersects the specified plane.
@@ -168,7 +168,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const Plane& plane) const;
+        int intersects(const Plane& plane) const;
 
         /**
          * Tests whether this plane intersects the specified ray.
@@ -179,7 +179,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const Ray& ray) const;
+        int intersects(const Ray& ray) const;
 
         /**
          * Determines whether the given plane is parallel to this plane.

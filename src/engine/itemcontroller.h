@@ -140,7 +140,7 @@ namespace engine
             updateSounds();
         }
 
-        const std::shared_ptr<gameplay::Node>& getSceneNode() const noexcept
+        std::shared_ptr<gameplay::Node> getSceneNode() const noexcept
         {
             return m_sceneNode;
         }

@@ -25,9 +25,7 @@ namespace gameplay
     }
 
 
-    BoundingSphere::~BoundingSphere()
-    {
-    }
+    BoundingSphere::~BoundingSphere() = default;
 
 
     const BoundingSphere& BoundingSphere::empty()
@@ -41,11 +39,7 @@ namespace gameplay
     {
         // If the distance between the spheres' centers is less than or equal
         // to the sum of their radii, then the spheres intersect.
-        float vx = sphere.center.x - center.x;
-        float vy = sphere.center.y - center.y;
-        float vz = sphere.center.z - center.z;
-
-        return sqrt(vx * vx + vy * vy + vz * vz) <= (radius + sphere.radius);
+        return glm::distance(sphere.center, center) <= (radius + sphere.radius);
     }
 
 
@@ -129,7 +123,7 @@ namespace gameplay
     }
 
 
-    float BoundingSphere::intersects(const Ray& ray) const
+    bool BoundingSphere::intersects(const Ray& ray) const
     {
         const glm::vec3& origin = ray.getOrigin();
         const glm::vec3& direction = ray.getDirection();
@@ -150,7 +144,7 @@ namespace gameplay
         // If the discriminant is negative, then there is no intersection.
         if( discriminant < 0.0f )
         {
-            return Ray::INTERSECTS_NONE;
+            return false;
         }
         else
         {
@@ -158,7 +152,7 @@ namespace gameplay
             float sqrtDisc = sqrt(discriminant);
             float t0 = (-B - sqrtDisc) * 0.5f;
             float t1 = (-B + sqrtDisc) * 0.5f;
-            return (t0 > 0.0f && t0 < t1) ? t0 : t1;
+            return true; // (t0 > 0.0f && t0 < t1) ? t0 : t1;
         }
     }
 

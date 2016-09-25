@@ -178,7 +178,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const Plane& plane) const;
+        int intersects(const Plane& plane) const;
 
         /**
          * Tests whether this frustum intersects the specified ray.
@@ -189,7 +189,7 @@ namespace gameplay
          *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
-        float intersects(const Ray& ray) const;
+        bool intersects(const Ray& ray) const;
 
         /**
          * Sets this frustum to the specified frustum.

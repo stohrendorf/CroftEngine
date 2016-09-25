@@ -136,7 +136,7 @@ namespace gameplay
          *  the plane, Plane::INTERSECTS_FRONT INTERSECTS_FRONT if it is in the positive half-space of the plane;
          *  and Plane::INTERSECTS_INTERSECTING INTERSECTS_INTERSECTING if it intersects the plane.
          */
-        float intersects(const Plane& plane) const;
+        int intersects(const Plane& plane) const;
 
         /**
          * Tests whether this bounding box intersects the specified ray.
@@ -146,7 +146,7 @@ namespace gameplay
          * @return The distance from the origin of the ray to this bounding box or
          *  INTERSECTS_NONE INTERSECTS_NONE if the ray does not intersect this bounding box.
          */
-        int intersects(const Ray& ray) const;
+        bool intersects(const Ray& ray) const;
 
         /**
          * Determines if this bounding box is empty.

@@ -98,7 +98,7 @@ namespace gameplay
          * @return The distance from the origin of the ray to this bounding sphere or
          *  Ray::INTERSECTS_NONE INTERSECTS_NONE if the ray does not intersect this bounding sphere.
          */
-        float intersects(const Ray& ray) const;
+        bool intersects(const Ray& ray) const;
 
         /**
          * Determines if this bounding sphere is empty.

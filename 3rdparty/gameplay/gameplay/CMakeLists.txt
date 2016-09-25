@@ -111,6 +111,8 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
     target_compile_definitions(gameplay PUBLIC -D_DEBUG -DNOMINMAX)
 endif()
 
+target_compile_definitions(gameplay PUBLIC -DGLM_FORCE_RADIANS)
+
 target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm)
 
 set_target_properties(gameplay PROPERTIES

@@ -24,9 +24,7 @@ namespace gameplay
     }
 
 
-    Frustum::~Frustum()
-    {
-    }
+    Frustum::~Frustum() = default;
 
 
     const Plane& Frustum::getNear() const
@@ -138,13 +136,13 @@ namespace gameplay
     }
 
 
-    float Frustum::intersects(const Plane& plane) const
+    int Frustum::intersects(const Plane& plane) const
     {
         return plane.intersects(*this);
     }
 
 
-    float Frustum::intersects(const Ray& ray) const
+    bool Frustum::intersects(const Ray& ray) const
     {
         return ray.intersects(*this);
     }

@@ -116,7 +116,7 @@ public:
      * @return The distance from the origin of this ray to the bounding object or
      *     INTERSECTS_NONE if this ray does not intersect the bounding object.
      */
-    float intersects(const BoundingSphere& sphere) const;
+    bool intersects(const BoundingSphere& sphere) const;
 
     /**
      * Tests whether this ray intersects the specified bounding box.
@@ -126,7 +126,7 @@ public:
      * @return The distance from the origin of this ray to the bounding object or
      *     INTERSECTS_NONE if this ray does not intersect the bounding object.
      */
-    float intersects(const BoundingBox& box) const;
+    bool intersects(const BoundingBox& box) const;
 
     /**
      * Tests whether this ray intersects the specified frustum.
@@ -136,7 +136,7 @@ public:
      * @return The distance from the origin of this ray to the frustum or
      *     INTERSECTS_NONE if this ray does not intersect the frustum.
      */
-    float intersects(const Frustum& frustum) const;
+    bool intersects(const Frustum& frustum) const;
 
     /**
      * Tests whether this ray intersects the specified plane and returns the distance
@@ -147,7 +147,7 @@ public:
      * @return The distance from the origin of this ray to the plane or
      *     INTERSECTS_NONE if this ray does not intersect the plane.
      */
-    float intersects(const Plane& plane) const;
+    bool intersects(const Plane& plane) const;
 
     /**
      * Sets this ray to the specified values.

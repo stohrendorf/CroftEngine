@@ -109,29 +109,26 @@ namespace gameplay
     }
 
 
-    float BoundingBox::intersects(const Plane& plane) const
+    int BoundingBox::intersects(const Plane& plane) const
     {
         // Calculate the distance from the center of the box to the plane.
         glm::vec3 center((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, (min.z + max.z) * 0.5f);
         float distance = plane.distance(center);
 
         // Get the extents of the box from its center along each axis.
-        float extentX = (max.x - min.x) * 0.5f;
-        float extentY = (max.y - min.y) * 0.5f;
-        float extentZ = (max.z - min.z) * 0.5f;
+        const auto extent = (max - min) * 0.5f;
 
         const glm::vec3& planeNormal = plane.getNormal();
-        if( fabsf(distance) <= (fabsf(extentX * planeNormal.x) + fabsf(extentY * planeNormal.y) + fabsf(
-                                                                     extentZ * planeNormal.z)) )
+        if( fabsf(distance) <= (fabsf(extent.x * planeNormal.x) + fabsf(extent.y * planeNormal.y) + fabsf(extent.z * planeNormal.z)) )
         {
             return Plane::INTERSECTS_INTERSECTING;
         }
 
-        return (distance > 0.0f) ? (float)Plane::INTERSECTS_FRONT : (float)Plane::INTERSECTS_BACK;
+        return (distance > 0.0f) ? Plane::INTERSECTS_FRONT : Plane::INTERSECTS_BACK;
     }
 
 
-    int BoundingBox::intersects(const Ray& ray) const
+    bool BoundingBox::intersects(const Ray& ray) const
     {
         // Intermediate calculation variables.
         float dnear = 0.0f;
@@ -160,7 +157,7 @@ namespace gameplay
         // Check if the ray misses the box.
         if( dnear > dfar || dfar < 0.0f )
         {
-            return Ray::INTERSECTS_NONE;
+            return false;
         }
 
         // Y direction.
@@ -188,7 +185,7 @@ namespace gameplay
         // Check if the ray misses the box.
         if( dnear > dfar || dfar < 0.0f )
         {
-            return Ray::INTERSECTS_NONE;
+            return false;
         }
 
         // Z direction.
@@ -217,10 +214,10 @@ namespace gameplay
         // Check if the ray misses the box.
         if( dnear > dfar || dfar < 0.0f )
         {
-            return Ray::INTERSECTS_NONE;
+            return false;
         }
         // The ray intersects the box (and since the direction of a Ray is normalized, dnear is the distance to the ray).
-        return dnear;
+        return true;
     }
 
 

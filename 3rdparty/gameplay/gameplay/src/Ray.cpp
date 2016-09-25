@@ -34,9 +34,7 @@ namespace gameplay
     }
 
 
-    Ray::~Ray()
-    {
-    }
+    Ray::~Ray() = default;
 
 
     const glm::vec3& Ray::getOrigin() const
@@ -77,19 +75,19 @@ namespace gameplay
     }
 
 
-    float Ray::intersects(const BoundingSphere& sphere) const
+    bool Ray::intersects(const BoundingSphere& sphere) const
     {
         return sphere.intersects(*this);
     }
 
 
-    float Ray::intersects(const BoundingBox& box) const
+    bool Ray::intersects(const BoundingBox& box) const
     {
         return box.intersects(*this);
     }
 
 
-    float Ray::intersects(const Frustum& frustum) const
+    bool Ray::intersects(const Frustum& frustum) const
     {
         Plane n = frustum.getNear();
         float nD = intersects(n);
@@ -121,7 +119,7 @@ namespace gameplay
                                          (lOD < 0.0f && lD < 0.0f) || (rOD < 0.0f && rD < 0.0f) ||
                                          (bOD < 0.0f && bD < 0.0f) || (tOD < 0.0f && tD < 0.0f) )
         {
-            return Ray::INTERSECTS_NONE;
+            return false;
         }
 
         // Otherwise, the intersection distance is the minimum positive intersection distance.
@@ -132,18 +130,18 @@ namespace gameplay
         d = (tD > 0.0f) ? ((d == 0.0f) ? bD : min(bD, d)) : d;
         d = (bD > 0.0f) ? ((d == 0.0f) ? tD : min(tD, d)) : d;
 
-        return d;
+        return true; // d;
     }
 
 
-    float Ray::intersects(const Plane& plane) const
+    bool Ray::intersects(const Plane& plane) const
     {
         const glm::vec3& normal = plane.getNormal();
         // If the origin of the ray is on the plane then the distance is zero.
         float alpha = (glm::dot(normal, _origin) + plane.getDistance());
         if( fabs(alpha) < MATH_EPSILON )
         {
-            return 0.0f;
+            return true; // 0.0f;
         }
 
         float dot = glm::dot(normal, _direction);
@@ -152,7 +150,7 @@ namespace gameplay
         // then the ray is parallel to the plane and does not intersect it.
         if( dot == 0.0f )
         {
-            return INTERSECTS_NONE;
+            return false;
         }
 
         // Calculate the distance along the ray's direction vector to the point where
@@ -160,9 +158,9 @@ namespace gameplay
         float d = -alpha / dot;
         if( d < 0.0f )
         {
-            return INTERSECTS_NONE;
+            return false;
         }
-        return d;
+        return true; // d;
     }
 
 

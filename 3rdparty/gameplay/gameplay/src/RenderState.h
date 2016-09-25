@@ -1,6 +1,11 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/detail/_vectorize.hpp>
+#include <glm/detail/_vectorize.hpp>
+#include <glm/detail/_vectorize.hpp>
+#include <glm/detail/_vectorize.hpp>
+
 
 namespace gameplay
 {
@@ -592,11 +597,11 @@ namespace gameplay
         const glm::mat4& autoBindingGetWorldMatrix() const;
         const glm::mat4& autoBindingGetViewMatrix() const;
         const glm::mat4& autoBindingGetProjectionMatrix() const;
-        const glm::mat4& autoBindingGetWorldViewMatrix() const;
+        glm::mat4 autoBindingGetWorldViewMatrix() const;
         const glm::mat4& autoBindingGetViewProjectionMatrix() const;
-        const glm::mat4& autoBindingGetWorldViewProjectionMatrix() const;
-        const glm::mat4& autoBindingGetInverseTransposeWorldMatrix() const;
-        const glm::mat4& autoBindingGetInverseTransposeWorldViewMatrix() const;
+        glm::mat4 autoBindingGetWorldViewProjectionMatrix() const;
+        glm::mat4 autoBindingGetInverseTransposeWorldMatrix() const;
+        glm::mat4 autoBindingGetInverseTransposeWorldViewMatrix() const;
         glm::vec3 autoBindingGetCameraWorldPosition() const;
         glm::vec3 autoBindingGetCameraViewPosition() const;
         const glm::vec4* autoBindingGetMatrixPalette() const;

@@ -256,10 +256,9 @@ namespace gameplay
     }
 
 
-    const glm::mat4& RenderState::autoBindingGetWorldViewMatrix() const
+    glm::mat4 RenderState::autoBindingGetWorldViewMatrix() const
     {
-        static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getWorldViewMatrix() : identity;
+        return _nodeBinding ? _nodeBinding->getWorldViewMatrix() : glm::mat4{ 1.0f };
     }
 
 
@@ -270,24 +269,21 @@ namespace gameplay
     }
 
 
-    const glm::mat4& RenderState::autoBindingGetWorldViewProjectionMatrix() const
+    glm::mat4 RenderState::autoBindingGetWorldViewProjectionMatrix() const
     {
-        static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getWorldViewProjectionMatrix() : identity;
+        return _nodeBinding ? _nodeBinding->getWorldViewProjectionMatrix() : glm::mat4{ 1.0f };
     }
 
 
-    const glm::mat4& RenderState::autoBindingGetInverseTransposeWorldMatrix() const
+    glm::mat4 RenderState::autoBindingGetInverseTransposeWorldMatrix() const
     {
-        static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldMatrix() : identity;
+        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldMatrix() : glm::mat4{ 1.0f };
     }
 
 
-    const glm::mat4& RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
+    glm::mat4 RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
     {
-        static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldViewMatrix() : identity;
+        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldViewMatrix() : glm::mat4{ 1.0f };
     }
 
 
