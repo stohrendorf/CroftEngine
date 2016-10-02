@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AnimationController.h"
 #include "Rectangle.h"
 #include "TimeListener.h"
 #include "Platform.h"
@@ -219,14 +218,6 @@ namespace gameplay
          */
         void clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil);
 
-        /**
-         * Gets the animation controller for managing control of animations
-         * associated with the game.
-         *
-         * @return The animation controller for this game.
-         */
-        inline AnimationController* getAnimationController() const;
-
 
         /**
          * Called when the game window has been resized.
@@ -402,7 +393,6 @@ namespace gameplay
         float _clearDepth; // The clear depth value last used for clearing the depth buffer.
         int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
         Properties* _properties; // Game configuration properties object.
-        AnimationController* _animationController; // Controls the scheduling and running of animations.
         std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>* _timeEvents; // Contains the scheduled time events.
 
         // Note: Do not add STL object member variables on the stack; this will cause false memory leaks to be reported.
@@ -451,12 +441,6 @@ namespace gameplay
     inline const Rectangle& Game::getViewport() const
     {
         return _viewport;
-    }
-
-
-    inline AnimationController* Game::getAnimationController() const
-    {
-        return _animationController;
     }
 
 

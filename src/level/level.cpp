@@ -670,7 +670,6 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
             const int32_t* boneTreeData = model->boneTreeIndex >= m_boneTrees.size() ? nullptr : &m_boneTrees[model->boneTreeIndex];
 
             auto clip = std::make_unique<gameplay::AnimationClip>(renderModel->getSkin().get(),
-                                                                  game->getAnimationController(),
                                                                   core::toTime(start),
                                                                   core::toTime(end),
                                                                   core::toTime(step),

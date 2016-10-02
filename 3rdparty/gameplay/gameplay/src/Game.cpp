@@ -29,7 +29,6 @@ namespace gameplay
         , _clearDepth(1.0f)
         , _clearStencil(0)
         , _properties(nullptr)
-        , _animationController(nullptr)
         , _timeEvents(nullptr)
     {
         BOOST_ASSERT(__gameInstance == nullptr);
@@ -151,9 +150,6 @@ namespace gameplay
         RenderState::initialize();
         FrameBuffer::initialize();
 
-        _animationController = new AnimationController();
-        _animationController->initialize();
-
         _state = RUNNING;
 
         return true;
@@ -165,15 +161,10 @@ namespace gameplay
         // Call user finalization.
         if( _state != UNINITIALIZED )
         {
-            BOOST_ASSERT(_animationController);
-
             Platform::signalShutdown();
 
             // Call user finalize
             finalize();
-
-            _animationController->finalize();
-            SAFE_DELETE(_animationController);
 
             FrameBuffer::finalize();
             RenderState::finalize();
@@ -189,10 +180,8 @@ namespace gameplay
     {
         if( _state == RUNNING )
         {
-            BOOST_ASSERT(_animationController);
             _state = PAUSED;
             _pausedTimeLast = Platform::getAbsoluteTime();
-            _animationController->pause();
         }
 
         ++_pausedCount;
@@ -207,10 +196,8 @@ namespace gameplay
 
             if( _pausedCount == 0 )
             {
-                BOOST_ASSERT(_animationController);
                 _state = RUNNING;
                 _pausedTimeTotal += Platform::getAbsoluteTime() - _pausedTimeLast;
-                _animationController->resume();
             }
         }
     }
@@ -224,20 +211,8 @@ namespace gameplay
         // release them nicely. For large games, shutdown can end up taking long time,
         // so we'll just call ::exit(0) to force an instant shutdown.
 
-#ifdef GP_USE_MEM_LEAK_DETECTION
-
-        // Schedule a call to shutdown rather than calling it right away.
-        // This handles the case of shutting down the script system from
-        // within a script function (which can cause errors).
-        static ShutdownListener listener;
-        schedule(0, &listener);
-
-#else
-
         // End the process immediately without a full shutdown
         ::exit(0);
-
-#endif
     }
 
 
@@ -258,14 +233,9 @@ namespace gameplay
 
         if( _state == Game::RUNNING )
         {
-            BOOST_ASSERT(_animationController);
-
             // Update Time.
             std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
             lastFrameTime = frameTime;
-
-            // Update the scheduled and running animations.
-            _animationController->update(elapsedTime);
 
             // Application Update.
             update(elapsedTime);
@@ -301,16 +271,11 @@ namespace gameplay
 
     void Game::updateOnce()
     {
-        BOOST_ASSERT(_animationController);
-
         // Update Time.
         static std::chrono::microseconds lastFrameTime = getGameTime();
         std::chrono::microseconds frameTime = getGameTime();
         std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
         lastFrameTime = frameTime;
-
-        // Update the internal controllers.
-        _animationController->update(elapsedTime);
     }
 
 

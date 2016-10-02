@@ -7,7 +7,7 @@
 
 namespace gameplay
 {
-AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime, const std::chrono::microseconds& step, const int16_t* poseData, size_t poseDataStride, const int32_t* boneTreeData)
+AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime, const std::chrono::microseconds& step, const int16_t* poseData, size_t poseDataStride, const int32_t* boneTreeData)
         : _skin{skin}
         , _startTime{startTime}
         , _endTime{endTime}
@@ -18,10 +18,8 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         , _endListeners{}
         , _listeners{}
         , _listenerItr{}
-        , _controller{controller}
     {
         BOOST_ASSERT(_skin);
-        BOOST_ASSERT(_controller);
         BOOST_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= endTime);
 
         for(auto i = startTime; i < endTime; i += step)
@@ -110,8 +108,6 @@ AnimationClip::AnimationClip(MeshSkin* skin, AnimationController* controller, co
         else
         {
             setClipStateBit(CLIP_IS_PLAYING_BIT);
-            BOOST_ASSERT(_controller);
-            _controller->schedule(this);
         }
 
         const auto timeOffset = time - _startTime;

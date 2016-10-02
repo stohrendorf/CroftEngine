@@ -6,7 +6,6 @@
 
 namespace gameplay
 {
-    class AnimationController;
     class MeshSkin;
 
 
@@ -15,11 +14,8 @@ namespace gameplay
      */
     class AnimationClip
     {
-        friend class AnimationController;
-
     public:
         AnimationClip(MeshSkin* skin,
-                      AnimationController* controller,
                       const std::chrono::microseconds& startTime,
                       const std::chrono::microseconds& endTime,
                       const std::chrono::microseconds& step,
@@ -378,7 +374,6 @@ namespace gameplay
         std::list<ListenerEvent*> _listeners; // Ordered collection of listeners on the clip.
         std::list<ListenerEvent*>::iterator* _listenerItr; // Iterator that points to the next listener event to be triggered.
         std::map<std::chrono::microseconds, Pose> _poses;
-        AnimationController* _controller; // The AnimationController that this Animation will run on.
         BoundingBox _bbox;
     };
 }

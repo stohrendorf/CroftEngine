@@ -2,6 +2,7 @@
 #include "Platform.h"
 #include "FileSystem.h"
 #include "Game.h"
+#include "Properties.h"
 
 #include <boost/log/trivial.hpp>
 

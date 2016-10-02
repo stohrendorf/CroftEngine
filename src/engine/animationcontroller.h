@@ -2,9 +2,9 @@
 
 #include "level/level.h"
 #include "loader/animation.h"
+#include "util/vmath.h"
 
 #include <boost/optional.hpp>
-#include "util/vmath.h"
 
 
 namespace engine
@@ -118,6 +118,7 @@ namespace engine
 
 
         void advanceFrame();
+        void update(const std::chrono::microseconds& delta);
         core::Frame getCurrentFrame() const;
         core::Frame getAnimEndFrame() const;
 

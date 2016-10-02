@@ -58,6 +58,24 @@ namespace engine
     }
 
 
+    void MeshAnimationController::update(const std::chrono::microseconds& delta)
+    {
+        auto it = m_model.animationClips.find(m_currentAnimationId);
+        BOOST_ASSERT(it != m_model.animationClips.end());
+        const auto& clip = it->second;
+
+        if(clip->getElapsedTime() + delta >= clip->getEndTime())
+        {
+            handleAnimationEnd();
+        }
+        else
+        {
+            clip->setElapsedTime(clip->getElapsedTime() + delta);
+        }
+
+        handleTRTransitions();
+    }
+
     core::Frame MeshAnimationController::getCurrentFrame() const
     {
         auto it = m_model.animationClips.find(m_currentAnimationId);

@@ -157,6 +157,8 @@ namespace engine
             m_position.position.X += dx;
             m_position.position.Y += dy;
             m_position.position.Z += dz;
+
+            BOOST_LOG_TRIVIAL(debug) << "Move " << dx << "/" << dy << "/" << dz;
         }
 
         void moveLocal(float dx, float dy, float dz)
@@ -293,30 +295,7 @@ namespace engine
         void activate();
         void deactivate();
 
-        void update(const std::chrono::microseconds& deltaTimeMs)
-        {
-            m_currentDeltaTime = deltaTimeMs;
-
-            if(m_currentDeltaTime <= std::chrono::microseconds::zero())
-                return;
-
-            bool isNewFrame = m_meshAnimationController == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
-            m_subFrameTime += deltaTimeMs;
-
-            if(m_subFrameTime >= core::FrameTime)
-            {
-                isNewFrame = true;
-                m_subFrameTime -= m_subFrameTime / core::FrameTime * core::FrameTime;
-            }
-
-            animateImpl(isNewFrame);
-
-            if(m_isActive && m_hasProcessAnimCommandsOverride)
-                processAnimCommands();
-
-            applyRotation();
-            applyPosition();
-        }
+        void update(const std::chrono::microseconds& deltaTimeMs);
 
         virtual void animateImpl(bool isNewFrame) = 0;
 

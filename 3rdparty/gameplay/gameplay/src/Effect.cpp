@@ -2,11 +2,13 @@
 #include "Effect.h"
 #include "FileSystem.h"
 #include "Game.h"
+#include "Properties.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
+
 
 namespace gameplay
 {

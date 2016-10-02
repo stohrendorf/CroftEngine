@@ -5,7 +5,7 @@
 #include "MaterialParameter.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <boost/log/trivial.hpp>
 
