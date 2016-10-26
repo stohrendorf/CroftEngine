@@ -134,15 +134,15 @@ int main()
         std::ifstream fontFile{ "monospace.data", std::ios::in | std::ios::binary };
         fontFile.seekg(0, std::ios::end);
 
-        if(fontFile.tellg().seekpos() != 512 * 256 * 3)
+        if(fontFile.tellg().seekpos() != 256 * 256 * 4)
             BOOST_THROW_EXCEPTION(std::runtime_error("Invalid font data"));
 
         fontData.resize(fontFile.tellg());
         fontFile.seekg(0);
         fontFile.read(fontData.data(), fontData.size());
 
-        auto texture = gameplay::Texture::create(gameplay::Image::createRGB(512, 256, fontData.data()), false);
-        return std::make_unique<gameplay::Font>(texture, 32, 32);
+        auto texture = gameplay::Texture::create(gameplay::Image::createRGBA(256, 256, fontData.data()), false);
+        return std::make_unique<gameplay::Font>(texture, 16, 16);
     };
 
     auto font = loadFont();

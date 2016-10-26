@@ -38,19 +38,21 @@ namespace gameplay
         }
         else
         {
+            const auto currentVertexCount = m_vertices.size() / m_vertexFormat.getVertexSize();
+
             if( m_primitiveType == Mesh::TRIANGLE_STRIP )
             {
                 // Create a degenerate triangle to connect separate triangle strips
                 // by duplicating the previous and next vertices.
                 m_indices.emplace_back(m_indices.back());
-                m_indices.emplace_back(m_vertices.size());
+                m_indices.emplace_back(currentVertexCount);
             }
 
             // Loop through all indices and insert them, with their values offset by
             // 'vertexCount' so that they are relative to the first newly inserted vertex.
             for( size_t i = 0; i < indices.size(); ++i )
             {
-                m_indices.emplace_back(indices[i] + m_vertices.size());
+                m_indices.emplace_back(indices[i] + currentVertexCount);
             }
         }
 

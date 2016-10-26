@@ -10,6 +10,9 @@ varying vec4 v_color;
 
 void main()
 {
-    gl_FragColor = v_color;
-    gl_FragColor.a = texture2D(u_texture, v_texCoord).a * v_color.a;
+    vec4 orig = gl_FragColor;
+    vec4 blendColor = v_color;
+    blendColor.a = texture2D(u_texture, v_texCoord).a * v_color.a;
+
+    gl_FragColor = mix(orig, blendColor, blendColor.a);
 }
