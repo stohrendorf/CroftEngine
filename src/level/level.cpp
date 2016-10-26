@@ -891,6 +891,7 @@ engine::ItemController* Level::getItemController(uint16_t id) const
 
 void Level::drawBars(gameplay::Game* game) const
 {
+#pragma message("TODO: Level::drawBars() is disabled")
 #if 0
     if( m_lara->isInWater() )
     {

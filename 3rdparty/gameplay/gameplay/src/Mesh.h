@@ -4,11 +4,11 @@
 #include "BoundingBox.h"
 #include "BoundingSphere.h"
 
+#include <memory>
 
 namespace gameplay
 {
     class MeshPart;
-    class Material;
     class Model;
 
 
@@ -16,10 +16,9 @@ namespace gameplay
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
-    class Mesh
+    class Mesh : public std::enable_shared_from_this<Mesh>
     {
         friend class Model;
-        friend class Bundle;
 
     public:
         explicit Mesh(const VertexFormat& vertexFormat);
@@ -157,14 +156,14 @@ namespace gameplay
          *
          * @return The number of vertices in the mesh.
          */
-        unsigned int getVertexCount() const;
+        size_t getVertexCount() const;
 
         /**
          * Gets the size of a single vertex in the mesh.
          *
          * @return The size of 1 vertex in the mesh.
          */
-        unsigned int getVertexSize() const;
+        size_t getVertexSize() const;
 
         /**
          * Returns a handle to the vertex buffer for the mesh.
@@ -224,14 +223,14 @@ namespace gameplay
          *
          * @return The newly created/added mesh part.
          */
-        MeshPart* addPart(PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Gets the number of mesh parts contained within the mesh.
          *
          * @return The number of mesh parts contained within the mesh.
          */
-        unsigned int getPartCount() const;
+        size_t getPartCount() const;
 
         /**
          * Gets a MeshPart by index.
@@ -240,7 +239,7 @@ namespace gameplay
          *
          * @return The MeshPart at the specified index.
          */
-        MeshPart* getPart(size_t index);
+        const std::shared_ptr<MeshPart>& getPart(size_t index);
 
         /**
          * Returns the bounding box for the points in this mesh.
@@ -312,10 +311,10 @@ namespace gameplay
 
         std::string _url;
         const VertexFormat _vertexFormat;
-        unsigned int _vertexCount;
+        size_t _vertexCount;
         VertexBufferHandle _vertexBuffer;
         PrimitiveType _primitiveType;
-        std::vector<MeshPart*> _parts;
+        std::vector<std::shared_ptr<MeshPart>> _parts;
         bool _dynamic;
         BoundingBox _boundingBox;
         BoundingSphere _boundingSphere;

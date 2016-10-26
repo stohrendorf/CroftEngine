@@ -25,7 +25,7 @@ void ScreenDisplayer::start(const std::chrono::microseconds& time)
     }
 
     __scriptInstance->_time = time;
-    Game::getInstance()->renderOnce();
+    Game::getInstance()->swapBuffers();
     __scriptInstance->_startTime = Game::getInstance()->getGameTime();
 }
 

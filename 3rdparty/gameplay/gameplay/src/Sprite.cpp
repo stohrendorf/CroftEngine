@@ -29,7 +29,6 @@ namespace gameplay
     Sprite::~Sprite()
     {
         SAFE_DELETE_ARRAY(_frames);
-        SAFE_DELETE(_batch);
     }
 
 
@@ -332,7 +331,7 @@ namespace gameplay
         BOOST_ASSERT(source.width >= -1 && source.height >= -1);
         BOOST_ASSERT(frameCount > 0);
 
-        SpriteBatch* batch = SpriteBatch::create(texture, shaderProgram);
+        auto batch = SpriteBatch::create(texture, shaderProgram);
         batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
         batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
         batch->getStateBlock()->setDepthWrite(false);

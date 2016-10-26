@@ -768,7 +768,7 @@ namespace gameplay
         glm::vec3 _rotationAxis;
         glm::vec3 _rotationAxisVar;
         glm::quat _rotation;
-        SpriteBatch* _spriteBatch;
+        std::shared_ptr<SpriteBatch> _spriteBatch;
         BlendMode _spriteBlendMode;
         float _spriteTextureWidth;
         float _spriteTextureHeight;

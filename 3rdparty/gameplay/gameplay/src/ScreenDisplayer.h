@@ -64,7 +64,7 @@ namespace gameplay
     void ScreenDisplayer::run(T* instance, void (T::*method)(void*), void* cookie, const std::chrono::microseconds& time)
     {
         _time = time;
-        Game::getInstance()->renderOnce(instance, method, cookie);
+        Game::getInstance()->swapBuffers(instance, method, cookie);
         _startTime = Game::getInstance()->getGameTime();
     }
 

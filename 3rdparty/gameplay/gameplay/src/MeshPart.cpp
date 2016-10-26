@@ -3,11 +3,13 @@
 
 
 #include <boost/log/trivial.hpp>
+#include "Material.h"
+
 
 namespace gameplay
 {
     MeshPart::MeshPart()
-        : _mesh(nullptr)
+        : _mesh()
         , _meshIndex(0)
         , _primitiveType(Mesh::TRIANGLES)
         , _indexFormat()
@@ -27,15 +29,15 @@ namespace gameplay
     }
 
 
-    MeshPart* MeshPart::create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType,
-                               Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic)
+    std::shared_ptr<MeshPart> MeshPart::create(const std::weak_ptr<Mesh>& mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType,
+                                               Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
         // Create a VBO for our index buffer.
-        GLuint vbo;
+        VertexBufferHandle vbo;
         GL_ASSERT( glGenBuffers(1, &vbo) );
         GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo) );
 
-        unsigned int indexSize = 0;
+        size_t indexSize = 0;
         switch( indexFormat )
         {
             case Mesh::INDEX8:
@@ -55,7 +57,7 @@ namespace gameplay
 
         GL_ASSERT( glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * indexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
 
-        MeshPart* part = new MeshPart();
+        auto part = std::make_shared<MeshPart>();
         part->_mesh = mesh;
         part->_meshIndex = meshIndex;
         part->_primitiveType = primitiveType;
@@ -68,7 +70,7 @@ namespace gameplay
     }
 
 
-    unsigned int MeshPart::getMeshIndex() const
+    size_t MeshPart::getMeshIndex() const
     {
         return _meshIndex;
     }
@@ -80,7 +82,7 @@ namespace gameplay
     }
 
 
-    unsigned int MeshPart::getIndexCount() const
+    size_t MeshPart::getIndexCount() const
     {
         return _indexCount;
     }
@@ -105,11 +107,11 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void MeshPart::setIndexData(const void* indexData, unsigned int indexStart, unsigned int indexCount)
+    void MeshPart::setIndexData(const void* indexData, size_t indexStart, size_t indexCount)
     {
         GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer) );
 
-        unsigned int indexSize = 0;
+        size_t indexSize = 0;
         switch( _indexFormat )
         {
             case Mesh::INDEX8:
@@ -140,4 +142,20 @@ namespace gameplay
             GL_ASSERT( glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indexStart * indexSize, indexCount * indexSize, indexData) );
         }
     }
+
+    void MeshPart::setMaterial(const std::shared_ptr<Material>& material)
+    {
+        BOOST_ASSERT(!_mesh.expired());
+
+        _material = material;
+
+        // Hookup vertex attribute bindings for all passes in the new material.
+        auto t = material->getTechnique();
+        BOOST_ASSERT(t);
+        auto p = t->getPass();
+        BOOST_ASSERT(p);
+
+        _vaBinding = VertexAttributeBinding::create(_mesh.lock(), p->getShaderProgram());
+    }
+
 }

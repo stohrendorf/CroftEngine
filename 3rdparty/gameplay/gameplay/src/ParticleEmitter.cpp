@@ -74,7 +74,6 @@ namespace gameplay
 
     ParticleEmitter::~ParticleEmitter()
     {
-        SAFE_DELETE(_spriteBatch);
         SAFE_DELETE_ARRAY(_particles);
         SAFE_DELETE_ARRAY(_spriteTextureCoords);
     }
@@ -95,11 +94,8 @@ namespace gameplay
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
-        SpriteBatch* batch = SpriteBatch::create(texture, nullptr, _particleCountMax);
+        auto batch = SpriteBatch::create(texture, nullptr);
         batch->getSampler()->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
-
-        // Free existing batch
-        SAFE_DELETE(_spriteBatch);
 
         _spriteBatch = batch;
         _spriteBatch->getStateBlock()->setDepthWrite(false);

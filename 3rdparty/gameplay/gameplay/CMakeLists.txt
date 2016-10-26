@@ -78,8 +78,6 @@ set(GAMEPLAY_SRC
     src/SpriteBatch.h
     src/Technique.cpp
     src/Technique.h
-    src/Text.cpp
-    src/Text.h
     src/Texture.cpp
     src/Texture.h
     src/TileSet.cpp

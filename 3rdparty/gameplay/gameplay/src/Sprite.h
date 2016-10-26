@@ -300,7 +300,7 @@ namespace gameplay
         unsigned int _frameStride;
         unsigned int _framePadding;
         unsigned int _frameIndex;
-        SpriteBatch* _batch;
+        std::shared_ptr<SpriteBatch> _batch;
         float _opacity;
         glm::vec4 _color;
         BlendMode _blendMode;

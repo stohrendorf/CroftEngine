@@ -305,7 +305,7 @@ namespace gameplay
          * This is useful for rendering splash screens.
          */
         template<class T>
-        void renderOnce(T* instance, void (T::*method)(void*), void* cookie);
+        void swapBuffers(T* instance, void (T::*method)(void*), void* cookie);
 
         /**
          * Renders a single frame once and then swaps it to the display.
@@ -313,7 +313,7 @@ namespace gameplay
          *
          * This is useful for rendering splash screens.
          */
-        static void renderOnce();
+        static void swapBuffers();
 
         /**
          * Updates the game's internal systems (audio, animation, physics) once.
@@ -445,7 +445,7 @@ namespace gameplay
 
 
     template<class T>
-    void Game::renderOnce(T* instance, void (T::*method)(void*), void* cookie)
+    void Game::swapBuffers(T* instance, void (T::*method)(void*), void* cookie)
     {
         GP_ASSERT(instance);
         (instance->*method)(cookie);

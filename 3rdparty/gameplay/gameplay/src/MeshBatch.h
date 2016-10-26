@@ -23,32 +23,16 @@ namespace gameplay
         * @param primitiveType The type of primitives that will be added to the batch.
         * @param material Material to be used for drawing the batch.
         * @param indexed True if the batched primitives will contain index data, false otherwise.
-        * @param initialCapacity The initial capacity of the batch, in triangles.
-        * @param growSize Amount to grow the batch by when it overflows (a value of zero prevents batch growing).
         *
         * @return A new mesh batch.
         * @script{create}
         */
-        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material, bool indexed, unsigned int initialCapacity, unsigned int growSize = 1024);
+        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material);
 
         /**
          * Destructor.
          */
         ~MeshBatch();
-
-        /**
-         * Returns the current capacity of the batch.
-         *
-         * @return The batch capacity.
-         */
-        unsigned int getCapacity() const;
-
-        /**
-         * Explicitly sets a new capacity for the batch.
-         *
-         * @param capacity The new batch capacity.
-         */
-        void setCapacity(size_t capacity);
 
         /**
          * Returns the material for this mesh batch.
@@ -74,10 +58,9 @@ namespace gameplay
          * @param vertices Array of vertices.
          * @param vertexCount Number of vertices.
          * @param indices Array of indices into the vertex array (should be NULL for non-indexed batches).
-         * @param indexCount Number of indices (should be zero for non-indexed batches).
          */
         template<class T>
-        void add(const T* vertices, unsigned int vertexCount, const unsigned short* indices = NULL, unsigned int indexCount = 0);
+        void add(const T* vertices, size_t vertexCount, const std::vector<uint16_t>& indices = {});
 
         /**
          * Starts batching.
@@ -111,28 +94,14 @@ namespace gameplay
         MeshBatch(const MeshBatch& copy) = delete;
         MeshBatch& operator=(const MeshBatch&) = delete;
 
-        void add(const void* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount);
-
-        void updateVertexAttributeBinding();
-
-        bool resize(size_t capacity);
+        void add(const void* vertices, size_t vertexCount, const std::vector<uint16_t>& indices);
 
         const VertexFormat m_vertexFormat;
         Mesh::PrimitiveType m_primitiveType;
         std::shared_ptr<Material> m_material;
-        bool m_indexed;
-        size_t m_capacity;
-        size_t m_growSize;
-        size_t m_vertexCapacity;
-        size_t m_indexCapacity;
-        size_t m_vertexCount;
-        size_t m_indexCount;
-        uint8_t* m_vertices;
-        uint8_t* m_verticesPtr;
-        uint16_t* m_indices;
-        uint16_t* m_indicesPtr;
+        std::vector<uint8_t> m_vertices;
+        std::vector<uint16_t> m_indices;
         bool m_started;
-        std::shared_ptr<VertexAttributeBinding> _vaBinding;
     };
 
 
@@ -143,9 +112,9 @@ namespace gameplay
 
 
     template<class T>
-    void MeshBatch::add(const T* vertices, unsigned int vertexCount, const unsigned short* indices, unsigned int indexCount)
+    void MeshBatch::add(const T* vertices, size_t vertexCount, const std::vector<uint16_t>& indices)
     {
         BOOST_ASSERT(sizeof(T) == m_vertexFormat.getVertexSize());
-        add(static_cast<const void*>(vertices), vertexCount, indices, indexCount);
+        add(static_cast<const void*>(vertices), vertexCount, indices);
     }
 }

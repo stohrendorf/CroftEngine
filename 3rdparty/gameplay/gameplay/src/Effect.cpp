@@ -198,7 +198,7 @@ namespace gameplay
 
     std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines)
     {
-        const unsigned int SHADER_SOURCE_LENGTH = 3;
+        const size_t SHADER_SOURCE_LENGTH = 3;
         const GLchar* shaderSource[SHADER_SOURCE_LENGTH];
         char* infoLog = nullptr;
         GLuint vertexShader;
@@ -379,8 +379,8 @@ namespace gameplay
                 GLint uniformSize;
                 GLenum uniformType;
                 GLint uniformLocation;
-                unsigned int samplerIndex = 0;
-                for( int i = 0; i < activeUniforms; ++i )
+                size_t samplerIndex = 0;
+                for( GLint i = 0; i < activeUniforms; ++i )
                 {
                     // Query uniform info.
                     GL_ASSERT( glGetActiveUniform(program, i, length, nullptr, &uniformSize, &uniformType, uniformName) );

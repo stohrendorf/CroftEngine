@@ -5,6 +5,7 @@
 namespace render
 {
     //! @todo Re-enable later
+#pragma message("TODO: lightselector.h is disabled for now")
 #if 0
     class LightSelector final : public irr::scene::ILightManager
     {

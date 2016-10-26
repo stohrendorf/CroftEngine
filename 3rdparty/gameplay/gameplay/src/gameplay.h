@@ -35,7 +35,6 @@
 #include "Font.h"
 #include "SpriteBatch.h"
 #include "Sprite.h"
-#include "Text.h"
 #include "TileSet.h"
 #include "ParticleEmitter.h"
 #include "FrameBuffer.h"

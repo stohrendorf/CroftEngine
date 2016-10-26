@@ -151,7 +151,7 @@ namespace gameplay
 
     void VertexAttributeBinding::setVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalize, GLsizei stride, void* pointer)
     {
-        BOOST_ASSERT(indx < (GLuint)__maxVertexAttribs);
+        BOOST_ASSERT(indx < __maxVertexAttribs);
 
         // Hardware mode.
         GL_ASSERT( glVertexAttribPointer(indx, size, type, normalize, stride, pointer) );

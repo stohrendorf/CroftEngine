@@ -62,7 +62,7 @@ namespace gameplay
         GLenum target = static_cast<GLenum>(type);
 
         // Create the texture.
-        GLuint textureId;
+        TextureHandle textureId;
         GL_ASSERT( glGenTextures(1, &textureId) );
         GL_ASSERT( glBindTexture(target, textureId) );
         GL_ASSERT( glPixelStorei(GL_UNPACK_ALIGNMENT, 1) );

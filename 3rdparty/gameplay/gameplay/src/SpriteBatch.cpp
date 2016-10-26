@@ -9,12 +9,6 @@
 
 #include <boost/log/trivial.hpp>
 
-// Default size of a newly created sprite batch
-#define SPRITE_BATCH_DEFAULT_SIZE 128
-
-// Factor to grow a sprite batch by when its size is exceeded
-#define SPRITE_BATCH_GROW_FACTOR 2.0f
-
 // Macro for adding a sprite to the batch
 #define SPRITE_ADD_VERTEX(vtx, vx, vy, vz, vu, vv, vr, vg, vb, va) \
     vtx.x = vx; vtx.y = vy; vtx.z = vz; \
@@ -41,13 +35,10 @@ namespace gameplay
     }
 
 
-    SpriteBatch::~SpriteBatch()
-    {
-        SAFE_DELETE(_batch);
-    }
+    SpriteBatch::~SpriteBatch() = default;
 
 
-    SpriteBatch* SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, unsigned int initialCapacity)
+    std::shared_ptr<SpriteBatch> SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(texture != nullptr);
         BOOST_ASSERT(texture->getType() == Texture::TEXTURE_2D);
@@ -62,8 +53,7 @@ namespace gameplay
                 __spriteShaderProgram = ShaderProgram::createFromFile(SPRITE_VSH, SPRITE_FSH);
                 if( __spriteShaderProgram == nullptr )
                 {
-                    BOOST_LOG_TRIVIAL(error) << "Unable to load sprite effect.";
-                    return nullptr;
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Unable to load sprite effect."));
                 }
                 fx = __spriteShaderProgram;
             }
@@ -75,7 +65,7 @@ namespace gameplay
 
         // Search for the first sampler uniform in the effect.
         std::shared_ptr<Uniform> samplerUniform = nullptr;
-        for( unsigned int i = 0, count = fx->getUniformCount(); i < count; ++i )
+        for( size_t i = 0, count = fx->getUniformCount(); i < count; ++i )
         {
             auto uniform = fx->getUniform(i);
             if( uniform && uniform->getType() == GL_SAMPLER_2D )
@@ -86,8 +76,7 @@ namespace gameplay
         }
         if( !samplerUniform )
         {
-            BOOST_LOG_TRIVIAL(error) << "No uniform of type GL_SAMPLER_2D found in sprite effect.";
-            return nullptr;
+            BOOST_THROW_EXCEPTION(std::runtime_error("No uniform of type GL_SAMPLER_2D found in sprite effect."));
         }
 
         // Wrap the effect in a material
@@ -111,21 +100,18 @@ namespace gameplay
         };
         VertexFormat vertexFormat(vertexElements, 3);
 
-        // Create the mesh batch
-        MeshBatch* meshBatch = new MeshBatch(vertexFormat, Mesh::TRIANGLE_STRIP, material, true, initialCapacity > 0 ? initialCapacity : SPRITE_BATCH_DEFAULT_SIZE);
-
         // Create the batch
-        SpriteBatch* batch = new SpriteBatch();
+        auto batch = std::make_shared<SpriteBatch>();
         batch->_sampler = sampler;
         batch->_customEffect = customEffect;
-        batch->_batch = meshBatch;
-        batch->_textureWidthRatio = 1.0f / (float)texture->getWidth();
-        batch->_textureHeightRatio = 1.0f / (float)texture->getHeight();
+        batch->_batch = std::make_unique<MeshBatch>(vertexFormat, Mesh::TRIANGLES, material);
+        batch->_textureWidthRatio = 1.0f / texture->getWidth();
+        batch->_textureHeightRatio = 1.0f / texture->getHeight();
 
         // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
         Game* game = Game::getInstance();
         batch->_projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
-        material->getParameter("u_projectionMatrix")->bindValue(batch, &SpriteBatch::getProjectionMatrix);
+        material->getParameter("u_projectionMatrix")->bindValue(batch.get(), &SpriteBatch::getProjectionMatrix);
 
         return batch;
     }
@@ -216,16 +202,16 @@ namespace gameplay
             pivotPoint.y += y;
 
             auto rotate = [&pivotPoint, &rotationAngle](glm::vec2& vec) -> void
-            {
-                const auto sinAngle = glm::sin(rotationAngle);
-                const auto cosAngle = glm::cos(rotationAngle);
+                {
+                    const auto sinAngle = glm::sin(rotationAngle);
+                    const auto cosAngle = glm::cos(rotationAngle);
 
-                const auto tempX = vec.x - pivotPoint.x;
-                const auto tempY = vec.y - pivotPoint.y;
+                    const auto tempX = vec.x - pivotPoint.x;
+                    const auto tempY = vec.y - pivotPoint.y;
 
-                vec.x = tempX * cosAngle - tempY * sinAngle + pivotPoint.x;
-                vec.y = tempY * cosAngle + tempX * sinAngle + pivotPoint.y;
-            };
+                    vec.x = tempX * cosAngle - tempY * sinAngle + pivotPoint.x;
+                    vec.y = tempY * cosAngle + tempX * sinAngle + pivotPoint.y;
+                };
 
             rotate(upLeft);
             rotate(upRight);
@@ -240,9 +226,9 @@ namespace gameplay
         SPRITE_ADD_VERTEX(v[2], downRight.x, downRight.y, z, u2, v1, color.x, color.y, color.z, color.w);
         SPRITE_ADD_VERTEX(v[3], upRight.x, upRight.y, z, u2, v2, color.x, color.y, color.z, color.w);
 
-        static unsigned short indices[4] = {0, 1, 2, 3};
+        static const std::vector<uint16_t> indices{0, 1, 2, 2, 1, 3};
 
-        _batch->add(v, 4, indices, 4);
+        _batch->add(v, 4, indices);
     }
 
 
@@ -295,8 +281,8 @@ namespace gameplay
         SPRITE_ADD_VERTEX(v[2], p2.x, p2.y, p2.z, u1, v2, color.x, color.y, color.z, color.w);
         SPRITE_ADD_VERTEX(v[3], p3.x, p3.y, p3.z, u2, v2, color.x, color.y, color.z, color.w);
 
-        static const unsigned short indices[4] = {0, 1, 2, 3};
-        _batch->add(v, 4, const_cast<unsigned short*>(indices), 4);
+        static const std::vector<uint16_t> indices{0, 1, 2, 2, 1, 3};
+        _batch->add(v, 4, indices);
     }
 
 
@@ -352,12 +338,12 @@ namespace gameplay
     }
 
 
-    void SpriteBatch::draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount) const
+    void SpriteBatch::draw(SpriteBatch::SpriteVertex* vertices, size_t vertexCount, const std::vector<uint16_t>& indices) const
     {
         BOOST_ASSERT(vertices);
-        BOOST_ASSERT(indices);
+        BOOST_ASSERT(!indices.empty());
 
-        _batch->add(vertices, vertexCount, indices, indexCount);
+        _batch->add(vertices, vertexCount, indices);
     }
 
 
@@ -379,9 +365,9 @@ namespace gameplay
         SPRITE_ADD_VERTEX(v[2], x2, y, z, u2, v1, color.x, color.y, color.z, color.w);
         SPRITE_ADD_VERTEX(v[3], x2, y2, z, u2, v2, color.x, color.y, color.z, color.w);
 
-        static unsigned short indices[4] = {0, 1, 2, 3};
+        static const std::vector<uint16_t> indices{0, 1, 2, 2, 1, 3};
 
-        _batch->add(v, 4, indices, 4);
+        _batch->add(v, 4, indices);
     }
 
 

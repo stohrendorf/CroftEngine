@@ -157,7 +157,7 @@ namespace gameplay
             _game->frame();
         }
 
-        glfwSwapBuffers(__window);
+        //swapBuffers();
     }
 
     void Platform::enterMessagePump()
@@ -183,7 +183,7 @@ namespace gameplay
                 _game->frame();
             }
 
-            glfwSwapBuffers(__window);
+            swapBuffers();
         }
 
         _game->exit();

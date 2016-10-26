@@ -309,7 +309,7 @@ namespace loader
             for(auto idx : localPart.indices)
                 Expects(idx >= 0 && idx < m_vertexCount);
 #endif
-            gameplay::MeshPart* part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
+            auto part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);
         }
 

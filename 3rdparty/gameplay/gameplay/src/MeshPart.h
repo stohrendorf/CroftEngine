@@ -6,6 +6,8 @@
 
 namespace gameplay
 {
+    class Material;
+
     /**
      * Defines a part of a mesh describing the way the
      * mesh's vertices are connected together.
@@ -16,6 +18,7 @@ namespace gameplay
         friend class Model;
 
     public:
+        explicit MeshPart();
 
         /**
          * Destructor.
@@ -27,7 +30,7 @@ namespace gameplay
          *
          * @return The part offset index.
          */
-        unsigned int getMeshIndex() const;
+        size_t getMeshIndex() const;
 
         /**
          * Gets the type of primitive to define how the indices are connected.
@@ -41,7 +44,7 @@ namespace gameplay
          *
          * @return The number of indices in the part.
          */
-        unsigned int getIndexCount() const;
+        size_t getIndexCount() const;
 
         /**
          * Returns the format of the part indices.
@@ -72,20 +75,16 @@ namespace gameplay
          * @param indexCount The number of indices to be set.
          * @script{ignore}
          */
-        void setIndexData(const void* indexData, unsigned int indexStart, unsigned int indexCount);
+        void setIndexData(const void* indexData, size_t indexStart, size_t indexCount);
 
         const std::shared_ptr<VertexAttributeBinding>& getVaBinding() const
         {
             return _vaBinding;
         }
 
+        void setMaterial(const std::shared_ptr<Material>& material);
+
     private:
-
-        /**
-         * Constructor.
-         */
-        MeshPart();
-
         MeshPart(const MeshPart& copy) = delete;
 
         /**
@@ -98,13 +97,13 @@ namespace gameplay
          * @param indexCount The number of indices.
          * @param dynamic true if the part if dynamic; false otherwise.
          */
-        static MeshPart* create(Mesh* mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        static std::shared_ptr<MeshPart> create(const std::weak_ptr<Mesh>& mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
-        Mesh* _mesh;
-        unsigned int _meshIndex;
+        std::weak_ptr<Mesh> _mesh;
+        size_t _meshIndex;
         Mesh::PrimitiveType _primitiveType;
         Mesh::IndexFormat _indexFormat;
-        unsigned int _indexCount;
+        size_t _indexCount;
         IndexBufferHandle _indexBuffer;
         bool _dynamic;
         std::shared_ptr<VertexAttributeBinding> _vaBinding;

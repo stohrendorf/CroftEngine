@@ -83,7 +83,7 @@ namespace gameplay
         }
 
         // Create the frame buffer
-        GLuint handle = 0;
+        FrameBufferHandle handle = 0;
         GL_ASSERT( glGenFramebuffers(1, &handle) );
         FrameBuffer* frameBuffer = new FrameBuffer(id, handle);
 

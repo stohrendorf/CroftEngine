@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SpriteBatch.h"
+#include <glm/detail/type_mat.hpp>
 
 
 namespace gameplay
@@ -13,18 +14,6 @@ namespace gameplay
         friend class Text;
 
     public:
-
-        /**
-         * Defines the set of allowable font styles.
-         */
-        enum Style
-        {
-            PLAIN = 0,
-            BOLD = 1,
-            ITALIC = 2,
-            BOLD_ITALIC = 4
-        };
-
 
         /**
          * Defines the set of allowable alignments when drawing text.
@@ -48,45 +37,13 @@ namespace gameplay
             ALIGN_BOTTOM_RIGHT = ALIGN_BOTTOM | ALIGN_RIGHT
         };
 
-
-        /**
-         * Defines the format of the font.
-         */
-        enum Format
-        {
-            BITMAP = 0,
-            DISTANCE_FIELD = 1
-        };
-
-
-        /**
-         * Gets the font size (max height of glyphs) in pixels, at the specified index.
-         *
-         * The Font class can store multiple sizes of glyphs for a font. The number of font
-         * sizes stored can be retrieved via getSizeCount.
-         *
-         * @param index Index of the size to returned (default is 0).
-         * @see getSizeCount
-         */
-        unsigned int getSize(unsigned int index = 0) const;
-
-        /**
-         * Returns the number of font sizes supported by this Font.
-         */
-        unsigned int getSizeCount() const;
-
-        /**
-         * Gets the font format. BITMAP or DISTANCEMAP.
-         */
-        Format getFormat() const;
-
         /**
          * Determines if this font supports the specified character code.
          *
          * @param character The character code to check.
          * @return True if this Font supports (can draw) the specified character, false otherwise.
          */
-        bool isCharacterSupported(int character) const;
+        static bool isCharacterSupported(int character);
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -96,9 +53,8 @@ namespace gameplay
          * @param y The viewport y position to draw text at.
          * @param color The color of text.
          * @param size The size to draw text (0 for default size).
-         * @param rightToLeft Whether to draw text from right to left.
          */
-        void drawText(const char* text, int x, int y, const glm::vec4& color, unsigned int size = 0);
+        void drawText(const char* text, int x, int y, const glm::vec4& color);
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -111,89 +67,13 @@ namespace gameplay
          * @param blue The blue channel of the text color.
          * @param alpha The alpha channel of the text color.
          * @param size The size to draw text (0 for default size).
-         * @param rightToLeft Whether to draw text from right to left.
          */
-        void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha, unsigned int size = 0);
-
-        /**
-         * Draws the specified text within a rectangular area, with a specified alignment and scale.
-         * Clips text outside the viewport. Optionally wraps text to fit within the width of the viewport.
-         *
-         * @param text The text to draw.
-         * @param area The viewport area to draw within.  Text will be clipped outside this rectangle.
-         * @param color The color of text.
-         * @param size The size to draw text (0 for default size).
-         * @param justify Justification of text within the viewport.
-         * @param wrap Wraps text to fit within the width of the viewport if true.
-         * @param rightToLeft Whether to draw text from right to left.
-         * @param clip A region to clip text within after applying justification to the viewport area.
-         */
-        void drawText(const std::string& text, const Rectangle& area, const glm::vec4& color, unsigned int size = 0,
-                      Justify justify = ALIGN_TOP_LEFT, bool wrap = true,
-                      const Rectangle& clip = Rectangle(0, 0, 0, 0));
+        void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha);
 
         /**
          * Finishes text batching for this font and renders all drawn text.
          */
         void finish();
-
-        /**
-         * Measures a string's width and height without alignment, wrapping or clipping.
-         *
-         * @param text The text to measure.
-         * @param size The font height to scale to.
-         * @param widthOut Destination for the text's width.
-         * @param heightOut Destination for the text's height.
-         */
-        void measureText(const char* text, unsigned int size, unsigned int* widthOut, unsigned int* heightOut);
-
-        /**
-         * Measures a string's bounding box after alignment, wrapping and clipping within a viewport.
-         *
-         * @param text The text to measure.
-         * @param clip The clip rectangle.
-         * @param size The font height to scale to.
-         * @param out Destination rectangle to store the bounds in.
-         * @param justify Justification of text within the viewport.
-         * @param wrap Whether to measure text with wrapping applied.
-         * @param ignoreClip Whether to clip 'out' to the viewport.  Set false for the bounds of what would actually be drawn
-         *                within the given viewport; true for bounds that are guaranteed to fit the entire string of text.
-         */
-        void measureText(const char* text, const Rectangle& clip, unsigned int size, Rectangle* out,
-                         Justify justify = ALIGN_TOP_LEFT, bool wrap = true, bool ignoreClip = false);
-
-        /**
-         * Returns current character spacing for this font in percentage of fonts size.
-         *
-         * @see setCharacterSpacing(float)
-         */
-        float getCharacterSpacing() const;
-
-        /**
-         * Sets the additional character spacing for this font.
-         *
-         * Character spacing is the additional amount of space that is inserted between characters. Character spacing is defined
-         * as a floating point value that is interpreted as a percentage of size used to draw the font. For example,
-         * a value of 0.1 would cause a spacing of 10% of the font size to be inserted between adjacent characters.
-         * For a font size of 20, this would equate to 2 pixels of extra space between characters.
-         *
-         * The default additional character spacing for fonts is 0.0.
-         *
-         * @param spacing New fixed character spacing, expressed as a percentage of font size.
-         */
-        void setCharacterSpacing(float spacing);
-
-        /**
-         * Get an character index into a string corresponding to the character nearest the given location within the clip region.
-         */
-        int getIndexAtLocation(const char* text, const Rectangle& clip, unsigned int size, const glm::vec2& inLocation,
-                               glm::vec2* outLocation, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
-
-        /**
-         * Get the location of the character at the given index.
-         */
-        void getLocationAtIndex(const char* text, const Rectangle& clip, unsigned int size, glm::vec2* outLocation,
-                                const unsigned int destIndex, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
 
         /**
          * Gets the sprite batch used to draw this Font.
@@ -202,106 +82,23 @@ namespace gameplay
          *
          * @return The SpriteBatch that most closely matches the requested font size.
          */
-        SpriteBatch* getSpriteBatch(unsigned int size) const;
+        const std::shared_ptr<SpriteBatch>& getSpriteBatch() const;
+
+        Font(const std::shared_ptr<Texture>& texture, size_t cellSizeX, size_t cellSizeY);
+        ~Font();
 
     private:
 
-        /**
-         * Defines a font glyph within the texture map for a font.
-         */
-        class Glyph
-        {
-        public:
-            /**
-             * Glyph width (in pixels).
-             */
-            unsigned int width;
-
-            /**
-             * Glyph left side bearing (in pixels).
-             */
-            int bearingX;
-
-            /**
-             * Glyph horizontal advance (in pixels).
-             */
-            unsigned int advance;
-
-            /**
-             * Glyph texture coordinates.
-             */
-            glm::vec2 uvs[2];
-        };
-
-
-        /**
-         * Constructor.
-         */
-        Font();
-
-        /**
-         * Constructor.
-         */
-        Font(const Font& copy);
-
-        /**
-         * Destructor.
-         */
-        ~Font();
+        Font(const Font& copy) = delete;
 
         Font& operator=(const Font&) = delete;
 
-        /**
-         * Creates a font with the given characteristics from the specified glyph array and texture map.
-         *
-         * This method will create a new Font object regardless of whether another Font is already
-         * created with the same attributes.
-         *
-         * @param family The font family name.
-         * @param style The font style.
-         * @param size The font size.
-         * @param glyphs An array of font glyphs, defining each character in the font within the texture map.
-         * @param glyphCount The number of items in the glyph array.
-         * @param texture A texture map containing rendered glyphs.
-         * @param format The format of the font (bitmap or distance fields)
-         *
-         * @return The new Font or nullptr if there was an error.
-         */
-        static Font* create(const char* family, Style style, unsigned size, const std::vector<Glyph>& glyphs, const std::shared_ptr<Texture>& texture, Font::Format format);
-
-        void getMeasurementInfo(const char* text, const Rectangle& area, unsigned int size, Justify justify, bool wrap,
-                                std::vector<int>* xPositions, int* yPosition, std::vector<unsigned int>* lineLengths);
-
-        int getIndexOrLocation(const char* text, const Rectangle& clip, unsigned int size, const glm::vec2& inLocation, glm::vec2* outLocation,
-                               const int destIndex = -1, Justify justify = ALIGN_TOP_LEFT, bool wrap = true);
-
-        unsigned int getTokenWidth(const char* token, unsigned length, unsigned int size, float scale) const;
-
-        unsigned int getReversedTokenLength(const char* token, const char* bufStart);
-
-        int handleDelimiters(const char** token, const unsigned int size, const int areaX, int* xPos, int* yPos, unsigned int* lineLength,
-                             std::vector<int>::const_iterator* xPositionsIt, std::vector<int>::const_iterator xPositionsEnd, unsigned int* charIndex = nullptr,
-                             const glm::vec2* stopAtPosition = nullptr, const int currentIndex = -1, const int destIndex = -1);
-
-        void addLineInfo(const Rectangle& area, int lineWidth, int lineLength, Justify hAlign,
-                         std::vector<int>* xPositions, std::vector<unsigned int>* lineLengths);
-
-        Font* findClosestSize(int size);
-
         void lazyStart();
 
-        Format _format;
-        std::string _path;
-        std::string _id;
-        std::string _family;
-        Style _style;
-        unsigned int _size;
-        std::vector<std::shared_ptr<Font>> _sizes; // stores additional font sizes of the same family
-        float _spacing;
-        std::vector<Glyph> _glyphs;
         std::shared_ptr<Texture> _texture;
-        SpriteBatch* _batch;
+        std::shared_ptr<SpriteBatch> _batch;
         Rectangle _viewport;
-        std::shared_ptr<MaterialParameter> _cutoffParam;
+        size_t _cellSizeX = 0;
+        size_t _cellSizeY = 0;
     };
 }

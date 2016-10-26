@@ -26,6 +26,7 @@ namespace gameplay
         friend class Text;
 
     public:
+        SpriteBatch();
 
         /**
          * Creates a new SpriteBatch for drawing sprites with the given texture.
@@ -52,7 +53,7 @@ namespace gameplay
          * @return A new SpriteBatch for drawing sprites using the given texture.
          * @script{create}
          */
-        static SpriteBatch* create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, unsigned initialCapacity = 0);
+        static std::shared_ptr<SpriteBatch> create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
 
         /**
          * Destructor.
@@ -269,7 +270,7 @@ namespace gameplay
          * @param indices The vertex indices.
          * @param indexCount The number of indices within the index array.
          */
-        void draw(SpriteBatch::SpriteVertex* vertices, unsigned int vertexCount, unsigned short* indices, unsigned int indexCount) const;
+        void draw(SpriteBatch::SpriteVertex* vertices, size_t vertexCount, const std::vector<uint16_t>& indices) const;
 
         /**
          * Finishes sprite drawing.
@@ -327,11 +328,6 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
-        SpriteBatch();
-
         SpriteBatch(const SpriteBatch& copy) = delete;
 
         /**
@@ -369,7 +365,7 @@ namespace gameplay
 
         bool clipSprite(const Rectangle& clip, float& x, float& y, float& width, float& height, float& u1, float& v1, float& u2, float& v2);
 
-        MeshBatch* _batch;
+        std::unique_ptr<MeshBatch> _batch;
         std::shared_ptr<Texture::Sampler> _sampler;
         bool _customEffect;
         float _textureWidthRatio;

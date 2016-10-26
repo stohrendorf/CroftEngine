@@ -59,7 +59,7 @@ namespace loader
                         BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
 #endif
 
-                    gameplay::MeshPart* part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
+                    auto part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
                     part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 

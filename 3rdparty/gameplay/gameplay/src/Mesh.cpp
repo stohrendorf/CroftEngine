@@ -21,10 +21,7 @@ namespace gameplay
 
     Mesh::~Mesh()
     {
-        for( size_t i = 0; i < _parts.size(); ++i )
-        {
-            SAFE_DELETE(_parts[i]);
-        }
+        _parts.clear();
 
         if( _vertexBuffer )
         {
@@ -36,7 +33,7 @@ namespace gameplay
 
     std::shared_ptr<Mesh> Mesh::createMesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
     {
-        GLuint vbo;
+        VertexBufferHandle vbo;
         GL_ASSERT( glGenBuffers(1, &vbo) );
         GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, vbo) );
         GL_ASSERT( glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
@@ -248,13 +245,13 @@ namespace gameplay
     }
 
 
-    unsigned int Mesh::getVertexCount() const
+    size_t Mesh::getVertexCount() const
     {
         return _vertexCount;
     }
 
 
-    unsigned int Mesh::getVertexSize() const
+    size_t Mesh::getVertexSize() const
     {
         return _vertexFormat.getVertexSize();
     }
@@ -312,9 +309,9 @@ namespace gameplay
     }
 
 
-    MeshPart* Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
+    std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
-        MeshPart* part = MeshPart::create(this, _parts.size(), primitiveType, indexFormat, indexCount, dynamic);
+        auto part = MeshPart::create(shared_from_this(), _parts.size(), primitiveType, indexFormat, indexCount, dynamic);
         if( part )
         {
             _parts.emplace_back(part);
@@ -324,14 +321,16 @@ namespace gameplay
     }
 
 
-    unsigned int Mesh::getPartCount() const
+    size_t Mesh::getPartCount() const
     {
         return _parts.size();
     }
 
 
-    MeshPart* Mesh::getPart(size_t index)
+    const std::shared_ptr<MeshPart>& Mesh::getPart(size_t index)
     {
+        BOOST_ASSERT(index < _parts.size());
+
         return _parts[index];
     }
 

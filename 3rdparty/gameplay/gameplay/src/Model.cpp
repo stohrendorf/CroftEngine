@@ -52,14 +52,7 @@ namespace gameplay
         BOOST_ASSERT(partIndex < _mesh->getPartCount());
         BOOST_ASSERT(material != nullptr);
 
-        _mesh->getPart(partIndex)->_material = material;
-
-        // Hookup vertex attribute bindings for all passes in the new material.
-        auto t = material->getTechnique();
-        BOOST_ASSERT(t);
-        auto p = t->getPass();
-        BOOST_ASSERT(p);
-        _mesh->getPart(partIndex)->_vaBinding = VertexAttributeBinding::create(_mesh, p->getShaderProgram());
+        _mesh->getPart(partIndex)->setMaterial(material);
 
         // Apply node binding for the new material.
         if( _node )
@@ -147,7 +140,7 @@ namespace gameplay
     }
 
 
-    static bool drawWireframe(MeshPart* part)
+    static bool drawWireframe(const std::shared_ptr<MeshPart>& part)
     {
         size_t indexCount = part->getIndexCount();
         size_t indexSize = 0;
@@ -170,21 +163,17 @@ namespace gameplay
         switch( part->getPrimitiveType() )
         {
             case Mesh::TRIANGLES:
-            {
                 for( size_t i = 0; i < indexCount; i += 3 )
                 {
                     GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>(i*indexSize))) );
                 }
-            }
                 return true;
 
             case Mesh::TRIANGLE_STRIP:
-            {
                 for( size_t i = 2; i < indexCount; ++i )
                 {
                     GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>((i-2)*indexSize))) );
                 }
-            }
                 return true;
 
             default:
@@ -202,7 +191,7 @@ namespace gameplay
         BOOST_ASSERT(partCount > 0);
         for(size_t i = 0; i < partCount; ++i )
         {
-            MeshPart* part = _mesh->getPart(i);
+            auto part = _mesh->getPart(i);
             BOOST_ASSERT(part);
 
             // Get the material for this mesh part.

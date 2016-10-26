@@ -263,7 +263,7 @@ namespace gameplay
     }
 
 
-    void Game::renderOnce()
+    void Game::swapBuffers()
     {
         Platform::swapBuffers();
     }

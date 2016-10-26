@@ -6,12 +6,12 @@
 
 namespace
 {
-    void drawText(gameplay::Font* font, int x, int y, const std::string& txt, const glm::vec4& col = {1,1,1,1})
+    void drawText(const std::unique_ptr<gameplay::Font>& font, int x, int y, const std::string& txt, const glm::vec4& col = {1,1,1,1})
     {
         font->drawText(txt, x, y, col.x, col.y, col.z, col.w);
     }
 
-    void drawDebugInfo(gsl::not_null<gameplay::Font*> font, gsl::not_null<level::Level*> lvl)
+    void drawDebugInfo(const std::unique_ptr<gameplay::Font>& font, gsl::not_null<level::Level*> lvl)
     {
         // position/rotation
         drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
@@ -60,6 +60,8 @@ namespace
         drawText(font, 200, 200, boost::lexical_cast<std::string>("Need bottom:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceBottom));
         drawText(font, 200, 220, boost::lexical_cast<std::string>("Need top:        ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceTop));
         drawText(font, 200, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
+
+        font->finish();
     }
 }
 
@@ -126,6 +128,25 @@ int main()
     if(lvlInfo.track > 0)
         lvl->playCdTrack(lvlInfo.track);
 
+
+    auto loadFont = [](){
+        std::vector<char> fontData;
+        std::ifstream fontFile{ "monospace.data", std::ios::in | std::ios::binary };
+        fontFile.seekg(0, std::ios::end);
+
+        if(fontFile.tellg().seekpos() != 512 * 256 * 3)
+            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid font data"));
+
+        fontData.resize(fontFile.tellg());
+        fontFile.seekg(0);
+        fontFile.read(fontData.data(), fontData.size());
+
+        auto texture = gameplay::Texture::create(gameplay::Image::createRGB(512, 256, fontData.data()), false);
+        return std::make_unique<gameplay::Font>(texture, 32, 32);
+    };
+
+    auto font = loadFont();
+
     auto lastTime = game->getAbsoluteTime();
     while(platform->loop())
     {
@@ -157,8 +178,6 @@ int main()
 
         lvl->drawBars(game);
 
-        //drawDebugInfo(game, lvl.get());
-
         // update information about current frame-rate
         //std::string str = "FPS: ";
         //str += boost::lexical_cast<std::string>(driver->getFPS());
@@ -167,6 +186,10 @@ int main()
         //device->setWindowCaption(str.c_str());
 
         platform->frame();
+
+        drawDebugInfo(font, lvl.get());
+
+        platform->swapBuffers();
     }
 
     //device->drop();
