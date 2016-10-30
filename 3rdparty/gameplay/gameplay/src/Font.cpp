@@ -2,134 +2,148 @@
 #include "Font.h"
 #include "Game.h"
 #include "MaterialParameter.h"
+#include "Image.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <boost/log/trivial.hpp>
 
-// Default font shaders
-#define FONT_VSH "shaders/font.vert"
-#define FONT_FSH "shaders/font.frag"
-
+#include FT_OUTLINE_H
 
 namespace gameplay
 {
-    static std::shared_ptr<ShaderProgram> __fontProgram = nullptr;
-
-
-    Font::Font(const std::shared_ptr<Texture>& texture, size_t cellSizeX, size_t cellSizeY)
-        : _texture{texture}
-        , _batch{nullptr}
-        , _cellSizeX{cellSizeX}
-        , _cellSizeY{cellSizeY}
+    namespace
     {
-        BOOST_ASSERT(texture);
+        FT_Library freeTypeLib = nullptr;
 
-        // Create the effect for the font's sprite batch.
-        if( __fontProgram == nullptr )
+
+        const char* getFreeTypeErrorMessage(FT_Error err)
         {
-            __fontProgram = ShaderProgram::createFromFile(FONT_VSH, FONT_FSH, {});
-            if( __fontProgram == nullptr )
+#undef __FTERRORS_H__
+#define FT_ERRORDEF( e, v, s )  case e: return s;
+#define FT_ERROR_START_LIST     switch (err) {
+#define FT_ERROR_END_LIST       }
+#include FT_ERRORS_H
+            return "(Unknown error)";
+        }
+
+
+        FT_Library loadFreeTypeLib()
+        {
+            if( freeTypeLib != nullptr )
+                return freeTypeLib;
+
+            auto error = FT_Init_FreeType(&freeTypeLib);
+            if( error != FT_Err_Ok )
             {
-                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create effect for font."));
+                BOOST_LOG_TRIVIAL(fatal) << "Failed to load freetype library: " << getFreeTypeErrorMessage(error);
+                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load freetype library"));
             }
+
+            BOOST_ASSERT(freeTypeLib != nullptr);
+
+            atexit([]()
+                {
+                    FT_Done_FreeType(freeTypeLib);
+                    freeTypeLib = nullptr;
+                });
+
+            return freeTypeLib;
         }
+    }
 
-        // Create batch for the font.
-        auto batch = SpriteBatch::create(texture, __fontProgram);
 
-        if( batch == nullptr )
+    Font::Font(const std::string& ttf, int size)
+    {
+        auto error = FT_New_Face(loadFreeTypeLib(), ttf.c_str(), 0, &m_face);
+        if( error != FT_Err_Ok )
         {
-            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create batch for font."));
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to load font face '" << ttf << "': " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font face"));
         }
 
-        // Add linear filtering for better font quality.
-        auto sampler = batch->getSampler();
-        sampler->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
-        sampler->setWrapMode(Texture::CLAMP, Texture::CLAMP);
+        BOOST_ASSERT(m_face != nullptr);
 
-        _batch = batch;
-    }
-
-
-    Font::~Font() = default;
-
-
-    bool Font::isCharacterSupported(int character)
-    {
-        return character >= 0x20 && character <= 0x7f;
-    }
-
-
-    void Font::lazyStart()
-    {
-        if( _batch->isStarted() )
-            return; // already started
-
-        // Update the projection matrix for our batch to match the current viewport
-        const Rectangle& vp = Game::getInstance()->getViewport();
-        if( !vp.isEmpty() )
+        error = FT_Set_Char_Size(m_face, 0, size * 64, 0, 0);
+        if(error != FT_Err_Ok)
         {
-            glm::mat4 projectionMatrix = glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f);
-            _batch->setProjectionMatrix(projectionMatrix);
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to set char size for font '" << ttf << "': " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to set char size"));
         }
 
-        _batch->start();
+        error = FT_Set_Pixel_Sizes(m_face, 0, size);
+        if(error != FT_Err_Ok)
+        {
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to set pixel size for font '" << ttf << "': " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to set pixel size"));
+        }
     }
 
 
-    void Font::finish()
+    Font::~Font()
     {
-        // Finish any font batches that have been started
-        if( _batch->isStarted() )
-            _batch->finishAndDraw();
+        FT_Done_Face(m_face);
+        m_face = nullptr;
     }
 
+    void Font::renderCallback(int y, int count, const FT_Span_* spans, void* user)
+    {
+        Font* font = reinterpret_cast<Font*>(user);
+        y = -y;
+
+        auto color = font->m_currentColor;
+        for(int i = 0; i < count; i++)
+        {
+            const FT_Span span = spans[i];
+            color.a = span.coverage / 255.0f;
+
+            font->m_targetImage->line(font->m_x0 + span.x, font->m_y0 + y, font->m_x0 + span.x + span.len - 1, font->m_y0 + y, color);
+        }
+    }
 
     void Font::drawText(const char* text, int x, int y, const glm::vec4& color)
     {
         BOOST_ASSERT(text);
 
-        lazyStart();
+        m_currentColor = color;
 
-        int xPos = x, yPos = y;
+        m_x0 = x;
+        m_y0 = y;
 
-        size_t length = strlen(text);
-        const auto csx = static_cast<float>(_cellSizeX) / _texture->getWidth() * 10;
-        const auto csy = static_cast<float>(_cellSizeY) / _texture->getHeight() * 10;
-
-        BOOST_ASSERT(_batch);
-        for( size_t i = 0; i < length; ++i )
+        while(const char chr = *text++)
         {
-            char c = text[i];
-
-            // Draw this character.
-            switch( c )
+            /* load glyph image into the slot (erase previous one) */
+            auto error = FT_Load_Char(m_face, chr, FT_LOAD_RENDER | FT_LOAD_TARGET_NORMAL);
+            if(error)
             {
-                case ' ':
-                    xPos += _cellSizeX;
-                    break;
-                case '\r':
-                case '\n':
-                    yPos += _cellSizeY;
-                    xPos = x;
-                    break;
-                case '\t':
-                    xPos += _cellSizeX * 4;
-                    break;
-                default:
-                    if( c >= 0x20 && c <= 0x7f )
-                    {
-                        const auto charsPerRow = _texture->getWidth() / _cellSizeX;
-                        const auto cx = float(c % charsPerRow) * csx;
-                        const auto cy = float(c / charsPerRow) * csy;
-
-                        _batch->draw(xPos, yPos, _cellSizeX, _cellSizeY, cx, cy, cx + csx, cy + csy, color);
-                        xPos += _cellSizeX;
-                        break;
-                    }
-                    break;
+                BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
+                continue;
             }
+
+            /* convert to an anti-aliased bitmap */
+            error = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
+            if(error)
+            {
+                BOOST_LOG_TRIVIAL(warning) << "Failed to render character '" << chr << "'";
+                continue;
+            }
+
+            FT_Raster_Params params;
+
+            params.target = nullptr;
+            params.flags = FT_RASTER_FLAG_DIRECT | FT_RASTER_FLAG_AA;
+            params.user = this;
+            params.gray_spans = &Font::renderCallback;
+            params.black_spans = nullptr;
+            params.bit_set = nullptr;
+            params.bit_test = nullptr;
+
+            FT_Outline_Render(freeTypeLib,
+                              &m_face->glyph->outline,
+                              &params);
+
+            m_x0 += m_face->glyph->advance.x / 64;
+            m_y0 += m_face->glyph->advance.y / 64;
         }
     }
 
@@ -137,11 +151,5 @@ namespace gameplay
     void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha)
     {
         drawText(text.c_str(), x, y, glm::vec4(red, green, blue, alpha));
-    }
-
-
-    const std::shared_ptr<SpriteBatch>& Font::getSpriteBatch() const
-    {
-        return _batch;
     }
 }

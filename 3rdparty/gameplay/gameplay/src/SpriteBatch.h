@@ -22,9 +22,6 @@ namespace gameplay
      */
     class SpriteBatch
     {
-        friend class Font;
-        friend class Text;
-
     public:
         SpriteBatch();
 

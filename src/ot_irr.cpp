@@ -60,8 +60,6 @@ namespace
         drawText(font, 200, 200, boost::lexical_cast<std::string>("Need bottom:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceBottom));
         drawText(font, 200, 220, boost::lexical_cast<std::string>("Need top:        ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceTop));
         drawText(font, 200, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
-
-        font->finish();
     }
 }
 
@@ -129,24 +127,9 @@ int main()
         lvl->playCdTrack(lvlInfo.track);
 
 
-    auto loadFont = [](){
-        std::vector<char> fontData;
-        std::ifstream fontFile{ "monospace.data", std::ios::in | std::ios::binary };
-        fontFile.seekg(0, std::ios::end);
-
-        if(fontFile.tellg().seekpos() != 256 * 256 * 4)
-            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid font data"));
-
-        fontData.resize(fontFile.tellg());
-        fontFile.seekg(0);
-        fontFile.read(fontData.data(), fontData.size());
-
-        auto texture = gameplay::Texture::create(gameplay::Image::createRGBA(256, 256, fontData.data()), false);
-        return std::make_unique<gameplay::Font>(texture, 16, 16);
-    };
-
-    auto font = loadFont();
     auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>();
+    auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
+    font->setTarget(screenOverlay->getImage());
 
     auto lastTime = game->getAbsoluteTime();
     while(platform->loop())
@@ -190,7 +173,7 @@ int main()
 
         platform->frame();
 
-        // drawDebugInfo(font, lvl.get());
+        drawDebugInfo(font, lvl.get());
 
         screenOverlay->draw();
 

@@ -89,19 +89,27 @@ namespace gameplay
 
             int err = dx + dy;
 
-            while(true)
+            while( true )
             {
-                at(x0, y0) = color;
-                if(x0 == x1 && y0 == y1)
+                if( color.a != 1 )
+                {
+                    at(x0, y0) = glm::mix(at(x0, y0), color, color.a);
+                }
+                else
+                {
+                    at(x0, y0) = color;
+                }
+
+                if( x0 == x1 && y0 == y1 )
                     break;
 
                 auto e2 = 2 * err;
-                if(e2 > dy)
+                if( e2 > dy )
                 {
                     err += dy;
                     x0 += sx;
                 }
-                if(e2 < dx)
+                if( e2 < dx )
                 {
                     err += dx;
                     y0 += sy;
