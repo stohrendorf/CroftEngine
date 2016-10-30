@@ -92,23 +92,14 @@ namespace gameplay
         BOOST_ASSERT(m_material);
 
         //! @todo Find a better way than creating a new model on each draw call.
-        auto mesh = Mesh::createMesh(m_vertexFormat, 0);
+        auto mesh = Mesh::createMesh(m_vertexFormat, 0, true);
         mesh->rebuild(reinterpret_cast<const float*>(m_vertices.data()), m_vertices.size() / m_vertexFormat.getVertexSize());
-        auto part = mesh->addPart(m_primitiveType, Mesh::INDEX16, m_indices.size());
+        auto part = mesh->addPart(m_primitiveType, Mesh::INDEX16, m_indices.size(), true);
         part->setMaterial(m_material);
         part->setIndexData(m_indices.data(), 0, m_indices.size());
 
-#if 0
-        // Update our vertex attribute bindings.
-        auto technique = m_material->getTechnique();
-        BOOST_ASSERT(technique);
-        auto pass = technique->getPass();
-        BOOST_ASSERT(pass);
-        auto vaBinding = VertexAttributeBinding::create(mesh, pass->getShaderProgram());
-        pass->bind(vaBinding);
-#endif
-
-        Model(mesh).draw();
+        Model mdl{ mesh };
+        mdl.draw();
 
         //pass->unbind();
     }

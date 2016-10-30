@@ -12,7 +12,10 @@ namespace gameplay
 
         image->_width = width;
         image->_height = height;
-        image->_data.assign(data, data + width * height);
+        if(data == nullptr)
+            image->_data.resize(width * height);
+        else
+            image->_data.assign(data, data + width * height);
 
         return image;
     }

@@ -41,6 +41,7 @@
 #include "RenderTarget.h"
 #include "DepthStencilTarget.h"
 #include "ScreenDisplayer.h"
+#include "ScreenOverlay.h"
 
 // Animation
 #include "AnimationClip.h"

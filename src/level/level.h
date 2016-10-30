@@ -156,7 +156,7 @@ namespace level
 
         engine::ItemController* getItemController(uint16_t id) const;
 
-        void drawBars(gameplay::Game* game) const;
+        void drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image>& image) const;
 
         engine::ItemController* findControllerForNode(const std::shared_ptr<gameplay::Node>& node);
 

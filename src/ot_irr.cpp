@@ -146,10 +146,13 @@ int main()
     };
 
     auto font = loadFont();
+    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>();
 
     auto lastTime = game->getAbsoluteTime();
     while(platform->loop())
     {
+        screenOverlay->getImage()->fill({ 0,0,0,0 });
+
         lvl->m_audioDev.update();
         lvl->m_inputHandler->update();
 
@@ -176,7 +179,7 @@ int main()
                                              lvl->m_cameraController->getFrontVector(),
                                              lvl->m_cameraController->getUpVector());
 
-        lvl->drawBars(game);
+        lvl->drawBars(game, screenOverlay->getImage());
 
         // update information about current frame-rate
         //std::string str = "FPS: ";
@@ -187,7 +190,9 @@ int main()
 
         platform->frame();
 
-        drawDebugInfo(font, lvl.get());
+        // drawDebugInfo(font, lvl.get());
+
+        screenOverlay->draw();
 
         platform->swapBuffers();
     }

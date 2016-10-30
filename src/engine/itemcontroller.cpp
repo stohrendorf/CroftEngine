@@ -119,7 +119,8 @@ namespace engine
         }
         BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
-        m_sceneNode->getParent().lock()->removeChild(m_sceneNode);
+        if(!m_sceneNode->getParent().expired())
+            m_sceneNode->getParent().lock()->removeChild(m_sceneNode);
         newRoom->node->addChild(m_sceneNode);
 
         m_position.room = newRoom;

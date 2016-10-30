@@ -72,6 +72,8 @@ set(GAMEPLAY_SRC
     src/Scene.h
     src/ScreenDisplayer.cpp
     src/ScreenDisplayer.h
+    src/ScreenOverlay.cpp
+    src/ScreenOverlay.h
     src/Sprite.cpp
     src/Sprite.h
     src/SpriteBatch.cpp
@@ -109,7 +111,7 @@ endif()
 
 target_compile_definitions(gameplay PUBLIC -DGLM_FORCE_RADIANS)
 
-target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm)
+target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype)
 
 set_target_properties(gameplay PROPERTIES
     OUTPUT_NAME "gameplay"

@@ -141,8 +141,8 @@ namespace gameplay
     {
         // Don't work with any compressed or cached textures
         BOOST_ASSERT( data );
-        BOOST_ASSERT( (!_compressed) );
-        BOOST_ASSERT( (!_cached) );
+        BOOST_ASSERT( !_compressed );
+        BOOST_ASSERT( !_cached );
 
         GL_ASSERT( glBindTexture(static_cast<GLenum>(_type), _handle) );
 
@@ -325,7 +325,7 @@ namespace gameplay
         {
             _texture->_wrapR = _wrapR;
             if( target == GL_TEXTURE_CUBE_MAP ) // We don't want to run this on something that we know will fail
-            GL_ASSERT( glTexParameteri(target, GL_TEXTURE_WRAP_R, static_cast<GLenum>(_wrapR)) );
+                GL_ASSERT( glTexParameteri(target, GL_TEXTURE_WRAP_R, static_cast<GLenum>(_wrapR)) );
         }
     }
 }

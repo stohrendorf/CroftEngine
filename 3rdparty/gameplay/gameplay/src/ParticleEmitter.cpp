@@ -959,7 +959,7 @@ namespace gameplay
             }
 
             // Render.
-            _spriteBatch->finish();
+            _spriteBatch->finishAndDraw();
         }
         return 1;
     }

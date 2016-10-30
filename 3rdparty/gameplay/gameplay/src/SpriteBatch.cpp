@@ -11,9 +11,9 @@
 
 // Macro for adding a sprite to the batch
 #define SPRITE_ADD_VERTEX(vtx, vx, vy, vz, vu, vv, vr, vg, vb, va) \
-    vtx.x = vx; vtx.y = vy; vtx.z = vz; \
-    vtx.u = vu; vtx.v = vv; \
-    vtx.r = vr; vtx.g = vg; vtx.b = vb; vtx.a = va
+    vtx.pos = glm::vec3{ vx, vy, vz }; \
+    vtx.uv = glm::vec2{ vu, vv }; \
+    vtx.color = glm::vec4{ vr, vg, vb, va }
 
 // Default sprite shaders
 #define SPRITE_VSH "shaders/sprite.vert"
@@ -372,7 +372,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void SpriteBatch::finish()
+    void SpriteBatch::finishAndDraw()
     {
         // Finish and draw the batch
         _batch->finish();

@@ -234,30 +234,17 @@ namespace gameplay
         void draw(float x, float y, float z, float width, float height, float u1, float v1, float u2, float v2, const glm::vec4& color, bool positionIsCenter = false) const;
 
 
+#pragma pack(push, 1)
         /**
          * Sprite vertex structure used for batching.
          */
         struct SpriteVertex
         {
-            /** Vertex position x */
-            float x;
-            /** Vertex position y */
-            float y;
-            /** Vertex position z */
-            float z;
-            /** Vertex texture u */
-            float u;
-            /** Vertex texture v */
-            float v;
-            /** Vertex color red component */
-            float r;
-            /** Vertex color green component */
-            float g;
-            /** Vertex color blue component */
-            float b;
-            /** Vertex color alpha component */
-            float a;
+            glm::vec3 pos;
+            glm::vec2 uv;
+            glm::vec4 color;
         };
+#pragma pack(pop)
 
 
         /**
@@ -278,7 +265,7 @@ namespace gameplay
          * This method flushes the batch and commits rendering of all sprites that were
          * drawn since the last call to start().
          */
-        void finish();
+        void finishAndDraw();
 
         /**
          * Gets the texture sampler.

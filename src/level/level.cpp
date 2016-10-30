@@ -687,7 +687,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
 std::shared_ptr<gameplay::Texture> Level::createSolidColorTex(uint8_t color) const
 {
     glm::vec4 pixels[2][2];
-    pixels[0][0] = m_palette->color[color].toSColor();
+    pixels[0][0] = m_palette->color[color].toGLColor();
     pixels[1][0] = pixels[0][0];
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
@@ -889,50 +889,47 @@ engine::ItemController* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(gameplay::Game* game) const
+void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image>& image) const
 {
-#pragma message("TODO: Level::drawBars() is disabled")
-#if 0
     if( m_lara->isInWater() )
     {
         const int x0 = game->getViewport().width - 110;
 
         for( int i = 7; i <= 13; ++i )
-            drv->draw2DLine({x0 - 1, i}, {x0 + 101, i}, m_palette->color[0].toSColor());
-        drv->draw2DLine({x0 - 2, 14}, {x0 + 102, 14}, m_palette->color[17].toSColor());
-        drv->draw2DLine({x0 + 102, 6}, {x0 + 102, 14}, m_palette->color[17].toSColor());
-        drv->draw2DLine({x0 + 102, 6}, {x0 + 102, 14}, m_palette->color[19].toSColor());
-        drv->draw2DLine({x0 - 2, 6}, {x0 - 2, 14}, m_palette->color[19].toSColor());
+            image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toGLColor());
+        image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toGLColor());
+        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toGLColor());
+        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toGLColor());
+        image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toGLColor());
 
         const int p = util::clamp(std::lround(m_lara->getAir() * 100 / 1800), 0L, 100L);
         if( p > 0 )
         {
-            drv->draw2DLine({x0, 8}, {x0 + p, 8}, m_palette->color[32].toSColor());
-            drv->draw2DLine({x0, 9}, {x0 + p, 9}, m_palette->color[41].toSColor());
-            drv->draw2DLine({x0, 10}, {x0 + p, 10}, m_palette->color[32].toSColor());
-            drv->draw2DLine({x0, 11}, {x0 + p, 11}, m_palette->color[19].toSColor());
-            drv->draw2DLine({x0, 12}, {x0 + p, 12}, m_palette->color[21].toSColor());
+            image->line(x0, 8, x0 + p, 8, m_palette->color[32].toGLColor());
+            image->line(x0, 9, x0 + p, 9, m_palette->color[41].toGLColor());
+            image->line(x0, 10, x0 + p, 10, m_palette->color[32].toGLColor());
+            image->line(x0, 11, x0 + p, 11, m_palette->color[19].toGLColor());
+            image->line(x0, 12, x0 + p, 12, m_palette->color[21].toGLColor());
         }
     }
 
     const int x0 = 8;
     for( int i = 7; i <= 13; ++i )
-        drv->draw2DLine({x0 - 1, i}, {x0 + 101, i}, m_palette->color[0].toSColor());
-    drv->draw2DLine({x0 - 2, 14}, {x0 + 102, 14}, m_palette->color[17].toSColor());
-    drv->draw2DLine({x0 + 102, 6}, {x0 + 102, 14}, m_palette->color[17].toSColor());
-    drv->draw2DLine({x0 + 102, 6}, {x0 + 102, 14}, m_palette->color[19].toSColor());
-    drv->draw2DLine({x0 - 2, 6}, {x0 - 2, 14}, m_palette->color[19].toSColor());
+        image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toGLColor());
+    image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toGLColor());
+    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toGLColor());
+    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toGLColor());
+    image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toGLColor());
 
     const int p = util::clamp(std::lround(m_lara->getHealth().getCurrentValue() * 100 / 1000), 0L, 100L);
     if( p > 0 )
     {
-        drv->draw2DLine({x0, 8}, {x0 + p, 8}, m_palette->color[8].toSColor());
-        drv->draw2DLine({x0, 9}, {x0 + p, 9}, m_palette->color[11].toSColor());
-        drv->draw2DLine({x0, 10}, {x0 + p, 10}, m_palette->color[8].toSColor());
-        drv->draw2DLine({x0, 11}, {x0 + p, 11}, m_palette->color[6].toSColor());
-        drv->draw2DLine({x0, 12}, {x0 + p, 12}, m_palette->color[24].toSColor());
+        image->line(x0, 8, x0 + p, 8, m_palette->color[8].toGLColor());
+        image->line(x0, 9, x0 + p, 9, m_palette->color[11].toGLColor());
+        image->line(x0, 10, x0 + p, 10, m_palette->color[8].toGLColor());
+        image->line(x0, 11, x0 + p, 11, m_palette->color[6].toGLColor());
+        image->line(x0, 12, x0 + p, 12, m_palette->color[24].toGLColor());
     }
-#endif
 }
 
 

@@ -21,15 +21,14 @@ namespace gameplay
         : _texture{texture}
         , _batch{nullptr}
         , _cellSizeX{cellSizeX}
-        , _cellSizeY{cellSizeX}
+        , _cellSizeY{cellSizeY}
     {
         BOOST_ASSERT(texture);
 
         // Create the effect for the font's sprite batch.
         if( __fontProgram == nullptr )
         {
-            std::vector<std::string> defines;
-            __fontProgram = ShaderProgram::createFromFile(FONT_VSH, FONT_FSH, defines);
+            __fontProgram = ShaderProgram::createFromFile(FONT_VSH, FONT_FSH, {});
             if( __fontProgram == nullptr )
             {
                 BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create effect for font."));
@@ -83,7 +82,7 @@ namespace gameplay
     {
         // Finish any font batches that have been started
         if( _batch->isStarted() )
-            _batch->finish();
+            _batch->finishAndDraw();
     }
 
 
@@ -96,8 +95,8 @@ namespace gameplay
         int xPos = x, yPos = y;
 
         size_t length = strlen(text);
-        const auto csx = static_cast<float>(_cellSizeX) / _texture->getWidth();
-        const auto csy = static_cast<float>(_cellSizeY) / _texture->getHeight();
+        const auto csx = static_cast<float>(_cellSizeX) / _texture->getWidth() * 10;
+        const auto csy = static_cast<float>(_cellSizeY) / _texture->getHeight() * 10;
 
         BOOST_ASSERT(_batch);
         for( size_t i = 0; i < length; ++i )
@@ -125,7 +124,7 @@ namespace gameplay
                         const auto cx = float(c % charsPerRow) * csx;
                         const auto cy = float(c / charsPerRow) * csy;
 
-                        _batch->draw(xPos, yPos, _cellSizeX, _cellSizeY, cx, 1 - cy, cx + csx, 1 - (cy + csy), color);
+                        _batch->draw(xPos, yPos, _cellSizeX, _cellSizeY, cx, cy, cx + csx, cy + csy, color);
                         xPos += _cellSizeX;
                         break;
                     }

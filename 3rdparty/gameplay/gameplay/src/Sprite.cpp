@@ -318,7 +318,7 @@ namespace gameplay
         _batch->start();
         _batch->draw(position, _frames[_frameIndex], scale, glm::vec4(_color.x, _color.y, _color.z, _color.w * _opacity),
                      _anchor, rotationAngle);
-        _batch->finish();
+        _batch->finishAndDraw();
 
         return 1;
     }

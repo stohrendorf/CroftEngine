@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+
 namespace gameplay
 {
     /**
@@ -50,6 +51,64 @@ namespace gameplay
          * @return The width of the image.
          */
         inline unsigned int getWidth() const;
+
+
+        glm::vec4& at(unsigned int x, unsigned int y)
+        {
+            static glm::vec4 none;
+            if( x >= _width || y >= _height )
+                return none;
+
+            return _data[y * _width + x];
+        }
+
+
+        const glm::vec4& at(unsigned int x, unsigned int y) const
+        {
+            static const glm::vec4 none;
+            if( x >= _width || y >= _height )
+                return none;
+
+            return _data[y * _width + x];
+        }
+
+
+        void fill(const glm::vec4& color)
+        {
+            std::fill(_data.begin(), _data.end(), color);
+        }
+
+
+        void line(int x0, int y0, int x1, int y1, const glm::vec4& color)
+        {
+            // shamelessly copied from wikipedia
+            const int dx = abs(x1 - x0);
+            const int sx = x0 < x1 ? 1 : -1;
+            const int dy = -abs(y1 - y0);
+            const int sy = y0 < y1 ? 1 : -1;
+
+            int err = dx + dy;
+
+            while(true)
+            {
+                at(x0, y0) = color;
+                if(x0 == x1 && y0 == y1)
+                    break;
+
+                auto e2 = 2 * err;
+                if(e2 > dy)
+                {
+                    err += dy;
+                    x0 += sx;
+                }
+                if(e2 < dx)
+                {
+                    err += dx;
+                    y0 += sy;
+                }
+            }
+        }
+
 
     private:
 

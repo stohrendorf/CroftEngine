@@ -28,9 +28,9 @@ namespace loader
             return read(reader, true);
         }
 
-        glm::vec4 toSColor() const
+        glm::vec4 toGLColor() const
         {
-            return glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+            return glm::vec4{ r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
         }
 
     private:

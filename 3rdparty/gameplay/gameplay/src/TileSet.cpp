@@ -164,7 +164,7 @@ namespace gameplay
             position.x = xStart;
             position.y -= _tileHeight;
         }
-        _batch->finish();
+        _batch->finishAndDraw();
         return 1;
     }
 }

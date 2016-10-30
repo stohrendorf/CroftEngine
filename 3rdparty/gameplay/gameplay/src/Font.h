@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SpriteBatch.h"
-#include <glm/detail/type_mat.hpp>
 
 
 namespace gameplay
@@ -52,7 +51,6 @@ namespace gameplay
          * @param x The viewport x position to draw text at.
          * @param y The viewport y position to draw text at.
          * @param color The color of text.
-         * @param size The size to draw text (0 for default size).
          */
         void drawText(const char* text, int x, int y, const glm::vec4& color);
 
@@ -66,7 +64,6 @@ namespace gameplay
          * @param green The green channel of the text color.
          * @param blue The blue channel of the text color.
          * @param alpha The alpha channel of the text color.
-         * @param size The size to draw text (0 for default size).
          */
         void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha);
 
@@ -77,8 +74,6 @@ namespace gameplay
 
         /**
          * Gets the sprite batch used to draw this Font.
-         *
-         * @param size The font size to be drawn.
          *
          * @return The SpriteBatch that most closely matches the requested font size.
          */
