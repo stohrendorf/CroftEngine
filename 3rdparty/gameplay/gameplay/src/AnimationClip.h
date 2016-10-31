@@ -195,12 +195,6 @@ namespace gameplay
         std::chrono::microseconds getElapsedTime() const;
 
 
-        void setElapsedTime(const std::chrono::microseconds& time)
-        {
-            _elapsedTime = time;
-        }
-
-
         /**
          * Gets the AnimationClip's duration.
          *
@@ -291,6 +285,11 @@ namespace gameplay
         }
 
 
+        /**
+        * Updates the animation with the elapsed time.
+        */
+        bool update(const std::chrono::microseconds& elapsedTime);
+
     private:
 
         static const unsigned char CLIP_IS_PLAYING_BIT = 0x01; // Bit representing whether AnimationClip is a running clip in AnimationController
@@ -330,11 +329,6 @@ namespace gameplay
         AnimationClip() = delete;
         AnimationClip(const AnimationClip& copy) = delete;
         AnimationClip& operator=(const AnimationClip&) = delete;
-
-        /**
-         * Updates the animation with the elapsed time.
-         */
-        bool update(const std::chrono::microseconds& elapsedTime);
 
         /**
          * Handles when the AnimationClip begins.

@@ -252,7 +252,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
     }
 
 
-    bool AnimationClip::update(const std::chrono::microseconds& elapsedTime)
+    bool AnimationClip::update(const std::chrono::microseconds& deltaTime)
     {
         BOOST_ASSERT(!_poses.empty());
 
@@ -278,7 +278,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         else
         {
             // Clip was already running
-            _elapsedTime += elapsedTime;
+            _elapsedTime += deltaTime;
         }
 
         // Current time within a loop of the clip

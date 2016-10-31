@@ -51,7 +51,7 @@ namespace engine
         }
         else
         {
-            clip->setElapsedTime(clip->getElapsedTime() + std::chrono::seconds(1) / core::FrameRate);
+            clip->update(std::chrono::seconds(1) / core::FrameRate);
         }
 
         handleTRTransitions();
@@ -70,7 +70,7 @@ namespace engine
         }
         else
         {
-            clip->setElapsedTime(clip->getElapsedTime() + delta);
+            clip->update(delta);
         }
 
         handleTRTransitions();
