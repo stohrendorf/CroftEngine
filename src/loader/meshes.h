@@ -23,7 +23,7 @@ namespace loader
         core::TRCoordinates position; // world coords
         int16_t rotation; // high two bits (0xC000) indicate steps of
         // 90 degrees (e.g. (Rotation >> 14) * 90)
-        int16_t intensity1; // Constant lighting; -1 means use mesh lighting
+        int16_t darkness; // Constant lighting; -1 means use mesh lighting
         int16_t intensity2; // Like Intensity 1, and almost always the same value [absent from TR1 data files]
         uint16_t meshId; // which StaticMesh item to draw
         FloatColor tint; // extracted from intensity
@@ -31,21 +31,19 @@ namespace loader
         /** \brief reads a room staticmesh definition.
         *
         * rotation gets converted to float and scaled appropiatly.
-        * intensity1 gets converted, so it matches the 0-32768 range introduced in TR3.
-        * intensity2 is introduced in TR2 and is set to intensity1 for TR1.
+        * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+        * intensity2 is introduced in TR2 and is set to darkness for TR1.
         */
         static RoomStaticMesh readTr1(io::SDLReader& reader)
         {
             RoomStaticMesh room_static_mesh;
             room_static_mesh.position = readCoordinates32(reader);
             room_static_mesh.rotation = reader.readI16();
-            room_static_mesh.intensity1 = reader.readI16();
+            room_static_mesh.darkness = reader.readI16();
             room_static_mesh.meshId = reader.readU16();
-            // make consistent
-            if( room_static_mesh.intensity1 >= 0 )
-                room_static_mesh.intensity1 = (8191 - room_static_mesh.intensity1) << 2;
+
             // only in TR2
-            room_static_mesh.intensity2 = room_static_mesh.intensity1;
+            room_static_mesh.intensity2 = room_static_mesh.darkness;
 
             room_static_mesh.tint.b = room_static_mesh.tint.g = room_static_mesh.tint.r = room_static_mesh.intensity2 / 16384.0f;
             room_static_mesh.tint.a = 1.0f;
@@ -58,12 +56,12 @@ namespace loader
             RoomStaticMesh room_static_mesh;
             room_static_mesh.position = readCoordinates32(reader);
             room_static_mesh.rotation = reader.readI16();
-            room_static_mesh.intensity1 = reader.readI16();
+            room_static_mesh.darkness = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
             room_static_mesh.meshId = reader.readU16();
             // make consistent
-            if( room_static_mesh.intensity1 >= 0 )
-                room_static_mesh.intensity1 = (8191 - room_static_mesh.intensity1) << 2;
+            if( room_static_mesh.darkness >= 0 )
+                room_static_mesh.darkness = (8191 - room_static_mesh.darkness) << 2;
             if( room_static_mesh.intensity2 >= 0 )
                 room_static_mesh.intensity2 = (8191 - room_static_mesh.intensity2) << 2;
 
@@ -78,15 +76,15 @@ namespace loader
             RoomStaticMesh room_static_mesh;
             room_static_mesh.position = readCoordinates32(reader);
             room_static_mesh.rotation = reader.readI16();
-            room_static_mesh.intensity1 = reader.readI16();
+            room_static_mesh.darkness = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
             room_static_mesh.meshId = reader.readU16();
 
-            room_static_mesh.tint.r = (room_static_mesh.intensity1 & 0x001F) / 62.0f;
+            room_static_mesh.tint.r = (room_static_mesh.darkness & 0x001F) / 62.0f;
 
-            room_static_mesh.tint.g = ((room_static_mesh.intensity1 & 0x03E0) >> 5) / 62.0f;
+            room_static_mesh.tint.g = ((room_static_mesh.darkness & 0x03E0) >> 5) / 62.0f;
 
-            room_static_mesh.tint.b = ((room_static_mesh.intensity1 & 0x7C00) >> 10) / 62.0f;
+            room_static_mesh.tint.b = ((room_static_mesh.darkness & 0x7C00) >> 10) / 62.0f;
             room_static_mesh.tint.a = 1.0f;
             return room_static_mesh;
         }
@@ -97,15 +95,15 @@ namespace loader
             RoomStaticMesh room_static_mesh;
             room_static_mesh.position = readCoordinates32(reader);
             room_static_mesh.rotation = reader.readI16();
-            room_static_mesh.intensity1 = reader.readI16();
+            room_static_mesh.darkness = reader.readI16();
             room_static_mesh.intensity2 = reader.readI16();
             room_static_mesh.meshId = reader.readU16();
 
-            room_static_mesh.tint.r = (room_static_mesh.intensity1 & 0x001F) / 31.0f;
+            room_static_mesh.tint.r = (room_static_mesh.darkness & 0x001F) / 31.0f;
 
-            room_static_mesh.tint.g = ((room_static_mesh.intensity1 & 0x03E0) >> 5) / 31.0f;
+            room_static_mesh.tint.g = ((room_static_mesh.darkness & 0x03E0) >> 5) / 31.0f;
 
-            room_static_mesh.tint.b = ((room_static_mesh.intensity1 & 0x7C00) >> 10) / 31.0f;
+            room_static_mesh.tint.b = ((room_static_mesh.darkness & 0x7C00) >> 10) / 31.0f;
             room_static_mesh.tint.a = 1.0f;
             return room_static_mesh;
         }

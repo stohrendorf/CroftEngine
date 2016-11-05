@@ -201,8 +201,8 @@ namespace loader
 
         /** \brief reads a room light definition.
           *
-          * intensity1 gets converted, so it matches the 0-32768 range introduced in TR3.
-          * intensity2 and fade2 are introduced in TR2 and are set to intensity1 and fade1 for TR1.
+          * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+          * intensity2 and fade2 are introduced in TR2 and are set to darkness and fade1 for TR1.
           */
         static Light readTr1(io::SDLReader& reader)
         {
@@ -593,8 +593,8 @@ namespace loader
 
         /** \brief reads a room definition.
           *
-          * intensity1 gets converted, so it matches the 0-32768 range introduced in TR3.
-          * intensity2 is introduced in TR2 and is set to intensity1 for TR1.
+          * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+          * intensity2 is introduced in TR2 and is set to darkness for TR1.
           * light_mode is only in TR2 and is set 0 for TR1.
           * light_colour is only in TR3-4 and gets set appropiatly.
           */

@@ -110,9 +110,6 @@ namespace gameplay
 
     private:
 
-        /**
-         * Constructor.
-         */
         Model();
 
         Model& operator=(const Model&) = delete;
