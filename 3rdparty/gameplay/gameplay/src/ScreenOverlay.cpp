@@ -17,8 +17,11 @@ namespace gameplay
     }
 
 
-    ScreenOverlay::ScreenOverlay()
+    ScreenOverlay::ScreenOverlay(Game* game)
+        : _game{game}
     {
+        BOOST_ASSERT(game != nullptr);
+
         if( screenOverlayProgram == nullptr )
         {
             screenOverlayProgram = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
@@ -35,7 +38,7 @@ namespace gameplay
     void ScreenOverlay::resize()
     {
         // Update the projection matrix for our batch to match the current viewport
-        const Rectangle& vp = Game::getInstance()->getViewport();
+        const Rectangle& vp = _game->getViewport();
 
         if( vp.isEmpty() )
         BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
@@ -45,7 +48,7 @@ namespace gameplay
 
         _texture = Texture::create(_image, false);
 
-        _batch = SpriteBatch::create(_texture, screenOverlayProgram);
+        _batch = SpriteBatch::create(_game, _texture, screenOverlayProgram);
         if( _batch == nullptr )
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create batch for screen overlay."));

@@ -56,10 +56,6 @@ set(GAMEPLAY_SRC
     src/Pass.h
     src/Plane.cpp
     src/Plane.h
-    src/Platform.h
-    src/Platform.cpp
-    src/Properties.h
-    src/Properties.cpp
     src/Ray.cpp
     src/Ray.h
     src/Rectangle.cpp
@@ -70,8 +66,6 @@ set(GAMEPLAY_SRC
     src/RenderTarget.h
     src/Scene.cpp
     src/Scene.h
-    src/ScreenDisplayer.cpp
-    src/ScreenDisplayer.h
     src/ScreenOverlay.cpp
     src/ScreenOverlay.h
     src/Sprite.cpp

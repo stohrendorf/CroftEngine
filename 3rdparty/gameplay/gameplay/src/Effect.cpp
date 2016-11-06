@@ -2,7 +2,6 @@
 #include "Effect.h"
 #include "FileSystem.h"
 #include "Game.h"
-#include "Properties.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -86,8 +85,7 @@ namespace gameplay
 
     static std::string replaceDefines(const std::vector<std::string>& defines)
     {
-        Properties* graphicsConfig = Game::getInstance()->getConfig()->getNamespace("graphics", true);
-        const char* globalDefines = graphicsConfig ? graphicsConfig->getString("shaderDefines") : nullptr;
+        const char* globalDefines = nullptr;
 
         std::string out;
         if( globalDefines && globalDefines[0] )

@@ -16,7 +16,7 @@
 
 namespace gameplay
 {
-    ParticleEmitter::ParticleEmitter(unsigned int particleCountMax)
+    ParticleEmitter::ParticleEmitter(Game* game, unsigned int particleCountMax)
         : Drawable()
         , _particleCountMax(particleCountMax)
         , _particleCount(0)
@@ -66,8 +66,10 @@ namespace gameplay
         , _timePerEmission(PARTICLE_EMISSION_RATE_TIME_INTERVAL)
         , _emitTime(0)
         , _lastUpdated(0)
+        , _game{game}
     {
-        BOOST_ASSERT(particleCountMax);
+        BOOST_ASSERT(particleCountMax > 0);
+        BOOST_ASSERT(game != nullptr);
         _particles = new Particle[particleCountMax];
     }
 
@@ -79,9 +81,9 @@ namespace gameplay
     }
 
 
-    ParticleEmitter* ParticleEmitter::create(const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned int particleCountMax)
+    ParticleEmitter* ParticleEmitter::create(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned int particleCountMax)
     {
-        ParticleEmitter* emitter = new ParticleEmitter(particleCountMax);
+        ParticleEmitter* emitter = new ParticleEmitter(game, particleCountMax);
         BOOST_ASSERT(emitter);
 
         emitter->setTexture(texture, blendMode);
@@ -94,7 +96,7 @@ namespace gameplay
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
-        auto batch = SpriteBatch::create(texture, nullptr);
+        auto batch = SpriteBatch::create(_game, texture, nullptr);
         batch->getSampler()->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
 
         _spriteBatch = batch;

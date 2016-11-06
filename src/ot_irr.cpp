@@ -66,7 +66,6 @@ namespace
 int main()
 {
     gameplay::Game* game = new gameplay::Game();
-    std::unique_ptr<gameplay::Platform> platform{gameplay::Platform::create(game)};
     game->run();
 #if 0
     irr::SIrrlichtCreationParameters driverParams;
@@ -118,7 +117,6 @@ int main()
     BOOST_ASSERT(lvl != nullptr);
     lvl->load();
 
-    platform->boot();
     lvl->toIrrlicht(game);
 
     // device->setWindowCaption("EdisonEngine");
@@ -127,12 +125,12 @@ int main()
         lvl->playCdTrack(lvlInfo.track);
 
 
-    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>();
+    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game);
     auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
     auto lastTime = game->getAbsoluteTime();
-    while(platform->loop())
+    while(game->loop())
     {
         screenOverlay->getImage()->fill({ 0,0,0,0 });
 
@@ -171,13 +169,13 @@ int main()
         //str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
         //device->setWindowCaption(str.c_str());
 
-        platform->frame();
+        game->frame();
 
         drawDebugInfo(font, lvl.get());
 
         screenOverlay->draw();
 
-        platform->swapBuffers();
+        game->swapBuffers();
     }
 
     //device->drop();

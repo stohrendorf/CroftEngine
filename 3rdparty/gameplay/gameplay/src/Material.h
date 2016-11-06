@@ -2,7 +2,6 @@
 
 #include "RenderState.h"
 #include "Technique.h"
-#include "Properties.h"
 
 
 namespace gameplay

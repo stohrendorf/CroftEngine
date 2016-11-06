@@ -386,7 +386,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
 }
 
 
-engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
+engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -507,7 +507,7 @@ engine::LaraController* Level::createItems(const std::vector<std::shared_ptr<gam
 
             const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
 
-            auto sprite = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto sprite = gameplay::Sprite::create(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             sprite->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             std::string name = "item";
@@ -565,7 +565,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
         Expects(model->boneCount > 0);
 
         std::vector<std::shared_ptr<gameplay::Material>> colorMaterials;
-        for(int i = 0; i < 256; ++i)
+        for( int i = 0; i < 256; ++i )
         {
             colorMaterials.emplace_back(loader::TextureLayoutProxy::createMaterial(createSolidColorTex(i), loader::BlendingMode::Solid, model->boneCount));
         }
@@ -644,7 +644,7 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
         renderModel->setSkin(std::make_unique<gameplay::MeshSkin>());
         renderModel->getSkin()->setRootJoint(joints[0]);
         renderModel->getSkin()->setJointCount(joints.size());
-        for(size_t i=0; i<joints.size(); ++i)
+        for( size_t i = 0; i < joints.size(); ++i )
             renderModel->getSkin()->setJoint(joints[i], i);
 
         renderModels.emplace_back(renderModel);
@@ -669,7 +669,8 @@ std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gamepla
             const int16_t* pData = &m_poseData[animation.poseDataOffset / 2];
             const int32_t* boneTreeData = model->boneTreeIndex >= m_boneTrees.size() ? nullptr : &m_boneTrees[model->boneTreeIndex];
 
-            auto clip = std::make_unique<gameplay::AnimationClip>(renderModel->getSkin().get(),
+            auto clip = std::make_unique<gameplay::AnimationClip>(game,
+                                                                  renderModel->getSkin().get(),
                                                                   core::toTime(start),
                                                                   core::toTime(end),
                                                                   core::toTime(step),
@@ -703,7 +704,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
     //device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
-    m_inputHandler = std::make_unique<engine::InputHandler>(gameplay::Platform::getWindow());
+    m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
     //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
@@ -729,15 +730,15 @@ void Level::toIrrlicht(gameplay::Game* game)
     camNode->setCamera(scene->getActiveCamera());
     scene->addNode(camNode);
 
-    for(size_t i = 0; i < m_rooms.size(); ++i)
+    for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(i, *this, textures, materials, staticModels, *m_textureAnimator);
+        m_rooms[i].createSceneNode(game, i, *this, textures, materials, staticModels, *m_textureAnimator);
         scene->addNode(m_rooms[i].node);
     }
 
     auto skinnedModels = createSkinnedModels(game, textures);
 
-    m_lara = createItems(skinnedModels, textures);
+    m_lara = createItems(game, skinnedModels, textures);
     if( m_lara == nullptr )
         return;
 
@@ -761,9 +762,9 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x] = { pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1 };
+                dst.pixels[y][x] = {pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1};
             else
-                dst.pixels[y][x] = { 0, 0, 0, 0 };
+                dst.pixels[y][x] = {0, 0, 0, 0};
         }
     }
 }
@@ -782,11 +783,11 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
                 const uint32_t r = ((col & 0x00007c00) >> 7);
                 const uint32_t g = ((col & 0x000003e0) >> 2);
                 const uint32_t b = ((col & 0x0000001f) << 3);
-                dst.pixels[y][x] = { r / 255.0f, g / 255.0f, b / 255.0f, 1 };
+                dst.pixels[y][x] = {r / 255.0f, g / 255.0f, b / 255.0f, 1};
             }
             else
             {
-                dst.pixels[y][x] = { 0, 0, 0, 0 };
+                dst.pixels[y][x] = {0, 0, 0, 0};
             }
         }
     }

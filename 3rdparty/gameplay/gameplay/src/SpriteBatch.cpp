@@ -38,7 +38,7 @@ namespace gameplay
     SpriteBatch::~SpriteBatch() = default;
 
 
-    std::shared_ptr<SpriteBatch> SpriteBatch::create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    std::shared_ptr<SpriteBatch> SpriteBatch::create(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(texture != nullptr);
         BOOST_ASSERT(texture->getType() == Texture::TEXTURE_2D);
@@ -109,7 +109,6 @@ namespace gameplay
         batch->_textureHeightRatio = 1.0f / texture->getHeight();
 
         // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
-        Game* game = Game::getInstance();
         batch->_projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
         material->getParameter("u_projectionMatrix")->bindValue(batch.get(), &SpriteBatch::getProjectionMatrix);
 

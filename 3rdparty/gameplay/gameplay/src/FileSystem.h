@@ -7,9 +7,6 @@
 
 namespace gameplay
 {
-    class Properties;
-
-
     /**
      * Defines a set of functions for interacting with the device file system.
      */
@@ -45,74 +42,6 @@ namespace gameplay
          * Destructor.
          */
         ~FileSystem();
-
-        /**
-         * Sets the path to the root of the resources folder for the game.
-         *
-         * Once set, all resource/file loading will load from the given path.
-         * The default resource path is "./".
-         *
-         * @param path The path to the root of the resources folder.
-         */
-        static void setResourcePath(const char* path);
-
-        /**
-         * Returns the currently set resource path.
-         *
-         * @return The currently set resource path.
-         */
-        static const char* getResourcePath();
-
-        /**
-         * Loads a properties file containing a list of filesystem aliases.
-         *
-         * The specified aliases file is a valid properties file that contains one
-         * or more namespaces with a list of filesystem aliases that will be used
-         * to establish soft links to files when reading files through this class.
-         *
-         * This can be helpful for managing loading of resources that may change
-         * from one platform to another (such as texture formats). An aliases
-         * file per-platform can be maintained and asset loading code can refer
-         * to the alias name instead of the actual hard file name.
-         *
-         * @param aliasFilePath Path to a properties file containing filesystem aliases.
-         *
-         * @see Properties
-         */
-        static void loadResourceAliases(const char* aliasFilePath);
-
-        /**
-         * Loads a set of filesystem aliases from the given Properties object.
-         *
-         * The specified properties object contains a single namespace with a list
-         * of filesystem aliases that will be used to establish soft links to files
-         * when reading files through this class.
-         *
-         * This can be helpful for managing loading of resources that may change
-         * from one platform to another (such as texture formats). An aliases
-         * file per-platform can be maintained and asset loading code can refer
-         * to the alias name instead of the actual hard file name.
-         *
-         * @param properties Properties object containing filesystem aliases.
-         *
-         * @see Properties
-         */
-        static void loadResourceAliases(Properties* properties);
-
-        /**
-         * Resolves a filesystem path.
-         *
-         * If the specified path is a filesystem alias, the alias will be
-         * resolved and the physical file will be returned.
-         *
-         * Note that this method does not convert a relative path to an
-         * absolute filesystem path.
-         *
-         * @param path Path to resolve.
-         *
-         * @return The resolved file path.
-         */
-        static const char* resolvePath(const char* path);
 
         /**
          * Checks if the file at the given path exists.
@@ -177,23 +106,6 @@ namespace gameplay
          * @return True if the path is an absolute path or false otherwise.
          */
         static bool isAbsolutePath(const char* filePath);
-
-        /**
-        * Sets the asset root path for the game on platforms that have separate assets (currently just Android).
-        *
-        * Once set, all asset paths will be loaded relative to the given path.
-        * The default asset path is an empty string ("").
-        *
-        * @param path The asset root path.
-        */
-        static void setAssetPath(const char* path);
-
-        /**
-        * Returns the currently set asset root path.
-        *
-        * @return The currently set asset root path.
-        */
-        static const char* getAssetPath();
 
         /**
          * Returns the directory name up to and including the trailing '/'.

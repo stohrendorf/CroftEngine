@@ -3,7 +3,6 @@
 #include "Transform.h"
 #include "Frustum.h"
 #include "Rectangle.h"
-#include "Properties.h"
 
 
 namespace gameplay

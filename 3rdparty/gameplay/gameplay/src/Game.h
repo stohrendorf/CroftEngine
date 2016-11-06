@@ -2,9 +2,9 @@
 
 #include "Rectangle.h"
 #include "TimeListener.h"
-#include "Platform.h"
 #include "RenderState.h"
 
+#include <GLFW/glfw3.h>
 
 namespace gameplay
 {
@@ -18,7 +18,6 @@ namespace gameplay
      */
     class Game
     {
-        friend class Platform;
         friend class ShutdownListener;
 
     public:
@@ -52,7 +51,7 @@ namespace gameplay
         /**
          * Constructor.
          */
-        Game();
+        explicit Game();
 
         /**
          * Destructor.
@@ -60,32 +59,25 @@ namespace gameplay
         virtual ~Game();
 
         /**
-         * Gets the single instance of the game.
-         *
-         * @return The single instance of the game.
-         */
-        static Game* getInstance();
-
-        /**
          * Gets whether vertical sync is enabled for the game display.
          *
          * @return true if vsync is enabled; false if not.
          */
-        static bool isVsync();
+        bool isVsync();
 
         /**
          * Sets whether vertical sync is enabled for the game display.
          *
          * @param enable true if vsync is enabled; false if not.
          */
-        static void setVsync(bool enable);
+        void setVsync(bool enable);
 
         /**
          * Gets the total absolute running time (in milliseconds) since Game::run().
          *
          * @return The total absolute running time (in milliseconds).
          */
-        static std::chrono::microseconds getAbsoluteTime();
+        std::chrono::microseconds getAbsoluteTime();
 
         /**
          * Gets the total game time (in milliseconds). This is the total accumulated game time (unpaused).
@@ -95,7 +87,7 @@ namespace gameplay
          *
          * @return The total game time (in milliseconds).
          */
-        static std::chrono::microseconds getGameTime();
+        std::chrono::microseconds getGameTime();
 
         /**
          * Gets the game state.
@@ -110,16 +102,6 @@ namespace gameplay
          * @return true if the game initialization has completed, false otherwise.
          */
         inline bool isInitialized() const;
-
-        /**
-         * Returns the game configuration object.
-         *
-         * This method returns a Properties object containing the contents
-         * of the game.config file.
-         *
-         * @return The game configuration Properties object.
-         */
-        Properties* getConfig() const;
 
         /**
          * Called to initialize the game, and begin running the game.
@@ -245,13 +227,6 @@ namespace gameplay
         inline bool isMultiSampling() const;
 
         /**
-         * Whether this game is allowed to exit programmatically.
-         *
-         * @return true if a programmatic exit is allowed.
-         */
-        inline bool canExit() const;
-
-        /**
          * Schedules a time event to be sent to the given TimeListener a given number of game milliseconds from now.
          * Game time stops while the game is paused. A time offset of zero will fire the time event in the next frame.
          *
@@ -266,6 +241,30 @@ namespace gameplay
          * Clears all scheduled time events.
          */
         void clearSchedule();
+
+        bool loop()
+        {
+            glfwPollEvents();
+
+            if(glfwWindowShouldClose(_window))
+                return false;
+
+            return true;
+        }
+
+        /**
+        * Renders a single frame once and then swaps it to the display.
+        * This calls the given script function, which should take no parameters and return nothing (void).
+        *
+        * This is useful for rendering splash screens.
+        */
+        void swapBuffers();
+
+        GLFWwindow* getWindow() const
+        {
+            return _window;
+        }
+
 
     protected:
 
@@ -308,14 +307,6 @@ namespace gameplay
         void swapBuffers(T* instance, void (T::*method)(void*), void* cookie);
 
         /**
-         * Renders a single frame once and then swaps it to the display.
-         * This calls the given script function, which should take no parameters and return nothing (void).
-         *
-         * This is useful for rendering splash screens.
-         */
-        static void swapBuffers();
-
-        /**
          * Updates the game's internal systems (audio, animation, physics) once.
          *
          * Note: This does not call the user-defined Game::update() function.
@@ -328,9 +319,18 @@ namespace gameplay
 
         struct ShutdownListener : public TimeListener
         {
+            explicit ShutdownListener(Game* game)
+                : _game{game}
+            {
+                BOOST_ASSERT(game != nullptr);
+            }
+
             virtual ~ShutdownListener() = default;
 
             void timeEvent(const std::chrono::microseconds& timeDiff, void* cookie) override;
+
+        private:
+            Game* _game;
         };
 
 
@@ -373,11 +373,6 @@ namespace gameplay
          */
         void fireTimeEvents(const std::chrono::microseconds& frameTime);
 
-        /**
-         * Loads the game configuration.
-         */
-        void loadConfig();
-
         bool _initialized; // If game has initialized yet.
         State _state; // The game state.
         unsigned int _pausedCount; // Number of times pause() has been called.
@@ -386,16 +381,19 @@ namespace gameplay
         std::chrono::microseconds _frameLastFPS; // The last time the frame count was updated.
         unsigned int _frameCount; // The current frame count.
         unsigned int _frameRate; // The current frame rate.
-        unsigned int _width; // The game's display width.
-        unsigned int _height; // The game's display height.
+        int _width; // The game's display width.
+        int _height; // The game's display height.
         Rectangle _viewport; // the games's current viewport.
         glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth; // The clear depth value last used for clearing the depth buffer.
         int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
-        Properties* _properties; // Game configuration properties object.
-        std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>* _timeEvents; // Contains the scheduled time events.
+        std::unique_ptr<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>> _timeEvents; // Contains the scheduled time events.
 
-        // Note: Do not add STL object member variables on the stack; this will cause false memory leaks to be reported.
+        std::chrono::high_resolution_clock::time_point _timeStart;
+        std::chrono::high_resolution_clock::duration _timeAbsolute;
+        bool _vsync = WINDOW_VSYNC;
+        bool _multiSampling = false;
+        GLFWwindow* _window = nullptr;
 
         friend class ScreenDisplayer;
 
@@ -449,24 +447,24 @@ namespace gameplay
     {
         GP_ASSERT(instance);
         (instance->*method)(cookie);
-        Platform::swapBuffers();
+        swapBuffers();
     }
 
 
     inline void Game::setMultiSampling(bool enabled)
     {
-        Platform::setMultiSampling(enabled);
+        if(enabled == _multiSampling)
+        {
+            return;
+        }
+
+        //! @todo Really enable multisampling
+        _multiSampling = enabled;
     }
 
 
     inline bool Game::isMultiSampling() const
     {
-        return Platform::isMultiSampling();
-    }
-
-
-    inline bool Game::canExit() const
-    {
-        return Platform::canExit();
+        return _multiSampling;
     }
 }

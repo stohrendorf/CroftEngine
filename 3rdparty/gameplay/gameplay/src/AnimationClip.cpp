@@ -7,7 +7,7 @@
 
 namespace gameplay
 {
-AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime, const std::chrono::microseconds& step, const int16_t* poseData, size_t poseDataStride, const int32_t* boneTreeData)
+    AnimationClip::AnimationClip(Game* game, MeshSkin* skin, const std::chrono::microseconds& startTime, const std::chrono::microseconds& endTime, const std::chrono::microseconds& step, const int16_t* poseData, size_t poseDataStride, const int32_t* boneTreeData)
         : _skin{skin}
         , _startTime{startTime}
         , _endTime{endTime}
@@ -18,13 +18,15 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         , _endListeners{}
         , _listeners{}
         , _listenerItr{}
+        , _game{game}
     {
         BOOST_ASSERT(_skin);
+        BOOST_ASSERT(_game);
         BOOST_ASSERT(std::chrono::microseconds::zero() <= startTime && startTime <= endTime);
 
-        for(auto i = startTime; i < endTime; i += step)
+        for( auto i = startTime; i < endTime; i += step )
         {
-            _poses.emplace(std::make_pair( i, Pose{_skin->getJointCount(), poseData, boneTreeData} ));
+            _poses.emplace(std::make_pair(i, Pose{_skin->getJointCount(), poseData, boneTreeData}));
             poseData += poseDataStride;
         }
     }
@@ -111,7 +113,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         }
 
         const auto timeOffset = time - _startTime;
-        _timeStarted = Game::getGameTime() - timeOffset;
+        _timeStarted = _game->getGameTime() - timeOffset;
     }
 
 
@@ -155,7 +157,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         }
         else
         {
-            for( std::list<ListenerEvent*>::iterator itr = _listeners.begin(); itr != _listeners.end(); ++itr )
+            for( auto itr = _listeners.begin(); itr != _listeners.end(); ++itr )
             {
                 BOOST_ASSERT(*itr);
                 if( eventTime < (*itr)->_eventTime )
@@ -186,10 +188,10 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         if( !_listeners.empty() )
         {
             BOOST_ASSERT(listener);
-            std::list<ListenerEvent*>::iterator iter = std::find_if(_listeners.begin(), _listeners.end(), [&](ListenerEvent* lst)
-                                                                    {
-                                                                        return lst->_eventTime == eventTime && lst->_listener == listener;
-                                                                    });
+            auto iter = std::find_if(_listeners.begin(), _listeners.end(), [&](ListenerEvent* lst)
+                                     {
+                                         return lst->_eventTime == eventTime && lst->_listener == listener;
+                                     });
             if( iter != _listeners.end() )
             {
                 if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
@@ -312,11 +314,11 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         // Evaluate this clip.
 
         auto next = _poses.upper_bound(currentTime);
-        if(next == _poses.begin())
+        if( next == _poses.begin() )
         {
             setPose(next->second);
         }
-        else if(next == _poses.end())
+        else if( next == _poses.end() )
         {
             setPose(std::prev(next)->second);
         }
@@ -348,7 +350,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         // Initialize animation to play.
         setClipStateBit(CLIP_IS_STARTED_BIT);
 
-        _elapsedTime = Game::getGameTime() - _timeStarted;
+        _elapsedTime = _game->getGameTime() - _timeStarted;
 
         if( !_listeners.empty() )
             *_listenerItr = _listeners.begin();
@@ -402,6 +404,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
         _stateBits &= ~bit;
     }
 
+
     void AnimationClip::setPose(const Pose& pose)
     {
         BOOST_ASSERT(_skin);
@@ -409,7 +412,7 @@ AnimationClip::AnimationClip(MeshSkin* skin, const std::chrono::microseconds& st
 
         _bbox = pose.bbox;
 
-        for(size_t i = 0; i<pose.bones.size(); ++i)
+        for( size_t i = 0; i < pose.bones.size(); ++i )
         {
             auto joint = _skin->getJoint(i);
             joint->setRotation(pose.bones[i].rotation);

@@ -55,8 +55,8 @@ namespace loader
                 for( const MeshPart& localPart : m_parts )
                 {
 #ifndef NDEBUG
-                    for(auto idx : localPart.indices)
-                        BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
+                    for( auto idx : localPart.indices )
+                    BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
 #endif
 
                     auto part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
@@ -76,7 +76,8 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Node> Room::createSceneNode(int dumpIdx,
+    std::shared_ptr<gameplay::Node> Room::createSceneNode(gameplay::Game* game,
+                                                          int dumpIdx,
                                                           const level::Level& level,
                                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
@@ -92,7 +93,7 @@ namespace loader
         {
             const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.proxyId);
 
-            if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            if( texBuffers.find(proxy.textureKey) == texBuffers.end() )
             {
                 texBuffers[proxy.textureKey] = renderModel.m_parts.size();
                 renderModel.m_parts.emplace_back();
@@ -103,7 +104,7 @@ namespace loader
             const auto partId = texBuffers[proxy.textureKey];
 
             const auto firstVertex = vbuf.size();
-            for(int i = 0; i < 4; ++i)
+            for( int i = 0; i < 4; ++i )
             {
                 RenderVertex iv;
                 iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
@@ -113,24 +114,24 @@ namespace loader
                 vbuf.push_back(iv);
             }
 
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 1, firstVertex + 1);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 1, firstVertex + 1);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
-            animator.registerVertex(quad.proxyId, { mesh, partId }, 3, firstVertex + 3);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 3, firstVertex + 3);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 3);
         }
         for( const Triangle& tri : triangles )
         {
             const TextureLayoutProxy& proxy = level.m_textureProxies.at(tri.proxyId);
 
-            if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+            if( texBuffers.find(proxy.textureKey) == texBuffers.end() )
             {
                 texBuffers[proxy.textureKey] = renderModel.m_parts.size();
                 renderModel.m_parts.emplace_back();
@@ -141,7 +142,7 @@ namespace loader
             const auto partId = texBuffers[proxy.textureKey];
 
             const auto firstVertex = vbuf.size();
-            for(int i = 0; i < 3; ++i)
+            for( int i = 0; i < 3; ++i )
             {
                 RenderVertex iv;
                 iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
@@ -151,11 +152,11 @@ namespace loader
                 vbuf.push_back(iv);
             }
 
-            animator.registerVertex(tri.proxyId, { mesh, partId }, 0, firstVertex + 0);
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 0, firstVertex + 0);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
-            animator.registerVertex(tri.proxyId, { mesh, partId }, 1, firstVertex + 1);
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 1, firstVertex + 1);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
-            animator.registerVertex(tri.proxyId, { mesh, partId }, 2, firstVertex + 2);
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 2, firstVertex + 2);
             renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
         }
 
@@ -220,7 +221,7 @@ namespace loader
 
             const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
 
-            auto spriteNode = gameplay::Sprite::create(textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto spriteNode = gameplay::Sprite::create(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             auto n = std::make_shared<gameplay::Node>("");

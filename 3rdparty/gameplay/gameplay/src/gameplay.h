@@ -1,6 +1,5 @@
 // Core
 #include "Base.h"
-#include "Platform.h"
 #include "Game.h"
 #include "FileSystem.h"
 #include "MathUtil.h"
@@ -40,7 +39,6 @@
 #include "FrameBuffer.h"
 #include "RenderTarget.h"
 #include "DepthStencilTarget.h"
-#include "ScreenDisplayer.h"
 #include "ScreenOverlay.h"
 
 // Animation

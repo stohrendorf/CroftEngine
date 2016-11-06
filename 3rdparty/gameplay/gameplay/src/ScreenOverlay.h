@@ -11,7 +11,7 @@ namespace gameplay
     class ScreenOverlay
     {
     public:
-        ScreenOverlay();
+        explicit ScreenOverlay(Game* game);
         ~ScreenOverlay();
 
         void resize();
@@ -38,5 +38,7 @@ namespace gameplay
         std::shared_ptr<Image> _image{nullptr};
         std::shared_ptr<Texture> _texture{nullptr};
         std::shared_ptr<SpriteBatch> _batch{nullptr};
+
+        Game* _game;
     };
 }

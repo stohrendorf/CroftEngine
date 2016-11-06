@@ -324,14 +324,14 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    std::shared_ptr<Sprite> Sprite::create(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(texture != nullptr);
         BOOST_ASSERT(width >= -1 && height >= -1);
         BOOST_ASSERT(source.width >= -1 && source.height >= -1);
         BOOST_ASSERT(frameCount > 0);
 
-        auto batch = SpriteBatch::create(texture, shaderProgram);
+        auto batch = SpriteBatch::create(game, texture, shaderProgram);
         batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
         batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
         batch->getStateBlock()->setDepthWrite(false);

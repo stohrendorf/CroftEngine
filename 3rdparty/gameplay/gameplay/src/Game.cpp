@@ -1,18 +1,22 @@
 #include "Base.h"
 #include "Game.h"
-#include "Platform.h"
 #include "RenderState.h"
-#include "FileSystem.h"
 #include "FrameBuffer.h"
 #include "Scene.h"
+
+#include <boost/log/trivial.hpp>
 
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
 
+void glErrorCallback(int err, const char* msg)
+{
+    BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
+}
+
 
 namespace gameplay
 {
-    static Game* __gameInstance = nullptr;
     std::chrono::microseconds Game::_pausedTimeLast = std::chrono::microseconds::zero();
     std::chrono::microseconds Game::_pausedTimeTotal = std::chrono::microseconds::zero();
 
@@ -28,13 +32,51 @@ namespace gameplay
         , _height(0)
         , _clearDepth(1.0f)
         , _clearStencil(0)
-        , _properties(nullptr)
-        , _timeEvents(nullptr)
+        , _timeEvents{ std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>() }
     {
-        BOOST_ASSERT(__gameInstance == nullptr);
+        glfwSetErrorCallback(&glErrorCallback);
 
-        __gameInstance = this;
-        _timeEvents = new std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>();
+        if(glfwInit() != GLFW_TRUE)
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to initialize GLFW";
+            return;
+        }
+
+        atexit(&glfwTerminate);
+
+        // Get the window configuration values
+        int width = 1280, height = 800, samples = 1;
+        bool fullscreen = false;
+
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DEPTH_BITS, 24);
+        glfwWindowHint(GLFW_STENCIL_BITS, 8);
+        glfwWindowHint(GLFW_SAMPLES, samples);
+        glfwWindowHint(GLFW_RED_BITS, 8);
+        glfwWindowHint(GLFW_GREEN_BITS, 8);
+        glfwWindowHint(GLFW_BLUE_BITS, 8);
+        glfwWindowHint(GLFW_ALPHA_BITS, 8);
+        glfwWindowHint(GLFW_DECORATED, fullscreen ? GLFW_FALSE : GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+#ifndef NDEBUG
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+
+        _multiSampling = samples > 0;
+
+        // Create the windows
+        _window = glfwCreateWindow(width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+        glfwMakeContextCurrent(_window);
+
+        // Use OpenGL 2.x with GLEW
+        glewExperimental = GL_TRUE;
+        const auto err = glewInit();
+        if(err != GLEW_OK)
+        {
+            BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString(err));
+        }
     }
 
 
@@ -42,20 +84,10 @@ namespace gameplay
     {
         // Do not call any virtual functions from the destructor.
         // Finalization is done from outside this class.
-        SAFE_DELETE(_timeEvents);
 #ifdef GP_USE_MEM_LEAK_DETECTION
     Ref::printLeaks();
     printMemoryLeaks();
 #endif
-
-        __gameInstance = nullptr;
-    }
-
-
-    Game* Game::getInstance()
-    {
-        BOOST_ASSERT(__gameInstance);
-        return __gameInstance;
     }
 
 
@@ -98,25 +130,28 @@ namespace gameplay
 
     std::chrono::microseconds Game::getAbsoluteTime()
     {
-        return Platform::getAbsoluteTime();
+        _timeAbsolute = std::chrono::high_resolution_clock::now() - _timeStart;
+
+        return std::chrono::duration_cast<std::chrono::microseconds>(_timeAbsolute);
     }
 
 
     std::chrono::microseconds Game::getGameTime()
     {
-        return Platform::getAbsoluteTime() - _pausedTimeTotal;
+        return getAbsoluteTime() - _pausedTimeTotal;
     }
 
 
     void Game::setVsync(bool enable)
     {
-        Platform::setVsync(enable);
+        _vsync = enable;
+        glfwSwapInterval(enable ? 1 : 0);
     }
 
 
     bool Game::isVsync()
     {
-        return Platform::isVsync();
+        return _vsync;
     }
 
 
@@ -125,10 +160,7 @@ namespace gameplay
         if( _state != UNINITIALIZED )
             return -1;
 
-        loadConfig();
-
-        _width = Platform::getDisplayWidth();
-        _height = Platform::getDisplayHeight();
+        glfwGetWindowSize(_window, &_width, &_height);
 
         // Start up game systems.
         if( !startup() )
@@ -161,15 +193,11 @@ namespace gameplay
         // Call user finalization.
         if( _state != UNINITIALIZED )
         {
-            Platform::signalShutdown();
-
             // Call user finalize
             finalize();
 
             FrameBuffer::finalize();
             RenderState::finalize();
-
-            SAFE_DELETE(_properties);
 
             _state = UNINITIALIZED;
         }
@@ -181,7 +209,7 @@ namespace gameplay
         if( _state == RUNNING )
         {
             _state = PAUSED;
-            _pausedTimeLast = Platform::getAbsoluteTime();
+            _pausedTimeLast = getAbsoluteTime();
         }
 
         ++_pausedCount;
@@ -197,7 +225,7 @@ namespace gameplay
             if( _pausedCount == 0 )
             {
                 _state = RUNNING;
-                _pausedTimeTotal += Platform::getAbsoluteTime() - _pausedTimeLast;
+                _pausedTimeTotal += getAbsoluteTime() - _pausedTimeLast;
             }
         }
     }
@@ -265,7 +293,7 @@ namespace gameplay
 
     void Game::swapBuffers()
     {
-        Platform::swapBuffers();
+        glfwSwapBuffers(_window);
     }
 
 
@@ -353,8 +381,7 @@ namespace gameplay
 
     void Game::clearSchedule()
     {
-        SAFE_DELETE(_timeEvents);
-        _timeEvents = new std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>();
+        _timeEvents = std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>();
     }
 
 
@@ -392,42 +419,8 @@ namespace gameplay
     }
 
 
-    Properties* Game::getConfig() const
-    {
-        if( _properties == nullptr )
-            const_cast<Game*>(this)->loadConfig();
-
-        return _properties;
-    }
-
-
-    void Game::loadConfig()
-    {
-        if( _properties == nullptr )
-        {
-            // Try to load custom config from file.
-            if( FileSystem::fileExists("game.config") )
-            {
-                _properties = Properties::create("game.config");
-
-                // Load filesystem aliases.
-                Properties* aliases = _properties->getNamespace("aliases", true);
-                if( aliases )
-                {
-                    FileSystem::loadResourceAliases(aliases);
-                }
-            }
-            else
-            {
-                // Create an empty config
-                _properties = new Properties();
-            }
-        }
-    }
-
-
     void Game::ShutdownListener::timeEvent(const std::chrono::microseconds& /*timeDiff*/, void* /*cookie*/)
     {
-        Game::getInstance()->shutdown();
+        _game->shutdown();
     }
 }

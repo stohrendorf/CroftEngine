@@ -4,8 +4,10 @@
 
 #include <glm/gtx/quaternion.hpp>
 
+
 namespace gameplay
 {
+    class Game;
     class MeshSkin;
 
 
@@ -15,7 +17,8 @@ namespace gameplay
     class AnimationClip
     {
     public:
-        AnimationClip(MeshSkin* skin,
+        AnimationClip(Game* game,
+                      MeshSkin* skin,
                       const std::chrono::microseconds& startTime,
                       const std::chrono::microseconds& endTime,
                       const std::chrono::microseconds& step,
@@ -53,7 +56,7 @@ namespace gameplay
                         bbox.min = glm::vec3(poseData[0], poseData[2], poseData[4]);
                         bbox.max = glm::vec3(poseData[1], poseData[3], poseData[5]);
 
-                        bone.translation = { poseData[6], static_cast<float>(-poseData[7]), poseData[8] };
+                        bone.translation = {poseData[6], static_cast<float>(-poseData[7]), poseData[8]};
 
                         first = false;
                     }
@@ -63,7 +66,7 @@ namespace gameplay
                         // const int32_t* boneTreeData = &m_boneTrees[model.boneTreeIndex + (boneId - 1) * 4];
 
                         BOOST_ASSERT(boneTreeData != nullptr);
-                        bone.translation = { static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3]) };
+                        bone.translation = {static_cast<float>(boneTreeData[1]), static_cast<float>(-boneTreeData[2]), static_cast<float>(boneTreeData[3])};
                         boneTreeData += 4;
                     }
 
@@ -369,5 +372,6 @@ namespace gameplay
         std::list<ListenerEvent*>::iterator* _listenerItr; // Iterator that points to the next listener event to be triggered.
         std::map<std::chrono::microseconds, Pose> _poses;
         BoundingBox _bbox;
+        Game* _game;
     };
 }

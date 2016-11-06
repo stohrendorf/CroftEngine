@@ -283,7 +283,7 @@ namespace gameplay
          */
         size_t draw(bool wireframe = false) override;
 
-        static std::shared_ptr<Sprite> create(const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
+        static std::shared_ptr<Sprite> create(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
     protected:
 
         Sprite& operator=(const Sprite& sprite) = delete;

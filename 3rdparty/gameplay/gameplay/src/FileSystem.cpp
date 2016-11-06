@@ -1,16 +1,15 @@
 #include "Base.h"
 #include "FileSystem.h"
-#include "Properties.h"
 #include "Stream.h"
 
 #include <boost/log/trivial.hpp>
 
 #ifdef WIN32
-#include <windows.h>
-#include <tchar.h>
-#include <stdio.h>
-#define gp_stat _stat
-#define gp_stat_struct struct stat
+    #include <windows.h>
+    #include <tchar.h>
+    #include <stdio.h>
+    #define gp_stat _stat
+    #define gp_stat_struct struct stat
 #else
     #define __EXT_POSIX2
     #include <libgen.h>
@@ -22,34 +21,6 @@
 
 namespace gameplay
 {
-    /** @script{ignore} */
-    static std::string __resourcePath("./");
-    static std::string __assetPath("");
-    static std::map<std::string, std::string> __aliases;
-
-
-    /**
-     * Gets the fully resolved path.
-     * If the path is relative then it will be prefixed with the resource path.
-     * Aliases will be converted to a relative path.
-     *
-     * @param path The path to resolve.
-     * @param fullPath The full resolved path. (out param)
-     */
-    static void getFullPath(const char* path, std::string& fullPath)
-    {
-        if( FileSystem::isAbsolutePath(path) )
-        {
-            fullPath.assign(path);
-        }
-        else
-        {
-            fullPath.assign(__resourcePath);
-            fullPath += FileSystem::resolvePath(path);
-        }
-    }
-
-
     /**
      *
      * @script{ignore}
@@ -60,18 +31,18 @@ namespace gameplay
         friend class FileSystem;
 
         ~FileStream();
-        virtual bool canRead();
-        virtual bool canWrite();
-        virtual bool canSeek();
-        virtual void close();
-        virtual size_t read(void* ptr, size_t size, size_t count);
-        virtual char* readLine(char* str, int num);
-        virtual size_t write(const void* ptr, size_t size, size_t count);
-        virtual bool eof();
-        virtual size_t length();
-        virtual long int position();
-        virtual bool seek(long int offset, int origin);
-        virtual bool rewind();
+        bool canRead() override;
+        bool canWrite() override;
+        bool canSeek() override;
+        void close() override;
+        size_t read(void* ptr, size_t size, size_t count) override;
+        char* readLine(char* str, int num) override;
+        size_t write(const void* ptr, size_t size, size_t count) override;
+        bool eof() override;
+        size_t length() override;
+        long int position() override;
+        bool seek(long int offset, int origin) override;
+        bool rewind() override;
 
         static FileStream* create(const char* filePath, const char* mode);
 
@@ -96,73 +67,12 @@ namespace gameplay
     }
 
 
-    void FileSystem::setResourcePath(const char* path)
-    {
-        __resourcePath = path == nullptr ? "" : path;
-    }
-
-
-    const char* FileSystem::getResourcePath()
-    {
-        return __resourcePath.c_str();
-    }
-
-
-    void FileSystem::loadResourceAliases(const char* aliasFilePath)
-    {
-        Properties* properties = Properties::create(aliasFilePath);
-        if( properties )
-        {
-            Properties* aliases;
-            while( (aliases = properties->getNextNamespace()) != nullptr )
-            {
-                loadResourceAliases(aliases);
-            }
-        }
-        SAFE_DELETE(properties);
-    }
-
-
-    void FileSystem::loadResourceAliases(Properties* properties)
-    {
-        assert(properties);
-
-        const char* name;
-        while( (name = properties->getNextProperty()) != nullptr )
-        {
-            __aliases[name] = properties->getString();
-        }
-    }
-
-
-    const char* FileSystem::resolvePath(const char* path)
-    {
-        BOOST_ASSERT(path);
-
-        size_t len = strlen(path);
-        if( len > 1 && path[0] == '@' )
-        {
-            std::string alias(path + 1);
-            std::map<std::string, std::string>::const_iterator itr = __aliases.find(alias);
-            if( itr == __aliases.end() )
-                return path; // no matching alias found
-            return itr->second.c_str();
-        }
-
-        return path;
-    }
-
-
     bool FileSystem::fileExists(const char* filePath)
     {
         BOOST_ASSERT(filePath);
 
-        std::string fullPath;
-
-        getFullPath(filePath, fullPath);
-
         gp_stat_struct s;
-        return stat(fullPath.c_str(), &s) == 0;
+        return stat(filePath, &s) == 0;
     }
 
 
@@ -172,10 +82,7 @@ namespace gameplay
         if( (streamMode & WRITE) != 0 )
             modeStr[0] = 'w';
 
-        std::string fullPath;
-        getFullPath(path, fullPath);
-        FileStream* stream = FileStream::create(fullPath.c_str(), modeStr);
-        return stream;
+        return FileStream::create(path, modeStr);
     }
 
 
@@ -184,11 +91,7 @@ namespace gameplay
         BOOST_ASSERT(filePath);
         BOOST_ASSERT(mode);
 
-        std::string fullPath;
-        getFullPath(filePath, fullPath);
-
-        FILE* fp = fopen(fullPath.c_str(), mode);
-        return fp;
+        return fopen(filePath, mode);
     }
 
 
@@ -223,7 +126,7 @@ namespace gameplay
 
     bool FileSystem::isAbsolutePath(const char* filePath)
     {
-        if( filePath == 0 || filePath[0] == '\0' )
+        if( filePath == nullptr || filePath[0] == '\0' )
             return false;
 #ifdef WIN32
         if( filePath[1] != '\0' )
@@ -235,18 +138,6 @@ namespace gameplay
 #else
         return filePath[0] == '/';
 #endif
-    }
-
-
-    void FileSystem::setAssetPath(const char* path)
-    {
-        __assetPath = path;
-    }
-
-
-    const char* FileSystem::getAssetPath()
-    {
-        return __assetPath.c_str();
     }
 
 
@@ -385,7 +276,7 @@ namespace gameplay
     char* FileStream::readLine(char* str, int num)
     {
         if( !_file )
-            return 0;
+            return nullptr;
         return fgets(str, num, _file);
     }
 
@@ -402,7 +293,7 @@ namespace gameplay
     {
         if( !_file || feof(_file) )
             return true;
-        return ((size_t)position()) >= length();
+        return static_cast<size_t>(position()) >= length();
     }
 
 

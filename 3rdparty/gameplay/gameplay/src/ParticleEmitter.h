@@ -674,7 +674,7 @@ namespace gameplay
         /**
          * Constructor.
          */
-        ParticleEmitter(unsigned int particlesCount);
+        ParticleEmitter(Game* game, unsigned int particlesCount);
 
         /**
          * Destructor.
@@ -689,7 +689,7 @@ namespace gameplay
          * @param particleCountMax The maximum number of particles that can be alive at one time in this ParticleEmitter's system.
          * @script{create}
          */
-        static ParticleEmitter* create(const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned particleCountMax);
+        static ParticleEmitter* create(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned particleCountMax);
 
         ParticleEmitter& operator=(const ParticleEmitter&) = delete;
 
@@ -788,5 +788,6 @@ namespace gameplay
         float _timePerEmission;
         float _emitTime;
         double _lastUpdated;
+        Game* _game;
     };
 }
