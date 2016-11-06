@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "MeshPart.h"
 #include "Node.h"
+#include "MaterialParameter.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -200,6 +201,9 @@ namespace gameplay
             material->setNodeBinding(getNode());
 
             material->bind(part->getVaBinding());
+
+            //! @todo apply additional bindings here
+
             GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
             if( !wireframe || !drawWireframe(part) )
             {

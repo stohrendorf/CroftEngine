@@ -84,7 +84,6 @@ namespace gameplay
          * Creates a mesh part for the specified mesh.
          *
          * @param mesh The mesh that this is part of.
-         * @param meshIndex The index of the part within the mesh.
          * @param primitiveType The primitive type.
          * @param indexFormat The index format.
          * @param indexCount The number of indices.

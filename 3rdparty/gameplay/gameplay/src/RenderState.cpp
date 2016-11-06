@@ -58,9 +58,8 @@ namespace gameplay
     std::shared_ptr<MaterialParameter> RenderState::getParameter(const std::string& name) const
     {
         // Search for an existing parameter with this name.
-        for( size_t i = 0, count = _parameters.size(); i < count; ++i )
+        for( const auto& param : _parameters )
         {
-            auto param = _parameters[i];
             BOOST_ASSERT(param);
             if( param->getName() == name )
             {
