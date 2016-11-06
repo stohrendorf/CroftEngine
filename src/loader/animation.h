@@ -3,7 +3,7 @@
 #include "io/sdlreader.h"
 #include "core/magic.h"
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <map>
 

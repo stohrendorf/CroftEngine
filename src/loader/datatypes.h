@@ -11,7 +11,7 @@
 #include "texture.h"
 #include "audio.h"
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <array>
 #include <stdexcept>

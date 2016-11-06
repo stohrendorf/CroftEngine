@@ -1,7 +1,7 @@
 #pragma once
 
 #include <AL/alext.h>
-#include <gsl.h>
+#include <gsl/gsl>
 
 #ifdef AL_ALEXT_PROTOTYPES
 

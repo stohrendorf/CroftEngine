@@ -2,7 +2,7 @@
 
 #include "gameplay.h"
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <cmath>
 

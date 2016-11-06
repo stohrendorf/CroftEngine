@@ -4,7 +4,7 @@
 #include <boost/assert.hpp>
 #include <boost/iostreams/restrict.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <gsl.h>
+#include <gsl/gsl>
 
 namespace audio
 {

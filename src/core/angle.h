@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <boost/optional.hpp>
 

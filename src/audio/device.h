@@ -5,7 +5,7 @@
 #include "stream.h"
 
 #include <alc.h>
-#include <gsl.h>
+#include <gsl/gsl>
 #include <set>
 
 namespace audio

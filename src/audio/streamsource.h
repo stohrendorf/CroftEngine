@@ -7,7 +7,7 @@
 #include <boost/throw_exception.hpp>
 #include <boost/log/trivial.hpp>
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <sndfile.h>
 

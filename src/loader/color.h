@@ -2,7 +2,7 @@
 
 #include "io/sdlreader.h"
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include "gameplay.h"
 
@@ -76,7 +76,7 @@ namespace loader
         static std::unique_ptr<Palette> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::as_span(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->color) )
                 c = ByteColor::readTr1(reader);
             return palette;
         }
@@ -84,7 +84,7 @@ namespace loader
         static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::as_span(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->color) )
                 c = ByteColor::readTr2(reader);
             return palette;
         }

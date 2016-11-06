@@ -2,7 +2,7 @@
 
 #include "inputstate.h"
 
-#include <gsl.h>
+#include <gsl/gsl>
 #include <GLFW/glfw3.h>
 
 
