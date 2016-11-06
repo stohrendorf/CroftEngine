@@ -4,9 +4,6 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Light.h"
-#include <glm/detail/_vectorize.hpp>
-#include <glm/detail/_vectorize.hpp>
-#include <glm/detail/_vectorize.hpp>
 
 
 namespace gameplay
@@ -37,6 +34,7 @@ namespace gameplay
         explicit Node(const std::string& id);
         virtual ~Node();
 
+
         /**
          * Defines the types of nodes.
          */
@@ -45,6 +43,7 @@ namespace gameplay
             NODE = 1,
             JOINT
         };
+
 
         /**
          * Gets the identifier for the node.
@@ -375,26 +374,6 @@ namespace gameplay
         */
         void setUserObject(void* obj);
 
-        /**
-         * Returns the bounding sphere for the Node, in world space.
-         *
-         * The bounding sphere for a node represents the area, in world
-         * space, that the node contains. This includes the space occupied
-         * by any child nodes as well as the space occupied by any data
-         * inside the node (such as models).
-         *
-         * Bounding spheres for nodes are rough approximations of the data
-         * contained within a node and they are intended for visibility
-         * testing or first-pass intersection testing only. They are not
-         * appropriate for accurate collision detection since they most often
-         * do not tightly contain a node's content.
-         *
-         * A node that does not occupy any space will return a bounding sphere
-         * with a center point equal to the node translation and a radius of zero.
-         *
-         * @return The world-space bounding sphere for the node.
-         */
-        const BoundingSphere& getBoundingSphere() const;
 
         void resetRotationPatch()
         {
@@ -402,16 +381,19 @@ namespace gameplay
             dirty(DIRTY_ROTATION);
         }
 
+
         void setRotationPatch(const glm::quat& q)
         {
             _rotationPatch = q;
             dirty(DIRTY_ROTATION);
         }
 
+
         const List& getChildren() const
         {
             return _children;
         }
+
 
     protected:
 
@@ -467,8 +449,6 @@ namespace gameplay
         void* _userObject;
         /** The world matrix for this node. */
         mutable glm::mat4 _world;
-        /** The bounding sphere for this node. */
-        mutable BoundingSphere _bounds;
         /** The dirty bits used for optimization. */
         mutable int _dirtyBits;
     };

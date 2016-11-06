@@ -22,7 +22,6 @@ namespace gameplay
         * @param vertexFormat The format of vertices in the new batch.
         * @param primitiveType The type of primitives that will be added to the batch.
         * @param material Material to be used for drawing the batch.
-        * @param indexed True if the batched primitives will contain index data, false otherwise.
         *
         * @return A new mesh batch.
         * @script{create}

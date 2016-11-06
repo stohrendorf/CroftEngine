@@ -1,6 +1,5 @@
 #include "Base.h"
 #include "BoundingBox.h"
-#include "BoundingSphere.h"
 #include "Plane.h"
 
 
@@ -80,12 +79,6 @@ namespace gameplay
         BOOST_ASSERT(dst);
 
         *dst = glm::mix(min, max, 0.5f);
-    }
-
-
-    bool BoundingBox::intersects(const BoundingSphere& sphere) const
-    {
-        return sphere.intersects(*this);
     }
 
 
@@ -241,23 +234,6 @@ namespace gameplay
     }
 
 
-    void BoundingBox::merge(const BoundingSphere& sphere)
-    {
-        const glm::vec3& center = sphere.center;
-        float radius = sphere.radius;
-
-        // Calculate the new minimum point for the merged bounding box.
-        min.x = std::min(min.x, center.x - radius);
-        min.y = std::min(min.y, center.y - radius);
-        min.z = std::min(min.z, center.z - radius);
-
-        // Calculate the new maximum point for the merged bounding box.
-        max.x = std::max(max.x, center.x + radius);
-        max.y = std::max(max.y, center.y + radius);
-        max.z = std::max(max.z, center.z + radius);
-    }
-
-
     void BoundingBox::set(const glm::vec3& min, const glm::vec3& max)
     {
         this->min = min;
@@ -320,23 +296,6 @@ namespace gameplay
     {
         min = box.min;
         max = box.max;
-    }
-
-
-    void BoundingBox::set(const BoundingSphere& sphere)
-    {
-        const glm::vec3& center = sphere.center;
-        float radius = sphere.radius;
-
-        // Calculate the minimum point for the box.
-        min.x = center.x - radius;
-        min.y = center.y - radius;
-        min.z = center.z - radius;
-
-        // Calculate the maximum point for the box.
-        max.x = center.x + radius;
-        max.y = center.y + radius;
-        max.z = center.z + radius;
     }
 
 

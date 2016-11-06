@@ -4,12 +4,8 @@ set(GAMEPLAY_SRC
     src/Base.h
     src/BoundingBox.cpp
     src/BoundingBox.h
-    src/BoundingSphere.cpp
-    src/BoundingSphere.h
     src/Camera.cpp
     src/Camera.h
-    src/Curve.cpp
-    src/Curve.h
     src/DepthStencilTarget.cpp
     src/DepthStencilTarget.h
     src/Drawable.cpp

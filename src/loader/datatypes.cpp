@@ -87,7 +87,7 @@ namespace loader
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
-        auto mesh = gameplay::Mesh::createMesh(RenderVertex::getFormat(), vbuf.size(), true);
+        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), vbuf.size(), true);
 
         for( const QuadFace& quad : rectangles )
         {

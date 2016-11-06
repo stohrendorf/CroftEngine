@@ -2,7 +2,6 @@
 #include "Node.h"
 #include "Scene.h"
 #include "Drawable.h"
-#include "Joint.h"
 
 // Node dirty flags
 #define NODE_DIRTY_WORLD 1
@@ -375,7 +374,7 @@ namespace gameplay
         }
         else
         {
-            static const glm::mat4 identity{ 1.0f };
+            static const glm::mat4 identity{1.0f};
             return identity;
         }
     }
@@ -391,7 +390,7 @@ namespace gameplay
         }
         else
         {
-            static const glm::mat4 identity{ 1.0f };
+            static const glm::mat4 identity{1.0f};
             return identity;
         }
     }
@@ -407,7 +406,7 @@ namespace gameplay
         }
         else
         {
-            static const glm::mat4 identity{ 1.0f };
+            static const glm::mat4 identity{1.0f};
             return identity;
         }
     }
@@ -423,7 +422,7 @@ namespace gameplay
         }
         else
         {
-            static const glm::mat4 identity{ 1.0f };
+            static const glm::mat4 identity{1.0f};
             return identity;
         }
     }
@@ -437,7 +436,7 @@ namespace gameplay
         {
             return camera->getInverseViewProjectionMatrix();
         }
-        static const glm::mat4 identity{ 1.0f };
+        static const glm::mat4 identity{1.0f};
         return identity;
     }
 
@@ -477,7 +476,7 @@ namespace gameplay
                 }
             }
         }
-        return{ 0,0,0 };
+        return {0,0,0};
     }
 
 
@@ -621,111 +620,6 @@ namespace gameplay
             }
         }
         setBoundsDirty();
-    }
-
-
-    const BoundingSphere& Node::getBoundingSphere() const
-    {
-        if( _dirtyBits & NODE_DIRTY_BOUNDS )
-        {
-            _dirtyBits &= ~NODE_DIRTY_BOUNDS;
-
-            const glm::mat4& worldMatrix = getWorldMatrix();
-
-            // Start with our local bounding sphere
-            // TODO: Incorporate bounds from entities other than mesh (i.e. particleemitters, audiosource, etc)
-            bool empty = true;
-            auto model = std::dynamic_pointer_cast<Model>(_drawable);
-            if( model && model->getMesh() )
-            {
-                if( empty )
-                {
-                    _bounds.set(model->getMesh()->getBoundingSphere());
-                    empty = false;
-                }
-                else
-                {
-                    _bounds.merge(model->getMesh()->getBoundingSphere());
-                }
-            }
-            if( _light )
-            {
-                switch( _light->getLightType() )
-                {
-                    case Light::POINT:
-                        if( empty )
-                        {
-                            _bounds.set({ 0,0,0 }, _light->getRange());
-                            empty = false;
-                        }
-                        else
-                        {
-                            _bounds.merge(BoundingSphere({ 0,0,0 }, _light->getRange()));
-                        }
-                        break;
-                    case Light::SPOT:
-                        // TODO: Implement spot light bounds
-                        break;
-                }
-            }
-            if( empty )
-            {
-                // Empty bounding sphere, set the world translation with zero radius
-                _bounds.center = glm::vec3(worldMatrix[3]);
-                _bounds.radius = 0;
-            }
-
-            // Transform the sphere (if not empty) into world space.
-            if( !empty )
-            {
-                bool applyWorldTransform = true;
-                if( model && model->getSkin() )
-                {
-                    // Special case: If the root joint of our mesh skin is parented by any nodes,
-                    // multiply the world matrix of the root joint's parent by this node's
-                    // world matrix. This computes a final world matrix used for transforming this
-                    // node's bounding volume. This allows us to store a much smaller bounding
-                    // volume approximation than would otherwise be possible for skinned meshes,
-                    // since joint parent nodes that are not in the matrix palette do not need to
-                    // be considered as directly transforming vertices on the GPU (they can instead
-                    // be applied directly to the bounding volume transformation below).
-                    BOOST_ASSERT(model->getSkin()->getRootJoint());
-                    auto jointParent = model->getSkin()->getRootJoint()->getParent().lock();
-                    if( jointParent )
-                    {
-                        // TODO: Should we protect against the case where joints are nested directly
-                        // in the node hierachy of the model (this is normally not the case)?
-                        glm::mat4 boundsMatrix = getWorldMatrix() * jointParent->getWorldMatrix();
-                        _bounds.transform(boundsMatrix);
-                        applyWorldTransform = false;
-                    }
-                }
-                if( applyWorldTransform )
-                {
-                    _bounds.transform(getWorldMatrix());
-                }
-            }
-
-            // Merge this world-space bounding sphere with our childrens' bounding volumes.
-            for( const auto& child : _children )
-            {
-                const BoundingSphere& childSphere = child->getBoundingSphere();
-                if( !childSphere.isEmpty() )
-                {
-                    if( empty )
-                    {
-                        _bounds.set(childSphere);
-                        empty = false;
-                    }
-                    else
-                    {
-                        _bounds.merge(childSphere);
-                    }
-                }
-            }
-        }
-
-        return _bounds;
     }
 
 

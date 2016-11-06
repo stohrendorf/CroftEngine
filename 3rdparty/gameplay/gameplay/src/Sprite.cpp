@@ -272,7 +272,7 @@ namespace gameplay
 
         // Apply local offset translation offsets
         if( (_offset & OFFSET_HCENTER) == OFFSET_HCENTER )
-            position.x -= _width * 0.5;
+            position.x -= _width * 0.5f;
         if( (_offset & OFFSET_RIGHT) == OFFSET_RIGHT )
             position.x -= _width;
         if( (_offset & OFFSET_VCENTER) == OFFSET_VCENTER )

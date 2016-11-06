@@ -6,14 +6,9 @@
 namespace gameplay
 {
 
-Drawable::Drawable()
-    : _node(NULL)
-{
-}
+Drawable::Drawable() = default;
 
-Drawable::~Drawable()
-{
-}
+Drawable::~Drawable() = default;
 
 Node* Drawable::getNode() const
 {

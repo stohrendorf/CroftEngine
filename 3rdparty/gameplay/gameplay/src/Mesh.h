@@ -2,9 +2,9 @@
 
 #include "VertexFormat.h"
 #include "BoundingBox.h"
-#include "BoundingSphere.h"
 
 #include <memory>
+
 
 namespace gameplay
 {
@@ -21,7 +21,8 @@ namespace gameplay
         friend class Model;
 
     public:
-        explicit Mesh(const VertexFormat& vertexFormat);
+        explicit Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic);
+
 
         /**
          * Defines supported index formats.
@@ -46,18 +47,6 @@ namespace gameplay
             POINTS = GL_POINTS
         };
 
-
-        /**
-         * Constructs a new mesh with the specified vertex format.
-         *
-         * @param vertexFormat The vertex format.
-         * @param vertexCount The number of vertices.
-         * @param dynamic true if the mesh is dynamic; false otherwise.
-         *
-         * @return The created mesh.
-         * @script{create}
-         */
-        static std::shared_ptr<Mesh> createMesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic = false);
 
         void rebuild(const float* vertexData, size_t vertexCount);
 
@@ -134,15 +123,6 @@ namespace gameplay
          * @script{create}
          */
         static std::shared_ptr<Mesh> createBoundingBox(const BoundingBox& box);
-
-        /**
-         * Returns a URL from which the mesh was loaded from.
-         *
-         * For meshes loaded from a Bundle, this URL will point
-         * to the file and ID of the mesh within the bundle. For
-         * all other meshes, an empty string will be returned.
-         */
-        const char* getUrl() const;
 
         /**
          * Gets the vertex format for the mesh.
@@ -271,35 +251,6 @@ namespace gameplay
         void setBoundingBox(const BoundingBox& box);
 
         /**
-         * Returns the bounding sphere for the points in the mesh.
-         *
-         * Only meshes loaded from bundle files are imported with valid
-         * bounding volumes. Programmatically created meshes will contain
-         * empty bounding volumes until the setBoundingBox and/or
-         * setBoundingSphere methods are called to specify the mesh's
-         * local bounds.
-         *
-         * Meshes that are attached to a Model with a MeshSkin will have
-         * a bounding volume that is not necessarily tight fighting on the
-         * Mesh vertices. Instead, the bounding volume will be an approximation
-         * that contains all possible vertex positions in all possible poses after
-         * skinning is applied. This is necessary since skinning vertices
-         * result in vertex positions that lie outside the original mesh bounds
-         * and could otherwise result in a bounding volume that does not fully
-         * contain an animated/skinned mesh.
-         *
-         * @return The bounding sphere for the mesh.
-         */
-        const BoundingSphere& getBoundingSphere() const;
-
-        /**
-         * Sets the bounding sphere for this mesh.
-         *
-         * @param sphere The new bounding sphere for the mesh.
-         */
-        void setBoundingSphere(const BoundingSphere& sphere);
-
-        /**
          * Destructor.
          */
         virtual ~Mesh();
@@ -309,14 +260,12 @@ namespace gameplay
         Mesh(const Mesh& copy) = delete;
         Mesh& operator=(const Mesh&) = delete;
 
-        std::string _url;
         const VertexFormat _vertexFormat;
-        size_t _vertexCount;
-        VertexBufferHandle _vertexBuffer;
-        PrimitiveType _primitiveType;
-        std::vector<std::shared_ptr<MeshPart>> _parts;
-        bool _dynamic;
+        size_t _vertexCount = 0;
+        VertexBufferHandle _vertexBuffer = 0;
+        PrimitiveType _primitiveType = TRIANGLES;
+        std::vector<std::shared_ptr<MeshPart>> _parts{};
+        bool _dynamic = false;
         BoundingBox _boundingBox;
-        BoundingSphere _boundingSphere;
     };
 }

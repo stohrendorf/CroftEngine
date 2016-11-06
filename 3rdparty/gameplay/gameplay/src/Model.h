@@ -44,7 +44,7 @@ namespace gameplay
          *
          * @return The requested Material, or nullptr if no Material is set.
          */
-        std::shared_ptr<Material> getMaterial(size_t partIndex = -1) const;
+        std::shared_ptr<Material> getMaterial(size_t partIndex) const;
 
         /**
          * Sets a material to be used for drawing this Model.
@@ -60,7 +60,7 @@ namespace gameplay
          * @param material The new material.
          * @param partIndex The index of the mesh part to set the material for (-1 for shared material).
          */
-        void setMaterial(const std::shared_ptr<Material>& material, size_t partIndex = -1);
+        void setMaterial(const std::shared_ptr<Material>& material, size_t partIndex);
 
         /**
          * Sets a material to be used for drawing this Model.

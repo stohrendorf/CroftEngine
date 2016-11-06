@@ -254,8 +254,6 @@ namespace gameplay
          */
         void visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const;
 
-        bool isNodeVisible(const std::shared_ptr<Node>& node) const;
-
         std::string _id;
         std::shared_ptr<Camera> _activeCamera;
         Node::List _nodes;

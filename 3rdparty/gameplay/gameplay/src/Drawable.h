@@ -52,6 +52,6 @@ namespace gameplay
         /**
          * Node this drawable is attached to.
          */
-        Node* _node;
+        Node* _node = nullptr;
     };
 }

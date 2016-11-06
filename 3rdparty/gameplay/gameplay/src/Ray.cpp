@@ -2,11 +2,10 @@
 #include "Ray.h"
 #include "Plane.h"
 #include "Frustum.h"
-#include "BoundingSphere.h"
 #include "BoundingBox.h"
 
 #include <boost/log/trivial.hpp>
-#include <glm/gtc/constants.inl>
+#include <glm/gtc/constants.hpp>
 
 
 namespace gameplay
@@ -76,12 +75,6 @@ namespace gameplay
     }
 
 
-    bool Ray::intersects(const BoundingSphere& sphere) const
-    {
-        return sphere.intersects(*this);
-    }
-
-
     bool Ray::intersects(const BoundingBox& box) const
     {
         return box.intersects(*this);
@@ -125,11 +118,11 @@ namespace gameplay
 
         // Otherwise, the intersection distance is the minimum positive intersection distance.
         float d = (nD > 0.0f) ? nD : 0.0f;
-        d = (fD > 0.0f) ? ((d == 0.0f) ? fD : min(fD, d)) : d;
-        d = (lD > 0.0f) ? ((d == 0.0f) ? lD : min(lD, d)) : d;
-        d = (rD > 0.0f) ? ((d == 0.0f) ? rD : min(rD, d)) : d;
-        d = (tD > 0.0f) ? ((d == 0.0f) ? bD : min(bD, d)) : d;
-        d = (bD > 0.0f) ? ((d == 0.0f) ? tD : min(tD, d)) : d;
+        d = (fD > 0.0f) ? ((d == 0.0f) ? fD : std::min(fD, d)) : d;
+        d = (lD > 0.0f) ? ((d == 0.0f) ? lD : std::min(lD, d)) : d;
+        d = (rD > 0.0f) ? ((d == 0.0f) ? rD : std::min(rD, d)) : d;
+        d = (tD > 0.0f) ? ((d == 0.0f) ? bD : std::min(bD, d)) : d;
+        d = (bD > 0.0f) ? ((d == 0.0f) ? tD : std::min(tD, d)) : d;
 
         return true; // d;
     }

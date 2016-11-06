@@ -67,15 +67,6 @@ namespace gameplay
     }
 
 
-    bool FileSystem::fileExists(const char* filePath)
-    {
-        BOOST_ASSERT(filePath);
-
-        gp_stat_struct s;
-        return stat(filePath, &s) == 0;
-    }
-
-
     Stream* FileSystem::open(const char* path, size_t streamMode)
     {
         char modeStr[] = "rb";
@@ -83,15 +74,6 @@ namespace gameplay
             modeStr[0] = 'w';
 
         return FileStream::create(path, modeStr);
-    }
-
-
-    FILE* FileSystem::openFile(const char* filePath, const char* mode)
-    {
-        BOOST_ASSERT(filePath);
-        BOOST_ASSERT(mode);
-
-        return fopen(filePath, mode);
     }
 
 
@@ -123,82 +105,6 @@ namespace gameplay
         return buffer;
     }
 
-
-    bool FileSystem::isAbsolutePath(const char* filePath)
-    {
-        if( filePath == nullptr || filePath[0] == '\0' )
-            return false;
-#ifdef WIN32
-        if( filePath[1] != '\0' )
-        {
-            char first = filePath[0];
-            return (filePath[1] == ':' && ((first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z')));
-        }
-        return false;
-#else
-        return filePath[0] == '/';
-#endif
-    }
-
-
-    std::string FileSystem::getDirectoryName(const char* path)
-    {
-        if( path == nullptr || strlen(path) == 0 )
-        {
-            return "";
-        }
-#ifdef WIN32
-        char drive[_MAX_DRIVE ];
-        char dir[_MAX_DIR ];
-        _splitpath(path, drive, dir, nullptr, nullptr);
-        std::string dirname;
-        size_t driveLength = strlen(drive);
-        if( driveLength > 0 )
-        {
-            dirname.reserve(driveLength + strlen(dir));
-            dirname.append(drive);
-            dirname.append(dir);
-        }
-        else
-        {
-            dirname.assign(dir);
-        }
-        std::replace(dirname.begin(), dirname.end(), '\\', '/');
-        return dirname;
-#else
-        // dirname() modifies the input string so create a temp string
-    std::string dirname;
-    char* tempPath = new char[strlen(path) + 1];
-    strcpy(tempPath, path);
-    char* dir = ::dirname(tempPath);
-    if (dir && strlen(dir) > 0)
-    {
-        dirname.assign(dir);
-        // dirname() strips off the trailing '/' so add it back to be consistent with Windows
-        dirname.append("/");
-    }
-    SAFE_DELETE_ARRAY(tempPath);
-    return dirname;
-#endif
-    }
-
-
-    std::string FileSystem::getExtension(const char* path)
-    {
-        const char* str = strrchr(path, '.');
-        if( str == nullptr )
-            return "";
-
-        std::string ext;
-        size_t len = strlen(str);
-        for( size_t i = 0; i < len; ++i )
-            ext += std::toupper(str[i]);
-
-        return ext;
-    }
-
-
-    //////////////////
 
     FileStream::FileStream(FILE* file)
         : _file(file)

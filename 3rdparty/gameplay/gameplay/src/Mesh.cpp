@@ -1,21 +1,23 @@
 #include "Base.h"
 #include "Mesh.h"
 #include "MeshPart.h"
-#include "Effect.h"
 #include "Material.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace gameplay
 {
-    Mesh::Mesh(const VertexFormat& vertexFormat)
-        : _vertexFormat(vertexFormat)
-        , _vertexCount(0)
-        , _vertexBuffer(0)
-        , _primitiveType(TRIANGLES)
-        , _parts()
-        , _dynamic(false)
+    Mesh::Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
+        : _vertexFormat{vertexFormat}
+        , _vertexCount{vertexCount}
+        , _dynamic{dynamic}
     {
+        GL_ASSERT(glGenBuffers(1, &_vertexBuffer));
+        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
+        GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
+        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
 
 
@@ -28,23 +30,6 @@ namespace gameplay
             glDeleteBuffers(1, &_vertexBuffer);
             _vertexBuffer = 0;
         }
-    }
-
-
-    std::shared_ptr<Mesh> Mesh::createMesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
-    {
-        VertexBufferHandle vbo;
-        GL_ASSERT( glGenBuffers(1, &vbo) );
-        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, vbo) );
-        GL_ASSERT( glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
-        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, 0) );
-
-        auto mesh = std::make_shared<Mesh>(vertexFormat);
-        mesh->_vertexCount = vertexCount;
-        mesh->_vertexBuffer = vbo;
-        mesh->_dynamic = dynamic;
-
-        return mesh;
     }
 
 
@@ -77,13 +62,7 @@ namespace gameplay
             VertexFormat::Element(VertexFormat::NORMAL, 3),
             VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
         };
-        auto mesh = Mesh::createMesh(VertexFormat(elements, 3), 4, false);
-        if( mesh == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
-            return nullptr;
-        }
-
+        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
         mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
 
@@ -111,13 +90,7 @@ namespace gameplay
             VertexFormat::Element(VertexFormat::POSITION, 2),
             VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
         };
-        auto mesh = Mesh::createMesh(VertexFormat(elements, 2), 4, false);
-        if( mesh == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
-            return nullptr;
-        }
-
+        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 2), 4, false);
         mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
 
@@ -146,12 +119,7 @@ namespace gameplay
             VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
         };
 
-        auto mesh = Mesh::createMesh(VertexFormat(elements, 3), 4, false);
-        if( mesh == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
-            return nullptr;
-        }
+        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
 
         mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
@@ -165,25 +133,15 @@ namespace gameplay
         BOOST_ASSERT(points);
         BOOST_ASSERT(pointCount);
 
-        float* vertices = new float[pointCount * 3];
-        memcpy(vertices, points, pointCount * 3 * sizeof(float));
-
         VertexFormat::Element elements[] =
         {
             VertexFormat::Element(VertexFormat::POSITION, 3)
         };
-        auto mesh = Mesh::createMesh(VertexFormat(elements, 1), pointCount, false);
-        if( mesh == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
-            SAFE_DELETE_ARRAY(vertices);
-            return nullptr;
-        }
+        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), pointCount, false);
 
         mesh->_primitiveType = LINE_STRIP;
-        mesh->setVertexData(vertices, 0, pointCount);
+        mesh->setVertexData(glm::value_ptr(*points), 0, pointCount);
 
-        SAFE_DELETE_ARRAY(vertices);
         return mesh;
     }
 
@@ -219,23 +177,11 @@ namespace gameplay
         {
             VertexFormat::Element(VertexFormat::POSITION, 3)
         };
-        auto mesh = Mesh::createMesh(VertexFormat(elements, 1), 18, false);
-        if( mesh == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create mesh.";
-            return nullptr;
-        }
-
+        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), 18, false);
         mesh->_primitiveType = LINE_STRIP;
         mesh->setVertexData(vertices, 0, 18);
 
         return mesh;
-    }
-
-
-    const char* Mesh::getUrl() const
-    {
-        return _url.c_str();
     }
 
 
@@ -281,6 +227,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setVertexData(const float* vertexData, size_t vertexStart, size_t vertexCount)
     {
         GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer) );
@@ -344,17 +291,5 @@ namespace gameplay
     void Mesh::setBoundingBox(const BoundingBox& box)
     {
         _boundingBox = box;
-    }
-
-
-    const BoundingSphere& Mesh::getBoundingSphere() const
-    {
-        return _boundingSphere;
-    }
-
-
-    void Mesh::setBoundingSphere(const BoundingSphere& sphere)
-    {
-        _boundingSphere = sphere;
     }
 }

@@ -22,10 +22,12 @@ namespace gameplay
          */
         glm::vec3 max;
 
+
         bool contains(const glm::vec3& v) const
         {
             return min.x <= v.x && min.y <= v.y && min.z <= v.z && max.x >= v.x && max.y >= v.y && max.z >= v.z;
         }
+
 
         /**
          * Constructs an empty bounding box at the origin.
@@ -110,15 +112,6 @@ namespace gameplay
         bool intersects(const BoundingBox& box) const;
 
         /**
-         * Tests whether this bounding box intersects the specified bounding sphere.
-         *
-         * @param sphere The bounding sphere to test intersection with.
-         *
-         * @return true if the specified bounding sphere intersects this bounding box; false otherwise.
-         */
-        bool intersects(const BoundingSphere& sphere) const;
-
-        /**
          * Tests whether this bounding box intersects the specified frustum.
          *
          * @param frustum The frustum to test intersection with.
@@ -157,14 +150,6 @@ namespace gameplay
 
         /**
          * Sets this bounding box to the smallest bounding box
-         * that contains both this bounding box and the specified bounding sphere.
-         *
-         * @param sphere The bounding sphere to merge with.
-         */
-        void merge(const BoundingSphere& sphere);
-
-        /**
-         * Sets this bounding box to the smallest bounding box
          * that contains both this bounding object and the specified bounding box.
          *
          * @param box The bounding box to merge with.
@@ -197,13 +182,6 @@ namespace gameplay
          * @param box The bounding box to set to.
          */
         void set(const BoundingBox& box);
-
-        /**
-         * Sets this box to tightly contain the specified bounding sphere.
-         *
-         * @param sphere The sphere to contain.
-         */
-        void set(const BoundingSphere& sphere);
 
         /**
          * Transforms the bounding box by the given transformation matrix.

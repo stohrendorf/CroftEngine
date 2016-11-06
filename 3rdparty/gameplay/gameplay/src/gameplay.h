@@ -10,9 +10,7 @@
 #include "Ray.h"
 #include "Plane.h"
 #include "Frustum.h"
-#include "BoundingSphere.h"
 #include "BoundingBox.h"
-#include "Curve.h"
 
 // Graphics
 #include "Image.h"

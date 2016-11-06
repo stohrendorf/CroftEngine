@@ -67,7 +67,7 @@ namespace loader
         , m_materials{materials}
         , m_colorMaterials{colorMaterials}
         , m_animator{animator}
-        , m_mesh{gameplay::Mesh::createMesh(getFormat(withNormals, withWeights), 0, dynamic)}
+        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals, withWeights), 0, dynamic)}
     {
         Expects(colorMaterials.size() == 256);
     }

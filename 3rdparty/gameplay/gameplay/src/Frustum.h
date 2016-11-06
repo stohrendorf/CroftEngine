@@ -152,15 +152,6 @@ namespace gameplay
         bool intersects(float x, float y, float z) const;
 
         /**
-         * Tests whether this frustum intersects the specified bounding sphere.
-         *
-         * @param sphere The bounding sphere to test intersection with.
-         *
-         * @return true if the specified bounding sphere intersects this frustum; false otherwise.
-         */
-        bool intersects(const BoundingSphere& sphere) const;
-
-        /**
          * Tests whether this frustum intersects the specified bounding box.
          *
          * @param box The bounding box to test intersection with.

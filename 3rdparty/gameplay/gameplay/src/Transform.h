@@ -3,10 +3,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+
 namespace gameplay
 {
     class BoundingBox;
-    class BoundingSphere;
 
 
     /**

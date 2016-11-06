@@ -2,9 +2,9 @@
 
 #include <glm/glm.hpp>
 
+
 namespace gameplay
 {
-    class BoundingSphere;
     class BoundingBox;
     class Frustum;
     class Ray;
@@ -125,17 +125,6 @@ namespace gameplay
          *  they are all parallel along one vector and intersect along a line).
          */
         static void intersection(const Plane& p1, const Plane& p2, const Plane& p3, glm::vec3* point);
-
-        /**
-         * Tests whether this plane intersects the specified bounding sphere.
-         *
-         * @param sphere The bounding sphere to test intersection with.
-         *
-         * @return Plane::INTERSECTS_BACK if the specified bounding object is in the negative half-space of
-         *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
-         *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
-         */
-        int intersects(const BoundingSphere& sphere) const;
 
         /**
          * Tests whether this plane intersects the specified bounding box.

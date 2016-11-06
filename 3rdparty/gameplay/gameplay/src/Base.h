@@ -32,23 +32,6 @@
 #include <boost/assert.hpp>
 #include <boost/current_function.hpp>
 
-// Bring common functions from C into global namespace
-using std::memcpy;
-using std::fabs;
-using std::sqrt;
-using std::cos;
-using std::sin;
-using std::tan;
-using std::isspace;
-using std::isdigit;
-using std::toupper;
-using std::tolower;
-using std::size_t;
-using std::min;
-using std::max;
-using std::modf;
-using std::atoi;
-
 #if defined(WIN32) && defined(_MSC_VER)
 #define DEBUG_BREAK() __debugbreak()
 #else

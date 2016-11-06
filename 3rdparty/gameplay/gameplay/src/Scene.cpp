@@ -251,20 +251,4 @@ namespace gameplay
                 child->update(elapsedTime);
         }
     }
-
-
-    bool Scene::isNodeVisible(const std::shared_ptr<Node>& node) const
-    {
-        if( !node->isEnabled() )
-            return false;
-
-        if( node->getDrawable() || node->getLight() || node->getCamera() )
-        {
-            return true;
-        }
-        else
-        {
-            return node->getBoundingSphere().intersects(_activeCamera->getFrustum());
-        }
-    }
 }

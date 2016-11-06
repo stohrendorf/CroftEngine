@@ -2,9 +2,9 @@
 #include "Plane.h"
 #include "Frustum.h"
 #include "Ray.h"
-#include "BoundingSphere.h"
 #include "BoundingBox.h"
-#include <glm/gtc/constants.inl>
+
+#include <glm/gtc/constants.hpp>
 
 
 namespace gameplay
@@ -121,12 +121,6 @@ namespace gameplay
         point->x = (s1 * c1x + s2 * c2x + s3 * c3x) * detI;
         point->y = (s1 * c1y + s2 * c2y + s3 * c3y) * detI;
         point->z = (s1 * c1z + s2 * c2z + s3 * c3z) * detI;
-    }
-
-
-    int Plane::intersects(const BoundingSphere& sphere) const
-    {
-        return sphere.intersects(*this);
     }
 
 
