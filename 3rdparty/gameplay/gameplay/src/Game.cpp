@@ -9,6 +9,7 @@
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
 
+
 void glErrorCallback(int err, const char* msg)
 {
     BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
@@ -32,11 +33,11 @@ namespace gameplay
         , _height(0)
         , _clearDepth(1.0f)
         , _clearStencil(0)
-        , _timeEvents{ std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>() }
+        , _timeEvents{std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>()}
     {
         glfwSetErrorCallback(&glErrorCallback);
 
-        if(glfwInit() != GLFW_TRUE)
+        if( glfwInit() != GLFW_TRUE )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to initialize GLFW";
             return;
@@ -73,7 +74,7 @@ namespace gameplay
         // Use OpenGL 2.x with GLEW
         glewExperimental = GL_TRUE;
         const auto err = glewInit();
-        if(err != GLEW_OK)
+        if( err != GLEW_OK )
         {
             BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString(err));
         }
@@ -91,29 +92,10 @@ namespace gameplay
     }
 
 
-    void Game::initialize()
-    {
-        // stub
-    }
-
-
-    void Game::finalize()
-    {
-        // stub
-    }
-
-
-    void Game::update(const std::chrono::microseconds& /*elapsedTime*/)
-    {
-        // stub
-    }
-
-
     bool Game::drawScene(const std::shared_ptr<Node>& node)
     {
-
         auto dr = node->getDrawable();
-        if(dr != nullptr)
+        if( dr != nullptr )
         {
             dr->draw();
         }
@@ -121,9 +103,10 @@ namespace gameplay
         return true;
     }
 
-    void Game::render(const std::chrono::microseconds& /*elapsedTime*/)
+
+    void Game::render()
     {
-        clear(CLEAR_COLOR_DEPTH, { 0,0,0,0 }, 1, 0);
+        clear(CLEAR_COLOR_DEPTH, {0,0,0,0}, 1, 0);
         Scene::getScene()->visit(this, &Game::drawScene);
     }
 
@@ -149,7 +132,7 @@ namespace gameplay
     }
 
 
-    bool Game::isVsync()
+    bool Game::isVsync() const
     {
         return _vsync;
     }
@@ -193,9 +176,6 @@ namespace gameplay
         // Call user finalization.
         if( _state != UNINITIALIZED )
         {
-            // Call user finalize
-            finalize();
-
             FrameBuffer::finalize();
             RenderState::finalize();
 
@@ -249,27 +229,16 @@ namespace gameplay
         if( !_initialized )
         {
             // Perform lazy first time initialization
-            initialize();
             _initialized = true;
         }
 
-        static std::chrono::microseconds lastFrameTime = Game::getGameTime();
-        std::chrono::microseconds frameTime = getGameTime();
-
         // Fire time events to scheduled TimeListeners
-        fireTimeEvents(frameTime);
+        fireTimeEvents(getGameTime());
 
         if( _state == Game::RUNNING )
         {
-            // Update Time.
-            std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
-            lastFrameTime = frameTime;
-
-            // Application Update.
-            update(elapsedTime);
-
             // Graphics Rendering.
-            render(elapsedTime);
+            render();
 
             // Update FPS.
             ++_frameCount;
@@ -282,11 +251,7 @@ namespace gameplay
         }
         else if( _state == Game::PAUSED )
         {
-            // Application Update.
-            update(std::chrono::microseconds::zero());
-
-            // Graphics Rendering.
-            render(std::chrono::microseconds::zero());
+            render();
         }
     }
 
@@ -294,16 +259,6 @@ namespace gameplay
     void Game::swapBuffers()
     {
         glfwSwapBuffers(_window);
-    }
-
-
-    void Game::updateOnce()
-    {
-        // Update Time.
-        static std::chrono::microseconds lastFrameTime = getGameTime();
-        std::chrono::microseconds frameTime = getGameTime();
-        std::chrono::microseconds elapsedTime = (frameTime - lastFrameTime);
-        lastFrameTime = frameTime;
     }
 
 
@@ -361,12 +316,6 @@ namespace gameplay
     void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil)
     {
         clear(flags, glm::vec4(red, green, blue, alpha), clearDepth, clearStencil);
-    }
-
-
-    void Game::resizeEvent(unsigned int /*width*/, unsigned int /*height*/)
-    {
-        // stub
     }
 
 

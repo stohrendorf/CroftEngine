@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
+
 namespace gameplay
 {
     /**
@@ -63,7 +64,7 @@ namespace gameplay
          *
          * @return true if vsync is enabled; false if not.
          */
-        bool isVsync();
+        bool isVsync() const;
 
         /**
          * Sets whether vertical sync is enabled for the game display.
@@ -200,18 +201,6 @@ namespace gameplay
          */
         void clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil);
 
-
-        /**
-         * Called when the game window has been resized.
-         *
-         * This method is called once the game window is created with its initial size
-         * and then again any time the game window changes size.
-         *
-         * @param width The new game window width.
-         * @param height The new game window height.
-         */
-        virtual void resizeEvent(unsigned int width, unsigned int height);
-
         /**
          * Sets whether multi-sampling is to be enabled/disabled. Default is disabled.
          *
@@ -242,15 +231,14 @@ namespace gameplay
          */
         void clearSchedule();
 
+
         bool loop()
         {
             glfwPollEvents();
 
-            if(glfwWindowShouldClose(_window))
-                return false;
-
-            return true;
+            return glfwWindowShouldClose(_window) == GLFW_FALSE;
         }
+
 
         /**
         * Renders a single frame once and then swaps it to the display.
@@ -259,6 +247,7 @@ namespace gameplay
         * This is useful for rendering splash screens.
         */
         void swapBuffers();
+
 
         GLFWwindow* getWindow() const
         {
@@ -269,34 +258,12 @@ namespace gameplay
     protected:
 
         /**
-         * Initialize callback that is called just before the first frame when the game starts.
-         */
-        virtual void initialize();
-
-        /**
-         * Finalize callback that is called when the game on exits.
-         */
-        virtual void finalize();
-
-        /**
-         * Update callback for handling update routines.
-         *
-         * Called just before render, once per frame when game is running.
-         * Ideal for non-render code and game logic such as input and animation.
-         *
-         * @param elapsedTime The elapsed game time.
-         */
-        virtual void update(const std::chrono::microseconds& elapsedTime);
-
-        /**
          * Render callback for handling rendering routines.
          *
          * Called just after update, once per frame when game is running.
          * Ideal for all rendering code.
-         *
-         * @param elapsedTime The elapsed game time.
          */
-        virtual void render(const std::chrono::microseconds& elapsedTime);
+        virtual void render();
 
         /**
          * Renders a single frame once and then swaps it to the display.
@@ -305,15 +272,6 @@ namespace gameplay
          */
         template<class T>
         void swapBuffers(T* instance, void (T::*method)(void*), void* cookie);
-
-        /**
-         * Updates the game's internal systems (audio, animation, physics) once.
-         *
-         * Note: This does not call the user-defined Game::update() function.
-         *
-         * This is useful for rendering animated splash screens.
-         */
-        void updateOnce();
 
     private:
 
@@ -324,6 +282,7 @@ namespace gameplay
             {
                 BOOST_ASSERT(game != nullptr);
             }
+
 
             virtual ~ShutdownListener() = default;
 
@@ -400,6 +359,7 @@ namespace gameplay
         bool drawScene(const std::shared_ptr<Node>& node);
     };
 
+
     inline Game::State Game::getState() const
     {
         return _state;
@@ -446,14 +406,14 @@ namespace gameplay
     void Game::swapBuffers(T* instance, void (T::*method)(void*), void* cookie)
     {
         GP_ASSERT(instance);
-        (instance->*method)(cookie);
+        (instance ->* method)(cookie);
         swapBuffers();
     }
 
 
     inline void Game::setMultiSampling(bool enabled)
     {
-        if(enabled == _multiSampling)
+        if( enabled == _multiSampling )
         {
             return;
         }
