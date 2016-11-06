@@ -428,24 +428,24 @@ namespace gameplay
             static void enableDepthWrite();
 
             // States
-            bool _cullFaceEnabled;
-            bool _depthTestEnabled;
-            bool _depthWriteEnabled;
-            DepthFunction _depthFunction;
-            bool _blendEnabled;
-            Blend _blendSrc;
-            Blend _blendDst;
-            CullFaceSide _cullFaceSide;
-            FrontFace _frontFace;
-            bool _stencilTestEnabled;
+            bool _cullFaceEnabled = false;
+            bool _depthTestEnabled = false;
+            bool _depthWriteEnabled = true;
+            DepthFunction _depthFunction = RenderState::DEPTH_LESS;
+            bool _blendEnabled = false;
+            Blend _blendSrc = RenderState::BLEND_ONE;
+            Blend _blendDst = RenderState::BLEND_ZERO;
+            CullFaceSide _cullFaceSide = CULL_FACE_SIDE_BACK;
+            FrontFace _frontFace = FRONT_FACE_CCW;
+            bool _stencilTestEnabled = false;
             unsigned int _stencilWrite;
-            StencilFunction _stencilFunction;
-            int _stencilFunctionRef;
+            StencilFunction _stencilFunction = RenderState::STENCIL_ALWAYS;
+            int _stencilFunctionRef = 0;
             unsigned int _stencilFunctionMask;
-            StencilOperation _stencilOpSfail;
-            StencilOperation _stencilOpDpfail;
-            StencilOperation _stencilOpDppass;
-            long _bits;
+            StencilOperation _stencilOpSfail = RenderState::STENCIL_OP_KEEP;
+            StencilOperation _stencilOpDpfail = RenderState::STENCIL_OP_KEEP;
+            StencilOperation _stencilOpDppass = RenderState::STENCIL_OP_KEEP;
+            long _bits = 0;
 
             static std::shared_ptr<StateBlock> _defaultState;
         };
