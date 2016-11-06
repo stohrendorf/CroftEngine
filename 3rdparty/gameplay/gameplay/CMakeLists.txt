@@ -46,8 +46,6 @@ set(GAMEPLAY_SRC
     src/Node.h
     src/ParticleEmitter.cpp
     src/ParticleEmitter.h
-    src/Pass.cpp
-    src/Pass.h
     src/Plane.cpp
     src/Plane.h
     src/Ray.cpp
@@ -66,8 +64,6 @@ set(GAMEPLAY_SRC
     src/Sprite.h
     src/SpriteBatch.cpp
     src/SpriteBatch.h
-    src/Technique.cpp
-    src/Technique.h
     src/Texture.cpp
     src/Texture.h
     src/TileSet.cpp

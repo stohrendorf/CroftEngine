@@ -80,7 +80,7 @@ namespace gameplay
         }
 
         // Wrap the effect in a material
-        auto material = Material::create(fx);
+        auto material = std::make_shared<Material>(fx);
 
         // Set initial material state
         material->getStateBlock()->setBlend(true);

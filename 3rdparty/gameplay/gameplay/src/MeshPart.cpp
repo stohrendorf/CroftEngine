@@ -8,16 +8,7 @@
 
 namespace gameplay
 {
-    MeshPart::MeshPart()
-        : _mesh()
-        , _meshIndex(0)
-        , _primitiveType(Mesh::TRIANGLES)
-        , _indexFormat()
-        , _indexCount(0)
-        , _indexBuffer(0)
-        , _dynamic(false)
-    {
-    }
+    MeshPart::MeshPart() = default;
 
 
     MeshPart::~MeshPart()
@@ -29,8 +20,11 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<MeshPart> MeshPart::create(const std::weak_ptr<Mesh>& mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType,
-                                               Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic)
+    std::shared_ptr<MeshPart> MeshPart::create(const std::weak_ptr<Mesh>& mesh,
+                                               Mesh::PrimitiveType primitiveType,
+                                               Mesh::IndexFormat indexFormat,
+                                               size_t indexCount,
+                                               bool dynamic)
     {
         // Create a VBO for our index buffer.
         VertexBufferHandle vbo;
@@ -59,7 +53,6 @@ namespace gameplay
 
         auto part = std::make_shared<MeshPart>();
         part->_mesh = mesh;
-        part->_meshIndex = meshIndex;
         part->_primitiveType = primitiveType;
         part->_indexFormat = indexFormat;
         part->_indexCount = indexCount;
@@ -67,12 +60,6 @@ namespace gameplay
         part->_dynamic = dynamic;
 
         return part;
-    }
-
-
-    size_t MeshPart::getMeshIndex() const
-    {
-        return _meshIndex;
     }
 
 
@@ -143,19 +130,12 @@ namespace gameplay
         }
     }
 
+
     void MeshPart::setMaterial(const std::shared_ptr<Material>& material)
     {
         BOOST_ASSERT(!_mesh.expired());
 
         _material = material;
-
-        // Hookup vertex attribute bindings for all passes in the new material.
-        auto t = material->getTechnique();
-        BOOST_ASSERT(t);
-        auto p = t->getPass();
-        BOOST_ASSERT(p);
-
-        _vaBinding = VertexAttributeBinding::create(_mesh.lock(), p->getShaderProgram());
+        _vaBinding = VertexAttributeBinding::create(_mesh.lock(), material->getShaderProgram());
     }
-
 }

@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "RenderState.h"
 #include "Node.h"
-#include "Pass.h"
 #include "Scene.h"
 #include "MaterialParameter.h"
 
@@ -336,20 +335,20 @@ namespace gameplay
     }
 
 
-    void RenderState::bind(Pass* pass)
+    void RenderState::bind(Material* material)
     {
-        BOOST_ASSERT(pass);
+        BOOST_ASSERT(material);
 
         // Get the combined modified state bits for our RenderState hierarchy.
         long stateOverrideBits = _state ? _state->_bits : 0;
-        auto rs = _parent.get();
+        auto rs = _parent;
         while( rs )
         {
             if( rs->_state )
             {
                 stateOverrideBits |= rs->_state->_bits;
             }
-            rs = rs->_parent.get();
+            rs = rs->_parent;
         }
 
         // Restore renderer state to its default, except for explicitly specified states
@@ -357,13 +356,13 @@ namespace gameplay
 
         // Apply parameter bindings and renderer state for the entire hierarchy, top-down.
         rs = nullptr;
-        auto effect = pass->getShaderProgram();
+        auto shader = material->getShaderProgram();
         while( (rs = getTopmost(rs)) )
         {
             for( size_t i = 0, count = rs->_parameters.size(); i < count; ++i )
             {
                 BOOST_ASSERT(rs->_parameters[i]);
-                rs->_parameters[i]->bind(effect);
+                rs->_parameters[i]->bind(shader);
             }
 
             if( rs->_state )
@@ -385,12 +384,12 @@ namespace gameplay
 
         while( rs )
         {
-            if( rs->_parent.get() == below || rs->_parent == nullptr )
+            if( rs->_parent == below || rs->_parent == nullptr )
             {
                 // Stop traversing up here.
                 return rs;
             }
-            rs = rs->_parent.get();
+            rs = rs->_parent;
         }
 
         return nullptr;

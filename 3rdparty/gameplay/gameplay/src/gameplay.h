@@ -2,7 +2,6 @@
 #include "Base.h"
 #include "Game.h"
 #include "FileSystem.h"
-#include "MathUtil.h"
 
 // Math
 #include "Rectangle.h"

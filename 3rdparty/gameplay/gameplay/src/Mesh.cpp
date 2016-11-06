@@ -258,7 +258,7 @@ namespace gameplay
 
     std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
-        auto part = MeshPart::create(shared_from_this(), _parts.size(), primitiveType, indexFormat, indexCount, dynamic);
+        auto part = MeshPart::create(shared_from_this(), primitiveType, indexFormat, indexCount, dynamic);
         if( part )
         {
             _parts.emplace_back(part);

@@ -1,17 +1,12 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/detail/_vectorize.hpp>
-#include <glm/detail/_vectorize.hpp>
-#include <glm/detail/_vectorize.hpp>
-#include <glm/detail/_vectorize.hpp>
 
 
 namespace gameplay
 {
     class MaterialParameter;
     class Node;
-    class Pass;
 
 
     /**
@@ -21,8 +16,6 @@ namespace gameplay
     {
         friend class Game;
         friend class Material;
-        friend class Technique;
-        friend class Pass;
         friend class Model;
 
     public:
@@ -580,7 +573,7 @@ namespace gameplay
          * Binds the render state for this RenderState and any of its parents, top-down,
          * for the given pass.
          */
-        void bind(Pass* pass);
+        void bind(Material* material);
 
         /**
          * Returns the topmost RenderState in the hierarchy below the given RenderState.
@@ -635,7 +628,7 @@ namespace gameplay
         /**
          * The RenderState's parent.
          */
-        std::shared_ptr<RenderState> _parent;
+        RenderState* _parent = nullptr;
 
         /**
          * Map of custom auto binding resolvers.

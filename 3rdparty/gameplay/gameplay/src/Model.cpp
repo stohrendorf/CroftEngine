@@ -1,8 +1,6 @@
 #include "Base.h"
 #include "Model.h"
 #include "MeshPart.h"
-#include "Technique.h"
-#include "Pass.h"
 #include "Node.h"
 
 #include <boost/log/trivial.hpp>
@@ -65,7 +63,7 @@ namespace gameplay
     std::shared_ptr<Material> Model::setMaterial(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines, size_t partIndex)
     {
         // Try to create a Material with the given parameters.
-        auto material = Material::create(vshPath, fshPath, defines);
+        auto material = std::make_shared<Material>(vshPath, fshPath, defines);
         if( material == nullptr )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to create material for model.";
@@ -201,17 +199,13 @@ namespace gameplay
 
             material->setNodeBinding(getNode());
 
-            auto technique = material->getTechnique();
-            BOOST_ASSERT(technique);
-            auto pass = technique->getPass();
-            BOOST_ASSERT(pass);
-            pass->bind(part->getVaBinding());
+            material->bind(part->getVaBinding());
             GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
             if( !wireframe || !drawWireframe(part) )
             {
                 GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );
             }
-            pass->unbind();
+            material->unbind();
         }
         return partCount;
     }

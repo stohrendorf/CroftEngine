@@ -254,7 +254,7 @@ namespace loader
                 defines.emplace_back( "SKINNING_JOINT_COUNT " + boost::lexical_cast<std::string>(jointCount) );
             }
 
-            auto result = gameplay::Material::create("shaders/textured.vert", "shaders/textured.frag", defines);
+            auto result = std::make_shared<gameplay::Material>("shaders/textured.vert", "shaders/textured.frag", defines);
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setSampler(std::make_shared<gameplay::Texture::Sampler>(texture));
             //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));

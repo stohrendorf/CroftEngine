@@ -1,7 +1,8 @@
 #pragma once
 
 #include "RenderState.h"
-#include "Technique.h"
+#include "Effect.h"
+#include "VertexAttributeBinding.h"
 
 
 namespace gameplay
@@ -13,38 +14,16 @@ namespace gameplay
      * object. This class facilitates loading of techniques using specified shaders or
      * material files (.material). When multiple techniques are loaded using a material file,
      * the current technique for an object can be set at runtime.
-     *
-     * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Materials
      */
     class Material : public RenderState
     {
-        friend class Technique;
-        friend class Pass;
         friend class RenderState;
         friend class Node;
         friend class Model;
 
     public:
-        explicit Material();
+        explicit Material(const std::shared_ptr<ShaderProgram>& shaderProgram);
         ~Material();
-
-        /**
-         * Pass creation callback function definition.
-         */
-        typedef std::string (*PassCallback)(const std::shared_ptr<Pass>&, void*);
-
-        /**
-         * Creates a material from the specified effect.
-         *
-         * The returned material has a single technique and a single pass for the
-         * given effect.
-         *
-         * @param shaderProgram Effect for the new material.
-         *
-         * @return A new Material.
-         * @script{create}
-         */
-        static std::shared_ptr<Material> create(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Creates a material using the specified vertex and fragment shader.
@@ -59,27 +38,30 @@ namespace gameplay
          * @return A new Material.
          * @script{create}
          */
-        static std::shared_ptr<Material> create(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
+        explicit Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
 
-        /**
-         * Returns the technique at the specified index in this material.
-         *
-         * @return The specified technique.
-         */
-        const std::shared_ptr<Technique>& getTechnique() const
+        void unbind()
         {
-            return _technique;
+            // If we have a vertex attribute binding, unbind it
+            if(_boundVaBinding)
+            {
+                _boundVaBinding->unbind();
+                _boundVaBinding.reset();
+            }
         }
 
-        /**
-         * @see RenderState::setNodeBinding
-         */
-        void setNodeBinding(Node* node) override;
+        const std::shared_ptr<ShaderProgram>& getShaderProgram() const
+        {
+            return _shaderProgram;
+        }
+
+        void bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding);
 
     private:
 
-        Material(const Material& m) = delete;
+        Material(const Material&) = delete;
 
-        std::shared_ptr<Technique> _technique;
+        std::shared_ptr<ShaderProgram> _shaderProgram;
+        std::shared_ptr<VertexAttributeBinding> _boundVaBinding;
     };
 }

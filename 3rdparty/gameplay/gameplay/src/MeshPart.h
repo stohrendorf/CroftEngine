@@ -26,13 +26,6 @@ namespace gameplay
         ~MeshPart();
 
         /**
-         * Gets the part index in mesh.
-         *
-         * @return The part offset index.
-         */
-        size_t getMeshIndex() const;
-
-        /**
          * Gets the type of primitive to define how the indices are connected.
          *
          * @return The type of primitive.
@@ -97,15 +90,14 @@ namespace gameplay
          * @param indexCount The number of indices.
          * @param dynamic true if the part if dynamic; false otherwise.
          */
-        static std::shared_ptr<MeshPart> create(const std::weak_ptr<Mesh>& mesh, size_t meshIndex, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        static std::shared_ptr<MeshPart> create(const std::weak_ptr<Mesh>& mesh, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
-        std::weak_ptr<Mesh> _mesh;
-        size_t _meshIndex;
-        Mesh::PrimitiveType _primitiveType;
-        Mesh::IndexFormat _indexFormat;
-        size_t _indexCount;
-        IndexBufferHandle _indexBuffer;
-        bool _dynamic;
+        std::weak_ptr<Mesh> _mesh{};
+        Mesh::PrimitiveType _primitiveType = Mesh::TRIANGLES;
+        Mesh::IndexFormat _indexFormat{};
+        size_t _indexCount = 0;
+        IndexBufferHandle _indexBuffer = 0;
+        bool _dynamic = false;
         std::shared_ptr<VertexAttributeBinding> _vaBinding;
         std::shared_ptr<Material> _material;
     };
