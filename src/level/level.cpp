@@ -693,8 +693,8 @@ std::shared_ptr<gameplay::Texture> Level::createSolidColorTex(uint8_t color) con
     pixels[0][1] = pixels[0][0];
     pixels[1][1] = pixels[0][0];
 
-    auto img = gameplay::Image::create(2, 2, &pixels[0][0]);
-    auto tex = gameplay::Texture::create(img, false);
+    auto img = std::make_shared<gameplay::Image>(2, 2, &pixels[0][0]);
+    auto tex = std::make_shared<gameplay::Texture>(img, false);
     return tex;
 }
 
