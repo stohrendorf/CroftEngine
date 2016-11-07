@@ -30,12 +30,7 @@ namespace gameplay
     std::shared_ptr<RenderTarget> RenderTarget::create(const std::string& id, unsigned int width, unsigned int height)
     {
         // Create a new texture with the given width.
-        auto texture = Texture::create(width, height, {}, false);
-        if( texture == nullptr )
-        {
-            BOOST_LOG_TRIVIAL(error) << "Failed to create texture for render target.";
-            return nullptr;
-        }
+        auto texture = std::make_shared<Texture>(width, height, std::vector<glm::vec4>(), false);
 
         return create(id, texture);
     }

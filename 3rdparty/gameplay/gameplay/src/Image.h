@@ -13,22 +13,8 @@ namespace gameplay
     class Image
     {
     public:
-        explicit Image();
+        explicit Image(unsigned width, unsigned height, const glm::vec4* data = nullptr);
         ~Image();
-
-
-        /**
-         * Creates an image from the data provided
-         *
-         * @param width The width of the image data.
-         * @param height The height of the image data.
-         * @param data The image data. If NULL, the data will be allocated.
-         * @return The newly created image.
-         * @script{create}
-         */
-        static std::shared_ptr<Image> create(unsigned width, unsigned height, const glm::vec4* data = nullptr);
-        static std::shared_ptr<Image> createRGB(unsigned width, unsigned height, const char* data);
-        static std::shared_ptr<Image> createRGBA(unsigned width, unsigned height, const char* data);
 
         /**
          * Gets the image's raw pixel data.

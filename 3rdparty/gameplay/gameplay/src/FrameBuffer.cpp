@@ -148,7 +148,7 @@ namespace gameplay
 
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index)
     {
-        BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_2D));
+        BOOST_ASSERT(!target || target->getTexture() != nullptr);
 
         // No change
         if( _renderTargets[index] == target )
@@ -161,7 +161,7 @@ namespace gameplay
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, size_t index)
     {
         BOOST_ASSERT(face >= Texture::POSITIVE_X && face <= Texture::NEGATIVE_Z);
-        BOOST_ASSERT(!target || (target->getTexture() && target->getTexture()->getType() == Texture::TEXTURE_CUBE));
+        BOOST_ASSERT(!target || target->getTexture() != nullptr);
 
         setRenderTarget(target, index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face);
     }
@@ -290,7 +290,7 @@ namespace gameplay
 
     std::shared_ptr<Image> FrameBuffer::createScreenshot()
     {
-        auto screenshot = Image::create(_currentFrameBuffer->getWidth(), _currentFrameBuffer->getHeight(), nullptr);
+        auto screenshot = std::make_shared<Image>(_currentFrameBuffer->getWidth(), _currentFrameBuffer->getHeight(), nullptr);
         getScreenshot(screenshot);
 
         return screenshot;

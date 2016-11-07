@@ -280,7 +280,7 @@ namespace loader
                 BOOST_ASSERT(false); // FIXME [irrlicht]
             }
 
-            auto stateBlock = gameplay::RenderState::StateBlock::create();
+            auto stateBlock = std::make_shared<gameplay::RenderState::StateBlock>();
             stateBlock->setDepthTest(true);
             stateBlock->setDepthFunction(gameplay::RenderState::DEPTH_LESS);
             stateBlock->setCullFace(false);

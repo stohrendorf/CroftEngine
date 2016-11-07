@@ -43,10 +43,10 @@ namespace gameplay
         if( vp.isEmpty() )
         BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
 
-        _image = Image::create(vp.width, vp.height);
+        _image = std::make_shared<Image>(vp.width, vp.height);
         _image->fill({0,0,0,0});
 
-        _texture = Texture::create(_image, false);
+        _texture = std::make_shared<Texture>(_image, false);
 
         _batch = SpriteBatch::create(_game, _texture, screenOverlayProgram);
         if( _batch == nullptr )

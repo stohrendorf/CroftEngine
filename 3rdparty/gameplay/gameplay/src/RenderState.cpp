@@ -44,7 +44,7 @@ namespace gameplay
     {
         if( StateBlock::_defaultState == nullptr )
         {
-            StateBlock::_defaultState = StateBlock::create();
+            StateBlock::_defaultState = std::make_shared<StateBlock>();
         }
     }
 
@@ -75,7 +75,7 @@ namespace gameplay
     }
 
 
-    unsigned int RenderState::getParameterCount() const
+    size_t RenderState::getParameterCount() const
     {
         return _parameters.size();
     }
@@ -132,7 +132,7 @@ namespace gameplay
     {
         if( _state == nullptr )
         {
-            _state = StateBlock::create();
+            _state = std::make_shared<StateBlock>();
         }
 
         return _state;
@@ -358,10 +358,10 @@ namespace gameplay
         auto shader = material->getShaderProgram();
         while( (rs = getTopmost(rs)) )
         {
-            for( size_t i = 0, count = rs->_parameters.size(); i < count; ++i )
+            for( const auto& param : rs->_parameters )
             {
-                BOOST_ASSERT(rs->_parameters[i]);
-                rs->_parameters[i]->bind(shader);
+                BOOST_ASSERT(param);
+                param->bind(shader);
             }
 
             if( rs->_state )
@@ -403,12 +403,6 @@ namespace gameplay
 
 
     RenderState::StateBlock::~StateBlock() = default;
-
-
-    std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::create()
-    {
-        return std::make_shared<RenderState::StateBlock>();
-    }
 
 
     void RenderState::StateBlock::bind()

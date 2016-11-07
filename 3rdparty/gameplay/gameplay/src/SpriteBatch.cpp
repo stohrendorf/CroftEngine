@@ -41,7 +41,6 @@ namespace gameplay
     std::shared_ptr<SpriteBatch> SpriteBatch::create(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(texture != nullptr);
-        BOOST_ASSERT(texture->getType() == Texture::TEXTURE_2D);
 
         auto fx = shaderProgram;
         bool customEffect = (fx != nullptr);
@@ -88,7 +87,7 @@ namespace gameplay
         material->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
 
         // Bind the texture to the material as a sampler
-        auto sampler = Texture::Sampler::create(texture);
+        auto sampler = std::make_shared<Texture::Sampler>(texture);
         material->getParameter(samplerUniform->getName())->setValue(sampler);
 
         // Define the vertex format for the batch

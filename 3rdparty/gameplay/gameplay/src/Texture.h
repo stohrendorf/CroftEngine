@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+
 namespace gameplay
 {
     class Image;
@@ -15,8 +16,10 @@ namespace gameplay
         friend class Sampler;
 
     public:
-        explicit Texture();
+        explicit Texture(unsigned int width, unsigned int height, const std::vector<glm::vec4>& data, bool generateMipmaps);
+        explicit Texture(const std::shared_ptr<Image>& image, bool generateMipmaps = false);
         virtual ~Texture();
+
 
         /**
          * Defines the set of supported texture filters.
@@ -39,16 +42,6 @@ namespace gameplay
         {
             REPEAT = GL_REPEAT,
             CLAMP = GL_CLAMP_TO_EDGE
-        };
-
-
-        /**
-         * Defines the type of Texture in use.
-         */
-        enum Type
-        {
-            TEXTURE_2D = GL_TEXTURE_2D,
-            TEXTURE_CUBE = GL_TEXTURE_CUBE_MAP
         };
 
 
@@ -87,23 +80,13 @@ namespace gameplay
             virtual ~Sampler();
 
             /**
-             * Creates a sampler for the specified texture.
-             *
-             * @param texture The texture.
-             *
-             * @return The new sampler.
-             * @script{create}
-             */
-            static std::shared_ptr<Texture::Sampler> create(const std::shared_ptr<Texture>& texture);
-
-            /**
              * Sets the wrap mode for this sampler.
              *
              * @param wrapS The horizontal wrap mode.
              * @param wrapT The vertical wrap mode.
              * @param wrapR The depth wrap mode.
              */
-            void setWrapMode(Wrap wrapS, Wrap wrapT, Wrap wrapR = REPEAT);
+            void setWrapMode(Wrap wrapS, Wrap wrapT);
 
             /**
              * Sets the texture filter modes for this sampler.
@@ -130,59 +113,12 @@ namespace gameplay
             Sampler& operator=(const Sampler&) = delete;
 
             std::shared_ptr<Texture> _texture;
-            Wrap _wrapS;
-            Wrap _wrapT;
-            Wrap _wrapR;
+            Wrap _wrapS = REPEAT;
+            Wrap _wrapT = REPEAT;
             Filter _minFilter;
             Filter _magFilter;
         };
 
-
-        /**
-         * Creates a texture from the given image.
-         *
-         * @param image The image containing the texture data.
-         * @param generateMipmaps True to generate a full mipmap chain, false otherwise.
-         *
-         * @return The new texture, or NULL if the image is not of a supported texture format.
-         * @script{create}
-         */
-        static std::shared_ptr<Texture> create(const std::shared_ptr<Image>& image, bool generateMipmaps = false);
-
-        /**
-         * Creates a texture from the given texture data.
-         *
-         * The data in the texture is expected to be tightly packed (no padding at the end of rows).
-         *
-         * @param width Width of the texture data. If type is TEX_CUBE, then this is the cube face width.
-         * @param height Height of the texture data. If type is TEX_CUBE, then this is the cube face height.
-         * @param data Raw texture data (expected to be tightly packed). If the type parameter is set
-         *   to TEXTURE_CUBE, then data is expected to be each face stored back contiguously within the
-         *   array.
-         * @param generateMipmaps True to generate a full mipmap chain, false otherwise.
-         * @param type What type of Texture should be created.
-         *
-         * @return The new texture.
-         * @script{create}
-         */
-        static std::shared_ptr<Texture> create(unsigned width, unsigned height, const std::vector<glm::vec4>& data, bool generateMipmaps = false, Type type = TEXTURE_2D);
-
-        /**
-         * Creates a texture object to wrap the specified pre-created native texture handle.
-         *
-         * The specified TextureHandle must represent a valid texture that has been created
-         * on the underlying renderer and it should not be referenced by any other Texture
-         * object. When the returned Texture object is destroyed, the passed in TextureHandle
-         * will also be destroyed.
-         *
-         * @param handle Native texture handle.
-         * @param width The width of the texture represented by 'handle'.
-         * @param height The height of the texture represented by 'handle'.
-         *
-         * @return The new texture.
-         * @script{create}
-         */
-        static Texture* create(TextureHandle handle, int width, int height);
 
         /**
          * Set texture data to replace current texture image.
@@ -192,13 +128,6 @@ namespace gameplay
          *   array.
          */
         void setData(const glm::vec4* data);
-
-        /**
-         * Gets the texture type.
-         *
-         * @return The texture type.
-         */
-        Type getType() const;
 
         /**
          * Gets the texture width.
@@ -227,11 +156,6 @@ namespace gameplay
         bool isMipmapped() const;
 
         /**
-         * Determines if this texture is a compressed texture.
-         */
-        bool isCompressed() const;
-
-        /**
          * Returns the texture handle.
          *
          * @return The texture handle.
@@ -246,17 +170,13 @@ namespace gameplay
 
         static int getMaskByteIndex(unsigned int mask);
 
-        TextureHandle _handle;
-        Type _type;
-        unsigned int _width;
-        unsigned int _height;
-        bool _mipmapped;
-        bool _cached;
-        bool _compressed;
-        Wrap _wrapS;
-        Wrap _wrapT;
-        Wrap _wrapR;
-        Filter _minFilter;
-        Filter _magFilter;
+        TextureHandle _handle = 0;
+        unsigned int _width = 0;
+        unsigned int _height = 0;
+        bool _mipmapped = false;
+        Wrap _wrapS = REPEAT;
+        Wrap _wrapT = REPEAT;
+        Filter _minFilter = NEAREST_MIPMAP_LINEAR;
+        Filter _magFilter = LINEAR;
     };
 }

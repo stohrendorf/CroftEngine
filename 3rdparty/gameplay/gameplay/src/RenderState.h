@@ -278,12 +278,6 @@ namespace gameplay
             ~StateBlock();
 
             /**
-             * Creates a new StateBlock with default render state settings.
-             * @script{create}
-             */
-            static std::shared_ptr<RenderState::StateBlock> create();
-
-            /**
              * Binds the state in this StateBlock to the renderer.
              *
              * This method handles both setting and restoring of render states to ensure that
@@ -464,7 +458,7 @@ namespace gameplay
          *
          * @return The number of material parameters.
          */
-        unsigned int getParameterCount() const;
+        size_t getParameterCount() const;
 
         /**
          * Gets a MaterialParameter for the specified index.

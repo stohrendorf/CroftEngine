@@ -580,10 +580,8 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler)
     {
-        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D);
         BOOST_ASSERT(sampler);
-        BOOST_ASSERT((sampler->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
-            (sampler->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
 
         GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index) );
 
@@ -596,14 +594,12 @@ namespace gameplay
 
     void ShaderProgram::setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
     {
-        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D || uniform._type == GL_SAMPLER_CUBE);
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D);
 
         // Set samplers as active and load texture unit array
         GLint units[32];
         for( size_t i = 0; i < values.size(); ++i )
         {
-            BOOST_ASSERT((values[i]->getTexture()->getType() == Texture::TEXTURE_2D && uniform._type == GL_SAMPLER_2D) ||
-                (values[i]->getTexture()->getType() == Texture::TEXTURE_CUBE && uniform._type == GL_SAMPLER_CUBE));
             GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index + i) );
 
             // Bind the sampler - this binds the texture and applies sampler state
