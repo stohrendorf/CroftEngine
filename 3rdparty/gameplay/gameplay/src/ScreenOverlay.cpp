@@ -48,7 +48,7 @@ namespace gameplay
 
         _texture = std::make_shared<Texture>(_image, false);
 
-        _batch = SpriteBatch::create(_game, _texture, screenOverlayProgram);
+        _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram);
         if( _batch == nullptr )
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create batch for screen overlay."));

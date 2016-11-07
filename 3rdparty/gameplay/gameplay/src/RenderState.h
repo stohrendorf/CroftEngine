@@ -594,8 +594,6 @@ namespace gameplay
         const glm::vec4* autoBindingGetMatrixPalette() const;
         size_t autoBindingGetMatrixPaletteSize() const;
         const glm::vec3& autoBindingGetAmbientColor() const;
-        const glm::vec3& autoBindingGetLightColor() const;
-        const glm::vec3& autoBindingGetLightDirection() const;
 
     protected:
 

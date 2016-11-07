@@ -143,10 +143,8 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Node> Node::findNode(const char* id, bool recursive, bool exactMatch) const
+    std::shared_ptr<Node> Node::findNode(const std::string& id, bool recursive, bool exactMatch) const
     {
-        BOOST_ASSERT(id);
-
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         std::shared_ptr<Node> rootNode;
         auto model = std::dynamic_pointer_cast<Model>(_drawable);
@@ -189,10 +187,8 @@ namespace gameplay
     }
 
 
-    unsigned int Node::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
+    unsigned int Node::findNodes(const std::string& id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
-        BOOST_ASSERT(id);
-
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
         unsigned int count = 0;
         std::shared_ptr<Node> rootNode;

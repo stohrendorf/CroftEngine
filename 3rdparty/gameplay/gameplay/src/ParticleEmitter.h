@@ -7,6 +7,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+
 namespace gameplay
 {
     class Node;
@@ -176,14 +177,14 @@ namespace gameplay
          *
          * @param max The maximum number of particles that can be emitted.
          */
-        void setParticleCountMax(unsigned int max);
+        void setParticleCountMax(size_t max);
 
         /**
          * Returns the maximum number of particles that can be emitted.
          *
          * @return The maximum number of particles that can be emitted.
          */
-        unsigned int getParticleCountMax() const;
+        size_t getParticleCountMax() const;
 
         /**
          * Sets the emission rate, measured in particles per second.
@@ -670,12 +671,6 @@ namespace gameplay
         size_t draw(bool wireframe = false) override;
 
     private:
-
-        /**
-         * Constructor.
-         */
-        ParticleEmitter(Game* game, unsigned int particlesCount);
-
         /**
          * Destructor.
          */
@@ -689,7 +684,7 @@ namespace gameplay
          * @param particleCountMax The maximum number of particles that can be alive at one time in this ParticleEmitter's system.
          * @script{create}
          */
-        static ParticleEmitter* create(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned particleCountMax);
+        explicit ParticleEmitter(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax);
 
         ParticleEmitter& operator=(const ParticleEmitter&) = delete;
 
@@ -739,9 +734,8 @@ namespace gameplay
         };
 
 
-        unsigned int _particleCountMax;
-        unsigned int _particleCount;
-        Particle* _particles;
+        size_t _particleCount;
+        std::vector<Particle> _particles;
         unsigned int _emissionRate;
         bool _started;
         bool _ellipsoid;

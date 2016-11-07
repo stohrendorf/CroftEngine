@@ -507,7 +507,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 
             const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
 
-            auto sprite = gameplay::Sprite::create(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto sprite = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             sprite->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             std::string name = "item";
@@ -723,17 +723,15 @@ void Level::toIrrlicht(gameplay::Game* game)
         staticModels.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, coloredMaterials, *m_textureAnimator));
     }
 
-    auto scene = gameplay::Scene::create();
-
-    scene->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
+    game->getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
     auto camNode = std::make_shared<gameplay::Node>("cameraNode");
-    camNode->setCamera(scene->getActiveCamera());
-    scene->addNode(camNode);
+    camNode->setCamera(game->getScene()->getActiveCamera());
+    game->getScene()->addNode(camNode);
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
         m_rooms[i].createSceneNode(game, i, *this, textures, materials, staticModels, *m_textureAnimator);
-        scene->addNode(m_rooms[i].node);
+        game->getScene()->addNode(m_rooms[i].node);
     }
 
     auto skinnedModels = createSkinnedModels(game, textures);
@@ -742,7 +740,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     if( m_lara == nullptr )
         return;
 
-    m_cameraController = new engine::CameraController(this, m_lara, gameplay::Scene::getScene()->getActiveCamera());
+    m_cameraController = new engine::CameraController(this, m_lara, game->getScene()->getActiveCamera());
 
     for( const loader::SoundSource& src : m_soundSources )
     {

@@ -6,30 +6,48 @@
 
 namespace gameplay
 {
-    Sprite::Sprite()
+    Sprite::Sprite(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
         : Drawable()
-        , _width(0)
-        , _height(0)
+        , _width{width}
+        , _height{height}
         , _offset(OFFSET_BOTTOM_LEFT)
         , _anchor(glm::vec2(0.5f, 0.5f))
         , _flipFlags(FLIP_NONE)
-        , _frames(nullptr)
-        , _frameCount(1)
+        , _frames(frameCount)
         , _frameStride(0)
         , _framePadding(1)
         , _frameIndex(0)
-        , _batch(nullptr)
+        , _batch{ std::make_shared<SpriteBatch>(game, texture, shaderProgram) }
         , _opacity(1.0f)
         , _color{ 1,1,1,1 }
         , _blendMode(BLEND_ALPHA)
     {
+        BOOST_ASSERT(texture != nullptr);
+        BOOST_ASSERT(width >= -1 && height >= -1);
+        BOOST_ASSERT(source.width >= -1 && source.height >= -1);
+        BOOST_ASSERT(frameCount > 0);
+
+        _batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
+        _batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
+        _batch->getStateBlock()->setDepthWrite(false);
+        _batch->getStateBlock()->setDepthTest(true);
+
+        auto imageWidth = _batch->getSampler()->getTexture()->getWidth();
+        auto imageHeight = _batch->getSampler()->getTexture()->getHeight();
+        if(width == -1)
+            _width = imageWidth;
+        if(height == -1)
+            _height = imageHeight;
+
+        _frames[0] = source;
+        if(_frames[0].width == -1.0f)
+            _frames[0].width = imageWidth;
+        if(_frames[0].height == -1.0f)
+            _frames[0].height = imageHeight;
     }
 
 
-    Sprite::~Sprite()
-    {
-        SAFE_DELETE_ARRAY(_frames);
-    }
+    Sprite::~Sprite() = default;
 
 
     float Sprite::getWidth() const
@@ -81,17 +99,17 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void Sprite::setFrameSource(unsigned int frameIndex, const Rectangle& source)
+    void Sprite::setFrameSource(size_t frameIndex, const Rectangle& source)
     {
-        BOOST_ASSERT(frameIndex < _frameCount);
+        BOOST_ASSERT(frameIndex < _frames.size());
 
         _frames[frameIndex] = source;
     }
 
 
-    const Rectangle& Sprite::getFrameSource(unsigned int frameIndex) const
+    const Rectangle& Sprite::getFrameSource(size_t frameIndex) const
     {
-        BOOST_ASSERT(frameIndex < _frameCount);
+        BOOST_ASSERT(frameIndex < _frames.size());
 
         return _frames[frameIndex];
     }
@@ -102,7 +120,7 @@ namespace gameplay
         _frameStride = frameStride;
         _framePadding = framePadding;
 
-        if( _frameCount < 2 )
+        if( _frames.size() < 2 )
             return;
         unsigned int imageWidth = _batch->getSampler()->getTexture()->getWidth();
         unsigned int imageHeight = _batch->getSampler()->getTexture()->getHeight();
@@ -112,7 +130,7 @@ namespace gameplay
         float y = _frames[0].y;
 
         // Compute frames 1+
-        for( unsigned int frameIndex = 1; frameIndex < _frameCount; frameIndex++ )
+        for( unsigned int frameIndex = 1; frameIndex < _frames.size(); frameIndex++ )
         {
             _frames[frameIndex].x = x;
             _frames[frameIndex].y = y;
@@ -133,9 +151,9 @@ namespace gameplay
     }
 
 
-    unsigned int Sprite::getFrameCount() const
+    size_t Sprite::getFrameCount() const
     {
-        return _frameCount;
+        return _frames.size();
     }
 
 
@@ -321,40 +339,5 @@ namespace gameplay
         _batch->finishAndDraw();
 
         return 1;
-    }
-
-
-    std::shared_ptr<Sprite> Sprite::create(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned int frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
-    {
-        BOOST_ASSERT(texture != nullptr);
-        BOOST_ASSERT(width >= -1 && height >= -1);
-        BOOST_ASSERT(source.width >= -1 && source.height >= -1);
-        BOOST_ASSERT(frameCount > 0);
-
-        auto batch = SpriteBatch::create(game, texture, shaderProgram);
-        batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
-        batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
-        batch->getStateBlock()->setDepthWrite(false);
-        batch->getStateBlock()->setDepthTest(true);
-
-        unsigned int imageWidth = batch->getSampler()->getTexture()->getWidth();
-        unsigned int imageHeight = batch->getSampler()->getTexture()->getHeight();
-        if( width == -1 )
-            width = imageWidth;
-        if( height == -1 )
-            height = imageHeight;
-
-        std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-        sprite->_width = width;
-        sprite->_height = height;
-        sprite->_batch = batch;
-        sprite->_frameCount = frameCount;
-        sprite->_frames = new Rectangle[frameCount];
-        sprite->_frames[0] = source;
-        if( sprite->_frames[0].width == -1.0f )
-            sprite->_frames[0].width = imageWidth;
-        if( sprite->_frames[0].height == -1.0f )
-            sprite->_frames[0].height = imageHeight;
-        return sprite;
     }
 }

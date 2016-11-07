@@ -9,6 +9,9 @@
 
 namespace gameplay
 {
+    class Scene;
+
+
     /**
      * Defines the base class your game will extend for game initialization, logic and platform delegates.
      *
@@ -255,6 +258,12 @@ namespace gameplay
         }
 
 
+        const std::shared_ptr<Scene>& getScene() const
+        {
+            return _scene;
+        }
+
+
     protected:
 
         /**
@@ -353,6 +362,8 @@ namespace gameplay
         bool _vsync = WINDOW_VSYNC;
         bool _multiSampling = false;
         GLFWwindow* _window = nullptr;
+
+        std::shared_ptr<Scene> _scene;
 
         friend class ScreenDisplayer;
 

@@ -15,41 +15,8 @@ namespace gameplay
     class Scene
     {
     public:
-
-        /**
-         * Creates a new empty scene.
-         *
-         * @param id ID of the new scene, or nullptr to use an empty string for the ID (default).
-         *
-         * @return The newly created empty scene.
-         * @script{create}
-         */
-        static Scene* create(const char* id = nullptr);
-
-        /**
-         * Gets a currently active scene.
-         *
-         * If id is an nullptr, the first active scene is returned.
-         *
-         * @param id ID of the scene to retrieve, or nullptr to retrieve the first active scene.
-         *
-         * @return The scene that matches the specified ID, or nullptr if no matching scene could be found.
-         */
-        static Scene* getScene(const char* id = nullptr);
-
-        /**
-         * Gets the identifier for the scene.
-         *
-         * @return The scene identifier.
-         */
-        const char* getId() const;
-
-        /**
-         * Sets the identifier for the scene.
-         *
-         * @param id The identifier to set for the scene.
-         */
-        void setId(const char* id);
+        explicit Scene();
+        virtual ~Scene();
 
         /**
          * Returns the first node in the scene that matches the given ID.
@@ -61,7 +28,7 @@ namespace gameplay
          *
          * @return The first node found that matches the given ID.
          */
-        std::shared_ptr<Node> findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
+        std::shared_ptr<Node> findNode(const std::string& id, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Returns all nodes in the scene that match the given ID.
@@ -75,7 +42,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        size_t findNodes(const char* id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
+        size_t findNodes(const std::string& id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Creates and adds a new node to the scene.
@@ -221,19 +188,9 @@ namespace gameplay
     private:
 
         /**
-         * Constructor.
-         */
-        Scene();
-
-        /**
          * Hidden copy constructor.
          */
         Scene(const Scene& copy) = delete;
-
-        /**
-         * Destructor.
-         */
-        virtual ~Scene();
 
         Scene& operator=(const Scene&) = delete;
 
@@ -254,8 +211,7 @@ namespace gameplay
          */
         void visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const;
 
-        std::string _id;
-        std::shared_ptr<Camera> _activeCamera;
+        std::shared_ptr<Camera> _activeCamera = nullptr;
         Node::List _nodes;
         glm::vec3 _ambientColor;
     };

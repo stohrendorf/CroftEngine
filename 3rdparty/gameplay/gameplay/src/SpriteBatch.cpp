@@ -25,32 +25,23 @@ namespace gameplay
     static std::shared_ptr<ShaderProgram> __spriteShaderProgram = nullptr;
 
 
-    SpriteBatch::SpriteBatch()
+    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
         : _batch(nullptr)
         , _sampler(nullptr)
-        , _customEffect(false)
+        , _customEffect{ shaderProgram != nullptr }
         , _textureWidthRatio(0.0f)
         , _textureHeightRatio(0.0f)
-    {
-    }
-
-
-    SpriteBatch::~SpriteBatch() = default;
-
-
-    std::shared_ptr<SpriteBatch> SpriteBatch::create(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(texture != nullptr);
 
         auto fx = shaderProgram;
-        bool customEffect = (fx != nullptr);
-        if( !customEffect )
+        if(!_customEffect)
         {
             // Create our static sprite effect.
-            if( __spriteShaderProgram == nullptr )
+            if(__spriteShaderProgram == nullptr)
             {
                 __spriteShaderProgram = ShaderProgram::createFromFile(SPRITE_VSH, SPRITE_FSH);
-                if( __spriteShaderProgram == nullptr )
+                if(__spriteShaderProgram == nullptr)
                 {
                     BOOST_THROW_EXCEPTION(std::runtime_error("Unable to load sprite effect."));
                 }
@@ -64,16 +55,16 @@ namespace gameplay
 
         // Search for the first sampler uniform in the effect.
         std::shared_ptr<Uniform> samplerUniform = nullptr;
-        for( size_t i = 0, count = fx->getUniformCount(); i < count; ++i )
+        for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)
         {
             auto uniform = fx->getUniform(i);
-            if( uniform && uniform->getType() == GL_SAMPLER_2D )
+            if(uniform && uniform->getType() == GL_SAMPLER_2D)
             {
                 samplerUniform = uniform;
                 break;
             }
         }
-        if( !samplerUniform )
+        if(!samplerUniform)
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("No uniform of type GL_SAMPLER_2D found in sprite effect."));
         }
@@ -87,32 +78,30 @@ namespace gameplay
         material->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
 
         // Bind the texture to the material as a sampler
-        auto sampler = std::make_shared<Texture::Sampler>(texture);
-        material->getParameter(samplerUniform->getName())->setValue(sampler);
+        _sampler = std::make_shared<Texture::Sampler>(texture);
+        material->getParameter(samplerUniform->getName())->setValue(_sampler);
 
         // Define the vertex format for the batch
-        VertexFormat::Element vertexElements[] =
+        static const VertexFormat::Element vertexElements[] =
         {
             VertexFormat::Element(VertexFormat::POSITION, 3),
             VertexFormat::Element(VertexFormat::TEXCOORD0, 2),
             VertexFormat::Element(VertexFormat::COLOR, 4)
         };
-        VertexFormat vertexFormat(vertexElements, 3);
+        static const VertexFormat vertexFormat(vertexElements, 3);
 
         // Create the batch
-        auto batch = std::make_shared<SpriteBatch>();
-        batch->_sampler = sampler;
-        batch->_customEffect = customEffect;
-        batch->_batch = std::make_unique<MeshBatch>(vertexFormat, Mesh::TRIANGLES, material);
-        batch->_textureWidthRatio = 1.0f / texture->getWidth();
-        batch->_textureHeightRatio = 1.0f / texture->getHeight();
+        _batch = std::make_unique<MeshBatch>(vertexFormat, Mesh::TRIANGLES, material);
+        _textureWidthRatio = 1.0f / texture->getWidth();
+        _textureHeightRatio = 1.0f / texture->getHeight();
 
         // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
-        batch->_projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
-        material->getParameter("u_projectionMatrix")->bindValue(batch.get(), &SpriteBatch::getProjectionMatrix);
-
-        return batch;
+        _projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
+        material->getParameter("u_projectionMatrix")->bindValue(this, &SpriteBatch::getProjectionMatrix);
     }
+
+
+    SpriteBatch::~SpriteBatch() = default;
 
 
     void SpriteBatch::start()

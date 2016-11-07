@@ -74,7 +74,7 @@ namespace gameplay
         if( width > 0 && height > 0 )
         {
             // Create a default RenderTarget with same ID.
-            renderTarget = RenderTarget::create(id, width, height);
+            renderTarget = std::make_shared<RenderTarget>(width, height);
             if( renderTarget == nullptr )
             {
                 BOOST_LOG_TRIVIAL(error) << "Failed to create render target for frame buffer.";

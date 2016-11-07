@@ -6,69 +6,17 @@
 
 namespace gameplay
 {
-    // Global list of active scenes
-    static std::vector<Scene*> __sceneList;
-
-
-    Scene::Scene()
-        : _id("")
-        , _activeCamera(nullptr)
-    {
-        __sceneList.push_back(this);
-    }
+    Scene::Scene() = default;
 
 
     Scene::~Scene()
     {
-        // Remove all nodes from the scene
         removeAllNodes();
-
-        // Remove the scene from global list
-        auto itr = std::find(__sceneList.begin(), __sceneList.end(), this);
-        if( itr != __sceneList.end() )
-            __sceneList.erase(itr);
     }
 
 
-    Scene* Scene::create(const char* id)
+    std::shared_ptr<Node> Scene::findNode(const std::string& id, bool recursive, bool exactMatch) const
     {
-        Scene* scene = new Scene();
-        scene->setId(id);
-        return scene;
-    }
-
-
-    Scene* Scene::getScene(const char* id)
-    {
-        if( id == nullptr )
-            return !__sceneList.empty() ? __sceneList[0] : nullptr;
-
-        for( size_t i = 0, count = __sceneList.size(); i < count; ++i )
-        {
-            if( __sceneList[i]->_id == id )
-                return __sceneList[i];
-        }
-
-        return nullptr;
-    }
-
-
-    const char* Scene::getId() const
-    {
-        return _id.c_str();
-    }
-
-
-    void Scene::setId(const char* id)
-    {
-        _id = id ? id : "";
-    }
-
-
-    std::shared_ptr<Node> Scene::findNode(const char* id, bool recursive, bool exactMatch) const
-    {
-        BOOST_ASSERT(id);
-
         // Search immediate children first.
         for( const auto& child : _nodes )
         {
@@ -82,7 +30,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for(const auto& child : _nodes)
+            for( const auto& child : _nodes )
             {
                 auto match = child->findNode(id, true, exactMatch);
                 if( match )
@@ -95,14 +43,12 @@ namespace gameplay
     }
 
 
-    size_t Scene::findNodes(const char* id, Node::List& nodes, bool recursive, bool exactMatch) const
+    size_t Scene::findNodes(const std::string& id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
-        BOOST_ASSERT(id);
-
         size_t count = 0;
 
         // Search immediate children first.
-        for(const auto& child : _nodes)
+        for( const auto& child : _nodes )
         {
             // Does this child's ID match?
             if( (exactMatch && child->_id == id) || (!exactMatch && child->_id.find(id) == 0) )
@@ -115,7 +61,7 @@ namespace gameplay
         // Recurse.
         if( recursive )
         {
-            for(const auto& child : _nodes)
+            for( const auto& child : _nodes )
             {
                 count += child->findNodes(id, nodes, true, exactMatch);
             }
@@ -138,7 +84,7 @@ namespace gameplay
         }
 
         // Recurse for all children.
-        for(const auto& child : _nodes)
+        for( const auto& child : _nodes )
         {
             visitNode(child, visitMethod);
         }
@@ -239,13 +185,13 @@ namespace gameplay
 
     void Scene::setAmbientColor(float red, float green, float blue)
     {
-        _ambientColor = { red, green, blue };
+        _ambientColor = {red, green, blue};
     }
 
 
     void Scene::update(float elapsedTime)
     {
-        for(const auto& child : _nodes)
+        for( const auto& child : _nodes )
         {
             if( child->isEnabled() )
                 child->update(elapsedTime);

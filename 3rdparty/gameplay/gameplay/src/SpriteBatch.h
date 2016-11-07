@@ -23,8 +23,6 @@ namespace gameplay
     class SpriteBatch
     {
     public:
-        explicit SpriteBatch();
-
         /**
          * Creates a new SpriteBatch for drawing sprites with the given texture.
          *
@@ -50,7 +48,7 @@ namespace gameplay
          * @return A new SpriteBatch for drawing sprites using the given texture.
          * @script{create}
          */
-        static std::shared_ptr<SpriteBatch> create(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
+        explicit SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
 
         /**
          * Destructor.

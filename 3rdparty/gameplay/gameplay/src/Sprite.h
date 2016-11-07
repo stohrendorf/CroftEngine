@@ -26,7 +26,7 @@ namespace gameplay
         friend class Node;
 
     public:
-        Sprite();
+        Sprite(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
         ~Sprite();
 
         /**
@@ -144,7 +144,7 @@ namespace gameplay
          * @param frameIndex The frame index to specify the source region for.
          * @param source The source clip region from the source image.
          */
-        void setFrameSource(unsigned int frameIndex, const Rectangle& source);
+        void setFrameSource(size_t frameIndex, const Rectangle& source);
 
         /**
          * Gets the source region from the source image.
@@ -152,7 +152,7 @@ namespace gameplay
          * @param frameIndex The frame index to get the source region from.
          * @return The source clip region from the source image.
          */
-        const Rectangle& getFrameSource(unsigned int frameIndex) const;
+        const Rectangle& getFrameSource(size_t frameIndex) const;
 
         /**
          * Computes the source frames for sprites with frameCount > 1.
@@ -171,7 +171,7 @@ namespace gameplay
          *
          * @return The total number of frames this sprite can render.
          */
-        unsigned int getFrameCount() const;
+        size_t getFrameCount() const;
 
         /**
          * Gets the number of frames to travel across before
@@ -283,7 +283,6 @@ namespace gameplay
          */
         size_t draw(bool wireframe = false) override;
 
-        static std::shared_ptr<Sprite> create(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
     protected:
 
         Sprite& operator=(const Sprite& sprite) = delete;
@@ -295,8 +294,7 @@ namespace gameplay
         Offset _offset;
         glm::vec2 _anchor;
         int _flipFlags;
-        Rectangle* _frames;
-        unsigned int _frameCount;
+        std::vector<Rectangle> _frames;
         unsigned int _frameStride;
         unsigned int _framePadding;
         unsigned int _frameIndex;

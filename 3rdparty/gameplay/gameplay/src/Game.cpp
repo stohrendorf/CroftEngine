@@ -34,6 +34,7 @@ namespace gameplay
         , _clearDepth(1.0f)
         , _clearStencil(0)
         , _timeEvents{std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>()}
+        , _scene{std::make_shared<Scene>()}
     {
         glfwSetErrorCallback(&glErrorCallback);
 
@@ -107,7 +108,7 @@ namespace gameplay
     void Game::render()
     {
         clear(CLEAR_COLOR_DEPTH, {0,0,0,0}, 1, 0);
-        Scene::getScene()->visit(this, &Game::drawScene);
+        _scene->visit(this, &Game::drawScene);
     }
 
 

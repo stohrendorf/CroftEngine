@@ -16,11 +16,16 @@
 
 namespace gameplay
 {
-    ParticleEmitter::ParticleEmitter(Game* game, unsigned int particleCountMax)
+    ParticleEmitter::~ParticleEmitter()
+    {
+        SAFE_DELETE_ARRAY(_spriteTextureCoords);
+    }
+
+
+    ParticleEmitter::ParticleEmitter(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax)
         : Drawable()
-        , _particleCountMax(particleCountMax)
         , _particleCount(0)
-        , _particles(nullptr)
+        , _particles(particleCountMax)
         , _emissionRate(PARTICLE_EMISSION_RATE)
         , _started(false)
         , _ellipsoid(false)
@@ -70,25 +75,8 @@ namespace gameplay
     {
         BOOST_ASSERT(particleCountMax > 0);
         BOOST_ASSERT(game != nullptr);
-        _particles = new Particle[particleCountMax];
-    }
 
-
-    ParticleEmitter::~ParticleEmitter()
-    {
-        SAFE_DELETE_ARRAY(_particles);
-        SAFE_DELETE_ARRAY(_spriteTextureCoords);
-    }
-
-
-    ParticleEmitter* ParticleEmitter::create(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, unsigned int particleCountMax)
-    {
-        ParticleEmitter* emitter = new ParticleEmitter(game, particleCountMax);
-        BOOST_ASSERT(emitter);
-
-        emitter->setTexture(texture, blendMode);
-
-        return emitter;
+        setTexture(texture, blendMode);
     }
 
 
@@ -96,7 +84,7 @@ namespace gameplay
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
-        auto batch = SpriteBatch::create(_game, texture, nullptr);
+        auto batch = std::make_shared<SpriteBatch>(_game, texture, nullptr);
         batch->getSampler()->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
 
         _spriteBatch = batch;
@@ -122,15 +110,15 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setParticleCountMax(unsigned int max)
+    void ParticleEmitter::setParticleCountMax(size_t max)
     {
-        _particleCountMax = max;
+        _particles.resize(max);
     }
 
 
-    unsigned int ParticleEmitter::getParticleCountMax() const
+    size_t ParticleEmitter::getParticleCountMax() const
     {
-        return _particleCountMax;
+        return _particles.size();
     }
 
 
@@ -182,16 +170,15 @@ namespace gameplay
     void ParticleEmitter::emitOnce(unsigned int particleCount)
     {
         BOOST_ASSERT(_node);
-        BOOST_ASSERT(_particles);
 
         // Limit particleCount so as not to go over _particleCountMax.
-        if( particleCount + _particleCount > _particleCountMax )
+        if( particleCount + _particleCount > _particles.size() )
         {
-            particleCount = _particleCountMax - _particleCount;
+            particleCount = _particles.size() - _particleCount;
         }
 
         glm::mat4 world = _node->getWorldMatrix();
-        glm::vec3 translation{ world[3] };
+        glm::vec3 translation{world[3]};
 
         // Take translation out of world matrix so it can be used to rotate orbiting properties.
         world[3][0] = 0.0f;
@@ -229,7 +216,7 @@ namespace gameplay
 
             if( _orbitVelocity )
             {
-                p->_velocity = glm::vec3( world * glm::vec4(p->_velocity, 1) );
+                p->_velocity = glm::vec3(world * glm::vec4(p->_velocity, 1));
             }
 
             if( _orbitAcceleration )
@@ -835,8 +822,7 @@ namespace gameplay
         }
 
         // Now update all currently living particles.
-        BOOST_ASSERT(_particles);
-        for( unsigned int particlesIndex = 0; particlesIndex < _particleCount; ++particlesIndex )
+        for( size_t particlesIndex = 0; particlesIndex < _particleCount; ++particlesIndex )
         {
             Particle* p = &_particles[particlesIndex];
             p->_energy -= elapsedMs;
@@ -845,7 +831,7 @@ namespace gameplay
             {
                 if( p->_rotationSpeed != 0.0f && glm::length2(p->_rotationAxis) > std::numeric_limits<float>::epsilon() )
                 {
-                    _rotation = glm::quat(p->_rotationSpeed*elapsedSecs, p->_rotationAxis);
+                    _rotation = glm::quat(p->_rotationSpeed * elapsedSecs, p->_rotationAxis);
 
                     p->_velocity = _rotation * p->_velocity;
                     p->_acceleration = _rotation * p->_acceleration;
@@ -929,7 +915,6 @@ namespace gameplay
         if( _particleCount > 0 )
         {
             BOOST_ASSERT(_spriteBatch);
-            BOOST_ASSERT(_particles);
             BOOST_ASSERT(_spriteTextureCoords);
 
             // Set our node's view projection matrix to this emitter's effect.
@@ -948,8 +933,8 @@ namespace gameplay
             BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera() && _node->getScene()->getActiveCamera()->getNode());
             const glm::mat4& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getNode()->getWorldMatrix();
 
-            glm::vec3 right{ cameraWorldMatrix * glm::vec4{1,0,0,1} };
-            glm::vec3 up{ cameraWorldMatrix * glm::vec4{0,1,0,1} };
+            glm::vec3 right{cameraWorldMatrix * glm::vec4{1,0,0,1}};
+            glm::vec3 up{cameraWorldMatrix * glm::vec4{0,1,0,1}};
 
             for( unsigned int i = 0; i < _particleCount; i++ )
             {

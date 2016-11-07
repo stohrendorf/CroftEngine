@@ -111,7 +111,7 @@ namespace gameplay
          *
          * @return The Node found or NULL if not found.
          */
-        std::shared_ptr<Node> findNode(const char* id, bool recursive = true, bool exactMatch = true) const;
+        std::shared_ptr<Node> findNode(const std::string& id, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Returns all child nodes that match the given ID.
@@ -125,7 +125,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const char* id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
+        unsigned int findNodes(const std::string& id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Gets the scene this node is currenlty within.

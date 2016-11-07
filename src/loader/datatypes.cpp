@@ -221,7 +221,7 @@ namespace loader
 
             const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
 
-            auto spriteNode = gameplay::Sprite::create(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            auto spriteNode = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
             spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
             auto n = std::make_shared<gameplay::Node>("");
