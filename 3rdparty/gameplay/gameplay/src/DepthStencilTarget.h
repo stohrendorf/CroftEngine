@@ -13,7 +13,6 @@ namespace gameplay
         friend class FrameBuffer;
 
     public:
-
         /**
          * Defines the accepted formats for DepthStencilTargets.
          */
@@ -32,33 +31,18 @@ namespace gameplay
 
 
         /**
-         * Create a DepthStencilTarget and add it to the list of available DepthStencilTargets.
-         *
-         * @param id The ID of the new DepthStencilTarget.  Uniqueness is recommended but not enforced.
-         * @param format The format of the new DepthStencilTarget.
-         * @param width Width of the new DepthStencilTarget.
-         * @param height Height of the new DepthStencilTarget.
-         *
-         * @return A newly created DepthStencilTarget.
-         * @script{create}
-         */
-        static DepthStencilTarget* create(const char* id, Format format, unsigned int width, unsigned int height);
-
-        /**
-         * Get a named DepthStencilTarget from its ID.
-         *
-         * @param id The ID of the DepthStencilTarget to search for.
-         *
-         * @return The DepthStencilTarget with the specified ID, or NULL if one was not found.
-         */
-        static DepthStencilTarget* getDepthStencilTarget(const char* id);
-
-        /**
-         * Get the ID of this DepthStencilTarget.
-         *
-         * @return The ID of this DepthStencilTarget.
-         */
-        const char* getId() const;
+        * Create a DepthStencilTarget and add it to the list of available DepthStencilTargets.
+        *
+        * @param id The ID of the new DepthStencilTarget.  Uniqueness is recommended but not enforced.
+        * @param format The format of the new DepthStencilTarget.
+        * @param width Width of the new DepthStencilTarget.
+        * @param height Height of the new DepthStencilTarget.
+        *
+        * @return A newly created DepthStencilTarget.
+        * @script{create}
+        */
+        DepthStencilTarget(const char* id, Format format, unsigned int width, unsigned int height);
+        ~DepthStencilTarget();
 
         /**
          * Returns the format of the DepthStencilTarget.
@@ -89,20 +73,8 @@ namespace gameplay
         bool isPacked() const;
 
     private:
-
-        /**
-         * Constructor.
-         */
-        DepthStencilTarget(const char* id, Format format, unsigned int width, unsigned int height);
-
-        /**
-         * Destructor.
-         */
-        ~DepthStencilTarget();
-
         DepthStencilTarget& operator=(const DepthStencilTarget&) = delete;
 
-        std::string _id;
         Format _format;
         RenderBufferHandle _depthBuffer;
         RenderBufferHandle _stencilBuffer;

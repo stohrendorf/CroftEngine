@@ -26,7 +26,7 @@ namespace gameplay
         friend class Game;
 
     public:
-        FrameBuffer(const std::string& id, FrameBufferHandle handle);
+        explicit FrameBuffer(FrameBufferHandle handle);
         ~FrameBuffer();
 
         /**
@@ -41,7 +41,7 @@ namespace gameplay
          * @return A newly created FrameBuffer.
          * @script{create}
          */
-        static FrameBuffer* create(const std::string& id);
+        explicit FrameBuffer();
 
         /**
          * Creates a new FrameBuffer with a single RenderTarget of the specified width and height,
@@ -60,23 +60,7 @@ namespace gameplay
          * @return A newly created FrameBuffer.
          * @script{create}
          */
-        static FrameBuffer* create(const std::string& id, unsigned int width, unsigned int height);
-
-        /**
-         * Get a named FrameBuffer from its ID.
-         *
-         * @param id The ID of the FrameBuffer to search for.
-         *
-         * @return The FrameBuffer with the specified ID, or NULL if one was not found.
-         */
-        static FrameBuffer* getFrameBuffer(const std::string& id);
-
-        /**
-         * Get the ID of this FrameBuffer.
-         *
-         * @return The ID of this FrameBuffer.
-         */
-        const std::string& getId() const;
+        FrameBuffer(unsigned int width, unsigned int height);
 
         /**
          * Gets the width of the frame buffer.
@@ -202,14 +186,12 @@ namespace gameplay
 
         static void finalize();
 
-        std::string _id;
         FrameBufferHandle _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
         size_t _renderTargetCount;
         std::shared_ptr<DepthStencilTarget> _depthStencilTarget;
 
         static size_t _maxRenderTargets;
-        static std::vector<FrameBuffer*> _frameBuffers;
         static std::shared_ptr<FrameBuffer> _defaultFrameBuffer;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;
     };

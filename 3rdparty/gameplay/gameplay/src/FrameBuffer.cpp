@@ -3,20 +3,16 @@
 
 #include <boost/log/trivial.hpp>
 
-#define FRAMEBUFFER_ID_DEFAULT "org.gameplay3d.framebuffer.default"
-
 
 namespace gameplay
 {
     size_t FrameBuffer::_maxRenderTargets = 0;
-    std::vector<FrameBuffer*> FrameBuffer::_frameBuffers;
     std::shared_ptr<FrameBuffer> FrameBuffer::_defaultFrameBuffer = nullptr;
     std::shared_ptr<FrameBuffer> FrameBuffer::_currentFrameBuffer = nullptr;
 
 
-    FrameBuffer::FrameBuffer(const std::string& id, FrameBufferHandle handle)
-        : _id(id)
-        , _handle(handle)
+    FrameBuffer::FrameBuffer(FrameBufferHandle handle)
+        : _handle(handle)
         , _renderTargets()
         , _renderTargetCount(0)
         , _depthStencilTarget(nullptr)
@@ -29,13 +25,6 @@ namespace gameplay
         // Release GL resource.
         if( _handle )
         GL_ASSERT( glDeleteFramebuffers(1, &_handle) );
-
-        // Remove self from vector.
-        auto it = std::find(_frameBuffers.begin(), _frameBuffers.end(), this);
-        if( it != _frameBuffers.end() )
-        {
-            _frameBuffers.erase(it);
-        }
     }
 
 
@@ -45,7 +34,7 @@ namespace gameplay
         // On many platforms this will simply be the zero (0) handle, but this is not always the case.
         GLint fbo;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-        _defaultFrameBuffer = std::make_shared<FrameBuffer>(FRAMEBUFFER_ID_DEFAULT, static_cast<FrameBufferHandle>(fbo));
+        _defaultFrameBuffer = std::make_shared<FrameBuffer>(static_cast<FrameBufferHandle>(fbo));
         _currentFrameBuffer = _defaultFrameBuffer;
 
         // Query the max supported color attachments. This glGet operation is not supported
@@ -62,13 +51,14 @@ namespace gameplay
     }
 
 
-    FrameBuffer* FrameBuffer::create(const std::string& id)
+    FrameBuffer::FrameBuffer()
+        : FrameBuffer(0, 0)
     {
-        return create(id, 0, 0);
     }
 
 
-    FrameBuffer* FrameBuffer::create(const std::string& id, unsigned int width, unsigned int height)
+    FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
+        : FrameBuffer(0)
     {
         std::shared_ptr<RenderTarget> renderTarget = nullptr;
         if( width > 0 && height > 0 )
@@ -78,47 +68,21 @@ namespace gameplay
             if( renderTarget == nullptr )
             {
                 BOOST_LOG_TRIVIAL(error) << "Failed to create render target for frame buffer.";
-                return nullptr;
+                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create render target for frame buffer"));
             }
         }
 
         // Create the frame buffer
         FrameBufferHandle handle = 0;
         GL_ASSERT( glGenFramebuffers(1, &handle) );
-        FrameBuffer* frameBuffer = new FrameBuffer(id, handle);
 
         // Create the render target array for the new frame buffer
-        frameBuffer->_renderTargets.resize(_maxRenderTargets);
+        _renderTargets.resize(_maxRenderTargets);
 
         if( renderTarget )
         {
-            frameBuffer->setRenderTarget(renderTarget, 0);
+            setRenderTarget(renderTarget, 0);
         }
-        _frameBuffers.push_back(frameBuffer);
-
-        return frameBuffer;
-    }
-
-
-    FrameBuffer* FrameBuffer::getFrameBuffer(const std::string& id)
-    {
-        // Search the vector for a matching ID.
-        for( auto it = _frameBuffers.begin(); it < _frameBuffers.end(); ++it )
-        {
-            FrameBuffer* fb = *it;
-            BOOST_ASSERT(fb);
-            if( id == fb->getId() )
-            {
-                return fb;
-            }
-        }
-        return nullptr;
-    }
-
-
-    const std::string& FrameBuffer::getId() const
-    {
-        return _id;
     }
 
 
