@@ -160,7 +160,7 @@ namespace gameplay
          *
          * @return The texture handle.
          */
-        TextureHandle getHandle() const;
+        const TextureHandle& getHandle() const;
 
     private:
 
@@ -170,7 +170,7 @@ namespace gameplay
 
         static int getMaskByteIndex(unsigned int mask);
 
-        TextureHandle _handle = 0;
+        TextureHandle _handle{};
         unsigned int _width = 0;
         unsigned int _height = 0;
         bool _mipmapped = false;

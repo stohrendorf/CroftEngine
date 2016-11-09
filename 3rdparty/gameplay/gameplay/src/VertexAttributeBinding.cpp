@@ -75,7 +75,7 @@ namespace gameplay
             GL_ASSERT(glBindVertexArray(binding->_handle));
 
             // Bind the Mesh VBO so our glVertexAttribPointer calls use it.
-            GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()));
+            mesh->getVertexBuffer().bind();
         }
 
         // Call setVertexAttribPointer for each vertex element.

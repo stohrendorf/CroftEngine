@@ -14,30 +14,23 @@ namespace gameplay
         , _vertexCount{vertexCount}
         , _dynamic{dynamic}
     {
-        GL_ASSERT(glGenBuffers(1, &_vertexBuffer));
-        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
+        _vertexBuffer.bind();
         GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        _vertexBuffer.unbind();
     }
 
 
     Mesh::~Mesh()
     {
         _parts.clear();
-
-        if( _vertexBuffer )
-        {
-            glDeleteBuffers(1, &_vertexBuffer);
-            _vertexBuffer = 0;
-        }
     }
 
 
     void Mesh::rebuild(const float* vertexData, size_t vertexCount)
     {
-        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
+        _vertexBuffer.bind();
         GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        _vertexBuffer.unbind();
 
         _vertexCount = vertexCount;
     }
@@ -203,7 +196,7 @@ namespace gameplay
     }
 
 
-    VertexBufferHandle Mesh::getVertexBuffer() const
+    const VertexBufferHandle& Mesh::getVertexBuffer() const
     {
         return _vertexBuffer;
     }
@@ -230,7 +223,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setVertexData(const float* vertexData, size_t vertexStart, size_t vertexCount)
     {
-        GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer) );
+        _vertexBuffer.bind();
 
         if( vertexStart == 0 && vertexCount == 0 )
         {
@@ -251,7 +244,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setRawVertexData(const float* vertexData, size_t vertexId, size_t numFloats)
     {
-        GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer));
+        _vertexBuffer.bind();
         GL_ASSERT(glBufferSubData(GL_ARRAY_BUFFER, vertexId * _vertexFormat.getVertexSize(), numFloats * sizeof(float), vertexData));
     }
 

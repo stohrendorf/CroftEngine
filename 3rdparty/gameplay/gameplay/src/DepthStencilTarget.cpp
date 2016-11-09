@@ -12,15 +12,12 @@ namespace gameplay
 {
     DepthStencilTarget::DepthStencilTarget(const char* id, Format format, unsigned int width, unsigned int height)
         : _format(format)
-        , _depthBuffer(0)
-        , _stencilBuffer(0)
         , _width(width)
         , _height(height)
         , _packed(false)
     {
         // Create a render buffer for this new depth+stencil target
-        GL_ASSERT(glGenRenderbuffers(1, &_depthBuffer));
-        GL_ASSERT(glBindRenderbuffer(GL_RENDERBUFFER, _depthBuffer));
+        _depthBuffer.bind();
 
         // First try to add storage for the most common standard GL_DEPTH24_STENCIL8
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
@@ -48,8 +45,7 @@ namespace gameplay
                 }
                 if( format == DepthStencilTarget::DEPTH_STENCIL )
                 {
-                    GL_ASSERT(glGenRenderbuffers(1, &_stencilBuffer));
-                    GL_ASSERT(glBindRenderbuffer(GL_RENDERBUFFER, _stencilBuffer));
+                    _stencilBuffer.bind();
                     GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, width, height));
                 }
             }
@@ -62,14 +58,7 @@ namespace gameplay
     }
 
 
-    DepthStencilTarget::~DepthStencilTarget()
-    {
-        // Destroy GL resources.
-        if( _depthBuffer )
-        GL_ASSERT( glDeleteRenderbuffers(1, &_depthBuffer) );
-        if( _stencilBuffer )
-        GL_ASSERT( glDeleteRenderbuffers(1, &_stencilBuffer) );
-    }
+    DepthStencilTarget::~DepthStencilTarget() = default;
 
 
     DepthStencilTarget::Format DepthStencilTarget::getFormat() const

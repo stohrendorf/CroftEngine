@@ -177,7 +177,6 @@ namespace gameplay
         // Call user finalization.
         if( _state != UNINITIALIZED )
         {
-            FrameBuffer::finalize();
             RenderState::finalize();
 
             _state = UNINITIALIZED;

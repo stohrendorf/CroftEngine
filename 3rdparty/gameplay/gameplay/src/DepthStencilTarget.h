@@ -76,8 +76,8 @@ namespace gameplay
         DepthStencilTarget& operator=(const DepthStencilTarget&) = delete;
 
         Format _format;
-        RenderBufferHandle _depthBuffer;
-        RenderBufferHandle _stencilBuffer;
+        RenderBufferHandle _depthBuffer{};
+        RenderBufferHandle _stencilBuffer{};
         unsigned int _width;
         unsigned int _height;
         bool _packed;

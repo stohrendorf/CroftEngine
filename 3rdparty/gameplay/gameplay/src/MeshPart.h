@@ -51,7 +51,7 @@ namespace gameplay
          *
          * @return The index buffer object handle.
          */
-        IndexBufferHandle getIndexBuffer() const;
+        const IndexBufferHandle& getIndexBuffer() const;
 
         /**
          * Determines if the indices are dynamic.
@@ -95,7 +95,7 @@ namespace gameplay
         Mesh::PrimitiveType _primitiveType = Mesh::TRIANGLES;
         Mesh::IndexFormat _indexFormat{};
         size_t _indexCount = 0;
-        IndexBufferHandle _indexBuffer = 0;
+        IndexBufferHandle _indexBuffer{};
         bool _dynamic = false;
         std::shared_ptr<VertexAttributeBinding> _vaBinding;
         std::shared_ptr<Material> _material;

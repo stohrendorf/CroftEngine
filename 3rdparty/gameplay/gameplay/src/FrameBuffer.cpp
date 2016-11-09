@@ -7,35 +7,23 @@
 namespace gameplay
 {
     size_t FrameBuffer::_maxRenderTargets = 0;
-    std::shared_ptr<FrameBuffer> FrameBuffer::_defaultFrameBuffer = nullptr;
     std::shared_ptr<FrameBuffer> FrameBuffer::_currentFrameBuffer = nullptr;
 
 
-    FrameBuffer::FrameBuffer(FrameBufferHandle handle)
-        : _handle(handle)
-        , _renderTargets()
+    FrameBuffer::FrameBuffer()
+        : _renderTargets()
         , _renderTargetCount(0)
         , _depthStencilTarget(nullptr)
     {
     }
 
 
-    FrameBuffer::~FrameBuffer()
-    {
-        // Release GL resource.
-        if( _handle )
-        GL_ASSERT( glDeleteFramebuffers(1, &_handle) );
-    }
+    FrameBuffer::~FrameBuffer() = default;
 
 
     void FrameBuffer::initialize()
     {
-        // Query the current/initial FBO handle and store is as out 'default' frame buffer.
-        // On many platforms this will simply be the zero (0) handle, but this is not always the case.
-        GLint fbo;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-        _defaultFrameBuffer = std::make_shared<FrameBuffer>(static_cast<FrameBufferHandle>(fbo));
-        _currentFrameBuffer = _defaultFrameBuffer;
+        _currentFrameBuffer = nullptr;
 
         // Query the max supported color attachments. This glGet operation is not supported
         // on GL ES 2.x, so if the define does not exist, assume a value of 1.
@@ -45,20 +33,8 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::finalize()
-    {
-        _defaultFrameBuffer.reset();
-    }
-
-
-    FrameBuffer::FrameBuffer()
-        : FrameBuffer(0, 0)
-    {
-    }
-
-
     FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
-        : FrameBuffer(0)
+        : FrameBuffer()
     {
         std::shared_ptr<RenderTarget> renderTarget = nullptr;
         if( width > 0 && height > 0 )
@@ -71,10 +47,6 @@ namespace gameplay
                 BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create render target for frame buffer"));
             }
         }
-
-        // Create the frame buffer
-        FrameBufferHandle handle = 0;
-        GL_ASSERT( glGenFramebuffers(1, &handle) );
 
         // Create the render target array for the new frame buffer
         _renderTargets.resize(_maxRenderTargets);
@@ -149,17 +121,17 @@ namespace gameplay
             ++_renderTargetCount;
 
             // Now set this target as the color attachment corresponding to index.
-            GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _handle) );
+            _handle.bind();
             GLenum attachment = GL_COLOR_ATTACHMENT0 + index;
-            GL_ASSERT( glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, _renderTargets[index]->getTexture()->getHandle(), 0) );
-            GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            GL_ASSERT( glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, _renderTargets[index]->getTexture()->getHandle().getHandle(), 0) );
+            auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
                 BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
             }
 
             // Restore the FBO binding
-            GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _currentFrameBuffer->_handle) );
+            _currentFrameBuffer->bind();
         }
     }
 
@@ -191,17 +163,17 @@ namespace gameplay
         if( target )
         {
             // Now set this target as the color attachment corresponding to index.
-            GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _handle) );
+            _handle.bind();
 
             // Attach the render buffer to the framebuffer
-            GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer) );
+            GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
             if( target->isPacked() )
             {
-                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer) );
+                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
             }
             else if( target->getFormat() == DepthStencilTarget::DEPTH_STENCIL )
             {
-                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_stencilBuffer) );
+                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_stencilBuffer.getHandle()) );
             }
 
             // Check the framebuffer is good to go.
@@ -212,7 +184,7 @@ namespace gameplay
             }
 
             // Restore the FBO binding
-            GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _currentFrameBuffer->_handle) );
+            _currentFrameBuffer->bind();
         }
     }
 
@@ -225,16 +197,14 @@ namespace gameplay
 
     bool FrameBuffer::isDefault() const
     {
-        return (this == _defaultFrameBuffer.get());
+        return _handle.getHandle() == FrameBufferHandle::getDefault()->getHandle();
     }
 
 
-    std::shared_ptr<FrameBuffer> FrameBuffer::bind()
+    void FrameBuffer::bind()
     {
-        GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _handle) );
-        auto previousFrameBuffer = _currentFrameBuffer;
+        _handle.bind();
         _currentFrameBuffer = shared_from_this();
-        return previousFrameBuffer;
     }
 
 
@@ -242,8 +212,8 @@ namespace gameplay
     {
         BOOST_ASSERT( image );
 
-        unsigned int width = _currentFrameBuffer->getWidth();
-        unsigned int height = _currentFrameBuffer->getHeight();
+        const auto width = _currentFrameBuffer->getWidth();
+        const auto height = _currentFrameBuffer->getHeight();
 
         if( image->getWidth() == width && image->getHeight() == height )
         {
@@ -261,11 +231,10 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<FrameBuffer>& FrameBuffer::bindDefault()
+    void FrameBuffer::bindDefault()
     {
-        GL_ASSERT( glBindFramebuffer(GL_FRAMEBUFFER, _defaultFrameBuffer->_handle) );
-        _currentFrameBuffer = _defaultFrameBuffer;
-        return _defaultFrameBuffer;
+        FrameBufferHandle::getDefault()->bind();
+        _currentFrameBuffer.reset();
     }
 
 

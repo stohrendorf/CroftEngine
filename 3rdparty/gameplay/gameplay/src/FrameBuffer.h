@@ -26,9 +26,6 @@ namespace gameplay
         friend class Game;
 
     public:
-        explicit FrameBuffer(FrameBufferHandle handle);
-        ~FrameBuffer();
-
         /**
          * Creates a new, empty FrameBuffer object.
          *
@@ -61,6 +58,8 @@ namespace gameplay
          * @script{create}
          */
         FrameBuffer(unsigned int width, unsigned int height);
+
+        ~FrameBuffer();
 
         /**
          * Gets the width of the frame buffer.
@@ -144,7 +143,7 @@ namespace gameplay
          *
          * @ return The currently bound framebuffer.
          */
-        std::shared_ptr<FrameBuffer> bind();
+        void bind();
 
         /**
          * Records a screenshot of what is stored on the current FrameBuffer.
@@ -167,7 +166,7 @@ namespace gameplay
          *
          * @ return The default framebuffer.
          */
-        static const std::shared_ptr<FrameBuffer>& bindDefault();
+        static void bindDefault();
 
         /**
          * Gets the currently bound FrameBuffer.
@@ -184,15 +183,12 @@ namespace gameplay
 
         static void initialize();
 
-        static void finalize();
-
         FrameBufferHandle _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
         size_t _renderTargetCount;
         std::shared_ptr<DepthStencilTarget> _depthStencilTarget;
 
         static size_t _maxRenderTargets;
-        static std::shared_ptr<FrameBuffer> _defaultFrameBuffer;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;
     };
 }

@@ -204,7 +204,7 @@ namespace gameplay
 
             //! @todo apply additional bindings here
 
-            GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, part->_indexBuffer) );
+            part->_indexBuffer.bind();
             if( !wireframe || !drawWireframe(part) )
             {
                 GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );

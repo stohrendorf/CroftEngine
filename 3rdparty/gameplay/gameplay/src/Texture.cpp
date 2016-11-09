@@ -6,15 +6,16 @@
 
 namespace gameplay
 {
-    static TextureHandle __currentTextureId = 0;
+    namespace
+    {
+        TextureHandle* currentTextureId = nullptr;
+    }
 
 
     Texture::Texture(unsigned int width, unsigned int height, const std::vector<glm::vec4>& data, bool generateMipmaps)
     {
         // Create the texture.
-        TextureHandle textureId;
-        GL_ASSERT(glGenTextures(1, &textureId));
-        GL_ASSERT(glBindTexture(GL_TEXTURE_2D, textureId));
+        _handle.bind();
         GL_ASSERT(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
         if( generateMipmaps && !std::addressof(glGenerateMipmap) )
         GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
@@ -26,7 +27,6 @@ namespace gameplay
         Filter minFilter = generateMipmaps ? NEAREST_MIPMAP_LINEAR : LINEAR;
         GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
 
-        _handle = textureId;
         _width = width;
         _height = height;
         _minFilter = minFilter;
@@ -36,18 +36,12 @@ namespace gameplay
         }
 
         // Restore the texture id
-        GL_ASSERT(glBindTexture(GL_TEXTURE_2D, __currentTextureId));
+        if( currentTextureId != nullptr )
+            currentTextureId->bind();
     }
 
 
-    Texture::~Texture()
-    {
-        if( _handle )
-        {
-            GL_ASSERT( glDeleteTextures(1, &_handle) );
-            _handle = 0;
-        }
-    }
+    Texture::~Texture() = default;
 
 
     Texture::Texture(const std::shared_ptr<Image>& image, bool generateMipmaps)
@@ -62,7 +56,7 @@ namespace gameplay
         // Don't work with any compressed or cached textures
         BOOST_ASSERT( data );
 
-        GL_ASSERT( glBindTexture(GL_TEXTURE_2D, _handle) );
+        _handle.bind();
 
         GL_ASSERT( glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, GL_RGBA, GL_FLOAT, data) );
 
@@ -72,7 +66,8 @@ namespace gameplay
         }
 
         // Restore the texture id
-        GL_ASSERT( glBindTexture(GL_TEXTURE_2D, __currentTextureId) );
+        if( currentTextureId != nullptr )
+            currentTextureId->bind();
     }
 
 
@@ -106,7 +101,7 @@ namespace gameplay
     }
 
 
-    TextureHandle Texture::getHandle() const
+    const TextureHandle& Texture::getHandle() const
     {
         return _handle;
     }
@@ -116,7 +111,7 @@ namespace gameplay
     {
         if( !_mipmapped )
         {
-            GL_ASSERT( glBindTexture(GL_TEXTURE_2D, _handle) );
+            _handle.bind();
             GL_ASSERT( glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST) );
             if( std::addressof(glGenerateMipmap) != nullptr )
             GL_ASSERT( glGenerateMipmap(GL_TEXTURE_2D) );
@@ -124,7 +119,8 @@ namespace gameplay
             _mipmapped = true;
 
             // Restore the texture id
-            GL_ASSERT( glBindTexture(GL_TEXTURE_2D, __currentTextureId) );
+            if( currentTextureId != nullptr )
+                currentTextureId->bind();
         }
     }
 
@@ -171,10 +167,10 @@ namespace gameplay
     {
         BOOST_ASSERT( _texture );
 
-        if( __currentTextureId != _texture->_handle )
+        if( currentTextureId != &_texture->_handle )
         {
-            GL_ASSERT( glBindTexture(GL_TEXTURE_2D, _texture->_handle) );
-            __currentTextureId = _texture->_handle;
+            _texture->_handle.bind();
+            currentTextureId = &_texture->_handle;
         }
 
         if( _texture->_minFilter != _minFilter )

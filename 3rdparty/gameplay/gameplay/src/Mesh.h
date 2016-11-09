@@ -150,7 +150,7 @@ namespace gameplay
          *
          * @return The vertex buffer object handle.
          */
-        VertexBufferHandle getVertexBuffer() const;
+        const VertexBufferHandle& getVertexBuffer() const;
 
         /**
          * Determines if the mesh is dynamic.
@@ -262,7 +262,7 @@ namespace gameplay
 
         const VertexFormat _vertexFormat;
         size_t _vertexCount = 0;
-        VertexBufferHandle _vertexBuffer = 0;
+        VertexBufferHandle _vertexBuffer{};
         PrimitiveType _primitiveType = TRIANGLES;
         std::vector<std::shared_ptr<MeshPart>> _parts{};
         bool _dynamic = false;

@@ -11,13 +11,7 @@ namespace gameplay
     MeshPart::MeshPart() = default;
 
 
-    MeshPart::~MeshPart()
-    {
-        if( _indexBuffer )
-        {
-            glDeleteBuffers(1, &_indexBuffer);
-        }
-    }
+    MeshPart::~MeshPart() = default;
 
 
     std::shared_ptr<MeshPart> MeshPart::create(const std::weak_ptr<Mesh>& mesh,
@@ -26,10 +20,8 @@ namespace gameplay
                                                size_t indexCount,
                                                bool dynamic)
     {
-        // Create a VBO for our index buffer.
-        VertexBufferHandle vbo;
-        GL_ASSERT( glGenBuffers(1, &vbo) );
-        GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo) );
+        auto part = std::make_shared<MeshPart>();
+        part->_indexBuffer.bind();
 
         size_t indexSize = 0;
         switch( indexFormat )
@@ -45,18 +37,15 @@ namespace gameplay
                 break;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << indexFormat << ").";
-                glDeleteBuffers(1, &vbo);
                 return nullptr;
         }
 
         GL_ASSERT( glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * indexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
 
-        auto part = std::make_shared<MeshPart>();
         part->_mesh = mesh;
         part->_primitiveType = primitiveType;
         part->_indexFormat = indexFormat;
         part->_indexCount = indexCount;
-        part->_indexBuffer = vbo;
         part->_dynamic = dynamic;
 
         return part;
@@ -81,7 +70,7 @@ namespace gameplay
     }
 
 
-    IndexBufferHandle MeshPart::getIndexBuffer() const
+    const IndexBufferHandle& MeshPart::getIndexBuffer() const
     {
         return _indexBuffer;
     }
@@ -96,7 +85,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void MeshPart::setIndexData(const void* indexData, size_t indexStart, size_t indexCount)
     {
-        GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer) );
+        _indexBuffer.bind();
 
         size_t indexSize = 0;
         switch( _indexFormat )
