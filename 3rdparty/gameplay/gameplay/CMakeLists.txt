@@ -66,8 +66,6 @@ set(GAMEPLAY_SRC
     src/SpriteBatch.h
     src/Texture.cpp
     src/Texture.h
-    src/TileSet.cpp
-    src/TileSet.h
     src/Transform.cpp
     src/Transform.h
     src/VertexAttributeBinding.cpp

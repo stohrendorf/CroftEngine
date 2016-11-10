@@ -34,18 +34,8 @@ namespace gameplay
 
     AnimationClip::~AnimationClip()
     {
-        if( !_listeners.empty() )
-        {
-            *_listenerItr = _listeners.begin();
-            while( *_listenerItr != _listeners.end() )
-            {
-                ListenerEvent* lEvt = **_listenerItr;
-                SAFE_DELETE(lEvt);
-                ++(*_listenerItr);
-            }
-            _listeners.clear();
-        }
-        SAFE_DELETE(_listenerItr);
+        _listeners.clear();
+        _listenerItr.reset();
     }
 
 
@@ -145,13 +135,13 @@ namespace gameplay
         BOOST_ASSERT(listener);
         BOOST_ASSERT(eventTime < getDuration());
 
-        ListenerEvent* listenerEvent = new ListenerEvent(listener, eventTime);
+        auto listenerEvent = std::make_shared<ListenerEvent>(listener, eventTime);
 
         if( _listeners.empty() )
         {
             _listeners.push_front(listenerEvent);
 
-            _listenerItr = new std::list<ListenerEvent*>::iterator;
+            _listenerItr = std::make_unique<std::list<std::shared_ptr<ListenerEvent>>::iterator>();
             if( isClipStateBitSet(CLIP_IS_PLAYING_BIT) )
                 *_listenerItr = _listeners.begin();
         }
@@ -188,7 +178,7 @@ namespace gameplay
         if( !_listeners.empty() )
         {
             BOOST_ASSERT(listener);
-            auto iter = std::find_if(_listeners.begin(), _listeners.end(), [&](ListenerEvent* lst)
+            auto iter = std::find_if(_listeners.begin(), _listeners.end(), [&](const std::shared_ptr<ListenerEvent>& lst)
                                      {
                                          return lst->_eventTime == eventTime && lst->_listener == listener;
                                      });

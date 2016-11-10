@@ -7,19 +7,17 @@
 #include <glm/gtc/random.hpp>
 
 #include <boost/log/trivial.hpp>
+#include <chrono>
 
 #define PARTICLE_COUNT_MAX                       100
 #define PARTICLE_EMISSION_RATE                   10
-#define PARTICLE_EMISSION_RATE_TIME_INTERVAL     1000.0f / (float)PARTICLE_EMISSION_RATE
-#define PARTICLE_UPDATE_RATE_MAX                 8
+#define PARTICLE_EMISSION_RATE_TIME_INTERVAL     std::chrono::microseconds(std::chrono::seconds(1)) / PARTICLE_EMISSION_RATE
+#define PARTICLE_UPDATE_RATE_MAX                 std::chrono::milliseconds(8)
 
 
 namespace gameplay
 {
-    ParticleEmitter::~ParticleEmitter()
-    {
-        SAFE_DELETE_ARRAY(_spriteTextureCoords);
-    }
+    ParticleEmitter::~ParticleEmitter() = default;
 
 
     ParticleEmitter::ParticleEmitter(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax)
@@ -33,8 +31,8 @@ namespace gameplay
         , _sizeStartMax(1.0f)
         , _sizeEndMin(1.0f)
         , _sizeEndMax(1.0f)
-        , _energyMin(1000L)
-        , _energyMax(1000L)
+        , _energyFadeTimeMin(1000L)
+        , _energyFadeTimeMax(1000L)
         , _colorStart{0,0,0,0}
         , _colorStartVar{0,0,0,0}
         , _colorEnd{1,1,1,1}
@@ -57,14 +55,7 @@ namespace gameplay
         , _spriteTextureHeight(0)
         , _spriteTextureWidthRatio(0)
         , _spriteTextureHeightRatio(0)
-        , _spriteTextureCoords(nullptr)
-        , _spriteAnimated(false)
-        , _spriteLooped(false)
-        , _spriteFrameCount(1)
-        , _spriteFrameRandomOffset(0)
-        , _spriteFrameDuration(0L)
-        , _spriteFrameDurationSecs(0.0f)
-        , _spritePercentPerFrame(0.0f)
+        , _spriteTextureCoords()
         , _orbitPosition(false)
         , _orbitVelocity(false)
         , _orbitAcceleration(false)
@@ -94,12 +85,11 @@ namespace gameplay
         setBlendMode(blendMode);
         _spriteTextureWidth = texture->getWidth();
         _spriteTextureHeight = texture->getHeight();
-        _spriteTextureWidthRatio = 1.0f / (float)texture->getWidth();
-        _spriteTextureHeightRatio = 1.0f / (float)texture->getHeight();
+        _spriteTextureWidthRatio = 1.0f / texture->getWidth();
+        _spriteTextureHeightRatio = 1.0f / texture->getHeight();
 
         // By default assume only one frame which uses the entire texture.
-        Rectangle texCoord((float)texture->getWidth(), (float)texture->getHeight());
-        setSpriteFrameCoords(1, &texCoord);
+        setSpriteFrameCoords(Rectangle(texture->getWidth(), texture->getHeight()));
     }
 
 
@@ -132,7 +122,7 @@ namespace gameplay
     {
         BOOST_ASSERT(rate);
         _emissionRate = rate;
-        _timePerEmission = 1000.0f / (float)_emissionRate;
+        _timePerEmission = std::chrono::microseconds(std::chrono::seconds(1)) / _emissionRate;
     }
 
 
@@ -194,7 +184,7 @@ namespace gameplay
             generateColor(_colorEnd, _colorEndVar, &p->_colorEnd);
             p->_color = p->_colorStart;
 
-            p->_energy = p->_energyStart = generateScalar(_energyMin, _energyMax);
+            p->_energyTime = p->_energyFadeTime = generateScalar(_energyFadeTimeMin, _energyFadeTimeMax);
             p->_size = p->_sizeStart = generateScalar(_sizeStartMin, _sizeStartMax);
             p->_sizeEnd = generateScalar(_sizeEndMin, _sizeEndMax);
             p->_rotationPerParticleSpeed = generateScalar(_rotationPerParticleSpeedMin, _rotationPerParticleSpeedMax);
@@ -233,16 +223,7 @@ namespace gameplay
             // Translate position relative to the node's world space.
             p->_position += translation;
 
-            // Initial sprite frame.
-            if( _spriteFrameRandomOffset > 0 )
-            {
-                p->_frame = rand() % _spriteFrameRandomOffset;
-            }
-            else
-            {
-                p->_frame = 0;
-            }
-            p->_timeOnCurrentFrame = 0.0f;
+            p->_timeOnCurrentFrame = std::chrono::microseconds::zero();
 
             ++_particleCount;
         }
@@ -300,22 +281,22 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setEnergy(long energyMin, long energyMax)
+    void ParticleEmitter::setEnergy(const std::chrono::microseconds& energyMin, const std::chrono::microseconds& energyMax)
     {
-        _energyMin = energyMin;
-        _energyMax = energyMax;
+        _energyFadeTimeMin = energyMin;
+        _energyFadeTimeMax = energyMax;
     }
 
 
-    long ParticleEmitter::getEnergyMin() const
+    const std::chrono::microseconds& ParticleEmitter::getEnergyMin() const
     {
-        return _energyMin;
+        return _energyFadeTimeMin;
     }
 
 
-    long ParticleEmitter::getEnergyMax() const
+    const std::chrono::microseconds& ParticleEmitter::getEnergyMax() const
     {
-        return _energyMax;
+        return _energyFadeTimeMax;
     }
 
 
@@ -501,141 +482,33 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setSpriteAnimated(bool animated)
-    {
-        _spriteAnimated = animated;
-    }
-
-
-    bool ParticleEmitter::isSpriteAnimated() const
-    {
-        return _spriteAnimated;
-    }
-
-
-    void ParticleEmitter::setSpriteLooped(bool looped)
-    {
-        _spriteLooped = looped;
-    }
-
-
-    bool ParticleEmitter::isSpriteLooped() const
-    {
-        return _spriteLooped;
-    }
-
-
-    void ParticleEmitter::setSpriteFrameRandomOffset(int maxOffset)
-    {
-        _spriteFrameRandomOffset = maxOffset;
-    }
-
-
-    int ParticleEmitter::getSpriteFrameRandomOffset() const
-    {
-        return _spriteFrameRandomOffset;
-    }
-
-
-    void ParticleEmitter::setSpriteFrameDuration(long duration)
-    {
-        _spriteFrameDuration = duration;
-        _spriteFrameDurationSecs = (float)duration / 1000.0f;
-    }
-
-
-    long ParticleEmitter::getSpriteFrameDuration() const
-    {
-        return _spriteFrameDuration;
-    }
-
-
     unsigned int ParticleEmitter::getSpriteWidth() const
     {
-        return (unsigned int)fabs(_spriteTextureWidth * (_spriteTextureCoords[2] - _spriteTextureCoords[0]));
+        return (unsigned int)fabs(_spriteTextureWidth * (_spriteTextureCoords[1].x - _spriteTextureCoords[0].x));
     }
 
 
     unsigned int ParticleEmitter::getSpriteHeight() const
     {
-        return (unsigned int)fabs(_spriteTextureHeight * (_spriteTextureCoords[3] - _spriteTextureCoords[1]));
+        return (unsigned int)fabs(_spriteTextureHeight * (_spriteTextureCoords[1].y - _spriteTextureCoords[0].y));
     }
 
 
-    void ParticleEmitter::setSpriteTexCoords(unsigned int frameCount, float* texCoords)
+    void ParticleEmitter::setSpriteFrameCoords(const Rectangle& frameCoords)
     {
-        BOOST_ASSERT(frameCount);
-        BOOST_ASSERT(texCoords);
-
-        _spriteFrameCount = frameCount;
-        _spritePercentPerFrame = 1.0f / (float)frameCount;
-
-        SAFE_DELETE_ARRAY(_spriteTextureCoords);
-        _spriteTextureCoords = new float[frameCount * 4];
-        memcpy(_spriteTextureCoords, texCoords, frameCount * 4 * sizeof(float));
+        _spriteTextureCoords[0].x = _spriteTextureWidthRatio * frameCoords.x;
+        _spriteTextureCoords[0].y = 1.0f - _spriteTextureHeightRatio * frameCoords.y;
+        _spriteTextureCoords[1].x = _spriteTextureCoords[0].x + _spriteTextureWidthRatio * frameCoords.width;
+        _spriteTextureCoords[1].y = _spriteTextureCoords[0].y - _spriteTextureHeightRatio * frameCoords.height;
     }
 
 
-    void ParticleEmitter::setSpriteFrameCoords(unsigned int frameCount, Rectangle* frameCoords)
+    void ParticleEmitter::setSpriteFrameCoords(int width, int height)
     {
-        BOOST_ASSERT(frameCount);
-        BOOST_ASSERT(frameCoords);
+        BOOST_ASSERT(width != 0);
+        BOOST_ASSERT(height != 0);
 
-        _spriteFrameCount = frameCount;
-        _spritePercentPerFrame = 1.0f / (float)frameCount;
-
-        SAFE_DELETE_ARRAY(_spriteTextureCoords);
-        _spriteTextureCoords = new float[frameCount * 4];
-
-        // Pre-compute texture coordinates from rects.
-        for( unsigned int i = 0; i < frameCount; i++ )
-        {
-            _spriteTextureCoords[i * 4] = _spriteTextureWidthRatio * frameCoords[i].x;
-            _spriteTextureCoords[i * 4 + 1] = 1.0f - _spriteTextureHeightRatio * frameCoords[i].y;
-            _spriteTextureCoords[i * 4 + 2] = _spriteTextureCoords[i * 4] + _spriteTextureWidthRatio * frameCoords[i].width;
-            _spriteTextureCoords[i * 4 + 3] = _spriteTextureCoords[i * 4 + 1] - _spriteTextureHeightRatio * frameCoords[i].height;
-        }
-    }
-
-
-    void ParticleEmitter::setSpriteFrameCoords(unsigned int frameCount, int width, int height)
-    {
-        BOOST_ASSERT(width);
-        BOOST_ASSERT(height);
-
-        Rectangle* frameCoords = new Rectangle[frameCount];
-        unsigned int cols = _spriteTextureWidth / width;
-        unsigned int rows = _spriteTextureHeight / height;
-
-        unsigned int n = 0;
-        for( unsigned int i = 0; i < rows; ++i )
-        {
-            int y = i * height;
-            for( unsigned int j = 0; j < cols; ++j )
-            {
-                int x = j * width;
-                frameCoords[i * cols + j] = Rectangle(x, y, width, height);
-                if( ++n == frameCount )
-                {
-                    break;
-                }
-            }
-
-            if( n == frameCount )
-            {
-                break;
-            }
-        }
-
-        setSpriteFrameCoords(frameCount, frameCoords);
-
-        SAFE_DELETE_ARRAY(frameCoords);
-    }
-
-
-    unsigned int ParticleEmitter::getSpriteFrameCount() const
-    {
-        return _spriteFrameCount;
+        setSpriteFrameCoords(Rectangle(0, 0, width, height));
     }
 
 
@@ -686,6 +559,12 @@ namespace gameplay
     float ParticleEmitter::generateScalar(float min, float max)
     {
         return min + (max - min) * glm::linearRand(0.0f, 1.0f);
+    }
+
+
+    std::chrono::microseconds ParticleEmitter::generateScalar(const std::chrono::microseconds& min, const std::chrono::microseconds& max)
+    {
+        return min + std::chrono::duration_cast<std::chrono::microseconds>((max - min) * glm::linearRand(0.0f, 1.0f));
     }
 
 
@@ -784,7 +663,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::update(float elapsedTime)
+    void ParticleEmitter::update(const std::chrono::microseconds& elapsedTime)
     {
         if( !isActive() )
             return;
@@ -792,30 +671,27 @@ namespace gameplay
         // Cap particle updates at a maximum rate. This saves processing
         // and also improves precision since updating with very small
         // time increments is more lossy.
-        static double runningTime = 0;
+        static std::chrono::microseconds runningTime = std::chrono::microseconds::zero();
         runningTime += elapsedTime;
         if( runningTime < PARTICLE_UPDATE_RATE_MAX )
             return;
 
-        float elapsedMs = runningTime;
-        runningTime = 0;
-
-        float elapsedSecs = elapsedMs * 0.001f;
+        runningTime = std::chrono::microseconds::zero();
 
         if( _started && _emissionRate )
         {
             // Calculate how much time has passed since we last emitted particles.
-            _emitTime += elapsedMs; //+= elapsedTime;
+            _emitTime += elapsedTime; //+= elapsedTime;
 
             // How many particles should we emit this frame?
-            BOOST_ASSERT(_timePerEmission);
-            unsigned int emitCount = (unsigned int)(_emitTime / _timePerEmission);
+            BOOST_ASSERT(_timePerEmission.count() > 0);
+            auto emitCount = _emitTime / _timePerEmission;
 
-            if( emitCount )
+            if( emitCount > 0 )
             {
-                if( (int)_timePerEmission > 0 )
+                if( _timePerEmission.count() > 0 )
                 {
-                    _emitTime = fmod((double)_emitTime, (double)_timePerEmission);
+                    _emitTime = _emitTime % _timePerEmission;
                 }
                 emitOnce(emitCount);
             }
@@ -825,75 +701,11 @@ namespace gameplay
         for( size_t particlesIndex = 0; particlesIndex < _particleCount; ++particlesIndex )
         {
             Particle* p = &_particles[particlesIndex];
-            p->_energy -= elapsedMs;
+            p->_energyTime -= elapsedTime;
 
-            if( p->_energy > 0L )
-            {
-                if( p->_rotationSpeed != 0.0f && glm::length2(p->_rotationAxis) > std::numeric_limits<float>::epsilon() )
-                {
-                    _rotation = glm::quat(p->_rotationSpeed * elapsedSecs, p->_rotationAxis);
+            const auto elapsedTimeFactor = std::chrono::duration_cast<std::chrono::duration<float, std::chrono::seconds::period>>(elapsedTime).count();
 
-                    p->_velocity = _rotation * p->_velocity;
-                    p->_acceleration = _rotation * p->_acceleration;
-                }
-
-                // Particle is still alive.
-                p->_velocity.x += p->_acceleration.x * elapsedSecs;
-                p->_velocity.y += p->_acceleration.y * elapsedSecs;
-                p->_velocity.z += p->_acceleration.z * elapsedSecs;
-
-                p->_position.x += p->_velocity.x * elapsedSecs;
-                p->_position.y += p->_velocity.y * elapsedSecs;
-                p->_position.z += p->_velocity.z * elapsedSecs;
-
-                p->_angle += p->_rotationPerParticleSpeed * elapsedSecs;
-
-                // Simple linear interpolation of color and size.
-                float percent = 1.0f - ((float)p->_energy / (float)p->_energyStart);
-
-                p->_color.x = p->_colorStart.x + (p->_colorEnd.x - p->_colorStart.x) * percent;
-                p->_color.y = p->_colorStart.y + (p->_colorEnd.y - p->_colorStart.y) * percent;
-                p->_color.z = p->_colorStart.z + (p->_colorEnd.z - p->_colorStart.z) * percent;
-                p->_color.w = p->_colorStart.w + (p->_colorEnd.w - p->_colorStart.w) * percent;
-
-                p->_size = p->_sizeStart + (p->_sizeEnd - p->_sizeStart) * percent;
-
-                // Handle sprite animations.
-                if( _spriteAnimated )
-                {
-                    if( !_spriteLooped )
-                    {
-                        // The last frame should finish exactly when the particle dies.
-                        float percentSpent = 0.0f;
-                        for( unsigned int i = 0; i < p->_frame; i++ )
-                        {
-                            percentSpent += _spritePercentPerFrame;
-                        }
-                        p->_timeOnCurrentFrame = percent - percentSpent;
-                        if( p->_frame < _spriteFrameCount - 1 &&
-                            p->_timeOnCurrentFrame >= _spritePercentPerFrame )
-                        {
-                            ++p->_frame;
-                        }
-                    }
-                    else
-                    {
-                        // _spriteFrameDurationSecs is an absolute time measured in seconds,
-                        // and the animation repeats indefinitely.
-                        p->_timeOnCurrentFrame += elapsedSecs;
-                        if( p->_timeOnCurrentFrame >= _spriteFrameDurationSecs )
-                        {
-                            p->_timeOnCurrentFrame -= _spriteFrameDurationSecs;
-                            ++p->_frame;
-                            if( p->_frame == _spriteFrameCount )
-                            {
-                                p->_frame = 0;
-                            }
-                        }
-                    }
-                }
-            }
-            else
+            if( p->_energyTime.count() <= 0 )
             {
                 // Particle is dead.  Move the particle furthest from the start of the array
                 // down to take its place, and re-use the slot at the end of the list of living particles.
@@ -902,7 +714,38 @@ namespace gameplay
                     _particles[particlesIndex] = _particles[_particleCount - 1];
                 }
                 --_particleCount;
+
+                continue;
             }
+
+            if( p->_rotationSpeed != 0.0f && glm::length2(p->_rotationAxis) > std::numeric_limits<float>::epsilon() )
+            {
+                _rotation = glm::quat(p->_rotationSpeed * elapsedTimeFactor, p->_rotationAxis);
+
+                p->_velocity = _rotation * p->_velocity;
+                p->_acceleration = _rotation * p->_acceleration;
+            }
+
+            // Particle is still alive.
+            p->_velocity.x += p->_acceleration.x * elapsedTimeFactor;
+            p->_velocity.y += p->_acceleration.y * elapsedTimeFactor;
+            p->_velocity.z += p->_acceleration.z * elapsedTimeFactor;
+
+            p->_position.x += p->_velocity.x * elapsedTimeFactor;
+            p->_position.y += p->_velocity.y * elapsedTimeFactor;
+            p->_position.z += p->_velocity.z * elapsedTimeFactor;
+
+            p->_angle += p->_rotationPerParticleSpeed * elapsedTimeFactor;
+
+            // Simple linear interpolation of color and size.
+            float percent = 1 - static_cast<float>(p->_energyTime.count()) / p->_energyFadeTime.count();
+
+            p->_color.x = p->_colorStart.x + (p->_colorEnd.x - p->_colorStart.x) * percent;
+            p->_color.y = p->_colorStart.y + (p->_colorEnd.y - p->_colorStart.y) * percent;
+            p->_color.z = p->_colorStart.z + (p->_colorEnd.z - p->_colorStart.z) * percent;
+            p->_color.w = p->_colorStart.w + (p->_colorEnd.w - p->_colorStart.w) * percent;
+
+            p->_size = p->_sizeStart + (p->_sizeEnd - p->_sizeStart) * percent;
         }
     }
 
@@ -915,7 +758,6 @@ namespace gameplay
         if( _particleCount > 0 )
         {
             BOOST_ASSERT(_spriteBatch);
-            BOOST_ASSERT(_spriteTextureCoords);
 
             // Set our node's view projection matrix to this emitter's effect.
             if( _node )
@@ -941,7 +783,7 @@ namespace gameplay
                 Particle* p = &_particles[i];
 
                 _spriteBatch->draw(p->_position, right, up, p->_size, p->_size,
-                                   _spriteTextureCoords[p->_frame * 4], _spriteTextureCoords[p->_frame * 4 + 1], _spriteTextureCoords[p->_frame * 4 + 2], _spriteTextureCoords[p->_frame * 4 + 3],
+                                   _spriteTextureCoords[0].x, _spriteTextureCoords[0].y, _spriteTextureCoords[1].x, _spriteTextureCoords[1].y,
                                    p->_color, pivot, p->_angle);
             }
 

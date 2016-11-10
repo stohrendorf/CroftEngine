@@ -8,81 +8,64 @@ namespace gameplay
 {
     Light::Light(Light::Type type, const glm::vec3& color)
         : _type(type)
+        , _light{ Directional{color} }
         , _node(nullptr)
     {
-        _directional = new Directional(color);
     }
 
 
     Light::Light(Light::Type type, const glm::vec3& color, float range)
         : _type(type)
+        , _light{ Point{color, range} }
         , _node(nullptr)
     {
-        _point = new Point(color, range);
     }
 
 
     Light::Light(Light::Type type, const glm::vec3& color, float range, float innerAngle, float outerAngle)
         : _type(type)
+        , _light{ Spot{color, range, innerAngle, outerAngle} }
         , _node(nullptr)
     {
-        _spot = new Spot(color, range, innerAngle, outerAngle);
     }
 
 
-    Light::~Light()
+    Light::~Light() = default;
+
+
+    std::shared_ptr<Light> Light::createDirectional(const glm::vec3& color)
     {
-        switch( _type )
-        {
-            case DIRECTIONAL:
-                SAFE_DELETE(_directional);
-                break;
-            case POINT:
-                SAFE_DELETE(_point);
-                break;
-            case SPOT:
-                SAFE_DELETE(_spot);
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(error) << "Invalid light type (" << _type << ").";
-                break;
-        }
+        return std::make_shared<Light>(DIRECTIONAL, color);
     }
 
 
-    Light* Light::createDirectional(const glm::vec3& color)
+    std::shared_ptr<Light> Light::createDirectional(float red, float green, float blue)
     {
-        return new Light(DIRECTIONAL, color);
+        return std::make_shared<Light>(DIRECTIONAL, glm::vec3(red, green, blue));
     }
 
 
-    Light* Light::createDirectional(float red, float green, float blue)
+    std::shared_ptr<Light> Light::createPoint(const glm::vec3& color, float range)
     {
-        return new Light(DIRECTIONAL, glm::vec3(red, green, blue));
+        return std::make_shared<Light>(POINT, color, range);
     }
 
 
-    Light* Light::createPoint(const glm::vec3& color, float range)
+    std::shared_ptr<Light> Light::createPoint(float red, float green, float blue, float range)
     {
-        return new Light(POINT, color, range);
+        return std::make_shared<Light>(POINT, glm::vec3(red, green, blue), range);
     }
 
 
-    Light* Light::createPoint(float red, float green, float blue, float range)
+    std::shared_ptr<Light> Light::createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle)
     {
-        return new Light(POINT, glm::vec3(red, green, blue), range);
+        return std::make_shared<Light>(SPOT, color, range, innerAngle, outerAngle);
     }
 
 
-    Light* Light::createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle)
+    std::shared_ptr<Light> Light::createSpot(float red, float green, float blue, float range, float innerAngle, float outerAngle)
     {
-        return new Light(SPOT, color, range, innerAngle, outerAngle);
-    }
-
-
-    Light* Light::createSpot(float red, float green, float blue, float range, float innerAngle, float outerAngle)
-    {
-        return new Light(SPOT, glm::vec3(red, green, blue), range, innerAngle, outerAngle);
+        return std::make_shared<Light>(SPOT, glm::vec3(red, green, blue), range, innerAngle, outerAngle);
     }
 
 
@@ -110,14 +93,11 @@ namespace gameplay
         switch( _type )
         {
             case DIRECTIONAL:
-                BOOST_ASSERT(_directional);
-                return _directional->color;
+                return boost::get<Directional>(_light).color;
             case POINT:
-                BOOST_ASSERT(_point);
-                return _point->color;
+                return boost::get<Point>(_light).color;
             case SPOT:
-                BOOST_ASSERT(_spot);
-                return _spot->color;
+                return boost::get<Spot>(_light).color;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
         }
@@ -131,16 +111,13 @@ namespace gameplay
         switch( _type )
         {
             case DIRECTIONAL:
-                BOOST_ASSERT(_directional);
-                _directional->color = color;
+                boost::get<Directional>(_light).color = color;
                 break;
             case POINT:
-                BOOST_ASSERT(_point);
-                _point->color = color;
+                boost::get<Point>(_light).color = color;
                 break;
             case SPOT:
-                BOOST_ASSERT(_spot);
-                _spot->color = color;
+                boost::get<Spot>(_light).color = color;
                 break;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
@@ -162,11 +139,9 @@ namespace gameplay
         switch( _type )
         {
             case POINT:
-                BOOST_ASSERT(_point);
-                return _point->range;
+                return boost::get<Point>(_light).range;
             case SPOT:
-                BOOST_ASSERT(_spot);
-                return _spot->range;
+                return boost::get<Spot>(_light).range;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 return 0.0f;
@@ -181,14 +156,12 @@ namespace gameplay
         switch( _type )
         {
             case POINT:
-                BOOST_ASSERT(_point);
-                _point->range = range;
-                _point->rangeInverse = 1.0f / range;
+                boost::get<Point>(_light).range = range;
+                boost::get<Point>(_light).rangeInverse = 1.0f / range;
                 break;
             case SPOT:
-                BOOST_ASSERT(_spot);
-                _spot->range = range;
-                _spot->rangeInverse = 1.0f / range;
+                boost::get<Spot>(_light).range = range;
+                boost::get<Spot>(_light).rangeInverse = 1.0f / range;
                 break;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
@@ -207,11 +180,9 @@ namespace gameplay
         switch( _type )
         {
             case POINT:
-                BOOST_ASSERT(_point);
-                return _point->rangeInverse;
+                return boost::get<Point>(_light).rangeInverse;
             case SPOT:
-                BOOST_ASSERT(_spot);
-                return _spot->rangeInverse;
+                return boost::get<Spot>(_light).rangeInverse;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 return 0.0f;
@@ -223,7 +194,7 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        return _spot->innerAngle;
+        return boost::get<Spot>(_light).innerAngle;
     }
 
 
@@ -231,8 +202,8 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        _spot->innerAngle = innerAngle;
-        _spot->innerAngleCos = cos(innerAngle);
+        boost::get<Spot>(_light).innerAngle = innerAngle;
+        boost::get<Spot>(_light).innerAngleCos = std::cos(innerAngle);
     }
 
 
@@ -240,7 +211,7 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        return _spot->outerAngle;
+        return boost::get<Spot>(_light).outerAngle;
     }
 
 
@@ -248,8 +219,8 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        _spot->outerAngle = outerAngle;
-        _spot->outerAngleCos = cos(outerAngle);
+        boost::get<Spot>(_light).outerAngle = outerAngle;
+        boost::get<Spot>(_light).outerAngleCos = std::cos(outerAngle);
 
         if( _node )
             _node->setBoundsDirty();
@@ -260,7 +231,7 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        return _spot->innerAngleCos;
+        return boost::get<Spot>(_light).innerAngleCos;
     }
 
 
@@ -268,7 +239,7 @@ namespace gameplay
     {
         BOOST_ASSERT(_type == SPOT);
 
-        return _spot->outerAngleCos;
+        return boost::get<Spot>(_light).outerAngleCos;
     }
 
 
@@ -293,7 +264,7 @@ namespace gameplay
         , outerAngle(outerAngle)
     {
         rangeInverse = 1.0f / range;
-        innerAngleCos = cos(innerAngle);
-        outerAngleCos = cos(outerAngle);
+        innerAngleCos = std::cos(innerAngle);
+        outerAngleCos = std::cos(outerAngle);
     }
 }

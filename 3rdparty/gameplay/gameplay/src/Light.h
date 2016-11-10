@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <boost/variant.hpp>
+
 
 namespace gameplay
 {
@@ -31,6 +33,21 @@ namespace gameplay
 
 
         /**
+        * Constructor for the directional light.
+        */
+        Light(Light::Type type, const glm::vec3& color);
+
+        /**
+        * Constructor for point light.
+        */
+        Light(Light::Type type, const glm::vec3& color, float range);
+
+        /**
+        * Constructor for spot light.
+        */
+        Light(Light::Type type, const glm::vec3& color, float range, float innerAngle, float outerAngle);
+
+        /**
          * Creates a directional light.
          *
          * @param color Color of the light.
@@ -38,7 +55,7 @@ namespace gameplay
          * @return The new directional light.
          * @script{create}
          */
-        static Light* createDirectional(const glm::vec3& color);
+        static std::shared_ptr<Light> createDirectional(const glm::vec3& color);
 
         /**
          * Creates a directional light.
@@ -50,7 +67,7 @@ namespace gameplay
          * @return The new directional light.
          * @script{create}
          */
-        static Light* createDirectional(float red, float green, float blue);
+        static std::shared_ptr<Light> createDirectional(float red, float green, float blue);
 
         /**
          * Creates a point light.
@@ -61,7 +78,7 @@ namespace gameplay
          * @return The new point light.
          * @script{create}
          */
-        static Light* createPoint(const glm::vec3& color, float range);
+        static std::shared_ptr<Light> createPoint(const glm::vec3& color, float range);
 
         /**
          * Creates a point light.
@@ -74,7 +91,7 @@ namespace gameplay
          * @return The new point light.
          * @script{create}
          */
-        static Light* createPoint(float red, float green, float blue, float range);
+        static std::shared_ptr<Light> createPoint(float red, float green, float blue, float range);
 
         /**
          * Creates a spot light.
@@ -87,7 +104,7 @@ namespace gameplay
          * @return The new spot light.
          * @script{create}
          */
-        static Light* createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle);
+        static std::shared_ptr<Light> createSpot(const glm::vec3& color, float range, float innerAngle, float outerAngle);
 
         /**
          * Creates a spot light.
@@ -102,7 +119,7 @@ namespace gameplay
          * @return The new spot light.
          * @script{create}
          */
-        static Light* createSpot(float red, float green, float blue, float range, float innerAngle, float outerAngle);
+        static std::shared_ptr<Light> createSpot(float red, float green, float blue, float range, float innerAngle, float outerAngle);
 
         /**
          * Destructor.
@@ -258,21 +275,6 @@ namespace gameplay
 
 
         /**
-         * Constructor for the directional light.
-         */
-        Light(Light::Type type, const glm::vec3& color);
-
-        /**
-         * Constructor for point light.
-         */
-        Light(Light::Type type, const glm::vec3& color, float range);
-
-        /**
-         * Constructor for spot light.
-         */
-        Light(Light::Type type, const glm::vec3& color, float range, float innerAngle, float outerAngle);
-
-        /**
          * Sets the node associated with this light.
          *
          * @param node The node to be associated with this light.
@@ -281,17 +283,7 @@ namespace gameplay
 
         Light::Type _type;
 
-
-        union
-        {
-            /** @script{ignore} */
-            Directional* _directional;
-            /** @script{ignore} */
-            Point* _point;
-            /** @script{ignore} */
-            Spot* _spot;
-        };
-
+        boost::variant<Directional, Point, Spot> _light;
 
         Node* _node;
     };

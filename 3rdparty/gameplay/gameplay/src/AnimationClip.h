@@ -368,8 +368,8 @@ namespace gameplay
         std::chrono::microseconds _elapsedTime; // Time elapsed while the clip is running.
         std::vector<Listener*> _beginListeners; // Collection of begin listeners on the clip.
         std::vector<Listener*> _endListeners; // Collection of end listeners on the clip.
-        std::list<ListenerEvent*> _listeners; // Ordered collection of listeners on the clip.
-        std::list<ListenerEvent*>::iterator* _listenerItr; // Iterator that points to the next listener event to be triggered.
+        std::list<std::shared_ptr<ListenerEvent>> _listeners; // Ordered collection of listeners on the clip.
+        std::unique_ptr<std::list<std::shared_ptr<ListenerEvent>>::iterator> _listenerItr; // Iterator that points to the next listener event to be triggered.
         std::map<std::chrono::microseconds, Pose> _poses;
         BoundingBox _bbox;
         Game* _game;

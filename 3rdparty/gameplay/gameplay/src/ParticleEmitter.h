@@ -355,21 +355,21 @@ namespace gameplay
          * @param energyMin The minimum lifetime of each particle, measured in milliseconds.
          * @param energyMax The maximum lifetime of each particle, measured in milliseconds.
          */
-        void setEnergy(long energyMin, long energyMax);
+        void setEnergy(const std::chrono::microseconds& energyMin, const std::chrono::microseconds& energyMax);
 
         /**
          * Gets the minimum lifetime of each particle, measured in milliseconds.
          *
          * @return The minimum lifetime of each particle, measured in milliseconds.
          */
-        long getEnergyMin() const;
+        const std::chrono::microseconds& getEnergyMin() const;
 
         /**
          * Gets the maximum lifetime of each particle, measured in milliseconds.
          *
          * @return The maximum lifetime of each particle, measured in milliseconds.
          */
-        long getEnergyMax() const;
+        const std::chrono::microseconds& getEnergyMax() const;
 
         /**
          * Sets the initial position and position variance of new particles.
@@ -501,66 +501,6 @@ namespace gameplay
         const glm::vec3& getRotationAxisVariance() const;
 
         /**
-         * Sets whether particles cycle through the sprite frames.
-         *
-         * @param animated Whether to animate particles through the sprite frames.
-         */
-        void setSpriteAnimated(bool animated);
-
-        /**
-         * Whether particles cycle through the sprite frames.
-         */
-        bool isSpriteAnimated() const;
-
-        /**
-         * If sprites are set to loop, each frame will last for the emitter's frameDuration.
-         * If sprites are set not to loop, the animation will be timed so that the last frame
-         * finishes just as a particle dies.
-         * Note: This timing is calculated based on a spriteRandomOffset of 0.
-         * For other offsets, the final frame may be reached earlier.
-         * If sprites are not set to animate, this setting has no effect.
-         *
-         * @param looped Whether to loop animated sprites.
-         * @see ParticleEmitter::setSpriteFrameDuration
-         */
-        void setSpriteLooped(bool looped);
-
-        /**
-         * Whether sprites are set to loop, each frame will last for the emitter's frameDuration.
-         *
-         * @return true if looped, false if not.
-         */
-        bool isSpriteLooped() const;
-
-        /**
-         * Sets the maximum offset that a random frame from 0 to maxOffset will be selected.
-         * Set maxOffset to 0 (the default) for all particles to start on the first frame.
-         * maxOffset will be clamped to frameCount.
-         *
-         * @param maxOffset The maximum sprite frame offset.
-         */
-        void setSpriteFrameRandomOffset(int maxOffset);
-
-        /**
-         * Gets the maximum offset that a random frame from 0 to maxOffset will be selected.
-         */
-        int getSpriteFrameRandomOffset() const;
-
-        /**
-         * Set the animated sprites frame duration.
-         *
-         * @param duration The duration of a single sprite frame, in milliseconds.
-         */
-        void setSpriteFrameDuration(long duration);
-
-        /**
-         * Gets the animated sprites frame duration.
-         *
-         * @return The animated sprites frame duration.
-         */
-        long getSpriteFrameDuration() const;
-
-        /**
          * Returns the width of the first frame this particle emitter's sprite.
          *
          * @return The width of the first frame of the sprite.
@@ -575,21 +515,12 @@ namespace gameplay
         unsigned int getSpriteHeight() const;
 
         /**
-         * Sets the sprite's texture coordinates in texture space.
-         *
-         * @param frameCount The number of frames to set texture coordinates for.
-         * @param texCoords The texture coordinates for all frames, in texture space.
-         */
-        void setSpriteTexCoords(unsigned int frameCount, float* texCoords);
-
-        /**
          * Sets the sprite's texture coordinates in image space (pixels).
          *
-         * @param frameCount The number of frames to set texture coordinates for.
          * @param frameCoords A rectangle for each frame representing its position and size
          *  within the texture image, measured in pixels.
          */
-        void setSpriteFrameCoords(unsigned int frameCount, Rectangle* frameCoords);
+        void setSpriteFrameCoords(const Rectangle& frameCoords);
 
         /**
          * Calculates and sets the sprite's texture coordinates based on the width and
@@ -598,18 +529,10 @@ namespace gameplay
          * corner of the image.  Frames are ordered in the image from left to right, top to
          * bottom.
          *
-         * @param frameCount The number of frames to set texture coordinates for.
          * @param width The width of a single frame, in pixels.
          * @param height The height of a single frame, in pixels.
          */
-        void setSpriteFrameCoords(unsigned int frameCount, int width, int height);
-
-        /**
-         * Returns the current number of frames for the particle emitter's sprite.
-         *
-         * @return The current frame count.
-         */
-        unsigned int getSpriteFrameCount() const;
+        void setSpriteFrameCoords(int width, int height);
 
         /**
          * Sets whether the vector properties of newly emitted particles are rotated around the node's position
@@ -661,7 +584,7 @@ namespace gameplay
          *
          * @param elapsedTime The amount of time that has passed since the last call to update(), in milliseconds.
          */
-        void update(float elapsedTime);
+        void update(const std::chrono::microseconds& elapsedTime);
 
         /**
          * @see Drawable::draw
@@ -690,6 +613,7 @@ namespace gameplay
 
         // Generates a scalar within the range defined by min and max.
         float generateScalar(float min, float max);
+        std::chrono::microseconds generateScalar(const std::chrono::microseconds& min, const std::chrono::microseconds& max);
 
         long generateScalar(long min, long max);
 
@@ -724,13 +648,12 @@ namespace gameplay
             glm::vec3 _rotationAxis;
             float _rotationSpeed;
             float _angle;
-            long _energyStart;
-            long _energy;
+            std::chrono::microseconds _energyFadeTime;
+            std::chrono::microseconds _energyTime;
             float _sizeStart;
             float _sizeEnd;
             float _size;
-            unsigned int _frame;
-            float _timeOnCurrentFrame;
+            std::chrono::microseconds _timeOnCurrentFrame;
         };
 
 
@@ -743,8 +666,8 @@ namespace gameplay
         float _sizeStartMax;
         float _sizeEndMin;
         float _sizeEndMax;
-        float _energyMin;
-        float _energyMax;
+        std::chrono::microseconds _energyFadeTimeMin;
+        std::chrono::microseconds _energyFadeTimeMax;
         glm::vec4 _colorStart;
         glm::vec4 _colorStartVar;
         glm::vec4 _colorEnd;
@@ -768,19 +691,12 @@ namespace gameplay
         float _spriteTextureHeight;
         float _spriteTextureWidthRatio;
         float _spriteTextureHeightRatio;
-        float* _spriteTextureCoords;
-        bool _spriteAnimated;
-        bool _spriteLooped;
-        unsigned int _spriteFrameCount;
-        unsigned int _spriteFrameRandomOffset;
-        long _spriteFrameDuration;
-        float _spriteFrameDurationSecs;
-        float _spritePercentPerFrame;
+        glm::vec2 _spriteTextureCoords[2];
         bool _orbitPosition;
         bool _orbitVelocity;
         bool _orbitAcceleration;
-        float _timePerEmission;
-        float _emitTime;
+        std::chrono::microseconds _timePerEmission;
+        std::chrono::microseconds _emitTime;
         double _lastUpdated;
         Game* _game;
     };

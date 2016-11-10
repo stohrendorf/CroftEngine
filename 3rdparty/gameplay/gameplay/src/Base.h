@@ -32,19 +32,6 @@
 #include <boost/assert.hpp>
 #include <boost/current_function.hpp>
 
-#if defined(WIN32) && defined(_MSC_VER)
-#define DEBUG_BREAK() __debugbreak()
-#else
-#define DEBUG_BREAK()
-#endif
-
-// Object deletion macro
-#define SAFE_DELETE(x) \
-    { \
-        delete x; \
-        x = nullptr; \
-    }
-
 // Array deletion macro
 #define SAFE_DELETE_ARRAY(x) \
     { \
@@ -81,6 +68,7 @@ namespace gameplay
         void bind() const
         {
             m_binder(m_handle);
+            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
 
             postBind();
         }
@@ -88,6 +76,7 @@ namespace gameplay
         void unbind() const
         {
             m_binder(0);
+            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
         }
 
         GLuint getHandle() const
@@ -111,11 +100,13 @@ namespace gameplay
             BOOST_ASSERT(deleter != nullptr);
 
             m_allocator(1, &m_handle);
+            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
         }
 
         virtual ~BindableResource()
         {
             m_deleter(1, &m_handle);
+            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
         }
 
     private:
