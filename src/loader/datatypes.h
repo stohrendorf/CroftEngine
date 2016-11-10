@@ -163,7 +163,7 @@ namespace loader
 
     struct Light
     {
-        gameplay::Light* node = nullptr;
+        std::shared_ptr<gameplay::Light> node = nullptr;
 
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
