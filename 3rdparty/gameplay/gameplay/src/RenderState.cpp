@@ -176,59 +176,50 @@ namespace gameplay
         }
 
         // Perform built-in resolution
-        if( !bound )
-        {
-            bound = true;
-            switch( autoBinding )
-            {
-                case WORLD_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetWorldMatrix);
-                    break;
-                case VIEW_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetViewMatrix);
-                    break;
-                case PROJECTION_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetProjectionMatrix);
-                    break;
-                case WORLD_VIEW_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetWorldViewMatrix);
-                    break;
-                case VIEW_PROJECTION_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetViewProjectionMatrix);
-                    break;
-                case WORLD_VIEW_PROJECTION_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetWorldViewProjectionMatrix);
-                    break;
-                case INVERSE_TRANSPOSE_WORLD_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldMatrix);
-                    break;
-                case INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX:
-                    param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldViewMatrix);
-                    break;
-                case CAMERA_WORLD_POSITION:
-                    param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
-                    break;
-                case CAMERA_VIEW_POSITION:
-                    param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
-                    break;
-                case MATRIX_PALETTE:
-                    param->bindValue(this, &RenderState::autoBindingGetMatrixPalette, &RenderState::autoBindingGetMatrixPaletteSize);
-                    break;
-                case SCENE_AMBIENT_COLOR:
-                    param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
-                    break;
-                default:
-                    bound = false;
-                    BOOST_LOG_TRIVIAL(warning) << "Unsupported auto binding type (" << autoBinding << ").";
-                    break;
-            }
-        }
-
         if( bound )
+            return;
+
+        switch( autoBinding )
         {
-            // Mark parameter as an auto binding
-            if( param->_type == MaterialParameter::METHOD && boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value) )
-                boost::get<std::shared_ptr<MaterialParameter::MethodBinding>>(param->_value)->_autoBinding = true;
+            case WORLD_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetWorldMatrix);
+                break;
+            case VIEW_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetViewMatrix);
+                break;
+            case PROJECTION_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetProjectionMatrix);
+                break;
+            case WORLD_VIEW_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetWorldViewMatrix);
+                break;
+            case VIEW_PROJECTION_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetViewProjectionMatrix);
+                break;
+            case WORLD_VIEW_PROJECTION_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetWorldViewProjectionMatrix);
+                break;
+            case INVERSE_TRANSPOSE_WORLD_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldMatrix);
+                break;
+            case INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX:
+                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldViewMatrix);
+                break;
+            case CAMERA_WORLD_POSITION:
+                param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
+                break;
+            case CAMERA_VIEW_POSITION:
+                param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
+                break;
+            case MATRIX_PALETTE:
+                param->bindValue(this, &RenderState::autoBindingGetMatrixPalette, &RenderState::autoBindingGetMatrixPaletteSize);
+                break;
+            case SCENE_AMBIENT_COLOR:
+                param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
+                break;
+            default:
+                BOOST_LOG_TRIVIAL(warning) << "Unsupported auto binding type (" << autoBinding << ").";
+                break;
         }
     }
 

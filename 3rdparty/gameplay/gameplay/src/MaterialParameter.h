@@ -5,7 +5,9 @@
 
 #include <glm/glm.hpp>
 
+#include <boost/optional.hpp>
 #include <boost/variant.hpp>
+
 
 namespace gameplay
 {
@@ -45,16 +47,6 @@ namespace gameplay
          * Returns the name of this material parameter.
          */
         const std::string& getName() const;
-
-        /**
-         * Returns the texture sampler or NULL if this MaterialParameter is not a sampler type.
-         *
-         * @param index Index of the sampler (if the parameter is a sampler array),
-         *      or zero if it is a single sampler value.
-         *
-         * @return The texture sampler or NULL if this MaterialParameter is not a sampler type.
-         */
-        std::shared_ptr<Texture::Sampler> getSampler(size_t index = 0) const;
 
         /**
          * Sets the value of this parameter to a float value.
@@ -128,67 +120,7 @@ namespace gameplay
          */
         void setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
 
-        /**
-         * Stores an array of float values in this parameter.
-         *
-         * @param values The array of values.
-         * @param count The number of values in the array.
-         * @param copy True to make a copy of the array in the material parameter, or false
-         *      to point to the passed in array/pointer (which must be valid for the lifetime
-         *      of the MaterialParameter).
-         */
-        void setFloatArray(const float* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of integer values in this parameter.
-         */
-        void setIntArray(const int* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of glm::vec2 values in this parameter.
-         *
-         * @param values The array of values.
-         * @param count The number of values in the array.
-         * @param copy True to make a copy of the array in the material parameter, or false
-         *      to point to the passed in array/pointer (which must be valid for the lifetime
-         *      of the MaterialParameter).
-         */
-        void setVector2Array(const glm::vec2* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of glm::vec3 values in this parameter.
-         */
-        void setVector3Array(const glm::vec3* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of glm::vec4 values in this parameter.
-         *
-         * @param values The array of values.
-         * @param count The number of values in the array.
-         * @param copy True to make a copy of the array in the material parameter, or false
-         *      to point to the passed in array/pointer (which must be valid for the lifetime
-         *      of the MaterialParameter).
-         */
-        void setVector4Array(const glm::vec4* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of glm::mat4 values in this parameter.
-         *
-         * @param values The array of values.
-         * @param count The number of values in the array.
-         * @param copy True to make a copy of the array in the material parameter, or false
-         *      to point to the passed in array/pointer (which must be valid for the lifetime
-         *      of the MaterialParameter).
-         */
-        void setMatrixArray(const glm::mat4* values, size_t count, bool copy = false);
-
-        /**
-         * Stores an array of Sampler values in this parameter.
-         *
-         * @param values The array of values.
-         * @script{ignore}
-         */
-        void setSamplerArray(const std::vector<std::shared_ptr<Texture::Sampler>>& values);
+        bool updateUniformBinding(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -204,8 +136,8 @@ namespace gameplay
          * @param classInstance The instance of the class containing the member method to bind.
          * @param valueMethod A pointer to the class method to bind (in the format '&class::method').
          */
-        template<class ClassType, class ParameterType>
-        void bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const);
+        template<class ClassType, class ValueType>
+        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const);
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -220,86 +152,16 @@ namespace gameplay
          * @param valueMethod A pointer to the class method to bind (in the format '&class::method').
          * @param countMethod A pointer to a method that returns the number of entries in the array returned by valueMethod.
          */
-        template<class ClassType, class ParameterType>
-        void bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const);
+        template<class ClassType, class ValueType>
+        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const);
 
     private:
 
         MaterialParameter& operator=(const MaterialParameter&) = delete;
 
 
-        /**
-         * Interface implemented by templated method bindings for simple storage and iteration.
-         */
-        class MethodBinding
-        {
-            friend class RenderState;
+        using UniformValueSetter = void(const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
 
-        public:
-
-            virtual void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) = 0;
-
-        protected:
-
-            /**
-             * Constructor.
-             */
-            MethodBinding(MaterialParameter* param);
-
-
-            /**
-             * Destructor.
-             */
-            virtual ~MethodBinding()
-            {
-            }
-
-
-            /**
-             * Hidden copy assignment operator.
-             */
-            MethodBinding& operator=(const MethodBinding&) = delete;
-
-            MaterialParameter* _parameter;
-            bool _autoBinding;
-        };
-
-
-        /**
-         * Defines a method parameter binding for a single value.
-         */
-        template<class ClassType, class ParameterType>
-        class MethodValueBinding : public MethodBinding
-        {
-            typedef ParameterType (ClassType::*ValueMethod)() const;
-        public:
-            MethodValueBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod);
-            void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) override;
-        private:
-            ClassType* _instance;
-            ValueMethod _valueMethod;
-        };
-
-
-        /**
-         * Defines a method parameter binding for an array of values.
-         */
-        template<class ClassType, class ParameterType>
-        class MethodArrayBinding : public MethodBinding
-        {
-            typedef ParameterType (ClassType::*ValueMethod)() const;
-            typedef size_t (ClassType::*CountMethod)() const;
-        public:
-            MethodArrayBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod, CountMethod countMethod);
-            void setValue(const std::shared_ptr<ShaderProgram>& shaderProgram) override;
-        private:
-            ClassType* _instance;
-            ValueMethod _valueMethod;
-            CountMethod _countMethod;
-        };
-
-
-        void clearValue();
 
         void bind(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
@@ -310,84 +172,30 @@ namespace gameplay
             PARAMETER_VALUE_NOT_SET = 0x02
         };
 
-        boost::variant<std::nullptr_t, float, int, float*, int*, std::shared_ptr<Texture::Sampler>, std::vector<std::shared_ptr<Texture::Sampler>>, std::shared_ptr<MethodBinding>> _value;
 
-        enum
-        {
-            NONE,
-            FLOAT,
-            FLOAT_ARRAY,
-            INT,
-            INT_ARRAY,
-            VECTOR2,
-            VECTOR3,
-            VECTOR4,
-            MATRIX,
-            SAMPLER,
-            SAMPLER_ARRAY,
-            METHOD
-        } _type;
-
-
-        size_t _count;
-        bool _dynamic;
         std::string _name;
-        std::shared_ptr<Uniform> _uniform;
-        char _loggerDirtyBits;
+        std::shared_ptr<Uniform> m_boundUniform = nullptr;
+        boost::optional<std::function<UniformValueSetter>> m_valueSetter;
+        uint8_t _loggerDirtyBits = 0;
     };
 
 
-    template<class ClassType, class ParameterType>
-    void MaterialParameter::bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const)
+    template<class ClassType, class ValueType>
+    void MaterialParameter::bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {
-        clearValue();
-
-        _value = std::make_shared<MethodValueBinding<ClassType, ParameterType>>(this, classInstance, valueMethod);
-        _dynamic = true;
-        _type = MaterialParameter::METHOD;
+        m_valueSetter = [classInstance, valueMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)());
+            };
     }
 
 
-    template<class ClassType, class ParameterType>
-    void MaterialParameter::bindValue(ClassType* classInstance, ParameterType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
+    template<class ClassType, class ValueType>
+    void MaterialParameter::bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
     {
-        clearValue();
-
-        _value = std::make_shared<MethodArrayBinding<ClassType, ParameterType>>(this, classInstance, valueMethod, countMethod);
-        _dynamic = true;
-        _type = MaterialParameter::METHOD;
-    }
-
-
-    template<class ClassType, class ParameterType>
-    MaterialParameter::MethodValueBinding<ClassType, ParameterType>::MethodValueBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod)
-        : MethodBinding(param)
-        , _instance(instance)
-        , _valueMethod(valueMethod)
-    {
-    }
-
-
-    template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodValueBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
-    {
-        shaderProgram->setValue(*_parameter->_uniform, (_instance ->* _valueMethod)());
-    }
-
-
-    template<class ClassType, class ParameterType>
-    MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::MethodArrayBinding(MaterialParameter* param, ClassType* instance, ValueMethod valueMethod, CountMethod countMethod)
-        : MethodBinding(param)
-        , _instance(instance)
-        , _valueMethod(valueMethod)
-        , _countMethod(countMethod)
-    {
-    }
-
-
-    template<class ClassType, class ParameterType>
-    void MaterialParameter::MethodArrayBinding<ClassType, ParameterType>::setValue(const std::shared_ptr<ShaderProgram>& shaderProgram)
-    {
-        shaderProgram->setValue(*_parameter->_uniform, (_instance ->* _valueMethod)());
+        m_valueSetter = [classInstance, valueMethod, countMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
+            };
     }
 }
