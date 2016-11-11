@@ -129,13 +129,6 @@ namespace gameplay
         void setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
 
         /**
-         * Stores a float value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setFloat(float value);
-
-        /**
          * Stores an array of float values in this parameter.
          *
          * @param values The array of values.
@@ -147,23 +140,9 @@ namespace gameplay
         void setFloatArray(const float* values, size_t count, bool copy = false);
 
         /**
-         * Stores an integer value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setInt(int value);
-
-        /**
          * Stores an array of integer values in this parameter.
          */
         void setIntArray(const int* values, size_t count, bool copy = false);
-
-        /**
-         * Stores a glm::vec2 value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setVector2(const glm::vec2& value);
 
         /**
          * Stores an array of glm::vec2 values in this parameter.
@@ -177,23 +156,9 @@ namespace gameplay
         void setVector2Array(const glm::vec2* values, size_t count, bool copy = false);
 
         /**
-         * Stores a glm::vec3 value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setVector3(const glm::vec3& value);
-
-        /**
          * Stores an array of glm::vec3 values in this parameter.
          */
         void setVector3Array(const glm::vec3* values, size_t count, bool copy = false);
-
-        /**
-         * Stores a glm::vec4 value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setVector4(const glm::vec4& value);
 
         /**
          * Stores an array of glm::vec4 values in this parameter.
@@ -207,13 +172,6 @@ namespace gameplay
         void setVector4Array(const glm::vec4* values, size_t count, bool copy = false);
 
         /**
-         * Stores a glm::mat4 value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setMatrix(const glm::mat4& value);
-
-        /**
          * Stores an array of glm::mat4 values in this parameter.
          *
          * @param values The array of values.
@@ -223,13 +181,6 @@ namespace gameplay
          *      of the MaterialParameter).
          */
         void setMatrixArray(const glm::mat4* values, size_t count, bool copy = false);
-
-        /**
-         * Stores a Sampler value in this parameter.
-         *
-         * @param value The value to set.
-         */
-        void setSampler(const std::shared_ptr<Texture::Sampler>& value);
 
         /**
          * Stores an array of Sampler values in this parameter.

@@ -260,12 +260,6 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setFloat(float value)
-    {
-        setValue(value);
-    }
-
-
     void MaterialParameter::setFloatArray(const float* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
@@ -284,12 +278,6 @@ namespace gameplay
 
         _count = count;
         _type = MaterialParameter::FLOAT_ARRAY;
-    }
-
-
-    void MaterialParameter::setInt(int value)
-    {
-        setValue(value);
     }
 
 
@@ -314,12 +302,6 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector2(const glm::vec2& value)
-    {
-        setValue(value);
-    }
-
-
     void MaterialParameter::setVector2Array(const glm::vec2* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
@@ -338,12 +320,6 @@ namespace gameplay
 
         _count = count;
         _type = MaterialParameter::VECTOR2;
-    }
-
-
-    void MaterialParameter::setVector3(const glm::vec3& value)
-    {
-        setValue(value);
     }
 
 
@@ -368,12 +344,6 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setVector4(const glm::vec4& value)
-    {
-        setValue(value);
-    }
-
-
     void MaterialParameter::setVector4Array(const glm::vec4* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
@@ -395,12 +365,6 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setMatrix(const glm::mat4& value)
-    {
-        setValue(value);
-    }
-
-
     void MaterialParameter::setMatrixArray(const glm::mat4* values, size_t count, bool copy)
     {
         BOOST_ASSERT(values);
@@ -419,12 +383,6 @@ namespace gameplay
 
         _count = count;
         _type = MaterialParameter::MATRIX;
-    }
-
-
-    void MaterialParameter::setSampler(const std::shared_ptr<Texture::Sampler>& value)
-    {
-        setValue(value);
     }
 
 
