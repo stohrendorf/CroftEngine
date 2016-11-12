@@ -34,18 +34,6 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Material> Model::getMaterial(size_t partIndex) const
-    {
-        BOOST_ASSERT(partIndex >= 0);
-
-        if( partIndex >= _mesh->getPartCount() )
-            return nullptr;
-
-        // Look up explicitly specified part material.
-        return _mesh->getPart(partIndex)->_material;
-    }
-
-
     void Model::setMaterial(const std::shared_ptr<Material>& material, size_t partIndex)
     {
         BOOST_ASSERT(partIndex < _mesh->getPartCount());
@@ -139,79 +127,18 @@ namespace gameplay
     }
 
 
-    static bool drawWireframe(const std::shared_ptr<MeshPart>& part)
-    {
-        size_t indexCount = part->getIndexCount();
-        size_t indexSize = 0;
-        switch( part->getIndexFormat() )
-        {
-            case Mesh::INDEX8:
-                indexSize = 1;
-                break;
-            case Mesh::INDEX16:
-                indexSize = 2;
-                break;
-            case Mesh::INDEX32:
-                indexSize = 4;
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << part->getIndexFormat() << ").";
-                return false;
-        }
-
-        switch( part->getPrimitiveType() )
-        {
-            case Mesh::TRIANGLES:
-                for( size_t i = 0; i < indexCount; i += 3 )
-                {
-                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>(i*indexSize))) );
-                }
-                return true;
-
-            case Mesh::TRIANGLE_STRIP:
-                for( size_t i = 2; i < indexCount; ++i )
-                {
-                    GL_ASSERT( glDrawElements(GL_LINE_LOOP, 3, part->getIndexFormat(), (reinterpret_cast<const GLvoid*>((i-2)*indexSize))) );
-                }
-                return true;
-
-            default:
-                // not supported
-                return false;
-        }
-    }
-
-
     size_t Model::draw(bool wireframe)
     {
         BOOST_ASSERT(_mesh);
 
-        const size_t partCount = _mesh->getPartCount();
-        BOOST_ASSERT(partCount > 0);
-        for(size_t i = 0; i < partCount; ++i )
+        for(const auto& part : _mesh->_parts)
         {
-            auto part = _mesh->getPart(i);
             BOOST_ASSERT(part);
 
-            // Get the material for this mesh part.
-            auto material = getMaterial(i);
-            if( !material )
-                continue;
-
-            material->setNodeBinding(getNode());
-
-            material->bind(part->getVaBinding());
-
-            //! @todo apply additional bindings here
-
-            part->bind();
-            if( !wireframe || !drawWireframe(part) )
-            {
-                GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );
-            }
-            material->unbind();
+            part->draw(wireframe, getNode());
         }
-        return partCount;
+
+        return _mesh->getPartCount();
     }
 
 

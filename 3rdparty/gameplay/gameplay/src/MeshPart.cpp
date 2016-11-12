@@ -114,4 +114,69 @@ namespace gameplay
         _material = material;
         _vaBinding = std::make_shared<VertexAttributeBinding>(_mesh, material->getShaderProgram());
     }
+
+
+    bool MeshPart::drawWireframe() const
+    {
+        size_t indexSize;
+        switch(_indexFormat)
+        {
+            case Mesh::INDEX8:
+                indexSize = 1;
+                break;
+            case Mesh::INDEX16:
+                indexSize = 2;
+                break;
+            case Mesh::INDEX32:
+                indexSize = 4;
+                break;
+            default:
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << _indexFormat << ").";
+                return false;
+        }
+
+        switch(_primitiveType)
+        {
+            case Mesh::TRIANGLES:
+                for(size_t i = 0; i < _indexCount; i += 3)
+                {
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, _indexFormat, (reinterpret_cast<const GLvoid*>(i*indexSize))));
+                }
+                return true;
+
+            case Mesh::TRIANGLE_STRIP:
+                for(size_t i = 2; i < _indexCount; ++i)
+                {
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, _indexFormat, (reinterpret_cast<const GLvoid*>((i - 2)*indexSize))));
+                }
+                return true;
+
+            default:
+                // not supported
+                return false;
+        }
+    }
+
+
+    void MeshPart::draw(bool wireframe, Node* node) const
+    {
+        if(!_material)
+            return;
+
+        _material->setNodeBinding(node);
+
+        _material->bind(_vaBinding);
+
+        for(const auto& mps : _materialParameterSetters)
+            mps(*_material);
+
+        bind();
+        if(!wireframe || !drawWireframe())
+        {
+            GL_ASSERT(glDrawElements(_primitiveType, _indexCount, _indexFormat, nullptr));
+        }
+
+        _material->unbind();
+    }
+
 }

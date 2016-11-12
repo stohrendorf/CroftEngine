@@ -35,18 +35,6 @@ namespace gameplay
         const std::shared_ptr<Mesh>& getMesh() const;
 
         /**
-         * Returns the Material currently bound to the specified mesh part.
-         *
-         * If partIndex is >= 0 and no Material is directly bound to the specified
-         * mesh part, the shared Material will be returned.
-         *
-         * @param partIndex The index of the mesh part whose Material to return (-1 for shared material).
-         *
-         * @return The requested Material, or nullptr if no Material is set.
-         */
-        std::shared_ptr<Material> getMaterial(size_t partIndex) const;
-
-        /**
          * Sets a material to be used for drawing this Model.
          *
          * The specified Material is applied for the MeshPart at the given index in

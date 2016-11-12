@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include "render/textureanimator.h"
+#include "color.h"
 
 
 namespace loader
@@ -10,8 +11,8 @@ namespace loader
     {
         glm::vec2 texcoord0;
         glm::vec3 position;
-        glm::ivec4 blendIndices{ 0, 0, 0, 0 };
-        glm::vec4 blendWeights{ 0, 0, 0, 0 };
+        glm::ivec4 blendIndices{0, 0, 0, 0};
+        glm::vec4 blendWeights{0, 0, 0, 0};
 
 
         static gameplay::VertexFormat getFormat(bool withWeights)
@@ -32,8 +33,9 @@ namespace loader
         glm::vec2 texcoord0;
         glm::vec3 position;
         glm::vec3 normal;
-        glm::ivec4 blendIndices{ 0, 0, 0, 0 };
-        glm::vec4 blendWeights{ 0, 0, 0, 0 };
+        glm::ivec4 blendIndices{0, 0, 0, 0};
+        glm::vec4 blendWeights{0, 0, 0, 0};
+
 
         static gameplay::VertexFormat getFormat(bool withWeights)
         {
@@ -54,22 +56,24 @@ namespace loader
         return withNormals ? RenderVertexWithNormal::getFormat(withWeights) : RenderVertex::getFormat(withWeights);
     }
 
+
     Mesh::ModelBuilder::ModelBuilder(bool withNormals,
                                      bool dynamic,
                                      bool withWeights,
                                      const std::vector<TextureLayoutProxy>& textureProxies,
                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                     const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
+                                     const std::shared_ptr<gameplay::Material>& colorMaterial,
+                                     const Palette& palette,
                                      render::TextureAnimator& animator)
         : m_hasNormals{withNormals}
         , m_withWeights{withWeights}
         , m_textureProxies{textureProxies}
         , m_materials{materials}
-        , m_colorMaterials{colorMaterials}
+        , m_colorMaterial{colorMaterial}
+        , m_palette{palette}
         , m_animator{animator}
         , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals, withWeights), 0, dynamic)}
     {
-        Expects(colorMaterials.size() == 256);
     }
 
 
@@ -125,8 +129,8 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     append(iv);
                 }
 
@@ -154,8 +158,8 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -172,8 +176,8 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -193,8 +197,8 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -215,8 +219,8 @@ namespace loader
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     append(iv);
                 }
 
@@ -245,8 +249,8 @@ namespace loader
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -264,8 +268,8 @@ namespace loader
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -286,8 +290,8 @@ namespace loader
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
-                    iv.blendWeights = { blendWeight, 0, 0, 0 };
-                    iv.blendIndices = { blendIndex, 0, 0, 0 };
+                    iv.blendWeights = {blendWeight, 0, 0, 0};
+                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -306,27 +310,30 @@ namespace loader
         {
             static_assert(sizeof(localPart.indices[0]) == sizeof(uint16_t), "Wrong index type");
 #ifndef NDEBUG
-            for(auto idx : localPart.indices)
-                Expects(idx >= 0 && idx < m_vertexCount);
+            for( auto idx : localPart.indices )
+            Expects(idx >= 0 && idx < m_vertexCount);
 #endif
             auto part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);
+            part->setMaterial(localPart.material);
+            if( localPart.color )
+            {
+                auto color = *localPart.color;
+                part->registerMaterialParameterSetter([color](gameplay::Material& material)
+                    {
+                        material.getParameter("u_diffuseColor")->setValue(color);
+                    });
+            }
         }
 
-        auto model = std::make_shared<gameplay::Model>(m_mesh);
-
-        for( size_t i = 0; i < m_parts.size(); ++i )
-        {
-            model->setMaterial(m_parts[i].material, i);
-        }
-
-        return model;
+        return std::make_shared<gameplay::Model>(m_mesh);
     }
 
 
     std::shared_ptr<gameplay::Model> Mesh::createModel(const std::vector<TextureLayoutProxy>& textureProxies,
                                                        const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                       const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
+                                                       const std::shared_ptr<gameplay::Material>& colorMaterial,
+                                                       const Palette& palette,
                                                        render::TextureAnimator& animator) const
     {
         ModelBuilder mb{
@@ -335,7 +342,8 @@ namespace loader
             false,
             textureProxies,
             materials,
-            colorMaterials,
+            colorMaterial,
+            palette,
             animator
         };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/coordinates.h"
+#include "color.h"
 #include "primitives.h"
 #include "texture.h"
 #include "util.h"
@@ -96,7 +97,8 @@ namespace loader
             std::vector<float> m_vbuf;
             const std::vector<TextureLayoutProxy>& m_textureProxies;
             const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& m_materials;
-            const std::vector<std::shared_ptr<gameplay::Material>>& m_colorMaterials;
+            const std::shared_ptr<gameplay::Material> m_colorMaterial;
+            const Palette& m_palette;
             render::TextureAnimator& m_animator;
             std::map<TextureLayoutProxy::TextureKey, size_t> m_texBuffers;
             size_t m_vertexCount = 0;
@@ -104,12 +106,14 @@ namespace loader
 
             static gameplay::VertexFormat getFormat(bool withNormals, bool withWeights);
 
+
             struct MeshPart
             {
                 using IndexBuffer = std::vector<uint16_t>;
 
                 IndexBuffer indices;
                 std::shared_ptr<gameplay::Material> material;
+                boost::optional<glm::vec4> color;
             };
 
 
@@ -133,7 +137,8 @@ namespace loader
                 {
                     m_texBuffers[tk] = m_parts.size();
                     m_parts.emplace_back();
-                    m_parts.back().material = m_colorMaterials[tk.colorId];
+                    m_parts.back().material = m_colorMaterial;
+                    m_parts.back().color = m_palette.color[tk.colorId].toGLColor();
                 }
 
                 return m_texBuffers[tk];
@@ -160,7 +165,8 @@ namespace loader
                                   bool withWeights,
                                   const std::vector<TextureLayoutProxy>& textureProxies,
                                   const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                  const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
+                                  const std::shared_ptr<gameplay::Material>& colorMaterial,
+                                  const Palette& palette,
                                   render::TextureAnimator& animator);
             ~ModelBuilder();
 
@@ -173,7 +179,7 @@ namespace loader
 
         std::shared_ptr<gameplay::Model> createModel(const std::vector<TextureLayoutProxy>& textureProxies,
                                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                     const std::vector<std::shared_ptr<gameplay::Material>>& colorMaterials,
-                                                     render::TextureAnimator& animator) const;
+                                                     const std::shared_ptr<gameplay::Material>& colorMaterial,
+                                                     const Palette& palette, render::TextureAnimator& animator) const;
     };
 }

@@ -108,9 +108,7 @@ namespace level
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, size_t jointCount);
         engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
         std::vector<std::shared_ptr<gameplay::Model>> createSkinnedModels(gameplay::Game* game,
-                                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
-        std::shared_ptr<gameplay::Texture> createSolidColorTex(uint8_t color) const;
-
+                                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::Material>& colorMaterial);
         void toIrrlicht(gameplay::Game* game);
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const

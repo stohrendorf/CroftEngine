@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 #include "VertexAttributeBinding.h"
+#include "Font.h"
 
 
 namespace gameplay
@@ -19,6 +20,8 @@ namespace gameplay
         friend class Model;
 
     public:
+        using MaterialParameterSetter = void(Material& material);
+
         explicit MeshPart(Mesh* mesh, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
@@ -73,8 +76,17 @@ namespace gameplay
 
         void setMaterial(const std::shared_ptr<Material>& material);
 
+        void draw(bool wireframe, Node* node) const;
+
+        void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
+        {
+            _materialParameterSetters.emplace_back(setter);
+        }
+
     private:
         MeshPart(const MeshPart& copy) = delete;
+
+        bool drawWireframe() const;
 
         Mesh* _mesh = nullptr;
         Mesh::PrimitiveType _primitiveType = Mesh::TRIANGLES;
@@ -83,5 +95,6 @@ namespace gameplay
         bool _dynamic = false;
         std::shared_ptr<VertexAttributeBinding> _vaBinding;
         std::shared_ptr<Material> _material;
+        std::vector<std::function<MaterialParameterSetter>> _materialParameterSetters;
     };
 }
