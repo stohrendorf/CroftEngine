@@ -10,13 +10,14 @@
 namespace gameplay
 {
     Mesh::Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
-        : _vertexFormat{vertexFormat}
+        : VertexBufferHandle()
+        , _vertexFormat{vertexFormat}
         , _vertexCount{vertexCount}
         , _dynamic{dynamic}
     {
-        _vertexBuffer.bind();
+        bind();
         GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        _vertexBuffer.unbind();
+        unbind();
     }
 
 
@@ -28,9 +29,9 @@ namespace gameplay
 
     void Mesh::rebuild(const float* vertexData, size_t vertexCount)
     {
-        _vertexBuffer.bind();
+        bind();
         GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        _vertexBuffer.unbind();
+        unbind();
 
         _vertexCount = vertexCount;
     }
@@ -196,12 +197,6 @@ namespace gameplay
     }
 
 
-    const VertexBufferHandle& Mesh::getVertexBuffer() const
-    {
-        return _vertexBuffer;
-    }
-
-
     bool Mesh::isDynamic() const
     {
         return _dynamic;
@@ -223,7 +218,7 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setVertexData(const float* vertexData, size_t vertexStart, size_t vertexCount)
     {
-        _vertexBuffer.bind();
+        bind();
 
         if( vertexStart == 0 && vertexCount == 0 )
         {
@@ -244,14 +239,14 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void Mesh::setRawVertexData(const float* vertexData, size_t vertexId, size_t numFloats)
     {
-        _vertexBuffer.bind();
+        bind();
         GL_ASSERT(glBufferSubData(GL_ARRAY_BUFFER, vertexId * _vertexFormat.getVertexSize(), numFloats * sizeof(float), vertexData));
     }
 
 
     std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
-        auto part = MeshPart::create(shared_from_this(), primitiveType, indexFormat, indexCount, dynamic);
+        auto part = std::make_shared<MeshPart>(this, primitiveType, indexFormat, indexCount, dynamic);
         if( part )
         {
             _parts.emplace_back(part);

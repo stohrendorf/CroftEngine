@@ -132,6 +132,15 @@ namespace gameplay
         }
     };
 
+    class VertexArrayHandle : public BindableResource
+    {
+    public:
+        explicit VertexArrayHandle()
+            : BindableResource(glGenVertexArrays, glBindVertexArray, glDeleteVertexArrays)
+        {
+        }
+    };
+
     class IndexBufferHandle : public BindableResource
     {
     public:

@@ -5,77 +5,44 @@
 
 #include <boost/log/trivial.hpp>
 
+
 namespace gameplay
 {
-    static GLuint __maxVertexAttribs = 0;
-
-
-    VertexAttributeBinding::VertexAttributeBinding()
-        : _handle(0)
+    namespace
     {
+        GLuint maxVertexAttribs = 0;
     }
 
 
-    VertexAttributeBinding::~VertexAttributeBinding()
-    {
-        GL_ASSERT( glDeleteVertexArrays(1, &_handle) );
-        _handle = 0;
-    }
-
-
-    std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ShaderProgram>& shaderProgram)
-    {
-        BOOST_ASSERT(mesh);
-
-        return create(mesh, mesh->getVertexFormat(), nullptr, shaderProgram);
-    }
-
-
-    std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
-    {
-        return create(nullptr, vertexFormat, vertexPointer, shaderProgram);
-    }
-
-
-    std::shared_ptr<VertexAttributeBinding> VertexAttributeBinding::create(const std::shared_ptr<Mesh>& mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    VertexAttributeBinding::VertexAttributeBinding(Mesh* mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
+        : VertexArrayHandle()
     {
         BOOST_ASSERT(shaderProgram);
 
         // One-time initialization.
-        if( __maxVertexAttribs == 0 )
+        if( maxVertexAttribs == 0 )
         {
             GLint temp;
-            GL_ASSERT( glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &temp) );
+            GL_ASSERT(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &temp));
 
-            __maxVertexAttribs = temp;
-            if( __maxVertexAttribs <= 0 )
+            maxVertexAttribs = temp;
+            if( maxVertexAttribs <= 0 )
             {
                 BOOST_LOG_TRIVIAL(error) << "The maximum number of vertex attributes supported by OpenGL on the current device is 0 or less.";
-                return nullptr;
+                BOOST_THROW_EXCEPTION(std::runtime_error("The maximum number of vertex attributes supported by OpenGL on the current device is 0 or less."));
             }
         }
 
-        // Create a new VertexAttributeBinding.
-        auto binding = std::make_shared<VertexAttributeBinding>();
-
-        if(mesh != nullptr)
+        if( mesh != nullptr )
         {
             GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
             GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
             // Use hardware VAOs.
-            GL_ASSERT(glGenVertexArrays(1, &binding->_handle));
-
-            if(binding->_handle == 0)
-            {
-                BOOST_LOG_TRIVIAL(error) << "Failed to create VAO handle.";
-                return nullptr;
-            }
-
-            GL_ASSERT(glBindVertexArray(binding->_handle));
+            bind();
 
             // Bind the Mesh VBO so our glVertexAttribPointer calls use it.
-            mesh->getVertexBuffer().bind();
+            mesh->bind();
         }
 
         // Call setVertexAttribPointer for each vertex element.
@@ -84,7 +51,7 @@ namespace gameplay
         {
             const VertexFormat::Element& e = vertexFormat.getElement(i);
             gameplay::VertexAttribute attrib = -1;
-            void* pointer = vertexPointer ? static_cast<void*>(static_cast<unsigned char*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
+            void* pointer = vertexPointer ? static_cast<void*>(static_cast<uint8_t*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
 
             // Constructor vertex attribute name expected in shader.
             switch( e.usage )
@@ -111,7 +78,7 @@ namespace gameplay
                     attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_BLENDINDICES_NAME);
                     break;
                 case VertexFormat::TEXCOORD0:
-                    if((attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)) != -1)
+                    if( (attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)) != -1 )
                         break;
 
                 case VertexFormat::TEXCOORD1:
@@ -129,12 +96,12 @@ namespace gameplay
                     break;
             }
 
-            if(attrib != -1)
+            if( attrib != -1 )
             {
-                if(e.usage != VertexFormat::BLENDINDICES)
-                    binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                if( e.usage != VertexFormat::BLENDINDICES )
+                    setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
                 else
-                    binding->setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_INT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                    setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_INT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
             }
             else
             {
@@ -143,30 +110,25 @@ namespace gameplay
             offset += e.size * sizeof(float);
         }
 
-        GL_ASSERT( glBindVertexArray(0) );
-
-        return binding;
+        unbind();
     }
+
+
+    VertexAttributeBinding::VertexAttributeBinding(Mesh* mesh, const std::shared_ptr<ShaderProgram>& shaderProgram)
+        : VertexAttributeBinding{mesh, mesh->getVertexFormat(), nullptr, shaderProgram}
+    {
+    }
+
+
+    VertexAttributeBinding::~VertexAttributeBinding() = default;
 
 
     void VertexAttributeBinding::setVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalize, GLsizei stride, void* pointer)
     {
-        BOOST_ASSERT(indx < __maxVertexAttribs);
+        BOOST_ASSERT(indx < maxVertexAttribs);
 
         // Hardware mode.
         GL_ASSERT( glVertexAttribPointer(indx, size, type, normalize, stride, pointer) );
         GL_ASSERT( glEnableVertexAttribArray(indx) );
-    }
-
-
-    void VertexAttributeBinding::bind()
-    {
-        GL_ASSERT( glBindVertexArray(_handle) );
-    }
-
-
-    void VertexAttributeBinding::unbind()
-    {
-        GL_ASSERT( glBindVertexArray(0) );
     }
 }

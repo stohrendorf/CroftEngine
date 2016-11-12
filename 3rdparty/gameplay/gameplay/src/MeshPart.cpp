@@ -8,22 +8,20 @@
 
 namespace gameplay
 {
-    MeshPart::MeshPart() = default;
-
-
-    MeshPart::~MeshPart() = default;
-
-
-    std::shared_ptr<MeshPart> MeshPart::create(const std::weak_ptr<Mesh>& mesh,
-                                               Mesh::PrimitiveType primitiveType,
-                                               Mesh::IndexFormat indexFormat,
-                                               size_t indexCount,
-                                               bool dynamic)
+    MeshPart::MeshPart(Mesh* mesh,
+                       Mesh::PrimitiveType primitiveType,
+                       Mesh::IndexFormat indexFormat,
+                       size_t indexCount,
+                       bool dynamic)
+        : _mesh{mesh}
+        , _primitiveType{primitiveType}
+        , _indexFormat{indexFormat}
+        , _indexCount{indexCount}
+        , _dynamic{dynamic}
     {
-        auto part = std::make_shared<MeshPart>();
-        part->_indexBuffer.bind();
+        bind();
 
-        size_t indexSize = 0;
+        size_t indexSize;
         switch( indexFormat )
         {
             case Mesh::INDEX8:
@@ -37,19 +35,14 @@ namespace gameplay
                 break;
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << indexFormat << ").";
-                return nullptr;
+                BOOST_THROW_EXCEPTION(std::runtime_error("Unsupported index format"));
         }
 
-        GL_ASSERT( glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * indexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
-
-        part->_mesh = mesh;
-        part->_primitiveType = primitiveType;
-        part->_indexFormat = indexFormat;
-        part->_indexCount = indexCount;
-        part->_dynamic = dynamic;
-
-        return part;
+        GL_ASSERT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * indexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
     }
+
+
+    MeshPart::~MeshPart() = default;
 
 
     Mesh::PrimitiveType MeshPart::getPrimitiveType() const
@@ -70,12 +63,6 @@ namespace gameplay
     }
 
 
-    const IndexBufferHandle& MeshPart::getIndexBuffer() const
-    {
-        return _indexBuffer;
-    }
-
-
     bool MeshPart::isDynamic() const
     {
         return _dynamic;
@@ -85,9 +72,9 @@ namespace gameplay
     // ReSharper disable once CppMemberFunctionMayBeConst
     void MeshPart::setIndexData(const void* indexData, size_t indexStart, size_t indexCount)
     {
-        _indexBuffer.bind();
+        bind();
 
-        size_t indexSize = 0;
+        size_t indexSize;
         switch( _indexFormat )
         {
             case Mesh::INDEX8:
@@ -122,9 +109,9 @@ namespace gameplay
 
     void MeshPart::setMaterial(const std::shared_ptr<Material>& material)
     {
-        BOOST_ASSERT(!_mesh.expired());
+        BOOST_ASSERT(_mesh != nullptr);
 
         _material = material;
-        _vaBinding = VertexAttributeBinding::create(_mesh.lock(), material->getShaderProgram());
+        _vaBinding = std::make_shared<VertexAttributeBinding>(_mesh, material->getShaderProgram());
     }
 }

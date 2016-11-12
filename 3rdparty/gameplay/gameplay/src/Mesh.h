@@ -16,7 +16,7 @@ namespace gameplay
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
-    class Mesh : public std::enable_shared_from_this<Mesh>
+    class Mesh : public VertexBufferHandle
     {
         friend class Model;
 
@@ -146,13 +146,6 @@ namespace gameplay
         size_t getVertexSize() const;
 
         /**
-         * Returns a handle to the vertex buffer for the mesh.
-         *
-         * @return The vertex buffer object handle.
-         */
-        const VertexBufferHandle& getVertexBuffer() const;
-
-        /**
          * Determines if the mesh is dynamic.
          *
          * @return true if the mesh is dynamic; false otherwise.
@@ -262,7 +255,6 @@ namespace gameplay
 
         const VertexFormat _vertexFormat;
         size_t _vertexCount = 0;
-        VertexBufferHandle _vertexBuffer{};
         PrimitiveType _primitiveType = TRIANGLES;
         std::vector<std::shared_ptr<MeshPart>> _parts{};
         bool _dynamic = false;

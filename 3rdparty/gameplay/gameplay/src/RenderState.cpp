@@ -100,7 +100,7 @@ namespace gameplay
         for( size_t i = 0, count = _parameters.size(); i < count; ++i )
         {
             auto p = _parameters[i];
-            if( p->_name == name )
+            if( p->m_name == name )
             {
                 _parameters.erase(_parameters.begin() + i);
                 break;

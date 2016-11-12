@@ -9,7 +9,7 @@
 namespace gameplay
 {
     MaterialParameter::MaterialParameter(const std::string& name)
-        : _name(name)
+        : m_name(name)
     {
     }
 
@@ -19,7 +19,7 @@ namespace gameplay
 
     const std::string& MaterialParameter::getName() const
     {
-        return _name;
+        return m_name;
     }
 
 
@@ -168,16 +168,16 @@ namespace gameplay
         if( m_boundUniform && m_boundUniform->getShaderProgram() == shaderProgram )
             return true;
 
-        m_boundUniform = shaderProgram->getUniform(_name);
+        m_boundUniform = shaderProgram->getUniform(m_name);
 
         if( m_boundUniform )
             return true;
 
-        if( (_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
+        if( (m_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
         {
             // This parameter was not found in the specified effect, so do nothing.
-            BOOST_LOG_TRIVIAL(warning) << "Material parameter for uniform '" << _name << "' not found in effect: '" << shaderProgram->getId() << "'.";
-            _loggerDirtyBits |= UNIFORM_NOT_FOUND;
+            BOOST_LOG_TRIVIAL(warning) << "Material parameter for uniform '" << m_name << "' not found in effect: '" << shaderProgram->getId() << "'.";
+            m_loggerDirtyBits |= UNIFORM_NOT_FOUND;
         }
 
         return false;
@@ -190,10 +190,10 @@ namespace gameplay
 
         if( !m_valueSetter )
         {
-            if( (_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
+            if( (m_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Material parameter value not set for: '" << _name << "' in effect: '" << shaderProgram->getId() << "'.";
-                _loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
+                BOOST_LOG_TRIVIAL(warning) << "Material parameter value not set for: '" << m_name << "' in effect: '" << shaderProgram->getId() << "'.";
+                m_loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
             }
 
             return;

@@ -36,7 +36,7 @@ namespace gameplay
 
     std::shared_ptr<Material> Model::getMaterial(size_t partIndex) const
     {
-        BOOST_ASSERT(partIndex == -1 || partIndex >= 0);
+        BOOST_ASSERT(partIndex >= 0);
 
         if( partIndex >= _mesh->getPartCount() )
             return nullptr;
@@ -204,7 +204,7 @@ namespace gameplay
 
             //! @todo apply additional bindings here
 
-            part->_indexBuffer.bind();
+            part->bind();
             if( !wireframe || !drawWireframe(part) )
             {
                 GL_ASSERT( glDrawElements(part->getPrimitiveType(), part->getIndexCount(), part->getIndexFormat(), nullptr) );

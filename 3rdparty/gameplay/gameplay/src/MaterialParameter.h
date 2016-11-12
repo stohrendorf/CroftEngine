@@ -120,7 +120,6 @@ namespace gameplay
          */
         void setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
 
-        bool updateUniformBinding(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -137,7 +136,14 @@ namespace gameplay
          * @param valueMethod A pointer to the class method to bind (in the format '&class::method').
          */
         template<class ClassType, class ValueType>
-        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const);
+        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
+        {
+            m_valueSetter = [classInstance, valueMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+                {
+                    shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)());
+                };
+        }
+
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -153,17 +159,24 @@ namespace gameplay
          * @param countMethod A pointer to a method that returns the number of entries in the array returned by valueMethod.
          */
         template<class ClassType, class ValueType>
-        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const);
+        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
+        {
+            m_valueSetter = [classInstance, valueMethod, countMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+                {
+                    shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
+                };
+        }
+
 
     private:
 
         MaterialParameter& operator=(const MaterialParameter&) = delete;
 
-
         using UniformValueSetter = void(const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
 
-
         void bind(const std::shared_ptr<ShaderProgram>& shaderProgram);
+
+        bool updateUniformBinding(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
 
         enum LOGGER_DIRTYBITS
@@ -173,29 +186,9 @@ namespace gameplay
         };
 
 
-        std::string _name;
+        const std::string m_name;
         std::shared_ptr<Uniform> m_boundUniform = nullptr;
         boost::optional<std::function<UniformValueSetter>> m_valueSetter;
-        uint8_t _loggerDirtyBits = 0;
+        uint8_t m_loggerDirtyBits = 0;
     };
-
-
-    template<class ClassType, class ValueType>
-    void MaterialParameter::bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
-    {
-        m_valueSetter = [classInstance, valueMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
-            {
-                shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)());
-            };
-    }
-
-
-    template<class ClassType, class ValueType>
-    void MaterialParameter::bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
-    {
-        m_valueSetter = [classInstance, valueMethod, countMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
-            {
-                shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
-            };
-    }
 }
