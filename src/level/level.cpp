@@ -370,7 +370,7 @@ std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures()
 }
 
 
-std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, size_t jointCount)
+std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4 : loader::TextureIndexMask;
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials;
@@ -380,13 +380,15 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
         if( materials.find(key) != materials.end() )
             continue;
 
-        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask], jointCount);
+        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask]);
     }
     return materials;
 }
 
 
-engine::LaraController* Level::createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
+engine::LaraController* Level::createItems(gameplay::Game* game,
+                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
+                                           const std::vector<std::shared_ptr<gameplay::Model>>& models)
 {
     engine::LaraController* lara = nullptr;
     int id = -1;
@@ -399,18 +401,10 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 
         if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
         {
-            //BOOST_ASSERT(!findSpriteSequenceForType(item.type));
-            BOOST_ASSERT(*modelIdx < skinnedModels.size());
-            auto model = skinnedModels[*modelIdx];
+            auto animCtrl = createAnimController(*modelIdx, models);
+            animCtrl->setId(animCtrl->getId() + "/item:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")");
 
-            std::string name = "item";
-            name += std::to_string(id);
-            name += "(type";
-            name += std::to_string(item.type);
-            name += "/animatedModel)";
-            auto node = std::make_shared<gameplay::Node>(name);
-            node->setDrawable(model);
-            node->setTranslation(item.position.toRenderSystem());
+            animCtrl->setTranslation(item.position.toRenderSystem());
 
             if( item.type == 0 )
             {
@@ -418,7 +412,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             }
             else
             {
-                room.node->addChild(node);
+                room.node->addChild(animCtrl);
             }
 
             //node->setAutomaticCulling(false);
@@ -426,72 +420,61 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             //node->setDebugDataVisible(irr::scene::EDS_FULL);
             //node->setAnimationSpeed(30);
             //node->setLoopMode(false);
-            auto animationController = std::make_shared<engine::MeshAnimationController>(this, *m_animatedModels[*modelIdx], model, name + ":animator");
+
+            auto itemCtrlName = animCtrl->getId() + "/controller";
 
             if( item.type == 0 )
             {
-                lara = new engine::LaraController(this, animationController, node, name + ":controller", &room, &item);
+                lara = new engine::LaraController(this, animCtrl, itemCtrlName, &room, &item);
                 m_itemControllers[id].reset(lara);
             }
             else if( item.type == 35 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 36 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_SwingingBlade>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_SwingingBlade>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 41 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_41_TrapDoorUp>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_41_TrapDoorUp>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type >= 48 && item.type <= 51 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 52 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_TallBlock>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_TallBlock>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 55 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type >= 57 && item.type <= 64 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type >= 65 && item.type <= 66 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_TrapDoorDown>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_TrapDoorDown>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 68 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_68_BridgeFlat>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_68_BridgeFlat>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 69 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_69_BridgeSlope1>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_69_BridgeSlope1>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else if( item.type == 70 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_70_BridgeSlope2>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::ItemController_70_BridgeSlope2>(this, animCtrl, itemCtrlName, &room, &item);
             }
             else
             {
-                m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animationController, node, name + ":controller", &room, &item);
-                animationController->playLocalAnimation(0);
+                m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animCtrl, itemCtrlName, &room, &item);
             }
 
             continue;
@@ -520,9 +503,9 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
             node->setDrawable(sprite);
             node->setTranslation(item.position.toRenderSystem());
 
-            m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, nullptr, node, name + ":controller", &room, &item);
-            m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
-            m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+            //m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, node, name + ":controller", &room, &item);
+            //m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
+            //m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
 
             continue;
         }
@@ -534,150 +517,30 @@ engine::LaraController* Level::createItems(gameplay::Game* game, const std::vect
 }
 
 
-std::vector<std::shared_ptr<gameplay::Model>> Level::createSkinnedModels(gameplay::Game* game,
-                                                                         const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
-                                                                         const std::shared_ptr<gameplay::Material>& colorMaterial)
+std::shared_ptr<engine::MeshAnimationController> Level::createAnimController(size_t id,
+                                                                             const std::vector<std::shared_ptr<gameplay::Model>>& models)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
+    BOOST_ASSERT(id < m_animatedModels.size());
+    BOOST_ASSERT(m_animatedModels[id] != nullptr);
+    const auto& model = *m_animatedModels[id];
 
-    std::set<uint16_t> animStarts;
-
-    for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
+    if( model.animationIndex == 0xffff )
     {
-        if( model->animationIndex == 0xffff )
-        {
-            BOOST_LOG_TRIVIAL(warning) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(model.get()) << std::dec << " has animationIndex==0xffff";
-            continue;
-        }
-
-        BOOST_ASSERT(animStarts.find(model->animationIndex) == animStarts.end());
-        animStarts.insert(model->animationIndex);
-    }
-    animStarts.insert(gsl::narrow<uint16_t>(m_animations.size()));
-
-    std::vector<std::shared_ptr<gameplay::Model>> renderModels;
-
-    for( const std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
-    {
-        Expects(model != nullptr);
-
-        std::stack<std::shared_ptr<gameplay::Joint>> parentStack;
-
-        Expects(model->boneCount > 0);
-
-        auto materials = createMaterials(textures, model->boneCount);
-
-        loader::Mesh::ModelBuilder builder{
-            !m_meshes[m_meshIndices[model->firstMesh]].normals.empty(),
-            true,
-            true,
-            m_textureProxies,
-            materials,
-            colorMaterial,
-            *m_palette,
-            *m_textureAnimator
-        };
-
-        std::vector<std::shared_ptr<gameplay::Joint>> joints;
-
-        for( size_t boneIndex = 0; boneIndex < model->boneCount; ++boneIndex )
-        {
-            BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
-            builder.append(m_meshes[m_meshIndices[model->firstMesh + boneIndex]], 1, boneIndex);
-
-            auto joint = std::make_shared<gameplay::Joint>("bone:" + boost::lexical_cast<std::string>(boneIndex));
-            joints.emplace_back(joint);
-            if( model->type == 0 )
-            {
-                if( boneIndex == 7 )
-                    joint->setId("chest");
-                else if( boneIndex == 0 )
-                    joint->setId("hips");
-            }
-
-            if( boneIndex == 0 )
-            {
-                parentStack.push(joint);
-                continue;
-            }
-
-            auto pred = joints[boneIndex - 1];
-
-            std::shared_ptr<gameplay::Joint> parent = nullptr;
-            BOOST_ASSERT(model->boneTreeIndex + 4 * boneIndex <= m_boneTrees.size());
-            const int32_t* boneTreeData = &m_boneTrees[model->boneTreeIndex + (boneIndex - 1) * 4];
-
-            switch( boneTreeData[0] )
-            {
-                case 0: // use predecessor
-                    parent = pred;
-                    parent->addChild(joint);
-                    break;
-                case 2: // push
-                    parent = pred;
-                    parent->addChild(joint);
-                    parentStack.push(parent);
-                    break;
-                case 1: // pop
-                    if( parentStack.empty() )
-                        throw std::runtime_error("Invalid skeleton stack operation: cannot pop from empty stack");
-                    parent = parentStack.top();
-                    parent->addChild(joint);
-                    parentStack.pop();
-                    break;
-                case 3: // top
-                    if( parentStack.empty() )
-                        throw std::runtime_error("Invalid skeleton stack operation: cannot take top of empty stack");
-                    parent = parentStack.top();
-                    parent->addChild(joint);
-                    break;
-                default:
-                    throw std::runtime_error("Invalid skeleton stack operation");
-            }
-        }
-
-        auto renderModel = builder.finalize();
-        renderModel->setSkin(std::make_unique<gameplay::MeshSkin>());
-        renderModel->getSkin()->setRootJoint(joints[0]);
-        renderModel->getSkin()->setJointCount(joints.size());
-        for( size_t i = 0; i < joints.size(); ++i )
-            renderModel->getSkin()->setJoint(joints[i], i);
-
-        renderModels.emplace_back(renderModel);
-
-        const auto currentAnimIt = animStarts.find(model->animationIndex);
-
-        if( currentAnimIt == animStarts.end() )
-            continue;
-
-        const auto nextAnimIdx = *std::next(currentAnimIt);
-
-        for( auto currentAnimIdx = model->animationIndex; currentAnimIdx < nextAnimIdx; ++currentAnimIdx )
-        {
-            if( currentAnimIdx >= m_animations.size() )
-                continue;
-
-            const loader::Animation& animation = m_animations[currentAnimIdx];
-
-            const auto start = core::Frame(animation.firstFrame);
-            const auto end = core::Frame(animation.lastFrame + 1);
-            const auto step = core::Frame(animation.stretchFactor);
-            const int16_t* pData = &m_poseData[animation.poseDataOffset / 2];
-            const int32_t* boneTreeData = model->boneTreeIndex >= m_boneTrees.size() ? nullptr : &m_boneTrees[model->boneTreeIndex];
-
-            auto clip = std::make_unique<gameplay::AnimationClip>(game,
-                                                                  renderModel->getSkin().get(),
-                                                                  core::toTime(start),
-                                                                  core::toTime(end),
-                                                                  core::toTime(step),
-                                                                  pData,
-                                                                  animation.poseDataSize,
-                                                                  boneTreeData);
-            model->animationClips.emplace(std::make_pair(currentAnimIdx, std::move(clip)));
-        }
+        BOOST_LOG_TRIVIAL(error) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec << " has animationIndex==0xffff";
+        return nullptr;
     }
 
-    return renderModels;
+    auto skeleton = std::make_shared<engine::MeshAnimationController>("skeleton:" + boost::lexical_cast<std::string>(id), this, model);
+    for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
+    {
+        BOOST_ASSERT(model.firstMesh + boneIndex < m_meshIndices.size());
+        auto node = std::make_shared<gameplay::Node>(skeleton->getId() + "/bone:" + boost::lexical_cast<std::string>(boneIndex));
+        node->setDrawable(models[m_meshIndices[model.firstMesh + boneIndex]]);
+        skeleton->addChild(node);
+    }
+
+    return skeleton;
 }
 
 
@@ -690,15 +553,15 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures, 0);
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    std::vector<std::shared_ptr<gameplay::Model>> staticModels;
+    std::vector<std::shared_ptr<gameplay::Model>> models;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
-        staticModels.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette, *m_textureAnimator));
+        models.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette, *m_textureAnimator));
     }
 
     game->getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
@@ -708,13 +571,11 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(game, i, *this, textures, materials, staticModels, *m_textureAnimator);
+        m_rooms[i].createSceneNode(game, i, *this, textures, materials, models, *m_textureAnimator);
         game->getScene()->addNode(m_rooms[i].node);
     }
 
-    auto skinnedModels = createSkinnedModels(game, textures, colorMaterial);
-
-    m_lara = createItems(game, skinnedModels, textures);
+    m_lara = createItems(game, textures, models);
     if( m_lara == nullptr )
         return;
 
@@ -907,18 +768,6 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
         image->line(x0, 11, x0 + p, 11, m_palette->color[6].toGLColor());
         image->line(x0, 12, x0 + p, 12, m_palette->color[24].toGLColor());
     }
-}
-
-
-engine::ItemController* level::Level::findControllerForNode(const std::shared_ptr<gameplay::Node>& node)
-{
-    for( const auto& ctrl : m_itemControllers | boost::adaptors::map_values )
-    {
-        if( ctrl->getSceneNode() == node )
-            return ctrl.get();
-    }
-
-    return nullptr;
 }
 
 

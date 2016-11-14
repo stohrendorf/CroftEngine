@@ -444,8 +444,8 @@ namespace engine
         }
 
         getMeshAnimationController()->resetPose();
-        getMeshAnimationController()->rotateBone(7, getLevel().m_cameraController->getTorsoRotation());
-        getMeshAnimationController()->rotateBone(14, getLevel().m_cameraController->getHeadRotation());
+        getMeshAnimationController()->rotateBone(7, getLevel().m_cameraController->getTorsoRotation().toQuat());
+        getMeshAnimationController()->rotateBone(14, getLevel().m_cameraController->getHeadRotation().toQuat());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)
@@ -458,14 +458,14 @@ namespace engine
             nextFrame();
         }
 
-        if( handleTRTransitions() || getLastAnimFrame() != getCurrentFrame() )
+        if( handleTRTransitions() || getRecentAnimFrame() != getCurrentFrame() )
         {
             nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
-            setLastAnimFrame(getCurrentFrame());
+            setRecentAnimFrame(getCurrentFrame());
             newFrame = true;
         }
 
-        const bool isAnimEnd = getCurrentFrame() >= getAnimEndFrame();
+        const bool isAnimEnd = getCurrentFrame() >= getLastAnimFrame();
 
         const loader::Animation& animation = getLevel().m_animations[getCurrentAnimationId()];
         if( animation.animCommandCount > 0 )

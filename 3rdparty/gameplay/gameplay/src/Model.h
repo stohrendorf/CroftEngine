@@ -1,16 +1,12 @@
 #pragma once
 
 #include "Mesh.h"
-#include "MeshSkin.h"
 #include "Material.h"
 #include "Drawable.h"
 
 
 namespace gameplay
 {
-    class MeshSkin;
-
-
     /**
      * Defines a Model or mesh renderer which is an instance of a Mesh.
      *
@@ -24,7 +20,7 @@ namespace gameplay
         friend class Mesh;
 
     public:
-        explicit Model(const std::shared_ptr<Mesh>& mesh);
+        explicit Model(const std::shared_ptr<Mesh>& mesh = nullptr);
         ~Model();
 
         /**
@@ -71,13 +67,6 @@ namespace gameplay
         std::shared_ptr<Material> setMaterial(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {}, size_t partIndex = -1);
 
         /**
-         * Returns the MeshSkin.
-         *
-         * @return The MeshSkin, or nullptr if one is not set.
-         */
-        const std::unique_ptr<MeshSkin>& getSkin() const;
-
-        /**
          * @see Drawable::draw
          *
          * Binds the vertex buffer and index buffers for the Mesh and
@@ -89,16 +78,7 @@ namespace gameplay
         size_t draw(bool wireframe = false) override;
 
 
-        /**
-        * Sets the MeshSkin for this model.
-        *
-        * @param skin The MeshSkin for this model.
-        */
-        void setSkin(std::unique_ptr<MeshSkin>&& skin);
-
     private:
-
-        Model();
 
         Model& operator=(const Model&) = delete;
 
@@ -113,6 +93,5 @@ namespace gameplay
         void setMaterialNodeBinding(const std::shared_ptr<Material>& m);
 
         std::shared_ptr<Mesh> _mesh;
-        std::unique_ptr<MeshSkin> _skin;
     };
 }

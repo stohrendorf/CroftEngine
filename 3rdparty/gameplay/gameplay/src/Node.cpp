@@ -145,23 +145,6 @@ namespace gameplay
 
     std::shared_ptr<Node> Node::findNode(const std::string& id, bool recursive, bool exactMatch) const
     {
-        // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
-        std::shared_ptr<Node> rootNode;
-        auto model = std::dynamic_pointer_cast<Model>(_drawable);
-        if( model )
-        {
-            if( model->getSkin() != nullptr && (rootNode = model->getSkin()->_rootNode) != nullptr )
-            {
-                if( (exactMatch && rootNode->_id == id) || (!exactMatch && rootNode->_id.find(id) == 0) )
-                    return rootNode;
-
-                auto match = rootNode->findNode(id, true, exactMatch);
-                if( match )
-                {
-                    return match;
-                }
-            }
-        }
         // Search immediate children first.
         for( const auto& child : _children )
         {
@@ -187,24 +170,11 @@ namespace gameplay
     }
 
 
-    unsigned int Node::findNodes(const std::string& id, Node::List& nodes, bool recursive, bool exactMatch) const
+    size_t Node::findNodes(const std::string& id, Node::List& nodes, bool recursive, bool exactMatch) const
     {
         // If the drawable is a model with a mesh skin, search the skin's hierarchy as well.
-        unsigned int count = 0;
-        std::shared_ptr<Node> rootNode;
-        auto model = std::dynamic_pointer_cast<Model>(_drawable);
-        if( model )
-        {
-            if( model->getSkin() != nullptr && (rootNode = model->getSkin()->_rootNode) != nullptr )
-            {
-                if( (exactMatch && rootNode->_id == id) || (!exactMatch && rootNode->_id.find(id) == 0) )
-                {
-                    nodes.push_back(rootNode);
-                    ++count;
-                }
-                count += rootNode->findNodes(id, nodes, true, exactMatch);
-            }
-        }
+        size_t count = 0;
+
         // Search immediate children first.
         for( const auto& child : _children )
         {
@@ -296,18 +266,6 @@ namespace gameplay
             node = node.lock()->_parent;
         }
         return true;
-    }
-
-
-    void Node::update(float elapsedTime)
-    {
-        for( const auto& child : _children )
-        {
-            if( child->isEnabled() )
-            {
-                child->update(elapsedTime);
-            }
-        }
     }
 
 

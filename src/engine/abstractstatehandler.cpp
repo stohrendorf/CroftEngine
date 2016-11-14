@@ -3558,7 +3558,7 @@ namespace engine
 
     std::shared_ptr<gameplay::Node> AbstractStateHandler::getLara()
     {
-        return m_controller.getSceneNode();
+        return m_controller.getAnimationController();
     }
 
     gameplay::BoundingBox AbstractStateHandler::getBoundingBox() const

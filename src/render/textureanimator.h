@@ -57,7 +57,7 @@ namespace render
 
             void registerVertex(const MeshPartReference& partReference, VertexReference vertex, uint16_t proxyId)
             {
-                Expects(partReference.first->getVertexFormat().getElement(0) .usage == gameplay::VertexFormat::TEXCOORD0);
+                Expects(partReference.first->getVertexFormat().getElement(0) .usage == gameplay::VertexFormat::TEXCOORD);
 
                 auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
                 Expects(it != proxyIds.end());

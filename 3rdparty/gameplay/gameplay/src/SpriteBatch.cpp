@@ -85,7 +85,7 @@ namespace gameplay
         static const VertexFormat::Element vertexElements[] =
         {
             VertexFormat::Element(VertexFormat::POSITION, 3),
-            VertexFormat::Element(VertexFormat::TEXCOORD0, 2),
+            VertexFormat::Element(VertexFormat::TEXCOORD, 2),
             VertexFormat::Element(VertexFormat::COLOR, 4)
         };
         static const VertexFormat vertexFormat(vertexElements, 3);

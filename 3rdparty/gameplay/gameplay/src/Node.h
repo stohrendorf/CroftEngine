@@ -25,7 +25,6 @@ namespace gameplay
     class Node : public Transform
     {
         friend class Light;
-        friend class MeshSkin;
         friend class Scene;
 
     public:
@@ -125,7 +124,7 @@ namespace gameplay
          * @return The number of matches found.
          * @script{ignore}
          */
-        unsigned int findNodes(const std::string& id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
+        size_t findNodes(const std::string& id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Gets the scene this node is currenlty within.
@@ -188,16 +187,6 @@ namespace gameplay
          * @return if components attached on this node should be running.
          */
         bool isEnabledInHierarchy() const;
-
-        /**
-         * Called to update the state of this Node.
-         *
-         * This method is called by Scene::update(float) to update the state of all active
-         * nodes in a scene. A Node is considered active if Node::isActive() returns true.
-         *
-         * @param elapsedTime Elapsed time in milliseconds.
-         */
-        void update(float elapsedTime);
 
         /**
          * Gets the world matrix corresponding to this node.
@@ -373,21 +362,6 @@ namespace gameplay
         * @param obj The user object assigned object to this node.
         */
         void setUserObject(void* obj);
-
-
-        void resetRotationPatch()
-        {
-            _rotationPatch = glm::quat();
-            dirty(DIRTY_ROTATION);
-        }
-
-
-        void setRotationPatch(const glm::quat& q)
-        {
-            _rotationPatch = q;
-            dirty(DIRTY_ROTATION);
-        }
-
 
         const List& getChildren() const
         {

@@ -8,18 +8,9 @@
 
 namespace gameplay
 {
-    Model::Model()
-        : Drawable()
-        , _mesh(nullptr)
-        , _skin(nullptr)
-    {
-    }
-
-
     Model::Model(const std::shared_ptr<Mesh>& mesh)
         : Drawable()
         , _mesh(mesh)
-        , _skin(nullptr)
     {
         BOOST_ASSERT(mesh);
     }
@@ -63,23 +54,6 @@ namespace gameplay
         setMaterial(material, partIndex);
 
         return material;
-    }
-
-
-    const std::unique_ptr<MeshSkin>& Model::getSkin() const
-    {
-        return _skin;
-    }
-
-
-    void Model::setSkin(std::unique_ptr<MeshSkin>&& skin)
-    {
-        if( _skin != skin )
-        {
-            _skin = std::move(skin);
-            if( _skin )
-                _skin->_model = std::static_pointer_cast<Model>( shared_from_this() );
-        }
     }
 
 

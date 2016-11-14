@@ -7,6 +7,7 @@
 #include <boost/optional.hpp>
 
 #include "gameplay.h"
+#include "util/vmath.h"
 
 
 namespace core
@@ -357,6 +358,12 @@ namespace core
         TRRotation operator-(const TRRotation& rhs) const
         {
             return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
+        }
+
+
+        glm::quat toQuat() const
+        {
+            return util::xyzToYpr(toRad());
         }
     };
 

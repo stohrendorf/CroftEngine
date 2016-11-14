@@ -39,12 +39,10 @@ namespace engine
 
         gsl::not_null<level::Level*> const m_level;
 
-        gsl::not_null<std::shared_ptr<gameplay::Node>> const m_sceneNode;
-
         std::shared_ptr<MeshAnimationController> m_meshAnimationController;
         const std::string m_name;
 
-        core::Frame m_lastAnimFrame{ -1 };
+        core::Frame m_recentAnimFrame{ -1 };
         core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
         core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
         std::chrono::microseconds m_currentDeltaTime{ 0 };
@@ -89,8 +87,7 @@ namespace engine
         };
 
         ItemController(const gsl::not_null<level::Level*>& level,
-                       const std::shared_ptr<engine::MeshAnimationController>& dispatcher,
-                       const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode,
+                       const std::shared_ptr<engine::MeshAnimationController>& animCtrl,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        gsl::not_null<loader::Item*> item,
@@ -130,19 +127,11 @@ namespace engine
 
         void applyRotation();
 
-        void applyPosition()
-        {
-            if(auto parent = m_sceneNode->getParent().lock())
-                m_sceneNode->setTranslation(m_position.position.toRenderSystem() - parent->getTranslationWorld());
-            else
-                m_sceneNode->setTranslation(m_position.position.toRenderSystem());
+        void applyPosition();
 
-            updateSounds();
-        }
-
-        std::shared_ptr<gameplay::Node> getSceneNode() const noexcept
+        const std::shared_ptr<engine::MeshAnimationController>& getAnimationController() const noexcept
         {
-            return m_sceneNode;
+            return m_meshAnimationController;
         }
 
         void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
@@ -267,9 +256,9 @@ namespace engine
 
         void nextFrame();
         core::Frame getCurrentFrame() const;
-        core::Frame getAnimEndFrame() const;
+        core::Frame getLastAnimFrame() const;
         uint16_t getCurrentAnimState() const;
-        uint16_t getCurrentAnimationId() const;
+        size_t getCurrentAnimationId() const;
 
         bool handleTRTransitions();
         void handleAnimationEnd();
@@ -354,14 +343,14 @@ namespace engine
         bool triggerKey();
 
     protected:
-        core::Frame getLastAnimFrame() const noexcept
+        core::Frame getRecentAnimFrame() const noexcept
         {
-            return m_lastAnimFrame;
+            return m_recentAnimFrame;
         }
 
-        void setLastAnimFrame(const core::Frame& f) noexcept
+        void setRecentAnimFrame(const core::Frame& f) noexcept
         {
-            m_lastAnimFrame = f;
+            m_recentAnimFrame = f;
         }
 
         bool isInvertedActivation() const noexcept
@@ -403,8 +392,8 @@ namespace engine
     class DummyItemController final : public ItemController
     {
     public:
-        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, false, 0)
         {
         }
 
@@ -416,8 +405,8 @@ namespace engine
     class ItemController_55_Switch final : public ItemController
     {
     public:
-        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x30)
         {
         }
 
@@ -443,8 +432,8 @@ namespace engine
     class ItemController_35_CollapsibleFloor final : public ItemController
     {
     public:
-        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x34)
         {
         }
 
@@ -484,8 +473,8 @@ namespace engine
     class ItemController_41_TrapDoorUp final : public ItemController
     {
     public:
-        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x30)
         {
         }
 
@@ -547,8 +536,8 @@ namespace engine
     class ItemController_TrapDoorDown final : public ItemController
     {
     public:
-        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x30)
         {
         }
 
@@ -622,8 +611,8 @@ namespace engine
     class ItemController_Door final : public ItemController
     {
     public:
-        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x30)
         {
         }
 
@@ -665,8 +654,8 @@ namespace engine
     class ItemController_Block final : public ItemController
     {
     public:
-        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x34)
         {
             if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
                 loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
@@ -694,8 +683,8 @@ namespace engine
     class ItemController_TallBlock final : public ItemController
     {
     public:
-        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x34)
+        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x34)
         {
             loader::Room::patchHeightsForBlock(*this, -2*loader::SectorSize);
         }
@@ -730,8 +719,8 @@ namespace engine
     class ItemController_68_BridgeFlat final : public ItemController
     {
     public:
-        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, false, 0)
         {
         }
 
@@ -767,8 +756,8 @@ namespace engine
     private:
         const int m_div;
     public:
-        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, false, 0)
+        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
+            : ItemController(level, animCtrl, name, room, item, false, 0)
             , m_div(div)
         {
         }
@@ -826,8 +815,8 @@ namespace engine
     class ItemController_69_BridgeSlope1 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, dispatcher, sceneNode, name, room, item, 4)
+        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController_SlopedBridge(level, animCtrl, name, room, item, 4)
         {
         }
     };
@@ -835,8 +824,8 @@ namespace engine
     class ItemController_70_BridgeSlope2 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, dispatcher, sceneNode, name, room, item, 2)
+        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController_SlopedBridge(level, animCtrl, name, room, item, 2)
         {
         }
     };
@@ -844,8 +833,8 @@ namespace engine
     class ItemController_SwingingBlade final : public ItemController
     {
     public:
-        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, dispatcher, sceneNode, name, room, item, true, 0x30)
+        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, animCtrl, name, room, item, true, 0x30)
         {
         }
 

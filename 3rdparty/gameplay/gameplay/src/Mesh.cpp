@@ -54,7 +54,7 @@ namespace gameplay
         {
             VertexFormat::Element(VertexFormat::POSITION, 3),
             VertexFormat::Element(VertexFormat::NORMAL, 3),
-            VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
+            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
         };
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
         mesh->_primitiveType = TRIANGLE_STRIP;
@@ -82,7 +82,7 @@ namespace gameplay
         VertexFormat::Element elements[] =
         {
             VertexFormat::Element(VertexFormat::POSITION, 2),
-            VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
+            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
         };
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 2), 4, false);
         mesh->_primitiveType = TRIANGLE_STRIP;
@@ -110,7 +110,7 @@ namespace gameplay
         {
             VertexFormat::Element(VertexFormat::POSITION, 3),
             VertexFormat::Element(VertexFormat::NORMAL, 3),
-            VertexFormat::Element(VertexFormat::TEXCOORD0, 2)
+            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
         };
 
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);

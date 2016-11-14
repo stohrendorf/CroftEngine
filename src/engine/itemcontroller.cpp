@@ -7,7 +7,7 @@ namespace engine
 {
     uint16_t ItemController::getCurrentAnimState() const
     {
-        return m_meshAnimationController->getCurrentAnimState();
+        return m_meshAnimationController->getCurrentState();
     }
 
     bool ItemController::handleTRTransitions()
@@ -23,7 +23,17 @@ namespace engine
 
     void ItemController::applyRotation()
     {
-        m_sceneNode->setRotation(xyzToQuat(getRotation()));
+        m_meshAnimationController->setRotation(xyzToQuat(getRotation()));
+    }
+
+    void ItemController::applyPosition()
+    {
+        if(auto parent = m_meshAnimationController->getParent().lock())
+            m_meshAnimationController->setTranslation(m_position.position.toRenderSystem() - parent->getTranslationWorld());
+        else
+            m_meshAnimationController->setTranslation(m_position.position.toRenderSystem());
+
+        updateSounds();
     }
 
     void ItemController::setTargetState(uint16_t st)
@@ -41,7 +51,7 @@ namespace engine
     void ItemController::playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame)
     {
         Expects(m_meshAnimationController != nullptr);
-        m_meshAnimationController->playLocalAnimation(anim, firstFrame);
+        m_meshAnimationController->playLocal(anim, firstFrame ? *firstFrame : core::Frame::zero());
     }
 
     void ItemController::nextFrame()
@@ -56,18 +66,17 @@ namespace engine
         return m_meshAnimationController->getCurrentFrame();
     }
 
-    core::Frame ItemController::getAnimEndFrame() const
+    core::Frame ItemController::getLastAnimFrame() const
     {
         Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getAnimEndFrame();
+        return m_meshAnimationController->getLastFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& dispatcher, const gsl::not_null<std::shared_ptr<gameplay::Node>>& sceneNode, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room, core::ExactTRCoordinates(item->position))
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
-        , m_sceneNode(sceneNode)
-        , m_meshAnimationController(dispatcher)
+        , m_meshAnimationController(animCtrl)
         , m_name(name)
         , m_itemFlags(item->flags)
         , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
@@ -76,7 +85,7 @@ namespace engine
         setCurrentRoom(room);
 
         if(m_itemFlags & Oneshot)
-            m_sceneNode->setEnabled(false);
+            m_meshAnimationController->setEnabled(false);
 
         if((m_itemFlags & Oneshot) != 0)
         {
@@ -119,17 +128,18 @@ namespace engine
         }
         BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
-        if(!m_sceneNode->getParent().expired())
-            m_sceneNode->getParent().lock()->removeChild(m_sceneNode);
-        newRoom->node->addChild(m_sceneNode);
+        if(!m_meshAnimationController->getParent().expired())
+            m_meshAnimationController->getParent().lock()->removeChild(m_meshAnimationController);
+        newRoom->node->addChild(m_meshAnimationController);
 
         m_position.room = newRoom;
     }
 
-    uint16_t ItemController::getCurrentAnimationId() const
+
+    size_t ItemController::getCurrentAnimationId() const
     {
         Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getCurrentAnimationId();
+        return m_meshAnimationController->getAnimId();
     }
 
     float ItemController::calculateAnimFloorSpeed() const
@@ -153,13 +163,13 @@ namespace engine
 
         bool newFrame = advanceFrame;
 
-        if(handleTRTransitions() || m_lastAnimFrame != getCurrentFrame())
+        if(handleTRTransitions() || m_recentAnimFrame != getCurrentFrame())
         {
-            m_lastAnimFrame = getCurrentFrame();
+            m_recentAnimFrame = getCurrentFrame();
             newFrame = true;
         }
 
-        const bool isAnimEnd = getCurrentFrame() >= getAnimEndFrame();
+        const bool isAnimEnd = getCurrentFrame() > getLastAnimFrame();
 
         const loader::Animation& animation = getLevel().m_animations[getCurrentAnimationId()];
         if(animation.animCommandCount > 0)
@@ -758,14 +768,14 @@ namespace engine
     void ItemController::update(const std::chrono::microseconds& deltaTimeMs)
     {
         if(m_meshAnimationController != nullptr)
-            m_meshAnimationController->update(deltaTimeMs);
+            m_meshAnimationController->addTime(deltaTimeMs);
 
         m_currentDeltaTime = deltaTimeMs;
 
         if(m_currentDeltaTime <= std::chrono::microseconds::zero())
             return;
 
-        bool isNewFrame = m_meshAnimationController == nullptr ? false : m_lastAnimFrame != getCurrentFrame();
+        bool isNewFrame = m_meshAnimationController == nullptr ? false : m_recentAnimFrame != getCurrentFrame();
         m_subFrameTime += deltaTimeMs;
 
         if(m_subFrameTime >= core::FrameTime)

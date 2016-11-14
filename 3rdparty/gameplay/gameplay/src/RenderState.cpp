@@ -211,9 +211,6 @@ namespace gameplay
             case CAMERA_VIEW_POSITION:
                 param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
                 break;
-            case MATRIX_PALETTE:
-                param->bindValue(this, &RenderState::autoBindingGetMatrixPalette, &RenderState::autoBindingGetMatrixPaletteSize);
-                break;
             case SCENE_AMBIENT_COLOR:
                 param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
                 break;
@@ -287,32 +284,6 @@ namespace gameplay
     {
         static const glm::vec3 zero{ 0, 0, 0 };
         return _nodeBinding ? _nodeBinding->getActiveCameraTranslationView() : zero;
-    }
-
-
-    const glm::vec4* RenderState::autoBindingGetMatrixPalette() const
-    {
-        auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
-        if( model )
-        {
-            const std::unique_ptr<MeshSkin>& skin = model->getSkin();
-            if( skin )
-                return skin->getMatrixPalette();
-        }
-        return nullptr;
-    }
-
-
-    size_t RenderState::autoBindingGetMatrixPaletteSize() const
-    {
-        auto model = std::dynamic_pointer_cast<Model>(_nodeBinding->getDrawable());
-        if( model )
-        {
-            const std::unique_ptr<MeshSkin>& skin = model->getSkin();
-            if( skin )
-                return skin->getMatrixPaletteSize();
-        }
-        return 0;
     }
 
 

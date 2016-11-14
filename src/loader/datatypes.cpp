@@ -23,7 +23,7 @@ namespace loader
             static const gameplay::VertexFormat& getFormat()
             {
                 static const gameplay::VertexFormat::Element elems[3] = {
-                    {gameplay::VertexFormat::TEXCOORD0, 2},
+                    {gameplay::VertexFormat::TEXCOORD, 2},
                     {gameplay::VertexFormat::POSITION, 3},
                     {gameplay::VertexFormat::COLOR, 4}
                 };

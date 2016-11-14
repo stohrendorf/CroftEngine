@@ -1,59 +1,81 @@
 #pragma once
 
-#include "level/level.h"
-#include "loader/animation.h"
+#include "core/magic.h"
 #include "util/vmath.h"
 
-#include <boost/optional.hpp>
+#include <gsl/gsl>
+
+
+namespace level
+{
+    class Level;
+}
+
+
+namespace loader
+{
+    class AnimatedModel;
+    class Animation;
+}
 
 
 namespace engine
 {
-    /**
-     * @brief Handles state transitions and animation playback.
-     */
-    class AnimationController
+    class MeshAnimationController : public gameplay::Node
     {
-    private:
-        const gsl::not_null<const level::Level*> m_level;
-        const std::string m_name;
-
     public:
-        AnimationController(gsl::not_null<const level::Level*> level, const std::string& name)
-            : m_level(level)
-            , m_name(name)
+        explicit MeshAnimationController(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl);
+
+        void updatePose();
+
+
+        void setAnimId(size_t animId)
         {
+            m_animId = animId;
         }
 
 
-        virtual ~AnimationController() = default;
-
-
-        const std::string& getName() const
+        size_t getAnimId() const noexcept
         {
-            return m_name;
+            return m_animId;
         }
 
 
-        const gsl::not_null<const level::Level*>& getLevel() const
+        void setTime(const std::chrono::microseconds& time)
         {
-            return m_level;
+            m_time = time;
         }
 
 
-        virtual gameplay::BoundingBox getBoundingBox() const = 0;
-    };
+        void addTime(const std::chrono::microseconds& time)
+        {
+            m_time += time;
+        }
 
 
-    class MeshAnimationController final : public AnimationController
-    {
-        const loader::AnimatedModel& m_model;
-        uint16_t m_currentAnimationId;
-        uint16_t m_targetState = 0;
-        const std::shared_ptr<gameplay::Model> m_gpModel;
+        core::Frame getCurrentFrame() const
+        {
+            return core::toFrame(m_time);
+        }
 
-    public:
-        MeshAnimationController(gsl::not_null<const level::Level*> level, const loader::AnimatedModel& model, gsl::not_null<std::shared_ptr<gameplay::Model>> gpModel, const std::string& name);
+
+        core::Frame getCurrentLocalFrame() const
+        {
+            BOOST_ASSERT(core::toFrame(m_time) >= getFirstFrame());
+            return core::toFrame(m_time) - getFirstFrame();
+        }
+
+
+        core::Frame getFirstFrame() const;
+
+        core::Frame getLastFrame() const;
+
+        uint16_t getCurrentState() const;
+
+        void play(size_t animId);
+        void playLocal(size_t animId, const core::Frame& frame = core::Frame::zero());
+
+        const loader::Animation& getCurrentAnimData() const;
 
 
         void setTargetState(uint16_t state) noexcept
@@ -61,7 +83,7 @@ namespace engine
             if( state == m_targetState )
                 return;
 
-            BOOST_LOG_TRIVIAL(debug) << getName() << " -- set target state=" << state << " (was " << m_targetState << "), current state=" << getCurrentAnimState();
+            BOOST_LOG_TRIVIAL(debug) << getId() << " -- set target state=" << state << " (was " << m_targetState << "), current state=" << getCurrentState();
             m_targetState = state;
         }
 
@@ -72,83 +94,97 @@ namespace engine
         }
 
 
-        uint16_t getCurrentAnimState() const;
-
-        /**
-        * @brief Play a specific animation.
-        * @param anim Animation ID
-        *
-        * @details
-        * Plays the animation specified; if the animation does not exist, nothing happens;
-        * if it exists, the target state is changed to the animation's state.
-        */
-        void playGlobalAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame = boost::none);
-
-
-        void playLocalAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame = boost::none)
-        {
-            playGlobalAnimation(m_model.animationIndex + anim, firstFrame);
-        }
-
-
-        uint16_t getCurrentAnimationId() const noexcept
-        {
-            return m_currentAnimationId;
-        }
-
-
         bool handleTRTransitions();
         void handleAnimationEnd();
 
+        float calculateFloorSpeed() const;
 
-        float calculateFloorSpeed() const
-        {
-            BOOST_ASSERT(m_currentAnimationId < getLevel()->m_animations.size());
-            const loader::Animation& currentAnim = getLevel()->m_animations[m_currentAnimationId];
-            return float(currentAnim.speed + currentAnim.accelleration * getCurrentRelativeFrame().count()) / (1 << 16);
-        }
-
-
-        int getAccelleration() const
-        {
-            BOOST_ASSERT(m_currentAnimationId < getLevel()->m_animations.size());
-            const loader::Animation& currentAnim = getLevel()->m_animations[m_currentAnimationId];
-            return currentAnim.accelleration / (1 << 16);
-        }
-
+        int getAccelleration() const;
 
         void advanceFrame();
-        void update(const std::chrono::microseconds& delta);
-        core::Frame getCurrentFrame() const;
-        core::Frame getAnimEndFrame() const;
 
-        gameplay::BoundingBox getBoundingBox() const override;
+        gameplay::BoundingBox getBoundingBox() const;
 
 
         void resetPose()
         {
-            for( size_t i = 0; i < m_gpModel->getSkin()->getJointCount(); ++i )
-            {
-                m_gpModel->getSkin()->getJoint(i)->resetRotationPatch();
-            }
+            m_rotationPatches.clear();
+            m_rotationPatches.resize(getChildCount());
         }
 
-
-        void rotateBone(uint32_t id, const core::TRRotation& dr)
+        void rotateBone(size_t idx, const glm::quat& rot)
         {
-            Expects(id < m_gpModel->getSkin()->getJointCount());
-            auto bone = m_gpModel->getSkin()->getJoint(id);
-            bone->setRotationPatch(util::xyzToYpr(dr.toRad()));
-        }
+            if(m_rotationPatches.empty())
+                resetPose();
 
+            BOOST_ASSERT(m_rotationPatches.size() == getChildCount());
+            BOOST_ASSERT(idx < m_rotationPatches.size());
+
+            m_rotationPatches[idx] = rot;
+        }
 
     private:
-        /**
-        * @brief Starts to play the current animation at the specified frame.
-        * @param[in] localFrame The animation-local frame number.
-        */
-        void startAnimLoop(const core::Frame& localFrame);
-        void startAnimLoop(const std::chrono::microseconds& time);
-        core::Frame getCurrentRelativeFrame() const;
+        const gsl::not_null<const level::Level*> m_level;
+        size_t m_animId = 0;
+        std::chrono::microseconds m_time = std::chrono::microseconds::zero();
+        const loader::AnimatedModel& m_model;
+        uint16_t m_targetState = 0;
+        std::vector<glm::quat> m_rotationPatches;
+
+#pragma pack(push, 1)
+        struct AnimFrame
+        {
+            struct BBox
+            {
+                int16_t minX, maxX;
+                int16_t minY, maxY;
+                int16_t minZ, maxZ;
+
+                glm::vec3 getMinGl() const noexcept
+                {
+                    return glm::vec3(minX, minY, minZ);
+                }
+
+                glm::vec3 getMaxGl() const noexcept
+                {
+                    return glm::vec3(maxX, maxY, maxZ);
+                }
+            };
+
+
+            struct Vec
+            {
+                int16_t x, y, z;
+
+
+                glm::vec3 toGl() const noexcept
+                {
+                    return glm::vec3(x, y, z);
+                }
+            };
+
+
+            BBox bbox;
+            Vec pos;
+            uint16_t numValues;
+
+
+            const int16_t* getPayload() const noexcept
+            {
+                return reinterpret_cast<const int16_t*>(this + 1);
+            }
+        };
+#pragma pack(pop)
+
+        struct InterpolationInfo
+        {
+            const AnimFrame* firstFrame = nullptr;
+            const AnimFrame* secondFrame = nullptr;
+            int stretchFactor = 0;
+            int stretchOffset = 0;
+        };
+
+
+        InterpolationInfo getInterpolationInfo() const;
     };
 }

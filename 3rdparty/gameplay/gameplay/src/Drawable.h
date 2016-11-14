@@ -17,7 +17,7 @@ namespace gameplay
         /**
          * Constructor.
          */
-        Drawable();
+        explicit Drawable();
 
         /**
          * Destructor.

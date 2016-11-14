@@ -26,7 +26,6 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Node.h"
-#include "Joint.h"
 #include "Scene.h"
 #include "Font.h"
 #include "SpriteBatch.h"
@@ -36,8 +35,4 @@
 #include "RenderTarget.h"
 #include "DepthStencilTarget.h"
 #include "ScreenOverlay.h"
-
-// Animation
-#include "AnimationClip.h"
-
 #include "MaterialParameter.h"

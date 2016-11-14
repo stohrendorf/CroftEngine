@@ -1,6 +1,4 @@
 set(GAMEPLAY_SRC
-    src/AnimationClip.cpp
-    src/AnimationClip.h
     src/Base.h
     src/BoundingBox.cpp
     src/BoundingBox.h
@@ -24,8 +22,6 @@ set(GAMEPLAY_SRC
     src/Game.h
     src/Image.cpp
     src/Image.h
-    src/Joint.cpp
-    src/Joint.h
     src/Light.cpp
     src/Light.h
     src/Material.cpp
@@ -38,8 +34,6 @@ set(GAMEPLAY_SRC
     src/MeshBatch.h
     src/MeshPart.cpp
     src/MeshPart.h
-    src/MeshSkin.cpp
-    src/MeshSkin.h
     src/Model.cpp
     src/Model.h
     src/Node.cpp

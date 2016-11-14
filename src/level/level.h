@@ -13,6 +13,9 @@
 
 #include <memory>
 #include <vector>
+#include <boost/detail/container_fwd.hpp>
+#include "engine/animationcontroller.h"
+
 
 namespace level
 {
@@ -105,10 +108,9 @@ namespace level
         boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
-        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, size_t jointCount);
-        engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Model>>& skinnedModels, const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
-        std::vector<std::shared_ptr<gameplay::Model>> createSkinnedModels(gameplay::Game* game,
-                                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::Material>& colorMaterial);
+        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
+        engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
+        std::shared_ptr<engine::MeshAnimationController> createAnimController(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
@@ -155,8 +157,6 @@ namespace level
         engine::ItemController* getItemController(uint16_t id) const;
 
         void drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image>& image) const;
-
-        engine::ItemController* findControllerForNode(const std::shared_ptr<gameplay::Node>& node);
 
         std::unique_ptr<engine::InputHandler> m_inputHandler;
 

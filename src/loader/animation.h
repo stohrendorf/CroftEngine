@@ -155,8 +155,6 @@ namespace loader
         uint32_t meshPositionOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
         uint16_t animationIndex; // offset into Animations[]
 
-        std::map<uint16_t, std::unique_ptr<gameplay::AnimationClip>> animationClips;
-
         /** \brief reads a moveable definition.
         *
         * some sanity checks get done which throw a exception on failure.

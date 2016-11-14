@@ -71,25 +71,9 @@ namespace gameplay
                 case VertexFormat::BINORMAL:
                     attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_BINORMAL_NAME);
                     break;
-                case VertexFormat::BLENDWEIGHTS:
-                    attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_BLENDWEIGHTS_NAME);
+                case VertexFormat::TEXCOORD:
+                    attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME);
                     break;
-                case VertexFormat::BLENDINDICES:
-                    attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_BLENDINDICES_NAME);
-                    break;
-                case VertexFormat::TEXCOORD0:
-                    if( (attrib = shaderProgram->getVertexAttribute(VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)) != -1 )
-                        break;
-
-                case VertexFormat::TEXCOORD1:
-                case VertexFormat::TEXCOORD2:
-                case VertexFormat::TEXCOORD3:
-                case VertexFormat::TEXCOORD4:
-                case VertexFormat::TEXCOORD5:
-                case VertexFormat::TEXCOORD6:
-                case VertexFormat::TEXCOORD7:
-                    break;
-
                 default:
                     // This happens whenever vertex data contains extra information (not an error).
                     attrib = -1;
@@ -98,10 +82,7 @@ namespace gameplay
 
             if( attrib != -1 )
             {
-                if( e.usage != VertexFormat::BLENDINDICES )
-                    setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
-                else
-                    setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_INT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
             }
             else
             {

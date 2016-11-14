@@ -77,11 +77,6 @@ namespace gameplay
             CAMERA_VIEW_POSITION,
 
             /**
-            * Binds the matrix palette of MeshSkin attached to a node's model.
-            */
-            MATRIX_PALETTE,
-
-            /**
             * Binds the current scene's ambient color (glm::vec3).
             */
             SCENE_AMBIENT_COLOR
@@ -591,8 +586,6 @@ namespace gameplay
         glm::mat4 autoBindingGetInverseTransposeWorldViewMatrix() const;
         glm::vec3 autoBindingGetCameraWorldPosition() const;
         glm::vec3 autoBindingGetCameraViewPosition() const;
-        const glm::vec4* autoBindingGetMatrixPalette() const;
-        size_t autoBindingGetMatrixPaletteSize() const;
         const glm::vec3& autoBindingGetAmbientColor() const;
 
     protected:

@@ -11,68 +11,58 @@ namespace loader
     {
         glm::vec2 texcoord0;
         glm::vec3 position;
-        glm::ivec4 blendIndices{0, 0, 0, 0};
-        glm::vec4 blendWeights{0, 0, 0, 0};
 
 
-        static gameplay::VertexFormat getFormat(bool withWeights)
+        static gameplay::VertexFormat getFormat()
         {
             static const gameplay::VertexFormat::Element elems[4] = {
-                {gameplay::VertexFormat::TEXCOORD0, 2},
-                {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::BLENDINDICES, 4},
-                {gameplay::VertexFormat::BLENDWEIGHTS, 4}
+                {gameplay::VertexFormat::TEXCOORD, 2},
+                {gameplay::VertexFormat::POSITION, 3}
             };
-            return gameplay::VertexFormat{elems, size_t(withWeights ? 4 : 2)};
+            return gameplay::VertexFormat{elems, 2};
         }
     };
 
 
     struct Mesh::ModelBuilder::RenderVertexWithNormal
     {
-        glm::vec2 texcoord0;
+        glm::vec2 texcoord;
         glm::vec3 position;
         glm::vec3 normal;
-        glm::ivec4 blendIndices{0, 0, 0, 0};
-        glm::vec4 blendWeights{0, 0, 0, 0};
 
 
-        static gameplay::VertexFormat getFormat(bool withWeights)
+        static gameplay::VertexFormat getFormat()
         {
             static const gameplay::VertexFormat::Element elems[5] = {
-                {gameplay::VertexFormat::TEXCOORD0, 2},
+                {gameplay::VertexFormat::TEXCOORD, 2},
                 {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::NORMAL, 3},
-                {gameplay::VertexFormat::BLENDINDICES, 4},
-                {gameplay::VertexFormat::BLENDWEIGHTS, 4}
+                {gameplay::VertexFormat::NORMAL, 3}
             };
-            return gameplay::VertexFormat{elems, size_t(withWeights ? 5 : 3)};
+            return gameplay::VertexFormat{elems, 3};
         }
     };
 #pragma pack(pop)
 
-    gameplay::VertexFormat Mesh::ModelBuilder::getFormat(bool withNormals, bool withWeights)
+    gameplay::VertexFormat Mesh::ModelBuilder::getFormat(bool withNormals)
     {
-        return withNormals ? RenderVertexWithNormal::getFormat(withWeights) : RenderVertex::getFormat(withWeights);
+        return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
     }
 
 
     Mesh::ModelBuilder::ModelBuilder(bool withNormals,
                                      bool dynamic,
-                                     bool withWeights,
                                      const std::vector<TextureLayoutProxy>& textureProxies,
                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                      const std::shared_ptr<gameplay::Material>& colorMaterial,
                                      const Palette& palette,
                                      render::TextureAnimator& animator)
         : m_hasNormals{withNormals}
-        , m_withWeights{withWeights}
         , m_textureProxies{textureProxies}
         , m_materials{materials}
         , m_colorMaterial{colorMaterial}
         , m_palette{palette}
         , m_animator{animator}
-        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals, withWeights), 0, dynamic)}
+        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals), 0, dynamic)}
     {
     }
 
@@ -108,7 +98,7 @@ namespace loader
     }
 
 
-    void Mesh::ModelBuilder::append(const Mesh& mesh, float blendWeight, float blendIndex)
+    void Mesh::ModelBuilder::append(const Mesh& mesh)
     {
         if( mesh.normals.empty() && m_hasNormals )
         BOOST_THROW_EXCEPTION(std::runtime_error("Trying to append a mesh with normals to a buffer without normals"));
@@ -129,8 +119,6 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     append(iv);
                 }
 
@@ -158,8 +146,6 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -176,8 +162,6 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -197,8 +181,6 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -216,11 +198,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     append(iv);
                 }
 
@@ -246,11 +226,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -265,11 +243,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -287,11 +263,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
-                    iv.blendWeights = {blendWeight, 0, 0, 0};
-                    iv.blendIndices = {blendIndex, 0, 0, 0};
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -339,7 +313,6 @@ namespace loader
         ModelBuilder mb{
             !normals.empty(),
             true,
-            false,
             textureProxies,
             materials,
             colorMaterial,

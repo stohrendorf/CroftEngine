@@ -239,28 +239,21 @@ namespace loader
             return proxy;
         }
 
-        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, size_t jointCount) const
+        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture) const
         {
-            return createMaterial(texture, textureKey.blendingMode, jointCount);
+            return createMaterial(texture, textureKey.blendingMode);
         }
 
-        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, size_t jointCount)
+        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode)
         {
             std::vector<std::string> defines;
             defines.emplace_back( "TEXTURE_DISCARD_ALPHA" );
-            if(jointCount != 0)
-            {
-                defines.emplace_back( "SKINNING" );
-                defines.emplace_back( "SKINNING_JOINT_COUNT " + boost::lexical_cast<std::string>(jointCount) );
-            }
 
             auto result = std::make_shared<gameplay::Material>("shaders/textured.vert", "shaders/textured.frag", defines);
             // Set some defaults
             result->getParameter("u_diffuseTexture")->setValue(std::make_shared<gameplay::Texture::Sampler>(texture));
             //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
             result->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
-            if(jointCount != 0)
-                result->setParameterAutoBinding("u_matrixPalette", gameplay::RenderState::MATRIX_PALETTE);
 
             //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
             //result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;

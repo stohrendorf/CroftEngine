@@ -566,6 +566,16 @@ namespace gameplay
          */
         void removeListener(Transform::Listener* listener);
 
+        Transform mix(const Transform& other, float bias)
+        {
+            BOOST_ASSERT(bias >= 0 && bias <= 1);
+            Transform res;
+            res.setTranslation(glm::mix(_translation, other._translation, bias));
+            res.setRotation(glm::slerp(_rotation, other._rotation, bias));
+            res.setScale(glm::mix(_scale, other._scale, bias));
+            return res;
+        }
+
     protected:
 
         /**
@@ -631,7 +641,6 @@ namespace gameplay
          * The rotation component of the Transform.
          */
         glm::quat _rotation;
-        glm::quat _rotationPatch;
 
         /**
          * The translation component of the Transform.
