@@ -22,6 +22,8 @@ namespace
         }
     };
 #pragma pack(pop)
+
+    static_assert(sizeof(BoneTreeEntry) == 16, "BoneTreeEntry must be of size 16");
 }
 
 
@@ -122,11 +124,11 @@ namespace engine
         transformsSecond.push(glm::translate(glm::mat4{ 1.0f }, framePair.secondFrame->pos.toGl()));
 
         auto payloadFirst = framePair.firstFrame->getPayload();
-        transformsFirst.top() *= glm::mat4_cast(util::xyzToYpr(payloadFirst));
+        transformsFirst.top() *= util::xyzToYprMatrix(payloadFirst);
         payloadFirst += 2;
 
         auto payloadSecond = framePair.secondFrame->getPayload();
-        transformsSecond.top() *= glm::mat4_cast(util::xyzToYpr(payloadSecond));
+        transformsSecond.top() *= util::xyzToYprMatrix(payloadSecond);
         payloadSecond += 2;
 
         const auto bias = gsl::narrow<float>(framePair.stretchOffset) / framePair.stretchFactor;
@@ -137,7 +139,7 @@ namespace engine
 
         BOOST_ASSERT(m_rotationPatches.size() == getChildCount());
 
-        getChildren()[0]->set(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[0]));
+        getChildren()[0]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[0]));
 
         if(m_model.boneCount <= 1)
             return;
@@ -157,15 +159,15 @@ namespace engine
                 transformsSecond.push(transformsSecond.top());
             }
 
-            transformsFirst.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * glm::mat4_cast(util::xyzToYpr(payloadFirst));
+            transformsFirst.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * util::xyzToYprMatrix(payloadFirst);
             payloadFirst += 2;
-            transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * glm::mat4_cast(util::xyzToYpr(payloadSecond));
+            transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * util::xyzToYprMatrix(payloadSecond);
             payloadSecond += 2;
 #if 0
             if(boneTreeData->flags & 0x08)
                 matrices.top() = glm::rotate(matrices.top(), util::auToRad(...));
 #endif
-            getChildren()[i]->set(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[i]));
+            getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[i]));
 
             ++boneTreeData;
         }

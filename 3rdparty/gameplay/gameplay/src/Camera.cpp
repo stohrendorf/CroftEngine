@@ -6,13 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // Camera dirty bits
-#define CAMERA_DIRTY_VIEW 1
 #define CAMERA_DIRTY_PROJ 2
 #define CAMERA_DIRTY_VIEW_PROJ 4
 #define CAMERA_DIRTY_INV_VIEW 8
 #define CAMERA_DIRTY_INV_VIEW_PROJ 16
 #define CAMERA_DIRTY_BOUNDS 32
-#define CAMERA_DIRTY_ALL (CAMERA_DIRTY_VIEW | CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS)
+#define CAMERA_DIRTY_ALL (CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS)
 
 // Other misc camera bits
 #define CAMERA_CUSTOM_PROJECTION 64
@@ -27,7 +26,6 @@ namespace gameplay
         , _nearPlane(nearPlane)
         , _farPlane(farPlane)
         , _bits(CAMERA_DIRTY_ALL)
-        , _node(nullptr)
         , _listeners()
     {
     }
@@ -40,7 +38,6 @@ namespace gameplay
         , _nearPlane(nearPlane)
         , _farPlane(farPlane)
         , _bits(CAMERA_DIRTY_ALL)
-        , _node(nullptr)
         , _listeners()
     {
         // Orthographic camera.
@@ -154,52 +151,8 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<Node>& Camera::getNode() const
-    {
-        return _node;
-    }
-
-
-    void Camera::setNode(const std::shared_ptr<Node>& node)
-    {
-        if( _node != node )
-        {
-            if( _node )
-            {
-                _node->removeListener(this);
-            }
-
-            // Connect the new node.
-            _node = node;
-
-            if( _node )
-            {
-                _node->addListener(this);
-            }
-
-            _bits |= CAMERA_DIRTY_VIEW | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
-            cameraChanged();
-        }
-    }
-
-
     const glm::mat4& Camera::getViewMatrix() const
     {
-        if( _bits & CAMERA_DIRTY_VIEW )
-        {
-            if( _node )
-            {
-                // The view matrix is the inverse of our transform matrix.
-                _view = glm::inverse(_node->getWorldMatrix());
-            }
-            else
-            {
-                _view = glm::mat4{ 1.0f };
-            }
-
-            _bits &= ~CAMERA_DIRTY_VIEW;
-        }
-
         return _view;
     }
 
@@ -208,7 +161,7 @@ namespace gameplay
     {
         if( _bits & CAMERA_DIRTY_INV_VIEW )
         {
-            _inverseView = glm::inverse(getViewMatrix());
+            _inverseView = glm::inverse(_view);
 
             _bits &= ~CAMERA_DIRTY_INV_VIEW;
         }
@@ -389,9 +342,9 @@ namespace gameplay
     }
 
 
-    void Camera::transformChanged(Transform* /*transform*/, long /*cookie*/)
+    void Camera::transformChanged()
     {
-        _bits |= CAMERA_DIRTY_VIEW | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
+        _bits |= CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
 
         cameraChanged();
     }
@@ -420,5 +373,13 @@ namespace gameplay
         auto it = std::find(_listeners.begin(), _listeners.end(), listener);
         if(it != _listeners.end())
             _listeners.erase(it);
+    }
+
+
+    void Camera::setViewMatrix(const glm::mat4& m)
+    {
+        _view = m;
+        _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
+        cameraChanged();
     }
 }

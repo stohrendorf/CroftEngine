@@ -113,16 +113,6 @@ namespace gameplay
 
         _nodes.push_back(node);
         node->_scene = this;
-
-        // If we don't have an active camera set, then check for one and set it.
-        if( _activeCamera == nullptr )
-        {
-            auto camera = node->getCamera();
-            if( camera )
-            {
-                setActiveCamera(camera);
-            }
-        }
     }
 
 

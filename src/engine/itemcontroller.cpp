@@ -30,7 +30,7 @@ namespace engine
         else
             tr = m_position.position.toRenderSystem();
 
-        m_meshAnimationController->set(xyzToQuat(getRotation()), tr);
+        m_meshAnimationController->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, tr) * glm::mat4_cast(xyzToQuat(getRotation())));
 
         updateSounds();
     }

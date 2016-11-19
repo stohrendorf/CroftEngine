@@ -60,8 +60,6 @@ set(GAMEPLAY_SRC
     src/SpriteBatch.h
     src/Texture.cpp
     src/Texture.h
-    src/Transform.cpp
-    src/Transform.h
     src/VertexAttributeBinding.cpp
     src/VertexAttributeBinding.h
     src/VertexFormat.cpp

@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "Scene.h"
 #include "Drawable.h"
+#include "Camera.h"
 
 // Node dirty flags
 #define NODE_DIRTY_WORLD 1
@@ -13,15 +14,7 @@
 namespace gameplay
 {
     Node::Node(const std::string& id)
-        : _scene(nullptr)
-        , _id(id)
-        , _parent()
-        , _enabled(true)
-        , _tags()
-        , _drawable(nullptr)
-        , _camera(nullptr)
-        , _light(nullptr)
-        , _userObject(nullptr)
+        : _id(id)
         , _dirtyBits(NODE_DIRTY_ALL)
     {
     }
@@ -214,31 +207,6 @@ namespace gameplay
     }
 
 
-    bool Node::hasTag(const std::string& name) const
-    {
-        return _tags.find(name) != _tags.end();
-    }
-
-
-    const char* Node::getTag(const std::string& name) const
-    {
-        auto itr = _tags.find(name);
-        return (itr == _tags.end() ? nullptr : itr->second.c_str());
-    }
-
-
-    void Node::setTag(const std::string& name, const std::string& value)
-    {
-        _tags[name] = value;
-    }
-
-
-    void Node::clearTag(const std::string& name)
-    {
-        _tags.erase(name);
-    }
-
-
     void Node::setEnabled(bool enabled)
     {
         _enabled = enabled;
@@ -282,11 +250,11 @@ namespace gameplay
             auto parent = getParent();
             if( !parent.expired() )
             {
-                _world = parent.lock()->getWorldMatrix() * getMatrix();
+                m_worldMatrix = parent.lock()->getWorldMatrix() * getLocalMatrix();
             }
             else
             {
-                _world = getMatrix();
+                m_worldMatrix = getLocalMatrix();
             }
 
             // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
@@ -296,7 +264,7 @@ namespace gameplay
                 child->getWorldMatrix();
             }
         }
-        return _world;
+        return m_worldMatrix;
     }
 
 
@@ -423,30 +391,7 @@ namespace gameplay
             auto camera = scene->getActiveCamera();
             if( camera )
             {
-                auto cameraNode = camera->getNode();
-                if( cameraNode )
-                {
-                    return cameraNode->getTranslationWorld();
-                }
-            }
-        }
-        return {0,0,0};
-    }
-
-
-    glm::vec3 Node::getActiveCameraTranslationView() const
-    {
-        Scene* scene = getScene();
-        if( scene )
-        {
-            auto camera = scene->getActiveCamera();
-            if( camera )
-            {
-                auto cameraNode = camera->getNode();
-                if( cameraNode )
-                {
-                    return cameraNode->getTranslationView();
-                }
+                return glm::vec3(camera->getInverseViewMatrix()[3]);
             }
         }
         return {0,0,0};
@@ -471,7 +416,6 @@ namespace gameplay
         {
             child->transformChanged();
         }
-        Transform::transformChanged();
     }
 
 
@@ -485,32 +429,6 @@ namespace gameplay
         if( !_parent.expired() )
             _parent.lock()->setBoundsDirty();
     }
-
-
-    const std::shared_ptr<Camera>& Node::getCamera() const
-    {
-        return _camera;
-    }
-
-
-    void Node::setCamera(const std::shared_ptr<Camera>& camera)
-    {
-        if( _camera == camera )
-            return;
-
-        if( _camera )
-        {
-            _camera->setNode(nullptr);
-        }
-
-        _camera = camera;
-
-        if( _camera )
-        {
-            _camera->setNode(std::static_pointer_cast<Node>(shared_from_this()));
-        }
-    }
-
 
     const std::shared_ptr<Light>& Node::getLight() const
     {
@@ -562,17 +480,5 @@ namespace gameplay
             }
         }
         setBoundsDirty();
-    }
-
-
-    void* Node::getUserObject() const
-    {
-        return _userObject;
-    }
-
-
-    void Node::setUserObject(void* obj)
-    {
-        _userObject = obj;
     }
 }

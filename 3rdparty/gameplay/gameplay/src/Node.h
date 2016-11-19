@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Transform.h"
 #include "Model.h"
-#include "Camera.h"
 #include "Light.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace gameplay
 {
-    class Camera;
     class Drawable;
     class Light;
     class Scene;
@@ -22,7 +20,7 @@ namespace gameplay
      *
      * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Node
      */
-    class Node : public Transform
+    class Node : public std::enable_shared_from_this<Node>
     {
         friend class Light;
         friend class Scene;
@@ -32,17 +30,6 @@ namespace gameplay
 
         explicit Node(const std::string& id);
         virtual ~Node();
-
-
-        /**
-         * Defines the types of nodes.
-         */
-        enum Type
-        {
-            NODE = 1,
-            JOINT
-        };
-
 
         /**
          * Gets the identifier for the node.
@@ -132,40 +119,6 @@ namespace gameplay
          * @return The scene.
          */
         virtual Scene* getScene() const;
-
-        /**
-         * Sets a tag on this Node.
-         *
-         * tags can be used for a variety of purposes within a game. For example,
-         * a tag called "transparent" can be added to nodes, to indicate which nodes in
-         * a scene are transparent. This tag can then be read during rendering to sort
-         * transparent and opaque objects for correct drawing order.
-         *
-         * Setting a tag to NULL removes the tag from the Node.
-         *
-         * @param name Name of the tag to set.
-         * @param value Optional value of the tag (empty string by default).
-         */
-        void setTag(const std::string& name, const std::string& value = {});
-        void clearTag(const std::string& name);
-
-        /**
-         * Returns the value of the custom tag with the given name.
-         *
-         * @param name Name of the tag to return.
-         *
-         * @return The value of the given tag, or NULL if the tag is not set.
-         */
-        const char* getTag(const std::string& name) const;
-
-        /**
-         * Determines if a custom tag with the specified name is set.
-         *
-         * @param name Name of the tag to query.
-         *
-         * @return true if the tag is set, false otherwise.
-         */
-        bool hasTag(const std::string& name) const;
 
         /**
          * Sets if the node is enabled in the scene.
@@ -290,13 +243,6 @@ namespace gameplay
         glm::vec3 getActiveCameraTranslationWorld() const;
 
         /**
-         * Returns the view-space translation vector of the currently active camera for this node's scene.
-         *
-         * @return The translation vector of the scene's active camera, in view-space.
-         */
-        glm::vec3 getActiveCameraTranslationView() const;
-
-        /**
          * Gets the drawable object attached to this node.
          *
          * @return The drawable component attached to this node.
@@ -316,23 +262,6 @@ namespace gameplay
         void setDrawable(const std::shared_ptr<Drawable>& drawable);
 
         /**
-         * Gets the camera attached to this node.
-         *
-         * @return Gets the camera attached to this node.
-         */
-        const std::shared_ptr<Camera>& getCamera() const;
-
-        /**
-         * Attaches a camera to this node.
-         *
-         * This will increase the reference count of the new camera and decrease
-         * the reference count of the old camera.
-         *
-         * @param camera The new camera. May be NULL.
-         */
-        void setCamera(const std::shared_ptr<Camera>& camera);
-
-        /**
          * Get the light attached to this node.
          *
          * @return The light attached to this node.
@@ -349,25 +278,21 @@ namespace gameplay
          */
         void setLight(const std::shared_ptr<Light>& light);
 
-        /**
-         * Gets the user object assigned to this node.
-         *
-         * @return The user object assigned object to this node.
-         */
-        void* getUserObject() const;
-
-        /**
-        * Sets a user object to be assigned object to this node.
-        *
-        * @param obj The user object assigned object to this node.
-        */
-        void setUserObject(void* obj);
-
         const List& getChildren() const
         {
             return _children;
         }
 
+        const glm::mat4& getLocalMatrix() const
+        {
+            return m_localMatrix;
+        }
+
+        void setLocalMatrix(const glm::mat4& m)
+        {
+            m_localMatrix = m;
+            transformChanged();
+        }
 
     protected:
 
@@ -379,7 +304,7 @@ namespace gameplay
         /**
          * Called when this Node's transform changes.
          */
-        void transformChanged() override;
+        void transformChanged();
 
         /**
          * Called when this Node's hierarchy changes.
@@ -400,30 +325,25 @@ namespace gameplay
     protected:
 
         /** The scene this node is attached to. */
-        Scene* _scene;
+        Scene* _scene = nullptr;
         /** The nodes id. */
         std::string _id;
 
         List _children;
 
         /** The nodes parent. */
-        std::weak_ptr<Node> _parent;
+        std::weak_ptr<Node> _parent{};
 
         /** If this node is enabled. Maybe different if parent is enabled/disabled. */
-        bool _enabled;
-        /** Tags assigned to this node. */
-        std::map<std::string, std::string> _tags;
+        bool _enabled = true;
         /** The drawble component attached to this node. */
-        std::shared_ptr<Drawable> _drawable;
-        /** The camera component attached to this node. */
-        std::shared_ptr<Camera> _camera;
+        std::shared_ptr<Drawable> _drawable = nullptr;
         /** The light component attached to this node. */
-        std::shared_ptr<Light> _light;
-        /** The user object component attached to this node. */
-        void* _userObject;
-        /** The world matrix for this node. */
-        mutable glm::mat4 _world;
+        std::shared_ptr<Light> _light = nullptr;
         /** The dirty bits used for optimization. */
         mutable int _dirtyBits;
+
+        glm::mat4 m_localMatrix{ 1.0f };
+        mutable glm::mat4 m_worldMatrix{ 1.0f };
     };
 }

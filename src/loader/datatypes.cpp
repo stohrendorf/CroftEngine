@@ -208,10 +208,10 @@ namespace loader
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
-            subNode->set({ 0,1,0 }, util::auToRad(sm.rotation), (sm.position - position).toRenderSystem());
+            subNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{ 0,1,0 }));
             node->addChild(subNode);
         }
-        node->setTranslation(position.toRenderSystem());
+        node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, position.toRenderSystem()));
 
         for( const Sprite& sprite : sprites )
         {
@@ -225,7 +225,7 @@ namespace loader
 
             auto n = std::make_shared<gameplay::Node>("");
             n->setDrawable(spriteNode);
-            n->setTranslation((vertices[sprite.vertex].position - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem());
+            n->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (vertices[sprite.vertex].position - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem()));
 
             node->addChild(n);
         }

@@ -3,8 +3,10 @@
 #include "Game.h"
 #include "Node.h"
 #include "Scene.h"
+#include "Camera.h"
 
 #include <glm/gtc/random.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <chrono>
@@ -772,13 +774,13 @@ namespace gameplay
             static const glm::vec2 pivot(0.5f, 0.5f);
 
             // 3D Rotation so that particles always face the camera.
-            BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera() && _node->getScene()->getActiveCamera()->getNode());
-            const glm::mat4& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getNode()->getWorldMatrix();
+            BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera());
+            const glm::mat4& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getInverseViewMatrix();
 
             glm::vec3 right{cameraWorldMatrix * glm::vec4{1,0,0,1}};
             glm::vec3 up{cameraWorldMatrix * glm::vec4{0,1,0,1}};
 
-            for( unsigned int i = 0; i < _particleCount; i++ )
+            for( size_t i = 0; i < _particleCount; i++ )
             {
                 Particle* p = &_particles[i];
 

@@ -2,7 +2,11 @@
 #include "Sprite.h"
 #include "Scene.h"
 
+#include "Camera.h"
+
 #include <boost/log/trivial.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 
 namespace gameplay
 {
@@ -267,18 +271,14 @@ namespace gameplay
             auto activeCamera = _node->getScene()->getActiveCamera();
             if( activeCamera )
             {
-                auto cameraNode = _node->getScene()->getActiveCamera()->getNode();
-                if( cameraNode )
-                {
-                    // Scene projection
-                    glm::mat4 projectionMatrix;
-                    projectionMatrix = _node->getProjectionMatrix();
-                    _batch->setProjectionMatrix(projectionMatrix);
+                // Scene projection
+                glm::mat4 projectionMatrix;
+                projectionMatrix = _node->getProjectionMatrix();
+                _batch->setProjectionMatrix(projectionMatrix);
 
-                    // Camera translation offsets
-                    position.x -= cameraNode->getTranslationWorld().x;
-                    position.y -= cameraNode->getTranslationWorld().y;
-                }
+                // Camera translation offsets
+                position.x -= activeCamera->getInverseViewMatrix()[3].x;
+                position.y -= activeCamera->getInverseViewMatrix()[3].y;
             }
 
             // Apply node translation offsets
@@ -309,7 +309,7 @@ namespace gameplay
         if( _node )
         {
             // Apply node rotation
-            const glm::quat& rot = _node->getRotation();
+            const glm::quat rot = glm::quat_cast(_node->getLocalMatrix());
             if(rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f)
                 rotationAngle = glm::angle(rot);
         }

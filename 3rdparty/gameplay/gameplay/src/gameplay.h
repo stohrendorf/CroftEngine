@@ -5,7 +5,6 @@
 
 // Math
 #include "Rectangle.h"
-#include "Transform.h"
 #include "Ray.h"
 #include "Plane.h"
 #include "Frustum.h"

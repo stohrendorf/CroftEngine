@@ -7,6 +7,8 @@
 
 namespace gameplay
 {
+    class Camera;
+
     /**
      * Defines the root container for a hierarchy of Node objects.
      *

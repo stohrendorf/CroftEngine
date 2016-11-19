@@ -401,7 +401,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
             auto animCtrl = createAnimController(*modelIdx, models);
             animCtrl->setId(animCtrl->getId() + "/item:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")");
 
-            animCtrl->setTranslation(item.position.toRenderSystem());
+            animCtrl->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, item.position.toRenderSystem()));
 
             if( item.type == 0 )
             {
@@ -498,7 +498,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
             auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(sprite);
-            node->setTranslation(item.position.toRenderSystem());
+            node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, item.position.toRenderSystem()));
 
             //m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, node, name + ":controller", &room, &item);
             //m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -563,9 +563,6 @@ void Level::toIrrlicht(gameplay::Game* game)
     }
 
     game->getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
-    auto camNode = std::make_shared<gameplay::Node>("cameraNode");
-    camNode->setCamera(game->getScene()->getActiveCamera());
-    game->getScene()->addNode(camNode);
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {

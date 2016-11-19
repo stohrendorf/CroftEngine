@@ -124,17 +124,17 @@ namespace engine
 
         glm::vec3 getPosition() const
         {
-            return m_camera->getNode()->getTranslationWorld();
+            return glm::vec3{ m_camera->getInverseViewMatrix()[3] };
         }
 
         glm::vec3 getFrontVector() const
         {
-            return glm::vec3{ m_camera->getViewMatrix() * glm::vec4{0, 0, -1, 1} };
+            return glm::vec3{ m_camera->getInverseViewMatrix() * glm::vec4{0, 0, -1, 1} };
         }
 
         glm::vec3 getUpVector() const
         {
-            return glm::vec3{ m_camera->getViewMatrix() * glm::vec4{ 0, 1, 0, 1 } };
+            return glm::vec3{ m_camera->getInverseViewMatrix() * glm::vec4{ 0, 1, 0, 1 } };
         }
 
         void resetHeadTorsoRotation()

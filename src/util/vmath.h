@@ -21,9 +21,9 @@ namespace util
     inline glm::quat xyzToYpr(const glm::vec3& rotation)
     {
         glm::quat v;
-        v *= glm::quat(rotation.z, {0,0,1});
-        v *= glm::quat(rotation.x, {1,0,0});
-        v *= glm::quat(rotation.y, {0,1,0});
+        v *= glm::angleAxis(rotation.z, glm::vec3{0,0,1});
+        v *= glm::angleAxis(rotation.x, glm::vec3{1,0,0});
+        v *= glm::angleAxis(rotation.y, glm::vec3{0,1,0});
         return v;
     }
 
@@ -32,30 +32,20 @@ namespace util
     {
         const uint32_t angle = *reinterpret_cast<const uint32_t*>(animData);
         glm::quat v;
-        v *= glm::quat(auToRad(((angle >> 00) & 0x3ff) * 64), {0,0,1});
-        v *= glm::quat(auToRad(((angle >> 20) & 0x3ff) * 64), {1,0,0});
-        v *= glm::quat(auToRad(((angle >> 10) & 0x3ff) * 64), {0,1,0});
+        v *= glm::angleAxis(auToRad(((angle >> 00) & 0x3ff) * 64), glm::vec3{0,0,1});
+        v *= glm::angleAxis(auToRad(((angle >> 20) & 0x3ff) * 64), glm::vec3{1,0,0});
+        v *= glm::angleAxis(auToRad(((angle >> 10) & 0x3ff) * 64), glm::vec3{0,1,0});
         return v;
     }
 
 
-    inline glm::mat4& rotateCompressed(glm::mat4& matrix, const int16_t* animData)
+    inline glm::mat4 xyzToYprMatrix(const int16_t* animData)
     {
         const uint32_t angle = *reinterpret_cast<const uint32_t*>(animData);
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 10) & 0x3ff) * 64), { 0, 1.0f, 0 });
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 20) & 0x3ff) * 64), { 1.0f, 0, 0 });
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 00) & 0x3ff) * 64), { 0, 0, 1.0f });
-        return matrix;
-    }
-
-
-    inline glm::mat4 rotateCompressed(const int16_t* animData)
-    {
-        const uint32_t angle = *reinterpret_cast<const uint32_t*>(animData);
-        glm::mat4 matrix{ 1.0f };
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 10) & 0x3ff) * 64), { 0, 1.0f, 0 });
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 20) & 0x3ff) * 64), { 1.0f, 0, 0 });
-        matrix = glm::rotate(matrix, util::auToRad(((angle >> 00) & 0x3ff) * 64), { 0, 0, 1.0f });
-        return matrix;
+        glm::mat4 m{1.0f};
+        m = glm::rotate(m, auToRad(((angle >> 10) & 0x3ff) * 64), {0,1,0});
+        m = glm::rotate(m, auToRad(((angle >> 20) & 0x3ff) * 64), {1,0,0});
+        m = glm::rotate(m, auToRad(((angle >> 00) & 0x3ff) * 64), {0,0,1});
+        return m;
     }
 } // namespace util

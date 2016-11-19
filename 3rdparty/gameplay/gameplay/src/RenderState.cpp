@@ -208,9 +208,6 @@ namespace gameplay
             case CAMERA_WORLD_POSITION:
                 param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
                 break;
-            case CAMERA_VIEW_POSITION:
-                param->bindValue(this, &RenderState::autoBindingGetCameraViewPosition);
-                break;
             case SCENE_AMBIENT_COLOR:
                 param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
                 break;
@@ -277,13 +274,6 @@ namespace gameplay
     {
         static const glm::vec3 zero{ 0, 0, 0 };
         return _nodeBinding ? _nodeBinding->getActiveCameraTranslationWorld() : zero;
-    }
-
-
-    glm::vec3 RenderState::autoBindingGetCameraViewPosition() const
-    {
-        static const glm::vec3 zero{ 0, 0, 0 };
-        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationView() : zero;
     }
 
 

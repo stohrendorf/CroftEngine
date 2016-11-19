@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Transform.h"
 #include "Frustum.h"
 #include "Rectangle.h"
 
@@ -13,7 +12,7 @@ namespace gameplay
     /**
      * Defines a camera which acts as a view of a scene to be rendered.
      */
-    class Camera : public Transform::Listener
+    class Camera
     {
         friend class Node;
 
@@ -168,18 +167,13 @@ namespace gameplay
         void setFarPlane(float farPlane);
 
         /**
-         * Gets the node that this camera is attached to.
-         *
-         * @return The node that this camera is attached to.
-         */
-        const std::shared_ptr<Node>& getNode() const;
-
-        /**
          * Gets the camera's view matrix.
          *
          * @return The camera view matrix.
          */
         const glm::mat4& getViewMatrix() const;
+
+        void setViewMatrix(const glm::mat4& m);
 
         /**
          * Gets the camera's inverse view matrix.
@@ -309,15 +303,7 @@ namespace gameplay
 
         Camera& operator=(const Camera&) = delete;
 
-        /**
-         * Sets the node associated with this camera.
-         */
-        void setNode(const std::shared_ptr<Node>& node);
-
-        /**
-         * @see Transform::Listener::transformChanged
-         */
-        void transformChanged(Transform* transform, long cookie) override;
+        void transformChanged();
 
         void cameraChanged();
 
@@ -334,7 +320,6 @@ namespace gameplay
         mutable glm::mat4 _inverseViewProjection;
         mutable Frustum _bounds;
         mutable int _bits;
-        std::shared_ptr<Node> _node;
         std::list<Camera::Listener*> _listeners;
     };
 }
