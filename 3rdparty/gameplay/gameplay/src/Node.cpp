@@ -469,19 +469,7 @@ namespace gameplay
         // Notify our children that their transform has also changed (since transforms are inherited).
         for( const auto& child : _children )
         {
-            if( Transform::isTransformChangedSuspended() )
-            {
-                // If the DIRTY_NOTIFY bit is not set
-                if( !child->isDirty(Transform::DIRTY_NOTIFY) )
-                {
-                    child->transformChanged();
-                    suspendTransformChange(child);
-                }
-            }
-            else
-            {
-                child->transformChanged();
-            }
+            child->transformChanged();
         }
         Transform::transformChanged();
     }

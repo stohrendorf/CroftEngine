@@ -25,25 +25,6 @@ namespace gameplay
     class Transform : public std::enable_shared_from_this<Transform>
     {
     public:
-
-        /**
-         * Globally suspends all transform changed events.
-         */
-        static void suspendTransformChanged();
-
-        /**
-         * Globally resumes all transform changed events.
-         */
-        static void resumeTransformChanged();
-
-        /**
-         * Gets whether all transform changed events are suspended.
-         *
-         * @return TRUE if transform changed events are suspended; FALSE if transform changed events are not suspended.
-         */
-        static bool isTransformChangedSuspended();
-
-
         /**
          * Listener interface for Transform events.
          */
@@ -72,20 +53,18 @@ namespace gameplay
         /**
          * Constructs a new transform from the specified values.
          *
-         * @param scale The scale vector.
          * @param rotation The rotation quaternion.
          * @param translation The translation vector.
          */
-        Transform(const glm::vec3& scale, const glm::quat& rotation, const glm::vec3& translation);
+        Transform(const glm::quat& rotation, const glm::vec3& translation);
 
         /**
          * Constructs a new transform from the specified values.
          *
-         * @param scale The scale vector.
          * @param rotation The rotation matrix.
          * @param translation The translation vector.
          */
-        Transform(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation);
+        Transform(const glm::mat4& rotation, const glm::vec3& translation);
 
         /**
          * Constructs a new transform from the given transform.
@@ -114,99 +93,14 @@ namespace gameplay
         const glm::mat4& getMatrix() const;
 
         /**
-         * Returns the scale for this transform.
-         */
-        const glm::vec3& getScale() const;
-
-        /**
-         * Gets the scale component of this transform in the specified vector.
-         *
-         * @param scale The vector to store the scale in.
-         */
-        void getScale(glm::vec3* scale) const;
-
-        /**
-         * Gets the scale factor along the x-axis of this transform.
-         *
-         * @return The scale factor along the x-axis.
-         */
-        float getScaleX() const;
-
-        /**
-         * Gets the scale factor along the y-axis of this transform.
-         *
-         * @return The scale factor along the y-axis.
-         */
-        float getScaleY() const;
-
-        /**
-         * Gets the scale factor along the z-axis of this transform.
-         *
-         * @return The scale factor along the z-axis.
-         */
-        float getScaleZ() const;
-
-        /**
          * Returns the rotation for this transform.
          */
         const glm::quat& getRotation() const;
 
         /**
-         * Gets the rotation component of this transform in the specified quaternion.
-         *
-         * @param rotation The quaternion to store the rotation in.
-         */
-        void getRotation(glm::quat* rotation) const;
-
-        /**
-         * Gets the rotation component of this transform in the specified matrix.
-         *
-         * @param rotation The matrix to store the rotation in.
-         */
-        void getRotation(glm::mat4* rotation) const;
-
-        /**
-         * Gets the angle of rotation, and stores the axis of rotation
-         * of this transform in the specified glm::vec3.
-         *
-         * @param axis The vector to store the axis of rotation.
-         *
-         * @return The angle of rotation.
-         */
-        float getRotation(glm::vec3* axis) const;
-
-        /**
          * Returns the translation for this transform.
          */
         const glm::vec3& getTranslation() const;
-
-        /**
-         * Gets the translation component of this transform in the specified vector.
-         *
-         * @param translation The vector to store the translation in.
-         */
-        void getTranslation(glm::vec3* translation) const;
-
-        /**
-         * Gets the translation factor along the x-axis of this transform.
-         *
-         * @return The translation factor along the x-axis.
-         */
-        float getTranslationX() const;
-
-        /**
-         * Gets the translation factor along the y-axis of this transform.
-         *
-         * @return The translation factor along the y-axis.
-         */
-        float getTranslationY() const;
-
-        /**
-         * Gets the translation factor along the z-axis of this transform.
-         *
-         * @return The translation factor along the z-axis.
-         */
-        float getTranslationZ() const;
 
         /**
          * Rotates this transform's rotation component by the given rotation.
@@ -235,13 +129,6 @@ namespace gameplay
         void rotate(const glm::vec3& axis, float angle);
 
         /**
-         * Rotates this transform's rotation component by the given rotation.
-         *
-         * @param rotation The rotation to rotate by (as a matrix).
-         */
-        void rotate(const glm::mat4& rotation);
-
-        /**
          * Rotates this transform's rotation component by the given angle
          * about the x-axis.
          *
@@ -266,79 +153,29 @@ namespace gameplay
         void rotateZ(float angle);
 
         /**
-         * Scales this transform's scale component by the given factor along all axes.
-         *
-         * @param scale The factor to scale by along all axis.
-         */
-        void scale(float scale);
-
-        /**
-         * Scales this transform's scale component by the given factors along each axis.
-         *
-         * @param sx The factor to scale by in the x direction.
-         * @param sy The factor to scale by in the y direction.
-         * @param sz The factor to scale by in the z direction.
-         */
-        void scale(float sx, float sy, float sz);
-
-        /**
-         * Scales this transform's scale component by the given scale vector.
-         *
-         * @param scale The vector to scale by.
-         */
-        void scale(const glm::vec3& scale);
-
-        /**
-         * Scales this transform's scale component by the given scale
-         * factor along the x axis.
-         *
-         * @param sx The scale factor along the x axis.
-         */
-        void scaleX(float sx);
-
-        /**
-         * Scales this transform's scale component by the given scale
-         * factor along the y axis.
-         *
-         * @param sy The scale factor along the y axis.
-         */
-        void scaleY(float sy);
-
-        /**
-         * Scales this transform's scale component by the given scale
-         * factor along the z axis.
-         *
-         * @param sz The scale factor along the z axis.
-         */
-        void scaleZ(float sz);
-
-        /**
          * Sets the transform to the specified values.
          *
-         * @param scale The scale vector.
          * @param rotation The rotation quaternion.
          * @param translation The translation vector.
          */
-        void set(const glm::vec3& scale, const glm::quat& rotation, const glm::vec3& translation);
+        void set(const glm::quat& rotation, const glm::vec3& translation);
 
         /**
          * Sets the transform to the specified values.
          *
-         * @param scale The scale vector.
          * @param rotation The rotation matrix.
          * @param translation The translation vector.
          */
-        void set(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation);
+        void set(const glm::mat4& rotation, const glm::vec3& translation);
 
         /**
          * Sets the transform to the specified values.
          *
-         * @param scale The scale vector.
          * @param axis The axis of rotation.
          * @param angle The angle of rotation (in radians).
          * @param translation The translation vector.
          */
-        void set(const glm::vec3& scale, const glm::vec3& axis, float angle, const glm::vec3& translation);
+        void set(const glm::vec3& axis, float angle, const glm::vec3& translation);
 
         /**
          * Sets this transform to the specified transform.
@@ -347,60 +184,17 @@ namespace gameplay
          */
         void set(const Transform& transform);
 
+        void set(const glm::mat4& m)
+        {
+            _rotation = glm::quat_cast(m);
+            _translation = glm::vec3(m[3]);
+            dirty();
+        }
+
         /**
          * Sets this transform to the identity transform.
          */
         void setIdentity();
-
-        /**
-         * Sets the scale factor along all axes for this transform
-         * to the specified value.
-         *
-         * @param scale The scale factor along all axes.
-         */
-        void setScale(float scale);
-
-        /**
-         * Sets the scale component of this transform to the
-         * specified values.
-         *
-         * @param sx The scale factor along the x axis.
-         * @param sy The scale factor along the y axis.
-         * @param sz The scale factor along the z axis.
-         */
-        void setScale(float sx, float sy, float sz);
-
-        /**
-         * Sets the scale component of this transform to the
-         * specified scale vector.
-         *
-         * @param scale The scale vector.
-         */
-        void setScale(const glm::vec3& scale);
-
-        /**
-         * Sets the scale factor along the x-axis for this transform
-         * to the specified value.
-         *
-         * @param sx The scale factor along the x-axis.
-         */
-        void setScaleX(float sx);
-
-        /**
-         * Sets the scale factor along the y-axis for this transform
-         * to the specified value.
-         *
-         * @param sy The scale factor along the y-axis.
-         */
-        void setScaleY(float sy);
-
-        /**
-         * Sets the scale factor along the z-axis for this transform
-         * to the specified value.
-         *
-         * @param sz The scale factor along the z-axis.
-         */
-        void setScaleZ(float sz);
 
         /**
          * Sets the rotation component for this transform to the
@@ -420,14 +214,6 @@ namespace gameplay
          * @param rotation The rotation as a quaternion.
          */
         void setRotation(const glm::quat& rotation);
-
-        /**
-         * Sets the rotation component for this transform to the
-         * specified values.
-         *
-         * @param rotation The rotation as a matrix.
-         */
-        void setRotation(const glm::mat4& rotation);
 
         /**
          * Sets the rotation component for this transform to the rotation from the specified axis and angle.
@@ -522,36 +308,6 @@ namespace gameplay
         void translateZ(float tz);
 
         /**
-         * Translates the camera towards the given target using a smoothing function.
-         * The given response time determines the amount of smoothing (lag). A longer
-         * response time yields a smoother result and more lag. To force the camera to
-         * follow the target closely, provide a response time that is very small relative
-         * to the given elapsed time.
-         *
-         * @param target target value.
-         * @param elapsedTime elapsed time between calls.
-         * @param responseTime response time (in the same units as elapsedTime).
-         */
-        void translateSmooth(const glm::vec3& target, float elapsedTime, float responseTime);
-
-        /**
-         * Transforms the specified vector and stores the
-         * result in the original vector.
-         *
-         * @param vector The vector to transform.
-         */
-        void transformVector(glm::vec3* vector) const;
-
-        /**
-         * Transforms the specified vector and stores the result
-         * in the original vector.
-         *
-         * @param transformVector The vector to transform.
-         * @param dst The vector to store the result in.
-         */
-        void transformVector(const glm::vec3& transformVector, glm::vec3* dst) const;
-
-        /**
          * Adds a transform listener.
          *
          * @param listener The listener to add.
@@ -566,13 +322,12 @@ namespace gameplay
          */
         void removeListener(Transform::Listener* listener);
 
-        Transform mix(const Transform& other, float bias)
+        Transform mix(const Transform& other, float bias) const
         {
             BOOST_ASSERT(bias >= 0 && bias <= 1);
             Transform res;
             res.setTranslation(glm::mix(_translation, other._translation, bias));
             res.setRotation(glm::slerp(_rotation, other._rotation, bias));
-            res.setScale(glm::mix(_scale, other._scale, bias));
             return res;
         }
 
@@ -596,22 +351,9 @@ namespace gameplay
 
 
         /**
-         * Defines the matrix dirty bits for marking the translation, scale and rotation
-         * components of the Transform.
-         */
-        enum MatrixDirtyBits
-        {
-            DIRTY_TRANSLATION = 0x01,
-            DIRTY_SCALE = 0x02,
-            DIRTY_ROTATION = 0x04,
-            DIRTY_NOTIFY = 0x08
-        };
-
-
-        /**
          * Marks this transform as dirty and fires transformChanged().
          */
-        void dirty(char matrixDirtyBits);
+        void dirty();
 
         /**
          * Determines if the specified matrix dirty bit is set.
@@ -619,23 +361,12 @@ namespace gameplay
          * @param matrixDirtyBits the matrix dirty bit to check for dirtiness.
          * @return TRUE if the specified matrix dirty bit is set; FALSE if the specified matrix dirty bit is unset.
          */
-        bool isDirty(char matrixDirtyBits) const;
-
-        /**
-         * Adds the specified transform to the list of transforms waiting to be notified of a change.
-         * Sets the DIRTY_NOTIFY bit on the transform.
-         */
-        static void suspendTransformChange(const std::shared_ptr<Transform>& transform);
+        bool isDirty() const;
 
         /**
          * Called when the transform changes.
          */
         virtual void transformChanged();
-
-        /**
-         * The scale component of the Transform.
-         */
-        glm::vec3 _scale;
 
         /**
          * The rotation component of the Transform.
@@ -645,26 +376,21 @@ namespace gameplay
         /**
          * The translation component of the Transform.
          */
-        glm::vec3 _translation;
+        glm::vec3 _translation{0,0,0};
 
         /**
          * The glm::mat4 representation of the Transform.
          */
-        mutable glm::mat4 _matrix;
+        mutable glm::mat4 _matrix{1.0f};
 
         /**
          * glm::mat4 dirty bits flag.
          */
-        mutable char _matrixDirtyBits;
+        mutable bool _matrixDirty = false;
 
         /**
          * List of TransformListener's on the Transform.
          */
-        std::list<TransformListener> _listeners;
-
-    private:
-
-        static int _suspendTransformChanged;
-        static std::vector<std::shared_ptr<Transform>> _transformsChanged;
+        std::list<TransformListener> _listeners{};
     };
 }

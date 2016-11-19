@@ -312,12 +312,6 @@ namespace gameplay
             const glm::quat& rot = _node->getRotation();
             if(rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f)
                 rotationAngle = glm::angle(rot);
-
-            // Apply node scale
-            if( _node->getScaleX() != 1.0f )
-                scale.x *= _node->getScaleX();
-            if( _node->getScaleY() != 1.0f )
-                scale.y *= _node->getScaleY();
         }
 
         // Apply flip flags

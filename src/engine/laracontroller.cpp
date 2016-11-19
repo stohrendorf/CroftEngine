@@ -77,7 +77,7 @@ namespace engine
 
         addYRotation(m_yRotationSpeed.getScaled(getCurrentDeltaTime()));
 
-        applyRotation();
+        applyTransform();
 
 
         if(getLevel().m_cameraController->getCamOverrideType() != 2)

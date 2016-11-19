@@ -125,9 +125,7 @@ namespace engine
 
         void setCurrentRoom(const loader::Room* newRoom);
 
-        void applyRotation();
-
-        void applyPosition();
+        void applyTransform();
 
         const std::shared_ptr<engine::MeshAnimationController>& getAnimationController() const noexcept
         {

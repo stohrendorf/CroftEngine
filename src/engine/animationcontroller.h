@@ -29,10 +29,8 @@ namespace engine
         void updatePose();
 
 
-        void setAnimId(size_t animId)
-        {
-            m_animId = animId;
-        }
+        void setAnimId(size_t animId, size_t frameOfs = 0);
+        void setAnimIdGlobal(size_t animId, size_t frame);
 
 
         size_t getAnimId() const noexcept
@@ -41,15 +39,21 @@ namespace engine
         }
 
 
-        void setTime(const std::chrono::microseconds& time)
+        void checkTransitions()
         {
-            m_time = time;
-        }
+            if(getCurrentFrame() > getLastFrame())
+            {
+                handleAnimationEnd();
+            }
 
+            handleTRTransitions();
+        }
 
         void addTime(const std::chrono::microseconds& time)
         {
             m_time += time;
+
+            checkTransitions();
         }
 
 
@@ -72,8 +76,10 @@ namespace engine
 
         uint16_t getCurrentState() const;
 
-        void play(size_t animId);
-        void playLocal(size_t animId, const core::Frame& frame = core::Frame::zero());
+        void playLocal(size_t animId, const core::Frame& frame = core::Frame::zero())
+        {
+            setAnimId(animId, frame.count());
+        }
 
         const loader::Animation& getCurrentAnimData() const;
 
@@ -109,7 +115,7 @@ namespace engine
         void resetPose()
         {
             m_rotationPatches.clear();
-            m_rotationPatches.resize(getChildCount());
+            m_rotationPatches.resize(getChildCount(), glm::quat(1,0,0,0));
         }
 
         void rotateBone(size_t idx, const glm::quat& rot)

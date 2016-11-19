@@ -21,17 +21,16 @@ namespace engine
     }
 
 
-    void ItemController::applyRotation()
+    void ItemController::applyTransform()
     {
-        m_meshAnimationController->setRotation(xyzToQuat(getRotation()));
-    }
+        glm::vec3 tr;
 
-    void ItemController::applyPosition()
-    {
         if(auto parent = m_meshAnimationController->getParent().lock())
-            m_meshAnimationController->setTranslation(m_position.position.toRenderSystem() - parent->getTranslationWorld());
+            tr = m_position.position.toRenderSystem() - parent->getTranslationWorld();
         else
-            m_meshAnimationController->setTranslation(m_position.position.toRenderSystem());
+            tr = m_position.position.toRenderSystem();
+
+        m_meshAnimationController->set(xyzToQuat(getRotation()), tr);
 
         updateSounds();
     }
@@ -51,7 +50,7 @@ namespace engine
     void ItemController::playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame)
     {
         Expects(m_meshAnimationController != nullptr);
-        m_meshAnimationController->playLocal(anim, firstFrame ? *firstFrame : core::Frame::zero());
+        m_meshAnimationController->setAnimIdGlobal(anim, firstFrame ? firstFrame->count() : 0);
     }
 
     void ItemController::nextFrame()
@@ -789,8 +788,10 @@ namespace engine
         if(m_isActive && m_hasProcessAnimCommandsOverride)
             processAnimCommands();
 
-        applyRotation();
-        applyPosition();
+        applyTransform();
+
+        if(m_meshAnimationController != nullptr)
+            m_meshAnimationController->updatePose();
     }
 
 }

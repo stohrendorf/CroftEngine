@@ -33,6 +33,7 @@ namespace engine
         , m_model{mdl}
         , m_targetState{lvl->m_animations[mdl.animationIndex].state_id}
     {
+        setAnimId(mdl.animationIndex);
     }
 
 
@@ -54,29 +55,10 @@ namespace engine
     }
 
 
-    void MeshAnimationController::play(size_t animId)
-    {
-        if( animId >= m_level->m_animations.size() )
-        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
-
-        m_animId = animId;
-        m_time = core::toTime(getFirstFrame());
-
-        BOOST_LOG_TRIVIAL(debug) << "Playing animation " << animId << ", state " << getCurrentState();
-    }
-
-
-    void MeshAnimationController::playLocal(size_t animId, const core::Frame& frame)
-    {
-        play(animId);
-        m_time = core::toTime(getFirstFrame() + frame);
-    }
-
-
     const loader::Animation& MeshAnimationController::getCurrentAnimData() const
     {
         if( m_animId >= m_level->m_animations.size() )
-        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
+            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
 
         return m_level->m_animations[m_animId];
     }
@@ -105,19 +87,22 @@ namespace engine
         BOOST_ASSERT(anim.stretchFactor > 0);
         const int16_t* firstFrameData = &m_level->m_poseData[anim.poseDataOffset / 2];
         const auto frameDataOfs = m_model.boneCount * 2 + 10;
+        const auto globalFrame = core::toFrame(m_time);
+        BOOST_ASSERT(globalFrame.count() >= anim.firstFrame && globalFrame.count() <= anim.lastFrame);
         const auto localFrame = core::toFrame(m_time) - core::Frame(anim.firstFrame);
-        BOOST_ASSERT(localFrame.count() >= 0);
-        const auto realFrame = localFrame.count() / anim.stretchFactor;
+        const auto keyFrame = localFrame.count() / anim.stretchFactor;
         result.stretchOffset = localFrame.count() % anim.stretchFactor;
-        result.firstFrame = reinterpret_cast<const AnimFrame*>(firstFrameData + frameDataOfs * realFrame);
-        result.secondFrame = reinterpret_cast<const AnimFrame*>(firstFrameData + frameDataOfs * (realFrame + 1));
+        result.firstFrame = reinterpret_cast<const AnimFrame*>(firstFrameData + frameDataOfs * keyFrame);
+        result.secondFrame = reinterpret_cast<const AnimFrame*>(firstFrameData + frameDataOfs * (keyFrame + 1));
 
         result.stretchFactor = anim.stretchFactor;
         if( result.stretchOffset > 0 )
         {
-            auto lastFrame = anim.lastFrame;
-            if( result.stretchFactor + result.stretchFactor * realFrame > lastFrame )
-                result.stretchFactor = lastFrame - result.stretchFactor * realFrame;
+            // avoid the interpolation range to reach beyond the last frame
+            if( result.stretchFactor * (keyFrame + 1) > anim.lastFrame)
+                result.stretchFactor = anim.lastFrame - result.stretchFactor * keyFrame;
+
+            BOOST_ASSERT(result.stretchFactor > 0);
         }
 
         return result;
@@ -130,20 +115,18 @@ namespace engine
         BOOST_ASSERT(getChildCount() == m_model.boneCount);
 
         auto framePair = getInterpolationInfo();
-        std::stack<gameplay::Transform> transformsFirst;
-        transformsFirst.push(gameplay::Transform());
-        transformsFirst.top().translate(framePair.firstFrame->pos.toGl());
+        std::stack<glm::mat4> transformsFirst;
+        transformsFirst.push(glm::translate(glm::mat4{ 1.0f }, framePair.firstFrame->pos.toGl()));
 
-        std::stack<gameplay::Transform> transformsSecond;
-        transformsSecond.push(gameplay::Transform());
-        transformsSecond.top().translate(framePair.secondFrame->pos.toGl());
+        std::stack<glm::mat4> transformsSecond;
+        transformsSecond.push(glm::translate(glm::mat4{ 1.0f }, framePair.secondFrame->pos.toGl()));
 
         auto payloadFirst = framePair.firstFrame->getPayload();
-        transformsFirst.top().rotate(util::xyzToYpr(payloadFirst));
+        transformsFirst.top() *= glm::mat4_cast(util::xyzToYpr(payloadFirst));
         payloadFirst += 2;
 
         auto payloadSecond = framePair.secondFrame->getPayload();
-        transformsSecond.top().rotate(util::xyzToYpr(payloadSecond));
+        transformsSecond.top() *= glm::mat4_cast(util::xyzToYpr(payloadSecond));
         payloadSecond += 2;
 
         const auto bias = gsl::narrow<float>(framePair.stretchOffset) / framePair.stretchFactor;
@@ -154,8 +137,10 @@ namespace engine
 
         BOOST_ASSERT(m_rotationPatches.size() == getChildCount());
 
-        getChildren()[0]->set(transformsFirst.top().mix(transformsSecond.top(), bias));
-        getChildren()[0]->rotate(m_rotationPatches[0]);
+        getChildren()[0]->set(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[0]));
+
+        if(m_model.boneCount <= 1)
+            return;
 
         const auto* boneTreeData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
 
@@ -169,22 +154,18 @@ namespace engine
             if( boneTreeData->flags & 0x02 )
             {
                 transformsFirst.push(transformsFirst.top());
-                transformsSecond.push(transformsFirst.top());
+                transformsSecond.push(transformsSecond.top());
             }
 
-            transformsFirst.top().translate(boneTreeData->toGl());
-            transformsSecond.top().translate(boneTreeData->toGl());
-
-            transformsFirst.top().rotate(util::xyzToYpr(payloadFirst));
+            transformsFirst.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * glm::mat4_cast(util::xyzToYpr(payloadFirst));
             payloadFirst += 2;
-            transformsSecond.top().rotate(util::xyzToYpr(payloadSecond));
+            transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * glm::mat4_cast(util::xyzToYpr(payloadSecond));
             payloadSecond += 2;
 #if 0
             if(boneTreeData->flags & 0x08)
                 matrices.top() = glm::rotate(matrices.top(), util::auToRad(...));
 #endif
-            getChildren()[i]->set(transformsFirst.top().mix(transformsSecond.top(), bias));
-            getChildren()[i]->rotate(m_rotationPatches[i]);
+            getChildren()[i]->set(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[i]));
 
             ++boneTreeData;
         }
@@ -195,14 +176,7 @@ namespace engine
     {
         BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << core::toFrame(m_time).count() << ", end=" << getLastFrame().count();
 
-        m_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate;
-
-        if( getCurrentFrame() > getLastFrame() )
-        {
-            handleAnimationEnd();
-        }
-
-        handleTRTransitions();
+        addTime(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate);
     }
 
 
@@ -244,7 +218,7 @@ namespace engine
 
                 if( currentFrame >= core::Frame(trc.firstFrame) && currentFrame <= core::Frame(trc.lastFrame) )
                 {
-                    playLocal(trc.targetAnimation, core::Frame(trc.targetFrame));
+                    setAnimIdGlobal(trc.targetAnimation, trc.targetFrame);
                     BOOST_LOG_TRIVIAL(debug) << getId() << " -- found transition to state " << m_targetState << ", new animation " << m_animId << "/frame " << trc.targetFrame;
                     return true;
                 }
@@ -259,8 +233,34 @@ namespace engine
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
 
-        playLocal(currentAnim.nextAnimation, core::Frame(currentAnim.nextFrame));
+        setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
 
         setTargetState(getCurrentState());
+    }
+
+
+    void MeshAnimationController::setAnimId(size_t animId, size_t frameOfs)
+    {
+        BOOST_ASSERT(animId < m_level->m_animations.size());
+
+        const auto& anim = m_level->m_animations[animId];
+        BOOST_ASSERT(anim.firstFrame + frameOfs <= anim.lastFrame);
+
+        m_animId = animId;
+        m_time = core::toTime(core::Frame(anim.firstFrame + frameOfs));
+    }
+
+
+    void MeshAnimationController::setAnimIdGlobal(size_t animId, size_t frame)
+    {
+        BOOST_ASSERT(animId < m_level->m_animations.size());
+
+        const auto& anim = m_level->m_animations[animId];
+
+        if(frame < anim.firstFrame || frame > anim.lastFrame)
+            frame = anim.firstFrame;
+
+        m_animId = animId;
+        m_time = core::toTime(core::Frame(frame));
     }
 }

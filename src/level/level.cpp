@@ -37,9 +37,6 @@
 #include <boost/format.hpp>
 
 #include <algorithm>
-#include <stack>
-#include <set>
-#include <chrono>
 
 using namespace level;
 
@@ -555,6 +552,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
+    colorMaterial->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 

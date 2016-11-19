@@ -208,8 +208,7 @@ namespace loader
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
-            subNode->setRotation({0,1,0}, util::auToRad(sm.rotation));
-            subNode->setTranslation((sm.position - position).toRenderSystem());
+            subNode->set({ 0,1,0 }, util::auToRad(sm.rotation), (sm.position - position).toRenderSystem());
             node->addChild(subNode);
         }
         node->setTranslation(position.toRenderSystem());
@@ -226,7 +225,7 @@ namespace loader
 
             auto n = std::make_shared<gameplay::Node>("");
             n->setDrawable(spriteNode);
-            n->setTranslation((vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem());
+            n->setTranslation((vertices[sprite.vertex].position - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem());
 
             node->addChild(n);
         }
