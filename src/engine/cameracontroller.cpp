@@ -421,6 +421,7 @@ namespace engine
         if( m_lookAtItem != nullptr && !lookingAtSomething )
         {
             BOOST_ASSERT(m_lookAtItem != lookAtItem);
+            BOOST_ASSERT(lookAtItem);
             const auto distToLookAt = m_lookAtItem->getPosition().distanceTo(lookAtItem->getPosition());
             auto lookAtYAngle = -core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
             lookAtYAngle *= 0.5f;

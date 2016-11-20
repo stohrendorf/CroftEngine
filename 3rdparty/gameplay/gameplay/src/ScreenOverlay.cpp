@@ -1,11 +1,14 @@
 #include "Base.h"
+
 #include "ScreenOverlay.h"
+
 #include "Game.h"
-#include "MaterialParameter.h"
 #include "Image.h"
+#include "Material.h"
+#include "MaterialParameter.h"
+#include "RenderState.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <boost/log/trivial.hpp>
 
 

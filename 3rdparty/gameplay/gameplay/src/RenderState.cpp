@@ -134,15 +134,22 @@ namespace gameplay
         if( _state == nullptr )
         {
             _state = std::make_shared<StateBlock>();
-            _state->setDepthTest(true);
-            _state->setDepthFunction(DEPTH_LESS);
-            _state->setCullFace(false);
-            _state->setBlend(true);
-            _state->setBlendSrc(BLEND_SRC_ALPHA);
-            _state->setBlendDst(BLEND_ONE_MINUS_SRC_ALPHA);
         }
 
         return _state;
+    }
+
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void RenderState::initStateBlockDefaults()
+    {
+        getStateBlock(); // alloc if not done yet
+        _state->setDepthTest(true);
+        _state->setDepthFunction(DEPTH_LESS);
+        _state->setCullFace(false);
+        _state->setBlend(true);
+        _state->setBlendSrc(BLEND_SRC_ALPHA);
+        _state->setBlendDst(BLEND_ONE_MINUS_SRC_ALPHA);
     }
 
 

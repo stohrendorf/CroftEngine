@@ -367,7 +367,7 @@ std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures()
 }
 
 
-std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures)
+std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> Level::createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4 : loader::TextureIndexMask;
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials;
@@ -377,7 +377,7 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
         if( materials.find(key) != materials.end() )
             continue;
 
-        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask]);
+        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask], shader);
     }
     return materials;
 }
@@ -550,8 +550,12 @@ void Level::toIrrlicht(gameplay::Game* game)
     //device->setEventReceiver(m_inputHandler.get());
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(textures);
+
+    auto noVcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsNoVcol = createMaterials(textures, noVcolShader);
+
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
+    colorMaterial->initStateBlockDefaults();
     colorMaterial->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
@@ -559,14 +563,16 @@ void Level::toIrrlicht(gameplay::Game* game)
     std::vector<std::shared_ptr<gameplay::Model>> models;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
-        models.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette, *m_textureAnimator));
+        models.emplace_back(m_meshes[i].createModel(m_textureProxies, materialsNoVcol, colorMaterial, *m_palette, *m_textureAnimator));
     }
 
     game->getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
 
+    auto vcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag", { "HAS_VCOLOR" });
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsVcol = createMaterials(textures, vcolShader);
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(game, i, *this, textures, materials, models, *m_textureAnimator);
+        m_rooms[i].createSceneNode(game, i, *this, textures, materialsVcol, models, *m_textureAnimator);
         game->getScene()->addNode(m_rooms[i].node);
     }
 

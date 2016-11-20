@@ -14,8 +14,8 @@ namespace level
 
 namespace loader
 {
-    class AnimatedModel;
-    class Animation;
+    struct AnimatedModel;
+    struct Animation;
 }
 
 

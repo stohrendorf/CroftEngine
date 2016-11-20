@@ -108,7 +108,7 @@ namespace level
         boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
-        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures);
+        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         std::shared_ptr<engine::MeshAnimationController> createAnimController(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);

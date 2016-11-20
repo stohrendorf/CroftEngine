@@ -512,6 +512,8 @@ namespace gameplay
          */
         const std::shared_ptr<RenderState::StateBlock>& getStateBlock() const;
 
+        void initStateBlockDefaults();
+
         /**
          * Sets the node that this render state is bound to.
          *
