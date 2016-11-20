@@ -122,32 +122,30 @@ namespace loader
                     append(iv);
                 }
 
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_parts[partId].indices.emplace_back(firstVertex + 0);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
-                m_parts[partId].indices.emplace_back(firstVertex + 1);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
-                m_parts[partId].indices.emplace_back(firstVertex + 2);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_parts[partId].indices.emplace_back(firstVertex + 0);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
-                m_parts[partId].indices.emplace_back(firstVertex + 2);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 3, firstVertex + 3);
-                m_parts[partId].indices.emplace_back(firstVertex + 3);
+                for(auto j : { 0,1,2,0,2,3 })
+                {
+                    m_animator.registerVertex(quad.proxyId, { m_mesh, partId }, j, firstVertex + j);
+                    m_parts[partId].indices.emplace_back(firstVertex + j);
+                }
             }
             for( const QuadFace& quad : mesh.colored_rectangles )
             {
                 const TextureLayoutProxy& proxy = m_textureProxies.at(quad.proxyId);
                 auto partId = getPartForColor(quad.proxyId);
 
+                const auto firstVertex = m_vertexCount;
                 for( int i = 0; i < 4; ++i )
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
-                    m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
+                }
+
+                for(auto j : { 0,1,2,0,2,3 })
+                {
+                    m_parts[partId].indices.emplace_back(firstVertex + j);
                 }
             }
             for( const Triangle& tri : mesh.textured_triangles )
@@ -204,24 +202,18 @@ namespace loader
                     append(iv);
                 }
 
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_parts[partId].indices.emplace_back(firstVertex + 0);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
-                m_parts[partId].indices.emplace_back(firstVertex + 1);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
-                m_parts[partId].indices.emplace_back(firstVertex + 2);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_parts[partId].indices.emplace_back(firstVertex + 0);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
-                m_parts[partId].indices.emplace_back(firstVertex + 2);
-                m_animator.registerVertex(quad.proxyId, {m_mesh, partId}, 3, firstVertex + 3);
-                m_parts[partId].indices.emplace_back(firstVertex + 3);
+                for(auto j : { 0,1,2,0,2,3 })
+                {
+                    m_animator.registerVertex(quad.proxyId, { m_mesh, partId }, j, firstVertex + j);
+                    m_parts[partId].indices.emplace_back(firstVertex + j);
+                }
             }
             for( const QuadFace& quad : mesh.colored_rectangles )
             {
                 const TextureLayoutProxy& proxy = m_textureProxies.at(quad.proxyId);
                 auto partId = getPartForColor(quad.proxyId);
 
+                const auto firstVertex = m_vertexCount;
                 for( int i = 0; i < 4; ++i )
                 {
                     RenderVertexWithNormal iv;
@@ -229,8 +221,11 @@ namespace loader
                     iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
                     iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
-                    m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
+                }
+                for(auto j : { 0,1,2,0,2,3 })
+                {
+                    m_parts[partId].indices.emplace_back(firstVertex + j);
                 }
             }
             for( const Triangle& tri : mesh.textured_triangles )
