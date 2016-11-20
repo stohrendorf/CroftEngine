@@ -273,16 +273,6 @@ namespace loader
                 BOOST_ASSERT(false); // FIXME [irrlicht]
             }
 
-            auto stateBlock = std::make_shared<gameplay::RenderState::StateBlock>();
-            stateBlock->setDepthTest(true);
-            stateBlock->setDepthFunction(gameplay::RenderState::DEPTH_LESS);
-            stateBlock->setCullFace(false);
-            stateBlock->setBlend(true);
-            stateBlock->setBlendSrc(gameplay::RenderState::BLEND_SRC_ALPHA);
-            stateBlock->setBlendDst(gameplay::RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
-
-            result->setStateBlock(stateBlock);
-
             return result;
         }
     };

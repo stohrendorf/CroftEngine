@@ -149,7 +149,7 @@ namespace gameplay
         /**
          * Defines blend constants supported by the blend function.
          */
-        enum Blend
+        enum Blend : GLenum
         {
             BLEND_ZERO = GL_ZERO,
             BLEND_ONE = GL_ONE,
@@ -176,7 +176,7 @@ namespace gameplay
          *
          * The intial depth compare function is DEPTH_LESS.
          */
-        enum DepthFunction
+        enum DepthFunction : GLenum
         {
             DEPTH_NEVER = GL_NEVER,
             DEPTH_LESS = GL_LESS,
@@ -193,7 +193,7 @@ namespace gameplay
          * Defines culling criteria for front-facing, back-facing and both-side
          * facets.
          */
-        enum CullFaceSide
+        enum CullFaceSide : GLenum
         {
             CULL_FACE_SIDE_BACK = GL_BACK,
             CULL_FACE_SIDE_FRONT = GL_FRONT,
@@ -206,7 +206,7 @@ namespace gameplay
          *
          * The initial front face mode is set to FRONT_FACE_CCW.
          */
-        enum FrontFace
+        enum FrontFace : GLenum
         {
             FRONT_FACE_CW = GL_CW,
             FRONT_FACE_CCW = GL_CCW
@@ -220,7 +220,7 @@ namespace gameplay
          *
          * The initial stencil compare function is STENCIL_ALWAYS.
      */
-        enum StencilFunction
+        enum StencilFunction : GLenum
         {
             STENCIL_NEVER = GL_NEVER,
             STENCIL_ALWAYS = GL_ALWAYS,
@@ -241,7 +241,7 @@ namespace gameplay
          *
          * The initial stencil operation is STENCIL_OP_KEEP.
      */
-        enum StencilOperation
+        enum StencilOperation : GLenum
         {
             STENCIL_OP_KEEP = GL_KEEP,
             STENCIL_OP_ZERO = GL_ZERO,

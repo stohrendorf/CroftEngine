@@ -122,6 +122,7 @@ namespace gameplay
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::setStateBlock(const std::shared_ptr<StateBlock>& state)
     {
         _state = state;
@@ -133,6 +134,12 @@ namespace gameplay
         if( _state == nullptr )
         {
             _state = std::make_shared<StateBlock>();
+            _state->setDepthTest(true);
+            _state->setDepthFunction(DEPTH_LESS);
+            _state->setCullFace(false);
+            _state->setBlend(true);
+            _state->setBlendSrc(BLEND_SRC_ALPHA);
+            _state->setBlendDst(BLEND_ONE_MINUS_SRC_ALPHA);
         }
 
         return _state;
@@ -386,7 +393,7 @@ namespace gameplay
         }
         if( (_bits & RS_BLEND_FUNC) && (_blendSrc != _defaultState->_blendSrc || _blendDst != _defaultState->_blendDst) )
         {
-            GL_ASSERT( glBlendFunc((GLenum)_blendSrc, (GLenum)_blendDst) );
+            GL_ASSERT( glBlendFunc(static_cast<GLenum>(_blendSrc), static_cast<GLenum>(_blendDst)) );
             _defaultState->_blendSrc = _blendSrc;
             _defaultState->_blendDst = _blendDst;
         }
@@ -400,12 +407,12 @@ namespace gameplay
         }
         if( (_bits & RS_CULL_FACE_SIDE) && (_cullFaceSide != _defaultState->_cullFaceSide) )
         {
-            GL_ASSERT( glCullFace((GLenum)_cullFaceSide) );
+            GL_ASSERT( glCullFace(static_cast<GLenum>(_cullFaceSide)) );
             _defaultState->_cullFaceSide = _cullFaceSide;
         }
         if( (_bits & RS_FRONT_FACE) && (_frontFace != _defaultState->_frontFace) )
         {
-            GL_ASSERT( glFrontFace((GLenum)_frontFace) );
+            GL_ASSERT( glFrontFace(static_cast<GLenum>(_frontFace)) );
             _defaultState->_frontFace = _frontFace;
         }
         if( (_bits & RS_DEPTH_TEST) && (_depthTestEnabled != _defaultState->_depthTestEnabled) )
@@ -423,7 +430,7 @@ namespace gameplay
         }
         if( (_bits & RS_DEPTH_FUNC) && (_depthFunction != _defaultState->_depthFunction) )
         {
-            GL_ASSERT( glDepthFunc((GLenum)_depthFunction) );
+            GL_ASSERT( glDepthFunc(static_cast<GLenum>(_depthFunction)) );
             _defaultState->_depthFunction = _depthFunction;
         }
         if( (_bits & RS_STENCIL_TEST) && (_stencilTestEnabled != _defaultState->_stencilTestEnabled) )
@@ -443,7 +450,7 @@ namespace gameplay
             _stencilFunctionRef != _defaultState->_stencilFunctionRef ||
             _stencilFunctionMask != _defaultState->_stencilFunctionMask) )
         {
-            GL_ASSERT( glStencilFunc((GLenum)_stencilFunction, _stencilFunctionRef, _stencilFunctionMask) );
+            GL_ASSERT( glStencilFunc(static_cast<GLenum>(_stencilFunction), _stencilFunctionRef, _stencilFunctionMask) );
             _defaultState->_stencilFunction = _stencilFunction;
             _defaultState->_stencilFunctionRef = _stencilFunctionRef;
             _defaultState->_stencilFunctionMask = _stencilFunctionMask;
@@ -452,7 +459,7 @@ namespace gameplay
             _stencilOpDpfail != _defaultState->_stencilOpDpfail ||
             _stencilOpDppass != _defaultState->_stencilOpDppass) )
         {
-            GL_ASSERT( glStencilOp((GLenum)_stencilOpSfail, (GLenum)_stencilOpDpfail, (GLenum)_stencilOpDppass) );
+            GL_ASSERT( glStencilOp(static_cast<GLenum>(_stencilOpSfail), static_cast<GLenum>(_stencilOpDpfail), static_cast<GLenum>(_stencilOpDppass)) );
             _defaultState->_stencilOpSfail = _stencilOpSfail;
             _defaultState->_stencilOpDpfail = _stencilOpDpfail;
             _defaultState->_stencilOpDppass = _stencilOpDppass;
@@ -494,13 +501,13 @@ namespace gameplay
         }
         if( !(stateOverrideBits & RS_CULL_FACE_SIDE) && (_defaultState->_bits & RS_CULL_FACE_SIDE) )
         {
-            GL_ASSERT( glCullFace((GLenum)GL_BACK) );
+            GL_ASSERT( glCullFace(GL_BACK) );
             _defaultState->_bits &= ~RS_CULL_FACE_SIDE;
             _defaultState->_cullFaceSide = RenderState::CULL_FACE_SIDE_BACK;
         }
         if( !(stateOverrideBits & RS_FRONT_FACE) && (_defaultState->_bits & RS_FRONT_FACE) )
         {
-            GL_ASSERT( glFrontFace((GLenum)GL_CCW) );
+            GL_ASSERT( glFrontFace(GL_CCW) );
             _defaultState->_bits &= ~RS_FRONT_FACE;
             _defaultState->_frontFace = RenderState::FRONT_FACE_CCW;
         }
@@ -518,7 +525,7 @@ namespace gameplay
         }
         if( !(stateOverrideBits & RS_DEPTH_FUNC) && (_defaultState->_bits & RS_DEPTH_FUNC) )
         {
-            GL_ASSERT( glDepthFunc((GLenum)GL_LESS) );
+            GL_ASSERT( glDepthFunc(GL_LESS) );
             _defaultState->_bits &= ~RS_DEPTH_FUNC;
             _defaultState->_depthFunction = RenderState::DEPTH_LESS;
         }
@@ -536,7 +543,7 @@ namespace gameplay
         }
         if( !(stateOverrideBits & RS_STENCIL_FUNC) && (_defaultState->_bits & RS_STENCIL_FUNC) )
         {
-            GL_ASSERT( glStencilFunc((GLenum)RenderState::STENCIL_ALWAYS, 0, RS_ALL_ONES) );
+            GL_ASSERT( glStencilFunc(static_cast<GLenum>(RenderState::STENCIL_ALWAYS), 0, RS_ALL_ONES) );
             _defaultState->_bits &= ~RS_STENCIL_FUNC;
             _defaultState->_stencilFunction = RenderState::STENCIL_ALWAYS;
             _defaultState->_stencilFunctionRef = 0;
@@ -544,7 +551,7 @@ namespace gameplay
         }
         if( !(stateOverrideBits & RS_STENCIL_OP) && (_defaultState->_bits & RS_STENCIL_OP) )
         {
-            GL_ASSERT( glStencilOp((GLenum)RenderState::STENCIL_OP_KEEP, (GLenum)RenderState::STENCIL_OP_KEEP, (GLenum)RenderState::STENCIL_OP_KEEP) );
+            GL_ASSERT( glStencilOp(static_cast<GLenum>(RenderState::STENCIL_OP_KEEP), static_cast<GLenum>(RenderState::STENCIL_OP_KEEP), static_cast<GLenum>(RenderState::STENCIL_OP_KEEP)) );
             _defaultState->_bits &= ~RS_STENCIL_OP;
             _defaultState->_stencilOpSfail = RenderState::STENCIL_OP_KEEP;
             _defaultState->_stencilOpDpfail = RenderState::STENCIL_OP_KEEP;
