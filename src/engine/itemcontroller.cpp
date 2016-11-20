@@ -25,12 +25,12 @@ namespace engine
     {
         glm::vec3 tr;
 
-        if(auto parent = m_meshAnimationController->getParent().lock())
-            tr = m_position.position.toRenderSystem() - parent->getTranslationWorld();
+        if(auto parent = m_position.room)
+            tr = m_position.position.toRenderSystem() - parent->position.toRenderSystem();
         else
             tr = m_position.position.toRenderSystem();
 
-        m_meshAnimationController->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, tr) * glm::mat4_cast(xyzToQuat(getRotation())));
+        m_meshAnimationController->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, tr) * getRotation().toMatrix());
 
         updateSounds();
     }
@@ -81,7 +81,7 @@ namespace engine
         , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
         , m_characteristics(characteristics)
     {
-        setCurrentRoom(room);
+        room->node->addChild(m_meshAnimationController);
 
         if(m_itemFlags & Oneshot)
             m_meshAnimationController->setEnabled(false);
@@ -127,8 +127,6 @@ namespace engine
         }
         BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
-        if(!m_meshAnimationController->getParent().expired())
-            m_meshAnimationController->getParent().lock()->removeChild(m_meshAnimationController);
         newRoom->node->addChild(m_meshAnimationController);
 
         m_position.room = newRoom;

@@ -18,7 +18,7 @@ namespace
 
         glm::vec3 toGl() const noexcept
         {
-            return glm::vec3(x, y, z);
+            return core::TRCoordinates(x, y, z).toRenderSystem();
         }
     };
 #pragma pack(pop)
@@ -60,7 +60,7 @@ namespace engine
     const loader::Animation& MeshAnimationController::getCurrentAnimData() const
     {
         if( m_animId >= m_level->m_animations.size() )
-            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
+        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
 
         return m_level->m_animations[m_animId];
     }
@@ -101,7 +101,7 @@ namespace engine
         if( result.stretchOffset > 0 )
         {
             // avoid the interpolation range to reach beyond the last frame
-            if( result.stretchFactor * (keyFrame + 1) > anim.lastFrame)
+            if( result.stretchFactor * (keyFrame + 1) > anim.lastFrame )
                 result.stretchFactor = anim.lastFrame - result.stretchFactor * keyFrame;
 
             BOOST_ASSERT(result.stretchFactor > 0);
@@ -117,31 +117,41 @@ namespace engine
         BOOST_ASSERT(getChildCount() == m_model.boneCount);
 
         auto framePair = getInterpolationInfo();
-        std::stack<glm::mat4> transformsFirst;
-        transformsFirst.push(glm::translate(glm::mat4{ 1.0f }, framePair.firstFrame->pos.toGl()));
+        if( framePair.stretchOffset == 0 )
+            updatePoseKeyframe(framePair);
+        else
+            updatePoseInterpolated(framePair);
+    }
 
-        std::stack<glm::mat4> transformsSecond;
-        transformsSecond.push(glm::translate(glm::mat4{ 1.0f }, framePair.secondFrame->pos.toGl()));
+
+    void MeshAnimationController::updatePoseInterpolated(const InterpolationInfo& framePair)
+    {
+        BOOST_ASSERT(framePair.stretchOffset > 0);
+
+        BOOST_ASSERT(framePair.firstFrame->numValues == m_model.boneCount);
+        BOOST_ASSERT(framePair.secondFrame->numValues == m_model.boneCount);
 
         auto payloadFirst = framePair.firstFrame->getPayload();
-        transformsFirst.top() *= util::xyzToYprMatrix(payloadFirst);
+        std::stack<glm::mat4> transformsFirst;
+        transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(payloadFirst));
         payloadFirst += 2;
 
         auto payloadSecond = framePair.secondFrame->getPayload();
-        transformsSecond.top() *= util::xyzToYprMatrix(payloadSecond);
+        std::stack<glm::mat4> transformsSecond;
+        transformsSecond.push(glm::translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl()) * core::xyzToYprMatrix(payloadSecond));
         payloadSecond += 2;
 
         const auto bias = gsl::narrow<float>(framePair.stretchOffset) / framePair.stretchFactor;
         BOOST_ASSERT(bias >= 0 && bias <= 1);
 
-        if(m_rotationPatches.empty())
+        if( m_bonePatches.empty() )
             resetPose();
 
-        BOOST_ASSERT(m_rotationPatches.size() == getChildCount());
+        BOOST_ASSERT(m_bonePatches.size() == getChildCount());
 
-        getChildren()[0]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[0]));
+        getChildren()[0]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * m_bonePatches[0]);
 
-        if(m_model.boneCount <= 1)
+        if( m_model.boneCount <= 1 )
             return;
 
         const auto* boneTreeData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
@@ -159,15 +169,63 @@ namespace engine
                 transformsSecond.push(transformsSecond.top());
             }
 
-            transformsFirst.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * util::xyzToYprMatrix(payloadFirst);
+            BOOST_ASSERT((boneTreeData->flags & 0x1c) == 0);
+
+            transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
+            transformsFirst.top() *= core::xyzToYprMatrix(payloadFirst);
             payloadFirst += 2;
-            transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, boneTreeData->toGl()) * util::xyzToYprMatrix(payloadSecond);
+
+            transformsSecond.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
+            transformsSecond.top() *= core::xyzToYprMatrix(payloadSecond);
             payloadSecond += 2;
-#if 0
-            if(boneTreeData->flags & 0x08)
-                matrices.top() = glm::rotate(matrices.top(), util::auToRad(...));
-#endif
-            getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * glm::mat4_cast(m_rotationPatches[i]));
+
+            getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * m_bonePatches[i]);
+
+            ++boneTreeData;
+        }
+    }
+
+
+    void MeshAnimationController::updatePoseKeyframe(const InterpolationInfo& framePair)
+    {
+        BOOST_ASSERT(framePair.firstFrame->numValues == m_model.boneCount);
+
+        auto payload = framePair.firstFrame->getPayload();
+
+        std::stack<glm::mat4> transforms;
+        transforms.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(payload));
+        payload += 2;
+
+        if( m_bonePatches.empty() )
+            resetPose();
+
+        BOOST_ASSERT(m_bonePatches.size() == getChildCount());
+
+        getChildren()[0]->setLocalMatrix(transforms.top() * m_bonePatches[0]);
+
+        if( m_model.boneCount <= 1 )
+            return;
+
+        const auto* boneTreeData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
+
+        for( uint16_t i = 1; i < m_model.boneCount; ++i )
+        {
+            BOOST_ASSERT((boneTreeData->flags & 0x1c) == 0);
+
+            if( boneTreeData->flags & 0x01 )
+            {
+                transforms.pop();
+            }
+            if( boneTreeData->flags & 0x02 )
+            {
+                transforms.push(transforms.top());
+            }
+
+            transforms.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
+            transforms.top() *= core::xyzToYprMatrix(payload);
+            payload += 2;
+
+            getChildren()[i]->setLocalMatrix(transforms.top() * m_bonePatches[i]);
 
             ++boneTreeData;
         }
@@ -259,7 +317,7 @@ namespace engine
 
         const auto& anim = m_level->m_animations[animId];
 
-        if(frame < anim.firstFrame || frame > anim.lastFrame)
+        if( frame < anim.firstFrame || frame > anim.lastFrame )
             frame = anim.firstFrame;
 
         m_animId = animId;

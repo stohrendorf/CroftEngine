@@ -444,8 +444,8 @@ namespace engine
         }
 
         getMeshAnimationController()->resetPose();
-        getMeshAnimationController()->rotateBone(7, getLevel().m_cameraController->getTorsoRotation().toQuat());
-        getMeshAnimationController()->rotateBone(14, getLevel().m_cameraController->getHeadRotation().toQuat());
+        getMeshAnimationController()->patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
+        getMeshAnimationController()->patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)

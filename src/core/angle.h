@@ -1,13 +1,15 @@
 #pragma once
 
+#include "util/vmath.h"
+
+#include "gameplay.h"
+#include <glm/gtx/euler_angles.hpp>
+
 #include <cmath>
 
 #include <gsl/gsl>
 
 #include <boost/optional.hpp>
-
-#include "gameplay.h"
-#include "util/vmath.h"
 
 
 namespace core
@@ -346,36 +348,32 @@ namespace core
         }
 
 
-        glm::vec3 toRad() const
-        {
-            return {
-                X.toRad(),
-                Y.toRad(),
-                Z.toRad()
-            };
-        }
-
         TRRotation operator-(const TRRotation& rhs) const
         {
             return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
         }
 
 
-        glm::quat toQuat() const
+        glm::mat4 toMatrix() const
         {
-            return util::xyzToYpr(toRad());
+            return glm::yawPitchRoll(-Y.toRad(), X.toRad(), -Z.toRad());
         }
     };
 
 
-    inline glm::quat xyzToQuat(const TRRotation& r)
+    inline glm::mat4 xyzToYprMatrix(const int16_t* animData)
     {
-        //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        glm::quat q;
-        q *= glm::quat(r.Y.toRad(), {0,1,0});
-        q *= glm::quat(r.X.toRad(), {-1,0,0});
-        q *= glm::quat(r.Z.toRad(), {0,0,-1});
-        return q;
+        const uint32_t angle = *reinterpret_cast<const uint32_t*>(animData);
+        auto getAngle = [angle](uint8_t n)
+        {
+            BOOST_ASSERT(n < 3);
+            return Angle(((angle >> 10*n) & 0x3ff) * 64);
+        };
+
+
+        TRRotation r{ getAngle(2), getAngle(1), getAngle(0) };
+
+        return r.toMatrix();
     }
 
     inline Angle abs(const Angle& v)

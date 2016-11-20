@@ -28,7 +28,6 @@ namespace engine
 
         void updatePose();
 
-
         void setAnimId(size_t animId, size_t frameOfs = 0);
         void setAnimIdGlobal(size_t animId, size_t frame);
 
@@ -41,13 +40,14 @@ namespace engine
 
         void checkTransitions()
         {
-            if(getCurrentFrame() > getLastFrame())
+            if( getCurrentFrame() > getLastFrame() )
             {
                 handleAnimationEnd();
             }
 
             handleTRTransitions();
         }
+
 
         void addTime(const std::chrono::microseconds& time)
         {
@@ -76,10 +76,12 @@ namespace engine
 
         uint16_t getCurrentState() const;
 
+
         void playLocal(size_t animId, const core::Frame& frame = core::Frame::zero())
         {
             setAnimId(animId, frame.count());
         }
+
 
         const loader::Animation& getCurrentAnimData() const;
 
@@ -114,20 +116,22 @@ namespace engine
 
         void resetPose()
         {
-            m_rotationPatches.clear();
-            m_rotationPatches.resize(getChildCount(), glm::quat(1,0,0,0));
+            m_bonePatches.clear();
+            m_bonePatches.resize(getChildCount(), glm::mat4{1.0f});
         }
 
-        void rotateBone(size_t idx, const glm::quat& rot)
+
+        void patchBone(size_t idx, const glm::mat4& m)
         {
-            if(m_rotationPatches.empty())
+            if( m_bonePatches.empty() )
                 resetPose();
 
-            BOOST_ASSERT(m_rotationPatches.size() == getChildCount());
-            BOOST_ASSERT(idx < m_rotationPatches.size());
+            BOOST_ASSERT(m_bonePatches.size() == getChildCount());
+            BOOST_ASSERT(idx < m_bonePatches.size());
 
-            m_rotationPatches[idx] = rot;
+            m_bonePatches[idx] = m;
         }
+
 
     private:
         const gsl::not_null<const level::Level*> m_level;
@@ -135,7 +139,7 @@ namespace engine
         std::chrono::microseconds m_time = std::chrono::microseconds::zero();
         const loader::AnimatedModel& m_model;
         uint16_t m_targetState = 0;
-        std::vector<glm::quat> m_rotationPatches;
+        std::vector<glm::mat4> m_bonePatches;
 
 #pragma pack(push, 1)
         struct AnimFrame
@@ -146,10 +150,12 @@ namespace engine
                 int16_t minY, maxY;
                 int16_t minZ, maxZ;
 
+
                 glm::vec3 getMinGl() const noexcept
                 {
                     return glm::vec3(minX, minY, minZ);
                 }
+
 
                 glm::vec3 getMaxGl() const noexcept
                 {
@@ -165,7 +171,7 @@ namespace engine
 
                 glm::vec3 toGl() const noexcept
                 {
-                    return glm::vec3(x, y, z);
+                    return glm::vec3(x, -y, z);
                 }
             };
 
@@ -192,5 +198,7 @@ namespace engine
 
 
         InterpolationInfo getInterpolationInfo() const;
+        void updatePoseKeyframe(const InterpolationInfo& framepair);
+        void updatePoseInterpolated(const InterpolationInfo& framepair);
     };
 }
