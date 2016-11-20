@@ -134,7 +134,7 @@ namespace loader
     {
         struct TextureKey
         {
-            BlendingMode blendingMode;
+            BlendingMode blendingMode = BlendingMode::Solid;
             // 0 means that a texture is all-opaque, and that transparency
             // information is ignored.
             // 1 means that transparency information is used. In 8-bit colour,
@@ -143,9 +143,9 @@ namespace loader
             // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
             // the brighter the colour, the more opaque it is. The intensity is probably calculated
             // as the maximum of the individual color values.
-            uint16_t tileAndFlag; // index into textile list
+            uint16_t tileAndFlag = 0; // index into textile list
 
-            uint16_t flags; // TR4
+            uint16_t flags = 0; // TR4
 
             int colorId = -1;
 

@@ -117,7 +117,7 @@ namespace engine
         BOOST_ASSERT(getChildCount() == m_model.boneCount);
 
         auto framePair = getInterpolationInfo();
-        if( framePair.stretchOffset == 0 )
+        if( framePair.stretchOffset == 0 || true)
             updatePoseKeyframe(framePair);
         else
             updatePoseInterpolated(framePair);
@@ -133,13 +133,11 @@ namespace engine
 
         auto payloadFirst = framePair.firstFrame->getPayload();
         std::stack<glm::mat4> transformsFirst;
-        transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(payloadFirst));
-        payloadFirst += 2;
+        transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*payloadFirst++));
 
         auto payloadSecond = framePair.secondFrame->getPayload();
         std::stack<glm::mat4> transformsSecond;
-        transformsSecond.push(glm::translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl()) * core::xyzToYprMatrix(payloadSecond));
-        payloadSecond += 2;
+        transformsSecond.push(glm::translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl()) * core::xyzToYprMatrix(*payloadSecond++));
 
         const auto bias = gsl::narrow<float>(framePair.stretchOffset) / framePair.stretchFactor;
         BOOST_ASSERT(bias >= 0 && bias <= 1);
@@ -165,19 +163,17 @@ namespace engine
             }
             if( boneTreeData->flags & 0x02 )
             {
-                transformsFirst.push(transformsFirst.top());
-                transformsSecond.push(transformsSecond.top());
+                transformsFirst.push({ transformsFirst.top() }); // make sure to have a copy, not a reference
+                transformsSecond.push({ transformsSecond.top() }); // make sure to have a copy, not a reference
             }
 
             BOOST_ASSERT((boneTreeData->flags & 0x1c) == 0);
 
             transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
-            transformsFirst.top() *= core::xyzToYprMatrix(payloadFirst);
-            payloadFirst += 2;
+            transformsFirst.top() *= core::xyzToYprMatrix(*payloadFirst++);
 
             transformsSecond.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
-            transformsSecond.top() *= core::xyzToYprMatrix(payloadSecond);
-            payloadSecond += 2;
+            transformsSecond.top() *= core::xyzToYprMatrix(*payloadSecond++);
 
             getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), bias) * m_bonePatches[i]);
 
@@ -193,8 +189,7 @@ namespace engine
         auto payload = framePair.firstFrame->getPayload();
 
         std::stack<glm::mat4> transforms;
-        transforms.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(payload));
-        payload += 2;
+        transforms.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*payload++));
 
         if( m_bonePatches.empty() )
             resetPose();
@@ -218,12 +213,11 @@ namespace engine
             }
             if( boneTreeData->flags & 0x02 )
             {
-                transforms.push(transforms.top());
+                transforms.push({ transforms.top() }); // make sure to have a copy, not a reference
             }
 
             transforms.top() *= glm::translate(glm::mat4{1.0f}, boneTreeData->toGl());
-            transforms.top() *= core::xyzToYprMatrix(payload);
-            payload += 2;
+            transforms.top() *= core::xyzToYprMatrix(*payload++);
 
             getChildren()[i]->setLocalMatrix(transforms.top() * m_bonePatches[i]);
 

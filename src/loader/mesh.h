@@ -129,6 +129,7 @@ namespace loader
                 tk.flags = 0;
                 tk.tileAndFlag = 0;
                 tk.colorId = proxyId & 0xff;
+                BOOST_ASSERT(tk.colorId >= 0 && tk.colorId <= 255);
 
                 if( m_texBuffers.find(tk) == m_texBuffers.end() )
                 {

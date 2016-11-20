@@ -16,7 +16,7 @@ namespace loader
     */
     struct ByteColor
     {
-        uint8_t r, g, b, a;
+        uint8_t r = 0, g = 0, b = 0, a = 0;
 
         static ByteColor readTr1(io::SDLReader& reader)
         {

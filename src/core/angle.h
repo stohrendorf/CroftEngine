@@ -361,13 +361,12 @@ namespace core
     };
 
 
-    inline glm::mat4 xyzToYprMatrix(const int16_t* animData)
+    inline glm::mat4 xyzToYprMatrix(uint32_t angleData)
     {
-        const uint32_t angle = *reinterpret_cast<const uint32_t*>(animData);
-        auto getAngle = [angle](uint8_t n)
+        auto getAngle = [angleData](uint8_t n) -> Angle
         {
             BOOST_ASSERT(n < 3);
-            return Angle(((angle >> 10*n) & 0x3ff) * 64);
+            return Angle(((angleData >> 10*n) & 0x3ff) * 64);
         };
 
 

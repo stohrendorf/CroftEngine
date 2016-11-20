@@ -165,10 +165,10 @@ namespace gameplay
 
         _material->setNodeBinding(node);
 
-        _material->bind(_vaBinding);
-
         for(const auto& mps : _materialParameterSetters)
             mps(*_material);
+
+        _material->bind(_vaBinding);
 
         bind();
         if(!wireframe || !drawWireframe())

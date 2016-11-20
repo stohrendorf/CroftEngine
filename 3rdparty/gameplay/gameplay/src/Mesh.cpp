@@ -247,11 +247,7 @@ namespace gameplay
     std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
     {
         auto part = std::make_shared<MeshPart>(this, primitiveType, indexFormat, indexCount, dynamic);
-        if( part )
-        {
-            _parts.emplace_back(part);
-        }
-
+        _parts.emplace_back(part);
         return part;
     }
 

@@ -181,9 +181,9 @@ namespace engine
             uint16_t numValues;
 
 
-            const int16_t* getPayload() const noexcept
+            const uint32_t* getPayload() const noexcept
             {
-                return reinterpret_cast<const int16_t*>(this + 1);
+                return reinterpret_cast<const uint32_t*>(this + 1);
             }
         };
 #pragma pack(pop)
