@@ -8,6 +8,8 @@ varying vec2 v_texCoord;
     varying vec3 v_color;
 #endif
 
+#include "darkness.frag"
+
 void main()
 {
     vec4 baseColor = texture2D(u_diffuseTexture, v_texCoord);
@@ -23,4 +25,6 @@ void main()
 #else
     gl_FragColor = baseColor;
 #endif
+
+    gl_FragColor.rgb *= calcBrightness();
 }
