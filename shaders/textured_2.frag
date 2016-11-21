@@ -1,14 +1,13 @@
 uniform vec3 u_ambientColor;
-
 uniform sampler2D u_diffuseTexture;
 
 varying vec2 v_texCoord;
 
+out vec4 out_color;
+
 #ifdef HAS_VCOLOR
     varying vec3 v_color;
 #endif
-
-#include "darkness.frag"
 
 void main()
 {
@@ -18,13 +17,11 @@ void main()
         discard;
 
 #ifdef HAS_VCOLOR
-    gl_FragColor.r = baseColor.r * v_color.r;
-    gl_FragColor.g = baseColor.g * v_color.g;
-    gl_FragColor.b = baseColor.b * v_color.b;
-    gl_FragColor.a = baseColor.a;
+    out_color.r = baseColor.r * v_color.r;
+    out_color.g = baseColor.g * v_color.g;
+    out_color.b = baseColor.b * v_color.b;
+    out_color.a = baseColor.a;
 #else
-    gl_FragColor = baseColor;
+    out_color = baseColor;
 #endif
-
-    gl_FragColor.rgb *= calcBrightness();
 }

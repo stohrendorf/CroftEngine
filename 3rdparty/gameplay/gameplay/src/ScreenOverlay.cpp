@@ -43,8 +43,10 @@ namespace gameplay
         // Update the projection matrix for our batch to match the current viewport
         const Rectangle& vp = _game->getViewport();
 
-        if( vp.isEmpty() )
-        BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
+        if(vp.isEmpty())
+        {
+            BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
+        }
 
         _image = std::make_shared<Image>(vp.width, vp.height);
         _image->fill({0,0,0,0});
@@ -52,10 +54,6 @@ namespace gameplay
         _texture = std::make_shared<Texture>(_image, false);
 
         _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram);
-        if( _batch == nullptr )
-        {
-            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create batch for screen overlay."));
-        }
 
         if( !vp.isEmpty() )
         {

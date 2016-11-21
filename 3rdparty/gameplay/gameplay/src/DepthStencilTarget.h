@@ -2,9 +2,11 @@
 
 #include "Base.h"
 
-
 namespace gameplay
 {
+    class FrameBuffer;
+    class Texture;
+
     /**
      * Defines a container for depth and stencil targets in a frame buffer object.
      */
@@ -33,7 +35,6 @@ namespace gameplay
         /**
         * Create a DepthStencilTarget and add it to the list of available DepthStencilTargets.
         *
-        * @param id The ID of the new DepthStencilTarget.  Uniqueness is recommended but not enforced.
         * @param format The format of the new DepthStencilTarget.
         * @param width Width of the new DepthStencilTarget.
         * @param height Height of the new DepthStencilTarget.
@@ -41,7 +42,7 @@ namespace gameplay
         * @return A newly created DepthStencilTarget.
         * @script{create}
         */
-        DepthStencilTarget(const char* id, Format format, unsigned int width, unsigned int height);
+        DepthStencilTarget(Format format, unsigned int width, unsigned int height);
         ~DepthStencilTarget();
 
         /**
@@ -65,21 +66,18 @@ namespace gameplay
          */
         unsigned int getHeight() const;
 
-        /**
-         * Returns true if depth and stencil buffer are packed.
-         *
-         * @return The packed state.
-         */
-        bool isPacked() const;
+        const std::shared_ptr<Texture>& getDepthTexture() const
+        {
+            return _depthTexture;
+        }
 
     private:
         DepthStencilTarget& operator=(const DepthStencilTarget&) = delete;
 
         Format _format;
         RenderBufferHandle _depthBuffer{};
-        RenderBufferHandle _stencilBuffer{};
+        std::shared_ptr<Texture> _depthTexture;
         unsigned int _width;
         unsigned int _height;
-        bool _packed;
     };
 }

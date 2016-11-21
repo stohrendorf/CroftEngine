@@ -13,10 +13,15 @@ namespace gameplay
      */
     class Texture
     {
+    public:
+        class Sampler;
         friend class Sampler;
 
-    public:
         explicit Texture(unsigned int width, unsigned int height, const std::vector<glm::vec4>& data, bool generateMipmaps);
+
+        //! Creates a depth texture
+        explicit Texture(unsigned int width, unsigned int height);
+
         explicit Texture(const std::shared_ptr<Image>& image, bool generateMipmaps = false);
         virtual ~Texture();
 

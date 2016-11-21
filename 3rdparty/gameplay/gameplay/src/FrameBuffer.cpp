@@ -131,7 +131,10 @@ namespace gameplay
             }
 
             // Restore the FBO binding
-            _currentFrameBuffer->bind();
+            if(_currentFrameBuffer != nullptr)
+                _currentFrameBuffer->bind();
+            else
+                FrameBufferHandle::unbindAll();
         }
     }
 
@@ -166,25 +169,23 @@ namespace gameplay
             _handle.bind();
 
             // Attach the render buffer to the framebuffer
-            GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
-            if( target->isPacked() )
-            {
-                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
-            }
-            else if( target->getFormat() == DepthStencilTarget::DEPTH_STENCIL )
-            {
-                GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_stencilBuffer.getHandle()) );
-            }
+            //GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
+            GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthStencilTarget->_depthTexture->getHandle().getHandle(), 0) );
+            GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
 
             // Check the framebuffer is good to go.
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
                 BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
+                BOOST_THROW_EXCEPTION(std::runtime_error("Framebuffer status incomplete"));
             }
 
             // Restore the FBO binding
-            _currentFrameBuffer->bind();
+            if(_currentFrameBuffer != nullptr)
+                _currentFrameBuffer->bind();
+            else
+                FrameBufferHandle::unbindAll();
         }
     }
 
@@ -195,12 +196,6 @@ namespace gameplay
     }
 
 
-    bool FrameBuffer::isDefault() const
-    {
-        return _handle.getHandle() == FrameBufferHandle::getDefault()->getHandle();
-    }
-
-
     void FrameBuffer::bind()
     {
         _handle.bind();
@@ -208,32 +203,25 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::getScreenshot(const std::shared_ptr<Image>& image)
+    std::shared_ptr<Image> FrameBuffer::getScreenshot()
     {
-        BOOST_ASSERT( image );
-
         const auto width = _currentFrameBuffer->getWidth();
         const auto height = _currentFrameBuffer->getHeight();
 
+        auto image = std::make_shared<Image>(width, height);
+
         if( image->getWidth() == width && image->getHeight() == height )
         {
-            GL_ASSERT( glReadPixels(0, 0, width, height, GL_RGBA32F, GL_FLOAT, const_cast<float*>(&image->getData()[0].x)) );
+            GL_ASSERT( glReadPixels(0, 0, width, height, GL_RGBA, GL_FLOAT, const_cast<float*>(&image->getData()[0].x)) );
         }
-    }
 
-
-    std::shared_ptr<Image> FrameBuffer::createScreenshot()
-    {
-        auto screenshot = std::make_shared<Image>(_currentFrameBuffer->getWidth(), _currentFrameBuffer->getHeight(), nullptr);
-        getScreenshot(screenshot);
-
-        return screenshot;
+        return image;
     }
 
 
     void FrameBuffer::bindDefault()
     {
-        FrameBufferHandle::getDefault()->bind();
+        FrameBufferHandle::unbindAll();
         _currentFrameBuffer.reset();
     }
 

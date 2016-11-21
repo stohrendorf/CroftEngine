@@ -130,13 +130,6 @@ namespace gameplay
         const std::shared_ptr<DepthStencilTarget>& getDepthStencilTarget() const;
 
         /**
-         * Determines whether this is the default frame buffer.
-         *
-         * @return true if this is the default frame buffer, false otherwise.
-         */
-        bool isDefault() const;
-
-        /**
          * Binds this FrameBuffer for off-screen rendering and return you the currently bound one.
          *
          * You should keep the return FrameBuffer and store it and call bind() when you rendering is complete.
@@ -146,20 +139,13 @@ namespace gameplay
         void bind();
 
         /**
-         * Records a screenshot of what is stored on the current FrameBuffer.
-         *
-         * @return A screenshot of the current framebuffer's content.
-         */
-        static std::shared_ptr<Image> createScreenshot();
-
-        /**
          * Records a screenshot of what is stored on the current FrameBuffer to an Image.
          *
          * The Image must be the same size as the FrameBuffer, otherwise the operation will fail.
          *
          * @param image The Image to write the current framebuffer's content to.
          */
-        static void getScreenshot(const std::shared_ptr<Image>& image);
+        static std::shared_ptr<Image> getScreenshot();
 
         /**
          * Binds the default FrameBuffer for rendering to the display.

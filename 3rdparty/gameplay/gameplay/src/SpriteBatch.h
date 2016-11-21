@@ -48,7 +48,7 @@ namespace gameplay
          * @return A new SpriteBatch for drawing sprites using the given texture.
          * @script{create}
          */
-        explicit SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
+        explicit SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, const std::string& diffuse = {});
 
         /**
          * Destructor.

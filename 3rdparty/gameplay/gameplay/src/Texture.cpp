@@ -41,6 +41,28 @@ namespace gameplay
     }
 
 
+    Texture::Texture(unsigned int width, unsigned int height)
+    {
+        // Create the texture.
+        _handle.bind();
+        GL_ASSERT(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+        // Texture 2D
+        GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr));
+
+        // Set initial minification filter based on whether or not mipmaping was enabled.
+        GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, LINEAR));
+
+        _width = width;
+        _height = height;
+        _minFilter = LINEAR;
+
+        // Restore the texture id
+        if( currentTextureId != nullptr )
+            currentTextureId->bind();
+    }
+
+
     Texture::~Texture() = default;
 
 

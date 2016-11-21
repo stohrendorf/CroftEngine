@@ -63,6 +63,45 @@ namespace
     }
 }
 
+class FullScreenFX
+{
+public:
+    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+        : m_fb{ std::make_shared<gameplay::FrameBuffer>(game->getViewport().width, game->getViewport().height) }
+    {
+        auto vp = game->getViewport();
+
+        if(withDepth)
+            m_fb->setDepthStencilTarget(std::make_shared<gameplay::DepthStencilTarget>(gameplay::DepthStencilTarget::DEPTH_STENCIL, vp.width, vp.height));
+
+        m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
+
+        if(withDepth)
+            m_batch->getMaterial()->getParameter("u_depth")->setValue(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthStencilTarget()->getDepthTexture()));
+
+        m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        m_batch->getSampler()->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+    }
+
+    void bind()
+    {
+        m_fb->bind();
+    }
+
+    void render() const
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        m_batch->start();
+        m_batch->draw(0, 0, m_fb->getWidth(), m_fb->getHeight(), 0, 1, 1, 0, glm::vec4{ 1,1,1,1 });
+        m_batch->finishAndDraw();
+    }
+
+private:
+    std::shared_ptr<gameplay::FrameBuffer> m_fb;
+    std::shared_ptr<gameplay::SpriteBatch> m_batch;
+};
+
 int main()
 {
     gameplay::Game* game = new gameplay::Game();
@@ -129,6 +168,8 @@ int main()
     auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
+    FullScreenFX depthDarknessFx{ game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag",{}) };
+
     auto lastTime = game->getAbsoluteTime();
     while(game->loop())
     {
@@ -169,7 +210,23 @@ int main()
         //str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
         //device->setWindowCaption(str.c_str());
 
+
+        depthDarknessFx.bind();
         game->frame();
+
+/*
+        {
+            const auto width = game->getViewport().width;
+            const auto height = game->getViewport().height;
+
+            std::vector<float> data;
+            data.resize(width*height, 0);
+            GL_ASSERT(glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data.data()));
+        }
+*/
+
+        gameplay::FrameBuffer::bindDefault();
+        depthDarknessFx.render();
 
         drawDebugInfo(font, lvl.get());
 

@@ -167,23 +167,9 @@ namespace gameplay
         {
         }
 
-        static const std::shared_ptr<FrameBufferHandle>& getDefault()
+        static void unbindAll()
         {
-            static std::shared_ptr<FrameBufferHandle> instance;
-            if(instance == nullptr)
-            {
-                GLint fbo;
-                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-                instance.reset(new FrameBufferHandle(static_cast<GLuint>(fbo)));
-            }
-
-            return instance;
-        }
-
-    private:
-        explicit FrameBufferHandle(GLuint handle)
-            : BindableResource([handle](GLsizei, GLuint* ptr) { *ptr = handle; }, [](GLuint handle) { glBindFramebuffer(GL_FRAMEBUFFER, handle); }, [](GLsizei, GLuint*) {})
-        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
     };
 

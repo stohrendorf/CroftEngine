@@ -1,10 +1,8 @@
 uniform vec4 u_diffuseColor;
 
-#include "darkness.frag"
+out vec4 out_color;
 
 void main()
 {
-    gl_FragColor = u_diffuseColor;
-
-    gl_FragColor.rgb *= calcBrightness();
+    out_color = u_diffuseColor;
 }

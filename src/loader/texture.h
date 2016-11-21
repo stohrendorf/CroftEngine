@@ -251,7 +251,6 @@ namespace loader
             result->getParameter("u_diffuseTexture")->setValue(std::make_shared<gameplay::Texture::Sampler>(texture));
             //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
             result->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
-            result->setParameterAutoBinding("u_worldViewMatrix", gameplay::RenderState::WORLD_VIEW_MATRIX);
             result->initStateBlockDefaults();
 
             //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;

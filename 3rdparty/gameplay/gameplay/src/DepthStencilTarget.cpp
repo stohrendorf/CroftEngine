@@ -1,5 +1,7 @@
 #include "Base.h"
+
 #include "DepthStencilTarget.h"
+#include "Texture.h"
 
 #ifndef GL_DEPTH24_STENCIL8_OES
 #define GL_DEPTH24_STENCIL8_OES 0x88F0
@@ -10,51 +12,16 @@
 
 namespace gameplay
 {
-    DepthStencilTarget::DepthStencilTarget(const char* id, Format format, unsigned int width, unsigned int height)
+    DepthStencilTarget::DepthStencilTarget(Format format, unsigned int width, unsigned int height)
         : _format(format)
+        , _depthTexture{std::make_shared<Texture>(width, height)}
         , _width(width)
         , _height(height)
-        , _packed(false)
     {
         // Create a render buffer for this new depth+stencil target
         _depthBuffer.bind();
 
-        // First try to add storage for the most common standard GL_DEPTH24_STENCIL8
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-
-        // Fall back to less common GLES2 extension combination for seperate depth24 + stencil8 or depth16 + stencil8
-        __gl_error_code = glGetError();
-        if( __gl_error_code != GL_NO_ERROR )
-        {
-            const char* extString = (const char*)glGetString(GL_EXTENSIONS);
-
-            if( strstr(extString, "GL_OES_packed_depth_stencil") != nullptr )
-            {
-                GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height));
-                _packed = true;
-            }
-            else
-            {
-                if( strstr(extString, "GL_OES_depth24") != nullptr )
-                {
-                    GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height));
-                }
-                else
-                {
-                    GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height));
-                }
-                if( format == DepthStencilTarget::DEPTH_STENCIL )
-                {
-                    _stencilBuffer.bind();
-                    GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, width, height));
-                }
-            }
-        }
-        else
-        {
-            // Packed format GL_DEPTH24_STENCIL8 is used mark format as packed.
-            _packed = true;
-        }
+        GL_ASSERT( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height) );
     }
 
 
@@ -76,11 +43,5 @@ namespace gameplay
     unsigned int DepthStencilTarget::getHeight() const
     {
         return _height;
-    }
-
-
-    bool DepthStencilTarget::isPacked() const
-    {
-        return _packed;
     }
 }

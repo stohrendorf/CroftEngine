@@ -25,7 +25,7 @@ namespace gameplay
     static std::shared_ptr<ShaderProgram> __spriteShaderProgram = nullptr;
 
 
-    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
         : _batch(nullptr)
         , _sampler(nullptr)
         , _customEffect{ shaderProgram != nullptr }
@@ -55,15 +55,24 @@ namespace gameplay
 
         // Search for the first sampler uniform in the effect.
         std::shared_ptr<Uniform> samplerUniform = nullptr;
-        for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)
+        if(diffuse.empty())
         {
-            auto uniform = fx->getUniform(i);
-            if(uniform && uniform->getType() == GL_SAMPLER_2D)
+            for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)
             {
-                samplerUniform = uniform;
-                break;
+                auto uniform = fx->getUniform(i);
+                if(uniform && uniform->getType() == GL_SAMPLER_2D)
+                {
+                    samplerUniform = uniform;
+                    break;
+                }
             }
         }
+        else
+        {
+            samplerUniform = fx->getUniform(diffuse);
+            BOOST_ASSERT(samplerUniform->getType() == GL_SAMPLER_2D);
+        }
+
         if(!samplerUniform)
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("No uniform of type GL_SAMPLER_2D found in sprite effect."));

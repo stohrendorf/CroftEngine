@@ -209,7 +209,7 @@ namespace gameplay
         std::string definesStr = replaceDefines(defines);
         definesStr += "\n";
 
-        shaderSource[0] = "#version 150\n";
+        shaderSource[0] = "#version 330\n";
         shaderSource[1] = definesStr.c_str();
         std::string vshSourceStr;
         if( !vshPath.empty() )
@@ -455,23 +455,22 @@ namespace gameplay
             std::string parentname = name;
             auto bracketPos = parentname.find('[');
             if( bracketPos != std::string::npos )
-            {
                 parentname.erase(bracketPos);
-                auto itr = _uniforms.find(parentname);
-                if( itr != _uniforms.end() )
-                {
-                    const auto& puniform = itr->second;
 
-                    auto uniform = std::make_shared<Uniform>();
-                    uniform->_shaderProgram = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
-                    uniform->_name = name;
-                    uniform->_location = uniformLocation;
-                    uniform->_index = 0;
-                    uniform->_type = puniform->getType();
-                    _uniforms[name] = uniform;
+            auto itr = _uniforms.find(parentname);
+            if( itr != _uniforms.end() )
+            {
+                const auto& puniform = itr->second;
 
-                    return uniform;
-                }
+                auto uniform = std::make_shared<Uniform>();
+                uniform->_shaderProgram = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
+                uniform->_name = name;
+                uniform->_location = uniformLocation;
+                uniform->_index = 0;
+                uniform->_type = puniform->getType();
+                _uniforms[name] = uniform;
+
+                return uniform;
             }
         }
 
