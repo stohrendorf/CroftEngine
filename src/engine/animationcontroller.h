@@ -40,7 +40,7 @@ namespace engine
 
         void checkTransitions()
         {
-            if( getCurrentFrame() > getLastFrame() )
+            if( m_time > getEndTime() )
             {
                 handleAnimationEnd();
             }
@@ -65,7 +65,7 @@ namespace engine
 
         core::Frame getCurrentLocalFrame() const
         {
-            BOOST_ASSERT(core::toFrame(m_time) >= getFirstFrame());
+            //BOOST_ASSERT(core::toFrame(m_time) >= getFirstFrame());
             return core::toFrame(m_time) - getFirstFrame();
         }
 
@@ -73,6 +73,11 @@ namespace engine
         core::Frame getFirstFrame() const;
 
         core::Frame getLastFrame() const;
+
+        std::chrono::microseconds getEndTime() const
+        {
+            return core::toTime(getLastFrame());
+        }
 
         uint16_t getCurrentState() const;
 
@@ -171,7 +176,7 @@ namespace engine
 
                 glm::vec3 toGl() const noexcept
                 {
-                    return glm::vec3(x, -y, z);
+                    return glm::vec3(x, -y, -z);
                 }
             };
 
@@ -181,7 +186,7 @@ namespace engine
             uint16_t numValues;
 
 
-            const uint32_t* getPayload() const noexcept
+            const uint32_t* getAngleData() const noexcept
             {
                 return reinterpret_cast<const uint32_t*>(this + 1);
             }
@@ -192,8 +197,7 @@ namespace engine
         {
             const AnimFrame* firstFrame = nullptr;
             const AnimFrame* secondFrame = nullptr;
-            int stretchFactor = 0;
-            int stretchOffset = 0;
+            float bias = 0;
         };
 
 

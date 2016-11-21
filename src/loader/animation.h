@@ -20,7 +20,7 @@ namespace loader
     struct Animation
     {
         uint32_t poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
-        uint8_t stretchFactor; // Slowdown factor of this animation
+        uint8_t segmentLength; // Slowdown factor of this animation
         uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
         uint16_t state_id;
 
@@ -42,7 +42,7 @@ namespace loader
 
         constexpr size_t getKeyframeCount() const
         {
-            return (lastFrame - firstFrame + stretchFactor) / stretchFactor;
+            return (lastFrame - firstFrame + segmentLength) / segmentLength;
         }
 
         constexpr size_t getFrameCount() const
@@ -66,9 +66,9 @@ namespace loader
         {
             std::unique_ptr<Animation> animation{new Animation()};
             animation->poseDataOffset = reader.readU32();
-            animation->stretchFactor = reader.readU8();
-            if( animation->stretchFactor == 0 )
-                animation->stretchFactor = 1;
+            animation->segmentLength = reader.readU8();
+            if( animation->segmentLength == 0 )
+                animation->segmentLength = 1;
             animation->poseDataSize = reader.readU8();
             animation->state_id = reader.readU16();
 

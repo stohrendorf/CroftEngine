@@ -311,11 +311,6 @@ namespace gameplay
          */
         void hierarchyChanged();
 
-        /**
-         * Marks the bounding volume of the node as dirty.
-         */
-        void setBoundsDirty();
-
     private:
 
         Node(const Node& copy) = delete;

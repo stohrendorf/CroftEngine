@@ -167,9 +167,6 @@ namespace gameplay
                 BOOST_LOG_TRIVIAL(error) << "Unsupported light type (" << _type << ").";
                 break;
         }
-
-        if( _node )
-            _node->setBoundsDirty();
     }
 
 
@@ -221,9 +218,6 @@ namespace gameplay
 
         boost::get<Spot>(_light).outerAngle = outerAngle;
         boost::get<Spot>(_light).outerAngleCos = std::cos(outerAngle);
-
-        if( _node )
-            _node->setBoundsDirty();
     }
 
 

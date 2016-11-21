@@ -6,9 +6,8 @@
 
 // Node dirty flags
 #define NODE_DIRTY_WORLD 1
-#define NODE_DIRTY_BOUNDS 2
 #define NODE_DIRTY_HIERARCHY 4
-#define NODE_DIRTY_ALL (NODE_DIRTY_WORLD | NODE_DIRTY_BOUNDS | NODE_DIRTY_HIERARCHY)
+#define NODE_DIRTY_ALL (NODE_DIRTY_WORLD | NODE_DIRTY_HIERARCHY)
 
 
 namespace gameplay
@@ -62,7 +61,6 @@ namespace gameplay
 
         _children.push_back(child);
         child->_parent = std::static_pointer_cast<Node>(shared_from_this());
-        setBoundsDirty();
 
         if( _dirtyBits & NODE_DIRTY_HIERARCHY )
         {
@@ -106,7 +104,7 @@ namespace gameplay
         }
         _parent.reset();
 
-        if( !parent.expired() && parent.lock()->_dirtyBits & NODE_DIRTY_HIERARCHY )
+        if( !parent.expired() && (parent.lock()->_dirtyBits & NODE_DIRTY_HIERARCHY) )
         {
             parent.lock()->hierarchyChanged();
         }
@@ -256,13 +254,6 @@ namespace gameplay
             {
                 m_worldMatrix = getLocalMatrix();
             }
-
-            // Our world matrix was just updated, so call getWorldMatrix() on all child nodes
-            // to force their resolved world matrices to be updated.
-            for( const auto& child : _children )
-            {
-                child->getWorldMatrix();
-            }
         }
         return m_worldMatrix;
     }
@@ -386,15 +377,14 @@ namespace gameplay
     glm::vec3 Node::getActiveCameraTranslationWorld() const
     {
         Scene* scene = getScene();
-        if( scene )
+        if( !scene )
+            return{ 0,0,0 };
+
+        auto camera = scene->getActiveCamera();
+        if( camera )
         {
-            auto camera = scene->getActiveCamera();
-            if( camera )
-            {
-                return glm::vec3(camera->getInverseViewMatrix()[3]);
-            }
+            return glm::vec3(camera->getInverseViewMatrix()[3]);
         }
-        return {0,0,0};
     }
 
 
@@ -409,25 +399,13 @@ namespace gameplay
     void Node::transformChanged()
     {
         // Our local transform was changed, so mark our world matrices dirty.
-        _dirtyBits |= NODE_DIRTY_WORLD | NODE_DIRTY_BOUNDS;
+        _dirtyBits |= NODE_DIRTY_WORLD;
 
         // Notify our children that their transform has also changed (since transforms are inherited).
         for( const auto& child : _children )
         {
             child->transformChanged();
         }
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Node::setBoundsDirty()
-    {
-        // Mark ourself and our parent nodes as dirty
-        _dirtyBits |= NODE_DIRTY_BOUNDS;
-
-        // Mark our parent bounds as dirty as well
-        if( !_parent.expired() )
-            _parent.lock()->setBoundsDirty();
     }
 
     const std::shared_ptr<Light>& Node::getLight() const
@@ -452,8 +430,6 @@ namespace gameplay
         {
             _light->setNode(this);
         }
-
-        setBoundsDirty();
     }
 
 
@@ -465,20 +441,19 @@ namespace gameplay
 
     void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
     {
-        if( _drawable != drawable )
+        if( _drawable == drawable )
+            return;
+
+        if( _drawable )
         {
-            if( _drawable )
-            {
-                _drawable->setNode(nullptr);
-            }
-
-            _drawable = drawable;
-
-            if( _drawable )
-            {
-                _drawable->setNode(this);
-            }
+            _drawable->setNode(nullptr);
         }
-        setBoundsDirty();
+
+        _drawable = drawable;
+
+        if( _drawable )
+        {
+            _drawable->setNode(this);
+        }
     }
 }

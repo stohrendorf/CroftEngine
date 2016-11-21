@@ -762,18 +762,18 @@ namespace engine
         ItemController::processAnimCommands(advanceFrame);
     }
 
-    void ItemController::update(const std::chrono::microseconds& deltaTimeMs)
+    void ItemController::update(const std::chrono::microseconds& deltaTime)
     {
         if(m_meshAnimationController != nullptr)
-            m_meshAnimationController->addTime(deltaTimeMs);
+            m_meshAnimationController->addTime(deltaTime);
 
-        m_currentDeltaTime = deltaTimeMs;
+        m_currentDeltaTime = deltaTime;
 
         if(m_currentDeltaTime <= std::chrono::microseconds::zero())
             return;
 
         bool isNewFrame = m_meshAnimationController == nullptr ? false : m_recentAnimFrame != getCurrentFrame();
-        m_subFrameTime += deltaTimeMs;
+        m_subFrameTime += deltaTime;
 
         if(m_subFrameTime >= core::FrameTime)
         {

@@ -24,17 +24,9 @@ namespace core
     using FrameRatio = std::ratio<1, FrameRate>;
     using Frame = std::chrono::duration<int, FrameRatio>;
 
-    // Double-scale frame rate for rounding purposes
-    using FrameRatio2 = std::ratio<1, FrameRate * 2>;
-    using Frame2 = std::chrono::duration<int, FrameRatio2>;
-
     inline Frame toFrame(const std::chrono::microseconds& duration)
     {
-        const auto f2 = std::chrono::duration_cast<Frame2>(duration).count();
-        if(f2 % 2)
-            return Frame{ f2 / 2 + 1 };
-        else
-            return Frame{ f2 / 2 };
+        return std::chrono::duration_cast<Frame>(duration);
     }
 
     inline std::chrono::microseconds toTime(const Frame& frame)
