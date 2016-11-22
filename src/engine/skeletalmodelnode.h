@@ -37,22 +37,29 @@ namespace engine
         }
 
 
-        void checkTransitions()
+        bool checkTransitions()
         {
+            bool isNewFrame = false;
             if( m_time >= getEndTime() )
             {
                 handleAnimationEnd();
+                isNewFrame = true;
             }
 
-            handleTRTransitions();
+            isNewFrame |= handleTRTransitions();
+
+            return isNewFrame;
         }
 
 
-        void addTime(const std::chrono::microseconds& time)
+        bool addTime(const std::chrono::microseconds& time)
         {
+            bool isNewFrame = core::toFrame(m_time) != core::toFrame(m_time + time);
             m_time += time;
 
-            checkTransitions();
+            isNewFrame |= checkTransitions();
+
+            return isNewFrame;
         }
 
 

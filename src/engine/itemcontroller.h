@@ -46,7 +46,6 @@ namespace engine
         core::InterpolatedValue<float> m_fallSpeed{0.0f};
         core::InterpolatedValue<float> m_horizontalSpeed{0.0f};
         std::chrono::microseconds m_currentDeltaTime{0};
-        std::chrono::microseconds m_subFrameTime{0};
 
         bool m_falling = false; // flags2_08
 
@@ -148,7 +147,7 @@ namespace engine
             m_position.position.Y += dy;
             m_position.position.Z += dz;
 
-            BOOST_LOG_TRIVIAL(debug) << "Move " << dx << "/" << dy << "/" << dz;
+            // BOOST_LOG_TRIVIAL(debug) << "Move " << dx << "/" << dy << "/" << dz;
         }
 
 

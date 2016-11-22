@@ -721,21 +721,12 @@ namespace engine
 
     void ItemController::update(const std::chrono::microseconds& deltaTime)
     {
-        addTime(deltaTime);
+        const bool isNewFrame = addTime(deltaTime);
 
         m_currentDeltaTime = deltaTime;
 
         if( m_currentDeltaTime <= std::chrono::microseconds::zero() )
             return;
-
-        bool isNewFrame = m_recentAnimFrame != getCurrentFrame();
-        m_subFrameTime += deltaTime;
-
-        if( m_subFrameTime >= core::FrameTime )
-        {
-            isNewFrame = true;
-            m_subFrameTime -= m_subFrameTime / core::FrameTime * core::FrameTime;
-        }
 
         animateImpl(isNewFrame);
 
