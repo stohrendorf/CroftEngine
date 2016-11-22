@@ -78,7 +78,10 @@ public:
         m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
 
         if(withDepth)
+        {
             m_batch->getMaterial()->getParameter("u_depth")->setValue(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthStencilTarget()->getDepthTexture()));
+            m_batch->getMaterial()->getParameter("u_projection")->bindValue(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
+        }
 
         m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
         m_batch->getSampler()->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
