@@ -11,6 +11,7 @@ namespace gameplay
     class Drawable : public std::enable_shared_from_this<Drawable>
     {
         friend class Node;
+        friend class Game;
 
     public:
 

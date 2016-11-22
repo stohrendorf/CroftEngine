@@ -26,11 +26,10 @@
 namespace gameplay
 {
     std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::_defaultState = nullptr;
-    std::vector<RenderState::AutoBindingResolver*> RenderState::_customAutoBindingResolvers;
 
 
     RenderState::RenderState()
-        : _nodeBinding(nullptr)
+        : m_boundNode(nullptr)
         , _state(nullptr)
         , _parent(nullptr)
     {
@@ -115,7 +114,7 @@ namespace gameplay
         _autoBindings[name] = autoBinding;
 
         // If we already have a node binding set, pass it to our handler now
-        if( _nodeBinding )
+        if( m_boundNode )
         {
             applyAutoBinding(name, autoBinding);
         }
@@ -153,13 +152,13 @@ namespace gameplay
     }
 
 
-    void RenderState::setNodeBinding(Node* node)
+    void RenderState::bindToNode(Node* node)
     {
-        if( _nodeBinding == node )
+        if( m_boundNode == node )
             return;
-        _nodeBinding = node;
+        m_boundNode = node;
 
-        if( !_nodeBinding )
+        if( !m_boundNode )
             return;
 
         for( const auto& binding : _autoBindings )
@@ -171,27 +170,10 @@ namespace gameplay
 
     void RenderState::applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding)
     {
-        BOOST_ASSERT(_nodeBinding);
+        BOOST_ASSERT(m_boundNode);
 
         auto param = getParameter(uniformName);
         BOOST_ASSERT(param);
-
-        bool bound = false;
-
-        // First attempt to resolve the binding using custom registered resolvers.
-        for( size_t i = 0, count = _customAutoBindingResolvers.size(); i < count; ++i )
-        {
-            if( _customAutoBindingResolvers[i]->resolveAutoBinding(autoBinding, _nodeBinding, param) )
-            {
-                // Handled by custom auto binding resolver
-                bound = true;
-                break;
-            }
-        }
-
-        // Perform built-in resolution
-        if( bound )
-            return;
 
         switch( autoBinding )
         {
@@ -235,59 +217,59 @@ namespace gameplay
     const glm::mat4& RenderState::autoBindingGetWorldMatrix() const
     {
         static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getWorldMatrix() : identity;
+        return m_boundNode ? m_boundNode->getWorldMatrix() : identity;
     }
 
 
     const glm::mat4& RenderState::autoBindingGetViewMatrix() const
     {
         static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getViewMatrix() : identity;
+        return m_boundNode ? m_boundNode->getViewMatrix() : identity;
     }
 
 
     const glm::mat4& RenderState::autoBindingGetProjectionMatrix() const
     {
         static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getProjectionMatrix() : identity;
+        return m_boundNode ? m_boundNode->getProjectionMatrix() : identity;
     }
 
 
     glm::mat4 RenderState::autoBindingGetWorldViewMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getWorldViewMatrix() : glm::mat4{ 1.0f };
+        return m_boundNode ? m_boundNode->getWorldViewMatrix() : glm::mat4{ 1.0f };
     }
 
 
     const glm::mat4& RenderState::autoBindingGetViewProjectionMatrix() const
     {
         static const glm::mat4 identity{ 1.0f };
-        return _nodeBinding ? _nodeBinding->getViewProjectionMatrix() : identity;
+        return m_boundNode ? m_boundNode->getViewProjectionMatrix() : identity;
     }
 
 
     glm::mat4 RenderState::autoBindingGetWorldViewProjectionMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getWorldViewProjectionMatrix() : glm::mat4{ 1.0f };
+        return m_boundNode ? m_boundNode->getWorldViewProjectionMatrix() : glm::mat4{ 1.0f };
     }
 
 
     glm::mat4 RenderState::autoBindingGetInverseTransposeWorldMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldMatrix() : glm::mat4{ 1.0f };
+        return m_boundNode ? m_boundNode->getInverseTransposeWorldMatrix() : glm::mat4{ 1.0f };
     }
 
 
     glm::mat4 RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
     {
-        return _nodeBinding ? _nodeBinding->getInverseTransposeWorldViewMatrix() : glm::mat4{ 1.0f };
+        return m_boundNode ? m_boundNode->getInverseTransposeWorldViewMatrix() : glm::mat4{ 1.0f };
     }
 
 
     glm::vec3 RenderState::autoBindingGetCameraWorldPosition() const
     {
         static const glm::vec3 zero{ 0, 0, 0 };
-        return _nodeBinding ? _nodeBinding->getActiveCameraTranslationWorld() : zero;
+        return m_boundNode ? m_boundNode->getActiveCameraTranslationWorld() : zero;
     }
 
 
@@ -295,7 +277,7 @@ namespace gameplay
     {
         static const glm::vec3 zero{ 0, 0, 0 };
 
-        Scene* scene = _nodeBinding ? _nodeBinding->getScene() : nullptr;
+        Scene* scene = m_boundNode ? m_boundNode->getScene() : nullptr;
         return scene ? scene->getAmbientColor() : zero;
     }
 
@@ -774,19 +756,5 @@ namespace gameplay
         {
             _bits |= RS_STENCIL_OP;
         }
-    }
-
-
-    RenderState::AutoBindingResolver::AutoBindingResolver()
-    {
-        _customAutoBindingResolvers.push_back(this);
-    }
-
-
-    RenderState::AutoBindingResolver::~AutoBindingResolver()
-    {
-        auto itr = std::find(_customAutoBindingResolvers.begin(), _customAutoBindingResolvers.end(), this);
-        if( itr != _customAutoBindingResolvers.end() )
-            _customAutoBindingResolvers.erase(itr);
     }
 }

@@ -79,74 +79,6 @@ namespace gameplay
 
 
         /**
-        * An abstract base class that can be extended to support custom material auto bindings.
-        *
-        * Implementing a custom auto binding resolver allows the set of built-in parameter auto
-        * bindings to be extended or overridden. Any parameter auto binding that is set on a
-        * material will be forwarded to any custom auto binding resolvers, in the order in which
-        * they are registered. If a registered resolver returns true (specifying that it handles
-        * the specified autoBinding), no further code will be executed for that autoBinding.
-        * This allows auto binding resolvers to not only implement new/custom binding strings,
-        * but it also lets them override existing/built-in ones. For this reason, you should
-        * ensure that you ONLY return true if you explicitly handle a custom auto binding; return
-        * false otherwise.
-        *
-        * Note that the custom resolver is called only once for a RenderState object when its
-        * node binding is initially set. This occurs when a material is initially bound to a
-        * renderable (Model, Terrain, etc) that belongs to a Node. The resolver is NOT called
-        * each frame or each time the RenderState is bound. Therefore, when implementing custom
-        * auto bindings for values that change over time, you should bind a method pointer to
-        * the passed in MaterialParaemter using the MaterialParameter::bindValue method. This way,
-        * the bound method will be called each frame to set an updated value into the MaterialParameter.
-        *
-        * If no registered resolvers explicitly handle an auto binding, the binding will attempt
-        * to be resolved using the internal/built-in resolver, which is able to handle any
-        * auto bindings found in the RenderState::AutoBinding enumeration.
-        *
-        * When an instance of a class that extends AutoBindingResolver is created, it is automatically
-        * registered as a custom auto binding handler. Likewise, it is automatically deregistered
-        * on destruction.
-        *
-        * @script{ignore}
-        */
-        class AutoBindingResolver
-        {
-        public:
-
-            /**
-             * Destructor.
-             */
-            virtual ~AutoBindingResolver();
-
-            /**
-            * Called when an unrecognized material auto binding is encountered
-            * during material loading.
-            *
-            * Implemenations of this method should do a string comparison on the passed
-            * in name parameter and decide whether or not they should handle the
-            * parameter. If the parameter is not handled, false should be returned so
-            * that other auto binding resolvers get a chance to handle the parameter.
-            * Otherwise, the parameter should be set or bound and true should be returned.
-            *
-            * @param autoBinding Name of the auto binding to be resolved.
-            * @param node The node that the material is attached to.
-            * @param parameter The material parameter to be bound (if true is returned).
-            *
-            * @return True if the auto binding is handled and the associated parmeter is
-            *      bound, false otherwise.
-            */
-            virtual bool resolveAutoBinding(AutoBinding autoBinding, Node* node, const std::shared_ptr<MaterialParameter>& parameter) = 0;
-
-        protected:
-
-            /**
-             * Constructor.
-             */
-            AutoBindingResolver();
-        };
-
-
-        /**
          * Defines blend constants supported by the blend function.
          */
         enum Blend : GLenum
@@ -523,7 +455,7 @@ namespace gameplay
          *
          * @param node The node to use for applying auto-bindings.
          */
-        virtual void setNodeBinding(Node* node);
+        virtual void bindToNode(Node* node);
 
     protected:
 
@@ -599,7 +531,7 @@ namespace gameplay
         /**
          * The Node bound to the RenderState.
          */
-        Node* _nodeBinding;
+        Node* m_boundNode;
 
         /**
          * The StateBlock of fixed-function render states that can be applied to the RenderState.
@@ -610,10 +542,5 @@ namespace gameplay
          * The RenderState's parent.
          */
         RenderState* _parent = nullptr;
-
-        /**
-         * Map of custom auto binding resolvers.
-         */
-        static std::vector<AutoBindingResolver*> _customAutoBindingResolvers;
     };
 }

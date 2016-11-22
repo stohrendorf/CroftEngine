@@ -111,6 +111,7 @@ namespace gameplay
         auto dr = node->getDrawable();
         if( dr != nullptr )
         {
+            dr->setNode(node.get());
             dr->draw();
         }
 

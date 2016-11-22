@@ -163,7 +163,7 @@ namespace gameplay
         if(!_material)
             return;
 
-        _material->setNodeBinding(node);
+        _material->bindToNode(node);
 
         for(const auto& mps : _materialParameterSetters)
             mps(*_material);

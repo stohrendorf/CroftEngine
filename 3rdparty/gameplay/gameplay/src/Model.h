@@ -90,7 +90,7 @@ namespace gameplay
         /**
          * Sets the specified material's node binding to this model's node.
          */
-        void setMaterialNodeBinding(const std::shared_ptr<Material>& m);
+        void bindNodeTo(const std::shared_ptr<Material>& m);
 
         std::shared_ptr<Mesh> _mesh;
     };

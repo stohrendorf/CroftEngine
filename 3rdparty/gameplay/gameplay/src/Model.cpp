@@ -35,7 +35,7 @@ namespace gameplay
         // Apply node binding for the new material.
         if( _node )
         {
-            setMaterialNodeBinding(material);
+            bindNodeTo(material);
         }
     }
 
@@ -66,7 +66,7 @@ namespace gameplay
             return;
 
         for(size_t i = 0; i < _mesh->getPartCount(); ++i)
-            setMaterialNodeBinding(_mesh->getPart(i)->_material);
+            bindNodeTo(_mesh->getPart(i)->_material);
     }
 
 
@@ -117,13 +117,13 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void Model::setMaterialNodeBinding(const std::shared_ptr<Material>& material)
+    void Model::bindNodeTo(const std::shared_ptr<Material>& material)
     {
         BOOST_ASSERT(material);
 
         if( _node )
         {
-            material->setNodeBinding(getNode());
+            material->bindToNode(getNode());
         }
     }
 }
