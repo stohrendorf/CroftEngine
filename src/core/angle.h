@@ -3,11 +3,12 @@
 #include "util/vmath.h"
 
 #include "gameplay.h"
-#include <glm/gtx/euler_angles.hpp>
 
+#include <cfenv>
 #include <cmath>
 
 #include <gsl/gsl>
+#include <glm/gtx/euler_angles.hpp>
 
 #include <boost/optional.hpp>
 
@@ -78,7 +79,9 @@ namespace core
 
         static Angle fromDegrees(float val)
         {
-            return Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
+            auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
         }
 
 
@@ -140,7 +143,9 @@ namespace core
 
         Angle operator*(float v) const
         {
-            return Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
+            auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
         }
 
 
@@ -153,7 +158,9 @@ namespace core
 
         Angle operator/(float v) const
         {
-            return Angle{gsl::narrow_cast<int32_t>(std::lround(m_value / v)), RawTag()};
+            auto result = Angle{ gsl::narrow_cast<int32_t>(std::lround(m_value / v)), RawTag() };
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
         }
 
 

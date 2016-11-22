@@ -390,8 +390,8 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.x
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y/10000),
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x/10000)
                 );
                 auto r = getLevel().m_cameraController->getHeadRotation();
                 if(r.Y < -44_deg)
@@ -2090,8 +2090,8 @@ namespace engine
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.x
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y/10000),
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x/10000)
                 );
 
                 getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());

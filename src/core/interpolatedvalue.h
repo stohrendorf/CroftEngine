@@ -86,7 +86,8 @@ namespace core
 
         static constexpr T scale(const T& v, const std::chrono::microseconds& ms)
         {
-            return v * ms.count() / core::FrameTime.count();
+            // Use a pre-calculated factor to avoid overflows when multiplying.
+            return v * (static_cast<float>(ms.count()) / core::FrameTime.count());
         }
 
         template <typename U>

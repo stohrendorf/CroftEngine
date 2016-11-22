@@ -14,6 +14,7 @@ namespace engine
         explicit InputHandler(const gsl::not_null<GLFWwindow*>& window)
             : m_window(window)
         {
+            glfwGetCursorPos(m_window, &m_lastCursorX, &m_lastCursorY);
         }
 
 
@@ -33,7 +34,9 @@ namespace engine
 
             double x, y;
             glfwGetCursorPos(m_window, &x, &y);
-            m_inputState.mouseMovement += glm::vec2(x, y);
+            m_inputState.mouseMovement = glm::vec2(x - m_lastCursorX, y - m_lastCursorY);
+            m_lastCursorX = x;
+            m_lastCursorY = y;
 
             m_inputState.action = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             m_inputState.freeLook = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
@@ -54,5 +57,7 @@ namespace engine
         InputState m_inputState;
 
         gsl::not_null<GLFWwindow*> m_window;
+        double m_lastCursorX = 0;
+        double m_lastCursorY = 0;
     };
 }

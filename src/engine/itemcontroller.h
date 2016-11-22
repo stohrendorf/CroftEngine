@@ -138,6 +138,8 @@ namespace engine
             m_rotation.X += dx;
             m_rotation.Y += dy;
             m_rotation.Z += dz;
+
+            BOOST_LOG_TRIVIAL(debug) << "Rotate " << getId() << " " << dx.toDegrees() << "/" << dy.toDegrees() << "/" << dz.toDegrees();
         }
 
 
@@ -147,7 +149,7 @@ namespace engine
             m_position.position.Y += dy;
             m_position.position.Z += dz;
 
-            // BOOST_LOG_TRIVIAL(debug) << "Move " << dx << "/" << dy << "/" << dz;
+            BOOST_LOG_TRIVIAL(debug) << "Move " << getId() << " " << dx << "/" << dy << "/" << dz;
         }
 
 

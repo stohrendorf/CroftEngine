@@ -77,6 +77,8 @@ namespace gameplay
         _window = glfwCreateWindow(width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
         glfwMakeContextCurrent(_window);
 
+        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
         // Use OpenGL 2.x with GLEW
         glewExperimental = GL_TRUE;
         const auto err = glewInit();

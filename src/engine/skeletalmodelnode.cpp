@@ -169,17 +169,17 @@ namespace engine
 
         auto angleDataFirst = framePair.firstFrame->getAngleData();
         std::stack<glm::mat4> transformsFirst;
-        transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*angleDataFirst));
+        transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*angleDataFirst) * m_bonePatches[0]);
         ++angleDataFirst;
 
         auto angleDataSecond = framePair.secondFrame->getAngleData();
         std::stack<glm::mat4> transformsSecond;
-        transformsSecond.push(glm::translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl()) * core::xyzToYprMatrix(*angleDataSecond));
+        transformsSecond.push(glm::translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl()) * core::xyzToYprMatrix(*angleDataSecond) * m_bonePatches[0]);
         ++angleDataSecond;
 
         BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
 
-        getChildren()[0]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias) * m_bonePatches[0]);
+        getChildren()[0]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
 
         if( m_model.boneCount <= 1 )
             return;
@@ -201,10 +201,10 @@ namespace engine
 
             BOOST_ASSERT((positionData->flags & 0x1c) == 0);
 
-            transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataFirst);
-            transformsSecond.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataSecond);
+            transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataFirst) * m_bonePatches[i];
+            transformsSecond.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataSecond) * m_bonePatches[i];
 
-            getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias) * m_bonePatches[i]);
+            getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
         }
     }
 
@@ -220,10 +220,10 @@ namespace engine
         auto angleData = framePair.firstFrame->getAngleData();
 
         std::stack<glm::mat4> transforms;
-        transforms.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*angleData));
+        transforms.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::xyzToYprMatrix(*angleData) * m_bonePatches[0]);
         ++angleData;
 
-        getChildren()[0]->setLocalMatrix(transforms.top() * m_bonePatches[0]);
+        getChildren()[0]->setLocalMatrix(transforms.top());
 
         if( m_model.boneCount <= 1 )
             return;
@@ -243,9 +243,9 @@ namespace engine
                 transforms.push({transforms.top()}); // make sure to have a copy, not a reference
             }
 
-            transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleData);
+            transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleData) * m_bonePatches[i];
 
-            getChildren()[i]->setLocalMatrix(transforms.top() * m_bonePatches[i]);
+            getChildren()[i]->setLocalMatrix(transforms.top());
         }
     }
 
