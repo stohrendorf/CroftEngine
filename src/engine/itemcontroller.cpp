@@ -1,23 +1,23 @@
 #include "itemcontroller.h"
 
-#include "animationcontroller.h"
 #include "laracontroller.h"
+#include "skeletalmodelnode.h"
 
 namespace engine
 {
     uint16_t ItemController::getCurrentAnimState() const
     {
-        return m_meshAnimationController->getCurrentState();
+        return m_skeletalModel->getCurrentState();
     }
 
     bool ItemController::handleTRTransitions()
     {
-        return m_meshAnimationController->handleTRTransitions();
+        return m_skeletalModel->handleTRTransitions();
     }
 
     void ItemController::handleAnimationEnd()
     {
-        m_meshAnimationController->handleAnimationEnd();
+        m_skeletalModel->handleAnimationEnd();
     }
 
 
@@ -30,61 +30,61 @@ namespace engine
         else
             tr = m_position.position.toRenderSystem();
 
-        m_meshAnimationController->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, tr) * getRotation().toMatrix());
+        m_skeletalModel->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, tr) * getRotation().toMatrix());
 
         updateSounds();
     }
 
     void ItemController::setTargetState(uint16_t st)
     {
-        Expects(m_meshAnimationController != nullptr);
-        m_meshAnimationController->setTargetState(st);
+        Expects(m_skeletalModel != nullptr);
+        m_skeletalModel->setTargetState(st);
     }
 
     uint16_t ItemController::getTargetState() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getTargetState();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getTargetState();
     }
 
     void ItemController::playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame)
     {
-        Expects(m_meshAnimationController != nullptr);
-        m_meshAnimationController->setAnimIdGlobal(anim, firstFrame ? firstFrame->count() : 0);
+        Expects(m_skeletalModel != nullptr);
+        m_skeletalModel->setAnimIdGlobal(anim, firstFrame ? firstFrame->count() : 0);
     }
 
     void ItemController::nextFrame()
     {
-        Expects(m_meshAnimationController != nullptr);
-        m_meshAnimationController->advanceFrame();
+        Expects(m_skeletalModel != nullptr);
+        m_skeletalModel->advanceFrame();
     }
 
     core::Frame ItemController::getCurrentFrame() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getCurrentFrame();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getCurrentFrame();
     }
 
     core::Frame ItemController::getLastAnimFrame() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getLastFrame();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getLastFrame();
     }
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
+    ItemController::ItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string & name, const gsl::not_null<const loader::Room*>& room, gsl::not_null<loader::Item*> item, bool hasProcessAnimCommandsOverride, uint8_t characteristics)
         : m_position(room, core::ExactTRCoordinates(item->position))
         , m_rotation(0_deg, core::Angle{ item->rotation }, 0_deg)
         , m_level(level)
-        , m_meshAnimationController(animCtrl)
+        , m_skeletalModel(skeletalModel)
         , m_name(name)
         , m_itemFlags(item->flags)
         , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
         , m_characteristics(characteristics)
     {
-        room->node->addChild(m_meshAnimationController);
+        room->node->addChild(m_skeletalModel);
 
         if(m_itemFlags & Oneshot)
-            m_meshAnimationController->setEnabled(false);
+            m_skeletalModel->setEnabled(false);
 
         if((m_itemFlags & Oneshot) != 0)
         {
@@ -105,14 +105,14 @@ namespace engine
 
     gameplay::BoundingBox ItemController::getBoundingBox() const
     {
-        if(m_meshAnimationController == nullptr)
+        if(m_skeletalModel == nullptr)
         {
             BOOST_LOG_TRIVIAL(warning) << "Trying to get bounding box from non-animated item: " << getName();
             return gameplay::BoundingBox(0, 0, 0, 0, 0, 0);
         }
 
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getBoundingBox();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getBoundingBox();
     }
 
     void ItemController::setCurrentRoom(const loader::Room* newRoom)
@@ -127,7 +127,7 @@ namespace engine
         }
         BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_name << " to " << newRoom->node->getId();
 
-        newRoom->node->addChild(m_meshAnimationController);
+        newRoom->node->addChild(m_skeletalModel);
 
         m_position.room = newRoom;
     }
@@ -135,20 +135,20 @@ namespace engine
 
     size_t ItemController::getCurrentAnimationId() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getAnimId();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getAnimId();
     }
 
     float ItemController::calculateAnimFloorSpeed() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->calculateFloorSpeed();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->calculateFloorSpeed();
     }
 
     int ItemController::getAnimAccelleration() const
     {
-        Expects(m_meshAnimationController != nullptr);
-        return m_meshAnimationController->getAccelleration();
+        Expects(m_skeletalModel != nullptr);
+        return m_skeletalModel->getAccelleration();
     }
 
     void ItemController::processAnimCommands(bool advanceFrame)
@@ -764,15 +764,15 @@ namespace engine
 
     void ItemController::update(const std::chrono::microseconds& deltaTime)
     {
-        if(m_meshAnimationController != nullptr)
-            m_meshAnimationController->addTime(deltaTime);
+        if(m_skeletalModel != nullptr)
+            m_skeletalModel->addTime(deltaTime);
 
         m_currentDeltaTime = deltaTime;
 
         if(m_currentDeltaTime <= std::chrono::microseconds::zero())
             return;
 
-        bool isNewFrame = m_meshAnimationController == nullptr ? false : m_recentAnimFrame != getCurrentFrame();
+        bool isNewFrame = m_skeletalModel == nullptr ? false : m_recentAnimFrame != getCurrentFrame();
         m_subFrameTime += deltaTime;
 
         if(m_subFrameTime >= core::FrameTime)
@@ -788,8 +788,8 @@ namespace engine
 
         applyTransform();
 
-        if(m_meshAnimationController != nullptr)
-            m_meshAnimationController->updatePose();
+        if(m_skeletalModel != nullptr)
+            m_skeletalModel->updatePose();
     }
 
 }

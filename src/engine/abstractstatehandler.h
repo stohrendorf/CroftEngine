@@ -155,7 +155,6 @@ namespace engine
 
         bool applyLandingDamage();
 
-        std::shared_ptr<gameplay::Node> getLara();
         gameplay::BoundingBox getBoundingBox() const;
 
         void addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept;

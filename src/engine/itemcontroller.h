@@ -18,7 +18,7 @@ namespace level
 
 namespace engine
 {
-    class MeshAnimationController;
+    class SkeletalModelNode;
     struct CollisionInfo;
 
     struct InteractionLimits
@@ -39,7 +39,7 @@ namespace engine
 
         gsl::not_null<level::Level*> const m_level;
 
-        std::shared_ptr<MeshAnimationController> m_meshAnimationController;
+        std::shared_ptr<SkeletalModelNode> m_skeletalModel;
         const std::string m_name;
 
         core::Frame m_recentAnimFrame{ -1 };
@@ -87,7 +87,7 @@ namespace engine
         };
 
         ItemController(const gsl::not_null<level::Level*>& level,
-                       const std::shared_ptr<engine::MeshAnimationController>& animCtrl,
+                       const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        gsl::not_null<loader::Item*> item,
@@ -127,9 +127,9 @@ namespace engine
 
         void applyTransform();
 
-        const std::shared_ptr<engine::MeshAnimationController>& getAnimationController() const noexcept
+        const std::shared_ptr<engine::SkeletalModelNode>& getSkeletalModel() const noexcept
         {
-            return m_meshAnimationController;
+            return m_skeletalModel;
         }
 
         void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
@@ -380,18 +380,13 @@ namespace engine
 
             return !isInvertedActivation();
         }
-
-        const std::shared_ptr<MeshAnimationController>& getMeshAnimationController() const
-        {
-            return m_meshAnimationController;
-        }
     };
 
     class DummyItemController final : public ItemController
     {
     public:
-        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, false, 0)
+        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, false, 0)
         {
         }
 
@@ -403,8 +398,8 @@ namespace engine
     class ItemController_55_Switch final : public ItemController
     {
     public:
-        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x30)
+        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
         {
         }
 
@@ -430,8 +425,8 @@ namespace engine
     class ItemController_35_CollapsibleFloor final : public ItemController
     {
     public:
-        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x34)
+        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
         {
         }
 
@@ -471,8 +466,8 @@ namespace engine
     class ItemController_41_TrapDoorUp final : public ItemController
     {
     public:
-        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x30)
+        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
         {
         }
 
@@ -534,8 +529,8 @@ namespace engine
     class ItemController_TrapDoorDown final : public ItemController
     {
     public:
-        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x30)
+        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
         {
         }
 
@@ -609,8 +604,8 @@ namespace engine
     class ItemController_Door final : public ItemController
     {
     public:
-        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x30)
+        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
         {
         }
 
@@ -652,8 +647,8 @@ namespace engine
     class ItemController_Block final : public ItemController
     {
     public:
-        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x34)
+        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
         {
             if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
                 loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
@@ -681,8 +676,8 @@ namespace engine
     class ItemController_TallBlock final : public ItemController
     {
     public:
-        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x34)
+        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
         {
             loader::Room::patchHeightsForBlock(*this, -2*loader::SectorSize);
         }
@@ -717,8 +712,8 @@ namespace engine
     class ItemController_68_BridgeFlat final : public ItemController
     {
     public:
-        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, false, 0)
+        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, false, 0)
         {
         }
 
@@ -754,8 +749,8 @@ namespace engine
     private:
         const int m_div;
     public:
-        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
-            : ItemController(level, animCtrl, name, room, item, false, 0)
+        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
+            : ItemController(level, skeletalModel, name, room, item, false, 0)
             , m_div(div)
         {
         }
@@ -813,8 +808,8 @@ namespace engine
     class ItemController_69_BridgeSlope1 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, animCtrl, name, room, item, 4)
+        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController_SlopedBridge(level, skeletalModel, name, room, item, 4)
         {
         }
     };
@@ -822,8 +817,8 @@ namespace engine
     class ItemController_70_BridgeSlope2 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, animCtrl, name, room, item, 2)
+        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController_SlopedBridge(level, skeletalModel, name, room, item, 2)
         {
         }
     };
@@ -831,8 +826,8 @@ namespace engine
     class ItemController_SwingingBlade final : public ItemController
     {
     public:
-        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::MeshAnimationController>& animCtrl, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, animCtrl, name, room, item, true, 0x30)
+        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
+            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
         {
         }
 

@@ -1,11 +1,11 @@
 #include "laracontroller.h"
 
 #include "abstractstatehandler.h"
-#include "animationcontroller.h"
 #include "cameracontroller.h"
-#include "heightinfo.h"
 #include "collisioninfo.h"
+#include "heightinfo.h"
 #include "render/textureanimator.h"
+#include "skeletalmodelnode.h"
 
 #include <boost/range/adaptors.hpp>
 
@@ -443,9 +443,9 @@ namespace engine
             handleLaraStateSwimming(isNewFrame);
         }
 
-        getMeshAnimationController()->resetPose();
-        getMeshAnimationController()->patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
-        getMeshAnimationController()->patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
+        getSkeletalModel()->resetPose();
+        getSkeletalModel()->patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
+        getSkeletalModel()->patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)

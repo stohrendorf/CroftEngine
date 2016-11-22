@@ -1,20 +1,20 @@
 #pragma once
 
+#include "audio/device.h"
+#include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
 #include "engine/inputhandler.h"
 #include "engine/itemcontroller.h"
+#include "engine/skeletalmodelnode.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"
 #include "loader/item.h"
 #include "loader/mesh.h"
-#include "audio/device.h"
-#include "audio/streamsource.h"
 
 #include <memory>
 #include <vector>
 #include <boost/detail/container_fwd.hpp>
-#include "engine/animationcontroller.h"
 
 
 namespace level
@@ -35,6 +35,7 @@ namespace level
         {
             m_cdTrackTriggerValues.fill(0);
         }
+
 
         virtual ~Level();
         const Game m_gameVersion;
@@ -110,27 +111,32 @@ namespace level
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
-        std::shared_ptr<engine::MeshAnimationController> createAnimController(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models);
+        std::shared_ptr<engine::SkeletalModelNode> createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);
+
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
         {
             return findFloorSectorWithClampedPosition(position, &room);
         }
 
+
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(core::RoomBoundPosition& rbs) const
         {
             return findFloorSectorWithClampedPosition(rbs.position.toInexact(), &rbs.room);
         }
+
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(core::RoomBoundIntPosition& rbs) const
         {
             return findFloorSectorWithClampedPosition(rbs.position, &rbs.room);
         }
 
+
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const loader::Room*>*> room) const;
 
         gsl::not_null<const loader::Room*> findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const loader::Room*> room) const;
+
 
         std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::Sector*> sector, const core::TRCoordinates& position) const
         {
@@ -151,6 +157,7 @@ namespace level
             return {gsl::narrow_cast<int8_t>(fd & 0xff), gsl::narrow_cast<int8_t>(fd >> 8)};
         }
 
+
         engine::LaraController* m_lara = nullptr;
         std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
@@ -162,6 +169,7 @@ namespace level
 
         audio::Device m_audioDev;
         std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
+
 
         std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const boost::optional<core::ExactTRCoordinates>& pos)
         {
@@ -181,7 +189,7 @@ namespace level
             m_audioDev.registerSource(src);
             src->setPitch(pitch);
             src->setGain(volume);
-            if(pos)
+            if( pos )
                 src->setPosition(pos->toRenderSystem());
             src->play();
 
@@ -190,11 +198,12 @@ namespace level
             return src;
         }
 
+
         std::shared_ptr<audio::SourceHandle> playSound(int id, const boost::optional<core::ExactTRCoordinates>& position)
         {
             Expects(id >= 0 && static_cast<size_t>(id) < m_soundmap.size());
             auto snd = m_soundmap[id];
-            if(snd < 0)
+            if( snd < 0 )
             {
                 BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << id;
                 return nullptr;
@@ -202,34 +211,34 @@ namespace level
 
             BOOST_ASSERT(snd >= 0 && static_cast<size_t>(snd) < m_soundDetails.size());
             const loader::SoundDetails& details = m_soundDetails[snd];
-            if(details.chance != 0 && (rand() & 0x7fff) > details.chance)
+            if( details.chance != 0 && (rand() & 0x7fff) > details.chance )
                 return nullptr;
 
             size_t sample = details.sample;
-            if(details.getSampleCount() > 1)
+            if( details.getSampleCount() > 1 )
                 sample += rand() % details.getSampleCount();
             BOOST_ASSERT(sample < m_sampleIndices.size());
 
             float pitch = 1;
-            if(details.useRandomPitch())
+            if( details.useRandomPitch() )
                 pitch = 0.9f + 0.2f * rand() / RAND_MAX;
 
             float volume = util::clamp(static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f);
-            if(details.useRandomVolume())
+            if( details.useRandomVolume() )
                 volume -= 0.25f * rand() / RAND_MAX;
-            if(volume <= 0)
+            if( volume <= 0 )
                 return nullptr;
 
             std::shared_ptr<audio::SourceHandle> handle;
-            if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Looping)
+            if( details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Looping )
             {
                 handle = playSample(sample, pitch, volume, position);
                 handle->setLooping(true);
             }
-            else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Restart)
+            else if( details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Restart )
             {
                 handle = findSample(sample);
-                if(handle != nullptr)
+                if( handle != nullptr )
                 {
                     handle->play();
                 }
@@ -238,10 +247,10 @@ namespace level
                     handle = playSample(sample, pitch, volume, position);
                 }
             }
-            else if(details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Wait)
+            else if( details.getPlaybackType(level::Engine::TR1) == loader::PlaybackType::Wait )
             {
                 handle = findSample(sample);
-                if(handle == nullptr)
+                if( handle == nullptr )
                 {
                     handle = playSample(sample, pitch, volume, position);
                 }
@@ -254,20 +263,24 @@ namespace level
             return handle;
         }
 
+
         std::shared_ptr<audio::SourceHandle> findSample(size_t sample) const
         {
             auto it = m_samples.find(sample);
-            if(it == m_samples.end())
+            if( it == m_samples.end() )
                 return nullptr;
 
             return it->second.lock();
         }
+
 
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
         void triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
         void triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+
+
         void stopSoundEffect(uint16_t soundId) const
         {
             BOOST_ASSERT(soundId < m_soundmap.size());
@@ -276,20 +289,21 @@ namespace level
             const size_t last = first + details.getSampleCount();
 
             bool anyStopped = false;
-            for(size_t i = first; i < last; ++i)
+            for( size_t i = first; i < last; ++i )
             {
                 anyStopped |= stopSample(i);
             }
 
-            if(!anyStopped)
-                BOOST_LOG_TRIVIAL(debug) << "Attempting to stop sound #" << soundId << " (samples " << first << ".." << (last-1) << ") didn't stop any samples";
+            if( !anyStopped )
+            BOOST_LOG_TRIVIAL(debug) << "Attempting to stop sound #" << soundId << " (samples " << first << ".." << (last - 1) << ") didn't stop any samples";
             else
-                BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound #" << soundId;
+            BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound #" << soundId;
         }
+
 
         bool stopSample(size_t id) const
         {
-            if(auto handle = findSample(id))
+            if( auto handle = findSample(id) )
             {
                 handle->stop();
                 return true;
@@ -297,6 +311,7 @@ namespace level
 
             return false;
         }
+
 
         std::shared_ptr<audio::Stream> m_cdStream;
         int m_activeCDTrack = 0;

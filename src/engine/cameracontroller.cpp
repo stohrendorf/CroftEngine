@@ -1,6 +1,6 @@
 #include "cameracontroller.h"
 
-#include "animationcontroller.h"
+#include "skeletalmodelnode.h"
 #include "render/portaltracer.h"
 #include "laracontroller.h"
 

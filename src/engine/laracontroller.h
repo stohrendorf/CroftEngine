@@ -39,11 +39,11 @@ namespace engine
 
     public:
         LaraController(gsl::not_null<level::Level*> level,
-                       const std::shared_ptr<engine::MeshAnimationController>& animCtrl,
+                       const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel,
                        const std::string& name,
                        gsl::not_null<const loader::Room*> room,
                        gsl::not_null<loader::Item*> item)
-            : ItemController(level, animCtrl, name, room, item, false, 0x3c)
+            : ItemController(level, skeletalModel, name, room, item, false, 0x3c)
         {
             playAnimation(loader::AnimationId::STAY_IDLE);
             setTargetState(loader::LaraStateId::Stop);

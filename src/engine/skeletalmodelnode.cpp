@@ -1,4 +1,4 @@
-#include "animationcontroller.h"
+#include "skeletalmodelnode.h"
 
 #include "level/level.h"
 
@@ -29,7 +29,7 @@ namespace
 
 namespace engine
 {
-    MeshAnimationController::MeshAnimationController(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl)
+    SkeletalModelNode::SkeletalModelNode(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl)
         : Node{id}
         , m_level{lvl}
         , m_model{mdl}
@@ -39,25 +39,25 @@ namespace engine
     }
 
 
-    core::Frame MeshAnimationController::getFirstFrame() const
+    core::Frame SkeletalModelNode::getFirstFrame() const
     {
         return core::Frame(m_level->m_animations[m_animId].firstFrame);
     }
 
 
-    core::Frame MeshAnimationController::getLastFrame() const
+    core::Frame SkeletalModelNode::getLastFrame() const
     {
         return core::Frame(m_level->m_animations[m_animId].lastFrame);
     }
 
 
-    uint16_t MeshAnimationController::getCurrentState() const
+    uint16_t SkeletalModelNode::getCurrentState() const
     {
         return m_level->m_animations[m_animId].state_id;
     }
 
 
-    const loader::Animation& MeshAnimationController::getCurrentAnimData() const
+    const loader::Animation& SkeletalModelNode::getCurrentAnimData() const
     {
         if( m_animId >= m_level->m_animations.size() )
         BOOST_THROW_EXCEPTION(std::runtime_error("Invalid animation id"));
@@ -66,21 +66,21 @@ namespace engine
     }
 
 
-    float MeshAnimationController::calculateFloorSpeed() const
+    float SkeletalModelNode::calculateFloorSpeed() const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         return float(currentAnim.speed + currentAnim.accelleration * getCurrentLocalFrame().count()) / (1 << 16);
     }
 
 
-    int MeshAnimationController::getAccelleration() const
+    int SkeletalModelNode::getAccelleration() const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         return currentAnim.accelleration / (1 << 16);
     }
 
 
-    MeshAnimationController::InterpolationInfo MeshAnimationController::getInterpolationInfo() const
+    SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
     {
         /*
          * == Animation Layout ==
@@ -142,7 +142,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::updatePose()
+    void SkeletalModelNode::updatePose()
     {
         BOOST_ASSERT(getChildCount() > 0);
         BOOST_ASSERT(getChildCount() == m_model.boneCount);
@@ -155,7 +155,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::updatePoseInterpolated(const InterpolationInfo& framePair)
+    void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
     {
         BOOST_ASSERT(framePair.bias > 0);
         BOOST_ASSERT(framePair.secondFrame != nullptr);
@@ -209,7 +209,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::updatePoseKeyframe(const InterpolationInfo& framePair)
+    void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     {
         BOOST_ASSERT(framePair.firstFrame->numValues == m_model.boneCount);
 
@@ -250,7 +250,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::advanceFrame()
+    void SkeletalModelNode::advanceFrame()
     {
         BOOST_LOG_TRIVIAL(debug) << "Advance frame: current=" << core::toFrame(m_time).count() << ", end=" << getLastFrame().count();
 
@@ -258,7 +258,7 @@ namespace engine
     }
 
 
-    gameplay::BoundingBox MeshAnimationController::getBoundingBox() const
+    gameplay::BoundingBox SkeletalModelNode::getBoundingBox() const
     {
         auto framePair = getInterpolationInfo();
         BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
@@ -280,7 +280,7 @@ namespace engine
     }
 
 
-    bool MeshAnimationController::handleTRTransitions()
+    bool SkeletalModelNode::handleTRTransitions()
     {
         if( getCurrentState() == m_targetState )
             return false;
@@ -313,7 +313,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::handleAnimationEnd()
+    void SkeletalModelNode::handleAnimationEnd()
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
 
@@ -323,7 +323,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::setAnimId(size_t animId, size_t frameOfs)
+    void SkeletalModelNode::setAnimId(size_t animId, size_t frameOfs)
     {
         BOOST_ASSERT(animId < m_level->m_animations.size());
 
@@ -335,7 +335,7 @@ namespace engine
     }
 
 
-    void MeshAnimationController::setAnimIdGlobal(size_t animId, size_t frame)
+    void SkeletalModelNode::setAnimIdGlobal(size_t animId, size_t frame)
     {
         BOOST_ASSERT(animId < m_level->m_animations.size());
 

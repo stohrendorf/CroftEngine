@@ -3556,11 +3556,6 @@ namespace engine
         return getHealth() <= 0;
     }
 
-    std::shared_ptr<gameplay::Node> AbstractStateHandler::getLara()
-    {
-        return m_controller.getAnimationController();
-    }
-
     gameplay::BoundingBox AbstractStateHandler::getBoundingBox() const
     {
         return m_controller.getBoundingBox();

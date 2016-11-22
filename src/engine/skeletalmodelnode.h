@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/magic.h"
-#include "util/vmath.h"
 
 #include <gsl/gsl>
 
@@ -21,10 +20,10 @@ namespace loader
 
 namespace engine
 {
-    class MeshAnimationController : public gameplay::Node
+    class SkeletalModelNode : public gameplay::Node
     {
     public:
-        explicit MeshAnimationController(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl);
+        explicit SkeletalModelNode(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl);
 
         void updatePose();
 
@@ -80,12 +79,6 @@ namespace engine
         }
 
         uint16_t getCurrentState() const;
-
-
-        void playLocal(size_t animId, const core::Frame& frame = core::Frame::zero())
-        {
-            setAnimId(animId, frame.count());
-        }
 
 
         const loader::Animation& getCurrentAnimData() const;

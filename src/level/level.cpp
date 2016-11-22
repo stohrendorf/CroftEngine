@@ -19,17 +19,17 @@
  *
  */
 
-#include "engine/animationcontroller.h"
+
+#include "level.h"
+
 #include "engine/inputhandler.h"
 #include "engine/laracontroller.h"
-#include "level.h"
 #include "render/textureanimator.h"
 #include "tr1level.h"
 #include "tr2level.h"
 #include "tr3level.h"
 #include "tr4level.h"
 #include "tr5level.h"
-#include "util/vmath.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
@@ -398,10 +398,10 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
         if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
         {
-            auto animCtrl = createAnimController(*modelIdx, models);
+            auto animCtrl = createSkeletalModel(*modelIdx, models);
             animCtrl->setId(animCtrl->getId() + "/item:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")");
 
-            animCtrl->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, item.position.toRenderSystem()));
+            animCtrl->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
             if( item.type == 0 )
             {
@@ -498,7 +498,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
             auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(sprite);
-            node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, item.position.toRenderSystem()));
+            node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
             //m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, node, name + ":controller", &room, &item);
             //m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
@@ -514,8 +514,8 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 }
 
 
-std::shared_ptr<engine::MeshAnimationController> Level::createAnimController(size_t id,
-                                                                             const std::vector<std::shared_ptr<gameplay::Model>>& models)
+std::shared_ptr<engine::SkeletalModelNode> Level::createSkeletalModel(size_t id,
+                                                                      const std::vector<std::shared_ptr<gameplay::Model>>& models)
 {
     BOOST_ASSERT(!m_animatedModels.empty());
     BOOST_ASSERT(id < m_animatedModels.size());
@@ -528,16 +528,16 @@ std::shared_ptr<engine::MeshAnimationController> Level::createAnimController(siz
         return nullptr;
     }
 
-    auto skeleton = std::make_shared<engine::MeshAnimationController>("skeleton:" + boost::lexical_cast<std::string>(id), this, model);
+    auto skeletalModel = std::make_shared<engine::SkeletalModelNode>("skeleton:" + boost::lexical_cast<std::string>(id), this, model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
         BOOST_ASSERT(model.firstMesh + boneIndex < m_meshIndices.size());
-        auto node = std::make_shared<gameplay::Node>(skeleton->getId() + "/bone:" + boost::lexical_cast<std::string>(boneIndex));
+        auto node = std::make_shared<gameplay::Node>(skeletalModel->getId() + "/bone:" + boost::lexical_cast<std::string>(boneIndex));
         node->setDrawable(models[m_meshIndices[model.firstMesh + boneIndex]]);
-        skeleton->addChild(node);
+        skeletalModel->addChild(node);
     }
 
-    return skeleton;
+    return skeletalModel;
 }
 
 
@@ -568,7 +568,7 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     game->getScene()->setActiveCamera(std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
 
-    auto vcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag", { "HAS_VCOLOR" });
+    auto vcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag", {"HAS_VCOLOR"});
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsVcol = createMaterials(textures, vcolShader);
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {

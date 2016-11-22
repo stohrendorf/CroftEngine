@@ -56,10 +56,10 @@ set(OT_IRR_SRCS
 
     engine/abstractstatehandler.cpp
     engine/abstractstatehandler.h
-    engine/animationcontroller.cpp
-    engine/animationcontroller.h
     engine/cameracontroller.cpp
     engine/cameracontroller.h
+    engine/collisioninfo.cpp
+    engine/collisioninfo.h
     engine/heightinfo.cpp
     engine/heightinfo.h
     engine/inputhandler.h
@@ -68,8 +68,8 @@ set(OT_IRR_SRCS
     engine/itemcontroller.h
     engine/laracontroller.cpp
     engine/laracontroller.h
-    engine/collisioninfo.cpp
-    engine/collisioninfo.h
+    engine/skeletalmodelnode.cpp
+    engine/skeletalmodelnode.h
 
     level/game.h
     level/level.cpp
