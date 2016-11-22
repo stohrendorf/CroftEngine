@@ -11,8 +11,7 @@
 #include "texture.h"
 #include "audio.h"
 
-#include <irrlicht.h>
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <array>
 #include <stdexcept>
@@ -164,7 +163,7 @@ namespace loader
 
     struct Light
     {
-        irr::scene::ILightSceneNode* node = nullptr;
+        std::shared_ptr<gameplay::Light> node = nullptr;
 
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
@@ -202,8 +201,8 @@ namespace loader
 
         /** \brief reads a room light definition.
           *
-          * intensity1 gets converted, so it matches the 0-32768 range introduced in TR3.
-          * intensity2 and fade2 are introduced in TR2 and are set to intensity1 and fade1 for TR1.
+          * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+          * intensity2 and fade2 are introduced in TR2 and are set to darkness and fade1 for TR1.
           */
         static Light readTr1(io::SDLReader& reader)
         {
@@ -215,7 +214,7 @@ namespace loader
             // only in TR2
             light.intensity2 = light.specularIntensity;
 
-            light.intensity = irr::core::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
+            light.intensity = util::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
 
             light.fade2 = light.specularFade;
 
@@ -411,7 +410,7 @@ namespace loader
 
     struct RoomVertex
     {
-        core::TRCoordinates vertex; // where this vertex lies (relative to tr2_room_info::x/z)
+        core::TRCoordinates position; // where this vertex lies (relative to tr2_room_info::x/z)
         int16_t darkness;
         uint16_t attributes; // A set of flags for special rendering effects [absent from TR1 data files]
         // 0x8000 something to do with water surface
@@ -422,7 +421,7 @@ namespace loader
         int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
         // TR5 -->
         core::TRCoordinates normal;
-        irr::video::SColor color;
+        glm::vec4 color;
 
         /** \brief reads a room vertex definition.
           *
@@ -434,7 +433,7 @@ namespace loader
         static RoomVertex readTr1(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readU16();
             // only in TR2
@@ -442,47 +441,47 @@ namespace loader
             room_vertex.attributes = 0;
             // only in TR5
             room_vertex.normal = {0,0,0};
-            auto f = gsl::narrow_cast<irr::u8>(255 - 255 * room_vertex.darkness / 0x1fff);
-            room_vertex.color.set(255, f, f, f);
+            auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
+            room_vertex.color = { f, f, f, 1 };
             return room_vertex;
         }
 
         static RoomVertex readTr2(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = (8191 - reader.readI16()) << 2;
             room_vertex.attributes = reader.readU16();
             room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
             // only in TR5
             room_vertex.normal = {0,0,0};
-            auto f = gsl::narrow<irr::u8>(room_vertex.lighting2 / 32768.0f * 255);
-            room_vertex.color.set(255, f, f, f);
+            auto f = room_vertex.lighting2 / 32768.0f;
+            room_vertex.color = { f, f, f, 1 };
             return room_vertex;
         }
 
         static RoomVertex readTr3(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
             room_vertex.lighting2 = reader.readI16();
             // only in TR5
             room_vertex.normal = {0,0,0};
-            room_vertex.color.set(255,
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f * 255),
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f * 255),
-                                  gsl::narrow<irr::u8>((room_vertex.lighting2 & 0x001F) / 62.0f * 255));
+            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                                  (room_vertex.lighting2 & 0x001F) / 62.0f,
+                                  1 };
             return room_vertex;
         }
 
         static RoomVertex readTr4(io::SDLReader& reader)
         {
             RoomVertex room_vertex;
-            room_vertex.vertex = readCoordinates16(reader);
+            room_vertex.position = readCoordinates16(reader);
             // read and make consistent
             room_vertex.darkness = reader.readI16();
             room_vertex.attributes = reader.readU16();
@@ -490,30 +489,30 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
 
-            room_vertex.color.set(255,
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f * 255),
-                                  gsl::narrow<irr::u8>(((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f * 255),
-                                  gsl::narrow<irr::u8>((room_vertex.lighting2 & 0x001F) / 31.0f * 255));
+            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                                  (room_vertex.lighting2 & 0x001F) / 31.0f,
+                                  1 };
             return room_vertex;
         }
 
         static RoomVertex readTr5(io::SDLReader& reader)
         {
             RoomVertex vert;
-            vert.vertex = readCoordinatesF(reader);
+            vert.position = readCoordinatesF(reader);
             vert.normal = readCoordinatesF(reader);
             auto b = reader.readU8();
             auto g = reader.readU8();
             auto r = reader.readU8();
             auto a = reader.readU8();
-            vert.color.set(a, r, g, b);
+            vert.color = { r, g, b, a };
             return vert;
         }
     };
 
     struct Room
     {
-        irr::scene::ISceneNode* node = nullptr;
+        std::shared_ptr<gameplay::Node> node = nullptr;
 
         // Various room flags specify various room options. Mostly, they
         // specify environment type and some additional actions which should
@@ -594,8 +593,8 @@ namespace loader
 
         /** \brief reads a room definition.
           *
-          * intensity1 gets converted, so it matches the 0-32768 range introduced in TR3.
-          * intensity2 is introduced in TR2 and is set to intensity1 for TR1.
+          * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+          * intensity2 is introduced in TR2 and is set to darkness for TR1.
           * light_mode is only in TR2 and is set 0 for TR1.
           * light_colour is only in TR3-4 and gets set appropiatly.
           */
@@ -607,8 +606,8 @@ namespace loader
             room->position.X = reader.readI32();
             room->position.Y = 0;
             room->position.Z = reader.readI32();
-            room->lowestHeight = -reader.readI32();
-            room->greatestHeight = -reader.readI32();
+            room->lowestHeight = reader.readI32();
+            room->greatestHeight = reader.readI32();
 
             std::streamsize num_data_words = reader.readU32();
 
@@ -1065,7 +1064,8 @@ namespace loader
             return room;
         }
 
-        irr::scene::IMeshSceneNode* createSceneNode(irr::scene::ISceneManager* mgr, int dumpIdx, const level::Level& level, const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials, const std::vector<irr::video::ITexture*>& textures, const std::vector<irr::scene::SMesh*>& staticMeshes, render::TextureAnimator& animator);
+
+        std::shared_ptr<gameplay::Node> createSceneNode(gameplay::Game* game, int dumpIdx, const level::Level& level, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials, const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes, render::TextureAnimator& animator);
 
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {
@@ -1105,12 +1105,12 @@ namespace loader
         {
             if(dx < 0 || dx >= sectorCountX)
             {
-                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
             }
             if( dz < 0 || dz >= sectorCountZ )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getName();
+                BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
             }
             return &sectors[sectorCountZ * dx + dz];
@@ -1121,16 +1121,16 @@ namespace loader
             if( dz <= 0 )
             {
                 dz = 0;
-                dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+                dx = util::clamp(dx, 1, sectorCountX - 2);
             }
             else if( dz >= sectorCountZ - 1 )
             {
                 dz = sectorCountZ - 1;
-                dx = irr::core::clamp(dx, 1, sectorCountX - 2);
+                dx = util::clamp(dx, 1, sectorCountX - 2);
             }
             else
             {
-                dx = irr::core::clamp(dx, 0, sectorCountX - 1);
+                dx = util::clamp(dx, 0, sectorCountX - 1);
             }
             return getSectorByIndex(dx, dz);
         }
@@ -1148,8 +1148,8 @@ namespace loader
     struct SpriteTexture
     {
         uint16_t texture;
-        irr::core::vector2df t0;
-        irr::core::vector2df t1;
+        glm::vec2 t0;
+        glm::vec2 t1;
 
         int16_t left_side;
         int16_t top_side;
@@ -1179,10 +1179,10 @@ namespace loader
 
             float w = tw / 256.0f;
             float h = th / 256.0f;
-            sprite_texture->t0.X = tx / 255.0f;
-            sprite_texture->t0.Y = ty / 255.0f;
-            sprite_texture->t1.X = sprite_texture->t0.X + w / 255.0f;
-            sprite_texture->t1.Y = sprite_texture->t0.Y + h / 255.0f;
+            sprite_texture->t0.x = tx / 255.0f;
+            sprite_texture->t0.y = ty / 255.0f;
+            sprite_texture->t1.x = sprite_texture->t0.x + w / 255.0f;
+            sprite_texture->t1.y = sprite_texture->t0.y + h / 255.0f;
 
             sprite_texture->left_side = tleft;
             sprite_texture->right_side = tright;
@@ -1207,10 +1207,10 @@ namespace loader
             int tright = reader.readI16();
             int tbottom = reader.readI16();
 
-            sprite_texture->t0.X = tleft / 255.0f;
-            sprite_texture->t0.Y = tright / 255.0f;
-            sprite_texture->t1.X = tbottom / 255.0f;
-            sprite_texture->t1.Y = ttop / 255.0f;
+            sprite_texture->t0.x = tleft / 255.0f;
+            sprite_texture->t0.y = tright / 255.0f;
+            sprite_texture->t1.x = tbottom / 255.0f;
+            sprite_texture->t1.y = ttop / 255.0f;
 
             sprite_texture->left_side = tx;
             sprite_texture->right_side = tx + tw / 256;
@@ -1219,17 +1219,13 @@ namespace loader
             return sprite_texture;
         }
 
-        irr::core::matrix4 buildTextureMatrix() const
+        gameplay::Rectangle buildSourceRectangle() const
         {
-            auto tscale = t1 - t0;
-            BOOST_ASSERT(tscale.X > 0);
-            BOOST_ASSERT(tscale.Y > 0);
-
-            irr::core::matrix4 mat;
-            mat.setTextureScale(tscale.X, tscale.Y);
-            mat.setTextureTranslate(t0.X, t0.Y);
-
-            return mat;
+            auto size = t1 - t0;
+            return gameplay::Rectangle{
+                t0.x, t0.y,
+                size.x, size.y
+            };
         }
     };
 

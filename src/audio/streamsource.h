@@ -7,7 +7,7 @@
 #include <boost/throw_exception.hpp>
 #include <boost/log/trivial.hpp>
 
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <sndfile.h>
 
@@ -31,7 +31,7 @@ namespace audio
     protected:
         size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, bool sourceIsMono)
         {
-            sf_count_t count = 0;
+            size_t count = 0;
             while( count < frameCount )
             {
                 const auto n = sf_readf_short(sndFile, frameBuffer + count, frameCount - count);
@@ -41,7 +41,7 @@ namespace audio
 
                 // restart if there are not enough samples
                 if( count < frameCount )
-                    sf_seek(sndFile, 0, SF_SEEK_SET);
+                    sf_seek(sndFile, 0, SEEK_SET);
             }
 
             if( sourceIsMono )

@@ -1,0 +1,645 @@
+#include "Base.h"
+#include "Effect.h"
+#include "FileSystem.h"
+#include "Game.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
+#include <boost/log/trivial.hpp>
+#include <boost/algorithm/string.hpp>
+
+
+namespace gameplay
+{
+    // Cache of unique effects.
+    static ShaderProgram* __currentEffect = nullptr;
+
+
+    ShaderProgram::ShaderProgram() = default;
+
+
+    ShaderProgram::~ShaderProgram()
+    {
+        // Free uniforms.
+        _uniforms.clear();
+
+        if( _program )
+        {
+            // If our program object is currently bound, unbind it before we're destroyed.
+            if( __currentEffect == this )
+            {
+                GL_ASSERT( glUseProgram(0) );
+                __currentEffect = nullptr;
+            }
+
+            GL_ASSERT( glDeleteProgram(_program) );
+            _program = 0;
+        }
+    }
+
+
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
+    {
+        // Search the effect cache for an identical effect that is already loaded.
+        std::string uniqueId = vshPath;
+        uniqueId += ';';
+        uniqueId += fshPath;
+        uniqueId += ';';
+        uniqueId += boost::algorithm::join(defines, ";");
+
+        // Read source from file.
+        std::string vshSource = FileSystem::readAll(vshPath);
+        if( vshSource.empty() )
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
+            return nullptr;
+        }
+        std::string fshSource = FileSystem::readAll(fshPath);
+        if( fshSource.empty() )
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
+            return nullptr;
+        }
+
+        std::shared_ptr<ShaderProgram> shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
+
+        if( shaderProgram == nullptr )
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to create effect from shaders '" << vshPath << "', '" << fshPath << "'.";
+        }
+        else
+        {
+            // Store this effect in the cache.
+            shaderProgram->_id = uniqueId;
+        }
+
+        return shaderProgram;
+    }
+
+
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshSource, const std::string& fshSource, const std::vector<std::string>& defines)
+    {
+        return createFromSource(nullptr, vshSource, nullptr, fshSource, defines);
+    }
+
+
+    static std::string replaceDefines(const std::vector<std::string>& defines)
+    {
+        const char* globalDefines = nullptr;
+
+        std::string out;
+        if( globalDefines && globalDefines[0] )
+        {
+            std::string tmp = globalDefines;
+            boost::algorithm::replace_all(tmp, ";", "\n#define");
+            out += "#define ";
+            out += tmp;
+        }
+        if( !defines.empty() )
+        {
+            out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");
+        }
+
+        if( !out.empty() )
+        {
+            out += "\n";
+        }
+
+        return out;
+    }
+
+
+    static void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
+    {
+        // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
+        std::string str = source;
+        size_t headPos = 0;
+        const auto fileLen = str.length();
+        const auto tailPos = fileLen;
+        while( headPos < fileLen )
+        {
+            const auto lastPos = headPos;
+            if( headPos == 0 )
+            {
+                // find the first "#include"
+                headPos = str.find("#include");
+            }
+            else
+            {
+                // find the next "#include"
+                headPos = str.find("#include", headPos + 1);
+            }
+
+            // If "#include" is found
+            if( headPos != std::string::npos )
+            {
+                // append from our last position for the legth (head - last position)
+                out.append(str.substr(lastPos, headPos - lastPos));
+
+                // find the start quote "
+                size_t startQuote = str.find("\"", headPos) + 1;
+                if( startQuote == std::string::npos )
+                {
+                    // We have started an "#include" but missing the leading quote "
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing leading \".";
+                    return;
+                }
+                // find the end quote "
+                size_t endQuote = str.find("\"", startQuote);
+                if( endQuote == std::string::npos )
+                {
+                    // We have a start quote but missing the trailing quote "
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing trailing \".";
+                    return;
+                }
+
+                // jump the head position past the end quote
+                headPos = endQuote + 1;
+
+                // File path to include and 'stitch' in the value in the quotes to the file path and source it.
+                std::string filepathStr = filepath;
+                std::string directoryPath = filepathStr.substr(0, filepathStr.rfind('/') + 1);
+                size_t len = endQuote - (startQuote);
+                std::string includeStr = str.substr(startQuote, len);
+                directoryPath.append(includeStr);
+                std::string includedSource = FileSystem::readAll(directoryPath.c_str());
+                if( includedSource.empty() )
+                {
+                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
+                    return;
+                }
+                else
+                {
+                    // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
+                    replaceIncludes(directoryPath, includedSource, out);
+                }
+            }
+            else
+            {
+                // Append the remaining
+                out.append(str, lastPos, tailPos);
+            }
+        }
+    }
+
+
+    static void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
+    {
+        std::string path = filePath + ".err";
+        std::unique_ptr<Stream> stream(FileSystem::open(path.c_str(), FileSystem::WRITE));
+        if( stream.get() != nullptr && stream->canWrite() )
+        {
+            stream->write(source.c_str(), 1, source.size());
+        }
+    }
+
+
+    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines)
+    {
+        const size_t SHADER_SOURCE_LENGTH = 3;
+        const GLchar* shaderSource[SHADER_SOURCE_LENGTH];
+        char* infoLog = nullptr;
+        GLuint vertexShader;
+        GLuint fragmentShader;
+        GLuint program;
+        GLint length;
+        GLint success;
+
+        // Replace all comma separated definitions with #define prefix and \n suffix
+        std::string definesStr = replaceDefines(defines);
+        definesStr += "\n";
+
+        shaderSource[0] = "#version 330\n";
+        shaderSource[1] = definesStr.c_str();
+        std::string vshSourceStr;
+        if( !vshPath.empty() )
+        {
+            // Replace the #include "xxxxx.xxx" with the sources that come from file paths
+            replaceIncludes(vshPath, vshSource, vshSourceStr);
+            if( !vshSource.empty() )
+                vshSourceStr += "\n";
+        }
+        shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
+        GL_ASSERT( vertexShader = glCreateShader(GL_VERTEX_SHADER) );
+        GL_ASSERT( glShaderSource(vertexShader, SHADER_SOURCE_LENGTH, shaderSource, nullptr) );
+        GL_ASSERT( glCompileShader(vertexShader) );
+        GL_ASSERT( glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success) );
+        if( success != GL_TRUE )
+        {
+            GL_ASSERT( glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &length) );
+            if( length == 0 )
+            {
+                length = 4096;
+            }
+            if( length > 0 )
+            {
+                infoLog = new char[length];
+                GL_ASSERT( glGetShaderInfoLog(vertexShader, length, nullptr, infoLog) );
+                infoLog[length - 1] = '\0';
+            }
+
+            // Write out the expanded shader file.
+            if( !vshPath.empty() )
+                writeShaderToErrorFile(vshPath, shaderSource[2]);
+
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for vertex shader '" << (vshPath.empty() ? vshSource : vshPath) << "' with error '" << (infoLog == nullptr ? "" : infoLog) << "'.";
+            SAFE_DELETE_ARRAY(infoLog);
+
+            // Clean up.
+            GL_ASSERT( glDeleteShader(vertexShader) );
+
+            return nullptr;
+        }
+
+        // Compile the fragment shader.
+        std::string fshSourceStr;
+        if( !fshPath.empty() )
+        {
+            // Replace the #include "xxxxx.xxx" with the sources that come from file paths
+            replaceIncludes(fshPath, fshSource, fshSourceStr);
+            if( !fshSource.empty() )
+                fshSourceStr += "\n";
+        }
+        shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
+        GL_ASSERT( fragmentShader = glCreateShader(GL_FRAGMENT_SHADER) );
+        GL_ASSERT( glShaderSource(fragmentShader, SHADER_SOURCE_LENGTH, shaderSource, nullptr) );
+        GL_ASSERT( glCompileShader(fragmentShader) );
+        GL_ASSERT( glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success) );
+        if( success != GL_TRUE )
+        {
+            GL_ASSERT( glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &length) );
+            if( length == 0 )
+            {
+                length = 4096;
+            }
+            if( length > 0 )
+            {
+                infoLog = new char[length];
+                GL_ASSERT( glGetShaderInfoLog(fragmentShader, length, nullptr, infoLog) );
+                infoLog[length - 1] = '\0';
+            }
+
+            // Write out the expanded shader file.
+            if( !fshPath.empty() )
+                writeShaderToErrorFile(fshPath, shaderSource[2]);
+
+            BOOST_LOG_TRIVIAL(error) << "Compile failed for fragment shader (" << (fshPath.empty() ? fshSource : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
+            SAFE_DELETE_ARRAY(infoLog);
+
+            // Clean up.
+            GL_ASSERT( glDeleteShader(vertexShader) );
+            GL_ASSERT( glDeleteShader(fragmentShader) );
+
+            return nullptr;
+        }
+
+        // Link program.
+        GL_ASSERT( program = glCreateProgram() );
+        GL_ASSERT( glAttachShader(program, vertexShader) );
+        GL_ASSERT( glAttachShader(program, fragmentShader) );
+        GL_ASSERT( glLinkProgram(program) );
+        GL_ASSERT( glGetProgramiv(program, GL_LINK_STATUS, &success) );
+
+        // Delete shaders after linking.
+        GL_ASSERT( glDeleteShader(vertexShader) );
+        GL_ASSERT( glDeleteShader(fragmentShader) );
+
+        // Check link status.
+        if( success != GL_TRUE )
+        {
+            GL_ASSERT( glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length) );
+            if( length == 0 )
+            {
+                length = 4096;
+            }
+            if( length > 0 )
+            {
+                infoLog = new char[length];
+                GL_ASSERT( glGetProgramInfoLog(program, length, nullptr, infoLog) );
+                infoLog[length - 1] = '\0';
+            }
+            BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath.empty() ? "<none>" : vshPath) << "," << (fshPath.empty() ? "<none>" : fshPath) << "): " << (infoLog == nullptr ? "" : infoLog);
+            SAFE_DELETE_ARRAY(infoLog);
+
+            // Clean up.
+            GL_ASSERT( glDeleteProgram(program) );
+
+            return nullptr;
+        }
+
+        // Create and return the new Effect.
+        auto shaderProgram = std::make_shared<ShaderProgram>();
+        shaderProgram->_program = program;
+
+        // Query and store vertex attribute meta-data from the program.
+        // NOTE: Rather than using glBindAttribLocation to explicitly specify our own
+        // preferred attribute locations, we're going to query the locations that were
+        // automatically bound by the GPU. While it can sometimes be convenient to use
+        // glBindAttribLocation, some vendors actually reserve certain attribute indices
+        // and therefore using this function can create compatibility issues between
+        // different hardware vendors.
+        GLint activeAttributes;
+        GL_ASSERT( glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &activeAttributes) );
+        if( activeAttributes > 0 )
+        {
+            GL_ASSERT( glGetProgramiv(program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length) );
+            if( length > 0 )
+            {
+                GLchar* attribName = new GLchar[length + 1];
+                GLint attribSize;
+                GLenum attribType;
+                GLint attribLocation;
+                for( int i = 0; i < activeAttributes; ++i )
+                {
+                    // Query attribute info.
+                    GL_ASSERT( glGetActiveAttrib(program, i, length, nullptr, &attribSize, &attribType, attribName) );
+                    attribName[length] = '\0';
+
+                    // Query the pre-assigned attribute location.
+                    GL_ASSERT( attribLocation = glGetAttribLocation(program, attribName) );
+
+                    // Assign the vertex attribute mapping for the effect.
+                    shaderProgram->_vertexAttributes[attribName] = attribLocation;
+                }
+                SAFE_DELETE_ARRAY(attribName);
+            }
+        }
+
+        // Query and store uniforms from the program.
+        GLint activeUniforms;
+        GL_ASSERT( glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &activeUniforms) );
+        if( activeUniforms > 0 )
+        {
+            GL_ASSERT( glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length) );
+            if( length > 0 )
+            {
+                GLchar* uniformName = new GLchar[length + 1];
+                GLint uniformSize;
+                GLenum uniformType;
+                GLint uniformLocation;
+                size_t samplerIndex = 0;
+                for( GLint i = 0; i < activeUniforms; ++i )
+                {
+                    // Query uniform info.
+                    GL_ASSERT( glGetActiveUniform(program, i, length, nullptr, &uniformSize, &uniformType, uniformName) );
+                    uniformName[length] = '\0'; // nullptr terminate
+                    if( length > 3 )
+                    {
+                        // If this is an array uniform, strip array indexers off it since GL does not
+                        // seem to be consistent across different drivers/implementations in how it returns
+                        // array uniforms. On some systems it will return "u_matrixArray", while on others
+                        // it will return "u_matrixArray[0]".
+                        char* c = strrchr(uniformName, '[');
+                        if( c )
+                        {
+                            *c = '\0';
+                        }
+                    }
+
+                    // Query the pre-assigned uniform location.
+                    GL_ASSERT( uniformLocation = glGetUniformLocation(program, uniformName) );
+
+                    auto uniform = std::make_unique<Uniform>();
+                    uniform->_shaderProgram = shaderProgram;
+                    uniform->_name = uniformName;
+                    uniform->_location = uniformLocation;
+                    uniform->_type = uniformType;
+                    if( uniformType == GL_SAMPLER_2D || uniformType == GL_SAMPLER_CUBE )
+                    {
+                        uniform->_index = samplerIndex;
+                        samplerIndex += uniformSize;
+                    }
+                    else
+                    {
+                        uniform->_index = 0;
+                    }
+
+                    shaderProgram->_uniforms[uniformName] = std::move(uniform);
+                }
+                SAFE_DELETE_ARRAY(uniformName);
+            }
+        }
+
+        return shaderProgram;
+    }
+
+
+    const std::string& ShaderProgram::getId() const
+    {
+        return _id;
+    }
+
+
+    VertexAttribute ShaderProgram::getVertexAttribute(const std::string& name) const
+    {
+        auto itr = _vertexAttributes.find(name);
+        return (itr == _vertexAttributes.end() ? -1 : itr->second);
+    }
+
+
+    std::shared_ptr<Uniform> ShaderProgram::getUniform(const std::string& name) const
+    {
+        auto itr = _uniforms.find(name);
+
+        if( itr != _uniforms.end() )
+        {
+            // Return cached uniform variable
+            return itr->second;
+        }
+
+        GLint uniformLocation;
+        GL_ASSERT( uniformLocation = glGetUniformLocation(_program, name.c_str()) );
+        if( uniformLocation > -1 )
+        {
+            // Check for array uniforms ("u_directionalLightColor[0]" -> "u_directionalLightColor")
+            std::string parentname = name;
+            auto bracketPos = parentname.find('[');
+            if( bracketPos != std::string::npos )
+                parentname.erase(bracketPos);
+
+            auto itr = _uniforms.find(parentname);
+            if( itr != _uniforms.end() )
+            {
+                const auto& puniform = itr->second;
+
+                auto uniform = std::make_shared<Uniform>();
+                uniform->_shaderProgram = std::const_pointer_cast<ShaderProgram>( shared_from_this() );
+                uniform->_name = name;
+                uniform->_location = uniformLocation;
+                uniform->_index = 0;
+                uniform->_type = puniform->getType();
+                _uniforms[name] = uniform;
+
+                return uniform;
+            }
+        }
+
+        // No uniform variable found - return nullptr
+        return nullptr;
+    }
+
+
+    std::shared_ptr<Uniform> ShaderProgram::getUniform(size_t index) const
+    {
+        size_t i = 0;
+        for( auto itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )
+        {
+            if( i == index )
+            {
+                return itr->second;
+            }
+        }
+        return nullptr;
+    }
+
+
+    size_t ShaderProgram::getUniformCount() const
+    {
+        return _uniforms.size();
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, float value)
+    {
+        GL_ASSERT( glUniform1f(uniform._location, value) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const float* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniform1fv(uniform._location, count, values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, int value)
+    {
+        GL_ASSERT( glUniform1i(uniform._location, value) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const int* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniform1iv(uniform._location, count, values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::mat4& value)
+    {
+        GL_ASSERT( glUniformMatrix4fv(uniform._location, 1, GL_FALSE, glm::value_ptr(value)) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::mat4* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniformMatrix4fv(uniform._location, count, GL_FALSE, (GLfloat*)values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec2& value)
+    {
+        GL_ASSERT( glUniform2f(uniform._location, value.x, value.y) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec2* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniform2fv(uniform._location, count, (GLfloat*)values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec3& value)
+    {
+        GL_ASSERT( glUniform3f(uniform._location, value.x, value.y, value.z) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec3* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniform3fv(uniform._location, count, (GLfloat*)values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec4& value)
+    {
+        GL_ASSERT( glUniform4f(uniform._location, value.x, value.y, value.z, value.w) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const glm::vec4* values, size_t count)
+    {
+        BOOST_ASSERT(values);
+        GL_ASSERT( glUniform4fv(uniform._location, count, (GLfloat*)values) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler)
+    {
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D);
+        BOOST_ASSERT(sampler);
+
+        GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index) );
+
+        // Bind the sampler - this binds the texture and applies sampler state
+        sampler->bind();
+
+        GL_ASSERT( glUniform1i(uniform._location, uniform._index) );
+    }
+
+
+    void ShaderProgram::setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values)
+    {
+        BOOST_ASSERT(uniform._type == GL_SAMPLER_2D);
+
+        // Set samplers as active and load texture unit array
+        GLint units[32];
+        for( size_t i = 0; i < values.size(); ++i )
+        {
+            GL_ASSERT( glActiveTexture(GL_TEXTURE0 + uniform._index + i) );
+
+            // Bind the sampler - this binds the texture and applies sampler state
+            values[i]->bind();
+
+            units[i] = uniform._index + i;
+        }
+
+        // Pass texture unit array to GL
+        GL_ASSERT( glUniform1iv(uniform._location, values.size(), units) );
+    }
+
+
+    void ShaderProgram::bind()
+    {
+        GL_ASSERT( glUseProgram(_program) );
+
+        __currentEffect = this;
+    }
+
+
+    Uniform::Uniform() = default;
+
+
+    Uniform::~Uniform() = default;
+
+
+    const std::shared_ptr<ShaderProgram>& Uniform::getShaderProgram() const
+    {
+        return _shaderProgram;
+    }
+
+
+    const std::string& Uniform::getName() const
+    {
+        return _name;
+    }
+
+
+    GLenum Uniform::getType() const
+    {
+        return _type;
+    }
+}

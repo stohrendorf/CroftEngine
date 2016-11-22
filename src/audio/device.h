@@ -5,7 +5,7 @@
 #include "stream.h"
 
 #include <alc.h>
-#include <gsl.h>
+#include <gsl/gsl>
 #include <set>
 
 namespace audio
@@ -60,13 +60,13 @@ public:
             stream->update();
     }
 
-    void setListenerTransform(const irr::core::vector3df& pos, const irr::core::vector3df& front, const irr::core::vector3df& up)
+    void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
-        alListener3f(AL_POSITION, pos.X, pos.Y, -pos.Z);
+        alListener3f(AL_POSITION, pos.x, pos.y, -pos.z);
 
         const ALfloat o[6] = {
-            front.X, front.Y, -front.Z,
-            up.X, up.Y, -up.Z
+            front.x, front.y, -front.z,
+            up.x, up.y, -up.z
         };
         alListenerfv(AL_ORIENTATION, o);
     }

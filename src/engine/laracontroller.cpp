@@ -1,13 +1,15 @@
 #include "laracontroller.h"
 
 #include "abstractstatehandler.h"
-#include "animationcontroller.h"
 #include "cameracontroller.h"
-#include "heightinfo.h"
 #include "collisioninfo.h"
+#include "heightinfo.h"
+#include "level/level.h"
 #include "render/textureanimator.h"
+#include "skeletalmodelnode.h"
 
 #include <boost/range/adaptors.hpp>
+
 
 namespace engine
 {
@@ -21,9 +23,9 @@ namespace engine
         return static_cast<LaraStateId>(ItemController::getTargetState());
     }
 
-    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
+    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
     {
-        ItemController::playAnimation(static_cast<uint16_t>(anim), firstFrame);
+        setAnimIdGlobal(static_cast<uint16_t>(anim), (firstFrame ? *firstFrame : 0_frame).count());
     }
 
     void LaraController::handleLaraStateOnLand(bool newFrame)
@@ -77,7 +79,7 @@ namespace engine
 
         addYRotation(m_yRotationSpeed.getScaled(getCurrentDeltaTime()));
 
-        applyRotation();
+        applyTransform();
 
 
         if(getLevel().m_cameraController->getCamOverrideType() != 2)
@@ -160,8 +162,8 @@ namespace engine
             if( getRotation().Z <= 0_deg )
                 setZRotation(0_deg);
         }
-        setXRotation(irr::core::clamp(getRotation().X, -100_deg, +100_deg));
-        setZRotation(irr::core::clamp(getRotation().Z, -22_deg, +22_deg));
+        setXRotation(util::clamp(getRotation().X, -100_deg, +100_deg));
+        setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
         {
             auto pos = getPosition();
             pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
@@ -305,20 +307,20 @@ namespace engine
 
     loader::LaraStateId LaraController::getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(ItemController::getCurrentAnimState());
+        return static_cast<loader::LaraStateId>(ItemController::getCurrentState());
     }
 
     LaraController::~LaraController() = default;
 
     void LaraController::animateImpl(bool isNewFrame)
     {
-        static constexpr int UVAnimTime = 1000 / 10;
+        static constexpr core::Frame UVAnimTime = core::Frame(3);
 
         m_uvAnimTime += getCurrentDeltaTime();
         if( m_uvAnimTime >= UVAnimTime )
         {
             getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
-            m_uvAnimTime -= UVAnimTime;
+            m_uvAnimTime -= core::toTime(UVAnimTime);
         }
 
         if( m_currentStateHandler == nullptr )
@@ -353,7 +355,7 @@ namespace engine
             else
             {
                 setXRotation(-45_deg);
-                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
+                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame);
                 setTargetState(LaraStateId::UnderwaterForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
                 if( auto tmp = processLaraAnimCommands() )
@@ -377,7 +379,7 @@ namespace engine
             if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
             {
                 m_underwaterState = UnderwaterState::OnLand;
-                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
                 setTargetState(LaraStateId::JumpForward);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
@@ -387,7 +389,7 @@ namespace engine
             else
             {
                 m_underwaterState = UnderwaterState::Swimming;
-                playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
+                playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937_frame);
                 setTargetState(LaraStateId::OnWaterStop);
                 m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
                 {
@@ -403,7 +405,7 @@ namespace engine
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -443,9 +445,9 @@ namespace engine
             handleLaraStateSwimming(isNewFrame);
         }
 
-        getMeshAnimationController()->resetPose();
-        getMeshAnimationController()->rotateBone(7, getLevel().m_cameraController->getTorsoRotation());
-        getMeshAnimationController()->rotateBone(14, getLevel().m_cameraController->getHeadRotation());
+        resetPose();
+        patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
+        patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)
@@ -455,19 +457,19 @@ namespace engine
 
         if( advanceFrame )
         {
-            nextFrame();
+            this->advanceFrame();
         }
 
-        if( handleTRTransitions() || getLastAnimFrame() != getCurrentFrame() )
+        if( handleTRTransitions() || getRecentAnimFrame() != getCurrentFrame() )
         {
             nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
-            setLastAnimFrame(getCurrentFrame());
+            setRecentAnimFrame(getCurrentFrame());
             newFrame = true;
         }
 
-        const bool isAnimEnd = getCurrentFrame() >= getAnimEndFrame();
+        const bool isAnimEnd = getCurrentFrame() >= getLastFrame();
 
-        const loader::Animation& animation = getLevel().m_animations[getCurrentAnimationId()];
+        const loader::Animation& animation = getLevel().m_animations[getAnimId()];
         if( animation.animCommandCount > 0 )
         {
             BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -507,14 +509,14 @@ namespace engine
                     }
                     break;
                 case AnimCommandOpcode::PlaySound:
-                    if( newFrame && getCurrentFrame() == cmd[0] )
+                    if( newFrame && getCurrentFrame() == core::Frame(cmd[0]) )
                     {
                         playSoundEffect(cmd[1]);
                     }
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlayEffect:
-                    if( getCurrentFrame() == cmd[0] )
+                    if( getCurrentFrame() == core::Frame(cmd[0]) )
                     {
                         BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                         if( cmd[1] == 0 && newFrame )
@@ -538,7 +540,7 @@ namespace engine
 
         if( isFalling() )
         {
-            getHorizontalSpeed().add(getAnimAccelleration(), getCurrentDeltaTime());
+            getHorizontalSpeed().add(getAccelleration(), getCurrentDeltaTime());
             if( getFallSpeed() >= 128 )
                 getFallSpeed().add(1, getCurrentDeltaTime());
             else
@@ -546,7 +548,7 @@ namespace engine
         }
         else
         {
-            setHorizontalSpeed(core::makeInterpolatedValue(calculateAnimFloorSpeed()));
+            setHorizontalSpeed(core::makeInterpolatedValue(calculateFloorSpeed()));
         }
 
         move(
@@ -578,7 +580,7 @@ namespace engine
         {
             if( !isDoppelganger )
             {
-                if( irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L) )
+                if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
                     //! @todo kill Lara
                 }
@@ -606,7 +608,7 @@ namespace engine
                 break;
             case loader::TriggerType::Pad:
             case loader::TriggerType::AntiPad:
-                runActions = irr::core::equals(std::lround(getPosition().Y), getFloorHeight(), 1L);
+                runActions = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                 break;
             case loader::TriggerType::Switch:
                 {
@@ -615,7 +617,7 @@ namespace engine
                     if(!swtch.triggerSwitch(srcTriggerArg))
                         return;
 
-                    switchIsOn = (swtch.getCurrentAnimState() == 1);
+                    switchIsOn = (swtch.getCurrentState() == 1);
                 }
                 ++actionFloorData;
                 runActions = true;
@@ -672,8 +674,8 @@ namespace engine
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
-                    item.m_triggerTimeout = gsl::narrow_cast<uint8_t>(srcTriggerArg);
-                    if( item.m_triggerTimeout != 1 )
+                    item.m_triggerTimeout = std::chrono::microseconds( gsl::narrow_cast<uint8_t>(srcTriggerArg) );
+                    if( item.m_triggerTimeout.count() != 1 )
                         item.m_triggerTimeout *= 1000;
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
@@ -858,7 +860,7 @@ namespace engine
         for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for( const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
+        for( const std::shared_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
         {
             if( rooms.find(ctrl->getCurrentRoom()) == rooms.end() )
                 continue;

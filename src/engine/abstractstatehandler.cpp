@@ -1,9 +1,12 @@
 #include "abstractstatehandler.h"
 
+#include "collisioninfo.h"
 #include "core/magic.h"
 #include "inputstate.h"
 #include "laracontroller.h"
-#include "collisioninfo.h"
+#include "level/level.h"
+
+#include <chrono>
 
 namespace engine
 {
@@ -49,7 +52,7 @@ namespace engine
                 return nextHandler;
             }
 
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(true);
@@ -89,7 +92,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
@@ -120,23 +123,23 @@ namespace engine
             if( nextHandler != nullptr )
             {
                 const auto fr = getCurrentFrame();
-                if( fr >= 29 && fr <= 47 )
+                if( fr >= 29_frame && fr <= 47_frame)
                 {
-                    playAnimation(loader::AnimationId::END_WALK_LEFT, 74);
+                    playAnimation(loader::AnimationId::END_WALK_LEFT, 74_frame);
                 }
-                else if( (fr >= 22 && fr <= 28) || (fr >= 48 && fr <= 57) )
+                else if( (fr >= 22_frame && fr <= 28_frame) || (fr >= 48_frame && fr <= 57_frame) )
                 {
-                    playAnimation(loader::AnimationId::END_WALK_RIGHT, 58);
+                    playAnimation(loader::AnimationId::END_WALK_RIGHT, 58_frame);
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                    playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
                 }
             }
 
             if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
             {
-                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
                 nextHandler = createWithRetainedAnimation(LaraStateId::JumpForward);
                 setTargetState(LaraStateId::JumpForward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -146,26 +149,26 @@ namespace engine
             if( collisionInfo.current.floor.distance > core::SteppableHeight )
             {
                 const auto fr = getCurrentFrame();
-                if( fr < 28 || fr > 45 )
+                if( fr < 28_frame || fr > 45_frame)
                 {
-                    playAnimation(loader::AnimationId::WALK_DOWN_RIGHT, 887);
+                    playAnimation(loader::AnimationId::WALK_DOWN_RIGHT, 887_frame);
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::WALK_DOWN_LEFT, 874);
+                    playAnimation(loader::AnimationId::WALK_DOWN_LEFT, 874_frame);
                 }
             }
 
             if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.current.floor.distance < -core::SteppableHeight )
             {
                 const auto fr = getCurrentFrame();
-                if( fr < 27 || fr > 44 )
+                if( fr < 27_frame || fr > 44_frame)
                 {
-                    playAnimation(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
+                    playAnimation(loader::AnimationId::WALK_UP_STEP_RIGHT, 844_frame);
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::WALK_UP_STEP_LEFT, 858);
+                    playAnimation(loader::AnimationId::WALK_UP_STEP_LEFT, 858_frame);
                 }
             }
 
@@ -201,7 +204,7 @@ namespace engine
 
             if( getLevel().m_inputHandler->getInputState().roll )
             {
-                playAnimation(loader::AnimationId::ROLL_BEGIN, 3857);
+                playAnimation(loader::AnimationId::ROLL_BEGIN, 3857_frame);
                 setTargetState(LaraStateId::Stop);
                 return createWithRetainedAnimation(LaraStateId::RollForward);
             }
@@ -226,7 +229,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
@@ -264,24 +267,24 @@ namespace engine
                 if( collisionInfo.front.floor.slantClass == SlantClass::None && collisionInfo.front.floor.distance < -core::ClimbLimit2ClickMax )
                 {
                     nextHandler = createWithRetainedAnimation(LaraStateId::Unknown12);
-                    if( getCurrentFrame() <= 9 )
+                    if( getCurrentFrame() <= 9_frame)
                     {
-                        playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800);
+                        playAnimation(loader::AnimationId::WALL_SMASH_LEFT, 800_frame);
                         return nextHandler;
                     }
-                    if( getCurrentFrame() >= 10 && getCurrentFrame() <= 21 )
+                    if( getCurrentFrame() >= 10_frame && getCurrentFrame() <= 21_frame)
                     {
-                        playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815);
+                        playAnimation(loader::AnimationId::WALL_SMASH_RIGHT, 815_frame);
                         return nextHandler;
                     }
                 }
 
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
             }
 
             if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
             {
-                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
                 setTargetState(LaraStateId::JumpForward);
                 setFalling(true);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -290,13 +293,13 @@ namespace engine
 
             if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.current.floor.distance < -core::SteppableHeight )
             {
-                if( getCurrentFrame() >= 3 && getCurrentFrame() <= 14 )
+                if( getCurrentFrame() >= 3_frame && getCurrentFrame() <= 14_frame)
                 {
-                    playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT, 837);
+                    playAnimation(loader::AnimationId::RUN_UP_STEP_LEFT, 837_frame);
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT, 830);
+                    playAnimation(loader::AnimationId::RUN_UP_STEP_RIGHT, 830_frame);
                 }
             }
 
@@ -381,14 +384,14 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             if(getLevel().m_inputHandler->getInputState().freeLook)
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y/10000),
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x/10000)
                 );
                 auto r = getLevel().m_cameraController->getHeadRotation();
                 if(r.Y < -44_deg)
@@ -444,7 +447,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
@@ -508,7 +511,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -532,7 +535,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -6_deg);
@@ -556,7 +559,7 @@ namespace engine
 
             if( collisionInfo.current.floor.distance > 200 )
             {
-                playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+                playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473_frame);
                 setTargetState(LaraStateId::FallBackward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
@@ -566,7 +569,7 @@ namespace engine
             auto nextHandler = checkWallCollision(collisionInfo);
             if( nextHandler )
             {
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
             }
             placeOnFloor(collisionInfo);
 
@@ -609,7 +612,7 @@ namespace engine
                 return nextHandler;
             }
 
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(true);
@@ -654,7 +657,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             addYRotationSpeed(2.25_deg);
             if( getYRotationSpeed() <= 4_deg )
@@ -709,7 +712,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             subYRotationSpeed(2.25_deg);
             if( getYRotationSpeed() >= -4_deg )
@@ -762,7 +765,7 @@ namespace engine
             return LaraStateId::Death;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
@@ -780,7 +783,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             dampenHorizontalSpeed(0.05f);
             if( getFallSpeed() > 154 )
@@ -810,7 +813,7 @@ namespace engine
             {
                 setTargetState(LaraStateId::Stop);
                 nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
-                playAnimation(loader::AnimationId::LANDING_HARD, 358);
+                playAnimation(loader::AnimationId::LANDING_HARD, 358_frame);
             }
             getLevel().stopSoundEffect(30);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -878,7 +881,7 @@ namespace engine
             return LaraStateId::Hang;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
@@ -899,7 +902,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -952,7 +955,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -985,7 +988,7 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
         {
             collisionInfo.yAngle = getRotation().Y;
-            if( irr::core::abs_(getRotation().X) > 90_deg )
+            if( abs(getRotation().X) > 90_deg )
                 collisionInfo.yAngle += 180_deg;
             setMovementAngle(collisionInfo.yAngle);
             collisionInfo.initHeightInfo(getPosition() + core::ExactTRCoordinates{0, 200, 0}, getLevel(), 400);
@@ -1085,7 +1088,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
         }
@@ -1135,7 +1138,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1153,7 +1156,7 @@ namespace engine
                 return nullptr;
 
             setTargetState(LaraStateId::Stop);
-            playAnimation(loader::AnimationId::STAY_SOLID, 185);
+            playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
             setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
             setPosition(collisionInfo.position);
 
@@ -1190,7 +1193,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 subYRotationSpeed(2.25_deg, -4_deg);
@@ -1216,18 +1219,18 @@ namespace engine
             auto nextHandler = checkWallCollision(collisionInfo);
             if( nextHandler )
             {
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
             }
 
             if( collisionInfo.current.floor.distance > loader::QuarterSectorSize && collisionInfo.current.floor.distance < core::ClimbLimit2ClickMin )
             {
-                if( getCurrentFrame() < 964 || getCurrentFrame() > 993 )
+                if( getCurrentFrame() < 964_frame || getCurrentFrame() > 993_frame)
                 {
-                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
+                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899_frame);
                 }
                 else
                 {
-                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
+                    playAnimation(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930_frame);
                 }
             }
 
@@ -1269,7 +1272,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)).limitMax(200.0f));
         }
@@ -1307,7 +1310,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
         }
@@ -1332,7 +1335,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1387,7 +1390,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1424,7 +1427,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1452,7 +1455,7 @@ namespace engine
             nextHandler = checkWallCollision(collisionInfo);
             if( nextHandler != nullptr )
             {
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
                 setTargetState(LaraStateId::Stop);
                 return createWithRetainedAnimation(LaraStateId::Stop);
             }
@@ -1491,7 +1494,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1519,7 +1522,7 @@ namespace engine
             nextHandler = checkWallCollision(collisionInfo);
             if( nextHandler != nullptr )
             {
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
                 setTargetState(LaraStateId::Stop);
                 return createWithRetainedAnimation(LaraStateId::Stop);
             }
@@ -1544,7 +1547,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1573,7 +1576,7 @@ namespace engine
                 return nextHandler;
             }
 
-            playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+            playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473_frame);
             setTargetState(LaraStateId::FallBackward);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(true);
@@ -1604,7 +1607,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1637,7 +1640,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1669,7 +1672,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1701,7 +1704,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1733,7 +1736,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1788,7 +1791,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1852,7 +1855,7 @@ namespace engine
             return LaraStateId::ShimmyLeft;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
@@ -1888,7 +1891,7 @@ namespace engine
             return LaraStateId::ShimmyRight;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
@@ -1909,7 +1912,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -1966,7 +1969,7 @@ namespace engine
             }
 
             setTargetState(LaraStateId::UnderwaterForward);
-            playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+            playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
             setXRotation(-45_deg);
             setFallSpeed(core::makeInterpolatedValue(80.0f));
             setUnderwaterState(UnderwaterState::Diving);
@@ -2022,7 +2025,7 @@ namespace engine
             setPosition(d);
 
             setTargetState(LaraStateId::Stop);
-            playAnimation(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
+            playAnimation(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849_frame);
             setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(false);
@@ -2063,32 +2066,32 @@ namespace engine
 
             if( !getLevel().m_inputHandler->getInputState().jump )
             {
-                setSwimToDiveKeypressDuration(0);
+                setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
                 return nullptr;
             }
 
             if(!getSwimToDiveKeypressDuration())
                 return nullptr; // not allowed to dive at all
 
-            if(*getSwimToDiveKeypressDuration() * 30 / 1000 < 10)
+            if(*getSwimToDiveKeypressDuration() < core::Frame(10))
                 return nullptr; // not yet allowed to dive
 
             setTargetState(LaraStateId::UnderwaterForward);
-            playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+            playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
             setXRotation(-45_deg);
             setFallSpeed(core::makeInterpolatedValue(80.0f));
             setUnderwaterState(UnderwaterState::Diving);
             return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             if(getLevel().m_inputHandler->getInputState().freeLook)
             {
                 getLevel().m_cameraController->setCamOverrideType(2);
                 getLevel().m_cameraController->addHeadRotationXY(
-                    -FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.Y,
-                    FreeLookMouseMovementScale * getLevel().m_inputHandler->getInputState().mouseMovement.X
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y/10000),
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x/10000)
                 );
 
                 getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
@@ -2138,7 +2141,7 @@ namespace engine
                 return nullptr;
             }
 
-            setSwimToDiveKeypressDuration(0);
+            setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
 
             if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 setTargetState(LaraStateId::OnWaterStop);
@@ -2149,7 +2152,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2191,7 +2194,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2217,7 +2220,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override final
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override final
         {
         }
 
@@ -2282,7 +2285,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2322,7 +2325,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2363,7 +2366,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2407,7 +2410,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
         }
@@ -2443,7 +2446,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2472,7 +2475,7 @@ namespace engine
                 return nextHandler;
             }
 
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             setFalling(true);
@@ -2502,7 +2505,7 @@ namespace engine
                 return nullptr;
             }
 
-            setSwimToDiveKeypressDuration(0);
+            setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
 
             if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Backward )
                 setTargetState(LaraStateId::OnWaterStop);
@@ -2510,7 +2513,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2550,7 +2553,7 @@ namespace engine
                 return nullptr;
             }
 
-            setSwimToDiveKeypressDuration(0);
+            setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
 
             if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                 setTargetState(LaraStateId::OnWaterStop);
@@ -2558,7 +2561,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2598,7 +2601,7 @@ namespace engine
                 return nullptr;
             }
 
-            setSwimToDiveKeypressDuration(0);
+            setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
 
             if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                 setTargetState(LaraStateId::OnWaterStop);
@@ -2606,7 +2609,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
         {
             setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
 
@@ -2648,7 +2651,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
 
@@ -2693,7 +2696,7 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
             dampenHorizontalSpeed(0.05f);
         }
@@ -2759,7 +2762,7 @@ namespace engine
             return LaraStateId::Handstand;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
@@ -2795,12 +2798,12 @@ namespace engine
             return LaraStateId::OnWaterExit;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, int /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
         {
         }
     };
 
-    void AbstractStateHandler::animate(CollisionInfo& collisionInfo, uint32_t deltaTimeMs)
+    void AbstractStateHandler::animate(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs)
     {
         animateImpl(collisionInfo, deltaTimeMs);
 
@@ -2993,7 +2996,7 @@ namespace engine
         m_controller.setHandStatus(status);
     }
 
-    uint32_t AbstractStateHandler::getCurrentFrame() const
+    core::Frame AbstractStateHandler::getCurrentFrame() const
     {
         return m_controller.getCurrentFrame();
     }
@@ -3003,7 +3006,7 @@ namespace engine
         return m_controller.getCurrentAnimState();
     }
 
-    void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<irr::u32>& firstFrame)
+    void AbstractStateHandler::playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
     {
         m_controller.playAnimation(anim, firstFrame);
     }
@@ -3151,7 +3154,7 @@ namespace engine
             return nullptr;
 
         const auto bbox = getBoundingBox();
-        long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3163,9 +3166,9 @@ namespace engine
             return nullptr;
 
         if( canClimbOnto(*core::axisFromAngle(getRotation().Y, 35_deg)) )
-            playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
+            playAnimation(loader::AnimationId::OSCILLATE_HANG_ON, 3974_frame);
         else
-            playAnimation(loader::AnimationId::HANG_IDLE, 1493);
+            playAnimation(loader::AnimationId::HANG_IDLE, 1493_frame);
 
         setTargetState(LaraStateId::Hang);
         setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, spaceToReach, collisionInfo.collisionFeedback.Z));
@@ -3185,7 +3188,7 @@ namespace engine
         setPosition(collisionInfo.position);
 
         setTargetState(LaraStateId::Stop);
-        playAnimation(loader::AnimationId::STAY_SOLID, 185);
+        playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
         setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
         setFallSpeed(core::makeInterpolatedValue(0.0f));
         setFalling(false);
@@ -3217,7 +3220,7 @@ namespace engine
 
             setTargetState(LaraStateId::Stop);
             nextHandler = createWithRetainedAnimation(LaraStateId::Climbing);
-            playAnimation(loader::AnimationId::CLIMB_2CLICK, 759);
+            playAnimation(loader::AnimationId::CLIMB_2CLICK, 759_frame);
             m_yMovement = 2.0f * loader::QuarterSectorSize + climbHeight;
             setHandStatus(1);
         }
@@ -3230,7 +3233,7 @@ namespace engine
 
             setTargetState(LaraStateId::Stop);
             nextHandler = createWithRetainedAnimation(LaraStateId::Climbing);
-            playAnimation(loader::AnimationId::CLIMB_3CLICK, 614);
+            playAnimation(loader::AnimationId::CLIMB_3CLICK, 614_frame);
             m_yMovement = 3.0f * loader::QuarterSectorSize + climbHeight;
             setHandStatus(1);
         }
@@ -3238,7 +3241,7 @@ namespace engine
         {
             setTargetState(LaraStateId::JumpUp);
             nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
-            playAnimation(loader::AnimationId::STAY_SOLID, 185);
+            playAnimation(loader::AnimationId::STAY_SOLID, 185_frame);
             setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)));
             auto tmp = getController().processLaraAnimCommands();
             if( tmp )
@@ -3289,8 +3292,8 @@ namespace engine
 
     bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler)
     {
-        auto slantX = irr::core::abs_(collisionInfo.floorSlantX);
-        auto slantZ = irr::core::abs_(collisionInfo.floorSlantZ);
+        auto slantX = std::abs(collisionInfo.floorSlantX);
+        auto slantZ = std::abs(collisionInfo.floorSlantZ);
         if( slantX <= 2 && slantZ <= 2 )
             return false;
 
@@ -3300,18 +3303,18 @@ namespace engine
         else if( collisionInfo.floorSlantX > 2 )
             targetAngle = -90_deg;
 
-        if( collisionInfo.floorSlantZ > std::max(int8_t(2), slantX) )
+        if( collisionInfo.floorSlantZ > std::max(2, slantX) )
             targetAngle = 180_deg;
         else if( collisionInfo.floorSlantZ < std::min(-2, -slantX) )
             targetAngle = 0_deg;
 
-        core::Angle dy = irr::core::abs_(targetAngle - getRotation().Y);
+        core::Angle dy = abs(targetAngle - getRotation().Y);
         applyCollisionFeedback(collisionInfo);
         if( dy > 90_deg || dy < -90_deg )
         {
             if( getCurrentAnimState() != LaraStateId::SlideBackward || targetAngle != getCurrentSlideAngle() )
             {
-                playAnimation(loader::AnimationId::START_SLIDE_BACKWARD, 1677);
+                playAnimation(loader::AnimationId::START_SLIDE_BACKWARD, 1677_frame);
                 setTargetState(LaraStateId::SlideBackward);
                 nextHandler = createWithRetainedAnimation(LaraStateId::SlideBackward);
                 setMovementAngle(targetAngle);
@@ -3321,7 +3324,7 @@ namespace engine
         }
         else if( getCurrentAnimState() != LaraStateId::SlideForward || targetAngle != getCurrentSlideAngle() )
         {
-            playAnimation(loader::AnimationId::SLIDE_FORWARD, 1133);
+            playAnimation(loader::AnimationId::SLIDE_FORWARD, 1133_frame);
             setTargetState(LaraStateId::SlideForward);
             nextHandler = createWithRetainedAnimation(LaraStateId::SlideForward);
             setMovementAngle(targetAngle);
@@ -3344,7 +3347,7 @@ namespace engine
             return nullptr;
 
         auto bbox = getBoundingBox();
-        long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
             return nullptr;
@@ -3356,9 +3359,9 @@ namespace engine
             return nullptr;
 
         setTargetState(LaraStateId::Hang);
-        playAnimation(loader::AnimationId::HANG_IDLE, 1505);
+        playAnimation(loader::AnimationId::HANG_IDLE, 1505_frame);
         bbox = getBoundingBox();
-        spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
         applyCollisionFeedback(collisionInfo);
@@ -3437,13 +3440,13 @@ namespace engine
 
         if( getCurrentAnimState() == LaraStateId::SlideForward )
         {
-            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492_frame);
             setTargetState(LaraStateId::JumpForward);
             nextHandler = createWithRetainedAnimation(LaraStateId::JumpForward);
         }
         else
         {
-            playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+            playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473_frame);
             setTargetState(LaraStateId::FallBackward);
             nextHandler = createWithRetainedAnimation(LaraStateId::FallBackward);
         }
@@ -3490,10 +3493,10 @@ namespace engine
         if( !getLevel().m_inputHandler->getInputState().action || getHealth() <= 0 )
         {
             setTargetState(LaraStateId::JumpUp);
-            playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448);
+            playAnimation(loader::AnimationId::TRY_HANG_VERTICAL, 448_frame);
             setHandStatus(0);
             const auto bbox = getBoundingBox();
-            const long hangDistance = collisionInfo.front.floor.distance - bbox.MinEdge.Y + 2;
+            const long hangDistance = collisionInfo.front.floor.distance - bbox.min.y + 2;
             setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, hangDistance, collisionInfo.collisionFeedback.Z));
             setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
             setFallSpeed(core::makeInterpolatedValue(1.0f));
@@ -3511,7 +3514,7 @@ namespace engine
             }
 
             setTargetState(LaraStateId::Hang);
-            playAnimation(loader::AnimationId::HANG_IDLE, 1514);
+            playAnimation(loader::AnimationId::HANG_IDLE, 1514_frame);
             return createWithRetainedAnimation(LaraStateId::Hang);
         }
 
@@ -3528,7 +3531,7 @@ namespace engine
         }
 
         const auto bbox = getBoundingBox();
-        const long spaceToReach = collisionInfo.front.floor.distance - bbox.MinEdge.Y;
+        const long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
         if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
             setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
@@ -3554,27 +3557,22 @@ namespace engine
         return getHealth() <= 0;
     }
 
-    irr::scene::ISceneNode* AbstractStateHandler::getLara()
-    {
-        return m_controller.getSceneNode();
-    }
-
-    irr::core::aabbox3di AbstractStateHandler::getBoundingBox() const
+    gameplay::BoundingBox AbstractStateHandler::getBoundingBox() const
     {
         return m_controller.getBoundingBox();
     }
 
-    void AbstractStateHandler::addSwimToDiveKeypressDuration(int ms) noexcept
+    void AbstractStateHandler::addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
     {
         m_controller.addSwimToDiveKeypressDuration(ms);
     }
 
-    void AbstractStateHandler::setSwimToDiveKeypressDuration(int ms) noexcept
+    void AbstractStateHandler::setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
     {
         m_controller.setSwimToDiveKeypressDuration(ms);
     }
 
-    const boost::optional<int>& AbstractStateHandler::getSwimToDiveKeypressDuration() const
+    const boost::optional<std::chrono::microseconds>& AbstractStateHandler::getSwimToDiveKeypressDuration() const
     {
         return m_controller.getSwimToDiveKeypressDuration();
     }
@@ -3645,7 +3643,7 @@ namespace engine
             //! @todo Check formula
             setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
             setMovementAngle(getMovementAngle() - 180_deg);
-            playAnimation(loader::AnimationId::SMASH_JUMP, 481);
+            playAnimation(loader::AnimationId::SMASH_JUMP, 481_frame);
             if( getFallSpeed() <= 0 )
                 setFallSpeed(core::makeInterpolatedValue(1.0f));
             return createWithRetainedAnimation(LaraStateId::FreeFall);

@@ -4,6 +4,9 @@
 
 namespace render
 {
+    //! @todo Re-enable later
+#pragma message("TODO: lightselector.h is disabled for now")
+#if 0
     class LightSelector final : public irr::scene::ILightManager
     {
     private:
@@ -32,7 +35,7 @@ namespace render
             {
                 auto fadeSq = light.specularFade * light.specularFade / 4096;
                 const int brightness = gsl::narrow_cast<int>((0x1fff - room->darkness) + fadeSq * light.specularIntensity
-                                                             / (fadeSq + laraPos.getDistanceFromSQ(light.position.toIrrlicht()) / 4096));
+                                                             / (fadeSq + laraPos.getDistanceFromSQ(light.position.toRenderSystem()) / 4096));
                 if( brightness > maxBrightness )
                 {
                     maxBrightness = brightness;
@@ -66,4 +69,5 @@ namespace render
             // nop
         }
     };
+#endif
 }

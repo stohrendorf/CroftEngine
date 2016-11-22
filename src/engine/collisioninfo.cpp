@@ -215,11 +215,10 @@ namespace engine
     {
         auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 
-        irr::core::aabbox3di baseCollisionBox(
+        gameplay::BoundingBox baseCollisionBox(
                                               position.X - collisionRadius, position.Y - height, position.Z - collisionRadius,
                                               position.X + collisionRadius, position.Y         , position.Z + collisionRadius
                                              );
-        baseCollisionBox.repair();
 
         hasStaticMeshCollision = false;
 
@@ -231,17 +230,17 @@ namespace engine
                 if( sm->doNotCollide() )
                     continue;
 
-                irr::core::aabbox3di meshCollisionBox = sm->getCollisionBox(rsm.position, core::Angle{rsm.rotation});
+                gameplay::BoundingBox meshCollisionBox = sm->getCollisionBox(rsm.position, core::Angle{rsm.rotation});
 
-                if( !meshCollisionBox.intersectsWithBox(baseCollisionBox) )
+                if( !meshCollisionBox.intersects(baseCollisionBox) )
                     continue;
 
-                auto dx = meshCollisionBox.MaxEdge.X - baseCollisionBox.MinEdge.X;
-                if( baseCollisionBox.MaxEdge.X - meshCollisionBox.MinEdge.X < dx )
-                    dx = -(baseCollisionBox.MaxEdge.X - meshCollisionBox.MinEdge.X);
-                auto dz = meshCollisionBox.MaxEdge.Z - baseCollisionBox.MinEdge.Z;
-                if( baseCollisionBox.MaxEdge.Z - meshCollisionBox.MinEdge.Z < dz )
-                    dz = -(baseCollisionBox.MaxEdge.Z - meshCollisionBox.MinEdge.Z);
+                auto dx = meshCollisionBox.max.x - baseCollisionBox.min.x;
+                if( baseCollisionBox.max.x - meshCollisionBox.min.x < dx )
+                    dx = -(baseCollisionBox.max.x - meshCollisionBox.min.x);
+                auto dz = meshCollisionBox.max.z - baseCollisionBox.min.z;
+                if( baseCollisionBox.max.z - meshCollisionBox.min.z < dz )
+                    dz = -(baseCollisionBox.max.z - meshCollisionBox.min.z);
 
                 switch( orientationAxis )
                 {

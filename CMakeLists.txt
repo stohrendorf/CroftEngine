@@ -14,6 +14,8 @@ HunterGate(
 
 project(OpenTomb)
 
+set(CMAKE_CXX_STANDARD 14)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 if(WIN32 OR APPLE)
@@ -85,6 +87,10 @@ target_link_libraries(Lua INTERFACE ${LUA_LIBRARIES})
 target_include_directories(Lua INTERFACE ${LUA_INCLUDE_DIR})
 
 
+ot_find_dependency(glm)
+target_link_libraries(glm INTERFACE ${GLM_LIBRARIES})
+target_include_directories(glm INTERFACE ${GLM_INCLUDE_DIR})
+
 
 # Dependency: Boost
 ot_find_dependency(Boost COMPONENTS system log filesystem thread)
@@ -115,8 +121,15 @@ ot_find_dependency_alt(freetype Freetype)
 target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(freetype INTERFACE ${FREETYPE_LIBRARIES})
 
-find_package(Irrlicht REQUIRED)
+find_package(GLEW REQUIRED)
+add_library(GLEW INTERFACE)
+target_include_directories(GLEW INTERFACE ${GLEW_INCLUDE_DIRS})
+target_link_libraries(GLEW INTERFACE ${GLEW_LIBRARIES})
 
+find_package(GLFW REQUIRED)
+add_library(GLFW INTERFACE)
+target_include_directories(GLFW INTERFACE ${GLFW_INCLUDE_DIR})
+target_link_libraries(GLFW INTERFACE ${GLFW_LIBRARIES})
 
 if(MSVC)
     # C4503: Name too long
@@ -138,5 +151,6 @@ endif()
 
 add_definitions(-DGIT_SHA="${GIT_SHA}")
 
+add_subdirectory(3rdparty/gameplay)
 add_subdirectory(doc)
 add_subdirectory(src)

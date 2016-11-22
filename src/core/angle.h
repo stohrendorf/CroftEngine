@@ -1,12 +1,31 @@
 #pragma once
 
+#include "util/vmath.h"
+
+#include "gameplay.h"
+
+#include <cfenv>
 #include <cmath>
 
-#include <irrlicht.h>
-
-#include <gsl.h>
+#include <gsl/gsl>
+#include <glm/gtx/euler_angles.hpp>
 
 #include <boost/optional.hpp>
+
+
+namespace core
+{
+    namespace detail
+    {
+        struct UnsignedRawAngle;
+    }
+}
+
+
+inline core::detail::UnsignedRawAngle operator"" _au(unsigned long long v) noexcept;
+inline core::detail::UnsignedRawAngle operator"" _deg(unsigned long long v) noexcept;
+inline core::detail::UnsignedRawAngle operator"" _deg(long double v) noexcept;
+
 
 namespace core
 {
@@ -15,6 +34,7 @@ namespace core
         struct UnsignedRawAngle;
     }
 
+
     class Angle final
     {
         friend struct detail::UnsignedRawAngle;
@@ -22,14 +42,17 @@ namespace core
         int32_t m_value;
         static const int32_t Scale = 1 << 16;
 
+
         struct RawTag
         {
         };
+
 
         constexpr explicit Angle(int32_t val, const RawTag&) noexcept
             : m_value{val}
         {
         }
+
 
     public:
         [[implicit]]
@@ -38,52 +61,65 @@ namespace core
         {
         }
 
+
         explicit Angle(int16_t val) noexcept
             : m_value{gsl::narrow_cast<int32_t>(val * Scale)}
         {
         }
 
+
         constexpr Angle(const Angle&) = default;
+
 
         static Angle fromRad(float r)
         {
-            return Angle{gsl::narrow_cast<int32_t>(r / 2 / irr::core::PI * 65536 * Scale), RawTag()};
+            return Angle{gsl::narrow_cast<int32_t>(r / 2 / glm::pi<float>() * 65536 * Scale), RawTag()};
         }
+
 
         static Angle fromDegrees(float val)
         {
-            return Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
+            auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
         }
+
 
         constexpr float toDegrees() const noexcept
         {
             return m_value * 360.0f / Scale / 65536;
         }
 
+
         float toRad() const noexcept
         {
-            return m_value * irr::core::PI * 2 / Scale / 65536;
+            return m_value * glm::pi<float>() * 2 / Scale / 65536;
         }
+
 
         float sin() const noexcept
         {
             return std::sin(toRad());
         }
 
+
         float cos() const noexcept
         {
             return std::cos(toRad());
         }
+
 
         constexpr int16_t toAU() const noexcept
         {
             return m_value / Scale;
         }
 
+
         Angle operator-(const Angle& rhs) const noexcept
         {
             return Angle{gsl::narrow_cast<int32_t>(m_value - rhs.m_value), RawTag()};
         }
+
 
         Angle& operator-=(const Angle& rhs) noexcept
         {
@@ -91,10 +127,12 @@ namespace core
             return *this;
         }
 
+
         Angle operator+(const Angle& rhs) const noexcept
         {
             return Angle{gsl::narrow_cast<int32_t>(m_value + rhs.m_value), RawTag()};
         }
+
 
         Angle& operator+=(const Angle& rhs) noexcept
         {
@@ -102,52 +140,85 @@ namespace core
             return *this;
         }
 
+
         Angle operator*(float v) const
         {
-            return Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
+            auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
         }
+
 
         Angle& operator*=(float v)
         {
-            m_value = gsl::narrow_cast<int32_t>(v);
+            m_value = gsl::narrow_cast<int32_t>(m_value * v);
             return *this;
         }
+
+
+        Angle operator/(float v) const
+        {
+            auto result = Angle{ gsl::narrow_cast<int32_t>(std::lround(m_value / v)), RawTag() };
+            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
+            return result;
+        }
+
+
+        Angle& operator/=(float v)
+        {
+            m_value = gsl::narrow_cast<int32_t>(m_value / v);
+            return *this;
+        }
+
 
         Angle operator-() const
         {
             return Angle{-m_value, RawTag()};
         }
 
+
         constexpr bool operator==(const Angle& rhs) const noexcept
         {
             return m_value == rhs.m_value;
         }
 
+
         constexpr bool operator<(const Angle& rhs) const noexcept
         {
             return m_value < rhs.m_value;
         }
+
+
+        Angle abs() const noexcept
+        {
+            return Angle{std::abs(m_value), RawTag{}};
+        }
     };
+
 
     constexpr bool operator>(const Angle& a, const Angle& b) noexcept
     {
         return b < a;
     }
 
+
     constexpr bool operator<=(const Angle& a, const Angle& b) noexcept
     {
         return a == b || a < b;
     }
+
 
     constexpr bool operator>=(const Angle& a, const Angle& b) noexcept
     {
         return a == b || a > b;
     }
 
+
     constexpr bool operator!=(const Angle& a, const Angle& b) noexcept
     {
         return !(a == b);
     }
+
 
     namespace detail
     {
@@ -158,11 +229,13 @@ namespace core
         {
             const uint32_t value;
 
+
             explicit UnsignedRawAngle(unsigned long long val)
                 : value{gsl::narrow<uint32_t>(val * Angle::Scale)}
             {
                 Expects(value <= 32768U * Angle::Scale);
             }
+
 
             explicit UnsignedRawAngle(long double val)
                 : value{gsl::narrow<uint32_t>(std::llround(val * Angle::Scale))}
@@ -170,50 +243,38 @@ namespace core
                 Expects(value <= 32768U * Angle::Scale);
             }
 
+
             Angle operator-() const
             {
                 return Angle{-gsl::narrow_cast<int32_t>(value), Angle::RawTag()};
             }
+
 
             Angle operator+() const
             {
                 return static_cast<Angle>(*this);
             }
 
+
             Angle operator-(const Angle& rhs) const
             {
                 return static_cast<Angle>(*this) - rhs;
             }
+
 
             Angle operator+(const Angle& rhs) const
             {
                 return static_cast<Angle>(*this) + rhs;
             }
 
+
             operator Angle() const
             {
                 return Angle{gsl::narrow_cast<int32_t>(value), Angle::RawTag()};
             }
         };
-
-        inline UnsignedRawAngle operator"" _au(unsigned long long v) noexcept
-        {
-            Expects(v <= 32768);
-            return UnsignedRawAngle{v};
-        }
-
-        inline UnsignedRawAngle operator"" _deg(unsigned long long v) noexcept
-        {
-            Expects(v <= 180);
-            return UnsignedRawAngle{v * 65536 / 360};
-        }
-
-        inline UnsignedRawAngle operator"" _deg(long double v) noexcept
-        {
-            Expects(v <= 180);
-            return UnsignedRawAngle{v * 65536 / 360};
-        }
     }
+
 
     enum class Axis
     {
@@ -222,16 +283,17 @@ namespace core
         NegZ,
         NegX
     };
+}
 
-    using detail::operator "" _au;
-    using detail::operator "" _deg;
 
+namespace core
+{
     inline boost::optional<Axis> axisFromAngle(const core::Angle& angle, const core::Angle& margin)
     {
         Expects(margin >= 0_deg && margin <= 45_deg);
-        if( angle <= 0_deg + margin && angle >= 0_deg - margin )
+        if( angle <= +0_deg + margin && angle >= +0_deg - margin )
             return Axis::PosZ;
-        if( angle <= 90_deg + margin && angle >= 90_deg - margin )
+        if( angle <= +90_deg + margin && angle >= +90_deg - margin )
             return Axis::PosX;
         if( angle <= -90_deg + margin && angle >= -90_deg - margin )
             return Axis::NegX;
@@ -241,9 +303,10 @@ namespace core
         return {};
     }
 
+
     inline core::Angle alignRotation(const Axis& axis)
     {
-        switch(axis)
+        switch( axis )
         {
             case Axis::PosZ: return core::Angle(0_deg);
             case Axis::PosX: return core::Angle(90_deg);
@@ -252,6 +315,7 @@ namespace core
             default: return 0_deg;
         }
     }
+
 
     inline boost::optional<core::Angle> alignRotation(const core::Angle& angle, const core::Angle& margin)
     {
@@ -262,61 +326,85 @@ namespace core
         return alignRotation(*axis);
     }
 
-    class TRRotation final : public irr::core::vector3d<Angle>
+
+    class TRRotation final
     {
     public:
-        TRRotation()
-            : vector3d{}
-        {
-        }
+        Angle X;
+        Angle Y;
+        Angle Z;
+
+        TRRotation() = default;
+
 
         TRRotation(const Angle& x, const Angle& y, const Angle& z)
-            : vector3d{ x, y, z }
+            : X{x}
+            , Y{y}
+            , Z{z}
         {
         }
 
-        irr::core::vector3df toDegrees() const
+
+        glm::vec3 toDegrees() const
         {
-            return{
+            return {
                 X.toDegrees(),
                 Y.toDegrees(),
                 Z.toDegrees()
             };
         }
 
-        irr::core::vector3df toRad() const
+
+        TRRotation operator-(const TRRotation& rhs) const
         {
-            return{
-                X.toRad(),
-                Y.toRad(),
-                Z.toRad()
-            };
+            return{ X - rhs.X, Y - rhs.Y, Z - rhs.Z };
+        }
+
+
+        glm::mat4 toMatrix() const
+        {
+            return glm::yawPitchRoll(-Y.toRad(), X.toRad(), -Z.toRad());
         }
     };
 
-    inline irr::core::quaternion xyzToQuat(const TRRotation& r)
+
+    inline glm::mat4 xyzToYprMatrix(uint32_t angleData)
     {
-        //! @todo This is horribly inefficient code, but it properly converts ZXY angles to XYZ angles.
-        irr::core::quaternion q;
-        q.makeIdentity();
-        q *= irr::core::quaternion().fromAngleAxis(r.Y.toRad(), { 0,1,0 });
-        q *= irr::core::quaternion().fromAngleAxis(r.X.toRad(), { -1,0,0 });
-        q *= irr::core::quaternion().fromAngleAxis(r.Z.toRad(), { 0,0,-1 });
-        return q;
+        auto getAngle = [angleData](uint8_t n) -> Angle
+        {
+            BOOST_ASSERT(n < 3);
+            return Angle(((angleData >> 10*n) & 0x3ff) * 64);
+        };
+
+
+        TRRotation r{ getAngle(2), getAngle(1), getAngle(0) };
+
+        return r.toMatrix();
     }
 
-    inline irr::core::vector3df xyzToYprRad(const TRRotation& r)
+    inline Angle abs(const Angle& v)
     {
-        irr::core::vector3df euler;
-        xyzToQuat(r).toEuler(euler);
-        return euler;
-    }
-
-    inline irr::core::vector3df xyzToYprDeg(const TRRotation& r)
-    {
-        return xyzToYprRad(r) * 180 / irr::core::PI;
+        return v.abs();
     }
 }
 
-using core::detail::operator "" _au;
-using core::detail::operator "" _deg;
+
+inline core::detail::UnsignedRawAngle operator"" _au(unsigned long long v) noexcept
+{
+    Expects(v <= 32768);
+    return core::detail::UnsignedRawAngle{v};
+}
+
+
+inline core::detail::UnsignedRawAngle operator"" _deg(unsigned long long v) noexcept
+{
+    Expects(v <= 180);
+    return core::detail::UnsignedRawAngle{v * 65536 / 360};
+}
+
+
+inline core::detail::UnsignedRawAngle operator"" _deg(long double v) noexcept
+{
+    Expects(v <= 180);
+    return core::detail::UnsignedRawAngle{v * 65536 / 360};
+}

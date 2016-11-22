@@ -1,9 +1,9 @@
 #pragma once
 
 #include "io/sdlreader.h"
+#include "core/magic.h"
 
-#include <irrlicht.h>
-#include <gsl.h>
+#include <gsl/gsl>
 
 #include <map>
 
@@ -20,7 +20,7 @@ namespace loader
     struct Animation
     {
         uint32_t poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
-        uint8_t stretchFactor; // Slowdown factor of this animation
+        uint8_t segmentLength; // Slowdown factor of this animation
         uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
         uint16_t state_id;
 
@@ -42,7 +42,7 @@ namespace loader
 
         constexpr size_t getKeyframeCount() const
         {
-            return (lastFrame - firstFrame + stretchFactor) / stretchFactor;
+            return (lastFrame - firstFrame + segmentLength) / segmentLength;
         }
 
         constexpr size_t getFrameCount() const
@@ -66,9 +66,9 @@ namespace loader
         {
             std::unique_ptr<Animation> animation{new Animation()};
             animation->poseDataOffset = reader.readU32();
-            animation->stretchFactor = reader.readU8();
-            if( animation->stretchFactor == 0 )
-                animation->stretchFactor = 1;
+            animation->segmentLength = reader.readU8();
+            if( animation->segmentLength == 0 )
+                animation->segmentLength = 1;
             animation->poseDataSize = reader.readU8();
             animation->state_id = reader.readU16();
 
@@ -149,92 +149,11 @@ namespace loader
     struct AnimatedModel
     {
         uint32_t type; // Item Identifier (matched in Items[])
-        uint16_t meshCount; // number of meshes in this object
+        uint16_t boneCount; // number of meshes in this object
         uint16_t firstMesh; // starting mesh (offset into MeshPointers[])
         uint32_t boneTreeIndex; // offset into MeshTree[]
         uint32_t meshPositionOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
         uint16_t animationIndex; // offset into Animations[]
-
-        /**
-        * @brief Describes a range of frames of the linearized animations in an Irrlicht IAnimatedMeshSceneNode
-        */
-        struct FrameRange
-        {
-            //! The first real frame in the linearized animation this range describes
-            const irr::u32 offset;
-            //! The first frame of the source animation frame range
-            const irr::u32 firstFrame;
-            //! The last frame of the source animation frame range
-            const irr::u32 lastFrame;
-            const std::map<irr::u32, irr::core::aabbox3di> bboxes;
-
-            FrameRange(irr::u32 o, irr::u32 f, irr::u32 l, std::map<irr::u32, irr::core::aabbox3di>&& bb)
-                : offset(o)
-                , firstFrame(f)
-                , lastFrame(l)
-                , bboxes(std::move(bb))
-            {
-                BOOST_ASSERT(firstFrame <= lastFrame);
-                BOOST_ASSERT(!bboxes.empty());
-            }
-
-            void apply(irr::scene::IAnimatedMeshSceneNode* node, irr::u32 localFrame) const
-            {
-                BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
-
-                const auto realOffset = offset + (localFrame - firstFrame);
-                const auto realFirst = offset;
-                const auto realLast = offset + lastFrame - firstFrame;
-
-                BOOST_ASSERT(realFirst <= realLast);
-                if( !node->setFrameLoop(realFirst, realLast) )
-                {
-                    BOOST_LOG_TRIVIAL(error) << "  - Failed to set frame loop (" << node->getName() << ") " << realFirst << ".." << realLast;
-                    return;
-                }
-                // BOOST_LOG_TRIVIAL(debug) << "  - Frame loop (" << node->getName() << ") " << realFirst << ".." << realLast << " @ " << realOffset;
-                node->setCurrentFrame(gsl::narrow_cast<irr::f32>(realOffset));
-                node->animateJoints();
-            }
-
-            irr::core::aabbox3di getBoundingBox(irr::u32 localFrame) const
-            {
-                BOOST_ASSERT(localFrame >= firstFrame && localFrame <= lastFrame);
-                localFrame -= firstFrame;
-                auto it = bboxes.lower_bound(localFrame);
-                if( it == bboxes.end() )
-                    return std::prev(it)->second;
-
-                if( it->first == localFrame || it == bboxes.begin() )
-                    return it->second;
-
-                // the iterator points behind the searched frame
-                auto before = std::prev(it);
-                auto dist = it->first - before->first;
-                BOOST_ASSERT(dist > 0);
-                auto lambda = float(localFrame - before->first) / dist;
-
-                auto lerpInt = [](int a, int b, float d) -> int
-                    {
-                        return static_cast<int>(a * (1.0f - d) + b * d);
-                    };
-
-                auto lerpIVec = [&lerpInt](const irr::core::vector3di& a, const irr::core::vector3di& b, float d) -> irr::core::vector3di
-                    {
-                        return irr::core::vector3di{
-                            lerpInt(a.X, b.X, d),
-                            lerpInt(a.Y, b.Y, d),
-                            lerpInt(a.Z, b.Z, d)
-                        };
-                    };
-
-                // aabbox's getInterpolated does wrong rounding for ints, so we need to do it manually
-                irr::core::aabbox3di interp(lerpIVec(before->second.MinEdge, it->second.MinEdge, lambda), lerpIVec(before->second.MaxEdge, it->second.MaxEdge, lambda));
-                return interp;
-            }
-        };
-
-        std::map<uint16_t, FrameRange> frameMapping;
 
         /** \brief reads a moveable definition.
         *
@@ -245,7 +164,7 @@ namespace loader
         {
             std::unique_ptr<AnimatedModel> moveable{new AnimatedModel()};
             moveable->type = reader.readU32();
-            moveable->meshCount = reader.readU16();
+            moveable->boneCount = reader.readU16();
             moveable->firstMesh = reader.readU16();
             moveable->boneTreeIndex = reader.readU32();
             moveable->meshPositionOffset = reader.readU32();

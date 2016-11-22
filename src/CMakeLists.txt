@@ -56,10 +56,10 @@ set(OT_IRR_SRCS
 
     engine/abstractstatehandler.cpp
     engine/abstractstatehandler.h
-    engine/animationcontroller.cpp
-    engine/animationcontroller.h
     engine/cameracontroller.cpp
     engine/cameracontroller.h
+    engine/collisioninfo.cpp
+    engine/collisioninfo.h
     engine/heightinfo.cpp
     engine/heightinfo.h
     engine/inputhandler.h
@@ -68,8 +68,8 @@ set(OT_IRR_SRCS
     engine/itemcontroller.h
     engine/laracontroller.cpp
     engine/laracontroller.h
-    engine/collisioninfo.cpp
-    engine/collisioninfo.h
+    engine/skeletalmodelnode.cpp
+    engine/skeletalmodelnode.h
 
     level/game.h
     level/level.cpp
@@ -93,8 +93,9 @@ set(OT_IRR_SRCS
     loader/floordata.h
     loader/item.h
     loader/larastateid.h
-    loader/meshes.cpp
     loader/meshes.h
+    loader/mesh.cpp
+    loader/mesh.h
     loader/primitives.h
     loader/texture.h
     loader/util.h
@@ -119,15 +120,6 @@ set(OT_IRR_SRCS
 
     util/helpers.h
     util/vmath.h
-
-    ../3rdparty/xeffects/Source/CScreenQuad.h
-    ../3rdparty/xeffects/Source/CShaderPre.h
-    ../3rdparty/xeffects/Source/CShaderPre.cpp
-    ../3rdparty/xeffects/Source/EffectCB.h
-    ../3rdparty/xeffects/Source/EffectHandler.h
-    ../3rdparty/xeffects/Source/EffectHandler.cpp
-    ../3rdparty/xeffects/Source/EffectShaders.h
-    ../3rdparty/xeffects/Source/XEffects.h
 )
 
 add_executable(ot_irr
@@ -137,16 +129,16 @@ add_executable(ot_irr
 GROUP_FILES(${OT_IRR_SRCS})
 
 if(NOT MSVC)
-    target_compile_options(ot_irr PRIVATE -std=c++14 -Wall -Wextra)
+    target_compile_options(ot_irr PRIVATE -Wall -Wextra)
 endif()
 
 target_link_libraries(
     ot_irr
     Boost
-    Irrlicht
+    gameplay
     ZLIB
     OpenAL
     SndFile
 )
 
-target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL/include ../3rdparty/xeffects/Source)
+target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL ../3rdparty/xeffects/Source)

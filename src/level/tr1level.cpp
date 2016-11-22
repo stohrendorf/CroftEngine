@@ -25,7 +25,7 @@ using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR1  256
 
-void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
+void TR1Level::load()
 {
     BOOST_LOG_TRIVIAL(debug) << "Start. File size = " << m_reader.size();
 
@@ -150,28 +150,11 @@ void TR1Level::load(irr::video::IVideoDriver* /*drv*/)
     // In TR1, samples are embedded into level file as solid block, preceded by
     // block size in bytes. Sample block is followed by sample indices array.
 
-#if 0
-    m_samplesCount = 0;
-    m_samplesData.resize(m_src.readU32());
-    for(size_t i = 0; i < m_samplesData.size(); i++)
-    {
-        m_samplesData[i] = m_src.readU8();
-        if((i >= 4) && (*reinterpret_cast<uint32_t*>(m_samplesData.data() + i - 4) == 0x46464952))   /// RIFF
-        {
-            m_samplesCount++;
-        }
-    }
-
-    m_sampleIndices.resize(m_src.readU32());
-    for(size_t i = 0; i < m_sampleIndices.size(); i++)
-        m_sampleIndices[i] = m_src.readU32();
-#else
     BOOST_LOG_TRIVIAL(debug) << "Reading sample data";
     m_reader.readVector(m_samplesData, m_reader.readU32());
     BOOST_LOG_TRIVIAL(debug) << "Reading sample indices";
     m_reader.readVector(m_sampleIndices, m_reader.readU32());
     m_samplesCount = m_sampleIndices.size();
-#endif
 
     BOOST_LOG_TRIVIAL(debug) << "Converting textures";
     m_textures.resize(texture8.size());

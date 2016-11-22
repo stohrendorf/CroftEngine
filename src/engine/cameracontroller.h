@@ -10,14 +10,14 @@ namespace engine
     class ItemController;
     class LaraController;
 
-    class CameraController final : public irr::scene::ISceneNodeAnimator
+    class CameraController final
     {
     private:
         // Internals
         bool m_firstUpdate = true;
-        irr::u32 m_lastAnimationTime = 0;
+        uint32_t m_lastAnimationTime = 0;
         bool m_firstInput = true;
-        gsl::not_null<irr::scene::ICameraSceneNode*> m_camera;
+        gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
         // For interactions
         level::Level* m_level;
@@ -35,7 +35,7 @@ namespace engine
         int m_smoothFactor = 8;
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
-        int m_camOverrideTimeout = -1;
+        std::chrono::microseconds m_camOverrideTimeout{ -1 };
         int m_camOverrideType = 0;
         core::RoomBoundIntPosition m_currentLookAt;
         core::TRRotation m_localRotation;
@@ -47,30 +47,12 @@ namespace engine
         core::TRRotation m_headRotation;
         core::TRRotation m_torsoRotation;
 
-        irr::video::IVideoDriver* m_driver;
-
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     public:
-        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera);
+        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
 
-        //! Animates a scene node.
-        /** \param node Node to animate.
-        \param timeMs Current time in milli seconds. */
-        void animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs) override;
-
-        //! Creates a clone of this animator.
-        /** Please note that you will have to drop
-        (IReferenceCounted::drop()) the returned pointer after calling this. */
-        irr::scene::ISceneNodeAnimator* createClone(irr::scene::ISceneNode* /*node*/, irr::scene::ISceneManager* /*newManager*/ = nullptr) override;
-
-        //! Returns true if this animator receives events.
-        /** When attached to an active camera, this animator will be
-        able to respond to events such as mouse and keyboard events. */
-        bool isEventReceiverEnabled() const override
-        {
-            return true;
-        }
+        void animateNode(uint32_t timeMs);
 
         const level::Level* getLevel() const noexcept
         {
@@ -102,7 +84,7 @@ namespace engine
 
         void findCameraTarget(const loader::FloorData::value_type* floorData);
 
-        void update(int deltaTimeMs);
+        void update(const std::chrono::microseconds& deltaTimeMs);
 
         void setCamOverrideType(int t)
         {
@@ -140,19 +122,19 @@ namespace engine
             return m_torsoRotation;
         }
 
-        irr::core::vector3df getPosition() const
+        glm::vec3 getPosition() const
         {
-            return m_camera->getAbsolutePosition();
+            return glm::vec3{ m_camera->getInverseViewMatrix()[3] };
         }
 
-        irr::core::vector3df getFrontVector() const
+        glm::vec3 getFrontVector() const
         {
-            return m_camera->getTarget() - m_camera->getAbsolutePosition();
+            return glm::vec3{ m_camera->getInverseViewMatrix() * glm::vec4{0, 0, -1, 1} };
         }
 
-        irr::core::vector3df getUpVector() const
+        glm::vec3 getUpVector() const
         {
-            return m_camera->getUpVector();
+            return glm::vec3{ m_camera->getInverseViewMatrix() * glm::vec4{ 0, 1, 0, 1 } };
         }
 
         void resetHeadTorsoRotation()
@@ -176,13 +158,13 @@ namespace engine
         ClampType clampAlongZ(core::RoomBoundIntPosition& origin) const;
         bool clampPosition(core::RoomBoundIntPosition& origin) const;
 
-        void handleCamOverride(int deltaTimeMs);
+        void handleCamOverride(const std::chrono::microseconds& deltaTimeMs);
         int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-        void updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, int deltaTimeMs);
-        void doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs);
-        void handleFreeLook(const ItemController& item, int deltaTimeMs);
-        void handleEnemy(const ItemController& item, int deltaTimeMs);
+        void updatePosition(const ::core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs);
+        void doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleFreeLook(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleEnemy(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
 
         using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 

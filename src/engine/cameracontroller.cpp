@@ -1,51 +1,38 @@
 #include "cameracontroller.h"
 
-#include "animationcontroller.h"
-#include "render/portaltracer.h"
 #include "laracontroller.h"
+#include "level/level.h"
+#include "render/portaltracer.h"
+#include "skeletalmodelnode.h"
 
+#include <chrono>
 #include <queue>
 #include <set>
 
+
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, gsl::not_null<irr::video::IVideoDriver*> drv, const gsl::not_null<irr::scene::ICameraSceneNode*>& camera)
-        : ISceneNodeAnimator()
-        , m_camera(camera)
+    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
+        : m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
         , m_currentYOffset(gsl::narrow_cast<int>(laraController->getPosition().Y - 1024))
         , m_currentLookAt(laraController->getCurrentRoom(), m_laraController->getPosition().toInexact())
         , m_currentPosition(laraController->getCurrentRoom())
-        , m_driver(drv)
     {
         m_currentLookAt.position.Y -= m_currentYOffset;
         m_currentPosition = m_currentLookAt;
         m_currentPosition.position.Z -= 100;
 
-        update(1000 / core::FrameRate);
+        update(std::chrono::microseconds(1));
     }
 
-    void CameraController::animateNode(irr::scene::ISceneNode* node, irr::u32 timeMs)
+    void CameraController::animateNode(uint32_t timeMs)
     {
-        Expects(node == m_camera);
-
-        irr::scene::ISceneManager* smgr = node->getSceneManager();
-        if( smgr && smgr->getActiveCamera() != m_camera )
-            return;
-
-
         if( m_firstUpdate )
         {
             m_lastAnimationTime = timeMs;
             m_firstUpdate = false;
-        }
-
-        // If the camera isn't the active camera, and receiving input, then don't process it.
-        if( !m_camera->isInputReceiverEnabled() )
-        {
-            m_firstInput = true;
-            return;
         }
 
         if( m_firstInput )
@@ -60,15 +47,9 @@ namespace engine
 
         m_lastAnimationTime = timeMs;
 
-        m_localRotation.X = irr::core::clamp(m_localRotation.X, -85_deg, +85_deg);
+        m_localRotation.X = util::clamp(m_localRotation.X, -85_deg, +85_deg);
 
         tracePortals();
-    }
-
-    irr::scene::ISceneNodeAnimator* CameraController::createClone(irr::scene::ISceneNode*, irr::scene::ISceneManager*)
-    {
-        BOOST_ASSERT(false);
-        return nullptr;
     }
 
     void CameraController::setLocalRotation(core::Angle x, core::Angle y)
@@ -107,7 +88,7 @@ namespace engine
             return;
 
         if( timeout != 1 )
-            m_camOverrideTimeout = timeout * 1000;
+            m_camOverrideTimeout = std::chrono::seconds(timeout);
 
         if( (flags & 1) != 0 )
             m_level->m_cameras[camId].setActive(true);
@@ -148,7 +129,7 @@ namespace engine
                 else
                 {
                     m_camOverrideId = m_activeCamOverrideId;
-                    if( m_camOverrideTimeout >= 0 && m_camOverrideType != 2 && m_camOverrideType != 3 )
+                    if( m_camOverrideTimeout >= std::chrono::microseconds::zero() && m_camOverrideType != 2 && m_camOverrideType != 3 )
                     {
                         type = 1;
                         m_camOverrideType = 1;
@@ -156,7 +137,7 @@ namespace engine
                     else
                     {
                         type = 0;
-                        m_camOverrideTimeout = -1;
+                        m_camOverrideTimeout = std::chrono::microseconds(-1);
                     }
                 }
             }
@@ -171,57 +152,11 @@ namespace engine
 
     void CameraController::tracePortals()
     {
-        bool cameraOutOfGeometry = true;
-        for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
-        {
-            const loader::Room& room = m_level->m_rooms[i];
-            if( room.node->getTransformedBoundingBox().isPointInside(m_camera->getAbsolutePosition()) )
-            {
-                cameraOutOfGeometry = false;
-                break;
-            }
-        }
+        for(const loader::Room& room : m_level->m_rooms)
+            room.node->setEnabled(false);
 
-        for( const loader::Room& room : m_level->m_rooms )
-            room.node->setVisible(cameraOutOfGeometry);
-
-        if( cameraOutOfGeometry )
-        {
-            return;
-        }
-
-#if 0
-        // First, find the room the camera is actually in.
-
-        const loader::Room* startRoom = m_laraController->getCurrentRoom();
-        {
-            std::queue<const loader::Room*> toVisit;
-            std::set<const loader::Room*> visited;
-            toVisit.push(m_laraController->getCurrentRoom());
-            while( !toVisit.empty() )
-            {
-                auto currentRoom = toVisit.front();
-                toVisit.pop();
-                if( !visited.insert(currentRoom).second )
-                    continue;
-
-                if( currentRoom->node->getTransformedBoundingBox().isPointInside(m_camera->getAbsolutePosition()) )
-                {
-                    startRoom = currentRoom;
-                    break;
-                }
-                for( const loader::Portal& portal : currentRoom->portals )
-                {
-                    BOOST_ASSERT(portal.adjoining_room < m_level->m_rooms.size());
-                    toVisit.push(&m_level->m_rooms[portal.adjoining_room]);
-                }
-            }
-        }
-#else
         auto startRoom = m_currentPosition.room;
-#endif
-
-        startRoom->node->setVisible(true);
+        startRoom->node->setEnabled(true);
 
         // Breadth-first queue
         std::queue<render::PortalTracer> toVisit;
@@ -230,10 +165,10 @@ namespace engine
         for( const loader::Portal& portal : startRoom->portals )
         {
             render::PortalTracer path;
-            if( !path.checkVisibility(&portal, *m_camera, m_driver) )
+            if( !path.checkVisibility(&portal, *m_camera.get()) )
                 continue;
 
-            m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
+            m_level->m_rooms[portal.adjoining_room].node->setEnabled(true);
 
             toVisit.emplace(std::move(path));
         }
@@ -255,10 +190,10 @@ namespace engine
             for( const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals )
             {
                 render::PortalTracer newPath = currentPath;
-                if( !newPath.checkVisibility(&srcPortal, *m_camera, m_driver) )
+                if( !newPath.checkVisibility(&srcPortal, *m_camera.get()) )
                     continue;
 
-                m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
+                m_level->m_rooms[srcPortal.adjoining_room].node->setEnabled(true);
                 toVisit.emplace(std::move(newPath));
             }
         }
@@ -445,7 +380,7 @@ namespace engine
         return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
-    void CameraController::update(int deltaTimeMs)
+    void CameraController::update(const std::chrono::microseconds& deltaTimeMs)
     {
         if(m_currentPosition.room->isWaterRoom())
         {
@@ -480,18 +415,19 @@ namespace engine
         auto lookAtBbox = lookAtItem->getBoundingBox();
         int lookAtY = gsl::narrow_cast<int>(lookAtItem->getPosition().Y);
         if( lookingAtSomething )
-            lookAtY += (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2;
+            lookAtY += (lookAtBbox.min.y + lookAtBbox.max.y) / 2;
         else
-            lookAtY += (lookAtBbox.MinEdge.Y - lookAtBbox.MaxEdge.Y) * 3 / 4 + lookAtBbox.MaxEdge.Y;
+            lookAtY += (lookAtBbox.min.y - lookAtBbox.max.y) * 3 / 4 + lookAtBbox.max.y;
 
         if( m_lookAtItem != nullptr && !lookingAtSomething )
         {
             BOOST_ASSERT(m_lookAtItem != lookAtItem);
+            BOOST_ASSERT(lookAtItem);
             const auto distToLookAt = m_lookAtItem->getPosition().distanceTo(lookAtItem->getPosition());
             auto lookAtYAngle = -core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
             lookAtYAngle *= 0.5f;
             lookAtBbox = m_lookAtItem->getBoundingBox();
-            auto lookAtXAngle = -core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.MinEdge.Y + lookAtBbox.MaxEdge.Y) / 2 + m_lookAtItem->getPosition().Y));
+            auto lookAtXAngle = -core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.min.y + lookAtBbox.max.y) / 2 + m_lookAtItem->getPosition().Y));
             lookAtXAngle *= 0.5f;
 
             if( lookAtYAngle < 50_deg && lookAtYAngle > -50_deg && lookAtXAngle < 85_deg && lookAtXAngle > -85_deg )
@@ -528,7 +464,7 @@ namespace engine
 
             if( m_unknown1 == 1 )
             {
-                const auto midZ = (lookAtBbox.MinEdge.Z + lookAtBbox.MaxEdge.Z) / 2;
+                const auto midZ = (lookAtBbox.min.z + lookAtBbox.max.z) / 2;
                 m_currentLookAt.position.Z += std::lround(midZ * lookAtItem->getRotation().Y.cos());
                 m_currentLookAt.position.X += std::lround(midZ * lookAtItem->getRotation().Y.sin());
             }
@@ -579,7 +515,7 @@ namespace engine
 
         m_lookingAtSomething = lookingAtSomething;
         m_activeCamOverrideId = m_camOverrideId;
-        if( m_camOverrideType != 5 || m_camOverrideTimeout < 0 )
+        if( m_camOverrideType != 5 || m_camOverrideTimeout < std::chrono::microseconds::zero() )
         {
             m_camOverrideType = 0;
             m_lookAtItem2 = m_lookAtItem;
@@ -590,11 +526,9 @@ namespace engine
             m_unknown1 = 0;
         }
         HeightInfo::skipSteepSlants = false;
-
-        m_camera->updateAbsolutePosition();
     }
 
-    void CameraController::handleCamOverride(int deltaTimeMs)
+    void CameraController::handleCamOverride(const std::chrono::microseconds& deltaTimeMs)
     {
         Expects(m_camOverrideId >= 0 && gsl::narrow_cast<size_t>(m_camOverrideId) < m_level->m_cameras.size());
         Expects(m_level->m_cameras[m_camOverrideId].room < m_level->m_rooms.size());
@@ -613,7 +547,7 @@ namespace engine
         if( m_camOverrideTimeout > deltaTimeMs )
             m_camOverrideTimeout -= deltaTimeMs;
         else
-            m_camOverrideTimeout = -1;
+            m_camOverrideTimeout = std::chrono::microseconds(-1);
     }
 
     int CameraController::moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const
@@ -653,11 +587,11 @@ namespace engine
         return pos.Y > floor || pos.Y <= ceiling;
     }
 
-    void CameraController::updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, int deltaTimeMs)
+    void CameraController::updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs)
     {
-        m_currentPosition.position.X += (position.position.X - m_currentPosition.position.X) * deltaTimeMs * core::FrameRate / smoothFactor / 1000;
-        m_currentPosition.position.Y += (position.position.Y - m_currentPosition.position.Y) * deltaTimeMs * core::FrameRate / smoothFactor / 1000;
-        m_currentPosition.position.Z += (position.position.Z - m_currentPosition.position.Z) * deltaTimeMs * core::FrameRate / smoothFactor / 1000;
+        m_currentPosition.position.X += (position.position.X - m_currentPosition.position.X) * deltaTimeMs / core::FrameTime / smoothFactor;
+        m_currentPosition.position.Y += (position.position.Y - m_currentPosition.position.Y) * deltaTimeMs / core::FrameTime / smoothFactor;
+        m_currentPosition.position.Z += (position.position.Z - m_currentPosition.position.Z) * deltaTimeMs / core::FrameTime / smoothFactor;
         HeightInfo::skipSteepSlants = false;
         m_currentPosition.room = position.room;
         auto sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
@@ -701,11 +635,11 @@ namespace engine
         // update current room
         m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
 
-        m_camera->setPosition(camPos.toIrrlicht());
-        m_camera->setTarget(m_currentLookAt.position.toIrrlicht());
+        auto m = glm::lookAt(camPos.toRenderSystem(), m_currentLookAt.position.toRenderSystem(), { 0,1,0 });
+        m_camera->setViewMatrix(m);
     }
 
-    void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, int deltaTimeMs)
+    void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs)
     {
         m_localRotation.X += item->getRotation().X;
         if( m_localRotation.X > 85_deg )
@@ -730,7 +664,7 @@ namespace engine
         updatePosition(targetPos, m_lookingAtSomething ? m_smoothFactor : 12, deltaTimeMs);
     }
 
-    void CameraController::handleFreeLook(const ItemController& item, int deltaTimeMs)
+    void CameraController::handleFreeLook(const ItemController& item, const std::chrono::microseconds& deltaTimeMs)
     {
         const auto origLook = m_currentLookAt.position;
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
@@ -758,13 +692,13 @@ namespace engine
 
         clampBox(tmp, &freeLookClamp);
 
-        m_currentLookAt.position.X = origLook.X + (m_currentLookAt.position.X - origLook.X) * core::FrameRate * deltaTimeMs / 1000 / m_smoothFactor;
-        m_currentLookAt.position.Z = origLook.Z + (m_currentLookAt.position.Z - origLook.Z) * core::FrameRate * deltaTimeMs / 1000 / m_smoothFactor;
+        m_currentLookAt.position.X = origLook.X + (m_currentLookAt.position.X - origLook.X) * deltaTimeMs / m_smoothFactor / core::FrameTime;
+        m_currentLookAt.position.Z = origLook.Z + (m_currentLookAt.position.Z - origLook.Z) * deltaTimeMs / m_smoothFactor / core::FrameTime;
 
         updatePosition(tmp, m_smoothFactor, deltaTimeMs);
     }
 
-    void CameraController::handleEnemy(const ItemController& item, int deltaTimeMs)
+    void CameraController::handleEnemy(const ItemController& item, const std::chrono::microseconds& deltaTimeMs)
     {
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
         m_currentLookAt.position.Z = std::lround(item.getPosition().Z);

@@ -6,308 +6,311 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
-#include <EffectHandler.h>
+
 
 namespace loader
 {
-
-namespace
-{
-irr::u16 addVertex(irr::scene::SMeshBuffer& meshBuffer, uint16_t vertexIndex, const UVCoordinates& uvCoordinates, const std::vector<RoomVertex>& vertices)
-{
-    irr::video::S3DVertex iv;
-    BOOST_ASSERT(vertexIndex < vertices.size());
-    iv.Pos = vertices[vertexIndex].vertex.toIrrlicht();
-    // TR5 only: iv.Normal = vertices[vertexIndex].normal.toIrrlicht();
-    iv.Normal = { 1,0,0 };
-    iv.TCoords.X = uvCoordinates.xpixel/255.0f;
-    iv.TCoords.Y = uvCoordinates.ypixel/255.0f;
-    iv.Color = vertices[vertexIndex].color;
-    const auto ivIdx = gsl::narrow<irr::u16>(meshBuffer.Vertices.size());
-    meshBuffer.Vertices.push_back(iv);
-    meshBuffer.Indices.push_back(ivIdx);
-    return ivIdx;
-}
-} // anonymous namespace
-
-irr::scene::IMeshSceneNode* Room::createSceneNode(irr::scene::ISceneManager* mgr,
-                                                  int dumpIdx,
-                                                  const level::Level& level,
-                                                  const std::map<TextureLayoutProxy::TextureKey, irr::video::SMaterial>& materials,
-                                                  const std::vector<irr::video::ITexture*>& textures,
-                                                  const std::vector<irr::scene::SMesh*>& staticMeshes,
-                                                  render::TextureAnimator& animator)
-{
-    // texture => mesh buffer
-    std::map<TextureLayoutProxy::TextureKey, irr::scene::SMeshBuffer*> texBuffers;
-    for(const QuadFace& quad : rectangles)
+    namespace
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.proxyId);
-        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
-            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[proxy.textureKey];
-
-        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices));
-        animator.registerVertex(quad.proxyId, buf, 1, addVertex(*buf, quad.vertices[1], proxy.uvCoordinates[1], vertices));
-        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices));
-        animator.registerVertex(quad.proxyId, buf, 0, addVertex(*buf, quad.vertices[0], proxy.uvCoordinates[0], vertices));
-        animator.registerVertex(quad.proxyId, buf, 2, addVertex(*buf, quad.vertices[2], proxy.uvCoordinates[2], vertices));
-        animator.registerVertex(quad.proxyId, buf, 3, addVertex(*buf, quad.vertices[3], proxy.uvCoordinates[3], vertices));
-    }
-    for(const Triangle& poly : triangles)
-    {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(poly.proxyId);
-        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
-            texBuffers[proxy.textureKey] = new irr::scene::SMeshBuffer();
-        auto buf = texBuffers[proxy.textureKey];
-
-        for(int i = 0; i < 3; ++i)
-            animator.registerVertex(poly.proxyId, buf, i, addVertex(*buf, poly.vertices[i], proxy.uvCoordinates[i], vertices));
-    }
-
-    for(irr::scene::SMeshBuffer* buffer : texBuffers|boost::adaptors::map_values)
-        buffer->recalculateBoundingBox();
-
-    irr::scene::SMesh* result = new irr::scene::SMesh();
-    for(auto& buffer : texBuffers)
-    {
-        auto it = materials.find(buffer.first);
-        BOOST_ASSERT(it != materials.end());
-        irr::video::SMaterial material = it->second;
-        material.Lighting = false;
-        material.DiffuseColor.set(0);
-        material.AmbientColor.set(0);
-        material.Shininess = 20;
-        material.SpecularColor.set(0);
-        BOOST_LOG_TRIVIAL(debug) << "Darkness=" << darkness;
-        if(isWaterRoom())
+#pragma pack(push,1)
+        struct RenderVertex
         {
-            material.FogEnable = true;
-        }
-        buffer.second->Material = material;
-        result->addMeshBuffer(buffer.second);
-        buffer.second->drop();
-    }
+            glm::vec2 texcoord0;
+            glm::vec3 position;
+            glm::vec4 color;
 
-    result->recalculateBoundingBox();
-    mgr->getMeshManipulator()->recalculateNormals(result);
 
-    irr::scene::IMeshSceneNode* resultNode = mgr->addMeshSceneNode(result);
-    result->drop();
-    level.m_fx->addShadowToNode(resultNode);
-    level.m_fx->addNodeToDepthPass(resultNode);
-    // resultNode->setDebugDataVisible(irr::scene::EDS_FULL);
-    // resultNode->setAutomaticCulling(irr::scene::EAC_OFF);
-    for(Light& light : lights)
-    {
-        light.node = mgr->addLightSceneNode(resultNode);
-        light.node->enableCastShadow(true);
-        switch(light.getLightType())
+            static const gameplay::VertexFormat& getFormat()
+            {
+                static const gameplay::VertexFormat::Element elems[3] = {
+                    {gameplay::VertexFormat::TEXCOORD, 2},
+                    {gameplay::VertexFormat::POSITION, 3},
+                    {gameplay::VertexFormat::COLOR, 4}
+                };
+                static const gameplay::VertexFormat fmt{elems, 3};
+
+                Expects(fmt.getVertexSize() == sizeof(RenderVertex));
+
+                return fmt;
+            }
+        };
+#pragma pack(pop)
+
+        struct MeshPart
         {
-            case LightType::Shadow:
-                BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
-                light.node->setLightType(irr::video::ELT_POINT);
-                break;
-            case LightType::Null:
-            case LightType::Point:
-                BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
-                light.node->setLightType(irr::video::ELT_POINT);
-                break;
-            case LightType::Spotlight:
-                BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
-                light.node->setLightType(irr::video::ELT_SPOT);
-                break;
-            case LightType::Sun:
-                BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
-                light.node->setLightType(irr::video::ELT_DIRECTIONAL);
-                break;
-        }
+            using IndexBuffer = std::vector<uint16_t>;
 
-        BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
-        BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
-        BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a/255.0f << "/" << light.color.r/255.0f << "/" << light.color.g/255.0f << "/" << light.color.b/255.0f;
-        BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.specularFade;
-        BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.specularIntensity;
-        BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
-        BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
-        BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
+            IndexBuffer indices;
+            std::shared_ptr<gameplay::Material> material;
+        };
 
-        irr::video::SLight& ld = light.node->getLightData();
-        ld.InnerCone = light.r_inner;
-        ld.OuterCone = light.r_outer;
-        const auto f = std::abs(light.specularIntensity) / 8191.0f;
-        BOOST_ASSERT(f >= 0 && f <= 1);
-        ld.DiffuseColor.set(light.color.a/255.0f*f, light.color.r/255.0f*f, light.color.g/255.0f*f, light.color.b/255.0f*f);
-        ld.SpecularColor = ld.DiffuseColor;
-        ld.AmbientColor = ld.DiffuseColor;
-        //ld.Falloff = light.specularFade / 8192.0f;
-        light.node->setPosition((light.position - position).toIrrlicht());
-        light.node->setRotation(light.dir.toIrrlicht());
-        light.node->setRadius(light.specularFade * 2);
-        ld.Attenuation.Y = 1.0f / light.specularFade;
-        //ld.Attenuation.Z = ld.Attenuation.X;
+
+        struct RenderModel
+        {
+            std::vector<MeshPart> m_parts;
+
+
+            std::shared_ptr<gameplay::Model> toModel(const gsl::not_null<std::shared_ptr<gameplay::Mesh>>& mesh)
+            {
+                for( const MeshPart& localPart : m_parts )
+                {
 #ifndef NDEBUG
-        //light.node->setDebugDataVisible(irr::scene::EDS_FULL);
+                    for( auto idx : localPart.indices )
+                    BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
 #endif
+
+                    auto part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
+                    part->setIndexData(localPart.indices.data(), 0, 0);
+                }
+
+                auto model = std::make_shared<gameplay::Model>(mesh);
+
+                for( size_t i = 0; i < m_parts.size(); ++i )
+                {
+                    model->setMaterial(m_parts[i].material, i);
+                }
+
+                return model;
+            }
+        };
     }
 
-    for(const RoomStaticMesh& sm : this->staticMeshes)
+
+    std::shared_ptr<gameplay::Node> Room::createSceneNode(gameplay::Game* game,
+                                                          int dumpIdx,
+                                                          const level::Level& level,
+                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
+                                                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                          const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
+                                                          render::TextureAnimator& animator)
     {
-        auto idx = level.findStaticMeshIndexById(sm.meshId);
-        BOOST_ASSERT(idx >= 0);
-        BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
-        irr::scene::IMeshSceneNode* smNode = mgr->addMeshSceneNode(staticMeshes[idx]);
-        smNode->setRotation({0,util::auToDeg(sm.rotation),0});
-        smNode->setPosition((sm.position - position).toIrrlicht());
-        level.m_fx->addShadowToNode(smNode);
-        resultNode->addChild(smNode);
-        level.m_fx->addNodeToDepthPass(smNode);
-    }
-    resultNode->setPosition(position.toIrrlicht());
-    resultNode->updateAbsolutePosition();
+        RenderModel renderModel;
+        std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
+        std::vector<RenderVertex> vbuf;
+        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), vbuf.size(), true);
 
-    resultNode->setName(("Room:" + boost::lexical_cast<std::string>(dumpIdx)).c_str());
-
-    for(const Sprite& sprite : sprites)
-    {
-        BOOST_ASSERT(sprite.vertex < vertices.size());
-        BOOST_ASSERT(sprite.texture < level.m_spriteTextures.size());
-
-        const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
-
-        irr::core::vector2df dim{ static_cast<irr::f32>(tex.right_side - tex.left_side + 1), static_cast<irr::f32>(tex.bottom_side - tex.top_side + 1) };
-        BOOST_ASSERT(dim.X > 0);
-        BOOST_ASSERT(dim.Y > 0);
-
-        irr::scene::IBillboardSceneNode* n = mgr->addBillboardSceneNode(resultNode, dim, (vertices[sprite.vertex].vertex - core::TRCoordinates{0, tex.bottom_side/2, 0}).toIrrlicht(), -1, 0, 0);
-        n->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
-        n->getMaterial(0).BlendOperation = irr::video::EBO_ADD;
-        n->getMaterial(0).EmissiveColor.set(0);
-        n->setMaterialFlag(irr::video::EMF_LIGHTING, true);
-        n->setMaterialTexture( 0, textures[tex.texture] );
+        for( const QuadFace& quad : rectangles )
         {
-            irr::video::SColor col;
-            col.set(gsl::narrow<irr::u8>(lightColor.a * 255), gsl::narrow<irr::u8>(lightColor.r * 255), gsl::narrow<irr::u8>(lightColor.g * 255), gsl::narrow<irr::u8>(lightColor.b * 255));
-            n->getMaterial(0).AmbientColor = col;
-            n->getMaterial(0).DiffuseColor = col;
-            n->getMaterial(0).SpecularColor = col;
-            n->getMaterial(0).Lighting = true;
+            const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.proxyId);
+
+            if( texBuffers.find(proxy.textureKey) == texBuffers.end() )
+            {
+                texBuffers[proxy.textureKey] = renderModel.m_parts.size();
+                renderModel.m_parts.emplace_back();
+                auto it = materials.find(proxy.textureKey);
+                Expects(it != materials.end());
+                renderModel.m_parts.back().material = it->second;
+            }
+            const auto partId = texBuffers[proxy.textureKey];
+
+            const auto firstVertex = vbuf.size();
+            for( int i = 0; i < 4; ++i )
+            {
+                RenderVertex iv;
+                iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
+                iv.color = vertices[quad.vertices[i]].color;
+                iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                vbuf.push_back(iv);
+            }
+
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 1, firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
+            animator.registerVertex(quad.proxyId, {mesh, partId}, 3, firstVertex + 3);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 3);
+        }
+        for( const Triangle& tri : triangles )
+        {
+            const TextureLayoutProxy& proxy = level.m_textureProxies.at(tri.proxyId);
+
+            if( texBuffers.find(proxy.textureKey) == texBuffers.end() )
+            {
+                texBuffers[proxy.textureKey] = renderModel.m_parts.size();
+                renderModel.m_parts.emplace_back();
+                auto it = materials.find(proxy.textureKey);
+                Expects(it != materials.end());
+                renderModel.m_parts.back().material = it->second;
+            }
+            const auto partId = texBuffers[proxy.textureKey];
+
+            const auto firstVertex = vbuf.size();
+            for( int i = 0; i < 3; ++i )
+            {
+                RenderVertex iv;
+                iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
+                iv.color = vertices[tri.vertices[i]].color;
+                iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
+                iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                vbuf.push_back(iv);
+            }
+
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 0, firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 1, firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
+            animator.registerVertex(tri.proxyId, {mesh, partId}, 2, firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
         }
 
-        n->getMaterial(0).setTextureMatrix(0, tex.buildTextureMatrix());
+        mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
+        auto resModel = renderModel.toModel(mesh);
+        node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(dumpIdx));
+        node->setDrawable(resModel);
+
+        for( Light& light : lights )
+        {
+            const auto f = std::abs(light.specularIntensity) / 8191.0f;
+            BOOST_ASSERT(f >= 0 && f <= 1);
+
+            switch( light.getLightType() )
+            {
+                case LightType::Shadow:
+                    BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
+                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
+                    break;
+                case LightType::Null:
+                case LightType::Point:
+                    BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
+                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
+                    break;
+                case LightType::Spotlight:
+                    BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
+                    light.node = gameplay::Light::createSpot(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade, light.r_inner, light.r_outer);
+                    break;
+                case LightType::Sun:
+                    BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
+                    light.node = gameplay::Light::createDirectional(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f);
+                    break;
+            }
+
+            BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
+            BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
+            BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a / 255.0f << "/" << light.color.r / 255.0f << "/" << light.color.g / 255.0f << "/" << light.color.b / 255.0f;
+            BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.specularFade;
+            BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.specularIntensity;
+            BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
+            BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
+            BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
+        }
+
+        for( const RoomStaticMesh& sm : this->staticMeshes )
+        {
+            auto idx = level.findStaticMeshIndexById(sm.meshId);
+            BOOST_ASSERT(idx >= 0);
+            BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
+            auto subNode = std::make_shared<gameplay::Node>("");
+            subNode->setDrawable(staticMeshes[idx]);
+            subNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{ 0,1,0 }));
+            node->addChild(subNode);
+        }
+        node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, position.toRenderSystem()));
+
+        for( const Sprite& sprite : sprites )
+        {
+            BOOST_ASSERT(sprite.vertex < vertices.size());
+            BOOST_ASSERT(sprite.texture < level.m_spriteTextures.size());
+
+            const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
+
+            auto spriteNode = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
+            spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
+
+            auto n = std::make_shared<gameplay::Node>("");
+            n->setDrawable(spriteNode);
+            n->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (vertices[sprite.vertex].position - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem()));
+
+            node->addChild(n);
+        }
+
+        // resultNode->addShadowVolumeSceneNode();
+
+        return node;
     }
 
-    if(dumpIdx >= 0)
+
+    std::shared_ptr<gameplay::Texture> DWordTexture::toTexture() const
     {
-        mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
-        irr::scene::IMeshWriter* meshWriter = mgr->createMeshWriter(irr::scene::EMWT_COLLADA);
-        irr::io::path outputName;
-        outputName = "room_";
-        outputName += boost::lexical_cast<std::string>(dumpIdx).c_str();
-        outputName += ".dae";
-        gsl::not_null<irr::io::IWriteFile*> file = mgr->getFileSystem()->createAndWriteFile(outputName);
-
-        meshWriter->writeMesh( file, result );
-        file->drop();
-        meshWriter->drop();
-
-        mgr->getFileSystem()->changeWorkingDirectoryTo("..");
+        auto img = std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
+        auto tex = std::make_shared<gameplay::Texture>(img, false);
+        return tex;
     }
 
-    // resultNode->addShadowVolumeSceneNode();
-    node = resultNode;
 
-    return resultNode;
-}
-
-irr::video::ITexture* DWordTexture::toTexture(irr::scene::ISceneManager* mgr, int texIdx)
-{
-    auto img = mgr->getVideoDriver()->createImageFromData(
-                   irr::video::ECF_A8R8G8B8,
-                   {256, 256},
-                   &pixels[0][0]);
-    irr::io::path p;
-    p = "tex_";
-    p += boost::lexical_cast<std::string>(texIdx).c_str();
-    p += ".png";
-    auto tex = mgr->getVideoDriver()->addTexture(p, img);
-
-    mgr->getFileSystem()->changeWorkingDirectoryTo("dump");
-    mgr->getVideoDriver()->writeImageToFile(img, p);
-    mgr->getFileSystem()->changeWorkingDirectoryTo("..");
-
-    img->drop();
-    return tex;
-}
-
-irr::core::aabbox3di StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
-{
-    auto result = collision_box;
-
-    const auto axis = core::axisFromAngle(angle, 45_deg);
-    switch(*axis)
+    gameplay::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
     {
-        case core::Axis::PosZ:
-            // nothing to do
-            break;
-        case core::Axis::PosX:
-            std::swap(result.MinEdge.X, result.MinEdge.Z);
-            result.MinEdge.Z *= -1;
-            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
-            result.MaxEdge.Z *= -1;
-            break;
-        case core::Axis::NegZ:
-            result.MinEdge.X *= -1;
-            result.MinEdge.Z *= -1;
-            result.MaxEdge.X *= -1;
-            result.MaxEdge.Z *= -1;
-            break;
-        case core::Axis::NegX:
-            std::swap(result.MinEdge.X, result.MinEdge.Z);
-            result.MinEdge.X *= -1;
-            std::swap(result.MaxEdge.X, result.MaxEdge.Z);
-            result.MaxEdge.X *= -1;
-            break;
+        auto result = collision_box;
+
+        const auto axis = core::axisFromAngle(angle, 45_deg);
+        switch( *axis )
+        {
+            case core::Axis::PosZ:
+                // nothing to do
+                break;
+            case core::Axis::PosX:
+                std::swap(result.min.x, result.min.z);
+                result.min.z *= -1;
+                std::swap(result.max.x, result.max.z);
+                result.max.z *= -1;
+                break;
+            case core::Axis::NegZ:
+                result.min.x *= -1;
+                result.min.z *= -1;
+                result.max.x *= -1;
+                result.max.z *= -1;
+                break;
+            case core::Axis::NegX:
+                std::swap(result.min.x, result.min.z);
+                result.min.x *= -1;
+                std::swap(result.max.x, result.max.z);
+                result.max.x *= -1;
+                break;
+        }
+
+        result.min += glm::vec3(pos.X, pos.Y, pos.Z);
+        result.max += glm::vec3(pos.X, pos.Y, pos.Z);
+        return result;
     }
 
-    result.MinEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
-    result.MaxEdge += irr::core::vector3di(pos.X, pos.Y, pos.Z);
-    result.repair();
-    return result;
-}
 
-void Room::patchHeightsForBlock(const engine::ItemController& ctrl, int height)
-{
-    core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
-    //! @todo Ugly const_cast
-    auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findFloorSectorWithClampedPosition(pos).get());
-    pos.position.Y += height - loader::SectorSize;
-    const auto topSector = ctrl.getLevel().findFloorSectorWithClampedPosition(pos);
-
-    const auto q = height / loader::QuarterSectorSize;
-    if(groundSector->floorHeight == -127)
+    void Room::patchHeightsForBlock(const engine::ItemController& ctrl, int height)
     {
-        groundSector->floorHeight = topSector->ceilingHeight + q;
+        core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
+        //! @todo Ugly const_cast
+        auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findFloorSectorWithClampedPosition(pos).get());
+        pos.position.Y += height - loader::SectorSize;
+        const auto topSector = ctrl.getLevel().findFloorSectorWithClampedPosition(pos);
+
+        const auto q = height / loader::QuarterSectorSize;
+        if( groundSector->floorHeight == -127 )
+        {
+            groundSector->floorHeight = topSector->ceilingHeight + q;
+        }
+        else
+        {
+            groundSector->floorHeight += q;
+            if( groundSector->floorHeight == topSector->ceilingHeight )
+                groundSector->floorHeight = -127;
+        }
+
+        if( groundSector->boxIndex == 0xffff )
+            return;
+
+        //! @todo Ugly const_cast
+        loader::Box& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
+        if( (box.overlap_index & 0x8000) == 0 )
+            return;
+
+        if( height >= 0 )
+            box.overlap_index &= ~0x4000;
+        else
+            box.overlap_index |= 0x4000;
     }
-    else
-    {
-        groundSector->floorHeight += q;
-        if(groundSector->floorHeight == topSector->ceilingHeight)
-            groundSector->floorHeight = -127;
-    }
-
-    if(groundSector->boxIndex == 0xffff)
-        return;
-
-    //! @todo Ugly const_cast
-    loader::Box& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
-    if((box.overlap_index & 0x8000) == 0)
-        return;
-
-    if(height >= 0)
-        box.overlap_index &= ~0x4000;
-    else
-        box.overlap_index |= 0x4000;
-}
-
 }

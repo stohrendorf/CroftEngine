@@ -1,8 +1,9 @@
 #pragma once
 
 #include "io/sdlreader.h"
+#include "gameplay.h"
+#include <boost/lexical_cast.hpp>
 
-#include <irrlicht.h>
 
 namespace loader
 {
@@ -46,7 +47,7 @@ namespace loader
 
     struct DWordTexture final
     {
-        irr::video::SColor pixels[256][256];
+        glm::vec4 pixels[256][256];
 
         static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
         {
@@ -57,14 +58,19 @@ namespace loader
                 for( int j = 0; j < 256; j++ )
                 {
                     auto tmp = reader.readU32(); // format is ARGB
-                    textile->pixels[i][j].set(tmp);
+                    const auto a = (tmp >> 24) & 0xff;
+                    const auto r = (tmp >> 16) & 0xff;
+                    const auto g = (tmp >> 8) & 0xff;
+                    const auto b = (tmp >> 0) & 0xff;
+                    textile->pixels[i][j] = { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
                 }
             }
 
             return textile;
         }
 
-        irr::video::ITexture* toTexture(irr::scene::ISceneManager* mgr, int texIdx);
+
+        std::shared_ptr<gameplay::Texture> toTexture() const;
     };
 
     enum class BlendingMode : uint16_t
@@ -128,7 +134,7 @@ namespace loader
     {
         struct TextureKey
         {
-            BlendingMode blendingMode;
+            BlendingMode blendingMode = BlendingMode::Solid;
             // 0 means that a texture is all-opaque, and that transparency
             // information is ignored.
             // 1 means that transparency information is used. In 8-bit colour,
@@ -137,9 +143,9 @@ namespace loader
             // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
             // the brighter the colour, the more opaque it is. The intensity is probably calculated
             // as the maximum of the individual color values.
-            uint16_t tileAndFlag; // index into textile list
+            uint16_t tileAndFlag = 0; // index into textile list
 
-            uint16_t flags; // TR4
+            uint16_t flags = 0; // TR4
 
             int colorId = -1;
 
@@ -233,47 +239,31 @@ namespace loader
             return proxy;
         }
 
-        static irr::video::SMaterial createMaterial(irr::video::ITexture* texture, BlendingMode bmode)
+        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, const std::shared_ptr<gameplay::ShaderProgram>& shader) const
         {
-            irr::video::SMaterial result;
+            return createMaterial(texture, textureKey.blendingMode, shader);
+        }
+
+        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, const std::shared_ptr<gameplay::ShaderProgram>& shader)
+        {
+            auto result = std::make_shared<gameplay::Material>(shader);
             // Set some defaults
-            result.setTexture(0, texture);
-            //result.BackfaceCulling = false;
-            result.ColorMaterial = irr::video::ECM_DIFFUSE;
-            result.Lighting = true;
-            result.AmbientColor.set(0);
-            result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
-            result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;
+            result->getParameter("u_diffuseTexture")->setValue(std::make_shared<gameplay::Texture::Sampler>(texture));
+            //result->getParameter("u_ambientColor")->setValue(gameplay::Vector3(0, 0, 0));
+            result->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
+            result->initStateBlockDefaults();
+
+            //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
+            //result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;
 
             switch( bmode )
             {
             case BlendingMode::Solid:
-                //result.BlendOperation = irr::video::EBO_ADD;
-                break;
-
             case BlendingMode::AlphaTransparency:
-                result.MaterialType = irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-                result.BlendOperation = irr::video::EBO_ADD;
-                break;
-
             case BlendingMode::VertexColorTransparency: // Classic PC alpha
-                result.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
-                result.BlendOperation = irr::video::EBO_ADD;
-                break;
-
             case BlendingMode::InvertSrc: // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
-                result.BlendOperation = irr::video::EBO_SUBTRACT;
-                break;
-
             case BlendingMode::InvertDst: // Inversion by dest
-                result.BlendOperation = irr::video::EBO_REVSUBTRACT;
-                break;
-
             case BlendingMode::Screen: // Screen (smoke, etc.)
-                result.BlendOperation = irr::video::EBO_SUBTRACT;
-                result.MaterialType = irr::video::EMT_TRANSPARENT_ADD_COLOR;
-                break;
-
             case BlendingMode::AnimatedTexture:
                 break;
 

@@ -1,86 +1,135 @@
 #include "level/level.h"
-#include <EffectHandler.h>
 #include "engine/laracontroller.h"
 
 #include <boost/range/adaptors.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace
 {
-    void drawText(irr::gui::IGUIEnvironment* env, int x, int y, const irr::core::stringw& txt, const irr::video::SColor& col = irr::video::SColor(255, 255, 255, 255))
+    void drawText(const std::unique_ptr<gameplay::Font>& font, int x, int y, const std::string& txt, const glm::vec4& col = {1,1,1,1})
     {
-        auto fnt = env->getBuiltInFont();
-        irr::core::recti r;
-        r.UpperLeftCorner.X = x;
-        r.UpperLeftCorner.Y = y;
-        r.LowerRightCorner = r.UpperLeftCorner;
-        const auto dim = fnt->getDimension(txt.c_str());
-        r.LowerRightCorner.X += dim.Width;
-        r.LowerRightCorner.Y += dim.Height;
-        fnt->draw(txt, r, col);
+        font->drawText(txt, x, y, col.x, col.y, col.z, col.w);
     }
 
-    void drawDebugInfo(gsl::not_null<irr::IrrlichtDevice*> device, gsl::not_null<level::Level*> lvl)
+    void drawDebugInfo(const std::unique_ptr<gameplay::Font>& font, gsl::not_null<level::Level*> lvl)
     {
         // position/rotation
-        drawText(device->getGUIEnvironment(), 10, 40, lvl->m_lara->getCurrentRoom()->node->getName());
-        drawText(device->getGUIEnvironment(), 100, 40, irr::core::stringw(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
-        drawText(device->getGUIEnvironment(), 140, 20, irr::core::stringw(std::lround(lvl->m_lara->getPosition().X)));
-        drawText(device->getGUIEnvironment(), 140, 30, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Y)));
-        drawText(device->getGUIEnvironment(), 140, 40, irr::core::stringw(std::lround(lvl->m_lara->getPosition().Z)));
+        drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
+
+        drawText(font, 100, 40, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
+        drawText(font, 140, 20, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().X)));
+        drawText(font, 140, 30, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Y)));
+        drawText(font, 140, 40, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Z)));
 
         // physics
-        drawText(device->getGUIEnvironment(), 180, 40, irr::core::stringw(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
+        drawText(font, 180, 40, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
 
         // animation
-        drawText(device->getGUIEnvironment(), 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
-        drawText(device->getGUIEnvironment(), 100, 60, loader::toString(lvl->m_lara->getTargetState()));
-        drawText(device->getGUIEnvironment(), 10, 80, irr::core::stringw(lvl->m_lara->getCurrentFrame()));
-        drawText(device->getGUIEnvironment(), 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
+        drawText(font, 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
+        drawText(font, 100, 60, loader::toString(lvl->m_lara->getTargetState()));
+        drawText(font, 10, 80, boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame().count()));
+        drawText(font, 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers
         {
             int y = 100;
-            for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
+            for(const std::shared_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
             {
                 if(!item->m_isActive)
                     continue;
 
-                drawText(device->getGUIEnvironment(), 10, y, item->getName().c_str());
+                drawText(font, 10, y, item->getId());
                 if(item->m_flags2_02_toggledOn)
-                    drawText(device->getGUIEnvironment(), 180, y, "toggled");
+                    drawText(font, 180, y, "toggled");
                 if(item->m_flags2_04_ready)
-                    drawText(device->getGUIEnvironment(), 220, y, "ready");
-                drawText(device->getGUIEnvironment(), 260, y, irr::core::stringw(item->m_triggerTimeout));
+                    drawText(font, 220, y, "ready");
+                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_triggerTimeout.count()));
                 y += 20;
             }
         }
 
         // collision
-        drawText(device->getGUIEnvironment(), 200, 20,  irr::core::stringw("AxisColl: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.axisCollisions));
-        drawText(device->getGUIEnvironment(), 200, 40,  irr::core::stringw("Current floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.current.floor.distance));
-        drawText(device->getGUIEnvironment(), 200, 60,  irr::core::stringw("Current ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.current.ceiling.distance));
-        drawText(device->getGUIEnvironment(), 200, 80,  irr::core::stringw("Front floor:     ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.front.floor.distance));
-        drawText(device->getGUIEnvironment(), 200, 100, irr::core::stringw("Front ceiling:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.front.ceiling.distance));
-        drawText(device->getGUIEnvironment(), 200, 120, irr::core::stringw("Front/L floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontLeft.floor.distance));
-        drawText(device->getGUIEnvironment(), 200, 140, irr::core::stringw("Front/L ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontLeft.ceiling.distance));
-        drawText(device->getGUIEnvironment(), 200, 160, irr::core::stringw("Front/R floor:   ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontRight.floor.distance));
-        drawText(device->getGUIEnvironment(), 200, 180, irr::core::stringw("Front/R ceiling: ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.frontRight.ceiling.distance));
-        drawText(device->getGUIEnvironment(), 200, 200, irr::core::stringw("Need bottom:     ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceBottom));
-        drawText(device->getGUIEnvironment(), 200, 220, irr::core::stringw("Need top:        ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceTop));
-        drawText(device->getGUIEnvironment(), 200, 240, irr::core::stringw("Need ceiling:    ") + irr::core::stringw(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
+        drawText(font, 200, 20,  boost::lexical_cast<std::string>("AxisColl: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.axisCollisions));
+        drawText(font, 200, 40,  boost::lexical_cast<std::string>("Current floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.current.floor.distance));
+        drawText(font, 200, 60,  boost::lexical_cast<std::string>("Current ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.current.ceiling.distance));
+        drawText(font, 200, 80,  boost::lexical_cast<std::string>("Front floor:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.front.floor.distance));
+        drawText(font, 200, 100, boost::lexical_cast<std::string>("Front ceiling:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.front.ceiling.distance));
+        drawText(font, 200, 120, boost::lexical_cast<std::string>("Front/L floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontLeft.floor.distance));
+        drawText(font, 200, 140, boost::lexical_cast<std::string>("Front/L ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontLeft.ceiling.distance));
+        drawText(font, 200, 160, boost::lexical_cast<std::string>("Front/R floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontRight.floor.distance));
+        drawText(font, 200, 180, boost::lexical_cast<std::string>("Front/R ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontRight.ceiling.distance));
+        drawText(font, 200, 200, boost::lexical_cast<std::string>("Need bottom:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceBottom));
+        drawText(font, 200, 220, boost::lexical_cast<std::string>("Need top:        ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededFloorDistanceTop));
+        drawText(font, 200, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
+    }
+}
 
-        device->getGUIEnvironment()->drawAll();
+class FullScreenFX
+{
+public:
+    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+        : m_fb{ std::make_shared<gameplay::FrameBuffer>(game->getViewport().width, game->getViewport().height) }
+    {
+        auto vp = game->getViewport();
+
+        if(withDepth)
+            m_fb->setDepthStencilTarget(std::make_shared<gameplay::DepthStencilTarget>(gameplay::DepthStencilTarget::DEPTH_STENCIL, vp.width, vp.height));
+
+        m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
+
+        if(withDepth)
+        {
+            m_batch->getMaterial()->getParameter("u_depth")->setValue(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthStencilTarget()->getDepthTexture()));
+            m_batch->getMaterial()->getParameter("u_projection")->bindValue(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
+        }
+
+        m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        m_batch->getSampler()->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+    }
+
+    void bind()
+    {
+        m_fb->bind();
+    }
+
+    void render() const
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        m_batch->start();
+        m_batch->draw(0, 0, m_fb->getWidth(), m_fb->getHeight(), 0, 1, 1, 0, glm::vec4{ 1,1,1,1 });
+        m_batch->finishAndDraw();
+    }
+
+private:
+    std::shared_ptr<gameplay::FrameBuffer> m_fb;
+    std::shared_ptr<gameplay::SpriteBatch> m_batch;
+};
+
+void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Level>& lvl)
+{
+    while(deltaTime > std::chrono::microseconds::zero())
+    {
+        auto subTime = std::min(deltaTime, core::FrameTime);
+        deltaTime -= subTime;
+
+        for(const std::shared_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
+        {
+            if(ctrl.get() == lvl->m_lara) // Lara is special and needs to be updated last
+                continue;
+
+            ctrl->update(subTime);
+        }
+
+        lvl->m_lara->update(subTime);
     }
 }
 
 int main()
 {
-#if defined(_MSC_VER)
-    const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_DIRECT3D9;
-#else
-    const irr::video::E_DRIVER_TYPE driverType = irr::video::EDT_OPENGL;
-#endif
-
+    gameplay::Game* game = new gameplay::Game();
+    game->run();
+#if 0
     irr::SIrrlichtCreationParameters driverParams;
     driverParams.AntiAlias = 255;
     driverParams.ZBufferBits = 32;
@@ -94,6 +143,7 @@ int main()
     irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
     if(!device)
         return EXIT_FAILURE;
+#endif
 
     struct LevelInfo
     {
@@ -122,78 +172,83 @@ int main()
         {"LEVEL10C", "The Great Pyramid", 60, 3} // 15
     };
 
-    const LevelInfo& lvlInfo = levels[0];
+    const LevelInfo& lvlInfo = levels[1];
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
-    auto driver = device->getVideoDriver();
-    lvl->load(driver);
-    lvl->toIrrlicht(device);
+    lvl->load();
 
-    device->setWindowCaption(L"EdisonEngine");
+    lvl->toIrrlicht(game);
 
-    auto timer = device->getTimer();
-    auto lastTime = timer->getTime();
+    // device->setWindowCaption("EdisonEngine");
 
     if(lvlInfo.track > 0)
         lvl->playCdTrack(lvlInfo.track);
 
-    while(device->run())
+
+    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game);
+    auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
+    font->setTarget(screenOverlay->getImage());
+
+    FullScreenFX depthDarknessFx{ game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag",{}) };
+
+    auto lastTime = game->getAbsoluteTime();
+    while(game->loop())
     {
+        screenOverlay->getImage()->fill({ 0,0,0,0 });
+
         lvl->m_audioDev.update();
-
-        //if(lvl->m_activeCDTrack > 0 && lvl->m_cdStream == nullptr)
-        //    lvl->playStream(lvl->m_activeCDTrack);
-
-        if(!device->isWindowActive())
-        {
-            lastTime = timer->getTime();
-            device->yield();
-            continue;
-        }
-
         lvl->m_inputHandler->update();
 
-        auto deltaTime = timer->getTime() - lastTime;
-        if(deltaTime <= 0)
+        auto deltaTime = game->getAbsoluteTime() - lastTime;
+        if(deltaTime <= std::chrono::microseconds::zero())
         {
-            device->yield();
             continue;
         }
 
-        lastTime = timer->getTime();
+        lastTime = game->getAbsoluteTime();
 
-        for(const std::unique_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
-        {
-            if(ctrl.get() == lvl->m_lara) // Lara is special and needs to be updated last
-                continue;
+        update(deltaTime, lvl);
 
-            ctrl->update(deltaTime);
-        }
-
-        lvl->m_lara->update(deltaTime);
         lvl->m_cameraController->update(deltaTime);
 
         lvl->m_audioDev.setListenerTransform(lvl->m_cameraController->getPosition(),
                                              lvl->m_cameraController->getFrontVector(),
                                              lvl->m_cameraController->getUpVector());
 
-        device->getVideoDriver()->beginScene(true, true);
-        //device->getSceneManager()->drawAll();
-        lvl->m_fx->update();
-        lvl->drawBars(device->getVideoDriver());
-
-        drawDebugInfo(device, lvl.get());
-
-        device->getVideoDriver()->endScene();
+        lvl->drawBars(game, screenOverlay->getImage());
 
         // update information about current frame-rate
-        irr::core::stringw str(L"FPS: ");
-        str.append(irr::core::stringw(driver->getFPS()));
-        str += L" Tris: ";
-        str.append(irr::core::stringw(driver->getPrimitiveCountDrawn()));
-        device->setWindowCaption(str.c_str());
+        //std::string str = "FPS: ";
+        //str += boost::lexical_cast<std::string>(driver->getFPS());
+        //str += " Tris: ";
+        //str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
+        //device->setWindowCaption(str.c_str());
+
+
+        depthDarknessFx.bind();
+        game->frame();
+
+/*
+        {
+            const auto width = game->getViewport().width;
+            const auto height = game->getViewport().height;
+
+            std::vector<float> data;
+            data.resize(width*height, 0);
+            GL_ASSERT(glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data.data()));
+        }
+*/
+
+        gameplay::FrameBuffer::bindDefault();
+        depthDarknessFx.render();
+
+        drawDebugInfo(font, lvl.get());
+
+        screenOverlay->draw();
+
+        game->swapBuffers();
     }
 
     //device->drop();

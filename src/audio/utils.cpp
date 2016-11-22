@@ -1,5 +1,3 @@
-#include <SDL2/SDL.h>
-
 #include <al.h>
 
 #include <boost/log/trivial.hpp>

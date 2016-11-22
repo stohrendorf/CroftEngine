@@ -2,8 +2,9 @@
 
 #include "io/sdlreader.h"
 
-#include <irrlicht.h>
-#include <gsl.h>
+#include <gsl/gsl>
+
+#include "gameplay.h"
 
 namespace loader
 {
@@ -15,7 +16,7 @@ namespace loader
     */
     struct ByteColor
     {
-        uint8_t r, g, b, a;
+        uint8_t r = 0, g = 0, b = 0, a = 0;
 
         static ByteColor readTr1(io::SDLReader& reader)
         {
@@ -27,9 +28,9 @@ namespace loader
             return read(reader, true);
         }
 
-        irr::video::SColor toSColor() const
+        glm::vec4 toGLColor() const
         {
-            return irr::video::SColor(a, r, g, b);
+            return glm::vec4{ r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
         }
 
     private:
@@ -55,14 +56,14 @@ namespace loader
     {
         float r, g, b, a;
 
-        irr::video::SColor toSColor(irr::f32 intensity) const
+        glm::vec4 toSColor(float intensity) const
         {
             BOOST_ASSERT(intensity >= 0 && intensity <= 1);
-            irr::video::SColor col;
-            col.setRed(gsl::narrow<irr::u8>(std::lround(r * intensity * 255)));
-            col.setGreen(gsl::narrow<irr::u8>(std::lround(g * intensity * 255)));
-            col.setBlue(gsl::narrow<irr::u8>(std::lround(b * intensity * 255)));
-            col.setAlpha(gsl::narrow<irr::u8>(std::lround(a * intensity * 255)));
+            glm::vec4 col;
+            col.x = r * intensity;
+            col.y = g * intensity;
+            col.z = b * intensity;
+            col.w = a * intensity;
             return col;
         }
     };
@@ -75,7 +76,7 @@ namespace loader
         static std::unique_ptr<Palette> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::as_span(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->color) )
                 c = ByteColor::readTr1(reader);
             return palette;
         }
@@ -83,7 +84,7 @@ namespace loader
         static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::as_span(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->color) )
                 c = ByteColor::readTr2(reader);
             return palette;
         }

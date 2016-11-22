@@ -4,7 +4,7 @@
 #include <boost/assert.hpp>
 #include <boost/iostreams/restrict.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <gsl.h>
+#include <gsl/gsl>
 
 namespace audio
 {
@@ -65,7 +65,7 @@ namespace audio
                 BOOST_ASSERT(self->m_where + count <= self->m_dataSize);
 
                 uint8_t* buf = static_cast<uint8_t*>(ptr);
-                std::copy(self->m_data + self->m_where, self->m_data + self->m_where + count, buf);
+                std::copy_n(self->m_data + self->m_where, count, buf);
                 self->m_where += count;
                 return count;
             }
