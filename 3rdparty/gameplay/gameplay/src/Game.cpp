@@ -39,7 +39,6 @@ namespace gameplay
         , _height(0)
         , _clearDepth(1.0f)
         , _clearStencil(0)
-        , _timeEvents{std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>()}
         , _scene{std::make_shared<Scene>()}
     {
         glfwSetErrorCallback(&glErrorCallback);
@@ -246,9 +245,6 @@ namespace gameplay
             _initialized = true;
         }
 
-        // Fire time events to scheduled TimeListeners
-        fireTimeEvents(getGameTime());
-
         if( _state == Game::RUNNING )
         {
             // Graphics Rendering.
@@ -330,60 +326,5 @@ namespace gameplay
     void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil)
     {
         clear(flags, glm::vec4(red, green, blue, alpha), clearDepth, clearStencil);
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Game::schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie)
-    {
-        BOOST_ASSERT(_timeEvents);
-        TimeEvent timeEvent(getGameTime() + timeOffset, timeListener, cookie);
-        _timeEvents->push(timeEvent);
-    }
-
-
-    void Game::clearSchedule()
-    {
-        _timeEvents = std::make_unique<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>>();
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Game::fireTimeEvents(const std::chrono::microseconds& frameTime)
-    {
-        while( _timeEvents->size() > 0 )
-        {
-            const TimeEvent* timeEvent = &_timeEvents->top();
-            if( timeEvent->time > frameTime )
-            {
-                break;
-            }
-            if( timeEvent->listener )
-            {
-                timeEvent->listener->timeEvent(frameTime - timeEvent->time, timeEvent->cookie);
-            }
-            _timeEvents->pop();
-        }
-    }
-
-
-    Game::TimeEvent::TimeEvent(const std::chrono::microseconds& time, TimeListener* timeListener, void* cookie)
-        : time(time)
-        , listener(timeListener)
-        , cookie(cookie)
-    {
-    }
-
-
-    bool Game::TimeEvent::operator<(const TimeEvent& v) const
-    {
-        // The first element of std::priority_queue is the greatest.
-        return time > v.time;
-    }
-
-
-    void Game::ShutdownListener::timeEvent(const std::chrono::microseconds& /*timeDiff*/, void* /*cookie*/)
-    {
-        _game->shutdown();
     }
 }

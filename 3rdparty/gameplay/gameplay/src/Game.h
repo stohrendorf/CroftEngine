@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Rectangle.h"
-#include "TimeListener.h"
 #include "RenderState.h"
 
 #include <GLFW/glfw3.h>
@@ -218,23 +217,6 @@ namespace gameplay
          */
         inline bool isMultiSampling() const;
 
-        /**
-         * Schedules a time event to be sent to the given TimeListener a given number of game milliseconds from now.
-         * Game time stops while the game is paused. A time offset of zero will fire the time event in the next frame.
-         *
-         * @param timeOffset The number of game milliseconds in the future to schedule the event to be fired.
-         * @param timeListener The TimeListener that will receive the event.
-         * @param cookie The cookie data that the time event will contain.
-         * @script{ignore}
-         */
-        void schedule(const std::chrono::microseconds& timeOffset, TimeListener* timeListener, void* cookie = nullptr);
-
-        /**
-         * Clears all scheduled time events.
-         */
-        void clearSchedule();
-
-
         bool loop()
         {
             glfwPollEvents();
@@ -284,39 +266,6 @@ namespace gameplay
 
     private:
 
-        struct ShutdownListener : public TimeListener
-        {
-            explicit ShutdownListener(Game* game)
-                : _game{game}
-            {
-                BOOST_ASSERT(game != nullptr);
-            }
-
-
-            virtual ~ShutdownListener() = default;
-
-            void timeEvent(const std::chrono::microseconds& timeDiff, void* cookie) override;
-
-        private:
-            Game* _game;
-        };
-
-
-        /**
-         * TimeEvent represents the event that is sent to TimeListeners as a result of calling Game::schedule().
-         */
-        class TimeEvent
-        {
-        public:
-
-            TimeEvent(const std::chrono::microseconds& time, TimeListener* timeListener, void* cookie);
-            bool operator<(const TimeEvent& v) const;
-            std::chrono::microseconds time;
-            TimeListener* listener;
-            void* cookie;
-        };
-
-
         /**
          * Constructor.
          *
@@ -334,13 +283,6 @@ namespace gameplay
          */
         void shutdown();
 
-        /**
-         * Fires the time events that were scheduled to be called.
-         *
-         * @param frameTime The current game frame time. Used to determine which time events need to be fired.
-         */
-        void fireTimeEvents(const std::chrono::microseconds& frameTime);
-
         bool _initialized; // If game has initialized yet.
         State _state; // The game state.
         unsigned int _pausedCount; // Number of times pause() has been called.
@@ -355,7 +297,6 @@ namespace gameplay
         glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth; // The clear depth value last used for clearing the depth buffer.
         int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
-        std::unique_ptr<std::priority_queue<TimeEvent, std::vector<TimeEvent>, std::less<TimeEvent>>> _timeEvents; // Contains the scheduled time events.
 
         std::chrono::high_resolution_clock::time_point _timeStart;
         std::chrono::high_resolution_clock::duration _timeAbsolute;
