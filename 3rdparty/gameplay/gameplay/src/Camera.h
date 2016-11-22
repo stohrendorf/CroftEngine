@@ -3,6 +3,7 @@
 #include "Frustum.h"
 #include "Rectangle.h"
 
+#include <list>
 
 namespace gameplay
 {

@@ -2,8 +2,7 @@
 
 #include "Texture.h"
 
-#include <glm/glm.hpp>
-
+#include <map>
 #include <memory>
 
 namespace gameplay
@@ -21,7 +20,7 @@ namespace gameplay
      * typical effect systems support, such as GPU render state management,
      * techniques and passes.
      */
-    class ShaderProgram : std::enable_shared_from_this<ShaderProgram>
+    class ShaderProgram : public std::enable_shared_from_this<ShaderProgram>
     {
     public:
         explicit ShaderProgram();

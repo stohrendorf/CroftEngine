@@ -380,11 +380,10 @@ namespace gameplay
         if( !scene )
             return{ 0,0,0 };
 
-        auto camera = scene->getActiveCamera();
-        if( camera )
-        {
+        if( auto camera = scene->getActiveCamera() )
             return glm::vec3(camera->getInverseViewMatrix()[3]);
-        }
+
+        return{ 0,0,0 };
     }
 
 

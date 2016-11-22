@@ -138,27 +138,6 @@ namespace gameplay
         void visit(T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&));
 
         /**
-         * Visits each node in the scene and calls the specified method pointer.
-         *
-         * Calling this method invokes the specified method pointer for each node
-         * in the scene hierarchy, passing the Node and the specified cookie value.
-         *
-         * The visitMethod parameter must be a pointer to a method that has a bool
-         * return type and accepts two parameters: a Node pointer and a cookie of a
-         * user-specified type.
-         *
-         * A depth-first traversal of the scene continues while the visit method
-         * returns true. Returning false will stop traversing further children for
-         * the given node and the traversal will continue at the next sibling.
-         *
-         * @param instance The pointer to an instance of the object that contains visitMethod.
-         * @param visitMethod The pointer to the class method to call for each node in the scene.
-         * @param cookie An optional user-defined parameter that will be passed to each invocation of visitMethod.
-         */
-        template<class T, class C>
-        void visit(T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&, C), C cookie);
-
-        /**
          * Visits each node in the scene and calls the specified Lua function.
          *
          * Calling this method invokes the specified Lua function for each node
@@ -194,12 +173,6 @@ namespace gameplay
         /**
          * Visits the given node and all of its children recursively.
          */
-        template<class T, class C>
-        void visitNode(const std::shared_ptr<Node>& node, T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&, C), C cookie);
-
-        /**
-         * Visits the given node and all of its children recursively.
-         */
         void visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const;
 
         std::shared_ptr<Camera> _activeCamera = nullptr;
@@ -214,16 +187,6 @@ namespace gameplay
         for( const auto& node : _nodes )
         {
             visitNode(node, instance, visitMethod);
-        }
-    }
-
-
-    template<class T, class C>
-    void Scene::visit(T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&, C), C cookie)
-    {
-        for( const auto& node : _nodes )
-        {
-            visitNode(node, instance, visitMethod, cookie);
         }
     }
 
@@ -248,31 +211,6 @@ namespace gameplay
         for( const auto& child : node->getChildren() )
         {
             visitNode(child, instance, visitMethod);
-        }
-    }
-
-
-    template<class T, class C>
-    void Scene::visitNode(const std::shared_ptr<Node>& node, T* instance, bool (T::*visitMethod)(const std::shared_ptr<Node>&, C), C cookie)
-    {
-        // Invoke the visit method for this node.
-        if( !(instance ->* visitMethod)(node, cookie) )
-            return;
-
-        // If this node has a model with a mesh skin, visit the joint hierarchy within it
-        // since we don't add joint hierarchies directly to the scene. If joints are never
-        // visited, it's possible that nodes embedded within the joint hierarchy that contain
-        // models will never get visited (and therefore never get drawn).
-        auto model = std::dynamic_pointer_cast<Model>(node->getDrawable());
-        if( model && model->_skin && model->_skin->_rootNode )
-        {
-            visitNode(model->_skin->_rootNode, instance, visitMethod, cookie);
-        }
-
-        // Recurse for all children.
-        for( const auto& child : node->getChildren() )
-        {
-            visitNode(child, instance, visitMethod, cookie);
         }
     }
 }

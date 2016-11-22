@@ -67,7 +67,7 @@ namespace
 class FullScreenFX
 {
 public:
-    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
         : m_fb{ std::make_shared<gameplay::FrameBuffer>(game->getViewport().width, game->getViewport().height) }
     {
         auto vp = game->getViewport();

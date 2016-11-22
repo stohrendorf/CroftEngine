@@ -1,34 +1,9 @@
 #pragma once
 
-#include <new>
-#include <memory>
-#include <cstdio>
-#include <cstdlib>
-#include <cassert>
-#include <cwchar>
-#include <cwctype>
-#include <cctype>
-#include <cmath>
-#include <cstdarg>
-#include <ctime>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <cstring>
-#include <vector>
-#include <list>
-#include <set>
-#include <stack>
-#include <map>
-#include <queue>
-#include <algorithm>
-#include <limits>
 #include <functional>
-#include <bitset>
-#include <typeinfo>
-#include <thread>
-#include <mutex>
-#include <chrono>
+
+#include <glm/glm.hpp>
+
 #include <boost/assert.hpp>
 #include <boost/current_function.hpp>
 
@@ -51,8 +26,6 @@
 #define VERTEX_ATTRIBUTE_COLOR_NAME                 "a_color"
 #define VERTEX_ATTRIBUTE_TANGENT_NAME               "a_tangent"
 #define VERTEX_ATTRIBUTE_BINORMAL_NAME              "a_binormal"
-#define VERTEX_ATTRIBUTE_BLENDWEIGHTS_NAME          "a_blendWeights"
-#define VERTEX_ATTRIBUTE_BLENDINDICES_NAME          "a_blendIndices"
 #define VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME       "a_texCoord"
 
 

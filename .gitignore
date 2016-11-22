@@ -1,10 +1,10 @@
 build/
+cmake-build-*/
+.idea/
+
 save/
 data/
 
-3rdparty/OpenAL
-
-dump/
 # Thank you, Windows!
 Thumbs.db
 

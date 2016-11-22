@@ -145,15 +145,17 @@ namespace level
                 sector = room->getSectorByAbsolutePosition(position);
             }
 
+            static const auto zero = std::make_tuple(0, 0);
+
             if( position.Y + loader::QuarterSectorSize * 2 < sector->floorHeight * loader::QuarterSectorSize )
-                return {0,0};
+                return zero;
             if( sector->floorDataIndex == 0 )
-                return {0,0};
+                return zero;
             if( loader::extractFDFunction(m_floorData[sector->floorDataIndex]) != loader::FDFunction::FloorSlant )
-                return {0,0};
+                return zero;
 
             auto fd = m_floorData[sector->floorDataIndex + 1];
-            return {gsl::narrow_cast<int8_t>(fd & 0xff), gsl::narrow_cast<int8_t>(fd >> 8)};
+            return std::make_tuple(gsl::narrow_cast<int8_t>(fd & 0xff), gsl::narrow_cast<int8_t>(fd >> 8));
         }
 
 

@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <chrono>
 
 namespace gameplay
 {
@@ -357,7 +358,7 @@ namespace gameplay
     template<class T>
     void Game::swapBuffers(T* instance, void (T::*method)(void*), void* cookie)
     {
-        GP_ASSERT(instance);
+        BOOST_ASSERT(instance);
         (instance ->* method)(cookie);
         swapBuffers();
     }

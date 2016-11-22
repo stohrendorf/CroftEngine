@@ -141,4 +141,4 @@ target_link_libraries(
     SndFile
 )
 
-target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL ../3rdparty/xeffects/Source)
+target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL)

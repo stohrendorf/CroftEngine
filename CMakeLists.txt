@@ -131,6 +131,12 @@ add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${GLFW_INCLUDE_DIR})
 target_link_libraries(GLFW INTERFACE ${GLFW_LIBRARIES})
 
+if(CYGWIN)
+    find_package(X11 REQUIRED)
+    target_link_libraries(GLFW INTERFACE ${X11_LIBRARIES})
+    target_link_libraries(GLFW INTERFACE Xrandr Xinerama Xcursor)
+endif()
+
 if(MSVC)
     # C4503: Name too long
     add_definitions(/wd4503)

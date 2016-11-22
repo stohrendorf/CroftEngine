@@ -1,7 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "Base.h"
 
+#include <memory>
+#include <vector>
 
 namespace gameplay
 {

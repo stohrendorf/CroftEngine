@@ -3292,8 +3292,8 @@ namespace engine
 
     bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo, std::unique_ptr<AbstractStateHandler>& nextHandler)
     {
-        auto slantX = std::abs(collisionInfo.floorSlantX);
-        auto slantZ = std::abs(collisionInfo.floorSlantZ);
+        int slantX = std::abs(collisionInfo.floorSlantX);
+        int slantZ = std::abs(collisionInfo.floorSlantZ);
         if( slantX <= 2 && slantZ <= 2 )
             return false;
 

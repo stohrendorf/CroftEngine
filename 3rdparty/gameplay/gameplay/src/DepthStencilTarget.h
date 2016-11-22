@@ -2,6 +2,8 @@
 
 #include "Base.h"
 
+#include <memory>
+
 namespace gameplay
 {
     class FrameBuffer;

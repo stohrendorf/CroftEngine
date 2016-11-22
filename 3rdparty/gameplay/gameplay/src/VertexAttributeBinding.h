@@ -1,8 +1,8 @@
 #pragma once
 
 #include "VertexFormat.h"
-#include "Base.h"
 
+#include <memory>
 
 namespace gameplay
 {

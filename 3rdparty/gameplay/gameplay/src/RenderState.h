@@ -1,10 +1,16 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "Base.h"
 
+#include <map>
+#include <memory>
+#include <vector>
 
 namespace gameplay
 {
+    class Material;
+    class Game;
+    class Model;
     class MaterialParameter;
     class Node;
 
