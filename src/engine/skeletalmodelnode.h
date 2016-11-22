@@ -39,7 +39,7 @@ namespace engine
 
         void checkTransitions()
         {
-            if( m_time > getEndTime() )
+            if( m_time >= getEndTime() )
             {
                 handleAnimationEnd();
             }
@@ -75,7 +75,7 @@ namespace engine
 
         std::chrono::microseconds getEndTime() const
         {
-            return core::toTime(getLastFrame());
+            return core::toTime(getLastFrame() + 1_frame);
         }
 
         uint16_t getCurrentState() const;

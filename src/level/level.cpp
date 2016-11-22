@@ -398,81 +398,66 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
         if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
         {
-            auto animCtrl = createSkeletalModel(*modelIdx, models);
-            animCtrl->setId(animCtrl->getId() + "/item:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")");
-
-            animCtrl->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
+            std::shared_ptr<engine::ItemController> modelNode;
 
             if( item.type == 0 )
             {
-                // Lara doesn't have a scene graph owner
-            }
-            else
-            {
-                room.node->addChild(animCtrl);
-            }
-
-            //node->setAutomaticCulling(false);
-            //node->setDebugDataVisible(irr::scene::EDS_SKELETON|irr::scene::EDS_BBOX_ALL|irr::scene::EDS_MESH_WIRE_OVERLAY);
-            //node->setDebugDataVisible(irr::scene::EDS_FULL);
-            //node->setAnimationSpeed(30);
-            //node->setLoopMode(false);
-
-            auto itemCtrlName = animCtrl->getId() + "/controller";
-
-            if( item.type == 0 )
-            {
-                lara = new engine::LaraController(this, animCtrl, itemCtrlName, &room, &item);
-                m_itemControllers[id].reset(lara);
+                modelNode = createSkeletalModel<engine::LaraController>(*modelIdx, models, &room, &item);
+                lara = static_cast<engine::LaraController*>(modelNode.get());
             }
             else if( item.type == 35 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_35_CollapsibleFloor>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_35_CollapsibleFloor>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 36 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_SwingingBlade>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_SwingingBlade>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 41 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_41_TrapDoorUp>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_41_TrapDoorUp>(*modelIdx, models, &room, &item);
             }
             else if( item.type >= 48 && item.type <= 51 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_Block>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_Block>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 52 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_TallBlock>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_TallBlock>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 55 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_55_Switch>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_55_Switch>(*modelIdx, models, &room, &item);
             }
             else if( item.type >= 57 && item.type <= 64 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_Door>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_Door>(*modelIdx, models, &room, &item);
             }
             else if( item.type >= 65 && item.type <= 66 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_TrapDoorDown>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_TrapDoorDown>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 68 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_68_BridgeFlat>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_68_BridgeFlat>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 69 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_69_BridgeSlope1>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_69_BridgeSlope1>(*modelIdx, models, &room, &item);
             }
             else if( item.type == 70 )
             {
-                m_itemControllers[id] = std::make_unique<engine::ItemController_70_BridgeSlope2>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemController_70_BridgeSlope2>(*modelIdx, models, &room, &item);
             }
             else
             {
-                m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, animCtrl, itemCtrlName, &room, &item);
+                modelNode = createSkeletalModel<engine::DummyItemController>(*modelIdx, models, &room, &item);
             }
+
+            m_itemControllers[id] = modelNode;
+            room.node->addChild(modelNode);
+
+            modelNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, item.position.toRenderSystem()));
 
             continue;
         }
@@ -513,10 +498,11 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
     return lara;
 }
 
-
-std::shared_ptr<engine::SkeletalModelNode> Level::createSkeletalModel(size_t id,
-                                                                      const std::vector<std::shared_ptr<gameplay::Model>>& models)
+template<typename T>
+std::shared_ptr<T> Level::createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
 {
+    static_assert(std::is_base_of<engine::ItemController, T>::value, "T must be derived from engine::ItemController");
+
     BOOST_ASSERT(!m_animatedModels.empty());
     BOOST_ASSERT(id < m_animatedModels.size());
     BOOST_ASSERT(m_animatedModels[id] != nullptr);
@@ -528,7 +514,7 @@ std::shared_ptr<engine::SkeletalModelNode> Level::createSkeletalModel(size_t id,
         return nullptr;
     }
 
-    auto skeletalModel = std::make_shared<engine::SkeletalModelNode>("skeleton:" + boost::lexical_cast<std::string>(id), this, model);
+    auto skeletalModel = std::make_shared<T>(this, "skeleton:" + boost::lexical_cast<std::string>(id), room, item, model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
         BOOST_ASSERT(model.firstMesh + boneIndex < m_meshIndices.size());

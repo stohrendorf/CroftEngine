@@ -4,10 +4,12 @@
 #include "cameracontroller.h"
 #include "collisioninfo.h"
 #include "heightinfo.h"
+#include "level/level.h"
 #include "render/textureanimator.h"
 #include "skeletalmodelnode.h"
 
 #include <boost/range/adaptors.hpp>
+
 
 namespace engine
 {
@@ -23,7 +25,7 @@ namespace engine
 
     void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
     {
-        ItemController::playAnimation(static_cast<uint16_t>(anim), firstFrame);
+        setAnimIdGlobal(static_cast<uint16_t>(anim), (firstFrame ? *firstFrame : 0_frame).count());
     }
 
     void LaraController::handleLaraStateOnLand(bool newFrame)
@@ -305,7 +307,7 @@ namespace engine
 
     loader::LaraStateId LaraController::getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(ItemController::getCurrentAnimState());
+        return static_cast<loader::LaraStateId>(ItemController::getCurrentState());
     }
 
     LaraController::~LaraController() = default;
@@ -443,9 +445,9 @@ namespace engine
             handleLaraStateSwimming(isNewFrame);
         }
 
-        getSkeletalModel()->resetPose();
-        getSkeletalModel()->patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
-        getSkeletalModel()->patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
+        resetPose();
+        patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
+        patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
     }
 
     std::unique_ptr<AbstractStateHandler> LaraController::processLaraAnimCommands(bool advanceFrame)
@@ -455,7 +457,7 @@ namespace engine
 
         if( advanceFrame )
         {
-            nextFrame();
+            this->advanceFrame();
         }
 
         if( handleTRTransitions() || getRecentAnimFrame() != getCurrentFrame() )
@@ -465,9 +467,9 @@ namespace engine
             newFrame = true;
         }
 
-        const bool isAnimEnd = getCurrentFrame() >= getLastAnimFrame();
+        const bool isAnimEnd = getCurrentFrame() >= getLastFrame();
 
-        const loader::Animation& animation = getLevel().m_animations[getCurrentAnimationId()];
+        const loader::Animation& animation = getLevel().m_animations[getAnimId()];
         if( animation.animCommandCount > 0 )
         {
             BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -538,7 +540,7 @@ namespace engine
 
         if( isFalling() )
         {
-            getHorizontalSpeed().add(getAnimAccelleration(), getCurrentDeltaTime());
+            getHorizontalSpeed().add(getAccelleration(), getCurrentDeltaTime());
             if( getFallSpeed() >= 128 )
                 getFallSpeed().add(1, getCurrentDeltaTime());
             else
@@ -546,7 +548,7 @@ namespace engine
         }
         else
         {
-            setHorizontalSpeed(core::makeInterpolatedValue(calculateAnimFloorSpeed()));
+            setHorizontalSpeed(core::makeInterpolatedValue(calculateFloorSpeed()));
         }
 
         move(
@@ -615,7 +617,7 @@ namespace engine
                     if(!swtch.triggerSwitch(srcTriggerArg))
                         return;
 
-                    switchIsOn = (swtch.getCurrentAnimState() == 1);
+                    switchIsOn = (swtch.getCurrentState() == 1);
                 }
                 ++actionFloorData;
                 runActions = true;
@@ -858,7 +860,7 @@ namespace engine
         for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for( const std::unique_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
+        for( const std::shared_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
         {
             if( rooms.find(ctrl->getCurrentRoom()) == rooms.end() )
                 continue;

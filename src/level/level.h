@@ -64,7 +64,7 @@ namespace level
         std::vector<uint16_t> m_overlaps;
         std::vector<loader::Zone> m_zones;
         std::vector<loader::Item> m_items;
-        std::map<uint16_t, std::unique_ptr<engine::ItemController>> m_itemControllers;
+        std::map<uint16_t, std::shared_ptr<engine::ItemController>> m_itemControllers;
         std::unique_ptr<loader::LightMap> m_lightmap;
         std::vector<loader::AIObject> m_aiObjects;
         std::vector<loader::CinematicFrame> m_cinematicFrames;
@@ -111,7 +111,6 @@ namespace level
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
-        std::shared_ptr<engine::SkeletalModelNode> createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);
 
 
@@ -329,6 +328,9 @@ namespace level
     private:
         static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);
         static std::unique_ptr<Level> createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
+
+        template<typename T>
+        std::shared_ptr<T> createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item);
 
         std::array<uint16_t, 64> m_cdTrackTriggerValues;
         int m_cdTrack50time = 0;

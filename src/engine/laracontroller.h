@@ -38,12 +38,12 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
 
     public:
-        LaraController(gsl::not_null<level::Level*> level,
-                       const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel,
+        LaraController(const gsl::not_null<level::Level*>& level,
                        const std::string& name,
-                       gsl::not_null<const loader::Room*> room,
-                       gsl::not_null<loader::Item*> item)
-            : ItemController(level, skeletalModel, name, room, item, false, 0x3c)
+                       const gsl::not_null<const loader::Room*>& room,
+                       const gsl::not_null<loader::Item*>& item,
+                       const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, false, 0x3c, animatedModel)
         {
             playAnimation(loader::AnimationId::STAY_IDLE);
             setTargetState(loader::LaraStateId::Stop);

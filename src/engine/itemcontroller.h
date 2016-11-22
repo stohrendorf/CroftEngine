@@ -1,25 +1,27 @@
 #pragma once
 
-#include "core/angle.h"
-#include "core/coordinates.h"
-#include "level/level.h"
-#include "core/interpolatedvalue.h"
 #include "audio/sourcehandle.h"
+#include "core/interpolatedvalue.h"
+#include "skeletalmodelnode.h"
+
 
 namespace loader
 {
     struct Item;
 }
 
+
 namespace level
 {
     class Level;
 }
 
+
 namespace engine
 {
-    class SkeletalModelNode;
+    class LaraController;
     struct CollisionInfo;
+
 
     struct InteractionLimits
     {
@@ -30,7 +32,8 @@ namespace engine
         bool canInteract(const ItemController& item, const LaraController& lara) const;
     };
 
-    class ItemController
+
+    class ItemController : public SkeletalModelNode
     {
         core::RoomBoundPosition m_position;
 
@@ -39,14 +42,11 @@ namespace engine
 
         gsl::not_null<level::Level*> const m_level;
 
-        std::shared_ptr<SkeletalModelNode> m_skeletalModel;
-        const std::string m_name;
-
-        core::Frame m_recentAnimFrame{ -1 };
-        core::InterpolatedValue<float> m_fallSpeed{ 0.0f };
-        core::InterpolatedValue<float> m_horizontalSpeed{ 0.0f };
-        std::chrono::microseconds m_currentDeltaTime{ 0 };
-        std::chrono::microseconds m_subFrameTime{ 0 };
+        core::Frame m_recentAnimFrame{-1};
+        core::InterpolatedValue<float> m_fallSpeed{0.0f};
+        core::InterpolatedValue<float> m_horizontalSpeed{0.0f};
+        std::chrono::microseconds m_currentDeltaTime{0};
+        std::chrono::microseconds m_subFrameTime{0};
 
         bool m_falling = false; // flags2_08
 
@@ -70,10 +70,11 @@ namespace engine
         bool m_flags2_20 = true;
         bool m_flags2_40 = false;
         bool m_flags2_80 = false;
-        std::chrono::microseconds m_triggerTimeout{ 0 };
+        std::chrono::microseconds m_triggerTimeout{0};
 
         const bool m_hasProcessAnimCommandsOverride;
         const uint8_t m_characteristics;
+
 
         enum class AnimCommandOpcode : uint16_t
         {
@@ -86,51 +87,52 @@ namespace engine
             Interact = 7
         };
 
+
         ItemController(const gsl::not_null<level::Level*>& level,
-                       const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        gsl::not_null<loader::Item*> item,
                        bool hasProcessAnimCommandsOverride,
-                       uint8_t characteristics);
+                       uint8_t characteristics,
+                       const loader::AnimatedModel& animatedModel);
 
         virtual ~ItemController() = default;
 
-        gameplay::BoundingBox getBoundingBox() const;
 
         const core::ExactTRCoordinates& getPosition() const noexcept
         {
             return m_position.position;
         }
 
+
         const core::TRRotation& getRotation() const noexcept
         {
             return m_rotation;
         }
+
 
         gsl::not_null<const loader::Room*> getCurrentRoom() const noexcept
         {
             return m_position.room;
         }
 
+
         long getFloorHeight() const noexcept
         {
             return m_floorHeight;
         }
+
 
         void setFloorHeight(long h) noexcept
         {
             m_floorHeight = h;
         }
 
+
         void setCurrentRoom(const loader::Room* newRoom);
 
         void applyTransform();
 
-        const std::shared_ptr<engine::SkeletalModelNode>& getSkeletalModel() const noexcept
-        {
-            return m_skeletalModel;
-        }
 
         void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
         {
@@ -138,6 +140,7 @@ namespace engine
             m_rotation.Y += dy;
             m_rotation.Z += dz;
         }
+
 
         void move(float dx, float dy, float dz)
         {
@@ -148,6 +151,7 @@ namespace engine
             BOOST_LOG_TRIVIAL(debug) << "Move " << dx << "/" << dy << "/" << dz;
         }
 
+
         void moveLocal(float dx, float dy, float dz)
         {
             const auto sin = getRotation().Y.sin();
@@ -157,125 +161,130 @@ namespace engine
             m_position.position.Z += dz * cos - dx * sin;
         }
 
+
         void setPosition(const core::ExactTRCoordinates& pos)
         {
             m_position.position = pos;
         }
+
 
         void setXRotation(core::Angle x)
         {
             m_rotation.X = x;
         }
 
+
         void addXRotation(core::Angle x)
         {
             m_rotation.X += x;
         }
+
 
         void setYRotation(core::Angle y)
         {
             m_rotation.Y = y;
         }
 
+
         void addYRotation(core::Angle v)
         {
             m_rotation.Y += v;
         }
+
 
         void setZRotation(core::Angle z)
         {
             m_rotation.Z = z;
         }
 
+
         void addZRotation(core::Angle z)
         {
             m_rotation.Z += z;
         }
+
 
         const level::Level& getLevel() const
         {
             return *m_level;
         }
 
+
         level::Level& getLevel()
         {
             return *m_level;
         }
+
 
         const core::RoomBoundPosition& getRoomBoundPosition() const noexcept
         {
             return m_position;
         }
 
+
         bool isFalling() const noexcept
         {
             return m_falling;
         }
+
 
         void setFalling(bool falling) noexcept
         {
             m_falling = falling;
         }
 
+
         void setFallSpeed(const core::InterpolatedValue<float>& spd)
         {
             m_fallSpeed = spd;
         }
+
 
         const core::InterpolatedValue<float>& getFallSpeed() const noexcept
         {
             return m_fallSpeed;
         }
 
+
         void setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
         {
             m_horizontalSpeed = speed;
         }
+
 
         const core::InterpolatedValue<float>& getHorizontalSpeed() const
         {
             return m_horizontalSpeed;
         }
 
+
         void dampenHorizontalSpeed(float f)
         {
             m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
         }
+
 
         std::chrono::microseconds getCurrentDeltaTime() const
         {
             return m_currentDeltaTime;
         }
 
-        void setTargetState(uint16_t st);
-        uint16_t getTargetState() const;
-
-        void playAnimation(uint16_t anim, const boost::optional<core::Frame>& firstFrame);
-
-        void nextFrame();
-        core::Frame getCurrentFrame() const;
-        core::Frame getLastAnimFrame() const;
-        uint16_t getCurrentAnimState() const;
-        size_t getCurrentAnimationId() const;
-
-        bool handleTRTransitions();
-        void handleAnimationEnd();
-
-        float calculateAnimFloorSpeed() const;
-        int getAnimAccelleration() const;
 
         virtual void patchFloor(const core::TRCoordinates& /*pos*/, long& /*y*/)
         {
         }
 
+
         virtual void patchCeiling(const core::TRCoordinates& /*pos*/, long& /*y*/)
         {
         }
+
 
         virtual void onInteract(LaraController& /*lara*/)
         {
             //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
+
 
         virtual void processAnimCommands(bool advanceFrame = false);
 
@@ -286,26 +295,29 @@ namespace engine
 
         virtual void animateImpl(bool isNewFrame) = 0;
 
+
         core::InterpolatedValue<float>& getHorizontalSpeed()
         {
             return m_horizontalSpeed;
         }
+
 
         core::InterpolatedValue<float>& getFallSpeed() noexcept
         {
             return m_fallSpeed;
         }
 
+
         bool triggerSwitch(uint16_t arg)
         {
-            if(!m_flags2_04_ready || m_flags2_02_toggledOn)
+            if( !m_flags2_04_ready || m_flags2_02_toggledOn )
             {
                 return false;
             }
 
             m_flags2_04_ready = false;
 
-            if(getCurrentAnimState() != 0 || loader::isLastFloordataEntry(arg))
+            if( getCurrentState() != 0 || loader::isLastFloordataEntry(arg) )
             {
                 deactivate();
                 m_flags2_02_toggledOn = false;
@@ -313,7 +325,7 @@ namespace engine
             else
             {
                 m_triggerTimeout = std::chrono::milliseconds(gsl::narrow_cast<uint8_t>(arg));
-                if(m_triggerTimeout.count() != 1)
+                if( m_triggerTimeout.count() != 1 )
                     m_triggerTimeout *= 1000;
                 m_flags2_02_toggledOn = true;
             }
@@ -321,22 +333,20 @@ namespace engine
             return true;
         }
 
-        const std::string& getName() const noexcept
-        {
-            return m_name;
-        }
 
         std::shared_ptr<audio::SourceHandle> playSoundEffect(int id);
 
+
         bool triggerPickUp()
         {
-            if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
+            if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
                 return false;
 
             m_flags2_02_toggledOn = false;
             m_flags2_04_ready = true;
             return true;
         }
+
 
         bool triggerKey();
 
@@ -346,75 +356,92 @@ namespace engine
             return m_recentAnimFrame;
         }
 
+
         void setRecentAnimFrame(const core::Frame& f) noexcept
         {
             m_recentAnimFrame = f;
         }
+
 
         bool isInvertedActivation() const noexcept
         {
             return (m_itemFlags & InvertedActivation) != 0;
         }
 
+
         bool updateTriggerTimeout()
         {
-            if((m_itemFlags&ActivationMask) != ActivationMask)
+            if( (m_itemFlags & ActivationMask) != ActivationMask )
             {
                 return isInvertedActivation();
             }
 
-            if(m_triggerTimeout == std::chrono::microseconds::zero())
+            if( m_triggerTimeout == std::chrono::microseconds::zero() )
             {
                 return !isInvertedActivation();
             }
 
-            if(m_triggerTimeout < std::chrono::microseconds::zero())
+            if( m_triggerTimeout < std::chrono::microseconds::zero() )
             {
                 return isInvertedActivation();
             }
 
             BOOST_ASSERT(getCurrentDeltaTime() > std::chrono::microseconds::zero());
             m_triggerTimeout -= getCurrentDeltaTime();
-            if(m_triggerTimeout <= std::chrono::microseconds::zero())
+            if( m_triggerTimeout <= std::chrono::microseconds::zero() )
                 m_triggerTimeout = std::chrono::microseconds(-1);
 
             return !isInvertedActivation();
         }
     };
 
+
     class DummyItemController final : public ItemController
     {
     public:
-        DummyItemController(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, false, 0)
+        DummyItemController(const gsl::not_null<level::Level*>& level,
+                            const std::string& name,
+                            const gsl::not_null<const loader::Room*>& room,
+                            const gsl::not_null<loader::Item*>& item,
+                            const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, false, 0, animatedModel)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override
         {
         }
     };
 
+
     class ItemController_55_Switch final : public ItemController
     {
     public:
-        ItemController_55_Switch(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
+        ItemController_55_Switch(const gsl::not_null<level::Level*>& level,
+                                 const std::string& name,
+                                 const gsl::not_null<const loader::Room*>& room,
+                                 const gsl::not_null<loader::Item*>& item,
+                                 const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
+
         void animateImpl(bool /*isNewFrame*/) override
         {
-            if(!updateTriggerTimeout())
+            if( !updateTriggerTimeout() )
             {
                 setTargetState(1);
                 m_triggerTimeout = std::chrono::microseconds::zero();
             }
         }
 
+
         void onInteract(LaraController& lara) override;
 
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
+
+        void processAnimCommands(bool /*advanceFrame*/  = false) override
         {
             m_itemFlags |= ActivationMask;
 
@@ -422,80 +449,101 @@ namespace engine
         }
     };
 
+
     class ItemController_35_CollapsibleFloor final : public ItemController
     {
     public:
-        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
+        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level,
+                                           const std::string& name,
+                                           const gsl::not_null<const loader::Room*>& room,
+                                           const gsl::not_null<loader::Item*>& item,
+                                           const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x34, animatedModel)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
+
         void onInteract(LaraController& /*lara*/) override
         {
         }
 
+
         void processAnimCommands(bool advanceFrame = false) override;
+
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
-            if(pos.Y > getPosition().Y - 512)
+            if( pos.Y > getPosition().Y - 512 )
                 return;
 
-            if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
+            if( getCurrentState() != 0 && getCurrentState() != 1 )
                 return;
 
             y = std::lround(getPosition().Y - 512);
         }
 
+
         void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
-            if(pos.Y <= getPosition().Y - 512)
+            if( pos.Y <= getPosition().Y - 512 )
                 return;
 
-            if(getCurrentAnimState() != 0 && getCurrentAnimState() != 1)
+            if( getCurrentState() != 0 && getCurrentState() != 1 )
                 return;
 
             y = std::lround(getPosition().Y - 256);
         }
     };
 
+
     class ItemController_41_TrapDoorUp final : public ItemController
     {
     public:
-        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
+        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level,
+                                     const std::string& name,
+                                     const gsl::not_null<const loader::Room*>& room,
+                                     const gsl::not_null<loader::Item*>& item,
+                                     const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x30, animatedModel)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
+
         void onInteract(LaraController& /*lara*/) override
         {
         }
 
+
         void processAnimCommands(bool advanceFrame = false) override;
+
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
-            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y)
+            if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y )
                 return;
 
             y = std::lround(getPosition().Y);
         }
 
+
         void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
-            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y)
+            if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y )
                 return;
 
             y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
+
 
     private:
         bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
@@ -506,19 +554,19 @@ namespace engine
             auto psz = pos.Z / loader::SectorSize;
             auto axis = core::axisFromAngle(getRotation().Y, 0_au);
             BOOST_ASSERT(axis.is_initialized());
-            if(*axis == core::Axis::PosZ && sx == psx && sz - 1 == psz && sz - 2 == psz)
+            if( *axis == core::Axis::PosZ && sx == psx && sz - 1 == psz && sz - 2 == psz )
             {
                 return true;
             }
-            if(*axis == core::Axis::NegZ && sx == psx && sz + 1 == psz && sz + 2 == psz)
+            if( *axis == core::Axis::NegZ && sx == psx && sz + 1 == psz && sz + 2 == psz )
             {
                 return true;
             }
-            if(*axis == core::Axis::PosX && sz == psz && sx - 1 == psx && sx - 2 == psx)
+            if( *axis == core::Axis::PosX && sz == psz && sx - 1 == psx && sx - 2 == psx )
             {
                 return true;
             }
-            if(*axis != core::Axis::NegX || sz != psz || sx + 1 != psx || sx + 2 != psx)
+            if( *axis != core::Axis::NegX || sz != psz || sx + 1 != psx || sx + 2 != psx )
             {
                 return false;
             }
@@ -526,51 +574,62 @@ namespace engine
         }
     };
 
+
     class ItemController_TrapDoorDown final : public ItemController
     {
     public:
-        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
+        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level,
+                                    const std::string& name,
+                                    const gsl::not_null<const loader::Room*>& room,
+                                    const gsl::not_null<loader::Item*>& item,
+                                    const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
+
         void animateImpl(bool /*isNewFrame*/) override
         {
-            if(updateTriggerTimeout())
+            if( updateTriggerTimeout() )
             {
-                if(getCurrentAnimState() == 0)
+                if( getCurrentState() == 0 )
                     setTargetState(1);
             }
-            else if(getCurrentAnimState() == 1)
+            else if( getCurrentState() == 1 )
             {
                 setTargetState(0);
             }
         }
 
+
         void onInteract(LaraController& /*lara*/) override
         {
         }
+
 
         void processAnimCommands(bool advanceFrame = false) override
         {
             ItemController::processAnimCommands(advanceFrame);
         }
 
+
         void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
-            if(getCurrentAnimState() != 0 || !possiblyOnTrapdoorDown(pos) || pos.Y > getPosition().Y || y <= getPosition().Y)
+            if( getCurrentState() != 0 || !possiblyOnTrapdoorDown(pos) || pos.Y > getPosition().Y || y <= getPosition().Y )
                 return;
 
             y = std::lround(getPosition().Y);
         }
 
+
         void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
-            if(getCurrentAnimState() != 1 || !possiblyOnTrapdoorDown(pos) || pos.Y <= getPosition().Y || y > getPosition().Y)
+            if( getCurrentState() != 1 || !possiblyOnTrapdoorDown(pos) || pos.Y <= getPosition().Y || y > getPosition().Y )
                 return;
 
             y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
+
 
     private:
         bool possiblyOnTrapdoorDown(const core::TRCoordinates& pos) const
@@ -581,19 +640,19 @@ namespace engine
             auto psz = pos.Z / loader::SectorSize;
             auto axis = core::axisFromAngle(getRotation().Y, 1_au);
             BOOST_ASSERT(axis.is_initialized());
-            if(*axis == core::Axis::PosZ && sx == psx && sz + 1 == psz)
+            if( *axis == core::Axis::PosZ && sx == psx && sz + 1 == psz )
             {
                 return true;
             }
-            if(*axis == core::Axis::NegZ && sx == psx && sz - 1 == psz)
+            if( *axis == core::Axis::NegZ && sx == psx && sz - 1 == psz )
             {
                 return true;
             }
-            if(*axis == core::Axis::PosX && sz == psz && sx + 1 == psx)
+            if( *axis == core::Axis::PosX && sz == psz && sx + 1 == psx )
             {
                 return true;
             }
-            if(*axis != core::Axis::NegX || sz != psz || sx - 1 != psx)
+            if( *axis != core::Axis::NegX || sz != psz || sx - 1 != psx )
             {
                 return false;
             }
@@ -601,19 +660,25 @@ namespace engine
         }
     };
 
+
     class ItemController_Door final : public ItemController
     {
     public:
-        ItemController_Door(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
+        ItemController_Door(const gsl::not_null<level::Level*>& level,
+                            const std::string& name,
+                            const gsl::not_null<const loader::Room*>& room,
+                            const gsl::not_null<loader::Item*>& item,
+                            const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
+
         void animateImpl(bool /*isNewFrame*/) override
         {
-            if(updateTriggerTimeout())
+            if( updateTriggerTimeout() )
             {
-                if(getCurrentAnimState() != 0)
+                if( getCurrentState() != 0 )
                 {
                     //! @todo Restore original sector data
                 }
@@ -624,7 +689,7 @@ namespace engine
             }
             else
             {
-                if(getCurrentAnimState() == 1)
+                if( getCurrentState() == 1 )
                 {
                     setTargetState(0);
                     ItemController::processAnimCommands();
@@ -634,9 +699,11 @@ namespace engine
             }
         }
 
+
         void onInteract(LaraController& lara) override;
 
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
+
+        void processAnimCommands(bool /*advanceFrame*/  = false) override
         {
             //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
 
@@ -644,23 +711,30 @@ namespace engine
         }
     };
 
+
     class ItemController_Block final : public ItemController
     {
     public:
-        ItemController_Block(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
+        ItemController_Block(const gsl::not_null<level::Level*>& level,
+                             const std::string& name,
+                             const gsl::not_null<const loader::Room*>& room,
+                             const gsl::not_null<loader::Item*>& item,
+                             const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x34, animatedModel)
         {
-            if(!m_flags2_04_ready || !m_flags2_02_toggledOn)
+            if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
                 loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
         }
 
+
         void animateImpl(bool /*isNewFrame*/) override
         {
-            if(updateTriggerTimeout())
+            if( updateTriggerTimeout() )
                 setTargetState(1);
             else
                 setTargetState(0);
         }
+
 
         void onInteract(LaraController& lara) override;
 
@@ -673,20 +747,26 @@ namespace engine
         bool canPullBlock(int height, core::Axis axis) const;
     };
 
+
     class ItemController_TallBlock final : public ItemController
     {
     public:
-        ItemController_TallBlock(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x34)
+        ItemController_TallBlock(const gsl::not_null<level::Level*>& level,
+                                 const std::string& name,
+                                 const gsl::not_null<const loader::Room*>& room,
+                                 const gsl::not_null<loader::Item*>& item,
+                                 const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x34, animatedModel)
         {
-            loader::Room::patchHeightsForBlock(*this, -2*loader::SectorSize);
+            loader::Room::patchHeightsForBlock(*this, -2 * loader::SectorSize);
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override
         {
-            if(updateTriggerTimeout())
+            if( updateTriggerTimeout() )
             {
-                if(getCurrentAnimState() == 0)
+                if( getCurrentState() == 0 )
                 {
                     loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
                     setTargetState(1);
@@ -694,7 +774,7 @@ namespace engine
             }
             else
             {
-                if(getCurrentAnimState() == 1)
+                if( getCurrentState() == 1 )
                 {
                     loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
                     setTargetState(0);
@@ -702,86 +782,110 @@ namespace engine
             }
         }
 
+
         void onInteract(LaraController& /*lara*/) override
         {
         }
 
+
         void processAnimCommands(bool advanceFrame = false) override;
     };
+
 
     class ItemController_68_BridgeFlat final : public ItemController
     {
     public:
-        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, false, 0)
+        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level,
+                                     const std::string& name,
+                                     const gsl::not_null<const loader::Room*>& room,
+                                     const gsl::not_null<loader::Item*>& item,
+                                     const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, false, 0, animatedModel)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override
         {
         }
 
+
         void onInteract(LaraController& /*lara*/) override
         {
         }
 
-        void processAnimCommands(bool /*advanceFrame*/ = false) override
+
+        void processAnimCommands(bool /*advanceFrame*/  = false) override
         {
         }
+
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override
         {
-            if(pos.Y <= getPosition().Y)
+            if( pos.Y <= getPosition().Y )
                 y = std::lround(getPosition().Y);
         }
 
+
         void patchCeiling(const core::TRCoordinates& pos, long& y) override
         {
-            if(pos.Y <= getPosition().Y)
+            if( pos.Y <= getPosition().Y )
                 return;
 
             y = std::lround(getPosition().Y + loader::QuarterSectorSize);
         }
     };
 
+
     class ItemController_SlopedBridge : public ItemController
     {
     private:
         const int m_div;
     public:
-        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item, int div)
-            : ItemController(level, skeletalModel, name, room, item, false, 0)
+        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level,
+                                    const std::string& name,
+                                    const gsl::not_null<const loader::Room*>& room,
+                                    const gsl::not_null<loader::Item*>& item,
+                                    const loader::AnimatedModel& animatedModel,
+                                    int div)
+            : ItemController(level, name, room, item, false, 0, animatedModel)
             , m_div(div)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override final
         {
         }
 
+
         void onInteract(LaraController& /*lara*/) override final
         {
         }
 
-        void processAnimCommands(bool /*advanceFrame*/ = false) override final
+
+        void processAnimCommands(bool /*advanceFrame*/  = false) override final
         {
         }
+
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override final
         {
             auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
-            if(pos.Y <= tmp)
+            if( pos.Y <= tmp )
                 y = tmp;
         }
+
 
         void patchCeiling(const core::TRCoordinates& pos, long& y) override final
         {
             auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
-            if(pos.Y <= tmp)
+            if( pos.Y <= tmp )
                 return;
 
             y = tmp + loader::QuarterSectorSize;
         }
+
 
     private:
         long getBridgeSlopeHeight(const core::TRCoordinates& pos) const
@@ -789,56 +893,72 @@ namespace engine
             auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
             Expects(axis.is_initialized());
 
-            switch(*axis)
+            switch( *axis )
             {
-            case core::Axis::PosZ:
-                return loader::SectorSize - 1 - pos.X % loader::SectorSize;
-            case core::Axis::PosX:
-                return pos.Z % loader::SectorSize;
-            case core::Axis::NegZ:
-                return pos.X % loader::SectorSize;
-            case core::Axis::NegX:
-                return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
-            default:
-                return 0;
+                case core::Axis::PosZ:
+                    return loader::SectorSize - 1 - pos.X % loader::SectorSize;
+                case core::Axis::PosX:
+                    return pos.Z % loader::SectorSize;
+                case core::Axis::NegZ:
+                    return pos.X % loader::SectorSize;
+                case core::Axis::NegX:
+                    return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
+                default:
+                    return 0;
             }
         }
     };
 
+
     class ItemController_69_BridgeSlope1 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, skeletalModel, name, room, item, 4)
+        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level,
+                                       const std::string& name,
+                                       const gsl::not_null<const loader::Room*>& room,
+                                       const gsl::not_null<loader::Item*>& item,
+                                       const loader::AnimatedModel& animatedModel)
+            : ItemController_SlopedBridge(level, name, room, item, animatedModel, 4)
         {
         }
     };
+
 
     class ItemController_70_BridgeSlope2 final : public ItemController_SlopedBridge
     {
     public:
-        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController_SlopedBridge(level, skeletalModel, name, room, item, 2)
+        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level,
+                                       const std::string& name,
+                                       const gsl::not_null<const loader::Room*>& room,
+                                       const gsl::not_null<loader::Item*>& item,
+                                       const loader::AnimatedModel& animatedModel)
+            : ItemController_SlopedBridge(level, name, room, item, animatedModel, 2)
         {
         }
     };
+
 
     class ItemController_SwingingBlade final : public ItemController
     {
     public:
-        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level, const std::shared_ptr<engine::SkeletalModelNode>& skeletalModel, const std::string& name, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
-            : ItemController(level, skeletalModel, name, room, item, true, 0x30)
+        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level,
+                                     const std::string& name,
+                                     const gsl::not_null<const loader::Room*>& room,
+                                     const gsl::not_null<loader::Item*>& item,
+                                     const loader::AnimatedModel& animatedModel)
+            : ItemController(level, name, room, item, true, 0x30, animatedModel)
         {
         }
+
 
         void animateImpl(bool /*isNewFrame*/) override;
 
+
         void onInteract(LaraController& /*lara*/) override
         {
-
         }
+
 
         void processAnimCommands(bool advanceFrame = false) override;
     };
-
 }

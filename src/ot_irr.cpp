@@ -15,6 +15,7 @@ namespace
     {
         // position/rotation
         drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
+
         drawText(font, 100, 40, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getRotation().Y.toDegrees())));
         drawText(font, 140, 20, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().X)));
         drawText(font, 140, 30, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Y)));
@@ -27,17 +28,17 @@ namespace
         drawText(font, 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 100, 60, loader::toString(lvl->m_lara->getTargetState()));
         drawText(font, 10, 80, boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame().count()));
-        drawText(font, 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getCurrentAnimationId())));
+        drawText(font, 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers
         {
             int y = 100;
-            for(const std::unique_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
+            for(const std::shared_ptr<engine::ItemController>& item : lvl->m_itemControllers | boost::adaptors::map_values)
             {
                 if(!item->m_isActive)
                     continue;
 
-                drawText(font, 10, y, item->getName());
+                drawText(font, 10, y, item->getId());
                 if(item->m_flags2_02_toggledOn)
                     drawText(font, 180, y, "toggled");
                 if(item->m_flags2_04_ready)
@@ -109,7 +110,7 @@ void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Le
         auto subTime = std::min(deltaTime, core::FrameTime);
         deltaTime -= subTime;
 
-        for(const std::unique_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
+        for(const std::shared_ptr<engine::ItemController>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
         {
             if(ctrl.get() == lvl->m_lara) // Lara is special and needs to be updated last
                 continue;

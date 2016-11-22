@@ -109,17 +109,17 @@ namespace engine
         const auto keyframeDataSize = m_model.boneCount * 2 + 10;
 
         const auto startTime = core::toTime(core::Frame(anim.firstFrame));
-        const auto endTime = core::toTime(core::Frame(anim.lastFrame));
+        const auto endTime = core::toTime(core::Frame(anim.lastFrame) + 1_frame);
         auto segmentDuration = core::toTime(core::Frame(anim.segmentLength));
 
-        BOOST_ASSERT(m_time >= startTime && m_time <= endTime);
+        BOOST_ASSERT(m_time >= startTime && m_time < endTime);
         const auto animationTime = m_time - startTime;
         const auto keyframeIndex = animationTime.count() / segmentDuration.count();
         BOOST_ASSERT(keyframeIndex < anim.getKeyframeCount());
 
         result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * keyframeIndex);
 
-        if(endTime == std::chrono::microseconds::zero())
+        if(anim.firstFrame == anim.lastFrame)
             return result;
 
         result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (keyframeIndex + 1));
@@ -130,7 +130,7 @@ namespace engine
         // than the position of the last keyframe.  E.g., with a stretch factor of 10 and a length of 12,
         // the last segment would only be 2 frames long.  Fame 1 is interpolated with a bias of 0.1, but
         // frame 11 must be interpolated with a bias of 0.5 to compensate the shorter segment length.
-        if(segmentDuration * (keyframeIndex + 1) > endTime)
+        if(segmentDuration * (keyframeIndex + 1) >= endTime)
             segmentDuration = endTime - segmentDuration * keyframeIndex;
 
         BOOST_ASSERT(segmentTime <= segmentDuration);
