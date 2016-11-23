@@ -15,7 +15,7 @@
 #include "Texture.h"
 #include "Mesh.h"
 #include "MeshPart.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 #include "Material.h"
 #include "RenderState.h"
 #include "VertexFormat.h"

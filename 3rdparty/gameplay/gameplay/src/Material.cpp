@@ -1,6 +1,6 @@
 #include "Base.h"
 #include "Material.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 #include "Node.h"
 #include "MaterialParameter.h"
 

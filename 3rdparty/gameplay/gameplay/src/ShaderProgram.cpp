@@ -1,5 +1,5 @@
 #include "Base.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 #include "FileSystem.h"
 #include "Game.h"
 

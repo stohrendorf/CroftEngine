@@ -3,7 +3,7 @@
 #include "Drawable.h"
 #include "Rectangle.h"
 #include "SpriteBatch.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 
 
 namespace gameplay

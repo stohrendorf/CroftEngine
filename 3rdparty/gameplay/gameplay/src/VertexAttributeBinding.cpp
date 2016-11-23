@@ -1,7 +1,7 @@
 #include "VertexAttributeBinding.h"
 
 #include "Mesh.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 
 #include <boost/log/trivial.hpp>
 

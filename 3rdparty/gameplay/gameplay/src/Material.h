@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderState.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 #include "VertexAttributeBinding.h"
 
 

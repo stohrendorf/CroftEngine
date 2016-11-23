@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Texture.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 #include "Mesh.h"
 #include "Rectangle.h"
 #include "RenderState.h"

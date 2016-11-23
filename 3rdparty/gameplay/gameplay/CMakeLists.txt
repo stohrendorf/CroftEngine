@@ -8,8 +8,8 @@ set(GAMEPLAY_SRC
     src/DepthStencilTarget.h
     src/Drawable.cpp
     src/Drawable.h
-    src/Effect.cpp
-    src/Effect.h
+    src/ShaderProgram.cpp
+    src/ShaderProgram.h
     src/FileSystem.cpp
     src/FileSystem.h
     src/Font.cpp

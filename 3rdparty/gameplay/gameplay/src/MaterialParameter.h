@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Texture.h"
-#include "Effect.h"
+#include "ShaderProgram.h"
 
 #include <glm/glm.hpp>
 
