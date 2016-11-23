@@ -27,8 +27,11 @@ namespace engine
             auto forward = glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS;
             auto backward = glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS;
 
-            m_inputState.moveSlow = glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-            m_inputState.action = glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+            m_inputState.moveSlow = glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+                || glfwGetKey(m_window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+            m_inputState.action = glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
+                || glfwGetKey(m_window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS
+                || glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             m_inputState.jump = glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS;
             m_inputState.roll = glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS;
 
@@ -38,7 +41,6 @@ namespace engine
             m_lastCursorX = x;
             m_lastCursorY = y;
 
-            m_inputState.action = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             m_inputState.freeLook = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
             m_inputState.setXAxisMovement(left, right);
