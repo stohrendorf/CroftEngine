@@ -116,10 +116,6 @@ namespace engine
         BOOST_ASSERT(keyframeIndex < anim.getKeyframeCount());
 
         result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * keyframeIndex);
-
-        if(anim.firstFrame == anim.lastFrame)
-            return result;
-
         result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (keyframeIndex + 1));
 
         auto segmentTime = animationTime % segmentDuration;
@@ -298,7 +294,7 @@ namespace engine
                 BOOST_ASSERT(j < m_level->m_transitionCases.size());
                 const loader::TransitionCase& trc = m_level->m_transitionCases[j];
 
-                if( m_time >= core::Frame(trc.firstFrame) && m_time <= core::Frame(trc.lastFrame) )
+                if( m_time >= core::toTime(core::Frame(trc.firstFrame)) && m_time < core::toTime(core::Frame(trc.lastFrame) + 1_frame) )
                 {
                     setAnimIdGlobal(trc.targetAnimation, trc.targetFrame);
                     BOOST_LOG_TRIVIAL(debug) << getId() << " -- found transition to state " << m_targetState << ", new animation " << m_animId << "/frame " << trc.targetFrame;
