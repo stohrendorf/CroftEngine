@@ -378,6 +378,62 @@ std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Mater
     return materials;
 }
 
+namespace
+{
+    uint16_t mapSpriteToModel(uint16_t id)
+    {
+        switch(id)
+        {
+            case 84:
+                return 99;
+            case 85:
+                return 100;
+            case 86:
+                return 101;
+            case 87:
+                return 102;
+            case 89:
+                return 104;
+            case 90:
+                return 105;
+            case 91:
+                return 106;
+            case 92:
+                return 107;
+            case 93:
+                return 108;
+            case 94:
+                return 109;
+            case 126:
+                return 127;
+            case 141:
+                return 148;
+            case 142:
+                return 149;
+            case 143:
+            case 144:
+                return 150;
+            case 110:
+                return 114;
+            case 111:
+                return 115;
+            case 112:
+                return 116;
+            case 113:
+                return 117;
+            case 129:
+                return 133;
+            case 130:
+                return 134;
+            case 131:
+                return 135;
+            case 132:
+                return 136;
+            default:
+                return id;
+        }
+    }
+}
 
 engine::LaraController* Level::createItems(gameplay::Game* game,
                                            const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
@@ -392,56 +448,58 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
         BOOST_ASSERT(item.room < m_rooms.size());
         loader::Room& room = m_rooms[item.room];
 
-        if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
+        const auto type = mapSpriteToModel(item.type);
+
+        if( const auto modelIdx = findAnimatedModelIndexForType(type) )
         {
             std::shared_ptr<engine::ItemController> modelNode;
 
-            if( item.type == 0 )
+            if(type == 0 )
             {
                 modelNode = createSkeletalModel<engine::LaraController>(*modelIdx, models, &room, &item);
                 lara = static_cast<engine::LaraController*>(modelNode.get());
             }
-            else if( item.type == 35 )
+            else if(type == 35 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_35_CollapsibleFloor>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 36 )
+            else if(type == 36 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_SwingingBlade>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 41 )
+            else if(type == 41 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_41_TrapDoorUp>(*modelIdx, models, &room, &item);
             }
-            else if( item.type >= 48 && item.type <= 51 )
+            else if(type >= 48 && type <= 51 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_Block>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 52 )
+            else if(type == 52 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_TallBlock>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 55 )
+            else if(type == 55 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_55_Switch>(*modelIdx, models, &room, &item);
             }
-            else if( item.type >= 57 && item.type <= 64 )
+            else if(type >= 57 && type <= 64 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_Door>(*modelIdx, models, &room, &item);
             }
-            else if( item.type >= 65 && item.type <= 66 )
+            else if(type >= 65 && type <= 66 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_TrapDoorDown>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 68 )
+            else if(type == 68 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_68_BridgeFlat>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 69 )
+            else if(type == 69 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_69_BridgeSlope1>(*modelIdx, models, &room, &item);
             }
-            else if( item.type == 70 )
+            else if(type == 70 )
             {
                 modelNode = createSkeletalModel<engine::ItemController_70_BridgeSlope2>(*modelIdx, models, &room, &item);
             }
@@ -458,6 +516,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
             continue;
         }
 
+#if 0
         if( const auto sequenceId = findSpriteSequenceForType(item.type) )
         {
             BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
@@ -487,8 +546,9 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
             continue;
         }
+#endif
 
-        BOOST_LOG_TRIVIAL(error) << "No static mesh or animated model for item " << id << "/type " << int(item.type);
+        BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for item " << id << "/type " << int(item.type);
     }
 
     return lara;
