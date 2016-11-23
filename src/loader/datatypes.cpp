@@ -208,7 +208,7 @@ namespace loader
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
-            subNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{ 0,1,0 }));
+            subNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{ 0,-1,0 }));
             node->addChild(subNode);
         }
         node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, position.toRenderSystem()));
