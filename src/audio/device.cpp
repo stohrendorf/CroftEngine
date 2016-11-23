@@ -1,10 +1,5 @@
 #include "device.h"
 
-#include "alext.h"
-#include "utils.h"
-
-#include <boost/log/trivial.hpp>
-
 namespace audio
 {
 

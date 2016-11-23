@@ -33,7 +33,7 @@ namespace audio
             set(AL_MAX_DISTANCE, 8 * 1024);
         }
 
-        ~SourceHandle()
+        virtual ~SourceHandle()
         {
             alSourceStop(m_handle);
             DEBUG_CHECK_AL_ERROR();

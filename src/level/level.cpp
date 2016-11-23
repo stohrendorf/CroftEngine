@@ -22,7 +22,6 @@
 
 #include "level.h"
 
-#include "engine/inputhandler.h"
 #include "engine/laracontroller.h"
 #include "render/textureanimator.h"
 #include "tr1level.h"
@@ -31,12 +30,9 @@
 #include "tr4level.h"
 #include "tr5level.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-
-#include <algorithm>
 
 using namespace level;
 

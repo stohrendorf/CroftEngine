@@ -1,12 +1,8 @@
 #include "laracontroller.h"
 
-#include "abstractstatehandler.h"
 #include "cameracontroller.h"
-#include "collisioninfo.h"
-#include "heightinfo.h"
 #include "level/level.h"
 #include "render/textureanimator.h"
-#include "skeletalmodelnode.h"
 
 #include <boost/range/adaptors.hpp>
 

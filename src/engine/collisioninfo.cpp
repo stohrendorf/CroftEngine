@@ -2,7 +2,6 @@
 
 #include "core/magic.h"
 #include "level/level.h"
-#include "util/vmath.h"
 #include "laracontroller.h"
 
 namespace engine

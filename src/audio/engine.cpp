@@ -631,7 +631,7 @@ Error Engine::send(const boost::optional<SoundId>& soundId, EmitterType entityTy
     // If it's not, bypass audio send (cause we don't want it to occupy channel, if it's not
     // heard).
 
-    if(isInRange(entityType, entityId, effect->range, effect->gain) == false)
+    if( !isInRange( entityType, entityId, effect->range, effect->gain) )
     {
         return Error::Ignored;
     }

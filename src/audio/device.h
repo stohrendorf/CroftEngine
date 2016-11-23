@@ -15,7 +15,7 @@ class Device final : public boost::noncopyable
 {
 public:
     explicit Device();
-    ~Device();
+    virtual ~Device();
 
     void update()
     {

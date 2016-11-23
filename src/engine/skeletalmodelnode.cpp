@@ -2,10 +2,7 @@
 
 #include "level/level.h"
 
-#include <chrono>
 #include <stack>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 
 namespace

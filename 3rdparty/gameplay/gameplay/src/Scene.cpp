@@ -72,7 +72,7 @@ namespace gameplay
     void Scene::visitNode(const std::shared_ptr<Node>& node, const char* visitMethod) const
     {
         // Recurse for all children.
-        for( const auto& child : _nodes )
+        for( const auto& child : node->_children )
         {
             visitNode(child, visitMethod);
         }

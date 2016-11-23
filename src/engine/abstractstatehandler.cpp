@@ -1,12 +1,9 @@
 #include "abstractstatehandler.h"
 
 #include "collisioninfo.h"
-#include "core/magic.h"
 #include "inputstate.h"
 #include "laracontroller.h"
 #include "level/level.h"
-
-#include <chrono>
 
 namespace engine
 {

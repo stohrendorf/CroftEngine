@@ -16,7 +16,7 @@ void glErrorCallback(int err, const char* msg)
 }
 
 
-void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
     BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << severity << ", type " << type << ", source " << source << ": " << message;
 }

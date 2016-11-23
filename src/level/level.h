@@ -182,7 +182,7 @@ namespace level
 
             std::shared_ptr<audio::BufferHandle> buf = std::make_shared<audio::BufferHandle>();
             const auto offset = m_sampleIndices[sample];
-            BOOST_ASSERT(offset >= 0 && offset < m_samplesData.size());
+            BOOST_ASSERT(offset < m_samplesData.size());
             buf->fillFromWav(&m_samplesData[offset]);
 
             std::shared_ptr<audio::SourceHandle> src = std::make_shared<audio::SourceHandle>();
