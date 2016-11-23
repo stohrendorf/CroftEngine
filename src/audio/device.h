@@ -7,6 +7,8 @@
 #include <alc.h>
 #include <gsl/gsl>
 #include <set>
+#include <thread>
+
 
 namespace audio
 {
@@ -15,7 +17,7 @@ class Device final : public boost::noncopyable
 {
 public:
     explicit Device();
-    virtual ~Device();
+    ~Device();
 
     void update()
     {
@@ -54,12 +56,6 @@ public:
         m_sources = std::move(cleaned);
     }
 
-    void updateStreams()
-    {
-        for(const auto& stream : m_streams)
-            stream->update();
-    }
-
     void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
         alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
@@ -83,6 +79,14 @@ private:
     std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;
     std::set<std::shared_ptr<SourceHandle>> m_sources;
     std::set<std::shared_ptr<Stream>> m_streams;
+    std::thread m_streamUpdater;
+    bool m_shutdown = false;
+
+    void updateStreams()
+    {
+        for(const auto& stream : m_streams)
+            stream->update();
+    }
 };
 
 }
