@@ -154,8 +154,8 @@ namespace engine
         BOOST_ASSERT(framePair.bias > 0);
         BOOST_ASSERT(framePair.secondFrame != nullptr);
 
-        BOOST_ASSERT(framePair.firstFrame->numValues == m_model.boneCount);
-        BOOST_ASSERT(framePair.secondFrame->numValues == m_model.boneCount);
+        BOOST_ASSERT(framePair.firstFrame->numValues > 0);
+        BOOST_ASSERT(framePair.secondFrame->numValues > 0);
 
         if( m_bonePatches.empty() )
             resetPose();
@@ -195,8 +195,15 @@ namespace engine
 
             BOOST_ASSERT((positionData->flags & 0x1c) == 0);
 
-            transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataFirst) * m_bonePatches[i];
-            transformsSecond.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataSecond) * m_bonePatches[i];
+            if(framePair.firstFrame->numValues < i)
+                transformsFirst.top() *= glm::translate(glm::mat4{ 1.0f }, positionData->toGl()) * m_bonePatches[i];
+            else
+                transformsFirst.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleDataFirst) * m_bonePatches[i];
+
+            if(framePair.firstFrame->numValues < i)
+                transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, positionData->toGl()) * m_bonePatches[i];
+            else
+                transformsSecond.top() *= glm::translate(glm::mat4{ 1.0f }, positionData->toGl()) * core::xyzToYprMatrix(*angleDataSecond) * m_bonePatches[i];
 
             getChildren()[i]->setLocalMatrix(glm::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
         }
@@ -205,7 +212,7 @@ namespace engine
 
     void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     {
-        BOOST_ASSERT(framePair.firstFrame->numValues == m_model.boneCount);
+        BOOST_ASSERT(framePair.firstFrame->numValues > 0);
 
         if( m_bonePatches.empty() )
             resetPose();
@@ -237,7 +244,10 @@ namespace engine
                 transforms.push({transforms.top()}); // make sure to have a copy, not a reference
             }
 
-            transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * core::xyzToYprMatrix(*angleData) * m_bonePatches[i];
+            if(framePair.firstFrame->numValues < i)
+                transforms.top() *= glm::translate(glm::mat4{ 1.0f }, positionData->toGl()) * m_bonePatches[i];
+            else
+                transforms.top() *= glm::translate(glm::mat4{ 1.0f }, positionData->toGl()) * core::xyzToYprMatrix(*angleData) * m_bonePatches[i];
 
             getChildren()[i]->setLocalMatrix(transforms.top());
         }
