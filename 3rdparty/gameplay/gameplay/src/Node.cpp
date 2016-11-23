@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "Node.h"
 #include "Scene.h"
-#include "Drawable.h"
 #include "Camera.h"
 
 // Node dirty flags
@@ -22,8 +21,6 @@ namespace gameplay
     Node::~Node()
     {
         removeAllChildren();
-        if( _drawable )
-            _drawable->setNode(nullptr);
     }
 
 
@@ -440,19 +437,6 @@ namespace gameplay
 
     void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
     {
-        if( _drawable == drawable )
-            return;
-
-        if( _drawable )
-        {
-            _drawable->setNode(nullptr);
-        }
-
         _drawable = drawable;
-
-        if( _drawable )
-        {
-            _drawable->setNode(this);
-        }
     }
 }

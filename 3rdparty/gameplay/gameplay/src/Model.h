@@ -75,22 +75,12 @@ namespace gameplay
          * rendering states, shader state, and so on, should be set
          * up before calling this method.
          */
-        size_t draw(bool wireframe = false) override;
+        void draw(RenderContext& context) override;
 
 
     private:
 
         Model& operator=(const Model&) = delete;
-
-        /**
-         * @see Drawable::setNode
-         */
-        void setNode(Node* node) override;
-
-        /**
-         * Sets the specified material's node binding to this model's node.
-         */
-        void bindNodeTo(const std::shared_ptr<Material>& m);
 
         std::shared_ptr<Mesh> _mesh;
     };

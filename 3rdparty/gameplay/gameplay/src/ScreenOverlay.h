@@ -2,13 +2,14 @@
 
 #include "SpriteBatch.h"
 #include "Image.h"
+#include "Drawable.h"
 
 #include <memory>
 
 
 namespace gameplay
 {
-    class ScreenOverlay
+    class ScreenOverlay : public Drawable
     {
     public:
         explicit ScreenOverlay(Game* game);
@@ -17,10 +18,10 @@ namespace gameplay
         void resize();
 
 
-        void draw()
+        void draw(RenderContext& context) override
         {
             _texture->setData(_image->getData().data());
-            _batch->finishAndDraw();
+            _batch->finishAndDraw(context);
         }
 
 

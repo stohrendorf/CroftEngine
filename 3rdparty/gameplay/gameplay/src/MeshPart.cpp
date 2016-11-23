@@ -1,8 +1,6 @@
-#include "Base.h"
 #include "MeshPart.h"
 
-
-#include <boost/log/trivial.hpp>
+#include "Drawable.h"
 #include "Material.h"
 
 
@@ -158,12 +156,12 @@ namespace gameplay
     }
 
 
-    void MeshPart::draw(bool wireframe, Node* node) const
+    void MeshPart::draw(RenderContext& context) const
     {
         if(!_material)
             return;
 
-        _material->bindToNode(node);
+        _material->bindToNode(context.getCurrentNode());
 
         for(const auto& mps : _materialParameterSetters)
             mps(*_material);
@@ -171,7 +169,7 @@ namespace gameplay
         _material->bind(_vaBinding);
 
         bind();
-        if(!wireframe || !drawWireframe())
+        if(!context.isWireframe() || !drawWireframe())
         {
             GL_ASSERT(glDrawElements(_primitiveType, _indexCount, _indexFormat, nullptr));
         }

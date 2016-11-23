@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Node.h"
 #include "Texture.h"
 #include "Rectangle.h"
 #include "SpriteBatch.h"
@@ -12,9 +13,6 @@
 
 namespace gameplay
 {
-    class Node;
-
-
     /**
      * Defines a particle emitter that can be made to simulate and render a particle system.
      *
@@ -138,10 +136,8 @@ namespace gameplay
      *
      * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Particles
      */
-    class ParticleEmitter : public Drawable
+    class ParticleEmitter : public Node
     {
-        friend class Node;
-
     public:
 
         /**
@@ -593,7 +589,7 @@ namespace gameplay
          *
          * Draws the particles currently being emitted.
          */
-        size_t draw(bool wireframe = false) override;
+        void draw(RenderContext& context);
 
     private:
         /**
@@ -609,7 +605,7 @@ namespace gameplay
          * @param particleCountMax The maximum number of particles that can be alive at one time in this ParticleEmitter's system.
          * @script{create}
          */
-        explicit ParticleEmitter(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax);
+        explicit ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax);
 
         ParticleEmitter& operator=(const ParticleEmitter&) = delete;
 

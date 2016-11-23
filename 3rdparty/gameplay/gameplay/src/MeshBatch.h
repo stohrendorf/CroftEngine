@@ -7,7 +7,7 @@
 namespace gameplay
 {
     class Material;
-
+    class RenderContext;
 
     /**
      * Defines a class for rendering multiple mesh into a single draw call on the graphics device.
@@ -86,7 +86,7 @@ namespace gameplay
         /**
          * Draws the primitives currently in batch.
          */
-        void draw();
+        void draw(RenderContext& context);
 
     private:
 

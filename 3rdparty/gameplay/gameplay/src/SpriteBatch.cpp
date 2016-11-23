@@ -368,11 +368,11 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void SpriteBatch::finishAndDraw()
+    void SpriteBatch::finishAndDraw(RenderContext& context)
     {
         // Finish and draw the batch
         _batch->finish();
-        _batch->draw();
+        _batch->draw(context);
     }
 
 

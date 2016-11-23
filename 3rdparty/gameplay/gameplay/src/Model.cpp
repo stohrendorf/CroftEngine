@@ -31,12 +31,6 @@ namespace gameplay
         BOOST_ASSERT(material != nullptr);
 
         _mesh->getPart(partIndex)->setMaterial(material);
-
-        // Apply node binding for the new material.
-        if( _node )
-        {
-            bindNodeTo(material);
-        }
     }
 
 
@@ -57,51 +51,7 @@ namespace gameplay
     }
 
 
-    void Model::setNode(Node* node)
-    {
-        Drawable::setNode(node);
-
-        // Re-bind node related material parameters
-        if( !node )
-            return;
-
-        for(size_t i = 0; i < _mesh->getPartCount(); ++i)
-            bindNodeTo(_mesh->getPart(i)->_material);
-    }
-
-
-    static bool drawWireframe(const std::shared_ptr<Mesh>& mesh)
-    {
-        switch( mesh->getPrimitiveType() )
-        {
-            case Mesh::TRIANGLES:
-            {
-                size_t vertexCount = mesh->getVertexCount();
-                for(size_t i = 0; i < vertexCount; i += 3 )
-                {
-                    GL_ASSERT( glDrawArrays(GL_LINE_LOOP, i, 3) );
-                }
-            }
-                return true;
-
-            case Mesh::TRIANGLE_STRIP:
-            {
-                size_t vertexCount = mesh->getVertexCount();
-                for(size_t i = 2; i < vertexCount; ++i )
-                {
-                    GL_ASSERT( glDrawArrays(GL_LINE_LOOP, i-2, 3) );
-                }
-            }
-                return true;
-
-            default:
-                // not supported
-                return false;
-        }
-    }
-
-
-    size_t Model::draw(bool wireframe)
+    void Model::draw(RenderContext& context)
     {
         BOOST_ASSERT(_mesh);
 
@@ -109,21 +59,7 @@ namespace gameplay
         {
             BOOST_ASSERT(part);
 
-            part->draw(wireframe, getNode());
-        }
-
-        return _mesh->getPartCount();
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Model::bindNodeTo(const std::shared_ptr<Material>& material)
-    {
-        BOOST_ASSERT(material);
-
-        if( _node )
-        {
-            material->bindToNode(getNode());
+            part->draw(context);
         }
     }
 }

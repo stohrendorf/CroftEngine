@@ -262,18 +262,18 @@ namespace gameplay
     }
 
 
-    size_t Sprite::draw(bool /*wireframe*/)
+    void Sprite::draw(RenderContext& context)
     {
         // Apply scene camera projection and translation offsets
         glm::vec3 position{ 0,0,0 };
-        if( _node && _node->getScene() )
+        if( context.getCurrentNode() && context.getCurrentNode()->getScene() )
         {
-            auto activeCamera = _node->getScene()->getActiveCamera();
+            auto activeCamera = context.getCurrentNode()->getScene()->getActiveCamera();
             if( activeCamera )
             {
                 // Scene projection
                 glm::mat4 projectionMatrix;
-                projectionMatrix = _node->getProjectionMatrix();
+                projectionMatrix = context.getCurrentNode()->getProjectionMatrix();
                 _batch->setProjectionMatrix(projectionMatrix);
 
                 // Camera translation offsets
@@ -282,7 +282,7 @@ namespace gameplay
             }
 
             // Apply node translation offsets
-            glm::vec3 translation = _node->getTranslationWorld();
+            glm::vec3 translation = context.getCurrentNode()->getTranslationWorld();
             position.x += translation.x;
             position.y += translation.y;
             position.z += translation.z;
@@ -306,10 +306,10 @@ namespace gameplay
         // Apply node scale and rotation
         float rotationAngle = 0.0f;
         glm::vec2 scale = glm::vec2(_width, _height);
-        if( _node )
+        if( context.getCurrentNode() != nullptr )
         {
             // Apply node rotation
-            const glm::quat rot = glm::quat_cast(_node->getLocalMatrix());
+            const glm::quat rot = glm::quat_cast(context.getCurrentNode()->getLocalMatrix());
             if(rot.x != 0.0f || rot.y != 0.0f || rot.z != 0.0f)
                 rotationAngle = glm::angle(rot);
         }
@@ -330,8 +330,6 @@ namespace gameplay
         _batch->start();
         _batch->draw(position, _frames[_frameIndex], scale, glm::vec4(_color.x, _color.y, _color.z, _color.w * _opacity),
                      _anchor, rotationAngle);
-        _batch->finishAndDraw();
-
-        return 1;
+        _batch->finishAndDraw(context);
     }
 }

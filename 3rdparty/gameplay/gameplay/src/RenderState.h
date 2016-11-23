@@ -75,12 +75,7 @@ namespace gameplay
             /**
             * Binds the position (glm::vec3) of the active camera for the node's scene.
             */
-            CAMERA_WORLD_POSITION,
-
-            /**
-            * Binds the current scene's ambient color (glm::vec3).
-            */
-            SCENE_AMBIENT_COLOR
+            CAMERA_WORLD_POSITION
         };
 
 
@@ -520,7 +515,6 @@ namespace gameplay
         glm::mat4 autoBindingGetInverseTransposeWorldMatrix() const;
         glm::mat4 autoBindingGetInverseTransposeWorldViewMatrix() const;
         glm::vec3 autoBindingGetCameraWorldPosition() const;
-        const glm::vec3& autoBindingGetAmbientColor() const;
 
     protected:
 

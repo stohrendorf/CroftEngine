@@ -281,7 +281,7 @@ namespace gameplay
         /**
          * @see Drawable::draw
          */
-        size_t draw(bool wireframe = false) override;
+        void draw(RenderContext& context) override;
 
     protected:
 

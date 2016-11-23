@@ -22,8 +22,8 @@ namespace gameplay
     ParticleEmitter::~ParticleEmitter() = default;
 
 
-    ParticleEmitter::ParticleEmitter(Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax)
-        : Drawable()
+    ParticleEmitter::ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax)
+        : Node(id)
         , _particleCount(0)
         , _particles(particleCountMax)
         , _emissionRate(PARTICLE_EMISSION_RATE)
@@ -149,27 +149,20 @@ namespace gameplay
 
     bool ParticleEmitter::isActive() const
     {
-        if( _started )
-            return true;
+        return _started || _particleCount > 0;
 
-        if( !_node )
-            return false;
-
-        return (_particleCount > 0);
     }
 
 
     void ParticleEmitter::emitOnce(unsigned int particleCount)
     {
-        BOOST_ASSERT(_node);
-
         // Limit particleCount so as not to go over _particleCountMax.
         if( particleCount + _particleCount > _particles.size() )
         {
             particleCount = _particles.size() - _particleCount;
         }
 
-        glm::mat4 world = _node->getWorldMatrix();
+        glm::mat4 world = getWorldMatrix();
         glm::vec3 translation{world[3]};
 
         // Take translation out of world matrix so it can be used to rotate orbiting properties.
@@ -752,19 +745,19 @@ namespace gameplay
     }
 
 
-    size_t ParticleEmitter::draw(bool /*wireframe*/)
+    void ParticleEmitter::draw(RenderContext& context)
     {
         if( !isActive() )
-            return 0;
+            return;
 
         if( _particleCount > 0 )
         {
             BOOST_ASSERT(_spriteBatch);
 
             // Set our node's view projection matrix to this emitter's effect.
-            if( _node )
+            if( context.getCurrentNode() != nullptr )
             {
-                _spriteBatch->setProjectionMatrix(_node->getViewProjectionMatrix());
+                _spriteBatch->setProjectionMatrix(context.getCurrentNode()->getViewProjectionMatrix());
             }
 
             // Begin sprite batch drawing
@@ -774,8 +767,8 @@ namespace gameplay
             static const glm::vec2 pivot(0.5f, 0.5f);
 
             // 3D Rotation so that particles always face the camera.
-            BOOST_ASSERT(_node && _node->getScene() && _node->getScene()->getActiveCamera());
-            const glm::mat4& cameraWorldMatrix = _node->getScene()->getActiveCamera()->getInverseViewMatrix();
+            BOOST_ASSERT(context.getCurrentNode() && context.getCurrentNode()->getScene() && context.getCurrentNode()->getScene()->getActiveCamera());
+            const glm::mat4& cameraWorldMatrix = context.getCurrentNode()->getScene()->getActiveCamera()->getInverseViewMatrix();
 
             glm::vec3 right{cameraWorldMatrix * glm::vec4{1,0,0,1}};
             glm::vec3 up{cameraWorldMatrix * glm::vec4{0,1,0,1}};
@@ -790,8 +783,7 @@ namespace gameplay
             }
 
             // Render.
-            _spriteBatch->finishAndDraw();
+            _spriteBatch->finishAndDraw(context);
         }
-        return 1;
     }
 }

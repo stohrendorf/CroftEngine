@@ -76,7 +76,7 @@ namespace gameplay
 
         void setMaterial(const std::shared_ptr<Material>& material);
 
-        void draw(bool wireframe, Node* node) const;
+        void draw(RenderContext& context) const;
 
         void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
         {

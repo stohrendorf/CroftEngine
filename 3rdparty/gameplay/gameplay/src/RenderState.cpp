@@ -204,9 +204,6 @@ namespace gameplay
             case CAMERA_WORLD_POSITION:
                 param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
                 break;
-            case SCENE_AMBIENT_COLOR:
-                param->bindValue(this, &RenderState::autoBindingGetAmbientColor);
-                break;
             default:
                 BOOST_LOG_TRIVIAL(warning) << "Unsupported auto binding type (" << autoBinding << ").";
                 break;
@@ -270,15 +267,6 @@ namespace gameplay
     {
         static const glm::vec3 zero{ 0, 0, 0 };
         return m_boundNode ? m_boundNode->getActiveCameraTranslationWorld() : zero;
-    }
-
-
-    const glm::vec3& RenderState::autoBindingGetAmbientColor() const
-    {
-        static const glm::vec3 zero{ 0, 0, 0 };
-
-        Scene* scene = m_boundNode ? m_boundNode->getScene() : nullptr;
-        return scene ? scene->getAmbientColor() : zero;
     }
 
 

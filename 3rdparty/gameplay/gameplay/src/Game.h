@@ -10,6 +10,7 @@
 namespace gameplay
 {
     class Scene;
+    class RenderContext;
 
 
     /**
@@ -45,10 +46,7 @@ namespace gameplay
             CLEAR_COLOR = GL_COLOR_BUFFER_BIT,
             CLEAR_DEPTH = GL_DEPTH_BUFFER_BIT,
             CLEAR_STENCIL = GL_STENCIL_BUFFER_BIT,
-            CLEAR_COLOR_DEPTH = CLEAR_COLOR | CLEAR_DEPTH,
-            CLEAR_COLOR_STENCIL = CLEAR_COLOR | CLEAR_STENCIL,
-            CLEAR_DEPTH_STENCIL = CLEAR_DEPTH | CLEAR_STENCIL,
-            CLEAR_COLOR_DEPTH_STENCIL = CLEAR_COLOR | CLEAR_DEPTH | CLEAR_STENCIL
+            CLEAR_COLOR_DEPTH = CLEAR_COLOR | CLEAR_DEPTH
         };
 
 
@@ -255,7 +253,7 @@ namespace gameplay
          * Called just after update, once per frame when game is running.
          * Ideal for all rendering code.
          */
-        virtual void render();
+        virtual void render(bool wireframe = false);
 
         /**
          * Renders a single frame once and then swaps it to the display.
@@ -309,7 +307,7 @@ namespace gameplay
 
         friend class ScreenDisplayer;
 
-        bool drawScene(const std::shared_ptr<Node>& node);
+        static bool drawNode(RenderContext& context);
     };
 
 

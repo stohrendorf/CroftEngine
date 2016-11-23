@@ -92,13 +92,13 @@ public:
         m_fb->bind();
     }
 
-    void render() const
+    void render(gameplay::RenderContext& context) const
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_batch->start();
         m_batch->draw(0, 0, m_fb->getWidth(), m_fb->getHeight(), 0, 1, 1, 0, glm::vec4{ 1,1,1,1 });
-        m_batch->finishAndDraw();
+        m_batch->finishAndDraw(context);
     }
 
 private:
@@ -241,12 +241,14 @@ int main()
         }
 */
 
+        gameplay::RenderContext context{false};
+
         gameplay::FrameBuffer::bindDefault();
-        depthDarknessFx.render();
+        depthDarknessFx.render(context);
 
         drawDebugInfo(font, lvl.get());
 
-        screenOverlay->draw();
+        screenOverlay->draw(context);
 
         game->swapBuffers();
     }

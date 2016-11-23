@@ -82,7 +82,7 @@ namespace gameplay
     }
 
 
-    void MeshBatch::draw()
+    void MeshBatch::draw(RenderContext& context)
     {
         BOOST_ASSERT(m_vertices.size() % m_vertexFormat.getVertexSize() == 0);
 
@@ -99,7 +99,7 @@ namespace gameplay
         part->setIndexData(m_indices.data(), 0, m_indices.size());
 
         Model mdl{ mesh };
-        mdl.draw();
+        mdl.draw(context);
 
         //pass->unbind();
     }

@@ -255,7 +255,7 @@ namespace gameplay
          * This method flushes the batch and commits rendering of all sprites that were
          * drawn since the last call to start().
          */
-        void finishAndDraw();
+        void finishAndDraw(RenderContext& context);
 
         /**
          * Gets the texture sampler.

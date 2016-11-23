@@ -113,23 +113,25 @@ namespace gameplay
     }
 
 
-    bool Game::drawScene(const std::shared_ptr<Node>& node)
+    bool Game::drawNode(RenderContext& context)
     {
-        auto dr = node->getDrawable();
+        BOOST_ASSERT(context.getCurrentNode() != nullptr);
+        auto dr = context.getCurrentNode()->getDrawable();
         if( dr != nullptr )
         {
-            dr->setNode(node.get());
-            dr->draw();
+            dr->draw(context);
         }
 
         return true;
     }
 
 
-    void Game::render()
+    void Game::render(bool wireframe)
     {
         clear(CLEAR_COLOR_DEPTH, {0,0,0,0}, 1, 0);
-        _scene->visit(this, &Game::drawScene);
+
+        RenderContext context{wireframe};
+        _scene->visit(context, &Game::drawNode);
     }
 
 
