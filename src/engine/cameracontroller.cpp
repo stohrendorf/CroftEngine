@@ -24,31 +24,6 @@ namespace engine
         update(std::chrono::microseconds(1));
     }
 
-    void CameraController::animateNode(uint32_t timeMs)
-    {
-        if( m_firstUpdate )
-        {
-            m_lastAnimationTime = timeMs;
-            m_firstUpdate = false;
-        }
-
-        if( m_firstInput )
-        {
-            m_firstInput = false;
-        }
-
-        const auto localTime = timeMs - m_lastAnimationTime;
-
-        if( localTime <= 1 )
-            return;
-
-        m_lastAnimationTime = timeMs;
-
-        m_localRotation.X = util::clamp(m_localRotation.X, -85_deg, +85_deg);
-
-        tracePortals();
-    }
-
     void CameraController::setLocalRotation(core::Angle x, core::Angle y)
     {
         setLocalRotationX(x);
@@ -377,8 +352,10 @@ namespace engine
         return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
-    void CameraController::update(const std::chrono::microseconds& deltaTimeMs)
+    void CameraController::update(const std::chrono::microseconds& deltaTime)
     {
+        m_localRotation.X = util::clamp(m_localRotation.X, -85_deg, +85_deg);
+
         if(m_currentPosition.room->isWaterRoom())
         {
             if(m_level->m_cdStream != nullptr)
@@ -431,20 +408,20 @@ namespace engine
             {
                 lookAtYAngle -= m_headRotation.Y;
                 if( lookAtYAngle > 4_deg )
-                    m_headRotation.Y += core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                    m_headRotation.Y += core::makeInterpolatedValue(+4_deg).getScaled(deltaTime);
                 else if( lookAtYAngle < -4_deg )
-                    m_headRotation.Y -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                    m_headRotation.Y -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTime);
                 else
-                    m_headRotation.Y += core::makeInterpolatedValue(lookAtYAngle).getScaled(deltaTimeMs);
+                    m_headRotation.Y += core::makeInterpolatedValue(lookAtYAngle).getScaled(deltaTime);
                 m_torsoRotation.Y = m_headRotation.Y;
 
                 lookAtXAngle -= m_headRotation.X;
                 if( lookAtXAngle > 4_deg )
-                    m_headRotation.X += core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                    m_headRotation.X += core::makeInterpolatedValue(+4_deg).getScaled(deltaTime);
                 else if( lookAtXAngle < -4_deg )
-                    m_headRotation.X -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTimeMs);
+                    m_headRotation.X -= core::makeInterpolatedValue(+4_deg).getScaled(deltaTime);
                 else
-                    m_headRotation.X += core::makeInterpolatedValue(lookAtXAngle).getScaled(deltaTimeMs);
+                    m_headRotation.X += core::makeInterpolatedValue(lookAtXAngle).getScaled(deltaTime);
                 m_torsoRotation.X = m_headRotation.X;
 
                 m_camOverrideType = 2;
@@ -484,9 +461,9 @@ namespace engine
                 HeightInfo::skipSteepSlants = false;
 
             if( m_camOverrideType != 0 && m_unknown1 != 3 )
-                handleCamOverride(deltaTimeMs);
+                handleCamOverride(deltaTime);
             else
-                doUsualMovement(lookAtItem, deltaTimeMs);
+                doUsualMovement(lookAtItem, deltaTime);
         }
         else
         {
@@ -505,9 +482,9 @@ namespace engine
             }
             m_lookingAtSomething = false;
             if( m_camOverrideType == 2 )
-                handleFreeLook(*lookAtItem, deltaTimeMs);
+                handleFreeLook(*lookAtItem, deltaTime);
             else
-                handleEnemy(*lookAtItem, deltaTimeMs);
+                handleEnemy(*lookAtItem, deltaTime);
         }
 
         m_lookingAtSomething = lookingAtSomething;
@@ -523,6 +500,8 @@ namespace engine
             m_unknown1 = 0;
         }
         HeightInfo::skipSteepSlants = false;
+
+        tracePortals();
     }
 
     void CameraController::handleCamOverride(const std::chrono::microseconds& deltaTimeMs)

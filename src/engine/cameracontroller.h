@@ -14,9 +14,6 @@ namespace engine
     {
     private:
         // Internals
-        bool m_firstUpdate = true;
-        uint32_t m_lastAnimationTime = 0;
-        bool m_firstInput = true;
         gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
         // For interactions
@@ -51,8 +48,6 @@ namespace engine
 
     public:
         explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
-
-        void animateNode(uint32_t timeMs);
 
         const level::Level* getLevel() const noexcept
         {
