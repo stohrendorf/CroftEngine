@@ -160,7 +160,7 @@ namespace engine
 
         if( isAnimEnd )
         {
-            handleAnimationEnd();
+            loopAnimation();
         }
 
         if( m_falling )

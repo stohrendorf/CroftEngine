@@ -42,7 +42,7 @@ namespace engine
             bool isNewFrame = false;
             if( m_time >= getEndTime() )
             {
-                handleAnimationEnd();
+                loopAnimation();
                 isNewFrame = true;
             }
 
@@ -108,7 +108,7 @@ namespace engine
 
 
         bool handleTRTransitions();
-        void handleAnimationEnd();
+        void loopAnimation();
 
         float calculateFloorSpeed() const;
 

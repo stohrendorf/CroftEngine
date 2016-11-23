@@ -531,7 +531,7 @@ namespace engine
 
         if(isAnimEnd)
         {
-            handleAnimationEnd();
+            loopAnimation();
         }
 
         if( isFalling() )

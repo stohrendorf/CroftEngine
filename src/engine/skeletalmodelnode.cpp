@@ -307,13 +307,10 @@ namespace engine
     }
 
 
-    void SkeletalModelNode::handleAnimationEnd()
+    void SkeletalModelNode::loopAnimation()
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
-
         setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
-
-        setTargetState(getCurrentState());
     }
 
 
