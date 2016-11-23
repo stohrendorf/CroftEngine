@@ -566,7 +566,7 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     for( const loader::SoundSource& src : m_soundSources )
     {
-        auto handle = playSound(src.sound_id, core::ExactTRCoordinates(src.position));
+        auto handle = playSound(src.sound_id, src.position.toRenderSystem());
         handle->setLooping(true);
         m_audioDev.registerSource(handle);
     }

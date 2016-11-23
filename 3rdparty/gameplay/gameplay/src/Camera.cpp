@@ -379,7 +379,7 @@ namespace gameplay
     void Camera::setViewMatrix(const glm::mat4& m)
     {
         _view = m;
-        _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS;
+        _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_BOUNDS | CAMERA_DIRTY_INV_VIEW;
         cameraChanged();
     }
 }

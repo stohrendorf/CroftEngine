@@ -62,11 +62,11 @@ public:
 
     void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
-        alListener3f(AL_POSITION, pos.x, pos.y, -pos.z);
+        alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
 
         const ALfloat o[6] = {
-            front.x, front.y, -front.z,
-            up.x, up.y, -up.z
+            front.x, front.y, front.z,
+            up.x, up.y, up.z
         };
         alListenerfv(AL_ORIENTATION, o);
     }

@@ -172,10 +172,8 @@ namespace level
         std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
 
 
-        std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const boost::optional<core::ExactTRCoordinates>& pos)
+        std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume, const boost::optional<glm::vec3>& pos)
         {
-            BOOST_LOG_TRIVIAL(debug) << "Playing sample #" << sample;
-
             Expects(sample < m_sampleIndices.size());
             pitch = util::clamp(pitch, 0.5f, 2.0f);
             volume = util::clamp(volume, 0.0f, 1.0f);
@@ -190,8 +188,9 @@ namespace level
             m_audioDev.registerSource(src);
             src->setPitch(pitch);
             src->setGain(volume);
-            if( pos )
-                src->setPosition(pos->toRenderSystem());
+            if(pos)
+                src->setPosition(*pos);
+
             src->play();
 
             m_samples[sample] = src;
@@ -200,7 +199,7 @@ namespace level
         }
 
 
-        std::shared_ptr<audio::SourceHandle> playSound(int id, const boost::optional<core::ExactTRCoordinates>& position)
+        std::shared_ptr<audio::SourceHandle> playSound(int id, const boost::optional<glm::vec3>& position)
         {
             Expects(id >= 0 && static_cast<size_t>(id) < m_soundmap.size());
             auto snd = m_soundmap[id];

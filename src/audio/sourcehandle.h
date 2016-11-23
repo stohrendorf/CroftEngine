@@ -133,7 +133,7 @@ namespace audio
 
         void setPosition(const glm::vec3& position)
         {
-            set(AL_POSITION, position.x, position.y, -position.z);
+            set(AL_POSITION, position.x, position.y, position.z);
         }
 
         void setPitch(ALfloat pitch_value)

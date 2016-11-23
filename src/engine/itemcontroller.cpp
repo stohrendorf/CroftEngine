@@ -215,7 +215,7 @@ namespace engine
 
     std::shared_ptr<audio::SourceHandle> ItemController::playSoundEffect(int id)
     {
-        auto handle = getLevel().playSound(id, getPosition());
+        auto handle = getLevel().playSound(id, getTranslationWorld());
         if( handle != nullptr )
             m_sounds.emplace_back(handle);
         return handle;
@@ -246,7 +246,7 @@ namespace engine
         for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
         {
             std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-            lockedHandle->setPosition(getPosition().toRenderSystem());
+            lockedHandle->setPosition(getTranslationWorld());
         }
     }
 
