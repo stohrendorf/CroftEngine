@@ -45,8 +45,8 @@ namespace gameplay
 
         if( glfwInit() != GLFW_TRUE )
         {
-            BOOST_LOG_TRIVIAL(error) << "Failed to initialize GLFW";
-            return;
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to initialize GLFW";
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLFW"));
         }
 
         atexit(&glfwTerminate);
@@ -75,6 +75,12 @@ namespace gameplay
 
         // Create the windows
         _window = glfwCreateWindow(width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+        if(_window == nullptr)
+        {
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to create window";
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
+        }
+
         glfwMakeContextCurrent(_window);
 
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

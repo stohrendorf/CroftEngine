@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <boost/assert.hpp>
-#include <boost/current_function.hpp>
+#include <boost/log/trivial.hpp>
 
 // Array deletion macro
 #define SAFE_DELETE_ARRAY(x) \
@@ -41,15 +41,13 @@ namespace gameplay
         void bind() const
         {
             m_binder(m_handle);
-            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
-
-            postBind();
+            checkGlError();
         }
 
         void unbind() const
         {
             m_binder(0);
-            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
+            checkGlError();
         }
 
         GLuint getHandle() const
@@ -73,13 +71,13 @@ namespace gameplay
             BOOST_ASSERT(deleter != nullptr);
 
             m_allocator(1, &m_handle);
-            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
+            checkGlError();
         }
 
         virtual ~BindableResource()
         {
             m_deleter(1, &m_handle);
-            BOOST_ASSERT(glGetError() == GL_NO_ERROR);
+            checkGlError();
         }
 
     private:
@@ -91,8 +89,16 @@ namespace gameplay
         BindableResource(const BindableResource&) = delete;
         BindableResource& operator=(const BindableResource&) = delete;
 
-        virtual void postBind() const
+        static void checkGlError()
         {
+#ifndef NDEBUG
+            const auto error = glGetError();
+            if(error == GL_NO_ERROR)
+                return;
+
+            BOOST_LOG_TRIVIAL(error) << "OpenGL error " << error << ": " << gluErrorString(error);
+            BOOST_ASSERT_MSG(false, "OpenGL error check failed");
+#endif
         }
     };
 
