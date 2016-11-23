@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 
 #include <boost/optional.hpp>
-#include <boost/variant.hpp>
 
 
 namespace gameplay

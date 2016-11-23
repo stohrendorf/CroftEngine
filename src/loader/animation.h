@@ -1,11 +1,8 @@
 #pragma once
 
 #include "io/sdlreader.h"
-#include "core/magic.h"
 
 #include <gsl/gsl>
-
-#include <map>
 
 namespace loader
 {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "bufferhandle.h"
-#include "sourcehandle.h"
 #include "sndfile/helpers.h"
 
 #include <boost/throw_exception.hpp>

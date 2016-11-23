@@ -5,7 +5,6 @@
 #include "engine/cameracontroller.h"
 #include "engine/inputhandler.h"
 #include "engine/itemcontroller.h"
-#include "engine/skeletalmodelnode.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"

@@ -1,9 +1,6 @@
 #include "Base.h"
 #include "RenderTarget.h"
 
-#include <boost/log/trivial.hpp>
-
-
 namespace gameplay
 {
     RenderTarget::~RenderTarget() = default;

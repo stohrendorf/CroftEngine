@@ -2,7 +2,6 @@
 
 #include "loader/texture.h"
 
-#include <gsl/gsl>
 #include <boost/assert.hpp>
 
 #include <map>

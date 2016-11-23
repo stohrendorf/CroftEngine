@@ -43,10 +43,6 @@ namespace gameplay
          *
          * @param texture The texture for this sprite batch.
          * @param shaderProgram An optional effect to use with the SpriteBatch.
-         * @param initialCapacity An optional initial capacity of the batch (number of sprites).
-         *
-         * @return A new SpriteBatch for drawing sprites using the given texture.
-         * @script{create}
          */
         explicit SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, const std::string& diffuse = {});
 
@@ -250,7 +246,6 @@ namespace gameplay
          * @param vertices The vertices to draw.
          * @param vertexCount The number of vertices within the vertex array.
          * @param indices The vertex indices.
-         * @param indexCount The number of indices within the index array.
          */
         void draw(SpriteBatch::SpriteVertex* vertices, size_t vertexCount, const std::vector<uint16_t>& indices) const;
 

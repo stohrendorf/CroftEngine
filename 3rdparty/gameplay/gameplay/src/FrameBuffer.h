@@ -32,11 +32,6 @@ namespace gameplay
          * The new FrameBuffer does not have any render targets or a depth/stencil target and these
          * must be added before it can be used. The FrameBuffer is added to the list of available
          * FrameBuffers.
-         *
-         * @param id The ID of the new FrameBuffer. Uniqueness is recommended but not enforced.
-         *
-         * @return A newly created FrameBuffer.
-         * @script{create}
          */
         explicit FrameBuffer();
 
@@ -50,12 +45,8 @@ namespace gameplay
          *
          * You can additionally add a DepthStencilTarget using FrameBuffer::setDepthStencilTarget.
          *
-         * @param id The ID of the new FrameBuffer. Uniqueness is recommended but not enforced.
          * @param width The width of the RenderTarget to be created and attached.
          * @param height The height of the RenderTarget to be created and attached.
-         *
-         * @return A newly created FrameBuffer.
-         * @script{create}
          */
         FrameBuffer(unsigned int width, unsigned int height);
 
@@ -142,8 +133,6 @@ namespace gameplay
          * Records a screenshot of what is stored on the current FrameBuffer to an Image.
          *
          * The Image must be the same size as the FrameBuffer, otherwise the operation will fail.
-         *
-         * @param image The Image to write the current framebuffer's content to.
          */
         static std::shared_ptr<Image> getScreenshot();
 

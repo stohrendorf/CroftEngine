@@ -4,7 +4,6 @@
 #include "sndfile/helpers.h"
 
 #include <al.h>
-#include <boost/assert.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/log/trivial.hpp>
 

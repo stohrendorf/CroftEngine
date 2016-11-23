@@ -2,8 +2,6 @@
 
 #include <boost/current_function.hpp>
 
-#include <cstdint>
-
 namespace audio
 {
 // Error handling routines.

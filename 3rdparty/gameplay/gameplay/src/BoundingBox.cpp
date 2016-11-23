@@ -126,8 +126,6 @@ namespace gameplay
         // Intermediate calculation variables.
         float dnear = 0.0f;
         float dfar = 0.0f;
-        float tmin = 0.0f;
-        float tmax = 0.0f;
 
         const glm::vec3& origin = ray.getOrigin();
         const glm::vec3& direction = ray.getDirection();
@@ -136,16 +134,14 @@ namespace gameplay
         float div = 1.0f / direction.x;
         if( div >= 0.0f )
         {
-            tmin = (min.x - origin.x) * div;
-            tmax = (max.x - origin.x) * div;
+            dnear = (min.x - origin.x) * div;
+            dfar = (max.x - origin.x) * div;
         }
         else
         {
-            tmin = (max.x - origin.x) * div;
-            tmax = (min.x - origin.x) * div;
+            dnear = (max.x - origin.x) * div;
+            dfar = (min.x - origin.x) * div;
         }
-        dnear = tmin;
-        dfar = tmax;
 
         // Check if the ray misses the box.
         if( dnear > dfar || dfar < 0.0f )
@@ -155,6 +151,8 @@ namespace gameplay
 
         // Y direction.
         div = 1.0f / direction.y;
+        float tmin = 0.0f;
+        float tmax = 0.0f;
         if( div >= 0.0f )
         {
             tmin = (min.y - origin.y) * div;

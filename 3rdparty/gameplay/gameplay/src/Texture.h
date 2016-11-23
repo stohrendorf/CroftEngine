@@ -91,7 +91,6 @@ namespace gameplay
              *
              * @param wrapS The horizontal wrap mode.
              * @param wrapT The vertical wrap mode.
-             * @param wrapR The depth wrap mode.
              */
             void setWrapMode(Wrap wrapS, Wrap wrapT);
 

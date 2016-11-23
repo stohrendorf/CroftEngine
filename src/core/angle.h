@@ -1,7 +1,5 @@
 #pragma once
 
-#include "util/vmath.h"
-
 #include "gameplay.h"
 
 #include <cfenv>

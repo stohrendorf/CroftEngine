@@ -2,9 +2,6 @@
 
 #include "Stream.h"
 
-#include <vector>
-
-
 namespace gameplay
 {
     /**

@@ -17,7 +17,6 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
-#include <iostream>
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>

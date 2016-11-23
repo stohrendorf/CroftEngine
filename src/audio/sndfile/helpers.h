@@ -1,10 +1,11 @@
 #pragma once
 
+#include <gsl/gsl>
+
 #include <sndfile.h>
 #include <boost/assert.hpp>
 #include <boost/iostreams/restrict.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <gsl/gsl>
 
 namespace audio
 {
