@@ -2,7 +2,6 @@
 #include "engine/laracontroller.h"
 
 #include <boost/range/adaptors.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace
 {

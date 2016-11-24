@@ -1,15 +1,12 @@
-#include "Base.h"
 #include "ParticleEmitter.h"
-#include "Game.h"
-#include "Node.h"
-#include "Scene.h"
+
 #include "Camera.h"
+#include "Game.h"
+#include "RenderContext.h"
+#include "Scene.h"
 
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/norm.hpp>
-
-#include <boost/log/trivial.hpp>
-#include <chrono>
 
 #define PARTICLE_COUNT_MAX                       100
 #define PARTICLE_EMISSION_RATE                   10

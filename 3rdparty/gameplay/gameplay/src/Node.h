@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Light.h"
+#include "Visitor.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -292,6 +293,12 @@ namespace gameplay
         {
             m_localMatrix = m;
             transformChanged();
+        }
+
+        void accept(Visitor& visitor)
+        {
+            for(auto& node : _children)
+                visitor.visit(*node);
         }
 
     protected:

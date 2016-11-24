@@ -1,10 +1,8 @@
-#include "Base.h"
 #include "Game.h"
-#include "RenderState.h"
-#include "FrameBuffer.h"
-#include "Scene.h"
 
-#include <boost/log/trivial.hpp>
+#include "FrameBuffer.h"
+#include "RenderContext.h"
+#include "Scene.h"
 
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
@@ -126,12 +124,38 @@ namespace gameplay
     }
 
 
+    namespace
+    {
+        class RenderVisitor : public Visitor
+        {
+        public:
+            explicit RenderVisitor(RenderContext& context)
+                    : Visitor{ context }
+            {
+            }
+
+
+            void visit(Node& node) override
+            {
+                if(!node.isEnabled())
+                    return;
+
+                if(auto dr = node.getDrawable())
+                    dr->draw(getContext());
+
+                Visitor::visit(node);
+            }
+        };
+    }
+
+
     void Game::render(bool wireframe)
     {
         clear(CLEAR_COLOR_DEPTH, {0,0,0,0}, 1, 0);
 
         RenderContext context{wireframe};
-        _scene->visit(context, &Game::drawNode);
+        RenderVisitor visitor{context};
+        _scene->accept(visitor);
     }
 
 

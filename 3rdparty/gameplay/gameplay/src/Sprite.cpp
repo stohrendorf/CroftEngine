@@ -1,10 +1,9 @@
-#include "Base.h"
 #include "Sprite.h"
-#include "Scene.h"
 
 #include "Camera.h"
+#include "RenderContext.h"
+#include "Scene.h"
 
-#include <boost/log/trivial.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 

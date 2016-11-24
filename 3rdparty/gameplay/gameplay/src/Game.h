@@ -244,7 +244,6 @@ namespace gameplay
             return _scene;
         }
 
-
     protected:
 
         /**

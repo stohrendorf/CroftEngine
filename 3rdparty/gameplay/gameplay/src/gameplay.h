@@ -35,3 +35,6 @@
 #include "DepthStencilTarget.h"
 #include "ScreenOverlay.h"
 #include "MaterialParameter.h"
+
+#include "Visitor.h"
+#include "RenderContext.h"

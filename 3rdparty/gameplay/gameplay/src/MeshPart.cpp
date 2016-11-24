@@ -2,6 +2,7 @@
 
 #include "Drawable.h"
 #include "Material.h"
+#include "RenderContext.h"
 
 
 namespace gameplay
