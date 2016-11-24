@@ -73,19 +73,6 @@ namespace loader
             portal.vertices[1] = readCoordinates16(reader) + offset;
             portal.vertices[2] = readCoordinates16(reader) + offset;
             portal.vertices[3] = readCoordinates16(reader) + offset;
-            if( util::fuzzyOne(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z) )
-                return portal;
-            if( util::fuzzyOne(-portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyZero(portal.normal.Z) )
-                return portal;
-            if( util::fuzzyZero(portal.normal.X) && util::fuzzyOne(portal.normal.Y) && util::fuzzyZero(portal.normal.Z) )
-                return portal;
-            if( util::fuzzyZero(portal.normal.X) && util::fuzzyOne(-portal.normal.Y) && util::fuzzyZero(portal.normal.Z) )
-                return portal;
-            if( util::fuzzyZero(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyOne(portal.normal.Z) )
-                return portal;
-            if( util::fuzzyZero(portal.normal.X) && util::fuzzyZero(portal.normal.Y) && util::fuzzyOne(-portal.normal.Z) )
-                return portal;
-            // std::cerr << "read_tr_room_portal: normal not on world axis");
             return portal;
         }
     };

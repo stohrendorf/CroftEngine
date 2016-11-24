@@ -112,8 +112,9 @@ namespace engine
 
         BOOST_ASSERT(m_time >= startTime && m_time < endTime);
         const auto animationTime = m_time - startTime;
-        const auto keyframeIndex = animationTime.count() / segmentDuration.count();
-        BOOST_ASSERT(keyframeIndex < anim.getKeyframeCount());
+        auto keyframeIndex = animationTime.count() / segmentDuration.count();
+        if(keyframeIndex >= anim.getKeyframeCount())
+            keyframeIndex = anim.getKeyframeCount() - 1;
 
         result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * keyframeIndex);
         result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (keyframeIndex + 1));
