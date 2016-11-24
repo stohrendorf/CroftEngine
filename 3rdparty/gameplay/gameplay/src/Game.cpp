@@ -140,6 +140,8 @@ namespace gameplay
                 if(!node.isEnabled())
                     return;
 
+                getContext().setCurrentNode(&node);
+
                 if(auto dr = node.getDrawable())
                     dr->draw(getContext());
 
