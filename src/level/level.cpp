@@ -579,6 +579,8 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id, const std::vector<std::
         skeletalModel->addChild(node);
     }
 
+    BOOST_ASSERT(skeletalModel->getChildCount() == model.boneCount);
+
     return skeletalModel;
 }
 
@@ -598,7 +600,7 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
     colorMaterial->initStateBlockDefaults();
-    colorMaterial->setParameterAutoBinding("u_worldViewProjectionMatrix", gameplay::RenderState::WORLD_VIEW_PROJECTION_MATRIX);
+    colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 

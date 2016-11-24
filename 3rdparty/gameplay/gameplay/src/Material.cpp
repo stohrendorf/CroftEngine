@@ -30,7 +30,7 @@ namespace gameplay
     }
 
 
-    void Material::bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding)
+    void Material::bind(const Node& node, const std::shared_ptr<VertexAttributeBinding>& vaBinding)
     {
         BOOST_ASSERT(_shaderProgram != nullptr);
 
@@ -38,7 +38,7 @@ namespace gameplay
         _shaderProgram->bind();
 
         // Bind our render state
-        RenderState::bind(this);
+        RenderState::bind(node, this);
 
         BOOST_ASSERT(_boundVaBinding == nullptr);
         _boundVaBinding = vaBinding;

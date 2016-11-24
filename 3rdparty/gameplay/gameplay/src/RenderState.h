@@ -26,60 +26,6 @@ namespace gameplay
 
     public:
         /**
-        * Built-in auto-bind targets for material parameters.
-        */
-        enum AutoBinding
-        {
-            NONE,
-
-            /**
-            * Binds a node's World matrix.
-            */
-            WORLD_MATRIX,
-
-            /**
-            * Binds the View matrix of the active camera for the node's scene.
-            */
-            VIEW_MATRIX,
-
-            /**
-            * Binds the Projection matrix of the active camera for the node's scene.
-            */
-            PROJECTION_MATRIX,
-
-            /**
-            * Binds a node's WorldView matrix.
-            */
-            WORLD_VIEW_MATRIX,
-
-            /**
-            * Binds the ViewProjection matrix of the active camera for the node's scene.
-            */
-            VIEW_PROJECTION_MATRIX,
-
-            /**
-            * Binds a node's WorldViewProjection matrix.
-            */
-            WORLD_VIEW_PROJECTION_MATRIX,
-
-            /**
-            * Binds a node's InverseTransposeWorl matrix.
-            */
-            INVERSE_TRANSPOSE_WORLD_MATRIX,
-
-            /**
-            * Binds a node's InverseTransposeWorldView matrix.
-            */
-            INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX,
-
-            /**
-            * Binds the position (glm::vec3) of the active camera for the node's scene.
-            */
-            CAMERA_WORLD_POSITION
-        };
-
-
-        /**
          * Defines blend constants supported by the blend function.
          */
         enum Blend : GLenum
@@ -408,14 +354,6 @@ namespace gameplay
         void removeParameter(const char* name);
 
         /**
-         * Sets a material parameter auto-binding.
-         *
-         * @param name The name of the material parameter to store an auto-binding for.
-         * @param autoBinding A valid AutoBinding value.
-         */
-        void setParameterAutoBinding(const std::string& name, AutoBinding autoBinding);
-
-        /**
          * Sets the fixed-function render state of this object to the state contained
          * in the specified StateBlock.
          *
@@ -447,17 +385,6 @@ namespace gameplay
 
         void initStateBlockDefaults();
 
-        /**
-         * Sets the node that this render state is bound to.
-         *
-         * The specified node is used to apply auto-bindings for the render state.
-         * This is typically set to the node of the model that a material is
-         * applied to.
-         *
-         * @param node The node to use for applying auto-bindings.
-         */
-        virtual void bindToNode(Node* node);
-
     protected:
 
         /**
@@ -481,18 +408,10 @@ namespace gameplay
         static void finalize();
 
         /**
-         * Applies the specified custom auto-binding.
-         *
-         * @param uniformName Name of the shader uniform.
-         * @param autoBinding Name of the auto binding.s
-         */
-        void applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding);
-
-        /**
          * Binds the render state for this RenderState and any of its parents, top-down,
          * for the given pass.
          */
-        void bind(Material* material);
+        void bind(const Node& node, Material* material);
 
         /**
          * Returns the topmost RenderState in the hierarchy below the given RenderState.
@@ -505,33 +424,12 @@ namespace gameplay
 
         RenderState& operator=(const RenderState&) = delete;
 
-        // Internal auto binding handler methods.
-        const glm::mat4& autoBindingGetWorldMatrix() const;
-        const glm::mat4& autoBindingGetViewMatrix() const;
-        const glm::mat4& autoBindingGetProjectionMatrix() const;
-        glm::mat4 autoBindingGetWorldViewMatrix() const;
-        const glm::mat4& autoBindingGetViewProjectionMatrix() const;
-        glm::mat4 autoBindingGetWorldViewProjectionMatrix() const;
-        glm::mat4 autoBindingGetInverseTransposeWorldMatrix() const;
-        glm::mat4 autoBindingGetInverseTransposeWorldViewMatrix() const;
-        glm::vec3 autoBindingGetCameraWorldPosition() const;
-
     protected:
 
         /**
          * Collection of MaterialParameter's to be applied to the gameplay::Effect.
          */
         mutable std::vector<std::shared_ptr<MaterialParameter>> _parameters;
-
-        /**
-         * Map of parameter names to auto binding strings.
-         */
-        std::map<std::string, RenderState::AutoBinding> _autoBindings;
-
-        /**
-         * The Node bound to the RenderState.
-         */
-        Node* m_boundNode;
 
         /**
          * The StateBlock of fixed-function render states that can be applied to the RenderState.

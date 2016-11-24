@@ -1,5 +1,6 @@
-#include "Base.h"
 #include "MaterialParameter.h"
+
+#include "Node.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -23,138 +24,138 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::setValue(float value)
+    void MaterialParameter::set(float value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(int value)
+    void MaterialParameter::set(int value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const float* values, size_t count)
+    void MaterialParameter::set(const float* values, size_t count)
     {
         std::vector<float> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const int* values, size_t count)
+    void MaterialParameter::set(const int* values, size_t count)
     {
         std::vector<int> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec2& value)
+    void MaterialParameter::set(const glm::vec2& value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec2* values, size_t count)
+    void MaterialParameter::set(const glm::vec2* values, size_t count)
     {
         std::vector<glm::vec2> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec3& value)
+    void MaterialParameter::set(const glm::vec3& value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec3* values, size_t count)
+    void MaterialParameter::set(const glm::vec3* values, size_t count)
     {
         std::vector<glm::vec3> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec4& value)
+    void MaterialParameter::set(const glm::vec4& value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::vec4* values, size_t count)
+    void MaterialParameter::set(const glm::vec4* values, size_t count)
     {
         std::vector<glm::vec4> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::mat4& value)
+    void MaterialParameter::set(const glm::mat4& value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const glm::mat4* values, size_t count)
+    void MaterialParameter::set(const glm::mat4* values, size_t count)
     {
         std::vector<glm::mat4> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [tmp](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::setValue(const std::shared_ptr<Texture::Sampler>& value)
+    void MaterialParameter::set(const std::shared_ptr<Texture::Sampler>& value)
     {
-        m_valueSetter = [value](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [value](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, value);
             };
     }
 
 
-    void MaterialParameter::setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers)
+    void MaterialParameter::set(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers)
     {
-        m_valueSetter = [samplers](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        m_valueSetter = [samplers](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, samplers);
             };
@@ -184,7 +185,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::bind(const std::shared_ptr<ShaderProgram>& shaderProgram)
+    void MaterialParameter::bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(shaderProgram);
 
@@ -202,6 +203,14 @@ namespace gameplay
         if( !updateUniformBinding(shaderProgram) )
             return;
 
-        (*m_valueSetter)(shaderProgram, m_boundUniform);
+        (*m_valueSetter)(node, shaderProgram, m_boundUniform);
+    }
+
+    void MaterialParameter::bindWorldViewProjectionMatrix()
+    {
+        m_valueSetter = [](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, node.getWorldViewProjectionMatrix());
+        };
     }
 }

@@ -29,8 +29,7 @@ namespace gameplay
 
 
     RenderState::RenderState()
-        : m_boundNode(nullptr)
-        , _state(nullptr)
+        : _state(nullptr)
         , _parent(nullptr)
     {
     }
@@ -108,19 +107,6 @@ namespace gameplay
     }
 
 
-    void RenderState::setParameterAutoBinding(const std::string& name, AutoBinding autoBinding)
-    {
-        // Add/update an auto-binding
-        _autoBindings[name] = autoBinding;
-
-        // If we already have a node binding set, pass it to our handler now
-        if( m_boundNode )
-        {
-            applyAutoBinding(name, autoBinding);
-        }
-    }
-
-
     // ReSharper disable once CppMemberFunctionMayBeConst
     void RenderState::setStateBlock(const std::shared_ptr<StateBlock>& state)
     {
@@ -152,125 +138,7 @@ namespace gameplay
     }
 
 
-    void RenderState::bindToNode(Node* node)
-    {
-        if( m_boundNode == node )
-            return;
-        m_boundNode = node;
-
-        if( !m_boundNode )
-            return;
-
-        for( const auto& binding : _autoBindings )
-        {
-            applyAutoBinding(binding.first, binding.second);
-        }
-    }
-
-
-    void RenderState::applyAutoBinding(const std::string& uniformName, RenderState::AutoBinding autoBinding)
-    {
-        BOOST_ASSERT(m_boundNode);
-
-        auto param = getParameter(uniformName);
-        BOOST_ASSERT(param);
-
-        switch( autoBinding )
-        {
-            case WORLD_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetWorldMatrix);
-                break;
-            case VIEW_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetViewMatrix);
-                break;
-            case PROJECTION_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetProjectionMatrix);
-                break;
-            case WORLD_VIEW_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetWorldViewMatrix);
-                break;
-            case VIEW_PROJECTION_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetViewProjectionMatrix);
-                break;
-            case WORLD_VIEW_PROJECTION_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetWorldViewProjectionMatrix);
-                break;
-            case INVERSE_TRANSPOSE_WORLD_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldMatrix);
-                break;
-            case INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX:
-                param->bindValue(this, &RenderState::autoBindingGetInverseTransposeWorldViewMatrix);
-                break;
-            case CAMERA_WORLD_POSITION:
-                param->bindValue(this, &RenderState::autoBindingGetCameraWorldPosition);
-                break;
-            default:
-                BOOST_LOG_TRIVIAL(warning) << "Unsupported auto binding type (" << autoBinding << ").";
-                break;
-        }
-    }
-
-
-    const glm::mat4& RenderState::autoBindingGetWorldMatrix() const
-    {
-        static const glm::mat4 identity{ 1.0f };
-        return m_boundNode ? m_boundNode->getWorldMatrix() : identity;
-    }
-
-
-    const glm::mat4& RenderState::autoBindingGetViewMatrix() const
-    {
-        static const glm::mat4 identity{ 1.0f };
-        return m_boundNode ? m_boundNode->getViewMatrix() : identity;
-    }
-
-
-    const glm::mat4& RenderState::autoBindingGetProjectionMatrix() const
-    {
-        static const glm::mat4 identity{ 1.0f };
-        return m_boundNode ? m_boundNode->getProjectionMatrix() : identity;
-    }
-
-
-    glm::mat4 RenderState::autoBindingGetWorldViewMatrix() const
-    {
-        return m_boundNode ? m_boundNode->getWorldViewMatrix() : glm::mat4{ 1.0f };
-    }
-
-
-    const glm::mat4& RenderState::autoBindingGetViewProjectionMatrix() const
-    {
-        static const glm::mat4 identity{ 1.0f };
-        return m_boundNode ? m_boundNode->getViewProjectionMatrix() : identity;
-    }
-
-
-    glm::mat4 RenderState::autoBindingGetWorldViewProjectionMatrix() const
-    {
-        return m_boundNode ? m_boundNode->getWorldViewProjectionMatrix() : glm::mat4{ 1.0f };
-    }
-
-
-    glm::mat4 RenderState::autoBindingGetInverseTransposeWorldMatrix() const
-    {
-        return m_boundNode ? m_boundNode->getInverseTransposeWorldMatrix() : glm::mat4{ 1.0f };
-    }
-
-
-    glm::mat4 RenderState::autoBindingGetInverseTransposeWorldViewMatrix() const
-    {
-        return m_boundNode ? m_boundNode->getInverseTransposeWorldViewMatrix() : glm::mat4{ 1.0f };
-    }
-
-
-    glm::vec3 RenderState::autoBindingGetCameraWorldPosition() const
-    {
-        static const glm::vec3 zero{ 0, 0, 0 };
-        return m_boundNode ? m_boundNode->getActiveCameraTranslationWorld() : zero;
-    }
-
-
-    void RenderState::bind(Material* material)
+    void RenderState::bind(const Node& node, Material* material)
     {
         BOOST_ASSERT(material);
 
@@ -297,7 +165,7 @@ namespace gameplay
             for( const auto& param : rs->_parameters )
             {
                 BOOST_ASSERT(param);
-                param->bind(shader);
+                param->bind(node, shader);
             }
 
             if( rs->_state )

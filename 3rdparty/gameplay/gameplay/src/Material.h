@@ -55,7 +55,7 @@ namespace gameplay
             return _shaderProgram;
         }
 
-        void bind(const std::shared_ptr<VertexAttributeBinding>& vaBinding);
+        void bind(const Node& node, const std::shared_ptr<VertexAttributeBinding>& vaBinding);
 
     private:
 

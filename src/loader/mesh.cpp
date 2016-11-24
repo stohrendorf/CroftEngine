@@ -290,7 +290,7 @@ namespace loader
                 auto color = *localPart.color;
                 part->registerMaterialParameterSetter([color](gameplay::Material& material)
                     {
-                        material.getParameter("u_diffuseColor")->setValue(color);
+                        material.getParameter("u_diffuseColor")->set(color);
                     });
             }
         }

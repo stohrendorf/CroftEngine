@@ -162,12 +162,12 @@ namespace gameplay
         if(!_material)
             return;
 
-        _material->bindToNode(context.getCurrentNode());
+        BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
         for(const auto& mps : _materialParameterSetters)
             mps(*_material);
 
-        _material->bind(_vaBinding);
+        _material->bind(*context.getCurrentNode(), _vaBinding);
 
         bind();
         if(!context.isWireframe() || !drawWireframe())

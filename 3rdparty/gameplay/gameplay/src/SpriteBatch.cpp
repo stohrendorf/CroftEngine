@@ -88,7 +88,7 @@ namespace gameplay
 
         // Bind the texture to the material as a sampler
         _sampler = std::make_shared<Texture::Sampler>(texture);
-        material->getParameter(samplerUniform->getName())->setValue(_sampler);
+        material->getParameter(samplerUniform->getName())->set(_sampler);
 
         // Define the vertex format for the batch
         static const VertexFormat::Element vertexElements[] =
@@ -106,7 +106,7 @@ namespace gameplay
 
         // Bind an ortho projection to the material by default (user can override with setProjectionMatrix)
         _projectionMatrix = glm::ortho(0.0f, game->getViewport().width, game->getViewport().height, 0.0f, 0.0f, 1.0f);
-        material->getParameter("u_projectionMatrix")->bindValue(this, &SpriteBatch::getProjectionMatrix);
+        material->getParameter("u_projectionMatrix")->bind(this, &SpriteBatch::getProjectionMatrix);
     }
 
 

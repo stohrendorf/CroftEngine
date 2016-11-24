@@ -33,13 +33,12 @@ namespace gameplay
     {
         BOOST_ASSERT(child);
 
-        if( child->_parent.lock() == shared_from_this() )
+        if( !child->_parent.expired() && child->_parent.lock() == shared_from_this() )
         {
             // This node is already present in our hierarchy
             return;
         }
 
-        _children.push_back(child);
         child->setParent(shared_from_this());
     }
 

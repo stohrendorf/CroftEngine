@@ -50,74 +50,74 @@ namespace gameplay
         /**
          * Sets the value of this parameter to a float value.
          */
-        void setValue(float value);
+        void set(float value);
 
         /**
          * Sets the value of this parameter to an integer value.
          */
-        void setValue(int value);
+        void set(int value);
 
         /**
          * Stores a pointer/array of float values in this parameter.
          */
-        void setValue(const float* values, size_t count = 1);
+        void set(const float* values, size_t count = 1);
 
         /**
          * Stores a pointer/array of integer values in this parameter.
          */
-        void setValue(const int* values, size_t count = 1);
+        void set(const int* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified glm::vec2 value in this parameter.
          */
-        void setValue(const glm::vec2& value);
+        void set(const glm::vec2& value);
 
         /**
          * Stores a pointer/array of glm::vec2 values in this parameter.
          */
-        void setValue(const glm::vec2* values, size_t count = 1);
+        void set(const glm::vec2* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified glm::vec3 value in this parameter.
          */
-        void setValue(const glm::vec3& value);
+        void set(const glm::vec3& value);
 
         /**
          * Stores a pointer/array of glm::vec3 values in this parameter.
          */
-        void setValue(const glm::vec3* values, size_t count = 1);
+        void set(const glm::vec3* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified glm::vec4 value in this parameter.
          */
-        void setValue(const glm::vec4& value);
+        void set(const glm::vec4& value);
 
         /**
          * Stores a pointer/array of glm::vec4 values in this parameter.
          */
-        void setValue(const glm::vec4* values, size_t count = 1);
+        void set(const glm::vec4* values, size_t count = 1);
 
         /**
          * Stores a copy of the specified glm::mat4 value in this parameter.
          */
-        void setValue(const glm::mat4& value);
+        void set(const glm::mat4& value);
 
         /**
          * Stores a pointer/array of glm::mat4 values in this parameter.
          */
-        void setValue(const glm::mat4* values, size_t count = 1);
+        void set(const glm::mat4* values, size_t count = 1);
 
         /**
          * Sets the value of this parameter to the specified texture sampler.
          */
-        void setValue(const std::shared_ptr<Texture::Sampler>& sampler);
+        void set(const std::shared_ptr<Texture::Sampler>& sampler);
 
         /**
          * Sets the value of this parameter to the specified texture sampler array.
          *
          * @script{ignore}
          */
-        void setValue(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
+        void set(const std::vector<std::shared_ptr<Texture::Sampler>>& samplers);
 
 
         /**
@@ -135,9 +135,9 @@ namespace gameplay
          * @param valueMethod A pointer to the class method to bind (in the format '&class::method').
          */
         template<class ClassType, class ValueType>
-        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
+        void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+            m_valueSetter = [classInstance, valueMethod](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
                 {
                     shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)());
                 };
@@ -158,22 +158,21 @@ namespace gameplay
          * @param countMethod A pointer to a method that returns the number of entries in the array returned by valueMethod.
          */
         template<class ClassType, class ValueType>
-        void bindValue(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
+        void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod, countMethod](const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+            m_valueSetter = [classInstance, valueMethod, countMethod](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
                 {
                     shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
                 };
         }
 
+        void bindWorldViewProjectionMatrix();
 
     private:
 
         MaterialParameter& operator=(const MaterialParameter&) = delete;
 
-        using UniformValueSetter = void(const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
-
-        void bind(const std::shared_ptr<ShaderProgram>& shaderProgram);
+        void bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
         bool updateUniformBinding(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
@@ -184,6 +183,7 @@ namespace gameplay
             PARAMETER_VALUE_NOT_SET = 0x02
         };
 
+        using UniformValueSetter = void(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
 
         const std::string m_name;
         std::shared_ptr<Uniform> m_boundUniform = nullptr;
