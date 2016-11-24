@@ -54,18 +54,6 @@ namespace gameplay
         void addChild(const std::shared_ptr<Node>& child);
 
         /**
-         * Removes a child node.
-         *
-         * @param child The child to remove.
-         */
-        void removeChild(const std::shared_ptr<Node>& child);
-
-        /**
-         * Removes all child nodes.
-         */
-        void removeAllChildren();
-
-        /**
          * Returns the parent of this node.
          *
          * @return The parent.
@@ -83,36 +71,6 @@ namespace gameplay
          * Gets the top level node in this node's parent hierarchy.
          */
         Node* getRootNode() const;
-
-        /**
-         * Returns the first child node that matches the given ID.
-         *
-         * This method checks the specified ID against its immediate child nodes
-         * but does not check the ID against itself.
-         * If recursive is true, it also traverses the Node's hierarchy with a breadth first search.
-         *
-         * @param id The ID of the child to find.
-         * @param recursive True to search recursively all the node's children, false for only direct children.
-         * @param exactMatch true if only nodes whose ID exactly matches the specified ID are returned,
-         *        or false if nodes that start with the given ID are returned.
-         *
-         * @return The Node found or NULL if not found.
-         */
-        std::shared_ptr<Node> findNode(const std::string& id, bool recursive = true, bool exactMatch = true) const;
-
-        /**
-         * Returns all child nodes that match the given ID.
-         *
-         * @param id The ID of the node to find.
-         * @param nodes A vector of nodes to be populated with matches.
-         * @param recursive true if a recursive search should be performed, false otherwise.
-         * @param exactMatch true if only nodes whose ID exactly matches the specified ID are returned,
-         *        or false if nodes that start with the given ID are returned.
-         *
-         * @return The number of matches found.
-         * @script{ignore}
-         */
-        size_t findNodes(const std::string& id, Node::List& nodes, bool recursive = true, bool exactMatch = true) const;
 
         /**
          * Gets the scene this node is currenlty within.
@@ -301,22 +259,30 @@ namespace gameplay
                 visitor.visit(*node);
         }
 
-    protected:
+        void setParent(const std::shared_ptr<Node>& parent)
+        {
+            if(!_parent.expired())
+            {
+                auto p = _parent.lock();
+                auto it = std::find(p->_children.begin(), p->_children.end(), shared_from_this());
+                BOOST_ASSERT(it != p->_children.end());
+                _parent.lock()->_children.erase(it);
+            }
 
-        /**
-         * Removes this node from its parent.
-         */
-        void remove();
+            _parent = parent;
+
+            if(parent != nullptr)
+                parent->_children.push_back(shared_from_this());
+
+            transformChanged();
+        }
+
+    protected:
 
         /**
          * Called when this Node's transform changes.
          */
         void transformChanged();
-
-        /**
-         * Called when this Node's hierarchy changes.
-         */
-        void hierarchyChanged();
 
     private:
 
@@ -342,10 +308,9 @@ namespace gameplay
         std::shared_ptr<Drawable> _drawable = nullptr;
         /** The light component attached to this node. */
         std::shared_ptr<Light> _light = nullptr;
-        /** The dirty bits used for optimization. */
-        mutable int _dirtyBits;
 
         glm::mat4 m_localMatrix{ 1.0f };
         mutable glm::mat4 m_worldMatrix{ 1.0f };
+        mutable bool _dirty = false;
     };
 }

@@ -29,18 +29,6 @@ namespace gameplay
         void addNode(const std::shared_ptr<Node>& node);
 
         /**
-         * Removes the specified node from the scene.
-         *
-         * @param node The node to remove.
-         */
-        void removeNode(const std::shared_ptr<Node>& node);
-
-        /**
-         * Removes all nodes from the scene.
-         */
-        void removeAllNodes();
-
-        /**
          * Returns the number of nodes at the root level of the scene.
          *
          * @return The node count.
