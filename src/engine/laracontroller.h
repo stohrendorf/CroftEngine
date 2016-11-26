@@ -5,6 +5,7 @@
 #include "collisioninfo.h"
 #include "abstractstatehandler.h"
 #include "itemcontroller.h"
+#include <chrono>
 
 
 namespace engine
@@ -56,7 +57,7 @@ namespace engine
 
         ~LaraController();
 
-        void animateImpl() override;
+        void updateImpl(const std::chrono::microseconds& deltaTime) override;
 
         bool isInWater() const
         {
@@ -71,9 +72,9 @@ namespace engine
 
 
     private:
-        void handleLaraStateOnLand();
-        void handleLaraStateDiving();
-        void handleLaraStateSwimming();
+        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
         void testInteractions();
         //! @brief If "none", we are not allowed to dive until the "Dive" action key is released
         //! @remarks This happens e.g. just after dive-to-swim transition, when players still
@@ -142,15 +143,15 @@ namespace engine
         }
 
 
-        void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au)
+        void subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = -32768_au)
         {
-            m_yRotationSpeed.sub(val, getCurrentDeltaTime()).limitMin(limit);
+            m_yRotationSpeed.sub(val, deltaTime).limitMin(limit);
         }
 
 
-        void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au)
+        void addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = 32767_au)
         {
-            m_yRotationSpeed.add(val, getCurrentDeltaTime()).limitMax(limit);
+            m_yRotationSpeed.add(val, deltaTime).limitMax(limit);
         }
 
 

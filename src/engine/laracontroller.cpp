@@ -5,6 +5,7 @@
 #include "render/textureanimator.h"
 
 #include <boost/range/adaptors.hpp>
+#include <chrono>
 
 
 namespace engine
@@ -27,7 +28,7 @@ namespace engine
     }
 
 
-    void LaraController::handleLaraStateOnLand()
+    void LaraController::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -38,7 +39,7 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler != nullptr )
         {
@@ -49,38 +50,38 @@ namespace engine
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation(core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(core::makeInterpolatedValue(+1_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
                 setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation(-core::makeInterpolatedValue(+1_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(-core::makeInterpolatedValue(+1_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
                 setZRotation(0_deg);
         }
 
         if( getYRotationSpeed() < 0_deg )
         {
-            m_yRotationSpeed.add(2_deg, getCurrentDeltaTime()).limitMax(0_deg);
+            m_yRotationSpeed.add(2_deg, deltaTime).limitMax(0_deg);
         }
         else if( getYRotationSpeed() > 0_deg )
         {
-            m_yRotationSpeed.sub(2_deg, getCurrentDeltaTime()).limitMin(0_deg);
+            m_yRotationSpeed.sub(2_deg, deltaTime).limitMin(0_deg);
         }
         else
         {
             setYRotationSpeed(0_deg);
         }
 
-        addYRotation(m_yRotationSpeed.getScaled(getCurrentDeltaTime()));
+        addYRotation(m_yRotationSpeed.getScaled(deltaTime));
 
         applyTransform();
 
         if( getLevel().m_cameraController->getCamOverrideType() != 2 )
         {
-            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(getCurrentDeltaTime());
-            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(getCurrentDeltaTime());
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(deltaTime);
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(deltaTime);
             getLevel().m_cameraController->addHeadRotationXY(-x, -y);
             getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
         }
@@ -112,7 +113,7 @@ namespace engine
     }
 
 
-    void LaraController::handleLaraStateDiving()
+    void LaraController::handleLaraStateDiving(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -126,7 +127,7 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler != nullptr )
         {
@@ -137,13 +138,13 @@ namespace engine
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
                 setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
                 setZRotation(0_deg);
         }
@@ -151,9 +152,9 @@ namespace engine
         setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
         {
             auto pos = getPosition();
-            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
-            pos.Y -= getRotation().X.sin() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
-            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4;
+            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(deltaTime) / 4;
+            pos.Y -= getRotation().X.sin() * getFallSpeed().getScaled(deltaTime) / 4;
+            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed().getScaled(deltaTime) / 4;
             setPosition(pos);
         }
 
@@ -184,7 +185,7 @@ namespace engine
     }
 
 
-    void LaraController::handleLaraStateSwimming()
+    void LaraController::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -200,7 +201,7 @@ namespace engine
 
         std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate(collisionInfo, getCurrentDeltaTime());
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler != nullptr )
         {
@@ -211,27 +212,27 @@ namespace engine
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
                 setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(getCurrentDeltaTime()));
+            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
                 setZRotation(0_deg);
         }
 
         setPosition(getPosition() + core::ExactTRCoordinates(
-            getMovementAngle().sin() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4,
+            getMovementAngle().sin() * getFallSpeed().getScaled(deltaTime) / 4,
             0,
-            getMovementAngle().cos() * getFallSpeed().getScaled(getCurrentDeltaTime()) / 4
+            getMovementAngle().cos() * getFallSpeed().getScaled(deltaTime) / 4
         ));
 
         if( getLevel().m_cameraController->getCamOverrideType() != 2 )
         {
-            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(getCurrentDeltaTime());
-            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(getCurrentDeltaTime());
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f).getScaled(deltaTime);
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f).getScaled(deltaTime);
             getLevel().m_cameraController->addHeadRotationXY(-x, -y);
             auto r = getLevel().m_cameraController->getHeadRotation();
             r.X = 0_deg;
@@ -290,11 +291,11 @@ namespace engine
     LaraController::~LaraController() = default;
 
 
-    void LaraController::animateImpl()
+    void LaraController::updateImpl(const std::chrono::microseconds& deltaTime)
     {
         static constexpr auto UVAnimTime = 3_frame;
 
-        m_uvAnimTime += getCurrentDeltaTime();
+        m_uvAnimTime += deltaTime;
         if( m_uvAnimTime >= UVAnimTime )
         {
             getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
@@ -393,28 +394,28 @@ namespace engine
         if( m_underwaterState == UnderwaterState::OnLand )
         {
             m_air = 1800;
-            handleLaraStateOnLand();
+            handleLaraStateOnLand(deltaTime);
         }
         else if( m_underwaterState == UnderwaterState::Diving )
         {
             if( m_health >= 0 )
             {
-                m_air.sub(1, getCurrentDeltaTime());
+                m_air.sub(1, deltaTime);
                 if( m_air < 0 )
                 {
                     m_air = -1;
-                    m_health.sub(5, getCurrentDeltaTime());
+                    m_health.sub(5, deltaTime);
                 }
             }
-            handleLaraStateDiving();
+            handleLaraStateDiving(deltaTime);
         }
         else if( m_underwaterState == UnderwaterState::Swimming )
         {
             if( m_health >= 0 )
             {
-                m_air.add(10, getCurrentDeltaTime()).limitMax(1800);
+                m_air.add(10, deltaTime).limitMax(1800);
             }
-            handleLaraStateSwimming();
+            handleLaraStateSwimming(deltaTime);
         }
 
         resetPose();
@@ -495,30 +496,6 @@ namespace engine
                 }
             }
         }
-
-        /*if( getCurrentFrameChangeType() == FrameChangeType::EndFrame )
-        {
-            loopAnimation();
-        }*/
-
-        if( isFalling() )
-        {
-            getHorizontalSpeed().add(getAccelleration(), getCurrentDeltaTime());
-            if( getFallSpeed() >= 128 )
-                getFallSpeed().add(1, getCurrentDeltaTime());
-            else
-                getFallSpeed().add(6, getCurrentDeltaTime());
-        }
-        else
-        {
-            setHorizontalSpeed(core::makeInterpolatedValue(calculateFloorSpeed()));
-        }
-
-        move(
-            getMovementAngle().sin() * getHorizontalSpeed().getScaled(getCurrentDeltaTime()),
-            isFalling() ? getFallSpeed().getScaled(getCurrentDeltaTime()) : 0,
-            getMovementAngle().cos() * getHorizontalSpeed().getScaled(getCurrentDeltaTime())
-        );
 
         if(nextHandler != nullptr)
             m_currentStateHandler = std::move(nextHandler);

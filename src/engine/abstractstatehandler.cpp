@@ -5,6 +5,9 @@
 #include "laracontroller.h"
 #include "level/level.h"
 
+#include <chrono>
+
+
 namespace engine
 {
     namespace
@@ -89,12 +92,12 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                subYRotationSpeed(2.25_deg, -4_deg);
+                subYRotationSpeed(deltaTime, 2.25_deg, -4_deg);
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                addYRotationSpeed(2.25_deg, 4_deg);
+                addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
         }
 
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
@@ -226,17 +229,17 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
-                subYRotationSpeed(2.25_deg, -8_deg);
-                setZRotation(std::max(-11_deg, getRotation().Z - core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTimeMs)));
+                subYRotationSpeed(deltaTime, 2.25_deg, -8_deg);
+                setZRotation(std::max(-11_deg, getRotation().Z - core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTime)));
             }
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
-                addYRotationSpeed(2.25_deg, 8_deg);
-                setZRotation(std::min(+11_deg, getRotation().Z + core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTimeMs)));
+                addYRotationSpeed(deltaTime, 2.25_deg, 8_deg);
+                setZRotation(std::min(+11_deg, getRotation().Z + core::makeInterpolatedValue(+1.5_deg).getScaled(deltaTime)));
             }
         }
 
@@ -444,15 +447,15 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
-                subYRotationSpeed(2.25_deg, -3_deg);
+                subYRotationSpeed(deltaTime, 2.25_deg, -3_deg);
             }
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
-                addYRotationSpeed(2.25_deg, 3_deg);
+                addYRotationSpeed(deltaTime, 2.25_deg, 3_deg);
             }
         }
 
@@ -532,12 +535,12 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                subYRotationSpeed(2.25_deg, -6_deg);
+                subYRotationSpeed(deltaTime, 2.25_deg, -6_deg);
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                addYRotationSpeed(2.25_deg, 6_deg);
+                addYRotationSpeed(deltaTime, 2.25_deg, 6_deg);
         }
 
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
@@ -654,9 +657,9 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
-            addYRotationSpeed(2.25_deg);
+            addYRotationSpeed(deltaTime, 2.25_deg);
             if( getYRotationSpeed() <= 4_deg )
                 return;
 
@@ -709,9 +712,9 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
-            subYRotationSpeed(2.25_deg);
+            subYRotationSpeed(deltaTime, 2.25_deg);
             if( getYRotationSpeed() >= -4_deg )
                 return;
 
@@ -780,9 +783,9 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
-            dampenHorizontalSpeed(0.05f);
+            dampenHorizontalSpeed(deltaTime, 0.05f);
             if( getFallSpeed() > 154 )
             {
                 getController().playSoundEffect(30);
@@ -1190,12 +1193,12 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                subYRotationSpeed(2.25_deg, -4_deg);
+                subYRotationSpeed(deltaTime, 2.25_deg, -4_deg);
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                addYRotationSpeed(2.25_deg, 4_deg);
+                addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
         }
 
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
@@ -2693,9 +2696,9 @@ namespace engine
             return nullptr;
         }
 
-        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+        void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
-            dampenHorizontalSpeed(0.05f);
+            dampenHorizontalSpeed(deltaTime, 0.05f);
         }
 
         std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
@@ -3063,14 +3066,14 @@ namespace engine
         return m_controller.getYRotationSpeed();
     }
 
-    void AbstractStateHandler::subYRotationSpeed(core::Angle val, core::Angle limit)
+    void AbstractStateHandler::subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit)
     {
-        m_controller.subYRotationSpeed(val, limit);
+        m_controller.subYRotationSpeed(deltaTime, val, limit);
     }
 
-    void AbstractStateHandler::addYRotationSpeed(core::Angle val, core::Angle limit)
+    void AbstractStateHandler::addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit)
     {
-        m_controller.addYRotationSpeed(val, limit);
+        m_controller.addYRotationSpeed(deltaTime, val, limit);
     }
 
     void AbstractStateHandler::setXRotation(core::Angle x)
@@ -3093,9 +3096,9 @@ namespace engine
         m_controller.setFallSpeedOverride(v);
     }
 
-    void AbstractStateHandler::dampenHorizontalSpeed(float f)
+    void AbstractStateHandler::dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f)
     {
-        m_controller.dampenHorizontalSpeed(f);
+        m_controller.dampenHorizontalSpeed(deltaTime, f);
     }
 
     core::Angle AbstractStateHandler::getCurrentSlideAngle() const noexcept

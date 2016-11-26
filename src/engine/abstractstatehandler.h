@@ -116,9 +116,9 @@ namespace engine
 
         core::Angle getYRotationSpeed() const;
 
-        void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au);
+        void subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = -32768_au);
 
-        void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au);
+        void addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = 32767_au);
 
         void setXRotation(core::Angle y);
 
@@ -128,7 +128,7 @@ namespace engine
 
         void setFallSpeedOverride(int v);
 
-        void dampenHorizontalSpeed(float f);
+        void dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f);
 
         core::Angle getCurrentSlideAngle() const noexcept;
 

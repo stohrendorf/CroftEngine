@@ -2,6 +2,7 @@
 
 #include "laracontroller.h"
 #include "level/level.h"
+#include <chrono>
 
 
 namespace engine
@@ -79,97 +80,71 @@ namespace engine
     {
         m_flags2_10 = false;
 
-        //handleTRTransitions();
-
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
-        if( animation.animCommandCount > 0 )
+        if( animation.animCommandCount <= 0 )
+            return;
+
+        BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
+        const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
+        for( uint16_t i = 0; i < animation.animCommandCount; ++i )
         {
-            BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
-            const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
-            for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+            BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
+            const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
+            ++cmd;
+            switch( opcode )
             {
-                BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
-                const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
-                ++cmd;
-                switch( opcode )
-                {
-                    case AnimCommandOpcode::SetPosition:
-                        if(frameChangeType == FrameChangeType::EndFrame )
-                        {
-                            moveLocal(
-                                cmd[0],
-                                cmd[1],
-                                cmd[2]
-                            );
-                        }
-                        cmd += 3;
-                        break;
-                    case AnimCommandOpcode::SetVelocity:
-                        if(frameChangeType == FrameChangeType::EndFrame )
-                        {
-                            m_fallSpeed = cmd[0];
-                            m_falling = true;
-                            m_horizontalSpeed = cmd[1];
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::EmptyHands:
-                        break;
-                    case AnimCommandOpcode::PlaySound:
-                        if(frameChangeType == FrameChangeType::NewFrame && core::toFrame(getCurrentTime()) == cmd[0] )
-                        {
-                            playSoundEffect(cmd[1]);
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::PlayEffect:
-                        if( core::toFrame(getCurrentTime()) == cmd[0] )
-                        {
-                            BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-                            if(frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
-                                addYRotation(180_deg);
-                            else if( cmd[1] == 12 )
-                                getLevel().m_lara->setHandStatus(0);
-                            //! @todo Execute anim effect cmd[1]
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::Kill:
-                        if(frameChangeType == FrameChangeType::EndFrame )
-                        {
-                            m_flags2_02_toggledOn = false;
-                            m_flags2_04_ready = true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                case AnimCommandOpcode::SetPosition:
+                    if(frameChangeType == FrameChangeType::EndFrame )
+                    {
+                        moveLocal(
+                            cmd[0],
+                            cmd[1],
+                            cmd[2]
+                        );
+                    }
+                    cmd += 3;
+                    break;
+                case AnimCommandOpcode::SetVelocity:
+                    if(frameChangeType == FrameChangeType::EndFrame )
+                    {
+                        m_fallSpeed = cmd[0];
+                        m_falling = true;
+                        m_horizontalSpeed = cmd[1];
+                    }
+                    cmd += 2;
+                    break;
+                case AnimCommandOpcode::EmptyHands:
+                    break;
+                case AnimCommandOpcode::PlaySound:
+                    if(frameChangeType == FrameChangeType::NewFrame && core::toFrame(getCurrentTime()) == cmd[0] )
+                    {
+                        playSoundEffect(cmd[1]);
+                    }
+                    cmd += 2;
+                    break;
+                case AnimCommandOpcode::PlayEffect:
+                    if( core::toFrame(getCurrentTime()) == cmd[0] )
+                    {
+                        BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
+                        if(frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
+                            addYRotation(180_deg);
+                        else if( cmd[1] == 12 )
+                            getLevel().m_lara->setHandStatus(0);
+                        //! @todo Execute anim effect cmd[1]
+                    }
+                    cmd += 2;
+                    break;
+                case AnimCommandOpcode::Kill:
+                    if(frameChangeType == FrameChangeType::EndFrame )
+                    {
+                        m_flags2_02_toggledOn = false;
+                        m_flags2_04_ready = true;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
-
-        /*if( getCurrentFrameChangeType() == FrameChangeType::EndFrame )
-        {
-            loopAnimation();
-        }*/
-
-        if( m_falling )
-        {
-            m_horizontalSpeed.add(getAccelleration(), getCurrentDeltaTime());
-            if( getFallSpeed() >= 128 )
-                m_fallSpeed.add(1, getCurrentDeltaTime());
-            else
-                m_fallSpeed.add(6, getCurrentDeltaTime());
-        }
-        else
-        {
-            m_horizontalSpeed = calculateFloorSpeed();
-        }
-
-        move(
-            getRotation().Y.sin() * m_horizontalSpeed.getScaled(getCurrentDeltaTime()),
-            m_falling ? m_fallSpeed.getScaled(getCurrentDeltaTime()) : 0,
-            getRotation().Y.cos() * m_horizontalSpeed.getScaled(getCurrentDeltaTime())
-        );
     }
 
 
@@ -679,9 +654,9 @@ namespace engine
     }
 
 
-    void ItemController_SwingingBlade::animateImpl()
+    void ItemController_SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
     {
-        if( updateTriggerTimeout() )
+        if( updateTriggerTimeout(deltaTime) )
         {
             if( getCurrentState() == 0 )
                 setTargetState(2);
@@ -708,15 +683,29 @@ namespace engine
     {
         addTime(deltaTime);
 
-        m_currentDeltaTime = deltaTime;
+        updateImpl(deltaTime);
 
-        if( m_currentDeltaTime <= std::chrono::microseconds::zero() )
-            return;
+        if(m_falling)
+        {
+            m_horizontalSpeed.add(getAccelleration(), deltaTime);
+            if(getFallSpeed() >= 128)
+                m_fallSpeed.add(1, deltaTime);
+            else
+                m_fallSpeed.add(6, deltaTime);
+        }
+        else
+        {
+            m_horizontalSpeed = calculateFloorSpeed();
+        }
 
-        animateImpl();
+        move(
+            getRotation().Y.sin() * m_horizontalSpeed.getScaled(deltaTime),
+            m_falling ? m_fallSpeed.getScaled(deltaTime) : 0,
+            getRotation().Y.cos() * m_horizontalSpeed.getScaled(deltaTime)
+        );
 
         applyTransform();
 
         updatePose();
     }
-}
+    }

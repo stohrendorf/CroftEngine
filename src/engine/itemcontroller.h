@@ -4,6 +4,8 @@
 #include "core/interpolatedvalue.h"
 #include "skeletalmodelnode.h"
 
+#include <chrono>
+
 
 namespace loader
 {
@@ -44,7 +46,6 @@ namespace engine
 
         core::InterpolatedValue<float> m_fallSpeed{0.0f};
         core::InterpolatedValue<float> m_horizontalSpeed{0.0f};
-        std::chrono::microseconds m_currentDeltaTime{0};
 
         bool m_falling = false; // flags2_08
 
@@ -254,15 +255,9 @@ namespace engine
         }
 
 
-        void dampenHorizontalSpeed(float f)
+        void dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f)
         {
-            m_horizontalSpeed.sub(m_horizontalSpeed * f, getCurrentDeltaTime());
-        }
-
-
-        std::chrono::microseconds getCurrentDeltaTime() const
-        {
-            return m_currentDeltaTime;
+            m_horizontalSpeed.sub(m_horizontalSpeed * f, deltaTime);
         }
 
 
@@ -287,9 +282,9 @@ namespace engine
         void activate();
         void deactivate();
 
-        void update(const std::chrono::microseconds& deltaTimeMs);
+        void update(const std::chrono::microseconds& deltaTime);
 
-        virtual void animateImpl() = 0;
+        virtual void updateImpl(const std::chrono::microseconds& deltaTime) = 0;
 
 
         core::InterpolatedValue<float>& getHorizontalSpeed()
@@ -353,7 +348,7 @@ namespace engine
         }
 
 
-        bool updateTriggerTimeout()
+        bool updateTriggerTimeout(const std::chrono::microseconds& deltaTime)
         {
             if( (m_itemFlags & ActivationMask) != ActivationMask )
             {
@@ -370,8 +365,8 @@ namespace engine
                 return isInvertedActivation();
             }
 
-            BOOST_ASSERT(getCurrentDeltaTime() > std::chrono::microseconds::zero());
-            m_triggerTimeout -= getCurrentDeltaTime();
+            BOOST_ASSERT(deltaTime > std::chrono::microseconds::zero());
+            m_triggerTimeout -= deltaTime;
             if( m_triggerTimeout <= std::chrono::microseconds::zero() )
                 m_triggerTimeout = std::chrono::microseconds(-1);
 
@@ -393,7 +388,7 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
         }
     };
@@ -412,9 +407,9 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
-            if( !updateTriggerTimeout() )
+            if( !updateTriggerTimeout(deltaTime) )
             {
                 setTargetState(1);
                 m_triggerTimeout = std::chrono::microseconds::zero();
@@ -447,7 +442,7 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
         }
 
@@ -498,7 +493,7 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
         }
 
@@ -572,9 +567,9 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
-            if( updateTriggerTimeout() )
+            if( updateTriggerTimeout(deltaTime) )
             {
                 if( getCurrentState() == 0 )
                     setTargetState(1);
@@ -652,9 +647,9 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
-            if( updateTriggerTimeout() )
+            if( updateTriggerTimeout(deltaTime) )
             {
                 if( getCurrentState() != 0 )
                 {
@@ -696,9 +691,9 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
-            if( updateTriggerTimeout() )
+            if( updateTriggerTimeout(deltaTime) )
                 setTargetState(1);
             else
                 setTargetState(0);
@@ -731,9 +726,9 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
-            if( updateTriggerTimeout() )
+            if( updateTriggerTimeout(deltaTime) )
             {
                 if( getCurrentState() == 0 )
                 {
@@ -774,7 +769,7 @@ namespace engine
         }
 
 
-        void animateImpl() override
+        void updateImpl(const std::chrono::microseconds& deltaTime) override
         {
         }
 
@@ -823,7 +818,7 @@ namespace engine
         }
 
 
-        void animateImpl() override final
+        void updateImpl(const std::chrono::microseconds& deltaTime) override final
         {
         }
 
@@ -920,7 +915,7 @@ namespace engine
         }
 
 
-        void animateImpl() override;
+        void updateImpl(const std::chrono::microseconds& deltaTime) override;
 
 
         void onInteract(LaraController& /*lara*/) override
