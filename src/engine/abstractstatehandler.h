@@ -88,11 +88,11 @@ namespace engine
 
         void setHandStatus(int status) noexcept;
 
-        core::Frame getCurrentFrame() const;
+        std::chrono::microseconds getCurrentTime() const;
 
         loader::LaraStateId getCurrentAnimState() const;
 
-        void playAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
+        void playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
         const core::TRRotation& getRotation() const noexcept;
 

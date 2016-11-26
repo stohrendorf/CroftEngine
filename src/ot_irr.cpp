@@ -26,7 +26,7 @@ namespace
         // animation
         drawText(font, 10, 60, loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 100, 60, loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 80, boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame().count()));
+        drawText(font, 10, 80, boost::lexical_cast<std::string>(core::toFrame(lvl->m_lara->getCurrentTime())));
         drawText(font, 100, 80, toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers

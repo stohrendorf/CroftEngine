@@ -37,58 +37,38 @@ namespace engine
         }
 
 
-        bool checkTransitions()
+        enum class FrameChangeType
         {
-            bool isNewFrame = false;
-            if( m_time >= getEndTime() )
+            SameFrame,
+            NewFrame,
+            EndFrame
+        };
+
+
+        void addTime(const std::chrono::microseconds& time)
+        {
+            if( core::toFrame(m_time) != core::toFrame(m_time + time) )
             {
-                loopAnimation();
-                isNewFrame = true;
+                if(getCurrentLocalTime() + time >= getEndTime() - 1_frame)
+                    onFrameChanged(FrameChangeType::EndFrame);
+                else
+                    onFrameChanged(FrameChangeType::NewFrame);
             }
 
-            isNewFrame |= handleTRTransitions();
-
-            return isNewFrame;
-        }
-
-
-        bool addTime(const std::chrono::microseconds& time)
-        {
-            bool isNewFrame = core::toFrame(m_time) != core::toFrame(m_time + time);
             m_time += time;
 
-            isNewFrame |= checkTransitions();
-
-            return isNewFrame;
+            checkTransitions();
         }
 
 
-        core::Frame getCurrentFrame() const
+        const std::chrono::microseconds& getCurrentTime() const
         {
-            return core::toFrame(m_time);
+            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
+            return m_time;
         }
 
-
-        core::Frame getCurrentLocalFrame() const
-        {
-            //BOOST_ASSERT(core::toFrame(m_time) >= getFirstFrame());
-            return core::toFrame(m_time) - getFirstFrame();
-        }
-
-
-        core::Frame getFirstFrame() const;
-
-        core::Frame getLastFrame() const;
-
-        std::chrono::microseconds getEndTime() const
-        {
-            return core::toTime(getLastFrame() + 1_frame);
-        }
 
         uint16_t getCurrentState() const;
-
-
-        const loader::Animation& getCurrentAnimData() const;
 
 
         void setTargetState(uint16_t state) noexcept
@@ -106,9 +86,6 @@ namespace engine
             return m_targetState;
         }
 
-
-        bool handleTRTransitions();
-        void loopAnimation();
 
         float calculateFloorSpeed() const;
 
@@ -137,6 +114,7 @@ namespace engine
             m_bonePatches[idx] = m;
         }
 
+        virtual void onFrameChanged(FrameChangeType frameChangeType) = 0;
 
     private:
         const gsl::not_null<const level::Level*> m_level;
@@ -204,5 +182,28 @@ namespace engine
         InterpolationInfo getInterpolationInfo() const;
         void updatePoseKeyframe(const InterpolationInfo& framepair);
         void updatePoseInterpolated(const InterpolationInfo& framepair);
+        const loader::Animation& getCurrentAnimData() const;
+        std::chrono::microseconds getStartTime() const;
+        std::chrono::microseconds getEndTime() const;
+        void handleTRTransitions();
+        void loopAnimation();
+
+
+        void checkTransitions()
+        {
+            if( m_time >= getEndTime() )
+            {
+                loopAnimation();
+            }
+
+            handleTRTransitions();
+        }
+
+
+        std::chrono::microseconds getCurrentLocalTime() const
+        {
+            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
+            return m_time - getStartTime();
+        }
     };
 }

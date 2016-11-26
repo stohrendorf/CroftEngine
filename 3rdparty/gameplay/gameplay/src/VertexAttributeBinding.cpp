@@ -86,7 +86,7 @@ namespace gameplay
             }
             else
             {
-                BOOST_LOG_TRIVIAL(warning) << "Vertex element with usage '" << e.usage << "' does not correspond to an attribute in shader '" << shaderProgram->getId() << "'.";
+                //BOOST_LOG_TRIVIAL(warning) << "Vertex element with usage '" << e.usage << "' does not correspond to an attribute in shader '" << shaderProgram->getId() << "'.";
             }
             offset += e.size * sizeof(float);
         }

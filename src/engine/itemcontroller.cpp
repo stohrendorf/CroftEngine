@@ -75,22 +75,11 @@ namespace engine
     }
 
 
-    void ItemController::processAnimCommands(bool advanceFrame)
+    void ItemController::onFrameChanged(FrameChangeType frameChangeType)
     {
         m_flags2_10 = false;
 
-        if( advanceFrame )
-            this->advanceFrame();
-
-        bool newFrame = advanceFrame;
-
-        if( handleTRTransitions() || m_recentAnimFrame != getCurrentFrame() )
-        {
-            m_recentAnimFrame = getCurrentFrame();
-            newFrame = true;
-        }
-
-        const bool isAnimEnd = getCurrentFrame() > getLastFrame();
+        //handleTRTransitions();
 
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
         if( animation.animCommandCount > 0 )
@@ -105,7 +94,7 @@ namespace engine
                 switch( opcode )
                 {
                     case AnimCommandOpcode::SetPosition:
-                        if( isAnimEnd && newFrame )
+                        if(frameChangeType == FrameChangeType::EndFrame )
                         {
                             moveLocal(
                                 cmd[0],
@@ -116,7 +105,7 @@ namespace engine
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::SetVelocity:
-                        if( isAnimEnd && newFrame )
+                        if(frameChangeType == FrameChangeType::EndFrame )
                         {
                             m_fallSpeed = cmd[0];
                             m_falling = true;
@@ -127,17 +116,17 @@ namespace engine
                     case AnimCommandOpcode::EmptyHands:
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if( newFrame && getCurrentFrame() == core::Frame(cmd[0]) )
+                        if(frameChangeType == FrameChangeType::NewFrame && core::toFrame(getCurrentTime()) == cmd[0] )
                         {
                             playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if( getCurrentFrame() == core::Frame(cmd[0]) )
+                        if( core::toFrame(getCurrentTime()) == cmd[0] )
                         {
                             BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-                            if( cmd[1] == 0 && newFrame )
+                            if(frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
                                 addYRotation(180_deg);
                             else if( cmd[1] == 12 )
                                 getLevel().m_lara->setHandStatus(0);
@@ -146,7 +135,7 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::Kill:
-                        if( isAnimEnd && newFrame )
+                        if(frameChangeType == FrameChangeType::EndFrame )
                         {
                             m_flags2_02_toggledOn = false;
                             m_flags2_04_ready = true;
@@ -158,10 +147,10 @@ namespace engine
             }
         }
 
-        if( isAnimEnd )
+        /*if( getCurrentFrameChangeType() == FrameChangeType::EndFrame )
         {
             loopAnimation();
-        }
+        }*/
 
         if( m_falling )
         {
@@ -285,7 +274,7 @@ namespace engine
             do
             {
                 lara.setTargetState(loader::LaraStateId::SwitchDown);
-                lara.processLaraAnimCommands(true);
+                lara.advanceFrame();
             } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
             lara.setTargetState(loader::LaraStateId::Stop);
             setTargetState(0);
@@ -300,7 +289,7 @@ namespace engine
             do
             {
                 lara.setTargetState(loader::LaraStateId::SwitchUp);
-                lara.processLaraAnimCommands(true);
+                lara.advanceFrame();
             } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
             lara.setTargetState(loader::LaraStateId::Stop);
             setTargetState(1);
@@ -311,7 +300,6 @@ namespace engine
         m_flags2_02_toggledOn = true;
 
         activate();
-        ItemController::processAnimCommands();
     }
 
 
@@ -342,7 +330,7 @@ namespace engine
     }
 
 
-    void ItemController_35_CollapsibleFloor::processAnimCommands(bool advanceFrame)
+    void ItemController_35_CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
     {
         if( getCurrentState() == 0 ) // stationary
         {
@@ -364,7 +352,7 @@ namespace engine
             setFalling(true);
         }
 
-        ItemController::processAnimCommands(advanceFrame);
+        ItemController::onFrameChanged(frameChangeType);
 
         if( m_flags2_04_ready && !m_flags2_02_toggledOn )
         {
@@ -451,13 +439,13 @@ namespace engine
 
             lara.setYRotation(getRotation().Y);
             lara.setTargetState(loader::LaraStateId::PushableGrab);
-            lara.processLaraAnimCommands(true);
+            lara.advanceFrame();
             if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
                 lara.setHandStatus(1);
             return;
         }
 
-        if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab || lara.getCurrentFrame() != 2091_frame || !limits.canInteract(*this, lara) )
+        if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab || core::toFrame(lara.getCurrentTime()) != 2091 || !limits.canInteract(*this, lara) )
             return;
 
         if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
@@ -485,12 +473,10 @@ namespace engine
         loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
         m_flags2_02_toggledOn = true;
         m_flags2_04_ready = false;
-        ItemController::processAnimCommands();
-        lara.processLaraAnimCommands();
     }
 
 
-    void ItemController_Block::processAnimCommands(bool advanceFrame)
+    void ItemController_Block::onFrameChanged(FrameChangeType frameChangeType)
     {
         if( (m_itemFlags & Oneshot) != 0 )
         {
@@ -500,7 +486,7 @@ namespace engine
             return;
         }
 
-        ItemController::processAnimCommands(advanceFrame);
+        ItemController::onFrameChanged(frameChangeType);
 
         auto pos = getRoomBoundPosition();
         auto sector = getLevel().findFloorSectorWithClampedPosition(pos);
@@ -664,9 +650,9 @@ namespace engine
     }
 
 
-    void ItemController_TallBlock::processAnimCommands(bool advanceFrame)
+    void ItemController_TallBlock::onFrameChanged(FrameChangeType frameChangeType)
     {
-        ItemController::processAnimCommands(advanceFrame);
+        ItemController::onFrameChanged(frameChangeType);
         auto room = getCurrentRoom();
         getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
         setCurrentRoom(room);
@@ -684,16 +670,16 @@ namespace engine
     }
 
 
-    void ItemController_41_TrapDoorUp::processAnimCommands(bool advanceFrame)
+    void ItemController_41_TrapDoorUp::onFrameChanged(FrameChangeType frameChangeType)
     {
-        ItemController::processAnimCommands(advanceFrame);
+        ItemController::onFrameChanged(frameChangeType);
         auto pos = getRoomBoundPosition();
         getLevel().findFloorSectorWithClampedPosition(pos);
         setCurrentRoom(pos.room);
     }
 
 
-    void ItemController_SwingingBlade::animateImpl(bool)
+    void ItemController_SwingingBlade::animateImpl()
     {
         if( updateTriggerTimeout() )
         {
@@ -707,30 +693,27 @@ namespace engine
     }
 
 
-    void ItemController_SwingingBlade::processAnimCommands(bool advanceFrame)
+    void ItemController_SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
     {
         auto room = getCurrentRoom();
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
         setCurrentRoom(room);
         setFloorHeight(HeightInfo::fromFloor(sector, getPosition().toInexact(), getLevel().m_cameraController).distance);
 
-        ItemController::processAnimCommands(advanceFrame);
+        ItemController::onFrameChanged(frameChangeType);
     }
 
 
     void ItemController::update(const std::chrono::microseconds& deltaTime)
     {
-        const bool isNewFrame = addTime(deltaTime);
+        addTime(deltaTime);
 
         m_currentDeltaTime = deltaTime;
 
         if( m_currentDeltaTime <= std::chrono::microseconds::zero() )
             return;
 
-        animateImpl(isNewFrame);
-
-        if( m_isActive && m_hasProcessAnimCommandsOverride )
-            processAnimCommands();
+        animateImpl();
 
         applyTransform();
 

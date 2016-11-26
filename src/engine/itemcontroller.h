@@ -42,7 +42,6 @@ namespace engine
 
         gsl::not_null<level::Level*> const m_level;
 
-        core::Frame m_recentAnimFrame{-1};
         core::InterpolatedValue<float> m_fallSpeed{0.0f};
         core::InterpolatedValue<float> m_horizontalSpeed{0.0f};
         std::chrono::microseconds m_currentDeltaTime{0};
@@ -283,14 +282,14 @@ namespace engine
         }
 
 
-        virtual void processAnimCommands(bool advanceFrame = false);
+        void onFrameChanged(FrameChangeType frameChangeType) override;
 
         void activate();
         void deactivate();
 
         void update(const std::chrono::microseconds& deltaTimeMs);
 
-        virtual void animateImpl(bool isNewFrame) = 0;
+        virtual void animateImpl() = 0;
 
 
         core::InterpolatedValue<float>& getHorizontalSpeed()
@@ -348,18 +347,6 @@ namespace engine
         bool triggerKey();
 
     protected:
-        core::Frame getRecentAnimFrame() const noexcept
-        {
-            return m_recentAnimFrame;
-        }
-
-
-        void setRecentAnimFrame(const core::Frame& f) noexcept
-        {
-            m_recentAnimFrame = f;
-        }
-
-
         bool isInvertedActivation() const noexcept
         {
             return (m_itemFlags & InvertedActivation) != 0;
@@ -406,7 +393,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
         }
     };
@@ -425,7 +412,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
             if( !updateTriggerTimeout() )
             {
@@ -438,11 +425,11 @@ namespace engine
         void onInteract(LaraController& lara) override;
 
 
-        void processAnimCommands(bool /*advanceFrame*/  = false) override
+        void onFrameChanged(FrameChangeType frameChangeType) override
         {
             m_itemFlags |= ActivationMask;
 
-            ItemController::processAnimCommands();
+            ItemController::onFrameChanged(frameChangeType);
         }
     };
 
@@ -460,7 +447,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
         }
 
@@ -470,7 +457,7 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool advanceFrame = false) override;
+        void onFrameChanged(FrameChangeType frameChangeType) override;
 
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override
@@ -511,7 +498,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
         }
 
@@ -521,7 +508,7 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool advanceFrame = false) override;
+        void onFrameChanged(FrameChangeType frameChangeType) override;
 
 
         void patchFloor(const core::TRCoordinates& pos, long& y) override
@@ -585,7 +572,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
             if( updateTriggerTimeout() )
             {
@@ -601,12 +588,6 @@ namespace engine
 
         void onInteract(LaraController& /*lara*/) override
         {
-        }
-
-
-        void processAnimCommands(bool advanceFrame = false) override
-        {
-            ItemController::processAnimCommands(advanceFrame);
         }
 
 
@@ -671,7 +652,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
             if( updateTriggerTimeout() )
             {
@@ -689,7 +670,6 @@ namespace engine
                 if( getCurrentState() == 1 )
                 {
                     setTargetState(0);
-                    ItemController::processAnimCommands();
                     return;
                 }
                 //! @todo Patch original sector data with blocking heights
@@ -698,14 +678,6 @@ namespace engine
 
 
         void onInteract(LaraController& lara) override;
-
-
-        void processAnimCommands(bool /*advanceFrame*/  = false) override
-        {
-            //BOOST_LOG_TRIVIAL(warning) << "Door anim command processing not fully implemented";
-
-            ItemController::processAnimCommands();
-        }
     };
 
 
@@ -724,7 +696,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
             if( updateTriggerTimeout() )
                 setTargetState(1);
@@ -735,7 +707,7 @@ namespace engine
 
         void onInteract(LaraController& lara) override;
 
-        void processAnimCommands(bool advanceFrame = false) override;
+        void onFrameChanged(FrameChangeType frameChangeType) override;
 
     private:
         bool isOnFloor(int height) const;
@@ -759,7 +731,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
             if( updateTriggerTimeout() )
             {
@@ -785,7 +757,7 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool advanceFrame = false) override;
+        void onFrameChanged(FrameChangeType frameChangeType) override;
     };
 
 
@@ -802,7 +774,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override
+        void animateImpl() override
         {
         }
 
@@ -812,7 +784,7 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool /*advanceFrame*/  = false) override
+        void onFrameChanged(FrameChangeType frameChangeType) override
         {
         }
 
@@ -851,7 +823,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override final
+        void animateImpl() override final
         {
         }
 
@@ -861,7 +833,7 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool /*advanceFrame*/  = false) override final
+        void onFrameChanged(FrameChangeType frameChangeType) override
         {
         }
 
@@ -948,7 +920,7 @@ namespace engine
         }
 
 
-        void animateImpl(bool /*isNewFrame*/) override;
+        void animateImpl() override;
 
 
         void onInteract(LaraController& /*lara*/) override
@@ -956,6 +928,6 @@ namespace engine
         }
 
 
-        void processAnimCommands(bool advanceFrame = false) override;
+        void onFrameChanged(FrameChangeType frameChangeType) override;
     };
 }

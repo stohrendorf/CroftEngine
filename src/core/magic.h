@@ -21,21 +21,18 @@ namespace core
     constexpr int FrameRate = 30;
     constexpr std::chrono::microseconds FrameTime = std::chrono::microseconds(std::chrono::seconds(1)) / FrameRate;
 
-    using FrameRatio = std::ratio<1, FrameRate>;
-    using Frame = std::chrono::duration<int, FrameRatio>;
-
-    inline Frame toFrame(const std::chrono::microseconds& duration)
+    constexpr std::chrono::microseconds fromFrame(uint16_t f)
     {
-        return std::chrono::duration_cast<Frame>(duration);
+        return std::chrono::microseconds(std::chrono::seconds(f)) / core::FrameRate;
     }
 
-    inline std::chrono::microseconds toTime(const Frame& frame)
+    inline uint16_t toFrame(const std::chrono::microseconds& time)
     {
-        return std::chrono::duration_cast<std::chrono::microseconds>(frame);
+        return gsl::narrow<uint16_t>(time / core::FrameTime);
     }
 }
 
-inline core::Frame operator""_frame(unsigned long long f)
+constexpr std::chrono::microseconds operator""_frame(unsigned long long f)
 {
-    return core::Frame{ gsl::narrow<int>(f) };
+    return core::fromFrame(f);
 }
