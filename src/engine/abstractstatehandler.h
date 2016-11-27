@@ -11,17 +11,17 @@
 namespace engine
 {
     struct CollisionInfo;
-    class LaraController;
+    class LaraNode;
     struct InputState;
 
     enum class UnderwaterState;
 
     class AbstractStateHandler
     {
-        LaraController& m_controller;
+        LaraNode& m_controller;
 
     public:
-        explicit AbstractStateHandler(LaraController& controller)
+        explicit AbstractStateHandler(LaraNode& controller)
             : m_controller(controller)
         {
         }
@@ -43,7 +43,7 @@ namespace engine
             return handleInputImpl(collisionInfo);
         }
 
-        static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraController& controller);
+        static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraNode& controller);
         std::unique_ptr<AbstractStateHandler> createWithRetainedAnimation(loader::LaraStateId id) const;
 
         virtual loader::LaraStateId getId() const noexcept = 0;
@@ -62,7 +62,7 @@ namespace engine
         core::InterpolatedValue<float> m_yMovement{0.0f};
         core::InterpolatedValue<float> m_zMovement{0.0f};
 
-        LaraController& getController()
+        LaraNode& getController()
         {
             return m_controller;
         }

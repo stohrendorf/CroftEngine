@@ -7,8 +7,8 @@
 
 namespace engine
 {
-    class ItemController;
-    class LaraController;
+    class ItemNode;
+    class LaraNode;
 
     class CameraController final
     {
@@ -18,12 +18,12 @@ namespace engine
 
         // For interactions
         level::Level* m_level;
-        LaraController* m_laraController;
+        LaraNode* m_laraController;
 
         // TR state
-        ItemController* m_lookAtItem = nullptr;
-        const ItemController* m_lookAtItem2 = nullptr;
-        ItemController* m_enemy = nullptr;
+        ItemNode* m_lookAtItem = nullptr;
+        const ItemNode* m_lookAtItem2 = nullptr;
+        ItemNode* m_enemy = nullptr;
         core::TRRotation m_enemyLookRot;
         int m_unknown1 = 0;
         int m_camShakeRadius = 0;
@@ -47,7 +47,7 @@ namespace engine
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     public:
-        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
+        explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraNode*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
 
         const level::Level* getLevel() const noexcept
         {
@@ -69,7 +69,7 @@ namespace engine
 
         void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
 
-        void setLookAtItem(ItemController* item)
+        void setLookAtItem(ItemNode* item)
         {
             if( item == nullptr || (m_camOverrideType != 1 && m_camOverrideType != 5) )
                 return;
@@ -161,9 +161,9 @@ namespace engine
         int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
         void updatePosition(const ::core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs);
-        void doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleFreeLook(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleEnemy(const ItemController& item, const std::chrono::microseconds& deltaTimeMs);
+        void doUsualMovement(const gsl::not_null<const ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleFreeLook(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleEnemy(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
 
         using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 

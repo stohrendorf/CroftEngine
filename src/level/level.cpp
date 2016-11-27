@@ -22,7 +22,7 @@
 
 #include "level.h"
 
-#include "engine/laracontroller.h"
+#include "engine/laranode.h"
 #include "render/textureanimator.h"
 #include "tr1level.h"
 #include "tr2level.h"
@@ -435,11 +435,11 @@ namespace
     }
 }
 
-engine::LaraController* Level::createItems(gameplay::Game* game,
+engine::LaraNode* Level::createItems(gameplay::Game* game,
                                            const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
                                            const std::vector<std::shared_ptr<gameplay::Model>>& models)
 {
-    engine::LaraController* lara = nullptr;
+    engine::LaraNode* lara = nullptr;
     int id = -1;
     for( loader::Item& item : m_items )
     {
@@ -452,60 +452,60 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 
         if( const auto modelIdx = findAnimatedModelIndexForType(type) )
         {
-            std::shared_ptr<engine::ItemController> modelNode;
+            std::shared_ptr<engine::ItemNode> modelNode;
 
             if(type == 0 )
             {
-                modelNode = createSkeletalModel<engine::LaraController>(*modelIdx, models, &room, &item);
-                lara = static_cast<engine::LaraController*>(modelNode.get());
+                modelNode = createSkeletalModel<engine::LaraNode>(*modelIdx, models, &room, &item);
+                lara = static_cast<engine::LaraNode*>(modelNode.get());
             }
             else if(type == 35 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_35_CollapsibleFloor>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_35_CollapsibleFloor>(*modelIdx, models, &room, &item);
             }
             else if(type == 36 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_SwingingBlade>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_SwingingBlade>(*modelIdx, models, &room, &item);
             }
             else if(type == 41 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_41_TrapDoorUp>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_41_TrapDoorUp>(*modelIdx, models, &room, &item);
             }
             else if(type >= 48 && type <= 51 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_Block>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_Block>(*modelIdx, models, &room, &item);
             }
             else if(type == 52 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_TallBlock>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_TallBlock>(*modelIdx, models, &room, &item);
             }
             else if(type == 55 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_55_Switch>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_55_Switch>(*modelIdx, models, &room, &item);
             }
             else if(type >= 57 && type <= 64 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_Door>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_Door>(*modelIdx, models, &room, &item);
             }
             else if(type >= 65 && type <= 66 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_TrapDoorDown>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_TrapDoorDown>(*modelIdx, models, &room, &item);
             }
             else if(type == 68 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_68_BridgeFlat>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_68_BridgeFlat>(*modelIdx, models, &room, &item);
             }
             else if(type == 69 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_69_BridgeSlope1>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_69_BridgeSlope1>(*modelIdx, models, &room, &item);
             }
             else if(type == 70 )
             {
-                modelNode = createSkeletalModel<engine::ItemController_70_BridgeSlope2>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::ItemNode_70_BridgeSlope2>(*modelIdx, models, &room, &item);
             }
             else
             {
-                modelNode = createSkeletalModel<engine::DummyItemController>(*modelIdx, models, &room, &item);
+                modelNode = createSkeletalModel<engine::StubItemNode>(*modelIdx, models, &room, &item);
             }
 
             m_itemControllers[id] = modelNode;
@@ -540,7 +540,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
             node->setDrawable(sprite);
             node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
-            //m_itemControllers[id] = std::make_unique<engine::DummyItemController>(this, node, name + ":controller", &room, &item);
+            //m_itemControllers[id] = std::make_unique<engine::StubItemNode>(this, node, name + ":controller", &room, &item);
             //m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
             //m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
 
@@ -557,7 +557,7 @@ engine::LaraController* Level::createItems(gameplay::Game* game,
 template<typename T>
 std::shared_ptr<T> Level::createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item)
 {
-    static_assert(std::is_base_of<engine::ItemController, T>::value, "T must be derived from engine::ItemController");
+    static_assert(std::is_base_of<engine::ItemNode, T>::value, "T must be derived from engine::ItemNode");
 
     BOOST_ASSERT(!m_animatedModels.empty());
     BOOST_ASSERT(id < m_animatedModels.size());
@@ -762,7 +762,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
 }
 
 
-engine::ItemController* Level::getItemController(uint16_t id) const
+engine::ItemNode* Level::getItemController(uint16_t id) const
 {
     auto it = m_itemControllers.find(id);
     if( it == m_itemControllers.end() )

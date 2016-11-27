@@ -21,7 +21,7 @@ namespace level
 
 namespace engine
 {
-    class LaraController;
+    class LaraNode;
     struct CollisionInfo;
 
 
@@ -31,11 +31,11 @@ namespace engine
         core::TRRotation minAngle;
         core::TRRotation maxAngle;
 
-        bool canInteract(const ItemController& item, const LaraController& lara) const;
+        bool canInteract(const ItemNode& item, const LaraNode& lara) const;
     };
 
 
-    class ItemController : public SkeletalModelNode
+    class ItemNode : public SkeletalModelNode
     {
         core::RoomBoundPosition m_position;
 
@@ -87,7 +87,7 @@ namespace engine
         };
 
 
-        ItemController(const gsl::not_null<level::Level*>& level,
+        ItemNode(const gsl::not_null<level::Level*>& level,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        gsl::not_null<loader::Item*> item,
@@ -95,7 +95,7 @@ namespace engine
                        uint8_t characteristics,
                        const loader::AnimatedModel& animatedModel);
 
-        virtual ~ItemController() = default;
+        virtual ~ItemNode() = default;
 
 
         const core::ExactTRCoordinates& getPosition() const noexcept
@@ -271,7 +271,7 @@ namespace engine
         }
 
 
-        virtual void onInteract(LaraController& /*lara*/)
+        virtual void onInteract(LaraNode& /*lara*/)
         {
             //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
         }
@@ -375,15 +375,15 @@ namespace engine
     };
 
 
-    class DummyItemController final : public ItemController
+    class StubItemNode final : public ItemNode
     {
     public:
-        DummyItemController(const gsl::not_null<level::Level*>& level,
+        StubItemNode(const gsl::not_null<level::Level*>& level,
                             const std::string& name,
                             const gsl::not_null<const loader::Room*>& room,
                             const gsl::not_null<loader::Item*>& item,
                             const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, false, 0, animatedModel)
+            : ItemNode(level, name, room, item, false, 0, animatedModel)
         {
         }
 
@@ -394,15 +394,15 @@ namespace engine
     };
 
 
-    class ItemController_55_Switch final : public ItemController
+    class ItemNode_55_Switch final : public ItemNode
     {
     public:
-        ItemController_55_Switch(const gsl::not_null<level::Level*>& level,
+        ItemNode_55_Switch(const gsl::not_null<level::Level*>& level,
                                  const std::string& name,
                                  const gsl::not_null<const loader::Room*>& room,
                                  const gsl::not_null<loader::Item*>& item,
                                  const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x30, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
@@ -417,27 +417,27 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& lara) override;
+        void onInteract(LaraNode& lara) override;
 
 
         void onFrameChanged(FrameChangeType frameChangeType) override
         {
             m_itemFlags |= ActivationMask;
 
-            ItemController::onFrameChanged(frameChangeType);
+            ItemNode::onFrameChanged(frameChangeType);
         }
     };
 
 
-    class ItemController_35_CollapsibleFloor final : public ItemController
+    class ItemNode_35_CollapsibleFloor final : public ItemNode
     {
     public:
-        ItemController_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level,
+        ItemNode_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level,
                                            const std::string& name,
                                            const gsl::not_null<const loader::Room*>& room,
                                            const gsl::not_null<loader::Item*>& item,
                                            const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x34, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x34, animatedModel)
         {
         }
 
@@ -447,7 +447,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 
@@ -480,15 +480,15 @@ namespace engine
     };
 
 
-    class ItemController_41_TrapDoorUp final : public ItemController
+    class ItemNode_41_TrapDoorUp final : public ItemNode
     {
     public:
-        ItemController_41_TrapDoorUp(const gsl::not_null<level::Level*>& level,
+        ItemNode_41_TrapDoorUp(const gsl::not_null<level::Level*>& level,
                                      const std::string& name,
                                      const gsl::not_null<const loader::Room*>& room,
                                      const gsl::not_null<loader::Item*>& item,
                                      const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x30, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
@@ -498,7 +498,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 
@@ -554,15 +554,15 @@ namespace engine
     };
 
 
-    class ItemController_TrapDoorDown final : public ItemController
+    class ItemNode_TrapDoorDown final : public ItemNode
     {
     public:
-        ItemController_TrapDoorDown(const gsl::not_null<level::Level*>& level,
+        ItemNode_TrapDoorDown(const gsl::not_null<level::Level*>& level,
                                     const std::string& name,
                                     const gsl::not_null<const loader::Room*>& room,
                                     const gsl::not_null<loader::Item*>& item,
                                     const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x30, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
@@ -581,7 +581,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 
@@ -634,15 +634,15 @@ namespace engine
     };
 
 
-    class ItemController_Door final : public ItemController
+    class ItemNode_Door final : public ItemNode
     {
     public:
-        ItemController_Door(const gsl::not_null<level::Level*>& level,
+        ItemNode_Door(const gsl::not_null<level::Level*>& level,
                             const std::string& name,
                             const gsl::not_null<const loader::Room*>& room,
                             const gsl::not_null<loader::Item*>& item,
                             const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x30, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
@@ -672,19 +672,19 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& lara) override;
+        void onInteract(LaraNode& lara) override;
     };
 
 
-    class ItemController_Block final : public ItemController
+    class ItemNode_Block final : public ItemNode
     {
     public:
-        ItemController_Block(const gsl::not_null<level::Level*>& level,
+        ItemNode_Block(const gsl::not_null<level::Level*>& level,
                              const std::string& name,
                              const gsl::not_null<const loader::Room*>& room,
                              const gsl::not_null<loader::Item*>& item,
                              const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x34, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x34, animatedModel)
         {
             if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
                 loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
@@ -700,7 +700,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& lara) override;
+        void onInteract(LaraNode& lara) override;
 
         void onFrameChanged(FrameChangeType frameChangeType) override;
 
@@ -712,15 +712,15 @@ namespace engine
     };
 
 
-    class ItemController_TallBlock final : public ItemController
+    class ItemNode_TallBlock final : public ItemNode
     {
     public:
-        ItemController_TallBlock(const gsl::not_null<level::Level*>& level,
+        ItemNode_TallBlock(const gsl::not_null<level::Level*>& level,
                                  const std::string& name,
                                  const gsl::not_null<const loader::Room*>& room,
                                  const gsl::not_null<loader::Item*>& item,
                                  const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x34, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x34, animatedModel)
         {
             loader::Room::patchHeightsForBlock(*this, -2 * loader::SectorSize);
         }
@@ -747,7 +747,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 
@@ -756,15 +756,15 @@ namespace engine
     };
 
 
-    class ItemController_68_BridgeFlat final : public ItemController
+    class ItemNode_68_BridgeFlat final : public ItemNode
     {
     public:
-        ItemController_68_BridgeFlat(const gsl::not_null<level::Level*>& level,
+        ItemNode_68_BridgeFlat(const gsl::not_null<level::Level*>& level,
                                      const std::string& name,
                                      const gsl::not_null<const loader::Room*>& room,
                                      const gsl::not_null<loader::Item*>& item,
                                      const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, false, 0, animatedModel)
+            : ItemNode(level, name, room, item, false, 0, animatedModel)
         {
         }
 
@@ -774,7 +774,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 
@@ -801,18 +801,18 @@ namespace engine
     };
 
 
-    class ItemController_SlopedBridge : public ItemController
+    class ItemNode_SlopedBridge : public ItemNode
     {
     private:
         const int m_div;
     public:
-        ItemController_SlopedBridge(const gsl::not_null<level::Level*>& level,
+        ItemNode_SlopedBridge(const gsl::not_null<level::Level*>& level,
                                     const std::string& name,
                                     const gsl::not_null<const loader::Room*>& room,
                                     const gsl::not_null<loader::Item*>& item,
                                     const loader::AnimatedModel& animatedModel,
                                     int div)
-            : ItemController(level, name, room, item, false, 0, animatedModel)
+            : ItemNode(level, name, room, item, false, 0, animatedModel)
             , m_div(div)
         {
         }
@@ -823,7 +823,7 @@ namespace engine
         }
 
 
-        void onInteract(LaraController& /*lara*/) override final
+        void onInteract(LaraNode& /*lara*/) override final
         {
         }
 
@@ -874,43 +874,43 @@ namespace engine
     };
 
 
-    class ItemController_69_BridgeSlope1 final : public ItemController_SlopedBridge
+    class ItemNode_69_BridgeSlope1 final : public ItemNode_SlopedBridge
     {
     public:
-        ItemController_69_BridgeSlope1(const gsl::not_null<level::Level*>& level,
+        ItemNode_69_BridgeSlope1(const gsl::not_null<level::Level*>& level,
                                        const std::string& name,
                                        const gsl::not_null<const loader::Room*>& room,
                                        const gsl::not_null<loader::Item*>& item,
                                        const loader::AnimatedModel& animatedModel)
-            : ItemController_SlopedBridge(level, name, room, item, animatedModel, 4)
+            : ItemNode_SlopedBridge(level, name, room, item, animatedModel, 4)
         {
         }
     };
 
 
-    class ItemController_70_BridgeSlope2 final : public ItemController_SlopedBridge
+    class ItemNode_70_BridgeSlope2 final : public ItemNode_SlopedBridge
     {
     public:
-        ItemController_70_BridgeSlope2(const gsl::not_null<level::Level*>& level,
+        ItemNode_70_BridgeSlope2(const gsl::not_null<level::Level*>& level,
                                        const std::string& name,
                                        const gsl::not_null<const loader::Room*>& room,
                                        const gsl::not_null<loader::Item*>& item,
                                        const loader::AnimatedModel& animatedModel)
-            : ItemController_SlopedBridge(level, name, room, item, animatedModel, 2)
+            : ItemNode_SlopedBridge(level, name, room, item, animatedModel, 2)
         {
         }
     };
 
 
-    class ItemController_SwingingBlade final : public ItemController
+    class ItemNode_SwingingBlade final : public ItemNode
     {
     public:
-        ItemController_SwingingBlade(const gsl::not_null<level::Level*>& level,
+        ItemNode_SwingingBlade(const gsl::not_null<level::Level*>& level,
                                      const std::string& name,
                                      const gsl::not_null<const loader::Room*>& room,
                                      const gsl::not_null<loader::Item*>& item,
                                      const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, true, 0x30, animatedModel)
+            : ItemNode(level, name, room, item, true, 0x30, animatedModel)
         {
         }
 
@@ -918,7 +918,7 @@ namespace engine
         void updateImpl(const std::chrono::microseconds& deltaTime) override;
 
 
-        void onInteract(LaraController& /*lara*/) override
+        void onInteract(LaraNode& /*lara*/) override
         {
         }
 

@@ -4,7 +4,7 @@
 #include "loader/larastateid.h"
 #include "collisioninfo.h"
 #include "abstractstatehandler.h"
-#include "itemcontroller.h"
+#include "itemnode.h"
 #include <chrono>
 
 
@@ -21,7 +21,7 @@ namespace engine
     };
 
 
-    class LaraController final : public ItemController
+    class LaraNode final : public ItemNode
     {
         using LaraStateId = loader::LaraStateId;
 
@@ -42,12 +42,12 @@ namespace engine
         std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
 
     public:
-        LaraController(const gsl::not_null<level::Level*>& level,
+        LaraNode(const gsl::not_null<level::Level*>& level,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        const gsl::not_null<loader::Item*>& item,
                        const loader::AnimatedModel& animatedModel)
-            : ItemController(level, name, room, item, false, 0x3c, animatedModel)
+            : ItemNode(level, name, room, item, false, 0x3c, animatedModel)
         {
             playAnimation(loader::AnimationId::STAY_IDLE);
             setTargetState(loader::LaraStateId::Stop);
@@ -55,7 +55,7 @@ namespace engine
         }
 
 
-        ~LaraController();
+        ~LaraNode();
 
         void updateImpl(const std::chrono::microseconds& deltaTime) override;
 

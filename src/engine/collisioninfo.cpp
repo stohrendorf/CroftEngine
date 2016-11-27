@@ -2,7 +2,7 @@
 
 #include "core/magic.h"
 #include "level/level.h"
-#include "laracontroller.h"
+#include "laranode.h"
 
 namespace engine
 {

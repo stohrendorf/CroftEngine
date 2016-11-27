@@ -2,7 +2,7 @@
 
 #include "collisioninfo.h"
 #include "inputstate.h"
-#include "laracontroller.h"
+#include "laranode.h"
 #include "level/level.h"
 
 #include <chrono>
@@ -20,7 +20,7 @@ namespace engine
     class StateHandler_Standing : public AbstractStateHandler
     {
     protected:
-        explicit StateHandler_Standing(LaraController& lara)
+        explicit StateHandler_Standing(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -64,7 +64,7 @@ namespace engine
     {
     public:
 
-        explicit StateHandler_0(LaraController& lara)
+        explicit StateHandler_0(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -189,7 +189,7 @@ namespace engine
     class StateHandler_1 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_1(LaraController& lara)
+        explicit StateHandler_1(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -322,7 +322,7 @@ namespace engine
     class StateHandler_2 final : public StateHandler_Standing
     {
     public:
-        explicit StateHandler_2(LaraController& lara)
+        explicit StateHandler_2(LaraNode& lara)
             : StateHandler_Standing(lara)
         {
         }
@@ -422,7 +422,7 @@ namespace engine
     class StateHandler_3 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_3(LaraController& lara)
+        explicit StateHandler_3(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -501,7 +501,7 @@ namespace engine
     class StateHandler_4 final : public StateHandler_Standing
     {
     public:
-        explicit StateHandler_4(LaraController& lara)
+        explicit StateHandler_4(LaraNode& lara)
             : StateHandler_Standing(lara)
         {
         }
@@ -524,7 +524,7 @@ namespace engine
     class StateHandler_5 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_5(LaraController& lara)
+        explicit StateHandler_5(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -585,7 +585,7 @@ namespace engine
     class StateHandler_TurnSlow : public AbstractStateHandler
     {
     protected:
-        explicit StateHandler_TurnSlow(LaraController& lara)
+        explicit StateHandler_TurnSlow(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -623,7 +623,7 @@ namespace engine
     class StateHandler_6 final : public StateHandler_TurnSlow
     {
     public:
-        explicit StateHandler_6(LaraController& lara)
+        explicit StateHandler_6(LaraNode& lara)
             : StateHandler_TurnSlow(lara)
         {
         }
@@ -678,7 +678,7 @@ namespace engine
     class StateHandler_7 final : public StateHandler_TurnSlow
     {
     public:
-        explicit StateHandler_7(LaraController& lara)
+        explicit StateHandler_7(LaraNode& lara)
             : StateHandler_TurnSlow(lara)
         {
         }
@@ -733,7 +733,7 @@ namespace engine
     class StateHandler_8 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_8(LaraController& lara)
+        explicit StateHandler_8(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -773,7 +773,7 @@ namespace engine
     class StateHandler_9 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_9(LaraController& lara)
+        explicit StateHandler_9(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -832,7 +832,7 @@ namespace engine
     class StateHandler_10 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_10(LaraController& lara)
+        explicit StateHandler_10(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -889,7 +889,7 @@ namespace engine
     class StateHandler_11 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_11(LaraController& lara)
+        explicit StateHandler_11(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -945,7 +945,7 @@ namespace engine
     class StateHandler_12 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_12(LaraController& lara)
+        explicit StateHandler_12(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -980,7 +980,7 @@ namespace engine
     class StateHandler_Underwater : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_Underwater(LaraController& lara)
+        explicit StateHandler_Underwater(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1067,7 +1067,7 @@ namespace engine
     class StateHandler_13 final : public StateHandler_Underwater
     {
     public:
-        explicit StateHandler_13(LaraController& lara)
+        explicit StateHandler_13(LaraNode& lara)
             : StateHandler_Underwater(lara)
         {
         }
@@ -1102,7 +1102,7 @@ namespace engine
     class StateHandler_15 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_15(LaraController& lara)
+        explicit StateHandler_15(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1172,7 +1172,7 @@ namespace engine
     class StateHandler_16 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_16(LaraController& lara)
+        explicit StateHandler_16(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1251,7 +1251,7 @@ namespace engine
     class StateHandler_17 final : public StateHandler_Underwater
     {
     public:
-        explicit StateHandler_17(LaraController& lara)
+        explicit StateHandler_17(LaraNode& lara)
             : StateHandler_Underwater(lara)
         {
         }
@@ -1286,7 +1286,7 @@ namespace engine
     class StateHandler_18 final : public StateHandler_Underwater
     {
     public:
-        explicit StateHandler_18(LaraController& lara)
+        explicit StateHandler_18(LaraNode& lara)
             : StateHandler_Underwater(lara)
         {
         }
@@ -1324,7 +1324,7 @@ namespace engine
     class StateHandler_19 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_19(LaraController& lara)
+        explicit StateHandler_19(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1360,7 +1360,7 @@ namespace engine
     class StateHandler_20 final : public StateHandler_Standing
     {
     public:
-        explicit StateHandler_20(LaraController& lara)
+        explicit StateHandler_20(LaraNode& lara)
             : StateHandler_Standing(lara)
         {
         }
@@ -1403,7 +1403,7 @@ namespace engine
     class StateHandler_21 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_21(LaraController& lara)
+        explicit StateHandler_21(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1470,7 +1470,7 @@ namespace engine
     class StateHandler_22 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_22(LaraController& lara)
+        explicit StateHandler_22(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1537,7 +1537,7 @@ namespace engine
     class StateHandler_23 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_23(LaraController& lara)
+        explicit StateHandler_23(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1593,7 +1593,7 @@ namespace engine
     class StateHandler_24 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_24(LaraController& lara)
+        explicit StateHandler_24(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1626,7 +1626,7 @@ namespace engine
     class StateHandler_25 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_25(LaraController& lara)
+        explicit StateHandler_25(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1659,7 +1659,7 @@ namespace engine
     class StateHandler_26 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_26(LaraController& lara)
+        explicit StateHandler_26(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1691,7 +1691,7 @@ namespace engine
     class StateHandler_27 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_27(LaraController& lara)
+        explicit StateHandler_27(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1723,7 +1723,7 @@ namespace engine
     class StateHandler_28 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_28(LaraController& lara)
+        explicit StateHandler_28(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1775,7 +1775,7 @@ namespace engine
     class StateHandler_29 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_29(LaraController& lara)
+        explicit StateHandler_29(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1827,7 +1827,7 @@ namespace engine
     class StateHandler_30 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_30(LaraController& lara)
+        explicit StateHandler_30(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1863,7 +1863,7 @@ namespace engine
     class StateHandler_31 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_31(LaraController& lara)
+        explicit StateHandler_31(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1899,7 +1899,7 @@ namespace engine
     class StateHandler_32 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_32(LaraController& lara)
+        explicit StateHandler_32(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -1931,7 +1931,7 @@ namespace engine
     class StateHandler_OnWater : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_OnWater(LaraController& lara)
+        explicit StateHandler_OnWater(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2041,7 +2041,7 @@ namespace engine
     class StateHandler_33 final : public StateHandler_OnWater
     {
     public:
-        explicit StateHandler_33(LaraController& lara)
+        explicit StateHandler_33(LaraNode& lara)
             : StateHandler_OnWater(lara)
         {
         }
@@ -2128,7 +2128,7 @@ namespace engine
     class StateHandler_34 final : public StateHandler_OnWater
     {
     public:
-        explicit StateHandler_34(LaraController& lara)
+        explicit StateHandler_34(LaraNode& lara)
             : StateHandler_OnWater(lara)
         {
         }
@@ -2179,7 +2179,7 @@ namespace engine
     class StateHandler_35 final : public StateHandler_Underwater
     {
     public:
-        explicit StateHandler_35(LaraController& lara)
+        explicit StateHandler_35(LaraNode& lara)
             : StateHandler_Underwater(lara)
         {
         }
@@ -2207,7 +2207,7 @@ namespace engine
     class StateHandler_Pushable : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_Pushable(LaraController& lara)
+        explicit StateHandler_Pushable(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2241,7 +2241,7 @@ namespace engine
     class StateHandler_36 final : public StateHandler_Pushable
     {
     public:
-        explicit StateHandler_36(LaraController& lara)
+        explicit StateHandler_36(LaraNode& lara)
             : StateHandler_Pushable(lara)
         {
         }
@@ -2255,7 +2255,7 @@ namespace engine
     class StateHandler_37 final : public StateHandler_Pushable
     {
     public:
-        explicit StateHandler_37(LaraController& lara)
+        explicit StateHandler_37(LaraNode& lara)
             : StateHandler_Pushable(lara)
         {
         }
@@ -2269,7 +2269,7 @@ namespace engine
     class StateHandler_38 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_38(LaraController& lara)
+        explicit StateHandler_38(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2311,7 +2311,7 @@ namespace engine
     class StateHandler_40 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_40(LaraController& lara)
+        explicit StateHandler_40(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2352,7 +2352,7 @@ namespace engine
     class StateHandler_41 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_41(LaraController& lara)
+        explicit StateHandler_41(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2393,7 +2393,7 @@ namespace engine
     class StateHandler_44 final : public StateHandler_Underwater
     {
     public:
-        explicit StateHandler_44(LaraController& lara)
+        explicit StateHandler_44(LaraNode& lara)
             : StateHandler_Underwater(lara)
         {
         }
@@ -2436,7 +2436,7 @@ namespace engine
     class StateHandler_45 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_45(LaraController& lara)
+        explicit StateHandler_45(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2492,7 +2492,7 @@ namespace engine
     class StateHandler_47 final : public StateHandler_OnWater
     {
     public:
-        explicit StateHandler_47(LaraController& lara)
+        explicit StateHandler_47(LaraNode& lara)
             : StateHandler_OnWater(lara)
         {
         }
@@ -2540,7 +2540,7 @@ namespace engine
     class StateHandler_48 final : public StateHandler_OnWater
     {
     public:
-        explicit StateHandler_48(LaraController& lara)
+        explicit StateHandler_48(LaraNode& lara)
             : StateHandler_OnWater(lara)
         {
         }
@@ -2588,7 +2588,7 @@ namespace engine
     class StateHandler_49 final : public StateHandler_OnWater
     {
     public:
-        explicit StateHandler_49(LaraController& lara)
+        explicit StateHandler_49(LaraNode& lara)
             : StateHandler_OnWater(lara)
         {
         }
@@ -2636,7 +2636,7 @@ namespace engine
     class StateHandler_52 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_52(LaraController& lara)
+        explicit StateHandler_52(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2684,7 +2684,7 @@ namespace engine
     class StateHandler_53 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_53(LaraController& lara)
+        explicit StateHandler_53(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2734,7 +2734,7 @@ namespace engine
     class StateHandler_54 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_54(LaraController& lara)
+        explicit StateHandler_54(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2770,7 +2770,7 @@ namespace engine
     class StateHandler_55 final : public AbstractStateHandler
     {
     public:
-        explicit StateHandler_55(LaraController& lara)
+        explicit StateHandler_55(LaraNode& lara)
             : AbstractStateHandler(lara)
         {
         }
@@ -2819,7 +2819,7 @@ namespace engine
                          );
     }
 
-    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraController& controller)
+    std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraNode& controller)
     {
         switch( id )
         {

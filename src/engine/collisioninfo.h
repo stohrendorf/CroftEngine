@@ -7,7 +7,7 @@
 
 namespace engine
 {
-    class LaraController;
+    class LaraNode;
 
     struct CollisionInfo
     {

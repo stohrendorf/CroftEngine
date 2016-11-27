@@ -1,4 +1,4 @@
-#include "laracontroller.h"
+#include "laranode.h"
 
 #include "cameracontroller.h"
 #include "level/level.h"
@@ -10,25 +10,25 @@
 
 namespace engine
 {
-    void LaraController::setTargetState(LaraStateId st)
+    void LaraNode::setTargetState(LaraStateId st)
     {
-        ItemController::setTargetState(static_cast<uint16_t>(st));
+        ItemNode::setTargetState(static_cast<uint16_t>(st));
     }
 
 
-    loader::LaraStateId LaraController::getTargetState() const
+    loader::LaraStateId LaraNode::getTargetState() const
     {
-        return static_cast<LaraStateId>(ItemController::getTargetState());
+        return static_cast<LaraStateId>(ItemNode::getTargetState());
     }
 
 
-    void LaraController::playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+    void LaraNode::playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
         setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
     }
 
 
-    void LaraController::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -113,7 +113,7 @@ namespace engine
     }
 
 
-    void LaraController::handleLaraStateDiving(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateDiving(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -185,7 +185,7 @@ namespace engine
     }
 
 
-    void LaraController::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -268,7 +268,7 @@ namespace engine
     }
 
 
-    void LaraController::placeOnFloor(const CollisionInfo& collisionInfo)
+    void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
     {
         auto pos = getPosition();
         pos.Y += collisionInfo.current.floor.distance;
@@ -276,22 +276,22 @@ namespace engine
     }
 
 
-    loader::LaraStateId LaraController::getCurrentState() const
+    loader::LaraStateId LaraNode::getCurrentState() const
     {
         return m_currentStateHandler->getId();
     }
 
 
-    loader::LaraStateId LaraController::getCurrentAnimState() const
+    loader::LaraStateId LaraNode::getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(ItemController::getCurrentState());
+        return static_cast<loader::LaraStateId>(ItemNode::getCurrentState());
     }
 
 
-    LaraController::~LaraController() = default;
+    LaraNode::~LaraNode() = default;
 
 
-    void LaraController::updateImpl(const std::chrono::microseconds& deltaTime)
+    void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
     {
         static constexpr auto UVAnimTime = 3_frame;
 
@@ -424,7 +424,7 @@ namespace engine
     }
 
 
-    void LaraController::onFrameChanged(FrameChangeType frameChangeType)
+    void LaraNode::onFrameChanged(FrameChangeType frameChangeType)
     {
         BOOST_ASSERT(frameChangeType != FrameChangeType::SameFrame);
 
@@ -502,7 +502,7 @@ namespace engine
     }
 
 
-    void LaraController::updateFloorHeight(int dy)
+    void LaraNode::updateFloorHeight(int dy)
     {
         auto pos = getPosition();
         pos.Y += dy;
@@ -514,7 +514,7 @@ namespace engine
     }
 
 
-    void LaraController::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
+    void LaraNode::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
     {
         if( floorData == nullptr )
             return;
@@ -556,7 +556,7 @@ namespace engine
                 case loader::TriggerType::Switch:
                 {
                     Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
-                    ItemController& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    ItemNode& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
                     if( !swtch.triggerSwitch(srcTriggerArg) )
                         return;
 
@@ -568,7 +568,7 @@ namespace engine
                 case loader::TriggerType::Key:
                 {
                     Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
-                    ItemController& key = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    ItemNode& key = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
                     if( key.triggerKey() )
                         runActions = true;
                 }
@@ -577,7 +577,7 @@ namespace engine
                 case loader::TriggerType::Pickup:
                 {
                     Expects(getLevel().m_itemControllers.find(loader::extractTriggerFunctionParam(*actionFloorData)) != getLevel().m_itemControllers.end());
-                    ItemController& pickup = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
+                    ItemNode& pickup = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(*actionFloorData)];
                     if( pickup.triggerPickUp() )
                         runActions = true;
                 }
@@ -602,7 +602,7 @@ namespace engine
         if( !runActions )
             return;
 
-        ItemController* lookAtItem = nullptr;
+        ItemNode* lookAtItem = nullptr;
 
         while( true )
         {
@@ -613,7 +613,7 @@ namespace engine
                 case loader::TriggerFunction::Object:
                 {
                     Expects(getLevel().m_itemControllers.find(actionParam) != getLevel().m_itemControllers.end());
-                    ItemController& item = *getLevel().m_itemControllers[actionParam];
+                    ItemNode& item = *getLevel().m_itemControllers[actionParam];
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
@@ -727,7 +727,7 @@ namespace engine
     }
 
 
-    boost::optional<int> LaraController::getWaterSurfaceHeight() const
+    boost::optional<int> LaraNode::getWaterSurfaceHeight() const
     {
         gsl::not_null<const loader::Sector*> sector = getCurrentRoom()->getSectorByAbsolutePosition(getPosition().toInexact());
 
@@ -768,37 +768,37 @@ namespace engine
     }
 
 
-    void LaraController::setCameraRotation(core::Angle x, core::Angle y)
+    void LaraNode::setCameraRotation(core::Angle x, core::Angle y)
     {
         getLevel().m_cameraController->setLocalRotation(x, y);
     }
 
 
-    void LaraController::setCameraRotationY(core::Angle y)
+    void LaraNode::setCameraRotationY(core::Angle y)
     {
         getLevel().m_cameraController->setLocalRotationY(y);
     }
 
 
-    void LaraController::setCameraRotationX(core::Angle x)
+    void LaraNode::setCameraRotationX(core::Angle x)
     {
         getLevel().m_cameraController->setLocalRotationX(x);
     }
 
 
-    void LaraController::setCameraDistance(int d)
+    void LaraNode::setCameraDistance(int d)
     {
         getLevel().m_cameraController->setLocalDistance(d);
     }
 
 
-    void LaraController::setCameraUnknown1(int k)
+    void LaraNode::setCameraUnknown1(int k)
     {
         getLevel().m_cameraController->setUnknown1(k);
     }
 
 
-    void LaraController::testInteractions()
+    void LaraNode::testInteractions()
     {
         m_flags2_10 = false;
 
@@ -810,7 +810,7 @@ namespace engine
         for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for( const std::shared_ptr<ItemController>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
+        for( const std::shared_ptr<ItemNode>& ctrl : getLevel().m_itemControllers | boost::adaptors::map_values )
         {
             if( rooms.find(ctrl->getCurrentRoom()) == rooms.end() )
                 continue;

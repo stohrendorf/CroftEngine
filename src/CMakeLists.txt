@@ -64,10 +64,10 @@ set(OT_IRR_SRCS
     engine/heightinfo.h
     engine/inputhandler.h
     engine/inputstate.h
-    engine/itemcontroller.cpp
-    engine/itemcontroller.h
-    engine/laracontroller.cpp
-    engine/laracontroller.h
+    engine/itemnode.cpp
+    engine/itemnode.h
+    engine/laranode.cpp
+    engine/laranode.h
     engine/skeletalmodelnode.cpp
     engine/skeletalmodelnode.h
 

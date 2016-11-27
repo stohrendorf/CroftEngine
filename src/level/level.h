@@ -4,7 +4,7 @@
 #include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
 #include "engine/inputhandler.h"
-#include "engine/itemcontroller.h"
+#include "engine/itemnode.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"
@@ -63,7 +63,7 @@ namespace level
         std::vector<uint16_t> m_overlaps;
         std::vector<loader::Zone> m_zones;
         std::vector<loader::Item> m_items;
-        std::map<uint16_t, std::shared_ptr<engine::ItemController>> m_itemControllers;
+        std::map<uint16_t, std::shared_ptr<engine::ItemNode>> m_itemControllers;
         std::unique_ptr<loader::LightMap> m_lightmap;
         std::vector<loader::AIObject> m_aiObjects;
         std::vector<loader::CinematicFrame> m_cinematicFrames;
@@ -109,7 +109,7 @@ namespace level
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
-        engine::LaraController* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
+        engine::LaraNode* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);
 
 
@@ -158,10 +158,10 @@ namespace level
         }
 
 
-        engine::LaraController* m_lara = nullptr;
+        engine::LaraNode* m_lara = nullptr;
         std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
-        engine::ItemController* getItemController(uint16_t id) const;
+        engine::ItemNode* getItemController(uint16_t id) const;
 
         void drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image>& image) const;
 

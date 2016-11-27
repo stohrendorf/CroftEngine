@@ -1,6 +1,6 @@
 #include "cameracontroller.h"
 
-#include "laracontroller.h"
+#include "laranode.h"
 #include "level/level.h"
 #include "render/portaltracer.h"
 
@@ -9,7 +9,7 @@
 
 namespace engine
 {
-    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraController*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
+    CameraController::CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraNode*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
         : m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
@@ -385,7 +385,7 @@ namespace engine
 
         const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
 
-        ItemController* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
+        ItemNode* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
         auto lookAtBbox = lookAtItem->getBoundingBox();
         int lookAtY = gsl::narrow_cast<int>(lookAtItem->getPosition().Y);
         if( lookingAtSomething )
@@ -615,7 +615,7 @@ namespace engine
         m_camera->setViewMatrix(m);
     }
 
-    void CameraController::doUsualMovement(const gsl::not_null<const ItemController*>& item, const std::chrono::microseconds& deltaTimeMs)
+    void CameraController::doUsualMovement(const gsl::not_null<const ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs)
     {
         m_localRotation.X += item->getRotation().X;
         if( m_localRotation.X > 85_deg )
@@ -640,7 +640,7 @@ namespace engine
         updatePosition(targetPos, m_lookingAtSomething ? m_smoothFactor : 12, deltaTimeMs);
     }
 
-    void CameraController::handleFreeLook(const ItemController& item, const std::chrono::microseconds& deltaTimeMs)
+    void CameraController::handleFreeLook(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs)
     {
         const auto origLook = m_currentLookAt.position;
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
@@ -674,7 +674,7 @@ namespace engine
         updatePosition(tmp, m_smoothFactor, deltaTimeMs);
     }
 
-    void CameraController::handleEnemy(const ItemController& item, const std::chrono::microseconds& deltaTimeMs)
+    void CameraController::handleEnemy(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs)
     {
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
         m_currentLookAt.position.Z = std::lround(item.getPosition().Z);

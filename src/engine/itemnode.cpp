@@ -1,13 +1,13 @@
-#include "itemcontroller.h"
+#include "itemnode.h"
 
-#include "laracontroller.h"
+#include "laranode.h"
 #include "level/level.h"
 #include <chrono>
 
 
 namespace engine
 {
-    void ItemController::applyTransform()
+    void ItemNode::applyTransform()
     {
         glm::vec3 tr;
 
@@ -22,7 +22,7 @@ namespace engine
     }
 
 
-    ItemController::ItemController(const gsl::not_null<level::Level*>& level,
+    ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                                    const std::string& name,
                                    const gsl::not_null<const loader::Room*>& room,
                                    gsl::not_null<loader::Item*> item,
@@ -58,7 +58,7 @@ namespace engine
     }
 
 
-    void ItemController::setCurrentRoom(const loader::Room* newRoom)
+    void ItemNode::setCurrentRoom(const loader::Room* newRoom)
     {
         if( newRoom == m_position.room )
             return;
@@ -76,7 +76,7 @@ namespace engine
     }
 
 
-    void ItemController::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode::onFrameChanged(FrameChangeType frameChangeType)
     {
         m_flags2_10 = false;
 
@@ -148,7 +148,7 @@ namespace engine
     }
 
 
-    void ItemController::activate()
+    void ItemNode::activate()
     {
         if( !m_hasProcessAnimCommandsOverride )
         {
@@ -166,7 +166,7 @@ namespace engine
     }
 
 
-    void ItemController::deactivate()
+    void ItemNode::deactivate()
     {
         if( !m_isActive )
         BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already inactive";
@@ -177,7 +177,7 @@ namespace engine
     }
 
 
-    std::shared_ptr<audio::SourceHandle> ItemController::playSoundEffect(int id)
+    std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(int id)
     {
         auto handle = getLevel().playSound(id, getTranslationWorld());
         if( handle != nullptr )
@@ -186,7 +186,7 @@ namespace engine
     }
 
 
-    bool ItemController::triggerKey()
+    bool ItemNode::triggerKey()
     {
         if( getLevel().m_lara->getHandStatus() != 0 )
             return false;
@@ -200,7 +200,7 @@ namespace engine
     }
 
 
-    void ItemController::updateSounds()
+    void ItemNode::updateSounds()
     {
         m_sounds.erase(std::remove_if(m_sounds.begin(), m_sounds.end(), [](const std::weak_ptr<audio::SourceHandle>& h)
                                       {
@@ -215,7 +215,7 @@ namespace engine
     }
 
 
-    void ItemController_55_Switch::onInteract(LaraController& lara)
+    void ItemNode_55_Switch::onInteract(LaraNode& lara)
     {
         if( !getLevel().m_inputHandler->getInputState().action )
             return;
@@ -278,7 +278,7 @@ namespace engine
     }
 
 
-    bool InteractionLimits::canInteract(const ItemController& item, const LaraController& lara) const
+    bool InteractionLimits::canInteract(const ItemNode& item, const LaraNode& lara) const
     {
         const auto angle = lara.getRotation() - item.getRotation();
         if( angle.X < minAngle.X || angle.X > maxAngle.X
@@ -300,12 +300,12 @@ namespace engine
     }
 
 
-    void ItemController_Door::onInteract(LaraController& /*lara*/)
+    void ItemNode_Door::onInteract(LaraNode& /*lara*/)
     {
     }
 
 
-    void ItemController_35_CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode_35_CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
     {
         if( getCurrentState() == 0 ) // stationary
         {
@@ -327,7 +327,7 @@ namespace engine
             setFalling(true);
         }
 
-        ItemController::onFrameChanged(frameChangeType);
+        ItemNode::onFrameChanged(frameChangeType);
 
         if( m_flags2_04_ready && !m_flags2_02_toggledOn )
         {
@@ -354,7 +354,7 @@ namespace engine
     }
 
 
-    void ItemController_Block::onInteract(LaraController& lara)
+    void ItemNode_Block::onInteract(LaraNode& lara)
     {
         if( !getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready) || isFalling() || !util::fuzzyEqual(lara.getPosition().Y, getPosition().Y, 1.0f) )
             return;
@@ -451,7 +451,7 @@ namespace engine
     }
 
 
-    void ItemController_Block::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode_Block::onFrameChanged(FrameChangeType frameChangeType)
     {
         if( (m_itemFlags & Oneshot) != 0 )
         {
@@ -461,7 +461,7 @@ namespace engine
             return;
         }
 
-        ItemController::onFrameChanged(frameChangeType);
+        ItemNode::onFrameChanged(frameChangeType);
 
         auto pos = getRoomBoundPosition();
         auto sector = getLevel().findFloorSectorWithClampedPosition(pos);
@@ -497,14 +497,14 @@ namespace engine
     }
 
 
-    bool ItemController_Block::isOnFloor(int height) const
+    bool ItemNode_Block::isOnFloor(int height) const
     {
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), getCurrentRoom());
         return sector->floorHeight == -127 || util::fuzzyEqual(gsl::narrow_cast<float>(sector->floorHeight * loader::QuarterSectorSize), getPosition().Y - height, 1.0f);
     }
 
 
-    bool ItemController_Block::canPushBlock(int height, core::Axis axis) const
+    bool ItemNode_Block::canPushBlock(int height, core::Axis axis) const
     {
         if( !isOnFloor(height) )
             return false;
@@ -538,7 +538,7 @@ namespace engine
     }
 
 
-    bool ItemController_Block::canPullBlock(int height, core::Axis axis) const
+    bool ItemNode_Block::canPullBlock(int height, core::Axis axis) const
     {
         if( !isOnFloor(height) )
             return false;
@@ -625,9 +625,9 @@ namespace engine
     }
 
 
-    void ItemController_TallBlock::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode_TallBlock::onFrameChanged(FrameChangeType frameChangeType)
     {
-        ItemController::onFrameChanged(frameChangeType);
+        ItemNode::onFrameChanged(frameChangeType);
         auto room = getCurrentRoom();
         getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
         setCurrentRoom(room);
@@ -645,16 +645,16 @@ namespace engine
     }
 
 
-    void ItemController_41_TrapDoorUp::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode_41_TrapDoorUp::onFrameChanged(FrameChangeType frameChangeType)
     {
-        ItemController::onFrameChanged(frameChangeType);
+        ItemNode::onFrameChanged(frameChangeType);
         auto pos = getRoomBoundPosition();
         getLevel().findFloorSectorWithClampedPosition(pos);
         setCurrentRoom(pos.room);
     }
 
 
-    void ItemController_SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
+    void ItemNode_SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
     {
         if( updateTriggerTimeout(deltaTime) )
         {
@@ -668,18 +668,18 @@ namespace engine
     }
 
 
-    void ItemController_SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
+    void ItemNode_SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
     {
         auto room = getCurrentRoom();
         auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
         setCurrentRoom(room);
         setFloorHeight(HeightInfo::fromFloor(sector, getPosition().toInexact(), getLevel().m_cameraController).distance);
 
-        ItemController::onFrameChanged(frameChangeType);
+        ItemNode::onFrameChanged(frameChangeType);
     }
 
 
-    void ItemController::update(const std::chrono::microseconds& deltaTime)
+    void ItemNode::update(const std::chrono::microseconds& deltaTime)
     {
         addTime(deltaTime);
 
