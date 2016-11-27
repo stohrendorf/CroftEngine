@@ -7,7 +7,11 @@
 
 namespace engine
 {
-    class ItemNode;
+    namespace items
+    {
+        class ItemNode;
+    }
+
     class LaraNode;
 
     class CameraController final
@@ -21,9 +25,9 @@ namespace engine
         LaraNode* m_laraController;
 
         // TR state
-        ItemNode* m_lookAtItem = nullptr;
-        const ItemNode* m_lookAtItem2 = nullptr;
-        ItemNode* m_enemy = nullptr;
+        items::ItemNode* m_lookAtItem = nullptr;
+        const items::ItemNode* m_lookAtItem2 = nullptr;
+        items::ItemNode* m_enemy = nullptr;
         core::TRRotation m_enemyLookRot;
         int m_unknown1 = 0;
         int m_camShakeRadius = 0;
@@ -69,7 +73,7 @@ namespace engine
 
         void setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn);
 
-        void setLookAtItem(ItemNode* item)
+        void setLookAtItem(items::ItemNode* item)
         {
             if( item == nullptr || (m_camOverrideType != 1 && m_camOverrideType != 5) )
                 return;
@@ -161,9 +165,9 @@ namespace engine
         int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
         void updatePosition(const ::core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs);
-        void doUsualMovement(const gsl::not_null<const ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleFreeLook(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleEnemy(const ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
+        void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleFreeLook(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
+        void handleEnemy(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
 
         using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 

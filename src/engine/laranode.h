@@ -4,7 +4,7 @@
 #include "loader/larastateid.h"
 #include "collisioninfo.h"
 #include "engine/lara/abstractstatehandler.h"
-#include "itemnode.h"
+#include "engine/items/itemnode.h"
 #include <chrono>
 
 
@@ -21,7 +21,7 @@ namespace engine
     };
 
 
-    class LaraNode final : public ItemNode
+    class LaraNode final : public items::ItemNode
     {
         using LaraStateId = loader::LaraStateId;
 

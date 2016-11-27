@@ -31,7 +31,10 @@
 
 namespace engine
 {
-    class ItemNode;
+    namespace items
+    {
+        class ItemNode;
+    }
 }
 
 namespace level
@@ -1121,7 +1124,7 @@ namespace loader
             return getSectorByIndex(dx, dz);
         }
 
-        static void patchHeightsForBlock(const engine::ItemNode& ctrl, int height);
+        static void patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height);
     };
 
     enum class TimerState

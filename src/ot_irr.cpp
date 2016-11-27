@@ -32,7 +32,7 @@ namespace
         // triggers
         {
             int y = 100;
-            for(const std::shared_ptr<engine::ItemNode>& item : lvl->m_itemControllers | boost::adaptors::map_values)
+            for(const std::shared_ptr<engine::items::ItemNode>& item : lvl->m_itemControllers | boost::adaptors::map_values)
             {
                 if(!item->m_isActive)
                     continue;
@@ -112,7 +112,7 @@ void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Le
         auto subTime = std::min(deltaTime, core::FrameTime);
         deltaTime -= subTime;
 
-        for(const std::shared_ptr<engine::ItemNode>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
+        for(const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemControllers | boost::adaptors::map_values)
         {
             if(ctrl.get() == lvl->m_lara) // Lara is special and needs to be updated last
                 continue;

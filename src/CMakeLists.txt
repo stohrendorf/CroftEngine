@@ -64,8 +64,8 @@ set( OT_IRR_SRCS
      engine/heightinfo.h
      engine/inputhandler.h
      engine/inputstate.h
-     engine/itemnode.cpp
-     engine/itemnode.h
+     engine/items/itemnode.cpp
+     engine/items/itemnode.h
      engine/laranode.cpp
      engine/laranode.h
      engine/skeletalmodelnode.cpp

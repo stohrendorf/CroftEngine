@@ -280,7 +280,7 @@ namespace loader
     }
 
 
-    void Room::patchHeightsForBlock(const engine::ItemNode& ctrl, int height)
+    void Room::patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height)
     {
         core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
         //! @todo Ugly const_cast
