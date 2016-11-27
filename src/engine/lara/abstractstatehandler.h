@@ -8,6 +8,7 @@
 
 #include <memory>
 
+
 namespace engine
 {
     using LaraStateId = loader::LaraStateId;
@@ -16,13 +17,14 @@ namespace engine
     struct InputState;
     enum class UnderwaterState;
 
+
     namespace lara
     {
         class AbstractStateHandler
         {
         public:
-            explicit AbstractStateHandler(LaraNode& controller)
-                    : m_lara( controller )
+            explicit AbstractStateHandler(LaraNode& lara)
+                : m_lara{lara}
             {
             }
 
@@ -42,7 +44,7 @@ namespace engine
                 m_xRotationSpeed = 0_deg;
                 m_yRotationSpeed = 0_deg;
                 m_zRotationSpeed = 0_deg;
-                return handleInputImpl( collisionInfo );
+                return handleInputImpl(collisionInfo);
             }
 
 

@@ -157,10 +157,14 @@ namespace engine
                 return;
             }
 
-            if( m_isActive )
-                BOOST_LOG_TRIVIAL( warning ) << "Item controller " << getId() << " already active";
+            if(m_isActive)
+            {
+                //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already active";
+            }
             else
-                BOOST_LOG_TRIVIAL( trace ) << "Activating item controller " << getId();
+            {
+                BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << getId();
+            }
 
             m_isActive = true;
         }
@@ -168,10 +172,14 @@ namespace engine
 
         void ItemNode::deactivate()
         {
-            if( !m_isActive )
-                BOOST_LOG_TRIVIAL( warning ) << "Item controller " << getId() << " already inactive";
+            if(!m_isActive)
+            {
+                //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already inactive";
+            }
             else
-                BOOST_LOG_TRIVIAL( trace ) << "Deactivating item controller " << getId();
+            {
+                BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << getId();
+            }
 
             m_isActive = false;
         }

@@ -28,7 +28,7 @@ namespace core
 
     inline uint16_t toFrame(const std::chrono::microseconds& time)
     {
-        return gsl::narrow<uint16_t>(time / core::FrameTime);
+        return gsl::narrow<uint16_t>(time * FrameRate / std::chrono::microseconds(std::chrono::seconds(1)));
     }
 }
 
