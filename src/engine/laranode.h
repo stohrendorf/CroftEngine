@@ -43,21 +43,22 @@ namespace engine
 
     public:
         LaraNode(const gsl::not_null<level::Level*>& level,
-                       const std::string& name,
-                       const gsl::not_null<const loader::Room*>& room,
-                       const gsl::not_null<loader::Item*>& item,
-                       const loader::AnimatedModel& animatedModel)
-            : ItemNode(level, name, room, item, false, 0x3c, animatedModel)
+                 const std::string& name,
+                 const gsl::not_null<const loader::Room*>& room,
+                 const gsl::not_null<loader::Item*>& item,
+                 const loader::AnimatedModel& animatedModel)
+                : ItemNode( level, name, room, item, false, 0x3c, animatedModel )
         {
-            playAnimation(loader::AnimationId::STAY_IDLE);
-            setTargetState(loader::LaraStateId::Stop);
-            setMovementAngle(getRotation().Y);
+            playAnimation( loader::AnimationId::STAY_IDLE );
+            setTargetState( loader::LaraStateId::Stop );
+            setMovementAngle( getRotation().Y );
         }
 
 
         ~LaraNode();
 
         void updateImpl(const std::chrono::microseconds& deltaTime) override;
+
 
         bool isInWater() const
         {
@@ -73,17 +74,19 @@ namespace engine
 
     private:
         void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
+
         void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
+
         void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
+
         void testInteractions();
+
         //! @brief If "none", we are not allowed to dive until the "Dive" action key is released
         //! @remarks This happens e.g. just after dive-to-swim transition, when players still
         //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
         //!          diving immediately again.
         boost::optional<std::chrono::microseconds> m_swimToDiveKeypressDuration = boost::none;
         uint16_t m_secretsFoundBitmask = 0;
-
-        ///////////////////////////////////////
 
     public:
         const core::InterpolatedValue<float>& getHealth() const noexcept
@@ -143,15 +146,17 @@ namespace engine
         }
 
 
-        void subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = -32768_au)
+        void
+        subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = -32768_au)
         {
-            m_yRotationSpeed.sub(val, deltaTime).limitMin(limit);
+            m_yRotationSpeed.sub( val, deltaTime ).limitMin( limit );
         }
 
 
-        void addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = 32767_au)
+        void
+        addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = 32767_au)
         {
-            m_yRotationSpeed.add(val, deltaTime).limitMax(limit);
+            m_yRotationSpeed.add( val, deltaTime ).limitMax( limit );
         }
 
 
@@ -174,11 +179,17 @@ namespace engine
 
 
         LaraStateId getTargetState() const;
+
         void setTargetState(loader::LaraStateId st);
+
         loader::LaraStateId getCurrentState() const;
+
         loader::LaraStateId getCurrentAnimState() const;
+
         void playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+
         void updateFloorHeight(int dy);
+
         void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
 
         boost::optional<int> getWaterSurfaceHeight() const;
@@ -212,9 +223,13 @@ namespace engine
 
 
         void setCameraRotation(core::Angle x, core::Angle y);
+
         void setCameraRotationX(core::Angle x);
+
         void setCameraRotationY(core::Angle y);
+
         void setCameraDistance(int d);
+
         void setCameraUnknown1(int k);
 
 

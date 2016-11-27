@@ -23,11 +23,12 @@ namespace engine
     class SkeletalModelNode : public gameplay::Node
     {
     public:
-        explicit SkeletalModelNode(const std::string& id, const gsl::not_null<const level::Level*>& lvl, const loader::AnimatedModel& mdl);
+        explicit SkeletalModelNode(const std::string& id,
+                                   const gsl::not_null<const level::Level*>& lvl,
+                                   const loader::AnimatedModel& mdl);
 
         void updatePose();
 
-        void setAnimId(size_t animId, size_t frameOfs = 0);
         void setAnimIdGlobal(size_t animId, size_t frame);
 
 
@@ -47,12 +48,12 @@ namespace engine
 
         void addTime(const std::chrono::microseconds& time)
         {
-            if( core::toFrame(m_time) != core::toFrame(m_time + time) )
+            if( core::toFrame( m_time ) != core::toFrame( m_time + time ) )
             {
-                if(getCurrentLocalTime() + time >= getEndTime() - 1_frame)
-                    onFrameChanged(FrameChangeType::EndFrame);
+                if( getCurrentLocalTime() + time >= getEndTime() - 1_frame )
+                    onFrameChanged( FrameChangeType::EndFrame );
                 else
-                    onFrameChanged(FrameChangeType::NewFrame);
+                    onFrameChanged( FrameChangeType::NewFrame );
             }
 
             m_time += time;
@@ -63,7 +64,7 @@ namespace engine
 
         const std::chrono::microseconds& getCurrentTime() const
         {
-            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
+            BOOST_ASSERT( m_time >= getStartTime() && m_time < getEndTime() );
             return m_time;
         }
 
@@ -76,7 +77,8 @@ namespace engine
             if( state == m_targetState )
                 return;
 
-            BOOST_LOG_TRIVIAL(debug) << getId() << " -- set target state=" << state << " (was " << m_targetState << "), current state=" << getCurrentState();
+            BOOST_LOG_TRIVIAL( debug ) << getId() << " -- set target state=" << state << " (was " << m_targetState
+                                       << "), current state=" << getCurrentState();
             m_targetState = state;
         }
 
@@ -99,7 +101,7 @@ namespace engine
         void resetPose()
         {
             m_bonePatches.clear();
-            m_bonePatches.resize(getChildCount(), glm::mat4{1.0f});
+            m_bonePatches.resize( getChildCount(), glm::mat4{1.0f} );
         }
 
 
@@ -108,11 +110,12 @@ namespace engine
             if( m_bonePatches.empty() )
                 resetPose();
 
-            BOOST_ASSERT(m_bonePatches.size() == getChildCount());
-            BOOST_ASSERT(idx < m_bonePatches.size());
+            BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+            BOOST_ASSERT( idx < m_bonePatches.size() );
 
             m_bonePatches[idx] = m;
         }
+
 
         virtual void onFrameChanged(FrameChangeType frameChangeType) = 0;
 
@@ -125,6 +128,8 @@ namespace engine
         std::vector<glm::mat4> m_bonePatches;
 
 #pragma pack(push, 1)
+
+
         struct AnimFrame
         {
             struct BBox
@@ -136,13 +141,13 @@ namespace engine
 
                 glm::vec3 getMinGl() const noexcept
                 {
-                    return glm::vec3(minX, minY, minZ);
+                    return glm::vec3( minX, minY, minZ );
                 }
 
 
                 glm::vec3 getMaxGl() const noexcept
                 {
-                    return glm::vec3(maxX, maxY, maxZ);
+                    return glm::vec3( maxX, maxY, maxZ );
                 }
             };
 
@@ -154,7 +159,7 @@ namespace engine
 
                 glm::vec3 toGl() const noexcept
                 {
-                    return glm::vec3(x, -y, -z);
+                    return glm::vec3( x, -y, -z );
                 }
             };
 
@@ -169,6 +174,8 @@ namespace engine
                 return reinterpret_cast<const uint32_t*>(this + 1);
             }
         };
+
+
 #pragma pack(pop)
 
         struct InterpolationInfo
@@ -180,12 +187,19 @@ namespace engine
 
 
         InterpolationInfo getInterpolationInfo() const;
+
         void updatePoseKeyframe(const InterpolationInfo& framepair);
+
         void updatePoseInterpolated(const InterpolationInfo& framepair);
+
         const loader::Animation& getCurrentAnimData() const;
+
         std::chrono::microseconds getStartTime() const;
+
         std::chrono::microseconds getEndTime() const;
+
         void handleTRTransitions();
+
         void loopAnimation();
 
 
@@ -202,7 +216,7 @@ namespace engine
 
         std::chrono::microseconds getCurrentLocalTime() const
         {
-            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
+            BOOST_ASSERT( m_time >= getStartTime() && m_time < getEndTime() );
             return m_time - getStartTime();
         }
     };
