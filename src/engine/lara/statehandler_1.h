@@ -18,31 +18,31 @@ namespace engine
             }
 
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState( LaraStateId::Death );
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().roll )
                 {
                     setAnimIdGlobal( loader::AnimationId::ROLL_BEGIN, 3857 );
                     setTargetState( LaraStateId::Stop );
-                    return createWithRetainedAnimation( LaraStateId::RollForward );
+                    return LaraStateId::RollForward;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().jump && !isFalling() )
                 {
                     setTargetState( LaraStateId::JumpForward );
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 {
                     setTargetState( LaraStateId::Stop );
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().moveSlow )
@@ -50,7 +50,7 @@ namespace engine
                 else
                     setTargetState( LaraStateId::RunForward );
 
-                return nullptr;
+                return {};
             }
 
 
@@ -71,7 +71,7 @@ namespace engine
             }
 
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle( collisionInfo.yAngle );
@@ -89,13 +89,13 @@ namespace engine
                     return nextHandler;
 
                 nextHandler = checkWallCollision( collisionInfo );
-                if( nextHandler != nullptr )
+                if( nextHandler.is_initialized() )
                 {
                     setZRotation( 0_deg );
                     if( collisionInfo.front.floor.slantClass == SlantClass::None
                         && collisionInfo.front.floor.distance < -core::ClimbLimit2ClickMax )
                     {
-                        nextHandler = createWithRetainedAnimation( LaraStateId::Unknown12 );
+                        nextHandler = LaraStateId::Unknown12;
                         if( getCurrentTime() < 10_frame )
                         {
                             setAnimIdGlobal( loader::AnimationId::WALL_SMASH_LEFT, 800 );
@@ -117,7 +117,7 @@ namespace engine
                     setTargetState( LaraStateId::JumpForward );
                     setFalling( true );
                     setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
-                    return createWithRetainedAnimation( LaraStateId::JumpForward );
+                    return LaraStateId::JumpForward;
                 }
 
                 if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin

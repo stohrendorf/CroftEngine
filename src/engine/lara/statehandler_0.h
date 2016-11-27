@@ -18,12 +18,12 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
@@ -38,7 +38,7 @@ namespace engine
                     setTargetState(LaraStateId::Stop);
                 }
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
@@ -49,7 +49,7 @@ namespace engine
                     addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -69,7 +69,7 @@ namespace engine
                     return nextHandler;
 
                 nextHandler = checkWallCollision(collisionInfo);
-                if( nextHandler != nullptr )
+                if( nextHandler.is_initialized() )
                 {
                     const auto fr = getCurrentTime();
                     if( fr >= 29_frame && fr < 48_frame)
@@ -89,7 +89,7 @@ namespace engine
                 if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
-                    nextHandler = createWithRetainedAnimation(LaraStateId::JumpForward);
+                    nextHandler = LaraStateId::JumpForward;
                     setTargetState(LaraStateId::JumpForward);
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
                     setFalling(true);

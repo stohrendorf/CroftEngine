@@ -17,19 +17,19 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 setCameraRotationY(85_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(true);
                 collisionInfo.yAngle = getRotation().Y;

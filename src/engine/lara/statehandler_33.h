@@ -14,12 +14,12 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
@@ -35,21 +35,21 @@ namespace engine
                 if( !getLevel().m_inputHandler->getInputState().jump )
                 {
                     setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
-                    return nullptr;
+                    return {};
                 }
 
                 if(!getSwimToDiveKeypressDuration())
-                    return nullptr; // not allowed to dive at all
+                    return {}; // not allowed to dive at all
 
                 if(*getSwimToDiveKeypressDuration() < 10_frame)
-                    return nullptr; // not yet allowed to dive
+                    return {}; // not yet allowed to dive
 
                 setTargetState(LaraStateId::UnderwaterForward);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
                 setFallSpeed(core::makeInterpolatedValue(80.0f));
                 setUnderwaterState(UnderwaterState::Diving);
-                return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
+                return LaraStateId::UnderwaterDiving;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
@@ -81,7 +81,7 @@ namespace engine
                 addSwimToDiveKeypressDuration(deltaTimeMs);
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
                 return commonOnWaterHandling(collisionInfo);

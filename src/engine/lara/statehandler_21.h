@@ -17,12 +17,12 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
@@ -33,7 +33,7 @@ namespace engine
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                     setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
@@ -45,7 +45,7 @@ namespace engine
                 return LaraStateId::StepRight;
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -58,15 +58,15 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
                 auto nextHandler = stopIfCeilingBlocked(collisionInfo);
-                if( nextHandler != nullptr )
+                if( nextHandler.is_initialized() )
                     return nextHandler;
 
                 nextHandler = checkWallCollision(collisionInfo);
-                if( nextHandler != nullptr )
+                if( nextHandler.is_initialized() )
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     setTargetState(LaraStateId::Stop);
-                    return createWithRetainedAnimation(LaraStateId::Stop);
+                    return LaraStateId::Stop;
                 }
 
                 if( !tryStartSlide(collisionInfo, nextHandler) )

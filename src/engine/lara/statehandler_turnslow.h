@@ -18,7 +18,7 @@ namespace engine
             }
 
         public:
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override final
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override final
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -32,7 +32,7 @@ namespace engine
 
                 if( collisionInfo.current.floor.distance <= 100 )
                 {
-                    std::unique_ptr<AbstractStateHandler> nextHandler = nullptr;
+                    boost::optional<LaraStateId> nextHandler;
                     if( !tryStartSlide(collisionInfo, nextHandler) )
                         placeOnFloor(collisionInfo);
 
@@ -43,7 +43,7 @@ namespace engine
                 setTargetState(LaraStateId::JumpForward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
-                return createWithRetainedAnimation(LaraStateId::JumpForward);
+                return LaraStateId::JumpForward;
             }
         };
     }

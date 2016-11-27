@@ -14,25 +14,25 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getHandStatus() == 4 )
                 {
                     setTargetState(LaraStateId::TurnFast);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 {
                     if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right )
                         setTargetState(LaraStateId::Stop);
-                    return nullptr;
+                    return {};
                 }
 
                 if( getLevel().m_inputHandler->getInputState().moveSlow )
@@ -40,7 +40,7 @@ namespace engine
                 else
                     setTargetState(LaraStateId::RunForward);
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override

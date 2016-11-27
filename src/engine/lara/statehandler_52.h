@@ -17,21 +17,21 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.frobbelFlags &= ~CollisionInfo::FrobbelFlag10;
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag08;
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::SwandiveEnd);
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;

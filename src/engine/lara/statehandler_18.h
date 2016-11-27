@@ -14,12 +14,12 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() < 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
-                    return nullptr;
+                    return {};
                 }
 
                 handleDiveInput();
@@ -30,7 +30,7 @@ namespace engine
                 if( getFallSpeed() <= 133 )
                     setTargetState(LaraStateId::UnderwaterStop);
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override

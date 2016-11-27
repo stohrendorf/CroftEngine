@@ -17,19 +17,19 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -42,7 +42,7 @@ namespace engine
 
                 jumpAgainstWall(collisionInfo);
                 if( getFallSpeed() <= 0 || collisionInfo.current.floor.distance > 0 )
-                    return nullptr;
+                    return {};
 
                 if( applyLandingDamage() )
                     setTargetState(LaraStateId::Death);
@@ -52,7 +52,7 @@ namespace engine
                 placeOnFloor(collisionInfo);
                 setFalling(false);
 
-                return nullptr;
+                return {};
             }
 
             loader::LaraStateId getId() const noexcept override

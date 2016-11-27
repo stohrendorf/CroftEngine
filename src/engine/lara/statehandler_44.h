@@ -16,7 +16,7 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getRotation().X < 0_deg )
                     m_xRotationSpeed = -2_deg;
@@ -25,7 +25,7 @@ namespace engine
                 else
                     m_xRotationSpeed = 0_deg;
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
@@ -38,7 +38,7 @@ namespace engine
                 return LaraStateId::WaterDeath;
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 setAir(core::makeInterpolatedValue(-1.0f));

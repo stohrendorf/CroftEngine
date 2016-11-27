@@ -17,7 +17,7 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
                 setCameraRotationY(75_deg);
@@ -25,7 +25,7 @@ namespace engine
                     setTargetState(LaraStateId::Stop);
                 else
                     setTargetState(LaraStateId::PushableGrab);
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
@@ -37,7 +37,7 @@ namespace engine
                 return LaraStateId::PushableGrab;
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
                 collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
@@ -47,7 +47,7 @@ namespace engine
 
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                return nullptr;
+                return {};
             }
         };
     }

@@ -17,10 +17,10 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 setTargetState(LaraStateId::Stop);
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
@@ -31,7 +31,7 @@ namespace engine
                     addYRotationSpeed(deltaTime, 2.25_deg, 6_deg);
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -51,7 +51,7 @@ namespace engine
                     setTargetState(LaraStateId::FallBackward);
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
                     setFalling(true);
-                    return createWithRetainedAnimation(LaraStateId::FallBackward);
+                    return LaraStateId::FallBackward;
                 }
 
                 auto nextHandler = checkWallCollision(collisionInfo);

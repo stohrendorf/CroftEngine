@@ -14,14 +14,14 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                     m_yRotationSpeed = -1_deg;
                 else
                     m_yRotationSpeed = 0_deg;
 
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

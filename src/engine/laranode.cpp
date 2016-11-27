@@ -37,13 +37,13 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        boost::optional<LaraStateId> nextHandler = m_currentStateHandler->handleInput( collisionInfo );
 
         m_currentStateHandler->animate( collisionInfo, deltaTime );
 
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -101,9 +101,9 @@ namespace engine
         testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -132,13 +132,13 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
 
         m_currentStateHandler->animate( collisionInfo, deltaTime );
 
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -179,9 +179,9 @@ namespace engine
         testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -211,13 +211,13 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
 
         m_currentStateHandler->animate( collisionInfo, deltaTime );
 
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -269,9 +269,9 @@ namespace engine
         testInteractions();
 
         nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
-        if( nextHandler != nullptr )
+        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = std::move( nextHandler );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
                                        << loader::toString( m_currentStateHandler->getId() );
         }
@@ -444,10 +444,6 @@ namespace engine
     {
         BOOST_ASSERT( frameChangeType != FrameChangeType::SameFrame );
 
-        std::unique_ptr<lara::AbstractStateHandler> nextHandler;
-        if( m_currentStateHandler != nullptr )
-            nextHandler = m_currentStateHandler->createWithRetainedAnimation( getCurrentAnimState() );
-
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
         if( animation.animCommandCount > 0 )
         {
@@ -514,9 +510,6 @@ namespace engine
                 }
             }
         }
-
-        if( nextHandler != nullptr )
-            m_currentStateHandler = std::move( nextHandler );
     }
 
 

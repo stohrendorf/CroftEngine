@@ -17,13 +17,13 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
-                return nullptr;
+                return {};
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -36,7 +36,7 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 //! @todo set air=-1
-                return nullptr;
+                return {};
             }
 
             loader::LaraStateId getId() const noexcept override

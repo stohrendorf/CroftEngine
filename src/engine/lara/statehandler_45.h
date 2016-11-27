@@ -17,16 +17,16 @@ namespace engine
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                return nullptr;
+                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            std::unique_ptr<AbstractStateHandler> postprocessFrame(CollisionInfo& collisionInfo) override
+            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(false);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -56,7 +56,7 @@ namespace engine
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
 
-                return createWithRetainedAnimation(LaraStateId::JumpForward);
+                return LaraStateId::JumpForward;
             }
 
             loader::LaraStateId getId() const noexcept override

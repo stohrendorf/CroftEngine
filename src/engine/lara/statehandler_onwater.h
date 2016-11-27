@@ -20,7 +20,7 @@ namespace engine
             }
 
         protected:
-            std::unique_ptr<AbstractStateHandler> commonOnWaterHandling(CollisionInfo& collisionInfo)
+            boost::optional<LaraStateId> commonOnWaterHandling(CollisionInfo& collisionInfo)
             {
                 collisionInfo.yAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition() + core::ExactTRCoordinates(0, 700, 0), getLevel(), 700);
@@ -56,40 +56,40 @@ namespace engine
                 setXRotation(-45_deg);
                 setFallSpeed(core::makeInterpolatedValue(80.0f));
                 setUnderwaterState(UnderwaterState::Diving);
-                return createWithRetainedAnimation(LaraStateId::UnderwaterDiving);
+                return LaraStateId::UnderwaterDiving;
             }
 
         private:
-            std::unique_ptr<AbstractStateHandler> tryClimbOutOfWater(CollisionInfo& collisionInfo)
+            boost::optional<LaraStateId> tryClimbOutOfWater(CollisionInfo& collisionInfo)
             {
                 if( getMovementAngle() != getRotation().Y )
-                    return nullptr;
+                    return {};
 
                 if( collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked )
-                    return nullptr;
+                    return {};
 
                 if( !getLevel().m_inputHandler->getInputState().action )
-                    return nullptr;
+                    return {};
 
                 const auto gradient = std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
                 if( gradient >= core::MaxGrabbableGradient )
-                    return nullptr;
+                    return {};
 
                 if( collisionInfo.front.ceiling.distance > 0 )
-                    return nullptr;
+                    return {};
 
                 if( collisionInfo.current.ceiling.distance > -core::ClimbLimit2ClickMin )
-                    return nullptr;
+                    return {};
 
                 if( collisionInfo.front.floor.distance + 700 <= -2 * loader::QuarterSectorSize )
-                    return nullptr;
+                    return {};
 
                 if( collisionInfo.front.floor.distance + 700 > 100 )
-                    return nullptr;
+                    return {};
 
                 const auto yRot = core::alignRotation(getRotation().Y, 35_deg);
                 if( !yRot )
-                    return nullptr;
+                    return {};
 
                 setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(collisionInfo.front.floor.distance), 0));
                 getLara().updateFloorHeight(-381);
@@ -117,7 +117,7 @@ namespace engine
                 setZRotation(0_deg);
                 setHandStatus(1);
                 setUnderwaterState(UnderwaterState::OnLand);
-                return createWithRetainedAnimation(LaraStateId::OnWaterExit);
+                return LaraStateId::OnWaterExit;
             }
         };
     }
