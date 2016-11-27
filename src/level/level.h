@@ -99,17 +99,15 @@ namespace level
         static std::unique_ptr<Level> createLoader(const std::string& filename, Game game_version);
         virtual void load() = 0;
 
-        loader::StaticMesh* findStaticMeshById(uint32_t object_id);
         const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
-        loader::Item* findItemByType(int32_t object_id);
-        loader::AnimatedModel* findModelByType(uint32_t object_id);
         int findStaticMeshIndexById(uint32_t object_id) const;
         boost::optional<size_t> findAnimatedModelIndexForType(uint32_t object_id) const;
         boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
-        engine::LaraNode* createItems(gameplay::Game* game, const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::vector<std::shared_ptr<gameplay::Model>>& models);
+        engine::LaraNode*
+        createItems(const std::vector<std::shared_ptr<gameplay::Model>>& models);
         void toIrrlicht(gameplay::Game* game);
 
 

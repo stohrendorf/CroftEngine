@@ -77,7 +77,7 @@ namespace loader
 
 
     std::shared_ptr<gameplay::Node> Room::createSceneNode(gameplay::Game* game,
-                                                          int dumpIdx,
+                                                          size_t roomId,
                                                           const level::Level& level,
                                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
@@ -162,7 +162,7 @@ namespace loader
 
         mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
         auto resModel = renderModel.toModel(mesh);
-        node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(dumpIdx));
+        node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
 
         for( Light& light : lights )
