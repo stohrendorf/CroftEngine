@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_55_Switch::onInteract(LaraNode& lara)
+        void Switch::onInteract(LaraNode& lara)
         {
             if( !getLevel().m_inputHandler->getInputState().action )
                 return;

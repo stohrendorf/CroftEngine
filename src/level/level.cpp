@@ -396,48 +396,48 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             }
             else if( type == 35 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_35_CollapsibleFloor>( *modelIdx, models, &room,
+                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( *modelIdx, models, &room,
                                                                                           &item );
             }
             else if( type == 36 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_SwingingBlade>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::SwingingBlade>( *modelIdx, models, &room, &item );
             }
             else if( type == 41 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_41_TrapDoorUp>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( *modelIdx, models, &room, &item );
             }
             else if( type >= 48 && type <= 51 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_Block>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Block>( *modelIdx, models, &room, &item );
             }
             else if( type == 52 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_TallBlock>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TallBlock>( *modelIdx, models, &room, &item );
             }
             else if( type == 55 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_55_Switch>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Switch>( *modelIdx, models, &room, &item );
             }
             else if( type >= 57 && type <= 64 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_Door>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Door>( *modelIdx, models, &room, &item );
             }
             else if( type >= 65 && type <= 66 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_TrapDoorDown>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( *modelIdx, models, &room, &item );
             }
             else if( type == 68 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_68_BridgeFlat>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeFlat>( *modelIdx, models, &room, &item );
             }
             else if( type == 69 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_69_BridgeSlope1>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( *modelIdx, models, &room, &item );
             }
             else if( type == 70 )
             {
-                modelNode = createSkeletalModel<engine::items::Item_70_BridgeSlope2>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( *modelIdx, models, &room, &item );
             }
             else
             {

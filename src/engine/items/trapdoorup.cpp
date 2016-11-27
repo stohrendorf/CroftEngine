@@ -6,7 +6,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_41_TrapDoorUp::onFrameChanged(FrameChangeType frameChangeType)
+        void TrapDoorUp::onFrameChanged(FrameChangeType frameChangeType)
         {
             ItemNode::onFrameChanged( frameChangeType );
             auto pos = getRoomBoundPosition();

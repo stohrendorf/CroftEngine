@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_68_BridgeFlat final : public ItemNode
+        class BridgeFlat final : public ItemNode
         {
         public:
-            Item_68_BridgeFlat(const gsl::not_null<level::Level*>& level,
+            BridgeFlat(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,
                                const gsl::not_null<loader::Item*>& item,

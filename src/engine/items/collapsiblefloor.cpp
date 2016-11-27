@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_35_CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
+        void CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
         {
             if( getCurrentState() == 0 ) // stationary
             {

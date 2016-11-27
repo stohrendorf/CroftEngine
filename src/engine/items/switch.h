@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_55_Switch final : public ItemNode
+        class Switch final : public ItemNode
         {
         public:
-            Item_55_Switch(const gsl::not_null<level::Level*>& level,
+            Switch(const gsl::not_null<level::Level*>& level,
                            const std::string& name,
                            const gsl::not_null<const loader::Room*>& room,
                            const gsl::not_null<loader::Item*>& item,

@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_SwingingBlade final : public ItemNode
+        class SwingingBlade final : public ItemNode
         {
         public:
-            Item_SwingingBlade(const gsl::not_null<level::Level*>& level,
+            SwingingBlade(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,
                                const gsl::not_null<loader::Item*>& item,

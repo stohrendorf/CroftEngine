@@ -6,7 +6,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_TallBlock::onFrameChanged(FrameChangeType frameChangeType)
+        void TallBlock::onFrameChanged(FrameChangeType frameChangeType)
         {
             ItemNode::onFrameChanged( frameChangeType );
             auto room = getCurrentRoom();

@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_Block final : public ItemNode
+        class Block final : public ItemNode
         {
         public:
-            Item_Block(const gsl::not_null<level::Level*>& level,
+            Block(const gsl::not_null<level::Level*>& level,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        const gsl::not_null<loader::Item*>& item,

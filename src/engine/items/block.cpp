@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_Block::onInteract(LaraNode& lara)
+        void Block::onInteract(LaraNode& lara)
         {
             if( !getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready)
                 || isFalling() || !util::fuzzyEqual( lara.getPosition().Y, getPosition().Y, 1.0f ) )
@@ -107,7 +107,7 @@ namespace engine
         }
 
 
-        void Item_Block::onFrameChanged(FrameChangeType frameChangeType)
+        void Block::onFrameChanged(FrameChangeType frameChangeType)
         {
             if( (m_itemFlags & Oneshot) != 0 )
             {
@@ -154,7 +154,7 @@ namespace engine
         }
 
 
-        bool Item_Block::isOnFloor(int height) const
+        bool Block::isOnFloor(int height) const
         {
             auto sector = getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), getCurrentRoom() );
             return sector->floorHeight == -127
@@ -163,7 +163,7 @@ namespace engine
         }
 
 
-        bool Item_Block::canPushBlock(int height, core::Axis axis) const
+        bool Block::canPushBlock(int height, core::Axis axis) const
         {
             if( !isOnFloor( height ) )
                 return false;
@@ -200,7 +200,7 @@ namespace engine
         }
 
 
-        bool Item_Block::canPullBlock(int height, core::Axis axis) const
+        bool Block::canPullBlock(int height, core::Axis axis) const
         {
             if( !isOnFloor( height ) )
                 return false;

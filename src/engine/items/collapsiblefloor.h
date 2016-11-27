@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_35_CollapsibleFloor final : public ItemNode
+        class CollapsibleFloor final : public ItemNode
         {
         public:
-            Item_35_CollapsibleFloor(const gsl::not_null<level::Level*>& level,
+            CollapsibleFloor(const gsl::not_null<level::Level*>& level,
                                      const std::string& name,
                                      const gsl::not_null<const loader::Room*>& room,
                                      const gsl::not_null<loader::Item*>& item,

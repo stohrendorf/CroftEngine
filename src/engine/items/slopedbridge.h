@@ -6,12 +6,12 @@ namespace engine
 {
     namespace items
     {
-        class Item_SlopedBridge : public ItemNode
+        class SlopedBridge : public ItemNode
         {
         private:
             const int m_div;
         public:
-            Item_SlopedBridge(const gsl::not_null<level::Level*>& level,
+            SlopedBridge(const gsl::not_null<level::Level*>& level,
                               const std::string& name,
                               const gsl::not_null<const loader::Room*>& room,
                               const gsl::not_null<loader::Item*>& item,
@@ -74,29 +74,29 @@ namespace engine
         };
 
 
-        class Item_69_BridgeSlope1 final : public Item_SlopedBridge
+        class BridgeSlope1 final : public SlopedBridge
         {
         public:
-            Item_69_BridgeSlope1(const gsl::not_null<level::Level*>& level,
+            BridgeSlope1(const gsl::not_null<level::Level*>& level,
                                  const std::string& name,
                                  const gsl::not_null<const loader::Room*>& room,
                                  const gsl::not_null<loader::Item*>& item,
                                  const loader::AnimatedModel& animatedModel)
-                    : Item_SlopedBridge( level, name, room, item, animatedModel, 4 )
+                    : SlopedBridge( level, name, room, item, animatedModel, 4 )
             {
             }
         };
 
 
-        class Item_70_BridgeSlope2 final : public Item_SlopedBridge
+        class BridgeSlope2 final : public SlopedBridge
         {
         public:
-            Item_70_BridgeSlope2(const gsl::not_null<level::Level*>& level,
+            BridgeSlope2(const gsl::not_null<level::Level*>& level,
                                  const std::string& name,
                                  const gsl::not_null<const loader::Room*>& room,
                                  const gsl::not_null<loader::Item*>& item,
                                  const loader::AnimatedModel& animatedModel)
-                    : Item_SlopedBridge( level, name, room, item, animatedModel, 2 )
+                    : SlopedBridge( level, name, room, item, animatedModel, 2 )
             {
             }
         };

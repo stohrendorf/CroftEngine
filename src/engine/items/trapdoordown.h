@@ -6,10 +6,10 @@ namespace engine
 {
     namespace items
     {
-        class Item_TrapDoorDown final : public ItemNode
+        class TrapDoorDown final : public ItemNode
         {
         public:
-            Item_TrapDoorDown(const gsl::not_null<level::Level*>& level,
+            TrapDoorDown(const gsl::not_null<level::Level*>& level,
                               const std::string& name,
                               const gsl::not_null<const loader::Room*>& room,
                               const gsl::not_null<loader::Item*>& item,

@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void Item_SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
+        void SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
         {
             if( updateTriggerTimeout( deltaTime ) )
             {
@@ -21,7 +21,7 @@ namespace engine
         }
 
 
-        void Item_SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
+        void SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
         {
             auto room = getCurrentRoom();
             auto sector = getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), &room );
