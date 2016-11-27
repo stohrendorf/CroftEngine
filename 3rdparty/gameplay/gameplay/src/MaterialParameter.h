@@ -137,7 +137,7 @@ namespace gameplay
         template<class ClassType, class ValueType>
         void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+            m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
                 {
                     shaderProgram->setValue(*uniform, (classInstance ->* valueMethod)());
                 };

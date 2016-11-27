@@ -3,7 +3,7 @@
 #include "loader/animationids.h"
 #include "loader/larastateid.h"
 #include "collisioninfo.h"
-#include "abstractstatehandler.h"
+#include "engine/lara/abstractstatehandler.h"
 #include "itemnode.h"
 #include <chrono>
 
@@ -39,7 +39,7 @@ namespace engine
         std::chrono::microseconds m_uvAnimTime{0};
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
-        std::unique_ptr<AbstractStateHandler> m_currentStateHandler = nullptr;
+        std::unique_ptr<lara::AbstractStateHandler> m_currentStateHandler = nullptr;
 
     public:
         LaraNode(const gsl::not_null<level::Level*>& level,

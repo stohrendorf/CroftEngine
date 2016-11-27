@@ -37,7 +37,7 @@ namespace engine
 
         BOOST_ASSERT(m_currentStateHandler != nullptr);
 
-        std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
+        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
@@ -125,7 +125,7 @@ namespace engine
 
         BOOST_ASSERT(m_currentStateHandler != nullptr);
 
-        std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
+        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
@@ -199,7 +199,7 @@ namespace engine
 
         BOOST_ASSERT(m_currentStateHandler != nullptr);
 
-        std::unique_ptr<AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
+        std::unique_ptr<lara::AbstractStateHandler> nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
@@ -304,7 +304,7 @@ namespace engine
 
         if( m_currentStateHandler == nullptr )
         {
-            m_currentStateHandler = AbstractStateHandler::create(getCurrentAnimState(), *this);
+            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
         }
 
         if( m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom() )
@@ -332,7 +332,7 @@ namespace engine
                 setXRotation(-45_deg);
                 playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
                 setTargetState(LaraStateId::UnderwaterForward);
-                m_currentStateHandler = AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
                 setFallSpeed(getFallSpeed() * 1.5f);
             }
 
@@ -354,7 +354,7 @@ namespace engine
                 m_underwaterState = UnderwaterState::OnLand;
                 playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
-                m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
                 setHorizontalSpeed(getHorizontalSpeed() / 4);
                 setFalling(true);
@@ -364,7 +364,7 @@ namespace engine
                 m_underwaterState = UnderwaterState::Swimming;
                 playAnimation(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
                 setTargetState(LaraStateId::OnWaterStop);
-                m_currentStateHandler = AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
                 {
                     auto pos = getPosition();
                     pos.Y = *waterSurfaceHeight + 1;
@@ -380,7 +380,7 @@ namespace engine
             m_underwaterState = UnderwaterState::OnLand;
             playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
-            m_currentStateHandler = AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+            m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
             setFallSpeed(core::makeInterpolatedValue(0.0f));
             //! @todo Check formula
             setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
@@ -428,7 +428,7 @@ namespace engine
     {
         BOOST_ASSERT(frameChangeType != FrameChangeType::SameFrame);
 
-        std::unique_ptr<AbstractStateHandler> nextHandler;
+        std::unique_ptr<lara::AbstractStateHandler> nextHandler;
         if(m_currentStateHandler != nullptr)
             nextHandler = m_currentStateHandler->createWithRetainedAnimation(getCurrentAnimState());
 

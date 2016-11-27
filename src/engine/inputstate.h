@@ -1,9 +1,15 @@
 #pragma once
 
 #include "gameplay.h"
+#include "core/angle.h"
 
 namespace engine
 {
+    namespace
+    {
+        const core::Angle FreeLookMouseMovementScale{50_deg};
+    }
+
     enum class AxisMovement
     {
         Positive,

@@ -388,7 +388,7 @@ namespace engine
         }
 
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override
+        void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override
         {
         }
     };
@@ -442,7 +442,7 @@ namespace engine
         }
 
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override
+        void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override
         {
         }
 
@@ -493,7 +493,7 @@ namespace engine
         }
 
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override
+        void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override
         {
         }
 
@@ -769,7 +769,7 @@ namespace engine
         }
 
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override
+        void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override
         {
         }
 
@@ -779,7 +779,7 @@ namespace engine
         }
 
 
-        void onFrameChanged(FrameChangeType frameChangeType) override
+        void onFrameChanged(FrameChangeType /*frameChangeType*/) override
         {
         }
 
@@ -818,7 +818,7 @@ namespace engine
         }
 
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override final
+        void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override final
         {
         }
 
@@ -828,7 +828,7 @@ namespace engine
         }
 
 
-        void onFrameChanged(FrameChangeType frameChangeType) override
+        void onFrameChanged(FrameChangeType /*frameChangeType*/) override
         {
         }
 
