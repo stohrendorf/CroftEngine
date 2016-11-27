@@ -49,7 +49,7 @@ namespace engine
                  const loader::AnimatedModel& animatedModel)
                 : ItemNode( level, name, room, item, false, 0x3c, animatedModel )
         {
-            playAnimation( loader::AnimationId::STAY_IDLE );
+            setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );
             setMovementAngle( getRotation().Y );
         }
@@ -186,7 +186,7 @@ namespace engine
 
         loader::LaraStateId getCurrentAnimState() const;
 
-        void playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+        void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
         void updateFloorHeight(int dy);
 

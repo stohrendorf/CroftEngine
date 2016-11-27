@@ -47,7 +47,7 @@ namespace engine
 
                 if( collisionInfo.current.floor.distance > 200 )
                 {
-                    playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+                    setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
                     setTargetState(LaraStateId::FallBackward);
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
                     setFalling(true);
@@ -57,7 +57,7 @@ namespace engine
                 auto nextHandler = checkWallCollision(collisionInfo);
                 if( nextHandler )
                 {
-                    playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                    setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
                 placeOnFloor(collisionInfo);
 

@@ -22,9 +22,9 @@ namespace engine
     }
 
 
-    void LaraNode::playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+    void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
-        setAnimIdGlobal( static_cast<uint16_t>(anim), firstFrame.get_value_or( 0 ) );
+        ItemNode::setAnimIdGlobal( static_cast<uint16_t>(anim), firstFrame.get_value_or( 0 ) );
     }
 
 
@@ -346,7 +346,7 @@ namespace engine
             else
             {
                 setXRotation( -45_deg );
-                playAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
+                setAnimIdGlobal( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
                 setTargetState( LaraStateId::UnderwaterForward );
                 m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::UnderwaterDiving, *this );
                 setFallSpeed( getFallSpeed() * 1.5f );
@@ -368,7 +368,7 @@ namespace engine
             if( !waterSurfaceHeight || std::abs( *waterSurfaceHeight - getPosition().Y ) >= loader::QuarterSectorSize )
             {
                 m_underwaterState = UnderwaterState::OnLand;
-                playAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+                setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
                 setTargetState( LaraStateId::JumpForward );
                 m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::JumpForward, *this );
                 //! @todo Check formula
@@ -378,7 +378,7 @@ namespace engine
             else
             {
                 m_underwaterState = UnderwaterState::Swimming;
-                playAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
+                setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
                 setTargetState( LaraStateId::OnWaterStop );
                 m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::OnWaterStop, *this );
                 {
@@ -394,7 +394,7 @@ namespace engine
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            playAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+            setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setTargetState( LaraStateId::JumpForward );
             m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::JumpForward, *this );
             setFallSpeed( core::makeInterpolatedValue( 0.0f ) );

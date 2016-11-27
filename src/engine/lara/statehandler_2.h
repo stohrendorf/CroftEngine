@@ -24,7 +24,7 @@ namespace engine
 
                 if( getLevel().m_inputHandler->getInputState().roll )
                 {
-                    playAnimation(loader::AnimationId::ROLL_BEGIN);
+                    setAnimIdGlobal(loader::AnimationId::ROLL_BEGIN);
                     setTargetState(LaraStateId::Stop);
                     return createWithRetainedAnimation(LaraStateId::RollForward);
                 }

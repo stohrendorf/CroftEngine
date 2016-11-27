@@ -66,7 +66,7 @@ namespace engine
                     return nullptr;
 
                 setTargetState(LaraStateId::Stop);
-                playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 setPosition(collisionInfo.position);
 

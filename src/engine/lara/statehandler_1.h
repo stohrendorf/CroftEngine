@@ -28,7 +28,7 @@ namespace engine
 
                 if( getLevel().m_inputHandler->getInputState().roll )
                 {
-                    playAnimation( loader::AnimationId::ROLL_BEGIN, 3857 );
+                    setAnimIdGlobal( loader::AnimationId::ROLL_BEGIN, 3857 );
                     setTargetState( LaraStateId::Stop );
                     return createWithRetainedAnimation( LaraStateId::RollForward );
                 }
@@ -98,22 +98,22 @@ namespace engine
                         nextHandler = createWithRetainedAnimation( LaraStateId::Unknown12 );
                         if( getCurrentTime() < 10_frame )
                         {
-                            playAnimation( loader::AnimationId::WALL_SMASH_LEFT, 800 );
+                            setAnimIdGlobal( loader::AnimationId::WALL_SMASH_LEFT, 800 );
                             return nextHandler;
                         }
                         if( getCurrentTime() >= 10_frame && getCurrentTime() < 22_frame )
                         {
-                            playAnimation( loader::AnimationId::WALL_SMASH_RIGHT, 815 );
+                            setAnimIdGlobal( loader::AnimationId::WALL_SMASH_RIGHT, 815 );
                             return nextHandler;
                         }
                     }
 
-                    playAnimation( loader::AnimationId::STAY_SOLID, 185 );
+                    setAnimIdGlobal( loader::AnimationId::STAY_SOLID, 185 );
                 }
 
                 if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
                 {
-                    playAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+                    setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
                     setTargetState( LaraStateId::JumpForward );
                     setFalling( true );
                     setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
@@ -125,11 +125,11 @@ namespace engine
                 {
                     if( getCurrentTime() >= 3_frame && getCurrentTime() < 15_frame )
                     {
-                        playAnimation( loader::AnimationId::RUN_UP_STEP_LEFT, 837 );
+                        setAnimIdGlobal( loader::AnimationId::RUN_UP_STEP_LEFT, 837 );
                     }
                     else
                     {
-                        playAnimation( loader::AnimationId::RUN_UP_STEP_RIGHT, 830 );
+                        setAnimIdGlobal( loader::AnimationId::RUN_UP_STEP_RIGHT, 830 );
                     }
                 }
 

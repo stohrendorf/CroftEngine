@@ -74,21 +74,21 @@ namespace engine
                     const auto fr = getCurrentTime();
                     if( fr >= 29_frame && fr < 48_frame)
                     {
-                        playAnimation(loader::AnimationId::END_WALK_LEFT, 74);
+                        setAnimIdGlobal(loader::AnimationId::END_WALK_LEFT, 74);
                     }
                     else if( (fr >= 22_frame && fr < 29_frame) || (fr >= 48_frame && fr < 58_frame) )
                     {
-                        playAnimation(loader::AnimationId::END_WALK_RIGHT, 58);
+                        setAnimIdGlobal(loader::AnimationId::END_WALK_RIGHT, 58);
                     }
                     else
                     {
-                        playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                        setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     }
                 }
 
                 if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
                 {
-                    playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                    setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                     nextHandler = createWithRetainedAnimation(LaraStateId::JumpForward);
                     setTargetState(LaraStateId::JumpForward);
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -100,11 +100,11 @@ namespace engine
                     const auto fr = getCurrentTime();
                     if( fr < 28_frame || fr >= 46_frame)
                     {
-                        playAnimation(loader::AnimationId::WALK_DOWN_RIGHT, 887);
+                        setAnimIdGlobal(loader::AnimationId::WALK_DOWN_RIGHT, 887);
                     }
                     else
                     {
-                        playAnimation(loader::AnimationId::WALK_DOWN_LEFT, 874);
+                        setAnimIdGlobal(loader::AnimationId::WALK_DOWN_LEFT, 874);
                     }
                 }
 
@@ -113,11 +113,11 @@ namespace engine
                     const auto fr = getCurrentTime();
                     if( fr < 27_frame || fr >= 45_frame)
                     {
-                        playAnimation(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
+                        setAnimIdGlobal(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
                     }
                     else
                     {
-                        playAnimation(loader::AnimationId::WALK_UP_STEP_LEFT, 858);
+                        setAnimIdGlobal(loader::AnimationId::WALK_UP_STEP_LEFT, 858);
                     }
                 }
 

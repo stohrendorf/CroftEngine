@@ -59,18 +59,18 @@ namespace engine
                 auto nextHandler = checkWallCollision(collisionInfo);
                 if( nextHandler )
                 {
-                    playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                    setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
 
                 if( collisionInfo.current.floor.distance > loader::QuarterSectorSize && collisionInfo.current.floor.distance < core::ClimbLimit2ClickMin )
                 {
                     if(getCurrentTime() < 964_frame || getCurrentTime() >= 994_frame)
                     {
-                        playAnimation(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
+                        setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
                     }
                     else
                     {
-                        playAnimation(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
+                        setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
                     }
                 }
 

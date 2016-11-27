@@ -20,11 +20,9 @@ namespace engine
     {
         class AbstractStateHandler
         {
-            LaraNode& m_controller;
-
         public:
             explicit AbstractStateHandler(LaraNode& controller)
-                    : m_controller( controller )
+                    : m_lara( controller )
             {
             }
 
@@ -48,17 +46,18 @@ namespace engine
             }
 
 
-            static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraNode& controller);
+            static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraNode& lara);
 
             std::unique_ptr<AbstractStateHandler> createWithRetainedAnimation(loader::LaraStateId id) const;
 
             virtual loader::LaraStateId getId() const noexcept = 0;
 
         private:
+            LaraNode& m_lara;
+
             friend class StateHandler_2;
 
-
-            virtual void animateImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs) = 0;
+            virtual void animateImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
 
             virtual std::unique_ptr<AbstractStateHandler> handleInputImpl(CollisionInfo& collisionInfo) = 0;
 
@@ -71,9 +70,9 @@ namespace engine
             core::InterpolatedValue<float> m_zMovement{0.0f};
 
 
-            LaraNode& getController()
+            LaraNode& getLara()
             {
-                return m_controller;
+                return m_lara;
             }
 
 
@@ -103,7 +102,7 @@ namespace engine
 
             loader::LaraStateId getCurrentAnimState() const;
 
-            void playAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+            void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
             const core::TRRotation& getRotation() const noexcept;
 

@@ -43,7 +43,7 @@ namespace engine
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 setAir(core::makeInterpolatedValue(-1.0f));
                 setHandStatus(1);
-                auto h = getController().getWaterSurfaceHeight();
+                auto h = getLara().getWaterSurfaceHeight();
                 if( h && *h < getPosition().Y - 100 )
                     setPosition(getPosition() - core::ExactTRCoordinates(0, 5, 0));
 

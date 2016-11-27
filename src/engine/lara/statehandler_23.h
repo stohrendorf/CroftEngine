@@ -51,7 +51,7 @@ namespace engine
                     return nextHandler;
                 }
 
-                playAnimation(loader::AnimationId::FREE_FALL_BACK, 1473);
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
                 setTargetState(LaraStateId::FallBackward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);

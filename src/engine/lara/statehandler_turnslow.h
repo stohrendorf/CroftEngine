@@ -39,7 +39,7 @@ namespace engine
                     return nextHandler;
                 }
 
-                playAnimation(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);

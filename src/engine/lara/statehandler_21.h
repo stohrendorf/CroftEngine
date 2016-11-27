@@ -64,7 +64,7 @@ namespace engine
                 nextHandler = checkWallCollision(collisionInfo);
                 if( nextHandler != nullptr )
                 {
-                    playAnimation(loader::AnimationId::STAY_SOLID, 185);
+                    setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     setTargetState(LaraStateId::Stop);
                     return createWithRetainedAnimation(LaraStateId::Stop);
                 }

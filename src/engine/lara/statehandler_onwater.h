@@ -45,14 +45,14 @@ namespace engine
                         m_yRotationSpeed = 0_deg;
                 }
 
-                auto wsh = getController().getWaterSurfaceHeight();
+                auto wsh = getLara().getWaterSurfaceHeight();
                 if( wsh && *wsh > getPosition().Y - 100 )
                 {
                     return tryClimbOutOfWater(collisionInfo);
                 }
 
                 setTargetState(LaraStateId::UnderwaterForward);
-                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
                 setFallSpeed(core::makeInterpolatedValue(80.0f));
                 setUnderwaterState(UnderwaterState::Diving);
@@ -92,7 +92,7 @@ namespace engine
                     return nullptr;
 
                 setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(collisionInfo.front.floor.distance), 0));
-                getController().updateFloorHeight(-381);
+                getLara().updateFloorHeight(-381);
                 core::ExactTRCoordinates d = getPosition();
                 if( *yRot == 0_deg )
                     d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 1) * loader::SectorSize + 100;
@@ -108,7 +108,7 @@ namespace engine
                 setPosition(d);
 
                 setTargetState(LaraStateId::Stop);
-                playAnimation(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
+                setAnimIdGlobal(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);

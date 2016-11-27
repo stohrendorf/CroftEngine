@@ -45,7 +45,7 @@ namespace engine
                     return nullptr; // not yet allowed to dive
 
                 setTargetState(LaraStateId::UnderwaterForward);
-                playAnimation(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
                 setFallSpeed(core::makeInterpolatedValue(80.0f));
                 setUnderwaterState(UnderwaterState::Diving);

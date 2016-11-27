@@ -28,7 +28,7 @@ namespace engine
                 dampenHorizontalSpeed(deltaTime, 0.05f);
                 if( getFallSpeed() > 154 )
                 {
-                    getController().playSoundEffect(30);
+                    getLara().playSoundEffect(30);
                 }
             }
 
@@ -53,7 +53,7 @@ namespace engine
                 {
                     setTargetState(LaraStateId::Stop);
                     nextHandler = createWithRetainedAnimation(LaraStateId::Stop);
-                    playAnimation(loader::AnimationId::LANDING_HARD, 358);
+                    setAnimIdGlobal(loader::AnimationId::LANDING_HARD, 358);
                 }
                 getLevel().stopSoundEffect(30);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
