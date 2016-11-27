@@ -1,0 +1,104 @@
+#pragma once
+
+#include "itemnode.h"
+
+namespace engine
+{
+    namespace items
+    {
+        class Item_SlopedBridge : public ItemNode
+        {
+        private:
+            const int m_div;
+        public:
+            Item_SlopedBridge(const gsl::not_null<level::Level*>& level,
+                              const std::string& name,
+                              const gsl::not_null<const loader::Room*>& room,
+                              const gsl::not_null<loader::Item*>& item,
+                              const loader::AnimatedModel& animatedModel,
+                              int div)
+                    : ItemNode( level, name, room, item, false, 0, animatedModel )
+                    , m_div( div )
+            {
+            }
+
+
+            void updateImpl(const std::chrono::microseconds& /*deltaTime*/) override final
+            {
+            }
+
+
+            void onInteract(LaraNode& /*lara*/) override final
+            {
+            }
+
+
+            void onFrameChanged(FrameChangeType /*frameChangeType*/) override
+            {
+            }
+
+
+            void patchFloor(const core::TRCoordinates& pos, long& y) override final
+            {
+                auto tmp = std::lround( getPosition().Y + getBridgeSlopeHeight( pos ) / m_div );
+                if( pos.Y <= tmp )
+                    y = tmp;
+            }
+
+
+            void patchCeiling(const core::TRCoordinates& pos, long& y) override final
+            {
+                auto tmp = std::lround( getPosition().Y + getBridgeSlopeHeight( pos ) / m_div );
+                if( pos.Y <= tmp )
+                    return;
+
+                y = tmp + loader::QuarterSectorSize;
+            }
+
+
+        private:
+            long getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+            {
+                auto axis = core::axisFromAngle( getRotation().Y, 1_deg );
+                Expects( axis.is_initialized() );
+
+                switch( *axis )
+                {
+                    case core::Axis::PosZ:return loader::SectorSize - 1 - pos.X % loader::SectorSize;
+                    case core::Axis::PosX:return pos.Z % loader::SectorSize;
+                    case core::Axis::NegZ:return pos.X % loader::SectorSize;
+                    case core::Axis::NegX:return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
+                    default:return 0;
+                }
+            }
+        };
+
+
+        class Item_69_BridgeSlope1 final : public Item_SlopedBridge
+        {
+        public:
+            Item_69_BridgeSlope1(const gsl::not_null<level::Level*>& level,
+                                 const std::string& name,
+                                 const gsl::not_null<const loader::Room*>& room,
+                                 const gsl::not_null<loader::Item*>& item,
+                                 const loader::AnimatedModel& animatedModel)
+                    : Item_SlopedBridge( level, name, room, item, animatedModel, 4 )
+            {
+            }
+        };
+
+
+        class Item_70_BridgeSlope2 final : public Item_SlopedBridge
+        {
+        public:
+            Item_70_BridgeSlope2(const gsl::not_null<level::Level*>& level,
+                                 const std::string& name,
+                                 const gsl::not_null<const loader::Room*>& room,
+                                 const gsl::not_null<loader::Item*>& item,
+                                 const loader::AnimatedModel& animatedModel)
+                    : Item_SlopedBridge( level, name, room, item, animatedModel, 2 )
+            {
+            }
+        };
+    }
+}

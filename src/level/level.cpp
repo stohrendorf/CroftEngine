@@ -30,6 +30,18 @@
 #include "tr4level.h"
 #include "tr5level.h"
 
+#include "engine/items/block.h"
+#include "engine/items/bridgeflat.h"
+#include "engine/items/collapsiblefloor.h"
+#include "engine/items/door.h"
+#include "engine/items/slopedbridge.h"
+#include "engine/items/stubitem.h"
+#include "engine/items/swingingblade.h"
+#include "engine/items/switch.h"
+#include "engine/items/tallblock.h"
+#include "engine/items/trapdoordown.h"
+#include "engine/items/trapdoorup.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
