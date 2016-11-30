@@ -21,7 +21,7 @@ namespace core
     constexpr int FrameRate = 30;
     constexpr std::chrono::microseconds FrameTime = std::chrono::microseconds(std::chrono::seconds(1)) / FrameRate;
 
-    constexpr std::chrono::microseconds fromFrame(uint16_t f)
+    constexpr std::chrono::microseconds fromFrame(unsigned long long f)
     {
         return std::chrono::microseconds(std::chrono::seconds(f)) / core::FrameRate;
     }

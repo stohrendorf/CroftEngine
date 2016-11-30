@@ -37,7 +37,7 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        boost::optional<LaraStateId> nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
 
         m_currentStateHandler->animate( collisionInfo, deltaTime );
 
@@ -309,6 +309,8 @@ namespace engine
 
     void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
     {
+        m_handlingFrame = true;
+
         static constexpr auto UVAnimTime = 3_frame;
 
         m_uvAnimTime += deltaTime;
@@ -437,11 +439,18 @@ namespace engine
         resetPose();
         patchBone( 7, getLevel().m_cameraController->getTorsoRotation().toMatrix() );
         patchBone( 14, getLevel().m_cameraController->getHeadRotation().toMatrix() );
+
+        m_handlingFrame = false;
     }
 
 
     void LaraNode::onFrameChanged(FrameChangeType frameChangeType)
     {
+        if(m_handlingFrame)
+            return;
+
+        m_handlingFrame = true;
+
         BOOST_ASSERT( frameChangeType != FrameChangeType::SameFrame );
 
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
@@ -506,10 +515,15 @@ namespace engine
                         }
                         cmd += 2;
                         break;
-                    default:break;
+                    default:
+                        break;
                 }
             }
         }
+
+        m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
+
+        m_handlingFrame = false;
     }
 
 

@@ -41,6 +41,8 @@ namespace engine
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
         std::unique_ptr<lara::AbstractStateHandler> m_currentStateHandler = nullptr;
 
+        bool m_handlingFrame = false;
+
     public:
         LaraNode(const gsl::not_null<level::Level*>& level,
                  const std::string& name,

@@ -24,14 +24,15 @@ namespace
         drawText(font, 300, 100, "fall " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
 
         // animation
-        drawText(font, 10, 60, std::string("current ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
-        drawText(font, 10, 80, std::string("target  ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 100, std::string("frame   ") + boost::lexical_cast<std::string>(core::toFrame(lvl->m_lara->getCurrentTime())));
-        drawText(font, 10, 120, std::string("anim    ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
+        drawText(font, 10, 60,  std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
+        drawText(font, 10, 80,  std::string("current/handler ") + loader::toString(lvl->m_lara->getCurrentState()));
+        drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
+        drawText(font, 10, 120, std::string("frame           ") + boost::lexical_cast<std::string>(core::toFrame(lvl->m_lara->getCurrentTime())));
+        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers
         {
-            int y = 160;
+            int y = 180;
             for(const std::shared_ptr<engine::items::ItemNode>& item : lvl->m_itemControllers | boost::adaptors::map_values)
             {
                 if(!item->m_isActive)
