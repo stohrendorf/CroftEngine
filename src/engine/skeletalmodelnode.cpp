@@ -339,8 +339,8 @@ namespace engine
                     setAnimIdGlobal( trc.targetAnimation, trc.targetFrame );
                     BOOST_LOG_TRIVIAL( debug ) << getId() << " -- found transition to state " << m_targetState
                                                << ", new animation " << m_animId << "/frame " << trc.targetFrame;
-                    if( getCurrentLocalTime() >= getEndTime() - 1_frame )
-                        onFrameChanged( FrameChangeType::EndFrame );
+                    if( m_time >= getEndTime() - 1_frame )
+                        onFrameChanged( FrameChangeType::EndOfAnim );
                     else
                         onFrameChanged( FrameChangeType::NewFrame );
                     return;
@@ -362,10 +362,12 @@ namespace engine
         const loader::Animation& currentAnim = getCurrentAnimData();
         setAnimIdGlobal( currentAnim.nextAnimation, currentAnim.nextFrame );
 
-        if( getCurrentLocalTime() >= getEndTime() - 1_frame )
-            onFrameChanged( FrameChangeType::EndFrame );
+        if( m_time >= getEndTime() - 1_frame )
+            onFrameChanged( FrameChangeType::EndOfAnim );
         else
             onFrameChanged( FrameChangeType::NewFrame );
+
+        setTargetState(getCurrentState());
     }
 
 
@@ -381,8 +383,8 @@ namespace engine
         m_animId = animId;
         m_time = core::fromFrame( frame );
 
-        if( getCurrentLocalTime() >= getEndTime() - 1_frame )
-            onFrameChanged( FrameChangeType::EndFrame );
+        if( m_time >= getEndTime() - 1_frame )
+            onFrameChanged( FrameChangeType::EndOfAnim );
         else
             onFrameChanged( FrameChangeType::NewFrame );
     }

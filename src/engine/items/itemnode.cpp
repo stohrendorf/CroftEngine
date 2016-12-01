@@ -95,7 +95,7 @@ namespace engine
                 switch( opcode )
                 {
                     case AnimCommandOpcode::SetPosition:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             moveLocal(
                                     cmd[0],
@@ -106,7 +106,7 @@ namespace engine
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::SetVelocity:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             m_fallSpeed = cmd[0];
                             m_falling = true;
@@ -136,7 +136,7 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::Kill:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             m_flags2_02_toggledOn = false;
                             m_flags2_04_ready = true;

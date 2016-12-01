@@ -40,9 +40,8 @@ namespace engine
 
         enum class FrameChangeType
         {
-            SameFrame,
             NewFrame,
-            EndFrame
+            EndOfAnim
         };
 
 
@@ -50,8 +49,8 @@ namespace engine
         {
             if( core::toFrame( m_time ) != core::toFrame( m_time + time ) )
             {
-                if( getCurrentLocalTime() + time >= getEndTime() - 1_frame )
-                    onFrameChanged( FrameChangeType::EndFrame );
+                if( m_time + time >= getEndTime() - 1_frame )
+                    onFrameChanged( FrameChangeType::EndOfAnim );
                 else
                     onFrameChanged( FrameChangeType::NewFrame );
             }

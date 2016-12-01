@@ -309,8 +309,6 @@ namespace engine
 
     void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
     {
-        m_handlingFrame = true;
-
         static constexpr auto UVAnimTime = 3_frame;
 
         m_uvAnimTime += deltaTime;
@@ -409,6 +407,8 @@ namespace engine
             getLevel().m_cameraController->resetHeadTorsoRotation();
         }
 
+        m_handlingFrame = true;
+
         if( m_underwaterState == UnderwaterState::OnLand )
         {
             m_air = 1800;
@@ -436,23 +436,16 @@ namespace engine
             handleLaraStateSwimming( deltaTime );
         }
 
+        m_handlingFrame = false;
+
         resetPose();
         patchBone( 7, getLevel().m_cameraController->getTorsoRotation().toMatrix() );
         patchBone( 14, getLevel().m_cameraController->getHeadRotation().toMatrix() );
-
-        m_handlingFrame = false;
     }
 
 
     void LaraNode::onFrameChanged(FrameChangeType frameChangeType)
     {
-        if(m_handlingFrame)
-            return;
-
-        m_handlingFrame = true;
-
-        BOOST_ASSERT( frameChangeType != FrameChangeType::SameFrame );
-
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
         if( animation.animCommandCount > 0 )
         {
@@ -466,7 +459,7 @@ namespace engine
                 switch( opcode )
                 {
                     case AnimCommandOpcode::SetPosition:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             moveLocal(
                                     cmd[0],
@@ -477,7 +470,7 @@ namespace engine
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::SetVelocity:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             BOOST_LOG_TRIVIAL( debug ) << "End of animation velocity: override " << m_fallSpeedOverride
                                                        << ", cmd " << cmd[0];
@@ -490,14 +483,13 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::EmptyHands:
-                        if( frameChangeType == FrameChangeType::EndFrame )
+                        if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             setHandStatus( 0 );
                         }
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if( frameChangeType != FrameChangeType::SameFrame
-                            && core::toFrame( getCurrentTime() ) == cmd[0] )
+                        if( core::toFrame( getCurrentTime() ) == cmd[0] )
                         {
                             playSoundEffect( cmd[1] );
                         }
@@ -507,7 +499,7 @@ namespace engine
                         if( core::toFrame( getCurrentTime() ) == cmd[0] )
                         {
                             BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
-                            if( cmd[1] == 0 && frameChangeType != FrameChangeType::SameFrame )
+                            if( cmd[1] == 0 )
                                 addYRotation( 180_deg );
                             else if( cmd[1] == 12 )
                                 setHandStatus( 0 );
@@ -521,9 +513,8 @@ namespace engine
             }
         }
 
-        m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
-
-        m_handlingFrame = false;
+        if(!m_handlingFrame)
+            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
     }
 
 
