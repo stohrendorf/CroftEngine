@@ -14,6 +14,16 @@ namespace engine
 
     class LaraNode;
 
+    enum class CamOverrideType
+    {
+        None, // 0
+        _1,
+        FreeLook, // 2
+        _3,
+        _4,
+        _5
+    };
+
     class CameraController final
     {
     private:
@@ -37,7 +47,7 @@ namespace engine
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
         std::chrono::microseconds m_camOverrideTimeout{ -1 };
-        int m_camOverrideType = 0;
+        CamOverrideType m_camOverrideType = CamOverrideType::None;
         core::RoomBoundIntPosition m_currentLookAt;
         core::TRRotation m_localRotation;
         core::RoomBoundIntPosition m_currentPosition;
@@ -75,7 +85,7 @@ namespace engine
 
         void setLookAtItem(items::ItemNode* item)
         {
-            if( item == nullptr || (m_camOverrideType != 1 && m_camOverrideType != 5) )
+            if( item == nullptr || (m_camOverrideType != CamOverrideType::_1 && m_camOverrideType != CamOverrideType::_5) )
                 return;
 
             m_lookAtItem = item;
@@ -85,12 +95,12 @@ namespace engine
 
         void update(const std::chrono::microseconds& deltaTimeMs);
 
-        void setCamOverrideType(int t)
+        void setCamOverrideType(CamOverrideType t)
         {
             m_camOverrideType = t;
         }
 
-        int getCamOverrideType() const noexcept
+        CamOverrideType getCamOverrideType() const noexcept
         {
             return m_camOverrideType;
         }

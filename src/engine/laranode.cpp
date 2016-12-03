@@ -79,7 +79,7 @@ namespace engine
 
         applyTransform();
 
-        if( getLevel().m_cameraController->getCamOverrideType() != 2 )
+        if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
             auto x = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().X * 0.125f )
                     .getScaled( deltaTime );
@@ -242,7 +242,7 @@ namespace engine
                 getMovementAngle().cos() * getFallSpeed().getScaled( deltaTime ) / 4
         ) );
 
-        if( getLevel().m_cameraController->getCamOverrideType() != 2 )
+        if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
             auto x = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().X * 0.125f )
                     .getScaled( deltaTime );

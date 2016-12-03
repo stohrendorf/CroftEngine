@@ -1,6 +1,7 @@
 #pragma once
 
 #include "statehandler_onwater.h"
+#include "engine/cameracontroller.h"
 
 namespace engine
 {
@@ -56,7 +57,7 @@ namespace engine
             {
                 if(getLevel().m_inputHandler->getInputState().freeLook)
                 {
-                    getLevel().m_cameraController->setCamOverrideType(2);
+                    getLevel().m_cameraController->setCamOverrideType(CamOverrideType::FreeLook);
                     getLevel().m_cameraController->addHeadRotationXY(
                             -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y/2000),
                             FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x/2000)
@@ -64,9 +65,9 @@ namespace engine
 
                     getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
                 }
-                else if(getLevel().m_cameraController->getCamOverrideType() == 2)
+                else if(getLevel().m_cameraController->getCamOverrideType() == CamOverrideType::FreeLook)
                 {
-                    getLevel().m_cameraController->setCamOverrideType(0);
+                    getLevel().m_cameraController->setCamOverrideType(CamOverrideType::None);
                 }
 
                 setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4.0f).getScaled(deltaTimeMs)));

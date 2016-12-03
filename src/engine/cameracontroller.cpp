@@ -50,7 +50,7 @@ namespace engine
         const auto flags = (floorData >> 8) & 0xff;
 
         m_camOverrideId = camId;
-        if( m_camOverrideType == 2 || m_camOverrideType == 3 || triggerType == loader::TriggerType::Combat )
+        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || triggerType == loader::TriggerType::Combat )
             return;
 
         if( triggerType == loader::TriggerType::Switch && triggerArg != 0 && switchIsOn )
@@ -67,14 +67,14 @@ namespace engine
 
         m_smoothFactor = 1 + ((flags & 0x3e00) >> 6);
         if( isDoppelganger )
-            m_camOverrideType = 1;
+            m_camOverrideType = CamOverrideType::_1;
         else
-            m_camOverrideType = 5;
+            m_camOverrideType = CamOverrideType::_5;
     }
 
     void CameraController::findCameraTarget(const loader::FloorData::value_type* floorData)
     {
-        if( m_camOverrideType == 5 )
+        if( m_camOverrideType == CamOverrideType::_5 )
             return;
 
         int type = 2;
@@ -86,7 +86,7 @@ namespace engine
 
             ++floorData;
 
-            if( triggerFunc == loader::TriggerFunction::LookAt && m_camOverrideType != 2 && m_camOverrideType != 3 )
+            if( triggerFunc == loader::TriggerFunction::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
             {
                 m_lookAtItem = m_level->getItemController(param);
             }
@@ -101,10 +101,10 @@ namespace engine
                 else
                 {
                     m_camOverrideId = m_activeCamOverrideId;
-                    if( m_camOverrideTimeout >= std::chrono::microseconds::zero() && m_camOverrideType != 2 && m_camOverrideType != 3 )
+                    if( m_camOverrideTimeout >= std::chrono::microseconds::zero() && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
                     {
                         type = 1;
-                        m_camOverrideType = 1;
+                        m_camOverrideType = CamOverrideType::_1;
                     }
                     else
                     {
@@ -374,7 +374,7 @@ namespace engine
             m_underwaterAmbience.reset();
         }
 
-        if( m_camOverrideType == 4 )
+        if( m_camOverrideType == CamOverrideType::_4 )
         {
             //! @todo nextCinematicFrame();
             return;
@@ -383,7 +383,7 @@ namespace engine
         if( m_unknown1 != 2 )
             HeightInfo::skipSteepSlants = true;
 
-        const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == 1 || m_camOverrideType == 5);
+        const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == CamOverrideType::_1 || m_camOverrideType == CamOverrideType::_5);
 
         items::ItemNode* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
         auto lookAtBbox = lookAtItem->getBoundingBox();
@@ -424,14 +424,14 @@ namespace engine
                     m_headRotation.X += core::makeInterpolatedValue(lookAtXAngle).getScaled(deltaTime);
                 m_torsoRotation.X = m_headRotation.X;
 
-                m_camOverrideType = 2;
+                m_camOverrideType = CamOverrideType::FreeLook;
                 m_lookAtItem->m_flags2_40 = true;
             }
         }
 
         m_currentLookAt.room = lookAtItem->getCurrentRoom();
 
-        if( m_camOverrideType != 2 && m_camOverrideType != 3 )
+        if( m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
         {
             m_currentLookAt.position.X = std::lround(lookAtItem->getPosition().X);
             m_currentLookAt.position.Z = std::lround(lookAtItem->getPosition().Z);
@@ -460,7 +460,7 @@ namespace engine
             if( HeightInfo::fromFloor(sector, m_currentLookAt.position, this).distance < m_currentLookAt.position.Y )
                 HeightInfo::skipSteepSlants = false;
 
-            if( m_camOverrideType != 0 && m_unknown1 != 3 )
+            if( m_camOverrideType != CamOverrideType::None && m_unknown1 != 3 )
                 handleCamOverride(deltaTime);
             else
                 doUsualMovement(lookAtItem, deltaTime);
@@ -475,13 +475,13 @@ namespace engine
             else
             {
                 m_currentLookAt.position.Y += (lookAtY - loader::QuarterSectorSize - m_currentLookAt.position.Y) / 4;
-                if( m_camOverrideType == 2 )
+                if( m_camOverrideType == CamOverrideType::FreeLook )
                     m_smoothFactor = 4;
                 else
                     m_smoothFactor = 8;
             }
             m_lookingAtSomething = false;
-            if( m_camOverrideType == 2 )
+            if( m_camOverrideType == CamOverrideType::FreeLook )
                 handleFreeLook(*lookAtItem, deltaTime);
             else
                 handleEnemy(*lookAtItem, deltaTime);
@@ -489,9 +489,9 @@ namespace engine
 
         m_lookingAtSomething = lookingAtSomething;
         m_activeCamOverrideId = m_camOverrideId;
-        if( m_camOverrideType != 5 || m_camOverrideTimeout < std::chrono::microseconds::zero() )
+        if( m_camOverrideType != CamOverrideType::_5 || m_camOverrideTimeout < std::chrono::microseconds::zero() )
         {
-            m_camOverrideType = 0;
+            m_camOverrideType = CamOverrideType::None;
             m_lookAtItem2 = m_lookAtItem;
             m_localRotation.X = m_localRotation.Y = 0_deg;
             m_distanceFromLookAt = 1536;
