@@ -640,7 +640,7 @@ namespace engine
 
                     item.m_triggerTimeout = std::chrono::microseconds( gsl::narrow_cast<uint8_t>( srcTriggerArg ) );
                     if( item.m_triggerTimeout.count() != 1 )
-                        item.m_triggerTimeout *= 1000;
+                        item.m_triggerTimeout = std::chrono::seconds(item.m_triggerTimeout.count());
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
