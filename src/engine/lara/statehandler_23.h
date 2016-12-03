@@ -33,8 +33,8 @@ namespace engine
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.yAngle);
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
-                collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 

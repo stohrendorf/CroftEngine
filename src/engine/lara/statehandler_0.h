@@ -55,8 +55,8 @@ namespace engine
                 setFalling(false);
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.yAngle);
-                collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

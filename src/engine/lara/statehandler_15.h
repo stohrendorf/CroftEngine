@@ -56,8 +56,8 @@ namespace engine
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
-                collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.neededFloorDistanceTop = -loader::HeightLimit;
+                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+                collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.yAngle = getRotation().Y;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

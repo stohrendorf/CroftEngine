@@ -45,8 +45,8 @@ namespace engine
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
-                collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.yAngle);

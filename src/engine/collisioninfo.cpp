@@ -135,7 +135,7 @@ namespace engine
             collisionFeedback.Y = current.ceiling.distance;
         }
 
-        if( front.floor.distance > neededFloorDistanceBottom || front.floor.distance < neededFloorDistanceTop || front.ceiling.distance > neededCeilingDistance )
+        if( front.floor.distance > passableFloorDistanceBottom || front.floor.distance < passableFloorDistanceTop || front.ceiling.distance > neededCeilingDistance )
         {
             axisCollisions = AxisColl_FrontForwardBlocked;
             switch( orientationAxis )
@@ -161,7 +161,7 @@ namespace engine
             return;
         }
 
-        if( frontLeft.floor.distance > neededFloorDistanceBottom || frontLeft.floor.distance < neededFloorDistanceTop )
+        if( frontLeft.floor.distance > passableFloorDistanceBottom || frontLeft.floor.distance < passableFloorDistanceTop )
         {
             axisCollisions = AxisColl_FrontLeftBlocked;
             switch( orientationAxis )
@@ -178,7 +178,7 @@ namespace engine
             return;
         }
 
-        if( frontRight.floor.distance > neededFloorDistanceBottom || frontRight.floor.distance < neededFloorDistanceTop )
+        if( frontRight.floor.distance > passableFloorDistanceBottom || frontRight.floor.distance < passableFloorDistanceTop )
         {
             axisCollisions = AxisColl_FrontRightBlocked;
             switch( orientationAxis )

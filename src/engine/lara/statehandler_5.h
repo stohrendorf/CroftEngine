@@ -35,8 +35,8 @@ namespace engine
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
-                collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
                 collisionInfo.yAngle = getRotation().Y + 180_deg;

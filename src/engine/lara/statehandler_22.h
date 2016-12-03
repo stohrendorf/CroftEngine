@@ -49,8 +49,8 @@ namespace engine
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
-                collisionInfo.neededFloorDistanceBottom = 128;
-                collisionInfo.neededFloorDistanceTop = -128;
+                collisionInfo.passableFloorDistanceBottom = 128;
+                collisionInfo.passableFloorDistanceTop = -128;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.yAngle = getRotation().Y - 90_deg;
                 setMovementAngle(collisionInfo.yAngle);

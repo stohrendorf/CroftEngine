@@ -127,8 +127,8 @@ namespace engine
                                         | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor
                                         | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
         collisionInfo.neededCeilingDistance = 400;
-        collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-        collisionInfo.neededFloorDistanceTop = -400;
+        collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+        collisionInfo.passableFloorDistanceTop = -400;
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
@@ -204,8 +204,8 @@ namespace engine
                                         | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor
                                         | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
         collisionInfo.neededCeilingDistance = 100;
-        collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-        collisionInfo.neededFloorDistanceTop = -100;
+        collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+        collisionInfo.passableFloorDistanceTop = -100;
 
         setCameraRotationX( -22_deg );
 

@@ -34,8 +34,8 @@ namespace engine
                 setFalling(true);
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.yAngle);
-                collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.neededFloorDistanceTop = 0;
+                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+                collisionInfo.passableFloorDistanceTop = 0;
                 collisionInfo.neededCeilingDistance = 192;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 

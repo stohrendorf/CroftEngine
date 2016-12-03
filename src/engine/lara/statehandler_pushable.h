@@ -32,8 +32,8 @@ namespace engine
             boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override final
             {
                 setMovementAngle(getRotation().Y);
-                collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnwalkableSteepFloor | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
 

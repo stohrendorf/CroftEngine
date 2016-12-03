@@ -652,8 +652,8 @@ namespace engine
 
         boost::optional<LaraStateId> AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+            collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
             collisionInfo.neededCeilingDistance = 192;
             collisionInfo.yAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -675,8 +675,8 @@ namespace engine
 
         boost::optional<LaraStateId> AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.neededFloorDistanceTop = -loader::QuarterSectorSize * 2;
+            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+            collisionInfo.passableFloorDistanceTop = -loader::QuarterSectorSize * 2;
             collisionInfo.neededCeilingDistance = 0;
             collisionInfo.yAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -720,8 +720,8 @@ namespace engine
 
         boost::optional<LaraStateId> AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.neededFloorDistanceTop = -loader::HeightLimit;
+            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+            collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
             collisionInfo.neededCeilingDistance = 0;
             collisionInfo.yAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
@@ -742,8 +742,8 @@ namespace engine
                     break;
             }
 
-            collisionInfo.neededFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
+            collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
             collisionInfo.neededCeilingDistance = 0;
             collisionInfo.yAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

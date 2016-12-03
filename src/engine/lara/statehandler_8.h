@@ -25,8 +25,8 @@ namespace engine
 
             boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.neededFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.neededFloorDistanceTop = -core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
+                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.collisionRadius = 400;
                 collisionInfo.yAngle = getRotation().Y;

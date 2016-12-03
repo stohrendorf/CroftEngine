@@ -37,8 +37,10 @@ namespace engine
         int collisionRadius = 0; // external
         int frobbelFlags = 0; // external
         core::ExactTRCoordinates position; // external
-        int neededFloorDistanceBottom = 0; // external
-        int neededFloorDistanceTop = 0; // external
+        //! The deepest floor distance considered passable.
+        int passableFloorDistanceBottom = 0; // external
+        //! The highest floor distance considered passable.
+        int passableFloorDistanceTop = 0; // external
         int neededCeilingDistance = 0; // external
 
         VerticalInfo current;
