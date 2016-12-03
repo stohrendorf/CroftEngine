@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_19(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::Climbing)
             {
             }
 
@@ -37,11 +35,6 @@ namespace engine
                 collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 return {};
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::Climbing;
             }
         };
     }

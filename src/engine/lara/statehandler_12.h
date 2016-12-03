@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_12(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::Unknown12)
             {
             }
 
@@ -36,11 +34,6 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 applyCollisionFeedback(collisionInfo);
                 return {};
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::Unknown12;
             }
         };
     }

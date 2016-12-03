@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_30(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::ShimmyLeft)
             {
             }
 
@@ -33,11 +33,6 @@ namespace engine
                 auto nextHandler = commonEdgeHangHandling(collisionInfo);
                 setMovementAngle(getRotation().Y - 90_deg);
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::ShimmyLeft;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

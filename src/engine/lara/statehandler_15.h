@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_15(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::JumpPrepare)
             {
             }
 
@@ -71,11 +71,6 @@ namespace engine
                 setPosition(collisionInfo.position);
 
                 return LaraStateId::Stop;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::JumpPrepare;
             }
         };
     }

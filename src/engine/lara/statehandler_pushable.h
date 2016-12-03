@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -12,8 +10,8 @@ namespace engine
         class StateHandler_Pushable : public AbstractStateHandler
         {
         public:
-            explicit StateHandler_Pushable(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+            explicit StateHandler_Pushable(LaraNode& lara, LaraStateId id)
+                    : AbstractStateHandler(lara, id)
             {
             }
 

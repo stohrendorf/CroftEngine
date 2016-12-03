@@ -10,7 +10,7 @@ namespace engine
         {
         public:
             explicit StateHandler_17(LaraNode& lara)
-                    : StateHandler_Underwater(lara)
+                    : StateHandler_Underwater(lara, LaraStateId::UnderwaterForward)
             {
             }
 
@@ -33,11 +33,6 @@ namespace engine
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
             {
                 setFallSpeed((getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)).limitMax(200.0f));
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::UnderwaterForward;
             }
         };
     }

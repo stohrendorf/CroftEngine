@@ -10,7 +10,7 @@ namespace engine
         {
         public:
             explicit StateHandler_6(LaraNode& lara)
-                    : StateHandler_TurnSlow(lara)
+                    : StateHandler_TurnSlow(lara, LaraStateId::TurnRightSlow)
             {
             }
 
@@ -53,11 +53,6 @@ namespace engine
                     setYRotationSpeed(4_deg);
                 else
                     setTargetState(LaraStateId::TurnFast);
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::TurnRightSlow;
             }
         };
     }

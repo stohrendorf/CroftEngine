@@ -10,7 +10,7 @@ namespace engine
         {
         public:
             explicit StateHandler_2(LaraNode& lara)
-                    : StateHandler_Standing(lara)
+                    : StateHandler_Standing(lara, LaraStateId::Stop)
             {
             }
 
@@ -98,11 +98,6 @@ namespace engine
                 {
                     getLevel().m_cameraController->setCamOverrideType(0);
                 }
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::Stop;
             }
         };
     }

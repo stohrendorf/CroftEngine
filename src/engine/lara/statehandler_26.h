@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_26(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::JumpLeft)
             {
             }
 
@@ -33,11 +31,6 @@ namespace engine
             {
                 setMovementAngle(getRotation().Y + 90_deg);
                 return commonJumpHandling(collisionInfo);
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::JumpLeft;
             }
         };
     }

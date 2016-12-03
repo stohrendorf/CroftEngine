@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_8(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::Death)
             {
             }
 
@@ -37,11 +35,6 @@ namespace engine
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 //! @todo set air=-1
                 return {};
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::Death;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

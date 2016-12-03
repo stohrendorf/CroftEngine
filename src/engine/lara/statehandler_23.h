@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_23(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::RollBackward)
             {
             }
 
@@ -57,11 +55,6 @@ namespace engine
                 setFalling(true);
 
                 return LaraStateId::FallBackward;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::RollBackward;
             }
         };
     }

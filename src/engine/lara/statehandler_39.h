@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_38(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::PushableGrab)
             {
             }
 
@@ -30,11 +30,6 @@ namespace engine
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::PushableGrab;
             }
 
             boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override

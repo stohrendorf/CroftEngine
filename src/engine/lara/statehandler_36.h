@@ -10,13 +10,8 @@ namespace engine
         {
         public:
             explicit StateHandler_36(LaraNode& lara)
-                    : StateHandler_Pushable(lara)
+                    : StateHandler_Pushable(lara, LaraStateId::PushablePush)
             {
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::PushablePush;
             }
         };
     }

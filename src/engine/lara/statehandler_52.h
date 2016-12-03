@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_52(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::SwandiveBegin)
             {
             }
 
@@ -49,11 +47,6 @@ namespace engine
                 placeOnFloor(collisionInfo);
 
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::SwandiveBegin;
             }
         };
     }

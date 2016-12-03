@@ -23,8 +23,9 @@ namespace engine
         class AbstractStateHandler
         {
         public:
-            explicit AbstractStateHandler(LaraNode& lara)
+            explicit AbstractStateHandler(LaraNode& lara, LaraStateId id)
                 : m_lara{lara}
+                , m_id{id}
             {
             }
 
@@ -48,12 +49,16 @@ namespace engine
             }
 
 
-            static std::unique_ptr<AbstractStateHandler> create(loader::LaraStateId id, LaraNode& lara);
+            static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, LaraNode& lara);
 
-            virtual loader::LaraStateId getId() const noexcept = 0;
+            LaraStateId getId() const noexcept
+            {
+                return m_id;
+            }
 
         private:
             LaraNode& m_lara;
+            const LaraStateId m_id;
 
             friend class StateHandler_2;
 
@@ -100,7 +105,7 @@ namespace engine
 
             std::chrono::microseconds getCurrentTime() const;
 
-            loader::LaraStateId getCurrentAnimState() const;
+            LaraStateId getCurrentAnimState() const;
 
             void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
@@ -146,9 +151,9 @@ namespace engine
 
             void setCurrentSlideAngle(core::Angle a) noexcept;
 
-            void setTargetState(loader::LaraStateId state);
+            void setTargetState(LaraStateId state);
 
-            loader::LaraStateId getTargetState() const;
+            LaraStateId getTargetState() const;
 
             boost::optional<LaraStateId> stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
 

@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_3(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::JumpForward)
             {
             }
 
@@ -80,11 +80,6 @@ namespace engine
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
                 return {};
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::JumpForward;
             }
         };
     }

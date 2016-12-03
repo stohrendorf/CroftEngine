@@ -10,7 +10,7 @@ namespace engine
         {
         public:
             explicit StateHandler_48(LaraNode& lara)
-                    : StateHandler_OnWater(lara)
+                    : StateHandler_OnWater(lara, LaraStateId::OnWaterLeft)
             {
             }
 
@@ -46,11 +46,6 @@ namespace engine
             {
                 setMovementAngle(getRotation().Y - 90_deg);
                 return commonOnWaterHandling(collisionInfo);
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::OnWaterLeft;
             }
         };
     }

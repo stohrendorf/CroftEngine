@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_29(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::FallBackward)
             {
             }
 
@@ -53,11 +53,6 @@ namespace engine
                 setFalling(false);
 
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::FallBackward;
             }
         };
     }

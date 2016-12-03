@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_22(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::StepLeft)
             {
             }
 
@@ -38,11 +38,6 @@ namespace engine
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::StepLeft;
             }
 
             boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override

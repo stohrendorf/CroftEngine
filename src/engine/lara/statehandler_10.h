@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_10(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::Hang)
             {
             }
 
@@ -54,11 +54,6 @@ namespace engine
                     setTargetState(LaraStateId::Climbing);
 
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::Hang;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

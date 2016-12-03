@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -13,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_55(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::OnWaterExit)
             {
             }
 
@@ -33,11 +31,6 @@ namespace engine
                 setMovementAngle(collisionInfo.yAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 return {};
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::OnWaterExit;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

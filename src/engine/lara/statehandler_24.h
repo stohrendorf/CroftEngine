@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_24(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::SlideForward)
             {
             }
 
@@ -34,11 +34,6 @@ namespace engine
             {
                 setMovementAngle(getRotation().Y);
                 return commonSlideHandling(collisionInfo);
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::SlideForward;
             }
         };
     }

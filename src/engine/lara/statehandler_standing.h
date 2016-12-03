@@ -2,8 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
-#include "level/level.h"
 
 namespace engine
 {
@@ -12,8 +10,8 @@ namespace engine
         class StateHandler_Standing : public AbstractStateHandler
         {
         protected:
-            explicit StateHandler_Standing(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+            explicit StateHandler_Standing(LaraNode& lara, LaraStateId id)
+                    : AbstractStateHandler(lara, id)
             {
             }
 

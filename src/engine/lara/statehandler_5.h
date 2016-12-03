@@ -13,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_5(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::RunBack)
             {
             }
 
@@ -62,11 +62,6 @@ namespace engine
                 placeOnFloor(collisionInfo);
 
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::RunBack;
             }
         };
     }

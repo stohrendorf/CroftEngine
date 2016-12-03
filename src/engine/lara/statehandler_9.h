@@ -2,7 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
 #include "engine/laranode.h"
 #include "level/level.h"
 
@@ -14,7 +13,7 @@ namespace engine
         {
         public:
             explicit StateHandler_9(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+                    : AbstractStateHandler(lara, LaraStateId::FreeFall)
             {
             }
 
@@ -61,11 +60,6 @@ namespace engine
                 setFalling(false);
 
                 return nextHandler;
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::FreeFall;
             }
         };
     }

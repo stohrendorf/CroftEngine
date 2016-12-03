@@ -10,7 +10,7 @@ namespace engine
         {
         public:
             explicit StateHandler_20(LaraNode& lara)
-                    : StateHandler_Standing(lara)
+                    : StateHandler_Standing(lara, LaraStateId::TurnFast)
             {
             }
 
@@ -41,11 +41,6 @@ namespace engine
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
-            }
-
-            loader::LaraStateId getId() const noexcept override
-            {
-                return LaraStateId::TurnFast;
             }
         };
     }

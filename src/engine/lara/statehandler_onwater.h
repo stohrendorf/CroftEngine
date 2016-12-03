@@ -14,8 +14,8 @@ namespace engine
         class StateHandler_OnWater : public AbstractStateHandler
         {
         public:
-            explicit StateHandler_OnWater(LaraNode& lara)
-                    : AbstractStateHandler(lara)
+            explicit StateHandler_OnWater(LaraNode& lara, LaraStateId id)
+                    : AbstractStateHandler(lara, id)
             {
             }
 
