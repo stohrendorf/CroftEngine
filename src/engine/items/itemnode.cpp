@@ -265,9 +265,9 @@ namespace engine
             }
 
             move(
-                    getRotation().Y.sin() * m_horizontalSpeed.getScaled( deltaTime ),
+                    getMovementAngle().sin() * m_horizontalSpeed.getScaled( deltaTime ),
                     m_falling ? m_fallSpeed.getScaled( deltaTime ) : 0,
-                    getRotation().Y.cos() * m_horizontalSpeed.getScaled( deltaTime )
+                    getMovementAngle().cos() * m_horizontalSpeed.getScaled( deltaTime )
             );
 
             applyTransform();

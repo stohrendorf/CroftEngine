@@ -115,7 +115,7 @@ namespace engine
         }
 
 
-        core::Angle getMovementAngle() const noexcept
+        core::Angle getMovementAngle() const override
         {
             return m_movementAngle;
         }

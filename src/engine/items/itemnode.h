@@ -346,6 +346,11 @@ namespace engine
 
             bool triggerKey();
 
+            virtual core::Angle getMovementAngle() const
+            {
+                return getRotation().Y;
+            }
+
         protected:
             bool isInvertedActivation() const noexcept
             {
