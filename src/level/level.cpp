@@ -372,7 +372,7 @@ namespace
 }
 
 
-engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay::Model>>& models)
+engine::LaraNode* Level::createItems()
 {
     engine::LaraNode* lara = nullptr;
     int id = -1;
@@ -391,57 +391,57 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
             if( type == 0 )
             {
-                modelNode = createSkeletalModel<engine::LaraNode>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::LaraNode>( *modelIdx, &room, &item );
                 lara = static_cast<engine::LaraNode*>(modelNode.get());
             }
             else if( type == 35 )
             {
-                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( *modelIdx, models, &room,
+                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( *modelIdx, &room,
                                                                                           &item );
             }
             else if( type == 36 )
             {
-                modelNode = createSkeletalModel<engine::items::SwingingBlade>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::SwingingBlade>( *modelIdx, &room, &item );
             }
             else if( type == 41 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( *modelIdx, &room, &item );
             }
             else if( type >= 48 && type <= 51 )
             {
-                modelNode = createSkeletalModel<engine::items::Block>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Block>( *modelIdx, &room, &item );
             }
             else if( type == 52 )
             {
-                modelNode = createSkeletalModel<engine::items::TallBlock>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TallBlock>( *modelIdx, &room, &item );
             }
             else if( type == 55 )
             {
-                modelNode = createSkeletalModel<engine::items::Switch>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Switch>( *modelIdx, &room, &item );
             }
             else if( type >= 57 && type <= 64 )
             {
-                modelNode = createSkeletalModel<engine::items::Door>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::Door>( *modelIdx, &room, &item );
             }
             else if( type >= 65 && type <= 66 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( *modelIdx, &room, &item );
             }
             else if( type == 68 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeFlat>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeFlat>( *modelIdx, &room, &item );
             }
             else if( type == 69 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( *modelIdx, &room, &item );
             }
             else if( type == 70 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( *modelIdx, &room, &item );
             }
             else
             {
-                modelNode = createSkeletalModel<engine::items::StubItem>( *modelIdx, models, &room, &item );
+                modelNode = createSkeletalModel<engine::items::StubItem>( *modelIdx, &room, &item );
             }
 
             m_itemControllers[id] = modelNode;
@@ -493,7 +493,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
 
 template<typename T>
-std::shared_ptr<T> Level::createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models,
+std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const gsl::not_null<loader::Item*>& item)
 {
@@ -518,7 +518,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id, const std::vector<std::
         BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
         auto node = std::make_shared<gameplay::Node>(
                 skeletalModel->getId() + "/bone:" + boost::lexical_cast<std::string>( boneIndex ) );
-        node->setDrawable( models[m_meshIndices[model.firstMesh + boneIndex]] );
+        node->setDrawable( m_models[m_meshIndices[model.firstMesh + boneIndex]] );
         skeletalModel->addChild( node );
     }
 
@@ -549,10 +549,9 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures );
 
-    std::vector<std::shared_ptr<gameplay::Model>> models;
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
-        models.emplace_back( m_meshes[i].createModel( m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
+        m_models.emplace_back( m_meshes[i].createModel( m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
                                                       *m_textureAnimator ) );
     }
 
@@ -565,11 +564,11 @@ void Level::toIrrlicht(gameplay::Game* game)
             textures, vcolShader );
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode( game, i, *this, textures, materialsVcol, models, *m_textureAnimator );
+        m_rooms[i].createSceneNode( game, i, *this, textures, materialsVcol, m_models, *m_textureAnimator );
         game->getScene()->addNode( m_rooms[i].node );
     }
 
-    m_lara = createItems( models );
+    m_lara = createItems();
     if( m_lara == nullptr )
         return;
 
@@ -962,4 +961,19 @@ void Level::playStream(uint16_t trackId)
                 (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ), DefaultBufferSize );
 
     m_audioDev.registerStream( m_cdStream );
+}
+
+void Level::useAlternativeLaraAppearance()
+{
+    const auto& base = *m_animatedModels[0];
+    BOOST_ASSERT(base.boneCount == m_lara->getChildCount());
+
+    const auto& alternate = *m_animatedModels[5];
+    BOOST_ASSERT(alternate.boneCount == m_lara->getChildCount());
+
+    for(size_t i = 0; i < m_lara->getChildCount(); ++i)
+        m_lara->getChild(i)->setDrawable(m_models[m_meshIndices[alternate.firstMesh + i]]);
+
+    // Don't replace the head.
+    m_lara->getChild(14)->setDrawable(m_models[m_meshIndices[base.firstMesh + 14]]);
 }

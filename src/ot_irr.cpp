@@ -153,6 +153,7 @@ int main()
         int secrets;
     };
 
+    static constexpr int LevelToLoad = 1;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1
@@ -172,14 +173,19 @@ int main()
         {"LEVEL10C", "The Great Pyramid", 60, 3} // 15
     };
 
-    const LevelInfo& lvlInfo = levels[1];
+    const LevelInfo& lvlInfo = levels[LevelToLoad];
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     lvl->load();
-
     lvl->toIrrlicht(game);
+
+    if(LevelToLoad == 0)
+    {
+        // Lara's Home
+        lvl->useAlternativeLaraAppearance();
+    }
 
     // device->setWindowCaption("EdisonEngine");
 

@@ -242,6 +242,12 @@ namespace gameplay
             return _children;
         }
 
+        const std::shared_ptr<Node>& getChild(size_t idx) const
+        {
+            BOOST_ASSERT(idx < _children.size());
+            return _children[idx];
+        }
+
         const glm::mat4& getLocalMatrix() const
         {
             return m_localMatrix;

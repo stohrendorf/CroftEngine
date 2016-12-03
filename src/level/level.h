@@ -18,13 +18,6 @@
 
 namespace level
 {
-    /** \brief A complete TR level.
-      *
-      * This contains all necessary functions to load a TR level.
-      * Some corrections to the data are done, like converting to OpenGLs coordinate system.
-      * All indexes are converted, so they can be used directly.
-      * Endian conversion is done at the lowest possible layer, most of the time this is in the read_bitxxx functions.
-      */
     class Level
     {
     public:
@@ -107,7 +100,7 @@ namespace level
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode*
-        createItems(const std::vector<std::shared_ptr<gameplay::Model>>& models);
+        createItems();
         void toIrrlicht(gameplay::Game* game);
 
 
@@ -313,6 +306,8 @@ namespace level
         std::shared_ptr<audio::Stream> m_cdStream;
         int m_activeCDTrack = 0;
 
+        void useAlternativeLaraAppearance();
+
     protected:
         loader::io::SDLReader m_reader;
         bool m_demoOrUb = false;
@@ -328,9 +323,10 @@ namespace level
         static std::unique_ptr<Level> createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
 
         template<typename T>
-        std::shared_ptr<T> createSkeletalModel(size_t id, const std::vector<std::shared_ptr<gameplay::Model>>& models, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item);
+        std::shared_ptr<T> createSkeletalModel(size_t id, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item);
 
         std::array<uint16_t, 64> m_cdTrackTriggerValues;
         int m_cdTrack50time = 0;
+        std::vector<std::shared_ptr<gameplay::Model>> m_models;
     };
 }
