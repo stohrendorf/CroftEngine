@@ -233,15 +233,10 @@ namespace engine
                 return false;
             }
 
-            glm::quat q;
-            q *= glm::quat( item.getRotation().Y.toRad(), {0, 1, 0} );
-            q *= glm::quat( item.getRotation().X.toRad(), {-1, 0, 0} );
-            q *= glm::quat( item.getRotation().Z.toRad(), {0, 0, -1} );
+            auto dist = glm::vec4(lara.getPosition().toRenderSystem() - item.getPosition().toRenderSystem(), 1.0f);
+            glm::vec3 tdist{ dist * item.getRotation().toMatrix() };
 
-            auto dist = lara.getPosition() - item.getPosition();
-            glm::vec3 tdist = dist.toRenderSystem() * q;
-
-            return distance.contains( tdist );
+            return distance.contains( tdist, 1 );
         }
 
 

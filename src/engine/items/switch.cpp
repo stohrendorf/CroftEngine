@@ -25,8 +25,8 @@ namespace engine
                 return;
 
             static const InteractionLimits limits{
-                    gameplay::BoundingBox{{-200, 0, 312},
-                                          {200,  0, 512}},
+                    gameplay::BoundingBox{core::TRCoordinates{-200, 0, 312}.toRenderSystem(),
+                                          core::TRCoordinates{+200, 0, 512}.toRenderSystem()},
                     {-10_deg, -30_deg, -10_deg},
                     {+10_deg, +30_deg, +10_deg}
             };

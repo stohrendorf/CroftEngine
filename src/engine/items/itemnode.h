@@ -35,6 +35,14 @@ namespace engine
             core::TRRotation minAngle;
             core::TRRotation maxAngle;
 
+            InteractionLimits(const gameplay::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
+                : distance{bbox}
+                , minAngle{min}
+                , maxAngle{max}
+            {
+                distance.repair();
+            }
+
             bool canInteract(const ItemNode& item, const LaraNode& lara) const;
         };
 
