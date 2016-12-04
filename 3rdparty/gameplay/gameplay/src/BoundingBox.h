@@ -23,9 +23,9 @@ namespace gameplay
         glm::vec3 max;
 
 
-        bool contains(const glm::vec3& v) const
+        bool contains(const glm::vec3& v, float margin = 0) const
         {
-            return min.x <= v.x && min.y <= v.y && min.z <= v.z && max.x >= v.x && max.y >= v.y && max.z >= v.z;
+            return min.x-margin <= v.x && min.y-margin <= v.y && min.z-margin <= v.z && max.x+margin >= v.x && max.y+margin >= v.y && max.z+margin >= v.z;
         }
 
 
@@ -197,6 +197,16 @@ namespace gameplay
          * @return This bounding box, after the transformation occurs.
          */
         inline BoundingBox& operator*=(const glm::mat4& matrix);
+
+        void repair()
+        {
+            if(min.x > max.x)
+                std::swap(min.x, max.x);
+            if(min.y > max.y)
+                std::swap(min.y, max.y);
+            if(min.z > max.z)
+                std::swap(min.z, max.z);
+        }
     };
 
 

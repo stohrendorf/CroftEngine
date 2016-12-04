@@ -2,6 +2,7 @@
 
 #include "itemnode.h"
 
+
 namespace engine
 {
     namespace items
@@ -10,11 +11,11 @@ namespace engine
         {
         public:
             TrapDoorUp(const gsl::not_null<level::Level*>& level,
-                               const std::string& name,
-                               const gsl::not_null<const loader::Room*>& room,
-                               const gsl::not_null<loader::Item*>& item,
-                               const loader::AnimatedModel& animatedModel)
-                    : ItemNode( level, name, room, item, true, 0x30, animatedModel )
+                       const std::string& name,
+                       const gsl::not_null<const loader::Room*>& room,
+                       const gsl::not_null<loader::Item*>& item,
+                       const loader::AnimatedModel& animatedModel)
+                : ItemNode(level, name, room, item, true, 0x30, animatedModel)
             {
             }
 
@@ -34,48 +35,42 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, long& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor( pos ) || pos.Y > getPosition().Y )
+                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y )
                     return;
 
-                y = std::lround( getPosition().Y );
+                y = std::lround(getPosition().Y);
             }
 
 
             void patchCeiling(const core::TRCoordinates& pos, long& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor( pos ) || pos.Y <= getPosition().Y )
+                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y )
                     return;
 
-                y = std::lround( getPosition().Y + loader::QuarterSectorSize );
+                y = std::lround(getPosition().Y + loader::QuarterSectorSize);
             }
 
 
         private:
             bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
             {
-                auto sx = std::lround( std::floor( getPosition().X / loader::SectorSize ) );
-                auto sz = std::lround( std::floor( getPosition().Z / loader::SectorSize ) );
-                auto psx = pos.X / loader::SectorSize;
-                auto psz = pos.Z / loader::SectorSize;
-                auto axis = core::axisFromAngle( getRotation().Y, 0_au );
-                BOOST_ASSERT( axis.is_initialized() );
-                if( *axis == core::Axis::PosZ && sx == psx && sz - 1 == psz && sz - 2 == psz )
-                {
+                auto trapdoorSectorX = std::lround(std::floor(getPosition().X / loader::SectorSize));
+                auto trapdoorSectorZ = std::lround(std::floor(getPosition().Z / loader::SectorSize));
+                auto posSectorX = pos.X / loader::SectorSize;
+                auto posSectorZ = pos.Z / loader::SectorSize;
+                auto trapdoorAxis = core::axisFromAngle(getRotation().Y, 1_au);
+                BOOST_ASSERT( trapdoorAxis.is_initialized() );
+
+                if( *trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX && (trapdoorSectorZ - 1 == posSectorZ || trapdoorSectorZ - 2 == posSectorZ ))
                     return true;
-                }
-                if( *axis == core::Axis::NegZ && sx == psx && sz + 1 == psz && sz + 2 == psz )
-                {
+                if( *trapdoorAxis == core::Axis::NegZ && trapdoorSectorX == posSectorX && (trapdoorSectorZ + 1 == posSectorZ || trapdoorSectorZ + 2 == posSectorZ ))
                     return true;
-                }
-                if( *axis == core::Axis::PosX && sz == psz && sx - 1 == psx && sx - 2 == psx )
-                {
+                if( *trapdoorAxis == core::Axis::PosX && trapdoorSectorZ == posSectorZ && (trapdoorSectorX - 1 == posSectorX || trapdoorSectorX - 2 == posSectorX ))
                     return true;
-                }
-                if( *axis != core::Axis::NegX || sz != psz || sx + 1 != psx || sx + 2 != psx )
-                {
-                    return false;
-                }
-                return true;
+                if( *trapdoorAxis == core::Axis::NegX && trapdoorSectorZ == posSectorZ && (trapdoorSectorX + 1 == posSectorX || trapdoorSectorX + 2 == posSectorX ))
+                    return true;
+
+                return false;
             }
         };
     }
