@@ -314,10 +314,10 @@ namespace engine
     }
 
 
-    void SkeletalModelNode::handleTRTransitions()
+    bool SkeletalModelNode::handleTRTransitions()
     {
         if( getCurrentState() == m_targetState )
-            return;
+            return false;
 
         const loader::Animation& currentAnim = getCurrentAnimData();
 
@@ -336,42 +336,28 @@ namespace engine
 
                 if( m_time >= core::fromFrame( trc.firstFrame ) && m_time < core::fromFrame( trc.lastFrame + 1 ) )
                 {
-                    setAnimIdGlobal( trc.targetAnimation, trc.targetFrame );
+                    setAnimIdGlobalImpl( trc.targetAnimation, trc.targetFrame, false );
                     BOOST_LOG_TRIVIAL( debug ) << getId() << " -- found transition to state " << m_targetState
                                                << ", new animation " << m_animId << "/frame " << trc.targetFrame;
-                    if( m_time >= getEndTime() - 1_frame )
-                        onFrameChanged( FrameChangeType::EndOfAnim );
-                    else
-                        onFrameChanged( FrameChangeType::NewFrame );
-                    return;
-                }
-                else
-                {
-                    BOOST_LOG_TRIVIAL( debug ) << getId() << " -- transition to state " << m_targetState
-                                               << " not applicable; time=" << m_time.count() << ", start="
-                                               << core::fromFrame( trc.firstFrame ).count() << ", end="
-                                               << core::fromFrame( trc.lastFrame + 1 ).count();
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 
 
     void SkeletalModelNode::loopAnimation()
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
-        setAnimIdGlobal( currentAnim.nextAnimation, currentAnim.nextFrame );
-
-        if( m_time >= getEndTime() - 1_frame )
-            onFrameChanged( FrameChangeType::EndOfAnim );
-        else
-            onFrameChanged( FrameChangeType::NewFrame );
+        setAnimIdGlobalImpl( currentAnim.nextAnimation, currentAnim.nextFrame, false );
 
         setTargetState(getCurrentState());
     }
 
 
-    void SkeletalModelNode::setAnimIdGlobal(size_t animId, size_t frame)
+    void SkeletalModelNode::setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents)
     {
         BOOST_ASSERT( animId < m_level->m_animations.size() );
 
@@ -382,6 +368,9 @@ namespace engine
 
         m_animId = animId;
         m_time = core::fromFrame( frame );
+
+        if(!fireEvents)
+            return;
 
         if( m_time >= getEndTime() - 1_frame )
             onFrameChanged( FrameChangeType::EndOfAnim );

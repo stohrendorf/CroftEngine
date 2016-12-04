@@ -29,7 +29,10 @@ namespace engine
 
         void updatePose();
 
-        void setAnimIdGlobal(size_t animId, size_t frame);
+        void setAnimIdGlobal(size_t animId, size_t frame)
+        {
+            setAnimIdGlobalImpl(animId, frame, true);
+        }
 
 
         size_t getAnimId() const noexcept
@@ -47,17 +50,19 @@ namespace engine
 
         void addTime(const std::chrono::microseconds& time)
         {
-            if( core::toFrame( m_time ) != core::toFrame( m_time + time ) )
-            {
-                if( m_time + time >= getEndTime() - 1_frame )
-                    onFrameChanged( FrameChangeType::EndOfAnim );
-                else
-                    onFrameChanged( FrameChangeType::NewFrame );
-            }
-
+            const auto entryFrame = core::toFrame(m_time);
             m_time += time;
+            const auto newFrame = core::toFrame(m_time);
 
-            checkTransitions();
+            bool frameChanged = checkTransitions() || entryFrame != newFrame;
+
+            if(!frameChanged)
+                return;
+
+            if(m_time >= getEndTime() - 1_frame)
+                onFrameChanged(FrameChangeType::EndOfAnim);
+            else
+                onFrameChanged(FrameChangeType::NewFrame);
         }
 
 
@@ -197,19 +202,22 @@ namespace engine
 
         std::chrono::microseconds getEndTime() const;
 
-        void handleTRTransitions();
+        bool handleTRTransitions();
 
         void loopAnimation();
 
+        void setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents);
 
-        void checkTransitions()
+        bool checkTransitions()
         {
+            bool frameChanged = false;
             if( m_time >= getEndTime() )
             {
                 loopAnimation();
+                frameChanged = true;
             }
 
-            handleTRTransitions();
+            return handleTRTransitions() || frameChanged;
         }
 
 

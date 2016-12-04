@@ -142,7 +142,8 @@ namespace engine
                             m_flags2_04_ready = true;
                         }
                         break;
-                    default:break;
+                    default:
+                        break;
                 }
             }
         }
