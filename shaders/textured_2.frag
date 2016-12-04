@@ -24,4 +24,10 @@ void main()
 #else
     out_color = baseColor;
 #endif
+
+#ifdef WATER
+    const vec4 WaterColor = vec4(149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 1);
+
+    out_color *= WaterColor;
+#endif
 }

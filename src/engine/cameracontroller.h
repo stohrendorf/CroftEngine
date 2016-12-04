@@ -156,6 +156,11 @@ namespace engine
             m_torsoRotation = { 0_deg, 0_deg, 0_deg };
         }
 
+        const loader::Room* getCurrentRoom() const
+        {
+            return m_currentPosition.room;
+        }
+
     private:
         void tracePortals();
         bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;

@@ -81,6 +81,7 @@ namespace loader
                                                           const level::Level& level,
                                                           const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
                                                           const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
                                                           render::TextureAnimator& animator)
     {
@@ -97,8 +98,8 @@ namespace loader
             {
                 texBuffers[proxy.textureKey] = renderModel.m_parts.size();
                 renderModel.m_parts.emplace_back();
-                auto it = materials.find(proxy.textureKey);
-                Expects(it != materials.end());
+                auto it = isWaterRoom() ? waterMaterials.find(proxy.textureKey) : materials.find(proxy.textureKey);
+                Expects(it != (isWaterRoom() ? waterMaterials.end() : materials.end()));
                 renderModel.m_parts.back().material = it->second;
             }
             const auto partId = texBuffers[proxy.textureKey];
@@ -135,8 +136,8 @@ namespace loader
             {
                 texBuffers[proxy.textureKey] = renderModel.m_parts.size();
                 renderModel.m_parts.emplace_back();
-                auto it = materials.find(proxy.textureKey);
-                Expects(it != materials.end());
+                auto it = isWaterRoom() ? waterMaterials.find(proxy.textureKey) : materials.find(proxy.textureKey);
+                Expects(it != (isWaterRoom() ? waterMaterials.end() : materials.end()));
                 renderModel.m_parts.back().material = it->second;
             }
             const auto partId = texBuffers[proxy.textureKey];

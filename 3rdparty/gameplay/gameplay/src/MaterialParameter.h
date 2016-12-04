@@ -143,6 +143,12 @@ namespace gameplay
                 };
         }
 
+        using UniformValueSetter = void(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
+
+        void bind(std::function<UniformValueSetter>&& setter)
+        {
+            m_valueSetter = std::move(setter);
+        }
 
         /**
          * Binds the return value of a class method to this material parameter.
@@ -182,8 +188,6 @@ namespace gameplay
             UNIFORM_NOT_FOUND = 0x01,
             PARAMETER_VALUE_NOT_SET = 0x02
         };
-
-        using UniformValueSetter = void(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform);
 
         const std::string m_name;
         std::shared_ptr<Uniform> m_boundUniform = nullptr;
