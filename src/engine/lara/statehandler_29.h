@@ -40,7 +40,7 @@ namespace engine
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
                 auto nextHandler = checkJumpWallSmash(collisionInfo);
-                if( collisionInfo.current.floor.distance > 0 || getFallSpeed() <= 0 )
+                if( collisionInfo.current.floor.distance > 0 || getFallSpeed() < 0 )
                     return nextHandler;
 
                 if( applyLandingDamage() )

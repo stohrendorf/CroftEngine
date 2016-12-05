@@ -39,7 +39,7 @@ namespace engine
                     return nextHandler;
 
                 jumpAgainstWall(collisionInfo);
-                if( getFallSpeed() <= 0 || collisionInfo.current.floor.distance > 0 )
+                if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
                     return {};
 
                 if( applyLandingDamage() )
