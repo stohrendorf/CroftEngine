@@ -162,7 +162,7 @@ namespace engine
         BOOST_ASSERT( getChildCount() == m_model.boneCount );
 
         auto framePair = getInterpolationInfo();
-        if( framePair.bias <= 1 / 1000.0f || framePair.secondFrame == nullptr )
+        if(framePair.bias == 0 || framePair.secondFrame == nullptr )
             updatePoseKeyframe( framePair );
         else
             updatePoseInterpolated( framePair );
