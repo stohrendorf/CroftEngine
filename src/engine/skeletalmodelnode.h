@@ -48,27 +48,11 @@ namespace engine
         };
 
 
-        void addTime(const std::chrono::microseconds& time)
-        {
-            const auto entryFrame = core::toFrame(m_time);
-            m_time += time;
-            const auto newFrame = core::toFrame(m_time);
-
-            bool frameChanged = checkTransitions() || entryFrame != newFrame;
-
-            if(!frameChanged)
-                return;
-
-            if(m_time >= getEndTime() - 1_frame)
-                onFrameChanged(FrameChangeType::EndOfAnim);
-            else
-                onFrameChanged(FrameChangeType::NewFrame);
-        }
+        void addTime(const std::chrono::microseconds& time);
 
 
         const std::chrono::microseconds& getCurrentTime() const
         {
-            BOOST_ASSERT( m_time >= getStartTime() && m_time < getEndTime() );
             return m_time;
         }
 
@@ -78,11 +62,6 @@ namespace engine
 
         void setTargetState(uint16_t state) noexcept
         {
-            if( state == m_targetState )
-                return;
-
-            BOOST_LOG_TRIVIAL( debug ) << getId() << " -- set target state=" << state << " (was " << m_targetState
-                                       << "), current state=" << getCurrentState();
             m_targetState = state;
         }
 
@@ -204,22 +183,7 @@ namespace engine
 
         bool handleTRTransitions();
 
-        void loopAnimation();
-
         void setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents);
-
-        bool checkTransitions()
-        {
-            bool frameChanged = false;
-            if( m_time >= getEndTime() )
-            {
-                loopAnimation();
-                frameChanged = true;
-            }
-
-            return handleTRTransitions() || frameChanged;
-        }
-
 
         std::chrono::microseconds getCurrentLocalTime() const
         {

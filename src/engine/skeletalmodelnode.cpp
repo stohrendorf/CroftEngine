@@ -122,20 +122,30 @@ namespace engine
 
         BOOST_ASSERT( m_time >= startTime && m_time < endTime );
         const auto animationTime = m_time - startTime;
-        auto firstKeyframeIndex = core::toFrame( animationTime ) / anim.segmentLength;
+        int firstKeyframeIndex = core::toFrame( animationTime ) / anim.segmentLength;
 
         BOOST_ASSERT( firstKeyframeIndex < anim.getKeyframeCount() );
-
-        result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * firstKeyframeIndex);
 
         if( firstKeyframeIndex == anim.getKeyframeCount() - 1 )
         {
             // We are on the last frame in the animation, which does not have a successive keyframe.
-            return result;
+            // thus, let's just extrapolate the animation...
+            result.bias = 1;
+            --firstKeyframeIndex;
         }
 
-        result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes
-                                                                + keyframeDataSize * (firstKeyframeIndex + 1));
+        result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (firstKeyframeIndex + 1));
+
+        if(firstKeyframeIndex < 0)
+        {
+            // ... but if we only have a single keyframe, use it.
+            result.firstFrame = result.secondFrame;
+            result.bias = 0;
+        }
+        else
+        {
+            result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * firstKeyframeIndex);
+        }
 
         auto segmentDuration = core::fromFrame( anim.segmentLength );
         auto segmentTime = animationTime % segmentDuration;
@@ -149,8 +159,8 @@ namespace engine
 
         BOOST_ASSERT( segmentTime <= segmentDuration );
 
-        result.bias = static_cast<float>(segmentTime.count()) / segmentDuration.count();
-        BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
+        result.bias += static_cast<float>(segmentTime.count()) / segmentDuration.count();
+        BOOST_ASSERT( result.bias >= 0 && result.bias <= 2 );
 
         return result;
     }
@@ -193,7 +203,7 @@ namespace engine
                                * core::xyzToYprMatrix( *angleDataSecond ) * m_bonePatches[0] );
         ++angleDataSecond;
 
-        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 1 );
+        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
 
         getChildren()[0]->setLocalMatrix( glm::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
 
@@ -283,8 +293,8 @@ namespace engine
 
     void SkeletalModelNode::advanceFrame()
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Advance frame: current=" << m_time.count() << "�s, end=" << getEndTime().count()
-                                   << "�s";
+        BOOST_LOG_TRIVIAL( debug ) << "Advance frame: current=" << m_time.count() << "us, end=" << getEndTime().count()
+                                   << "us";
 
         addTime( std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) ) / core::FrameRate );
     }
@@ -293,7 +303,7 @@ namespace engine
     gameplay::BoundingBox SkeletalModelNode::getBoundingBox() const
     {
         auto framePair = getInterpolationInfo();
-        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 1 );
+        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
 
         gameplay::BoundingBox result;
 
@@ -336,24 +346,15 @@ namespace engine
 
                 if( m_time >= core::fromFrame( trc.firstFrame ) && m_time < core::fromFrame( trc.lastFrame + 1 ) )
                 {
+                    BOOST_LOG_TRIVIAL(debug) << getId() << " -- found transition from state " << getCurrentState() << " to state " << m_targetState
+                        << ", new animation " << trc.targetAnimation << "/frame " << trc.targetFrame;
                     setAnimIdGlobalImpl( trc.targetAnimation, trc.targetFrame, false );
-                    BOOST_LOG_TRIVIAL( debug ) << getId() << " -- found transition to state " << m_targetState
-                                               << ", new animation " << m_animId << "/frame " << trc.targetFrame;
                     return true;
                 }
             }
         }
 
         return false;
-    }
-
-
-    void SkeletalModelNode::loopAnimation()
-    {
-        const loader::Animation& currentAnim = getCurrentAnimData();
-        setAnimIdGlobalImpl( currentAnim.nextAnimation, currentAnim.nextFrame, false );
-
-        setTargetState(getCurrentState());
     }
 
 
@@ -372,9 +373,28 @@ namespace engine
         if(!fireEvents)
             return;
 
-        if( m_time >= getEndTime() - 1_frame )
-            onFrameChanged( FrameChangeType::EndOfAnim );
-        else
-            onFrameChanged( FrameChangeType::NewFrame );
+        onFrameChanged( FrameChangeType::NewFrame );
+    }
+
+
+    void SkeletalModelNode::addTime(const std::chrono::microseconds& time)
+    {
+        bool frameChanged = core::toFrame(m_time) != core::toFrame(m_time + time);
+        m_time += time;
+
+        if(handleTRTransitions() || frameChanged)
+        {
+            onFrameChanged(FrameChangeType::NewFrame);
+        }
+
+        if(m_time >= getEndTime())
+        {
+            onFrameChanged(FrameChangeType::EndOfAnim);
+
+            const loader::Animation& currentAnim = getCurrentAnimData();
+            setAnimIdGlobalImpl(currentAnim.nextAnimation, currentAnim.nextFrame, false);
+
+            setTargetState(getCurrentState());
+        }
     }
 }

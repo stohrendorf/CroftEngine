@@ -473,7 +473,7 @@ namespace engine
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             BOOST_LOG_TRIVIAL( debug ) << "End of animation velocity: override " << m_fallSpeedOverride
-                                                       << ", cmd " << cmd[0];
+                                                       << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
                             setFallSpeed( core::makeInterpolatedValue<float>(
                                     m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride ) );
                             m_fallSpeedOverride = 0;
