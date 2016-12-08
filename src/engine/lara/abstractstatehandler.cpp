@@ -97,6 +97,7 @@ namespace engine
                 case LaraStateId::Reach: return std::make_unique<StateHandler_11>(lara);
                 case LaraStateId::Unknown12: return std::make_unique<StateHandler_12>(lara);
                 case LaraStateId::UnderwaterStop: return std::make_unique<StateHandler_13>(lara);
+                case LaraStateId::GrabToFall: return std::make_unique<StateHandler_14>(lara);
                 case LaraStateId::JumpPrepare: return std::make_unique<StateHandler_15>(lara);
                 case LaraStateId::WalkBackward: return std::make_unique<StateHandler_16>(lara);
                 case LaraStateId::UnderwaterForward: return std::make_unique<StateHandler_17>(lara);
@@ -121,6 +122,7 @@ namespace engine
                 case LaraStateId::PushablePush: return std::make_unique<StateHandler_36>(lara);
                 case LaraStateId::PushablePull: return std::make_unique<StateHandler_37>(lara);
                 case LaraStateId::PushableGrab: return std::make_unique<StateHandler_38>(lara);
+                case LaraStateId::PickUp: return std::make_unique<StateHandler_39>(lara);
                 case LaraStateId::SwitchDown: return std::make_unique<StateHandler_40>(lara);
                 case LaraStateId::SwitchUp: return std::make_unique<StateHandler_41>(lara);
                 case LaraStateId::WaterDeath: return std::make_unique<StateHandler_44>(lara);
