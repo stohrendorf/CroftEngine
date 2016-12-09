@@ -308,6 +308,13 @@ namespace level
 
         void useAlternativeLaraAppearance();
 
+        const std::shared_ptr<gameplay::Model>& getModel(size_t idx) const
+        {
+            Expects(idx < m_models.size());
+
+            return m_models[idx];
+        }
+
     protected:
         loader::io::SDLReader m_reader;
         bool m_demoOrUb = false;

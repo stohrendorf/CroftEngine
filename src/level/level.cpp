@@ -19,6 +19,7 @@
 #include "engine/items/tallblock.h"
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
+#include "engine/items/pickupitem.h"
 
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
@@ -215,7 +216,7 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
             ret = Game::TR2;
         }
         else if( (check[0] == 0x38 || check[0] == 0x34) && check[1] == 0x00 && (check[2] == 0x18 || check[2] == 0x08)
-                                                           && check[3] == 0xFF )
+                 && check[3] == 0xFF )
         {
             ret = Game::TR3;
         }
@@ -230,16 +231,16 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
             ret = Game::TR4;
         }
         else if( check[0] == 0x54 && // T
-            check[1] == 0x52 && // R
-            check[2] == 0x34 && // 4
-            check[3] == 0x63 ) //
+                 check[1] == 0x52 && // R
+                 check[2] == 0x34 && // 4
+                 check[3] == 0x63 ) //
         {
             ret = Game::TR4;
         }
         else if( check[0] == 0xF0 && // T
-            check[1] == 0xFF && // R
-            check[2] == 0xFF && // 4
-            check[3] == 0xFF )
+                 check[1] == 0xFF && // R
+                 check[2] == 0xFF && // 4
+                 check[3] == 0xFF )
         {
             ret = Game::TR4;
         }
@@ -438,6 +439,10 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::BridgeSlope2>(*modelIdx, &room, &item);
             }
+            else if( item.type == 141 || item.type == 142 || item.type == 129 || item.type == 130 || item.type == 131 || item.type == 132 || item.type == 110 || item.type == 111 || item.type == 112 || item.type == 113 || item.type == 84 || item.type == 85 || item.type == 86 || item.type == 87 || item.type == 88 || item.type == 89 || item.type == 90 || item.type == 91 || item.type == 92 || item.type == 93 || item.type == 94 || item.type == 144 || item.type == 126 )
+            {
+                modelNode = createSkeletalModel<engine::items::PickupItem>(*modelIdx, &room, &item);
+            }
             else
             {
                 modelNode = createSkeletalModel<engine::items::StubItem>(*modelIdx, &room, &item);
@@ -484,7 +489,7 @@ engine::LaraNode* Level::createItems()
 #endif
 
         BOOST_LOG_TRIVIAL( error ) << "Failed to find an appropriate animated model for item " << id << "/type "
-                                      << int(item.type);
+                                  << int(item.type);
     }
 
     return lara;
@@ -506,7 +511,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     if( model.animationIndex == 0xffff )
     {
         BOOST_LOG_TRIVIAL( error ) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec
-                                      << " has animationIndex==0xffff";
+                                  << " has animationIndex==0xffff";
         return nullptr;
     }
 
@@ -555,7 +560,7 @@ void Level::toIrrlicht(gameplay::Game* game)
     }
 
     game->getScene()->setActiveCamera(
-            std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
+        std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
 
     auto vcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
                                                               {"HAS_VCOLOR"});

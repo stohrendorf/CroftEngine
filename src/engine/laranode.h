@@ -68,6 +68,12 @@ namespace engine
         }
 
 
+        bool isDiving() const
+        {
+            return m_underwaterState == UnderwaterState::Diving;
+        }
+
+
         float getAir() const
         {
             return m_air.getCurrentValue();

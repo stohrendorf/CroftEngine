@@ -161,6 +161,12 @@ namespace engine
             }
 
 
+            void move(const glm::vec3& d)
+            {
+                m_position.position += core::ExactTRCoordinates(d);
+            }
+
+
             void moveLocal(float dx, float dy, float dz)
             {
                 const auto sin = getRotation().Y.sin();
@@ -210,6 +216,12 @@ namespace engine
             void addZRotation(core::Angle z)
             {
                 m_rotation.Z += z;
+            }
+
+
+            void setRotation(const core::TRRotation& a)
+            {
+                m_rotation = a;
             }
 
 
