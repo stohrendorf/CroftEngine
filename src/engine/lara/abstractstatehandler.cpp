@@ -511,6 +511,20 @@ namespace engine
 
         void AbstractStateHandler::applyCollisionFeedback(const CollisionInfo& collisionInfo)
         {
+            static constexpr float Margin = 1;
+
+            auto shrinkMargin = [](float& x)
+            {
+                if(x < 0)
+                    x += Margin;
+                else if(x > 0)
+                    x -= Margin;
+            };
+
+            shrinkMargin(collisionInfo.collisionFeedback.X);
+            shrinkMargin(collisionInfo.collisionFeedback.Y);
+            shrinkMargin(collisionInfo.collisionFeedback.Z);
+
             setPosition(getPosition() + collisionInfo.collisionFeedback);
             collisionInfo.collisionFeedback = {0, 0, 0};
         }
