@@ -12,9 +12,8 @@
 
 namespace gameplay
 {
-    DepthStencilTarget::DepthStencilTarget(Format format, unsigned int width, unsigned int height)
-        : _format(format)
-        , _depthTexture{std::make_shared<Texture>(width, height)}
+    DepthStencilTarget::DepthStencilTarget(unsigned int width, unsigned int height)
+        : _depthTexture{std::make_shared<Texture>(width, height)}
         , _width(width)
         , _height(height)
     {
@@ -26,12 +25,6 @@ namespace gameplay
 
 
     DepthStencilTarget::~DepthStencilTarget() = default;
-
-
-    DepthStencilTarget::Format DepthStencilTarget::getFormat() const
-    {
-        return _format;
-    }
 
 
     unsigned int DepthStencilTarget::getWidth() const

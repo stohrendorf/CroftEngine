@@ -127,7 +127,7 @@ namespace gameplay
             auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
-                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
+                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete (color attachment): 0x" << std::hex << fboStatus;
             }
 
             // Restore the FBO binding
@@ -165,20 +165,16 @@ namespace gameplay
 
         if( target )
         {
-            // Now set this target as the color attachment corresponding to index.
             _handle.bind();
 
-            // Attach the render buffer to the framebuffer
-            //GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
             GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthStencilTarget->_depthTexture->getHandle().getHandle(), 0) );
-            GL_ASSERT( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilTarget->_depthBuffer.getHandle()) );
 
             // Check the framebuffer is good to go.
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
-                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete: 0x" << std::hex << fboStatus;
-                BOOST_THROW_EXCEPTION(std::runtime_error("Framebuffer status incomplete"));
+                BOOST_LOG_TRIVIAL(error) << "Framebuffer status incomplete (depth attachment): 0x" << std::hex << fboStatus;
+                BOOST_THROW_EXCEPTION(std::runtime_error("Framebuffer status incomplete (depth attachment)"));
             }
 
             // Restore the FBO binding

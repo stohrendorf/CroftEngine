@@ -18,23 +18,6 @@ namespace gameplay
 
     public:
         /**
-         * Defines the accepted formats for DepthStencilTargets.
-         */
-        enum Format
-        {
-            /**
-             * A target with depth data.
-             */
-            DEPTH,
-
-            /**
-             * A target with depth data and stencil data.
-             */
-            DEPTH_STENCIL
-        };
-
-
-        /**
         * Create a DepthStencilTarget and add it to the list of available DepthStencilTargets.
         *
         * @param format The format of the new DepthStencilTarget.
@@ -44,15 +27,8 @@ namespace gameplay
         * @return A newly created DepthStencilTarget.
         * @script{create}
         */
-        DepthStencilTarget(Format format, unsigned int width, unsigned int height);
+        DepthStencilTarget(unsigned int width, unsigned int height);
         ~DepthStencilTarget();
-
-        /**
-         * Returns the format of the DepthStencilTarget.
-         *
-         * @return The format.
-         */
-        Format getFormat() const;
 
         /**
          * Returns the width of the DepthStencilTarget.
@@ -76,7 +52,6 @@ namespace gameplay
     private:
         DepthStencilTarget& operator=(const DepthStencilTarget&) = delete;
 
-        Format _format;
         RenderBufferHandle _depthBuffer{};
         std::shared_ptr<Texture> _depthTexture;
         unsigned int _width;

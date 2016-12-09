@@ -50,6 +50,7 @@ namespace
             }
         }
 
+#ifndef NDEBUG
         // collision
         drawText(font, 400, 20, boost::lexical_cast<std::string>("AxisColl: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.axisCollisions));
         drawText(font, 400, 40, boost::lexical_cast<std::string>("Current floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.current.floor.distance));
@@ -63,6 +64,7 @@ namespace
         drawText(font, 400, 200, boost::lexical_cast<std::string>("Need bottom:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.passableFloorDistanceBottom));
         drawText(font, 400, 220, boost::lexical_cast<std::string>("Need top:        ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.passableFloorDistanceTop));
         drawText(font, 400, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.neededCeilingDistance));
+#endif
     }
 }
 
@@ -76,7 +78,7 @@ public:
         auto vp = game->getViewport();
 
         if( withDepth )
-            m_fb->setDepthStencilTarget(std::make_shared<gameplay::DepthStencilTarget>(gameplay::DepthStencilTarget::DEPTH_STENCIL, vp.width, vp.height));
+            m_fb->setDepthStencilTarget(std::make_shared<gameplay::DepthStencilTarget>(vp.width, vp.height));
 
         m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
 
@@ -167,7 +169,7 @@ int main()
         int secrets;
     };
 
-    static constexpr int LevelToLoad = 6;
+    static constexpr int LevelToLoad = 2;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1

@@ -171,14 +171,14 @@ namespace gameplay
  * mode and is therefore safe to use for realtime/per-frame GL
  * function calls.
  */
-#ifndef NDEBUG
+#ifdef NDEBUG
 #define GL_ASSERT( gl_code ) gl_code
 #else
 #define GL_ASSERT( gl_code ) \
     { \
         gl_code; \
         __gl_error_code = glGetError(); \
-        GP_ASSERT(__gl_error_code == GL_NO_ERROR); \
+        BOOST_ASSERT(__gl_error_code == GL_NO_ERROR); \
     }
 #endif
 

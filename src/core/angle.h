@@ -352,6 +352,14 @@ namespace core
             };
         }
 
+        glm::vec3 toSwizzledRadians() const
+        {
+            return {
+                X.toRad(),
+                -Y.toRad(),
+                -Z.toRad()
+            };
+        }
 
         TRRotation operator-(const TRRotation& rhs) const
         {
