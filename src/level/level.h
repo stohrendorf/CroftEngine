@@ -118,6 +118,7 @@ namespace level
             auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, flags);
 
             m_dynamicItems.insert(node);
+            room->node->addChild(node);
 
             return node;
         }

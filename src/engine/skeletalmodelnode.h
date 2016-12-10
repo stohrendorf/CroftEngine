@@ -104,7 +104,6 @@ namespace engine
 
         std::chrono::microseconds getCurrentLocalTime() const
         {
-            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
             return m_time - getStartTime();
         }
 

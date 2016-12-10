@@ -35,10 +35,13 @@ namespace engine
                 {
                     setTargetState(0);
                 }
+            }
 
-                if( getCurrentState() != 1 || getCurrentLocalTime() >= 1_frame )
+            void onFrameChanged(FrameChangeType frameChangeType) override
+            {
+                if(frameChangeType == FrameChangeType::EndOfAnim || getCurrentState() != 1 || getCurrentLocalTime() < 0_frame || getCurrentLocalTime() >= 1_frame)
                 {
-                    //ItemNode::updateImpl(deltaTime);
+                    ItemNode::onFrameChanged(frameChangeType);
                     return;
                 }
 
@@ -71,7 +74,7 @@ namespace engine
                 dart->m_flags2_04_ready = false;
 
                 playSoundEffect(0x97);
-                //ItemNode::updateImpl(deltaTime);
+                ItemNode::onFrameChanged(frameChangeType);
             }
         };
     }
