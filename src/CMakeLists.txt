@@ -188,6 +188,8 @@ set( OT_IRR_SRCS
      engine/items/bridgeflat.h
      engine/items/collapsiblefloor.cpp
      engine/items/collapsiblefloor.h
+     engine/items/dart.h
+     engine/items/dartgun.h
      engine/items/door.h
      engine/items/itemnode.cpp
      engine/items/itemnode.h

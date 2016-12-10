@@ -47,9 +47,11 @@ namespace engine
         LaraNode(const gsl::not_null<level::Level*>& level,
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
-                 const gsl::not_null<loader::Item*>& item,
+                 const core::Angle& angle,
+                 const core::ExactTRCoordinates& position,
+                 uint16_t flags,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, item, false, 0x3c, animatedModel )
+                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, animatedModel )
         {
             setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );

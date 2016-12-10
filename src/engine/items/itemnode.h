@@ -36,6 +36,7 @@ namespace engine
             core::TRRotation minAngle;
             core::TRRotation maxAngle;
 
+
             InteractionLimits(const gameplay::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
                 : distance{bbox}
                 , minAngle{min}
@@ -43,6 +44,7 @@ namespace engine
             {
                 distance.repair();
             }
+
 
             bool canInteract(const ItemNode& item, const LaraNode& lara) const;
         };
@@ -103,7 +105,9 @@ namespace engine
             ItemNode(const gsl::not_null<level::Level*>& level,
                      const std::string& name,
                      const gsl::not_null<const loader::Room*>& room,
-                     gsl::not_null<loader::Item*> item,
+                     const core::Angle& angle,
+                     const core::ExactTRCoordinates& position,
+                     uint16_t flags,
                      bool hasProcessAnimCommandsOverride,
                      uint8_t characteristics,
                      const loader::AnimatedModel& animatedModel);
@@ -282,7 +286,7 @@ namespace engine
 
             void dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f)
             {
-                m_horizontalSpeed.sub( m_horizontalSpeed * f, deltaTime );
+                m_horizontalSpeed.sub(m_horizontalSpeed * f, deltaTime);
             }
 
 
@@ -334,14 +338,14 @@ namespace engine
 
                 m_flags2_04_ready = false;
 
-                if( getCurrentState() != 0 || loader::isLastFloordataEntry( arg ) )
+                if( getCurrentState() != 0 || loader::isLastFloordataEntry(arg) )
                 {
                     deactivate();
                     m_flags2_02_toggledOn = false;
                 }
                 else
                 {
-                    m_triggerTimeout = std::chrono::milliseconds( gsl::narrow_cast<uint8_t>( arg ) );
+                    m_triggerTimeout = std::chrono::milliseconds(gsl::narrow_cast<uint8_t>(arg));
                     if( m_triggerTimeout.count() != 1 )
                         m_triggerTimeout *= 1000;
                     m_flags2_02_toggledOn = true;
@@ -367,10 +371,12 @@ namespace engine
 
             bool triggerKey();
 
+
             virtual core::Angle getMovementAngle() const
             {
                 return getRotation().Y;
             }
+
 
         protected:
             bool isInvertedActivation() const noexcept
@@ -399,7 +405,7 @@ namespace engine
                 BOOST_ASSERT( deltaTime > std::chrono::microseconds::zero() );
                 m_triggerTimeout -= deltaTime;
                 if( m_triggerTimeout <= std::chrono::microseconds::zero() )
-                    m_triggerTimeout = std::chrono::microseconds( -1 );
+                    m_triggerTimeout = std::chrono::microseconds(-1);
 
                 return !isInvertedActivation();
             }

@@ -2,6 +2,7 @@
 
 #include "itemnode.h"
 
+
 namespace engine
 {
     namespace items
@@ -10,23 +11,25 @@ namespace engine
         {
         public:
             Block(const gsl::not_null<level::Level*>& level,
-                       const std::string& name,
-                       const gsl::not_null<const loader::Room*>& room,
-                       const gsl::not_null<loader::Item*>& item,
-                       const loader::AnimatedModel& animatedModel)
-                    : ItemNode( level, name, room, item, true, 0x34, animatedModel )
+                  const std::string& name,
+                  const gsl::not_null<const loader::Room*>& room,
+                  const core::Angle& angle,
+                  const core::ExactTRCoordinates& position,
+                  uint16_t flags,
+                  const loader::AnimatedModel& animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x34, animatedModel)
             {
                 if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
-                    loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
+                    loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
             }
 
 
             void updateImpl(const std::chrono::microseconds& deltaTime) override
             {
-                if( updateTriggerTimeout( deltaTime ) )
-                    setTargetState( 1 );
+                if( updateTriggerTimeout(deltaTime) )
+                    setTargetState(1);
                 else
-                    setTargetState( 0 );
+                    setTargetState(0);
             }
 
 

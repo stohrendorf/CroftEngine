@@ -56,7 +56,8 @@ namespace level
         std::vector<uint16_t> m_overlaps;
         std::vector<loader::Zone> m_zones;
         std::vector<loader::Item> m_items;
-        std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemControllers;
+        std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemNodes;
+        std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;
         std::unique_ptr<loader::LightMap> m_lightmap;
         std::vector<loader::AIObject> m_aiObjects;
         std::vector<loader::CinematicFrame> m_cinematicFrames;
@@ -94,15 +95,32 @@ namespace level
 
         const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
         int findStaticMeshIndexById(uint32_t object_id) const;
-        boost::optional<size_t> findAnimatedModelIndexForType(uint32_t object_id) const;
-        boost::optional<size_t> findSpriteSequenceForType(uint32_t object_id) const;
+        boost::optional<size_t> findAnimatedModelIndexForType(uint32_t type) const;
+        boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
 
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
-        engine::LaraNode*
-        createItems();
+        engine::LaraNode* createItems();
         void toIrrlicht(gameplay::Game* game);
 
+
+        template<typename T>
+        std::shared_ptr<engine::items::ItemNode> createItem(uint32_t type,
+                                                            const gsl::not_null<const loader::Room*>& room,
+                                                            const core::Angle& angle,
+                                                            const core::ExactTRCoordinates& position,
+                                                            uint16_t flags)
+        {
+            const auto modelIdx = findAnimatedModelIndexForType(type);
+            if(!modelIdx)
+                return nullptr;
+
+            auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, flags);
+
+            m_dynamicItems.insert(node);
+
+            return node;
+        }
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
         {
@@ -330,7 +348,19 @@ namespace level
         static std::unique_ptr<Level> createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
 
         template<typename T>
-        std::shared_ptr<T> createSkeletalModel(size_t id, const gsl::not_null<const loader::Room*>& room, const gsl::not_null<loader::Item*>& item);
+        std::shared_ptr<T> createSkeletalModel(size_t id,
+                                               const gsl::not_null<const loader::Room*>& room,
+                                               const core::Angle& angle,
+                                               const core::ExactTRCoordinates& position,
+                                               uint16_t flags);
+
+        template<typename T>
+        std::shared_ptr<T> createSkeletalModel(size_t id,
+                                               const gsl::not_null<const loader::Room*>& room,
+                                               const gsl::not_null<const loader::Item*>& item)
+        {
+            return createSkeletalModel<T>(id, room, core::Angle{ item->rotation }, core::ExactTRCoordinates{ item->position }, item->flags);
+        }
 
         std::array<uint16_t, 64> m_cdTrackTriggerValues;
         int m_cdTrack50time = 0;

@@ -2,6 +2,7 @@
 
 #include "itemnode.h"
 
+
 namespace engine
 {
     namespace items
@@ -10,20 +11,22 @@ namespace engine
         {
         public:
             Switch(const gsl::not_null<level::Level*>& level,
-                           const std::string& name,
-                           const gsl::not_null<const loader::Room*>& room,
-                           const gsl::not_null<loader::Item*>& item,
-                           const loader::AnimatedModel& animatedModel)
-                    : ItemNode( level, name, room, item, true, 0x30, animatedModel )
+                   const std::string& name,
+                   const gsl::not_null<const loader::Room*>& room,
+                   const core::Angle& angle,
+                   const core::ExactTRCoordinates& position,
+                   uint16_t flags,
+                   const loader::AnimatedModel& animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x30, animatedModel)
             {
             }
 
 
             void updateImpl(const std::chrono::microseconds& deltaTime) override
             {
-                if( !updateTriggerTimeout( deltaTime ) )
+                if( !updateTriggerTimeout(deltaTime) )
                 {
-                    setTargetState( 1 );
+                    setTargetState(1);
                     m_triggerTimeout = std::chrono::microseconds::zero();
                 }
             }
@@ -36,7 +39,7 @@ namespace engine
             {
                 m_itemFlags |= ActivationMask;
 
-                ItemNode::onFrameChanged( frameChangeType );
+                ItemNode::onFrameChanged(frameChangeType);
             }
         };
     }

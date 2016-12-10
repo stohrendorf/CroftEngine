@@ -13,9 +13,11 @@ namespace engine
             TrapDoorDown(const gsl::not_null<level::Level*>& level,
                          const std::string& name,
                          const gsl::not_null<const loader::Room*>& room,
-                         const gsl::not_null<loader::Item*>& item,
+                         const core::Angle& angle,
+                         const core::ExactTRCoordinates& position,
+                         uint16_t flags,
                          const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, item, true, 0x30, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x30, animatedModel)
             {
             }
 
@@ -42,7 +44,7 @@ namespace engine
             void patchFloor(const core::TRCoordinates& pos, long& y) override
             {
                 if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y
-                                              || y <= getPosition().Y )
+                    || y <= getPosition().Y )
                     return;
 
                 y = std::lround(getPosition().Y);
@@ -52,7 +54,7 @@ namespace engine
             void patchCeiling(const core::TRCoordinates& pos, long& y) override
             {
                 if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
-                                              || y > getPosition().Y )
+                    || y > getPosition().Y )
                     return;
 
                 y = std::lround(getPosition().Y + loader::QuarterSectorSize);

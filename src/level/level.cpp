@@ -11,6 +11,8 @@
 #include "engine/items/block.h"
 #include "engine/items/bridgeflat.h"
 #include "engine/items/collapsiblefloor.h"
+#include "engine/items/dart.h"
+#include "engine/items/dartgun.h"
 #include "engine/items/door.h"
 #include "engine/items/slopedbridge.h"
 #include "engine/items/stubitem.h"
@@ -403,6 +405,14 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::SwingingBlade>(*modelIdx, &room, &item);
             }
+            else if( type == 39 )
+            {
+                modelNode = createSkeletalModel<engine::items::Dart>(*modelIdx, &room, &item);
+            }
+            else if( type == 40 )
+            {
+                modelNode = createSkeletalModel<engine::items::DartGun>(*modelIdx, &room, &item);
+            }
             else if( type == 41 )
             {
                 modelNode = createSkeletalModel<engine::items::TrapDoorUp>(*modelIdx, &room, &item);
@@ -448,7 +458,7 @@ engine::LaraNode* Level::createItems()
                 modelNode = createSkeletalModel<engine::items::StubItem>(*modelIdx, &room, &item);
             }
 
-            m_itemControllers[id] = modelNode;
+            m_itemNodes[id] = modelNode;
             room.node->addChild(modelNode);
 
             modelNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
@@ -480,9 +490,9 @@ engine::LaraNode* Level::createItems()
                 node->setDrawable(sprite);
                 node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
-        //m_itemControllers[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
-        //m_itemControllers[id]->setYRotation(core::Angle{item.rotation});
-        //m_itemControllers[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+        //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
+        //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
+        //m_itemNodes[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
 
                 continue;
             }
@@ -499,7 +509,9 @@ engine::LaraNode* Level::createItems()
 template<typename T>
 std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
-                                              const gsl::not_null<loader::Item*>& item)
+                                              const core::Angle& angle,
+                                              const core::ExactTRCoordinates& position,
+                                              uint16_t flags)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
 
@@ -515,7 +527,12 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
         return nullptr;
     }
 
-    auto skeletalModel = std::make_shared<T>(this, "skeleton:" + boost::lexical_cast<std::string>(id), room, item,
+    auto skeletalModel = std::make_shared<T>(this,
+                                             "skeleton:" + boost::lexical_cast<std::string>(id),
+                                             room,
+                                             angle,
+                                             position,
+                                             flags,
                                              model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
@@ -726,8 +743,8 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
 
 engine::items::ItemNode* Level::getItemController(uint16_t id) const
 {
-    auto it = m_itemControllers.find(id);
-    if( it == m_itemControllers.end() )
+    auto it = m_itemNodes.find(id);
+    if( it == m_itemNodes.end() )
         return nullptr;
 
     return it->second.get();

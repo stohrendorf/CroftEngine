@@ -2,6 +2,7 @@
 
 #include "itemnode.h"
 
+
 namespace engine
 {
     namespace items
@@ -12,13 +13,15 @@ namespace engine
             const int m_div;
         public:
             SlopedBridge(const gsl::not_null<level::Level*>& level,
-                              const std::string& name,
-                              const gsl::not_null<const loader::Room*>& room,
-                              const gsl::not_null<loader::Item*>& item,
-                              const loader::AnimatedModel& animatedModel,
-                              int div)
-                    : ItemNode( level, name, room, item, false, 0, animatedModel )
-                    , m_div( div )
+                         const std::string& name,
+                         const gsl::not_null<const loader::Room*>& room,
+                         const core::Angle& angle,
+                         const core::ExactTRCoordinates& position,
+                         uint16_t flags,
+                         const loader::AnimatedModel& animatedModel,
+                         int div)
+                : ItemNode(level, name, room, angle, position, flags, false, 0, animatedModel)
+                , m_div(div)
             {
             }
 
@@ -40,7 +43,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, long& y) override final
             {
-                auto tmp = std::lround( getPosition().Y + getBridgeSlopeHeight( pos ) / m_div );
+                auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
                 if( pos.Y <= tmp )
                     y = tmp;
             }
@@ -48,7 +51,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, long& y) override final
             {
-                auto tmp = std::lround( getPosition().Y + getBridgeSlopeHeight( pos ) / m_div );
+                auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
                 if( pos.Y <= tmp )
                     return;
 
@@ -59,16 +62,16 @@ namespace engine
         private:
             long getBridgeSlopeHeight(const core::TRCoordinates& pos) const
             {
-                auto axis = core::axisFromAngle( getRotation().Y, 1_deg );
+                auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
                 Expects( axis.is_initialized() );
 
                 switch( *axis )
                 {
-                    case core::Axis::PosZ:return loader::SectorSize - 1 - pos.X % loader::SectorSize;
-                    case core::Axis::PosX:return pos.Z % loader::SectorSize;
-                    case core::Axis::NegZ:return pos.X % loader::SectorSize;
-                    case core::Axis::NegX:return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
-                    default:return 0;
+                    case core::Axis::PosZ: return loader::SectorSize - 1 - pos.X % loader::SectorSize;
+                    case core::Axis::PosX: return pos.Z % loader::SectorSize;
+                    case core::Axis::NegZ: return pos.X % loader::SectorSize;
+                    case core::Axis::NegX: return loader::SectorSize - 1 - pos.Z % loader::SectorSize;
+                    default: return 0;
                 }
             }
         };
@@ -78,11 +81,13 @@ namespace engine
         {
         public:
             BridgeSlope1(const gsl::not_null<level::Level*>& level,
-                                 const std::string& name,
-                                 const gsl::not_null<const loader::Room*>& room,
-                                 const gsl::not_null<loader::Item*>& item,
-                                 const loader::AnimatedModel& animatedModel)
-                    : SlopedBridge( level, name, room, item, animatedModel, 4 )
+                         const std::string& name,
+                         const gsl::not_null<const loader::Room*>& room,
+                         const core::Angle& angle,
+                         const core::ExactTRCoordinates& position,
+                         uint16_t flags,
+                         const loader::AnimatedModel& animatedModel)
+                : SlopedBridge(level, name, room, angle, position, flags, animatedModel, 4)
             {
             }
         };
@@ -92,11 +97,13 @@ namespace engine
         {
         public:
             BridgeSlope2(const gsl::not_null<level::Level*>& level,
-                                 const std::string& name,
-                                 const gsl::not_null<const loader::Room*>& room,
-                                 const gsl::not_null<loader::Item*>& item,
-                                 const loader::AnimatedModel& animatedModel)
-                    : SlopedBridge( level, name, room, item, animatedModel, 2 )
+                         const std::string& name,
+                         const gsl::not_null<const loader::Room*>& room,
+                         const core::Angle& angle,
+                         const core::ExactTRCoordinates& position,
+                         uint16_t flags,
+                         const loader::AnimatedModel& animatedModel)
+                : SlopedBridge(level, name, room, angle, position, flags, animatedModel, 2)
             {
             }
         };

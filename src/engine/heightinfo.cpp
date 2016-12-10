@@ -106,8 +106,8 @@ namespace engine
                     else
                     {
                         BOOST_ASSERT(func == loader::TriggerFunction::Object);
-                        auto it = camera->getLevel()->m_itemControllers.find(param);
-                        Expects(it != camera->getLevel()->m_itemControllers.end());
+                        auto it = camera->getLevel()->m_itemNodes.find(param);
+                        Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchFloor(pos, hi.distance);
                     }
 
@@ -234,8 +234,8 @@ namespace engine
                     else
                     {
                         BOOST_ASSERT(func == loader::TriggerFunction::Object);
-                        auto it = camera->getLevel()->m_itemControllers.find(param);
-                        Expects(it != camera->getLevel()->m_itemControllers.end());
+                        auto it = camera->getLevel()->m_itemNodes.find(param);
+                        Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchCeiling(pos, hi.distance);
                     }
 

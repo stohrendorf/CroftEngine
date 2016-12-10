@@ -26,15 +26,17 @@ namespace engine
         ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                            const std::string& name,
                            const gsl::not_null<const loader::Room*>& room,
-                           gsl::not_null<loader::Item*> item,
+                           const core::Angle& angle,
+                           const core::ExactTRCoordinates& position,
+                           uint16_t flags,
                            bool hasProcessAnimCommandsOverride,
                            uint8_t characteristics,
                            const loader::AnimatedModel& animatedModel)
             : SkeletalModelNode(name, level, animatedModel)
-            , m_position(room, core::ExactTRCoordinates(item->position))
-            , m_rotation(0_deg, core::Angle{item->rotation}, 0_deg)
+            , m_position(room, position)
+            , m_rotation(0_deg, angle, 0_deg)
             , m_level(level)
-            , m_itemFlags(item->flags)
+            , m_itemFlags(flags)
             , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
             , m_characteristics(characteristics)
         {

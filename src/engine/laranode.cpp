@@ -562,7 +562,8 @@ namespace engine
         {
             switch( srcTriggerType )
             {
-                case loader::TriggerType::Trigger:runActions = true;
+                case loader::TriggerType::Trigger:
+                    runActions = true;
                     break;
                 case loader::TriggerType::Pad:
                 case loader::TriggerType::AntiPad:
@@ -571,9 +572,9 @@ namespace engine
                 case loader::TriggerType::Switch:
                 {
                     Expects(
-                            getLevel().m_itemControllers.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemControllers.end() );
-                    ItemNode& swtch = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(
+                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                            != getLevel().m_itemNodes.end() );
+                    ItemNode& swtch = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
                             *actionFloorData )];
                     if( !swtch.triggerSwitch( srcTriggerArg ) )
                         return;
@@ -586,9 +587,9 @@ namespace engine
                 case loader::TriggerType::Key:
                 {
                     Expects(
-                            getLevel().m_itemControllers.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemControllers.end() );
-                    ItemNode& key = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(
+                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                            != getLevel().m_itemNodes.end() );
+                    ItemNode& key = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
                             *actionFloorData )];
                     if( key.triggerKey() )
                         runActions = true;
@@ -598,20 +599,23 @@ namespace engine
                 case loader::TriggerType::Pickup:
                 {
                     Expects(
-                            getLevel().m_itemControllers.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemControllers.end() );
-                    ItemNode& pickup = *getLevel().m_itemControllers[loader::extractTriggerFunctionParam(
+                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                            != getLevel().m_itemNodes.end() );
+                    ItemNode& pickup = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
                             *actionFloorData )];
                     if( pickup.triggerPickUp() )
                         runActions = true;
                 }
                     ++actionFloorData;
                     return;
-                case loader::TriggerType::Combat:runActions = getHandStatus() == 4;
+                case loader::TriggerType::Combat:
+                    runActions = getHandStatus() == 4;
                     break;
                 case loader::TriggerType::Heavy:
-                case loader::TriggerType::Dummy:return;
-                default:runActions = true;
+                case loader::TriggerType::Dummy:
+                    return;
+                default:
+                    runActions = true;
                     break;
             }
         }
@@ -633,8 +637,8 @@ namespace engine
             {
                 case loader::TriggerFunction::Object:
                 {
-                    Expects( getLevel().m_itemControllers.find( actionParam ) != getLevel().m_itemControllers.end() );
-                    ItemNode& item = *getLevel().m_itemControllers[actionParam];
+                    Expects( getLevel().m_itemNodes.find( actionParam ) != getLevel().m_itemNodes.end() );
+                    ItemNode& item = *getLevel().m_itemNodes[actionParam];
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
@@ -700,7 +704,8 @@ namespace engine
                     isLastAction = loader::isLastFloordataEntry( *actionFloorData );
                     ++actionFloorData;
                     break;
-                case loader::TriggerFunction::LookAt:lookAtItem = getLevel().getItemController( actionParam );
+                case loader::TriggerFunction::LookAt:
+                    lookAtItem = getLevel().getItemController( actionParam );
                     break;
                 case loader::TriggerFunction::UnderwaterCurrent:
                     //! @todo handle underwater current
@@ -734,7 +739,8 @@ namespace engine
                     }
                 }
                     break;
-                default:break;
+                default:
+                    break;
             }
 
             if( isLastAction )
@@ -831,7 +837,7 @@ namespace engine
         for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert( &getLevel().m_rooms[p.adjoining_room] );
 
-        for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemControllers | boost::adaptors::map_values )
+        for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
         {
             if( rooms.find( item->getCurrentRoom() ) == rooms.end() )
                 continue;

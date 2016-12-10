@@ -2,6 +2,7 @@
 
 #include "itemnode.h"
 
+
 namespace engine
 {
     namespace items
@@ -10,11 +11,13 @@ namespace engine
         {
         public:
             BridgeFlat(const gsl::not_null<level::Level*>& level,
-                               const std::string& name,
-                               const gsl::not_null<const loader::Room*>& room,
-                               const gsl::not_null<loader::Item*>& item,
-                               const loader::AnimatedModel& animatedModel)
-                    : ItemNode( level, name, room, item, false, 0, animatedModel )
+                       const std::string& name,
+                       const gsl::not_null<const loader::Room*>& room,
+                       const core::Angle& angle,
+                       const core::ExactTRCoordinates& position,
+                       uint16_t flags,
+                       const loader::AnimatedModel& animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, false, 0, animatedModel)
             {
             }
 
@@ -37,7 +40,7 @@ namespace engine
             void patchFloor(const core::TRCoordinates& pos, long& y) override
             {
                 if( pos.Y <= getPosition().Y )
-                    y = std::lround( getPosition().Y );
+                    y = std::lround(getPosition().Y);
             }
 
 
@@ -46,7 +49,7 @@ namespace engine
                 if( pos.Y <= getPosition().Y )
                     return;
 
-                y = std::lround( getPosition().Y + loader::QuarterSectorSize );
+                y = std::lround(getPosition().Y + loader::QuarterSectorSize);
             }
         };
     }

@@ -13,10 +13,12 @@ namespace engine
             PickupItem(const gsl::not_null<level::Level*>& level,
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
-                       const gsl::not_null<loader::Item*>& item,
+                       const core::Angle& angle,
+                       const core::ExactTRCoordinates& position,
+                       uint16_t flags,
                        const loader::AnimatedModel& animatedModel,
                        bool shotgun = false)
-                : ItemNode(level, name, room, item, true, 0x30, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x30, animatedModel)
                 , m_shotgun{shotgun}
             {
             }
@@ -33,6 +35,7 @@ namespace engine
             void onFrameChanged(FrameChangeType frameChangeType) override
             {
             }
+
 
         private:
             const bool m_shotgun;

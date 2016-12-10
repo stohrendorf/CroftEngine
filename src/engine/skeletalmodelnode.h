@@ -102,6 +102,12 @@ namespace engine
 
         virtual void onFrameChanged(FrameChangeType frameChangeType) = 0;
 
+        std::chrono::microseconds getCurrentLocalTime() const
+        {
+            BOOST_ASSERT(m_time >= getStartTime() && m_time < getEndTime());
+            return m_time - getStartTime();
+        }
+
     private:
         const gsl::not_null<const level::Level*> m_level;
         size_t m_animId = 0;
@@ -184,11 +190,5 @@ namespace engine
         bool handleTRTransitions();
 
         void setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents);
-
-        std::chrono::microseconds getCurrentLocalTime() const
-        {
-            BOOST_ASSERT( m_time >= getStartTime() && m_time < getEndTime() );
-            return m_time - getStartTime();
-        }
     };
 }
