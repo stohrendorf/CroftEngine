@@ -13,7 +13,7 @@ namespace gameplay
     FrameBuffer::FrameBuffer()
         : _renderTargets()
         , _renderTargetCount(0)
-        , _depthStencilTarget(nullptr)
+        , _depthTexture(nullptr)
     {
     }
 
@@ -156,18 +156,18 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setDepthStencilTarget(const std::shared_ptr<DepthStencilTarget>& target)
+    void FrameBuffer::setDepthTexture(const std::shared_ptr<Texture>& target)
     {
-        if( _depthStencilTarget == target )
+        if( _depthTexture == target )
             return;
 
-        _depthStencilTarget = target;
+        _depthTexture = target;
 
         if( target )
         {
             _handle.bind();
 
-            GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthStencilTarget->_depthTexture->getHandle().getHandle(), 0) );
+            GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthTexture->getHandle().getHandle(), 0) );
 
             // Check the framebuffer is good to go.
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -186,9 +186,9 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<DepthStencilTarget>& FrameBuffer::getDepthStencilTarget() const
+    const std::shared_ptr<Texture>& FrameBuffer::getDepthTexture() const
     {
-        return _depthStencilTarget;
+        return _depthTexture;
     }
 
 

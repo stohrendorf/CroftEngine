@@ -4,8 +4,6 @@ set( GAMEPLAY_SRC
      src/BoundingBox.h
      src/Camera.cpp
      src/Camera.h
-     src/DepthStencilTarget.cpp
-     src/DepthStencilTarget.h
      src/Drawable.cpp
      src/Drawable.h
      src/ShaderProgram.cpp

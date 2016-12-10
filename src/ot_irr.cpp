@@ -78,13 +78,13 @@ public:
         auto vp = game->getViewport();
 
         if( withDepth )
-            m_fb->setDepthStencilTarget(std::make_shared<gameplay::DepthStencilTarget>(vp.width, vp.height));
+            m_fb->setDepthTexture(std::make_shared<gameplay::Texture>(vp.width, vp.height));
 
         m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
 
         if( withDepth )
         {
-            m_batch->getMaterial()->getParameter("u_depth")->set(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthStencilTarget()->getDepthTexture()));
+            m_batch->getMaterial()->getParameter("u_depth")->set(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthTexture()));
             m_batch->getMaterial()->getParameter("u_projection")->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
         }
 

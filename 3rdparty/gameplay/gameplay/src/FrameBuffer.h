@@ -2,7 +2,6 @@
 
 #include "Base.h"
 #include "RenderTarget.h"
-#include "DepthStencilTarget.h"
 #include "Image.h"
 
 
@@ -43,7 +42,7 @@ namespace gameplay
          * and added to the FrameBuffer, with the same ID. The ID of the render target can be
          * changed later via RenderTarget::setId(const char*).
          *
-         * You can additionally add a DepthStencilTarget using FrameBuffer::setDepthStencilTarget.
+         * You can additionally add a DepthStencilTarget using FrameBuffer::setDepthTexture.
          *
          * @param width The width of the RenderTarget to be created and attached.
          * @param height The height of the RenderTarget to be created and attached.
@@ -106,19 +105,9 @@ namespace gameplay
          */
         size_t getRenderTargetCount() const;
 
-        /**
-         * Set this FrameBuffer's DepthStencilTarget.
-         *
-         * @param target The DepthStencilTarget to set on this FrameBuffer.
-         */
-        void setDepthStencilTarget(const std::shared_ptr<DepthStencilTarget>& target);
+        void setDepthTexture(const std::shared_ptr<Texture>& target);
 
-        /**
-         * Get this FrameBuffer's DepthStencilTarget.
-         *
-         * @return This FrameBuffer's DepthStencilTarget.
-         */
-        const std::shared_ptr<DepthStencilTarget>& getDepthStencilTarget() const;
+        const std::shared_ptr<Texture>& getDepthTexture() const;
 
         /**
          * Binds this FrameBuffer for off-screen rendering and return you the currently bound one.
@@ -161,7 +150,7 @@ namespace gameplay
         FrameBufferHandle _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
         size_t _renderTargetCount;
-        std::shared_ptr<DepthStencilTarget> _depthStencilTarget;
+        std::shared_ptr<Texture> _depthTexture;
 
         static size_t _maxRenderTargets;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;

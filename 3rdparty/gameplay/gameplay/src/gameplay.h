@@ -32,7 +32,6 @@
 #include "ParticleEmitter.h"
 #include "FrameBuffer.h"
 #include "RenderTarget.h"
-#include "DepthStencilTarget.h"
 #include "ScreenOverlay.h"
 #include "MaterialParameter.h"
 
