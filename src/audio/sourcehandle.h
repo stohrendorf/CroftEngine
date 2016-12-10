@@ -142,4 +142,21 @@ namespace audio
             set(AL_PITCH, util::clamp(pitch_value, 0.5f, 2.0f));
         }
     };
+
+    struct WeakSourceHandleLessComparator
+    {
+        bool operator()(const std::weak_ptr<SourceHandle>& lhs, const std::weak_ptr<SourceHandle>& rhs)
+        {
+            if(lhs.expired() != rhs.expired())
+                return lhs.expired() < rhs.expired();
+
+            if(lhs.expired())
+            {
+                Expects(rhs.expired());
+                return false;
+            }
+
+            return lhs.lock() < rhs.lock();
+        }
+    };
 }

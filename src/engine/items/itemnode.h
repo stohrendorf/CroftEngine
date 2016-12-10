@@ -5,6 +5,7 @@
 #include "engine/skeletalmodelnode.h"
 
 #include <chrono>
+#include <set>
 
 
 namespace loader
@@ -63,7 +64,7 @@ namespace engine
 
             long m_floorHeight = 0;
 
-            std::vector<std::weak_ptr<audio::SourceHandle>> m_sounds;
+            std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
 
             void updateSounds();
 

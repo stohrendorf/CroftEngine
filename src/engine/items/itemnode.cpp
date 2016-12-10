@@ -17,7 +17,7 @@ namespace engine
             else
                 tr = m_position.position.toRenderSystem();
 
-            setLocalMatrix( glm::translate( glm::mat4{1.0f}, tr ) * getRotation().toMatrix() );
+            setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }
@@ -30,16 +30,16 @@ namespace engine
                            bool hasProcessAnimCommandsOverride,
                            uint8_t characteristics,
                            const loader::AnimatedModel& animatedModel)
-                : SkeletalModelNode( name, level, animatedModel )
-                , m_position( room, core::ExactTRCoordinates( item->position ) )
-                , m_rotation( 0_deg, core::Angle{item->rotation}, 0_deg )
-                , m_level( level )
-                , m_itemFlags( item->flags )
-                , m_hasProcessAnimCommandsOverride( hasProcessAnimCommandsOverride )
-                , m_characteristics( characteristics )
+            : SkeletalModelNode(name, level, animatedModel)
+            , m_position(room, core::ExactTRCoordinates(item->position))
+            , m_rotation(0_deg, core::Angle{item->rotation}, 0_deg)
+            , m_level(level)
+            , m_itemFlags(item->flags)
+            , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
+            , m_characteristics(characteristics)
         {
             if( m_itemFlags & Oneshot )
-                setEnabled( false );
+                setEnabled(false);
 
             if( (m_itemFlags & Oneshot) != 0 )
             {
@@ -71,7 +71,7 @@ namespace engine
             }
             BOOST_LOG_TRIVIAL( debug ) << "Room switch of " << getId() << " to " << newRoom->node->getId();
 
-            newRoom->node->addChild( shared_from_this() );
+            newRoom->node->addChild(shared_from_this());
 
             m_position.room = newRoom;
         }
@@ -98,9 +98,9 @@ namespace engine
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             moveLocal(
-                                    cmd[0],
-                                    cmd[1],
-                                    cmd[2]
+                                cmd[0],
+                                cmd[1],
+                                cmd[2]
                             );
                         }
                         cmd += 3;
@@ -114,23 +114,23 @@ namespace engine
                         }
                         cmd += 2;
                         break;
-                    case AnimCommandOpcode::EmptyHands:break;
+                    case AnimCommandOpcode::EmptyHands: break;
                     case AnimCommandOpcode::PlaySound:
                         if( frameChangeType == FrameChangeType::NewFrame
-                            && core::toFrame( getCurrentTime() ) == cmd[0] )
+                            && core::toFrame(getCurrentTime()) == cmd[0] )
                         {
-                            playSoundEffect( cmd[1] );
+                            playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if( core::toFrame( getCurrentTime() ) == cmd[0] )
+                        if( core::toFrame(getCurrentTime()) == cmd[0] )
                         {
-                            BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
+                            BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int(cmd[1]);
                             if( frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
-                                addYRotation( 180_deg );
+                                addYRotation(180_deg);
                             else if( cmd[1] == 12 )
-                                getLevel().m_lara->setHandStatus( 0 );
+                                getLevel().m_lara->setHandStatus(0);
                             //! @todo Execute anim effect cmd[1]
                         }
                         cmd += 2;
@@ -158,7 +158,7 @@ namespace engine
                 return;
             }
 
-            if(m_isActive)
+            if( m_isActive )
             {
                 //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already active";
             }
@@ -173,7 +173,7 @@ namespace engine
 
         void ItemNode::deactivate()
         {
-            if(!m_isActive)
+            if( !m_isActive )
             {
                 //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already inactive";
             }
@@ -188,9 +188,9 @@ namespace engine
 
         std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(int id)
         {
-            auto handle = getLevel().playSound( id, getTranslationWorld() );
+            auto handle = getLevel().playSound(id, getTranslationWorld());
             if( handle != nullptr )
-                m_sounds.emplace_back( handle );
+                m_sounds.insert(handle);
             return handle;
         }
 
@@ -211,15 +211,19 @@ namespace engine
 
         void ItemNode::updateSounds()
         {
-            m_sounds.erase(
-                    std::remove_if( m_sounds.begin(), m_sounds.end(), [](const std::weak_ptr<audio::SourceHandle>& h) {
-                        return h.expired();
-                    } ), m_sounds.end() );
+            decltype(m_sounds) cleaned;
+            std::copy_if(m_sounds.begin(), m_sounds.end(), std::inserter(cleaned, cleaned.end()),
+                         [](const std::weak_ptr<audio::SourceHandle>& h)
+                         {
+                             return h.expired();
+                         });
+
+            m_sounds = std::move(cleaned);
 
             for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
             {
                 std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-                lockedHandle->setPosition( getTranslationWorld() );
+                lockedHandle->setPosition(getTranslationWorld());
             }
         }
 
@@ -235,25 +239,25 @@ namespace engine
             }
 
             auto dist = glm::vec4(lara.getPosition().toRenderSystem() - item.getPosition().toRenderSystem(), 1.0f);
-            glm::vec3 tdist{ dist * item.getRotation().toMatrix() };
+            glm::vec3 tdist{dist * item.getRotation().toMatrix()};
 
-            return distance.contains( tdist, 1 );
+            return distance.contains(tdist, 1);
         }
 
 
         void ItemNode::update(const std::chrono::microseconds& deltaTime)
         {
-            addTime( deltaTime );
+            addTime(deltaTime);
 
-            updateImpl( deltaTime );
+            updateImpl(deltaTime);
 
             if( m_falling )
             {
-                m_horizontalSpeed.add( getAccelleration(), deltaTime );
+                m_horizontalSpeed.add(getAccelleration(), deltaTime);
                 if( getFallSpeed() >= 128 )
-                    m_fallSpeed.add( 1, deltaTime );
+                    m_fallSpeed.add(1, deltaTime);
                 else
-                    m_fallSpeed.add( 6, deltaTime );
+                    m_fallSpeed.add(6, deltaTime);
             }
             else
             {
@@ -261,9 +265,9 @@ namespace engine
             }
 
             move(
-                    getMovementAngle().sin() * m_horizontalSpeed.getScaled( deltaTime ),
-                    m_falling ? m_fallSpeed.getScaled( deltaTime ) : 0,
-                    getMovementAngle().cos() * m_horizontalSpeed.getScaled( deltaTime )
+                getMovementAngle().sin() * m_horizontalSpeed.getScaled(deltaTime),
+                m_falling ? m_fallSpeed.getScaled(deltaTime) : 0,
+                getMovementAngle().cos() * m_horizontalSpeed.getScaled(deltaTime)
             );
 
             applyTransform();
