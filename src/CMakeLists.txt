@@ -206,6 +206,8 @@ set( OT_IRR_SRCS
      engine/items/trapdoordown.h
      engine/items/trapdoorup.cpp
      engine/items/trapdoorup.h
+     engine/items/underwaterswitch.h
+     engine/items/underwaterswitch.cpp
 )
 
 add_executable(ot_irr

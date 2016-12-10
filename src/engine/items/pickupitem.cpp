@@ -8,66 +8,6 @@ namespace engine
 {
     namespace items
     {
-        bool alignTransformClamped(ItemNode& which, const glm::vec3& targetPos, const core::TRRotation& targetRot, float maxDistance, const core::Angle& maxAngle)
-        {
-            auto d = targetPos - which.getPosition().toRenderSystem();
-            const auto dist = glm::length(d);
-            if( maxDistance < dist )
-            {
-                which.move(maxDistance * glm::normalize(d));
-            }
-            else
-            {
-                which.setPosition(core::ExactTRCoordinates(targetPos));
-            }
-
-            core::TRRotation phi = targetRot - which.getRotation();
-            if( phi.X > maxAngle )
-                which.addXRotation(maxAngle);
-            else if( phi.X < -maxAngle )
-                which.addXRotation(-maxAngle);
-            else
-                which.addXRotation(phi.X);
-            if( phi.Y > maxAngle )
-                which.addYRotation(maxAngle);
-            else if( phi.Y < -maxAngle )
-                which.addYRotation(-maxAngle);
-            else
-                which.addYRotation(phi.Y);
-            if( phi.Z > maxAngle )
-                which.addZRotation(maxAngle);
-            else if( phi.Z < -maxAngle )
-                which.addZRotation(-maxAngle);
-            else
-                which.addZRotation(phi.Z);
-
-            phi = targetRot - which.getRotation();
-            d = targetPos - which.getPosition().toRenderSystem();
-
-            return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
-                   && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
-        }
-
-
-        bool alignTransform(const glm::vec3& trSpeed, const ItemNode& target, ItemNode& which)
-        {
-            const auto speed = trSpeed / 16384.0f;
-            auto targetRot = target.getRotation().toMatrix();
-            auto targetPos = target.getPosition().toRenderSystem();
-            targetPos += glm::vec3(glm::vec4(speed, 0) * targetRot);
-
-            return alignTransformClamped(which, targetPos, target.getRotation(), 16, 364_au);
-        }
-
-
-        void setRelativeOrientedPosition(const core::ExactTRCoordinates& offset, const ItemNode& target, ItemNode& which)
-        {
-            which.setRotation(target.getRotation());
-
-            auto r = target.getRotation().toMatrix();
-            which.move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
-        }
-
         void PickupItem::onInteract(LaraNode& lara)
         {
             setYRotation(lara.getRotation().Y);
@@ -99,7 +39,7 @@ namespace engine
                         m_flags2_04_ready = true;
                     }
                 }
-                else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentState() == LaraStateId::UnderwaterStop && alignTransform(aimSpeed, *this, lara) )
+                else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentState() == LaraStateId::UnderwaterStop && lara.alignTransform(aimSpeed, *this) )
                 {
                     do
                     {
@@ -140,7 +80,7 @@ namespace engine
                 }
                 else if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == 0 && !lara.isFalling() && lara.getCurrentState() == LaraStateId::Stop )
                 {
-                    setRelativeOrientedPosition(core::ExactTRCoordinates{0, 0, -100.0f}, *this, lara);
+                    lara.setRelativeOrientedPosition(core::ExactTRCoordinates{0, 0, -100.0f}, *this);
 
                     // TODO: position Lara
                     do

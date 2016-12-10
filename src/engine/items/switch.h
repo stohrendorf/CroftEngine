@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class Switch final : public ItemNode
+        class Switch : public ItemNode
         {
         public:
             Switch(const gsl::not_null<level::Level*>& level,

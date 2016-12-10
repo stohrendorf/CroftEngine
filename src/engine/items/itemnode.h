@@ -378,6 +378,26 @@ namespace engine
             }
 
 
+            bool alignTransform(const glm::vec3& trSpeed, const ItemNode& target)
+            {
+                const auto speed = trSpeed / 16384.0f;
+                auto targetRot = target.getRotation().toMatrix();
+                auto targetPos = target.getPosition().toRenderSystem();
+                targetPos += glm::vec3(glm::vec4(speed, 0) * targetRot);
+
+                return alignTransformClamped(targetPos, target.getRotation(), 16, 364_au);
+            }
+
+
+            void setRelativeOrientedPosition(const core::ExactTRCoordinates& offset, const ItemNode& target)
+            {
+                setRotation(target.getRotation());
+
+                auto r = target.getRotation().toMatrix();
+                move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
+            }
+
+
         protected:
             bool isInvertedActivation() const noexcept
             {
@@ -408,6 +428,47 @@ namespace engine
                     m_triggerTimeout = std::chrono::microseconds(-1);
 
                 return !isInvertedActivation();
+            }
+
+
+            bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, float maxDistance, const core::Angle& maxAngle)
+            {
+                auto d = targetPos - getPosition().toRenderSystem();
+                const auto dist = glm::length(d);
+                if( maxDistance < dist )
+                {
+                    move(maxDistance * glm::normalize(d));
+                }
+                else
+                {
+                    setPosition(core::ExactTRCoordinates(targetPos));
+                }
+
+                core::TRRotation phi = targetRot - getRotation();
+                if( phi.X > maxAngle )
+                    addXRotation(maxAngle);
+                else if( phi.X < -maxAngle )
+                    addXRotation(-maxAngle);
+                else
+                    addXRotation(phi.X);
+                if( phi.Y > maxAngle )
+                    addYRotation(maxAngle);
+                else if( phi.Y < -maxAngle )
+                    addYRotation(-maxAngle);
+                else
+                    addYRotation(phi.Y);
+                if( phi.Z > maxAngle )
+                    addZRotation(maxAngle);
+                else if( phi.Z < -maxAngle )
+                    addZRotation(-maxAngle);
+                else
+                    addZRotation(phi.Z);
+
+                phi = targetRot - getRotation();
+                d = targetPos - getPosition().toRenderSystem();
+
+                return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
+                       && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
         };
     }

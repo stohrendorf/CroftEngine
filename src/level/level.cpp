@@ -22,6 +22,7 @@
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
 #include "engine/items/pickupitem.h"
+#include "engine/items/underwaterswitch.h"
 
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
@@ -428,6 +429,10 @@ engine::LaraNode* Level::createItems()
             else if( type == 55 )
             {
                 modelNode = createSkeletalModel<engine::items::Switch>(*modelIdx, &room, &item);
+            }
+            else if( type == 56 )
+            {
+                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>(*modelIdx, &room, &item);
             }
             else if( type >= 57 && type <= 64 )
             {
