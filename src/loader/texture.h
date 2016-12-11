@@ -254,7 +254,9 @@ namespace loader
         {
             auto result = std::make_shared<gameplay::Material>(shader);
             // Set some defaults
-            result->getParameter("u_diffuseTexture")->set(std::make_shared<gameplay::Texture::Sampler>(texture));
+            auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
+            sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+            result->getParameter("u_diffuseTexture")->set(sampler);
             //result->getParameter("u_ambientColor")->set(gameplay::Vector3(0, 0, 0));
             result->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
             result->initStateBlockDefaults();

@@ -131,7 +131,8 @@ namespace gameplay
         getStateBlock(); // alloc if not done yet
         _state->setDepthTest(true);
         _state->setDepthFunction(DEPTH_LESS);
-        _state->setCullFace(false);
+        _state->setCullFace(true);
+        _state->setFrontFace(FRONT_FACE_CW);
         _state->setBlend(true);
         _state->setBlendSrc(BLEND_SRC_ALPHA);
         _state->setBlendDst(BLEND_ONE_MINUS_SRC_ALPHA);

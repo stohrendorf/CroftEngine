@@ -193,7 +193,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
                     append(iv);
                 }
 
@@ -214,7 +214,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
                     append(iv);
                 }
                 for(auto j : { 0,1,2,0,2,3 })
@@ -233,7 +233,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -252,7 +252,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
