@@ -167,8 +167,12 @@ namespace loader
             return result;
         }
 
+        bool exists(const boost::filesystem::path& path)
+        {
+            return boost::filesystem::is_regular_file(m_basePath / path);
+        }
 
-        std::vector<std::shared_ptr<gameplay::Model>> readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+        std::vector<std::shared_ptr<gameplay::Model>> readModels(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
         {
             std::ifstream obj{(m_basePath / path).string(), std::ios::in};
             if( !obj.is_open() )

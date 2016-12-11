@@ -620,20 +620,41 @@ void Level::toIrrlicht(gameplay::Game* game)
                 BOOST_ASSERT(m_meshIndices[model->firstMesh + boneIndex] < m_models.size());
                 const auto& mesh = m_models[m_meshIndices[model->firstMesh + boneIndex]]->getMesh();
 
-                objWriter.write(mesh, "model_" + std::to_string(model->type) + "_" + std::to_string(boneIndex), materialsNoVcol);
+                const std::string filename = "model_" + std::to_string(model->type) + "_" + std::to_string(boneIndex);
+                if(objWriter.exists(filename + ".obj"))
+                    continue;
+
+                BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
+
+                objWriter.write(mesh, filename, materialsNoVcol);
             }
         }
 
         for(size_t i=0; i<m_rooms.size(); ++i)
         {
             const auto& room = m_rooms[i];
-            const auto drawable = room.node->getDrawable();
-            const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
-            BOOST_ASSERT(model != nullptr);
-            objWriter.write(model->getMesh(), "room_" + std::to_string(i), materialsVcol, materialsVcolWater);
+
+            std::string filename = "room_" + std::to_string(i);
+            if(!objWriter.exists(filename + ".obj"))
+            {
+                BOOST_LOG_TRIVIAL(info) << "Saving room model " << filename;
+
+                const auto drawable = room.node->getDrawable();
+                const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
+                BOOST_ASSERT(model != nullptr);
+                objWriter.write(model->getMesh(), filename, materialsVcol, materialsVcolWater);
+            }
+
+
+            filename = "room_override_" + std::to_string(i) + ".obj";
+            if(!objWriter.exists(filename))
+                continue;
+
+            BOOST_LOG_TRIVIAL(info) << "Loading room override model " << filename;
+
             room.node->setDrawable(nullptr);
 
-            auto models = objWriter.readModel("room_" + std::to_string(i) + ".obj", noVcolShader);
+            auto models = objWriter.readModels(filename, noVcolShader);
             for(const auto& model : models)
             {
                 auto node = std::make_shared<gameplay::Node>("");
