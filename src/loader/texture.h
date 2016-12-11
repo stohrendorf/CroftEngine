@@ -71,6 +71,7 @@ namespace loader
 
 
         std::shared_ptr<gameplay::Texture> toTexture() const;
+        std::shared_ptr<gameplay::Image> toImage() const;
     };
 
     enum class BlendingMode : uint16_t

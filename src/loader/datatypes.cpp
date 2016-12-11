@@ -237,10 +237,15 @@ namespace loader
     }
 
 
+    std::shared_ptr<gameplay::Image> DWordTexture::toImage() const
+    {
+        return std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
+    }
+
+
     std::shared_ptr<gameplay::Texture> DWordTexture::toTexture() const
     {
-        auto img = std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
-        auto tex = std::make_shared<gameplay::Texture>(img, false);
+        auto tex = std::make_shared<gameplay::Texture>(toImage(), false);
         return tex;
     }
 

@@ -24,6 +24,8 @@
 #include "engine/items/pickupitem.h"
 #include "engine/items/underwaterswitch.h"
 
+#include "loader/objwriter.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -575,10 +577,19 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
+    loader::OBJWriter objWriter{ "assets" };
+
     for( size_t i = 0; i < m_meshes.size(); ++i )
     {
         m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
                                                       *m_textureAnimator));
+
+        objWriter.write(m_models.back()->getMesh(), "model_" + std::to_string(i), materialsNoVcol);
+    }
+
+    for(size_t i = 0; i < m_textures.size(); ++i)
+    {
+        objWriter.write(m_textures[i].toImage(), i);
     }
 
     game->getScene()->setActiveCamera(

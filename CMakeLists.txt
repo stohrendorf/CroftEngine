@@ -108,6 +108,12 @@ target_link_libraries(ZLIB INTERFACE ${ZLIB_LIBRARIES})
 target_include_directories(ZLIB INTERFACE ${ZLIB_INCLUDE_DIR})
 
 
+# Dependency: PNG
+ot_find_dependency(PNG)
+target_link_libraries(PNG INTERFACE ${PNG_LIBRARIES} ZLIB)
+target_include_directories(PNG INTERFACE ${PNG_INCLUDE_DIR})
+
+
 # Dependency: SndFile
 ot_find_dependency(OGG)
 ot_find_dependency(Vorbis) # requires OGG
@@ -130,6 +136,11 @@ find_package(GLFW REQUIRED)
 add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${GLFW_INCLUDE_DIR})
 target_link_libraries(GLFW INTERFACE ${GLFW_LIBRARIES})
+
+add_library(CImg INTERFACE)
+target_include_directories(CImg INTERFACE 3rdparty/CImg)
+target_link_libraries(CImg INTERFACE PNG)
+target_compile_definitions(CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png)
 
 if(CYGWIN)
     find_package(X11 REQUIRED)

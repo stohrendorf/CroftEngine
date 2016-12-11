@@ -76,11 +76,29 @@ namespace gameplay
 
         void setMaterial(const std::shared_ptr<Material>& material);
 
+        const std::shared_ptr<Material>& getMaterial() const
+        {
+            return _material;
+        }
+
         void draw(RenderContext& context) const;
 
         void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
         {
             _materialParameterSetters.emplace_back(setter);
+        }
+
+        const void* map()
+        {
+            bind();
+            void* data = nullptr;
+            GL_ASSERT(data = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY));
+            return data;
+        }
+
+        void unmap()
+        {
+            GL_ASSERT(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
         }
 
     private:

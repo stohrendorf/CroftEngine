@@ -4,6 +4,7 @@ cmake-build-*/
 
 save/
 data/
+assets/
 
 # Thank you, Windows!
 Thumbs.db
@@ -13,6 +14,11 @@ src/loader/larastate_enum.h
 screen_*.png
 *.log
 *.dll
+*.exe
+*.pdb
+*.trace
+*.7z
 src/loader/larastateids_enum.h
 
 shaders/*.err
+

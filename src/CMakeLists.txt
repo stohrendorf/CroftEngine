@@ -94,6 +94,7 @@ set( OT_IRR_SRCS
      loader/meshes.h
      loader/mesh.cpp
      loader/mesh.h
+     loader/objwriter.h
      loader/primitives.h
      loader/texture.h
      loader/util.h
@@ -227,6 +228,7 @@ target_link_libraries(
     ZLIB
     OpenAL
     SndFile
+    CImg
 )
 
 target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL)
