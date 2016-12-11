@@ -11,6 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
 
+
 namespace loader
 {
     class OBJWriter
@@ -21,6 +22,7 @@ namespace loader
         {
             boost::filesystem::create_directories(m_basePath);
         }
+
 
         void write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
         {
@@ -36,6 +38,7 @@ namespace loader
             img.save_png(fullPath.string().c_str());
         }
 
+
         void write(const std::shared_ptr<gameplay::Mesh>& mesh,
                    const std::string& baseName,
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
@@ -46,15 +49,15 @@ namespace loader
             auto fullPath = m_basePath / baseName;
 
             fullPath.replace_extension("obj");
-            std::ofstream objFile{ fullPath.string(), std::ios::out|std::ios::trunc };
-            if(!objFile.is_open())
-                BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create .obj file"));
+            std::ofstream objFile{fullPath.string(), std::ios::out | std::ios::trunc};
+            if( !objFile.is_open() )
+            BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create .obj file"));
             objFile << std::fixed;
 
             fullPath.replace_extension("mtl");
-            std::ofstream mtlFile{ fullPath.string(), std::ios::out|std::ios::trunc };
-            if(!mtlFile.is_open())
-                BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create .mtl file"));
+            std::ofstream mtlFile{fullPath.string(), std::ios::out | std::ios::trunc};
+            if( !mtlFile.is_open() )
+            BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create .mtl file"));
             mtlFile << std::fixed;
 
             objFile << "# EdisonEngine Model Dump\n";
@@ -66,22 +69,22 @@ namespace loader
             {
                 const auto& vfmt = mesh->getVertexFormat();
                 const size_t count = mesh->getVertexCount();
-                const float* data = static_cast<const float*>( mesh->map() );
-                for(size_t i=0; i<count; ++i)
+                const float* data = static_cast<const float*>(mesh->map());
+                for( size_t i = 0; i < count; ++i )
                 {
-                    for(size_t j = 0; j < vfmt.getElementCount(); ++j)
+                    for( size_t j = 0; j < vfmt.getElementCount(); ++j )
                     {
-                        switch(vfmt.getElement(j).usage)
+                        switch( vfmt.getElement(j).usage )
                         {
                             case gameplay::VertexFormat::POSITION:
-                                objFile << "v " << data[0] << " " << data[1] << " " << data[2] << "\n";
+                                objFile << "v " << data[0] / SectorSize << " " << data[1] / SectorSize << " " << data[2] / SectorSize << "\n";
                                 break;
                             case gameplay::VertexFormat::NORMAL:
                                 objFile << "vn " << data[0] << " " << data[1] << " " << data[2] << "\n";
                                 hasNormals = true;
                                 break;
                             case gameplay::VertexFormat::TEXCOORD:
-                                objFile << "vt " << data[0] << " " << 1-data[1] << "\n";
+                                objFile << "vt " << data[0] << " " << 1 - data[1] << "\n";
                                 hasTexCoord = true;
                                 break;
                             case gameplay::VertexFormat::COLOR:
@@ -101,7 +104,7 @@ namespace loader
             objFile << "\n";
 
             {
-                for(size_t i = 0; i < mesh->getPartCount(); ++i)
+                for( size_t i = 0; i < mesh->getPartCount(); ++i )
                 {
                     const std::shared_ptr<gameplay::MeshPart>& part = mesh->getPart(i);
                     BOOST_ASSERT(part->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
@@ -114,36 +117,36 @@ namespace loader
 
                         using Entry = decltype(*mtlMap1.begin());
                         auto finder = [&part](const Entry& entry)
-                        {
-                            return entry.second == part->getMaterial();
-                        };
+                            {
+                                return entry.second == part->getMaterial();
+                            };
 
                         auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
 
                         bool found = false;
-                        if(texIt != mtlMap1.end())
+                        if( texIt != mtlMap1.end() )
                         {
                             write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
                             found = true;
                         }
 
-                        if(!found)
+                        if( !found )
                         {
                             texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
-                            if(texIt != mtlMap2.end())
+                            if( texIt != mtlMap2.end() )
                             {
                                 write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
                                 found = true;
                             }
                         }
 
-                        if(!found)
+                        if( !found )
                         {
                             write(part->getMaterial(), mtlFile);
                         }
                     }
 
-                    switch(part->getIndexFormat())
+                    switch( part->getIndexFormat() )
                     {
                         case gameplay::Mesh::INDEX8:
                             writeTriFaces<uint8_t>(part->map(), part->getIndexCount(), hasNormals, hasTexCoord, objFile);
@@ -164,6 +167,7 @@ namespace loader
             }
         }
 
+
     private:
         template<typename T>
         static void writeTriFaces(const void* rawIdx, size_t count, bool hasNormals, bool hasTexCoord, std::ostream& obj)
@@ -171,16 +175,16 @@ namespace loader
             const T* idx = static_cast<const T*>(rawIdx);
 
             auto write = [&](uint32_t idx)
-            {
-                obj << idx+1u << "/";
-                if(hasTexCoord)
-                    obj << idx + 1u;
-                obj << "/";
-                if(hasNormals)
-                    obj << idx + 1u;
-            };
+                {
+                    obj << idx + 1u << "/";
+                    if( hasTexCoord )
+                        obj << idx + 1u;
+                    obj << "/";
+                    if( hasNormals )
+                        obj << idx + 1u;
+                };
 
-            for(size_t i=0; i<count; i += 3, idx += 3)
+            for( size_t i = 0; i < count; i += 3 , idx += 3 )
             {
                 obj << "f ";
                 write(idx[0]);
@@ -192,12 +196,14 @@ namespace loader
             }
         }
 
+
         static void write(const std::shared_ptr<gameplay::Material>& material, std::ostream& mtl, const glm::vec3& color = {0.8f, 0.8f, 0.8f})
         {
             // write some dummy values, as we don't know which texture is bound to the material.
             mtl << "newmtl " << makeMtlName(material) << "\n";
             mtl << "Kd " << color.r << " " << color.g << " " << color.b << "\n\n";
         }
+
 
         static void write(const std::shared_ptr<gameplay::Material>& material, size_t textureId, std::ostream& mtl)
         {
@@ -208,15 +214,18 @@ namespace loader
             mtl << "map_d " << makeTextureName(textureId) << ".png\n\n";
         }
 
+
         static std::string makeMtlName(const std::shared_ptr<gameplay::Material>& material)
         {
             return "material_" + std::to_string(reinterpret_cast<uintptr_t>(material.get()));
         }
 
+
         static std::string makeTextureName(size_t id)
         {
             return "texture_" + std::to_string(id);
         }
+
 
         const boost::filesystem::path m_basePath;
     };
