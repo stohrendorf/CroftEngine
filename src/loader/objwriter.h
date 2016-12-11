@@ -46,9 +46,11 @@ namespace loader
             cimg_library::CImg<float> img(fullPath.string().c_str());
             img /= 255;
 
+            const auto w = img.width();
+            const auto h = img.height();
             if( img.spectrum() == 3 )
             {
-                img.resize(-100, -100, -100, 4, -1);
+                img.resize(w, h, img.depth(), 4, -1);
                 img.channel(3).fill(1);
             }
 
@@ -59,7 +61,7 @@ namespace loader
 
             img.permute_axes("cxyz");
 
-            return std::make_shared<gameplay::Image>(img.width(), img.height(), reinterpret_cast<const glm::vec4*>(img.data()));
+            return std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(img.data()));
         }
 
 
