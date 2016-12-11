@@ -19,8 +19,7 @@ namespace loader
         explicit OBJWriter(const boost::filesystem::path& basePath)
             : m_basePath{basePath}
         {
-            boost::filesystem::create_directories(m_basePath / "textures");
-            boost::filesystem::create_directories(m_basePath / "models");
+            boost::filesystem::create_directories(m_basePath);
         }
 
         void write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
@@ -31,17 +30,20 @@ namespace loader
             img *= 255;
             img.permute_axes("yzcx");
 
-            auto fullPath = m_basePath / "textures" / makeTextureName(id);
+            auto fullPath = m_basePath / makeTextureName(id);
             fullPath.replace_extension("png");
 
             img.save_png(fullPath.string().c_str());
         }
 
-        void write(const std::shared_ptr<gameplay::Mesh>& mesh, const std::string& baseName, const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap) const
+        void write(const std::shared_ptr<gameplay::Mesh>& mesh,
+                   const std::string& baseName,
+                   const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                   const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2 = {}) const
         {
             Expects(mesh != nullptr);
 
-            auto fullPath = m_basePath / "models" / baseName;
+            auto fullPath = m_basePath / baseName;
 
             fullPath.replace_extension("obj");
             std::ofstream objFile{ fullPath.string(), std::ios::out|std::ios::trunc };
@@ -109,19 +111,35 @@ namespace loader
 
                     {
                         // try to find the texture for our material
-                        using Entry = decltype(*mtlMap.begin());
-                        auto texIt = std::find_if(mtlMap.begin(), mtlMap.end(), [&part](const Entry& entry)
+
+                        using Entry = decltype(*mtlMap1.begin());
+                        auto finder = [&part](const Entry& entry)
                         {
                             return entry.second == part->getMaterial();
-                        });
+                        };
 
-                        if(texIt == mtlMap.end())
-                        {
-                            write(part->getMaterial(), mtlFile);
-                        }
-                        else
+                        auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
+
+                        bool found = false;
+                        if(texIt != mtlMap1.end())
                         {
                             write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
+                            found = true;
+                        }
+
+                        if(!found)
+                        {
+                            texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
+                            if(texIt != mtlMap2.end())
+                            {
+                                write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
+                                found = true;
+                            }
+                        }
+
+                        if(!found)
+                        {
+                            write(part->getMaterial(), mtlFile);
                         }
                     }
 
@@ -155,11 +173,11 @@ namespace loader
             auto write = [&](uint32_t idx)
             {
                 obj << idx+1u << "/";
-                if(hasNormals)
-                    obj << idx+1u;
-                obj << "/";
                 if(hasTexCoord)
-                    obj << idx+1u;
+                    obj << idx + 1u;
+                obj << "/";
+                if(hasNormals)
+                    obj << idx + 1u;
             };
 
             for(size_t i=0; i<count; i += 3, idx += 3)
@@ -186,8 +204,8 @@ namespace loader
             // write some dummy values, as we don't know which texture is bound to the material.
             mtl << "newmtl " << makeMtlName(material) << "\n";
             mtl << "Kd 0.8 0.8 0.8\n";
-            mtl << "map_Kd ../textures/" << makeTextureName(textureId) << ".png\n";
-            mtl << "map_d ../textures/" << makeTextureName(textureId) << ".png\n\n";
+            mtl << "map_Kd " << makeTextureName(textureId) << ".png\n";
+            mtl << "map_d " << makeTextureName(textureId) << ".png\n\n";
         }
 
         static std::string makeMtlName(const std::shared_ptr<gameplay::Material>& material)

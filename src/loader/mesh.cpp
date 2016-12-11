@@ -117,8 +117,7 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                     append(iv);
                 }
 
@@ -138,8 +137,7 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                     append(iv);
                 }
 
@@ -158,8 +156,7 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -177,8 +174,7 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -196,8 +192,7 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     append(iv);
                 }
@@ -218,8 +213,7 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     append(iv);
                 }
@@ -238,8 +232,7 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
@@ -258,8 +251,7 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                    iv.texcoord.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);

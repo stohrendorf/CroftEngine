@@ -110,8 +110,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[quad.vertices[i]].color;
-                iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                 vbuf.push_back(iv);
             }
 
@@ -148,8 +147,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[tri.vertices[i]].color;
-                iv.texcoord0.x = proxy.uvCoordinates[i].xpixel / 255.0f;
-                iv.texcoord0.y = proxy.uvCoordinates[i].ypixel / 255.0f;
+                iv.texcoord0 = proxy.uvCoordinates[i].toGl();
                 vbuf.push_back(iv);
             }
 

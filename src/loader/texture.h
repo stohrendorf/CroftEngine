@@ -129,6 +129,11 @@ namespace loader
                 vert.ycoordinate = 1;
             return vert;
         }
+
+        glm::vec2 toGl() const
+        {
+            return glm::vec2{ xpixel / 255.0f, ypixel / 255.0f };
+        }
     };
 
     struct TextureLayoutProxy

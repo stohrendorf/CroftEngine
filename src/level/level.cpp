@@ -577,19 +577,10 @@ void Level::toIrrlicht(gameplay::Game* game)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    loader::OBJWriter objWriter{ "assets" };
-
-    for( size_t i = 0; i < m_meshes.size(); ++i )
+    for(size_t i = 0; i < m_meshes.size(); ++i)
     {
         m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
                                                       *m_textureAnimator));
-
-        objWriter.write(m_models.back()->getMesh(), "model_" + std::to_string(i), materialsNoVcol);
-    }
-
-    for(size_t i = 0; i < m_textures.size(); ++i)
-    {
-        objWriter.write(m_textures[i].toImage(), i);
     }
 
     game->getScene()->setActiveCamera(
@@ -610,6 +601,39 @@ void Level::toIrrlicht(gameplay::Game* game)
         m_rooms[i].createSceneNode(game, i, *this, textures, materialsVcol, materialsVcolWater, m_models, *m_textureAnimator);
         game->getScene()->addNode(m_rooms[i].node);
     }
+
+#define DUMP_OBJ
+#ifdef DUMP_OBJ
+    {
+        loader::OBJWriter objWriter{ "assets/tr1" };
+
+        for(size_t i = 0; i < m_textures.size(); ++i)
+        {
+            objWriter.write(m_textures[i].toImage(), i);
+        }
+
+        for(const auto& model : m_animatedModels)
+        {
+            for(size_t boneIndex = 0; boneIndex < model->boneCount; ++boneIndex)
+            {
+                BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
+                BOOST_ASSERT(m_meshIndices[model->firstMesh + boneIndex] < m_models.size());
+                const auto& mesh = m_models[m_meshIndices[model->firstMesh + boneIndex]]->getMesh();
+
+                objWriter.write(mesh, "model_" + std::to_string(model->type) + "_" + std::to_string(boneIndex), materialsNoVcol);
+            }
+        }
+
+        for(size_t i=0; i<m_rooms.size(); ++i)
+        {
+            const auto& room = m_rooms[i];
+            const auto drawable = room.node->getDrawable();
+            const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
+            BOOST_ASSERT(model != nullptr);
+            objWriter.write(model->getMesh(), "room_" + std::to_string(i), materialsVcol, materialsVcolWater);
+        }
+    }
+#endif
 
     m_lara = createItems();
     if( m_lara == nullptr )
