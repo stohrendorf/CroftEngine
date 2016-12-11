@@ -4,15 +4,80 @@
 #include "level/level.h"
 #include "render/textureanimator.h"
 
+#include "items/block.h"
+#include "items/tallblock.h"
+
 #include <boost/range/adaptors.hpp>
 #include <chrono>
+
+
+namespace
+{
+    bool roomsAreSwapped = false;
+    std::array<uint16_t, 10> flipFlags{ {0,0,0,0,0,0,0,0,0,0} };
+
+
+    void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
+    {
+        // find any blocks in the original room and un-patch the floor heights
+        for( const auto& child : orig.node->getChildren() )
+        {
+            if( auto tmp = std::dynamic_pointer_cast<engine::items::Block>(child) )
+            {
+                loader::Room::patchHeightsForBlock(*tmp, loader::SectorSize);
+            }
+            else if( auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>(child) )
+            {
+                loader::Room::patchHeightsForBlock(*tmp, loader::SectorSize * 2);
+            }
+        }
+
+        // now swap the rooms and patch the alternate room ids
+        std::swap(orig, alternate);
+        orig.alternateRoom = alternate.alternateRoom;
+        alternate.alternateRoom = -1;
+
+        // move all items over
+        orig.node->swapChildren(alternate.node);
+
+        // patch heights in the new room.
+        // note that this is exactly the same code as above,
+        // except for the heights.
+        for( const auto& child : orig.node->getChildren() )
+        {
+            if( auto tmp = std::dynamic_pointer_cast<engine::items::Block>(child) )
+            {
+                loader::Room::patchHeightsForBlock(*tmp, -loader::SectorSize);
+            }
+            else if( auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>(child) )
+            {
+                loader::Room::patchHeightsForBlock(*tmp, -loader::SectorSize * 2);
+            }
+        }
+    }
+
+
+    void swapAllRooms(level::Level& level)
+    {
+        for(auto& room : level.m_rooms)
+        {
+            if(room.alternateRoom < 0)
+                continue;
+
+            BOOST_ASSERT(room.alternateRoom < level.m_rooms.size());
+            swapWithAlternate(room, level.m_rooms[room.alternateRoom]);
+        }
+
+        roomsAreSwapped = !roomsAreSwapped;
+    }
+}
 
 
 namespace engine
 {
     void LaraNode::setTargetState(LaraStateId st)
     {
-        ItemNode::setTargetState( static_cast<uint16_t>(st) );
+        ItemNode::setTargetState(static_cast<uint16_t>(st));
     }
 
 
@@ -24,7 +89,7 @@ namespace engine
 
     void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
-        ItemNode::setAnimIdGlobal( static_cast<uint16_t>(anim), firstFrame.get_value_or( 0 ) );
+        ItemNode::setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
     }
 
 
@@ -37,79 +102,79 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate( collisionInfo, deltaTime );
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler.is_initialized() && nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation( core::makeInterpolatedValue( +1_deg ).getScaled( deltaTime ) );
+            addZRotation(core::makeInterpolatedValue(+1_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation( -core::makeInterpolatedValue( +1_deg ).getScaled( deltaTime ) );
+            addZRotation(-core::makeInterpolatedValue(+1_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
 
         if( getYRotationSpeed() < 0_deg )
         {
-            m_yRotationSpeed.add( 2_deg, deltaTime ).limitMax( 0_deg );
+            m_yRotationSpeed.add(2_deg, deltaTime).limitMax(0_deg);
         }
         else if( getYRotationSpeed() > 0_deg )
         {
-            m_yRotationSpeed.sub( 2_deg, deltaTime ).limitMin( 0_deg );
+            m_yRotationSpeed.sub(2_deg, deltaTime).limitMin(0_deg);
         }
         else
         {
-            setYRotationSpeed( 0_deg );
+            setYRotationSpeed(0_deg);
         }
 
-        addYRotation( m_yRotationSpeed.getScaled( deltaTime ) );
+        addYRotation(m_yRotationSpeed.getScaled(deltaTime));
 
         applyTransform();
 
         if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
-            auto x = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().X * 0.125f )
-                    .getScaled( deltaTime );
-            auto y = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().Y * 0.125f )
-                    .getScaled( deltaTime );
-            getLevel().m_cameraController->addHeadRotationXY( -x, -y );
-            getLevel().m_cameraController->setTorsoRotation( getLevel().m_cameraController->getHeadRotation() );
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f)
+                .getScaled(deltaTime);
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f)
+                .getScaled(deltaTime);
+            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
+            getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
         }
 
         //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
-/*
-        if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
-        {
-            return;
-        }
-*/
+        /*
+                if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
+                {
+                    return;
+                }
+        */
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
-        updateFloorHeight( -381 );
-        handleTriggers( collisionInfo.current.floor.lastTriggerOrKill, false );
+        updateFloorHeight(-381);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
 
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
@@ -132,62 +197,62 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate( collisionInfo, deltaTime );
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation( core::makeInterpolatedValue( +2_deg ).getScaled( deltaTime ) );
+            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation( -core::makeInterpolatedValue( +2_deg ).getScaled( deltaTime ) );
+            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
-        setXRotation( util::clamp( getRotation().X, -100_deg, +100_deg ) );
-        setZRotation( util::clamp( getRotation().Z, -22_deg, +22_deg ) );
+        setXRotation(util::clamp(getRotation().X, -100_deg, +100_deg));
+        setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
         {
             auto pos = getPosition();
-            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled( deltaTime ) / 4;
-            pos.Y -= getRotation().X.sin() * getFallSpeed().getScaled( deltaTime ) / 4;
-            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed().getScaled( deltaTime ) / 4;
-            setPosition( pos );
+            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed().getScaled(deltaTime) / 4;
+            pos.Y -= getRotation().X.sin() * getFallSpeed().getScaled(deltaTime) / 4;
+            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed().getScaled(deltaTime) / 4;
+            setPosition(pos);
         }
 
-/*
-        if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
-        {
-#ifndef NDEBUG
-            lastUsedCollisionInfo = collisionInfo;
-#endif
-            return;
-        }
-        */
+        /*
+                if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
+                {
+        #ifndef NDEBUG
+                    lastUsedCollisionInfo = collisionInfo;
+        #endif
+                    return;
+                }
+                */
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
-        updateFloorHeight( 0 );
-        handleTriggers( collisionInfo.current.floor.lastTriggerOrKill, false );
+        updateFloorHeight(0);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -207,77 +272,77 @@ namespace engine
         collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
         collisionInfo.passableFloorDistanceTop = -100;
 
-        setCameraRotationX( -22_deg );
+        setCameraRotationX(-22_deg);
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        auto nextHandler = m_currentStateHandler->handleInput( collisionInfo );
+        auto nextHandler = m_currentStateHandler->handleInput(collisionInfo);
 
-        m_currentStateHandler->animate( collisionInfo, deltaTime );
+        m_currentStateHandler->animate(collisionInfo, deltaTime);
 
         if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( *nextHandler, *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
         // "slowly" revert rotations to zero
         if( getRotation().Z < 0_deg )
         {
-            addZRotation( core::makeInterpolatedValue( +2_deg ).getScaled( deltaTime ) );
+            addZRotation(core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z >= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
         else if( getRotation().Z > 0_deg )
         {
-            addZRotation( -core::makeInterpolatedValue( +2_deg ).getScaled( deltaTime ) );
+            addZRotation(-core::makeInterpolatedValue(+2_deg).getScaled(deltaTime));
             if( getRotation().Z <= 0_deg )
-                setZRotation( 0_deg );
+                setZRotation(0_deg);
         }
 
-        setPosition( getPosition() + core::ExactTRCoordinates(
-                getMovementAngle().sin() * getFallSpeed().getScaled( deltaTime ) / 4,
-                0,
-                getMovementAngle().cos() * getFallSpeed().getScaled( deltaTime ) / 4
-        ) );
+        setPosition(getPosition() + core::ExactTRCoordinates(
+                        getMovementAngle().sin() * getFallSpeed().getScaled(deltaTime) / 4,
+                        0,
+                        getMovementAngle().cos() * getFallSpeed().getScaled(deltaTime) / 4
+                    ));
 
         if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
-            auto x = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().X * 0.125f )
-                    .getScaled( deltaTime );
-            auto y = makeInterpolatedValue( getLevel().m_cameraController->getHeadRotation().Y * 0.125f )
-                    .getScaled( deltaTime );
-            getLevel().m_cameraController->addHeadRotationXY( -x, -y );
+            auto x = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().X * 0.125f)
+                .getScaled(deltaTime);
+            auto y = makeInterpolatedValue(getLevel().m_cameraController->getHeadRotation().Y * 0.125f)
+                .getScaled(deltaTime);
+            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
             auto r = getLevel().m_cameraController->getHeadRotation();
             r.X = 0_deg;
             r.Y *= 0.5f;
-            getLevel().m_cameraController->setTorsoRotation( r );
+            getLevel().m_cameraController->setTorsoRotation(r);
         }
 
-/*
-        if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
-        {
-            updateFloorHeight(100);
-#ifndef NDEBUG
-            lastUsedCollisionInfo = collisionInfo;
-#endif
-            return;
-        }
-        */
+        /*
+                if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
+                {
+                    updateFloorHeight(100);
+        #ifndef NDEBUG
+                    lastUsedCollisionInfo = collisionInfo;
+        #endif
+                    return;
+                }
+                */
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame( collisionInfo );
+        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
         if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
         {
             m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
             BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                       << loader::toString( m_currentStateHandler->getId() );
+                                      << loader::toString(m_currentStateHandler->getId());
         }
 
-        updateFloorHeight( 100 );
-        handleTriggers( collisionInfo.current.floor.lastTriggerOrKill, false );
+        updateFloorHeight(100);
+        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -288,7 +353,7 @@ namespace engine
     {
         auto pos = getPosition();
         pos.Y += collisionInfo.current.floor.distance;
-        setPosition( pos );
+        setPosition(pos);
     }
 
 
@@ -314,42 +379,42 @@ namespace engine
         m_uvAnimTime += deltaTime;
         if( m_uvAnimTime >= UVAnimTime )
         {
-            getLevel().m_textureAnimator->updateCoordinates( getLevel().m_textureProxies );
+            getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
             m_uvAnimTime -= UVAnimTime;
         }
 
         if( m_currentStateHandler == nullptr )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create( getCurrentAnimState(), *this );
+            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
         }
 
         if( m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom() )
         {
             m_air = 1800;
             m_underwaterState = UnderwaterState::Diving;
-            setFalling( false );
-            setPosition( getPosition() + core::ExactTRCoordinates( 0, 100, 0 ) );
-            updateFloorHeight( 0 );
-            getLevel().stopSoundEffect( 30 );
+            setFalling(false);
+            setPosition(getPosition() + core::ExactTRCoordinates(0, 100, 0));
+            updateFloorHeight(0);
+            getLevel().stopSoundEffect(30);
             if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
             {
-                setXRotation( -45_deg );
-                setTargetState( LaraStateId::UnderwaterDiving );
-                setFallSpeed( getFallSpeed() * 2 );
+                setXRotation(-45_deg);
+                setTargetState(LaraStateId::UnderwaterDiving);
+                setFallSpeed(getFallSpeed() * 2);
             }
             else if( getCurrentAnimState() == LaraStateId::SwandiveEnd )
             {
-                setXRotation( -85_deg );
-                setTargetState( LaraStateId::UnderwaterDiving );
-                setFallSpeed( getFallSpeed() * 2 );
+                setXRotation(-85_deg);
+                setTargetState(LaraStateId::UnderwaterDiving);
+                setFallSpeed(getFallSpeed() * 2);
             }
             else
             {
-                setXRotation( -45_deg );
-                setAnimIdGlobal( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
-                setTargetState( LaraStateId::UnderwaterForward );
-                m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::UnderwaterDiving, *this );
-                setFallSpeed( getFallSpeed() * 1.5f );
+                setXRotation(-45_deg);
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
+                setTargetState(LaraStateId::UnderwaterForward);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
+                setFallSpeed(getFallSpeed() * 1.5f);
             }
 
             getLevel().m_cameraController->resetHeadTorsoRotation();
@@ -359,51 +424,51 @@ namespace engine
         else if( m_underwaterState == UnderwaterState::Diving && !getCurrentRoom()->isWaterRoom() )
         {
             auto waterSurfaceHeight = getWaterSurfaceHeight();
-            setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
-            setXRotation( 0_deg );
-            setZRotation( 0_deg );
+            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setXRotation(0_deg);
+            setZRotation(0_deg);
             getLevel().m_cameraController->resetHeadTorsoRotation();
             m_handStatus = 0;
 
-            if( !waterSurfaceHeight || std::abs( *waterSurfaceHeight - getPosition().Y ) >= loader::QuarterSectorSize )
+            if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
             {
                 m_underwaterState = UnderwaterState::OnLand;
-                setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
-                setTargetState( LaraStateId::JumpForward );
-                m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::JumpForward, *this );
+                setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                setTargetState(LaraStateId::JumpForward);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
-                setHorizontalSpeed( getHorizontalSpeed() / 4 );
-                setFalling( true );
+                setHorizontalSpeed(getHorizontalSpeed() / 4);
+                setFalling(true);
             }
             else
             {
                 m_underwaterState = UnderwaterState::Swimming;
-                setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
-                setTargetState( LaraStateId::OnWaterStop );
-                m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::OnWaterStop, *this );
+                setAnimIdGlobal(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
+                setTargetState(LaraStateId::OnWaterStop);
+                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
                 {
                     auto pos = getPosition();
                     pos.Y = *waterSurfaceHeight + 1;
-                    setPosition( pos );
+                    setPosition(pos);
                 }
                 m_swimToDiveKeypressDuration = boost::none;
-                updateFloorHeight( -381 );
-                playSoundEffect( 36 );
+                updateFloorHeight(-381);
+                playSoundEffect(36);
             }
         }
         else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
-            setTargetState( LaraStateId::JumpForward );
-            m_currentStateHandler = lara::AbstractStateHandler::create( LaraStateId::JumpForward, *this );
-            setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
+            setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
+            setTargetState(LaraStateId::JumpForward);
+            m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+            setFallSpeed(core::makeInterpolatedValue(0.0f));
             //! @todo Check formula
-            setHorizontalSpeed( getHorizontalSpeed() * 0.2f );
-            setFalling( true );
+            setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
+            setFalling(true);
             m_handStatus = 0;
-            setXRotation( 0_deg );
-            setZRotation( 0_deg );
+            setXRotation(0_deg);
+            setZRotation(0_deg);
             getLevel().m_cameraController->resetHeadTorsoRotation();
         }
 
@@ -412,35 +477,35 @@ namespace engine
         if( m_underwaterState == UnderwaterState::OnLand )
         {
             m_air = 1800;
-            handleLaraStateOnLand( deltaTime );
+            handleLaraStateOnLand(deltaTime);
         }
         else if( m_underwaterState == UnderwaterState::Diving )
         {
             if( m_health >= 0 )
             {
-                m_air.sub( 1, deltaTime );
+                m_air.sub(1, deltaTime);
                 if( m_air < 0 )
                 {
                     m_air = -1;
-                    m_health.sub( 5, deltaTime );
+                    m_health.sub(5, deltaTime);
                 }
             }
-            handleLaraStateDiving( deltaTime );
+            handleLaraStateDiving(deltaTime);
         }
         else if( m_underwaterState == UnderwaterState::Swimming )
         {
             if( m_health >= 0 )
             {
-                m_air.add( 10, deltaTime ).limitMax( 1800 );
+                m_air.add(10, deltaTime).limitMax(1800);
             }
-            handleLaraStateSwimming( deltaTime );
+            handleLaraStateSwimming(deltaTime);
         }
 
         m_handlingFrame = false;
 
         resetPose();
-        patchBone( 7, getLevel().m_cameraController->getTorsoRotation().toMatrix() );
-        patchBone( 14, getLevel().m_cameraController->getHeadRotation().toMatrix() );
+        patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
+        patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
     }
 
 
@@ -462,9 +527,9 @@ namespace engine
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             moveLocal(
-                                    cmd[0],
-                                    cmd[1],
-                                    cmd[2]
+                                cmd[0],
+                                cmd[1],
+                                cmd[2]
                             );
                         }
                         cmd += 3;
@@ -473,36 +538,36 @@ namespace engine
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
                             BOOST_LOG_TRIVIAL( debug ) << "End of animation velocity: override " << m_fallSpeedOverride
-                                                       << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
-                            setFallSpeed( core::makeInterpolatedValue<float>(
-                                    m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride ) );
+                                                      << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
+                            setFallSpeed(core::makeInterpolatedValue<float>(
+                                m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride));
                             m_fallSpeedOverride = 0;
-                            setHorizontalSpeed( core::makeInterpolatedValue<float>( cmd[1] ) );
-                            setFalling( true );
+                            setHorizontalSpeed(core::makeInterpolatedValue<float>(cmd[1]));
+                            setFalling(true);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::EmptyHands:
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
-                            setHandStatus( 0 );
+                            setHandStatus(0);
                         }
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if( core::toFrame( getCurrentTime() ) == cmd[0] )
+                        if( core::toFrame(getCurrentTime()) == cmd[0] )
                         {
-                            playSoundEffect( cmd[1] );
+                            playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if( core::toFrame( getCurrentTime() ) == cmd[0] )
+                        if( core::toFrame(getCurrentTime()) == cmd[0] )
                         {
-                            BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
+                            BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int(cmd[1]);
                             if( cmd[1] == 0 )
-                                addYRotation( 180_deg );
+                                addYRotation(180_deg);
                             else if( cmd[1] == 12 )
-                                setHandStatus( 0 );
+                                setHandStatus(0);
                             //! @todo Execute anim effect cmd[1]
                         }
                         cmd += 2;
@@ -513,7 +578,7 @@ namespace engine
             }
         }
 
-        if(!m_handlingFrame)
+        if( !m_handlingFrame )
             m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
     }
 
@@ -523,10 +588,10 @@ namespace engine
         auto pos = getPosition();
         pos.Y += dy;
         gsl::not_null<const loader::Room*> room = getCurrentRoom();
-        auto sector = getLevel().findFloorSectorWithClampedPosition( pos.toInexact(), &room );
-        setCurrentRoom( room );
-        HeightInfo hi = HeightInfo::fromFloor( sector, pos.toInexact(), getLevel().m_cameraController );
-        setFloorHeight( hi.distance );
+        auto sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), &room);
+        setCurrentRoom(room);
+        HeightInfo hi = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
+        setFloorHeight(hi.distance);
     }
 
 
@@ -535,27 +600,27 @@ namespace engine
         if( floorData == nullptr )
             return;
 
-        if( loader::extractFDFunction( *floorData ) == loader::FDFunction::Death )
+        if( loader::extractFDFunction(*floorData) == loader::FDFunction::Death )
         {
             if( !isDoppelganger )
             {
-                if( util::fuzzyEqual( std::lround( getPosition().Y ), getFloorHeight(), 1L ) )
+                if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
                     //! @todo kill Lara
                 }
             }
 
-            if( loader::isLastFloordataEntry( *floorData ) )
+            if( loader::isLastFloordataEntry(*floorData) )
                 return;
 
             ++floorData;
         }
 
-        const auto srcTriggerType = loader::extractTriggerType( *floorData );
+        const auto srcTriggerType = loader::extractTriggerType(*floorData);
         const auto srcTriggerArg = floorData[1];
         auto actionFloorData = floorData + 2;
 
-        getLevel().m_cameraController->findCameraTarget( actionFloorData );
+        getLevel().m_cameraController->findCameraTarget(actionFloorData);
 
         bool runActions = false, switchIsOn = false;
         if( !isDoppelganger )
@@ -567,16 +632,16 @@ namespace engine
                     break;
                 case loader::TriggerType::Pad:
                 case loader::TriggerType::AntiPad:
-                    runActions = util::fuzzyEqual( std::lround( getPosition().Y ), getFloorHeight(), 1L );
+                    runActions = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                     break;
                 case loader::TriggerType::Switch:
                 {
                     Expects(
-                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemNodes.end() );
+                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                        != getLevel().m_itemNodes.end() );
                     ItemNode& swtch = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                            *actionFloorData )];
-                    if( !swtch.triggerSwitch( srcTriggerArg ) )
+                        *actionFloorData)];
+                    if( !swtch.triggerSwitch(srcTriggerArg) )
                         return;
 
                     switchIsOn = (swtch.getCurrentState() == 1);
@@ -587,10 +652,10 @@ namespace engine
                 case loader::TriggerType::Key:
                 {
                     Expects(
-                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemNodes.end() );
+                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                        != getLevel().m_itemNodes.end() );
                     ItemNode& key = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                            *actionFloorData )];
+                        *actionFloorData)];
                     if( key.triggerKey() )
                         runActions = true;
                 }
@@ -599,10 +664,10 @@ namespace engine
                 case loader::TriggerType::Pickup:
                 {
                     Expects(
-                            getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                            != getLevel().m_itemNodes.end() );
+                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
+                        != getLevel().m_itemNodes.end() );
                     ItemNode& pickup = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                            *actionFloorData )];
+                        *actionFloorData)];
                     if( pickup.triggerPickUp() )
                         runActions = true;
                 }
@@ -629,11 +694,12 @@ namespace engine
 
         ItemNode* lookAtItem = nullptr;
 
+        bool swapRooms = false;
         while( true )
         {
-            bool isLastAction = loader::isLastFloordataEntry( *actionFloorData );
-            const auto actionParam = loader::extractTriggerFunctionParam( *actionFloorData );
-            switch( loader::extractTriggerFunction( *actionFloorData++ ) )
+            bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
+            const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
+            switch( loader::extractTriggerFunction(*actionFloorData++) )
             {
                 case loader::TriggerFunction::Object:
                 {
@@ -642,7 +708,7 @@ namespace engine
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
-                    item.m_triggerTimeout = std::chrono::microseconds( gsl::narrow_cast<uint8_t>( srcTriggerArg ) );
+                    item.m_triggerTimeout = std::chrono::microseconds(gsl::narrow_cast<uint8_t>(srcTriggerArg));
                     if( item.m_triggerTimeout.count() != 1 )
                         item.m_triggerTimeout = std::chrono::seconds(item.m_triggerTimeout.count());
 
@@ -699,25 +765,51 @@ namespace engine
                 }
                     break;
                 case loader::TriggerFunction::CameraTarget:
-                    getLevel().m_cameraController->setCamOverride( actionFloorData[0], actionParam, srcTriggerType,
-                                                                   isDoppelganger, srcTriggerArg, switchIsOn );
-                    isLastAction = loader::isLastFloordataEntry( *actionFloorData );
+                    getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, srcTriggerType,
+                                                                  isDoppelganger, srcTriggerArg, switchIsOn);
+                    isLastAction = loader::isLastFloordataEntry(*actionFloorData);
                     ++actionFloorData;
                     break;
                 case loader::TriggerFunction::LookAt:
-                    lookAtItem = getLevel().getItemController( actionParam );
+                    lookAtItem = getLevel().getItemController(actionParam);
                     break;
                 case loader::TriggerFunction::UnderwaterCurrent:
                     //! @todo handle underwater current
                     break;
                 case loader::TriggerFunction::FlipMap:
-                    //! @todo handle flip map
+                    BOOST_ASSERT(actionParam < flipFlags.size());
+                    if((flipFlags[actionParam] & Oneshot) == 0)
+                    {
+                        if(srcTriggerType == loader::TriggerType::Switch)
+                        {
+                            flipFlags[actionParam] ^= srcTriggerArg & ActivationMask;
+                        }
+                        else
+                        {
+                            flipFlags[actionParam] |= srcTriggerArg & ActivationMask;
+                        }
+
+                        if((flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                        {
+                            flipFlags[actionParam] |= (srcTriggerArg & Oneshot);
+
+                            if(!roomsAreSwapped)
+                                swapRooms = true;
+                        }
+                        else if(roomsAreSwapped)
+                        {
+                            swapRooms = true;
+                        }
+                    }
                     break;
                 case loader::TriggerFunction::FlipOn:
-                    //! @todo handle flip on
+                    BOOST_ASSERT(actionParam < flipFlags.size());
+                    if(!roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                        swapRooms = true;
                     break;
                 case loader::TriggerFunction::FlipOff:
-                    //! @todo handle flip off
+                    if(roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                        swapRooms = true;
                     break;
                 case loader::TriggerFunction::FlipEffect:
                     //! @todo handle flip effect
@@ -726,7 +818,7 @@ namespace engine
                     //! @todo handle level end
                     break;
                 case loader::TriggerFunction::PlayTrack:
-                    getLevel().triggerCdTrack( actionParam, srcTriggerArg, srcTriggerType );
+                    getLevel().triggerCdTrack(actionParam, srcTriggerArg, srcTriggerType);
                     break;
                 case loader::TriggerFunction::Secret:
                 {
@@ -735,7 +827,7 @@ namespace engine
                     if( (m_secretsFoundBitmask & mask) == 0 )
                     {
                         m_secretsFoundBitmask |= mask;
-                        getLevel().playCdTrack( 13 );
+                        getLevel().playCdTrack(13);
                     }
                 }
                     break;
@@ -747,16 +839,17 @@ namespace engine
                 break;
         }
 
-        getLevel().m_cameraController->setLookAtItem( lookAtItem );
+        getLevel().m_cameraController->setLookAtItem(lookAtItem);
 
-        //! @todo Implement room swapping
+        if(swapRooms)
+            swapAllRooms(getLevel());
     }
 
 
     boost::optional<int> LaraNode::getWaterSurfaceHeight() const
     {
         gsl::not_null<const loader::Sector*> sector = getCurrentRoom()
-                ->getSectorByAbsolutePosition( getPosition().toInexact() );
+            ->getSectorByAbsolutePosition(getPosition().toInexact());
 
         if( getCurrentRoom()->isWaterRoom() )
         {
@@ -770,7 +863,7 @@ namespace engine
                 if( !room.isWaterRoom() )
                     break;
 
-                sector = room.getSectorByAbsolutePosition( getPosition().toInexact() );
+                sector = room.getSectorByAbsolutePosition(getPosition().toInexact());
             }
 
             return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -788,7 +881,7 @@ namespace engine
                 return sector->floorHeight * loader::QuarterSectorSize;
             }
 
-            sector = room.getSectorByAbsolutePosition( getPosition().toInexact() );
+            sector = room.getSectorByAbsolutePosition(getPosition().toInexact());
         }
 
         return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -797,31 +890,31 @@ namespace engine
 
     void LaraNode::setCameraRotation(core::Angle x, core::Angle y)
     {
-        getLevel().m_cameraController->setLocalRotation( x, y );
+        getLevel().m_cameraController->setLocalRotation(x, y);
     }
 
 
     void LaraNode::setCameraRotationY(core::Angle y)
     {
-        getLevel().m_cameraController->setLocalRotationY( y );
+        getLevel().m_cameraController->setLocalRotationY(y);
     }
 
 
     void LaraNode::setCameraRotationX(core::Angle x)
     {
-        getLevel().m_cameraController->setLocalRotationX( x );
+        getLevel().m_cameraController->setLocalRotationX(x);
     }
 
 
     void LaraNode::setCameraDistance(int d)
     {
-        getLevel().m_cameraController->setLocalDistance( d );
+        getLevel().m_cameraController->setLocalDistance(d);
     }
 
 
     void LaraNode::setCameraUnknown1(int k)
     {
-        getLevel().m_cameraController->setUnknown1( k );
+        getLevel().m_cameraController->setUnknown1(k);
     }
 
 
@@ -833,13 +926,13 @@ namespace engine
             return;
 
         std::set<const loader::Room*> rooms;
-        rooms.insert( getCurrentRoom() );
+        rooms.insert(getCurrentRoom());
         for( const loader::Portal& p : getCurrentRoom()->portals )
-            rooms.insert( &getLevel().m_rooms[p.adjoining_room] );
+            rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
         for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
         {
-            if( rooms.find( item->getCurrentRoom() ) == rooms.end() )
+            if( rooms.find(item->getCurrentRoom()) == rooms.end() )
                 continue;
 
             if( !item->m_flags2_20 )
@@ -849,10 +942,10 @@ namespace engine
                 continue;
 
             const auto d = getPosition() - item->getPosition();
-            if( std::abs( d.X ) >= 4096 || std::abs( d.Y ) >= 4096 || std::abs( d.Z ) >= 4096 )
+            if( std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096 )
                 continue;
 
-            item->onInteract( *this );
+            item->onInteract(*this);
         }
     }
 }

@@ -283,6 +283,24 @@ namespace gameplay
             transformChanged();
         }
 
+        void swapChildren(const std::shared_ptr<Node>& other)
+        {
+            auto otherChildren = other->_children;
+            for(auto& child : otherChildren)
+                child->setParent(nullptr);
+            BOOST_ASSERT(other->_children.empty());
+
+            auto thisChildren = _children;
+            for(auto& child : thisChildren)
+                child->setParent(nullptr);
+            BOOST_ASSERT(_children.empty());
+
+            for(auto& child : otherChildren)
+                child->setParent(shared_from_this());
+
+            for(auto& child : thisChildren)
+                child->setParent(other);
+        }
     protected:
 
         /**
