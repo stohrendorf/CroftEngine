@@ -631,6 +631,15 @@ void Level::toIrrlicht(gameplay::Game* game)
             const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
             BOOST_ASSERT(model != nullptr);
             objWriter.write(model->getMesh(), "room_" + std::to_string(i), materialsVcol, materialsVcolWater);
+            room.node->setDrawable(nullptr);
+
+            auto models = objWriter.readModel("room_" + std::to_string(i) + ".obj", noVcolShader);
+            for(const auto& model : models)
+            {
+                auto node = std::make_shared<gameplay::Node>("");
+                node->setDrawable(model);
+                room.node->addChild(node);
+            }
         }
     }
 #endif

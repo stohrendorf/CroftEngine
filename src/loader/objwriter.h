@@ -10,6 +10,7 @@
 
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <boost/algorithm/string.hpp>
 
 
 namespace loader
@@ -29,13 +30,372 @@ namespace loader
             Expects(srcImg != nullptr);
 
             cimg_library::CImg<float> img(glm::value_ptr(srcImg->getData()[0]), 4, srcImg->getWidth(), srcImg->getHeight(), 1);
-            img *= 255;
             img.permute_axes("yzcx");
+            img *= 255;
 
             auto fullPath = m_basePath / makeTextureName(id);
             fullPath.replace_extension("png");
 
             img.save_png(fullPath.string().c_str());
+        }
+
+
+        std::shared_ptr<gameplay::Image> readImage(const boost::filesystem::path& path) const
+        {
+            auto fullPath = m_basePath / path;
+            cimg_library::CImg<float> img(fullPath.string().c_str());
+            img /= 255;
+
+            if( img.spectrum() == 3 )
+            {
+                img.resize(-100, -100, -100, 4, -1);
+                img.channel(3).fill(1);
+            }
+
+            if( img.spectrum() != 4 )
+            {
+                BOOST_THROW_EXCEPTION(std::runtime_error("Can only use RGB and RGBA images"));
+            }
+
+            img.permute_axes("cxyz");
+
+            return std::make_shared<gameplay::Image>(img.width(), img.height(), reinterpret_cast<const glm::vec4*>(img.data()));
+        }
+
+
+        std::shared_ptr<gameplay::Texture> readTexture(const boost::filesystem::path& path) const
+        {
+            auto img = readImage(path);
+            return std::make_shared<gameplay::Texture>(img);
+        }
+
+
+        std::shared_ptr<gameplay::Material> readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+        {
+            auto texture = readTexture(path);
+            auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
+            sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+
+            auto material = std::make_shared<gameplay::Material>(shaderProgram);
+            material->getParameter("u_diffuseTexture")->set(sampler);
+            material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
+            material->initStateBlockDefaults();
+
+            return material;
+        }
+
+
+        std::map<std::string, std::shared_ptr<gameplay::Material>> readMaterialLib(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+        {
+            std::ifstream mtl{(m_basePath / path).string(), std::ios::in};
+            if( !mtl.is_open() )
+            {
+                BOOST_THROW_EXCEPTION(std::runtime_error("Cannot open .mtl file"));
+            }
+
+            std::map<std::string, std::shared_ptr<gameplay::Material>> result;
+
+            std::string line, mtlName;
+            while( std::getline(mtl, line) )
+            {
+                boost::algorithm::trim(line);
+
+                if( line.empty() || line[0] == '#' )
+                    continue;
+
+                if( boost::algorithm::istarts_with(line, "newmtl ") )
+                {
+                    auto space = line.find(' ');
+                    if( space != std::string::npos )
+                    {
+                        mtlName = line.substr(space);
+                        boost::algorithm::trim(mtlName);
+                    }
+                    else
+                    {
+                        mtlName.clear();
+                    }
+
+                    if( mtlName.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing material name after newmtl statement"));
+                    }
+
+                    if( result.find(mtlName) != result.end() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Material already defined"));
+                    }
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "map_kd ") )
+                {
+                    if( mtlName.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("map_kd statement without active material"));
+                    }
+
+                    std::string texFilename;
+                    auto space = line.find(' ');
+                    if( space != std::string::npos )
+                    {
+                        texFilename = line.substr(space);
+                        boost::algorithm::trim(texFilename);
+                    }
+                    else
+                    {
+                        texFilename.clear();
+                    }
+
+                    if( texFilename.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing texture filename after map_kd statement"));
+                    }
+
+                    if( !boost::filesystem::is_regular(m_basePath / texFilename) )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid texture filename specified in map_kd statement"));
+                    }
+
+                    result[mtlName] = readMaterial(texFilename, shaderProgram);
+                }
+            }
+
+            return result;
+        }
+
+
+        std::vector<std::shared_ptr<gameplay::Model>> readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+        {
+            std::ifstream obj{(m_basePath / path).string(), std::ios::in};
+            if( !obj.is_open() )
+            {
+                BOOST_THROW_EXCEPTION(std::runtime_error("Cannot open .obj file"));
+            }
+
+            std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib;
+            std::string activeMaterial;
+
+            std::vector<glm::vec2> uvCoords;
+            std::vector<glm::vec3> vpos;
+            std::vector<glm::vec3> vnorm;
+            std::vector<std::array<std::array<int, 3>, 3>> faces;
+
+            std::vector<std::shared_ptr<gameplay::Model>> result;
+
+            std::string line;
+            while( std::getline(obj, line) )
+            {
+                boost::algorithm::trim(line);
+
+                if( line.empty() || line[0] == '#' )
+                    continue;
+
+                if( boost::algorithm::istarts_with(line, "mtllib ") )
+                {
+                    auto space = line.find(' ');
+                    std::string mtlLibName;
+                    if( space != std::string::npos )
+                    {
+                        mtlLibName = line.substr(space);
+                        boost::algorithm::trim(mtlLibName);
+                    }
+                    else
+                    {
+                        mtlLibName.clear();
+                    }
+
+                    if( mtlLibName.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing material library filename after mtllib statement"));
+                    }
+
+                    mtlLib = readMaterialLib(mtlLibName, shaderProgram);
+                    activeMaterial.clear();
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "usemtl ") )
+                {
+                    if( !activeMaterial.empty() )
+                    {
+                        result.push_back(buildModel(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
+                    }
+
+                    auto space = line.find(' ');
+                    if( space != std::string::npos )
+                    {
+                        activeMaterial = line.substr(space);
+                        boost::algorithm::trim(activeMaterial);
+                    }
+                    else
+                    {
+                        activeMaterial.clear();
+                    }
+
+                    if( activeMaterial.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing material name after usemtl statement"));
+                    }
+
+                    if( mtlLib.find(activeMaterial) == mtlLib.end() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Material used in usemtl statement is undefined"));
+                    }
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "v ") )
+                {
+                    std::vector<std::string> parts;
+                    boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
+
+                    if( parts.size() != 4 )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after v statement"));
+                    }
+
+                    const auto x = boost::lexical_cast<float>(parts[1]) * SectorSize;
+                    const auto y = boost::lexical_cast<float>(parts[2]) * SectorSize;
+                    const auto z = boost::lexical_cast<float>(parts[3]) * SectorSize;
+
+                    vpos.emplace_back(x, y, z);
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "vn ") )
+                {
+                    std::vector<std::string> parts;
+                    boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
+
+                    if( parts.size() != 4 )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after vn statement"));
+                    }
+
+                    const auto x = boost::lexical_cast<float>(parts[1]);
+                    const auto y = boost::lexical_cast<float>(parts[2]);
+                    const auto z = boost::lexical_cast<float>(parts[3]);
+
+                    vnorm.emplace_back(x, y, z);
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "vt ") )
+                {
+                    std::vector<std::string> parts;
+                    boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
+
+                    if( parts.size() != 3 )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Expected 2 space-separated elements after vt statement"));
+                    }
+
+                    const auto x = boost::lexical_cast<float>(parts[1]);
+                    const auto y = 1 - boost::lexical_cast<float>(parts[2]);
+
+                    uvCoords.push_back(glm::vec2{ x, y });
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "f ") )
+                {
+                    if( activeMaterial.empty() )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Face definition without active material"));
+                    }
+
+                    std::vector<std::string> parts;
+                    boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
+
+                    if( parts.size() != 4 )
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after f statement"));
+                    }
+
+                    std::array<std::array<int, 3>, 3> face;
+                    for( int i = 0; i < 3; ++i )
+                    {
+                        std::vector<std::string> stringIdx;
+                        boost::algorithm::split(stringIdx, parts[1 + i], [](char c) { return c == '/'; }, boost::token_compress_off);
+                        for( auto& str : stringIdx )
+                            boost::algorithm::trim(str);
+
+                        // v/vt/vn
+                        auto& idx = face[i];
+
+                        for(int j = 0; j < 3; ++j)
+                        {
+                            if(stringIdx.size() > j && !stringIdx[j].empty())
+                                idx[j] = boost::lexical_cast<int>(stringIdx[j]);
+                            else if(j != 0)
+                                idx[j] = idx[0];
+                            else
+                                BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
+                        }
+
+                        // v
+                        if( idx[0] > 0 )
+                            --idx[0];
+                        else
+                            idx[0] = vpos.size() - idx[0];
+
+                        if( idx[0] >= vpos.size() )
+                        {
+                            BOOST_THROW_EXCEPTION(std::runtime_error("v index out of bounds"));
+                        }
+
+                        // vt
+                        if( idx[1] > 0 )
+                            --idx[1];
+                        else
+                            idx[1] = uvCoords.size() - idx[1];
+
+                        if( idx[1] >= uvCoords.size() )
+                        {
+                            BOOST_THROW_EXCEPTION(std::runtime_error("vt index out of bounds"));
+                        }
+
+                        // vn
+                        if( idx[2] > 0 )
+                            --idx[2];
+                        else
+                            idx[2] = vnorm.size() - idx[2];
+
+                        if( !vnorm.empty() && idx[2] >= vnorm.size() )
+                        {
+                            BOOST_THROW_EXCEPTION(std::runtime_error("vn index out of bounds"));
+                        }
+                    }
+
+                    faces.push_back(face);
+
+                    continue;
+                }
+
+                if( boost::algorithm::istarts_with(line, "o ") )
+                {
+                    uvCoords.clear();
+                    vnorm.clear();
+                    vpos.clear();
+                    faces.clear();
+
+                    continue;
+                }
+            }
+
+            if(!activeMaterial.empty())
+            {
+                result.push_back(buildModel(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
+            }
+
+            return result;
         }
 
 
@@ -228,5 +588,109 @@ namespace loader
 
 
         const boost::filesystem::path m_basePath;
+
+        std::shared_ptr<gameplay::Model> buildModel(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib, std::string activeMaterial, std::vector<glm::vec2> uvCoords, std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm, std::vector<std::array<std::array<int, 3>, 3>> faces) const
+        {
+#pragma pack(push, 1)
+            struct VDataNormal
+            {
+                glm::vec2 uv;
+                glm::vec3 position;
+                glm::vec3 normal;
+
+                static const gameplay::VertexFormat& getFormat()
+                {
+                    static const gameplay::VertexFormat::Element elems[3] = {
+                        { gameplay::VertexFormat::TEXCOORD, 2 },
+                        { gameplay::VertexFormat::POSITION, 3 },
+                        { gameplay::VertexFormat::NORMAL, 3 }
+                    };
+                    static const gameplay::VertexFormat fmt{ elems, 3 };
+
+                    Expects(fmt.getVertexSize() == sizeof(VDataNormal));
+
+                    return fmt;
+                }
+            };
+            struct VData
+            {
+                glm::vec2 uv;
+                glm::vec3 position;
+
+                static const gameplay::VertexFormat& getFormat()
+                {
+                    static const gameplay::VertexFormat::Element elems[2] = {
+                        { gameplay::VertexFormat::TEXCOORD, 2 },
+                        { gameplay::VertexFormat::POSITION, 3 }
+                    };
+                    static const gameplay::VertexFormat fmt{ elems, 2 };
+
+                    Expects(fmt.getVertexSize() == sizeof(VData));
+
+                    return fmt;
+                }
+            };
+#pragma pack(pop)
+
+            if(vnorm.empty())
+            {
+                std::vector<VData> vbuf;
+                std::vector<uint32_t> idxbuf;
+
+                for(const auto& face : faces)
+                {
+                    // v/vt/vn
+                    for(const auto& idx : face)
+                    {
+                        VData vertex;
+                        vertex.position = vpos[idx[0]];
+                        vertex.uv = uvCoords[idx[1]];
+
+                        idxbuf.push_back(vbuf.size());
+                        vbuf.push_back(vertex);
+                    }
+                }
+
+                auto mesh = std::make_shared<gameplay::Mesh>(VData::getFormat(), 0, false);
+                mesh->rebuild(reinterpret_cast<float*>(&vbuf[0]), vbuf.size());
+
+                auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, idxbuf.size(), false);
+                part->setIndexData(idxbuf.data(), 0, idxbuf.size());
+                BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
+                part->setMaterial(mtlLib[activeMaterial]);
+
+                return std::make_shared<gameplay::Model>(mesh);
+            }
+            else
+            {
+                std::vector<VDataNormal> vbuf;
+                std::vector<uint32_t> idxbuf;
+
+                for(const auto& face : faces)
+                {
+                    // v/vt/vn
+                    for(const auto& idx : face)
+                    {
+                        VDataNormal vertex;
+                        vertex.position = vpos[idx[0]];
+                        vertex.uv = uvCoords[idx[1]];
+                        vertex.normal = vnorm[idx[2]];
+
+                        idxbuf.push_back(vbuf.size());
+                        vbuf.push_back(vertex);
+                    }
+                }
+
+                auto mesh = std::make_shared<gameplay::Mesh>(VDataNormal::getFormat(), 0, false);
+                mesh->rebuild(reinterpret_cast<float*>(&vbuf[0]), vbuf.size());
+
+                auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, idxbuf.size(), false);
+                part->setIndexData(idxbuf.data(), 0, idxbuf.size());
+                BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
+                part->setMaterial(mtlLib[activeMaterial]);
+
+                return std::make_shared<gameplay::Model>(mesh);
+            }
+        }
     };
 }
