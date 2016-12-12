@@ -95,6 +95,7 @@ set( OT_IRR_SRCS
      loader/mesh.cpp
      loader/mesh.h
      loader/objwriter.h
+     loader/objwriter.cpp
      loader/primitives.h
      loader/texture.h
      loader/util.h

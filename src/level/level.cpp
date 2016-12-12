@@ -626,7 +626,7 @@ void Level::toIrrlicht(gameplay::Game* game)
                 BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
 
                 const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
-                objWriter.write(model, filename, materialsNoVcol);
+                objWriter.write(model, filename, materialsNoVcol, {}, glm::vec3(0.8f));
             }
         }
 
@@ -642,7 +642,7 @@ void Level::toIrrlicht(gameplay::Game* game)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materialsVcol, materialsVcolWater);
+                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
             }
 
 
