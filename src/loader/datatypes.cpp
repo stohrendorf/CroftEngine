@@ -208,10 +208,10 @@ namespace loader
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
-            subNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{ 0,-1,0 }));
+            subNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{0,-1,0}));
             node->addChild(subNode);
         }
-        node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, position.toRenderSystem()));
+        node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, position.toRenderSystem()));
 
         for( const Sprite& sprite : sprites )
         {
@@ -225,7 +225,7 @@ namespace loader
 
             auto n = std::make_shared<gameplay::Node>("");
             n->setDrawable(spriteNode);
-            n->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (vertices[sprite.vertex].position - core::TRCoordinates{ 0, tex.bottom_side / 2, 0 }).toRenderSystem()));
+            n->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem()));
 
             node->addChild(n);
         }
@@ -317,5 +317,53 @@ namespace loader
             box.overlap_index &= ~0x4000;
         else
             box.overlap_index |= 0x4000;
+    }
+
+#pragma pack(push, 1)
+    struct VcolVertex
+    {
+        glm::vec4 color;
+        glm::vec3 pos;
+    };
+#pragma pack(pop)
+
+    void Room::recalcVertexLighting()
+    {
+        BOOST_ASSERT(node->getDrawable() == nullptr);
+        for(const auto& subNode : node->getChildren())
+        {
+            auto model = std::dynamic_pointer_cast<gameplay::Model>(subNode->getDrawable());
+            for(const auto& mesh : model->getMeshes())
+            {
+                if(mesh->getVertexFormat().getElement(0).usage != gameplay::VertexFormat::COLOR)
+                    continue;
+
+                if(mesh->getVertexFormat().getElement(1).usage != gameplay::VertexFormat::POSITION)
+                    continue;
+
+                float* vdata = static_cast<float*>(mesh->mapRw());
+                const auto elemsPerVert = mesh->getVertexFormat().getVertexSize() / sizeof(float);
+
+                for(size_t vi = 0; vi < mesh->getVertexCount(); ++vi, vdata += elemsPerVert)
+                {
+                    VcolVertex* v = reinterpret_cast<VcolVertex*>(vdata);
+                    v->color = glm::vec4((8192 - darkness) / 4096.0f);
+
+                    for(const Light light : lights)
+                    {
+                        const auto lpos = light.position.toRenderSystem();
+                        const auto d = glm::distance(lpos, v->pos);
+                        if(d > light.r_outer)
+                            continue;
+
+                        v->color += glm::vec4(light.intensity * (1 - d / light.r_outer));
+                    }
+
+                    v->color.a = 1;
+                }
+
+                mesh->unmap();
+            }
+        }
     }
 }

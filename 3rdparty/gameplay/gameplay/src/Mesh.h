@@ -256,6 +256,14 @@ namespace gameplay
             return data;
         }
 
+        void* mapRw()
+        {
+            bind();
+            void* data = nullptr;
+            GL_ASSERT(data = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE));
+            return data;
+        }
+
         void unmap()
         {
             GL_ASSERT(glUnmapBuffer(GL_ARRAY_BUFFER));

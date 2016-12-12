@@ -1129,6 +1129,8 @@ namespace loader
         }
 
         static void patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height);
+
+        void recalcVertexLighting();
     };
 
     enum class TimerState

@@ -632,7 +632,7 @@ void Level::toIrrlicht(gameplay::Game* game)
 
         for(size_t i=0; i<m_rooms.size(); ++i)
         {
-            const auto& room = m_rooms[i];
+            auto& room = m_rooms[i];
 
             std::string filename = "room_" + std::to_string(i);
             if(!objWriter.exists(filename + ".obj"))
@@ -645,7 +645,6 @@ void Level::toIrrlicht(gameplay::Game* game)
                 objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
             }
 
-
             filename = "room_override_" + std::to_string(i) + ".obj";
             if(!objWriter.exists(filename))
                 continue;
@@ -654,13 +653,16 @@ void Level::toIrrlicht(gameplay::Game* game)
 
             room.node->setDrawable(nullptr);
 
-            auto models = objWriter.readModels(filename, noVcolShader);
+            auto models = objWriter.readModels(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader);
             for(const auto& model : models)
             {
                 auto node = std::make_shared<gameplay::Node>("");
                 node->setDrawable(model);
                 room.node->addChild(node);
             }
+
+            BOOST_LOG_TRIVIAL(info) << "Recalculating vertex lighting";
+            room.recalcVertexLighting();
         }
     }
 #endif

@@ -480,23 +480,31 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib, std::string activeMaterial, std::vector<glm::vec2> uvCoords, std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm, std::vector<std::array<std::array<int, 3>, 3>> faces) const
+    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(std::map<std::string,
+                                                         std::shared_ptr<gameplay::Material>> mtlLib,
+                                                         std::string activeMaterial,
+                                                         std::vector<glm::vec2> uvCoords,
+                                                         std::vector<glm::vec3> vpos,
+                                                         std::vector<glm::vec3> vnorm,
+                                                         std::vector<std::array<std::array<int, 3>, 3>> faces) const
     {
 #pragma pack(push, 1)
         struct VDataNormal
         {
-            glm::vec2 uv;
+            glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
             glm::vec3 position;
+            glm::vec2 uv;
             glm::vec3 normal;
 
             static const gameplay::VertexFormat& getFormat()
             {
-                static const gameplay::VertexFormat::Element elems[3] = {
-                    {gameplay::VertexFormat::TEXCOORD, 2},
+                static const gameplay::VertexFormat::Element elems[4] = {
+                    {gameplay::VertexFormat::COLOR, 4},
                     {gameplay::VertexFormat::POSITION, 3},
+                    {gameplay::VertexFormat::TEXCOORD, 2},
                     {gameplay::VertexFormat::NORMAL, 3}
                 };
-                static const gameplay::VertexFormat fmt{elems, 3};
+                static const gameplay::VertexFormat fmt{elems, 4};
 
                 Expects(fmt.getVertexSize() == sizeof(VDataNormal));
 
@@ -505,16 +513,18 @@ namespace loader
         };
         struct VData
         {
-            glm::vec2 uv;
+            glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
             glm::vec3 position;
+            glm::vec2 uv;
 
             static const gameplay::VertexFormat& getFormat()
             {
-                static const gameplay::VertexFormat::Element elems[2] = {
-                    {gameplay::VertexFormat::TEXCOORD, 2},
-                    {gameplay::VertexFormat::POSITION, 3}
+                static const gameplay::VertexFormat::Element elems[3] = {
+                    {gameplay::VertexFormat::COLOR, 4},
+                    {gameplay::VertexFormat::POSITION, 3},
+                    {gameplay::VertexFormat::TEXCOORD, 2}
                 };
-                static const gameplay::VertexFormat fmt{elems, 2};
+                static const gameplay::VertexFormat fmt{elems, 3};
 
                 Expects(fmt.getVertexSize() == sizeof(VData));
 
