@@ -98,7 +98,8 @@ namespace gameplay
         part->setMaterial(m_material);
         part->setIndexData(m_indices.data(), 0, m_indices.size());
 
-        Model mdl{ mesh };
+        Model mdl;
+        mdl.addMesh(mesh);
         mdl.draw(context);
 
         //pass->unbind();

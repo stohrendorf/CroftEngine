@@ -287,7 +287,9 @@ namespace loader
             }
         }
 
-        return std::make_shared<gameplay::Model>(m_mesh);
+        auto model = std::make_shared<gameplay::Model>();
+        model->addMesh(m_mesh);
+        return model;
     }
 
 

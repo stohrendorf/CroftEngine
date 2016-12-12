@@ -63,11 +63,12 @@ namespace loader
                     part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 
-                auto model = std::make_shared<gameplay::Model>(mesh);
+                auto model = std::make_shared<gameplay::Model>();
+                model->addMesh(mesh);
 
                 for( size_t i = 0; i < m_parts.size(); ++i )
                 {
-                    model->setMaterial(m_parts[i].material, i);
+                    mesh->getPart(i)->setMaterial(m_parts[i].material);
                 }
 
                 return model;

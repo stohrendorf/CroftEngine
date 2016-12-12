@@ -20,7 +20,7 @@ namespace gameplay
         friend class Mesh;
 
     public:
-        explicit Model(const std::shared_ptr<Mesh>& mesh = nullptr);
+        explicit Model();
         ~Model();
 
         /**
@@ -28,43 +28,17 @@ namespace gameplay
          *
          * @return The Mesh for this Model.
          */
-        const std::shared_ptr<Mesh>& getMesh() const;
+        const std::vector<std::shared_ptr<Mesh>>& getMeshes() const
+        {
+            return _meshes;
+        }
 
-        /**
-         * Sets a material to be used for drawing this Model.
-         *
-         * The specified Material is applied for the MeshPart at the given index in
-         * this Model's Mesh. A partIndex of -1 sets a shared Material for
-         * all mesh parts, whereas a value of 0 or greater sets the Material for the
-         * specified mesh part only.
-         *
-         * Mesh parts will use an explicitly set part material, if set; otherwise they
-         * will use the globally set material.
-         *
-         * @param material The new material.
-         * @param partIndex The index of the mesh part to set the material for (-1 for shared material).
-         */
-        void setMaterial(const std::shared_ptr<Material>& material, size_t partIndex);
 
-        /**
-         * Sets a material to be used for drawing this Model.
-         *
-         * A Material is created from the given vertex and fragment shader source files.
-         * The Material is applied for the MeshPart at the given index in this Model's
-         * Mesh. A partIndex of -1 sets a shared Material for all mesh parts, whereas a
-         * value of 0 or greater sets the Material for the specified mesh part only.
-         *
-         * Mesh parts will use an explicitly set part material, if set; otherwise they
-         * will use the globally set material.
-         *
-         * @param vshPath The path to the vertex shader file.
-         * @param fshPath The path to the fragment shader file.
-         * @param defines A new-line delimited list of preprocessor defines. May be nullptr.
-         * @param partIndex The index of the mesh part to set the material for (-1 for shared material).
-         *
-         * @return The newly created and bound Material, or nullptr if the Material could not be created.
-         */
-        std::shared_ptr<Material> setMaterial(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {}, size_t partIndex = -1);
+        void addMesh(const std::shared_ptr<Mesh>& mesh)
+        {
+            BOOST_ASSERT(mesh != nullptr);
+            _meshes.push_back(mesh);
+        }
 
         /**
          * @see Drawable::draw
@@ -82,6 +56,6 @@ namespace gameplay
 
         Model& operator=(const Model&) = delete;
 
-        std::shared_ptr<Mesh> _mesh;
+        std::vector<std::shared_ptr<Mesh>> _meshes;
     };
 }

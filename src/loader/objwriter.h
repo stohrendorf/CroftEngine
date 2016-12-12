@@ -227,7 +227,7 @@ namespace loader
                 {
                     if( !activeMaterial.empty() )
                     {
-                        result.push_back(buildModel(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
+                        result.back()->addMesh(buildMesh(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
                     }
 
                     auto space = line.find(' ');
@@ -387,10 +387,7 @@ namespace loader
 
                 if( boost::algorithm::istarts_with(line, "o ") )
                 {
-                    uvCoords.clear();
-                    vnorm.clear();
-                    vpos.clear();
-                    faces.clear();
+                    result.emplace_back(std::make_shared<gameplay::Model>());
 
                     continue;
                 }
@@ -398,19 +395,19 @@ namespace loader
 
             if(!activeMaterial.empty())
             {
-                result.push_back(buildModel(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
+                result.back()->addMesh(buildMesh(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
             }
 
             return result;
         }
 
 
-        void write(const std::shared_ptr<gameplay::Mesh>& mesh,
+        void write(const std::shared_ptr<gameplay::Model>& model,
                    const std::string& baseName,
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2 = {}) const
         {
-            Expects(mesh != nullptr);
+            Expects(model != nullptr);
 
             auto fullPath = m_basePath / baseName;
 
@@ -428,136 +425,38 @@ namespace loader
 
             objFile << "# EdisonEngine Model Dump\n";
             objFile << "mtllib " << baseName << ".mtl\n\n";
-            objFile << "o TRModel\n";
 
-            bool hasNormals = false;
-            bool hasTexCoord = false;
+            for(const auto& mesh : model->getMeshes())
             {
-                const auto& vfmt = mesh->getVertexFormat();
-                const size_t count = mesh->getVertexCount();
-                const float* data = static_cast<const float*>(mesh->map());
-                for( size_t i = 0; i < count; ++i )
-                {
-                    for( size_t j = 0; j < vfmt.getElementCount(); ++j )
-                    {
-                        switch( vfmt.getElement(j).usage )
-                        {
-                            case gameplay::VertexFormat::POSITION:
-                                objFile << "v " << data[0] / SectorSize << " " << data[1] / SectorSize << " " << data[2] / SectorSize << "\n";
-                                break;
-                            case gameplay::VertexFormat::NORMAL:
-                                objFile << "vn " << data[0] << " " << data[1] << " " << data[2] << "\n";
-                                hasNormals = true;
-                                break;
-                            case gameplay::VertexFormat::TEXCOORD:
-                                objFile << "vt " << data[0] << " " << 1 - data[1] << "\n";
-                                hasTexCoord = true;
-                                break;
-                            case gameplay::VertexFormat::COLOR:
-                            case gameplay::VertexFormat::TANGENT:
-                            case gameplay::VertexFormat::BINORMAL:
-                                break;
-                            default:
-                                break;
-                        }
-
-                        data += vfmt.getElement(j).size;
-                    }
-                }
-                mesh->unmap();
-            }
-
-            objFile << "\n";
-
-            {
-                for( size_t i = 0; i < mesh->getPartCount(); ++i )
-                {
-                    const std::shared_ptr<gameplay::MeshPart>& part = mesh->getPart(i);
-                    BOOST_ASSERT(part->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
-
-                    objFile << "\ng part_" << i << "\n";
-                    objFile << "usemtl " << makeMtlName(part->getMaterial()) << "\n";
-
-                    {
-                        // try to find the texture for our material
-
-                        using Entry = decltype(*mtlMap1.begin());
-                        auto finder = [&part](const Entry& entry)
-                            {
-                                return entry.second == part->getMaterial();
-                            };
-
-                        auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
-
-                        bool found = false;
-                        if( texIt != mtlMap1.end() )
-                        {
-                            write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
-                            found = true;
-                        }
-
-                        if( !found )
-                        {
-                            texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
-                            if( texIt != mtlMap2.end() )
-                            {
-                                write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
-                                found = true;
-                            }
-                        }
-
-                        if( !found )
-                        {
-                            write(part->getMaterial(), mtlFile);
-                        }
-                    }
-
-                    switch( part->getIndexFormat() )
-                    {
-                        case gameplay::Mesh::INDEX8:
-                            writeTriFaces<uint8_t>(part->map(), part->getIndexCount(), hasNormals, hasTexCoord, objFile);
-                            part->unmap();
-                            break;
-                        case gameplay::Mesh::INDEX16:
-                            writeTriFaces<uint16_t>(part->map(), part->getIndexCount(), hasNormals, hasTexCoord, objFile);
-                            part->unmap();
-                            break;
-                        case gameplay::Mesh::INDEX32:
-                            writeTriFaces<uint32_t>(part->map(), part->getIndexCount(), hasNormals, hasTexCoord, objFile);
-                            part->unmap();
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                writeMesh(mtlMap1, mtlMap2, objFile, mtlFile, mesh);
             }
         }
 
 
     private:
         template<typename T>
-        static void writeTriFaces(const void* rawIdx, size_t count, bool hasNormals, bool hasTexCoord, std::ostream& obj)
+        static void writeTriFaces(const void* rawIdx, size_t faceCount, size_t vertexCount, bool hasNormals, bool hasTexCoord, std::ostream& obj)
         {
             const T* idx = static_cast<const T*>(rawIdx);
 
-            auto write = [&](uint32_t idx)
+            auto writeFace = [&](uint32_t idx)
                 {
-                    obj << idx + 1u << "/";
+                    obj << '-' << (vertexCount - idx) << "/";
                     if( hasTexCoord )
-                        obj << idx + 1u;
+                        obj << '-' << (vertexCount - idx);
                     obj << "/";
                     if( hasNormals )
-                        obj << idx + 1u;
+                        obj << '-' << (vertexCount - idx);
                 };
 
-            for( size_t i = 0; i < count; i += 3 , idx += 3 )
+            for( size_t i = 0; i < faceCount; i += 3 , idx += 3 )
             {
                 obj << "f ";
-                write(idx[0]);
+                writeFace(idx[0]);
                 obj << " ";
-                write(idx[1]);
+                writeFace(idx[1]);
                 obj << " ";
-                write(idx[2]);
+                writeFace(idx[2]);
                 obj << "\n";
             }
         }
@@ -595,7 +494,7 @@ namespace loader
 
         const boost::filesystem::path m_basePath;
 
-        std::shared_ptr<gameplay::Model> buildModel(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib, std::string activeMaterial, std::vector<glm::vec2> uvCoords, std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm, std::vector<std::array<std::array<int, 3>, 3>> faces) const
+        std::shared_ptr<gameplay::Mesh> buildMesh(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib, std::string activeMaterial, std::vector<glm::vec2> uvCoords, std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm, std::vector<std::array<std::array<int, 3>, 3>> faces) const
         {
 #pragma pack(push, 1)
             struct VDataNormal
@@ -665,7 +564,7 @@ namespace loader
                 BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
                 part->setMaterial(mtlLib[activeMaterial]);
 
-                return std::make_shared<gameplay::Model>(mesh);
+                return mesh;
             }
             else
             {
@@ -695,7 +594,118 @@ namespace loader
                 BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
                 part->setMaterial(mtlLib[activeMaterial]);
 
-                return std::make_shared<gameplay::Model>(mesh);
+                return mesh;
+            }
+        }
+
+        void writeMesh(const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                    std::ofstream& objFile,
+                    std::ofstream& mtlFile,
+                    const std::shared_ptr<gameplay::Mesh>& mesh) const
+        {
+            objFile << "o mesh_" << reinterpret_cast<uintptr_t>(mesh.get()) << "\n";
+
+            bool hasNormals = false;
+            bool hasTexCoord = false;
+            {
+                const auto& vfmt = mesh->getVertexFormat();
+                const size_t count = mesh->getVertexCount();
+                const float* data = static_cast<const float*>(mesh->map());
+                for(size_t i = 0; i < count; ++i)
+                {
+                    for(size_t j = 0; j < vfmt.getElementCount(); ++j)
+                    {
+                        switch(vfmt.getElement(j).usage)
+                        {
+                            case gameplay::VertexFormat::POSITION:
+                                objFile << "v " << data[0] / SectorSize << " " << data[1] / SectorSize << " " << data[2] / SectorSize << "\n";
+                                break;
+                            case gameplay::VertexFormat::NORMAL:
+                                objFile << "vn " << data[0] << " " << data[1] << " " << data[2] << "\n";
+                                hasNormals = true;
+                                break;
+                            case gameplay::VertexFormat::TEXCOORD:
+                                objFile << "vt " << data[0] << " " << 1 - data[1] << "\n";
+                                hasTexCoord = true;
+                                break;
+                            case gameplay::VertexFormat::COLOR:
+                            case gameplay::VertexFormat::TANGENT:
+                            case gameplay::VertexFormat::BINORMAL:
+                                break;
+                            default:
+                                break;
+                        }
+
+                        data += vfmt.getElement(j).size;
+                    }
+                }
+                mesh->unmap();
+            }
+
+            objFile << "\n";
+
+            {
+                for(size_t i = 0; i < mesh->getPartCount(); ++i)
+                {
+                    const std::shared_ptr<gameplay::MeshPart>& part = mesh->getPart(i);
+                    BOOST_ASSERT(part->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
+
+                    objFile << "\ng part_" << i << "\n";
+                    objFile << "usemtl " << makeMtlName(part->getMaterial()) << "\n";
+
+                    {
+                        // try to find the texture for our material
+
+                        using Entry = decltype(*mtlMap1.begin());
+                        auto finder = [&part](const Entry& entry)
+                        {
+                            return entry.second == part->getMaterial();
+                        };
+
+                        auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
+
+                        bool found = false;
+                        if(texIt != mtlMap1.end())
+                        {
+                            write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
+                            found = true;
+                        }
+
+                        if(!found)
+                        {
+                            texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
+                            if(texIt != mtlMap2.end())
+                            {
+                                write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
+                                found = true;
+                            }
+                        }
+
+                        if(!found)
+                        {
+                            write(part->getMaterial(), mtlFile);
+                        }
+                    }
+
+                    switch(part->getIndexFormat())
+                    {
+                        case gameplay::Mesh::INDEX8:
+                            writeTriFaces<uint8_t>(part->map(), part->getIndexCount(), mesh->getVertexCount(), hasNormals, hasTexCoord, objFile);
+                            part->unmap();
+                            break;
+                        case gameplay::Mesh::INDEX16:
+                            writeTriFaces<uint16_t>(part->map(), part->getIndexCount(), mesh->getVertexCount(), hasNormals, hasTexCoord, objFile);
+                            part->unmap();
+                            break;
+                        case gameplay::Mesh::INDEX32:
+                            writeTriFaces<uint32_t>(part->map(), part->getIndexCount(), mesh->getVertexCount(), hasNormals, hasTexCoord, objFile);
+                            part->unmap();
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
     };

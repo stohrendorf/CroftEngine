@@ -612,21 +612,21 @@ void Level::toIrrlicht(gameplay::Game* game)
             objWriter.write(m_textures[i].toImage(), i);
         }
 
-        for(const auto& model : m_animatedModels)
+        for(const auto& trModel : m_animatedModels)
         {
-            for(size_t boneIndex = 0; boneIndex < model->boneCount; ++boneIndex)
+            for(size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex)
             {
-                BOOST_ASSERT(model->firstMesh + boneIndex < m_meshIndices.size());
-                BOOST_ASSERT(m_meshIndices[model->firstMesh + boneIndex] < m_models.size());
-                const auto& mesh = m_models[m_meshIndices[model->firstMesh + boneIndex]]->getMesh();
+                BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
+                BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
-                const std::string filename = "model_" + std::to_string(model->type) + "_" + std::to_string(boneIndex);
+                const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex);
                 if(objWriter.exists(filename + ".obj"))
                     continue;
 
                 BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
 
-                objWriter.write(mesh, filename, materialsNoVcol);
+                const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
+                objWriter.write(model, filename, materialsNoVcol);
             }
         }
 
@@ -642,7 +642,7 @@ void Level::toIrrlicht(gameplay::Game* game)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model->getMesh(), filename, materialsVcol, materialsVcolWater);
+                objWriter.write(model, filename, materialsVcol, materialsVcolWater);
             }
 
 
