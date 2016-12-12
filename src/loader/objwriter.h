@@ -42,6 +42,12 @@ namespace loader
 
         std::shared_ptr<gameplay::Image> readImage(const boost::filesystem::path& path) const
         {
+            {
+                auto it = m_imageCache.find(path);
+                if( it != m_imageCache.end() )
+                    return it->second;
+            }
+
             auto fullPath = m_basePath / path;
             cimg_library::CImg<float> img(fullPath.string().c_str());
             img /= 255;
@@ -61,7 +67,9 @@ namespace loader
 
             img.permute_axes("cxyz");
 
-            return std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(img.data()));
+            auto result = std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(img.data()));
+            m_imageCache[path] = result;
+            return result;
         }
 
 
@@ -167,10 +175,12 @@ namespace loader
             return result;
         }
 
+
         bool exists(const boost::filesystem::path& path)
         {
             return boost::filesystem::is_regular_file(m_basePath / path);
         }
+
 
         std::vector<std::shared_ptr<gameplay::Model>> readModels(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
         {
@@ -305,7 +315,7 @@ namespace loader
                     const auto x = boost::lexical_cast<float>(parts[1]);
                     const auto y = 1 - boost::lexical_cast<float>(parts[2]);
 
-                    uvCoords.push_back(glm::vec2{ x, y });
+                    uvCoords.push_back(glm::vec2{x, y});
 
                     continue;
                 }
@@ -336,14 +346,14 @@ namespace loader
                         // v/vt/vn
                         auto& idx = face[i];
 
-                        for(int j = 0; j < 3; ++j)
+                        for( int j = 0; j < 3; ++j )
                         {
-                            if(stringIdx.size() > j && !stringIdx[j].empty())
+                            if( stringIdx.size() > j && !stringIdx[j].empty() )
                                 idx[j] = boost::lexical_cast<int>(stringIdx[j]);
-                            else if(j != 0)
+                            else if( j != 0 )
                                 idx[j] = idx[0];
                             else
-                                BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
+                            BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
                         }
 
                         // v
@@ -393,7 +403,7 @@ namespace loader
                 }
             }
 
-            if(!activeMaterial.empty())
+            if( !activeMaterial.empty() )
             {
                 result.back()->addMesh(buildMesh(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
             }
@@ -426,7 +436,7 @@ namespace loader
             objFile << "# EdisonEngine Model Dump\n";
             objFile << "mtllib " << baseName << ".mtl\n\n";
 
-            for(const auto& mesh : model->getMeshes())
+            for( const auto& mesh : model->getMeshes() )
             {
                 writeMesh(mtlMap1, mtlMap2, objFile, mtlFile, mesh);
             }
@@ -493,6 +503,8 @@ namespace loader
 
 
         const boost::filesystem::path m_basePath;
+        mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::Image>> m_imageCache;
+
 
         std::shared_ptr<gameplay::Mesh> buildMesh(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib, std::string activeMaterial, std::vector<glm::vec2> uvCoords, std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm, std::vector<std::array<std::array<int, 3>, 3>> faces) const
         {
@@ -506,11 +518,11 @@ namespace loader
                 static const gameplay::VertexFormat& getFormat()
                 {
                     static const gameplay::VertexFormat::Element elems[3] = {
-                        { gameplay::VertexFormat::TEXCOORD, 2 },
-                        { gameplay::VertexFormat::POSITION, 3 },
-                        { gameplay::VertexFormat::NORMAL, 3 }
+                        {gameplay::VertexFormat::TEXCOORD, 2},
+                        {gameplay::VertexFormat::POSITION, 3},
+                        {gameplay::VertexFormat::NORMAL, 3}
                     };
-                    static const gameplay::VertexFormat fmt{ elems, 3 };
+                    static const gameplay::VertexFormat fmt{elems, 3};
 
                     Expects(fmt.getVertexSize() == sizeof(VDataNormal));
 
@@ -525,10 +537,10 @@ namespace loader
                 static const gameplay::VertexFormat& getFormat()
                 {
                     static const gameplay::VertexFormat::Element elems[2] = {
-                        { gameplay::VertexFormat::TEXCOORD, 2 },
-                        { gameplay::VertexFormat::POSITION, 3 }
+                        {gameplay::VertexFormat::TEXCOORD, 2},
+                        {gameplay::VertexFormat::POSITION, 3}
                     };
-                    static const gameplay::VertexFormat fmt{ elems, 2 };
+                    static const gameplay::VertexFormat fmt{elems, 2};
 
                     Expects(fmt.getVertexSize() == sizeof(VData));
 
@@ -537,15 +549,15 @@ namespace loader
             };
 #pragma pack(pop)
 
-            if(vnorm.empty())
+            if( vnorm.empty() )
             {
                 std::vector<VData> vbuf;
                 std::vector<uint32_t> idxbuf;
 
-                for(const auto& face : faces)
+                for( const auto& face : faces )
                 {
                     // v/vt/vn
-                    for(const auto& idx : face)
+                    for( const auto& idx : face )
                     {
                         VData vertex;
                         vertex.position = vpos[idx[0]];
@@ -571,10 +583,10 @@ namespace loader
                 std::vector<VDataNormal> vbuf;
                 std::vector<uint32_t> idxbuf;
 
-                for(const auto& face : faces)
+                for( const auto& face : faces )
                 {
                     // v/vt/vn
-                    for(const auto& idx : face)
+                    for( const auto& idx : face )
                     {
                         VDataNormal vertex;
                         vertex.position = vpos[idx[0]];
@@ -598,11 +610,12 @@ namespace loader
             }
         }
 
+
         void writeMesh(const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
-                    std::ofstream& objFile,
-                    std::ofstream& mtlFile,
-                    const std::shared_ptr<gameplay::Mesh>& mesh) const
+                       const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                       std::ofstream& objFile,
+                       std::ofstream& mtlFile,
+                       const std::shared_ptr<gameplay::Mesh>& mesh) const
         {
             objFile << "o mesh_" << reinterpret_cast<uintptr_t>(mesh.get()) << "\n";
 
@@ -612,11 +625,11 @@ namespace loader
                 const auto& vfmt = mesh->getVertexFormat();
                 const size_t count = mesh->getVertexCount();
                 const float* data = static_cast<const float*>(mesh->map());
-                for(size_t i = 0; i < count; ++i)
+                for( size_t i = 0; i < count; ++i )
                 {
-                    for(size_t j = 0; j < vfmt.getElementCount(); ++j)
+                    for( size_t j = 0; j < vfmt.getElementCount(); ++j )
                     {
-                        switch(vfmt.getElement(j).usage)
+                        switch( vfmt.getElement(j).usage )
                         {
                             case gameplay::VertexFormat::POSITION:
                                 objFile << "v " << data[0] / SectorSize << " " << data[1] / SectorSize << " " << data[2] / SectorSize << "\n";
@@ -646,7 +659,7 @@ namespace loader
             objFile << "\n";
 
             {
-                for(size_t i = 0; i < mesh->getPartCount(); ++i)
+                for( size_t i = 0; i < mesh->getPartCount(); ++i )
                 {
                     const std::shared_ptr<gameplay::MeshPart>& part = mesh->getPart(i);
                     BOOST_ASSERT(part->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
@@ -659,36 +672,36 @@ namespace loader
 
                         using Entry = decltype(*mtlMap1.begin());
                         auto finder = [&part](const Entry& entry)
-                        {
-                            return entry.second == part->getMaterial();
-                        };
+                            {
+                                return entry.second == part->getMaterial();
+                            };
 
                         auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
 
                         bool found = false;
-                        if(texIt != mtlMap1.end())
+                        if( texIt != mtlMap1.end() )
                         {
                             write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
                             found = true;
                         }
 
-                        if(!found)
+                        if( !found )
                         {
                             texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
-                            if(texIt != mtlMap2.end())
+                            if( texIt != mtlMap2.end() )
                             {
                                 write(part->getMaterial(), texIt->first.tileAndFlag & TextureIndexMask, mtlFile);
                                 found = true;
                             }
                         }
 
-                        if(!found)
+                        if( !found )
                         {
                             write(part->getMaterial(), mtlFile);
                         }
                     }
 
-                    switch(part->getIndexFormat())
+                    switch( part->getIndexFormat() )
                     {
                         case gameplay::Mesh::INDEX8:
                             writeTriFaces<uint8_t>(part->map(), part->getIndexCount(), mesh->getVertexCount(), hasNormals, hasTexCoord, objFile);
