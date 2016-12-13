@@ -44,7 +44,7 @@ namespace loader
         }
 
 
-        std::vector<std::shared_ptr<gameplay::Model>> readModels(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
+        std::shared_ptr<gameplay::Model> readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const;
 
         void write(const std::shared_ptr<gameplay::Model>& model,
                    const std::string& baseName,
@@ -54,6 +54,18 @@ namespace loader
 
 
     private:
+        struct Vertex
+        {
+            int v;
+            int vt;
+            int vn;
+        };
+        using Face = std::array<Vertex, 3>;
+        using FaceList = std::vector<Face>;
+
+        using Tri = std::array<glm::vec3, 3>;
+        using TriList = std::vector<Tri>;
+
         template<typename T>
         static void writeTriFaces(const void* rawIdx, size_t faceCount, size_t vertexCount, bool hasNormals, bool hasTexCoord, std::ostream& obj);
 
@@ -74,11 +86,14 @@ namespace loader
         mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::Image>> m_imageCache;
 
 
-        std::shared_ptr<gameplay::Mesh> buildMesh(std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib,
-                                                  std::string activeMaterial,
-                                                  std::vector<glm::vec2> uvCoords,
-                                                  std::vector<glm::vec3> vpos, std::vector<glm::vec3> vnorm,
-                                                  std::vector<std::array<std::array<int, 3>, 3>> faces) const;
+        std::shared_ptr<gameplay::Mesh> buildMesh(const std::map<std::string, std::shared_ptr<gameplay::Material>>& mtlLib,
+                                                  const std::string& activeMaterial,
+                                                  const std::vector<glm::vec2>& uvCoords,
+                                                  const std::vector<glm::vec3>& vpos,
+                                                  const std::vector<glm::vec3>& vnorm,
+                                                  const FaceList& faces,
+                                                  const glm::vec3& ambientColor,
+                                                  const TriList& tris) const;
 
         void writeMesh(const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                        const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
@@ -86,5 +101,7 @@ namespace loader
                        std::ofstream& mtlFile,
                        const std::shared_ptr<gameplay::Mesh>& mesh,
                        const glm::vec3& ambientColor) const;
+
+        static void calcColor(glm::vec4& vertexColor, const glm::vec3& vpos, const glm::vec3& ambientColor, const TriList& tris);
     };
 }

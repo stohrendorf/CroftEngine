@@ -653,16 +653,8 @@ void Level::toIrrlicht(gameplay::Game* game)
 
             room.node->setDrawable(nullptr);
 
-            auto models = objWriter.readModels(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader);
-            for(const auto& model : models)
-            {
-                auto node = std::make_shared<gameplay::Node>("");
-                node->setDrawable(model);
-                room.node->addChild(node);
-            }
-
-            BOOST_LOG_TRIVIAL(info) << "Recalculating vertex lighting";
-            room.recalcVertexLighting();
+            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3((8192 - room.darkness) / 8192.0f));
+            room.node->setDrawable(model);
         }
     }
 #endif

@@ -4,8 +4,11 @@
 
 #include "CImg.h"
 
-#include <fstream>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/adaptors.hpp>
+
+#include <algorithm>
+#include <fstream>
 
 
 namespace loader
@@ -161,7 +164,7 @@ namespace loader
     }
 
 
-    std::vector<std::shared_ptr<gameplay::Model>> OBJWriter::readModels(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+    std::shared_ptr<gameplay::Model> OBJWriter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
     {
         std::ifstream obj{(m_basePath / path).string(), std::ios::in};
         if( !obj.is_open() )
@@ -175,9 +178,10 @@ namespace loader
         std::vector<glm::vec2> uvCoords;
         std::vector<glm::vec3> vpos;
         std::vector<glm::vec3> vnorm;
-        std::vector<std::array<std::array<int, 3>, 3>> faces;
 
-        std::vector<std::shared_ptr<gameplay::Model>> result;
+        std::map<std::string, FaceList> meshes;
+
+        std::shared_ptr<gameplay::Model> result = std::make_shared<gameplay::Model>();
 
         std::string line;
         while( std::getline(obj, line) )
@@ -214,11 +218,6 @@ namespace loader
 
             if( boost::algorithm::istarts_with(line, "usemtl ") )
             {
-                if( !activeMaterial.empty() )
-                {
-                    result.back()->addMesh(buildMesh(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
-                }
-
                 auto space = line.find(' ');
                 if( space != std::string::npos )
                 {
@@ -314,7 +313,7 @@ namespace loader
                     BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after f statement"));
                 }
 
-                std::array<std::array<int, 3>, 3> face;
+                Face face;
                 for( int i = 0; i < 3; ++i )
                 {
                     std::vector<std::string> stringIdx;
@@ -325,66 +324,78 @@ namespace loader
                     // v/vt/vn
                     auto& idx = face[i];
 
-                    for( int j = 0; j < 3; ++j )
                     {
-                        if( stringIdx.size() > j && !stringIdx[j].empty() )
-                            idx[j] = boost::lexical_cast<int>(stringIdx[j]);
-                        else if( j != 0 )
-                            idx[j] = idx[0];
+                        if( stringIdx.size() > 0 && !stringIdx[0].empty() )
+                            idx.v = boost::lexical_cast<int>(stringIdx[0]);
                         else
-                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
+                            BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
+                        if( stringIdx.size() > 1 && !stringIdx[1].empty() )
+                            idx.vt = boost::lexical_cast<int>(stringIdx[1]);
+                        else
+                            idx.vt = idx.v;
+                        if( stringIdx.size() > 2 && !stringIdx[2].empty() )
+                            idx.vn = boost::lexical_cast<int>(stringIdx[2]);
+                        else
+                            idx.vn = idx.v;
                     }
 
                     // v
-                    if( idx[0] > 0 )
-                        --idx[0];
+                    if( idx.v > 0 )
+                        --idx.v;
                     else
-                        idx[0] = vpos.size() - idx[0];
+                        idx.v = vpos.size() - idx.v;
 
-                    if( idx[0] >= vpos.size() )
+                    if( idx.v >= vpos.size() )
                     {
                         BOOST_THROW_EXCEPTION(std::runtime_error("v index out of bounds"));
                     }
 
                     // vt
-                    if( idx[1] > 0 )
-                        --idx[1];
+                    if( idx.vt > 0 )
+                        --idx.vt;
                     else
-                        idx[1] = uvCoords.size() - idx[1];
+                        idx.vt = uvCoords.size() - idx.vt;
 
-                    if( idx[1] >= uvCoords.size() )
+                    if( idx.vt >= uvCoords.size() )
                     {
                         BOOST_THROW_EXCEPTION(std::runtime_error("vt index out of bounds"));
                     }
 
                     // vn
-                    if( idx[2] > 0 )
-                        --idx[2];
+                    if( idx.vn > 0 )
+                        --idx.vn;
                     else
-                        idx[2] = vnorm.size() - idx[2];
+                        idx.vn = vnorm.size() - idx.vn;
 
-                    if( !vnorm.empty() && idx[2] >= vnorm.size() )
+                    if( !vnorm.empty() && idx.vn >= vnorm.size() )
                     {
                         BOOST_THROW_EXCEPTION(std::runtime_error("vn index out of bounds"));
                     }
                 }
 
-                faces.push_back(face);
+                meshes[activeMaterial].push_back(face);
 
                 continue;
             }
 
             if( boost::algorithm::istarts_with(line, "o ") )
             {
-                result.emplace_back(std::make_shared<gameplay::Model>());
-
                 continue;
             }
         }
 
-        if( !activeMaterial.empty() )
+        TriList tris;
+        for(const FaceList& mesh : meshes | boost::adaptors::map_values)
         {
-            result.back()->addMesh(buildMesh(mtlLib, activeMaterial, uvCoords, vpos, vnorm, faces));
+            for(const Face& face : mesh)
+            {
+                tris.push_back({ vpos[face[0].v], vpos[face[1].v], vpos[face[2].v] });
+            }
+        }
+
+        for(const auto& mesh : meshes)
+        {
+            result->addMesh(buildMesh(mtlLib, mesh.first, uvCoords, vpos, vnorm, mesh.second, ambientColor, tris));
         }
 
         return result;
@@ -480,13 +491,79 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(std::map<std::string,
-                                                         std::shared_ptr<gameplay::Material>> mtlLib,
-                                                         std::string activeMaterial,
-                                                         std::vector<glm::vec2> uvCoords,
-                                                         std::vector<glm::vec3> vpos,
-                                                         std::vector<glm::vec3> vnorm,
-                                                         std::vector<std::array<std::array<int, 3>, 3>> faces) const
+    bool rayIntersectsTriangle(const glm::vec3& start, const glm::vec3& end,
+                               const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+    {
+        if(start == v0 || start == v1 || start == v2)
+            return false;
+        if(end == v0 || end == v1 || end == v2)
+            return false;
+
+        const auto dir = end - start;
+
+        const auto e1 = v1 - v0;
+        const auto e2 = v2 - v0;
+
+        const auto p = glm::cross(dir, e2);
+
+        const auto a = glm::dot(e1, p);
+
+        const auto Epsilon = std::numeric_limits<decltype(a)>::epsilon();
+        if(glm::abs(a) <= Epsilon)
+            return false;
+
+        const auto f = decltype(a)(1) / a;
+
+        const auto s = start - v0;
+        const auto x = f * glm::dot(s, p);
+        if(x < 0)
+            return false;
+        if(x > 1)
+            return false;
+
+        const auto q = glm::cross(s, e1);
+        const auto y = f * glm::dot(dir, q);
+        if(y < 0)
+            return false;
+        if(y + x > 1)
+            return false;
+
+        const auto z = f * glm::dot(e2, q);
+
+        return z >= 0 && z <= 1;
+    }
+
+    void OBJWriter::calcColor(glm::vec4& vertexColor, const glm::vec3& vpos, const glm::vec3& ambientColor, const TriList& tris)
+    {
+        const auto lpos = glm::vec3(2.9953809f, 2.9791765f, -7.5483832f) * static_cast<float>(SectorSize);
+
+        const auto d = glm::distance(lpos, vpos);
+        static constexpr float outerRadius = 7 * SectorSize;
+        vertexColor = glm::vec4(ambientColor, 0);
+        if(d > outerRadius)
+            return;
+
+        for(const auto& tri : tris)
+        {
+            if(rayIntersectsTriangle(lpos, vpos, tri[0], tri[1], tri[2]))
+            {
+                return;
+            }
+        }
+
+        static const glm::vec4 lcolor = glm::vec4(5, .25, .25, 1);
+        const auto f = 1 - d / outerRadius;
+        vertexColor += lcolor * (f * f);
+    }
+
+    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(const std::map<std::string, std::shared_ptr<gameplay::Material>>& mtlLib,
+                                                         const std::string& activeMaterial,
+                                                         const std::vector<glm::vec2>& uvCoords,
+                                                         const std::vector<glm::vec3>& vpos,
+                                                         const std::vector<glm::vec3>& vnorm,
+                                                         const FaceList& faces,
+                                                         const glm::vec3& ambientColor,
+                                                         const TriList& tris) const
     {
 #pragma pack(push, 1)
         struct VDataNormal
@@ -544,8 +621,10 @@ namespace loader
                 for( const auto& idx : face )
                 {
                     VData vertex;
-                    vertex.position = vpos[idx[0]];
-                    vertex.uv = uvCoords[idx[1]];
+                    vertex.position = vpos[idx.v];
+                    vertex.uv = uvCoords[idx.vt];
+
+                    calcColor(vertex.color, vertex.position, ambientColor, tris);
 
                     idxbuf.push_back(vbuf.size());
                     vbuf.push_back(vertex);
@@ -557,8 +636,9 @@ namespace loader
 
             auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, idxbuf.size(), false);
             part->setIndexData(idxbuf.data(), 0, idxbuf.size());
-            BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
-            part->setMaterial(mtlLib[activeMaterial]);
+            const auto mtl = mtlLib.find(activeMaterial);
+            BOOST_ASSERT(mtl != mtlLib.end());
+            part->setMaterial(mtl->second);
 
             return mesh;
         }
@@ -573,9 +653,11 @@ namespace loader
                 for( const auto& idx : face )
                 {
                     VDataNormal vertex;
-                    vertex.position = vpos[idx[0]];
-                    vertex.uv = uvCoords[idx[1]];
-                    vertex.normal = vnorm[idx[2]];
+                    vertex.position = vpos[idx.v];
+                    vertex.uv = uvCoords[idx.vt];
+                    vertex.normal = vnorm[idx.vn];
+
+                    calcColor(vertex.color, vertex.position, ambientColor, tris);
 
                     idxbuf.push_back(vbuf.size());
                     vbuf.push_back(vertex);
@@ -587,8 +669,9 @@ namespace loader
 
             auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, idxbuf.size(), false);
             part->setIndexData(idxbuf.data(), 0, idxbuf.size());
-            BOOST_ASSERT(mtlLib.find(activeMaterial) != mtlLib.end());
-            part->setMaterial(mtlLib[activeMaterial]);
+            const auto mtl = mtlLib.find(activeMaterial);
+            BOOST_ASSERT(mtl != mtlLib.end());
+            part->setMaterial(mtl->second);
 
             return mesh;
         }
