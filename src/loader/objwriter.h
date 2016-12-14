@@ -32,10 +32,17 @@ namespace loader
         std::shared_ptr<gameplay::Texture> readTexture(const boost::filesystem::path& path) const;
 
 
-        std::shared_ptr<gameplay::Material> readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
+        struct MaterialLibEntry
+        {
+            std::shared_ptr<gameplay::Material> material;
+            std::string texture;
+        };
 
 
-        std::map<std::string, std::shared_ptr<gameplay::Material>> readMaterialLib(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
+        MaterialLibEntry readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
+
+
+        std::map<std::string, MaterialLibEntry> readMaterialLib(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
 
 
         bool exists(const boost::filesystem::path& path) const
@@ -86,7 +93,7 @@ namespace loader
         mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::Image>> m_imageCache;
 
 
-        std::shared_ptr<gameplay::Mesh> buildMesh(const std::map<std::string, std::shared_ptr<gameplay::Material>>& mtlLib,
+        std::shared_ptr<gameplay::Mesh> buildMesh(const std::map<std::string, MaterialLibEntry>& mtlLib,
                                                   const std::string& activeMaterial,
                                                   const std::vector<glm::vec2>& uvCoords,
                                                   const std::vector<glm::vec3>& vpos,
@@ -103,5 +110,7 @@ namespace loader
                        const glm::vec3& ambientColor) const;
 
         static void calcColor(glm::vec4& vertexColor, const glm::vec3& vpos, const glm::vec3& ambientColor, const TriList& tris);
+
+        std::shared_ptr<gameplay::Model> readCache(const boost::filesystem::path& cachename, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
     };
 }

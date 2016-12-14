@@ -68,22 +68,24 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Material> OBJWriter::readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+    OBJWriter::MaterialLibEntry OBJWriter::readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
     {
         auto texture = readTexture(path);
         auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
         sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
 
-        auto material = std::make_shared<gameplay::Material>(shaderProgram);
-        material->getParameter("u_diffuseTexture")->set(sampler);
-        material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
-        material->initStateBlockDefaults();
+        MaterialLibEntry material;
+        material.texture = path.string();
+        material.material = std::make_shared<gameplay::Material>(shaderProgram);
+        material.material->getParameter("u_diffuseTexture")->set(sampler);
+        material.material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
+        material.material->initStateBlockDefaults();
 
         return material;
     }
 
 
-    std::map<std::string, std::shared_ptr<gameplay::Material>> OBJWriter::readMaterialLib(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+    std::map<std::string, OBJWriter::MaterialLibEntry> OBJWriter::readMaterialLib(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
     {
         std::ifstream mtl{(m_basePath / path).string(), std::ios::in};
         if( !mtl.is_open() )
@@ -91,7 +93,7 @@ namespace loader
             BOOST_THROW_EXCEPTION(std::runtime_error("Cannot open .mtl file"));
         }
 
-        std::map<std::string, std::shared_ptr<gameplay::Material>> result;
+        std::map<std::string, MaterialLibEntry> result;
 
         std::string line, mtlName;
         while( std::getline(mtl, line) )
@@ -166,13 +168,22 @@ namespace loader
 
     std::shared_ptr<gameplay::Model> OBJWriter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
     {
+        const auto cacheName = (m_basePath / path).replace_extension("cache");
+        // if the cache is newer, use it!
+        if(boost::filesystem::is_regular_file(cacheName) && boost::filesystem::last_write_time(m_basePath / path) < boost::filesystem::last_write_time(cacheName))
+        {
+            BOOST_LOG_TRIVIAL(debug) << "Loading model from cache...";
+            //return readCache(cacheName, shaderProgram);
+        }
+
+        BOOST_LOG_TRIVIAL(debug) << "Loading model from OBJ...";
         std::ifstream obj{(m_basePath / path).string(), std::ios::in};
         if( !obj.is_open() )
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("Cannot open .obj file"));
         }
 
-        std::map<std::string, std::shared_ptr<gameplay::Material>> mtlLib;
+        std::map<std::string, MaterialLibEntry> mtlLib;
         std::string activeMaterial;
 
         std::vector<glm::vec2> uvCoords;
@@ -393,10 +404,54 @@ namespace loader
             }
         }
 
-        for(const auto& mesh : meshes)
+        std::ofstream cache{ cacheName.string(), std::ios::out | std::ios::binary | std::ios::trunc };
+        if(cache.is_open())
         {
-            result->addMesh(buildMesh(mtlLib, mesh.first, uvCoords, vpos, vnorm, mesh.second, ambientColor, tris));
+            if(vnorm.empty())
+                cache << '+';
+            else
+                cache << '-';
         }
+
+        for(const auto& objMesh : meshes)
+        {
+            const auto mesh = buildMesh(mtlLib, objMesh.first, uvCoords, vpos, vnorm, objMesh.second, ambientColor, tris);
+            result->addMesh(mesh);
+
+            if(!cache.is_open())
+                continue;
+
+            BOOST_LOG_TRIVIAL(debug) << "Storing to cache...";
+            uint32_t count = mesh->getVertexCount();
+            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
+            cache.write(static_cast<const char*>(mesh->map()), count * mesh->getVertexSize());
+            mesh->unmap();
+
+            for(size_t p = 0; p < mesh->getPartCount(); ++p)
+            {
+                const auto& part = mesh->getPart(p);
+                BOOST_ASSERT(part->getIndexFormat() == gameplay::Mesh::INDEX32);
+
+                bool foundMaterial = false;
+                for(const auto& mtl : mtlLib)
+                {
+                    if(part->getMaterial() != mtl.second.material)
+                        continue;
+
+                    foundMaterial = true;
+                    count = mtl.second.texture.size();
+                    cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
+                    cache.write(mtl.second.texture.c_str(), count * sizeof(char));
+                }
+                BOOST_ASSERT(foundMaterial);
+
+                count = part->getIndexCount();
+                cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
+                cache.write(static_cast<const char*>(part->map()), count * sizeof(uint32_t));
+                part->unmap();
+            }
+        }
+
 
         return result;
     }
@@ -556,7 +611,20 @@ namespace loader
         vertexColor += lcolor * (f * f);
     }
 
-    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(const std::map<std::string, std::shared_ptr<gameplay::Material>>& mtlLib,
+
+    template<typename T>
+    inline size_t findOrAppend(const T& value, std::vector<T>& buffer)
+    {
+        auto it = std::find(buffer.begin(), buffer.end(), value);
+        if(it != buffer.end())
+            return std::distance(buffer.begin(), it);
+
+        buffer.push_back(value);
+        return buffer.size() - 1;
+    }
+
+
+    std::shared_ptr<gameplay::Mesh> OBJWriter::buildMesh(const std::map<std::string, MaterialLibEntry>& mtlLib,
                                                          const std::string& activeMaterial,
                                                          const std::vector<glm::vec2>& uvCoords,
                                                          const std::vector<glm::vec3>& vpos,
@@ -565,9 +633,19 @@ namespace loader
                                                          const glm::vec3& ambientColor,
                                                          const TriList& tris) const
     {
+        BOOST_LOG_TRIVIAL(debug) << "Building mesh...";
+
 #pragma pack(push, 1)
         struct VDataNormal
         {
+            bool operator==(const VDataNormal& rhs) const
+            {
+                return color == rhs.color
+                       && position == rhs.position
+                       && uv == rhs.uv
+                       && normal == rhs.normal;
+            }
+
             glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
             glm::vec3 position;
             glm::vec2 uv;
@@ -590,6 +668,13 @@ namespace loader
         };
         struct VData
         {
+            bool operator==(const VData& rhs) const
+            {
+                return color == rhs.color
+                    && position == rhs.position
+                    && uv == rhs.uv;
+            }
+
             glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
             glm::vec3 position;
             glm::vec2 uv;
@@ -626,8 +711,7 @@ namespace loader
 
                     calcColor(vertex.color, vertex.position, ambientColor, tris);
 
-                    idxbuf.push_back(vbuf.size());
-                    vbuf.push_back(vertex);
+                    idxbuf.push_back(findOrAppend(vertex, vbuf));
                 }
             }
 
@@ -638,7 +722,7 @@ namespace loader
             part->setIndexData(idxbuf.data(), 0, idxbuf.size());
             const auto mtl = mtlLib.find(activeMaterial);
             BOOST_ASSERT(mtl != mtlLib.end());
-            part->setMaterial(mtl->second);
+            part->setMaterial(mtl->second.material);
 
             return mesh;
         }
@@ -659,8 +743,7 @@ namespace loader
 
                     calcColor(vertex.color, vertex.position, ambientColor, tris);
 
-                    idxbuf.push_back(vbuf.size());
-                    vbuf.push_back(vertex);
+                    idxbuf.push_back(findOrAppend(vertex, vbuf));
                 }
             }
 
@@ -671,7 +754,7 @@ namespace loader
             part->setIndexData(idxbuf.data(), 0, idxbuf.size());
             const auto mtl = mtlLib.find(activeMaterial);
             BOOST_ASSERT(mtl != mtlLib.end());
-            part->setMaterial(mtl->second);
+            part->setMaterial(mtl->second.material);
 
             return mesh;
         }
