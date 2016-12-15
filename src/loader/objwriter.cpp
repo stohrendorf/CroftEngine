@@ -10,6 +10,10 @@
 #include <algorithm>
 #include <fstream>
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
 
 namespace
 {
@@ -106,8 +110,7 @@ namespace loader
                 return it->second;
         }
 
-        auto fullPath = m_basePath / path;
-        cimg_library::CImg<float> img(fullPath.string().c_str());
+        cimg_library::CImg<float> img((m_basePath / path).string().c_str());
         img /= 255;
 
         const auto w = img.width();
@@ -238,352 +241,87 @@ namespace loader
 
     std::shared_ptr<gameplay::Model> OBJWriter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
     {
-        const auto cacheName = (m_basePath / path).replace_extension("cache");
-        // if the cache is newer, use it!
-        if( boost::filesystem::is_regular_file(cacheName) && boost::filesystem::last_write_time(m_basePath / path) < boost::filesystem::last_write_time(cacheName) )
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile((m_basePath / path).string(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_ValidateDataStructure);
+        BOOST_ASSERT(scene != nullptr);
+
+        auto renderModel = std::make_shared<gameplay::Model>();
+
+        for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
         {
-            BOOST_LOG_TRIVIAL(debug) << "Loading model from cache...";
+            BOOST_LOG_TRIVIAL(info) << "Converting mesh " << mi + 1 << " of " << scene->mNumMeshes << " from " << m_basePath/path;
 
-            std::ifstream cache{ cacheName.string(), std::ios::in | std::ios::binary };
-            if(cache.is_open())
+            const aiMesh* mesh = scene->mMeshes[mi];
+            if(mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE)
+                BOOST_THROW_EXCEPTION(std::runtime_error("Mesh does not consist of triangles only"));
+            if(!mesh->HasTextureCoords(0))
+                BOOST_THROW_EXCEPTION(std::runtime_error("Mesh does not have UV coordinates"));
+            if(mesh->mNumUVComponents[0] != 2)
+                BOOST_THROW_EXCEPTION(std::runtime_error("Mesh does not have a 2D UV channel"));
+            if(!mesh->HasFaces())
+                BOOST_THROW_EXCEPTION(std::runtime_error("Mesh does not have faces"));
+            if(!mesh->HasPositions())
+                BOOST_THROW_EXCEPTION(std::runtime_error("Mesh does not have positions"));
+
+            std::shared_ptr<gameplay::Mesh> renderMesh;
+
+            if(mesh->HasNormals())
             {
-                char normalMode;
-                cache >> normalMode;
-                BOOST_ASSERT(normalMode == '+' || normalMode == '-');
-                uint32_t meshCount;
-                cache.read(reinterpret_cast<char*>(&meshCount), sizeof(meshCount));
-
-                std::shared_ptr<gameplay::Model> result = std::make_shared<gameplay::Model>();
-
-                for(uint32_t mi = 0; mi < meshCount; ++mi)
+                std::vector<VDataNormal> vbuf(mesh->mNumVertices);
+                for(unsigned int i = 0; i < mesh->mNumVertices; ++i)
                 {
-                    BOOST_LOG_TRIVIAL(debug) << "Reading mesh " << mi << " from cache...";
-
-                    auto mesh = std::make_shared<gameplay::Mesh>(normalMode == '-' ? VDataNormal::getFormat() : VData::getFormat(), 0, false);
-
-                    uint32_t vertexCount;
-                    cache.read(reinterpret_cast<char*>(&vertexCount), sizeof(vertexCount));
-                    std::vector<char> dataBuffer;
-                    dataBuffer.resize(vertexCount * mesh->getVertexSize());
-                    cache.read(dataBuffer.data(), dataBuffer.size());
-
-                    mesh->rebuild(reinterpret_cast<float*>(dataBuffer.data()), vertexCount);
-
-                    uint32_t partCount;
-                    cache.read(reinterpret_cast<char*>(&partCount), sizeof(partCount));
-
-                    for(uint32_t p = 0; p < partCount; ++p)
-                    {
-                        MaterialLibEntry material;
-                        {
-                            uint32_t strLength;
-                            cache.read(reinterpret_cast<char*>(&strLength), sizeof(strLength));
-                            dataBuffer.resize(strLength * sizeof(char));
-                            cache.read(dataBuffer.data(), dataBuffer.size());
-
-                            material = readMaterial(std::string(dataBuffer.data(), dataBuffer.size()), shaderProgram);
-                        }
-                        BOOST_ASSERT(material.material != nullptr);
-
-                        uint32_t indexCount;
-                        cache.read(reinterpret_cast<char*>(&indexCount), sizeof(indexCount));
-                        dataBuffer.resize(indexCount * sizeof(uint32_t));
-                        cache.read(dataBuffer.data(), dataBuffer.size());
-
-                        const auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, indexCount, false);
-                        part->setMaterial(material.material);
-                        part->setIndexData(dataBuffer.data(), 0, indexCount);
-                    }
-
-                    result->addMesh(mesh);
-                }
-
-                return result;
-            }
-        }
-
-        BOOST_LOG_TRIVIAL(debug) << "Loading model from OBJ...";
-        std::ifstream obj{(m_basePath / path).string(), std::ios::in};
-        if( !obj.is_open() )
-        {
-            BOOST_THROW_EXCEPTION(std::runtime_error("Cannot open .obj file"));
-        }
-
-        std::map<std::string, MaterialLibEntry> mtlLib;
-        std::string activeMaterial;
-
-        std::vector<glm::vec2> uvCoords;
-        std::vector<glm::vec3> vpos;
-        std::vector<glm::vec3> vnorm;
-
-        std::map<std::string, FaceList> meshes;
-
-        std::shared_ptr<gameplay::Model> result = std::make_shared<gameplay::Model>();
-
-        std::string line;
-        while( std::getline(obj, line) )
-        {
-            boost::algorithm::trim(line);
-
-            if( line.empty() || line[0] == '#' )
-                continue;
-
-            if( boost::algorithm::istarts_with(line, "mtllib ") )
-            {
-                auto space = line.find(' ');
-                std::string mtlLibName;
-                if( space != std::string::npos )
-                {
-                    mtlLibName = line.substr(space);
-                    boost::algorithm::trim(mtlLibName);
-                }
-                else
-                {
-                    mtlLibName.clear();
-                }
-
-                if( mtlLibName.empty() )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Missing material library filename after mtllib statement"));
-                }
-
-                mtlLib = readMaterialLib(mtlLibName, shaderProgram);
-                activeMaterial.clear();
-
-                continue;
-            }
-
-            if( boost::algorithm::istarts_with(line, "usemtl ") )
-            {
-                auto space = line.find(' ');
-                if( space != std::string::npos )
-                {
-                    activeMaterial = line.substr(space);
-                    boost::algorithm::trim(activeMaterial);
-                }
-                else
-                {
-                    activeMaterial.clear();
-                }
-
-                if( activeMaterial.empty() )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Missing material name after usemtl statement"));
-                }
-
-                if( mtlLib.find(activeMaterial) == mtlLib.end() )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Material used in usemtl statement is undefined"));
-                }
-
-                continue;
-            }
-
-            if( boost::algorithm::istarts_with(line, "v ") )
-            {
-                std::vector<std::string> parts;
-                boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
-
-                if( parts.size() != 4 )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after v statement"));
-                }
-
-                const auto x = boost::lexical_cast<float>(parts[1]) * SectorSize;
-                const auto y = boost::lexical_cast<float>(parts[2]) * SectorSize;
-                const auto z = boost::lexical_cast<float>(parts[3]) * SectorSize;
-
-                vpos.emplace_back(x, y, z);
-
-                continue;
-            }
-
-            if( boost::algorithm::istarts_with(line, "vn ") )
-            {
-                std::vector<std::string> parts;
-                boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
-
-                if( parts.size() != 4 )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after vn statement"));
-                }
-
-                const auto x = boost::lexical_cast<float>(parts[1]);
-                const auto y = boost::lexical_cast<float>(parts[2]);
-                const auto z = boost::lexical_cast<float>(parts[3]);
-
-                vnorm.emplace_back(x, y, z);
-
-                continue;
-            }
-
-            if( boost::algorithm::istarts_with(line, "vt ") )
-            {
-                std::vector<std::string> parts;
-                boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
-
-                if( parts.size() != 3 )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Expected 2 space-separated elements after vt statement"));
-                }
-
-                const auto x = boost::lexical_cast<float>(parts[1]);
-                const auto y = 1 - boost::lexical_cast<float>(parts[2]);
-
-                uvCoords.push_back(glm::vec2{x, y});
-
-                continue;
-            }
-
-            if( boost::algorithm::istarts_with(line, "f ") )
-            {
-                if( activeMaterial.empty() )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Face definition without active material"));
-                }
-
-                std::vector<std::string> parts;
-                boost::algorithm::split(parts, line, [](char c) { return c == ' '; }, boost::token_compress_on);
-
-                if( parts.size() != 4 )
-                {
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Expected 3 space-separated elements after f statement"));
-                }
-
-                Face face;
-                for( int i = 0; i < 3; ++i )
-                {
-                    std::vector<std::string> stringIdx;
-                    boost::algorithm::split(stringIdx, parts[1 + i], [](char c) { return c == '/'; }, boost::token_compress_off);
-                    for( auto& str : stringIdx )
-                        boost::algorithm::trim(str);
-
-                    // v/vt/vn
-                    auto& idx = face[i];
-
-                    {
-                        if( stringIdx.size() > 0 && !stringIdx[0].empty() )
-                            idx.v = boost::lexical_cast<int>(stringIdx[0]);
-                        else
-                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
-                        if( stringIdx.size() > 1 && !stringIdx[1].empty() )
-                            idx.vt = boost::lexical_cast<int>(stringIdx[1]);
-                        else
-                            idx.vt = idx.v;
-                        if( stringIdx.size() > 2 && !stringIdx[2].empty() )
-                            idx.vn = boost::lexical_cast<int>(stringIdx[2]);
-                        else
-                            idx.vn = idx.v;
-                    }
-
-                    // v
-                    if( idx.v > 0 )
-                        --idx.v;
+                    vbuf[i].position = glm::vec3{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z } * static_cast<float>(SectorSize);
+                    vbuf[i].normal = glm::vec3{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+                    vbuf[i].uv = glm::vec2{ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+                    if(mesh->HasVertexColors(0))
+                        vbuf[i].color = glm::vec4(mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b, mesh->mColors[0][i].a);
                     else
-                        idx.v = vpos.size() - idx.v;
-
-                    if( idx.v >= vpos.size() )
-                    {
-                        BOOST_THROW_EXCEPTION(std::runtime_error("v index out of bounds"));
-                    }
-
-                    // vt
-                    if( idx.vt > 0 )
-                        --idx.vt;
-                    else
-                        idx.vt = uvCoords.size() - idx.vt;
-
-                    if( idx.vt >= uvCoords.size() )
-                    {
-                        BOOST_THROW_EXCEPTION(std::runtime_error("vt index out of bounds"));
-                    }
-
-                    // vn
-                    if( idx.vn > 0 )
-                        --idx.vn;
-                    else
-                        idx.vn = vnorm.size() - idx.vn;
-
-                    if( !vnorm.empty() && idx.vn >= vnorm.size() )
-                    {
-                        BOOST_THROW_EXCEPTION(std::runtime_error("vn index out of bounds"));
-                    }
+                        vbuf[i].color = glm::vec4(ambientColor, 1);
                 }
 
-                meshes[activeMaterial].push_back(face);
-
-                continue;
+                renderMesh = std::make_shared<gameplay::Mesh>(VDataNormal::getFormat(), mesh->mNumVertices, false);
+                renderMesh->rebuild(reinterpret_cast<const float*>(vbuf.data()), mesh->mNumVertices);
             }
-
-            if( boost::algorithm::istarts_with(line, "o ") )
-            {
-                continue;
-            }
-        }
-
-        TriList tris;
-        for( const FaceList& mesh : meshes | boost::adaptors::map_values )
-        {
-            for( const Face& face : mesh )
-            {
-                tris.push_back({vpos[face[0].v], vpos[face[1].v], vpos[face[2].v]});
-            }
-        }
-
-        std::ofstream cache{cacheName.string(), std::ios::out | std::ios::binary | std::ios::trunc};
-        if( cache.is_open() )
-        {
-            if( vnorm.empty() )
-                cache << '+';
             else
-                cache << '-';
-            uint32_t count = meshes.size();
-            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
-        }
-
-        for( const auto& objMesh : meshes )
-        {
-            const auto mesh = buildMesh(mtlLib, objMesh.first, uvCoords, vpos, vnorm, objMesh.second, ambientColor, tris);
-            result->addMesh(mesh);
-
-            if( !cache.is_open() )
-                continue;
-
-            BOOST_LOG_TRIVIAL(debug) << "Storing to cache...";
-            uint32_t count = mesh->getVertexCount();
-            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
-            cache.write(static_cast<const char*>(mesh->map()), count * mesh->getVertexSize());
-            mesh->unmap();
-
-            count = mesh->getPartCount();
-            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-            for( size_t p = 0; p < mesh->getPartCount(); ++p )
             {
-                const auto& part = mesh->getPart(p);
-                BOOST_ASSERT(part->getIndexFormat() == gameplay::Mesh::INDEX32);
-
-                bool foundMaterial = false;
-                for( const auto& mtl : mtlLib )
+                std::vector<VData> vbuf(mesh->mNumVertices);
+                for(unsigned int i = 0; i < mesh->mNumVertices; ++i)
                 {
-                    if( part->getMaterial() != mtl.second.material )
-                        continue;
-
-                    foundMaterial = true;
-                    count = mtl.second.texture.size();
-                    cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
-                    cache.write(mtl.second.texture.c_str(), count * sizeof(char));
+                    vbuf[i].position = glm::vec3{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z } *static_cast<float>(SectorSize);
+                    vbuf[i].uv = glm::vec2{ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+                    if(mesh->HasVertexColors(0))
+                        vbuf[i].color = glm::vec4(mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b, mesh->mColors[0][i].a);
+                    else
+                        vbuf[i].color = glm::vec4(ambientColor, 1);
                 }
-                BOOST_ASSERT(foundMaterial);
 
-                count = part->getIndexCount();
-                cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
-                cache.write(static_cast<const char*>(part->map()), count * sizeof(uint32_t));
-                part->unmap();
+                renderMesh = std::make_shared<gameplay::Mesh>(VData::getFormat(), mesh->mNumVertices, false);
+                renderMesh->rebuild(reinterpret_cast<const float*>(vbuf.data()), mesh->mNumVertices);
             }
+
+            std::vector<uint32_t> faces;
+            for(const aiFace& face : gsl::span<aiFace>(mesh->mFaces, mesh->mNumFaces))
+            {
+                BOOST_ASSERT(face.mNumIndices == 3);
+                faces.push_back(face.mIndices[0]);
+                faces.push_back(face.mIndices[1]);
+                faces.push_back(face.mIndices[2]);
+            }
+
+            auto part = renderMesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, mesh->mNumFaces * 3, false);
+            part->setIndexData(faces.data(), 0, faces.size());
+
+            const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+            aiString textureName;
+            if(material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) != aiReturn_SUCCESS)
+                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to get diffuse texture path from mesh"));
+
+            part->setMaterial(readMaterial(textureName.C_Str(), shaderProgram).material);
+
+            renderModel->addMesh(renderMesh);
         }
 
-        return result;
+        return renderModel;
     }
 
 

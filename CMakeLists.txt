@@ -142,6 +142,16 @@ target_include_directories(CImg INTERFACE 3rdparty/CImg)
 target_link_libraries(CImg INTERFACE PNG)
 target_compile_definitions(CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png)
 
+# Dependency: Assimp
+if(NOT SKIP_SYSTEM_Boost)
+    set(SKIP_SYSTEM_Assimp OFF)
+endif()
+
+ot_find_dependency(Assimp)
+target_link_libraries(Assimp INTERFACE ${Assimp_LIBRARIES})
+target_include_directories(Assimp INTERFACE ${Assimp_INCLUDE_DIRS})
+
+
 if(CYGWIN)
     find_package(X11 REQUIRED)
     target_link_libraries(GLFW INTERFACE ${X11_LIBRARIES})

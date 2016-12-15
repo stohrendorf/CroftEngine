@@ -230,6 +230,7 @@ target_link_libraries(
     OpenAL
     SndFile
     CImg
+    Assimp
 )
 
 target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL)
