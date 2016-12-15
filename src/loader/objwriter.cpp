@@ -11,6 +11,76 @@
 #include <fstream>
 
 
+namespace
+{
+#pragma pack(push, 1)
+    struct VDataNormal
+    {
+        bool operator==(const VDataNormal& rhs) const
+        {
+            return color == rhs.color
+                   && position == rhs.position
+                   && uv == rhs.uv
+                   && normal == rhs.normal;
+        }
+
+
+        glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
+        glm::vec3 position;
+        glm::vec2 uv;
+        glm::vec3 normal;
+
+
+        static const gameplay::VertexFormat& getFormat()
+        {
+            static const gameplay::VertexFormat::Element elems[4] = {
+                {gameplay::VertexFormat::COLOR, 4},
+                {gameplay::VertexFormat::POSITION, 3},
+                {gameplay::VertexFormat::TEXCOORD, 2},
+                {gameplay::VertexFormat::NORMAL, 3}
+            };
+            static const gameplay::VertexFormat fmt{elems, 4};
+
+            Expects(fmt.getVertexSize() == sizeof(VDataNormal));
+
+            return fmt;
+        }
+    };
+
+
+    struct VData
+    {
+        bool operator==(const VData& rhs) const
+        {
+            return color == rhs.color
+                   && position == rhs.position
+                   && uv == rhs.uv;
+        }
+
+
+        glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
+        glm::vec3 position;
+        glm::vec2 uv;
+
+
+        static const gameplay::VertexFormat& getFormat()
+        {
+            static const gameplay::VertexFormat::Element elems[3] = {
+                {gameplay::VertexFormat::COLOR, 4},
+                {gameplay::VertexFormat::POSITION, 3},
+                {gameplay::VertexFormat::TEXCOORD, 2}
+            };
+            static const gameplay::VertexFormat fmt{elems, 3};
+
+            Expects(fmt.getVertexSize() == sizeof(VData));
+
+            return fmt;
+        }
+    };
+#pragma pack(pop)
+}
+
+
 namespace loader
 {
     void OBJWriter::write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
@@ -170,10 +240,66 @@ namespace loader
     {
         const auto cacheName = (m_basePath / path).replace_extension("cache");
         // if the cache is newer, use it!
-        if(boost::filesystem::is_regular_file(cacheName) && boost::filesystem::last_write_time(m_basePath / path) < boost::filesystem::last_write_time(cacheName))
+        if( boost::filesystem::is_regular_file(cacheName) && boost::filesystem::last_write_time(m_basePath / path) < boost::filesystem::last_write_time(cacheName) )
         {
             BOOST_LOG_TRIVIAL(debug) << "Loading model from cache...";
-            //return readCache(cacheName, shaderProgram);
+
+            std::ifstream cache{ cacheName.string(), std::ios::in | std::ios::binary };
+            if(cache.is_open())
+            {
+                char normalMode;
+                cache >> normalMode;
+                BOOST_ASSERT(normalMode == '+' || normalMode == '-');
+                uint32_t meshCount;
+                cache.read(reinterpret_cast<char*>(&meshCount), sizeof(meshCount));
+
+                std::shared_ptr<gameplay::Model> result = std::make_shared<gameplay::Model>();
+
+                for(uint32_t mi = 0; mi < meshCount; ++mi)
+                {
+                    BOOST_LOG_TRIVIAL(debug) << "Reading mesh " << mi << " from cache...";
+
+                    auto mesh = std::make_shared<gameplay::Mesh>(normalMode == '-' ? VDataNormal::getFormat() : VData::getFormat(), 0, false);
+
+                    uint32_t vertexCount;
+                    cache.read(reinterpret_cast<char*>(&vertexCount), sizeof(vertexCount));
+                    std::vector<char> dataBuffer;
+                    dataBuffer.resize(vertexCount * mesh->getVertexSize());
+                    cache.read(dataBuffer.data(), dataBuffer.size());
+
+                    mesh->rebuild(reinterpret_cast<float*>(dataBuffer.data()), vertexCount);
+
+                    uint32_t partCount;
+                    cache.read(reinterpret_cast<char*>(&partCount), sizeof(partCount));
+
+                    for(uint32_t p = 0; p < partCount; ++p)
+                    {
+                        MaterialLibEntry material;
+                        {
+                            uint32_t strLength;
+                            cache.read(reinterpret_cast<char*>(&strLength), sizeof(strLength));
+                            dataBuffer.resize(strLength * sizeof(char));
+                            cache.read(dataBuffer.data(), dataBuffer.size());
+
+                            material = readMaterial(std::string(dataBuffer.data(), dataBuffer.size()), shaderProgram);
+                        }
+                        BOOST_ASSERT(material.material != nullptr);
+
+                        uint32_t indexCount;
+                        cache.read(reinterpret_cast<char*>(&indexCount), sizeof(indexCount));
+                        dataBuffer.resize(indexCount * sizeof(uint32_t));
+                        cache.read(dataBuffer.data(), dataBuffer.size());
+
+                        const auto part = mesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, indexCount, false);
+                        part->setMaterial(material.material);
+                        part->setIndexData(dataBuffer.data(), 0, indexCount);
+                    }
+
+                    result->addMesh(mesh);
+                }
+
+                return result;
+            }
         }
 
         BOOST_LOG_TRIVIAL(debug) << "Loading model from OBJ...";
@@ -339,7 +465,7 @@ namespace loader
                         if( stringIdx.size() > 0 && !stringIdx[0].empty() )
                             idx.v = boost::lexical_cast<int>(stringIdx[0]);
                         else
-                            BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Missing vertex coordinate index in f statement"));
                         if( stringIdx.size() > 1 && !stringIdx[1].empty() )
                             idx.vt = boost::lexical_cast<int>(stringIdx[1]);
                         else
@@ -396,29 +522,31 @@ namespace loader
         }
 
         TriList tris;
-        for(const FaceList& mesh : meshes | boost::adaptors::map_values)
+        for( const FaceList& mesh : meshes | boost::adaptors::map_values )
         {
-            for(const Face& face : mesh)
+            for( const Face& face : mesh )
             {
-                tris.push_back({ vpos[face[0].v], vpos[face[1].v], vpos[face[2].v] });
+                tris.push_back({vpos[face[0].v], vpos[face[1].v], vpos[face[2].v]});
             }
         }
 
-        std::ofstream cache{ cacheName.string(), std::ios::out | std::ios::binary | std::ios::trunc };
-        if(cache.is_open())
+        std::ofstream cache{cacheName.string(), std::ios::out | std::ios::binary | std::ios::trunc};
+        if( cache.is_open() )
         {
-            if(vnorm.empty())
+            if( vnorm.empty() )
                 cache << '+';
             else
                 cache << '-';
+            uint32_t count = meshes.size();
+            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
         }
 
-        for(const auto& objMesh : meshes)
+        for( const auto& objMesh : meshes )
         {
             const auto mesh = buildMesh(mtlLib, objMesh.first, uvCoords, vpos, vnorm, objMesh.second, ambientColor, tris);
             result->addMesh(mesh);
 
-            if(!cache.is_open())
+            if( !cache.is_open() )
                 continue;
 
             BOOST_LOG_TRIVIAL(debug) << "Storing to cache...";
@@ -427,15 +555,18 @@ namespace loader
             cache.write(static_cast<const char*>(mesh->map()), count * mesh->getVertexSize());
             mesh->unmap();
 
-            for(size_t p = 0; p < mesh->getPartCount(); ++p)
+            count = mesh->getPartCount();
+            cache.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+            for( size_t p = 0; p < mesh->getPartCount(); ++p )
             {
                 const auto& part = mesh->getPart(p);
                 BOOST_ASSERT(part->getIndexFormat() == gameplay::Mesh::INDEX32);
 
                 bool foundMaterial = false;
-                for(const auto& mtl : mtlLib)
+                for( const auto& mtl : mtlLib )
                 {
-                    if(part->getMaterial() != mtl.second.material)
+                    if( part->getMaterial() != mtl.second.material )
                         continue;
 
                     foundMaterial = true;
@@ -451,7 +582,6 @@ namespace loader
                 part->unmap();
             }
         }
-
 
         return result;
     }
@@ -549,9 +679,9 @@ namespace loader
     bool rayIntersectsTriangle(const glm::vec3& start, const glm::vec3& end,
                                const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
     {
-        if(start == v0 || start == v1 || start == v2)
+        if( start == v0 || start == v1 || start == v2 )
             return false;
-        if(end == v0 || end == v1 || end == v2)
+        if( end == v0 || end == v1 || end == v2 )
             return false;
 
         const auto dir = end - start;
@@ -564,29 +694,30 @@ namespace loader
         const auto a = glm::dot(e1, p);
 
         const auto Epsilon = std::numeric_limits<decltype(a)>::epsilon();
-        if(glm::abs(a) <= Epsilon)
+        if( glm::abs(a) <= Epsilon )
             return false;
 
         const auto f = decltype(a)(1) / a;
 
         const auto s = start - v0;
         const auto x = f * glm::dot(s, p);
-        if(x < 0)
+        if( x < 0 )
             return false;
-        if(x > 1)
+        if( x > 1 )
             return false;
 
         const auto q = glm::cross(s, e1);
         const auto y = f * glm::dot(dir, q);
-        if(y < 0)
+        if( y < 0 )
             return false;
-        if(y + x > 1)
+        if( y + x > 1 )
             return false;
 
         const auto z = f * glm::dot(e2, q);
 
         return z >= 0 && z <= 1;
     }
+
 
     void OBJWriter::calcColor(glm::vec4& vertexColor, const glm::vec3& vpos, const glm::vec3& ambientColor, const TriList& tris)
     {
@@ -595,12 +726,12 @@ namespace loader
         const auto d = glm::distance(lpos, vpos);
         static constexpr float outerRadius = 7 * SectorSize;
         vertexColor = glm::vec4(ambientColor, 0);
-        if(d > outerRadius)
+        if( d > outerRadius )
             return;
 
-        for(const auto& tri : tris)
+        for( const auto& tri : tris )
         {
-            if(rayIntersectsTriangle(lpos, vpos, tri[0], tri[1], tri[2]))
+            if( rayIntersectsTriangle(lpos, vpos, tri[0], tri[1], tri[2]) )
             {
                 return;
             }
@@ -616,7 +747,7 @@ namespace loader
     inline size_t findOrAppend(const T& value, std::vector<T>& buffer)
     {
         auto it = std::find(buffer.begin(), buffer.end(), value);
-        if(it != buffer.end())
+        if( it != buffer.end() )
             return std::distance(buffer.begin(), it);
 
         buffer.push_back(value);
@@ -634,66 +765,6 @@ namespace loader
                                                          const TriList& tris) const
     {
         BOOST_LOG_TRIVIAL(debug) << "Building mesh...";
-
-#pragma pack(push, 1)
-        struct VDataNormal
-        {
-            bool operator==(const VDataNormal& rhs) const
-            {
-                return color == rhs.color
-                       && position == rhs.position
-                       && uv == rhs.uv
-                       && normal == rhs.normal;
-            }
-
-            glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
-            glm::vec3 position;
-            glm::vec2 uv;
-            glm::vec3 normal;
-
-            static const gameplay::VertexFormat& getFormat()
-            {
-                static const gameplay::VertexFormat::Element elems[4] = {
-                    {gameplay::VertexFormat::COLOR, 4},
-                    {gameplay::VertexFormat::POSITION, 3},
-                    {gameplay::VertexFormat::TEXCOORD, 2},
-                    {gameplay::VertexFormat::NORMAL, 3}
-                };
-                static const gameplay::VertexFormat fmt{elems, 4};
-
-                Expects(fmt.getVertexSize() == sizeof(VDataNormal));
-
-                return fmt;
-            }
-        };
-        struct VData
-        {
-            bool operator==(const VData& rhs) const
-            {
-                return color == rhs.color
-                    && position == rhs.position
-                    && uv == rhs.uv;
-            }
-
-            glm::vec4 color = { 0.8f, 0.8f, 0.8f, 1.0f };
-            glm::vec3 position;
-            glm::vec2 uv;
-
-            static const gameplay::VertexFormat& getFormat()
-            {
-                static const gameplay::VertexFormat::Element elems[3] = {
-                    {gameplay::VertexFormat::COLOR, 4},
-                    {gameplay::VertexFormat::POSITION, 3},
-                    {gameplay::VertexFormat::TEXCOORD, 2}
-                };
-                static const gameplay::VertexFormat fmt{elems, 3};
-
-                Expects(fmt.getVertexSize() == sizeof(VData));
-
-                return fmt;
-            }
-        };
-#pragma pack(pop)
 
         if( vnorm.empty() )
         {
