@@ -2,6 +2,10 @@
 
 #include "datatypes.h"
 
+#ifdef _X
+#undef _X
+#endif
+
 #include "CImg.h"
 
 #include <boost/algorithm/string.hpp>
