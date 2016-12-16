@@ -16,6 +16,21 @@ project(OpenTomb)
 
 set(CMAKE_CXX_STANDARD 14)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "GCC or Clang detected")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
+    option(SANITIZE_ADDRESS "Use -fsanitize=address" OFF)
+    if(SANITIZE_ADDRESS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    endif()
+
+    option(SANITIZE_UNDEFINED "Use -fsanitize=undefined" OFF)
+    if(SANITIZE_UNDEFINED)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+    endif()
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 if(WIN32 OR APPLE)
