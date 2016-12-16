@@ -620,7 +620,7 @@ void Level::toIrrlicht(gameplay::Game* game)
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
                 const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex);
-                if(objWriter.exists(filename + ".obj"))
+                if(objWriter.exists(filename + ".fbx"))
                     continue;
 
                 BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
