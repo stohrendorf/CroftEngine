@@ -95,20 +95,17 @@ namespace engine
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
                     ++floorData;
 
-                    if( func != loader::TriggerFunction::Object )
-                    {
-                        if( func == loader::TriggerFunction::CameraTarget )
-                        {
-                            isLastTrigger = loader::isLastFloordataEntry(*floorData);
-                            ++floorData;
-                        }
-                    }
-                    else
+                    if( func == loader::TriggerFunction::Object )
                     {
                         BOOST_ASSERT(func == loader::TriggerFunction::Object);
                         auto it = camera->getLevel()->m_itemNodes.find(param);
                         Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchFloor(pos, hi.distance);
+                    }
+                    else if( func == loader::TriggerFunction::CameraTarget )
+                    {
+                        isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                        ++floorData;
                     }
 
                     if( isLastTrigger )
