@@ -101,7 +101,6 @@ set( OT_IRR_SRCS
      loader/util.h
      loader/io/sdlreader.h
 
-     render/lightselector.h
      render/portaltracer.h
      render/textureanimator.h
 
