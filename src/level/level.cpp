@@ -640,7 +640,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
+                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3(room.ambientBrightness / 8191.0f));
             }
 
             filename = "room_override_" + std::to_string(i) + ".dae";
@@ -651,7 +651,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
             room.node->setDrawable(nullptr);
 
-            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3((8192 - room.darkness) / 8192.0f));
+            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3(room.ambientBrightness / 8191.0f));
             room.node->setDrawable(model);
         }
     }
