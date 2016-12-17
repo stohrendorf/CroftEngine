@@ -10,6 +10,8 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptors.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include <algorithm>
 
@@ -489,6 +491,13 @@ namespace loader
         }
 
         exporter.Export(scene.get(), formatIdentifier.c_str(), fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
+    }
+
+
+    void OBJWriter::write(const std::string& filename, const boost::property_tree::ptree& tree)
+    {
+        std::ofstream file{ (m_basePath / filename).string(), std::ios::trunc };
+        boost::property_tree::write_json(file, tree);
     }
 
 

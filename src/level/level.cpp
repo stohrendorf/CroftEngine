@@ -29,6 +29,7 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 using namespace level;
 
@@ -577,7 +578,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    for(size_t i = 0; i < m_meshes.size(); ++i)
+    for( size_t i = 0; i < m_meshes.size(); ++i )
     {
         m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
                                                       *m_textureAnimator));
@@ -603,22 +604,22 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     }
 
     {
-        loader::OBJWriter objWriter{ assetPath };
+        loader::OBJWriter objWriter{assetPath};
 
-        for(size_t i = 0; i < m_textures.size(); ++i)
+        for( size_t i = 0; i < m_textures.size(); ++i )
         {
             objWriter.write(m_textures[i].toImage(), i);
         }
 
-        for(const auto& trModel : m_animatedModels)
+        for( const auto& trModel : m_animatedModels )
         {
-            for(size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex)
+            for( size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex )
             {
                 BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
                 const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
-                if(objWriter.exists(filename))
+                if( objWriter.exists(filename) )
                     continue;
 
                 BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
@@ -628,12 +629,12 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             }
         }
 
-        for(size_t i=0; i<m_rooms.size(); ++i)
+        for( size_t i = 0; i < m_rooms.size(); ++i )
         {
             auto& room = m_rooms[i];
 
             std::string filename = "room_" + std::to_string(i) + ".dae";
-            if(!objWriter.exists(filename))
+            if( !objWriter.exists(filename) )
             {
                 BOOST_LOG_TRIVIAL(info) << "Saving room model " << filename;
 
@@ -641,10 +642,148 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
                 objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
+
+                filename = "room_" + std::to_string(i) + ".json";
+                BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
+
+                boost::property_tree::ptree floorDataTree;
+                for( size_t x = 0; x < room.sectorCountX; ++x )
+                {
+                    for( size_t z = 0; z < room.sectorCountZ; ++z )
+                    {
+                        const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(x, z);
+                        boost::property_tree::ptree sectorTree;
+                        sectorTree.put("position.x", x);
+                        sectorTree.put("position.z", z);
+                        sectorTree.put("layout.floor", sector->floorHeight * loader::QuarterSectorSize - room.position.Y);
+                        sectorTree.put("layout.ceiling", sector->ceilingHeight * loader::QuarterSectorSize - room.position.Y);
+                        if( sector->roomBelow != 0xff )
+                            sectorTree.put("relations.roomBelow", sector->roomBelow);
+                        if( sector->roomAbove != 0xff )
+                            sectorTree.put("relations.roomAbove", sector->roomAbove);
+                        if( sector->boxIndex != 0xffff )
+                            sectorTree.put("relations.box", sector->boxIndex);
+
+                        const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
+                        while( true )
+                        {
+                            const bool isLast = loader::isLastFloordataEntry(*rawFloorData);
+                            const auto triggerType = loader::extractTriggerType(*rawFloorData);
+                            const auto currentFd = *rawFloorData;
+                            ++rawFloorData;
+                            switch( loader::extractFDFunction(currentFd) )
+                            {
+                                case loader::FDFunction::FloorSlant:
+                                    sectorTree.put("layout.floorSlant.x", gsl::narrow_cast<int>(*rawFloorData & 0xff));
+                                    sectorTree.put("layout.floorSlant.z", gsl::narrow_cast<int>((*rawFloorData >> 8) & 0xff));
+                                    break;
+                                case loader::FDFunction::CeilingSlant:
+                                    sectorTree.put("layout.ceilingSlant.x", gsl::narrow_cast<int>(*rawFloorData & 0xff));
+                                    sectorTree.put("layout.ceilingSlant.z", gsl::narrow_cast<int>((*rawFloorData >> 8) & 0xff));
+                                    break;
+                                case loader::FDFunction::PortalSector:
+                                    ++rawFloorData;
+                                    break;
+                                case loader::FDFunction::Death:
+                                    sectorTree.add("characteristics", "deadly");
+                                    break;
+                                case loader::FDFunction::Trigger:
+                                    ++rawFloorData;
+                                    while( true )
+                                    {
+                                        bool isLastTrigger = loader::isLastFloordataEntry(*rawFloorData);
+
+                                        const auto func = loader::extractTriggerFunction(*rawFloorData);
+                                        const auto param = loader::extractTriggerFunctionParam(*rawFloorData);
+                                        ++rawFloorData;
+
+                                        boost::property_tree::ptree triggerTree;
+
+                                        switch( func )
+                                        {
+                                            case loader::TriggerFunction::Object:
+                                                triggerTree.put("type", "object");
+                                                triggerTree.put("itemId", param);
+                                                break;
+                                            case loader::TriggerFunction::CameraTarget:
+                                                triggerTree.put("type", "cameraTarget");
+                                                triggerTree.put("cameraId", param);
+                                                triggerTree.put("timeout", int(*rawFloorData & 0xff));
+                                                triggerTree.put("activate", *rawFloorData & 0x100 != 0);
+                                                triggerTree.put("smoothness", (*rawFloorData>>9) & 0x1f);
+                                                isLastTrigger = loader::isLastFloordataEntry(*rawFloorData);
+                                                ++rawFloorData;
+                                                break;
+                                            case loader::TriggerFunction::UnderwaterCurrent:
+                                                triggerTree.put("type", "underwaterFlow");
+                                                break;
+                                            case loader::TriggerFunction::FlipMap:
+                                                triggerTree.put("type", "flipMap");
+                                                triggerTree.put("maskId", param);
+                                                break;
+                                            case loader::TriggerFunction::FlipOn:
+                                                triggerTree.put("type", "flipOn");
+                                                triggerTree.put("maskId", param);
+                                                break;
+                                            case loader::TriggerFunction::FlipOff:
+                                                triggerTree.put("type", "flipOff");
+                                                triggerTree.put("maskId", param);
+                                                break;
+                                            case loader::TriggerFunction::LookAt:
+                                                triggerTree.put("type", "lookAt");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::EndLevel:
+                                                triggerTree.put("type", "endLevel");
+                                                break;
+                                            case loader::TriggerFunction::PlayTrack:
+                                                triggerTree.put("type", "playTrack");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::FlipEffect:
+                                                triggerTree.put("type", "flipEffect");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::Secret:
+                                                triggerTree.put("type", "secret");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::ClearBodies:
+                                                triggerTree.put("type", "clearBodies");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::FlyBy:
+                                                triggerTree.put("type", "flyby");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            case loader::TriggerFunction::CutScene:
+                                                triggerTree.put("type", "cutScene");
+                                                triggerTree.put("target", param);
+                                                break;
+                                            default: ;
+                                        }
+
+                                        sectorTree.add_child("behaviour.triggers", triggerTree);
+
+                                        if( isLastTrigger )
+                                            break;
+                                    }
+                                default:
+                                    break;
+                            }
+                            if( isLast )
+                                break;
+                        }
+
+                        floorDataTree.add_child("sectors", sectorTree);
+                    }
+                }
+
+                objWriter.write(filename, floorDataTree);
             }
 
             filename = "room_override_" + std::to_string(i) + ".dae";
-            if(!objWriter.exists(filename))
+            if( !objWriter.exists(filename) )
                 continue;
 
             BOOST_LOG_TRIVIAL(info) << "Loading room override model " << filename;
