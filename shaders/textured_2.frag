@@ -1,6 +1,10 @@
 uniform vec3 u_ambientColor;
 uniform sampler2D u_diffuseTexture;
 
+uniform float u_brightness;
+uniform float u_ambient;
+uniform vec3 u_lightPosition;
+
 varying vec2 v_texCoord;
 
 out vec4 out_color;
@@ -30,4 +34,10 @@ void main()
 
     out_color *= WaterColor;
 #endif
+
+    if(u_brightness > 0)
+    {
+        out_color *= (u_ambient + u_brightness);
+        out_color.a = 1;
+    }
 }

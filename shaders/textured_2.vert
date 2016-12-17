@@ -1,7 +1,11 @@
 attribute vec4 a_position;
+attribute vec4 a_normal;
 attribute vec2 a_texCoord;
 
 uniform mat4 u_worldViewProjectionMatrix;
+uniform float u_brightness;
+uniform float u_ambient;
+uniform vec3 u_lightPosition;
 
 varying vec2 v_texCoord;
 

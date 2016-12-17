@@ -531,7 +531,7 @@ namespace loader
         uint16_t sectorCountZ; // "width" of sector list
         uint16_t sectorCountX; // "height" of sector list
         std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
-        int16_t ambientBrightness; //!< 0..8191
+        int16_t ambientDarkness; //!< 0..8191
         int16_t intensity2; // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
         int16_t lightMode; // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
         std::vector<Light> lights; // [NumLights] list of point lights
@@ -619,9 +619,9 @@ namespace loader
             reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
             // read and make consistent
-            room->ambientBrightness = reader.readI16();
+            room->ambientDarkness = reader.readI16();
             // only in TR2-TR4
-            room->intensity2 = room->ambientBrightness;
+            room->intensity2 = room->ambientDarkness;
             // only in TR2
             room->lightMode = 0;
 
@@ -672,7 +672,7 @@ namespace loader
             reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
             // read and make consistent
-            room->ambientBrightness = (8191 - reader.readI16()) << 2;
+            room->ambientDarkness = (8191 - reader.readI16()) << 2;
             room->intensity2 = (8191 - reader.readI16()) << 2;
             room->lightMode = reader.readI16();
 
@@ -693,9 +693,9 @@ namespace loader
                 room->reverbInfo = ReverbType::MediumRoom;
             }
 
-            room->lightColor.r = room->ambientBrightness / 16384.0f;
-            room->lightColor.g = room->ambientBrightness / 16384.0f;
-            room->lightColor.b = room->ambientBrightness / 16384.0f;
+            room->lightColor.r = room->ambientDarkness / 16384.0f;
+            room->lightColor.g = room->ambientDarkness / 16384.0f;
+            room->lightColor.b = room->ambientDarkness / 16384.0f;
             room->lightColor.a = 1.0f;
             return room;
         }
@@ -731,7 +731,7 @@ namespace loader
             room->sectorCountX = reader.readU16();
             reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-            room->ambientBrightness = reader.readI16();
+            room->ambientDarkness = reader.readI16();
             room->intensity2 = reader.readI16();
 
             // only in TR2
@@ -758,9 +758,9 @@ namespace loader
 
             reader.skip(1); // Alternate_group override?
 
-            room->lightColor.r = room->ambientBrightness / 65534.0f;
-            room->lightColor.g = room->ambientBrightness / 65534.0f;
-            room->lightColor.b = room->ambientBrightness / 65534.0f;
+            room->lightColor.r = room->ambientDarkness / 65534.0f;
+            room->lightColor.g = room->ambientDarkness / 65534.0f;
+            room->lightColor.b = room->ambientDarkness / 65534.0f;
             room->lightColor.a = 1.0f;
             return room;
         }
@@ -795,7 +795,7 @@ namespace loader
             room->sectorCountX = reader.readU16();
             reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-            room->ambientBrightness = reader.readI16();
+            room->ambientDarkness = reader.readI16();
             room->intensity2 = reader.readI16();
 
             // only in TR2
@@ -817,8 +817,8 @@ namespace loader
             room->alternateGroup = reader.readU8();
 
             room->lightColor.r = (room->intensity2 & 0x00FF) / 255.0f;
-            room->lightColor.g = ((room->ambientBrightness & 0xFF00) >> 8) / 255.0f;
-            room->lightColor.b = (room->ambientBrightness & 0x00FF) / 255.0f;
+            room->lightColor.g = ((room->ambientDarkness & 0xFF00) >> 8) / 255.0f;
+            room->lightColor.b = (room->ambientDarkness & 0x00FF) / 255.0f;
             room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
             return room;
         }
@@ -833,7 +833,7 @@ namespace loader
             const std::streampos endPos = position + room_data_size;
 
             std::unique_ptr<Room> room{new Room()};
-            room->ambientBrightness = 32767;
+            room->ambientDarkness = 32767;
             room->intensity2 = 32767;
             room->lightMode = 0;
 

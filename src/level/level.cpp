@@ -574,6 +574,9 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                                                                                              "shaders/colored_2.frag");
     colorMaterial->initStateBlockDefaults();
     colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
+    colorMaterial->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
+    colorMaterial->getParameter("u_ambient")->bind(&engine::items::ItemNode::lightAmbientBinder);
+    colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
@@ -640,7 +643,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3(room.ambientBrightness / 8191.0f));
+                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3(room.ambientDarkness / 8191.0f));
             }
 
             filename = "room_override_" + std::to_string(i) + ".dae";
@@ -651,7 +654,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
             room.node->setDrawable(nullptr);
 
-            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3(room.ambientBrightness / 8191.0f));
+            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3(room.ambientDarkness / 8191.0f));
             room.node->setDrawable(model);
         }
     }
