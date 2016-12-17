@@ -163,6 +163,7 @@ if(NOT SKIP_SYSTEM_Boost)
 endif()
 
 ot_find_dependency(Assimp)
+message(STATUS "Assimp libs: ${Assimp_LIBRARIES}")
 target_link_libraries(Assimp INTERFACE ${Assimp_LIBRARIES})
 target_include_directories(Assimp INTERFACE ${Assimp_INCLUDE_DIRS})
 
@@ -177,6 +178,7 @@ if(MSVC)
     # C4503: Name too long
     add_definitions(/wd4503)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(/MP)
 endif()
 
 find_package(Git)

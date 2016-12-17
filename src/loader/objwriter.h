@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/filesystem.hpp>
+#include <assimp/mesh.h>
 
 
 namespace loader
@@ -26,20 +27,10 @@ namespace loader
         void write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const;
 
 
-        std::shared_ptr<gameplay::Image> readImage(const boost::filesystem::path& path) const;
-
-
         std::shared_ptr<gameplay::Texture> readTexture(const boost::filesystem::path& path) const;
 
 
-        struct MaterialLibEntry
-        {
-            std::shared_ptr<gameplay::Material> material;
-            std::string texture;
-        };
-
-
-        MaterialLibEntry readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
+        std::shared_ptr<gameplay::Material> readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
 
 
         bool exists(const boost::filesystem::path& path) const
@@ -62,6 +53,6 @@ namespace loader
 
 
         const boost::filesystem::path m_basePath;
-        mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::Image>> m_imageCache;
+        mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::Texture>> m_textureCache;
     };
 }

@@ -36,19 +36,11 @@ if( MSVC12 OR MSVC14 )
     find_library( ASSIMP_LIBRARY_RELEASE assimp-${ASSIMP_MSVC_VERSION}-mt.lib PATHS ${ASSIMP_LIBRARY_DIR} )
     find_library( ASSIMP_LIBRARY_DEBUG assimp-${ASSIMP_MSVC_VERSION}-mtd.lib PATHS ${ASSIMP_LIBRARY_DIR} )
 
-    set( Assimp_LIBRARIES
-         optimized ${ASSIMP_LIBRARY_RELEASE}
-         debug ${ASSIMP_LIBRARY_DEBUG}
-         )
-
-    FUNCTION( ASSIMP_COPY_BINARIES TargetDirectory )
-        ADD_CUSTOM_TARGET( AssimpCopyBinaries
-                           COMMAND ${CMAKE_COMMAND} -E copy ${ASSIMP_ROOT_DIR}/bin${ASSIMP_ARCHITECTURE}/assimp-${ASSIMP_MSVC_VERSION}-mtd.dll ${TargetDirectory}/Debug/assimp-${ASSIMP_MSVC_VERSION}-mtd.dll
-                           COMMAND ${CMAKE_COMMAND} -E copy ${ASSIMP_ROOT_DIR}/bin${ASSIMP_ARCHITECTURE}/assimp-${ASSIMP_MSVC_VERSION}-mt.dll ${TargetDirectory}/Release/assimp-${ASSIMP_MSVC_VERSION}-mt.dll
-                           COMMENT "Copying Assimp binaries to '${TargetDirectory}'"
-                           VERBATIM
-                           )
-    ENDFUNCTION()
+    if(ASSIMP_LIBRARY_RELEASE AND ASSIMP_LIBRARY_DEBUG)
+      set(Assimp_LIBRARIES optimized ${ASSIMP_LIBRARY_RELEASE} debug ${ASSIMP_LIBRARY_DEBUG})
+    elseif(ASSIMP_LIBRARY_RELEASE)
+      set(Assimp_LIBRARIES ${Assimp_LIBRARIES} ${ASSIMP_LIBRARY_RELEASE})
+    endif()
 else()
     find_library(
             Assimp_LIBRARIES

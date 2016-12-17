@@ -619,8 +619,8 @@ void Level::toIrrlicht(gameplay::Game* game)
                 BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
-                const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex);
-                if(objWriter.exists(filename + ".fbx"))
+                const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
+                if(objWriter.exists(filename))
                     continue;
 
                 BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
@@ -634,8 +634,8 @@ void Level::toIrrlicht(gameplay::Game* game)
         {
             auto& room = m_rooms[i];
 
-            std::string filename = "room_" + std::to_string(i);
-            if(!objWriter.exists(filename + ".obj"))
+            std::string filename = "room_" + std::to_string(i) + ".dae";
+            if(!objWriter.exists(filename))
             {
                 BOOST_LOG_TRIVIAL(info) << "Saving room model " << filename;
 
@@ -645,7 +645,7 @@ void Level::toIrrlicht(gameplay::Game* game)
                 objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
             }
 
-            filename = "room_override_" + std::to_string(i) + ".obj";
+            filename = "room_override_" + std::to_string(i) + ".dae";
             if(!objWriter.exists(filename))
                 continue;
 
