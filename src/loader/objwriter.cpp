@@ -234,8 +234,9 @@ namespace loader
         const auto h = srcImage.height();
         if(srcImage.spectrum() == 3)
         {
-            srcImage.resize(w, h, srcImage.depth(), 4, -1);
-            srcImage.channel(3).fill(1);
+            srcImage.channels(0, 3);
+            BOOST_ASSERT(srcImage.spectrum() == 4);
+            srcImage.get_shared_channel(3).fill(1);
         }
 
         if(srcImage.spectrum() != 4)
@@ -268,7 +269,7 @@ namespace loader
     std::shared_ptr<gameplay::Model> OBJWriter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
     {
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile((m_basePath / path).string(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_ValidateDataStructure);
+        const aiScene* scene = importer.ReadFile((m_basePath / path).string(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
         BOOST_ASSERT(scene != nullptr);
 
         auto renderModel = std::make_shared<gameplay::Model>();

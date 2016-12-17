@@ -25,7 +25,7 @@ using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR1  256
 
-void TR1Level::load()
+void TR1Level::loadFileData()
 {
     BOOST_LOG_TRIVIAL(debug) << "Start. File size = " << m_reader.size();
 

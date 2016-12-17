@@ -91,7 +91,7 @@ namespace level
         engine::CameraController* m_cameraController = nullptr;
 
         static std::unique_ptr<Level> createLoader(const std::string& filename, Game game_version);
-        virtual void load() = 0;
+        virtual void loadFileData() = 0;
 
         const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
         int findStaticMeshIndexById(uint32_t object_id) const;
@@ -101,7 +101,7 @@ namespace level
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode* createItems();
-        void toIrrlicht(gameplay::Game* game);
+        void setUpRendering(gameplay::Game* game, const std::string& assetPath);
 
 
         template<typename T>

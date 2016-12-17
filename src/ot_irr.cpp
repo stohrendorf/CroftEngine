@@ -150,21 +150,6 @@ int main()
 {
     gameplay::Game* game = new gameplay::Game();
     game->run();
-#if 0
-    irr::SIrrlichtCreationParameters driverParams;
-    driverParams.AntiAlias = 255;
-    driverParams.ZBufferBits = 32;
-    driverParams.Stencilbuffer = true;
-    driverParams.Vsync = false;
-    driverParams.Bits = 24;
-    driverParams.Fullscreen = false;
-    driverParams.DriverType = driverType;
-    driverParams.WindowSize = irr::core::dimension2d<irr::u32>(1024, 768);
-
-    irr::IrrlichtDevice* device = irr::createDeviceEx( driverParams );
-    if(!device)
-        return EXIT_FAILURE;
-#endif
 
     struct LevelInfo
     {
@@ -199,8 +184,8 @@ int main()
     auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
-    lvl->load();
-    lvl->toIrrlicht(game);
+    lvl->loadFileData();
+    lvl->setUpRendering(game, "assets/tr1/" + lvlInfo.filename);
 
     if( LevelToLoad == 0 )
     {

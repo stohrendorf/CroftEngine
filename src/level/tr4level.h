@@ -12,6 +12,6 @@ public:
     {
     }
 
-    void load() override;
+    void loadFileData() override;
 };
 } // namespace loader

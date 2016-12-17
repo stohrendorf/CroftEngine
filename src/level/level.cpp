@@ -556,7 +556,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 }
 
 
-void Level::toIrrlicht(gameplay::Game* game)
+void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 {
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
@@ -602,10 +602,8 @@ void Level::toIrrlicht(gameplay::Game* game)
         game->getScene()->addNode(m_rooms[i].node);
     }
 
-#define DUMP_OBJ
-#ifdef DUMP_OBJ
     {
-        loader::OBJWriter objWriter{ "assets/tr1" };
+        loader::OBJWriter objWriter{ assetPath };
 
         for(size_t i = 0; i < m_textures.size(); ++i)
         {
@@ -657,7 +655,6 @@ void Level::toIrrlicht(gameplay::Game* game)
             room.node->setDrawable(model);
         }
     }
-#endif
 
     m_lara = createItems();
     if( m_lara == nullptr )

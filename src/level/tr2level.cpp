@@ -25,7 +25,7 @@ using namespace level;
 
 #define TR_AUDIO_MAP_SIZE_TR2  370
 
-void TR2Level::load()
+void TR2Level::loadFileData()
 {
     // Version
     uint32_t file_version = m_reader.readU32();
