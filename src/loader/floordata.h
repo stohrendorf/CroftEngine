@@ -64,7 +64,7 @@ namespace loader
     //! @see SequenceCondition
     enum class Command
     {
-        Object = 0x00,
+        Activate = 0x00,
         CameraTarget = 0x01,
         UnderwaterCurrent = 0x02,
         FlipMap = 0x03,

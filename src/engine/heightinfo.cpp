@@ -95,7 +95,7 @@ namespace engine
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
                     ++floorData;
 
-                    if( func == loader::Command::Object )
+                    if( func == loader::Command::Activate )
                     {
                         auto it = camera->getLevel()->m_itemNodes.find(param);
                         Expects(it != camera->getLevel()->m_itemNodes.end());
@@ -219,7 +219,7 @@ namespace engine
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
                     ++floorData;
 
-                    if( func == loader::Command::Object )
+                    if( func == loader::Command::Activate )
                     {
                         auto it = camera->getLevel()->m_itemNodes.find(param);
                         Expects(it != camera->getLevel()->m_itemNodes.end());

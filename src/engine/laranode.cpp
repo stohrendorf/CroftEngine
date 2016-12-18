@@ -701,7 +701,7 @@ namespace engine
             const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
             switch( loader::extractCommand(*actionFloorData++) )
             {
-                case loader::Command::Object:
+                case loader::Command::Activate:
                 {
                     Expects( getLevel().m_itemNodes.find( actionParam ) != getLevel().m_itemNodes.end() );
                     ItemNode& item = *getLevel().m_itemNodes[actionParam];
