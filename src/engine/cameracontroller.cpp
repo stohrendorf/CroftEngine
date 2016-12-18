@@ -90,7 +90,7 @@ namespace engine
             {
                 m_lookAtItem = m_level->getItemController(param);
             }
-            else if( triggerFunc == loader::Command::CameraTarget )
+            else if( triggerFunc == loader::Command::SwitchCamera )
             {
                 ++floorData;
 

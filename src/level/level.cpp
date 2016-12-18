@@ -561,6 +561,9 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::SequenceCondition sequenceCondition)
 {
     YAML::Node sequence;
+    const auto conditionArg = *rawFloorData;
+    ++rawFloorData;
+
     switch(sequenceCondition)
     {
         case loader::SequenceCondition::Always:
@@ -571,14 +574,18 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
             break;
         case loader::SequenceCondition::Switch:
             sequence["condition"] = "switch";
+            sequence["delay"] = (conditionArg & 0xff);
+            sequence["itemId"] = (*rawFloorData & 0x3ff);
             ++rawFloorData;
             break;
         case loader::SequenceCondition::Key:
             sequence["condition"] = "key";
+            sequence["itemId"] = (*rawFloorData & 0x3ff);
             ++rawFloorData;
             break;
         case loader::SequenceCondition::Pickup:
             sequence["condition"] = "pickup";
+            sequence["itemId"] = (*rawFloorData & 0x3ff);
             ++rawFloorData;
             break;
         case loader::SequenceCondition::Heavy:
@@ -634,12 +641,14 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
             case loader::Command::Activate:
                 commandTree["command"] = "activate";
                 commandTree["itemId"] = param;
+                commandTree["timeout"] = int(conditionArg & 0xff);
+                commandTree["triggerMask"] = int(conditionArg>>9) & 0x1f;
                 break;
-            case loader::Command::CameraTarget:
-                commandTree["command"] = "cameraTarget";
+            case loader::Command::SwitchCamera:
+                commandTree["command"] = "switchCamera";
                 commandTree["cameraId"] = param;
-                commandTree["timeout"] = int(*rawFloorData & 0xff);
-                commandTree["activate"] = *rawFloorData & 0x100 != 0;
+                commandTree["duration"] = int(*rawFloorData & 0xff);
+                commandTree["onlyOnce"] = *rawFloorData & 0x100 != 0;
                 commandTree["smoothness"] = (*rawFloorData >> 9) & 0x1f;
                 isLastCommand = loader::isLastFloordataEntry(*rawFloorData);
                 ++rawFloorData;
@@ -650,6 +659,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
             case loader::Command::FlipMap:
                 commandTree["command"] = "flipMap";
                 commandTree["maskId"] = param;
+                commandTree["mask"] = (conditionArg >> 9) & 0x1f;
                 break;
             case loader::Command::FlipOn:
                 commandTree["command"] = "flipOn";
@@ -661,7 +671,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
                 break;
             case loader::Command::LookAt:
                 commandTree["command"] = "lookAt";
-                commandTree["target"] = param;
+                commandTree["itemId"] = param;
                 break;
             case loader::Command::EndLevel:
                 commandTree["command"] = "endLevel";
@@ -672,11 +682,11 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
                 break;
             case loader::Command::FlipEffect:
                 commandTree["command"] = "flipEffect";
-                commandTree["target"] = param;
+                commandTree["effect"] = param;
                 break;
             case loader::Command::Secret:
                 commandTree["command"] = "secret";
-                commandTree["target"] = param;
+                commandTree["secretId"] = param;
                 break;
             case loader::Command::ClearBodies:
                 commandTree["command"] = "clearBodies";
@@ -690,9 +700,16 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
                 commandTree["command"] = "cutScene";
                 commandTree["target"] = param;
                 break;
+            case loader::Command::Command_E:
+                commandTree["command"] = "!!! E";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::Command_F:
+                commandTree["command"] = "!!! F";
+                commandTree["target"] = param;
+                break;
             default:
-                commandTree["command-UNKNOWN"] = static_cast<int>(command);
-                commandTree["command-UNKNOWN"] = param;
+                BOOST_ASSERT(false);
         }
 
         sequence["commands"].push_back(commandTree);
@@ -817,11 +834,11 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                         const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
                         while( true )
                         {
-                            const auto sequenceCondition = loader::extractSequenceCondition(*rawFloorData);
                             const bool isLast = loader::isLastFloordataEntry(*rawFloorData);
-                            const auto currentFd = *rawFloorData;
+                            const auto sequenceCondition = loader::extractSequenceCondition(*rawFloorData);
+                            const auto chunkType = loader::extractFloorDataChunkType(*rawFloorData);
                             ++rawFloorData;
-                            switch( loader::extractFloorDataChunkType(currentFd) )
+                            switch( chunkType )
                             {
                                 case loader::FloorDataChunkType::FloorSlant:
                                     sectorTree["layout"]["floorSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
@@ -832,13 +849,13 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                                     sectorTree["layout"]["ceilingSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
                                     break;
                                 case loader::FloorDataChunkType::PortalSector:
+                                    sectorTree["relations"]["portalToRoom"] = (*rawFloorData & 0xff);
                                     ++rawFloorData;
                                     break;
                                 case loader::FloorDataChunkType::Death:
                                     sectorTree["characteristics"].push_back("deadly");
                                     break;
                                 case loader::FloorDataChunkType::CommandSequence:
-                                    ++rawFloorData;
                                     sectorTree["sequences"].push_back(parseCommandSequence(rawFloorData, sequenceCondition));
                                     break;
                                 default:
@@ -848,7 +865,8 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                                 break;
                         }
 
-                        floorDataTree["sectors"].push_back(sectorTree);
+                        if(sectorTree.size() > 2) // only emit if we have more information than x/y coordinates
+                            floorDataTree["sectors"].push_back(sectorTree);
                     }
                 }
 

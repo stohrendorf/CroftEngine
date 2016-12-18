@@ -65,7 +65,7 @@ namespace loader
     enum class Command
     {
         Activate = 0x00,
-        CameraTarget = 0x01,
+        SwitchCamera = 0x01,
         UnderwaterCurrent = 0x02,
         FlipMap = 0x03,
         FlipOn = 0x04,
@@ -77,17 +77,19 @@ namespace loader
         Secret = 0x0A,
         ClearBodies = 0x0B, // Unused in TR4
         FlyBy = 0x0C,
-        CutScene = 0x0D
+        CutScene = 0x0D,
+        Command_E,
+        Command_F
     };
 
     inline FloorDataChunkType extractFloorDataChunkType(FloorData::value_type data)
     {
-        return gsl::narrow_cast<FloorDataChunkType>(data);
+        return gsl::narrow_cast<FloorDataChunkType>(data & 0xff);
     }
 
     inline Command extractCommand(FloorData::value_type data)
     {
-        return gsl::narrow_cast<Command>((data & 0x3fff) >> 10);
+        return gsl::narrow_cast<Command>((data>>10) & 0x0f);
     }
 
     inline SequenceCondition extractSequenceCondition(FloorData::value_type data)

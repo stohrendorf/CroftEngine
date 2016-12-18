@@ -89,7 +89,7 @@ namespace engine
                 ++floorData;
                 while( true )
                 {
-                    bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                    bool isLastCommand = loader::isLastFloordataEntry(*floorData);
 
                     const auto func = loader::extractCommand(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
@@ -101,13 +101,13 @@ namespace engine
                         Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchFloor(pos, hi.distance);
                     }
-                    else if( func == loader::Command::CameraTarget )
+                    else if( func == loader::Command::SwitchCamera )
                     {
-                        isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                        isLastCommand = loader::isLastFloordataEntry(*floorData);
                         ++floorData;
                     }
 
-                    if( isLastTrigger )
+                    if( isLastCommand )
                         break;
                 }
             default:
@@ -213,7 +213,7 @@ namespace engine
                 ++floorData;
                 while( true )
                 {
-                    bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                    bool isLastCommand = loader::isLastFloordataEntry(*floorData);
 
                     const auto func = loader::extractCommand(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
@@ -225,13 +225,13 @@ namespace engine
                         Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchCeiling(pos, hi.distance);
                     }
-                    else if( func == loader::Command::CameraTarget )
+                    else if( func == loader::Command::SwitchCamera )
                     {
-                        isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                        isLastCommand = loader::isLastFloordataEntry(*floorData);
                         ++floorData;
                     }
 
-                    if( isLastTrigger )
+                    if( isLastCommand )
                         break;
                 }
             default:

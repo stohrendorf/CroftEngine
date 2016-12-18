@@ -697,7 +697,7 @@ namespace engine
         bool swapRooms = false;
         while( true )
         {
-            bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
+            bool isLastCommand = loader::isLastFloordataEntry(*actionFloorData);
             const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
             switch( loader::extractCommand(*actionFloorData++) )
             {
@@ -764,10 +764,10 @@ namespace engine
                     item.activate();
                 }
                     break;
-                case loader::Command::CameraTarget:
+                case loader::Command::SwitchCamera:
                     getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, sequenceCondition,
                                                                   isDoppelganger, srcTriggerArg, switchIsOn);
-                    isLastAction = loader::isLastFloordataEntry(*actionFloorData);
+                    isLastCommand = loader::isLastFloordataEntry(*actionFloorData);
                     ++actionFloorData;
                     break;
                 case loader::Command::LookAt:
@@ -835,7 +835,7 @@ namespace engine
                     break;
             }
 
-            if( isLastAction )
+            if( isLastCommand )
                 break;
         }
 
