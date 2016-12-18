@@ -620,14 +620,22 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
-                const std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
+                std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
+                if(!objWriter.exists(filename))
+                {
+                    BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
+
+                    const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
+                    objWriter.write(model, filename, materialsNoVcol, {}, glm::vec3(0.8f));
+                }
+
+                filename = "model_override_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
                 if(objWriter.exists(filename))
-                    continue;
+                {
+                    BOOST_LOG_TRIVIAL(info) << "Loading override model " << filename;
 
-                BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
-
-                const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
-                objWriter.write(model, filename, materialsNoVcol, {}, glm::vec3(0.8f));
+                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter.readModel(filename, noVcolShader, glm::vec3(0.8f));
+                }
             }
         }
 
