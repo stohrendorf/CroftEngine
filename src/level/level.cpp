@@ -566,42 +566,36 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
 
-    auto noVcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsNoVcol = createMaterials(
-        textures, noVcolShader);
+    auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(
+        textures, texturedShader);
 
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert",
                                                                                              "shaders/colored_2.frag");
     colorMaterial->initStateBlockDefaults();
     colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
     colorMaterial->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
-    colorMaterial->getParameter("u_ambient")->bind(&engine::items::ItemNode::lightAmbientBinder);
     colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
     for(size_t i = 0; i < m_meshes.size(); ++i)
     {
-        m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materialsNoVcol, colorMaterial, *m_palette,
+        m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette,
                                                       *m_textureAnimator));
     }
 
     game->getScene()->setActiveCamera(
         std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
 
-    auto vcolShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
-                                                              {"HAS_VCOLOR"});
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsVcol = createMaterials(
-        textures, vcolShader);
-
-    auto vcolWaterShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
-                                                                   {"HAS_VCOLOR", "WATER"});
-    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materialsVcolWater = createMaterials(
-        textures, vcolWaterShader);
+    auto waterTexturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
+                                                                   {"WATER"});
+    std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> waterMaterials = createMaterials(
+        textures, waterTexturedShader);
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(game, i, *this, textures, materialsVcol, materialsVcolWater, m_models, *m_textureAnimator);
+        m_rooms[i].createSceneNode(game, i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator);
         game->getScene()->addNode(m_rooms[i].node);
     }
 
@@ -626,7 +620,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                     BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
 
                     const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
-                    objWriter.write(model, filename, materialsNoVcol, {}, glm::vec3(0.8f));
+                    objWriter.write(model, filename, materials, {}, glm::vec3(0.8f));
                 }
 
                 filename = "model_override_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
@@ -634,7 +628,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 {
                     BOOST_LOG_TRIVIAL(info) << "Loading override model " << filename;
 
-                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter.readModel(filename, noVcolShader, glm::vec3(0.8f));
+                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter.readModel(filename, texturedShader, glm::vec3(0.8f));
                 }
             }
         }
@@ -651,7 +645,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3(room.ambientDarkness / 8191.0f));
+                objWriter.write(model, filename, materials, waterMaterials, glm::vec3(room.ambientDarkness / 8191.0f));
             }
 
             filename = "room_override_" + std::to_string(i) + ".dae";
@@ -662,7 +656,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
             room.node->setDrawable(nullptr);
 
-            auto model = objWriter.readModel(filename, room.isWaterRoom() ? vcolWaterShader : vcolShader, glm::vec3(room.ambientDarkness / 8191.0f));
+            auto model = objWriter.readModel(filename, room.isWaterRoom() ? waterTexturedShader : texturedShader, glm::vec3(room.ambientDarkness / 8191.0f));
             room.node->setDrawable(model);
         }
     }

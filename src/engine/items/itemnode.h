@@ -89,6 +89,15 @@ namespace engine
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
 
+            struct Lighting
+            {
+                glm::vec3 position;
+                float ambient;
+                float brightness;
+                float total;
+            };
+
+            Lighting m_lighting;
 
             enum class AnimCommandOpcode : uint16_t
             {
@@ -398,18 +407,19 @@ namespace engine
             }
 
 
-            bool findBestLight(glm::vec3& position, float& brightness, float& ambient) const
+            void updateLighting()
             {
-                ambient = 1 - m_position.room->ambientDarkness / 8191.0f;
-                BOOST_ASSERT(ambient >= 0 && ambient <= 1);
-                brightness = -1;
+                m_lighting.ambient = 1 - m_position.room->ambientDarkness / 8191.0f;
+                m_lighting.total = m_lighting.ambient;
+                BOOST_ASSERT(m_lighting.ambient >= 0 && m_lighting.ambient <= 1);
+                m_lighting.brightness = -1;
 
                 if(m_position.room->lights.empty())
                 {
-                    return false;
+                    return;
                 }
 
-                float maxBrightness = 0;
+                m_lighting.brightness = 0;
                 const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
                 for(const auto& light : m_position.room->lights)
                 {
@@ -417,23 +427,19 @@ namespace engine
                     fadeSq *= fadeSq;
 
                     auto distanceSq = glm::length(bboxCtr - light.position.toRenderSystem());
+                    distanceSq /= 4096.0f;
                     distanceSq *= distanceSq;
-                    distanceSq /= 4096.0f;
-                    distanceSq /= 4096.0f;
 
-                    const auto lightBrightness = ambient + fadeSq * (light.specularIntensity / 4096.0f) / (fadeSq + distanceSq);
-                    if(lightBrightness > maxBrightness)
+                    const auto lightBrightness = m_lighting.ambient + fadeSq * (light.specularIntensity / 4096.0f) / (fadeSq + distanceSq);
+                    if(lightBrightness > m_lighting.brightness)
                     {
                         BOOST_ASSERT(lightBrightness >= 0 && lightBrightness <= 2);
-                        maxBrightness = lightBrightness;
-                        position = light.position.toRenderSystem();
+                        m_lighting.brightness = lightBrightness;
+                        m_lighting.position = light.position.toRenderSystem();
                     }
                 }
 
-                brightness = (maxBrightness + ambient) / 2;
-                BOOST_ASSERT(brightness >= 0 && brightness <= 2);
-
-                return true;
+                m_lighting.total = (m_lighting.ambient + m_lighting.brightness) / 2;
             }
 
             static void lightBrightnessBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
@@ -454,38 +460,12 @@ namespace engine
                 }
 
                 if(item == nullptr)
-                    return;
-
-                float brightness, ambient;
-                glm::vec3 pos;
-                item->findBestLight(pos, brightness, ambient);
-                shaderProgram->setValue(*uniform, brightness);
-            };
-
-            static void lightAmbientBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
-            {
-                const ItemNode* item = nullptr;
-
                 {
-                    auto n = &node;
-                    while(true)
-                    {
-                        item = dynamic_cast<const ItemNode*>(n);
-
-                        if(item != nullptr || n->getParent().expired())
-                            break;
-
-                        n = n->getParent().lock().get();
-                    };
+                    shaderProgram->setValue(*uniform, 1.0f);
+                    return;
                 }
 
-                if(item == nullptr)
-                    return;
-
-                float brightness, ambient;
-                glm::vec3 pos;
-                item->findBestLight(pos, brightness, ambient);
-                shaderProgram->setValue(*uniform, ambient);
+                shaderProgram->setValue(*uniform, item->m_lighting.total);
             };
 
             static void lightPositionBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
@@ -508,10 +488,7 @@ namespace engine
                 if(item == nullptr)
                     return;
 
-                float brightness, ambient;
-                glm::vec3 pos;
-                item->findBestLight(pos, brightness, ambient);
-                shaderProgram->setValue(*uniform, pos);
+                shaderProgram->setValue(*uniform, item->m_lighting.position);
             };
 
         protected:

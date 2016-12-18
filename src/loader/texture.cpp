@@ -16,7 +16,6 @@ namespace loader
         result->initStateBlockDefaults();
 
         result->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
-        result->getParameter("u_ambient")->bind(&engine::items::ItemNode::lightAmbientBinder);
         result->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
         switch( bmode )

@@ -275,6 +275,7 @@ namespace engine
             applyTransform();
 
             updatePose();
+            updateLighting();
         }
     }
 }
