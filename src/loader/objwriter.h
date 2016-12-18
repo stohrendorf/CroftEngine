@@ -9,8 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree_fwd.hpp>
-
+#include <yaml-cpp/yaml.h>
 
 namespace loader
 {
@@ -47,7 +46,7 @@ namespace loader
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                    const glm::vec3& ambientColor) const;
 
-        void write(const std::string& filename, const boost::property_tree::ptree& tree);
+        void write(const std::string& filename, const YAML::Node& tree);
     private:
         static std::string makeTextureName(size_t id);
 

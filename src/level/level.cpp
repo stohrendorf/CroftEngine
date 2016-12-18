@@ -26,10 +26,11 @@
 
 #include "loader/objwriter.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 using namespace level;
 
@@ -557,6 +558,153 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 }
 
 
+YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::SequenceCondition sequenceCondition)
+{
+    YAML::Node sequence;
+    switch(sequenceCondition)
+    {
+        case loader::SequenceCondition::Always:
+            sequence["condition"] = "always";
+            break;
+        case loader::SequenceCondition::Pad:
+            sequence["condition"] = "pad";
+            break;
+        case loader::SequenceCondition::Switch:
+            sequence["condition"] = "switch";
+            ++rawFloorData;
+            break;
+        case loader::SequenceCondition::Key:
+            sequence["condition"] = "key";
+            ++rawFloorData;
+            break;
+        case loader::SequenceCondition::Pickup:
+            sequence["condition"] = "pickup";
+            ++rawFloorData;
+            break;
+        case loader::SequenceCondition::Heavy:
+            sequence["condition"] = "heavy";
+            break;
+        case loader::SequenceCondition::AntiPad:
+            sequence["condition"] = "antipad";
+            break;
+        case loader::SequenceCondition::Combat:
+            sequence["condition"] = "combat";
+            break;
+        case loader::SequenceCondition::Dummy:
+            sequence["condition"] = "dummy";
+            break;
+        case loader::SequenceCondition::AntiTrigger:
+            sequence["condition"] = "antiTrigger";
+            break;
+        case loader::SequenceCondition::HeavySwitch:
+            sequence["condition"] = "heavySwitch";
+            break;
+        case loader::SequenceCondition::HeavyAntiTrigger:
+            sequence["condition"] = "heavyAntiTrigger";
+            break;
+        case loader::SequenceCondition::Monkey:
+            sequence["condition"] = "monkey";
+            break;
+        case loader::SequenceCondition::Skeleton:
+            sequence["condition"] = "skeleton";
+            break;
+        case loader::SequenceCondition::TightRope:
+            sequence["condition"] = "tightRope";
+            break;
+        case loader::SequenceCondition::CrawlDuck:
+            sequence["condition"] = "crawlDuck";
+            break;
+        case loader::SequenceCondition::Climb:
+            sequence["condition"] = "climb";
+            break;
+    }
+
+    while( true )
+    {
+        bool isLastCommand = loader::isLastFloordataEntry(*rawFloorData);
+
+        const auto command = loader::extractCommand(*rawFloorData);
+        const auto param = loader::extractTriggerFunctionParam(*rawFloorData);
+        ++rawFloorData;
+
+        YAML::Node commandTree;
+
+        switch( command )
+        {
+            case loader::Command::Activate:
+                commandTree["command"] = "activate";
+                commandTree["itemId"] = param;
+                break;
+            case loader::Command::CameraTarget:
+                commandTree["command"] = "cameraTarget";
+                commandTree["cameraId"] = param;
+                commandTree["timeout"] = int(*rawFloorData & 0xff);
+                commandTree["activate"] = *rawFloorData & 0x100 != 0;
+                commandTree["smoothness"] = (*rawFloorData >> 9) & 0x1f;
+                isLastCommand = loader::isLastFloordataEntry(*rawFloorData);
+                ++rawFloorData;
+                break;
+            case loader::Command::UnderwaterCurrent:
+                commandTree["command"] = "underwaterFlow";
+                break;
+            case loader::Command::FlipMap:
+                commandTree["command"] = "flipMap";
+                commandTree["maskId"] = param;
+                break;
+            case loader::Command::FlipOn:
+                commandTree["command"] = "flipOn";
+                commandTree["maskId"] = param;
+                break;
+            case loader::Command::FlipOff:
+                commandTree["command"] = "flipOff";
+                commandTree["maskId"] = param;
+                break;
+            case loader::Command::LookAt:
+                commandTree["command"] = "lookAt";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::EndLevel:
+                commandTree["command"] = "endLevel";
+                break;
+            case loader::Command::PlayTrack:
+                commandTree["command"] = "playTrack";
+                commandTree["track"] = param;
+                break;
+            case loader::Command::FlipEffect:
+                commandTree["command"] = "flipEffect";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::Secret:
+                commandTree["command"] = "secret";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::ClearBodies:
+                commandTree["command"] = "clearBodies";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::FlyBy:
+                commandTree["command"] = "flyby";
+                commandTree["target"] = param;
+                break;
+            case loader::Command::CutScene:
+                commandTree["command"] = "cutScene";
+                commandTree["target"] = param;
+                break;
+            default:
+                commandTree["command-UNKNOWN"] = static_cast<int>(command);
+                commandTree["command-UNKNOWN"] = param;
+        }
+
+        sequence["commands"].push_back(commandTree);
+
+        if( isLastCommand )
+            break;
+    }
+
+    return sequence;
+}
+
+
 void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 {
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
@@ -643,131 +791,56 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 BOOST_ASSERT(model != nullptr);
                 objWriter.write(model, filename, materialsVcol, materialsVcolWater, glm::vec3((8192 - room.darkness) / 8192.0f));
 
-                filename = "room_" + std::to_string(i) + ".json";
+                filename = "room_" + std::to_string(i) + ".yaml";
                 BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
 
-                boost::property_tree::ptree floorDataTree;
+                YAML::Node floorDataTree;
                 for( size_t x = 0; x < room.sectorCountX; ++x )
                 {
                     for( size_t z = 0; z < room.sectorCountZ; ++z )
                     {
                         const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(x, z);
-                        boost::property_tree::ptree sectorTree;
-                        sectorTree.put("position.x", x);
-                        sectorTree.put("position.z", z);
-                        sectorTree.put("layout.floor", sector->floorHeight * loader::QuarterSectorSize - room.position.Y);
-                        sectorTree.put("layout.ceiling", sector->ceilingHeight * loader::QuarterSectorSize - room.position.Y);
+                        YAML::Node sectorTree;
+                        sectorTree["position"]["x"] = x;
+                        sectorTree["position"]["z"] = z;
+                        if(sector->floorHeight != -127)
+                            sectorTree["layout"]["floor"] = sector->floorHeight * loader::QuarterSectorSize - room.position.Y;
+                        if(sector->ceilingHeight != -127)
+                            sectorTree["layout"]["ceiling"] = sector->ceilingHeight * loader::QuarterSectorSize - room.position.Y;
                         if( sector->roomBelow != 0xff )
-                            sectorTree.put("relations.roomBelow", sector->roomBelow);
+                            sectorTree["relations"]["roomBelow"] = int(sector->roomBelow);
                         if( sector->roomAbove != 0xff )
-                            sectorTree.put("relations.roomAbove", sector->roomAbove);
+                            sectorTree["relations"]["roomAbove"] = int(sector->roomAbove);
                         if( sector->boxIndex != 0xffff )
-                            sectorTree.put("relations.box", sector->boxIndex);
+                            sectorTree["relations"]["box"] = sector->boxIndex;
 
                         const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
                         while( true )
                         {
+                            const auto sequenceCondition = loader::extractSequenceCondition(*rawFloorData);
                             const bool isLast = loader::isLastFloordataEntry(*rawFloorData);
-                            const auto triggerType = loader::extractTriggerType(*rawFloorData);
                             const auto currentFd = *rawFloorData;
                             ++rawFloorData;
-                            switch( loader::extractFDFunction(currentFd) )
+                            switch( loader::extractFloorDataChunkType(currentFd) )
                             {
-                                case loader::FDFunction::FloorSlant:
-                                    sectorTree.put("layout.floorSlant.x", gsl::narrow_cast<int>(*rawFloorData & 0xff));
-                                    sectorTree.put("layout.floorSlant.z", gsl::narrow_cast<int>((*rawFloorData >> 8) & 0xff));
+                                case loader::FloorDataChunkType::FloorSlant:
+                                    sectorTree["layout"]["floorSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
+                                    sectorTree["layout"]["floorSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
                                     break;
-                                case loader::FDFunction::CeilingSlant:
-                                    sectorTree.put("layout.ceilingSlant.x", gsl::narrow_cast<int>(*rawFloorData & 0xff));
-                                    sectorTree.put("layout.ceilingSlant.z", gsl::narrow_cast<int>((*rawFloorData >> 8) & 0xff));
+                                case loader::FloorDataChunkType::CeilingSlant:
+                                    sectorTree["layout"]["ceilingSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
+                                    sectorTree["layout"]["ceilingSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
                                     break;
-                                case loader::FDFunction::PortalSector:
+                                case loader::FloorDataChunkType::PortalSector:
                                     ++rawFloorData;
                                     break;
-                                case loader::FDFunction::Death:
-                                    sectorTree.add("characteristics", "deadly");
+                                case loader::FloorDataChunkType::Death:
+                                    sectorTree["characteristics"].push_back("deadly");
                                     break;
-                                case loader::FDFunction::Trigger:
+                                case loader::FloorDataChunkType::CommandSequence:
                                     ++rawFloorData;
-                                    while( true )
-                                    {
-                                        bool isLastTrigger = loader::isLastFloordataEntry(*rawFloorData);
-
-                                        const auto func = loader::extractTriggerFunction(*rawFloorData);
-                                        const auto param = loader::extractTriggerFunctionParam(*rawFloorData);
-                                        ++rawFloorData;
-
-                                        boost::property_tree::ptree triggerTree;
-
-                                        switch( func )
-                                        {
-                                            case loader::TriggerFunction::Object:
-                                                triggerTree.put("type", "object");
-                                                triggerTree.put("itemId", param);
-                                                break;
-                                            case loader::TriggerFunction::CameraTarget:
-                                                triggerTree.put("type", "cameraTarget");
-                                                triggerTree.put("cameraId", param);
-                                                triggerTree.put("timeout", int(*rawFloorData & 0xff));
-                                                triggerTree.put("activate", *rawFloorData & 0x100 != 0);
-                                                triggerTree.put("smoothness", (*rawFloorData>>9) & 0x1f);
-                                                isLastTrigger = loader::isLastFloordataEntry(*rawFloorData);
-                                                ++rawFloorData;
-                                                break;
-                                            case loader::TriggerFunction::UnderwaterCurrent:
-                                                triggerTree.put("type", "underwaterFlow");
-                                                break;
-                                            case loader::TriggerFunction::FlipMap:
-                                                triggerTree.put("type", "flipMap");
-                                                triggerTree.put("maskId", param);
-                                                break;
-                                            case loader::TriggerFunction::FlipOn:
-                                                triggerTree.put("type", "flipOn");
-                                                triggerTree.put("maskId", param);
-                                                break;
-                                            case loader::TriggerFunction::FlipOff:
-                                                triggerTree.put("type", "flipOff");
-                                                triggerTree.put("maskId", param);
-                                                break;
-                                            case loader::TriggerFunction::LookAt:
-                                                triggerTree.put("type", "lookAt");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::EndLevel:
-                                                triggerTree.put("type", "endLevel");
-                                                break;
-                                            case loader::TriggerFunction::PlayTrack:
-                                                triggerTree.put("type", "playTrack");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::FlipEffect:
-                                                triggerTree.put("type", "flipEffect");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::Secret:
-                                                triggerTree.put("type", "secret");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::ClearBodies:
-                                                triggerTree.put("type", "clearBodies");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::FlyBy:
-                                                triggerTree.put("type", "flyby");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            case loader::TriggerFunction::CutScene:
-                                                triggerTree.put("type", "cutScene");
-                                                triggerTree.put("target", param);
-                                                break;
-                                            default: ;
-                                        }
-
-                                        sectorTree.add_child("behaviour.triggers", triggerTree);
-
-                                        if( isLastTrigger )
-                                            break;
-                                    }
+                                    sectorTree["sequences"].push_back(parseCommandSequence(rawFloorData, sequenceCondition));
+                                    break;
                                 default:
                                     break;
                             }
@@ -775,7 +848,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                                 break;
                         }
 
-                        floorDataTree.add_child("sectors", sectorTree);
+                        floorDataTree["sectors"].push_back(sectorTree);
                     }
                 }
 
@@ -995,7 +1068,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
 }
 
 
-void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
@@ -1070,15 +1143,15 @@ void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::Trigge
 }
 
 
-void Level::triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType)
 {
     if( (m_cdTrackTriggerValues[trackId] & 0x100) != 0 )
         return;
 
     const auto mask = triggerArg & 0x3e00;
-    if( triggerType == loader::TriggerType::Switch )
+    if( triggerType == loader::SequenceCondition::Switch )
         m_cdTrackTriggerValues[trackId] ^= mask;
-    else if( triggerType == loader::TriggerType::AntiPad )
+    else if( triggerType == loader::SequenceCondition::AntiPad )
         m_cdTrackTriggerValues[trackId] &= ~mask;
     else
         m_cdTrackTriggerValues[trackId] |= mask;

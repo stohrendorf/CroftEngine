@@ -40,7 +40,7 @@ namespace engine
         m_localRotation.Y = y;
     }
 
-    void CameraController::setCamOverride(uint16_t floorData, uint16_t camId, loader::TriggerType triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn)
+    void CameraController::setCamOverride(uint16_t floorData, uint16_t camId, loader::SequenceCondition triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
@@ -50,13 +50,13 @@ namespace engine
         const auto flags = (floorData >> 8) & 0xff;
 
         m_camOverrideId = camId;
-        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || triggerType == loader::TriggerType::Combat )
+        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || triggerType == loader::SequenceCondition::Combat )
             return;
 
-        if( triggerType == loader::TriggerType::Switch && triggerArg != 0 && switchIsOn )
+        if( triggerType == loader::SequenceCondition::Switch && triggerArg != 0 && switchIsOn )
             return;
 
-        if( triggerType != loader::TriggerType::Switch && m_camOverrideId == m_activeCamOverrideId )
+        if( triggerType != loader::SequenceCondition::Switch && m_camOverrideId == m_activeCamOverrideId )
             return;
 
         if( timeout != 1 )
@@ -81,16 +81,16 @@ namespace engine
         while( true )
         {
             const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto triggerFunc = loader::extractTriggerFunction(*floorData);
+            const auto triggerFunc = loader::extractCommand(*floorData);
             const auto param = loader::extractTriggerFunctionParam(*floorData);
 
             ++floorData;
 
-            if( triggerFunc == loader::TriggerFunction::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
+            if( triggerFunc == loader::Command::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
             {
                 m_lookAtItem = m_level->getItemController(param);
             }
-            else if( triggerFunc == loader::TriggerFunction::CameraTarget )
+            else if( triggerFunc == loader::Command::CameraTarget )
             {
                 ++floorData;
 

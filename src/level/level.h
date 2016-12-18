@@ -160,7 +160,7 @@ namespace level
                 return zero;
             if( sector->floorDataIndex == 0 )
                 return zero;
-            if( loader::extractFDFunction(m_floorData[sector->floorDataIndex]) != loader::FDFunction::FloorSlant )
+            if( loader::extractFloorDataChunkType(m_floorData[sector->floorDataIndex]) != loader::FloorDataChunkType::FloorSlant )
                 return zero;
 
             auto fd = m_floorData[sector->floorDataIndex + 1];
@@ -286,8 +286,8 @@ namespace level
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
-        void triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
-        void triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType);
+        void triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType);
+        void triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType);
 
 
         void stopSoundEffect(uint16_t soundId) const
@@ -354,6 +354,7 @@ namespace level
                                                const core::Angle& angle,
                                                const core::ExactTRCoordinates& position,
                                                uint16_t flags);
+
 
         template<typename T>
         std::shared_ptr<T> createSkeletalModel(size_t id,

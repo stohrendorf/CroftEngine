@@ -34,9 +34,9 @@ namespace engine
             const bool isLast = loader::isLastFloordataEntry(*floorData);
             const auto currentFd = *floorData;
             ++floorData;
-            switch( loader::extractFDFunction(currentFd) )
+            switch( loader::extractFloorDataChunkType(currentFd) )
             {
-            case loader::FDFunction::FloorSlant:
+            case loader::FloorDataChunkType::FloorSlant:
                 {
                     const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                     const auto absX = std::abs(xSlant);
@@ -76,14 +76,14 @@ namespace engine
                     }
                 }
                 // Fall-through
-            case loader::FDFunction::CeilingSlant:
-            case loader::FDFunction::PortalSector:
+            case loader::FloorDataChunkType::CeilingSlant:
+            case loader::FloorDataChunkType::PortalSector:
                 ++floorData;
                 break;
-            case loader::FDFunction::Death:
+            case loader::FloorDataChunkType::Death:
                 hi.lastTriggerOrKill = floorData - 1;
                 break;
-            case loader::FDFunction::Trigger:
+            case loader::FloorDataChunkType::CommandSequence:
                 if( !hi.lastTriggerOrKill )
                     hi.lastTriggerOrKill = floorData - 1;
                 ++floorData;
@@ -91,18 +91,17 @@ namespace engine
                 {
                     bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
-                    const auto func = loader::extractTriggerFunction(*floorData);
+                    const auto func = loader::extractCommand(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
                     ++floorData;
 
-                    if( func == loader::TriggerFunction::Object )
+                    if( func == loader::Command::Object )
                     {
-                        BOOST_ASSERT(func == loader::TriggerFunction::Object);
                         auto it = camera->getLevel()->m_itemNodes.find(param);
                         Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchFloor(pos, hi.distance);
                     }
-                    else if( func == loader::TriggerFunction::CameraTarget )
+                    else if( func == loader::Command::CameraTarget )
                     {
                         isLastTrigger = loader::isLastFloordataEntry(*floorData);
                         ++floorData;
@@ -137,18 +136,18 @@ namespace engine
         if( roomSector->floorDataIndex != 0 )
         {
             const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
-            auto fdFunc = loader::extractFDFunction(*floorData);
+            auto fdFunc = loader::extractFloorDataChunkType(*floorData);
             ++floorData;
 
-            if(fdFunc == loader::FDFunction::FloorSlant)
+            if(fdFunc == loader::FloorDataChunkType::FloorSlant)
             {
                 ++floorData;
 
-                fdFunc = loader::extractFDFunction(*floorData);
+                fdFunc = loader::extractFloorDataChunkType(*floorData);
                 ++floorData;
             }
 
-            if(fdFunc == loader::FDFunction::CeilingSlant)
+            if(fdFunc == loader::FloorDataChunkType::CeilingSlant)
             {
                 const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);
@@ -199,41 +198,37 @@ namespace engine
         while( true )
         {
             const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto fdFunc = loader::extractFDFunction(*floorData);
+            const auto fdFunc = loader::extractFloorDataChunkType(*floorData);
             ++floorData;
             switch(fdFunc)
             {
-            case loader::FDFunction::CeilingSlant:
-            case loader::FDFunction::FloorSlant:
-            case loader::FDFunction::PortalSector:
+            case loader::FloorDataChunkType::CeilingSlant:
+            case loader::FloorDataChunkType::FloorSlant:
+            case loader::FloorDataChunkType::PortalSector:
                 ++floorData;
                 break;
-            case loader::FDFunction::Death:
+            case loader::FloorDataChunkType::Death:
                 break;
-            case loader::FDFunction::Trigger:
+            case loader::FloorDataChunkType::CommandSequence:
                 ++floorData;
                 while( true )
                 {
                     bool isLastTrigger = loader::isLastFloordataEntry(*floorData);
 
-                    const auto func = loader::extractTriggerFunction(*floorData);
+                    const auto func = loader::extractCommand(*floorData);
                     const auto param = loader::extractTriggerFunctionParam(*floorData);
                     ++floorData;
 
-                    if( func != loader::TriggerFunction::Object )
+                    if( func == loader::Command::Object )
                     {
-                        if( func == loader::TriggerFunction::CameraTarget )
-                        {
-                            isLastTrigger = loader::isLastFloordataEntry(*floorData);
-                            ++floorData;
-                        }
-                    }
-                    else
-                    {
-                        BOOST_ASSERT(func == loader::TriggerFunction::Object);
                         auto it = camera->getLevel()->m_itemNodes.find(param);
                         Expects(it != camera->getLevel()->m_itemNodes.end());
                         it->second->patchCeiling(pos, hi.distance);
+                    }
+                    else if( func == loader::Command::CameraTarget )
+                    {
+                        isLastTrigger = loader::isLastFloordataEntry(*floorData);
+                        ++floorData;
                     }
 
                     if( isLastTrigger )

@@ -71,7 +71,7 @@ namespace engine
         else if( front.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && front.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && front.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*front.floor.lastTriggerOrKill) == loader::FDFunction::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && front.floor.lastTriggerOrKill != nullptr && loader::extractFloorDataChunkType(*front.floor.lastTriggerOrKill) == loader::FloorDataChunkType::Death)
             ) )
         {
             front.floor.distance = 2 * loader::QuarterSectorSize;
@@ -89,7 +89,7 @@ namespace engine
         else if( frontLeft.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontLeft.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*frontLeft.floor.lastTriggerOrKill) == loader::FDFunction::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontLeft.floor.lastTriggerOrKill != nullptr && loader::extractFloorDataChunkType(*frontLeft.floor.lastTriggerOrKill) == loader::FloorDataChunkType::Death)
             ) )
         {
             frontLeft.floor.distance = 2 * loader::QuarterSectorSize;
@@ -107,7 +107,7 @@ namespace engine
         else if( frontRight.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontRight.floor.lastTriggerOrKill != nullptr && loader::extractFDFunction(*frontRight.floor.lastTriggerOrKill) == loader::FDFunction::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontRight.floor.lastTriggerOrKill != nullptr && loader::extractFloorDataChunkType(*frontRight.floor.lastTriggerOrKill) == loader::FloorDataChunkType::Death)
             ) )
         {
             frontRight.floor.distance = 2 * loader::QuarterSectorSize;

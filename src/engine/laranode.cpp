@@ -600,7 +600,7 @@ namespace engine
         if( floorData == nullptr )
             return;
 
-        if( loader::extractFDFunction(*floorData) == loader::FDFunction::Death )
+        if( loader::extractFloorDataChunkType(*floorData) == loader::FloorDataChunkType::Death )
         {
             if( !isDoppelganger )
             {
@@ -616,7 +616,7 @@ namespace engine
             ++floorData;
         }
 
-        const auto srcTriggerType = loader::extractTriggerType(*floorData);
+        const auto sequenceCondition = loader::extractSequenceCondition(*floorData);
         const auto srcTriggerArg = floorData[1];
         auto actionFloorData = floorData + 2;
 
@@ -625,16 +625,16 @@ namespace engine
         bool runActions = false, switchIsOn = false;
         if( !isDoppelganger )
         {
-            switch( srcTriggerType )
+            switch( sequenceCondition )
             {
-                case loader::TriggerType::Trigger:
+                case loader::SequenceCondition::Always:
                     runActions = true;
                     break;
-                case loader::TriggerType::Pad:
-                case loader::TriggerType::AntiPad:
+                case loader::SequenceCondition::Pad:
+                case loader::SequenceCondition::AntiPad:
                     runActions = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                     break;
-                case loader::TriggerType::Switch:
+                case loader::SequenceCondition::Switch:
                 {
                     Expects(
                         getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
@@ -649,7 +649,7 @@ namespace engine
                     ++actionFloorData;
                     runActions = true;
                     break;
-                case loader::TriggerType::Key:
+                case loader::SequenceCondition::Key:
                 {
                     Expects(
                         getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
@@ -661,7 +661,7 @@ namespace engine
                 }
                     ++actionFloorData;
                     return;
-                case loader::TriggerType::Pickup:
+                case loader::SequenceCondition::Pickup:
                 {
                     Expects(
                         getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
@@ -673,11 +673,11 @@ namespace engine
                 }
                     ++actionFloorData;
                     return;
-                case loader::TriggerType::Combat:
+                case loader::SequenceCondition::Combat:
                     runActions = getHandStatus() == 4;
                     break;
-                case loader::TriggerType::Heavy:
-                case loader::TriggerType::Dummy:
+                case loader::SequenceCondition::Heavy:
+                case loader::SequenceCondition::Dummy:
                     return;
                 default:
                     runActions = true;
@@ -686,7 +686,7 @@ namespace engine
         }
         else
         {
-            runActions = srcTriggerType == loader::TriggerType::Heavy;
+            runActions = sequenceCondition == loader::SequenceCondition::Heavy;
         }
 
         if( !runActions )
@@ -699,9 +699,9 @@ namespace engine
         {
             bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
             const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
-            switch( loader::extractTriggerFunction(*actionFloorData++) )
+            switch( loader::extractCommand(*actionFloorData++) )
             {
-                case loader::TriggerFunction::Object:
+                case loader::Command::Object:
                 {
                     Expects( getLevel().m_itemNodes.find( actionParam ) != getLevel().m_itemNodes.end() );
                     ItemNode& item = *getLevel().m_itemNodes[actionParam];
@@ -714,9 +714,9 @@ namespace engine
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
-                    if( srcTriggerType == loader::TriggerType::Switch )
+                    if( sequenceCondition == loader::SequenceCondition::Switch )
                         item.m_itemFlags ^= srcTriggerArg & ActivationMask;
-                    else if( srcTriggerType == loader::TriggerType::AntiPad )
+                    else if( sequenceCondition == loader::SequenceCondition::AntiPad )
                         item.m_itemFlags &= ~(srcTriggerArg & ActivationMask);
                     else
                         item.m_itemFlags |= srcTriggerArg & ActivationMask;
@@ -764,23 +764,23 @@ namespace engine
                     item.activate();
                 }
                     break;
-                case loader::TriggerFunction::CameraTarget:
-                    getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, srcTriggerType,
+                case loader::Command::CameraTarget:
+                    getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, sequenceCondition,
                                                                   isDoppelganger, srcTriggerArg, switchIsOn);
                     isLastAction = loader::isLastFloordataEntry(*actionFloorData);
                     ++actionFloorData;
                     break;
-                case loader::TriggerFunction::LookAt:
+                case loader::Command::LookAt:
                     lookAtItem = getLevel().getItemController(actionParam);
                     break;
-                case loader::TriggerFunction::UnderwaterCurrent:
+                case loader::Command::UnderwaterCurrent:
                     //! @todo handle underwater current
                     break;
-                case loader::TriggerFunction::FlipMap:
+                case loader::Command::FlipMap:
                     BOOST_ASSERT(actionParam < flipFlags.size());
                     if((flipFlags[actionParam] & Oneshot) == 0)
                     {
-                        if(srcTriggerType == loader::TriggerType::Switch)
+                        if(sequenceCondition == loader::SequenceCondition::Switch)
                         {
                             flipFlags[actionParam] ^= srcTriggerArg & ActivationMask;
                         }
@@ -802,25 +802,25 @@ namespace engine
                         }
                     }
                     break;
-                case loader::TriggerFunction::FlipOn:
+                case loader::Command::FlipOn:
                     BOOST_ASSERT(actionParam < flipFlags.size());
                     if(!roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
                         swapRooms = true;
                     break;
-                case loader::TriggerFunction::FlipOff:
+                case loader::Command::FlipOff:
                     if(roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
                         swapRooms = true;
                     break;
-                case loader::TriggerFunction::FlipEffect:
+                case loader::Command::FlipEffect:
                     //! @todo handle flip effect
                     break;
-                case loader::TriggerFunction::EndLevel:
+                case loader::Command::EndLevel:
                     //! @todo handle level end
                     break;
-                case loader::TriggerFunction::PlayTrack:
-                    getLevel().triggerCdTrack(actionParam, srcTriggerArg, srcTriggerType);
+                case loader::Command::PlayTrack:
+                    getLevel().triggerCdTrack(actionParam, srcTriggerArg, sequenceCondition);
                     break;
-                case loader::TriggerFunction::Secret:
+                case loader::Command::Secret:
                 {
                     BOOST_ASSERT( actionParam < 16 );
                     const uint16_t mask = 1u << actionParam;

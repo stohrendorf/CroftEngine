@@ -8,12 +8,12 @@ namespace loader
 
     //! @brief Native TR floor data functions
     //! @ingroup native
-    enum class FDFunction : uint8_t
+    enum class FloorDataChunkType : uint8_t
     {
         PortalSector = 0x01,
         FloorSlant = 0x02,
         CeilingSlant = 0x03,
-        Trigger = 0x04,
+        CommandSequence = 0x04,
         Death = 0x05,
         Climb = 0x06,
         FloorTriangleNW = 0x07, //  [_\_]
@@ -35,11 +35,11 @@ namespace loader
 
     //! @brief Native trigger types.
     //! @ingroup native
-    //! @see FDFunction::Trigger
-    //! @see TriggerFunction
-    enum class TriggerType
+    //! @see FloorDataChunkType::Always
+    //! @see Command
+    enum class SequenceCondition
     {
-        Trigger = 0x00, //!< If Lara is in sector, run (any case).
+        Always = 0x00, //!< If Lara is in sector, run (any case).
         Pad = 0x01, //!< If Lara is in sector, run (land case).
         Switch = 0x02, //!< If item is activated, run, else stop.
         Key = 0x03, //!< If item is activated, run.
@@ -60,9 +60,9 @@ namespace loader
 
     //! @brief Native trigger function types.
     //! @ingroup native
-    //! @see FDFunction::Trigger
-    //! @see TriggerType
-    enum class TriggerFunction
+    //! @see FloorDataChunkType::Always
+    //! @see SequenceCondition
+    enum class Command
     {
         Object = 0x00,
         CameraTarget = 0x01,
@@ -80,19 +80,19 @@ namespace loader
         CutScene = 0x0D
     };
 
-    inline FDFunction extractFDFunction(FloorData::value_type data)
+    inline FloorDataChunkType extractFloorDataChunkType(FloorData::value_type data)
     {
-        return gsl::narrow_cast<FDFunction>(data);
+        return gsl::narrow_cast<FloorDataChunkType>(data);
     }
 
-    inline TriggerFunction extractTriggerFunction(FloorData::value_type data)
+    inline Command extractCommand(FloorData::value_type data)
     {
-        return gsl::narrow_cast<TriggerFunction>((data & 0x3fff) >> 10);
+        return gsl::narrow_cast<Command>((data & 0x3fff) >> 10);
     }
 
-    inline TriggerType extractTriggerType(FloorData::value_type data)
+    inline SequenceCondition extractSequenceCondition(FloorData::value_type data)
     {
-        return gsl::narrow_cast<TriggerType>((data & 0x3f00) >> 8);
+        return gsl::narrow_cast<SequenceCondition>((data & 0x3f00) >> 8);
     }
 
     constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)

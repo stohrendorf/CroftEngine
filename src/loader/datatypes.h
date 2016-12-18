@@ -115,21 +115,21 @@ namespace loader
             BOOST_ASSERT(floorDataIndex < floorData.size());
             const FloorData::value_type* fdData = &floorData[floorDataIndex];
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::FloorSlant )
+            if( extractFloorDataChunkType(fdData[0]) == FloorDataChunkType::FloorSlant )
             {
                 if( isLastFloordataEntry(fdData[0]) )
                     return {};
                 fdData += 2;
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::CeilingSlant )
+            if( extractFloorDataChunkType(fdData[0]) == FloorDataChunkType::CeilingSlant )
             {
                 if( isLastFloordataEntry(fdData[0]) )
                     return {};
                 fdData += 2;
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::PortalSector )
+            if( extractFloorDataChunkType(fdData[0]) == FloorDataChunkType::PortalSector )
             {
                 return gsl::narrow_cast<uint8_t>(fdData[1]);
             }
