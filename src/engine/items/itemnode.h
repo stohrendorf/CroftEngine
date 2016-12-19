@@ -89,6 +89,15 @@ namespace engine
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
 
+            struct Lighting
+            {
+                glm::vec3 position;
+                float ambient;
+                float brightness;
+                float total;
+            };
+
+            Lighting m_lighting;
 
             enum class AnimCommandOpcode : uint16_t
             {
@@ -397,6 +406,94 @@ namespace engine
                 move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
             }
 
+
+            void updateLighting()
+            {
+                m_lighting.ambient = 1 - m_position.room->ambientDarkness / 8191.0f;
+                m_lighting.total = m_lighting.ambient;
+                BOOST_ASSERT(m_lighting.ambient >= 0 && m_lighting.ambient <= 1);
+                m_lighting.brightness = -1;
+
+                if(m_position.room->lights.empty())
+                {
+                    return;
+                }
+
+                m_lighting.brightness = 0;
+                const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
+                for(const auto& light : m_position.room->lights)
+                {
+                    auto fadeSq = light.specularFade / 4096.0f;
+                    fadeSq *= fadeSq;
+
+                    auto distanceSq = glm::length(bboxCtr - light.position.toRenderSystem());
+                    distanceSq /= 4096.0f;
+                    distanceSq *= distanceSq;
+
+                    const auto lightBrightness = m_lighting.ambient + fadeSq * (light.specularIntensity / 4096.0f) / (fadeSq + distanceSq);
+                    if(lightBrightness > m_lighting.brightness)
+                    {
+                        BOOST_ASSERT(lightBrightness >= 0 && lightBrightness <= 2);
+                        m_lighting.brightness = lightBrightness;
+                        m_lighting.position = light.position.toRenderSystem();
+                    }
+                }
+
+                m_lighting.total = (m_lighting.ambient + m_lighting.brightness) / 2;
+            }
+
+            static void lightBrightnessBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                const ItemNode* item = nullptr;
+
+                {
+                    auto n = &node;
+                    while(true)
+                    {
+                        item = dynamic_cast<const ItemNode*>(n);
+
+                        if(item != nullptr || n->getParent().expired())
+                            break;
+
+                        n = n->getParent().lock().get();
+                    };
+                }
+
+                if(item == nullptr)
+                {
+                    shaderProgram->setValue(*uniform, 1.0f);
+                    return;
+                }
+
+                shaderProgram->setValue(*uniform, item->m_lighting.total);
+            };
+
+            static void lightPositionBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                const ItemNode* item = nullptr;
+
+                {
+                    auto n = &node;
+                    while(true)
+                    {
+                        item = dynamic_cast<const ItemNode*>(n);
+
+                        if(item != nullptr || n->getParent().expired())
+                            break;
+
+                        n = n->getParent().lock().get();
+                    };
+                }
+
+                if(item == nullptr)
+                {
+                    static const glm::vec3 invalidPos{ std::numeric_limits<float>::quiet_NaN() };
+                    shaderProgram->setValue(*uniform, invalidPos);
+                    return;
+                }
+
+                shaderProgram->setValue(*uniform, item->m_lighting.position);
+            };
 
         protected:
             bool isInvertedActivation() const noexcept

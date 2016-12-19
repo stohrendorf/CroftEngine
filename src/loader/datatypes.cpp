@@ -15,7 +15,7 @@ namespace loader
 #pragma pack(push,1)
         struct RenderVertex
         {
-            glm::vec2 texcoord0;
+            glm::vec2 texcoord;
             glm::vec3 position;
             glm::vec4 color;
 
@@ -111,7 +111,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[quad.vertices[i]].color;
-                iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                iv.texcoord = proxy.uvCoordinates[i].toGl();
                 vbuf.push_back(iv);
             }
 
@@ -148,7 +148,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[tri.vertices[i]].color;
-                iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                iv.texcoord = proxy.uvCoordinates[i].toGl();
                 vbuf.push_back(iv);
             }
 

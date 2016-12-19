@@ -136,6 +136,8 @@ namespace loader
         }
     };
 
+    extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, const std::shared_ptr<gameplay::ShaderProgram>& shader);
+
     struct TextureLayoutProxy
     {
         struct TextureKey
@@ -247,39 +249,7 @@ namespace loader
 
         std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, const std::shared_ptr<gameplay::ShaderProgram>& shader) const
         {
-            return createMaterial(texture, textureKey.blendingMode, shader);
-        }
-
-        static std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, const std::shared_ptr<gameplay::ShaderProgram>& shader)
-        {
-            auto result = std::make_shared<gameplay::Material>(shader);
-            // Set some defaults
-            auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
-            sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
-            result->getParameter("u_diffuseTexture")->set(sampler);
-            //result->getParameter("u_ambientColor")->set(gameplay::Vector3(0, 0, 0));
-            result->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
-            result->initStateBlockDefaults();
-
-            //result.TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
-            //result.TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;
-
-            switch( bmode )
-            {
-            case BlendingMode::Solid:
-            case BlendingMode::AlphaTransparency:
-            case BlendingMode::VertexColorTransparency: // Classic PC alpha
-            case BlendingMode::InvertSrc: // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
-            case BlendingMode::InvertDst: // Inversion by dest
-            case BlendingMode::Screen: // Screen (smoke, etc.)
-            case BlendingMode::AnimatedTexture:
-                break;
-
-            default: // opaque animated textures case
-                BOOST_ASSERT(false); // FIXME [irrlicht]
-            }
-
-            return result;
+            return ::loader::createMaterial(texture, textureKey.blendingMode, shader);
         }
     };
 }

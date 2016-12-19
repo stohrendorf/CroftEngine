@@ -65,7 +65,7 @@ namespace engine
         if( (flags & 1) != 0 )
             m_level->m_cameras[camId].setActive(true);
 
-        m_smoothFactor = 1 + ((flags & 0x3e00) >> 6);
+        m_smoothFactor = 1 + ((flags & 0x3e) * 4);
         if( isDoppelganger )
             m_camOverrideType = CamOverrideType::_1;
         else

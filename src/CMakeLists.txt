@@ -98,10 +98,10 @@ set( OT_IRR_SRCS
      loader/objwriter.cpp
      loader/primitives.h
      loader/texture.h
+     loader/texture.cpp
      loader/util.h
      loader/io/sdlreader.h
 
-     render/lightselector.h
      render/portaltracer.h
      render/textureanimator.h
 

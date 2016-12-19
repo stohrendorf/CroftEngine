@@ -112,7 +112,7 @@ namespace loader
 
                 IndexBuffer indices;
                 std::shared_ptr<gameplay::Material> material;
-                boost::optional<glm::vec4> color;
+                boost::optional<glm::vec3> color;
             };
 
 
@@ -136,7 +136,7 @@ namespace loader
                     m_texBuffers[tk] = m_parts.size();
                     m_parts.emplace_back();
                     m_parts.back().material = m_colorMaterial;
-                    m_parts.back().color = m_palette.color[tk.colorId].toGLColor();
+                    m_parts.back().color = glm::vec3(m_palette.color[tk.colorId].toGLColor());
                 }
 
                 return m_texBuffers[tk];

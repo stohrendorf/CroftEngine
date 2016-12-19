@@ -213,4 +213,20 @@ namespace gameplay
             shaderProgram->setValue(*uniform, node.getWorldViewProjectionMatrix());
         };
     }
+
+    void MaterialParameter::bindModelMatrix()
+    {
+        m_valueSetter = [](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, node.getWorldMatrix());
+        };
+    }
+
+    void MaterialParameter::bindViewMatrix()
+    {
+        m_valueSetter = [](const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::shared_ptr<Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, node.getViewMatrix());
+        };
+    }
 }

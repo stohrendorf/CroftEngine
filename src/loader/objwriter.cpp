@@ -262,6 +262,8 @@ namespace loader
         auto material = std::make_shared<gameplay::Material>(shaderProgram);
         material->getParameter("u_diffuseTexture")->set(sampler);
         material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
+        material->getParameter("u_modelMatrix")->bindModelMatrix();
+        material->getParameter("u_viewMatrix")->bindViewMatrix();
         material->initStateBlockDefaults();
 
         return material;

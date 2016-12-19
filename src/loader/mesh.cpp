@@ -9,17 +9,19 @@ namespace loader
 #pragma pack(push,1)
     struct Mesh::ModelBuilder::RenderVertex
     {
-        glm::vec2 texcoord0;
+        glm::vec2 texcoord;
         glm::vec3 position;
+        glm::vec4 color;
 
 
         static gameplay::VertexFormat getFormat()
         {
             static const gameplay::VertexFormat::Element elems[4] = {
                 {gameplay::VertexFormat::TEXCOORD, 2},
-                {gameplay::VertexFormat::POSITION, 3}
+                {gameplay::VertexFormat::POSITION, 3},
+                {gameplay::VertexFormat::COLOR, 4}
             };
-            return gameplay::VertexFormat{elems, 2};
+            return gameplay::VertexFormat{elems, 3};
         }
     };
 
@@ -29,6 +31,7 @@ namespace loader
         glm::vec2 texcoord;
         glm::vec3 position;
         glm::vec3 normal;
+        glm::vec4 color;
 
 
         static gameplay::VertexFormat getFormat()
@@ -36,9 +39,10 @@ namespace loader
             static const gameplay::VertexFormat::Element elems[5] = {
                 {gameplay::VertexFormat::TEXCOORD, 2},
                 {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::NORMAL, 3}
+                {gameplay::VertexFormat::NORMAL, 3},
+                {gameplay::VertexFormat::COLOR, 4}
             };
-            return gameplay::VertexFormat{elems, 3};
+            return gameplay::VertexFormat{elems, 4};
         }
     };
 #pragma pack(pop)
@@ -117,7 +121,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
+                    if(quad.vertices[i] < mesh.lights.size())
+                        iv.color = glm::vec4(1 - mesh.lights[quad.vertices[i]] / 8192.0f);
+                    else
+                        iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
 
@@ -137,7 +145,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
+                    if(quad.vertices[i] < mesh.lights.size())
+                        iv.color = glm::vec4(1 - mesh.lights[quad.vertices[i]] / 8192.0f);
+                    else
+                        iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
 
@@ -156,7 +168,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
+                    if(tri.vertices[i] < mesh.lights.size())
+                        iv.color = glm::vec4(1 - mesh.lights[tri.vertices[i]] / 8192.0f);
+                    else
+                        iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -174,7 +190,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord0 = proxy.uvCoordinates[i].toGl();
+                    iv.texcoord = proxy.uvCoordinates[i].toGl();
+                    if(tri.vertices[i] < mesh.lights.size())
+                        iv.color = glm::vec4(1 - mesh.lights[tri.vertices[i]] / 8192.0f);
+                    else
+                        iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -194,6 +214,7 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
 
@@ -215,6 +236,7 @@ namespace loader
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
                 for(auto j : { 0,1,2,0,2,3 })
@@ -234,6 +256,7 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -253,6 +276,7 @@ namespace loader
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
                 }
@@ -310,6 +334,8 @@ namespace loader
         };
 
         mb.append(*this);
+
+
         return mb.finalize();
     }
 }
