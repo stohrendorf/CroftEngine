@@ -173,6 +173,8 @@ namespace gameplay
         }
 
         void bindWorldViewProjectionMatrix();
+        void bindModelMatrix();
+        void bindViewMatrix();
 
     private:
 

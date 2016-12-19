@@ -1,11 +1,13 @@
-uniform vec4 u_diffuseColor;
+uniform sampler2D u_diffuseTexture;
 
 uniform float u_brightness;
-uniform vec3 u_lightPosition;
+uniform vec3 u_diffuseColor;
+
+// varying vec2 v_texCoord;
+varying vec3 v_color;
+varying float v_shadeFactor;
 
 out vec4 out_color;
-
-varying vec4 v_color;
 
 void main()
 {
@@ -13,8 +15,9 @@ void main()
     color.r = u_diffuseColor.r * v_color.r;
     color.g = u_diffuseColor.g * v_color.g;
     color.b = u_diffuseColor.b * v_color.b;
-    color.a = u_diffuseColor.a * v_color.a;
+    color.a = 1;
 
     out_color = color * u_brightness;
+    out_color += color * v_shadeFactor;
     out_color.a = 1;
 }

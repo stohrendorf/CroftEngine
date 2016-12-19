@@ -486,7 +486,11 @@ namespace engine
                 }
 
                 if(item == nullptr)
+                {
+                    static const glm::vec3 invalidPos{ std::numeric_limits<float>::quiet_NaN() };
+                    shaderProgram->setValue(*uniform, invalidPos);
                     return;
+                }
 
                 shaderProgram->setValue(*uniform, item->m_lighting.position);
             };
