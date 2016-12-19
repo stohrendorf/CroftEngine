@@ -46,7 +46,7 @@ namespace loader
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                    const glm::vec3& ambientColor) const;
 
-        void write(const std::string& filename, const YAML::Node& tree);
+        void write(const std::string& filename, const YAML::Node& tree) const;
     private:
         static std::string makeTextureName(size_t id);
 

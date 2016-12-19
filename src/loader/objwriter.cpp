@@ -499,7 +499,7 @@ namespace loader
     }
 
 
-    void OBJWriter::write(const std::string& filename, const YAML::Node& tree)
+    void OBJWriter::write(const std::string& filename, const YAML::Node& tree) const
     {
         std::ofstream file{ (m_basePath / filename).string(), std::ios::trunc };
         file << tree;
