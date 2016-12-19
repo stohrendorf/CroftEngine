@@ -205,6 +205,7 @@ namespace loader
 
         for( const RoomStaticMesh& sm : this->staticMeshes )
         {
+            //! @todo Bind static mesh darkness to this material.
             auto idx = level.findStaticMeshIndexById(sm.meshId);
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());

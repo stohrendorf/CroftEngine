@@ -88,6 +88,7 @@ namespace engine
 
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
+            const int16_t m_darkness;
 
             struct Lighting
             {
@@ -118,6 +119,7 @@ namespace engine
                      uint16_t flags,
                      bool hasProcessAnimCommandsOverride,
                      uint8_t characteristics,
+                     int16_t darkness,
                      const loader::AnimatedModel& animatedModel);
 
             virtual ~ItemNode() = default;
@@ -408,10 +410,17 @@ namespace engine
 
             void updateLighting()
             {
-                const auto roomAmbient = 1 - m_position.room->ambientDarkness / 8191.0f;
-                m_lighting.base = roomAmbient;
                 m_lighting.baseDiff = 0;
+
+                if(m_darkness >= 0)
+                {
+                    m_lighting.base = (m_darkness - 4096) / 8192.0f;
+                    return;
+                }
+
+                const auto roomAmbient = 1 - m_position.room->ambientDarkness / 8191.0f;
                 BOOST_ASSERT(roomAmbient >= 0 && roomAmbient <= 1);
+                m_lighting.base = roomAmbient;
 
                 if(m_position.room->lights.empty())
                 {

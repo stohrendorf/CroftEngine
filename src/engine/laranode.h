@@ -50,8 +50,9 @@ namespace engine
                  const core::Angle& angle,
                  const core::ExactTRCoordinates& position,
                  uint16_t flags,
+                 int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, animatedModel )
+                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, darkness, animatedModel )
         {
             setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );

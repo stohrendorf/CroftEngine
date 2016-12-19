@@ -31,6 +31,7 @@ namespace engine
                            uint16_t flags,
                            bool hasProcessAnimCommandsOverride,
                            uint8_t characteristics,
+                           int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
             : SkeletalModelNode(name, level, animatedModel)
             , m_position(room, position)
@@ -39,6 +40,7 @@ namespace engine
             , m_itemFlags(flags)
             , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
             , m_characteristics(characteristics)
+            , m_darkness{darkness}
         {
             if( m_itemFlags & Oneshot )
                 setEnabled(false);

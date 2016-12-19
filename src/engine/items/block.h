@@ -16,8 +16,9 @@ namespace engine
                   const core::Angle& angle,
                   const core::ExactTRCoordinates& position,
                   uint16_t flags,
+                  int16_t darkness,
                   const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, flags, true, 0x34, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x34, darkness, animatedModel)
             {
                 if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);

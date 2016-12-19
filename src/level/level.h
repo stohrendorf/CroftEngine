@@ -115,7 +115,18 @@ namespace level
             if(!modelIdx)
                 return nullptr;
 
-            auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, flags);
+            int16_t darkness = -1;
+
+            for(const auto& item : m_items)
+            {
+                if(item.type != type)
+                    continue;
+
+                darkness = item.darkness;
+                break;
+            }
+
+            auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, flags, darkness);
 
             m_dynamicItems.insert(node);
             room->node->addChild(node);
@@ -353,7 +364,8 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
                                                const core::ExactTRCoordinates& position,
-                                               uint16_t flags);
+                                               uint16_t flags,
+                                               int16_t darkness);
 
 
         template<typename T>
@@ -361,7 +373,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, room, core::Angle{ item->rotation }, core::ExactTRCoordinates{ item->position }, item->flags);
+            return createSkeletalModel<T>(id, room, core::Angle{ item->rotation }, core::ExactTRCoordinates{ item->position }, item->flags, item->darkness);
         }
 
         std::array<uint16_t, 64> m_cdTrackTriggerValues;

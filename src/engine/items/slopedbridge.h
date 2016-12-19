@@ -18,9 +18,10 @@ namespace engine
                          const core::Angle& angle,
                          const core::ExactTRCoordinates& position,
                          uint16_t flags,
+                         int16_t darkness,
                          const loader::AnimatedModel& animatedModel,
                          int div)
-                : ItemNode(level, name, room, angle, position, flags, false, 0, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, false, 0, darkness, animatedModel)
                 , m_div(div)
             {
             }
@@ -86,8 +87,9 @@ namespace engine
                          const core::Angle& angle,
                          const core::ExactTRCoordinates& position,
                          uint16_t flags,
+                         int16_t darkness,
                          const loader::AnimatedModel& animatedModel)
-                : SlopedBridge(level, name, room, angle, position, flags, animatedModel, 4)
+                : SlopedBridge(level, name, room, angle, position, flags, darkness, animatedModel, 4)
             {
             }
         };
@@ -102,8 +104,9 @@ namespace engine
                          const core::Angle& angle,
                          const core::ExactTRCoordinates& position,
                          uint16_t flags,
+                         int16_t darkness,
                          const loader::AnimatedModel& animatedModel)
-                : SlopedBridge(level, name, room, angle, position, flags, animatedModel, 2)
+                : SlopedBridge(level, name, room, angle, position, flags, darkness, animatedModel, 2)
             {
             }
         };

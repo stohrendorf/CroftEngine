@@ -16,8 +16,9 @@ namespace engine
                        const core::Angle& angle,
                        const core::ExactTRCoordinates& position,
                        uint16_t flags,
+                       int16_t darkness,
                        const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, flags, true, 0x30, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x30, darkness, animatedModel)
             {
             }
 

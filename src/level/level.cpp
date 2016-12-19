@@ -520,7 +520,8 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::ExactTRCoordinates& position,
-                                              uint16_t flags)
+                                              uint16_t flags,
+                                              int16_t darkness)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
 
@@ -542,6 +543,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                              angle,
                                              position,
                                              flags,
+                                             darkness,
                                              model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
