@@ -213,7 +213,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
@@ -235,7 +235,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
@@ -255,7 +255,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
@@ -275,7 +275,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
