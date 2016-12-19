@@ -156,10 +156,9 @@ namespace loader
 
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
-        float intensity; // Calculated intensity
-        int16_t specularIntensity; // Light intensity
+        int16_t intensity; // Light intensity
         uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
-        uint32_t specularFade; // Falloff value 1
+        uint32_t radius; // Falloff value 1
         uint32_t fade2; // Falloff value 2 [absent from TR1 data files]
         uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
         uint8_t unknown; // always 0xff?
@@ -198,17 +197,15 @@ namespace loader
             Light light;
             light.position = readCoordinates32(reader);
             // read and make consistent
-            light.specularIntensity = reader.readI16();
-            light.specularFade = reader.readU32();
+            light.intensity = reader.readI16();
+            light.radius = reader.readU32();
             // only in TR2
-            light.intensity2 = light.specularIntensity;
+            light.intensity2 = light.intensity;
 
-            light.intensity = util::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
+            light.fade2 = light.radius;
 
-            light.fade2 = light.specularFade;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
 
@@ -224,19 +221,13 @@ namespace loader
         {
             Light light;
             light.position = readCoordinates32(reader);
-            light.specularIntensity = reader.readU16();
+            light.intensity = reader.readU16();
             light.intensity2 = reader.readU16();
-            light.specularFade = reader.readU32();
+            light.radius = reader.readU32();
             light.fade2 = reader.readU32();
 
-            light.intensity = light.specularIntensity;
-            light.intensity /= 4096.0f;
-
-            if( light.intensity > 1.0f )
-                light.intensity = 1.0f;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
 
@@ -255,13 +246,11 @@ namespace loader
             light.color.g = reader.readU8();
             light.color.b = reader.readU8();
             light.color.a = reader.readU8();
-            light.specularFade = reader.readU32();
+            light.radius = reader.readU32();
             light.fade2 = reader.readU32();
 
-            light.intensity = 1.0f;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
             return light;
@@ -274,9 +263,7 @@ namespace loader
             light.color = ByteColor::readTr1(reader);
             light.light_type = reader.readU8();
             light.unknown = reader.readU8();
-            light.specularIntensity = reader.readU8();
-            light.intensity = light.specularIntensity;
-            light.intensity /= 32;
+            light.intensity = reader.readU8();
             light.r_inner = gsl::narrow<int>(reader.readF());
             light.r_outer = gsl::narrow<int>(reader.readF());
             light.length = gsl::narrow<int>(reader.readF());
@@ -294,7 +281,6 @@ namespace loader
             light.color.g = gsl::narrow<uint8_t>(reader.readF() * 255); // g
             light.color.b = gsl::narrow<uint8_t>(reader.readF() * 255); // b
             light.color.a = gsl::narrow<uint8_t>(reader.readF() * 255); // a
-            light.intensity = 1.0f;
             /*
             if ((temp != 0) && (temp != 0xCDCDCDCD))
             BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: seperator1 has wrong value") );

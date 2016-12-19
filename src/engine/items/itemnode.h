@@ -431,14 +431,14 @@ namespace engine
                 const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
                 for(const auto& light : m_position.room->lights)
                 {
-                    auto fadeSq = light.specularFade / 4096.0f;
-                    fadeSq *= fadeSq;
+                    auto radiusSq = light.radius / 4096.0f;
+                    radiusSq *= radiusSq;
 
                     auto distanceSq = glm::length(bboxCtr - light.position.toRenderSystem());
                     distanceSq /= 4096.0f;
                     distanceSq *= distanceSq;
 
-                    const auto lightBrightness = roomAmbient + fadeSq * (light.specularIntensity / 4096.0f) / (fadeSq + distanceSq);
+                    const auto lightBrightness = roomAmbient + radiusSq * (light.intensity / 4096.0f) / (radiusSq + distanceSq);
                     if(lightBrightness > maxBrightness)
                     {
                         BOOST_ASSERT(lightBrightness >= 0 && lightBrightness <= 2);

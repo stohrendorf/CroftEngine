@@ -169,23 +169,23 @@ namespace loader
 
         for( Light& light : lights )
         {
-            const auto f = std::abs(light.specularIntensity) / 8191.0f;
+            const auto f = std::abs(light.intensity) / 8191.0f;
             BOOST_ASSERT(f >= 0 && f <= 1);
 
             switch( light.getLightType() )
             {
                 case LightType::Shadow:
                     BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
-                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
+                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.radius);
                     break;
                 case LightType::Null:
                 case LightType::Point:
                     BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
-                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
+                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.radius);
                     break;
                 case LightType::Spotlight:
                     BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
-                    light.node = gameplay::Light::createSpot(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade, light.r_inner, light.r_outer);
+                    light.node = gameplay::Light::createSpot(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.radius, light.r_inner, light.r_outer);
                     break;
                 case LightType::Sun:
                     BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
@@ -196,8 +196,8 @@ namespace loader
             BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
             BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
             BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a / 255.0f << "/" << light.color.r / 255.0f << "/" << light.color.g / 255.0f << "/" << light.color.b / 255.0f;
-            BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.specularFade;
-            BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.specularIntensity;
+            BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.radius;
+            BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.intensity;
             BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
             BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
             BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
