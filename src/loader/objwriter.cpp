@@ -25,9 +25,9 @@
 namespace
 {
 #pragma pack(push, 1)
-    struct VDataNormal
+    struct RenderVertex
     {
-        bool operator==(const VDataNormal& rhs) const
+        bool operator==(const RenderVertex& rhs) const
         {
             return color == rhs.color
                    && position == rhs.position
@@ -39,7 +39,7 @@ namespace
         glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
         glm::vec3 position;
         glm::vec2 uv;
-        glm::vec3 normal;
+        glm::vec3 normal{std::numeric_limits<float>::quiet_NaN()};
 
 
         static const gameplay::VertexFormat& getFormat()
@@ -52,38 +52,7 @@ namespace
             };
             static const gameplay::VertexFormat fmt{elems, 4};
 
-            Expects(fmt.getVertexSize() == sizeof(VDataNormal));
-
-            return fmt;
-        }
-    };
-
-
-    struct VData
-    {
-        bool operator==(const VData& rhs) const
-        {
-            return color == rhs.color
-                   && position == rhs.position
-                   && uv == rhs.uv;
-        }
-
-
-        glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
-        glm::vec3 position;
-        glm::vec2 uv;
-
-
-        static const gameplay::VertexFormat& getFormat()
-        {
-            static const gameplay::VertexFormat::Element elems[3] = {
-                {gameplay::VertexFormat::COLOR, 4},
-                {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::TEXCOORD, 2}
-            };
-            static const gameplay::VertexFormat fmt{elems, 3};
-
-            Expects(fmt.getVertexSize() == sizeof(VData));
+            Expects(fmt.getVertexSize() == sizeof(RenderVertex));
 
             return fmt;
         }
@@ -299,13 +268,13 @@ namespace loader
 
             std::shared_ptr<gameplay::Mesh> renderMesh;
 
-            if( mesh->HasNormals() )
             {
-                std::vector<VDataNormal> vbuf(mesh->mNumVertices);
+                std::vector<RenderVertex> vbuf(mesh->mNumVertices);
                 for( unsigned int i = 0; i < mesh->mNumVertices; ++i )
                 {
                     vbuf[i].position = glm::vec3{mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z} * static_cast<float>(SectorSize);
-                    vbuf[i].normal = glm::vec3{mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
+                    if(mesh->HasNormals())
+                        vbuf[i].normal = glm::vec3{mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
                     vbuf[i].uv = glm::vec2{mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y};
                     if( mesh->HasVertexColors(0) )
                         vbuf[i].color = glm::vec4(mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b, mesh->mColors[0][i].a);
@@ -313,23 +282,7 @@ namespace loader
                         vbuf[i].color = glm::vec4(ambientColor, 1);
                 }
 
-                renderMesh = std::make_shared<gameplay::Mesh>(VDataNormal::getFormat(), mesh->mNumVertices, false);
-                renderMesh->rebuild(reinterpret_cast<const float*>(vbuf.data()), mesh->mNumVertices);
-            }
-            else
-            {
-                std::vector<VData> vbuf(mesh->mNumVertices);
-                for( unsigned int i = 0; i < mesh->mNumVertices; ++i )
-                {
-                    vbuf[i].position = glm::vec3{mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z} * static_cast<float>(SectorSize);
-                    vbuf[i].uv = glm::vec2{mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y};
-                    if( mesh->HasVertexColors(0) )
-                        vbuf[i].color = glm::vec4(mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b, mesh->mColors[0][i].a);
-                    else
-                        vbuf[i].color = glm::vec4(ambientColor, 1);
-                }
-
-                renderMesh = std::make_shared<gameplay::Mesh>(VData::getFormat(), mesh->mNumVertices, false);
+                renderMesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), mesh->mNumVertices, false);
                 renderMesh->rebuild(reinterpret_cast<const float*>(vbuf.data()), mesh->mNumVertices);
             }
 

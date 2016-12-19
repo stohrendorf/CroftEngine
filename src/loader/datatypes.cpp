@@ -18,16 +18,18 @@ namespace loader
             glm::vec2 texcoord;
             glm::vec3 position;
             glm::vec4 color;
+            glm::vec3 normal{std::numeric_limits<float>::quiet_NaN()};
 
 
             static const gameplay::VertexFormat& getFormat()
             {
-                static const gameplay::VertexFormat::Element elems[3] = {
+                static const gameplay::VertexFormat::Element elems[4] = {
                     {gameplay::VertexFormat::TEXCOORD, 2},
                     {gameplay::VertexFormat::POSITION, 3},
-                    {gameplay::VertexFormat::COLOR, 4}
+                    {gameplay::VertexFormat::COLOR, 4},
+                    {gameplay::VertexFormat::NORMAL, 3}
                 };
-                static const gameplay::VertexFormat fmt{elems, 3};
+                static const gameplay::VertexFormat fmt{elems, 4};
 
                 Expects(fmt.getVertexSize() == sizeof(RenderVertex));
 
