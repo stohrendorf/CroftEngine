@@ -1,6 +1,7 @@
 #include "objwriter.h"
 
 #include "datatypes.h"
+#include "engine/items/itemnode.h"
 
 #ifdef _X
 #undef _X
@@ -263,7 +264,9 @@ namespace loader
         material->getParameter("u_diffuseTexture")->set(sampler);
         material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
         material->getParameter("u_modelMatrix")->bindModelMatrix();
-        material->getParameter("u_viewMatrix")->bindViewMatrix();
+        material->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
+        material->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
+        material->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
         material->initStateBlockDefaults();
 
         return material;

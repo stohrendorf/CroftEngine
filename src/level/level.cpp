@@ -741,8 +741,8 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     colorMaterial->initStateBlockDefaults();
     colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
     colorMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    colorMaterial->getParameter("u_viewMatrix")->bindViewMatrix();
-    colorMaterial->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
+    colorMaterial->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
+    colorMaterial->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
     colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);

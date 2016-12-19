@@ -1,7 +1,5 @@
 uniform sampler2D u_diffuseTexture;
 
-uniform float u_brightness;
-
 varying vec2 v_texCoord;
 varying vec3 v_color;
 varying float v_shadeFactor;
@@ -26,8 +24,8 @@ out_color.a = baseColor.a;
     out_color *= WaterColor;
 #endif
 
-    out_color *= u_brightness;
-    out_color += out_color*v_shadeFactor;
+    out_color *= v_shadeFactor;
+    out_color.a = 1;
 
     out_color.a = 1;
 }
