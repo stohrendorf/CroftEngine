@@ -374,7 +374,7 @@ namespace engine
 
     void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
     {
-        static constexpr auto UVAnimTime = 3_frame;
+        static constexpr auto UVAnimTime = 10_frame;
 
         m_uvAnimTime += deltaTime;
         if( m_uvAnimTime >= UVAnimTime )
