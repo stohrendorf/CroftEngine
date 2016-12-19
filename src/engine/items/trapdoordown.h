@@ -53,7 +53,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, long& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
+                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
                     || y > getPosition().Y )
                     return;
 
