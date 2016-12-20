@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Model.h"
-#include "Light.h"
 #include "Visitor.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,21 +8,14 @@
 namespace gameplay
 {
     class Drawable;
-    class Light;
     class Scene;
 
 
     /**
      * Defines a hierarchical structure of objects in 3D transformation spaces.
-     *
-     * This object allow you to attach components to a scene such as:
-     * Drawable's(Model, Camera, Light, PhysicsCollisionObject, AudioSource, etc.
-     *
-     * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Node
      */
     class Node : public std::enable_shared_from_this<Node>
     {
-        friend class Light;
         friend class Scene;
 
     public:
@@ -220,23 +212,6 @@ namespace gameplay
          */
         void setDrawable(const std::shared_ptr<Drawable>& drawable);
 
-        /**
-         * Get the light attached to this node.
-         *
-         * @return The light attached to this node.
-         */
-        const std::shared_ptr<Light>& getLight() const;
-
-        /**
-         * Attaches a light to this node.
-         *
-         * This will increase the reference count of the new light and decrease
-         * the reference count of the old light.
-         *
-         * @param light The new light. May be NULL.
-         */
-        void setLight(const std::shared_ptr<Light>& light);
-
         const List& getChildren() const
         {
             return _children;
@@ -314,8 +289,6 @@ namespace gameplay
 
         Node& operator=(const Node&) = delete;
 
-    protected:
-
         /** The scene this node is attached to. */
         Scene* _scene = nullptr;
         /** The nodes id. */
@@ -330,8 +303,6 @@ namespace gameplay
         bool _enabled = true;
         /** The drawble component attached to this node. */
         std::shared_ptr<Drawable> _drawable = nullptr;
-        /** The light component attached to this node. */
-        std::shared_ptr<Light> _light = nullptr;
 
         glm::mat4 m_localMatrix{ 1.0f };
         mutable glm::mat4 m_worldMatrix{ 1.0f };

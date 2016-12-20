@@ -20,8 +20,6 @@ set( GAMEPLAY_SRC
      src/Game.h
      src/Image.cpp
      src/Image.h
-     src/Light.cpp
-     src/Light.h
      src/Material.cpp
      src/Material.h
      src/MaterialParameter.cpp
