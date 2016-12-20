@@ -13,6 +13,7 @@ namespace audio
     {
         const ALuint m_handle;
         std::shared_ptr<BufferHandle> m_buffer;
+        bool m_alreadyStarted = false;
 
         static ALuint createHandle()
         {
@@ -33,7 +34,7 @@ namespace audio
             set(AL_MAX_DISTANCE, 8 * 1024);
         }
 
-        virtual ~SourceHandle()
+        ~SourceHandle()
         {
             alSourceStop(m_handle);
             DEBUG_CHECK_AL_ERROR();
@@ -98,6 +99,7 @@ namespace audio
         {
             alSourcePlay(m_handle);
             DEBUG_CHECK_AL_ERROR();
+            m_alreadyStarted = true;
         }
 
         void pause()
@@ -114,6 +116,9 @@ namespace audio
 
         bool isStopped() const
         {
+            if(!m_alreadyStarted)
+                return false;
+
             ALenum state = AL_STOPPED;
             alGetSourcei(m_handle, AL_SOURCE_STATE, &state);
             DEBUG_CHECK_AL_ERROR();

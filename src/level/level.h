@@ -205,7 +205,6 @@ namespace level
 
             std::shared_ptr<audio::SourceHandle> src = std::make_shared<audio::SourceHandle>();
             src->setBuffer(buf);
-            m_audioDev.registerSource(src);
             src->setPitch(pitch);
             src->setGain(volume);
             if(pos)
@@ -213,6 +212,7 @@ namespace level
 
             src->play();
 
+            m_audioDev.registerSource(src);
             m_samples[sample] = src;
 
             return src;
