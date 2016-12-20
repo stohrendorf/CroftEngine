@@ -77,7 +77,7 @@ namespace engine
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         auto scaled = currentAnim.speed
-                      + float( currentAnim.accelleration ) * getCurrentLocalTime().count() / core::FrameTime.count();
+                      + currentAnim.accelleration * core::toFloatFrame(getCurrentLocalTime());
         return scaled / (1 << 16);
     }
 

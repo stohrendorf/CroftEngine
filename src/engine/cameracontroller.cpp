@@ -565,9 +565,9 @@ namespace engine
 
     void CameraController::updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs)
     {
-        m_currentPosition.position.X += (position.position.X - m_currentPosition.position.X) * deltaTimeMs / core::FrameTime / smoothFactor;
-        m_currentPosition.position.Y += (position.position.Y - m_currentPosition.position.Y) * deltaTimeMs / core::FrameTime / smoothFactor;
-        m_currentPosition.position.Z += (position.position.Z - m_currentPosition.position.Z) * deltaTimeMs / core::FrameTime / smoothFactor;
+        m_currentPosition.position.X += (position.position.X - m_currentPosition.position.X) * core::toFloatFrame(deltaTimeMs) / smoothFactor;
+        m_currentPosition.position.Y += (position.position.Y - m_currentPosition.position.Y) * core::toFloatFrame(deltaTimeMs) / smoothFactor;
+        m_currentPosition.position.Z += (position.position.Z - m_currentPosition.position.Z) * core::toFloatFrame(deltaTimeMs) / smoothFactor;
         HeightInfo::skipSteepSlants = false;
         m_currentPosition.room = position.room;
         auto sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
@@ -668,8 +668,8 @@ namespace engine
 
         clampBox(tmp, &freeLookClamp);
 
-        m_currentLookAt.position.X = origLook.X + (m_currentLookAt.position.X - origLook.X) * deltaTimeMs / m_smoothFactor / core::FrameTime;
-        m_currentLookAt.position.Z = origLook.Z + (m_currentLookAt.position.Z - origLook.Z) * deltaTimeMs / m_smoothFactor / core::FrameTime;
+        m_currentLookAt.position.X = origLook.X + (m_currentLookAt.position.X - origLook.X) * core::toFloatFrame(deltaTimeMs) / m_smoothFactor;
+        m_currentLookAt.position.Z = origLook.Z + (m_currentLookAt.position.Z - origLook.Z) * core::toFloatFrame(deltaTimeMs) / m_smoothFactor;
 
         updatePosition(tmp, m_smoothFactor, deltaTimeMs);
     }

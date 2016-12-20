@@ -159,7 +159,7 @@ int main()
         int secrets;
     };
 
-    static constexpr int LevelToLoad = 1;
+    static constexpr int LevelToLoad = 0;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1
@@ -250,17 +250,6 @@ int main()
         else
             depthDarknessFx.bind();
         game->frame();
-
-        /*
-                {
-                    const auto width = game->getViewport().width;
-                    const auto height = game->getViewport().height;
-
-                    std::vector<float> data;
-                    data.resize(width*height, 0);
-                    GL_ASSERT(glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data.data()));
-                }
-        */
 
         gameplay::RenderContext context{false};
         gameplay::Node dummyNode{""};
