@@ -5,6 +5,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+
 namespace gameplay
 {
     class Drawable;
@@ -212,10 +213,12 @@ namespace gameplay
          */
         void setDrawable(const std::shared_ptr<Drawable>& drawable);
 
+
         const List& getChildren() const
         {
             return _children;
         }
+
 
         const std::shared_ptr<Node>& getChild(size_t idx) const
         {
@@ -223,10 +226,12 @@ namespace gameplay
             return _children[idx];
         }
 
+
         const glm::mat4& getLocalMatrix() const
         {
             return m_localMatrix;
         }
+
 
         void setLocalMatrix(const glm::mat4& m)
         {
@@ -234,15 +239,17 @@ namespace gameplay
             transformChanged();
         }
 
+
         void accept(Visitor& visitor)
         {
-            for(auto& node : _children)
+            for( auto& node : _children )
                 visitor.visit(*node);
         }
 
+
         void setParent(const std::shared_ptr<Node>& parent)
         {
-            if(!_parent.expired())
+            if( !_parent.expired() )
             {
                 auto p = _parent.lock();
                 auto it = std::find(p->_children.begin(), p->_children.end(), shared_from_this());
@@ -252,30 +259,55 @@ namespace gameplay
 
             _parent = parent;
 
-            if(parent != nullptr)
+            if( parent != nullptr )
                 parent->_children.push_back(shared_from_this());
 
             transformChanged();
         }
 
+
         void swapChildren(const std::shared_ptr<Node>& other)
         {
             auto otherChildren = other->_children;
-            for(auto& child : otherChildren)
+            for( auto& child : otherChildren )
                 child->setParent(nullptr);
             BOOST_ASSERT(other->_children.empty());
 
             auto thisChildren = _children;
-            for(auto& child : thisChildren)
+            for( auto& child : thisChildren )
                 child->setParent(nullptr);
             BOOST_ASSERT(_children.empty());
 
-            for(auto& child : otherChildren)
+            for( auto& child : otherChildren )
                 child->setParent(shared_from_this());
 
-            for(auto& child : thisChildren)
+            for( auto& child : thisChildren )
                 child->setParent(other);
         }
+
+
+        using MaterialBinder = void(const Node& node, const Material& material);
+
+
+        void addMaterialBinder(const std::function<MaterialBinder>& binder)
+        {
+            _materialBinders.emplace_back(binder);
+        }
+
+
+        void addMaterialBinder(std::function<MaterialBinder>&& binder)
+        {
+            _materialBinders.emplace_back(std::move(binder));
+        }
+
+
+        void onBindMaterial(const Material& material) const
+        {
+            for( const auto& binder : _materialBinders )
+                binder(*this, material);
+        }
+
+
     protected:
 
         /**
@@ -304,8 +336,10 @@ namespace gameplay
         /** The drawble component attached to this node. */
         std::shared_ptr<Drawable> _drawable = nullptr;
 
-        glm::mat4 m_localMatrix{ 1.0f };
-        mutable glm::mat4 m_worldMatrix{ 1.0f };
+        glm::mat4 m_localMatrix{1.0f};
+        mutable glm::mat4 m_worldMatrix{1.0f};
         mutable bool _dirty = false;
+
+        std::vector<std::function<MaterialBinder>> _materialBinders;
     };
 }

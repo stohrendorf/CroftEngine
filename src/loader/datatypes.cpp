@@ -176,6 +176,15 @@ namespace loader
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
             subNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{0,-1,0}));
+
+            float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
+
+            subNode->addMaterialBinder([brightness](const gameplay::Node& node, const gameplay::Material& material)
+            {
+                material.getParameter("u_baseLight")->set(brightness);
+                material.getParameter("u_baseLightDiff")->set(0.0f);
+                material.getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
+            });
             node->addChild(subNode);
         }
         node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, position.toRenderSystem()));
