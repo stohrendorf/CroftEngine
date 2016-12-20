@@ -251,9 +251,7 @@ namespace engine
 
         void ItemNode::update(const std::chrono::microseconds& deltaTime)
         {
-            addTime(deltaTime);
-
-            updateImpl(deltaTime);
+            updateImpl(deltaTime, addTime(deltaTime));
 
             if( m_falling )
             {

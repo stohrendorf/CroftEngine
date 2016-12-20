@@ -324,7 +324,7 @@ namespace engine
 
             void update(const std::chrono::microseconds& deltaTime);
 
-            virtual void updateImpl(const std::chrono::microseconds& deltaTime) = 0;
+            virtual void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType) = 0;
 
 
             core::InterpolatedValue<float>& getHorizontalSpeed()
@@ -441,7 +441,6 @@ namespace engine
                     const auto lightBrightness = roomAmbient + radiusSq * (light.intensity / 4096.0f) / (radiusSq + distanceSq);
                     if(lightBrightness > maxBrightness)
                     {
-                        BOOST_ASSERT(lightBrightness >= 0 && lightBrightness <= 2);
                         maxBrightness = lightBrightness;
                         m_lighting.position = light.position.toRenderSystem();
                     }

@@ -123,6 +123,10 @@ private:
 
 void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Level>& lvl)
 {
+    // deltaTime /= 10;
+    if(deltaTime == std::chrono::microseconds::zero())
+        deltaTime = std::chrono::microseconds(1);
+
     while( deltaTime > std::chrono::microseconds::zero() )
     {
         auto subTime = std::min(deltaTime, core::FrameTime);

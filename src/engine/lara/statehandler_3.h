@@ -21,9 +21,10 @@ namespace engine
             {
                 if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
                     setTargetState(LaraStateId::JumpForward);
-
-                if( getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop )
+                else if( getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop )
                     return {};
+                else
+                    setTargetState(LaraStateId::JumpForward);
 
                 if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
                     setTargetState(LaraStateId::Reach);

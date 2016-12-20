@@ -93,7 +93,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -102,14 +102,14 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        auto nextHandler = m_currentStateHandler->handleInput(collisionInfo);
+        auto animStateOverride = m_currentStateHandler->handleInput(collisionInfo);
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
-        if( nextHandler.is_initialized() && nextHandler != m_currentStateHandler->getId() )
+        if( animStateOverride.is_initialized() && animStateOverride != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
+            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
+            BOOST_LOG_TRIVIAL( debug ) << "New input anim state override: "
                                       << loader::toString(m_currentStateHandler->getId());
         }
 
@@ -156,25 +156,21 @@ namespace engine
 
         //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
-        /*
-                if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
-                {
-                    return;
-                }
-        */
+        if(!frameChangeType.is_initialized())
+            return;
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        animStateOverride = m_currentStateHandler->postprocessFrame(collisionInfo);
+        if(animStateOverride.is_initialized() && *animStateOverride != m_currentStateHandler->getId())
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
+            BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                << loader::toString(m_currentStateHandler->getId());
         }
 
         updateFloorHeight(-381);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastTriggerOrKill, false);
 
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
@@ -182,7 +178,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleLaraStateDiving(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateDiving(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -243,23 +239,26 @@ namespace engine
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        if(frameChangeType.is_initialized())
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
+            if(nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId())
+            {
+                m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
+                BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                    << loader::toString(m_currentStateHandler->getId());
+            }
         }
 
         updateFloorHeight(0);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastTriggerOrKill, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
     }
 
 
-    void LaraNode::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -333,16 +332,19 @@ namespace engine
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        if(frameChangeType.is_initialized())
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
+            if(nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId())
+            {
+                m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
+                BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                    << loader::toString(m_currentStateHandler->getId());
+            }
         }
 
         updateFloorHeight(100);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastTriggerOrKill, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -372,7 +374,7 @@ namespace engine
     LaraNode::~LaraNode() = default;
 
 
-    void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
+    void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         static constexpr auto UVAnimTime = 10_frame;
 
@@ -383,7 +385,7 @@ namespace engine
             m_uvAnimTime -= UVAnimTime;
         }
 
-        if( m_currentStateHandler == nullptr )
+        if( m_currentStateHandler == nullptr || frameChangeType.is_initialized())
         {
             m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
         }
@@ -477,7 +479,7 @@ namespace engine
         if( m_underwaterState == UnderwaterState::OnLand )
         {
             m_air = 1800;
-            handleLaraStateOnLand(deltaTime);
+            handleLaraStateOnLand(deltaTime, frameChangeType);
         }
         else if( m_underwaterState == UnderwaterState::Diving )
         {
@@ -490,7 +492,7 @@ namespace engine
                     m_health.sub(5, deltaTime);
                 }
             }
-            handleLaraStateDiving(deltaTime);
+            handleLaraStateDiving(deltaTime, frameChangeType);
         }
         else if( m_underwaterState == UnderwaterState::Swimming )
         {
@@ -498,7 +500,7 @@ namespace engine
             {
                 m_air.add(10, deltaTime).limitMax(1800);
             }
-            handleLaraStateSwimming(deltaTime);
+            handleLaraStateSwimming(deltaTime, frameChangeType);
         }
 
         m_handlingFrame = false;
@@ -595,7 +597,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
+    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool isDoppelganger)
     {
         if( floorData == nullptr )
             return;

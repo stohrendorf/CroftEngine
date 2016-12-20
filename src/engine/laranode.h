@@ -62,7 +62,7 @@ namespace engine
 
         ~LaraNode();
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override;
+        void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override;
 
 
         bool isInWater() const
@@ -84,11 +84,11 @@ namespace engine
 
 
     private:
-        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
-        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
-        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
         void testInteractions();
 
@@ -201,7 +201,7 @@ namespace engine
 
         void updateFloorHeight(int dy);
 
-        void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
+        void handleCommandSequence(const uint16_t* floorData, bool skipFirstTriggers);
 
         boost::optional<int> getWaterSurfaceHeight() const;
 

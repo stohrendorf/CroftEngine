@@ -48,7 +48,7 @@ namespace engine
         };
 
 
-        void addTime(const std::chrono::microseconds& time);
+        boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& time);
 
 
         const std::chrono::microseconds& getCurrentTime() const

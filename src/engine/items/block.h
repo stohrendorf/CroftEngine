@@ -25,7 +25,7 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime) override
+            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
             {
                 if( updateTriggerTimeout(deltaTime) )
                     setTargetState(1);
