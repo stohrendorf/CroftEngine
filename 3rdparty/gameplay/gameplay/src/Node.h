@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Visitor.h"
+#include "MaterialParameter.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -286,25 +287,21 @@ namespace gameplay
         }
 
 
-        using MaterialBinder = void(const Node& node, const Material& material);
-
-
-        void addMaterialBinder(const std::function<MaterialBinder>& binder)
+        void addMaterialParameterSetter(const std::string& name, const std::function<MaterialParameter::UniformValueSetter>& setter)
         {
-            _materialBinders.emplace_back(binder);
+            _materialParemeterSetters[name] = setter;
         }
 
 
-        void addMaterialBinder(std::function<MaterialBinder>&& binder)
+        void addMaterialParameterSetter(const std::string& name, std::function<MaterialParameter::UniformValueSetter>&& setter)
         {
-            _materialBinders.emplace_back(std::move(binder));
+            _materialParemeterSetters[name] = std::move(setter);
         }
 
 
-        void onBindMaterial(const Material& material) const
+        const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>& getMaterialParameterSetters() const
         {
-            for( const auto& binder : _materialBinders )
-                binder(*this, material);
+            return _materialParemeterSetters;
         }
 
 
@@ -340,6 +337,6 @@ namespace gameplay
         mutable glm::mat4 m_worldMatrix{1.0f};
         mutable bool _dirty = false;
 
-        std::vector<std::function<MaterialBinder>> _materialBinders;
+        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> _materialParemeterSetters;
     };
 }

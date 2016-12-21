@@ -894,8 +894,8 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             room.node->setDrawable(model);
         }
 
-        BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
-        objWriter.write(m_rooms, "_level.dae", materials, waterMaterials);
+        //BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
+        //objWriter.write(m_rooms, "_level.dae", materials, waterMaterials);
     }
 
     m_lara = createItems();

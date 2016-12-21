@@ -40,8 +40,6 @@ namespace gameplay
         // Bind our render state
         RenderState::bind(node, this);
 
-        node.onBindMaterial(*this);
-
         BOOST_ASSERT(_boundVaBinding == nullptr);
         _boundVaBinding = vaBinding;
 

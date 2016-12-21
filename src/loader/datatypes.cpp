@@ -179,11 +179,17 @@ namespace loader
 
             float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
 
-            subNode->addMaterialBinder([brightness](const gameplay::Node& node, const gameplay::Material& material)
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
             {
-                material.getParameter("u_baseLight")->set(brightness);
-                material.getParameter("u_baseLightDiff")->set(0.0f);
-                material.getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
+                shaderProgram->setValue(*uniform, brightness);
+            });
+            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, 0.0f);
+            });
+            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
             });
             node->addChild(subNode);
         }
