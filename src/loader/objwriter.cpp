@@ -171,6 +171,51 @@ namespace
         }
         part->unmap();
     }
+
+
+    template<typename T>
+    T append(T*& array, unsigned int& size, const T& value)
+    {
+        if( array == nullptr )
+        {
+            BOOST_ASSERT(size == 0);
+
+            array = new T[1];
+            array[0] = value;
+            size = 1;
+            return value;
+        }
+
+        BOOST_ASSERT(array != nullptr && size > 0);
+
+        T* tmp = new T[size + 1];
+        std::copy_n(array, size, tmp);
+        tmp[size] = value;
+        std::swap(tmp, array);
+        ++size;
+        return value;
+    }
+
+
+    void convert(aiMatrix4x4& dst, const glm::mat4& src)
+    {
+        dst.a1 = src[0][0];
+        dst.a2 = src[1][0];
+        dst.a3 = src[2][0];
+        dst.a4 = src[3][0] / loader::SectorSize;
+        dst.b1 = src[0][1];
+        dst.b2 = src[1][1];
+        dst.b3 = src[2][1];
+        dst.b4 = src[3][1] / loader::SectorSize;
+        dst.c1 = src[0][2];
+        dst.c2 = src[1][2];
+        dst.c3 = src[2][2];
+        dst.c4 = src[3][2] / loader::SectorSize;
+        dst.d1 = src[0][3];
+        dst.d2 = src[1][3];
+        dst.d3 = src[2][3];
+        dst.d4 = src[3][3];
+    }
 }
 
 
@@ -195,7 +240,7 @@ namespace loader
     {
         {
             auto it = m_textureCache.find(path);
-            if(it != m_textureCache.end())
+            if( it != m_textureCache.end() )
                 return it->second;
         }
 
@@ -204,14 +249,14 @@ namespace loader
 
         const auto w = srcImage.width();
         const auto h = srcImage.height();
-        if(srcImage.spectrum() == 3)
+        if( srcImage.spectrum() == 3 )
         {
             srcImage.channels(0, 3);
             BOOST_ASSERT(srcImage.spectrum() == 4);
             srcImage.get_shared_channel(3).fill(1);
         }
 
-        if(srcImage.spectrum() != 4)
+        if( srcImage.spectrum() != 4 )
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("Can only use RGB and RGBA images"));
         }
@@ -273,7 +318,7 @@ namespace loader
                 for( unsigned int i = 0; i < mesh->mNumVertices; ++i )
                 {
                     vbuf[i].position = glm::vec3{mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z} * static_cast<float>(SectorSize);
-                    if(mesh->HasNormals())
+                    if( mesh->HasNormals() )
                         vbuf[i].normal = glm::vec3{mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
                     vbuf[i].uv = glm::vec2{mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y};
                     if( mesh->HasVertexColors(0) )
@@ -324,26 +369,26 @@ namespace loader
 
         Assimp::Exporter exporter;
         std::string formatIdentifier;
-        for(size_t i = 0; i < exporter.GetExportFormatCount(); ++i)
+        for( size_t i = 0; i < exporter.GetExportFormatCount(); ++i )
         {
             auto descr = exporter.GetExportFormatDescription(i);
             BOOST_ASSERT(descr != nullptr);
 
             std::string exporterExtension = std::string(".") + descr->fileExtension;
 
-            if(exporterExtension == fullPath.extension().string())
+            if( exporterExtension == fullPath.extension().string() )
             {
                 formatIdentifier = descr->id;
                 break;
             }
         }
 
-        if(formatIdentifier.empty())
+        if( formatIdentifier.empty() )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to find an exporter for the supplied file extension";
             BOOST_LOG_TRIVIAL(info) << "Here's the list of registered exporters";
 
-            for(size_t i = 0; i < exporter.GetExportFormatCount(); ++i)
+            for( size_t i = 0; i < exporter.GetExportFormatCount(); ++i )
             {
                 auto descr = exporter.GetExportFormatDescription(i);
                 BOOST_ASSERT(descr != nullptr);
@@ -452,9 +497,174 @@ namespace loader
     }
 
 
+    void OBJWriter::write(const std::vector<loader::Room>& rooms,
+                          const std::string& baseName,
+                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const
+    {
+        auto fullPath = m_basePath / baseName;
+
+        Assimp::Exporter exporter;
+        std::string formatIdentifier;
+        for( size_t i = 0; i < exporter.GetExportFormatCount(); ++i )
+        {
+            auto descr = exporter.GetExportFormatDescription(i);
+            BOOST_ASSERT(descr != nullptr);
+
+            std::string exporterExtension = std::string(".") + descr->fileExtension;
+
+            if( exporterExtension == fullPath.extension().string() )
+            {
+                formatIdentifier = descr->id;
+                break;
+            }
+        }
+
+        if( formatIdentifier.empty() )
+        {
+            BOOST_LOG_TRIVIAL(error) << "Failed to find an exporter for the supplied file extension";
+            BOOST_LOG_TRIVIAL(info) << "Here's the list of registered exporters";
+
+            for( size_t i = 0; i < exporter.GetExportFormatCount(); ++i )
+            {
+                auto descr = exporter.GetExportFormatDescription(i);
+                BOOST_ASSERT(descr != nullptr);
+
+                BOOST_LOG_TRIVIAL(info) << descr->description << ", extension `" << descr->fileExtension << "`, id `" << descr->id << "`";
+            }
+
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to find an exporter for the supplied file extension"));
+        }
+
+        std::unique_ptr<aiScene> scene = std::make_unique<aiScene>();
+        BOOST_ASSERT(scene->mRootNode == nullptr);
+        scene->mRootNode = new aiNode();
+
+        for(const auto& room : rooms)
+        {
+            auto node = convert(*scene, *room.node, mtlMap1, mtlMap2, glm::vec3{ room.getAmbientBrightness() });
+            if(node == nullptr)
+                continue;
+
+            append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, node);
+        }
+
+        exporter.Export(scene.get(), formatIdentifier.c_str(), fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
+    }
+
+
+    aiNode* OBJWriter::convert(aiScene& scene,
+                               const gameplay::Node& sourceNode,
+                               const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                               const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                               const glm::vec3& ambientColor) const
+    {
+        auto outNode = std::make_unique<aiNode>(sourceNode.getId());
+        ::convert(outNode->mTransformation, sourceNode.getLocalMatrix());
+
+        bool hasContent = false;
+        if( auto sourceModel = std::dynamic_pointer_cast<gameplay::Model>(sourceNode.getDrawable()) )
+        {
+            convert(scene, *outNode, sourceModel, mtlMap1, mtlMap2, ambientColor);
+            hasContent = true;
+        }
+
+        for( const auto& child : sourceNode.getChildren() )
+        {
+            auto subNode = convert(scene, *child, mtlMap1, mtlMap2, ambientColor);
+            if( subNode == nullptr )
+                continue;
+
+            append(outNode->mChildren, outNode->mNumChildren, subNode);
+            hasContent = true;
+        }
+
+        if( !hasContent )
+            return nullptr;
+
+        return outNode.release();
+    }
+
+
+    void OBJWriter::convert(aiScene& scene,
+                            aiNode& outNode,
+                            const std::shared_ptr<gameplay::Model>& inModel,
+                            const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                            const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                            const glm::vec3& ambientColor) const
+    {
+        Expects(inModel != nullptr);
+
+        for( const auto& inMesh : inModel->getMeshes() )
+        {
+            for( size_t pi = 0; pi < inMesh->getPartCount(); ++pi )
+            {
+                const std::shared_ptr<gameplay::MeshPart>& inPart = inMesh->getPart(pi);
+
+                append(outNode.mMeshes, outNode.mNumMeshes, scene.mNumMeshes);
+                auto outMesh = append(scene.mMeshes, scene.mNumMeshes, new aiMesh());
+
+                allocateElementMemory(inMesh, outMesh);
+                copyVertexData(inMesh, outMesh);
+
+                BOOST_ASSERT(inPart->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && inPart->getIndexCount() % 3 == 0);
+                outMesh->mMaterialIndex = scene.mNumMaterials;
+                auto outMaterial = append(scene.mMaterials, scene.mNumMaterials, new aiMaterial());
+                outMaterial->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
+
+                {
+                    // try to find the texture for our material
+
+                    using Entry = decltype(*mtlMap1.begin());
+                    auto finder = [&inPart](const Entry& entry)
+                        {
+                            return entry.second == inPart->getMaterial();
+                        };
+
+                    auto texIt = std::find_if(mtlMap1.begin(), mtlMap1.end(), finder);
+
+                    bool found = false;
+                    if( texIt != mtlMap1.end() )
+                    {
+                        outMaterial->AddProperty(new aiString(makeTextureName(texIt->first.tileAndFlag & TextureIndexMask) + ".png"), AI_MATKEY_TEXTURE_DIFFUSE(0));
+                        found = true;
+                    }
+
+                    if( !found )
+                    {
+                        texIt = std::find_if(mtlMap2.begin(), mtlMap2.end(), finder);
+                        if( texIt != mtlMap2.end() )
+                        {
+                            outMaterial->AddProperty(new aiString(makeTextureName(texIt->first.tileAndFlag & TextureIndexMask) + ".png"), AI_MATKEY_TEXTURE_DIFFUSE(0));
+                        }
+                    }
+                }
+
+                outMesh->mNumFaces = inPart->getIndexCount() / 3;
+                outMesh->mFaces = new aiFace[outMesh->mNumFaces];
+
+                switch( inPart->getIndexFormat() )
+                {
+                    case gameplay::Mesh::INDEX8:
+                        copyIndices<uint8_t>(inPart, outMesh);
+                        break;
+                    case gameplay::Mesh::INDEX16:
+                        copyIndices<uint16_t>(inPart, outMesh);
+                        break;
+                    case gameplay::Mesh::INDEX32:
+                        copyIndices<uint32_t>(inPart, outMesh);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+
     void OBJWriter::write(const std::string& filename, const YAML::Node& tree) const
     {
-        std::ofstream file{ (m_basePath / filename).string(), std::ios::trunc };
+        std::ofstream file{(m_basePath / filename).string(), std::ios::trunc};
         file << tree;
     }
 

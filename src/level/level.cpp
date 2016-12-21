@@ -815,7 +815,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materials, waterMaterials, glm::vec3(1.0f - room.ambientDarkness / 8192.0f));
+                objWriter.write(model, filename, materials, waterMaterials, glm::vec3{ room.getAmbientBrightness() });
 
                 filename = "room_" + std::to_string(i) + ".yaml";
                 BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
@@ -893,6 +893,9 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             auto model = objWriter.readModel(filename, room.isWaterRoom() ? waterTexturedShader : texturedShader, glm::vec3(room.ambientDarkness / 8191.0f));
             room.node->setDrawable(model);
         }
+
+        BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
+        objWriter.write(m_rooms, "_level.dae", materials, waterMaterials);
     }
 
     m_lara = createItems();

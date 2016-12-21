@@ -526,6 +526,11 @@ namespace loader
 
         uint16_t flags;
 
+        float getAmbientBrightness() const
+        {
+            return 1 - ambientDarkness / 8192.0f;
+        }
+
         // Flag bits:
         // 0x0001 - room is filled with water,
         // 0x0020 - Lara's ponytail gets blown by the wind;
