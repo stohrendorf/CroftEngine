@@ -56,6 +56,20 @@ namespace render
                 portalBB.max.y = 1;
             }
 
+            // now check for denormalized boxes
+            if(std::abs(portalBB.max.x - portalBB.min.x) / std::abs(portalBB.max.y - portalBB.min.y) > 1000)
+            {
+                // horizontal box, expand y
+                portalBB.min.y = -1;
+                portalBB.max.y = 1;
+            }
+            if(std::abs(portalBB.max.y - portalBB.min.y) / std::abs(portalBB.max.x - portalBB.min.x) > 1000)
+            {
+                // vertical box, expand x
+                portalBB.min.x = -1;
+                portalBB.max.x = 1;
+            }
+
             boundingBox.min.x = std::max(portalBB.min.x, boundingBox.min.x);
             boundingBox.min.y = std::max(portalBB.min.y, boundingBox.min.y);
             boundingBox.max.x = std::min(portalBB.max.x, boundingBox.max.x);
