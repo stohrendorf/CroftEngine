@@ -168,6 +168,11 @@ namespace loader
         core::TRCoordinates pos2; // world coords
         core::TRCoordinates dir2; // direction
 
+        float getBrightness() const
+        {
+            return intensity / 4096.0f;
+        }
+
         LightType getLightType() const
         {
             switch( light_type )

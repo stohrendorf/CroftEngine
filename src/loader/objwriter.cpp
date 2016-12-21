@@ -490,6 +490,12 @@ namespace loader
                     default:
                         break;
                 }
+
+                if(outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x))
+                {
+                    delete[] outMesh->mNormals;
+                    outMesh->mNormals = nullptr;
+                }
             }
         }
 
@@ -547,6 +553,31 @@ namespace loader
                 continue;
 
             append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, node);
+
+            size_t lightId = 0;
+            for(const auto& light : room.lights)
+            {
+                auto outLight = append(scene->mLights, scene->mNumLights, new aiLight());
+                outLight->mName = room.node->getId() + "_light:" + std::to_string(lightId++);
+                outLight->mType = aiLightSource_POINT;
+                outLight->mColorDiffuse.r = light.getBrightness();
+                outLight->mColorDiffuse.g = light.getBrightness();
+                outLight->mColorDiffuse.b = light.getBrightness();
+                outLight->mColorSpecular = outLight->mColorDiffuse;
+                outLight->mColorAmbient = outLight->mColorDiffuse;
+                // out = 1 / ( a * d*d )
+                // Must be 1/2 at the light radius, so we need to fulfill 2 = a * r*r => a = 2/(r*r)
+                const auto r = gsl::narrow_cast<float>(light.radius) / SectorSize;
+                outLight->mAttenuationConstant = 0;
+                outLight->mAttenuationLinear = 0;
+                outLight->mAttenuationQuadratic = 2 / (r*r);
+
+                auto lightNode = append(node->mChildren, node->mNumChildren, new aiNode(outLight->mName.C_Str()));
+                const auto p = light.position.toRenderSystem() - room.position.toRenderSystem();
+                lightNode->mTransformation.a4 = p.x / SectorSize;
+                lightNode->mTransformation.b4 = p.y / SectorSize;
+                lightNode->mTransformation.c4 = p.z / SectorSize;
+            }
         }
 
         exporter.Export(scene.get(), formatIdentifier.c_str(), fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
@@ -656,6 +687,12 @@ namespace loader
                         break;
                     default:
                         break;
+                }
+
+                if(outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x))
+                {
+                    delete[] outMesh->mNormals;
+                    outMesh->mNormals = nullptr;
                 }
             }
         }

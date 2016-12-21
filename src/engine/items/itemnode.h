@@ -438,7 +438,7 @@ namespace engine
                     distanceSq /= 4096.0f;
                     distanceSq *= distanceSq;
 
-                    const auto lightBrightness = roomAmbient + radiusSq * (light.intensity / 4096.0f) / (radiusSq + distanceSq);
+                    const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
                     if(lightBrightness > maxBrightness)
                     {
                         maxBrightness = lightBrightness;
