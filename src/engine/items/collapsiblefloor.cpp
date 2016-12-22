@@ -9,6 +9,9 @@ namespace engine
     {
         void CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
         {
+            if(!m_isActive)
+                return;
+
             if( getCurrentState() == 0 ) // stationary
             {
                 if( !util::fuzzyEqual( getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f ) )
