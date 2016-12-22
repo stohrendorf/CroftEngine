@@ -2,9 +2,11 @@
 
 #include <vector>
 
+
 namespace loader
 {
     using FloorData = std::vector<uint16_t>;
+
 
     //! @brief Native TR floor data functions
     //! @ingroup native
@@ -33,6 +35,7 @@ namespace loader
         MinecartRight = 0x15 // In TR3 only. Function changed in TR4+.
     };
 
+
     //! @brief Native trigger types.
     //! @ingroup native
     //! @see FloorDataChunkType::Always
@@ -58,6 +61,7 @@ namespace loader
         Climb = 0x10, //!< TR5 only: If Lara is climbing, run.
     };
 
+
     //! @brief Native trigger function types.
     //! @ingroup native
     //! @see FloorDataChunkType::Always
@@ -82,28 +86,116 @@ namespace loader
         Command_F
     };
 
-    inline FloorDataChunkType extractFloorDataChunkType(FloorData::value_type data)
-    {
-        return gsl::narrow_cast<FloorDataChunkType>(data & 0xff);
-    }
 
-    inline Command extractCommand(FloorData::value_type data)
+    struct FloorDataChunkHeader
     {
-        return gsl::narrow_cast<Command>((data>>10) & 0x0f);
-    }
+        explicit FloorDataChunkHeader(FloorData::value_type fd)
+            : isLast{extractIsLast(fd)}
+            , sequenceCondition{extractSequenceCondition(fd)}
+            , type{extractType(fd)}
+        {
+        }
 
-    inline SequenceCondition extractSequenceCondition(FloorData::value_type data)
-    {
-        return gsl::narrow_cast<SequenceCondition>((data & 0x3f00) >> 8);
-    }
 
-    constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)
-    {
-        return data & 0x3ff;
-    }
+        bool isLast;
+        SequenceCondition sequenceCondition;
+        FloorDataChunkType type;
 
-    constexpr bool isLastFloordataEntry(FloorData::value_type data)
+
+        static FloorDataChunkType extractType(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<FloorDataChunkType>(data & 0xff);
+        }
+
+
+    private:
+        static SequenceCondition extractSequenceCondition(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<SequenceCondition>((data & 0x3f00) >> 8);
+        }
+
+
+        static constexpr bool extractIsLast(FloorData::value_type data)
+        {
+            return (data & 0x8000) != 0;
+        }
+    };
+
+
+    struct FloorDataCommandSequenceHeader
     {
-        return (data & 0x8000) != 0;
-    }
+        static constexpr const uint16_t Oneshot = 0x100;
+        static constexpr const uint16_t ActivationMask = 0x3e00;
+        static constexpr const uint16_t InvertedActivation = 0x4000;
+        static constexpr const uint16_t Locked = 0x8000;
+
+
+        explicit FloorDataCommandSequenceHeader(FloorData::value_type fd)
+            : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
+            , oneshot{(fd & Oneshot) != 0}
+            , inverted{(fd & InvertedActivation) != 0}
+            , locked{(fd & Locked) != 0}
+            , activationMask{gsl::narrow_cast<uint16_t>(fd & ActivationMask)}
+        {
+        }
+
+
+        const uint8_t timeout;
+        const bool oneshot;
+        const bool inverted;
+        const bool locked;
+        const uint16_t activationMask;
+    };
+
+
+    struct FloorDataCameraParameters
+    {
+        explicit FloorDataCameraParameters(FloorData::value_type fd)
+            : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
+            , oneshot{(fd & 0x100) != 0}
+            , isLast{(fd & 0x8000) != 0}
+            , smoothness{gsl::narrow_cast<uint8_t>((fd >> 8) & 0x3e)}
+        {
+        }
+
+
+        const uint8_t timeout;
+        const bool oneshot;
+        const bool isLast;
+        const uint8_t smoothness;
+    };
+
+
+    struct FloorDataCommandHeader
+    {
+        explicit FloorDataCommandHeader(FloorData::value_type fd)
+            : isLast{extractIsLast(fd)}
+            , command{extractCommand(fd)}
+            , parameter{extractParameter(fd)}
+        {
+        }
+
+
+        mutable bool isLast;
+        Command command;
+        uint16_t parameter;
+
+    private:
+        static Command extractCommand(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<Command>((data >> 10) & 0x0f);
+        }
+
+
+        static constexpr uint16_t extractParameter(FloorData::value_type data)
+        {
+            return data & 0x3ff;
+        }
+
+
+        static constexpr bool extractIsLast(FloorData::value_type data)
+        {
+            return (data & 0x8000) != 0;
+        }
+    };
 }

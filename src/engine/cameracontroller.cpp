@@ -24,55 +24,57 @@ namespace engine
         update(std::chrono::microseconds(1));
     }
 
+
     void CameraController::setLocalRotation(core::Angle x, core::Angle y)
     {
         setLocalRotationX(x);
         setLocalRotationY(y);
     }
 
+
     void CameraController::setLocalRotationX(core::Angle x)
     {
         m_localRotation.X = x;
     }
+
 
     void CameraController::setLocalRotationY(core::Angle y)
     {
         m_localRotation.Y = y;
     }
 
-    void CameraController::setCamOverride(uint16_t floorData, uint16_t camId, loader::SequenceCondition triggerType, bool isDoppelganger, uint16_t triggerArg, bool switchIsOn)
+
+    void CameraController::setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool ignoreCondition, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
             return;
 
-        const auto timeout = floorData & 0xff;
-        const auto flags = (floorData >> 8) & 0xff;
-
         m_camOverrideId = camId;
-        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || triggerType == loader::SequenceCondition::Combat )
+        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::Combat )
             return;
 
-        if( triggerType == loader::SequenceCondition::Switch && triggerArg != 0 && switchIsOn )
+        if( condition == loader::SequenceCondition::Switch && cmdSeqHeader.timeout != 0 && switchIsOn )
             return;
 
-        if( triggerType != loader::SequenceCondition::Switch && m_camOverrideId == m_activeCamOverrideId )
+        if( condition != loader::SequenceCondition::Switch && m_camOverrideId == m_activeCamOverrideId )
             return;
 
-        if( timeout != 1 )
-            m_camOverrideTimeout = std::chrono::seconds(timeout);
+        if( camParams.timeout != 1 )
+            m_camOverrideTimeout = std::chrono::seconds(camParams.timeout);
 
-        if( (flags & 1) != 0 )
+        if( camParams.oneshot )
             m_level->m_cameras[camId].setActive(true);
 
-        m_smoothFactor = 1 + ((flags & 0x3e) * 4);
-        if( isDoppelganger )
+        m_smoothFactor = 1 + (camParams.smoothness * 4);
+        if( ignoreCondition )
             m_camOverrideType = CamOverrideType::_1;
         else
             m_camOverrideType = CamOverrideType::_5;
     }
 
-    void CameraController::findCameraTarget(const loader::FloorData::value_type* floorData)
+
+    void CameraController::findCameraTarget(const loader::FloorData::value_type* cmdSequence)
     {
         if( m_camOverrideType == CamOverrideType::_5 )
             return;
@@ -80,21 +82,17 @@ namespace engine
         int type = 2;
         while( true )
         {
-            const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto triggerFunc = loader::extractCommand(*floorData);
-            const auto param = loader::extractTriggerFunctionParam(*floorData);
+            const loader::FloorDataCommandHeader commandHeader{*cmdSequence++};
 
-            ++floorData;
-
-            if( triggerFunc == loader::Command::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
+            if( commandHeader.command == loader::Command::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
             {
-                m_lookAtItem = m_level->getItemController(param);
+                m_lookAtItem = m_level->getItemController(commandHeader.parameter);
             }
-            else if( triggerFunc == loader::Command::SwitchCamera )
+            else if( commandHeader.command == loader::Command::SwitchCamera )
             {
-                ++floorData;
+                ++cmdSequence; // skip camera parameters
 
-                if( param != m_activeCamOverrideId )
+                if( commandHeader.parameter != m_activeCamOverrideId )
                 {
                     type = 0;
                 }
@@ -114,7 +112,7 @@ namespace engine
                 }
             }
 
-            if( isLast )
+            if( commandHeader.isLast )
                 break;
         }
 
@@ -122,9 +120,10 @@ namespace engine
             m_lookAtItem = nullptr;
     }
 
+
     void CameraController::tracePortals()
     {
-        for(const loader::Room& room : m_level->m_rooms)
+        for( const loader::Room& room : m_level->m_rooms )
             room.node->setEnabled(false);
 
         auto startRoom = m_currentPosition.room;
@@ -171,6 +170,7 @@ namespace engine
         }
     }
 
+
     bool CameraController::clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const
     {
         const auto d = origin - lookAt;
@@ -197,9 +197,10 @@ namespace engine
         return true;
     }
 
+
     CameraController::ClampType CameraController::clampAlongX(core::RoomBoundIntPosition& origin) const
     {
-        if(m_currentLookAt.position.X == origin.position.X)
+        if( m_currentLookAt.position.X == origin.position.X )
         {
             return ClampType::None;
         }
@@ -225,12 +226,12 @@ namespace engine
 
         while( true )
         {
-            if(sign > 0 && testPos.X >= origin.position.X)
+            if( sign > 0 && testPos.X >= origin.position.X )
             {
                 origin.room = newRoom;
                 return ClampType::None;
             }
-            else if(sign < 0 && testPos.X <= origin.position.X)
+            else if( sign < 0 && testPos.X <= origin.position.X )
             {
                 origin.room = newRoom;
                 return ClampType::None;
@@ -261,9 +262,10 @@ namespace engine
         }
     }
 
+
     CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundIntPosition& origin) const
     {
-        if(m_currentLookAt.position.Z == origin.position.Z)
+        if( m_currentLookAt.position.Z == origin.position.Z )
         {
             return ClampType::None;
         }
@@ -290,12 +292,12 @@ namespace engine
 
         while( true )
         {
-            if(sign > 0 && testPos.Z >= origin.position.Z)
+            if( sign > 0 && testPos.Z >= origin.position.Z )
             {
                 origin.room = newRoom;
                 return ClampType::None;
             }
-            else if(sign < 0 && testPos.Z <= origin.position.Z)
+            else if( sign < 0 && testPos.Z <= origin.position.Z )
             {
                 origin.room = newRoom;
                 return ClampType::None;
@@ -326,6 +328,7 @@ namespace engine
         }
     }
 
+
     bool CameraController::clampPosition(core::RoomBoundIntPosition& origin) const
     {
         BOOST_ASSERT(m_currentLookAt.room->isInnerPositionXZ(m_currentLookAt.position));
@@ -343,7 +346,7 @@ namespace engine
             secondClamp = clampAlongZ(origin);
         }
 
-        if(secondClamp != ClampType::Horizonal)
+        if( secondClamp != ClampType::Horizonal )
         {
             return false;
         }
@@ -352,23 +355,24 @@ namespace engine
         return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
+
     void CameraController::update(const std::chrono::microseconds& deltaTime)
     {
         m_localRotation.X = util::clamp(m_localRotation.X, -85_deg, +85_deg);
 
-        if(m_currentPosition.room->isWaterRoom())
+        if( m_currentPosition.room->isWaterRoom() )
         {
-            if(m_level->m_cdStream != nullptr)
+            if( m_level->m_cdStream != nullptr )
                 m_level->m_cdStream->getSource().setDirectFilter(m_level->m_audioDev.getUnderwaterFilter());
-            if(m_underwaterAmbience == nullptr)
+            if( m_underwaterAmbience == nullptr )
             {
                 m_underwaterAmbience = m_level->playSound(60, boost::none);
                 m_underwaterAmbience->setLooping(true);
             }
         }
-        else if(m_underwaterAmbience != nullptr)
+        else if( m_underwaterAmbience != nullptr )
         {
-            if(m_level->m_cdStream != nullptr)
+            if( m_level->m_cdStream != nullptr )
                 m_level->m_cdStream->getSource().setDirectFilter(nullptr);
             m_level->stopSoundEffect(60);
             m_underwaterAmbience.reset();
@@ -504,6 +508,7 @@ namespace engine
         tracePortals();
     }
 
+
     void CameraController::handleCamOverride(const std::chrono::microseconds& deltaTimeMs)
     {
         Expects(m_camOverrideId >= 0 && gsl::narrow_cast<size_t>(m_camOverrideId) < m_level->m_cameras.size());
@@ -525,6 +530,7 @@ namespace engine
         else
             m_camOverrideTimeout = std::chrono::microseconds(-1);
     }
+
 
     int CameraController::moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const
     {
@@ -555,6 +561,7 @@ namespace engine
             return 0;
     }
 
+
     bool CameraController::isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
     {
         gsl::not_null<const loader::Sector*> sector = m_level->findFloorSectorWithClampedPosition(pos, room);
@@ -562,6 +569,7 @@ namespace engine
         const auto ceiling = HeightInfo::fromCeiling(sector, pos, this).distance;
         return pos.Y > floor || pos.Y <= ceiling;
     }
+
 
     void CameraController::updatePosition(const core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs)
     {
@@ -611,9 +619,10 @@ namespace engine
         // update current room
         m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
 
-        auto m = glm::lookAt(camPos.toRenderSystem(), m_currentLookAt.position.toRenderSystem(), { 0,1,0 });
+        auto m = glm::lookAt(camPos.toRenderSystem(), m_currentLookAt.position.toRenderSystem(), {0,1,0});
         m_camera->setViewMatrix(m);
     }
+
 
     void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs)
     {
@@ -639,6 +648,7 @@ namespace engine
 
         updatePosition(targetPos, m_lookingAtSomething ? m_smoothFactor : 12, deltaTimeMs);
     }
+
 
     void CameraController::handleFreeLook(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs)
     {
@@ -674,6 +684,7 @@ namespace engine
         updatePosition(tmp, m_smoothFactor, deltaTimeMs);
     }
 
+
     void CameraController::handleEnemy(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs)
     {
         m_currentLookAt.position.X = std::lround(item.getPosition().X);
@@ -705,6 +716,7 @@ namespace engine
         updatePosition(tmp, m_smoothFactor, deltaTimeMs);
     }
 
+
     void CameraController::clampBox(core::RoomBoundIntPosition& camTargetPos, const std::function<ClampCallback>& callback) const
     {
         clampPosition(camTargetPos);
@@ -713,7 +725,7 @@ namespace engine
         Expects(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position) != nullptr);
         if( camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position)->boxIndex != 0xffff )
         {
-            if(    camTargetPos.position.X < clampBox->xmin || camTargetPos.position.X > clampBox->xmax
+            if( camTargetPos.position.X < clampBox->xmin || camTargetPos.position.X > clampBox->xmax
                 || camTargetPos.position.Z < clampBox->zmin || camTargetPos.position.Z > clampBox->zmax )
                 clampBox = &m_level->m_boxes[camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position)->boxIndex];
         }
@@ -857,6 +869,7 @@ namespace engine
         }
     }
 
+
     void CameraController::freeLookClamp(long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left)
     {
         if( (front > back) != (targetFrontBack < back) )
@@ -870,6 +883,7 @@ namespace engine
             currentLeftRight = right;
         }
     }
+
 
     void CameraController::clampToCorners(const long lookAtDistanceSq, long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left)
     {

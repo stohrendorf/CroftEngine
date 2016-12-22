@@ -39,8 +39,11 @@ namespace engine
                     return nextHandler;
 
                 jumpAgainstWall(collisionInfo);
-                if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
-                    return {};
+                if(getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0)
+                {
+                    setTargetState(LaraStateId::JumpUp);
+                    return{};
+                }
 
                 if( applyLandingDamage() )
                     setTargetState(LaraStateId::Death);

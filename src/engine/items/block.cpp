@@ -152,7 +152,7 @@ namespace engine
             pos = getRoomBoundPosition();
             sector = getLevel().findFloorSectorWithClampedPosition(pos);
             HeightInfo hi = HeightInfo::fromFloor(sector, pos.position.toInexact(), getLevel().m_cameraController);
-            getLevel().m_lara->handleCommandSequence(hi.lastTriggerOrKill, true);
+            getLevel().m_lara->handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
         }
 
 

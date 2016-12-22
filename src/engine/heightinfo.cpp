@@ -3,9 +3,11 @@
 #include "cameracontroller.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     bool HeightInfo::skipSteepSlants = false;
+
 
     HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
     {
@@ -21,7 +23,7 @@ namespace engine
         }
 
         hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;
-        hi.lastTriggerOrKill = nullptr;
+        hi.lastCommandSequenceOrDeath = nullptr;
 
         if( roomSector->floorDataIndex == 0 )
         {
@@ -31,12 +33,10 @@ namespace engine
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto currentFd = *floorData;
-            ++floorData;
-            switch( loader::extractFloorDataChunkType(currentFd) )
+            const loader::FloorDataChunkHeader chunkHeader{*floorData++};
+            switch( chunkHeader.type )
             {
-            case loader::FloorDataChunkType::FloorSlant:
+                case loader::FloorDataChunkType::FloorSlant:
                 {
                     const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                     const auto absX = std::abs(xSlant);
@@ -75,50 +75,46 @@ namespace engine
                         }
                     }
                 }
-                // Fall-through
-            case loader::FloorDataChunkType::CeilingSlant:
-            case loader::FloorDataChunkType::PortalSector:
-                ++floorData;
-                break;
-            case loader::FloorDataChunkType::Death:
-                hi.lastTriggerOrKill = floorData - 1;
-                break;
-            case loader::FloorDataChunkType::CommandSequence:
-                if( !hi.lastTriggerOrKill )
-                    hi.lastTriggerOrKill = floorData - 1;
-                ++floorData;
-                while( true )
-                {
-                    bool isLastCommand = loader::isLastFloordataEntry(*floorData);
-
-                    const auto func = loader::extractCommand(*floorData);
-                    const auto param = loader::extractTriggerFunctionParam(*floorData);
+                    // Fall-through
+                case loader::FloorDataChunkType::CeilingSlant:
+                case loader::FloorDataChunkType::PortalSector:
                     ++floorData;
-
-                    if( func == loader::Command::Activate )
+                    break;
+                case loader::FloorDataChunkType::Death:
+                    hi.lastCommandSequenceOrDeath = floorData - 1;
+                    break;
+                case loader::FloorDataChunkType::CommandSequence:
+                    if( !hi.lastCommandSequenceOrDeath )
+                        hi.lastCommandSequenceOrDeath = floorData - 1;
+                    ++floorData;
+                    while( true )
                     {
-                        auto it = camera->getLevel()->m_itemNodes.find(param);
-                        Expects(it != camera->getLevel()->m_itemNodes.end());
-                        it->second->patchFloor(pos, hi.distance);
-                    }
-                    else if( func == loader::Command::SwitchCamera )
-                    {
-                        isLastCommand = loader::isLastFloordataEntry(*floorData);
-                        ++floorData;
-                    }
+                        const loader::FloorDataCommandHeader command{*floorData++};
 
-                    if( isLastCommand )
-                        break;
-                }
-            default:
-                break;
+                        if( command.command == loader::Command::Activate )
+                        {
+                            auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
+                            Expects(it != camera->getLevel()->m_itemNodes.end());
+                            it->second->patchFloor(pos, hi.distance);
+                        }
+                        else if( command.command == loader::Command::SwitchCamera )
+                        {
+                            command.isLast = loader::FloorDataCameraParameters{ *floorData++ }.isLast;
+                        }
+
+                        if( command.isLast )
+                            break;
+                    }
+                default:
+                    break;
             }
-            if( isLast )
+            if( chunkHeader.isLast )
                 break;
         }
 
         return hi;
     }
+
 
     HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
     {
@@ -136,45 +132,45 @@ namespace engine
         if( roomSector->floorDataIndex != 0 )
         {
             const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
-            auto fdFunc = loader::extractFloorDataChunkType(*floorData);
+            loader::FloorDataChunkHeader chunkHeader{*floorData};
             ++floorData;
 
-            if(fdFunc == loader::FloorDataChunkType::FloorSlant)
+            if( chunkHeader.type == loader::FloorDataChunkType::FloorSlant )
             {
                 ++floorData;
 
-                fdFunc = loader::extractFloorDataChunkType(*floorData);
+                chunkHeader = loader::FloorDataChunkHeader{*floorData};
                 ++floorData;
             }
 
-            if(fdFunc == loader::FloorDataChunkType::CeilingSlant)
+            if( chunkHeader.type == loader::FloorDataChunkType::CeilingSlant )
             {
                 const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);
                 const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
                 const auto absZ = std::abs(zSlant);
-                if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+                if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
                     const auto localX = pos.X % loader::SectorSize;
                     const auto localZ = pos.Z % loader::SectorSize;
 
-                    if(zSlant > 0) // lower edge at -Z
+                    if( zSlant > 0 ) // lower edge at -Z
                     {
                         auto dist = loader::SectorSize - localZ;
                         hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
-                    else if(zSlant < 0) // lower edge at +Z
+                    else if( zSlant < 0 ) // lower edge at +Z
                     {
                         auto dist = localZ;
                         hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
 
-                    if(xSlant > 0) // lower edge at -X
+                    if( xSlant > 0 ) // lower edge at -X
                     {
                         auto dist = localX;
                         hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
-                    else if(xSlant < 0) // lower edge at +X
+                    else if( xSlant < 0 ) // lower edge at +X
                     {
                         auto dist = loader::SectorSize - localX;
                         hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
@@ -183,61 +179,55 @@ namespace engine
             }
         }
 
-        while(true)
+        while( true )
         {
-            if(roomSector->roomBelow == 255)
+            if( roomSector->roomBelow == 255 )
                 break;
 
             roomSector = camera->getLevel()->m_rooms[roomSector->roomBelow].getSectorByAbsolutePosition(pos);
         }
 
-        if(roomSector->floorDataIndex == 0)
+        if( roomSector->floorDataIndex == 0 )
             return hi;
 
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            const bool isLast = loader::isLastFloordataEntry(*floorData);
-            const auto fdFunc = loader::extractFloorDataChunkType(*floorData);
+            loader::FloorDataChunkHeader chunkHeader{*floorData};
             ++floorData;
-            switch(fdFunc)
+            switch( chunkHeader.type )
             {
-            case loader::FloorDataChunkType::CeilingSlant:
-            case loader::FloorDataChunkType::FloorSlant:
-            case loader::FloorDataChunkType::PortalSector:
-                ++floorData;
-                break;
-            case loader::FloorDataChunkType::Death:
-                break;
-            case loader::FloorDataChunkType::CommandSequence:
-                ++floorData;
-                while( true )
-                {
-                    bool isLastCommand = loader::isLastFloordataEntry(*floorData);
-
-                    const auto func = loader::extractCommand(*floorData);
-                    const auto param = loader::extractTriggerFunctionParam(*floorData);
+                case loader::FloorDataChunkType::CeilingSlant:
+                case loader::FloorDataChunkType::FloorSlant:
+                case loader::FloorDataChunkType::PortalSector:
                     ++floorData;
-
-                    if( func == loader::Command::Activate )
+                    break;
+                case loader::FloorDataChunkType::Death:
+                    break;
+                case loader::FloorDataChunkType::CommandSequence:
+                    ++floorData;
+                    while( true )
                     {
-                        auto it = camera->getLevel()->m_itemNodes.find(param);
-                        Expects(it != camera->getLevel()->m_itemNodes.end());
-                        it->second->patchCeiling(pos, hi.distance);
-                    }
-                    else if( func == loader::Command::SwitchCamera )
-                    {
-                        isLastCommand = loader::isLastFloordataEntry(*floorData);
-                        ++floorData;
-                    }
+                        const loader::FloorDataCommandHeader command{*floorData++};
 
-                    if( isLastCommand )
-                        break;
-                }
-            default:
-                break;
+                        if( command.command == loader::Command::Activate )
+                        {
+                            auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
+                            Expects(it != camera->getLevel()->m_itemNodes.end());
+                            it->second->patchCeiling(pos, hi.distance);
+                        }
+                        else if( command.command == loader::Command::SwitchCamera )
+                        {
+                            command.isLast = loader::FloorDataCameraParameters{ *floorData++ }.isLast;
+                        }
+
+                        if( command.isLast )
+                            break;
+                    }
+                default:
+                    break;
             }
-            if( isLast )
+            if( chunkHeader.isLast )
                 break;
         }
 

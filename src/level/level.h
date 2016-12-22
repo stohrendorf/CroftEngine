@@ -112,14 +112,14 @@ namespace level
                                                             uint16_t flags)
         {
             const auto modelIdx = findAnimatedModelIndexForType(type);
-            if(!modelIdx)
+            if( !modelIdx )
                 return nullptr;
 
             int16_t darkness = -1;
 
-            for(const auto& item : m_items)
+            for( const auto& item : m_items )
             {
-                if(item.type != type)
+                if( item.type != type )
                     continue;
 
                 darkness = item.darkness;
@@ -133,6 +133,7 @@ namespace level
 
             return node;
         }
+
 
         gsl::not_null<const loader::Sector*> findFloorSectorWithClampedPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
         {
@@ -171,7 +172,7 @@ namespace level
                 return zero;
             if( sector->floorDataIndex == 0 )
                 return zero;
-            if( loader::extractFloorDataChunkType(m_floorData[sector->floorDataIndex]) != loader::FloorDataChunkType::FloorSlant )
+            if( loader::FloorDataChunkHeader{m_floorData[sector->floorDataIndex]}.type != loader::FloorDataChunkType::FloorSlant )
                 return zero;
 
             auto fd = m_floorData[sector->floorDataIndex + 1];
@@ -207,7 +208,7 @@ namespace level
             src->setBuffer(buf);
             src->setPitch(pitch);
             src->setGain(volume);
-            if(pos)
+            if( pos )
                 src->setPosition(*pos);
 
             src->play();
@@ -297,8 +298,8 @@ namespace level
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
-        void triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType);
-        void triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::SequenceCondition triggerType);
+        void triggerNormalCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType);
+        void triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType);
 
 
         void stopSoundEffect(uint16_t soundId) const
@@ -338,12 +339,14 @@ namespace level
 
         void useAlternativeLaraAppearance();
 
+
         const std::shared_ptr<gameplay::Model>& getModel(size_t idx) const
         {
             Expects(idx < m_models.size());
 
             return m_models[idx];
         }
+
 
     protected:
         loader::io::SDLReader m_reader;
@@ -373,8 +376,9 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, room, core::Angle{ item->rotation }, core::ExactTRCoordinates{ item->position }, item->flags, item->darkness);
+            return createSkeletalModel<T>(id, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->flags, item->darkness);
         }
+
 
         std::array<uint16_t, 64> m_cdTrackTriggerValues;
         int m_cdTrack50time = 0;

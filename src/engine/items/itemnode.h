@@ -339,7 +339,7 @@ namespace engine
             }
 
 
-            bool triggerSwitch(uint16_t arg)
+            bool triggerSwitch(const loader::FloorDataCommandSequenceHeader& arg)
             {
                 if( !m_flags2_04_ready || m_flags2_02_toggledOn )
                 {
@@ -348,14 +348,14 @@ namespace engine
 
                 m_flags2_04_ready = false;
 
-                if( getCurrentState() != 0 || loader::isLastFloordataEntry(arg) )
+                if( getCurrentState() != 0 || arg.locked )
                 {
                     deactivate();
                     m_flags2_02_toggledOn = false;
                 }
                 else
                 {
-                    m_triggerTimeout = std::chrono::milliseconds(gsl::narrow_cast<uint8_t>(arg));
+                    m_triggerTimeout = std::chrono::milliseconds(arg.timeout);
                     if( m_triggerTimeout.count() != 1 )
                         m_triggerTimeout *= 1000;
                     m_flags2_02_toggledOn = true;
