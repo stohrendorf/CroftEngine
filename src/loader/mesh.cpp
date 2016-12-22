@@ -122,8 +122,8 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    if(quad.vertices[i] < mesh.lights.size())
-                        iv.color = glm::vec4(1 - mesh.lights[quad.vertices[i]] / 8192.0f);
+                    if(quad.vertices[i] < mesh.vertexDarknesses.size())
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     append(iv);
@@ -146,8 +146,8 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    if(quad.vertices[i] < mesh.lights.size())
-                        iv.color = glm::vec4(1 - mesh.lights[quad.vertices[i]] / 8192.0f);
+                    if(quad.vertices[i] < mesh.vertexDarknesses.size())
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     append(iv);
@@ -169,8 +169,8 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    if(tri.vertices[i] < mesh.lights.size())
-                        iv.color = glm::vec4(1 - mesh.lights[tri.vertices[i]] / 8192.0f);
+                    if(tri.vertices[i] < mesh.vertexDarknesses.size())
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
@@ -191,8 +191,8 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    if(tri.vertices[i] < mesh.lights.size())
-                        iv.color = glm::vec4(1 - mesh.lights[tri.vertices[i]] / 8192.0f);
+                    if(tri.vertices[i] < mesh.vertexDarknesses.size())
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
@@ -213,7 +213,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
@@ -235,7 +235,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[quad.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     append(iv);
                 }
@@ -255,7 +255,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);
@@ -275,7 +275,7 @@ namespace loader
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     iv.texcoord = proxy.uvCoordinates[i].toGl();
-                    iv.normal = -mesh.normals[tri.vertices[i]].toRenderSystem();
+                    iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
                     append(iv);

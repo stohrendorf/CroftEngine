@@ -16,13 +16,14 @@ namespace engine
                  const core::Angle& angle,
                  const core::ExactTRCoordinates& position,
                  uint16_t flags,
+                 int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, flags, true, 0x10, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x10, darkness, animatedModel)
             {
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime) override
+            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
             {
                 BOOST_LOG_TRIVIAL(debug) << "Dart " << reinterpret_cast<uintptr_t>(this) << " position " << getPosition().X << "/" << getPosition().Y << "/" << getPosition().Z;
                 // TODO: check bone collisions

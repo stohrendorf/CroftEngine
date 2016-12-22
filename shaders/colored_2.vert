@@ -5,8 +5,9 @@ attribute vec3 a_color;
 
 uniform mat4 u_worldViewProjectionMatrix;
 uniform mat4 u_modelMatrix;
-uniform mat4 u_viewMatrix;
 uniform vec3 u_lightPosition;
+uniform float u_baseLight;
+uniform float u_baseLightDiff;
 
 // varying vec2 v_texCoord;
 varying vec3 v_color;
@@ -20,16 +21,13 @@ void main()
 
     if(isnan(u_lightPosition.x))
     {
-        v_shadeFactor = 1;
+        v_shadeFactor = clamp(u_baseLight + u_baseLightDiff, 0, 1);
         return;
     }
 
-    vec3 camSpacePos = (u_viewMatrix * u_modelMatrix * vec4(a_position, 1)).xyz;
+    vec3 vertexPos = (u_modelMatrix * vec4(a_position, 1)).xyz;
+    vec3 n = normalize((u_modelMatrix * vec4(a_normal, 0)).xyz);
+    vec3 dir = normalize(vec4(u_lightPosition, 1).xyz - vertexPos);
 
-    // Normal of the computed fragment, in camera space
-    vec3 n = normalize((u_viewMatrix * u_modelMatrix * vec4(a_normal, 0)).xyz);
-    // Direction of the light (from the fragment to the light)
-    vec3 dir = normalize((u_viewMatrix * vec4(u_lightPosition, 1)).xyz - camSpacePos);
-
-    v_shadeFactor = clamp(dot(n, dir), 0, 1);
+    v_shadeFactor = clamp(u_baseLight + dot(n, dir) * u_baseLightDiff, 0, 1);
 }

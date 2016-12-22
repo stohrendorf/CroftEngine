@@ -13,6 +13,7 @@ namespace audio
     {
         const ALuint m_handle;
         std::shared_ptr<BufferHandle> m_buffer;
+        mutable bool m_alreadyStarted = false;
 
         static ALuint createHandle()
         {
@@ -33,7 +34,7 @@ namespace audio
             set(AL_MAX_DISTANCE, 8 * 1024);
         }
 
-        virtual ~SourceHandle()
+        ~SourceHandle()
         {
             alSourceStop(m_handle);
             DEBUG_CHECK_AL_ERROR();
@@ -118,7 +119,10 @@ namespace audio
             alGetSourcei(m_handle, AL_SOURCE_STATE, &state);
             DEBUG_CHECK_AL_ERROR();
 
-            return state == AL_STOPPED;
+            if(state != AL_STOPPED)
+                m_alreadyStarted = true;
+
+            return m_alreadyStarted && state == AL_STOPPED;
         }
 
         void setLooping(bool is_looping)
@@ -145,7 +149,7 @@ namespace audio
 
     struct WeakSourceHandleLessComparator
     {
-        bool operator()(const std::weak_ptr<SourceHandle>& lhs, const std::weak_ptr<SourceHandle>& rhs)
+        bool operator()(const std::weak_ptr<SourceHandle>& lhs, const std::weak_ptr<SourceHandle>& rhs) const
         {
             if(lhs.expired() != rhs.expired())
                 return lhs.expired() < rhs.expired();

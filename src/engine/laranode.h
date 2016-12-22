@@ -50,8 +50,9 @@ namespace engine
                  const core::Angle& angle,
                  const core::ExactTRCoordinates& position,
                  uint16_t flags,
+                 int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, animatedModel )
+                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, darkness, animatedModel )
         {
             setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );
@@ -61,7 +62,7 @@ namespace engine
 
         ~LaraNode();
 
-        void updateImpl(const std::chrono::microseconds& deltaTime) override;
+        void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override;
 
 
         bool isInWater() const
@@ -83,11 +84,11 @@ namespace engine
 
 
     private:
-        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
-        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
-        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
 
         void testInteractions();
 
@@ -200,7 +201,7 @@ namespace engine
 
         void updateFloorHeight(int dy);
 
-        void handleTriggers(const uint16_t* floorData, bool skipFirstTriggers);
+        void handleCommandSequence(const uint16_t* floorData, bool skipFirstTriggers);
 
         boost::optional<int> getWaterSurfaceHeight() const;
 

@@ -22,6 +22,7 @@
 #include <boost/throw_exception.hpp>
 #include <boost/optional.hpp>
 
+
 /**
  * @defgroup native Native data interface
  *
@@ -37,10 +38,12 @@ namespace engine
     }
 }
 
+
 namespace level
 {
     class Level;
 }
+
 
 namespace loader
 {
@@ -52,6 +55,7 @@ namespace loader
     constexpr int SectorSize = 1024;
     constexpr int QuarterSectorSize = SectorSize / 4;
     constexpr int HeightLimit = 127 * QuarterSectorSize;
+
 
     struct Portal
     {
@@ -80,6 +84,7 @@ namespace loader
         }
     };
 
+
     struct Sector
     {
         /**
@@ -107,6 +112,7 @@ namespace loader
             return sector;
         }
 
+
         boost::optional<uint8_t> getPortalTarget(const FloorData& floorData) const
         {
             if( floorDataIndex == 0 )
@@ -115,21 +121,25 @@ namespace loader
             BOOST_ASSERT(floorDataIndex < floorData.size());
             const FloorData::value_type* fdData = &floorData[floorDataIndex];
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::FloorSlant )
+
+            FloorDataChunkHeader chunk{fdData[0]};
+            if( chunk.type == FloorDataChunkType::FloorSlant )
             {
-                if( isLastFloordataEntry(fdData[0]) )
+                if( chunk.isLast )
                     return {};
                 fdData += 2;
+                chunk = FloorDataChunkHeader{fdData[0]};
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::CeilingSlant )
+            if( chunk.type == FloorDataChunkType::CeilingSlant )
             {
-                if( isLastFloordataEntry(fdData[0]) )
+                if( chunk.isLast )
                     return {};
                 fdData += 2;
+                chunk = FloorDataChunkHeader{fdData[0]};
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( extractFDFunction(fdData[0]) == FDFunction::PortalSector )
+            if( chunk.type == FloorDataChunkType::PortalSector )
             {
                 return gsl::narrow_cast<uint8_t>(fdData[1]);
             }
@@ -137,6 +147,7 @@ namespace loader
             return {};
         }
     };
+
 
     /*
     * lights
@@ -150,16 +161,14 @@ namespace loader
         Shadow
     };
 
+
     struct Light
     {
-        std::shared_ptr<gameplay::Light> node = nullptr;
-
         core::TRCoordinates position; // world coords
         ByteColor color; // three bytes rgb values
-        float intensity; // Calculated intensity
-        int16_t specularIntensity; // Light intensity
+        int16_t intensity; // Light intensity
         uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
-        uint32_t specularFade; // Falloff value 1
+        uint32_t radius; // Falloff value 1
         uint32_t fade2; // Falloff value 2 [absent from TR1 data files]
         uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
         uint8_t unknown; // always 0xff?
@@ -171,22 +180,29 @@ namespace loader
         core::TRCoordinates pos2; // world coords
         core::TRCoordinates dir2; // direction
 
+        float getBrightness() const
+        {
+            return intensity / 4096.0f;
+        }
+
+
         LightType getLightType() const
         {
             switch( light_type )
             {
-            case 0:
-                return LightType::Sun;
-            case 1:
-                return LightType::Point;
-            case 2:
-                return LightType::Spotlight;
-            case 3:
-                return LightType::Shadow;
-            default:
-                return LightType::Null;
+                case 0:
+                    return LightType::Sun;
+                case 1:
+                    return LightType::Point;
+                case 2:
+                    return LightType::Spotlight;
+                case 3:
+                    return LightType::Shadow;
+                default:
+                    return LightType::Null;
             }
         }
+
 
         /** \brief reads a room light definition.
           *
@@ -198,17 +214,15 @@ namespace loader
             Light light;
             light.position = readCoordinates32(reader);
             // read and make consistent
-            light.specularIntensity = reader.readI16();
-            light.specularFade = reader.readU32();
+            light.intensity = reader.readI16();
+            light.radius = reader.readU32();
             // only in TR2
-            light.intensity2 = light.specularIntensity;
+            light.intensity2 = light.intensity;
 
-            light.intensity = util::clamp(light.specularIntensity / 4095.0f, 0.0f, 1.0f);
+            light.fade2 = light.radius;
 
-            light.fade2 = light.specularFade;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
 
@@ -220,23 +234,18 @@ namespace loader
             return light;
         }
 
+
         static Light readTr2(io::SDLReader& reader)
         {
             Light light;
             light.position = readCoordinates32(reader);
-            light.specularIntensity = reader.readU16();
+            light.intensity = reader.readU16();
             light.intensity2 = reader.readU16();
-            light.specularFade = reader.readU32();
+            light.radius = reader.readU32();
             light.fade2 = reader.readU32();
 
-            light.intensity = light.specularIntensity;
-            light.intensity /= 4096.0f;
-
-            if( light.intensity > 1.0f )
-                light.intensity = 1.0f;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
 
@@ -247,6 +256,7 @@ namespace loader
             return light;
         }
 
+
         static Light readTr3(io::SDLReader& reader)
         {
             Light light;
@@ -255,17 +265,16 @@ namespace loader
             light.color.g = reader.readU8();
             light.color.b = reader.readU8();
             light.color.a = reader.readU8();
-            light.specularFade = reader.readU32();
+            light.radius = reader.readU32();
             light.fade2 = reader.readU32();
 
-            light.intensity = 1.0f;
-
-            light.r_outer = light.specularFade;
-            light.r_inner = light.specularFade / 2;
+            light.r_outer = light.radius;
+            light.r_inner = light.radius / 2;
 
             light.light_type = 1; // Point light
             return light;
         }
+
 
         static Light readTr4(io::SDLReader& reader)
         {
@@ -274,9 +283,7 @@ namespace loader
             light.color = ByteColor::readTr1(reader);
             light.light_type = reader.readU8();
             light.unknown = reader.readU8();
-            light.specularIntensity = reader.readU8();
-            light.intensity = light.specularIntensity;
-            light.intensity /= 32;
+            light.intensity = reader.readU8();
             light.r_inner = gsl::narrow<int>(reader.readF());
             light.r_outer = gsl::narrow<int>(reader.readF());
             light.length = gsl::narrow<int>(reader.readF());
@@ -284,6 +291,7 @@ namespace loader
             light.dir = readCoordinatesF(reader);
             return light;
         }
+
 
         static Light readTr5(io::SDLReader& reader)
         {
@@ -294,7 +302,6 @@ namespace loader
             light.color.g = gsl::narrow<uint8_t>(reader.readF() * 255); // g
             light.color.b = gsl::narrow<uint8_t>(reader.readF() * 255); // b
             light.color.a = gsl::narrow<uint8_t>(reader.readF() * 255); // a
-            light.intensity = 1.0f;
             /*
             if ((temp != 0) && (temp != 0xCDCDCDCD))
             BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: seperator1 has wrong value") );
@@ -325,6 +332,7 @@ namespace loader
         }
     };
 
+
     struct Sprite
     {
         uint16_t vertex; // offset into vertex list
@@ -339,6 +347,7 @@ namespace loader
             return room_sprite;
         }
     };
+
 
     /** \brief Room layer (TR5).
       */
@@ -364,6 +373,7 @@ namespace loader
         int16_t unknown_l7b;
         int16_t unknown_l8a;
         int16_t unknown_l8b;
+
 
         static Layer read(io::SDLReader& reader)
         {
@@ -397,6 +407,7 @@ namespace loader
         }
     };
 
+
     struct RoomVertex
     {
         core::TRCoordinates position; // where this vertex lies (relative to tr2_room_info::x/z)
@@ -411,6 +422,7 @@ namespace loader
         // TR5 -->
         core::TRCoordinates normal;
         glm::vec4 color;
+
 
         /** \brief reads a room vertex definition.
           *
@@ -431,9 +443,10 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
-            room_vertex.color = { f, f, f, 1 };
+            room_vertex.color = {f, f, f, 1};
             return room_vertex;
         }
+
 
         static RoomVertex readTr2(io::SDLReader& reader)
         {
@@ -446,9 +459,10 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = room_vertex.lighting2 / 32768.0f;
-            room_vertex.color = { f, f, f, 1 };
+            room_vertex.color = {f, f, f, 1};
             return room_vertex;
         }
+
 
         static RoomVertex readTr3(io::SDLReader& reader)
         {
@@ -460,12 +474,13 @@ namespace loader
             room_vertex.lighting2 = reader.readI16();
             // only in TR5
             room_vertex.normal = {0,0,0};
-            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
-                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
-                                  (room_vertex.lighting2 & 0x001F) / 62.0f,
-                                  1 };
+            room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                (room_vertex.lighting2 & 0x001F) / 62.0f,
+                1};
             return room_vertex;
         }
+
 
         static RoomVertex readTr4(io::SDLReader& reader)
         {
@@ -478,12 +493,13 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
 
-            room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
-                                  ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
-                                  (room_vertex.lighting2 & 0x001F) / 31.0f,
-                                  1 };
+            room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                (room_vertex.lighting2 & 0x001F) / 31.0f,
+                1};
             return room_vertex;
         }
+
 
         static RoomVertex readTr5(io::SDLReader& reader)
         {
@@ -494,10 +510,11 @@ namespace loader
             auto g = reader.readU8();
             auto r = reader.readU8();
             auto a = reader.readU8();
-            vert.color = { r, g, b, a };
+            vert.color = {r, g, b, a};
             return vert;
         }
     };
+
 
     struct Room
     {
@@ -542,6 +559,13 @@ namespace loader
 
         uint16_t flags;
 
+
+        float getAmbientBrightness() const
+        {
+            return 1 - ambientDarkness / 8192.0f;
+        }
+
+
         // Flag bits:
         // 0x0001 - room is filled with water,
         // 0x0020 - Lara's ponytail gets blown by the wind;
@@ -553,6 +577,7 @@ namespace loader
         {
             return (flags & TR_ROOM_FLAG_WATER) != 0;
         }
+
 
         uint8_t waterScheme;
         // Water scheme is used with various room options, for example, R and M room flags in TRLE.
@@ -579,6 +604,7 @@ namespace loader
         uint16_t unknown_r4b;
         uint32_t unknown_r5;
         uint32_t unknown_r6;
+
 
         /** \brief reads a room definition.
           *
@@ -641,6 +667,7 @@ namespace loader
             return room;
         }
 
+
         static std::unique_ptr<Room> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Room> room{new Room()};
@@ -699,6 +726,7 @@ namespace loader
             room->lightColor.a = 1.0f;
             return room;
         }
+
 
         static std::unique_ptr<Room> readTr3(io::SDLReader& reader)
         {
@@ -765,6 +793,7 @@ namespace loader
             return room;
         }
 
+
         static std::unique_ptr<Room> readTr4(io::SDLReader& reader)
         {
             std::unique_ptr<Room> room{new Room()};
@@ -822,6 +851,7 @@ namespace loader
             room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
             return room;
         }
+
 
         static std::unique_ptr<Room> readTr5(io::SDLReader& reader)
         {
@@ -964,7 +994,7 @@ namespace loader
             std::streampos poly_offset = reader.readU32();
             std::streampos poly_offset2 = reader.readU32();
             if( poly_offset != poly_offset2 )
-                BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: poly_offset != poly_offset2"));
+            BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: poly_offset != poly_offset2"));
 
             auto vertices_size = reader.readU32();
             if( vertices_size % 28 != 0 )
@@ -1060,11 +1090,13 @@ namespace loader
                                                         const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
                                                         const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes, render::TextureAnimator& animator);
 
+
         const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
         {
             position -= this->position;
             return getSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
         }
+
 
         bool isInnerPositionX(core::TRCoordinates position) const
         {
@@ -1073,12 +1105,14 @@ namespace loader
             return sx > 0 && sx < sectorCountX - 1;
         }
 
+
         bool isInnerPositionZ(core::TRCoordinates position) const
         {
             position -= this->position;
             int sz = position.Z / SectorSize;
             return sz > 0 && sz < sectorCountZ - 1;
         }
+
 
         bool isInnerPositionXZ(core::TRCoordinates position) const
         {
@@ -1088,15 +1122,17 @@ namespace loader
             return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
         }
 
+
         gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(core::TRCoordinates position) const
         {
             position -= this->position;
             return findFloorSectorWithClampedIndex(position.X / SectorSize, position.Z / SectorSize);
         }
 
+
         const Sector* getSectorByIndex(int dx, int dz) const
         {
-            if(dx < 0 || dx >= sectorCountX)
+            if( dx < 0 || dx >= sectorCountX )
             {
                 BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
@@ -1108,6 +1144,7 @@ namespace loader
             }
             return &sectors[sectorCountZ * dx + dz];
         }
+
 
         gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
         {
@@ -1128,8 +1165,10 @@ namespace loader
             return getSectorByIndex(dx, dz);
         }
 
+
         static void patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height);
     };
+
 
     enum class TimerState
     {
@@ -1137,6 +1176,7 @@ namespace loader
         Idle,
         Stopped
     };
+
 
     struct SpriteTexture
     {
@@ -1148,6 +1188,7 @@ namespace loader
         int16_t top_side;
         int16_t right_side;
         int16_t bottom_side;
+
 
         /** \brief reads sprite texture definition.
           *
@@ -1184,6 +1225,7 @@ namespace loader
             return sprite_texture;
         }
 
+
         static std::unique_ptr<SpriteTexture> readTr4(io::SDLReader& reader)
         {
             std::unique_ptr<SpriteTexture> sprite_texture{new SpriteTexture()};
@@ -1212,6 +1254,7 @@ namespace loader
             return sprite_texture;
         }
 
+
         gameplay::Rectangle buildSourceRectangle() const
         {
             auto size = t1 - t0;
@@ -1221,6 +1264,7 @@ namespace loader
             };
         }
     };
+
 
     struct SpriteSequence
     {
@@ -1239,13 +1283,14 @@ namespace loader
             sprite_sequence->length = reader.readI16();
             sprite_sequence->offset = reader.readU16();
 
-            if(sprite_sequence->type > 191)
+            if( sprite_sequence->type > 191 )
             {
                 sprite_sequence->type -= 191;
                 sprite_sequence->length = 0;
             }
             return sprite_sequence;
         }
+
 
         static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
         {
@@ -1256,6 +1301,7 @@ namespace loader
             return sprite_sequence;
         }
     };
+
 
     struct Box
     {
@@ -1279,6 +1325,7 @@ namespace loader
             return box;
         }
 
+
         static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Box> box{new Box()};
@@ -1292,6 +1339,7 @@ namespace loader
         }
     };
 
+
     struct Zone
     {
         uint16_t flyZoneNormal;
@@ -1299,15 +1347,18 @@ namespace loader
         uint16_t flyZoneAlternate;
         std::vector<uint16_t> groundZonesAlternate;
 
+
         static std::unique_ptr<Zone> readTr1(io::SDLReader& reader)
         {
             return read(reader, 2);
         }
 
+
         static std::unique_ptr<Zone> readTr2(io::SDLReader& reader)
         {
             return read(reader, 4);
         }
+
 
     private:
         static std::unique_ptr<Zone> read(io::SDLReader& reader, size_t n)
@@ -1325,6 +1376,7 @@ namespace loader
         }
     };
 
+
     struct Camera
     {
         int32_t x;
@@ -1333,6 +1385,7 @@ namespace loader
         uint16_t room;
         //! @todo mutable flags
         mutable uint16_t flags;
+
 
         static std::unique_ptr<Camera> read(io::SDLReader& reader)
         {
@@ -1346,10 +1399,12 @@ namespace loader
             return camera;
         }
 
+
         constexpr bool isActive() const noexcept
         {
             return (flags & 1) != 0;
         }
+
 
         void setActive(bool flg) const noexcept
         {
@@ -1359,6 +1414,7 @@ namespace loader
                 flags &= ~1;
         }
     };
+
 
     struct FlybyCamera
     {
@@ -1376,6 +1432,7 @@ namespace loader
         uint16_t speed;
         uint16_t flags;
         uint32_t room_id;
+
 
         static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
         {
@@ -1401,6 +1458,7 @@ namespace loader
         }
     };
 
+
     struct AIObject
     {
         uint16_t object_id; // the objectID from the AI object (AI_FOLLOW is 402)
@@ -1411,6 +1469,7 @@ namespace loader
         uint16_t ocb;
         uint16_t flags; // The trigger flags (button 1-5, first button has value 2)
         int32_t angle;
+
 
         static std::unique_ptr<AIObject> read(io::SDLReader& reader)
         {
@@ -1428,6 +1487,7 @@ namespace loader
             return object;
         }
     };
+
 
     struct CinematicFrame
     {
@@ -1459,6 +1519,7 @@ namespace loader
             return cf;
         }
     };
+
 
     struct LightMap
     {

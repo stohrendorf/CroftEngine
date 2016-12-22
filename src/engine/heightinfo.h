@@ -17,7 +17,7 @@ namespace engine
     {
         long distance = 0;
         SlantClass slantClass = SlantClass::None;
-        const uint16_t* lastTriggerOrKill = nullptr;
+        const uint16_t* lastCommandSequenceOrDeath = nullptr;
 
         static bool skipSteepSlants;
 

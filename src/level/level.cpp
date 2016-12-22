@@ -26,6 +26,8 @@
 
 #include "loader/objwriter.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -518,7 +520,8 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::ExactTRCoordinates& position,
-                                              uint16_t flags)
+                                              uint16_t flags,
+                                              int16_t darkness)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
 
@@ -540,6 +543,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                              angle,
                                              position,
                                              flags,
+                                             darkness,
                                              model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
@@ -553,6 +557,180 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     BOOST_ASSERT( skeletalModel->getChildCount() == model.boneCount );
 
     return skeletalModel;
+}
+
+
+YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::SequenceCondition sequenceCondition)
+{
+    YAML::Node sequence;
+    const loader::FloorDataCommandSequenceHeader commandSeqHeader{*rawFloorData++};
+    for(int i=0; i<5; ++i)
+    {
+        if(commandSeqHeader.activationMask & (0x200 << i))
+            sequence["activationBits"].push_back(i);
+    }
+    sequence["timeout"] = int(commandSeqHeader.timeout);
+    sequence["oneshot"] = commandSeqHeader.oneshot;
+    sequence["locked"] = commandSeqHeader.locked;
+    sequence["inverted"] = commandSeqHeader.inverted;
+
+    switch( sequenceCondition )
+    {
+        case loader::SequenceCondition::LaraIsHere:
+            sequence["if"] = "laraIsHere";
+            break;
+        case loader::SequenceCondition::LaraOnGround:
+            sequence["if"] = "laraOnGround";
+            break;
+        case loader::SequenceCondition::ItemActivated:
+        {
+            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            sequence["if"] = "itemActivated";
+            sequence["itemId"] = commandHeader.parameter;
+        }
+            break;
+        case loader::SequenceCondition::KeyUsed:
+        {
+            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            sequence["if"] = "keyUsed";
+            sequence["itemId"] = commandHeader.parameter;
+        }
+            break;
+        case loader::SequenceCondition::ItemPickedUp:
+        {
+            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            sequence["if"] = "itemPickedUp";
+            sequence["itemId"] = commandHeader.parameter;
+        }
+            break;
+        case loader::SequenceCondition::ItemIsHere:
+            sequence["if"] = "itemIsHere";
+            break;
+        case loader::SequenceCondition::LaraOnGroundInverted:
+            sequence["if"] = "laraOnGroundInverted";
+            break;
+        case loader::SequenceCondition::LaraInCombatMode:
+            sequence["if"] = "laraInCombatMode";
+            break;
+        case loader::SequenceCondition::Dummy:
+            sequence["if"] = "dummy";
+            break;
+        case loader::SequenceCondition::AntiTrigger:
+            sequence["if"] = "antiTrigger";
+            break;
+        case loader::SequenceCondition::HeavySwitch:
+            sequence["if"] = "heavySwitch";
+            break;
+        case loader::SequenceCondition::HeavyAntiTrigger:
+            sequence["if"] = "heavyAntiTrigger";
+            break;
+        case loader::SequenceCondition::Monkey:
+            sequence["if"] = "monkey";
+            break;
+        case loader::SequenceCondition::Skeleton:
+            sequence["if"] = "skeleton";
+            break;
+        case loader::SequenceCondition::TightRope:
+            sequence["if"] = "tightRope";
+            break;
+        case loader::SequenceCondition::CrawlDuck:
+            sequence["if"] = "crawlDuck";
+            break;
+        case loader::SequenceCondition::Climb:
+            sequence["if"] = "climb";
+            break;
+        default:
+            BOOST_ASSERT(false);
+    }
+
+    while( true )
+    {
+        const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+
+        YAML::Node commandTree;
+
+        switch( commandHeader.command )
+        {
+            case loader::Command::Activate:
+                commandTree["command"] = "activate";
+                commandTree["itemId"] = commandHeader.parameter;
+                break;
+            case loader::Command::SwitchCamera:
+            {
+                const loader::FloorDataCameraParameters camParams{*rawFloorData++};
+                commandTree["command"] = "switchCamera";
+                commandTree["cameraId"] = commandHeader.parameter;
+                commandTree["duration"] = int(camParams.timeout);
+                commandTree["onlyOnce"] = camParams.oneshot;
+                commandTree["smoothness"] = int(camParams.smoothness);
+                commandHeader.isLast = camParams.isLast;
+            }
+                break;
+            case loader::Command::UnderwaterCurrent:
+                commandTree["command"] = "underwaterFlow";
+                break;
+            case loader::Command::FlipMap:
+                commandTree["command"] = "flipMap";
+                commandTree["maskId"] = commandHeader.parameter;
+                break;
+            case loader::Command::FlipOn:
+                commandTree["command"] = "flipOn";
+                commandTree["maskId"] = commandHeader.parameter;
+                break;
+            case loader::Command::FlipOff:
+                commandTree["command"] = "flipOff";
+                commandTree["maskId"] = commandHeader.parameter;
+                break;
+            case loader::Command::LookAt:
+                commandTree["command"] = "lookAt";
+                commandTree["itemId"] = commandHeader.parameter;
+                break;
+            case loader::Command::EndLevel:
+                commandTree["command"] = "endLevel";
+                break;
+            case loader::Command::PlayTrack:
+                commandTree["command"] = "playTrack";
+                commandTree["track"] = commandHeader.parameter;
+                break;
+            case loader::Command::FlipEffect:
+                commandTree["command"] = "flipEffect";
+                commandTree["effect"] = commandHeader.parameter;
+                break;
+            case loader::Command::Secret:
+                commandTree["command"] = "secret";
+                commandTree["secretId"] = commandHeader.parameter;
+                break;
+            case loader::Command::ClearBodies:
+                commandTree["command"] = "clearBodies";
+                commandTree["target"] = commandHeader.parameter;
+                break;
+            case loader::Command::FlyBy:
+                commandTree["command"] = "flyby";
+                commandTree["target"] = commandHeader.parameter;
+                break;
+            case loader::Command::CutScene:
+                commandTree["command"] = "cutScene";
+                commandTree["target"] = commandHeader.parameter;
+                break;
+            case loader::Command::Command_E:
+                commandTree["command"] = "!!! E";
+                commandTree["target"] = commandHeader.parameter;
+                break;
+            case loader::Command::Command_F:
+                commandTree["command"] = "!!! F";
+                commandTree["target"] = commandHeader.parameter;
+                break;
+            default:
+                BOOST_ASSERT(false);
+        }
+
+        sequence["commands"].push_back(commandTree);
+
+        if( commandHeader.isLast )
+            break;
+    }
+
+    return sequence;
 }
 
 
@@ -575,13 +753,13 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     colorMaterial->initStateBlockDefaults();
     colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
     colorMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    colorMaterial->getParameter("u_viewMatrix")->bindViewMatrix();
-    colorMaterial->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
+    colorMaterial->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
+    colorMaterial->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
     colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    for(size_t i = 0; i < m_meshes.size(); ++i)
+    for( size_t i = 0; i < m_meshes.size(); ++i )
     {
         m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette,
                                                       *m_textureAnimator));
@@ -591,7 +769,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
         std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
 
     auto waterTexturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
-                                                                   {"WATER"});
+                                                                       {"WATER"});
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> waterMaterials = createMaterials(
         textures, waterTexturedShader);
 
@@ -602,22 +780,22 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     }
 
     {
-        loader::OBJWriter objWriter{ assetPath };
+        loader::OBJWriter objWriter{assetPath};
 
-        for(size_t i = 0; i < m_textures.size(); ++i)
+        for( size_t i = 0; i < m_textures.size(); ++i )
         {
             objWriter.write(m_textures[i].toImage(), i);
         }
 
-        for(const auto& trModel : m_animatedModels)
+        for( const auto& trModel : m_animatedModels )
         {
-            for(size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex)
+            for( size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex )
             {
                 BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
                 std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
-                if(!objWriter.exists(filename))
+                if( !objWriter.exists(filename) )
                 {
                     BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
 
@@ -626,7 +804,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                 }
 
                 filename = "model_override_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
-                if(objWriter.exists(filename))
+                if( objWriter.exists(filename) )
                 {
                     BOOST_LOG_TRIVIAL(info) << "Loading override model " << filename;
 
@@ -635,23 +813,86 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             }
         }
 
-        for(size_t i=0; i<m_rooms.size(); ++i)
+        for( size_t i = 0; i < m_rooms.size(); ++i )
         {
             auto& room = m_rooms[i];
 
             std::string filename = "room_" + std::to_string(i) + ".dae";
-            if(!objWriter.exists(filename))
+            if( !objWriter.exists(filename) )
             {
                 BOOST_LOG_TRIVIAL(info) << "Saving room model " << filename;
 
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materials, waterMaterials, glm::vec3(room.ambientDarkness / 8191.0f));
+                objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
+
+                filename = "room_" + std::to_string(i) + ".yaml";
+                BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
+
+                YAML::Node floorDataTree;
+                for( size_t x = 0; x < room.sectorCountX; ++x )
+                {
+                    for( size_t z = 0; z < room.sectorCountZ; ++z )
+                    {
+                        const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(x, z);
+                        YAML::Node sectorTree;
+                        sectorTree["position"]["x"] = x;
+                        sectorTree["position"]["z"] = z;
+                        if( sector->floorHeight != -127 )
+                            sectorTree["layout"]["floor"] = sector->floorHeight * loader::QuarterSectorSize - room.position.Y;
+                        if( sector->ceilingHeight != -127 )
+                            sectorTree["layout"]["ceiling"] = sector->ceilingHeight * loader::QuarterSectorSize - room.position.Y;
+                        if( sector->roomBelow != 0xff )
+                            sectorTree["relations"]["roomBelow"] = int(sector->roomBelow);
+                        if( sector->roomAbove != 0xff )
+                            sectorTree["relations"]["roomAbove"] = int(sector->roomAbove);
+                        if( sector->boxIndex != 0xffff )
+                            sectorTree["relations"]["box"] = sector->boxIndex;
+
+                        const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
+                        while( true )
+                        {
+                            const loader::FloorDataChunkHeader chunkHeader{*rawFloorData++};
+                            switch( chunkHeader.type )
+                            {
+                                case loader::FloorDataChunkType::FloorSlant:
+                                    sectorTree["layout"]["floorSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
+                                    sectorTree["layout"]["floorSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
+                                    ++rawFloorData;
+                                    break;
+                                case loader::FloorDataChunkType::CeilingSlant:
+                                    sectorTree["layout"]["ceilingSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
+                                    sectorTree["layout"]["ceilingSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
+                                    ++rawFloorData;
+                                    break;
+                                case loader::FloorDataChunkType::PortalSector:
+                                    sectorTree["relations"]["portalToRoom"] = (*rawFloorData & 0xff);
+                                    ++rawFloorData;
+                                    break;
+                                case loader::FloorDataChunkType::Death:
+                                    sectorTree["characteristics"].push_back("deadly");
+                                    break;
+                                case loader::FloorDataChunkType::CommandSequence:
+                                    sectorTree["sequences"].push_back(parseCommandSequence(rawFloorData, chunkHeader.sequenceCondition));
+                                    break;
+                                default:
+                                    break;
+                            }
+                            if( chunkHeader.isLast )
+                                break;
+                        }
+
+                        if( sectorTree.size() > 2 ) // only emit if we have more information than x/y coordinates
+                            floorDataTree["sectors"].push_back(sectorTree);
+                    }
+                }
+
+                objWriter.write(filename, floorDataTree);
             }
 
             filename = "room_override_" + std::to_string(i) + ".dae";
-            if(!objWriter.exists(filename))
+            if( !objWriter.exists(filename) )
                 continue;
 
             BOOST_LOG_TRIVIAL(info) << "Loading room override model " << filename;
@@ -661,6 +902,9 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             auto model = objWriter.readModel(filename, room.isWaterRoom() ? waterTexturedShader : texturedShader, glm::vec3(room.ambientDarkness / 8191.0f));
             room.node->setDrawable(model);
         }
+
+        //BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
+        //objWriter.write(m_rooms, "_level.dae", materials, waterMaterials);
     }
 
     m_lara = createItems();
@@ -863,14 +1107,14 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
 }
 
 
-void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
 
     if( trackId < 28 )
     {
-        triggerNormalCdTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
@@ -879,20 +1123,20 @@ void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::Trigge
         if( (m_cdTrackTriggerValues[trackId] & 0x100) != 0
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
             trackId = 29;
-        triggerNormalCdTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
     if( trackId == 37 || trackId == 41 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
-            triggerNormalCdTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
     if( trackId >= 29 && trackId <= 40 )
     {
-        triggerNormalCdTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
@@ -901,14 +1145,14 @@ void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::Trigge
         if( trackId == 42 && (m_cdTrackTriggerValues[42] & 0x100) != 0
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             trackId = 43;
-        triggerNormalCdTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
     if( trackId == 49 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
-            triggerNormalCdTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
@@ -921,39 +1165,39 @@ void Level::triggerCdTrack(uint16_t trackId, uint16_t triggerArg, loader::Trigge
                 //! @todo End level
                 m_cdTrack50time = 0;
             }
-            triggerNormalCdTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
             return;
         }
 
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit )
-            triggerNormalCdTrack(trackId, triggerArg, triggerType);
+            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 
     if( trackId >= 51 && trackId <= 63 )
     {
-        triggerNormalCdTrack(trackId, triggerArg, triggerType);
+        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
         return;
     }
 }
 
 
-void Level::triggerNormalCdTrack(uint16_t trackId, uint16_t triggerArg, loader::TriggerType triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType)
 {
     if( (m_cdTrackTriggerValues[trackId] & 0x100) != 0 )
         return;
 
-    const auto mask = triggerArg & 0x3e00;
-    if( triggerType == loader::TriggerType::Switch )
-        m_cdTrackTriggerValues[trackId] ^= mask;
-    else if( triggerType == loader::TriggerType::AntiPad )
-        m_cdTrackTriggerValues[trackId] &= ~mask;
+    if( triggerType == loader::SequenceCondition::ItemActivated )
+        m_cdTrackTriggerValues[trackId] ^= cmdSeqHeader.activationMask;
+    else if( triggerType == loader::SequenceCondition::LaraOnGroundInverted )
+        m_cdTrackTriggerValues[trackId] &= ~cmdSeqHeader.activationMask;
     else
-        m_cdTrackTriggerValues[trackId] |= mask;
+        m_cdTrackTriggerValues[trackId] |= cmdSeqHeader.activationMask;
 
-    if( (m_cdTrackTriggerValues[trackId] & 0x3e00) == 0x3e00 )
+    if( (m_cdTrackTriggerValues[trackId] & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
     {
-        m_cdTrackTriggerValues[trackId] |= (triggerArg & 0x100);
+        if( cmdSeqHeader.oneshot )
+            m_cdTrackTriggerValues[trackId] |= loader::FloorDataCommandSequenceHeader::Oneshot;
 
         if( m_activeCDTrack != trackId )
             playCdTrack(trackId);

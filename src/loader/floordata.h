@@ -2,18 +2,20 @@
 
 #include <vector>
 
+
 namespace loader
 {
     using FloorData = std::vector<uint16_t>;
 
+
     //! @brief Native TR floor data functions
     //! @ingroup native
-    enum class FDFunction : uint8_t
+    enum class FloorDataChunkType : uint8_t
     {
         PortalSector = 0x01,
         FloorSlant = 0x02,
         CeilingSlant = 0x03,
-        Trigger = 0x04,
+        CommandSequence = 0x04,
         Death = 0x05,
         Climb = 0x06,
         FloorTriangleNW = 0x07, //  [_\_]
@@ -33,20 +35,21 @@ namespace loader
         MinecartRight = 0x15 // In TR3 only. Function changed in TR4+.
     };
 
+
     //! @brief Native trigger types.
     //! @ingroup native
-    //! @see FDFunction::Trigger
-    //! @see TriggerFunction
-    enum class TriggerType
+    //! @see FloorDataChunkType::Always
+    //! @see Command
+    enum class SequenceCondition
     {
-        Trigger = 0x00, //!< If Lara is in sector, run (any case).
-        Pad = 0x01, //!< If Lara is in sector, run (land case).
-        Switch = 0x02, //!< If item is activated, run, else stop.
-        Key = 0x03, //!< If item is activated, run.
-        Pickup = 0x04, //!< If item is picked up, run.
-        Heavy = 0x05, //!< If item is in sector, run, else stop.
-        AntiPad = 0x06, //!< If Lara is in sector, stop (land case).
-        Combat = 0x07, //!< If Lara is in combat state, run (any case).
+        LaraIsHere = 0x00, //!< If Lara is in sector, run (any case).
+        LaraOnGround = 0x01, //!< If Lara is in sector, run (land case).
+        ItemActivated = 0x02, //!< If item is activated, run, else stop.
+        KeyUsed = 0x03, //!< If item is activated, run.
+        ItemPickedUp = 0x04, //!< If item is picked up, run.
+        ItemIsHere = 0x05, //!< If item is in sector, run, else stop.
+        LaraOnGroundInverted = 0x06, //!< If Lara is in sector, stop (land case).
+        LaraInCombatMode = 0x07, //!< If Lara is in combat state, run (any case).
         Dummy = 0x08, //!< If Lara is in sector, run (air case).
         AntiTrigger = 0x09, //!< TR2-5 only: If Lara is in sector, stop (any case).
         HeavySwitch = 0x0A, //!< TR3-5 only: If item is activated by item, run.
@@ -58,14 +61,15 @@ namespace loader
         Climb = 0x10, //!< TR5 only: If Lara is climbing, run.
     };
 
+
     //! @brief Native trigger function types.
     //! @ingroup native
-    //! @see FDFunction::Trigger
-    //! @see TriggerType
-    enum class TriggerFunction
+    //! @see FloorDataChunkType::Always
+    //! @see SequenceCondition
+    enum class Command
     {
-        Object = 0x00,
-        CameraTarget = 0x01,
+        Activate = 0x00,
+        SwitchCamera = 0x01,
         UnderwaterCurrent = 0x02,
         FlipMap = 0x03,
         FlipOn = 0x04,
@@ -77,31 +81,121 @@ namespace loader
         Secret = 0x0A,
         ClearBodies = 0x0B, // Unused in TR4
         FlyBy = 0x0C,
-        CutScene = 0x0D
+        CutScene = 0x0D,
+        Command_E,
+        Command_F
     };
 
-    inline FDFunction extractFDFunction(FloorData::value_type data)
-    {
-        return gsl::narrow_cast<FDFunction>(data);
-    }
 
-    inline TriggerFunction extractTriggerFunction(FloorData::value_type data)
+    struct FloorDataChunkHeader
     {
-        return gsl::narrow_cast<TriggerFunction>((data & 0x3fff) >> 10);
-    }
+        explicit FloorDataChunkHeader(FloorData::value_type fd)
+            : isLast{extractIsLast(fd)}
+            , sequenceCondition{extractSequenceCondition(fd)}
+            , type{extractType(fd)}
+        {
+        }
 
-    inline TriggerType extractTriggerType(FloorData::value_type data)
-    {
-        return gsl::narrow_cast<TriggerType>((data & 0x3f00) >> 8);
-    }
 
-    constexpr uint16_t extractTriggerFunctionParam(FloorData::value_type data)
-    {
-        return data & 0x3ff;
-    }
+        bool isLast;
+        SequenceCondition sequenceCondition;
+        FloorDataChunkType type;
 
-    constexpr bool isLastFloordataEntry(FloorData::value_type data)
+
+        static FloorDataChunkType extractType(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<FloorDataChunkType>(data & 0xff);
+        }
+
+
+    private:
+        static SequenceCondition extractSequenceCondition(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<SequenceCondition>((data & 0x3f00) >> 8);
+        }
+
+
+        static constexpr bool extractIsLast(FloorData::value_type data)
+        {
+            return (data & 0x8000) != 0;
+        }
+    };
+
+
+    struct FloorDataCommandSequenceHeader
     {
-        return (data & 0x8000) != 0;
-    }
+        static constexpr const uint16_t Oneshot = 0x100;
+        static constexpr const uint16_t ActivationMask = 0x3e00;
+        static constexpr const uint16_t InvertedActivation = 0x4000;
+        static constexpr const uint16_t Locked = 0x8000;
+
+
+        explicit FloorDataCommandSequenceHeader(FloorData::value_type fd)
+            : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
+            , oneshot{(fd & Oneshot) != 0}
+            , inverted{(fd & InvertedActivation) != 0}
+            , locked{(fd & Locked) != 0}
+            , activationMask{gsl::narrow_cast<uint16_t>(fd & ActivationMask)}
+        {
+        }
+
+
+        const uint8_t timeout;
+        const bool oneshot;
+        const bool inverted;
+        const bool locked;
+        const uint16_t activationMask;
+    };
+
+
+    struct FloorDataCameraParameters
+    {
+        explicit FloorDataCameraParameters(FloorData::value_type fd)
+            : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
+            , oneshot{(fd & 0x100) != 0}
+            , isLast{(fd & 0x8000) != 0}
+            , smoothness{gsl::narrow_cast<uint8_t>((fd >> 8) & 0x3e)}
+        {
+        }
+
+
+        const uint8_t timeout;
+        const bool oneshot;
+        const bool isLast;
+        const uint8_t smoothness;
+    };
+
+
+    struct FloorDataCommandHeader
+    {
+        explicit FloorDataCommandHeader(FloorData::value_type fd)
+            : isLast{extractIsLast(fd)}
+            , command{extractCommand(fd)}
+            , parameter{extractParameter(fd)}
+        {
+        }
+
+
+        mutable bool isLast;
+        Command command;
+        uint16_t parameter;
+
+    private:
+        static Command extractCommand(FloorData::value_type data)
+        {
+            return gsl::narrow_cast<Command>((data >> 10) & 0x0f);
+        }
+
+
+        static constexpr uint16_t extractParameter(FloorData::value_type data)
+        {
+            return data & 0x3ff;
+        }
+
+
+        static constexpr bool extractIsLast(FloorData::value_type data)
+        {
+            return (data & 0x8000) != 0;
+        }
+    };
 }

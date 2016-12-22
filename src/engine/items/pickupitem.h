@@ -16,15 +16,16 @@ namespace engine
                        const core::Angle& angle,
                        const core::ExactTRCoordinates& position,
                        uint16_t flags,
+                       int16_t darkness,
                        const loader::AnimatedModel& animatedModel,
                        bool shotgun = false)
-                : ItemNode(level, name, room, angle, position, flags, true, 0x30, animatedModel)
+                : ItemNode(level, name, room, angle, position, flags, true, 0x30, darkness, animatedModel)
                 , m_shotgun{shotgun}
             {
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime) override
+            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
             {
             }
 

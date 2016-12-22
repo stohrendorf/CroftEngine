@@ -18,16 +18,18 @@ namespace loader
             glm::vec2 texcoord;
             glm::vec3 position;
             glm::vec4 color;
+            glm::vec3 normal{std::numeric_limits<float>::quiet_NaN()};
 
 
             static const gameplay::VertexFormat& getFormat()
             {
-                static const gameplay::VertexFormat::Element elems[3] = {
+                static const gameplay::VertexFormat::Element elems[4] = {
                     {gameplay::VertexFormat::TEXCOORD, 2},
                     {gameplay::VertexFormat::POSITION, 3},
-                    {gameplay::VertexFormat::COLOR, 4}
+                    {gameplay::VertexFormat::COLOR, 4},
+                    {gameplay::VertexFormat::NORMAL, 3}
                 };
-                static const gameplay::VertexFormat fmt{elems, 3};
+                static const gameplay::VertexFormat fmt{elems, 4};
 
                 Expects(fmt.getVertexSize() == sizeof(RenderVertex));
 
@@ -165,50 +167,30 @@ namespace loader
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
 
-        for( Light& light : lights )
-        {
-            const auto f = std::abs(light.specularIntensity) / 8191.0f;
-            BOOST_ASSERT(f >= 0 && f <= 1);
-
-            switch( light.getLightType() )
-            {
-                case LightType::Shadow:
-                    BOOST_LOG_TRIVIAL(debug) << "Light: Shadow";
-                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
-                    break;
-                case LightType::Null:
-                case LightType::Point:
-                    BOOST_LOG_TRIVIAL(debug) << "Light: Null/Point";
-                    light.node = gameplay::Light::createPoint(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade);
-                    break;
-                case LightType::Spotlight:
-                    BOOST_LOG_TRIVIAL(debug) << "Light: Spot";
-                    light.node = gameplay::Light::createSpot(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f, light.specularFade, light.r_inner, light.r_outer);
-                    break;
-                case LightType::Sun:
-                    BOOST_LOG_TRIVIAL(debug) << "Light: Sun";
-                    light.node = gameplay::Light::createDirectional(light.color.r / 255.0f * f, light.color.g / 255.0f * f, light.color.b / 255.0f * f);
-                    break;
-            }
-
-            BOOST_LOG_TRIVIAL(debug) << "  - Position: " << light.position.X << "/" << light.position.Y << "/" << light.position.Z;
-            BOOST_LOG_TRIVIAL(debug) << "  - Length: " << light.length;
-            BOOST_LOG_TRIVIAL(debug) << "  - Color: " << light.color.a / 255.0f << "/" << light.color.r / 255.0f << "/" << light.color.g / 255.0f << "/" << light.color.b / 255.0f;
-            BOOST_LOG_TRIVIAL(debug) << "  - Specular Fade: " << light.specularFade;
-            BOOST_LOG_TRIVIAL(debug) << "  - Specular Intensity: " << light.specularIntensity;
-            BOOST_LOG_TRIVIAL(debug) << "  - Inner: " << light.r_inner;
-            BOOST_LOG_TRIVIAL(debug) << "  - Outer: " << light.r_outer;
-            BOOST_LOG_TRIVIAL(debug) << "  - Intensity: " << light.intensity;
-        }
-
         for( const RoomStaticMesh& sm : this->staticMeshes )
         {
+            //! @todo Bind static mesh darkness to this material.
             auto idx = level.findStaticMeshIndexById(sm.meshId);
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
             auto subNode = std::make_shared<gameplay::Node>("");
             subNode->setDrawable(staticMeshes[idx]);
             subNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{0,-1,0}));
+
+            float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
+
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, brightness);
+            });
+            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, 0.0f);
+            });
+            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                shaderProgram->setValue(*uniform, glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
+            });
             node->addChild(subNode);
         }
         node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, position.toRenderSystem()));
@@ -229,8 +211,6 @@ namespace loader
 
             node->addChild(n);
         }
-
-        // resultNode->addShadowVolumeSceneNode();
 
         return node;
     }

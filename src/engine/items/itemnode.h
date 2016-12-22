@@ -88,13 +88,13 @@ namespace engine
 
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
+            const int16_t m_darkness;
 
             struct Lighting
             {
                 glm::vec3 position;
-                float ambient;
-                float brightness;
-                float total;
+                float base;
+                float baseDiff;
             };
 
             Lighting m_lighting;
@@ -119,6 +119,7 @@ namespace engine
                      uint16_t flags,
                      bool hasProcessAnimCommandsOverride,
                      uint8_t characteristics,
+                     int16_t darkness,
                      const loader::AnimatedModel& animatedModel);
 
             virtual ~ItemNode() = default;
@@ -323,7 +324,7 @@ namespace engine
 
             void update(const std::chrono::microseconds& deltaTime);
 
-            virtual void updateImpl(const std::chrono::microseconds& deltaTime) = 0;
+            virtual void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType) = 0;
 
 
             core::InterpolatedValue<float>& getHorizontalSpeed()
@@ -338,7 +339,7 @@ namespace engine
             }
 
 
-            bool triggerSwitch(uint16_t arg)
+            bool triggerSwitch(const loader::FloorDataCommandSequenceHeader& arg)
             {
                 if( !m_flags2_04_ready || m_flags2_02_toggledOn )
                 {
@@ -347,14 +348,14 @@ namespace engine
 
                 m_flags2_04_ready = false;
 
-                if( getCurrentState() != 0 || loader::isLastFloordataEntry(arg) )
+                if( getCurrentState() != 0 || arg.locked )
                 {
                     deactivate();
                     m_flags2_02_toggledOn = false;
                 }
                 else
                 {
-                    m_triggerTimeout = std::chrono::milliseconds(gsl::narrow_cast<uint8_t>(arg));
+                    m_triggerTimeout = std::chrono::milliseconds(arg.timeout);
                     if( m_triggerTimeout.count() != 1 )
                         m_triggerTimeout *= 1000;
                     m_flags2_02_toggledOn = true;
@@ -409,55 +410,67 @@ namespace engine
 
             void updateLighting()
             {
-                m_lighting.ambient = 1 - m_position.room->ambientDarkness / 8191.0f;
-                m_lighting.total = m_lighting.ambient;
-                BOOST_ASSERT(m_lighting.ambient >= 0 && m_lighting.ambient <= 1);
-                m_lighting.brightness = -1;
+                m_lighting.baseDiff = 0;
+
+                if(m_darkness >= 0)
+                {
+                    m_lighting.base = (m_darkness - 4096) / 8192.0f;
+                    return;
+                }
+
+                const auto roomAmbient = 1 - m_position.room->ambientDarkness / 8191.0f;
+                BOOST_ASSERT(roomAmbient >= 0 && roomAmbient <= 1);
+                m_lighting.base = roomAmbient;
 
                 if(m_position.room->lights.empty())
                 {
                     return;
                 }
 
-                m_lighting.brightness = 0;
+                float maxBrightness = 0;
                 const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
                 for(const auto& light : m_position.room->lights)
                 {
-                    auto fadeSq = light.specularFade / 4096.0f;
-                    fadeSq *= fadeSq;
+                    auto radiusSq = light.radius / 4096.0f;
+                    radiusSq *= radiusSq;
 
                     auto distanceSq = glm::length(bboxCtr - light.position.toRenderSystem());
                     distanceSq /= 4096.0f;
                     distanceSq *= distanceSq;
 
-                    const auto lightBrightness = m_lighting.ambient + fadeSq * (light.specularIntensity / 4096.0f) / (fadeSq + distanceSq);
-                    if(lightBrightness > m_lighting.brightness)
+                    const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
+                    if(lightBrightness > maxBrightness)
                     {
-                        BOOST_ASSERT(lightBrightness >= 0 && lightBrightness <= 2);
-                        m_lighting.brightness = lightBrightness;
+                        maxBrightness = lightBrightness;
                         m_lighting.position = light.position.toRenderSystem();
                     }
                 }
 
-                m_lighting.total = (m_lighting.ambient + m_lighting.brightness) / 2;
+                m_lighting.base = (roomAmbient + maxBrightness) / 2;
+                m_lighting.baseDiff = (maxBrightness - m_lighting.base);
             }
 
-            static void lightBrightnessBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            static const ItemNode* findBaseItemNode(const gameplay::Node& node)
             {
                 const ItemNode* item = nullptr;
 
+                auto n = &node;
+                while(true)
                 {
-                    auto n = &node;
-                    while(true)
-                    {
-                        item = dynamic_cast<const ItemNode*>(n);
+                    item = dynamic_cast<const ItemNode*>(n);
 
-                        if(item != nullptr || n->getParent().expired())
-                            break;
+                    if(item != nullptr || n->getParent().expired())
+                        break;
 
-                        n = n->getParent().lock().get();
-                    };
+                    n = n->getParent().lock().get();
                 }
+
+                return item;
+            }
+
+            static void lightBaseBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                const ItemNode* item = findBaseItemNode(node);
 
                 if(item == nullptr)
                 {
@@ -465,25 +478,25 @@ namespace engine
                     return;
                 }
 
-                shaderProgram->setValue(*uniform, item->m_lighting.total);
+                shaderProgram->setValue(*uniform, item->m_lighting.base);
+            };
+
+            static void lightBaseDiffBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            {
+                const ItemNode* item = findBaseItemNode(node);
+
+                if(item == nullptr)
+                {
+                    shaderProgram->setValue(*uniform, 1.0f);
+                    return;
+                }
+
+                shaderProgram->setValue(*uniform, item->m_lighting.baseDiff);
             };
 
             static void lightPositionBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
             {
-                const ItemNode* item = nullptr;
-
-                {
-                    auto n = &node;
-                    while(true)
-                    {
-                        item = dynamic_cast<const ItemNode*>(n);
-
-                        if(item != nullptr || n->getParent().expired())
-                            break;
-
-                        n = n->getParent().lock().get();
-                    };
-                }
+                const ItemNode* item = findBaseItemNode(node);
 
                 if(item == nullptr)
                 {

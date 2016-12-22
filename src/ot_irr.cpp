@@ -123,6 +123,10 @@ private:
 
 void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Level>& lvl)
 {
+    // deltaTime /= 10;
+    if(deltaTime == std::chrono::microseconds::zero())
+        deltaTime = std::chrono::microseconds(1);
+
     while( deltaTime > std::chrono::microseconds::zero() )
     {
         auto subTime = std::min(deltaTime, core::FrameTime);
@@ -250,17 +254,6 @@ int main()
         else
             depthDarknessFx.bind();
         game->frame();
-
-        /*
-                {
-                    const auto width = game->getViewport().width;
-                    const auto height = game->getViewport().height;
-
-                    std::vector<float> data;
-                    data.resize(width*height, 0);
-                    GL_ASSERT(glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data.data()));
-                }
-        */
 
         gameplay::RenderContext context{false};
         gameplay::Node dummyNode{""};

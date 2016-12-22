@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime)
+        void SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/)
         {
             if( updateTriggerTimeout( deltaTime ) )
             {

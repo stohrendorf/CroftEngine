@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Node.h"
-#include "Light.h"
 #include "Model.h"
 #include "Drawable.h"
 

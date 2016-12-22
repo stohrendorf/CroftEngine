@@ -77,7 +77,7 @@ namespace engine
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         auto scaled = currentAnim.speed
-                      + float( currentAnim.accelleration ) * getCurrentLocalTime().count() / core::FrameTime.count();
+                      + currentAnim.accelleration * core::toFloatFrame(getCurrentLocalTime());
         return scaled / (1 << 16);
     }
 
@@ -123,28 +123,20 @@ namespace engine
         BOOST_ASSERT( m_time >= startTime && m_time < endTime );
         const auto animationTime = m_time - startTime;
         int firstKeyframeIndex = core::toFrame( animationTime ) / anim.segmentLength;
+        BOOST_ASSERT(firstKeyframeIndex >= 0);
 
         BOOST_ASSERT( firstKeyframeIndex < anim.getKeyframeCount() );
 
-        if( firstKeyframeIndex == anim.getKeyframeCount() - 1 )
+        result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * firstKeyframeIndex);
+        if(firstKeyframeIndex == anim.getKeyframeCount() - 1)
         {
-            // We are on the last frame in the animation, which does not have a successive keyframe.
-            // thus, let's just extrapolate the animation...
-            result.bias = 1;
-            --firstKeyframeIndex;
-        }
-
-        result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (firstKeyframeIndex + 1));
-
-        if(firstKeyframeIndex < 0)
-        {
-            // ... but if we only have a single keyframe, use it.
-            result.firstFrame = result.secondFrame;
             result.bias = 0;
+            return result;
         }
         else
         {
             result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * firstKeyframeIndex);
+            result.secondFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * (firstKeyframeIndex + 1));
         }
 
         auto segmentDuration = core::fromFrame( anim.segmentLength );
@@ -377,14 +369,15 @@ namespace engine
     }
 
 
-    void SkeletalModelNode::addTime(const std::chrono::microseconds& time)
+    boost::optional<SkeletalModelNode::FrameChangeType> SkeletalModelNode::addTime(const std::chrono::microseconds& time)
     {
         bool frameChanged = core::toFrame(m_time) != core::toFrame(m_time + time);
         m_time += time;
 
+        boost::optional<FrameChangeType> result;
         if(handleTRTransitions() || frameChanged)
         {
-            onFrameChanged(FrameChangeType::NewFrame);
+            result = FrameChangeType::NewFrame;
         }
 
         if(m_time >= getEndTime())
@@ -394,7 +387,14 @@ namespace engine
             const loader::Animation& currentAnim = getCurrentAnimData();
             setAnimIdGlobalImpl(currentAnim.nextAnimation, currentAnim.nextFrame, false);
 
-            setTargetState(getCurrentState());
+            result = FrameChangeType::EndOfAnim;
+            //setTargetState(getCurrentState());
         }
+        else if(result.is_initialized())
+        {
+            onFrameChanged(*result);
+        }
+
+        return result;
     }
 }

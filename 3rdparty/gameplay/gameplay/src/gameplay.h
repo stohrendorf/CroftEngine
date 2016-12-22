@@ -23,7 +23,6 @@
 #include "Drawable.h"
 #include "Model.h"
 #include "Camera.h"
-#include "Light.h"
 #include "Node.h"
 #include "Scene.h"
 #include "Font.h"

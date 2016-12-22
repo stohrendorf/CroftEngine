@@ -824,7 +824,7 @@ namespace engine
                                                  - core::TRCoordinates{0, core::ScalpHeight, 0},
                                                  getLevel().m_cameraController);
             setFloorHeight(h.distance);
-            getLara().handleTriggers(h.lastTriggerOrKill, false);
+            getLara().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
             auto damageSpeed = static_cast<float>(getFallSpeed()) - 140;
             if( damageSpeed <= 0 )
                 return false;

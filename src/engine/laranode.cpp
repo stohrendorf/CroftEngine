@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<uint16_t, 10> flipFlags{ {0,0,0,0,0,0,0,0,0,0} };
+    std::array<uint16_t, 10> flipFlags{{0,0,0,0,0,0,0,0,0,0}};
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
@@ -59,9 +59,9 @@ namespace
 
     void swapAllRooms(level::Level& level)
     {
-        for(auto& room : level.m_rooms)
+        for( auto& room : level.m_rooms )
         {
-            if(room.alternateRoom < 0)
+            if( room.alternateRoom < 0 )
                 continue;
 
             BOOST_ASSERT(room.alternateRoom < level.m_rooms.size());
@@ -93,7 +93,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -102,14 +102,14 @@ namespace engine
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
-        auto nextHandler = m_currentStateHandler->handleInput(collisionInfo);
+        auto animStateOverride = m_currentStateHandler->handleInput(collisionInfo);
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
-        if( nextHandler.is_initialized() && nextHandler != m_currentStateHandler->getId() )
+        if( animStateOverride.is_initialized() && animStateOverride != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New input state override: "
+            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
+            BOOST_LOG_TRIVIAL( debug ) << "New input anim state override: "
                                       << loader::toString(m_currentStateHandler->getId());
         }
 
@@ -156,25 +156,21 @@ namespace engine
 
         //BOOST_LOG_TRIVIAL(debug) << "Post-processing state: " << loader::toString(m_currentStateHandler->getId());
 
-        /*
-                if( getCurrentFrameChangeType() == FrameChangeType::SameFrame )
-                {
-                    return;
-                }
-        */
+        if( !frameChangeType.is_initialized() )
+            return;
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        animStateOverride = m_currentStateHandler->postprocessFrame(collisionInfo);
+        if( animStateOverride.is_initialized() && *animStateOverride != m_currentStateHandler->getId() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
+            BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                                    << loader::toString(m_currentStateHandler->getId());
         }
 
         updateFloorHeight(-381);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
 
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
@@ -182,7 +178,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleLaraStateDiving(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateDiving(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -243,23 +239,26 @@ namespace engine
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        if( frameChangeType.is_initialized() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
+            if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+            {
+                m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
+                BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                                        << loader::toString(m_currentStateHandler->getId());
+            }
         }
 
         updateFloorHeight(0);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
     }
 
 
-    void LaraNode::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime)
+    void LaraNode::handleLaraStateSwimming(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
@@ -333,16 +332,19 @@ namespace engine
 
         testInteractions();
 
-        nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+        if( frameChangeType.is_initialized() )
         {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New post-processing state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
+            nextHandler = m_currentStateHandler->postprocessFrame(collisionInfo);
+            if( nextHandler.is_initialized() && *nextHandler != m_currentStateHandler->getId() )
+            {
+                m_currentStateHandler = lara::AbstractStateHandler::create(*nextHandler, *this);
+                BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
+                                        << loader::toString(m_currentStateHandler->getId());
+            }
         }
 
         updateFloorHeight(100);
-        handleTriggers(collisionInfo.current.floor.lastTriggerOrKill, false);
+        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -372,9 +374,9 @@ namespace engine
     LaraNode::~LaraNode() = default;
 
 
-    void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
+    void LaraNode::updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType)
     {
-        static constexpr auto UVAnimTime = 3_frame;
+        static constexpr auto UVAnimTime = 10_frame;
 
         m_uvAnimTime += deltaTime;
         if( m_uvAnimTime >= UVAnimTime )
@@ -383,7 +385,7 @@ namespace engine
             m_uvAnimTime -= UVAnimTime;
         }
 
-        if( m_currentStateHandler == nullptr )
+        if( m_currentStateHandler == nullptr || frameChangeType.is_initialized() )
         {
             m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
         }
@@ -477,7 +479,7 @@ namespace engine
         if( m_underwaterState == UnderwaterState::OnLand )
         {
             m_air = 1800;
-            handleLaraStateOnLand(deltaTime);
+            handleLaraStateOnLand(deltaTime, frameChangeType);
         }
         else if( m_underwaterState == UnderwaterState::Diving )
         {
@@ -490,7 +492,7 @@ namespace engine
                     m_health.sub(5, deltaTime);
                 }
             }
-            handleLaraStateDiving(deltaTime);
+            handleLaraStateDiving(deltaTime, frameChangeType);
         }
         else if( m_underwaterState == UnderwaterState::Swimming )
         {
@@ -498,7 +500,7 @@ namespace engine
             {
                 m_air.add(10, deltaTime).limitMax(1800);
             }
-            handleLaraStateSwimming(deltaTime);
+            handleLaraStateSwimming(deltaTime, frameChangeType);
         }
 
         m_handlingFrame = false;
@@ -595,14 +597,16 @@ namespace engine
     }
 
 
-    void LaraNode::handleTriggers(const uint16_t* floorData, bool isDoppelganger)
+    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool ignoreCondition)
     {
         if( floorData == nullptr )
             return;
 
-        if( loader::extractFDFunction(*floorData) == loader::FDFunction::Death )
+        loader::FloorDataChunkHeader chunkHeader{*floorData};
+
+        if( chunkHeader.type == loader::FloorDataChunkType::Death )
         {
-            if( !isDoppelganger )
+            if( !ignoreCondition )
             {
                 if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
@@ -610,86 +614,77 @@ namespace engine
                 }
             }
 
-            if( loader::isLastFloordataEntry(*floorData) )
+            if( chunkHeader.isLast )
                 return;
 
             ++floorData;
         }
 
-        const auto srcTriggerType = loader::extractTriggerType(*floorData);
-        const auto srcTriggerArg = floorData[1];
-        auto actionFloorData = floorData + 2;
+        chunkHeader = loader::FloorDataChunkHeader{*floorData++};
+        BOOST_ASSERT(chunkHeader.type == loader::FloorDataChunkType::CommandSequence);
+        const loader::FloorDataCommandSequenceHeader commandSeqHeader{*floorData++};
 
-        getLevel().m_cameraController->findCameraTarget(actionFloorData);
+        getLevel().m_cameraController->findCameraTarget(floorData);
 
-        bool runActions = false, switchIsOn = false;
-        if( !isDoppelganger )
+        bool conditionFulfilled = false, switchIsOn = false;
+        if( !ignoreCondition )
         {
-            switch( srcTriggerType )
+            switch( chunkHeader.sequenceCondition )
             {
-                case loader::TriggerType::Trigger:
-                    runActions = true;
+                case loader::SequenceCondition::LaraIsHere:
+                    conditionFulfilled = true;
                     break;
-                case loader::TriggerType::Pad:
-                case loader::TriggerType::AntiPad:
-                    runActions = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
+                case loader::SequenceCondition::LaraOnGround:
+                case loader::SequenceCondition::LaraOnGroundInverted:
+                    conditionFulfilled = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                     break;
-                case loader::TriggerType::Switch:
+                case loader::SequenceCondition::ItemActivated:
                 {
-                    Expects(
-                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                        != getLevel().m_itemNodes.end() );
-                    ItemNode& swtch = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                        *actionFloorData)];
-                    if( !swtch.triggerSwitch(srcTriggerArg) )
+                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& swtch = *getLevel().m_itemNodes[commandHeader.parameter];
+                    if( !swtch.triggerSwitch(commandSeqHeader) )
                         return;
 
                     switchIsOn = (swtch.getCurrentState() == 1);
+                    conditionFulfilled = true;
                 }
-                    ++actionFloorData;
-                    runActions = true;
                     break;
-                case loader::TriggerType::Key:
+                case loader::SequenceCondition::KeyUsed:
                 {
-                    Expects(
-                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                        != getLevel().m_itemNodes.end() );
-                    ItemNode& key = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                        *actionFloorData)];
+                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& key = *getLevel().m_itemNodes[commandHeader.parameter];
                     if( key.triggerKey() )
-                        runActions = true;
+                        conditionFulfilled = true;
                 }
-                    ++actionFloorData;
                     return;
-                case loader::TriggerType::Pickup:
+                case loader::SequenceCondition::ItemPickedUp:
                 {
-                    Expects(
-                        getLevel().m_itemNodes.find( loader::extractTriggerFunctionParam( *actionFloorData ) )
-                        != getLevel().m_itemNodes.end() );
-                    ItemNode& pickup = *getLevel().m_itemNodes[loader::extractTriggerFunctionParam(
-                        *actionFloorData)];
+                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& pickup = *getLevel().m_itemNodes[commandHeader.parameter];
                     if( pickup.triggerPickUp() )
-                        runActions = true;
+                        conditionFulfilled = true;
                 }
-                    ++actionFloorData;
                     return;
-                case loader::TriggerType::Combat:
-                    runActions = getHandStatus() == 4;
+                case loader::SequenceCondition::LaraInCombatMode:
+                    conditionFulfilled = getHandStatus() == 4;
                     break;
-                case loader::TriggerType::Heavy:
-                case loader::TriggerType::Dummy:
+                case loader::SequenceCondition::ItemIsHere:
+                case loader::SequenceCondition::Dummy:
                     return;
                 default:
-                    runActions = true;
+                    conditionFulfilled = true;
                     break;
             }
         }
         else
         {
-            runActions = srcTriggerType == loader::TriggerType::Heavy;
+            conditionFulfilled = chunkHeader.sequenceCondition == loader::SequenceCondition::ItemIsHere;
         }
 
-        if( !runActions )
+        if( !conditionFulfilled )
             return;
 
         ItemNode* lookAtItem = nullptr;
@@ -697,34 +692,33 @@ namespace engine
         bool swapRooms = false;
         while( true )
         {
-            bool isLastAction = loader::isLastFloordataEntry(*actionFloorData);
-            const auto actionParam = loader::extractTriggerFunctionParam(*actionFloorData);
-            switch( loader::extractTriggerFunction(*actionFloorData++) )
+            const loader::FloorDataCommandHeader commandHeader{*floorData++};
+            switch( commandHeader.command )
             {
-                case loader::TriggerFunction::Object:
+                case loader::Command::Activate:
                 {
-                    Expects( getLevel().m_itemNodes.find( actionParam ) != getLevel().m_itemNodes.end() );
-                    ItemNode& item = *getLevel().m_itemNodes[actionParam];
+                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& item = *getLevel().m_itemNodes[commandHeader.parameter];
                     if( (item.m_itemFlags & Oneshot) != 0 )
                         break;
 
-                    item.m_triggerTimeout = std::chrono::microseconds(gsl::narrow_cast<uint8_t>(srcTriggerArg));
+                    item.m_triggerTimeout = std::chrono::microseconds(commandSeqHeader.timeout);
                     if( item.m_triggerTimeout.count() != 1 )
                         item.m_triggerTimeout = std::chrono::seconds(item.m_triggerTimeout.count());
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
-                    if( srcTriggerType == loader::TriggerType::Switch )
-                        item.m_itemFlags ^= srcTriggerArg & ActivationMask;
-                    else if( srcTriggerType == loader::TriggerType::AntiPad )
-                        item.m_itemFlags &= ~(srcTriggerArg & ActivationMask);
+                    if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
+                        item.m_itemFlags ^= commandSeqHeader.activationMask;
+                    else if( chunkHeader.sequenceCondition == loader::SequenceCondition::LaraOnGroundInverted )
+                        item.m_itemFlags &= ~commandSeqHeader.activationMask;
                     else
-                        item.m_itemFlags |= srcTriggerArg & ActivationMask;
+                        item.m_itemFlags |= commandSeqHeader.activationMask;
 
                     if( (item.m_itemFlags & ActivationMask) != ActivationMask )
                         break;
 
-                    if( (srcTriggerArg & Oneshot) != 0 )
+                    if( commandSeqHeader.oneshot )
                         item.m_itemFlags |= Oneshot;
 
                     if( item.m_isActive )
@@ -764,66 +758,69 @@ namespace engine
                     item.activate();
                 }
                     break;
-                case loader::TriggerFunction::CameraTarget:
-                    getLevel().m_cameraController->setCamOverride(actionFloorData[0], actionParam, srcTriggerType,
-                                                                  isDoppelganger, srcTriggerArg, switchIsOn);
-                    isLastAction = loader::isLastFloordataEntry(*actionFloorData);
-                    ++actionFloorData;
+                case loader::Command::SwitchCamera:
+                {
+                    const loader::FloorDataCameraParameters camParams{*floorData++};
+                    getLevel().m_cameraController->setCamOverride(camParams, commandHeader.parameter, chunkHeader.sequenceCondition,
+                                                                  ignoreCondition, commandSeqHeader, switchIsOn);
+                    commandHeader.isLast = camParams.isLast;
+                }
                     break;
-                case loader::TriggerFunction::LookAt:
-                    lookAtItem = getLevel().getItemController(actionParam);
+                case loader::Command::LookAt:
+                    lookAtItem = getLevel().getItemController(commandHeader.parameter);
                     break;
-                case loader::TriggerFunction::UnderwaterCurrent:
+                case loader::Command::UnderwaterCurrent:
                     //! @todo handle underwater current
                     break;
-                case loader::TriggerFunction::FlipMap:
-                    BOOST_ASSERT(actionParam < flipFlags.size());
-                    if((flipFlags[actionParam] & Oneshot) == 0)
+                case loader::Command::FlipMap:
+                    BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
+                    if( (flipFlags[commandHeader.parameter] & Oneshot) == 0 )
                     {
-                        if(srcTriggerType == loader::TriggerType::Switch)
+                        if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
                         {
-                            flipFlags[actionParam] ^= srcTriggerArg & ActivationMask;
+                            flipFlags[commandHeader.parameter] ^= commandSeqHeader.activationMask;
                         }
                         else
                         {
-                            flipFlags[actionParam] |= srcTriggerArg & ActivationMask;
+                            flipFlags[commandHeader.parameter] |= commandSeqHeader.activationMask;
                         }
 
-                        if((flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                        if( (flipFlags[commandHeader.parameter] & ActivationMask) == ActivationMask )
                         {
-                            flipFlags[actionParam] |= (srcTriggerArg & Oneshot);
+                            if( commandSeqHeader.oneshot )
+                                flipFlags[commandHeader.parameter] |= Oneshot;
 
-                            if(!roomsAreSwapped)
+                            if( !roomsAreSwapped )
                                 swapRooms = true;
                         }
-                        else if(roomsAreSwapped)
+                        else if( roomsAreSwapped )
                         {
                             swapRooms = true;
                         }
                     }
                     break;
-                case loader::TriggerFunction::FlipOn:
-                    BOOST_ASSERT(actionParam < flipFlags.size());
-                    if(!roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                case loader::Command::FlipOn:
+                    BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
+                    if( !roomsAreSwapped && (flipFlags[commandHeader.parameter] & ActivationMask) == ActivationMask )
                         swapRooms = true;
                     break;
-                case loader::TriggerFunction::FlipOff:
-                    if(roomsAreSwapped && (flipFlags[actionParam] & ActivationMask) == ActivationMask)
+                case loader::Command::FlipOff:
+                    if( roomsAreSwapped && (flipFlags[commandHeader.parameter] & ActivationMask) == ActivationMask )
                         swapRooms = true;
                     break;
-                case loader::TriggerFunction::FlipEffect:
+                case loader::Command::FlipEffect:
                     //! @todo handle flip effect
                     break;
-                case loader::TriggerFunction::EndLevel:
+                case loader::Command::EndLevel:
                     //! @todo handle level end
                     break;
-                case loader::TriggerFunction::PlayTrack:
-                    getLevel().triggerCdTrack(actionParam, srcTriggerArg, srcTriggerType);
+                case loader::Command::PlayTrack:
+                    getLevel().triggerCdTrack(commandHeader.parameter, commandSeqHeader, chunkHeader.sequenceCondition);
                     break;
-                case loader::TriggerFunction::Secret:
+                case loader::Command::Secret:
                 {
-                    BOOST_ASSERT( actionParam < 16 );
-                    const uint16_t mask = 1u << actionParam;
+                    BOOST_ASSERT(commandHeader.parameter < 16 );
+                    const uint16_t mask = 1u << commandHeader.parameter;
                     if( (m_secretsFoundBitmask & mask) == 0 )
                     {
                         m_secretsFoundBitmask |= mask;
@@ -835,13 +832,13 @@ namespace engine
                     break;
             }
 
-            if( isLastAction )
+            if( commandHeader.isLast )
                 break;
         }
 
         getLevel().m_cameraController->setLookAtItem(lookAtItem);
 
-        if(swapRooms)
+        if( swapRooms )
             swapAllRooms(getLevel());
     }
 

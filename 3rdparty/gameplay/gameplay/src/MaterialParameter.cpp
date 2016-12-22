@@ -189,7 +189,8 @@ namespace gameplay
     {
         BOOST_ASSERT(shaderProgram);
 
-        if( !m_valueSetter )
+        const auto mpsIt = node.getMaterialParameterSetters().find(m_name);
+        if( !m_valueSetter && mpsIt == node.getMaterialParameterSetters().end() )
         {
             if( (m_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
             {
@@ -203,7 +204,10 @@ namespace gameplay
         if( !updateUniformBinding(shaderProgram) )
             return;
 
-        (*m_valueSetter)(node, shaderProgram, m_boundUniform);
+        if(mpsIt != node.getMaterialParameterSetters().end())
+            mpsIt->second(node, shaderProgram, m_boundUniform);
+        else
+            (*m_valueSetter)(node, shaderProgram, m_boundUniform);
     }
 
     void MaterialParameter::bindWorldViewProjectionMatrix()

@@ -2,7 +2,6 @@
 
 #include "gameplay.h"
 
-#include <cfenv>
 #include <cmath>
 
 #include <gsl/gsl>
@@ -78,7 +77,6 @@ namespace core
         static Angle fromDegrees(float val)
         {
             auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};
-            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
             return result;
         }
 
@@ -142,7 +140,6 @@ namespace core
         Angle operator*(float v) const
         {
             auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(m_value * v)), RawTag()};
-            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
             return result;
         }
 
@@ -157,7 +154,6 @@ namespace core
         Angle operator/(float v) const
         {
             auto result = Angle{ gsl::narrow_cast<int32_t>(std::lround(m_value / v)), RawTag() };
-            BOOST_ASSERT(!std::fetestexcept(FE_INVALID));
             return result;
         }
 

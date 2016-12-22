@@ -275,30 +275,6 @@ namespace gameplay
         }
     }
 
-    const std::shared_ptr<Light>& Node::getLight() const
-    {
-        return _light;
-    }
-
-
-    void Node::setLight(const std::shared_ptr<Light>& light)
-    {
-        if( _light == light )
-            return;
-
-        if( _light )
-        {
-            _light->setNode(nullptr);
-        }
-
-        _light = light;
-
-        if( _light )
-        {
-            _light->setNode(this);
-        }
-    }
-
 
     const std::shared_ptr<Drawable>& Node::getDrawable() const
     {

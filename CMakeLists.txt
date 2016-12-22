@@ -174,6 +174,41 @@ if(CYGWIN)
     target_link_libraries(GLFW INTERFACE Xrandr Xinerama Xcursor)
 endif()
 
+
+include(ExternalProject)
+
+ExternalProject_Add(
+  ext-yamlcpp
+  PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/yaml-cpp"
+  INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/yaml-cpp-bin"
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG release-0.5.3
+  CMAKE_ARGS
+    -DBUILD_SHARED_LIBS=OFF
+    -DBoost_DIR=${Boost_DIR}
+    -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR}
+    -DBoost_LIBRARY_DIR=${Boost_LIBRARY_DIR}
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/yaml-cpp-bin
+)
+
+ ExternalProject_Get_Property(ext-yamlcpp BINARY_DIR)
+ set(YAML_BUILDDIR "${BINARY_DIR}")
+ message(STATUS "YAML-CPP Build directory is ${YAML_BUILDDIR}")
+
+ add_library(yaml-cpp-lib INTERFACE)
+
+ if(EXISTS ${YAML_BUILDDIR}/yaml-cpp-config.cmake)
+  include(${YAML_BUILDDIR}/yaml-cpp-config.cmake)
+  if(NOT TARGET yaml-cpp)
+    message(FATAL_ERROR "YAML-CPP is not configured correctly.")
+  endif()
+
+  target_include_directories(yaml-cpp-lib INTERFACE ${YAML_CPP_INCLUDE_DIR})
+  target_link_libraries(yaml-cpp-lib INTERFACE ${YAML_CPP_LIBRARIES})
+else()
+  message(STATUS "***** YAML-CPP is not built yet. Build the ext-yamlcpp target, and then reconfigure")
+endif()
+
 if(MSVC)
     # C4503: Name too long
     add_definitions(/wd4503)

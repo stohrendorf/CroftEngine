@@ -84,10 +84,9 @@ namespace core
             return limitMin(min).limitMax(max);
         }
 
-        static constexpr T scale(const T& v, const std::chrono::microseconds& ms)
+        static constexpr T scale(const T& v, const std::chrono::microseconds& time)
         {
-            // Use a pre-calculated factor to avoid overflows when multiplying.
-            return v * (static_cast<float>(ms.count()) / core::FrameTime.count());
+            return v * core::toFloatFrame(time);
         }
 
         template <typename U>

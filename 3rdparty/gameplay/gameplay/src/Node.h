@@ -1,29 +1,23 @@
 #pragma once
 
 #include "Model.h"
-#include "Light.h"
 #include "Visitor.h"
+#include "MaterialParameter.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+
 
 namespace gameplay
 {
     class Drawable;
-    class Light;
     class Scene;
 
 
     /**
      * Defines a hierarchical structure of objects in 3D transformation spaces.
-     *
-     * This object allow you to attach components to a scene such as:
-     * Drawable's(Model, Camera, Light, PhysicsCollisionObject, AudioSource, etc.
-     *
-     * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Node
      */
     class Node : public std::enable_shared_from_this<Node>
     {
-        friend class Light;
         friend class Scene;
 
     public:
@@ -220,27 +214,12 @@ namespace gameplay
          */
         void setDrawable(const std::shared_ptr<Drawable>& drawable);
 
-        /**
-         * Get the light attached to this node.
-         *
-         * @return The light attached to this node.
-         */
-        const std::shared_ptr<Light>& getLight() const;
-
-        /**
-         * Attaches a light to this node.
-         *
-         * This will increase the reference count of the new light and decrease
-         * the reference count of the old light.
-         *
-         * @param light The new light. May be NULL.
-         */
-        void setLight(const std::shared_ptr<Light>& light);
 
         const List& getChildren() const
         {
             return _children;
         }
+
 
         const std::shared_ptr<Node>& getChild(size_t idx) const
         {
@@ -248,10 +227,12 @@ namespace gameplay
             return _children[idx];
         }
 
+
         const glm::mat4& getLocalMatrix() const
         {
             return m_localMatrix;
         }
+
 
         void setLocalMatrix(const glm::mat4& m)
         {
@@ -259,15 +240,17 @@ namespace gameplay
             transformChanged();
         }
 
+
         void accept(Visitor& visitor)
         {
-            for(auto& node : _children)
+            for( auto& node : _children )
                 visitor.visit(*node);
         }
 
+
         void setParent(const std::shared_ptr<Node>& parent)
         {
-            if(!_parent.expired())
+            if( !_parent.expired() )
             {
                 auto p = _parent.lock();
                 auto it = std::find(p->_children.begin(), p->_children.end(), shared_from_this());
@@ -277,30 +260,51 @@ namespace gameplay
 
             _parent = parent;
 
-            if(parent != nullptr)
+            if( parent != nullptr )
                 parent->_children.push_back(shared_from_this());
 
             transformChanged();
         }
 
+
         void swapChildren(const std::shared_ptr<Node>& other)
         {
             auto otherChildren = other->_children;
-            for(auto& child : otherChildren)
+            for( auto& child : otherChildren )
                 child->setParent(nullptr);
             BOOST_ASSERT(other->_children.empty());
 
             auto thisChildren = _children;
-            for(auto& child : thisChildren)
+            for( auto& child : thisChildren )
                 child->setParent(nullptr);
             BOOST_ASSERT(_children.empty());
 
-            for(auto& child : otherChildren)
+            for( auto& child : otherChildren )
                 child->setParent(shared_from_this());
 
-            for(auto& child : thisChildren)
+            for( auto& child : thisChildren )
                 child->setParent(other);
         }
+
+
+        void addMaterialParameterSetter(const std::string& name, const std::function<MaterialParameter::UniformValueSetter>& setter)
+        {
+            _materialParemeterSetters[name] = setter;
+        }
+
+
+        void addMaterialParameterSetter(const std::string& name, std::function<MaterialParameter::UniformValueSetter>&& setter)
+        {
+            _materialParemeterSetters[name] = std::move(setter);
+        }
+
+
+        const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>& getMaterialParameterSetters() const
+        {
+            return _materialParemeterSetters;
+        }
+
+
     protected:
 
         /**
@@ -313,8 +317,6 @@ namespace gameplay
         Node(const Node& copy) = delete;
 
         Node& operator=(const Node&) = delete;
-
-    protected:
 
         /** The scene this node is attached to. */
         Scene* _scene = nullptr;
@@ -330,11 +332,11 @@ namespace gameplay
         bool _enabled = true;
         /** The drawble component attached to this node. */
         std::shared_ptr<Drawable> _drawable = nullptr;
-        /** The light component attached to this node. */
-        std::shared_ptr<Light> _light = nullptr;
 
-        glm::mat4 m_localMatrix{ 1.0f };
-        mutable glm::mat4 m_worldMatrix{ 1.0f };
+        glm::mat4 m_localMatrix{1.0f};
+        mutable glm::mat4 m_worldMatrix{1.0f};
         mutable bool _dirty = false;
+
+        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> _materialParemeterSetters;
     };
 }

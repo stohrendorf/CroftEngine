@@ -20,7 +20,7 @@ namespace render
             }
 
             int numBehind = 0, numTooFar = 0;
-            std::pair<glm::vec3, bool> screen[4];
+            glm::vec2 screen[4];
 
             gameplay::BoundingBox portalBB{0, 0, 0, 0, 0, 0};
             portalBB.min = {1,1,0};
@@ -29,13 +29,10 @@ namespace render
             for( int i = 0; i < 4; ++i )
             {
                 screen[i] = projectOnScreen(portal->vertices[i].toRenderSystem(), camera, numBehind, numTooFar);
-                if( !screen[i].second )
-                    continue;
-
-                portalBB.min.x = std::min(portalBB.min.x, screen[i].first.x);
-                portalBB.min.y = std::min(portalBB.min.y, screen[i].first.y);
-                portalBB.max.x = std::max(portalBB.max.x, screen[i].first.x);
-                portalBB.max.y = std::max(portalBB.max.y, screen[i].first.y);
+                portalBB.min.x = std::min(portalBB.min.x, screen[i].x);
+                portalBB.min.y = std::min(portalBB.min.y, screen[i].y);
+                portalBB.max.x = std::max(portalBB.max.x, screen[i].x);
+                portalBB.max.y = std::max(portalBB.max.y, screen[i].y);
 
                 // the first vertex must set the boundingbox to a valid state
                 BOOST_ASSERT(portalBB.min.x <= portalBB.max.x);
@@ -47,45 +44,30 @@ namespace render
 
             BOOST_ASSERT(numBehind <= 3);
 
-            if( numBehind > 0 )
+            // If (for some reason) our BBox is only a straight line, expand it to full size perpendicular to that line
+            if(util::fuzzyEqual(portalBB.min.x, portalBB.max.x, std::numeric_limits<float>::epsilon()))
             {
-                // patch out-of-bounds coordinates
-                auto curr = &screen[0];
-                auto prev = &screen[3];
-                for( int i = 0; i < 4; ++i , prev = curr++ )
-                {
-                    // only test edges that cross the camera projection plane
-                    if( prev->first.z < 0 == curr->first.z < 0 )
-                        continue;
+                portalBB.min.x = -1;
+                portalBB.max.x = 1;
+            }
+            if(util::fuzzyEqual(portalBB.min.y, portalBB.max.y, std::numeric_limits<float>::epsilon()))
+            {
+                portalBB.min.y = -1;
+                portalBB.max.y = 1;
+            }
 
-                    if( curr->first.x < -1 && prev->first.x < -1 )
-                    {
-                        portalBB.min.x = -1;
-                    }
-                    else if( curr->first.x <= -1 || prev->first.x <= -1 )
-                    {
-                        portalBB.max.x = 1;
-                        portalBB.min.x = -1;
-                    }
-                    else
-                    {
-                        portalBB.max.x = 1;
-                    }
-
-                    if( curr->first.y < -1 && prev->first.y < -1 )
-                    {
-                        portalBB.min.y = -1;
-                    }
-                    else if( curr->first.y <= -1 || prev->first.y <= -1 )
-                    {
-                        portalBB.max.y = 1;
-                        portalBB.min.y = -1;
-                    }
-                    else
-                    {
-                        portalBB.max.y = 1;
-                    }
-                }
+            // now check for denormalized boxes
+            if(std::abs(portalBB.max.x - portalBB.min.x) / std::abs(portalBB.max.y - portalBB.min.y) > 1000)
+            {
+                // horizontal box, expand y
+                portalBB.min.y = -1;
+                portalBB.max.y = 1;
+            }
+            if(std::abs(portalBB.max.y - portalBB.min.y) / std::abs(portalBB.max.x - portalBB.min.x) > 1000)
+            {
+                // vertical box, expand x
+                portalBB.min.x = -1;
+                portalBB.max.x = 1;
             }
 
             boundingBox.min.x = std::max(portalBB.min.x, boundingBox.min.x);
@@ -113,33 +95,32 @@ namespace render
 
 
     private:
-        static std::pair<glm::vec3, bool> projectOnScreen(glm::vec3 vertex,
-                                                          const gameplay::Camera& camera,
-                                                          int& numBehind,
-                                                          int& numTooFar)
+        static glm::vec2 projectOnScreen(glm::vec3 vertex,
+                                         const gameplay::Camera& camera,
+                                         int& numBehind,
+                                         int& numTooFar)
         {
-            vertex = glm::vec3(camera.getViewMatrix() * glm::vec4(vertex, 1));
-            vertex.z *= -1;
+            static const auto sgn = [](float x) -> float { return x < 0 ? -1 : 1; };
 
-            if( vertex.z <= camera.getNearPlane() )
+            vertex = glm::vec3(camera.getViewMatrix() * glm::vec4(vertex, 1));
+
+            if( -vertex.z <= camera.getNearPlane() )
+            {
                 ++numBehind;
-            else if( vertex.z > camera.getFarPlane() )
+                glm::vec2 normalizedScreen;
+                normalizedScreen.x = sgn(vertex.x);
+                normalizedScreen.y = sgn(vertex.y);
+                return normalizedScreen;
+            }
+
+            if( -vertex.z > camera.getFarPlane() )
                 ++numTooFar;
 
             glm::vec4 tmp{vertex, 1};
             tmp = camera.getProjectionMatrix() * tmp;
 
-            if(std::abs(vertex.z) > camera.getNearPlane()*2)
-            {
-                glm::vec3 screen{ glm::clamp(tmp.x / tmp.w, -1.0f, 1.0f), glm::clamp(tmp.y / tmp.w, -1.0f, 1.0f), vertex.z };
-                return{ screen, vertex.z > camera.getNearPlane() };
-            }
-            else
-            {
-                auto sgn = [](float x) -> float { return x < 0 ? -1 : 1; };
-                glm::vec3 screen{ sgn(tmp.x), sgn(tmp.y), vertex.z };
-                return{ screen, vertex.z > camera.getNearPlane() };
-            }
+            glm::vec2 screen{glm::clamp(tmp.x / tmp.w, -1.0f, 1.0f), glm::clamp(tmp.y / tmp.w, -1.0f, 1.0f)};
+            return screen;
         }
     };
 }

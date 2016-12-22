@@ -231,6 +231,7 @@ target_link_libraries(
     SndFile
     CImg
     Assimp
+    yaml-cpp-lib
 )
 
 target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL)

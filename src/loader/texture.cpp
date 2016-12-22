@@ -14,11 +14,11 @@ namespace loader
         result->getParameter("u_diffuseTexture")->set(sampler);
         result->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
         result->getParameter("u_modelMatrix")->bindModelMatrix();
-        result->getParameter("u_viewMatrix")->bindViewMatrix();
+        result->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
+        result->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
+        result->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
         result->initStateBlockDefaults();
 
-        result->getParameter("u_brightness")->bind(&engine::items::ItemNode::lightBrightnessBinder);
-        result->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
 
         switch( bmode )
         {

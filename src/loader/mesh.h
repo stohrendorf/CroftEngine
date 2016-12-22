@@ -23,7 +23,7 @@ namespace loader
         int32_t collision_size; // This appears to be the radius of that aforementioned collisional sphere.
         std::vector<core::TRCoordinates> vertices; //[NumVertices]; // list of vertices (relative coordinates)
         std::vector<core::TRCoordinates> normals; //[NumNormals]; // list of normals (if NumNormals is positive)
-        std::vector<int16_t> lights; //[-NumNormals]; // list of light values (if NumNormals is negative)
+        std::vector<int16_t> vertexDarknesses; //[-NumNormals]; // list of light values (if NumNormals is negative), 0..8192
         std::vector<QuadFace> textured_rectangles; //[NumTexturedRectangles]; // list of textured rectangles
         std::vector<Triangle> textured_triangles; //[NumTexturedTriangles]; // list of textured triangles
         // the rest is not present in TR4
@@ -50,7 +50,7 @@ namespace loader
             }
             else
             {
-                reader.readVector(mesh->lights, -num_normals);
+                reader.readVector(mesh->vertexDarknesses, -num_normals);
             }
 
             reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr1);
@@ -77,7 +77,7 @@ namespace loader
             }
             else
             {
-                reader.readVector(mesh->lights, -num_normals);
+                reader.readVector(mesh->vertexDarknesses, -num_normals);
             }
 
             reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr4);
