@@ -42,14 +42,14 @@ namespace loader
     //! @see Command
     enum class SequenceCondition
     {
-        Always = 0x00, //!< If Lara is in sector, run (any case).
-        Pad = 0x01, //!< If Lara is in sector, run (land case).
-        Switch = 0x02, //!< If item is activated, run, else stop.
-        Key = 0x03, //!< If item is activated, run.
-        Pickup = 0x04, //!< If item is picked up, run.
-        Heavy = 0x05, //!< If item is in sector, run, else stop.
-        AntiPad = 0x06, //!< If Lara is in sector, stop (land case).
-        Combat = 0x07, //!< If Lara is in combat state, run (any case).
+        LaraIsHere = 0x00, //!< If Lara is in sector, run (any case).
+        LaraOnGround = 0x01, //!< If Lara is in sector, run (land case).
+        ItemActivated = 0x02, //!< If item is activated, run, else stop.
+        KeyUsed = 0x03, //!< If item is activated, run.
+        ItemPickedUp = 0x04, //!< If item is picked up, run.
+        ItemIsHere = 0x05, //!< If item is in sector, run, else stop.
+        LaraOnGroundInverted = 0x06, //!< If Lara is in sector, stop (land case).
+        LaraInCombatMode = 0x07, //!< If Lara is in combat state, run (any case).
         Dummy = 0x08, //!< If Lara is in sector, run (air case).
         AntiTrigger = 0x09, //!< TR2-5 only: If Lara is in sector, stop (any case).
         HeavySwitch = 0x0A, //!< TR3-5 only: If item is activated by item, run.

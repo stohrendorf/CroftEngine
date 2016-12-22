@@ -631,14 +631,14 @@ namespace engine
         {
             switch( chunkHeader.sequenceCondition )
             {
-                case loader::SequenceCondition::Always:
+                case loader::SequenceCondition::LaraIsHere:
                     conditionFulfilled = true;
                     break;
-                case loader::SequenceCondition::Pad:
-                case loader::SequenceCondition::AntiPad:
+                case loader::SequenceCondition::LaraOnGround:
+                case loader::SequenceCondition::LaraOnGroundInverted:
                     conditionFulfilled = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                     break;
-                case loader::SequenceCondition::Switch:
+                case loader::SequenceCondition::ItemActivated:
                 {
                     const loader::FloorDataCommandHeader commandHeader{*floorData++};
                     Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
@@ -650,7 +650,7 @@ namespace engine
                     conditionFulfilled = true;
                 }
                     break;
-                case loader::SequenceCondition::Key:
+                case loader::SequenceCondition::KeyUsed:
                 {
                     const loader::FloorDataCommandHeader commandHeader{*floorData++};
                     Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
@@ -659,7 +659,7 @@ namespace engine
                         conditionFulfilled = true;
                 }
                     return;
-                case loader::SequenceCondition::Pickup:
+                case loader::SequenceCondition::ItemPickedUp:
                 {
                     const loader::FloorDataCommandHeader commandHeader{*floorData++};
                     Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
@@ -668,10 +668,10 @@ namespace engine
                         conditionFulfilled = true;
                 }
                     return;
-                case loader::SequenceCondition::Combat:
+                case loader::SequenceCondition::LaraInCombatMode:
                     conditionFulfilled = getHandStatus() == 4;
                     break;
-                case loader::SequenceCondition::Heavy:
+                case loader::SequenceCondition::ItemIsHere:
                 case loader::SequenceCondition::Dummy:
                     return;
                 default:
@@ -681,7 +681,7 @@ namespace engine
         }
         else
         {
-            conditionFulfilled = chunkHeader.sequenceCondition == loader::SequenceCondition::Heavy;
+            conditionFulfilled = chunkHeader.sequenceCondition == loader::SequenceCondition::ItemIsHere;
         }
 
         if( !conditionFulfilled )
@@ -708,9 +708,9 @@ namespace engine
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
-                    if( chunkHeader.sequenceCondition == loader::SequenceCondition::Switch )
+                    if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
                         item.m_itemFlags ^= commandSeqHeader.activationMask;
-                    else if( chunkHeader.sequenceCondition == loader::SequenceCondition::AntiPad )
+                    else if( chunkHeader.sequenceCondition == loader::SequenceCondition::LaraOnGroundInverted )
                         item.m_itemFlags &= ~commandSeqHeader.activationMask;
                     else
                         item.m_itemFlags |= commandSeqHeader.activationMask;
@@ -776,7 +776,7 @@ namespace engine
                     BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
                     if( (flipFlags[commandHeader.parameter] & Oneshot) == 0 )
                     {
-                        if( chunkHeader.sequenceCondition == loader::SequenceCondition::Switch )
+                        if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
                         {
                             flipFlags[commandHeader.parameter] ^= commandSeqHeader.activationMask;
                         }

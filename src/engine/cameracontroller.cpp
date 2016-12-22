@@ -51,13 +51,13 @@ namespace engine
             return;
 
         m_camOverrideId = camId;
-        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::Combat )
+        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::LaraInCombatMode )
             return;
 
-        if( condition == loader::SequenceCondition::Switch && cmdSeqHeader.timeout != 0 && switchIsOn )
+        if( condition == loader::SequenceCondition::ItemActivated && cmdSeqHeader.timeout != 0 && switchIsOn )
             return;
 
-        if( condition != loader::SequenceCondition::Switch && m_camOverrideId == m_activeCamOverrideId )
+        if( condition != loader::SequenceCondition::ItemActivated && m_camOverrideId == m_activeCamOverrideId )
             return;
 
         if( camParams.timeout != 1 )
