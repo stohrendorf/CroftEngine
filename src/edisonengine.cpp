@@ -45,7 +45,7 @@ namespace
                     drawText(font, 180, y, "toggled");
                 if( item->m_flags2_04_ready )
                     drawText(font, 220, y, "ready");
-                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_triggerTimeout.count()));
+                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_activationState.getTimeout().count()));
                 y += 20;
             }
         }

@@ -15,10 +15,10 @@ namespace engine
                              const gsl::not_null<const loader::Room*>& room,
                              const core::Angle& angle,
                              const core::ExactTRCoordinates& position,
-                             uint16_t flags,
+                             const loader::ActivationState& activationState,
                              int16_t darkness,
                              const loader::AnimatedModel& animatedModel)
-                : Switch(level, name, room, angle, position, flags, darkness, animatedModel)
+                : Switch(level, name, room, angle, position, activationState, darkness, animatedModel)
             {
             }
 
@@ -28,7 +28,10 @@ namespace engine
 
             void onFrameChanged(FrameChangeType frameChangeType) override
             {
-                m_itemFlags |= loader::FloorDataCommandSequenceHeader::ActivationMask;
+                if(!m_isActive)
+                    return;
+
+                m_activationState.fullyActivate();
 
                 ItemNode::onFrameChanged(frameChangeType);
             }

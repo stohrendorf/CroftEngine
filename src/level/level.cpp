@@ -520,7 +520,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::ExactTRCoordinates& position,
-                                              uint16_t flags,
+                                              const loader::ActivationState& activationState,
                                               int16_t darkness)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
@@ -542,7 +542,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                              room,
                                              angle,
                                              position,
-                                             flags,
+                                             activationState,
                                              darkness,
                                              model);
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
@@ -563,16 +563,16 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::SequenceCondition sequenceCondition)
 {
     YAML::Node sequence;
-    const loader::FloorDataCommandSequenceHeader commandSeqHeader{*rawFloorData++};
-    for(int i=0; i<5; ++i)
+    const loader::ActivationState commandSeqHeader{*rawFloorData++};
+    for( size_t i = 0; i < 5; ++i )
     {
-        if(commandSeqHeader.activationMask & (0x200 << i))
+        if( commandSeqHeader.isInActivationSet(i) )
             sequence["activationBits"].push_back(i);
     }
-    sequence["timeout"] = int(commandSeqHeader.timeout);
-    sequence["oneshot"] = commandSeqHeader.oneshot;
-    sequence["locked"] = commandSeqHeader.locked;
-    sequence["inverted"] = commandSeqHeader.inverted;
+    sequence["timeout"] = commandSeqHeader.getTimeout().count();
+    sequence["oneshot"] = commandSeqHeader.isOneshot();
+    sequence["locked"] = commandSeqHeader.isLocked();
+    sequence["inverted"] = commandSeqHeader.isInverted();
 
     switch( sequenceCondition )
     {
@@ -1107,7 +1107,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
 }
 
 
-void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType)
+void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
@@ -1120,7 +1120,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSeque
 
     if( trackId == 28 )
     {
-        if( (m_cdTrackTriggerValues[trackId] & 0x100) != 0
+        if( m_cdTrackTriggerValues[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
             trackId = 29;
         triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
@@ -1142,7 +1142,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSeque
 
     if( trackId >= 42 && trackId <= 48 )
     {
-        if( trackId == 42 && (m_cdTrackTriggerValues[42] & 0x100) != 0
+        if( trackId == 42 && m_cdTrackTriggerValues[42].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             trackId = 43;
         triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
@@ -1158,7 +1158,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSeque
 
     if( trackId == 50 )
     {
-        if( (m_cdTrackTriggerValues[50] & 0x100) != 0 )
+        if( m_cdTrackTriggerValues[50].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
             {
@@ -1182,22 +1182,22 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSeque
 }
 
 
-void Level::triggerNormalCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType)
 {
-    if( (m_cdTrackTriggerValues[trackId] & 0x100) != 0 )
+    if( m_cdTrackTriggerValues[trackId].isOneshot() )
         return;
 
     if( triggerType == loader::SequenceCondition::ItemActivated )
-        m_cdTrackTriggerValues[trackId] ^= cmdSeqHeader.activationMask;
+        m_cdTrackTriggerValues[trackId] ^= cmdSeqHeader.getActivationSet();
     else if( triggerType == loader::SequenceCondition::LaraOnGroundInverted )
-        m_cdTrackTriggerValues[trackId] &= ~cmdSeqHeader.activationMask;
+        m_cdTrackTriggerValues[trackId] &= ~cmdSeqHeader.getActivationSet();
     else
-        m_cdTrackTriggerValues[trackId] |= cmdSeqHeader.activationMask;
+        m_cdTrackTriggerValues[trackId] |= cmdSeqHeader.getActivationSet();
 
-    if( (m_cdTrackTriggerValues[trackId] & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
+    if( m_cdTrackTriggerValues[trackId].isFullyActivated() )
     {
-        if( cmdSeqHeader.oneshot )
-            m_cdTrackTriggerValues[trackId] |= loader::FloorDataCommandSequenceHeader::Oneshot;
+        if( cmdSeqHeader.isOneshot() )
+            m_cdTrackTriggerValues[trackId].setOneshot(true);
 
         if( m_activeCDTrack != trackId )
             playCdTrack(trackId);

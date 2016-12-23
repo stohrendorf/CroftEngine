@@ -25,7 +25,6 @@ namespace level
             : m_gameVersion(gameVersion)
             , m_reader(std::move(reader))
         {
-            m_cdTrackTriggerValues.fill(0);
         }
 
 
@@ -109,7 +108,7 @@ namespace level
                                                             const gsl::not_null<const loader::Room*>& room,
                                                             const core::Angle& angle,
                                                             const core::ExactTRCoordinates& position,
-                                                            uint16_t flags)
+                                                            const loader::ActivationState& activationState)
         {
             const auto modelIdx = findAnimatedModelIndexForType(type);
             if( !modelIdx )
@@ -126,7 +125,7 @@ namespace level
                 break;
             }
 
-            auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, flags, darkness);
+            auto node = createSkeletalModel<T>(*modelIdx, room, angle, position, activationState, darkness);
 
             m_dynamicItems.insert(node);
             room->node->addChild(node);
@@ -298,8 +297,8 @@ namespace level
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
-        void triggerNormalCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType);
-        void triggerCdTrack(uint16_t trackId, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, loader::SequenceCondition triggerType);
+        void triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType);
+        void triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType);
 
 
         void stopSoundEffect(uint16_t soundId) const
@@ -367,7 +366,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
                                                const core::ExactTRCoordinates& position,
-                                               uint16_t flags,
+                                               const loader::ActivationState& activationState,
                                                int16_t darkness);
 
 
@@ -376,11 +375,11 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->flags, item->darkness);
+            return createSkeletalModel<T>(id, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->activationState, item->darkness);
         }
 
 
-        std::array<uint16_t, 64> m_cdTrackTriggerValues;
+        std::array<loader::ActivationState, 64> m_cdTrackTriggerValues;
         int m_cdTrack50time = 0;
         std::vector<std::shared_ptr<gameplay::Model>> m_models;
     };

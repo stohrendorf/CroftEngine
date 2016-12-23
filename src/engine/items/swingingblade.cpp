@@ -9,7 +9,7 @@ namespace engine
     {
         void SwingingBlade::updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/)
         {
-            if( updateTriggerTimeout( deltaTime ) )
+            if( updateActivationTimeout( deltaTime ) )
             {
                 if( getCurrentState() == 0 )
                     setTargetState( 2 );

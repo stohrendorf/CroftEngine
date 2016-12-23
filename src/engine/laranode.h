@@ -49,10 +49,10 @@ namespace engine
                  const gsl::not_null<const loader::Room*>& room,
                  const core::Angle& angle,
                  const core::ExactTRCoordinates& position,
-                 uint16_t flags,
+                 const loader::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, angle, position, flags, false, 0x3c, darkness, animatedModel )
+                : ItemNode( level, name, room, angle, position, activationState, false, 0x3c, darkness, animatedModel )
         {
             setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );

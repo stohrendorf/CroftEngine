@@ -71,7 +71,7 @@ namespace engine
             void updateSounds();
 
         public:
-            uint16_t m_itemFlags;
+            loader::ActivationState m_activationState;
             bool m_isActive = false;
             bool m_flags2_02_toggledOn = false;
             bool m_flags2_04_ready = false;
@@ -79,7 +79,6 @@ namespace engine
             bool m_flags2_20 = true;
             bool m_flags2_40 = false;
             bool m_flags2_80 = false;
-            std::chrono::microseconds m_triggerTimeout{0};
 
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
@@ -111,7 +110,7 @@ namespace engine
                      const gsl::not_null<const loader::Room*>& room,
                      const core::Angle& angle,
                      const core::ExactTRCoordinates& position,
-                     uint16_t flags,
+                     const loader::ActivationState& activationState,
                      bool hasProcessAnimCommandsOverride,
                      uint8_t characteristics,
                      int16_t darkness,
@@ -334,7 +333,7 @@ namespace engine
             }
 
 
-            bool triggerSwitch(const loader::FloorDataCommandSequenceHeader& arg)
+            bool triggerSwitch(const loader::ActivationState& arg)
             {
                 if( !m_flags2_04_ready || m_flags2_02_toggledOn )
                 {
@@ -343,16 +342,14 @@ namespace engine
 
                 m_flags2_04_ready = false;
 
-                if( getCurrentState() != 0 || arg.locked )
+                if( getCurrentState() != 0 || arg.isLocked() )
                 {
                     deactivate();
                     m_flags2_02_toggledOn = false;
                 }
                 else
                 {
-                    m_triggerTimeout = std::chrono::milliseconds(arg.timeout);
-                    if( m_triggerTimeout.count() != 1 )
-                        m_triggerTimeout *= 1000;
+                    m_activationState.setTimeout(arg.getTimeout());
                     m_flags2_02_toggledOn = true;
                 }
 
@@ -504,35 +501,29 @@ namespace engine
             };
 
         protected:
-            bool isInvertedActivation() const noexcept
+            bool updateActivationTimeout(const std::chrono::microseconds& deltaTime)
             {
-                return (m_itemFlags & loader::FloorDataCommandSequenceHeader::InvertedActivation) != 0;
-            }
-
-
-            bool updateTriggerTimeout(const std::chrono::microseconds& deltaTime)
-            {
-                if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::ActivationMask) != loader::FloorDataCommandSequenceHeader::ActivationMask )
+                if( !m_activationState.isFullyActivated() )
                 {
-                    return isInvertedActivation();
+                    return m_activationState.isInverted();
                 }
 
-                if( m_triggerTimeout == std::chrono::microseconds::zero() )
+                if( m_activationState.getTimeout() == std::chrono::microseconds::zero() )
                 {
-                    return !isInvertedActivation();
+                    return !m_activationState.isInverted();
                 }
 
-                if( m_triggerTimeout < std::chrono::microseconds::zero() )
+                if( m_activationState.getTimeout() < std::chrono::microseconds::zero() )
                 {
-                    return isInvertedActivation();
+                    return m_activationState.isInverted();
                 }
 
                 BOOST_ASSERT( deltaTime > std::chrono::microseconds::zero() );
-                m_triggerTimeout -= deltaTime;
-                if( m_triggerTimeout <= std::chrono::microseconds::zero() )
-                    m_triggerTimeout = std::chrono::microseconds(-1);
+                m_activationState.setTimeout(m_activationState.getTimeout() - deltaTime);
+                if( m_activationState.getTimeout() <= std::chrono::microseconds::zero() )
+                    m_activationState.setTimeout( std::chrono::microseconds(-1) );
 
-                return !isInvertedActivation();
+                return !m_activationState.isInverted();
             }
 
 

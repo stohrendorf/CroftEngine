@@ -44,7 +44,7 @@ namespace engine
     }
 
 
-    void CameraController::setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool ignoreCondition, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, bool switchIsOn)
+    void CameraController::setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool ignoreCondition, const loader::ActivationState& cmdSeqHeader, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
@@ -54,7 +54,7 @@ namespace engine
         if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::LaraInCombatMode )
             return;
 
-        if( condition == loader::SequenceCondition::ItemActivated && cmdSeqHeader.timeout != 0 && switchIsOn )
+        if( condition == loader::SequenceCondition::ItemActivated && cmdSeqHeader.getTimeout() != std::chrono::microseconds::zero() && switchIsOn )
             return;
 
         if( condition != loader::SequenceCondition::ItemActivated && m_camOverrideId == m_activeCamOverrideId )

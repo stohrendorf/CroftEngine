@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitset>
 #include <vector>
 
 
@@ -122,29 +123,149 @@ namespace loader
     };
 
 
-    struct FloorDataCommandSequenceHeader
+    class ActivationState
     {
+    public:
         static constexpr const uint16_t Oneshot = 0x100;
         static constexpr const uint16_t ActivationMask = 0x3e00;
         static constexpr const uint16_t InvertedActivation = 0x4000;
         static constexpr const uint16_t Locked = 0x8000;
 
+        using ActivationSet = std::bitset<5>;
 
-        explicit FloorDataCommandSequenceHeader(FloorData::value_type fd)
-            : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
-            , oneshot{(fd & Oneshot) != 0}
-            , inverted{(fd & InvertedActivation) != 0}
-            , locked{(fd & Locked) != 0}
-            , activationMask{gsl::narrow_cast<uint16_t>(fd & ActivationMask)}
+
+        explicit ActivationState() = default;
+
+
+        explicit ActivationState(FloorData::value_type fd)
+            : m_timeout{extractTimeout(fd)}
+            , m_oneshot{(fd & Oneshot) != 0}
+            , m_inverted{(fd & InvertedActivation) != 0}
+            , m_locked{(fd & Locked) != 0}
+            , m_activationSet{extractActivationSet(fd)}
         {
         }
 
 
-        const uint8_t timeout;
-        const bool oneshot;
-        const bool inverted;
-        const bool locked;
-        const uint16_t activationMask;
+        bool isOneshot() const noexcept
+        {
+            return m_oneshot;
+        }
+
+
+        void setOneshot(bool oneshot) noexcept
+        {
+            m_oneshot = oneshot;
+        }
+
+
+        bool isInverted() const noexcept
+        {
+            return m_inverted;
+        }
+
+
+        bool isLocked() const noexcept
+        {
+            return m_locked;
+        }
+
+
+        const std::chrono::microseconds& getTimeout() const noexcept
+        {
+            return m_timeout;
+        }
+
+
+        void setTimeout(const std::chrono::microseconds& timeout)
+        {
+            m_timeout = timeout;
+        }
+
+
+        void operator^=(const ActivationSet& rhs)
+        {
+            m_activationSet ^= rhs;
+        }
+
+
+        void operator|=(const ActivationSet& rhs)
+        {
+            m_activationSet |= rhs;
+        }
+
+
+        void operator&=(const ActivationSet& rhs)
+        {
+            m_activationSet &= rhs;
+        }
+
+
+        const ActivationSet& getActivationSet() const noexcept
+        {
+            return m_activationSet;
+        }
+
+
+        bool isFullyActivated() const
+        {
+            return m_activationSet.all();
+        }
+
+
+        void fullyActivate()
+        {
+            m_activationSet.set();
+        }
+
+
+        void fullyDeactivate()
+        {
+            m_activationSet.reset();
+        }
+
+
+        void setInverted(bool inverted) noexcept
+        {
+            m_inverted = inverted;
+        }
+
+
+        void setLocked(bool locked) noexcept
+        {
+            m_locked = locked;
+        }
+
+
+        bool isInActivationSet(size_t i) const
+        {
+            return m_activationSet.test(i);
+        }
+
+
+    private:
+        static ActivationSet extractActivationSet(FloorData::value_type fd)
+        {
+            const auto bits = gsl::narrow_cast<uint16_t>((fd & ActivationMask) >> 9);
+            return ActivationSet{bits};
+        }
+
+
+        static std::chrono::microseconds extractTimeout(FloorData::value_type fd)
+        {
+            const auto seconds = gsl::narrow_cast<uint8_t>(fd & 0xff);
+            if( seconds > 1 )
+                return std::chrono::seconds(seconds);
+            else
+                return std::chrono::microseconds(seconds);
+        }
+
+
+        std::chrono::microseconds m_timeout = std::chrono::microseconds::zero();
+        bool m_oneshot = false;
+        bool m_inverted = false;
+        bool m_locked = false;
+        ActivationSet m_activationSet{};
     };
 
 

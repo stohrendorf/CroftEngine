@@ -111,11 +111,11 @@ namespace engine
 
         void Block::onFrameChanged(FrameChangeType frameChangeType)
         {
-            if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot) != 0 )
+            if(m_activationState.isOneshot())
             {
                 loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
                 m_isActive = false;
-                m_itemFlags |= loader::FloorDataCommandSequenceHeader::Locked;
+                m_activationState.setLocked(true);
                 return;
             }
 

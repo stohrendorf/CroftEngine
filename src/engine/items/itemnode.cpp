@@ -28,7 +28,7 @@ namespace engine
                            const gsl::not_null<const loader::Room*>& room,
                            const core::Angle& angle,
                            const core::ExactTRCoordinates& position,
-                           uint16_t flags,
+                           const loader::ActivationState& activationState,
                            bool hasProcessAnimCommandsOverride,
                            uint8_t characteristics,
                            int16_t darkness,
@@ -37,25 +37,25 @@ namespace engine
             , m_position(room, position)
             , m_rotation(0_deg, angle, 0_deg)
             , m_level(level)
-            , m_itemFlags(flags)
+            , m_activationState(activationState)
             , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
             , m_characteristics(characteristics)
             , m_darkness{darkness}
         {
-            if( m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot )
+            if(m_activationState.isOneshot())
                 setEnabled(false);
 
-            if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot) != 0 )
+            if(m_activationState.isOneshot())
             {
-                m_itemFlags &= ~loader::FloorDataCommandSequenceHeader::Oneshot;
+                m_activationState.setOneshot(false);
                 m_flags2_02_toggledOn = true;
                 m_flags2_04_ready = true;
             }
 
-            if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
+            if(m_activationState.isFullyActivated())
             {
-                m_itemFlags &= ~loader::FloorDataCommandSequenceHeader::ActivationMask;
-                m_itemFlags |= loader::FloorDataCommandSequenceHeader::InvertedActivation;
+                m_activationState.fullyDeactivate();
+                m_activationState.setInverted(true);
                 activate();
                 m_flags2_02_toggledOn = true;
                 m_flags2_04_ready = false;

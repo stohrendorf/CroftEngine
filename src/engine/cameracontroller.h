@@ -81,7 +81,7 @@ namespace engine
             m_unknown1 = k;
         }
 
-        void setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isDoppelganger, const loader::FloorDataCommandSequenceHeader& cmdSeqHeader, bool switchIsOn);
+        void setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isDoppelganger, const loader::ActivationState& cmdSeqHeader, bool switchIsOn);
 
         void setLookAtItem(items::ItemNode* item)
         {

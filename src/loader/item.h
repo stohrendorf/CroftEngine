@@ -14,17 +14,7 @@ namespace loader
         int16_t intensity2 = 0; //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
         int16_t ocb = 0; //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
 
-        /**
-        * @brief Flags
-        *
-        * @details
-        * @li 0x0100 indicates "initially invisible"
-        * @li 0x3e00 is Activation Mask
-        * @li 0x3e00 indicates "open" or "activated"
-        *
-        * These can be XORed with related FloorData::FDlist fields (e.g. for switches).
-        */
-        uint16_t flags;
+        ActivationState activationState{};
 
         static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
         {
@@ -34,7 +24,7 @@ namespace loader
             item->position = io::readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
-            item->flags = reader.readU16();
+            item->activationState = ActivationState{ reader.readU16() };
             return item;
         }
 
@@ -47,7 +37,7 @@ namespace loader
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
             item->intensity2 = reader.readU16();
-            item->flags = reader.readU16();
+            item->activationState = ActivationState{ reader.readU16() };
             return item;
         }
 
@@ -60,7 +50,7 @@ namespace loader
             item->rotation = reader.readI16();
             item->darkness = reader.readU16();
             item->intensity2 = reader.readU16();
-            item->flags = reader.readU16();
+            item->activationState = ActivationState{ reader.readU16() };
             return item;
         }
 
@@ -74,7 +64,7 @@ namespace loader
             item->darkness = reader.readU16();
             item->intensity2 = item->darkness;
             item->ocb = reader.readU16();
-            item->flags = reader.readU16();
+            item->activationState = ActivationState{ reader.readU16() };
             return item;
         }
     };

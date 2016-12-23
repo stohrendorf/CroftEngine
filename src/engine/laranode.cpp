@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<uint16_t, 10> flipFlags{{0,0,0,0,0,0,0,0,0,0}};
+    std::array<loader::ActivationState, 10> flipFlags{};
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
@@ -622,7 +622,7 @@ namespace engine
 
         chunkHeader = loader::FloorDataChunkHeader{*floorData++};
         BOOST_ASSERT(chunkHeader.type == loader::FloorDataChunkType::CommandSequence);
-        const loader::FloorDataCommandSequenceHeader commandSeqHeader{*floorData++};
+        const loader::ActivationState commandSeqHeader{*floorData++};
 
         getLevel().m_cameraController->findCameraTarget(floorData);
 
@@ -699,27 +699,25 @@ namespace engine
                 {
                     Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
                     ItemNode& item = *getLevel().m_itemNodes[commandHeader.parameter];
-                    if( (item.m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot) != 0 )
+                    if( item.m_activationState.isOneshot() )
                         break;
 
-                    item.m_triggerTimeout = std::chrono::microseconds(commandSeqHeader.timeout);
-                    if( item.m_triggerTimeout.count() != 1 )
-                        item.m_triggerTimeout = std::chrono::seconds(item.m_triggerTimeout.count());
+                    item.m_activationState.setTimeout(commandSeqHeader.getTimeout());
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                     if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
-                        item.m_itemFlags ^= commandSeqHeader.activationMask;
+                        item.m_activationState ^= commandSeqHeader.getActivationSet();
                     else if( chunkHeader.sequenceCondition == loader::SequenceCondition::LaraOnGroundInverted )
-                        item.m_itemFlags &= ~commandSeqHeader.activationMask;
+                        item.m_activationState &= ~commandSeqHeader.getActivationSet();
                     else
-                        item.m_itemFlags |= commandSeqHeader.activationMask;
+                        item.m_activationState |= commandSeqHeader.getActivationSet();
 
-                    if( (item.m_itemFlags & loader::FloorDataCommandSequenceHeader::ActivationMask) != loader::FloorDataCommandSequenceHeader::ActivationMask )
+                    if( !item.m_activationState.isFullyActivated() )
                         break;
 
-                    if( commandSeqHeader.oneshot )
-                        item.m_itemFlags |= loader::FloorDataCommandSequenceHeader::Oneshot;
+                    if( commandSeqHeader.isOneshot() )
+                        item.m_activationState.setOneshot(true);
 
                     if( item.m_isActive )
                         break;
@@ -774,21 +772,21 @@ namespace engine
                     break;
                 case loader::Command::FlipMap:
                     BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
-                    if( (flipFlags[commandHeader.parameter] & loader::FloorDataCommandSequenceHeader::Oneshot) == 0 )
+                    if( !flipFlags[commandHeader.parameter].isOneshot() )
                     {
                         if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
                         {
-                            flipFlags[commandHeader.parameter] ^= commandSeqHeader.activationMask;
+                            flipFlags[commandHeader.parameter] ^= commandSeqHeader.getActivationSet();
                         }
                         else
                         {
-                            flipFlags[commandHeader.parameter] |= commandSeqHeader.activationMask;
+                            flipFlags[commandHeader.parameter] |= commandSeqHeader.getActivationSet();
                         }
 
-                        if( (flipFlags[commandHeader.parameter] & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
+                        if( flipFlags[commandHeader.parameter].isFullyActivated() )
                         {
-                            if( commandSeqHeader.oneshot )
-                                flipFlags[commandHeader.parameter] |= loader::FloorDataCommandSequenceHeader::Oneshot;
+                            if( commandSeqHeader.isOneshot() )
+                                flipFlags[commandHeader.parameter].setOneshot(true);
 
                             if( !roomsAreSwapped )
                                 swapRooms = true;
@@ -801,11 +799,11 @@ namespace engine
                     break;
                 case loader::Command::FlipOn:
                     BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
-                    if( !roomsAreSwapped && (flipFlags[commandHeader.parameter] & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
+                    if( !roomsAreSwapped && flipFlags[commandHeader.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
                 case loader::Command::FlipOff:
-                    if( roomsAreSwapped && (flipFlags[commandHeader.parameter] & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
+                    if( roomsAreSwapped && flipFlags[commandHeader.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
                 case loader::Command::FlipEffect:
