@@ -42,20 +42,20 @@ namespace engine
             , m_characteristics(characteristics)
             , m_darkness{darkness}
         {
-            if( m_itemFlags & Oneshot )
+            if( m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot )
                 setEnabled(false);
 
-            if( (m_itemFlags & Oneshot) != 0 )
+            if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::Oneshot) != 0 )
             {
-                m_itemFlags &= ~Oneshot;
+                m_itemFlags &= ~loader::FloorDataCommandSequenceHeader::Oneshot;
                 m_flags2_02_toggledOn = true;
                 m_flags2_04_ready = true;
             }
 
-            if( (m_itemFlags & ActivationMask) == ActivationMask )
+            if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::ActivationMask) == loader::FloorDataCommandSequenceHeader::ActivationMask )
             {
-                m_itemFlags &= ~ActivationMask;
-                m_itemFlags |= InvertedActivation;
+                m_itemFlags &= ~loader::FloorDataCommandSequenceHeader::ActivationMask;
+                m_itemFlags |= loader::FloorDataCommandSequenceHeader::InvertedActivation;
                 activate();
                 m_flags2_02_toggledOn = true;
                 m_flags2_04_ready = false;

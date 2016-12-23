@@ -38,7 +38,7 @@ namespace engine
 
             void onFrameChanged(FrameChangeType frameChangeType) override
             {
-                m_itemFlags |= ActivationMask;
+                m_itemFlags |= loader::FloorDataCommandSequenceHeader::ActivationMask;
 
                 ItemNode::onFrameChanged(frameChangeType);
             }

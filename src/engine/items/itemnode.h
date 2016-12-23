@@ -71,11 +71,6 @@ namespace engine
             void updateSounds();
 
         public:
-            static constexpr const uint16_t Oneshot = 0x100;
-            static constexpr const uint16_t ActivationMask = 0x3e00;
-            static constexpr const uint16_t InvertedActivation = 0x4000;
-            static constexpr const uint16_t Locked = 0x8000;
-
             uint16_t m_itemFlags;
             bool m_isActive = false;
             bool m_flags2_02_toggledOn = false;
@@ -511,13 +506,13 @@ namespace engine
         protected:
             bool isInvertedActivation() const noexcept
             {
-                return (m_itemFlags & InvertedActivation) != 0;
+                return (m_itemFlags & loader::FloorDataCommandSequenceHeader::InvertedActivation) != 0;
             }
 
 
             bool updateTriggerTimeout(const std::chrono::microseconds& deltaTime)
             {
-                if( (m_itemFlags & ActivationMask) != ActivationMask )
+                if( (m_itemFlags & loader::FloorDataCommandSequenceHeader::ActivationMask) != loader::FloorDataCommandSequenceHeader::ActivationMask )
                 {
                     return isInvertedActivation();
                 }
