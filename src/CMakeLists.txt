@@ -46,8 +46,8 @@ endfunction()
 gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
 gen_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateids_enum.h)
 
-set( OT_IRR_SRCS
-     ot_irr.cpp
+set( EDISONENGINE_SRCS
+     edisonengine.cpp
 
      core/angle.h
      core/coordinates.h
@@ -212,18 +212,18 @@ set( OT_IRR_SRCS
      engine/items/underwaterswitch.cpp
 )
 
-add_executable(ot_irr
-    ${OT_IRR_SRCS}
+add_executable(edisonengine
+    ${EDISONENGINE_SRCS}
 )
 
-GROUP_FILES(${OT_IRR_SRCS})
+GROUP_FILES(${EDISONENGINE_SRCS})
 
 if(NOT MSVC)
-    target_compile_options(ot_irr PRIVATE -Wall -Wextra)
+    target_compile_options(edisonengine PRIVATE -Wall -Wextra)
 endif()
 
 target_link_libraries(
-    ot_irr
+    edisonengine
     Boost
     gameplay
     ZLIB
@@ -234,4 +234,4 @@ target_link_libraries(
     yaml-cpp-lib
 )
 
-target_include_directories(ot_irr PRIVATE . ../3rdparty/GSL)
+target_include_directories(edisonengine PRIVATE . ../3rdparty/GSL)

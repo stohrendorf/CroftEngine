@@ -1,8 +1,3 @@
-# Usage (Linux):
-#   $ cd OpenTombSrc
-#   $ mkdir build && cd build
-#   $ cmake .. && make
-
 cmake_minimum_required(VERSION 3.2)
 
 include("cmake/HunterGate.cmake")
@@ -12,7 +7,7 @@ HunterGate(
     SHA1 "6dac4843726a6d8f6110f63da5af1dedb1931589"
 )
 
-project(OpenTomb)
+project(EdisonEngine)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -221,7 +216,8 @@ if(NOT GIT_FOUND)
     set(GIT_SHA "<unknown>")
 else()
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --dirty --tags --long
+        # COMMAND ${GIT_EXECUTABLE} describe --dirty --tags --long
+        COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
         OUTPUT_VARIABLE GIT_SHA
         OUTPUT_STRIP_TRAILING_WHITESPACE
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
