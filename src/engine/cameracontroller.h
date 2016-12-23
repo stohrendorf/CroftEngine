@@ -17,11 +17,11 @@ namespace engine
     enum class CamOverrideType
     {
         None, // 0
-        _1,
+        NotActivatedByLara,
         FreeLook, // 2
         _3,
-        _4,
-        _5
+        Cinematic,
+        ActivatedByLara
     };
 
     class CameraController final
@@ -81,11 +81,11 @@ namespace engine
             m_unknown1 = k;
         }
 
-        void setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isDoppelganger, const loader::ActivationState& cmdSeqHeader, bool switchIsOn);
+        void setCamOverride(const loader::CameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isDoppelganger, const loader::ActivationState& activationRequest, bool switchIsOn);
 
         void setLookAtItem(items::ItemNode* item)
         {
-            if( item == nullptr || (m_camOverrideType != CamOverrideType::_1 && m_camOverrideType != CamOverrideType::_5) )
+            if( item == nullptr || (m_camOverrideType != CamOverrideType::NotActivatedByLara && m_camOverrideType != CamOverrideType::ActivatedByLara) )
                 return;
 
             m_lookAtItem = item;

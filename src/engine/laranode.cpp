@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<loader::ActivationState, 10> flipFlags{};
+    std::array<loader::ActivationState, 10> mapFlipActivationStates{};
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
@@ -597,16 +597,16 @@ namespace engine
     }
 
 
-    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool ignoreCondition)
+    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool isNotLara)
     {
         if( floorData == nullptr )
             return;
 
-        loader::FloorDataChunkHeader chunkHeader{*floorData};
+        loader::FloorDataChunk chunkHeader{*floorData};
 
         if( chunkHeader.type == loader::FloorDataChunkType::Death )
         {
-            if( !ignoreCondition )
+            if( !isNotLara )
             {
                 if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
                 {
@@ -620,14 +620,14 @@ namespace engine
             ++floorData;
         }
 
-        chunkHeader = loader::FloorDataChunkHeader{*floorData++};
+        chunkHeader = loader::FloorDataChunk{*floorData++};
         BOOST_ASSERT(chunkHeader.type == loader::FloorDataChunkType::CommandSequence);
-        const loader::ActivationState commandSeqHeader{*floorData++};
+        const loader::ActivationState activationRequest{*floorData++};
 
         getLevel().m_cameraController->findCameraTarget(floorData);
 
         bool conditionFulfilled = false, switchIsOn = false;
-        if( !ignoreCondition )
+        if( !isNotLara )
         {
             switch( chunkHeader.sequenceCondition )
             {
@@ -640,10 +640,10 @@ namespace engine
                     break;
                 case loader::SequenceCondition::ItemActivated:
                 {
-                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
-                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& swtch = *getLevel().m_itemNodes[commandHeader.parameter];
-                    if( !swtch.triggerSwitch(commandSeqHeader) )
+                    const loader::Command command{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
+                    if( !swtch.triggerSwitch(activationRequest) )
                         return;
 
                     switchIsOn = (swtch.getCurrentState() == 1);
@@ -652,18 +652,18 @@ namespace engine
                     break;
                 case loader::SequenceCondition::KeyUsed:
                 {
-                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
-                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& key = *getLevel().m_itemNodes[commandHeader.parameter];
+                    const loader::Command command{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& key = *getLevel().m_itemNodes[command.parameter];
                     if( key.triggerKey() )
                         conditionFulfilled = true;
                 }
                     return;
                 case loader::SequenceCondition::ItemPickedUp:
                 {
-                    const loader::FloorDataCommandHeader commandHeader{*floorData++};
-                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& pickup = *getLevel().m_itemNodes[commandHeader.parameter];
+                    const loader::Command command{*floorData++};
+                    Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
                     if( pickup.triggerPickUp() )
                         conditionFulfilled = true;
                 }
@@ -692,31 +692,31 @@ namespace engine
         bool swapRooms = false;
         while( true )
         {
-            const loader::FloorDataCommandHeader commandHeader{*floorData++};
-            switch( commandHeader.command )
+            const loader::Command command{*floorData++};
+            switch( command.opcode )
             {
-                case loader::Command::Activate:
+                case loader::CommandOpcode::Activate:
                 {
-                    Expects( getLevel().m_itemNodes.find(commandHeader.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& item = *getLevel().m_itemNodes[commandHeader.parameter];
+                    Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
+                    ItemNode& item = *getLevel().m_itemNodes[command.parameter];
                     if( item.m_activationState.isOneshot() )
                         break;
 
-                    item.m_activationState.setTimeout(commandSeqHeader.getTimeout());
+                    item.m_activationState.setTimeout(activationRequest.getTimeout());
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                     if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
-                        item.m_activationState ^= commandSeqHeader.getActivationSet();
+                        item.m_activationState ^= activationRequest.getActivationSet();
                     else if( chunkHeader.sequenceCondition == loader::SequenceCondition::LaraOnGroundInverted )
-                        item.m_activationState &= ~commandSeqHeader.getActivationSet();
+                        item.m_activationState &= ~activationRequest.getActivationSet();
                     else
-                        item.m_activationState |= commandSeqHeader.getActivationSet();
+                        item.m_activationState |= activationRequest.getActivationSet();
 
                     if( !item.m_activationState.isFullyActivated() )
                         break;
 
-                    if( commandSeqHeader.isOneshot() )
+                    if( activationRequest.isOneshot() )
                         item.m_activationState.setOneshot(true);
 
                     if( item.m_isActive )
@@ -756,37 +756,37 @@ namespace engine
                     item.activate();
                 }
                     break;
-                case loader::Command::SwitchCamera:
+                case loader::CommandOpcode::SwitchCamera:
                 {
-                    const loader::FloorDataCameraParameters camParams{*floorData++};
-                    getLevel().m_cameraController->setCamOverride(camParams, commandHeader.parameter, chunkHeader.sequenceCondition,
-                                                                  ignoreCondition, commandSeqHeader, switchIsOn);
-                    commandHeader.isLast = camParams.isLast;
+                    const loader::CameraParameters camParams{*floorData++};
+                    getLevel().m_cameraController->setCamOverride(camParams, command.parameter, chunkHeader.sequenceCondition,
+                                                                  isNotLara, activationRequest, switchIsOn);
+                    command.isLast = camParams.isLast;
                 }
                     break;
-                case loader::Command::LookAt:
-                    lookAtItem = getLevel().getItemController(commandHeader.parameter);
+                case loader::CommandOpcode::LookAt:
+                    lookAtItem = getLevel().getItemController(command.parameter);
                     break;
-                case loader::Command::UnderwaterCurrent:
+                case loader::CommandOpcode::UnderwaterCurrent:
                     //! @todo handle underwater current
                     break;
-                case loader::Command::FlipMap:
-                    BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
-                    if( !flipFlags[commandHeader.parameter].isOneshot() )
+                case loader::CommandOpcode::FlipMap:
+                    BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
+                    if( !mapFlipActivationStates[command.parameter].isOneshot() )
                     {
                         if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
                         {
-                            flipFlags[commandHeader.parameter] ^= commandSeqHeader.getActivationSet();
+                            mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
                         }
                         else
                         {
-                            flipFlags[commandHeader.parameter] |= commandSeqHeader.getActivationSet();
+                            mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
                         }
 
-                        if( flipFlags[commandHeader.parameter].isFullyActivated() )
+                        if( mapFlipActivationStates[command.parameter].isFullyActivated() )
                         {
-                            if( commandSeqHeader.isOneshot() )
-                                flipFlags[commandHeader.parameter].setOneshot(true);
+                            if( activationRequest.isOneshot() )
+                                mapFlipActivationStates[command.parameter].setOneshot(true);
 
                             if( !roomsAreSwapped )
                                 swapRooms = true;
@@ -797,28 +797,28 @@ namespace engine
                         }
                     }
                     break;
-                case loader::Command::FlipOn:
-                    BOOST_ASSERT(commandHeader.parameter < flipFlags.size());
-                    if( !roomsAreSwapped && flipFlags[commandHeader.parameter].isFullyActivated() )
+                case loader::CommandOpcode::FlipOn:
+                    BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
+                    if( !roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
-                case loader::Command::FlipOff:
-                    if( roomsAreSwapped && flipFlags[commandHeader.parameter].isFullyActivated() )
+                case loader::CommandOpcode::FlipOff:
+                    if( roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
-                case loader::Command::FlipEffect:
+                case loader::CommandOpcode::FlipEffect:
                     //! @todo handle flip effect
                     break;
-                case loader::Command::EndLevel:
+                case loader::CommandOpcode::EndLevel:
                     //! @todo handle level end
                     break;
-                case loader::Command::PlayTrack:
-                    getLevel().triggerCdTrack(commandHeader.parameter, commandSeqHeader, chunkHeader.sequenceCondition);
+                case loader::CommandOpcode::PlayTrack:
+                    getLevel().triggerCdTrack(command.parameter, activationRequest, chunkHeader.sequenceCondition);
                     break;
-                case loader::Command::Secret:
+                case loader::CommandOpcode::Secret:
                 {
-                    BOOST_ASSERT(commandHeader.parameter < 16 );
-                    const uint16_t mask = 1u << commandHeader.parameter;
+                    BOOST_ASSERT(command.parameter < 16 );
+                    const uint16_t mask = 1u << command.parameter;
                     if( (m_secretsFoundBitmask & mask) == 0 )
                     {
                         m_secretsFoundBitmask |= mask;
@@ -830,7 +830,7 @@ namespace engine
                     break;
             }
 
-            if( commandHeader.isLast )
+            if( command.isLast )
                 break;
         }
 

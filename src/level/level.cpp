@@ -584,21 +584,21 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
             break;
         case loader::SequenceCondition::ItemActivated:
         {
-            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            const loader::Command commandHeader{*rawFloorData++};
             sequence["if"] = "itemActivated";
             sequence["itemId"] = commandHeader.parameter;
         }
             break;
         case loader::SequenceCondition::KeyUsed:
         {
-            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            const loader::Command commandHeader{*rawFloorData++};
             sequence["if"] = "keyUsed";
             sequence["itemId"] = commandHeader.parameter;
         }
             break;
         case loader::SequenceCondition::ItemPickedUp:
         {
-            const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+            const loader::Command commandHeader{*rawFloorData++};
             sequence["if"] = "itemPickedUp";
             sequence["itemId"] = commandHeader.parameter;
         }
@@ -645,20 +645,20 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
 
     while( true )
     {
-        const loader::FloorDataCommandHeader commandHeader{*rawFloorData++};
+        const loader::Command commandHeader{*rawFloorData++};
 
         YAML::Node commandTree;
 
-        switch( commandHeader.command )
+        switch( commandHeader.opcode )
         {
-            case loader::Command::Activate:
-                commandTree["command"] = "activate";
+            case loader::CommandOpcode::Activate:
+                commandTree["opcode"] = "activate";
                 commandTree["itemId"] = commandHeader.parameter;
                 break;
-            case loader::Command::SwitchCamera:
+            case loader::CommandOpcode::SwitchCamera:
             {
-                const loader::FloorDataCameraParameters camParams{*rawFloorData++};
-                commandTree["command"] = "switchCamera";
+                const loader::CameraParameters camParams{*rawFloorData++};
+                commandTree["opcode"] = "switchCamera";
                 commandTree["cameraId"] = commandHeader.parameter;
                 commandTree["duration"] = int(camParams.timeout);
                 commandTree["onlyOnce"] = camParams.oneshot;
@@ -666,58 +666,50 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
                 commandHeader.isLast = camParams.isLast;
             }
                 break;
-            case loader::Command::UnderwaterCurrent:
-                commandTree["command"] = "underwaterFlow";
+            case loader::CommandOpcode::UnderwaterCurrent:
+                commandTree["opcode"] = "underwaterFlow";
                 break;
-            case loader::Command::FlipMap:
-                commandTree["command"] = "flipMap";
+            case loader::CommandOpcode::FlipMap:
+                commandTree["opcode"] = "flipMap";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::Command::FlipOn:
-                commandTree["command"] = "flipOn";
+            case loader::CommandOpcode::FlipOn:
+                commandTree["opcode"] = "flipOn";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::Command::FlipOff:
-                commandTree["command"] = "flipOff";
+            case loader::CommandOpcode::FlipOff:
+                commandTree["opcode"] = "flipOff";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::Command::LookAt:
-                commandTree["command"] = "lookAt";
+            case loader::CommandOpcode::LookAt:
+                commandTree["opcode"] = "lookAt";
                 commandTree["itemId"] = commandHeader.parameter;
                 break;
-            case loader::Command::EndLevel:
-                commandTree["command"] = "endLevel";
+            case loader::CommandOpcode::EndLevel:
+                commandTree["opcode"] = "endLevel";
                 break;
-            case loader::Command::PlayTrack:
-                commandTree["command"] = "playTrack";
+            case loader::CommandOpcode::PlayTrack:
+                commandTree["opcode"] = "playTrack";
                 commandTree["track"] = commandHeader.parameter;
                 break;
-            case loader::Command::FlipEffect:
-                commandTree["command"] = "flipEffect";
+            case loader::CommandOpcode::FlipEffect:
+                commandTree["opcode"] = "flipEffect";
                 commandTree["effect"] = commandHeader.parameter;
                 break;
-            case loader::Command::Secret:
-                commandTree["command"] = "secret";
+            case loader::CommandOpcode::Secret:
+                commandTree["opcode"] = "secret";
                 commandTree["secretId"] = commandHeader.parameter;
                 break;
-            case loader::Command::ClearBodies:
-                commandTree["command"] = "clearBodies";
+            case loader::CommandOpcode::ClearBodies:
+                commandTree["opcode"] = "clearBodies";
                 commandTree["target"] = commandHeader.parameter;
                 break;
-            case loader::Command::FlyBy:
-                commandTree["command"] = "flyby";
+            case loader::CommandOpcode::FlyBy:
+                commandTree["opcode"] = "flyby";
                 commandTree["target"] = commandHeader.parameter;
                 break;
-            case loader::Command::CutScene:
-                commandTree["command"] = "cutScene";
-                commandTree["target"] = commandHeader.parameter;
-                break;
-            case loader::Command::Command_E:
-                commandTree["command"] = "!!! E";
-                commandTree["target"] = commandHeader.parameter;
-                break;
-            case loader::Command::Command_F:
-                commandTree["command"] = "!!! F";
+            case loader::CommandOpcode::CutScene:
+                commandTree["opcode"] = "cutScene";
                 commandTree["target"] = commandHeader.parameter;
                 break;
             default:
@@ -853,7 +845,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                         const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
                         while( true )
                         {
-                            const loader::FloorDataChunkHeader chunkHeader{*rawFloorData++};
+                            const loader::FloorDataChunk chunkHeader{*rawFloorData++};
                             switch( chunkHeader.type )
                             {
                                 case loader::FloorDataChunkType::FloorSlant:
@@ -1107,14 +1099,14 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
 }
 
 
-void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType)
+void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
 
     if( trackId < 28 )
     {
-        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+        triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
@@ -1123,20 +1115,20 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdS
         if( m_cdTrackTriggerValues[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
             trackId = 29;
-        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+        triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
     if( trackId == 37 || trackId == 41 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
-            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+            triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
     if( trackId >= 29 && trackId <= 40 )
     {
-        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+        triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
@@ -1145,14 +1137,14 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdS
         if( trackId == 42 && m_cdTrackTriggerValues[42].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             trackId = 43;
-        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+        triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
     if( trackId == 49 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
-            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+            triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
@@ -1165,38 +1157,38 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdS
                 //! @todo End level
                 m_cdTrack50time = 0;
             }
-            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+            triggerNormalCdTrack(trackId, activationRequest, triggerType);
             return;
         }
 
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit )
-            triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+            triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 
     if( trackId >= 51 && trackId <= 63 )
     {
-        triggerNormalCdTrack(trackId, cmdSeqHeader, triggerType);
+        triggerNormalCdTrack(trackId, activationRequest, triggerType);
         return;
     }
 }
 
 
-void Level::triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType)
 {
     if( m_cdTrackTriggerValues[trackId].isOneshot() )
         return;
 
     if( triggerType == loader::SequenceCondition::ItemActivated )
-        m_cdTrackTriggerValues[trackId] ^= cmdSeqHeader.getActivationSet();
+        m_cdTrackTriggerValues[trackId] ^= activationRequest.getActivationSet();
     else if( triggerType == loader::SequenceCondition::LaraOnGroundInverted )
-        m_cdTrackTriggerValues[trackId] &= ~cmdSeqHeader.getActivationSet();
+        m_cdTrackTriggerValues[trackId] &= ~activationRequest.getActivationSet();
     else
-        m_cdTrackTriggerValues[trackId] |= cmdSeqHeader.getActivationSet();
+        m_cdTrackTriggerValues[trackId] |= activationRequest.getActivationSet();
 
     if( m_cdTrackTriggerValues[trackId].isFullyActivated() )
     {
-        if( cmdSeqHeader.isOneshot() )
+        if( activationRequest.isOneshot() )
             m_cdTrackTriggerValues[trackId].setOneshot(true);
 
         if( m_activeCDTrack != trackId )

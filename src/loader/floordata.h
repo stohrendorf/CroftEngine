@@ -40,7 +40,7 @@ namespace loader
     //! @brief Native trigger types.
     //! @ingroup native
     //! @see FloorDataChunkType::Always
-    //! @see Command
+    //! @see CommandOpcode
     enum class SequenceCondition
     {
         LaraIsHere = 0x00, //!< If Lara is in sector, run (any case).
@@ -67,7 +67,7 @@ namespace loader
     //! @ingroup native
     //! @see FloorDataChunkType::Always
     //! @see SequenceCondition
-    enum class Command
+    enum class CommandOpcode
     {
         Activate = 0x00,
         SwitchCamera = 0x01,
@@ -82,15 +82,13 @@ namespace loader
         Secret = 0x0A,
         ClearBodies = 0x0B, // Unused in TR4
         FlyBy = 0x0C,
-        CutScene = 0x0D,
-        Command_E,
-        Command_F
+        CutScene = 0x0D
     };
 
 
-    struct FloorDataChunkHeader
+    struct FloorDataChunk
     {
-        explicit FloorDataChunkHeader(FloorData::value_type fd)
+        explicit FloorDataChunk(FloorData::value_type fd)
             : isLast{extractIsLast(fd)}
             , sequenceCondition{extractSequenceCondition(fd)}
             , type{extractType(fd)}
@@ -269,9 +267,9 @@ namespace loader
     };
 
 
-    struct FloorDataCameraParameters
+    struct CameraParameters
     {
-        explicit FloorDataCameraParameters(FloorData::value_type fd)
+        explicit CameraParameters(FloorData::value_type fd)
             : timeout{gsl::narrow_cast<uint8_t>(fd & 0xff)}
             , oneshot{(fd & 0x100) != 0}
             , isLast{(fd & 0x8000) != 0}
@@ -287,24 +285,24 @@ namespace loader
     };
 
 
-    struct FloorDataCommandHeader
+    struct Command
     {
-        explicit FloorDataCommandHeader(FloorData::value_type fd)
+        explicit Command(FloorData::value_type fd)
             : isLast{extractIsLast(fd)}
-            , command{extractCommand(fd)}
+            , opcode{extractOpcode(fd)}
             , parameter{extractParameter(fd)}
         {
         }
 
 
         mutable bool isLast;
-        Command command;
+        CommandOpcode opcode;
         uint16_t parameter;
 
     private:
-        static Command extractCommand(FloorData::value_type data)
+        static CommandOpcode extractOpcode(FloorData::value_type data)
         {
-            return gsl::narrow_cast<Command>((data >> 10) & 0x0f);
+            return gsl::narrow_cast<CommandOpcode>((data >> 10) & 0x0f);
         }
 
 

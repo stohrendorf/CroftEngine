@@ -44,7 +44,7 @@ namespace engine
     }
 
 
-    void CameraController::setCamOverride(const loader::FloorDataCameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool ignoreCondition, const loader::ActivationState& cmdSeqHeader, bool switchIsOn)
+    void CameraController::setCamOverride(const loader::CameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isNotLara, const loader::ActivationState& activationRequest, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
@@ -54,7 +54,7 @@ namespace engine
         if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::LaraInCombatMode )
             return;
 
-        if( condition == loader::SequenceCondition::ItemActivated && cmdSeqHeader.getTimeout() != std::chrono::microseconds::zero() && switchIsOn )
+        if( condition == loader::SequenceCondition::ItemActivated && activationRequest.getTimeout() != std::chrono::microseconds::zero() && switchIsOn )
             return;
 
         if( condition != loader::SequenceCondition::ItemActivated && m_camOverrideId == m_activeCamOverrideId )
@@ -67,32 +67,32 @@ namespace engine
             m_level->m_cameras[camId].setActive(true);
 
         m_smoothFactor = 1 + (camParams.smoothness * 4);
-        if( ignoreCondition )
-            m_camOverrideType = CamOverrideType::_1;
+        if( isNotLara )
+            m_camOverrideType = CamOverrideType::NotActivatedByLara;
         else
-            m_camOverrideType = CamOverrideType::_5;
+            m_camOverrideType = CamOverrideType::ActivatedByLara;
     }
 
 
     void CameraController::findCameraTarget(const loader::FloorData::value_type* cmdSequence)
     {
-        if( m_camOverrideType == CamOverrideType::_5 )
+        if( m_camOverrideType == CamOverrideType::ActivatedByLara )
             return;
 
         int type = 2;
         while( true )
         {
-            const loader::FloorDataCommandHeader commandHeader{*cmdSequence++};
+            const loader::Command command{*cmdSequence++};
 
-            if( commandHeader.command == loader::Command::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
+            if( command.opcode == loader::CommandOpcode::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
             {
-                m_lookAtItem = m_level->getItemController(commandHeader.parameter);
+                m_lookAtItem = m_level->getItemController(command.parameter);
             }
-            else if( commandHeader.command == loader::Command::SwitchCamera )
+            else if( command.opcode == loader::CommandOpcode::SwitchCamera )
             {
                 ++cmdSequence; // skip camera parameters
 
-                if( commandHeader.parameter != m_activeCamOverrideId )
+                if( command.parameter != m_activeCamOverrideId )
                 {
                     type = 0;
                 }
@@ -102,7 +102,7 @@ namespace engine
                     if( m_camOverrideTimeout >= std::chrono::microseconds::zero() && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
                     {
                         type = 1;
-                        m_camOverrideType = CamOverrideType::_1;
+                        m_camOverrideType = CamOverrideType::NotActivatedByLara;
                     }
                     else
                     {
@@ -112,7 +112,7 @@ namespace engine
                 }
             }
 
-            if( commandHeader.isLast )
+            if( command.isLast )
                 break;
         }
 
@@ -378,7 +378,7 @@ namespace engine
             m_underwaterAmbience.reset();
         }
 
-        if( m_camOverrideType == CamOverrideType::_4 )
+        if( m_camOverrideType == CamOverrideType::Cinematic )
         {
             //! @todo nextCinematicFrame();
             return;
@@ -387,7 +387,7 @@ namespace engine
         if( m_unknown1 != 2 )
             HeightInfo::skipSteepSlants = true;
 
-        const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == CamOverrideType::_1 || m_camOverrideType == CamOverrideType::_5);
+        const bool lookingAtSomething = m_lookAtItem != nullptr && (m_camOverrideType == CamOverrideType::NotActivatedByLara || m_camOverrideType == CamOverrideType::ActivatedByLara);
 
         items::ItemNode* lookAtItem = lookingAtSomething ? m_lookAtItem : m_laraController;
         auto lookAtBbox = lookAtItem->getBoundingBox();
@@ -493,7 +493,7 @@ namespace engine
 
         m_lookingAtSomething = lookingAtSomething;
         m_activeCamOverrideId = m_camOverrideId;
-        if( m_camOverrideType != CamOverrideType::_5 || m_camOverrideTimeout < std::chrono::microseconds::zero() )
+        if( m_camOverrideType != CamOverrideType::ActivatedByLara || m_camOverrideTimeout < std::chrono::microseconds::zero() )
         {
             m_camOverrideType = CamOverrideType::None;
             m_lookAtItem2 = m_lookAtItem;

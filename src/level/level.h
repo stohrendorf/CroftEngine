@@ -171,7 +171,7 @@ namespace level
                 return zero;
             if( sector->floorDataIndex == 0 )
                 return zero;
-            if( loader::FloorDataChunkHeader{m_floorData[sector->floorDataIndex]}.type != loader::FloorDataChunkType::FloorSlant )
+            if( loader::FloorDataChunk{m_floorData[sector->floorDataIndex]}.type != loader::FloorDataChunkType::FloorSlant )
                 return zero;
 
             auto fd = m_floorData[sector->floorDataIndex + 1];
@@ -297,8 +297,8 @@ namespace level
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
-        void triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType);
-        void triggerCdTrack(uint16_t trackId, const loader::ActivationState& cmdSeqHeader, loader::SequenceCondition triggerType);
+        void triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType);
+        void triggerCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType);
 
 
         void stopSoundEffect(uint16_t soundId) const

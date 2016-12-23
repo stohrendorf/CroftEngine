@@ -33,7 +33,7 @@ namespace engine
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            const loader::FloorDataChunkHeader chunkHeader{*floorData++};
+            const loader::FloorDataChunk chunkHeader{*floorData++};
             switch( chunkHeader.type )
             {
                 case loader::FloorDataChunkType::FloorSlant:
@@ -89,17 +89,17 @@ namespace engine
                     ++floorData;
                     while( true )
                     {
-                        const loader::FloorDataCommandHeader command{*floorData++};
+                        const loader::Command command{*floorData++};
 
-                        if( command.command == loader::Command::Activate )
+                        if( command.opcode == loader::CommandOpcode::Activate )
                         {
                             auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
                             Expects(it != camera->getLevel()->m_itemNodes.end());
                             it->second->patchFloor(pos, hi.distance);
                         }
-                        else if( command.command == loader::Command::SwitchCamera )
+                        else if( command.opcode == loader::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = loader::FloorDataCameraParameters{ *floorData++ }.isLast;
+                            command.isLast = loader::CameraParameters{ *floorData++ }.isLast;
                         }
 
                         if( command.isLast )
@@ -132,14 +132,14 @@ namespace engine
         if( roomSector->floorDataIndex != 0 )
         {
             const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
-            loader::FloorDataChunkHeader chunkHeader{*floorData};
+            loader::FloorDataChunk chunkHeader{*floorData};
             ++floorData;
 
             if( chunkHeader.type == loader::FloorDataChunkType::FloorSlant )
             {
                 ++floorData;
 
-                chunkHeader = loader::FloorDataChunkHeader{*floorData};
+                chunkHeader = loader::FloorDataChunk{*floorData};
                 ++floorData;
             }
 
@@ -193,7 +193,7 @@ namespace engine
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            loader::FloorDataChunkHeader chunkHeader{*floorData};
+            loader::FloorDataChunk chunkHeader{*floorData};
             ++floorData;
             switch( chunkHeader.type )
             {
@@ -208,17 +208,17 @@ namespace engine
                     ++floorData;
                     while( true )
                     {
-                        const loader::FloorDataCommandHeader command{*floorData++};
+                        const loader::Command command{*floorData++};
 
-                        if( command.command == loader::Command::Activate )
+                        if( command.opcode == loader::CommandOpcode::Activate )
                         {
                             auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
                             Expects(it != camera->getLevel()->m_itemNodes.end());
                             it->second->patchCeiling(pos, hi.distance);
                         }
-                        else if( command.command == loader::Command::SwitchCamera )
+                        else if( command.opcode == loader::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = loader::FloorDataCameraParameters{ *floorData++ }.isLast;
+                            command.isLast = loader::CameraParameters{ *floorData++ }.isLast;
                         }
 
                         if( command.isLast )

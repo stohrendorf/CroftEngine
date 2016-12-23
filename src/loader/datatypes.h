@@ -122,13 +122,13 @@ namespace loader
             const FloorData::value_type* fdData = &floorData[floorDataIndex];
             BOOST_ASSERT(fdData+1 <= &floorData.back());
 
-            FloorDataChunkHeader chunk{fdData[0]};
+            FloorDataChunk chunk{fdData[0]};
             if( chunk.type == FloorDataChunkType::FloorSlant )
             {
                 if( chunk.isLast )
                     return {};
                 fdData += 2;
-                chunk = FloorDataChunkHeader{fdData[0]};
+                chunk = FloorDataChunk{fdData[0]};
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
             if( chunk.type == FloorDataChunkType::CeilingSlant )
@@ -136,7 +136,7 @@ namespace loader
                 if( chunk.isLast )
                     return {};
                 fdData += 2;
-                chunk = FloorDataChunkHeader{fdData[0]};
+                chunk = FloorDataChunk{fdData[0]};
             }
             BOOST_ASSERT(fdData+1 <= &floorData.back());
             if( chunk.type == FloorDataChunkType::PortalSector )
