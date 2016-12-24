@@ -15,7 +15,7 @@ namespace engine
                     const gsl::not_null<const loader::Room*>& room,
                     const core::Angle& angle,
                     const core::ExactTRCoordinates& position,
-                    const loader::ActivationState& activationState,
+                    const floordata::ActivationState& activationState,
                     int16_t darkness,
                     const loader::AnimatedModel& animatedModel)
                 : ItemNode(level, name, room, angle, position, activationState, true, 0x10, darkness, animatedModel)
@@ -69,7 +69,7 @@ namespace engine
                         break;
                 }
 
-                auto dart = getLevel().createItem<Dart>(39, getCurrentRoom(), getRotation().Y, getPosition() - d, loader::ActivationState{});
+                auto dart = getLevel().createItem<Dart>(39, getCurrentRoom(), getRotation().Y, getPosition() - d, floordata::ActivationState{});
                 dart->activate();
                 dart->m_flags2_02_toggledOn = true;
                 dart->m_flags2_04_ready = false;

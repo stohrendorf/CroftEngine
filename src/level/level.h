@@ -34,7 +34,7 @@ namespace level
         std::vector<loader::DWordTexture> m_textures;
         std::unique_ptr<loader::Palette> m_palette;
         std::vector<loader::Room> m_rooms;
-        loader::FloorData m_floorData;
+        engine::floordata::FloorData m_floorData;
         std::vector<loader::Mesh> m_meshes;
         std::vector<uint32_t> m_meshIndices;
         std::vector<loader::Animation> m_animations;
@@ -108,7 +108,7 @@ namespace level
                                                             const gsl::not_null<const loader::Room*>& room,
                                                             const core::Angle& angle,
                                                             const core::ExactTRCoordinates& position,
-                                                            const loader::ActivationState& activationState)
+                                                            const engine::floordata::ActivationState& activationState)
         {
             const auto modelIdx = findAnimatedModelIndexForType(type);
             if( !modelIdx )
@@ -171,7 +171,7 @@ namespace level
                 return zero;
             if( sector->floorDataIndex == 0 )
                 return zero;
-            if( loader::FloorDataChunk{m_floorData[sector->floorDataIndex]}.type != loader::FloorDataChunkType::FloorSlant )
+            if( engine::floordata::FloorDataChunk{m_floorData[sector->floorDataIndex]}.type != engine::floordata::FloorDataChunkType::FloorSlant )
                 return zero;
 
             auto fd = m_floorData[sector->floorDataIndex + 1];
@@ -297,8 +297,8 @@ namespace level
         void playStream(uint16_t trackId);
         void playCdTrack(uint16_t trackId);
         void stopCdTrack(uint16_t trackId);
-        void triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType);
-        void triggerCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType);
+        void triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType);
+        void triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType);
 
 
         void stopSoundEffect(uint16_t soundId) const
@@ -366,7 +366,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
                                                const core::ExactTRCoordinates& position,
-                                               const loader::ActivationState& activationState,
+                                               const engine::floordata::ActivationState& activationState,
                                                int16_t darkness);
 
 
@@ -379,7 +379,7 @@ namespace level
         }
 
 
-        std::array<loader::ActivationState, 64> m_cdTrackTriggerValues;
+        std::array<engine::floordata::ActivationState, 64> m_cdTrackActivationStates;
         int m_cdTrack50time = 0;
         std::vector<std::shared_ptr<gameplay::Model>> m_models;
     };

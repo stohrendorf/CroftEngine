@@ -520,7 +520,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::ExactTRCoordinates& position,
-                                              const loader::ActivationState& activationState,
+                                              const engine::floordata::ActivationState& activationState,
                                               int16_t darkness)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
@@ -560,83 +560,83 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 }
 
 
-YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::SequenceCondition sequenceCondition)
+YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::floordata::SequenceCondition sequenceCondition)
 {
     YAML::Node sequence;
-    const loader::ActivationState commandSeqHeader{*rawFloorData++};
+    const engine::floordata::ActivationState activationRequest{*rawFloorData++};
     for( size_t i = 0; i < 5; ++i )
     {
-        if( commandSeqHeader.isInActivationSet(i) )
+        if( activationRequest.isInActivationSet(i) )
             sequence["activationBits"].push_back(i);
     }
-    sequence["timeout"] = commandSeqHeader.getTimeout().count();
-    sequence["oneshot"] = commandSeqHeader.isOneshot();
-    sequence["locked"] = commandSeqHeader.isLocked();
-    sequence["inverted"] = commandSeqHeader.isInverted();
+    sequence["timeout"] = activationRequest.getTimeout().count();
+    sequence["oneshot"] = activationRequest.isOneshot();
+    sequence["locked"] = activationRequest.isLocked();
+    sequence["inverted"] = activationRequest.isInverted();
 
     switch( sequenceCondition )
     {
-        case loader::SequenceCondition::LaraIsHere:
+        case engine::floordata::SequenceCondition::LaraIsHere:
             sequence["if"] = "laraIsHere";
             break;
-        case loader::SequenceCondition::LaraOnGround:
+        case engine::floordata::SequenceCondition::LaraOnGround:
             sequence["if"] = "laraOnGround";
             break;
-        case loader::SequenceCondition::ItemActivated:
+        case engine::floordata::SequenceCondition::ItemActivated:
         {
-            const loader::Command commandHeader{*rawFloorData++};
+            const engine::floordata::Command commandHeader{*rawFloorData++};
             sequence["if"] = "itemActivated";
             sequence["itemId"] = commandHeader.parameter;
         }
             break;
-        case loader::SequenceCondition::KeyUsed:
+        case engine::floordata::SequenceCondition::KeyUsed:
         {
-            const loader::Command commandHeader{*rawFloorData++};
+            const engine::floordata::Command commandHeader{*rawFloorData++};
             sequence["if"] = "keyUsed";
             sequence["itemId"] = commandHeader.parameter;
         }
             break;
-        case loader::SequenceCondition::ItemPickedUp:
+        case engine::floordata::SequenceCondition::ItemPickedUp:
         {
-            const loader::Command commandHeader{*rawFloorData++};
+            const engine::floordata::Command commandHeader{*rawFloorData++};
             sequence["if"] = "itemPickedUp";
             sequence["itemId"] = commandHeader.parameter;
         }
             break;
-        case loader::SequenceCondition::ItemIsHere:
+        case engine::floordata::SequenceCondition::ItemIsHere:
             sequence["if"] = "itemIsHere";
             break;
-        case loader::SequenceCondition::LaraOnGroundInverted:
+        case engine::floordata::SequenceCondition::LaraOnGroundInverted:
             sequence["if"] = "laraOnGroundInverted";
             break;
-        case loader::SequenceCondition::LaraInCombatMode:
+        case engine::floordata::SequenceCondition::LaraInCombatMode:
             sequence["if"] = "laraInCombatMode";
             break;
-        case loader::SequenceCondition::Dummy:
+        case engine::floordata::SequenceCondition::Dummy:
             sequence["if"] = "dummy";
             break;
-        case loader::SequenceCondition::AntiTrigger:
+        case engine::floordata::SequenceCondition::AntiTrigger:
             sequence["if"] = "antiTrigger";
             break;
-        case loader::SequenceCondition::HeavySwitch:
+        case engine::floordata::SequenceCondition::HeavySwitch:
             sequence["if"] = "heavySwitch";
             break;
-        case loader::SequenceCondition::HeavyAntiTrigger:
+        case engine::floordata::SequenceCondition::HeavyAntiTrigger:
             sequence["if"] = "heavyAntiTrigger";
             break;
-        case loader::SequenceCondition::Monkey:
+        case engine::floordata::SequenceCondition::Monkey:
             sequence["if"] = "monkey";
             break;
-        case loader::SequenceCondition::Skeleton:
+        case engine::floordata::SequenceCondition::Skeleton:
             sequence["if"] = "skeleton";
             break;
-        case loader::SequenceCondition::TightRope:
+        case engine::floordata::SequenceCondition::TightRope:
             sequence["if"] = "tightRope";
             break;
-        case loader::SequenceCondition::CrawlDuck:
+        case engine::floordata::SequenceCondition::CrawlDuck:
             sequence["if"] = "crawlDuck";
             break;
-        case loader::SequenceCondition::Climb:
+        case engine::floordata::SequenceCondition::Climb:
             sequence["if"] = "climb";
             break;
         default:
@@ -645,19 +645,19 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
 
     while( true )
     {
-        const loader::Command commandHeader{*rawFloorData++};
+        const engine::floordata::Command commandHeader{*rawFloorData++};
 
         YAML::Node commandTree;
 
         switch( commandHeader.opcode )
         {
-            case loader::CommandOpcode::Activate:
+            case engine::floordata::CommandOpcode::Activate:
                 commandTree["opcode"] = "activate";
                 commandTree["itemId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::SwitchCamera:
+            case engine::floordata::CommandOpcode::SwitchCamera:
             {
-                const loader::CameraParameters camParams{*rawFloorData++};
+                const engine::floordata::CameraParameters camParams{*rawFloorData++};
                 commandTree["opcode"] = "switchCamera";
                 commandTree["cameraId"] = commandHeader.parameter;
                 commandTree["duration"] = int(camParams.timeout);
@@ -666,49 +666,49 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const loader::Seq
                 commandHeader.isLast = camParams.isLast;
             }
                 break;
-            case loader::CommandOpcode::UnderwaterCurrent:
+            case engine::floordata::CommandOpcode::UnderwaterCurrent:
                 commandTree["opcode"] = "underwaterFlow";
                 break;
-            case loader::CommandOpcode::FlipMap:
+            case engine::floordata::CommandOpcode::FlipMap:
                 commandTree["opcode"] = "flipMap";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::FlipOn:
+            case engine::floordata::CommandOpcode::FlipOn:
                 commandTree["opcode"] = "flipOn";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::FlipOff:
+            case engine::floordata::CommandOpcode::FlipOff:
                 commandTree["opcode"] = "flipOff";
                 commandTree["maskId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::LookAt:
+            case engine::floordata::CommandOpcode::LookAt:
                 commandTree["opcode"] = "lookAt";
                 commandTree["itemId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::EndLevel:
+            case engine::floordata::CommandOpcode::EndLevel:
                 commandTree["opcode"] = "endLevel";
                 break;
-            case loader::CommandOpcode::PlayTrack:
+            case engine::floordata::CommandOpcode::PlayTrack:
                 commandTree["opcode"] = "playTrack";
                 commandTree["track"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::FlipEffect:
+            case engine::floordata::CommandOpcode::FlipEffect:
                 commandTree["opcode"] = "flipEffect";
                 commandTree["effect"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::Secret:
+            case engine::floordata::CommandOpcode::Secret:
                 commandTree["opcode"] = "secret";
                 commandTree["secretId"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::ClearBodies:
+            case engine::floordata::CommandOpcode::ClearBodies:
                 commandTree["opcode"] = "clearBodies";
                 commandTree["target"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::FlyBy:
+            case engine::floordata::CommandOpcode::FlyBy:
                 commandTree["opcode"] = "flyby";
                 commandTree["target"] = commandHeader.parameter;
                 break;
-            case loader::CommandOpcode::CutScene:
+            case engine::floordata::CommandOpcode::CutScene:
                 commandTree["opcode"] = "cutScene";
                 commandTree["target"] = commandHeader.parameter;
                 break;
@@ -845,27 +845,27 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
                         const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];
                         while( true )
                         {
-                            const loader::FloorDataChunk chunkHeader{*rawFloorData++};
+                            const engine::floordata::FloorDataChunk chunkHeader{*rawFloorData++};
                             switch( chunkHeader.type )
                             {
-                                case loader::FloorDataChunkType::FloorSlant:
+                                case engine::floordata::FloorDataChunkType::FloorSlant:
                                     sectorTree["layout"]["floorSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
                                     sectorTree["layout"]["floorSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
                                     ++rawFloorData;
                                     break;
-                                case loader::FloorDataChunkType::CeilingSlant:
+                                case engine::floordata::FloorDataChunkType::CeilingSlant:
                                     sectorTree["layout"]["ceilingSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
                                     sectorTree["layout"]["ceilingSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
                                     ++rawFloorData;
                                     break;
-                                case loader::FloorDataChunkType::PortalSector:
+                                case engine::floordata::FloorDataChunkType::PortalSector:
                                     sectorTree["relations"]["portalToRoom"] = (*rawFloorData & 0xff);
                                     ++rawFloorData;
                                     break;
-                                case loader::FloorDataChunkType::Death:
+                                case engine::floordata::FloorDataChunkType::Death:
                                     sectorTree["characteristics"].push_back("deadly");
                                     break;
-                                case loader::FloorDataChunkType::CommandSequence:
+                                case engine::floordata::FloorDataChunkType::CommandSequence:
                                     sectorTree["sequences"].push_back(parseCommandSequence(rawFloorData, chunkHeader.sequenceCondition));
                                     break;
                                 default:
@@ -964,7 +964,7 @@ gsl::not_null<const loader::Sector*> Level::findFloorSectorWithClampedPosition(c
         sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / loader::SectorSize,
                                                           (position.Z - (*room)->position.Z) / loader::SectorSize);
         Expects( sector != nullptr );
-        const auto portalTarget = sector->getPortalTarget(m_floorData);
+        const auto portalTarget = engine::floordata::getPortalTarget(m_floorData, sector->floorDataIndex);
         if( !portalTarget )
         {
             break;
@@ -1009,7 +1009,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
             gsl::narrow_cast<int>(position.X - room->position.X) / loader::SectorSize,
             gsl::narrow_cast<int>(position.Z - room->position.Z) / loader::SectorSize);
         Expects( sector != nullptr );
-        const auto portalTarget = sector->getPortalTarget(m_floorData);
+        const auto portalTarget = engine::floordata::getPortalTarget(m_floorData, sector->floorDataIndex);
         if( !portalTarget )
         {
             break;
@@ -1099,7 +1099,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
 }
 
 
-void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType)
+void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
@@ -1112,7 +1112,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& acti
 
     if( trackId == 28 )
     {
-        if( m_cdTrackTriggerValues[trackId].isOneshot()
+        if( m_cdTrackActivationStates[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
             trackId = 29;
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
@@ -1134,7 +1134,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& acti
 
     if( trackId >= 42 && trackId <= 48 )
     {
-        if( trackId == 42 && m_cdTrackTriggerValues[42].isOneshot()
+        if( trackId == 42 && m_cdTrackActivationStates[42].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             trackId = 43;
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
@@ -1150,7 +1150,7 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& acti
 
     if( trackId == 50 )
     {
-        if( m_cdTrackTriggerValues[50].isOneshot() )
+        if( m_cdTrackActivationStates[50].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
             {
@@ -1174,22 +1174,22 @@ void Level::triggerCdTrack(uint16_t trackId, const loader::ActivationState& acti
 }
 
 
-void Level::triggerNormalCdTrack(uint16_t trackId, const loader::ActivationState& activationRequest, loader::SequenceCondition triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType)
 {
-    if( m_cdTrackTriggerValues[trackId].isOneshot() )
+    if( m_cdTrackActivationStates[trackId].isOneshot() )
         return;
 
-    if( triggerType == loader::SequenceCondition::ItemActivated )
-        m_cdTrackTriggerValues[trackId] ^= activationRequest.getActivationSet();
-    else if( triggerType == loader::SequenceCondition::LaraOnGroundInverted )
-        m_cdTrackTriggerValues[trackId] &= ~activationRequest.getActivationSet();
+    if( triggerType == engine::floordata::SequenceCondition::ItemActivated )
+        m_cdTrackActivationStates[trackId] ^= activationRequest.getActivationSet();
+    else if( triggerType == engine::floordata::SequenceCondition::LaraOnGroundInverted )
+        m_cdTrackActivationStates[trackId] &= ~activationRequest.getActivationSet();
     else
-        m_cdTrackTriggerValues[trackId] |= activationRequest.getActivationSet();
+        m_cdTrackActivationStates[trackId] |= activationRequest.getActivationSet();
 
-    if( m_cdTrackTriggerValues[trackId].isFullyActivated() )
+    if( m_cdTrackActivationStates[trackId].isFullyActivated() )
     {
         if( activationRequest.isOneshot() )
-            m_cdTrackTriggerValues[trackId].setOneshot(true);
+            m_cdTrackActivationStates[trackId].setOneshot(true);
 
         if( m_activeCDTrack != trackId )
             playCdTrack(trackId);

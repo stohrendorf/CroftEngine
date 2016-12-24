@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<loader::ActivationState, 10> mapFlipActivationStates{};
+    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
@@ -602,9 +602,9 @@ namespace engine
         if( floorData == nullptr )
             return;
 
-        loader::FloorDataChunk chunkHeader{*floorData};
+        floordata::FloorDataChunk chunkHeader{*floorData};
 
-        if( chunkHeader.type == loader::FloorDataChunkType::Death )
+        if( chunkHeader.type == floordata::FloorDataChunkType::Death )
         {
             if( !isNotLara )
             {
@@ -620,9 +620,9 @@ namespace engine
             ++floorData;
         }
 
-        chunkHeader = loader::FloorDataChunk{*floorData++};
-        BOOST_ASSERT(chunkHeader.type == loader::FloorDataChunkType::CommandSequence);
-        const loader::ActivationState activationRequest{*floorData++};
+        chunkHeader = floordata::FloorDataChunk{*floorData++};
+        BOOST_ASSERT(chunkHeader.type == floordata::FloorDataChunkType::CommandSequence);
+        const floordata::ActivationState activationRequest{*floorData++};
 
         getLevel().m_cameraController->findCameraTarget(floorData);
 
@@ -631,16 +631,16 @@ namespace engine
         {
             switch( chunkHeader.sequenceCondition )
             {
-                case loader::SequenceCondition::LaraIsHere:
+                case floordata::SequenceCondition::LaraIsHere:
                     conditionFulfilled = true;
                     break;
-                case loader::SequenceCondition::LaraOnGround:
-                case loader::SequenceCondition::LaraOnGroundInverted:
+                case floordata::SequenceCondition::LaraOnGround:
+                case floordata::SequenceCondition::LaraOnGroundInverted:
                     conditionFulfilled = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
                     break;
-                case loader::SequenceCondition::ItemActivated:
+                case floordata::SequenceCondition::ItemActivated:
                 {
-                    const loader::Command command{*floorData++};
+                    const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
                     ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
                     if( !swtch.triggerSwitch(activationRequest) )
@@ -650,29 +650,29 @@ namespace engine
                     conditionFulfilled = true;
                 }
                     break;
-                case loader::SequenceCondition::KeyUsed:
+                case floordata::SequenceCondition::KeyUsed:
                 {
-                    const loader::Command command{*floorData++};
+                    const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
                     ItemNode& key = *getLevel().m_itemNodes[command.parameter];
                     if( key.triggerKey() )
                         conditionFulfilled = true;
                 }
                     return;
-                case loader::SequenceCondition::ItemPickedUp:
+                case floordata::SequenceCondition::ItemPickedUp:
                 {
-                    const loader::Command command{*floorData++};
+                    const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
                     ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
                     if( pickup.triggerPickUp() )
                         conditionFulfilled = true;
                 }
                     return;
-                case loader::SequenceCondition::LaraInCombatMode:
+                case floordata::SequenceCondition::LaraInCombatMode:
                     conditionFulfilled = getHandStatus() == 4;
                     break;
-                case loader::SequenceCondition::ItemIsHere:
-                case loader::SequenceCondition::Dummy:
+                case floordata::SequenceCondition::ItemIsHere:
+                case floordata::SequenceCondition::Dummy:
                     return;
                 default:
                     conditionFulfilled = true;
@@ -681,7 +681,7 @@ namespace engine
         }
         else
         {
-            conditionFulfilled = chunkHeader.sequenceCondition == loader::SequenceCondition::ItemIsHere;
+            conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
         }
 
         if( !conditionFulfilled )
@@ -692,10 +692,10 @@ namespace engine
         bool swapRooms = false;
         while( true )
         {
-            const loader::Command command{*floorData++};
+            const floordata::Command command{*floorData++};
             switch( command.opcode )
             {
-                case loader::CommandOpcode::Activate:
+                case floordata::CommandOpcode::Activate:
                 {
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
                     ItemNode& item = *getLevel().m_itemNodes[command.parameter];
@@ -706,9 +706,9 @@ namespace engine
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
-                    if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
+                    if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
                         item.m_activationState ^= activationRequest.getActivationSet();
-                    else if( chunkHeader.sequenceCondition == loader::SequenceCondition::LaraOnGroundInverted )
+                    else if( chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted )
                         item.m_activationState &= ~activationRequest.getActivationSet();
                     else
                         item.m_activationState |= activationRequest.getActivationSet();
@@ -756,25 +756,25 @@ namespace engine
                     item.activate();
                 }
                     break;
-                case loader::CommandOpcode::SwitchCamera:
+                case floordata::CommandOpcode::SwitchCamera:
                 {
-                    const loader::CameraParameters camParams{*floorData++};
+                    const floordata::CameraParameters camParams{*floorData++};
                     getLevel().m_cameraController->setCamOverride(camParams, command.parameter, chunkHeader.sequenceCondition,
                                                                   isNotLara, activationRequest, switchIsOn);
                     command.isLast = camParams.isLast;
                 }
                     break;
-                case loader::CommandOpcode::LookAt:
+                case floordata::CommandOpcode::LookAt:
                     lookAtItem = getLevel().getItemController(command.parameter);
                     break;
-                case loader::CommandOpcode::UnderwaterCurrent:
+                case floordata::CommandOpcode::UnderwaterCurrent:
                     //! @todo handle underwater current
                     break;
-                case loader::CommandOpcode::FlipMap:
+                case floordata::CommandOpcode::FlipMap:
                     BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
                     if( !mapFlipActivationStates[command.parameter].isOneshot() )
                     {
-                        if( chunkHeader.sequenceCondition == loader::SequenceCondition::ItemActivated )
+                        if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
                         {
                             mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
                         }
@@ -797,25 +797,25 @@ namespace engine
                         }
                     }
                     break;
-                case loader::CommandOpcode::FlipOn:
+                case floordata::CommandOpcode::FlipOn:
                     BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
                     if( !roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
-                case loader::CommandOpcode::FlipOff:
+                case floordata::CommandOpcode::FlipOff:
                     if( roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
-                case loader::CommandOpcode::FlipEffect:
+                case floordata::CommandOpcode::FlipEffect:
                     //! @todo handle flip effect
                     break;
-                case loader::CommandOpcode::EndLevel:
+                case floordata::CommandOpcode::EndLevel:
                     //! @todo handle level end
                     break;
-                case loader::CommandOpcode::PlayTrack:
+                case floordata::CommandOpcode::PlayTrack:
                     getLevel().triggerCdTrack(command.parameter, activationRequest, chunkHeader.sequenceCondition);
                     break;
-                case loader::CommandOpcode::Secret:
+                case floordata::CommandOpcode::Secret:
                 {
                     BOOST_ASSERT(command.parameter < 16 );
                     const uint16_t mask = 1u << command.parameter;

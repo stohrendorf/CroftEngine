@@ -4,7 +4,6 @@
 #include "util/helpers.h"
 #include "core/angle.h"
 #include "core/coordinates.h"
-#include "floordata.h"
 #include "color.h"
 #include "primitives.h"
 #include "meshes.h"
@@ -110,41 +109,6 @@ namespace loader
             sector.roomAbove = reader.readU8();
             sector.ceilingHeight = reader.readI8();
             return sector;
-        }
-
-
-        boost::optional<uint8_t> getPortalTarget(const FloorData& floorData) const
-        {
-            if( floorDataIndex == 0 )
-                return {};
-
-            BOOST_ASSERT(floorDataIndex < floorData.size());
-            const FloorData::value_type* fdData = &floorData[floorDataIndex];
-            BOOST_ASSERT(fdData+1 <= &floorData.back());
-
-            FloorDataChunk chunk{fdData[0]};
-            if( chunk.type == FloorDataChunkType::FloorSlant )
-            {
-                if( chunk.isLast )
-                    return {};
-                fdData += 2;
-                chunk = FloorDataChunk{fdData[0]};
-            }
-            BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( chunk.type == FloorDataChunkType::CeilingSlant )
-            {
-                if( chunk.isLast )
-                    return {};
-                fdData += 2;
-                chunk = FloorDataChunk{fdData[0]};
-            }
-            BOOST_ASSERT(fdData+1 <= &floorData.back());
-            if( chunk.type == FloorDataChunkType::PortalSector )
-            {
-                return gsl::narrow_cast<uint8_t>(fdData[1]);
-            }
-
-            return {};
         }
     };
 

@@ -88,7 +88,6 @@ set( EDISONENGINE_SRCS
      loader/color.h
      loader/datatypes.cpp
      loader/datatypes.h
-     loader/floordata.h
      loader/item.h
      loader/larastateid.h
      loader/meshes.h
@@ -210,6 +209,8 @@ set( EDISONENGINE_SRCS
      engine/items/trapdoorup.h
      engine/items/underwaterswitch.h
      engine/items/underwaterswitch.cpp
+
+     engine/floordata/floordata.h
 )
 
 add_executable(edisonengine

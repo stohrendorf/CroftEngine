@@ -44,20 +44,20 @@ namespace engine
     }
 
 
-    void CameraController::setCamOverride(const loader::CameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isNotLara, const loader::ActivationState& activationRequest, bool switchIsOn)
+    void CameraController::setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool isNotLara, const floordata::ActivationState& activationRequest, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
             return;
 
         m_camOverrideId = camId;
-        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == loader::SequenceCondition::LaraInCombatMode )
+        if( m_camOverrideType == CamOverrideType::FreeLook || m_camOverrideType == CamOverrideType::_3 || condition == floordata::SequenceCondition::LaraInCombatMode )
             return;
 
-        if( condition == loader::SequenceCondition::ItemActivated && activationRequest.getTimeout() != std::chrono::microseconds::zero() && switchIsOn )
+        if( condition == floordata::SequenceCondition::ItemActivated && activationRequest.getTimeout() != std::chrono::microseconds::zero() && switchIsOn )
             return;
 
-        if( condition != loader::SequenceCondition::ItemActivated && m_camOverrideId == m_activeCamOverrideId )
+        if( condition != floordata::SequenceCondition::ItemActivated && m_camOverrideId == m_activeCamOverrideId )
             return;
 
         if( camParams.timeout != 1 )
@@ -74,7 +74,7 @@ namespace engine
     }
 
 
-    void CameraController::findCameraTarget(const loader::FloorData::value_type* cmdSequence)
+    void CameraController::findCameraTarget(const uint16_t* cmdSequence)
     {
         if( m_camOverrideType == CamOverrideType::ActivatedByLara )
             return;
@@ -82,13 +82,13 @@ namespace engine
         int type = 2;
         while( true )
         {
-            const loader::Command command{*cmdSequence++};
+            const floordata::Command command{*cmdSequence++};
 
-            if( command.opcode == loader::CommandOpcode::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
+            if( command.opcode == floordata::CommandOpcode::LookAt && m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
             {
                 m_lookAtItem = m_level->getItemController(command.parameter);
             }
-            else if( command.opcode == loader::CommandOpcode::SwitchCamera )
+            else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
             {
                 ++cmdSequence; // skip camera parameters
 

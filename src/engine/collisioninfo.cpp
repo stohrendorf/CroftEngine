@@ -71,7 +71,7 @@ namespace engine
         else if( front.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && front.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr && loader::FloorDataChunk::extractType(*front.floor.lastCommandSequenceOrDeath) == loader::FloorDataChunkType::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*front.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             front.floor.distance = 2 * loader::QuarterSectorSize;
@@ -89,7 +89,7 @@ namespace engine
         else if( frontLeft.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr && loader::FloorDataChunk::extractType(*frontLeft.floor.lastCommandSequenceOrDeath) == loader::FloorDataChunkType::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontLeft.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             frontLeft.floor.distance = 2 * loader::QuarterSectorSize;
@@ -107,7 +107,7 @@ namespace engine
         else if( frontRight.floor.distance > 0
             && (
                 ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr && loader::FloorDataChunk::extractType(*frontRight.floor.lastCommandSequenceOrDeath) == loader::FloorDataChunkType::Death)
+                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontRight.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             frontRight.floor.distance = 2 * loader::QuarterSectorSize;

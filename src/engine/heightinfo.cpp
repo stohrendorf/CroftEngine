@@ -33,10 +33,10 @@ namespace engine
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            const loader::FloorDataChunk chunkHeader{*floorData++};
+            const floordata::FloorDataChunk chunkHeader{*floorData++};
             switch( chunkHeader.type )
             {
-                case loader::FloorDataChunkType::FloorSlant:
+                case floordata::FloorDataChunkType::FloorSlant:
                 {
                     const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                     const auto absX = std::abs(xSlant);
@@ -76,30 +76,30 @@ namespace engine
                     }
                 }
                     // Fall-through
-                case loader::FloorDataChunkType::CeilingSlant:
-                case loader::FloorDataChunkType::PortalSector:
+                case floordata::FloorDataChunkType::CeilingSlant:
+                case floordata::FloorDataChunkType::PortalSector:
                     ++floorData;
                     break;
-                case loader::FloorDataChunkType::Death:
+                case floordata::FloorDataChunkType::Death:
                     hi.lastCommandSequenceOrDeath = floorData - 1;
                     break;
-                case loader::FloorDataChunkType::CommandSequence:
+                case floordata::FloorDataChunkType::CommandSequence:
                     if( !hi.lastCommandSequenceOrDeath )
                         hi.lastCommandSequenceOrDeath = floorData - 1;
                     ++floorData;
                     while( true )
                     {
-                        const loader::Command command{*floorData++};
+                        const floordata::Command command{*floorData++};
 
-                        if( command.opcode == loader::CommandOpcode::Activate )
+                        if( command.opcode == floordata::CommandOpcode::Activate )
                         {
                             auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
                             Expects(it != camera->getLevel()->m_itemNodes.end());
                             it->second->patchFloor(pos, hi.distance);
                         }
-                        else if( command.opcode == loader::CommandOpcode::SwitchCamera )
+                        else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = loader::CameraParameters{ *floorData++ }.isLast;
+                            command.isLast = floordata::CameraParameters{ *floorData++ }.isLast;
                         }
 
                         if( command.isLast )
@@ -132,18 +132,18 @@ namespace engine
         if( roomSector->floorDataIndex != 0 )
         {
             const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
-            loader::FloorDataChunk chunkHeader{*floorData};
+            floordata::FloorDataChunk chunkHeader{*floorData};
             ++floorData;
 
-            if( chunkHeader.type == loader::FloorDataChunkType::FloorSlant )
+            if( chunkHeader.type == floordata::FloorDataChunkType::FloorSlant )
             {
                 ++floorData;
 
-                chunkHeader = loader::FloorDataChunk{*floorData};
+                chunkHeader = floordata::FloorDataChunk{*floorData};
                 ++floorData;
             }
 
-            if( chunkHeader.type == loader::FloorDataChunkType::CeilingSlant )
+            if( chunkHeader.type == floordata::FloorDataChunkType::CeilingSlant )
             {
                 const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
                 const auto absX = std::abs(xSlant);
@@ -193,32 +193,32 @@ namespace engine
         const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
         while( true )
         {
-            loader::FloorDataChunk chunkHeader{*floorData};
+            floordata::FloorDataChunk chunkHeader{*floorData};
             ++floorData;
             switch( chunkHeader.type )
             {
-                case loader::FloorDataChunkType::CeilingSlant:
-                case loader::FloorDataChunkType::FloorSlant:
-                case loader::FloorDataChunkType::PortalSector:
+                case floordata::FloorDataChunkType::CeilingSlant:
+                case floordata::FloorDataChunkType::FloorSlant:
+                case floordata::FloorDataChunkType::PortalSector:
                     ++floorData;
                     break;
-                case loader::FloorDataChunkType::Death:
+                case floordata::FloorDataChunkType::Death:
                     break;
-                case loader::FloorDataChunkType::CommandSequence:
+                case floordata::FloorDataChunkType::CommandSequence:
                     ++floorData;
                     while( true )
                     {
-                        const loader::Command command{*floorData++};
+                        const floordata::Command command{*floorData++};
 
-                        if( command.opcode == loader::CommandOpcode::Activate )
+                        if( command.opcode == floordata::CommandOpcode::Activate )
                         {
                             auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
                             Expects(it != camera->getLevel()->m_itemNodes.end());
                             it->second->patchCeiling(pos, hi.distance);
                         }
-                        else if( command.opcode == loader::CommandOpcode::SwitchCamera )
+                        else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = loader::CameraParameters{ *floorData++ }.isLast;
+                            command.isLast = floordata::CameraParameters{ *floorData++ }.isLast;
                         }
 
                         if( command.isLast )

@@ -2,6 +2,7 @@
 
 #include "audio/sourcehandle.h"
 #include "core/interpolatedvalue.h"
+#include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 
 #include <chrono>
@@ -71,7 +72,7 @@ namespace engine
             void updateSounds();
 
         public:
-            loader::ActivationState m_activationState;
+            floordata::ActivationState m_activationState;
             bool m_isActive = false;
             bool m_flags2_02_toggledOn = false;
             bool m_flags2_04_ready = false;
@@ -110,7 +111,7 @@ namespace engine
                      const gsl::not_null<const loader::Room*>& room,
                      const core::Angle& angle,
                      const core::ExactTRCoordinates& position,
-                     const loader::ActivationState& activationState,
+                     const floordata::ActivationState& activationState,
                      bool hasProcessAnimCommandsOverride,
                      uint8_t characteristics,
                      int16_t darkness,
@@ -333,7 +334,7 @@ namespace engine
             }
 
 
-            bool triggerSwitch(const loader::ActivationState& arg)
+            bool triggerSwitch(const floordata::ActivationState& arg)
             {
                 if( !m_flags2_04_ready || m_flags2_02_toggledOn )
                 {

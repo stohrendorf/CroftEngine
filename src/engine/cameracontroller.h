@@ -2,17 +2,27 @@
 
 #include "core/angle.h"
 #include "loader/datatypes.h"
-#include "loader/floordata.h"
 #include "audio/sourcehandle.h"
+
 
 namespace engine
 {
+    namespace floordata
+    {
+        enum class SequenceCondition;
+        class ActivationState;
+        struct CameraParameters;
+    }
+
+
     namespace items
     {
         class ItemNode;
     }
 
+
     class LaraNode;
+
 
     enum class CamOverrideType
     {
@@ -23,6 +33,7 @@ namespace engine
         Cinematic,
         ActivatedByLara
     };
+
 
     class CameraController final
     {
@@ -46,7 +57,7 @@ namespace engine
         int m_smoothFactor = 8;
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
-        std::chrono::microseconds m_camOverrideTimeout{ -1 };
+        std::chrono::microseconds m_camOverrideTimeout{-1};
         CamOverrideType m_camOverrideType = CamOverrideType::None;
         core::RoomBoundIntPosition m_currentLookAt;
         core::TRRotation m_localRotation;
@@ -63,25 +74,32 @@ namespace engine
     public:
         explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraNode*> laraController, const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
 
+
         const level::Level* getLevel() const noexcept
         {
             return m_level;
         }
 
+
         void setLocalRotation(core::Angle x, core::Angle y);
         void setLocalRotationX(core::Angle x);
         void setLocalRotationY(core::Angle y);
+
+
         void setLocalDistance(int d)
         {
             m_distanceFromLookAt = d;
         }
+
 
         void setUnknown1(int k)
         {
             m_unknown1 = k;
         }
 
-        void setCamOverride(const loader::CameraParameters& camParams, uint16_t camId, loader::SequenceCondition condition, bool isDoppelganger, const loader::ActivationState& activationRequest, bool switchIsOn);
+
+        void setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool isDoppelganger, const floordata::ActivationState& activationRequest, bool switchIsOn);
+
 
         void setLookAtItem(items::ItemNode* item)
         {
@@ -91,19 +109,23 @@ namespace engine
             m_lookAtItem = item;
         }
 
-        void findCameraTarget(const loader::FloorData::value_type* floorData);
+
+        void findCameraTarget(const uint16_t* floorData);
 
         void update(const std::chrono::microseconds& deltaTimeMs);
+
 
         void setCamOverrideType(CamOverrideType t)
         {
             m_camOverrideType = t;
         }
 
+
         CamOverrideType getCamOverrideType() const noexcept
         {
             return m_camOverrideType;
         }
+
 
         void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
         {
@@ -111,59 +133,70 @@ namespace engine
             m_headRotation.Y += y;
         }
 
+
         const core::TRRotation& getHeadRotation() const noexcept
         {
             return m_headRotation;
         }
+
 
         void setTorsoRotation(const core::TRRotation& r)
         {
             m_torsoRotation = r;
         }
 
+
         void setHeadRotation(const core::TRRotation& r)
         {
             m_headRotation = r;
         }
+
 
         const core::TRRotation& getTorsoRotation() const noexcept
         {
             return m_torsoRotation;
         }
 
+
         glm::vec3 getPosition() const
         {
-            return glm::vec3{ m_camera->getInverseViewMatrix()[3] };
+            return glm::vec3{m_camera->getInverseViewMatrix()[3]};
         }
+
 
         glm::vec3 getFrontVector() const
         {
             auto rs = m_camera->getInverseViewMatrix();
             rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-            return glm::vec3{ rs * glm::vec4{0, 0, -1, 1} };
+            return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
         }
+
 
         glm::vec3 getUpVector() const
         {
             auto rs = m_camera->getInverseViewMatrix();
             rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-            return glm::vec3{ rs * glm::vec4{ 0, 1, 0, 1 } };
+            return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
         }
+
 
         void resetHeadTorsoRotation()
         {
-            m_headRotation = { 0_deg, 0_deg, 0_deg };
-            m_torsoRotation = { 0_deg, 0_deg, 0_deg };
+            m_headRotation = {0_deg, 0_deg, 0_deg};
+            m_torsoRotation = {0_deg, 0_deg, 0_deg};
         }
+
 
         const loader::Room* getCurrentRoom() const
         {
             return m_currentPosition.room;
         }
 
+
     private:
         void tracePortals();
         bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
+
 
         enum class ClampType
         {
@@ -171,6 +204,7 @@ namespace engine
             Horizonal,
             None
         };
+
 
         ClampType clampAlongX(core::RoomBoundIntPosition& origin) const;
         ClampType clampAlongZ(core::RoomBoundIntPosition& origin) const;

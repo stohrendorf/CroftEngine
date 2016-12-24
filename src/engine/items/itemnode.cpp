@@ -28,7 +28,7 @@ namespace engine
                            const gsl::not_null<const loader::Room*>& room,
                            const core::Angle& angle,
                            const core::ExactTRCoordinates& position,
-                           const loader::ActivationState& activationState,
+                           const floordata::ActivationState& activationState,
                            bool hasProcessAnimCommandsOverride,
                            uint8_t characteristics,
                            int16_t darkness,
