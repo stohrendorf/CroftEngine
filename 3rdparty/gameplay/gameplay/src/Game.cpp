@@ -4,6 +4,8 @@
 #include "RenderContext.h"
 #include "Scene.h"
 
+#include <cstdlib>
+
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
 
@@ -41,19 +43,19 @@ namespace gameplay
     {
         glfwSetErrorCallback(&glErrorCallback);
 
-        if( glfwInit() != GLFW_TRUE )
+        if( glfwInit() != GL_TRUE )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to initialize GLFW";
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLFW"));
         }
 
-        atexit(&glfwTerminate);
+        std::atexit(&glfwTerminate);
 
         // Get the window configuration values
         int width = 1280, height = 800, samples = 1;
         bool fullscreen = false;
 
-        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, 24);
         glfwWindowHint(GLFW_STENCIL_BITS, 8);
         glfwWindowHint(GLFW_SAMPLES, samples);
@@ -61,12 +63,12 @@ namespace gameplay
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
         glfwWindowHint(GLFW_ALPHA_BITS, 8);
-        glfwWindowHint(GLFW_DECORATED, fullscreen ? GLFW_FALSE : GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, fullscreen ? GL_FALSE : GL_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 #ifndef NDEBUG
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
         _multiSampling = samples > 0;
@@ -269,7 +271,7 @@ namespace gameplay
         // so we'll just call ::exit(0) to force an instant shutdown.
 
         // End the process immediately without a full shutdown
-        ::exit(0);
+        std::exit(0);
     }
 
 

@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};
+    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)

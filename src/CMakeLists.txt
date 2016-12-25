@@ -1,43 +1,43 @@
 function(gen_enum name type source dest)
-    if(EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
+    if (EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
         return()
-    endif()
+    endif ()
     message(STATUS "Generating enum include ${dest} from ${source}")
     file(STRINGS "${source}" _vals)
     file(WRITE "${dest}" "")
     # Write enum
     file(APPEND "${dest}" "enum class ${name} : ${type}\n")
     file(APPEND "${dest}" "{\n")
-    foreach(_val IN LISTS _vals)
+    foreach (_val IN LISTS _vals)
         string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if("${_ename}" STREQUAL "")
+        if ("${_ename}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if("${_eval}" STREQUAL "")
+        if ("${_eval}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         file(APPEND "${dest}" "    ${_ename} = ${_eval},\n")
-    endforeach()
+    endforeach ()
     file(APPEND "${dest}" "};\n\n")
     # Write toString
     file(APPEND "${dest}" "inline const char* toString(${name} val)\n")
     file(APPEND "${dest}" "{\n")
     file(APPEND "${dest}" "    switch(val)\n")
     file(APPEND "${dest}" "    {\n")
-    foreach(_val IN LISTS _vals)
+    foreach (_val IN LISTS _vals)
         string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if("${_ename}" STREQUAL "")
+        if ("${_ename}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if("${_eval}" STREQUAL "")
+        if ("${_eval}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
-    endforeach()
+    endforeach ()
     file(APPEND "${dest}" "        default: return nullptr;\n")
     file(APPEND "${dest}" "    }\n")
     file(APPEND "${dest}" "}\n")
@@ -214,25 +214,32 @@ set( EDISONENGINE_SRCS
 )
 
 add_executable(edisonengine
-    ${EDISONENGINE_SRCS}
-)
+        ${EDISONENGINE_SRCS}
+        )
 
 GROUP_FILES(${EDISONENGINE_SRCS})
 
-if(NOT MSVC)
+if (NOT MSVC)
     target_compile_options(edisonengine PRIVATE -Wall -Wextra)
-endif()
+endif ()
 
 target_link_libraries(
-    edisonengine
-    Boost
-    gameplay
-    ZLIB
-    OpenAL
-    SndFile
-    CImg
-    Assimp
-    yaml-cpp-lib
+        edisonengine
+        Boost
+        gameplay
+        ZLIB
+        OpenAL
+        SndFile
+        CImg
+        assimp-lib
+        yaml-cpp-lib
 )
+
+if (LINUX OR UNIX)
+    target_link_libraries(
+            edisonengine
+            pthread
+    )
+endif ()
 
 target_include_directories(edisonengine PRIVATE . ../3rdparty/GSL)
