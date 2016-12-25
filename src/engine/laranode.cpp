@@ -687,8 +687,6 @@ namespace engine
         if( !conditionFulfilled )
             return;
 
-        ItemNode* lookAtItem = nullptr;
-
         bool swapRooms = false;
         while( true )
         {
@@ -765,7 +763,7 @@ namespace engine
                 }
                     break;
                 case floordata::CommandOpcode::LookAt:
-                    lookAtItem = getLevel().getItemController(command.parameter);
+                    getLevel().m_cameraController->setLookAtItem(getLevel().getItemController(command.parameter));
                     break;
                 case floordata::CommandOpcode::UnderwaterCurrent:
                     //! @todo handle underwater current
@@ -803,6 +801,7 @@ namespace engine
                         swapRooms = true;
                     break;
                 case floordata::CommandOpcode::FlipOff:
+                    BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
                     if( roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
@@ -833,8 +832,6 @@ namespace engine
             if( command.isLast )
                 break;
         }
-
-        getLevel().m_cameraController->setLookAtItem(lookAtItem);
 
         if( swapRooms )
             swapAllRooms(getLevel());
@@ -930,7 +927,7 @@ namespace engine
             if( rooms.find(item->getCurrentRoom()) == rooms.end() )
                 continue;
 
-            if( !item->m_flags2_20 )
+            if( !item->m_flags2_20_interactive )
                 continue;
 
             if( item->m_flags2_04_ready && item->m_flags2_02_toggledOn )

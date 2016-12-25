@@ -94,7 +94,7 @@ namespace engine
 
                 if( command.parameter != m_activeCamOverrideId )
                 {
-                    type = 0;
+                    type = 0; // new override
                 }
                 else
                 {
@@ -116,7 +116,7 @@ namespace engine
                 break;
         }
 
-        if( type == 0 || (type == 2 && m_lookAtItem != nullptr && m_lookAtItem->m_flags2_40 && m_lookAtItem != m_lookAtItem2) )
+        if( type == 0 || (type == 2 && m_lookAtItem != nullptr && m_lookAtItem->m_flags2_40_alreadyLookedAt && m_lookAtItem != m_lookAtItem2) )
             m_lookAtItem = nullptr;
     }
 
@@ -429,7 +429,7 @@ namespace engine
                 m_torsoRotation.X = m_headRotation.X;
 
                 m_camOverrideType = CamOverrideType::FreeLook;
-                m_lookAtItem->m_flags2_40 = true;
+                m_lookAtItem->m_flags2_40_alreadyLookedAt = true;
             }
         }
 
