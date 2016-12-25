@@ -1,43 +1,43 @@
 function(gen_enum name type source dest)
-    if(EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
+    if (EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
         return()
-    endif()
+    endif ()
     message(STATUS "Generating enum include ${dest} from ${source}")
     file(STRINGS "${source}" _vals)
     file(WRITE "${dest}" "")
     # Write enum
     file(APPEND "${dest}" "enum class ${name} : ${type}\n")
     file(APPEND "${dest}" "{\n")
-    foreach(_val IN LISTS _vals)
+    foreach (_val IN LISTS _vals)
         string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if("${_ename}" STREQUAL "")
+        if ("${_ename}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if("${_eval}" STREQUAL "")
+        if ("${_eval}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         file(APPEND "${dest}" "    ${_ename} = ${_eval},\n")
-    endforeach()
+    endforeach ()
     file(APPEND "${dest}" "};\n\n")
     # Write toString
     file(APPEND "${dest}" "inline const char* toString(${name} val)\n")
     file(APPEND "${dest}" "{\n")
     file(APPEND "${dest}" "    switch(val)\n")
     file(APPEND "${dest}" "    {\n")
-    foreach(_val IN LISTS _vals)
+    foreach (_val IN LISTS _vals)
         string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if("${_ename}" STREQUAL "")
+        if ("${_ename}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if("${_eval}" STREQUAL "")
+        if ("${_eval}" STREQUAL "")
             continue()
-        endif()
+        endif ()
         file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
-    endforeach()
+    endforeach ()
     file(APPEND "${dest}" "        default: return nullptr;\n")
     file(APPEND "${dest}" "    }\n")
     file(APPEND "${dest}" "}\n")
@@ -46,192 +46,199 @@ endfunction()
 gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
 gen_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateids_enum.h)
 
-set( EDISONENGINE_SRCS
-     edisonengine.cpp
+set(EDISONENGINE_SRCS
+        edisonengine.cpp
 
-     core/angle.h
-     core/coordinates.h
-     core/interpolatedvalue.h
-     core/magic.h
+        core/angle.h
+        core/coordinates.h
+        core/interpolatedvalue.h
+        core/magic.h
 
-     engine/lara/abstractstatehandler.cpp
-     engine/lara/abstractstatehandler.h
-     engine/cameracontroller.cpp
-     engine/cameracontroller.h
-     engine/collisioninfo.cpp
-     engine/collisioninfo.h
-     engine/heightinfo.cpp
-     engine/heightinfo.h
-     engine/inputhandler.h
-     engine/inputstate.h
-     engine/laranode.cpp
-     engine/laranode.h
-     engine/skeletalmodelnode.cpp
-     engine/skeletalmodelnode.h
+        engine/lara/abstractstatehandler.cpp
+        engine/lara/abstractstatehandler.h
+        engine/cameracontroller.cpp
+        engine/cameracontroller.h
+        engine/collisioninfo.cpp
+        engine/collisioninfo.h
+        engine/heightinfo.cpp
+        engine/heightinfo.h
+        engine/inputhandler.h
+        engine/inputstate.h
+        engine/laranode.cpp
+        engine/laranode.h
+        engine/skeletalmodelnode.cpp
+        engine/skeletalmodelnode.h
 
-     level/game.h
-     level/level.cpp
-     level/level.h
-     level/tr1level.cpp
-     level/tr1level.h
-     level/tr2level.cpp
-     level/tr2level.h
-     level/tr3level.cpp
-     level/tr3level.h
-     level/tr4level.cpp
-     level/tr4level.h
-     level/tr5level.cpp
-     level/tr5level.h
+        level/game.h
+        level/level.cpp
+        level/level.h
+        level/tr1level.cpp
+        level/tr1level.h
+        level/tr2level.cpp
+        level/tr2level.h
+        level/tr3level.cpp
+        level/tr3level.h
+        level/tr4level.cpp
+        level/tr4level.h
+        level/tr5level.cpp
+        level/tr5level.h
 
-     loader/animation.h
-     loader/audio.h
-     loader/color.h
-     loader/datatypes.cpp
-     loader/datatypes.h
-     loader/floordata.h
-     loader/item.h
-     loader/larastateid.h
-     loader/meshes.h
-     loader/mesh.cpp
-     loader/mesh.h
-     loader/objwriter.h
-     loader/objwriter.cpp
-     loader/primitives.h
-     loader/texture.h
-     loader/texture.cpp
-     loader/util.h
-     loader/io/sdlreader.h
+        loader/animation.h
+        loader/audio.h
+        loader/color.h
+        loader/datatypes.cpp
+        loader/datatypes.h
+        loader/floordata.h
+        loader/item.h
+        loader/larastateid.h
+        loader/meshes.h
+        loader/mesh.cpp
+        loader/mesh.h
+        loader/objwriter.h
+        loader/objwriter.cpp
+        loader/primitives.h
+        loader/texture.h
+        loader/texture.cpp
+        loader/util.h
+        loader/io/sdlreader.h
 
-     render/portaltracer.h
-     render/textureanimator.h
+        render/portaltracer.h
+        render/textureanimator.h
 
-     audio/alext.h
-     audio/alext.cpp
-     audio/device.h
-     audio/device.cpp
-     audio/utils.h
-     audio/utils.cpp
-     audio/bufferhandle.h
-     audio/filterhandle.h
-     audio/sourcehandle.h
-     audio/streamsource.h
-     audio/stream.h
-     audio/sndfile/helpers.h
+        audio/alext.h
+        audio/alext.cpp
+        audio/device.h
+        audio/device.cpp
+        audio/utils.h
+        audio/utils.cpp
+        audio/bufferhandle.h
+        audio/filterhandle.h
+        audio/sourcehandle.h
+        audio/streamsource.h
+        audio/stream.h
+        audio/sndfile/helpers.h
 
-     util/helpers.h
-     util/vmath.h
+        util/helpers.h
+        util/vmath.h
 
-     engine/lara/abstractstatehandler.cpp
-     engine/lara/abstractstatehandler.h
-     engine/lara/statehandler_0.h
-     engine/lara/statehandler_1.h
-     engine/lara/statehandler_10.h
-     engine/lara/statehandler_11.h
-     engine/lara/statehandler_12.h
-     engine/lara/statehandler_13.h
-     engine/lara/statehandler_14.h
-     engine/lara/statehandler_15.h
-     engine/lara/statehandler_16.h
-     engine/lara/statehandler_17.h
-     engine/lara/statehandler_18.h
-     engine/lara/statehandler_19.h
-     engine/lara/statehandler_2.h
-     engine/lara/statehandler_20.h
-     engine/lara/statehandler_21.h
-     engine/lara/statehandler_22.h
-     engine/lara/statehandler_23.h
-     engine/lara/statehandler_24.h
-     engine/lara/statehandler_25.h
-     engine/lara/statehandler_26.h
-     engine/lara/statehandler_27.h
-     engine/lara/statehandler_28.h
-     engine/lara/statehandler_29.h
-     engine/lara/statehandler_3.h
-     engine/lara/statehandler_30.h
-     engine/lara/statehandler_31.h
-     engine/lara/statehandler_32.h
-     engine/lara/statehandler_33.h
-     engine/lara/statehandler_34.h
-     engine/lara/statehandler_35.h
-     engine/lara/statehandler_36.h
-     engine/lara/statehandler_37.h
-     engine/lara/statehandler_38.h
-     engine/lara/statehandler_39.h
-     engine/lara/statehandler_4.h
-     engine/lara/statehandler_40.h
-     engine/lara/statehandler_41.h
-     engine/lara/statehandler_42.h
-     engine/lara/statehandler_43.h
-     engine/lara/statehandler_44.h
-     engine/lara/statehandler_45.h
-     engine/lara/statehandler_46.h
-     engine/lara/statehandler_47.h
-     engine/lara/statehandler_48.h
-     engine/lara/statehandler_49.h
-     engine/lara/statehandler_5.h
-     engine/lara/statehandler_50.h
-     engine/lara/statehandler_51.h
-     engine/lara/statehandler_52.h
-     engine/lara/statehandler_53.h
-     engine/lara/statehandler_54.h
-     engine/lara/statehandler_55.h
-     engine/lara/statehandler_6.h
-     engine/lara/statehandler_7.h
-     engine/lara/statehandler_8.h
-     engine/lara/statehandler_9.h
-     engine/lara/statehandler_onwater.h
-     engine/lara/statehandler_pushable.h
-     engine/lara/statehandler_standing.h
-     engine/lara/statehandler_turnslow.h
-     engine/lara/statehandler_underwater.h
+        engine/lara/abstractstatehandler.cpp
+        engine/lara/abstractstatehandler.h
+        engine/lara/statehandler_0.h
+        engine/lara/statehandler_1.h
+        engine/lara/statehandler_10.h
+        engine/lara/statehandler_11.h
+        engine/lara/statehandler_12.h
+        engine/lara/statehandler_13.h
+        engine/lara/statehandler_14.h
+        engine/lara/statehandler_15.h
+        engine/lara/statehandler_16.h
+        engine/lara/statehandler_17.h
+        engine/lara/statehandler_18.h
+        engine/lara/statehandler_19.h
+        engine/lara/statehandler_2.h
+        engine/lara/statehandler_20.h
+        engine/lara/statehandler_21.h
+        engine/lara/statehandler_22.h
+        engine/lara/statehandler_23.h
+        engine/lara/statehandler_24.h
+        engine/lara/statehandler_25.h
+        engine/lara/statehandler_26.h
+        engine/lara/statehandler_27.h
+        engine/lara/statehandler_28.h
+        engine/lara/statehandler_29.h
+        engine/lara/statehandler_3.h
+        engine/lara/statehandler_30.h
+        engine/lara/statehandler_31.h
+        engine/lara/statehandler_32.h
+        engine/lara/statehandler_33.h
+        engine/lara/statehandler_34.h
+        engine/lara/statehandler_35.h
+        engine/lara/statehandler_36.h
+        engine/lara/statehandler_37.h
+        engine/lara/statehandler_38.h
+        engine/lara/statehandler_39.h
+        engine/lara/statehandler_4.h
+        engine/lara/statehandler_40.h
+        engine/lara/statehandler_41.h
+        engine/lara/statehandler_42.h
+        engine/lara/statehandler_43.h
+        engine/lara/statehandler_44.h
+        engine/lara/statehandler_45.h
+        engine/lara/statehandler_46.h
+        engine/lara/statehandler_47.h
+        engine/lara/statehandler_48.h
+        engine/lara/statehandler_49.h
+        engine/lara/statehandler_5.h
+        engine/lara/statehandler_50.h
+        engine/lara/statehandler_51.h
+        engine/lara/statehandler_52.h
+        engine/lara/statehandler_53.h
+        engine/lara/statehandler_54.h
+        engine/lara/statehandler_55.h
+        engine/lara/statehandler_6.h
+        engine/lara/statehandler_7.h
+        engine/lara/statehandler_8.h
+        engine/lara/statehandler_9.h
+        engine/lara/statehandler_onwater.h
+        engine/lara/statehandler_pushable.h
+        engine/lara/statehandler_standing.h
+        engine/lara/statehandler_turnslow.h
+        engine/lara/statehandler_underwater.h
 
-     engine/items/block.cpp
-     engine/items/block.h
-     engine/items/bridgeflat.h
-     engine/items/collapsiblefloor.cpp
-     engine/items/collapsiblefloor.h
-     engine/items/dart.h
-     engine/items/dartgun.h
-     engine/items/door.h
-     engine/items/itemnode.cpp
-     engine/items/itemnode.h
-     engine/items/pickupitem.h
-     engine/items/pickupitem.cpp
-     engine/items/slopedbridge.h
-     engine/items/stubitem.h
-     engine/items/swingingblade.cpp
-     engine/items/swingingblade.h
-     engine/items/switch.cpp
-     engine/items/switch.h
-     engine/items/tallblock.cpp
-     engine/items/tallblock.h
-     engine/items/trapdoordown.h
-     engine/items/trapdoorup.cpp
-     engine/items/trapdoorup.h
-     engine/items/underwaterswitch.h
-     engine/items/underwaterswitch.cpp
-)
+        engine/items/block.cpp
+        engine/items/block.h
+        engine/items/bridgeflat.h
+        engine/items/collapsiblefloor.cpp
+        engine/items/collapsiblefloor.h
+        engine/items/dart.h
+        engine/items/dartgun.h
+        engine/items/door.h
+        engine/items/itemnode.cpp
+        engine/items/itemnode.h
+        engine/items/pickupitem.h
+        engine/items/pickupitem.cpp
+        engine/items/slopedbridge.h
+        engine/items/stubitem.h
+        engine/items/swingingblade.cpp
+        engine/items/swingingblade.h
+        engine/items/switch.cpp
+        engine/items/switch.h
+        engine/items/tallblock.cpp
+        engine/items/tallblock.h
+        engine/items/trapdoordown.h
+        engine/items/trapdoorup.cpp
+        engine/items/trapdoorup.h
+        engine/items/underwaterswitch.h
+        engine/items/underwaterswitch.cpp
+        )
 
 add_executable(edisonengine
-    ${EDISONENGINE_SRCS}
-)
+        ${EDISONENGINE_SRCS}
+        )
 
 GROUP_FILES(${EDISONENGINE_SRCS})
 
-if(NOT MSVC)
+if (NOT MSVC)
     target_compile_options(edisonengine PRIVATE -Wall -Wextra)
-endif()
+endif ()
 
 target_link_libraries(
-    edisonengine
-    Boost
-    gameplay
-    ZLIB
-    OpenAL
-    SndFile
-    CImg
-    Assimp
-    yaml-cpp-lib
+        edisonengine
+        Boost
+        gameplay
+        ZLIB
+        OpenAL
+        SndFile
+        CImg
+        assimp-lib
+        yaml-cpp-lib
 )
+
+if (LINUX OR UNIX)
+    target_link_libraries(
+            edisonengine
+            pthread
+    )
+endif ()
 
 target_include_directories(edisonengine PRIVATE . ../3rdparty/GSL)

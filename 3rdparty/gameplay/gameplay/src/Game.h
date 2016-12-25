@@ -220,7 +220,7 @@ namespace gameplay
         {
             glfwPollEvents();
 
-            return glfwWindowShouldClose(_window) == GLFW_FALSE;
+            return glfwWindowShouldClose(_window) == GL_FALSE;
         }
 
 

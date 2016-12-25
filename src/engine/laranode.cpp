@@ -14,7 +14,7 @@
 namespace
 {
     bool roomsAreSwapped = false;
-    std::array<loader::ActivationState, 10> flipFlags{};
+    std::array<loader::ActivationState, 10> flipFlags;
 
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
