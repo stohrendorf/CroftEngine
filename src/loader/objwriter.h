@@ -17,6 +17,8 @@ struct aiScene;
 
 namespace loader
 {
+    struct Box;
+    struct Sector;
     struct Room;
 
 
@@ -54,6 +56,7 @@ namespace loader
                    const glm::vec3& ambientColor) const;
 
         void write(const std::vector<loader::Room>& rooms,
+                   const std::vector<loader::Box>& boxes,
                    const std::string& baseName,
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                    const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const;
@@ -67,6 +70,10 @@ namespace loader
                         const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                         const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                         const glm::vec3& ambientColor) const;
+
+        aiNode* convert(aiScene& scene,
+                        const std::vector<loader::Sector>& sectors,
+                        const std::vector<loader::Box>& boxes) const;
 
         void convert(aiScene& scene,
                      aiNode& outNode,
