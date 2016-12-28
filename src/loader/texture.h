@@ -7,9 +7,16 @@
 
 namespace loader
 {
+    namespace trx
+    {
+        class Glidos;
+    }
+
+
     struct ByteTexture
     {
         uint8_t pixels[256][256];
+
 
         static std::unique_ptr<ByteTexture> read(io::SDLReader& reader)
         {
@@ -18,6 +25,7 @@ namespace loader
             return textile;
         }
     };
+
 
     /** \brief 16-bit texture.
     *
@@ -30,6 +38,7 @@ namespace loader
     struct WordTexture
     {
         uint16_t pixels[256][256];
+
 
         static std::unique_ptr<WordTexture> read(io::SDLReader& reader)
         {
@@ -45,9 +54,12 @@ namespace loader
         }
     };
 
+
     struct DWordTexture final
     {
         glm::vec4 pixels[256][256];
+        std::string md5;
+
 
         static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
         {
@@ -62,7 +74,7 @@ namespace loader
                     const auto r = (tmp >> 16) & 0xff;
                     const auto g = (tmp >> 8) & 0xff;
                     const auto b = (tmp >> 0) & 0xff;
-                    textile->pixels[i][j] = { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+                    textile->pixels[i][j] = {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
                 }
             }
 
@@ -70,9 +82,10 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Texture> toTexture() const;
-        std::shared_ptr<gameplay::Image> toImage() const;
+        std::shared_ptr<gameplay::Texture> toTexture(trx::Glidos* glidos) const;
+        std::shared_ptr<gameplay::Image> toImage(trx::Glidos* glidos) const;
     };
+
 
     enum class BlendingMode : uint16_t
     {
@@ -89,6 +102,7 @@ namespace loader
         Hide,
         AnimatedTexture
     };
+
 
     /** \brief Object Texture Vertex.
     *
@@ -116,6 +130,7 @@ namespace loader
             return vert;
         }
 
+
         static UVCoordinates readTr4(io::SDLReader& reader)
         {
             UVCoordinates vert;
@@ -130,13 +145,16 @@ namespace loader
             return vert;
         }
 
+
         glm::vec2 toGl() const
         {
-            return glm::vec2{ xpixel / 255.0f, ypixel / 255.0f };
+            return glm::vec2{xpixel / 255.0f, ypixel / 255.0f};
         }
     };
 
+
     extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, const std::shared_ptr<gameplay::ShaderProgram>& shader);
+
 
     struct TextureLayoutProxy
     {
@@ -157,13 +175,15 @@ namespace loader
 
             int colorId = -1;
 
+
             inline bool operator==(const TextureKey& rhs) const
             {
                 return tileAndFlag == rhs.tileAndFlag
-                    && flags == rhs.flags
-                    && blendingMode == rhs.blendingMode
-                    && colorId == rhs.colorId;
+                       && flags == rhs.flags
+                       && blendingMode == rhs.blendingMode
+                       && colorId == rhs.colorId;
             }
+
 
             inline bool operator<(const TextureKey& rhs) const
             {
@@ -179,6 +199,7 @@ namespace loader
                 return colorId < rhs.colorId;
             }
         };
+
 
         TextureKey textureKey;
         UVCoordinates uvCoordinates[4]; // the four corners of the texture
@@ -217,6 +238,7 @@ namespace loader
             return proxy;
         }
 
+
         static std::unique_ptr<TextureLayoutProxy> readTr4(io::SDLReader& reader)
         {
             std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
@@ -237,6 +259,7 @@ namespace loader
             return proxy;
         }
 
+
         static std::unique_ptr<TextureLayoutProxy> readTr5(io::SDLReader& reader)
         {
             std::unique_ptr<TextureLayoutProxy> proxy = readTr4(reader);
@@ -246,6 +269,7 @@ namespace loader
             }
             return proxy;
         }
+
 
         std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, const std::shared_ptr<gameplay::ShaderProgram>& shader) const
         {

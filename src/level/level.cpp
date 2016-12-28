@@ -25,6 +25,9 @@
 #include "engine/items/underwaterswitch.h"
 
 #include "loader/objwriter.h"
+#include "loader/trx/trx.h"
+
+#include "util/md5.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -312,14 +315,14 @@ boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 }
 
 
-std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures()
+std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures(loader::trx::Glidos* glidos)
 {
     BOOST_ASSERT( !m_textures.empty() );
     std::vector<std::shared_ptr<gameplay::Texture>> textures;
     for( size_t i = 0; i < m_textures.size(); ++i )
     {
         loader::DWordTexture& texture = m_textures[i];
-        textures.emplace_back(texture.toTexture());
+        textures.emplace_back(texture.toTexture(glidos));
     }
     return textures;
 }
@@ -734,7 +737,10 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
     //device->setEventReceiver(m_inputHandler.get());
 
-    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures();
+    loader::trx::Glidos glidos{"assets/trx/JC levels 1-12/Textures/JC/jc_01_caves.txt"};
+    glidos.dump();
+
+    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(&glidos);
 
     auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(
@@ -776,7 +782,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {
-            objWriter.write(m_textures[i].toImage(), i);
+            objWriter.write(m_textures[i].toImage(nullptr), i);
         }
 
         for( const auto& trModel : m_animatedModels )
@@ -895,8 +901,8 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
             room.node->setDrawable(model);
         }
 
-        //BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
-        //objWriter.write(m_rooms, "_level.dae", materials, waterMaterials);
+        BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
+        objWriter.write(m_rooms, m_boxes, "_level.dae", materials, waterMaterials);
     }
 
     m_lara = createItems();
@@ -928,6 +934,8 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
                 dst.pixels[y][x] = {0, 0, 0, 0};
         }
     }
+
+    dst.md5 = util::md5(&tex.pixels[0][0], 256 * 256);
 }
 
 
