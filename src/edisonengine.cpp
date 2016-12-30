@@ -209,14 +209,14 @@ int main()
     FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {})};
     FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"})};
     depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
-                            [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+                            [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
                             {
                                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
                                 shaderProgram->setValue(*uniform, gsl::narrow_cast<float>(now.time_since_epoch().count()));
                             }
                         );
 
-    auto lastTime = game->getAbsoluteTime();
+    auto lastTime = game->getGameTime();
     while( game->loop() )
     {
         screenOverlay->getImage()->fill({0,0,0,0});
@@ -224,13 +224,13 @@ int main()
         lvl->m_audioDev.update();
         lvl->m_inputHandler->update();
 
-        auto deltaTime = game->getAbsoluteTime() - lastTime;
+        auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>( game->getGameTime() - lastTime );
         if( deltaTime <= std::chrono::microseconds::zero() )
         {
             continue;
         }
 
-        lastTime = game->getAbsoluteTime();
+        lastTime = game->getGameTime();
 
         update(deltaTime, lvl);
 

@@ -75,13 +75,6 @@ namespace gameplay
         void setVsync(bool enable);
 
         /**
-         * Gets the total absolute running time (in milliseconds) since Game::run().
-         *
-         * @return The total absolute running time (in milliseconds).
-         */
-        std::chrono::microseconds getAbsoluteTime();
-
-        /**
          * Gets the total game time (in milliseconds). This is the total accumulated game time (unpaused).
          *
          * You would typically use things in your game that you want to stop when the game is paused.
@@ -89,7 +82,10 @@ namespace gameplay
          *
          * @return The total game time (in milliseconds).
          */
-        std::chrono::microseconds getGameTime();
+        std::chrono::high_resolution_clock::time_point getGameTime() const
+        {
+            return std::chrono::high_resolution_clock::now() - _pausedTimeTotal;
+        }
 
         /**
          * Gets the game state.
@@ -281,23 +277,20 @@ namespace gameplay
          */
         void shutdown();
 
-        bool _initialized; // If game has initialized yet.
-        State _state; // The game state.
-        unsigned int _pausedCount; // Number of times pause() has been called.
-        static std::chrono::microseconds _pausedTimeLast; // The last time paused.
-        static std::chrono::microseconds _pausedTimeTotal; // The total time paused.
-        std::chrono::microseconds _frameLastFPS; // The last time the frame count was updated.
-        unsigned int _frameCount; // The current frame count.
-        unsigned int _frameRate; // The current frame rate.
-        int _width; // The game's display width.
-        int _height; // The game's display height.
+        bool _initialized = false; // If game has initialized yet.
+        State _state = UNINITIALIZED; // The game state.
+        std::chrono::high_resolution_clock::time_point _pauseStart{};
+        std::chrono::high_resolution_clock::duration _pausedTimeTotal{0}; // The total time paused.
+        std::chrono::high_resolution_clock::time_point _frameLastFPS{std::chrono::high_resolution_clock::now()}; // The last time the frame count was updated.
+        unsigned int _frameCount = 0; // The current frame count.
+        unsigned int _frameRate = 0; // The current frame rate.
+        int _width = 0; // The game's display width.
+        int _height = 0; // The game's display height.
         Rectangle _viewport; // the games's current viewport.
         glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
-        float _clearDepth; // The clear depth value last used for clearing the depth buffer.
-        int _clearStencil; // The clear stencil value last used for clearing the stencil buffer.
+        float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
+        int _clearStencil = 0; // The clear stencil value last used for clearing the stencil buffer.
 
-        std::chrono::high_resolution_clock::time_point _timeStart;
-        std::chrono::high_resolution_clock::duration _timeAbsolute;
         bool _vsync = WINDOW_VSYNC;
         bool _multiSampling = false;
         GLFWwindow* _window = nullptr;
@@ -305,8 +298,6 @@ namespace gameplay
         std::shared_ptr<Scene> _scene;
 
         friend class ScreenDisplayer;
-
-        static bool drawNode(RenderContext& context);
     };
 
 

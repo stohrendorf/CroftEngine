@@ -4,8 +4,6 @@
 #include "RenderContext.h"
 #include "Scene.h"
 
-#include <cstdlib>
-
 /** @script{ignore} */
 GLenum __gl_error_code = GL_NO_ERROR;
 
@@ -24,22 +22,8 @@ void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum seve
 
 namespace gameplay
 {
-    std::chrono::microseconds Game::_pausedTimeLast = std::chrono::microseconds::zero();
-    std::chrono::microseconds Game::_pausedTimeTotal = std::chrono::microseconds::zero();
-
-
     Game::Game()
-        : _initialized(false)
-        , _state(UNINITIALIZED)
-        , _pausedCount(0)
-        , _frameLastFPS(0)
-        , _frameCount(0)
-        , _frameRate(0)
-        , _width(0)
-        , _height(0)
-        , _clearDepth(1.0f)
-        , _clearStencil(0)
-        , _scene{std::make_shared<Scene>()}
+        : _scene{std::make_shared<Scene>()}
     {
         glfwSetErrorCallback(&glErrorCallback);
 
@@ -113,19 +97,6 @@ namespace gameplay
     }
 
 
-    bool Game::drawNode(RenderContext& context)
-    {
-        BOOST_ASSERT(context.getCurrentNode() != nullptr);
-        auto dr = context.getCurrentNode()->getDrawable();
-        if( dr != nullptr )
-        {
-            dr->draw(context);
-        }
-
-        return true;
-    }
-
-
     namespace
     {
         class RenderVisitor : public Visitor
@@ -160,20 +131,6 @@ namespace gameplay
         RenderContext context{wireframe};
         RenderVisitor visitor{context};
         _scene->accept(visitor);
-    }
-
-
-    std::chrono::microseconds Game::getAbsoluteTime()
-    {
-        _timeAbsolute = std::chrono::high_resolution_clock::now() - _timeStart;
-
-        return std::chrono::duration_cast<std::chrono::microseconds>(_timeAbsolute);
-    }
-
-
-    std::chrono::microseconds Game::getGameTime()
-    {
-        return getAbsoluteTime() - _pausedTimeTotal;
     }
 
 
@@ -237,13 +194,11 @@ namespace gameplay
 
     void Game::pause()
     {
-        if( _state == RUNNING )
+        if(_state == RUNNING)
         {
             _state = PAUSED;
-            _pausedTimeLast = getAbsoluteTime();
+            _pauseStart = std::chrono::high_resolution_clock::now();
         }
-
-        ++_pausedCount;
     }
 
 
@@ -251,13 +206,9 @@ namespace gameplay
     {
         if( _state == PAUSED )
         {
-            --_pausedCount;
-
-            if( _pausedCount == 0 )
-            {
-                _state = RUNNING;
-                _pausedTimeTotal += getAbsoluteTime() - _pausedTimeLast;
-            }
+            _pausedTimeTotal += std::chrono::high_resolution_clock::now() - _pauseStart;
+            _pauseStart = std::chrono::high_resolution_clock::now();
+            _state = RUNNING;
         }
     }
 
