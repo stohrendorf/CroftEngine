@@ -278,6 +278,12 @@ namespace loader
 
                 for(const auto& texturePath : pathMap.getMap())
                 {
+                    if(!boost::filesystem::is_directory(m_root / texturePath.second))
+                    {
+                        BOOST_LOG_TRIVIAL(warning) << "Directory " << m_root / texturePath.second << " does not exist, skipping";
+                        continue;
+                    }
+
                     for(boost::filesystem::directory_iterator it{ m_root / texturePath.second }; it != end; ++it)
                     {
                         Rectangle r;
@@ -285,7 +291,6 @@ namespace loader
                         {
                             r = Rectangle{ it->path().filename().string() };
                             BOOST_LOG_TRIVIAL(debug) << "Registering raw texture " << it->path();
-                            m_links[TexturePart(texturePath.first, r)] = it->path();
                         }
                         catch(std::runtime_error&)
                         {
@@ -293,31 +298,15 @@ namespace loader
                             continue;
                         }
 
-                        if(it->path().extension() == ".png" || it->path().extension() == ".bmp")
+                        try
                         {
+                            auto link = readSymlink(it->path());
+                            m_links[TexturePart(texturePath.first, r)] = link;
+                        }
+                        catch(std::runtime_error& ex)
+                        {
+                            BOOST_LOG_TRIVIAL(debug) << "Failed to follow texture links: " << ex.what();
                             continue;
-                        }
-
-                        // read link
-                        std::ifstream txt{ it->path().string() };
-                        if(!txt.is_open())
-                        {
-                            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos text file"));
-                        }
-
-                        std::string head;
-                        std::getline(txt, head);
-                        boost::algorithm::trim(head);
-                        if(boost::algorithm::starts_with(head, "TLNK:"))
-                        {
-                            BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture link from " << it->path();
-                            head.erase(0, head.find(":") + 1);
-                            boost::algorithm::trim(head);
-                            m_links[TexturePart(texturePath.first, r)] = boost::filesystem::path(m_root / head);
-                        }
-                        else
-                        {
-                            BOOST_LOG_TRIVIAL(warning) << "Don't know how to handle " << it->path();
                         }
                     }
                 }
@@ -385,13 +374,13 @@ namespace loader
                     {
                         line.erase(0, line.find(":") + 1);
                         boost::algorithm::trim(line);
-                        m_root = line;
+                        m_root = boost::algorithm::replace_all_copy(line, "\\", "/");
                     }
                     else if( boost::algorithm::starts_with(line, "BASE:") )
                     {
                         line.erase(0, line.find(":") + 1);
                         boost::algorithm::trim(line);
-                        base = line;
+                        base = boost::algorithm::replace_all_copy(line, "\\", "/");
                     }
                     else
                     {
@@ -401,7 +390,7 @@ namespace loader
                         {
                             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse mapping line"));
                         }
-                        result.add(parts[0], base / parts[1]);
+                        result.add(parts[0], base / boost::algorithm::replace_all_copy(parts[1], "\\", "/"));
                     }
                 }
 
@@ -478,11 +467,39 @@ namespace loader
 
                     for( const auto& part : set.getParts() )
                     {
-                        m_links[part] = ref;
+                        m_links[part] = readSymlink(ref);
                     }
                 }
             }
 
+
+            boost::filesystem::path readSymlink(const boost::filesystem::path& ref) const
+            {
+                if(ref.extension() != ".txt")
+                    return ref;
+
+                std::ifstream txt{ ref.string() };
+                if(!txt.is_open())
+                {
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos text file"));
+                }
+
+                std::string head;
+                std::getline(txt, head);
+                boost::algorithm::trim(head);
+                if(boost::algorithm::starts_with(head, "TLNK:"))
+                {
+                    BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture link from " << ref;
+                    head.erase(0, head.find(":") + 1);
+                    boost::algorithm::trim(head);
+                    boost::algorithm::replace_all(head, "\\", "/");
+                    return readSymlink(m_root / head);
+                }
+                else
+                {
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse Glidos texture link file"));
+                }
+            }
 
             std::map<TexturePart, boost::filesystem::path> m_links;
             boost::filesystem::path m_root;

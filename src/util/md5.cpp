@@ -32,6 +32,8 @@ documentation and/or software.
 
 #include "md5.h"
 
+#include <array>
+
 constexpr size_t Blocksize = 64;
 
 // Constants for MD5Transform routine.
@@ -57,13 +59,13 @@ constexpr size_t Blocksize = 64;
 // F, G, H and I are basic MD5 functions.
 inline uint32_t F(uint32_t x, uint32_t y, uint32_t z)
 {
-    return x & y | ~x & z;
+    return (x & y) | (~x & z);
 }
 
 
 inline uint32_t G(uint32_t x, uint32_t y, uint32_t z)
 {
-    return x & z | y & ~z;
+    return (x & z) | (y & ~z);
 }
 
 
@@ -117,9 +119,11 @@ inline void II(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint
 // decodes input (unsigned char) into output (uint32_t). Assumes len is a multiple of 4.
 void decode(uint32_t output[], const uint8_t input[], size_t len)
 {
-    for( unsigned int i = 0, j = 0; j < len; i++ , j += 4 )
+    for( unsigned int i = 0, j = 0; j < len; i++, j += 4 )
+    {
         output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j + 1]) << 8) |
                     (((uint32_t)input[j + 2]) << 16) | (((uint32_t)input[j + 3]) << 24);
+    }
 }
 
 
@@ -129,7 +133,7 @@ void decode(uint32_t output[], const uint8_t input[], size_t len)
 // a multiple of 4.
 void encode(uint8_t output[], const uint32_t input[], size_t len)
 {
-    for( size_t i = 0, j = 0; j < len; i++ , j += 4 )
+    for( size_t i = 0, j = 0; j < len; i++, j += 4 )
     {
         output[j] = input[i] & 0xff;
         output[j + 1] = (input[i] >> 8) & 0xff;
@@ -144,8 +148,8 @@ void encode(uint8_t output[], const uint32_t input[], size_t len)
 struct State
 {
     bool finalized = false;
-    uint8_t buffer[Blocksize]; // bytes that didn't fit in last 64 byte chunk
-    uint32_t count[2] = {0,0}; // 64bit counter for number of bits (lo, hi)
+    std::array<uint8_t, Blocksize> buffer; // bytes that didn't fit in last 64 byte chunk
+    std::array<uint32_t, 2> count = {0, 0}; // 64bit counter for number of bits (lo, hi)
     uint32_t state[4] = {0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u}; // digest so far
     uint8_t digest[16]; // the result
 
@@ -163,7 +167,7 @@ struct State
         {
             // Save number of bits
             unsigned char bits[8];
-            encode(bits, count, 8);
+            encode(bits, count.data(), 8);
 
             // pad out to 56 mod 64.
             size_t index = count[0] / 8 % 64;
@@ -177,8 +181,8 @@ struct State
             encode(digest, state, 16);
 
             // Zeroize sensitive information.
-            memset(buffer, 0, sizeof buffer);
-            memset(count, 0, sizeof count);
+            buffer.fill(0);
+            count.fill(0);
 
             finalized = true;
         }
@@ -188,8 +192,9 @@ struct State
     // apply MD5 algo on a block
     void transform(const uint8_t block[Blocksize])
     {
-        uint32_t a = state[0], b = state[1], c = state[2], d = state[3], x[16];
-        decode(x, block, Blocksize);
+        uint32_t a = state[0], b = state[1], c = state[2], d = state[3];
+        std::array<uint32_t, 16> x;
+        decode(x.data(), block, Blocksize);
 
         /* Round 1 */
         FF(a, b, c, d, x[0], S11, 0xd76aa478); /* 1 */
@@ -269,7 +274,7 @@ struct State
         state[3] += d;
 
         // Zeroize sensitive information.
-        memset(x, 0, sizeof x);
+        x.fill(0);
     }
 
 
@@ -282,7 +287,9 @@ struct State
 
         // Update number of bits
         if( (count[0] += (length << 3)) < (length << 3) )
+        {
             count[1]++;
+        }
         count[1] += (length >> 29);
 
         // number of bytes we need to fill in buffer
@@ -294,20 +301,24 @@ struct State
         if( length >= firstpart )
         {
             // fill buffer first, transform
-            memcpy(&buffer[index], input, firstpart);
-            transform(buffer);
+            std::copy(&input[0], &input[firstpart], &buffer[index]);
+            transform(buffer.data());
 
             // transform chunks of Blocksize (64 bytes)
             for( i = firstpart; i + Blocksize <= length; i += Blocksize )
+            {
                 transform(&input[i]);
+            }
 
             index = 0;
         }
         else
+        {
             i = 0;
+        }
 
         // buffer remaining input
-        memcpy(&buffer[index], &input[i], length - i);
+        std::copy(&input[i], &input[length], &buffer[index]);
     }
 
 
@@ -315,16 +326,21 @@ struct State
     std::string hexdigest() const
     {
         if( !finalized )
+        {
             return {};
+        }
 
         char buf[33];
         for( int i = 0; i < 16; i++ )
+        {
             sprintf(buf + i * 2, "%02X", digest[i]);
+        }
         buf[32] = 0;
 
         return std::string(buf);
     }
 };
+
 
 std::string util::md5(const uint8_t* data, size_t length)
 {

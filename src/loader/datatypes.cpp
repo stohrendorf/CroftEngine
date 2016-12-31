@@ -247,7 +247,7 @@ namespace loader
         // un-interleave
         original.permute_axes("yzcx");
         BOOST_ASSERT(original.width() == 256 && original.height() == 256 && original.spectrum() == 4);
-        original.resize(Resolution, Resolution, 1, 4);
+        original.resize(Resolution, Resolution, 1, 4, 6);
         BOOST_ASSERT(original.width() == Resolution && original.height() == Resolution && original.spectrum() == 4);
 
         auto mappings = glidos->getMappingsForTexture(md5);
@@ -276,7 +276,7 @@ namespace loader
                 BOOST_THROW_EXCEPTION(std::runtime_error("Can only use RGB and RGBA images"));
             }
 
-            srcImage.resize(mapping.first.getWidth() * Scale, mapping.first.getHeight() * Scale);
+            srcImage.resize(mapping.first.getWidth() * Scale, mapping.first.getHeight() * Scale, 1, 4, 6);
             const auto x0 = mapping.first.getX0()*Scale;
             const auto y0 = mapping.first.getY0()*Scale;
             for(int x=0; x<srcImage.width(); ++x)

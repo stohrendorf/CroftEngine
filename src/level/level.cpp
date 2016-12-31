@@ -737,10 +737,18 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
     //device->setEventReceiver(m_inputHandler.get());
 
-    loader::trx::Glidos glidos{"assets/trx/JC levels 1-12/Textures/JC/jc_01_caves.txt"};
-    glidos.dump();
+    std::unique_ptr<loader::trx::Glidos> glidos;
 
-    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(&glidos);
+    // static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_01_caves.txt";
+    static const char* trxPack = "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt";
+
+    if(boost::filesystem::is_regular_file(trxPack))
+    {
+        glidos = std::make_unique<loader::trx::Glidos>(trxPack);
+        glidos->dump();
+    }
+
+    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(glidos.get());
 
     auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(
