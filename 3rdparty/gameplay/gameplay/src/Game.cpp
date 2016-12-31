@@ -59,7 +59,7 @@ namespace gameplay
 
         // Create the windows
         _window = glfwCreateWindow(width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
-        if(_window == nullptr)
+        if( _window == nullptr )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create window";
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
@@ -67,56 +67,54 @@ namespace gameplay
 
         glfwMakeContextCurrent(_window);
 
-        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        // Use OpenGL 2.x with GLEW
-        glewExperimental = GL_TRUE;
+        glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
         const auto err = glewInit();
         if( err != GLEW_OK )
         {
             BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString(err));
         }
 
+        glGetError(); // clear the error flag
+
 #ifndef NDEBUG
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        GL_ASSERT(glEnable(GL_DEBUG_OUTPUT));
+        GL_ASSERT(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 
-        glDebugMessageCallback(&debugCallback, nullptr);
+        GL_ASSERT(glDebugMessageCallback(&debugCallback, nullptr));
 #endif
+
+        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
 
-    Game::~Game()
-    {
-        // Do not call any virtual functions from the destructor.
-        // Finalization is done from outside this class.
-#ifdef GP_USE_MEM_LEAK_DETECTION
-    Ref::printLeaks();
-    printMemoryLeaks();
-#endif
-    }
+    Game::~Game() = default;
 
 
     namespace
     {
-        class RenderVisitor : public Visitor
+        class RenderVisitor
+            : public Visitor
         {
         public:
             explicit RenderVisitor(RenderContext& context)
-                    : Visitor{ context }
+                : Visitor{context}
             {
             }
 
 
             void visit(Node& node) override
             {
-                if(!node.isEnabled())
+                if( !node.isEnabled() )
+                {
                     return;
+                }
 
                 getContext().setCurrentNode(&node);
 
-                if(auto dr = node.getDrawable())
+                if( auto dr = node.getDrawable() )
+                {
                     dr->draw(getContext());
+                }
 
                 Visitor::visit(node);
             }
@@ -126,7 +124,7 @@ namespace gameplay
 
     void Game::render(bool wireframe)
     {
-        clear(CLEAR_COLOR_DEPTH, {0,0,0,0}, 1, 0);
+        clear(CLEAR_COLOR_DEPTH, {0, 0, 0, 0}, 1, 0);
 
         RenderContext context{wireframe};
         RenderVisitor visitor{context};
@@ -150,9 +148,11 @@ namespace gameplay
     int Game::run()
     {
         if( _state != UNINITIALIZED )
+        {
             return -1;
+        }
 
-        glfwGetWindowSize(_window, &_width, &_height);
+        GL_ASSERT(glfwGetWindowSize(_window, &_width, &_height));
 
         // Start up game systems.
         if( !startup() )
@@ -168,7 +168,9 @@ namespace gameplay
     bool Game::startup()
     {
         if( _state != UNINITIALIZED )
+        {
             return false;
+        }
 
         setViewport(Rectangle(0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)));
         RenderState::initialize();
@@ -194,7 +196,7 @@ namespace gameplay
 
     void Game::pause()
     {
-        if(_state == RUNNING)
+        if( _state == RUNNING )
         {
             _state = PAUSED;
             _pauseStart = std::chrono::high_resolution_clock::now();
@@ -264,7 +266,8 @@ namespace gameplay
     void Game::setViewport(const Rectangle& viewport)
     {
         _viewport = viewport;
-        glViewport(static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y), static_cast<GLuint>(viewport.width), static_cast<GLuint>(viewport.height));
+        GL_ASSERT(glViewport(static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y), static_cast<GLuint>(viewport.width),
+                             static_cast<GLuint>(viewport.height)));
     }
 
 

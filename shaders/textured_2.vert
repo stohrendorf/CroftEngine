@@ -19,15 +19,16 @@ void main()
     v_texCoord = a_texCoord;
     v_color = a_color;
 
-    if(isnan(u_lightPosition.x))
+    if(isnan(u_lightPosition.x) || a_normal == vec3(0))
     {
         v_shadeFactor = clamp(u_baseLight + u_baseLightDiff, 0, 1);
-        return;
     }
+    else
+    {
+        vec3 vertexPos = (u_modelMatrix * vec4(a_position, 1)).xyz;
+        vec3 n = normalize((u_modelMatrix * vec4(a_normal, 0)).xyz);
+        vec3 dir = normalize(vec4(u_lightPosition, 1).xyz - vertexPos);
 
-    vec3 vertexPos = (u_modelMatrix * vec4(a_position, 1)).xyz;
-    vec3 n = normalize((u_modelMatrix * vec4(a_normal, 0)).xyz);
-    vec3 dir = normalize(vec4(u_lightPosition, 1).xyz - vertexPos);
-
-    v_shadeFactor = clamp(u_baseLight + dot(n, dir) * u_baseLightDiff, 0, 1);
+        v_shadeFactor = clamp(u_baseLight + dot(n, dir) * u_baseLightDiff, 0, 1);
+    }
 }

@@ -12,8 +12,10 @@ namespace
     }
 
 
-    void drawDebugInfo(const std::unique_ptr<gameplay::Font>& font, gsl::not_null<level::Level*> lvl)
+    void drawDebugInfo(const std::unique_ptr<gameplay::Font>& font, gsl::not_null<level::Level*> lvl, int fps)
     {
+        drawText(font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string(fps));
+
         // position/rotation
         drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
 
@@ -242,13 +244,6 @@ int main()
 
         lvl->drawBars(game, screenOverlay->getImage());
 
-        // update information about current frame-rate
-        //std::string str = "FPS: ";
-        //str += boost::lexical_cast<std::string>(driver->getFPS());
-        //str += " Tris: ";
-        //str += boost::lexical_cast<std::string>(driver->getPrimitiveCountDrawn());
-        //device->setWindowCaption(str.c_str());
-
         if(lvl->m_cameraController->getCurrentRoom()->isWaterRoom())
             depthDarknessWaterFx.bind();
         else
@@ -265,7 +260,7 @@ int main()
         else
             depthDarknessFx.render(context);
 
-        drawDebugInfo(font, lvl.get());
+        drawDebugInfo(font, lvl.get(), game->getFrameRate());
 
         screenOverlay->draw(context);
 

@@ -18,7 +18,7 @@ namespace loader
             glm::vec2 texcoord;
             glm::vec3 position;
             glm::vec4 color;
-            glm::vec3 normal{std::numeric_limits<float>::quiet_NaN()};
+            glm::vec3 normal{0.0f};
 
 
             static const gameplay::VertexFormat& getFormat()
@@ -166,10 +166,21 @@ namespace loader
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
+        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, glm::vec3{0.0f});
+        });
+        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, 1.0f);
+        });
+        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        {
+            shaderProgram->setValue(*uniform, 1.0f);
+        });
 
         for( const RoomStaticMesh& sm : this->staticMeshes )
         {
-            //! @todo Bind static mesh darkness to this material.
             auto idx = level.findStaticMeshIndexById(sm.meshId);
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());

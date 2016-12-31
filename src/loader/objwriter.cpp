@@ -39,7 +39,7 @@ namespace
         glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
         glm::vec3 position;
         glm::vec2 uv;
-        glm::vec3 normal{std::numeric_limits<float>::quiet_NaN()};
+        glm::vec3 normal{0.0f};
 
 
         static const gameplay::VertexFormat& getFormat()

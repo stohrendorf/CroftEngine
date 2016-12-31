@@ -37,16 +37,26 @@ namespace gameplay
         void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha);
 
         Font(const std::string& ttf, int size);
+
         ~Font();
+
 
         void setTarget(const std::shared_ptr<Image>& img)
         {
             m_targetImage = img;
         }
 
+
+        const std::shared_ptr<Image>& getTarget() const
+        {
+            return m_targetImage;
+        }
+
+
     private:
 
         Font(const Font& copy) = delete;
+
         Font& operator=(const Font&) = delete;
 
         FT_Face m_face = nullptr;
@@ -55,6 +65,6 @@ namespace gameplay
         int m_x0 = 0;
         int m_y0 = 0;
 
-        static void renderCallback(int y, int count, const FT_Span_ *spans, void *user);
+        static void renderCallback(int y, int count, const FT_Span_* spans, void* user);
     };
 }

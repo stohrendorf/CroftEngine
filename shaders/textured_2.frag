@@ -26,6 +26,4 @@ out_color.a = baseColor.a;
 
     out_color *= v_shadeFactor;
     out_color.a = 1;
-
-    out_color.a = 1;
 }
