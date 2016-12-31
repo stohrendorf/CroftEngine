@@ -3,9 +3,14 @@
 #include "level/level.h"
 #include "render/textureanimator.h"
 #include "util/vmath.h"
+#include "loader/trx/trx.h"
+#include <glm/gtc/type_ptr.hpp>
+
+#include "CImg.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
+#include "util/md5.h"
 
 
 namespace loader
@@ -227,16 +232,75 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Image> DWordTexture::toImage() const
+    std::shared_ptr<gameplay::Image> DWordTexture::toImage(trx::Glidos* glidos) const
     {
-        return std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
+        if(glidos == nullptr)
+            return std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
+
+        BOOST_LOG_TRIVIAL(info) << "Upgrading texture " << md5 << "...";
+
+        constexpr int Resolution = 2048;
+        constexpr int Scale = Resolution / 256;
+
+
+        cimg_library::CImg<float> original(glm::value_ptr(pixels[0][0]), 4, 256, 256, 1, false);
+        // un-interleave
+        original.permute_axes("yzcx");
+        BOOST_ASSERT(original.width() == 256 && original.height() == 256 && original.spectrum() == 4);
+        original.resize(Resolution, Resolution, 1, 4);
+        BOOST_ASSERT(original.width() == Resolution && original.height() == Resolution && original.spectrum() == 4);
+
+        auto mappings = glidos->getMappingsForTexture(md5);
+
+        for(const auto& mapping : mappings)
+        {
+            BOOST_LOG_TRIVIAL(info) << "  - Loading " << mapping.second << " into " << mapping.first;
+            if(!boost::filesystem::is_regular_file(mapping.second))
+            {
+                BOOST_LOG_TRIVIAL(warning) << "    File not found";
+                continue;
+            }
+
+            cimg_library::CImg<float> srcImage(mapping.second.string().c_str());
+            srcImage /= 255;
+
+            if(srcImage.spectrum() == 3)
+            {
+                srcImage.channels(0, 3);
+                BOOST_ASSERT(srcImage.spectrum() == 4);
+                srcImage.get_shared_channel(3).fill(1);
+            }
+
+            if(srcImage.spectrum() != 4)
+            {
+                BOOST_THROW_EXCEPTION(std::runtime_error("Can only use RGB and RGBA images"));
+            }
+
+            srcImage.resize(mapping.first.getWidth() * Scale, mapping.first.getHeight() * Scale);
+            const auto x0 = mapping.first.getX0()*Scale;
+            const auto y0 = mapping.first.getY0()*Scale;
+            for(int x=0; x<srcImage.width(); ++x)
+            {
+                for(int y = 0; y<srcImage.height(); ++y)
+                {
+                    for(int c=0; c<4; ++c)
+                    {
+                        original(x + x0, y + y0, 0, c) = srcImage(x, y, 0, c);
+                    }
+                }
+            }
+        }
+
+        // interleave
+        original.permute_axes("cxyz");
+
+        return std::make_shared<gameplay::Image>(Resolution, Resolution, reinterpret_cast<const glm::vec4*>(original.data()));
     }
 
 
-    std::shared_ptr<gameplay::Texture> DWordTexture::toTexture() const
+    std::shared_ptr<gameplay::Texture> DWordTexture::toTexture(trx::Glidos* glidos) const
     {
-        auto tex = std::make_shared<gameplay::Texture>(toImage(), false);
-        return tex;
+        return std::make_shared<gameplay::Texture>(toImage(glidos), false);
     }
 
 

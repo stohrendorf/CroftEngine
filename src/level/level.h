@@ -16,6 +16,15 @@
 #include <boost/detail/container_fwd.hpp>
 
 
+namespace loader
+{
+    namespace trx
+    {
+        class Glidos;
+    }
+}
+
+
 namespace level
 {
     class Level
@@ -97,7 +106,7 @@ namespace level
         boost::optional<size_t> findAnimatedModelIndexForType(uint32_t type) const;
         boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
 
-        std::vector<std::shared_ptr<gameplay::Texture>> createTextures();
+        std::vector<std::shared_ptr<gameplay::Texture>> createTextures(loader::trx::Glidos* glidos);
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode* createItems();
         void setUpRendering(gameplay::Game* game, const std::string& assetPath);

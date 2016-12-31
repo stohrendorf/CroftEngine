@@ -174,7 +174,7 @@ namespace
 
 
     template<typename T>
-    T append(T*& array, unsigned int& size, const T& value)
+    T& append(T*& array, unsigned int& size, const T& value)
     {
         if( array == nullptr )
         {
@@ -183,7 +183,7 @@ namespace
             array = new T[1];
             array[0] = value;
             size = 1;
-            return value;
+            return array[0];
         }
 
         BOOST_ASSERT(array != nullptr && size > 0);
@@ -193,7 +193,7 @@ namespace
         tmp[size] = value;
         std::swap(tmp, array);
         ++size;
-        return value;
+        return array[size - 1];
     }
 
 
@@ -504,6 +504,7 @@ namespace loader
 
 
     void OBJWriter::write(const std::vector<loader::Room>& rooms,
+                          const std::vector<loader::Box>& boxes,
                           const std::string& baseName,
                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const
@@ -553,6 +554,7 @@ namespace loader
                 continue;
 
             append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, node);
+            append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, convert(*scene, room.sectors, boxes))->mName = room.node->getId() + ":boxes";
 
             size_t lightId = 0;
             for(const auto& light : room.lights)
@@ -710,4 +712,44 @@ namespace loader
     {
         return "texture_" + std::to_string(id);
     }
+
+
+    aiNode* OBJWriter::convert(aiScene& scene, const std::vector<loader::Sector>& sectors, const std::vector<loader::Box>& boxes) const
+    {
+        std::unique_ptr<aiNode> outNode = std::make_unique<aiNode>("boxes");
+
+        append(outNode->mMeshes, outNode->mNumMeshes, scene.mNumMeshes);
+        auto outMesh = append(scene.mMeshes, scene.mNumMeshes, new aiMesh());
+
+        for(const auto& sector : sectors)
+        {
+            if(sector.boxIndex == 0xffff)
+                continue;
+
+            BOOST_ASSERT(sector.boxIndex < boxes.size());
+            const auto& box = boxes[sector.boxIndex];
+
+            const auto firstVertex = outMesh->mNumVertices;
+
+            glm::vec3 v;
+
+            v = core::TRCoordinates(box.xmin, box.true_floor, box.zmin).toRenderSystem() / float(SectorSize);
+            append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
+            v = core::TRCoordinates(box.xmax, box.true_floor, box.zmin).toRenderSystem() / float(SectorSize);
+            append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
+            v = core::TRCoordinates(box.xmax, box.true_floor, box.zmax).toRenderSystem() / float(SectorSize);
+            append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
+            v = core::TRCoordinates(box.xmin, box.true_floor, box.zmax).toRenderSystem() / float(SectorSize);
+            append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
+
+            auto& face = append(outMesh->mFaces, outMesh->mNumFaces, aiFace());
+            append(face.mIndices, face.mNumIndices, firstVertex + 0);
+            append(face.mIndices, face.mNumIndices, firstVertex + 1);
+            append(face.mIndices, face.mNumIndices, firstVertex + 2);
+            append(face.mIndices, face.mNumIndices, firstVertex + 3);
+        }
+
+        return outNode.release();
+    }
+
 }

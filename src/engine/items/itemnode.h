@@ -77,8 +77,8 @@ namespace engine
             bool m_flags2_02_toggledOn = false;
             bool m_flags2_04_ready = false;
             bool m_flags2_10 = false;
-            bool m_flags2_20 = true;
-            bool m_flags2_40 = false;
+            bool m_flags2_20_interactive = true;
+            bool m_flags2_40_alreadyLookedAt = false;
             bool m_flags2_80 = false;
 
             const bool m_hasProcessAnimCommandsOverride;

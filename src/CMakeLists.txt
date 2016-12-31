@@ -100,6 +100,7 @@ set( EDISONENGINE_SRCS
      loader/texture.cpp
      loader/util.h
      loader/io/sdlreader.h
+     loader/trx/trx.h
 
      render/portaltracer.h
      render/textureanimator.h
@@ -119,6 +120,8 @@ set( EDISONENGINE_SRCS
 
      util/helpers.h
      util/vmath.h
+     util/md5.h
+     util/md5.cpp
 
      engine/lara/abstractstatehandler.cpp
      engine/lara/abstractstatehandler.h
