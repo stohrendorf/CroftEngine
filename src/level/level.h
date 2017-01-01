@@ -62,7 +62,8 @@ namespace level
         std::vector<loader::SoundSource> m_soundSources;
         std::vector<loader::Box> m_boxes;
         std::vector<uint16_t> m_overlaps;
-        std::vector<loader::Zone> m_zones;
+        loader::Zones m_baseZones;
+        loader::Zones m_alternateZones;
         std::vector<loader::Item> m_items;
         std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemNodes;
         std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;

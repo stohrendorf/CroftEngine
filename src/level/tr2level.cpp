@@ -82,7 +82,8 @@ void TR2Level::loadFileData()
 
     m_reader.readVector(m_overlaps, m_reader.readU32());
 
-    m_reader.readVector(m_zones, m_boxes.size(), &loader::Zone::readTr2);
+    m_baseZones.read(m_boxes.size(), m_reader);
+    m_alternateZones.read(m_boxes.size(), m_reader);
 
     m_animatedTexturesUvCount = 0; // No UVRotate in TR2
     m_reader.readVector(m_animatedTextures, m_reader.readU32());

@@ -1304,40 +1304,22 @@ namespace loader
     };
 
 
-    struct Zone
+    using ZoneData = std::vector<uint16_t>;
+
+
+    struct Zones
     {
-        uint16_t flyZoneNormal;
-        std::vector<uint16_t> groundZonesNormal;
-        uint16_t flyZoneAlternate;
-        std::vector<uint16_t> groundZonesAlternate;
-
-
-        static std::unique_ptr<Zone> readTr1(io::SDLReader& reader)
+        void read(size_t boxCount, io::SDLReader& reader)
         {
-            return read(reader, 2);
+            reader.readVector(groundZone1, boxCount);
+            reader.readVector(groundZone2, boxCount);
+            reader.readVector(flyZone, boxCount);
         }
 
 
-        static std::unique_ptr<Zone> readTr2(io::SDLReader& reader)
-        {
-            return read(reader, 4);
-        }
-
-
-    private:
-        static std::unique_ptr<Zone> read(io::SDLReader& reader, size_t n)
-        {
-            Expects(n == 2 || n == 4);
-
-            std::unique_ptr<Zone> zone{new Zone()};
-            zone->flyZoneNormal = reader.readU16();
-            for( size_t i = 0; i < n; ++i )
-                zone->groundZonesNormal.emplace_back(reader.readU16());
-            zone->flyZoneAlternate = reader.readU16();
-            for( size_t i = 0; i < n; ++i )
-                zone->groundZonesAlternate.emplace_back(reader.readU16());
-            return zone;
-        }
+        ZoneData groundZone1{};
+        ZoneData groundZone2{};
+        ZoneData flyZone{};
     };
 
 

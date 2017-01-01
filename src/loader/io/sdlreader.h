@@ -174,31 +174,31 @@ public:
     }
 
     template<typename T>
-    void appendVector(std::vector<T>& elements, typename std::vector<T>::size_type count, PtrProducer<T> producer)
+    void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T> producer)
     {
         BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
 
         elements.reserve(elements.size() + count);
-        for(typename std::vector<T>::size_type i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             elements.emplace_back(std::move(*producer(*this)));
         }
     }
 
     template<typename T>
-    void appendVector(std::vector<T>& elements, typename std::vector<T>::size_type count, StackProducer<T> producer)
+    void appendVector(std::vector<T>& elements, size_t count, StackProducer<T> producer)
     {
         BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
 
         elements.reserve(elements.size() + count);
-        for(typename std::vector<T>::size_type i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             elements.emplace_back(producer(*this));
         }
     }
 
     template<typename T>
-    void readVector(std::vector<T>& elements, typename std::vector<T>::size_type count)
+    void readVector(std::vector<T>& elements, size_t count)
     {
         BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ")";
 
@@ -210,7 +210,7 @@ public:
         }
     }
 
-    void readVector(std::vector<uint8_t>& elements, std::vector<uint8_t>::size_type count)
+    void readVector(std::vector<uint8_t>& elements, size_t count)
     {
         BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<uint8_t>().pretty_name() << "` (size " << sizeof(uint8_t) << ")";
 
@@ -219,7 +219,7 @@ public:
         readBytes(elements.data(), count);
     }
 
-    void readVector(std::vector<int8_t>& elements, std::vector<int8_t>::size_type count)
+    void readVector(std::vector<int8_t>& elements, size_t count)
     {
         BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<int8_t>().pretty_name() << "` (size " << sizeof(int8_t) << ")";
 

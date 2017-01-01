@@ -111,7 +111,8 @@ void TR1Level::loadFileData()
     m_reader.readVector(m_overlaps, m_reader.readU32());
 
     BOOST_LOG_TRIVIAL(debug) << "Reading zones";
-    m_reader.readVector(m_zones, m_boxes.size(), &loader::Zone::readTr1);
+    m_baseZones.read(m_boxes.size(), m_reader);
+    m_alternateZones.read(m_boxes.size(), m_reader);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading animated textures";
     m_animatedTexturesUvCount = 0; // No UVRotate in TR1
