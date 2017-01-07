@@ -83,7 +83,7 @@ namespace engine
 
         void ItemNode::onFrameChanged(FrameChangeType frameChangeType)
         {
-            m_flags2_10 = false;
+            m_flags2_10_isHit = false;
 
             const loader::Animation& animation = getLevel().m_animations[getAnimId()];
             if( animation.animCommandCount <= 0 )

@@ -912,7 +912,7 @@ namespace engine
 
     void LaraNode::testInteractions()
     {
-        m_flags2_10 = false;
+        m_flags2_10_isHit = false;
 
         if( m_health < 0 )
             return;
@@ -927,7 +927,7 @@ namespace engine
             if( rooms.find(item->getCurrentRoom()) == rooms.end() )
                 continue;
 
-            if( !item->m_flags2_20_interactive )
+            if( !item->m_flags2_20_collidable )
                 continue;
 
             if( item->m_flags2_04_ready && item->m_flags2_02_toggledOn )

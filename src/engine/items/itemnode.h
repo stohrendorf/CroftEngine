@@ -76,10 +76,10 @@ namespace engine
             bool m_isActive = false;
             bool m_flags2_02_toggledOn = false;
             bool m_flags2_04_ready = false;
-            bool m_flags2_10 = false;
-            bool m_flags2_20_interactive = true;
+            bool m_flags2_10_isHit = false;
+            bool m_flags2_20_collidable = true;
             bool m_flags2_40_alreadyLookedAt = false;
-            bool m_flags2_80 = false;
+            bool m_flags2_80_dynamicLight = false;
 
             const bool m_hasProcessAnimCommandsOverride;
             const uint8_t m_characteristics;
