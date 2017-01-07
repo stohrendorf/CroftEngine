@@ -237,6 +237,13 @@ namespace loader
             {
                 BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture pack from " << baseTxtName;
 
+                m_rootTimestamp = std::max(
+                    std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(baseTxtName)),
+                    std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(baseTxtName.parent_path() / "equiv.txt"))
+                                          );
+
+                m_baseDir = baseTxtName.parent_path();
+
                 PathMap pathMap;
                 {
                     std::ifstream txt{baseTxtName.string()};
@@ -253,12 +260,12 @@ namespace loader
                         BOOST_THROW_EXCEPTION(std::runtime_error("Invalid texture mapping header"));
                     }
                     pathMap = readTextureMapping(txt);
-                    m_root = baseTxtName.parent_path() / m_root;
+                    m_root = m_baseDir / m_root;
                 }
 
                 Equiv equiv;
                 {
-                    std::ifstream txt{(baseTxtName.parent_path() / "equiv.txt").string()};
+                    std::ifstream txt{(m_baseDir / "equiv.txt").string()};
                     if( !txt.is_open() )
                     {
                         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos equiv file"));
@@ -300,7 +307,9 @@ namespace loader
 
                         try
                         {
-                            auto link = readSymlink(it->path());
+                            auto& ts = m_newestTextureSourceTimestamps[texturePath.first];
+                            ts = std::max(ts, m_rootTimestamp);
+                            auto link = readSymlink(it->path(), ts);
                             m_links[TexturePart(texturePath.first, r)] = link;
                         }
                         catch(std::runtime_error& ex)
@@ -328,30 +337,40 @@ namespace loader
                 {
                     BOOST_LOG_TRIVIAL(info) << "Texture " << md5;
                     auto mappings = getMappingsForTexture(md5);
-                    if( mappings.empty() )
+                    if( mappings.tiles.empty() )
                     {
                         BOOST_LOG_TRIVIAL(warning) << "  - No mappings";
                         continue;
                     }
 
-                    for( const auto& mapping : mappings )
+                    for( const auto& tile : mappings.tiles )
                     {
-                        BOOST_LOG_TRIVIAL(info) << "  - " << mapping.first << " => " << mapping.second;
+                        BOOST_LOG_TRIVIAL(info) << "  - " << tile.first << " => " << tile.second;
                     }
                 }
             }
 
 
-            std::map<Rectangle, boost::filesystem::path> getMappingsForTexture(const std::string& textureId) const
+            struct TileMap
             {
-                std::map<Rectangle, boost::filesystem::path> result;
+                std::map<Rectangle, boost::filesystem::path> tiles;
+                std::chrono::system_clock::time_point newestSource;
+                boost::filesystem::path baseDir;
+            };
+
+
+            TileMap getMappingsForTexture(const std::string& textureId) const
+            {
+                TileMap result;
+                result.newestSource = std::max(m_newestTextureSourceTimestamps[textureId], m_rootTimestamp);
+                result.baseDir = m_baseDir;
 
                 for( const auto& link : m_links )
                 {
                     if( link.first.getId() != textureId )
                         continue;
 
-                    result[link.first.getRectangle()] = link.second;
+                    result.tiles[link.first.getRectangle()] = link.second;
                 }
 
                 return result;
@@ -467,13 +486,15 @@ namespace loader
 
                     for( const auto& part : set.getParts() )
                     {
-                        m_links[part] = readSymlink(ref);
+                        auto& ts = m_newestTextureSourceTimestamps[part.getId()];
+                        ts = std::max(ts, m_rootTimestamp);
+                        m_links[part] = readSymlink(ref, ts);
                     }
                 }
             }
 
 
-            boost::filesystem::path readSymlink(const boost::filesystem::path& ref) const
+            boost::filesystem::path readSymlink(const boost::filesystem::path& ref, std::chrono::system_clock::time_point& srcTimestamp) const
             {
                 if(ref.extension() != ".txt")
                     return ref;
@@ -493,7 +514,8 @@ namespace loader
                     head.erase(0, head.find(":") + 1);
                     boost::algorithm::trim(head);
                     boost::algorithm::replace_all(head, "\\", "/");
-                    return readSymlink(m_root / head);
+                    srcTimestamp = std::max(srcTimestamp, std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(ref)));
+                    return readSymlink(m_root / head, srcTimestamp);
                 }
                 else
                 {
@@ -503,6 +525,9 @@ namespace loader
 
             std::map<TexturePart, boost::filesystem::path> m_links;
             boost::filesystem::path m_root;
+            boost::filesystem::path m_baseDir;
+            mutable std::map<std::string, std::chrono::system_clock::time_point> m_newestTextureSourceTimestamps;
+            std::chrono::system_clock::time_point m_rootTimestamp;
         };
     }
 }

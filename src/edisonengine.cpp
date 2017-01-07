@@ -165,7 +165,7 @@ int main()
         int secrets;
     };
 
-    static constexpr int LevelToLoad = 2;
+    static constexpr int LevelToLoad = 0;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1
