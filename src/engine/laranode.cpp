@@ -77,19 +77,19 @@ namespace engine
 {
     void LaraNode::setTargetState(LaraStateId st)
     {
-        ItemNode::setTargetState(static_cast<uint16_t>(st));
+        items::ItemNode::setTargetState(static_cast<uint16_t>(st));
     }
 
 
     loader::LaraStateId LaraNode::getTargetState() const
     {
-        return static_cast<LaraStateId>(ItemNode::getTargetState());
+        return static_cast<LaraStateId>(items::ItemNode::getTargetState());
     }
 
 
     void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
-        ItemNode::setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
+        items::ItemNode::setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
     }
 
 
@@ -367,7 +367,7 @@ namespace engine
 
     loader::LaraStateId LaraNode::getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(ItemNode::getCurrentState());
+        return static_cast<loader::LaraStateId>(items::ItemNode::getCurrentState());
     }
 
 
@@ -642,7 +642,7 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
                     if( !swtch.triggerSwitch(activationRequest) )
                         return;
 
@@ -654,7 +654,7 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& key = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& key = *getLevel().m_itemNodes[command.parameter];
                     if( key.triggerKey() )
                         conditionFulfilled = true;
                 }
@@ -663,7 +663,7 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
                     if( pickup.triggerPickUp() )
                         conditionFulfilled = true;
                 }
@@ -696,7 +696,7 @@ namespace engine
                 case floordata::CommandOpcode::Activate:
                 {
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& item = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& item = *getLevel().m_itemNodes[command.parameter];
                     if( item.m_activationState.isOneshot() )
                         break;
 
@@ -722,34 +722,30 @@ namespace engine
 
                     if( (item.m_characteristics & 0x02) == 0 )
                     {
-                        item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_triggerState = engine::items::TriggerState::Enabled;
                         item.activate();
                         break;
                     }
 
-                    if( !item.m_flags2_02_toggledOn && !item.m_flags2_04_ready )
+                    if( item.m_triggerState == engine::items::TriggerState::Disabled )
                     {
                         //! @todo Implement baddie
-                        item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_triggerState = engine::items::TriggerState::Enabled;
                         item.activate();
                         break;
                     }
 
-                    if( !item.m_flags2_02_toggledOn || !item.m_flags2_04_ready )
+                    if( item.m_triggerState != engine::items::TriggerState::Locked )
                         break;
 
                     //! @todo Implement baddie
                     if( false ) //!< @todo unpauseBaddie
                     {
-                        item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_ready = false;
+                        item.m_triggerState = engine::items::TriggerState::Enabled;
                     }
                     else
                     {
-                        item.m_flags2_02_toggledOn = true;
-                        item.m_flags2_04_ready = true;
+                        item.m_triggerState = engine::items::TriggerState::Locked;
                     }
                     item.activate();
                 }
@@ -922,7 +918,7 @@ namespace engine
         for( const loader::Portal& p : getCurrentRoom()->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
+        for( const std::shared_ptr<engine::items::ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
         {
             if( rooms.find(item->getCurrentRoom()) == rooms.end() )
                 continue;
@@ -930,7 +926,7 @@ namespace engine
             if( !item->m_flags2_20_collidable )
                 continue;
 
-            if( item->m_flags2_04_ready && item->m_flags2_02_toggledOn )
+            if( item->m_triggerState == items::TriggerState::Locked )
                 continue;
 
             const auto d = getPosition() - item->getPosition();

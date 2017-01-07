@@ -71,8 +71,7 @@ namespace engine
 
                 auto dart = getLevel().createItem<Dart>(39, getCurrentRoom(), getRotation().Y, getPosition() - d, floordata::ActivationState{});
                 dart->activate();
-                dart->m_flags2_02_toggledOn = true;
-                dart->m_flags2_04_ready = false;
+                dart->m_triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
                 ItemNode::onFrameChanged(frameChangeType);

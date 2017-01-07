@@ -18,7 +18,7 @@ namespace engine
             if( lara.isFalling() )
                 return;
 
-            if( m_flags2_04_ready || m_flags2_02_toggledOn )
+            if( m_triggerState != engine::items::TriggerState::Disabled )
                 return;
 
             if( lara.getCurrentState() != loader::LaraStateId::Stop )
@@ -64,8 +64,7 @@ namespace engine
                 lara.setHandStatus( 1 );
             }
 
-            m_flags2_04_ready = false;
-            m_flags2_02_toggledOn = true;
+            m_triggerState = engine::items::TriggerState::Enabled;
 
             activate();
         }

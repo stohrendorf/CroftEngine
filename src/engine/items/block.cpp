@@ -10,7 +10,7 @@ namespace engine
     {
         void Block::onInteract(LaraNode& lara)
         {
-            if( !getLevel().m_inputHandler->getInputState().action || (m_flags2_02_toggledOn && !m_flags2_04_ready)
+            if( !getLevel().m_inputHandler->getInputState().action || m_triggerState == engine::items::TriggerState::Enabled
                 || isFalling() || !util::fuzzyEqual(lara.getPosition().Y, getPosition().Y, 1.0f) )
                 return;
 
@@ -104,8 +104,7 @@ namespace engine
 
             activate();
             loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
-            m_flags2_02_toggledOn = true;
-            m_flags2_04_ready = false;
+            m_triggerState = engine::items::TriggerState::Enabled;
         }
 
 
@@ -134,19 +133,17 @@ namespace engine
                 pos.position.Y = height;
                 setPosition(pos.position);
                 setFalling(false);
-                m_flags2_02_toggledOn = false;
-                m_flags2_04_ready = true;
+                m_triggerState = engine::items::TriggerState::Activated;
                 //! @todo Shake camera
                 playSoundEffect(70);
             }
 
             setCurrentRoom(pos.room);
 
-            if( m_flags2_02_toggledOn || !m_flags2_04_ready )
+            if( m_triggerState != engine::items::TriggerState::Activated )
                 return;
 
-            m_flags2_02_toggledOn = false;
-            m_flags2_04_ready = false;
+            m_triggerState = engine::items::TriggerState::Disabled;
             deactivate();
             loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
             pos = getRoomBoundPosition();

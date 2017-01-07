@@ -36,7 +36,7 @@ namespace engine
                     {
                         // TODO: Remove item from room, handle pick up
 
-                        m_flags2_04_ready = true;
+                        m_triggerState = engine::items::TriggerState::Locked;
                     }
                 }
                 else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentState() == LaraStateId::UnderwaterStop && lara.alignTransform(aimSpeed, *this) )
@@ -73,7 +73,7 @@ namespace engine
                             lara.getChild(7)->setDrawable(getLevel().getModel(getLevel().m_meshIndices[shotgunLara.firstMesh + 7]));
                         }
 
-                        m_flags2_04_ready = true;
+                        m_triggerState = engine::items::TriggerState::Locked;
 
                         // TODO: Remove item from room, handle pick up
                     }

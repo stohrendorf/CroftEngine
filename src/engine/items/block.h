@@ -20,7 +20,7 @@ namespace engine
                   const loader::AnimatedModel& animatedModel)
                 : ItemNode(level, name, room, angle, position, activationState, true, 0x34, darkness, animatedModel)
             {
-                if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
+                if( m_triggerState != engine::items::TriggerState::Locked )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
             }
 

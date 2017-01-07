@@ -12,7 +12,7 @@ namespace engine
             if( !getLevel().m_inputHandler->getInputState().action )
                 return;
 
-            if(m_flags2_02_toggledOn || m_flags2_04_ready)
+            if(m_triggerState != engine::items::TriggerState::Disabled)
                 return;
 
             if(!lara.isDiving())
@@ -46,8 +46,7 @@ namespace engine
             } while(lara.getCurrentAnimState() != LaraStateId::SwitchDown);
             lara.setTargetState(LaraStateId::UnderwaterStop);
             lara.setHandStatus(1);
-            m_flags2_02_toggledOn = true;
-            m_flags2_04_ready = false;
+            m_triggerState = engine::items::TriggerState::Enabled;
 
             if(getCurrentState() == 1)
                 setTargetState(0);

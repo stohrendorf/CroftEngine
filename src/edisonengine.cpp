@@ -43,10 +43,21 @@ namespace
                     continue;
 
                 drawText(font, 10, y, item->getId());
-                if( item->m_flags2_02_toggledOn )
-                    drawText(font, 180, y, "toggled");
-                if( item->m_flags2_04_ready )
-                    drawText(font, 220, y, "ready");
+                switch(item->m_triggerState)
+                {
+                    case engine::items::TriggerState::Disabled:
+                        drawText(font, 180, y, "disabled");
+                        break;
+                    case engine::items::TriggerState::Enabled:
+                        drawText(font, 180, y, "enabled");
+                        break;
+                    case engine::items::TriggerState::Activated:
+                        drawText(font, 180, y, "activated");
+                        break;
+                    case engine::items::TriggerState::Locked:
+                        drawText(font, 180, y, "locked");
+                        break;
+                }
                 drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_activationState.getTimeout().count()));
                 y += 20;
             }
@@ -165,7 +176,7 @@ int main()
         int secrets;
     };
 
-    static constexpr int LevelToLoad = 15;
+    static constexpr int LevelToLoad = 2;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1

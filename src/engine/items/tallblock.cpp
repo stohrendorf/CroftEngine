@@ -13,11 +13,10 @@ namespace engine
             getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), &room );
             setCurrentRoom( room );
 
-            if( m_flags2_02_toggledOn || !m_flags2_04_ready )
+            if( m_triggerState != engine::items::TriggerState::Activated )
                 return;
 
-            m_flags2_02_toggledOn = true;
-            m_flags2_04_ready = false;
+            m_triggerState = engine::items::TriggerState::Enabled;
             loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
             auto pos = getPosition();
             pos.X = std::floor( pos.X / loader::SectorSize ) * loader::SectorSize + loader::SectorSize / 2;

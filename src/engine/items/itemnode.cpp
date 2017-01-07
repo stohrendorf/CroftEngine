@@ -48,8 +48,7 @@ namespace engine
             if(m_activationState.isOneshot())
             {
                 m_activationState.setOneshot(false);
-                m_flags2_02_toggledOn = true;
-                m_flags2_04_ready = true;
+                m_triggerState = engine::items::TriggerState::Locked;
             }
 
             if(m_activationState.isFullyActivated())
@@ -57,8 +56,7 @@ namespace engine
                 m_activationState.fullyDeactivate();
                 m_activationState.setInverted(true);
                 activate();
-                m_flags2_02_toggledOn = true;
-                m_flags2_04_ready = false;
+                m_triggerState = engine::items::TriggerState::Enabled;
             }
         }
 
@@ -142,8 +140,7 @@ namespace engine
                     case AnimCommandOpcode::Kill:
                         if( frameChangeType == FrameChangeType::EndOfAnim )
                         {
-                            m_flags2_02_toggledOn = false;
-                            m_flags2_04_ready = true;
+                            m_triggerState = engine::items::TriggerState::Activated;
                         }
                         break;
                     default:
@@ -157,8 +154,7 @@ namespace engine
         {
             if( !m_hasProcessAnimCommandsOverride )
             {
-                m_flags2_02_toggledOn = false;
-                m_flags2_04_ready = false;
+                m_triggerState = engine::items::TriggerState::Disabled;
                 return;
             }
 
@@ -204,11 +200,10 @@ namespace engine
             if( getLevel().m_lara->getHandStatus() != 0 )
                 return false;
 
-            if( m_flags2_04_ready || !m_flags2_02_toggledOn )
+            if( m_triggerState != engine::items::TriggerState::Enabled )
                 return false;
 
-            m_flags2_02_toggledOn = false;
-            m_flags2_04_ready = true;
+            m_triggerState = engine::items::TriggerState::Activated;
             return true;
         }
 

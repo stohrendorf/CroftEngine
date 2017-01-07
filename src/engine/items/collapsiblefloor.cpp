@@ -16,8 +16,7 @@ namespace engine
             {
                 if( !util::fuzzyEqual( getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f ) )
                 {
-                    m_flags2_02_toggledOn = false;
-                    m_flags2_04_ready = false;
+                    m_triggerState = engine::items::TriggerState::Disabled;
                     deactivate();
                     return;
                 }
@@ -34,7 +33,7 @@ namespace engine
 
             ItemNode::onFrameChanged( frameChangeType );
 
-            if( m_flags2_04_ready && !m_flags2_02_toggledOn )
+            if( m_triggerState == engine::items::TriggerState::Activated )
             {
                 deactivate();
                 return;

@@ -51,6 +51,15 @@ namespace engine
         };
 
 
+        enum class TriggerState
+        {
+            Disabled,
+            Enabled,
+            Activated,
+            Locked
+        };
+
+
         class ItemNode : public SkeletalModelNode
         {
             core::RoomBoundPosition m_position;
@@ -74,8 +83,7 @@ namespace engine
         public:
             floordata::ActivationState m_activationState;
             bool m_isActive = false;
-            bool m_flags2_02_toggledOn = false;
-            bool m_flags2_04_ready = false;
+            TriggerState m_triggerState = TriggerState::Disabled;
             bool m_flags2_10_isHit = false;
             bool m_flags2_20_collidable = true;
             bool m_flags2_40_alreadyLookedAt = false;
@@ -336,22 +344,20 @@ namespace engine
 
             bool triggerSwitch(const floordata::ActivationState& arg)
             {
-                if( !m_flags2_04_ready || m_flags2_02_toggledOn )
+                if( m_triggerState != engine::items::TriggerState::Activated )
                 {
                     return false;
                 }
 
-                m_flags2_04_ready = false;
-
                 if( getCurrentState() != 0 || arg.isLocked() )
                 {
                     deactivate();
-                    m_flags2_02_toggledOn = false;
+                    m_triggerState = TriggerState::Disabled;
                 }
                 else
                 {
                     m_activationState.setTimeout(arg.getTimeout());
-                    m_flags2_02_toggledOn = true;
+                    m_triggerState = TriggerState::Enabled;
                 }
 
                 return true;
@@ -363,11 +369,10 @@ namespace engine
 
             bool triggerPickUp()
             {
-                if( !m_flags2_04_ready || !m_flags2_02_toggledOn )
+                if( m_triggerState != engine::items::TriggerState::Locked )
                     return false;
 
-                m_flags2_02_toggledOn = false;
-                m_flags2_04_ready = true;
+                m_triggerState = TriggerState::Activated;
                 return true;
             }
 
