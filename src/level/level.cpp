@@ -315,14 +315,14 @@ boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 }
 
 
-std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures(loader::trx::Glidos* glidos)
+std::vector<std::shared_ptr<gameplay::Texture>> Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
 {
     BOOST_ASSERT( !m_textures.empty() );
     std::vector<std::shared_ptr<gameplay::Texture>> textures;
     for( size_t i = 0; i < m_textures.size(); ++i )
     {
         loader::DWordTexture& texture = m_textures[i];
-        textures.emplace_back(texture.toTexture(glidos));
+        textures.emplace_back(texture.toTexture(glidos, lvlName));
     }
     return textures;
 }
@@ -729,7 +729,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
 }
 
 
-void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
+void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& assetPath, const boost::filesystem::path& lvlName)
 {
     //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
     //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
@@ -748,7 +748,7 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
         glidos->dump();
     }
 
-    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(glidos.get());
+    std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(glidos.get(), lvlName);
 
     auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(
@@ -786,11 +786,11 @@ void Level::setUpRendering(gameplay::Game* game, const std::string& assetPath)
     }
 
     {
-        loader::OBJWriter objWriter{assetPath};
+        loader::OBJWriter objWriter{assetPath / lvlName};
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {
-            objWriter.write(m_textures[i].toImage(nullptr), i);
+            objWriter.write(m_textures[i].toImage(nullptr, {}), i);
         }
 
         for( const auto& trModel : m_animatedModels )

@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <boost/detail/container_fwd.hpp>
+#include <boost/filesystem/path.hpp>
 
 
 namespace loader
@@ -107,10 +108,10 @@ namespace level
         boost::optional<size_t> findAnimatedModelIndexForType(uint32_t type) const;
         boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
 
-        std::vector<std::shared_ptr<gameplay::Texture>> createTextures(loader::trx::Glidos* glidos);
+        std::vector<std::shared_ptr<gameplay::Texture>> createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode* createItems();
-        void setUpRendering(gameplay::Game* game, const std::string& assetPath);
+        void setUpRendering(gameplay::Game* game, const boost::filesystem::path& assetPath, const boost::filesystem::path& lvlName);
 
 
         template<typename T>

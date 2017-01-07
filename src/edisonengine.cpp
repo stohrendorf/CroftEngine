@@ -165,7 +165,7 @@ int main()
         int secrets;
     };
 
-    static constexpr int LevelToLoad = 0;
+    static constexpr int LevelToLoad = 3;
     LevelInfo levels[] = {
         {"GYM", "Lara's Home", 0, 0},
         {"LEVEL1", "Caves", 57, 3}, // 1
@@ -191,7 +191,7 @@ int main()
 
     BOOST_ASSERT(lvl != nullptr);
     lvl->loadFileData();
-    lvl->setUpRendering(game, "assets/tr1/" + lvlInfo.filename);
+    lvl->setUpRendering(game, "assets/tr1", lvlInfo.filename);
 
     if( LevelToLoad == 0 )
     {

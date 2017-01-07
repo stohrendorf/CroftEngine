@@ -2,8 +2,9 @@
 
 #include "io/sdlreader.h"
 #include "gameplay.h"
-#include <boost/lexical_cast.hpp>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem/path.hpp>
 
 namespace loader
 {
@@ -47,7 +48,9 @@ namespace loader
             for( int i = 0; i < 256; i++ )
             {
                 for( int j = 0; j < 256; j++ )
+                {
                     texture->pixels[i][j] = reader.readU16();
+                }
             }
 
             return texture;
@@ -82,12 +85,14 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Texture> toTexture(trx::Glidos* glidos) const;
-        std::shared_ptr<gameplay::Image> toImage(trx::Glidos* glidos) const;
+        std::shared_ptr<gameplay::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+
+        std::shared_ptr<gameplay::Image> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
     };
 
 
-    enum class BlendingMode : uint16_t
+    enum class BlendingMode
+        : uint16_t
     {
         Solid,
         AlphaTransparency,
@@ -119,6 +124,7 @@ namespace loader
         int8_t ycoordinate; // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
         uint8_t ypixel;
 
+
         /// \brief reads object texture vertex definition.
         static UVCoordinates readTr1(io::SDLReader& reader)
         {
@@ -139,9 +145,13 @@ namespace loader
             vert.ycoordinate = reader.readI8();
             vert.ypixel = reader.readU8();
             if( vert.xcoordinate == 0 )
+            {
                 vert.xcoordinate = 1;
+            }
             if( vert.ycoordinate == 0 )
+            {
                 vert.ycoordinate = 1;
+            }
             return vert;
         }
 
@@ -153,7 +163,8 @@ namespace loader
     };
 
 
-    extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode, const std::shared_ptr<gameplay::ShaderProgram>& shader);
+    extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode,
+                                                              const std::shared_ptr<gameplay::ShaderProgram>& shader);
 
 
     struct TextureLayoutProxy
@@ -188,13 +199,19 @@ namespace loader
             inline bool operator<(const TextureKey& rhs) const
             {
                 if( tileAndFlag != rhs.tileAndFlag )
+                {
                     return tileAndFlag < rhs.tileAndFlag;
+                }
 
                 if( flags != rhs.flags )
+                {
                     return flags < rhs.flags;
+                }
 
                 if( blendingMode != rhs.blendingMode )
+                {
                     return blendingMode < rhs.blendingMode;
+                }
 
                 return colorId < rhs.colorId;
             }
@@ -219,10 +236,10 @@ namespace loader
             proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
             proxy->textureKey.tileAndFlag = reader.readU16();
             if( proxy->textureKey.tileAndFlag > 64 )
-            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
+                BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
 
             if( (proxy->textureKey.tileAndFlag & (1 << 15)) != 0 )
-            BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
+                BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
             // only in TR4
             proxy->textureKey.flags = 0;
@@ -245,7 +262,7 @@ namespace loader
             proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
             proxy->textureKey.tileAndFlag = reader.readU16();
             if( (proxy->textureKey.tileAndFlag & 0x7FFF) > 128 )
-            BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
+                BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
             proxy->textureKey.flags = reader.readU16();
             proxy->uvCoordinates[0] = UVCoordinates::readTr4(reader);
@@ -271,7 +288,8 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, const std::shared_ptr<gameplay::ShaderProgram>& shader) const
+        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture,
+                                                           const std::shared_ptr<gameplay::ShaderProgram>& shader) const
         {
             return ::loader::createMaterial(texture, textureKey.blendingMode, shader);
         }
