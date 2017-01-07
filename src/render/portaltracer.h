@@ -56,6 +56,7 @@ namespace render
                 portalBB.max.y = 1;
             }
 
+#if 0
             // now check for denormalized boxes
             if(std::abs(portalBB.max.x - portalBB.min.x) / std::abs(portalBB.max.y - portalBB.min.y) > 1000)
             {
@@ -69,6 +70,7 @@ namespace render
                 portalBB.min.x = -1;
                 portalBB.max.x = 1;
             }
+#endif
 
             boundingBox.min.x = std::max(portalBB.min.x, boundingBox.min.x);
             boundingBox.min.y = std::max(portalBB.min.y, boundingBox.min.y);
@@ -104,7 +106,7 @@ namespace render
 
             vertex = glm::vec3(camera.getViewMatrix() * glm::vec4(vertex, 1));
 
-            if( -vertex.z <= camera.getNearPlane() )
+            if( -vertex.z <= 0 )
             {
                 ++numBehind;
                 glm::vec2 normalizedScreen;
