@@ -98,7 +98,7 @@ namespace engine
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
-        collisionInfo.frobbelFlags = CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08;
+        collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
         BOOST_ASSERT( m_currentStateHandler != nullptr );
 
@@ -183,10 +183,10 @@ namespace engine
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
         collisionInfo.collisionRadius = 300; //!< @todo MAGICK 300
-        collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08
-                                        | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor
-                                        | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor
-                                        | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
+        collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
+                                        | CollisionInfo::LavaIsPit
+                                        | CollisionInfo::SlopesArePits
+                                        | CollisionInfo::SlopesAreWalls);
         collisionInfo.neededCeilingDistance = 400;
         collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
         collisionInfo.passableFloorDistanceTop = -400;
@@ -263,10 +263,10 @@ namespace engine
         CollisionInfo collisionInfo;
         collisionInfo.position = getPosition();
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
-        collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag10 | CollisionInfo::FrobbelFlag08
-                                        | CollisionInfo::FrobbelFlag_UnwalkableDeadlyFloor
-                                        | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor
-                                        | CollisionInfo::FrobbelFlag_UnpassableSteepUpslant);
+        collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
+                                        | CollisionInfo::LavaIsPit
+                                        | CollisionInfo::SlopesArePits
+                                        | CollisionInfo::SlopesAreWalls);
         collisionInfo.neededCeilingDistance = 100;
         collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
         collisionInfo.passableFloorDistanceTop = -100;

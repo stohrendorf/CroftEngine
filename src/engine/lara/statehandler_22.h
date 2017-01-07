@@ -49,7 +49,7 @@ namespace engine
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.yAngle = getRotation().Y - 90_deg;
                 setMovementAngle(collisionInfo.yAngle);
-                collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant | CollisionInfo::FrobbelFlag_UnwalkableSteepFloor;
+                collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
                 auto nextHandler = stopIfCeilingBlocked(collisionInfo);

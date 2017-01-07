@@ -20,7 +20,7 @@ namespace engine
             boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
             {
                 setCameraRotation(-60_deg, 0_deg);
-                collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
+                collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                     setTargetState(LaraStateId::Hang);
 

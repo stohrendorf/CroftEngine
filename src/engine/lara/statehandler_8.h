@@ -17,7 +17,7 @@ namespace engine
 
             boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.frobbelFlags &= ~(CollisionInfo::FrobbelFlag08 | CollisionInfo::FrobbelFlag10);
+                collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 return {};
             }
 

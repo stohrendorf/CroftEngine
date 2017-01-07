@@ -64,14 +64,14 @@ namespace engine
         auto testPos = refTestPos + core::ExactTRCoordinates(frontX, 0, frontZ);
         auto sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
         front.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
-        if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
+        if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
         {
             front.floor.distance = -32767;
         }
         else if( front.floor.distance > 0
             && (
-                ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && front.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*front.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
+                ((policyFlags & SlopesArePits) != 0 && front.floor.slantClass == SlantClass::Steep)
+                || ((policyFlags & LavaIsPit) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*front.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             front.floor.distance = 2 * loader::QuarterSectorSize;
@@ -82,14 +82,14 @@ namespace engine
         sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
         frontLeft.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
-        if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
+        if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
         {
             frontLeft.floor.distance = -32767;
         }
         else if( frontLeft.floor.distance > 0
             && (
-                ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontLeft.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
+                ((policyFlags & SlopesArePits) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
+                || ((policyFlags & LavaIsPit) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontLeft.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             frontLeft.floor.distance = 2 * loader::QuarterSectorSize;
@@ -100,14 +100,14 @@ namespace engine
         sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
         frontRight.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
-        if( (frobbelFlags & FrobbelFlag_UnpassableSteepUpslant) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
+        if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
         {
             frontRight.floor.distance = -32767;
         }
         else if( frontRight.floor.distance > 0
             && (
-                ((frobbelFlags & FrobbelFlag_UnwalkableSteepFloor) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
-                || ((frobbelFlags & FrobbelFlag_UnwalkableDeadlyFloor) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontRight.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
+                ((policyFlags & SlopesArePits) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
+                || ((policyFlags & LavaIsPit) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr && floordata::FloorDataChunk::extractType(*frontRight.floor.lastCommandSequenceOrDeath) == floordata::FloorDataChunkType::Death)
             ) )
         {
             frontRight.floor.distance = 2 * loader::QuarterSectorSize;

@@ -78,7 +78,7 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
+                collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
                 collisionInfo.initHeightInfo( getPosition(), getLevel(), core::ScalpHeight );
 
                 auto nextHandler = stopIfCeilingBlocked( collisionInfo );

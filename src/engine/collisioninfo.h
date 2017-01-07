@@ -18,24 +18,24 @@ namespace engine
         static constexpr int AxisColl_ScalpCollision = 0x08;
         static constexpr int AxisColl_InsufficientFrontCeilingSpace = 0x10;
         static constexpr int AxisColl_InvalidPosition = 0x20;
-        static constexpr int AxisColl40 = 0x40;
-        static constexpr int AxisColl80 = 0x80;
 
-        static constexpr int FrobbelFlag_UnpassableSteepUpslant = 0x01;
-        static constexpr int FrobbelFlag_UnwalkableSteepFloor = 0x02;
-        static constexpr int FrobbelFlag_UnwalkableDeadlyFloor = 0x04;
-        static constexpr int FrobbelFlag08 = 0x08;
-        static constexpr int FrobbelFlag10 = 0x10;
-        static constexpr int FrobbelFlag20 = 0x20;
-        static constexpr int FrobbelFlag40 = 0x40;
-        static constexpr int FrobbelFlag80 = 0x80;
+        //! @name PolicyFlags
+        //! @brief Policy flags
+        //! @see #policyFlags
+        //! @{
+        static constexpr int SlopesAreWalls = 0x01;
+        static constexpr int SlopesArePits = 0x02;
+        static constexpr int LavaIsPit = 0x04;
+        static constexpr int EnableBaddiePush = 0x08;
+        static constexpr int EnableSpaz = 0x10;
+        //! @}
 
         int axisCollisions = AxisColl_None;
         mutable core::ExactTRCoordinates collisionFeedback;
         core::Axis orientationAxis = core::Axis::PosZ;
         core::Angle yAngle = 0_deg; // external
         int collisionRadius = 0; // external
-        int frobbelFlags = 0; // external
+        int policyFlags = 0; // external
         core::ExactTRCoordinates position; // external
         //! The deepest floor distance considered passable.
         int passableFloorDistanceBottom = 0; // external

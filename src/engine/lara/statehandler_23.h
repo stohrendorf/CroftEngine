@@ -30,7 +30,7 @@ namespace engine
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.yAngle);
-                collisionInfo.frobbelFlags |= CollisionInfo::FrobbelFlag_UnpassableSteepUpslant;
+                collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
