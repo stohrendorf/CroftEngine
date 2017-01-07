@@ -473,8 +473,11 @@ namespace loader
                         auto it = m_links.find(part);
                         if( it != m_links.end() )
                         {
+                            if(!ref.empty())
+                            {
+                                BOOST_THROW_EXCEPTION(std::runtime_error("Ambiguous source reference in equiv set"));
+                            }
                             ref = it->second;
-                            break;
                         }
                     }
 
@@ -488,7 +491,12 @@ namespace loader
                     {
                         auto& ts = m_newestTextureSourceTimestamps[part.getId()];
                         ts = std::max(ts, m_rootTimestamp);
-                        m_links[part] = readSymlink(ref, ts);
+                        const auto linked = readSymlink(ref, ts);
+                        if(linked != ref && m_links.find(part) != m_links.end())
+                        {
+                            BOOST_THROW_EXCEPTION(std::runtime_error("Equiv set references already initialized tile"));
+                        }
+                        m_links[part] = linked;
                     }
                 }
             }

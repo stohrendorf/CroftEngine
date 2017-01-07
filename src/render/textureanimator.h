@@ -14,8 +14,6 @@ namespace render
     {
         using MeshPartReference = std::pair<std::shared_ptr<gameplay::Mesh>, size_t>;
 
-        std::vector<gameplay::Mesh*> m_meshBuffers;
-
         struct Sequence
         {
             struct VertexReference
