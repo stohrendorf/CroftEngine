@@ -127,8 +127,8 @@ namespace loader
             {
                 for( int y = 0; y < srcImage.height(); ++y )
                 {
-                    BOOST_ASSERT(x + x0 >= 0 && x + x0 < original.width());
-                    BOOST_ASSERT(y + y0 >= 0 && y + y0 < original.height());
+                    BOOST_ASSERT(x + x0 < original.width());
+                    BOOST_ASSERT(y + y0 < original.height());
 
                     for( int c = 0; c < 4; ++c )
                     {

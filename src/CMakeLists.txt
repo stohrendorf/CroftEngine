@@ -93,8 +93,8 @@ set( EDISONENGINE_SRCS
      loader/meshes.h
      loader/mesh.cpp
      loader/mesh.h
-     loader/objwriter.h
-     loader/objwriter.cpp
+        loader/converter.h
+        loader/converter.cpp
      loader/primitives.h
      loader/texture.h
      loader/texture.cpp

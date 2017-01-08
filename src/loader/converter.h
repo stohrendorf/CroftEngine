@@ -22,10 +22,10 @@ namespace loader
     struct Room;
 
 
-    class OBJWriter
+    class Converter
     {
     public:
-        explicit OBJWriter(const boost::filesystem::path& basePath)
+        explicit Converter(const boost::filesystem::path& basePath)
             : m_basePath{basePath}
         {
             boost::filesystem::create_directories(m_basePath);

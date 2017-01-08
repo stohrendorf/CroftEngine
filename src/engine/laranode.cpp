@@ -64,7 +64,7 @@ namespace
             if( room.alternateRoom < 0 )
                 continue;
 
-            BOOST_ASSERT(room.alternateRoom < level.m_rooms.size());
+            BOOST_ASSERT(static_cast<size_t>(room.alternateRoom) < level.m_rooms.size());
             swapWithAlternate(room, level.m_rooms[room.alternateRoom]);
         }
 

@@ -1,4 +1,4 @@
-#include "objwriter.h"
+#include "converter.h"
 
 #include "datatypes.h"
 #include "engine/items/itemnode.h"
@@ -221,7 +221,7 @@ namespace
 
 namespace loader
 {
-    void OBJWriter::write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
+    void Converter::write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
     {
         Expects(srcImg != nullptr);
 
@@ -236,7 +236,7 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Texture> OBJWriter::readTexture(const boost::filesystem::path& path) const
+    std::shared_ptr<gameplay::Texture> Converter::readTexture(const boost::filesystem::path& path) const
     {
         {
             auto it = m_textureCache.find(path);
@@ -268,7 +268,7 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Material> OBJWriter::readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
+    std::shared_ptr<gameplay::Material> Converter::readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
     {
         auto texture = readTexture(path);
         auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
@@ -287,7 +287,7 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Model> OBJWriter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
+    std::shared_ptr<gameplay::Model> Converter::readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const
     {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile((m_basePath / path).string(), aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
@@ -357,7 +357,7 @@ namespace loader
     }
 
 
-    void OBJWriter::write(const std::shared_ptr<gameplay::Model>& model,
+    void Converter::write(const std::shared_ptr<gameplay::Model>& model,
                           const std::string& baseName,
                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
@@ -503,7 +503,7 @@ namespace loader
     }
 
 
-    void OBJWriter::write(const std::vector<loader::Room>& rooms,
+    void Converter::write(const std::vector<loader::Room>& rooms,
                           const std::vector<loader::Box>& boxes,
                           const std::string& baseName,
                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
@@ -586,7 +586,7 @@ namespace loader
     }
 
 
-    aiNode* OBJWriter::convert(aiScene& scene,
+    aiNode* Converter::convert(aiScene& scene,
                                const gameplay::Node& sourceNode,
                                const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                                const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
@@ -619,7 +619,7 @@ namespace loader
     }
 
 
-    void OBJWriter::convert(aiScene& scene,
+    void Converter::convert(aiScene& scene,
                             aiNode& outNode,
                             const std::shared_ptr<gameplay::Model>& inModel,
                             const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
@@ -701,20 +701,20 @@ namespace loader
     }
 
 
-    void OBJWriter::write(const std::string& filename, const YAML::Node& tree) const
+    void Converter::write(const std::string& filename, const YAML::Node& tree) const
     {
         std::ofstream file{(m_basePath / filename).string(), std::ios::trunc};
         file << tree;
     }
 
 
-    std::string OBJWriter::makeTextureName(size_t id)
+    std::string Converter::makeTextureName(size_t id)
     {
         return "texture_" + std::to_string(id);
     }
 
 
-    aiNode* OBJWriter::convert(aiScene& scene, const std::vector<loader::Sector>& sectors, const std::vector<loader::Box>& boxes) const
+    aiNode* Converter::convert(aiScene& scene, const std::vector<loader::Sector>& sectors, const std::vector<loader::Box>& boxes) const
     {
         std::unique_ptr<aiNode> outNode = std::make_unique<aiNode>("boxes");
 

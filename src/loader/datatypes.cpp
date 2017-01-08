@@ -44,6 +44,7 @@ namespace loader
         struct MeshPart
         {
             using IndexBuffer = std::vector<uint16_t>;
+            static_assert(std::is_unsigned<IndexBuffer::value_type>::value, "Index buffer entries must be unsigned");
 
             IndexBuffer indices;
             std::shared_ptr<gameplay::Material> material;
@@ -61,7 +62,9 @@ namespace loader
                 {
 #ifndef NDEBUG
                     for( auto idx : localPart.indices )
-                    BOOST_ASSERT(idx >= 0 && idx < mesh->getVertexCount());
+                    {
+                        BOOST_ASSERT(idx < mesh->getVertexCount());
+                    }
 #endif
 
                     auto part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
@@ -169,15 +172,15 @@ namespace loader
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
-        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
         {
             shaderProgram->setValue(*uniform, glm::vec3{0.0f});
         });
-        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
         {
             shaderProgram->setValue(*uniform, 1.0f);
         });
-        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
         {
             shaderProgram->setValue(*uniform, 1.0f);
         });
@@ -193,15 +196,15 @@ namespace loader
 
             float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
 
-            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, brightness);
             });
-            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, 0.0f);
             });
-            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
             {
                 shaderProgram->setValue(*uniform, glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
             });

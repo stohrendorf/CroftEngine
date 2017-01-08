@@ -24,7 +24,7 @@
 #include "engine/items/pickupitem.h"
 #include "engine/items/underwaterswitch.h"
 
-#include "loader/objwriter.h"
+#include "loader/converter.h"
 #include "loader/trx/trx.h"
 
 #include "util/md5.h"
@@ -739,8 +739,8 @@ void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& 
 
     std::unique_ptr<loader::trx::Glidos> glidos;
 
-    // static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_01_caves.txt";
-    static const char* trxPack = "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt";
+    static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_02_vilcabamba.txt";
+    //static const char* trxPack = "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt";
 
     if(boost::filesystem::is_regular_file(trxPack))
     {
@@ -786,7 +786,7 @@ void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& 
     }
 
     {
-        loader::OBJWriter objWriter{assetPath / lvlName};
+        loader::Converter objWriter{assetPath / lvlName};
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {

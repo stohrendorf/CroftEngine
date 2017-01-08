@@ -123,12 +123,11 @@ namespace engine
         BOOST_ASSERT( m_time >= startTime && m_time < endTime );
         const auto animationTime = m_time - startTime;
         int firstKeyframeIndex = core::toFrame( animationTime ) / anim.segmentLength;
-        BOOST_ASSERT(firstKeyframeIndex >= 0);
-
-        BOOST_ASSERT( firstKeyframeIndex < anim.getKeyframeCount() );
+        BOOST_ASSERT( firstKeyframeIndex >= 0 );
+        BOOST_ASSERT( static_cast<size_t>(firstKeyframeIndex) < anim.getKeyframeCount() );
 
         result.firstFrame = reinterpret_cast<const AnimFrame*>(keyframes + keyframeDataSize * firstKeyframeIndex);
-        if(firstKeyframeIndex == anim.getKeyframeCount() - 1)
+        if(static_cast<size_t>(firstKeyframeIndex) == anim.getKeyframeCount() - 1u)
         {
             result.bias = 0;
             return result;

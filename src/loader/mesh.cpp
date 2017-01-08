@@ -296,7 +296,9 @@ namespace loader
             static_assert(sizeof(localPart.indices[0]) == sizeof(uint16_t), "Wrong index type");
 #ifndef NDEBUG
             for( auto idx : localPart.indices )
-            Expects(idx >= 0 && idx < m_vertexCount);
+            {
+                BOOST_ASSERT(idx < m_vertexCount);
+            }
 #endif
             auto part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);

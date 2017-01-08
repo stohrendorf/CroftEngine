@@ -25,7 +25,7 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
+            void updateImpl(const std::chrono::microseconds& /*deltaTime*/, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
             {
             }
 
@@ -33,7 +33,7 @@ namespace engine
             void onInteract(LaraNode& lara) override;
 
 
-            void onFrameChanged(FrameChangeType frameChangeType) override
+            void onFrameChanged(FrameChangeType /*frameChangeType*/) override
             {
             }
 

@@ -48,7 +48,7 @@ namespace engine
             }
 
 
-            void onInteract(LaraNode& lara) override
+            void onInteract(LaraNode& /*lara*/) override
             {
             }
         };
