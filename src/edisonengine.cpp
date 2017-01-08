@@ -222,9 +222,9 @@ int main()
     FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {})};
     FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"})};
     depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
-                            [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+                            [game](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
                             {
-                                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
+                                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(game->getGameTime());
                                 shaderProgram->setValue(*uniform, gsl::narrow_cast<float>(now.time_since_epoch().count()));
                             }
                         );

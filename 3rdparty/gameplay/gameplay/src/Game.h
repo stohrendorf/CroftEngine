@@ -84,7 +84,7 @@ namespace gameplay
          */
         std::chrono::high_resolution_clock::time_point getGameTime() const
         {
-            return std::chrono::high_resolution_clock::now() - _pausedTimeTotal;
+            return std::chrono::high_resolution_clock::now() - _pausedTimeTotal - _constructionTime.time_since_epoch();
         }
 
         /**
@@ -279,9 +279,10 @@ namespace gameplay
 
         bool _initialized = false; // If game has initialized yet.
         State _state = UNINITIALIZED; // The game state.
+        const std::chrono::high_resolution_clock::time_point _constructionTime{std::chrono::high_resolution_clock::now()};
         std::chrono::high_resolution_clock::time_point _pauseStart{};
         std::chrono::high_resolution_clock::duration _pausedTimeTotal{0}; // The total time paused.
-        std::chrono::high_resolution_clock::time_point _frameLastFPS{std::chrono::high_resolution_clock::now()}; // The last time the frame count was updated.
+        std::chrono::high_resolution_clock::time_point _frameLastFPS{}; // The last time the frame count was updated.
         unsigned int _frameCount = 0; // The current frame count.
         unsigned int _frameRate = 0; // The current frame rate.
         int _width = 0; // The game's display width.
