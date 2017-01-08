@@ -1,8 +1,11 @@
 #include "level/level.h"
 #include "engine/laranode.h"
+#include "loader/trx/trx.h"
+
+#include "LuaState.h"
 
 #include <boost/range/adaptors.hpp>
-
+#include <boost/filesystem/operations.hpp>
 
 namespace
 {
@@ -168,52 +171,37 @@ int main()
     gameplay::Game* game = new gameplay::Game();
     game->run();
 
-    struct LevelInfo
-    {
-        std::string filename;
-        std::string title;
-        int track;
-        int secrets;
-    };
+    lua::State mainScript;
+    mainScript.doFile("scripts/main.lua");
+    lua::Value levelInfo = mainScript["getLevelInfo"].call();
 
-    static constexpr int LevelToLoad = 5;
-    LevelInfo levels[] = {
-        {"GYM", "Lara's Home", 0, 0},
-        {"LEVEL1", "Caves", 57, 3}, // 1
-        {"LEVEL2", "City of Vilcabamba", 57, 3},
-        {"LEVEL3A", "Lost Valley", 57, 5},
-        {"LEVEL3B", "Tomb of Qualopec", 57, 3},
-        {"LEVEL4", "St. Francis' Folly", 59, 4},
-        {"LEVEL5", "Colosseum", 59, 3}, // 6
-        {"LEVEL6", "Palace Midas", 59, 3},
-        {"LEVEL7A", "The Cistern", 58, 3},
-        {"LEVEL7B", "Tomb of Tihocan", 58, 2},
-        {"LEVEL8A", "City of Khamoon", 59, 3},
-        {"LEVEL8B", "Obelisk of Khamoon", 59, 3}, // 11
-        {"LEVEL8C", "Sanctuary of the Scion", 59, 1},
-        {"LEVEL10A", "Natla's Mines", 58, 3},
-        {"LEVEL10B", "Atlantis", 60, 3},
-        {"LEVEL10C", "The Great Pyramid", 60, 3} // 15
-    };
-
-    const LevelInfo& lvlInfo = levels[LevelToLoad];
-
-    auto lvl = level::Level::createLoader("data/tr1/data/" + lvlInfo.filename + ".PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo["baseName"].toString() + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     lvl->loadFileData();
-    lvl->setUpRendering(game, "assets/tr1", lvlInfo.filename);
 
-    if( LevelToLoad == 0 )
+    const auto glidosPack = mainScript["getGlidosPack"].call();
+
+    std::unique_ptr<loader::trx::Glidos> glidos;
+    if(!glidosPack.isNil() && boost::filesystem::is_regular_file(glidosPack.toString()))
     {
-        // Lara's Home
+        glidos = std::make_unique<loader::trx::Glidos>(glidosPack.toString());
+        glidos->dump();
+    }
+
+    lvl->setUpRendering(game, "assets/tr1", levelInfo["baseName"].toString(), glidos);
+
+    if( !levelInfo["swapRooms"].isNil() && levelInfo["swapRooms"].toBool() )
+    {
         lvl->useAlternativeLaraAppearance();
     }
 
     // device->setWindowCaption("EdisonEngine");
 
-    if( lvlInfo.track > 0 )
-        lvl->playCdTrack(lvlInfo.track);
+    if( !levelInfo["track"].isNil() )
+    {
+        lvl->playCdTrack(levelInfo["track"].toUInt());
+    }
 
     auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game);
     auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);

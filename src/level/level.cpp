@@ -25,7 +25,6 @@
 #include "engine/items/underwaterswitch.h"
 
 #include "loader/converter.h"
-#include "loader/trx/trx.h"
 
 #include "util/md5.h"
 
@@ -729,24 +728,12 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
 }
 
 
-void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& assetPath, const boost::filesystem::path& lvlName)
+void Level::setUpRendering(gameplay::Game* game,
+                           const boost::filesystem::path& assetPath,
+                           const boost::filesystem::path& lvlName,
+                           const std::unique_ptr<loader::trx::Glidos>& glidos)
 {
-    //device->getSceneManager()->getVideoDriver()->setFog(WaterColor, irr::video::EFT_FOG_LINEAR, 1024, 1024 * 20, .003f, true, false);
-    //device->getSceneManager()->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-    //device->getSceneManager()->setLightManager(new render::LightSelector(*this, device->getSceneManager()));
     m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
-    //device->setEventReceiver(m_inputHandler.get());
-
-    std::unique_ptr<loader::trx::Glidos> glidos;
-
-    static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_05_folly.txt";
-    //static const char* trxPack = "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt";
-
-    if(boost::filesystem::is_regular_file(trxPack))
-    {
-        glidos = std::make_unique<loader::trx::Glidos>(trxPack);
-        glidos->dump();
-    }
 
     std::vector<std::shared_ptr<gameplay::Texture>> textures = createTextures(glidos.get(), lvlName);
 

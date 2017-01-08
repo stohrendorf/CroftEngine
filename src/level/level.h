@@ -111,7 +111,10 @@ namespace level
         std::vector<std::shared_ptr<gameplay::Texture>> createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode* createItems();
-        void setUpRendering(gameplay::Game* game, const boost::filesystem::path& assetPath, const boost::filesystem::path& lvlName);
+        void setUpRendering(gameplay::Game* game,
+                            const boost::filesystem::path& assetPath,
+                            const boost::filesystem::path& lvlName,
+                            const std::unique_ptr<loader::trx::Glidos>& glidos);
 
 
         template<typename T>
