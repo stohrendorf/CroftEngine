@@ -720,9 +720,9 @@ namespace engine
     void CameraController::clampBox(core::RoomBoundIntPosition& camTargetPos, const std::function<ClampCallback>& callback) const
     {
         clampPosition(camTargetPos);
-        Expects(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position)->boxIndex < m_level->m_boxes.size());
+        BOOST_ASSERT(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position)->boxIndex < m_level->m_boxes.size());
         auto clampBox = &m_level->m_boxes[m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position)->boxIndex];
-        Expects(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position) != nullptr);
+        BOOST_ASSERT(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position) != nullptr);
         if( camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position)->boxIndex != 0xffff )
         {
             if( camTargetPos.position.X < clampBox->xmin || camTargetPos.position.X > clampBox->xmax

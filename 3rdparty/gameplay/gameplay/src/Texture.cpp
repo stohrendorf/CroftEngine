@@ -16,8 +16,6 @@ namespace gameplay
         // Create the texture.
         _handle.bind();
         GL_ASSERT(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-        if( generateMipmaps && !std::addressof(glGenerateMipmap) )
-        GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 
         // Texture 2D
         GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data()));
@@ -92,24 +90,6 @@ namespace gameplay
     }
 
 
-    int Texture::getMaskByteIndex(unsigned int mask)
-    {
-        switch( mask )
-        {
-            case 0xff000000:
-                return 3;
-            case 0x00ff0000:
-                return 2;
-            case 0x0000ff00:
-                return 1;
-            case 0x000000ff:
-                return 0;
-            default:
-                return -1; // no or invalid mask
-        }
-    }
-
-
     unsigned int Texture::getWidth() const
     {
         return _width;
@@ -133,8 +113,6 @@ namespace gameplay
         if( !_mipmapped )
         {
             _handle.bind();
-            GL_ASSERT( glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST) );
-            if( std::addressof(glGenerateMipmap) != nullptr )
             GL_ASSERT( glGenerateMipmap(GL_TEXTURE_2D) );
 
             _mipmapped = true;

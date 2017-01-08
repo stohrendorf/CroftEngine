@@ -24,7 +24,7 @@ namespace gameplay
         //! Creates a depth texture
         explicit Texture(unsigned int width, unsigned int height);
 
-        explicit Texture(const std::shared_ptr<Image>& image, bool generateMipmaps = false);
+        explicit Texture(const std::shared_ptr<Image>& image, bool generateMipmaps);
         virtual ~Texture();
 
 
@@ -173,8 +173,6 @@ namespace gameplay
         Texture(const Texture& copy) = delete;
 
         Texture& operator=(const Texture&) = delete;
-
-        static int getMaskByteIndex(unsigned int mask);
 
         TextureHandle _handle{};
         unsigned int _width = 0;

@@ -153,6 +153,6 @@ namespace loader
 
     std::shared_ptr<gameplay::Texture> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
     {
-        return std::make_shared<gameplay::Texture>(toImage(glidos, lvlName), false);
+        return std::make_shared<gameplay::Texture>(toImage(glidos, lvlName), true);
     }
 }

@@ -739,7 +739,7 @@ void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& 
 
     std::unique_ptr<loader::trx::Glidos> glidos;
 
-    static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_02_vilcabamba.txt";
+    static const char* trxPack = "assets/trx/JC levels 1-12/Textures/JC/jc_05_folly.txt";
     //static const char* trxPack = "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt";
 
     if(boost::filesystem::is_regular_file(trxPack))
@@ -831,7 +831,7 @@ void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& 
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
+                //objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
 
                 filename = "room_" + std::to_string(i) + ".yaml";
                 BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;

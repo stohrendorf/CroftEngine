@@ -264,7 +264,7 @@ namespace loader
         srcImage.permute_axes("cxyz");
 
         auto image = std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(srcImage.data()));
-        return m_textureCache[path] = std::make_shared<gameplay::Texture>(image);
+        return m_textureCache[path] = std::make_shared<gameplay::Texture>(image, true);
     }
 
 
