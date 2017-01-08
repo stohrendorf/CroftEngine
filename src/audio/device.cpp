@@ -6,7 +6,10 @@ namespace audio
     Device::~Device()
     {
         m_shutdown = true;
-        m_streamUpdater.join();
+        if(m_streamUpdater.joinable())
+        {
+            m_streamUpdater.join();
+        }
 
         if( m_context )
         {
