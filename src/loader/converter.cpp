@@ -426,12 +426,12 @@ namespace loader
 
         for( size_t mi = 0, globalPartIndex = 0; mi < model->getMeshes().size(); ++mi )
         {
-            BOOST_ASSERT(mi < scene->mNumMeshes);
             const auto& mesh = model->getMeshes()[mi];
 
             for( size_t pi = 0; pi < mesh->getPartCount(); ++pi , ++globalPartIndex )
             {
                 BOOST_ASSERT(globalPartIndex < scene->mNumMaterials);
+                BOOST_ASSERT(globalPartIndex < scene->mNumMeshes);
                 const std::shared_ptr<gameplay::MeshPart>& part = mesh->getPart(pi);
 
                 scene->mMeshes[globalPartIndex] = new aiMesh();

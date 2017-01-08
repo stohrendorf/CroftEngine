@@ -831,7 +831,7 @@ void Level::setUpRendering(gameplay::Game* game, const boost::filesystem::path& 
                 const auto drawable = room.node->getDrawable();
                 const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
                 BOOST_ASSERT(model != nullptr);
-                //objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
+                objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
 
                 filename = "room_" + std::to_string(i) + ".yaml";
                 BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
