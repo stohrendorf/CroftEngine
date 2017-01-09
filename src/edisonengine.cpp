@@ -163,6 +163,8 @@ void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Le
 
         lvl->m_lara->update(subTime);
     }
+
+    lvl->applyScheduledDeletions();
 }
 
 

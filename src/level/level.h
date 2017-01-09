@@ -68,6 +68,7 @@ namespace level
         std::vector<loader::Item> m_items;
         std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemNodes;
         std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;
+        std::set<std::shared_ptr<gameplay::Node>> m_scheduledDeletions;
         std::unique_ptr<loader::LightMap> m_lightmap;
         std::vector<loader::AIObject> m_aiObjects;
         std::vector<loader::CinematicFrame> m_cinematicFrames;
@@ -360,6 +361,24 @@ namespace level
             return m_models[idx];
         }
 
+
+        void scheduleDeletion(const std::shared_ptr<gameplay::Node>& item)
+        {
+            m_scheduledDeletions.insert(item);
+        }
+
+        void applyScheduledDeletions()
+        {
+            if(m_scheduledDeletions.empty())
+                return;
+
+            auto old = std::move(m_dynamicItems);
+            BOOST_ASSERT(m_dynamicItems.empty());
+            std::set_difference(old.begin(), old.end(),
+                                m_scheduledDeletions.begin(), m_scheduledDeletions.end(),
+                                std::inserter(m_dynamicItems, m_dynamicItems.begin()));
+            m_scheduledDeletions.clear();
+        }
 
     protected:
         loader::io::SDLReader m_reader;

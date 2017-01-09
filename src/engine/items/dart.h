@@ -25,7 +25,6 @@ namespace engine
 
             void updateImpl(const std::chrono::microseconds& /*deltaTime*/, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
             {
-                BOOST_LOG_TRIVIAL(debug) << "Dart " << reinterpret_cast<uintptr_t>(this) << " position " << getPosition().X << "/" << getPosition().Y << "/" << getPosition().Z;
                 // TODO: check bone collisions
 
                 auto room = getCurrentRoom();
@@ -39,6 +38,7 @@ namespace engine
                 if( getPosition().Y < getFloorHeight() + 1 )
                     return;
 
+                getLevel().scheduleDeletion(shared_from_this());
                 deactivate();
 
                 // TODO: fx
