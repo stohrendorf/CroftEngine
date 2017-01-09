@@ -13,10 +13,51 @@ void glErrorCallback(int err, const char* msg)
     BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
 }
 
+inline const char* glDebugSourceToString(GLenum src)
+{
+    switch(src)
+    {
+        case GL_DEBUG_SOURCE_API: return "API";
+        case GL_DEBUG_SOURCE_APPLICATION: return "Application";
+        case GL_DEBUG_SOURCE_OTHER: return "Other";
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader Compiler";
+        case GL_DEBUG_SOURCE_THIRD_PARTY: return "Third Party";
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "Window System";
+        default: return "<unknown>";
+    }
+}
+
+inline const char* glDebugTypeToString(GLenum type)
+{
+    switch(type)
+    {
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behavior";
+        case GL_DEBUG_TYPE_ERROR: return "Error";
+        case GL_DEBUG_TYPE_MARKER: return "Marker";
+        case GL_DEBUG_TYPE_OTHER: return "Other";
+        case GL_DEBUG_TYPE_PERFORMANCE: return "Performance";
+        case GL_DEBUG_TYPE_POP_GROUP: return "Pop Group";
+        case GL_DEBUG_TYPE_PUSH_GROUP: return "Push Group";
+        case GL_DEBUG_TYPE_PORTABILITY: return "Portability";
+        default: return "<unknown>";
+    }
+}
+
+inline const char* glDebugSeverityToString(GLenum severity)
+{
+    switch(severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH: return "High";
+        case GL_DEBUG_SEVERITY_LOW: return "Low";
+        case GL_DEBUG_SEVERITY_MEDIUM: return "Medium";
+        case GL_DEBUG_SEVERITY_NOTIFICATION: return "Notification";
+        default: return "<unknown>";
+    }
+}
 
 void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
-    BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << severity << ", type " << type << ", source " << source << ": " << message;
+    BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type " << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": " << message;
 }
 
 
