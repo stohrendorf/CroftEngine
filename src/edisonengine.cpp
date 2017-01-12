@@ -263,6 +263,32 @@ int main()
 
         drawDebugInfo(font, lvl.get(), game->getFrameRate());
 
+        for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
+        {
+            auto vertex = glm::vec3(game->getScene()->getActiveCamera()->getViewMatrix() * glm::vec4(ctrl->getTranslationWorld(), 1));
+
+            if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
+            {
+                continue;
+            }
+            else if( vertex.z < -game->getScene()->getActiveCamera()->getFarPlane() )
+            {
+                continue;
+            }
+
+            glm::vec4 projVertex{vertex, 1};
+            projVertex = game->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+            projVertex /= projVertex.w;
+
+            if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
+                continue;
+
+            projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().width;
+            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
+
+            font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, glm::vec4{1,1,1,1});
+        }
+
         screenOverlay->draw(context);
 
         game->swapBuffers();

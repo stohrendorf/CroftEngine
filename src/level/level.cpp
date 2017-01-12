@@ -519,6 +519,7 @@ engine::LaraNode* Level::createItems()
 
 template<typename T>
 std::shared_ptr<T> Level::createSkeletalModel(size_t id,
+                                              size_t type,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::ExactTRCoordinates& position,
@@ -540,7 +541,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     }
 
     auto skeletalModel = std::make_shared<T>(this,
-                                             "skeleton:" + boost::lexical_cast<std::string>(id),
+                                             "skeleton:" + boost::lexical_cast<std::string>(id) + "(type:" + boost::lexical_cast<std::string>(type) + ")",
                                              room,
                                              angle,
                                              position,
