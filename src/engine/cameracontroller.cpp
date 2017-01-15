@@ -543,9 +543,9 @@ namespace engine
         else if( box.zmax - margin > pos.position.Z && isVerticallyOutsideRoom(pos.position + core::TRCoordinates(0, 0, margin), pos.room) )
             pos.position.Z = box.zmax - margin;
 
-        if( box.xmin + margin > pos.position.Z && isVerticallyOutsideRoom(pos.position - core::TRCoordinates(margin, 0, 0), pos.room) )
+        if( box.xmin + margin > pos.position.X && isVerticallyOutsideRoom(pos.position - core::TRCoordinates(margin, 0, 0), pos.room) )
             pos.position.X = box.xmin + margin;
-        else if( box.xmax - margin > pos.position.Z && isVerticallyOutsideRoom(pos.position + core::TRCoordinates(margin, 0, 0), pos.room) )
+        else if( box.xmax - margin > pos.position.X && isVerticallyOutsideRoom(pos.position + core::TRCoordinates(margin, 0, 0), pos.room) )
             pos.position.X = box.xmax - margin;
 
         auto bottom = HeightInfo::fromFloor(sector, pos.position, this).distance - margin;

@@ -140,7 +140,7 @@ namespace level
                 break;
             }
 
-            auto node = createSkeletalModel<T>(*modelIdx, type, room, angle, position, activationState, darkness);
+            auto node = createSkeletalModel<T>(99999, *modelIdx, type, room, angle, position, activationState, darkness);
 
             m_dynamicItems.insert(node);
             room->node->addChild(node);
@@ -380,6 +380,8 @@ namespace level
             m_scheduledDeletions.clear();
         }
 
+        bool roomsAreSwapped = false;
+
     protected:
         loader::io::SDLReader m_reader;
         bool m_demoOrUb = false;
@@ -396,6 +398,7 @@ namespace level
 
         template<typename T>
         std::shared_ptr<T> createSkeletalModel(size_t id,
+                                               size_t modelIdx,
                                                size_t type,
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
@@ -406,10 +409,11 @@ namespace level
 
         template<typename T>
         std::shared_ptr<T> createSkeletalModel(size_t id,
+                                               size_t modelIdx,
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, item->type, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->activationState, item->darkness);
+            return createSkeletalModel<T>(id, modelIdx, item->type, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->activationState, item->darkness);
         }
 
 

@@ -1274,6 +1274,9 @@ namespace loader
         int32_t xmin;
         int32_t xmax;
         int16_t true_floor; // Y value (no scaling)
+        //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
+        //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
+        //! @remark Mask @c 0x4000 possible marks closed doors.
         uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
         // occurs in front of swinging doors and the like.
 

@@ -197,6 +197,12 @@ namespace core
             auto d = *this - b;
             return std::sqrt(d.X * d.X + d.Y * d.Y + d.Z * d.Z);
         }
+
+
+        bool operator==(const ExactTRCoordinates& rhs) const
+        {
+            return X==rhs.X && Y==rhs.Y && Z==rhs.Z;
+        }
     };
 
 

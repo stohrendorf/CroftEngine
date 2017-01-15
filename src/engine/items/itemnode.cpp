@@ -13,9 +13,13 @@ namespace engine
             glm::vec3 tr;
 
             if( auto parent = m_position.room )
+            {
                 tr = m_position.position.toRenderSystem() - parent->position.toRenderSystem();
+            }
             else
+            {
                 tr = m_position.position.toRenderSystem();
+            }
 
             setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
@@ -34,24 +38,28 @@ namespace engine
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
             : SkeletalModelNode(name, level, animatedModel)
-            , m_position(room, position)
-            , m_rotation(0_deg, angle, 0_deg)
-            , m_level(level)
-            , m_activationState(activationState)
-            , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
-            , m_characteristics(characteristics)
-            , m_darkness{darkness}
+              , m_position(room, position)
+              , m_rotation(0_deg, angle, 0_deg)
+              , m_level(level)
+              , m_activationState(activationState)
+              , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
+              , m_characteristics(characteristics)
+              , m_darkness{darkness}
         {
-            if(m_activationState.isOneshot())
-                setEnabled(false);
+            BOOST_ASSERT(room->isInnerPositionXZ(position.toInexact()));
 
-            if(m_activationState.isOneshot())
+            if( m_activationState.isOneshot() )
+            {
+                setEnabled(false);
+            }
+
+            if( m_activationState.isOneshot() )
             {
                 m_activationState.setOneshot(false);
                 m_triggerState = engine::items::TriggerState::Locked;
             }
 
-            if(m_activationState.isFullyActivated())
+            if( m_activationState.isFullyActivated() )
             {
                 m_activationState.fullyDeactivate();
                 m_activationState.setInverted(true);
@@ -64,14 +72,16 @@ namespace engine
         void ItemNode::setCurrentRoom(const loader::Room* newRoom)
         {
             if( newRoom == m_position.room )
+            {
                 return;
+            }
 
             if( newRoom == nullptr )
             {
-                BOOST_LOG_TRIVIAL( fatal ) << "No room to switch to.";
+                BOOST_LOG_TRIVIAL(fatal) << "No room to switch to.";
                 return;
             }
-            BOOST_LOG_TRIVIAL( debug ) << "Room switch of " << getId() << " to " << newRoom->node->getId();
+            BOOST_LOG_TRIVIAL(debug) << "Room switch of " << getId() << " to " << newRoom->node->getId();
 
             newRoom->node->addChild(shared_from_this());
 
@@ -85,13 +95,15 @@ namespace engine
 
             const loader::Animation& animation = getLevel().m_animations[getAnimId()];
             if( animation.animCommandCount <= 0 )
+            {
                 return;
+            }
 
-            BOOST_ASSERT( animation.animCommandIndex < getLevel().m_animCommands.size() );
+            BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
             const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
             for( uint16_t i = 0; i < animation.animCommandCount; ++i )
             {
-                BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
+                BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
                 const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
                 ++cmd;
                 switch( opcode )
@@ -103,7 +115,7 @@ namespace engine
                                 cmd[0],
                                 cmd[1],
                                 cmd[2]
-                            );
+                                     );
                         }
                         cmd += 3;
                         break;
@@ -116,7 +128,8 @@ namespace engine
                         }
                         cmd += 2;
                         break;
-                    case AnimCommandOpcode::EmptyHands: break;
+                    case AnimCommandOpcode::EmptyHands:
+                        break;
                     case AnimCommandOpcode::PlaySound:
                         if( frameChangeType == FrameChangeType::NewFrame
                             && core::toFrame(getCurrentTime()) == cmd[0] )
@@ -128,11 +141,15 @@ namespace engine
                     case AnimCommandOpcode::PlayEffect:
                         if( core::toFrame(getCurrentTime()) == cmd[0] )
                         {
-                            BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int(cmd[1]);
+                            BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                             if( frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
+                            {
                                 addYRotation(180_deg);
+                            }
                             else if( cmd[1] == 12 )
+                            {
                                 getLevel().m_lara->setHandStatus(0);
+                            }
                             //! @todo Execute anim effect cmd[1]
                         }
                         cmd += 2;
@@ -190,7 +207,9 @@ namespace engine
         {
             auto handle = getLevel().playSound(id, getTranslationWorld());
             if( handle != nullptr )
+            {
                 m_sounds.insert(handle);
+            }
             return handle;
         }
 
@@ -198,10 +217,14 @@ namespace engine
         bool ItemNode::triggerKey()
         {
             if( getLevel().m_lara->getHandStatus() != 0 )
+            {
                 return false;
+            }
 
             if( m_triggerState != engine::items::TriggerState::Enabled )
+            {
                 return false;
+            }
 
             m_triggerState = engine::items::TriggerState::Activated;
             return true;
@@ -212,8 +235,7 @@ namespace engine
         {
             decltype(m_sounds) cleaned;
             std::copy_if(m_sounds.begin(), m_sounds.end(), std::inserter(cleaned, cleaned.end()),
-                         [](const std::weak_ptr<audio::SourceHandle>& h)
-                         {
+                         [](const std::weak_ptr<audio::SourceHandle>& h) {
                              return h.expired();
                          });
 
@@ -252,9 +274,13 @@ namespace engine
             {
                 m_horizontalSpeed.add(getAccelleration(), deltaTime);
                 if( getFallSpeed() >= 128 )
+                {
                     m_fallSpeed.add(1, deltaTime);
+                }
                 else
+                {
                     m_fallSpeed.add(6, deltaTime);
+                }
             }
             else
             {
@@ -265,12 +291,32 @@ namespace engine
                 getMovementAngle().sin() * m_horizontalSpeed.getScaled(deltaTime),
                 m_falling ? m_fallSpeed.getScaled(deltaTime) : 0,
                 getMovementAngle().cos() * m_horizontalSpeed.getScaled(deltaTime)
-            );
+                );
 
             applyTransform();
 
             updatePose();
             updateLighting();
+        }
+
+
+        boost::optional<uint16_t> ItemNode::getCurrentBox() const
+        {
+            auto sector = m_position.room->getSectorByAbsolutePosition(m_position.position.toInexact());
+            if( sector == nullptr || sector->boxIndex == 0xffff )
+            {
+                return {};
+            }
+
+            return sector->boxIndex;
+        }
+
+
+        void ItemNode::updateRoomBinding()
+        {
+            auto room = m_position.room;
+            m_level->findFloorSectorWithClampedPosition(m_position.position.toInexact(), &room);
+            setCurrentRoom(room);
         }
     }
 }

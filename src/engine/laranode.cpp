@@ -13,7 +13,6 @@
 
 namespace
 {
-    bool roomsAreSwapped = false;
     std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
 
@@ -68,7 +67,7 @@ namespace
             swapWithAlternate(room, level.m_rooms[room.alternateRoom]);
         }
 
-        roomsAreSwapped = !roomsAreSwapped;
+        level.roomsAreSwapped = !level.roomsAreSwapped;
     }
 }
 
@@ -782,10 +781,10 @@ namespace engine
                             if( activationRequest.isOneshot() )
                                 mapFlipActivationStates[command.parameter].setOneshot(true);
 
-                            if( !roomsAreSwapped )
+                            if( !getLevel().roomsAreSwapped )
                                 swapRooms = true;
                         }
-                        else if( roomsAreSwapped )
+                        else if( getLevel().roomsAreSwapped )
                         {
                             swapRooms = true;
                         }
@@ -793,12 +792,12 @@ namespace engine
                     break;
                 case floordata::CommandOpcode::FlipOn:
                     BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
-                    if( !roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
+                    if( !getLevel().roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
                 case floordata::CommandOpcode::FlipOff:
                     BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
-                    if( roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
+                    if( getLevel().roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
                         swapRooms = true;
                     break;
                 case floordata::CommandOpcode::FlipEffect:

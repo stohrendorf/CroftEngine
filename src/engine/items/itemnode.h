@@ -406,6 +406,9 @@ namespace engine
             }
 
 
+            boost::optional<uint16_t> getCurrentBox() const;
+
+
             void updateLighting()
             {
                 m_lighting.baseDiff = 0;
@@ -572,6 +575,8 @@ namespace engine
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                        && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
+
+            void updateRoomBinding();
         };
     }
 }

@@ -214,7 +214,8 @@ set( EDISONENGINE_SRCS
      engine/items/underwaterswitch.cpp
 
      engine/floordata/floordata.h
-)
+     engine/pathfinding.h
+        engine/items/wolf.h engine/items/wolf.cpp)
 
 add_executable(edisonengine
         ${EDISONENGINE_SRCS}
