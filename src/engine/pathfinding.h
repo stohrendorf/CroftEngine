@@ -27,8 +27,8 @@ namespace engine
         std::vector<gsl::not_null<const loader::Box*>> path;
 
 
-        const int stepHeight = loader::QuarterSectorSize;
-        const int dropHeight = -loader::QuarterSectorSize;
+        const int stepHeight = -loader::QuarterSectorSize;
+        const int dropHeight = 1024; // loader::QuarterSectorSize;
 
         void findPath(const items::ItemNode& npc, const items::ItemNode& enemy)
         {
@@ -175,14 +175,14 @@ namespace engine
             BOOST_ASSERT(from < zone->size());
             BOOST_ASSERT(to < zone->size());
 
-            if(zone[from] != zone[to])
+            if((*zone)[from] != (*zone)[to])
             {
                 return false;
             }
 
             const auto d = toBox.true_floor - fromBox.true_floor;
-            //if(d > stepHeight || d < dropHeight)
-            //    return false;
+            if(d < stepHeight || d > dropHeight)
+                return false;
 
             return true;
 
