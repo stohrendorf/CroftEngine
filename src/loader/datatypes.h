@@ -1062,6 +1062,13 @@ namespace loader
         }
 
 
+        gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRCoordinates position) const
+        {
+            position -= this->position;
+            return getInnerSectorByIndex(position.X / SectorSize, position.Z / SectorSize);
+        }
+
+
         bool isInnerPositionX(core::TRCoordinates position) const
         {
             position -= this->position;
@@ -1106,6 +1113,14 @@ namespace loader
                 BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
                 return nullptr;
             }
+            return &sectors[sectorCountZ * dx + dz];
+        }
+
+
+        gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
+        {
+            dx = util::clamp(dx, 1, sectorCountX - 2);
+            dz = util::clamp(dz, 1, sectorCountZ - 2);
             return &sectors[sectorCountZ * dx + dz];
         }
 
@@ -1273,7 +1288,7 @@ namespace loader
         int32_t zmax;
         int32_t xmin;
         int32_t xmax;
-        int16_t true_floor; // Y value (no scaling)
+        int16_t floor; // Y value (no scaling)
         //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
         //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
         //! @remark Mask @c 0x4000 possible marks closed doors.
@@ -1287,7 +1302,7 @@ namespace loader
             box->zmax = reader.readI32();
             box->xmin = reader.readI32();
             box->xmax = reader.readI32();
-            box->true_floor = reader.readI16();
+            box->floor = reader.readI16();
             box->overlap_index = reader.readU16();
             return box;
         }
@@ -1300,7 +1315,7 @@ namespace loader
             box->zmax = 1024 * reader.readU8();
             box->xmin = 1024 * reader.readU8();
             box->xmax = 1024 * reader.readU8();
-            box->true_floor = reader.readI16();
+            box->floor = reader.readI16();
             box->overlap_index = reader.readU16();
             return box;
         }

@@ -733,13 +733,13 @@ namespace loader
 
             glm::vec3 v;
 
-            v = core::TRCoordinates(box.xmin, box.true_floor, box.zmin).toRenderSystem() / float(SectorSize);
+            v = core::TRCoordinates(box.xmin, box.floor, box.zmin).toRenderSystem() / float(SectorSize);
             append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-            v = core::TRCoordinates(box.xmax, box.true_floor, box.zmin).toRenderSystem() / float(SectorSize);
+            v = core::TRCoordinates(box.xmax, box.floor, box.zmin).toRenderSystem() / float(SectorSize);
             append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-            v = core::TRCoordinates(box.xmax, box.true_floor, box.zmax).toRenderSystem() / float(SectorSize);
+            v = core::TRCoordinates(box.xmax, box.floor, box.zmax).toRenderSystem() / float(SectorSize);
             append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-            v = core::TRCoordinates(box.xmin, box.true_floor, box.zmax).toRenderSystem() / float(SectorSize);
+            v = core::TRCoordinates(box.xmin, box.floor, box.zmax).toRenderSystem() / float(SectorSize);
             append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
 
             auto& face = append(outMesh->mFaces, outMesh->mNumFaces, aiFace());

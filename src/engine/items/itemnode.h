@@ -179,13 +179,49 @@ namespace engine
             }
 
 
+            void moveX(float d)
+            {
+                m_position.position.X += d;
+            }
+
+
+            void moveY(float d)
+            {
+                m_position.position.Y += d;
+            }
+
+
+            void moveZ(float d)
+            {
+                m_position.position.Z += d;
+            }
+
+
+            void setX(float d)
+            {
+                m_position.position.X = d;
+            }
+
+
+            void setY(float d)
+            {
+                m_position.position.Y = d;
+            }
+
+
+            void setZ(float d)
+            {
+                m_position.position.Z = d;
+            }
+
+
             void move(const glm::vec3& d)
             {
                 m_position.position += core::ExactTRCoordinates(d);
             }
 
 
-            void moveLocal(float dx, float dy, float dz)
+            void  moveLocal(float dx, float dy, float dz)
             {
                 const auto sin = getRotation().Y.sin();
                 const auto cos = getRotation().Y.cos();
@@ -575,8 +611,6 @@ namespace engine
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                        && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
-
-            void updateRoomBinding();
         };
     }
 }

@@ -302,21 +302,14 @@ namespace engine
 
         boost::optional<uint16_t> ItemNode::getCurrentBox() const
         {
-            auto sector = m_position.room->getSectorByAbsolutePosition(m_position.position.toInexact());
-            if( sector == nullptr || sector->boxIndex == 0xffff )
+            auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position.toInexact());
+            if( sector->boxIndex == 0xffff )
             {
+                BOOST_LOG_TRIVIAL(warning) << "Whoops: " << getId();
                 return {};
             }
 
             return sector->boxIndex;
-        }
-
-
-        void ItemNode::updateRoomBinding()
-        {
-            auto room = m_position.room;
-            m_level->findFloorSectorWithClampedPosition(m_position.position.toInexact(), &room);
-            setCurrentRoom(room);
         }
     }
 }

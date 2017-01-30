@@ -74,6 +74,12 @@ namespace core
         }
 
 
+        static Angle fromAtan(float dx, float dz)
+        {
+            return fromRad(std::atan2(dx, dz));
+        }
+
+
         static Angle fromDegrees(float val)
         {
             auto result = Angle{gsl::narrow_cast<int32_t>(std::lround(val * Scale)), RawTag()};

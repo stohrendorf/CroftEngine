@@ -118,5 +118,5 @@ function getLevelInfo()
 end
 
 function getGlidosPack()
-    return "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
+    return "assets/trx/1SilverlokAllVers/silverlok/silverlok.txtx"
 end

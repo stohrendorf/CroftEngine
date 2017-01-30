@@ -402,10 +402,10 @@ namespace engine
             BOOST_ASSERT(m_lookAtItem != lookAtItem);
             BOOST_ASSERT(lookAtItem);
             const auto distToLookAt = m_lookAtItem->getPosition().distanceTo(lookAtItem->getPosition());
-            auto lookAtYAngle = -core::Angle::fromRad(std::atan2(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z)) - lookAtItem->getRotation().Y;
+            auto lookAtYAngle = core::Angle::fromAtan(m_lookAtItem->getPosition().X - lookAtItem->getPosition().X, m_lookAtItem->getPosition().Z - lookAtItem->getPosition().Z) - lookAtItem->getRotation().Y;
             lookAtYAngle *= 0.5f;
             lookAtBbox = m_lookAtItem->getBoundingBox();
-            auto lookAtXAngle = core::Angle::fromRad(std::atan2(distToLookAt, lookAtY - (lookAtBbox.min.y + lookAtBbox.max.y) / 2 + m_lookAtItem->getPosition().Y));
+            auto lookAtXAngle = core::Angle::fromAtan(distToLookAt, lookAtY - (lookAtBbox.min.y + lookAtBbox.max.y) / 2 + m_lookAtItem->getPosition().Y);
             lookAtXAngle *= 0.5f;
 
             if( lookAtYAngle < 50_deg && lookAtYAngle > -50_deg && lookAtXAngle < 85_deg && lookAtXAngle > -85_deg )
