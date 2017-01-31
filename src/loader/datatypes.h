@@ -1094,13 +1094,6 @@ namespace loader
         }
 
 
-        gsl::not_null<const Sector*> findFloorSectorWithClampedPosition(core::TRCoordinates position) const
-        {
-            position -= this->position;
-            return findFloorSectorWithClampedIndex(position.X / SectorSize, position.Z / SectorSize);
-        }
-
-
         const Sector* getSectorByIndex(int dx, int dz) const
         {
             if( dx < 0 || dx >= sectorCountX )

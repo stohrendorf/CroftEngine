@@ -24,7 +24,7 @@ namespace engine
         void SwingingBlade::onFrameChanged(FrameChangeType frameChangeType)
         {
             auto room = getCurrentRoom();
-            auto sector = getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), &room );
+            auto sector = getLevel().findRealFloorSector( getPosition().toInexact(), &room );
             setCurrentRoom( room );
             setFloorHeight( HeightInfo::fromFloor( sector, getPosition().toInexact(), getLevel().m_cameraController )
                                     .distance );

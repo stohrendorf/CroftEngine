@@ -10,7 +10,7 @@ namespace engine
         {
             ItemNode::onFrameChanged( frameChangeType );
             auto room = getCurrentRoom();
-            getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), &room );
+            getLevel().findRealFloorSector( getPosition().toInexact(), &room );
             setCurrentRoom( room );
 
             if( m_triggerState != engine::items::TriggerState::Activated )

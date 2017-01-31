@@ -589,7 +589,7 @@ namespace engine
         auto pos = getPosition();
         pos.Y += dy;
         gsl::not_null<const loader::Room*> room = getCurrentRoom();
-        auto sector = getLevel().findFloorSectorWithClampedPosition(pos.toInexact(), &room);
+        auto sector = getLevel().findRealFloorSector(pos.toInexact(), &room);
         setCurrentRoom(room);
         HeightInfo hi = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
         setFloorHeight(hi.distance);
@@ -737,15 +737,7 @@ namespace engine
                     if( item.m_triggerState != engine::items::TriggerState::Locked )
                         break;
 
-                    //! @todo Implement baddie
-                    if( false ) //!< @todo unpauseBaddie
-                    {
-                        item.m_triggerState = engine::items::TriggerState::Enabled;
-                    }
-                    else
-                    {
-                        item.m_triggerState = engine::items::TriggerState::Locked;
-                    }
+                    item.m_triggerState = engine::items::TriggerState::Enabled;
                     item.activate();
                 }
                     break;

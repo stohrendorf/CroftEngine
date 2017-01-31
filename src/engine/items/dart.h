@@ -28,7 +28,7 @@ namespace engine
                 // TODO: check bone collisions
 
                 auto room = getCurrentRoom();
-                auto sector = getLevel().findFloorSectorWithClampedPosition(getPosition().toInexact(), &room);
+                auto sector = getLevel().findRealFloorSector(getPosition().toInexact(), &room);
                 if( room != getCurrentRoom() )
                     setCurrentRoom(room);
 

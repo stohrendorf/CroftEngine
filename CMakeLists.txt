@@ -11,6 +11,14 @@ project(EdisonEngine)
 
 set(CMAKE_CXX_STANDARD 14)
 
+if (MSVC)
+    # C4503: Name too long
+    add_definitions(/wd4503)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(/MP)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Ob1")
+endif ()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     message(STATUS "GCC or Clang detected")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
@@ -176,6 +184,7 @@ ExternalProject_Add(
         -DBoost_DIR=${Boost_DIR}
         -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR}
         -DBoost_LIBRARY_DIR=${Boost_LIBRARY_DIR}
+        -DYAML_CPP_BUILD_TOOLS=OFF
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/yaml-cpp-bin
 )
 
@@ -231,13 +240,6 @@ else ()
     message(STATUS "***** Assimp is not built yet. Build the ext-assimp target, and then reconfigure")
 endif ()
 
-
-if (MSVC)
-    # C4503: Name too long
-    add_definitions(/wd4503)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    add_definitions(/MP)
-endif ()
 
 find_package(Git)
 if (NOT GIT_FOUND)

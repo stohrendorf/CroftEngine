@@ -239,7 +239,7 @@ namespace engine
 
             core::TRCoordinates heightPos = testPos;
             BOOST_ASSERT(heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1);
-            auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+            auto sector = m_level->findRealFloorSector(heightPos, &newRoom);
             if( testPos.Y > HeightInfo::fromFloor(sector, heightPos, this).distance || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, this).distance )
             {
                 origin.position = testPos;
@@ -250,7 +250,7 @@ namespace engine
             heightPos.X = testPos.X + sign;
             BOOST_ASSERT(heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1);
             const auto testRoom = newRoom;
-            sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+            sector = m_level->findRealFloorSector(heightPos, &newRoom);
             if( testPos.Y > HeightInfo::fromFloor(sector, heightPos, this).distance || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, this).distance )
             {
                 origin.position = testPos;
@@ -305,7 +305,7 @@ namespace engine
 
             core::TRCoordinates heightPos = testPos;
             BOOST_ASSERT(heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1);
-            auto sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+            auto sector = m_level->findRealFloorSector(heightPos, &newRoom);
             if( testPos.Y > HeightInfo::fromFloor(sector, heightPos, this).distance || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, this).distance )
             {
                 origin.position = testPos;
@@ -316,7 +316,7 @@ namespace engine
             heightPos.Z = testPos.Z + sign;
             BOOST_ASSERT(heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1);
             const auto testRoom = newRoom;
-            sector = m_level->findFloorSectorWithClampedPosition(heightPos, &newRoom);
+            sector = m_level->findRealFloorSector(heightPos, &newRoom);
             if( testPos.Y > HeightInfo::fromFloor(sector, heightPos, this).distance || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, this).distance )
             {
                 origin.position = testPos;
@@ -351,7 +351,7 @@ namespace engine
             return false;
         }
 
-        auto sector = m_level->findFloorSectorWithClampedPosition(origin);
+        auto sector = m_level->findRealFloorSector(origin);
         return clampY(m_currentLookAt.position, origin.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
@@ -460,7 +460,7 @@ namespace engine
                 m_smoothFactor = 1;
             }
 
-            auto sector = m_level->findFloorSectorWithClampedPosition(m_currentLookAt);
+            auto sector = m_level->findRealFloorSector(m_currentLookAt);
             if( HeightInfo::fromFloor(sector, m_currentLookAt.position, this).distance < m_currentLookAt.position.Y )
                 HeightInfo::skipSteepSlants = false;
 
@@ -534,7 +534,7 @@ namespace engine
 
     int CameraController::moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const
     {
-        auto sector = m_level->findFloorSectorWithClampedPosition(pos);
+        auto sector = m_level->findRealFloorSector(pos);
         Expects(sector->boxIndex < m_level->m_boxes.size());
         const loader::Box& box = m_level->m_boxes[sector->boxIndex];
 
@@ -564,7 +564,7 @@ namespace engine
 
     bool CameraController::isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
     {
-        gsl::not_null<const loader::Sector*> sector = m_level->findFloorSectorWithClampedPosition(pos, room);
+        gsl::not_null<const loader::Sector*> sector = m_level->findRealFloorSector(pos, room);
         const auto floor = HeightInfo::fromFloor(sector, pos, this).distance;
         const auto ceiling = HeightInfo::fromCeiling(sector, pos, this).distance;
         return pos.Y > floor || pos.Y <= ceiling;
@@ -578,12 +578,12 @@ namespace engine
         m_currentPosition.position.Z += (position.position.Z - m_currentPosition.position.Z) * core::toFloatFrame(deltaTimeMs) / smoothFactor;
         HeightInfo::skipSteepSlants = false;
         m_currentPosition.room = position.room;
-        auto sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
+        auto sector = m_level->findRealFloorSector(m_currentPosition);
         auto floor = HeightInfo::fromFloor(sector, m_currentPosition.position, this).distance - loader::QuarterSectorSize;
         if( floor <= m_currentPosition.position.Y && floor <= position.position.Y )
         {
             clampPosition(m_currentPosition);
-            sector = m_level->findFloorSectorWithClampedPosition(m_currentPosition);
+            sector = m_level->findRealFloorSector(m_currentPosition);
             floor = HeightInfo::fromFloor(sector, m_currentPosition.position, this).distance - loader::QuarterSectorSize;
         }
 
@@ -617,7 +617,7 @@ namespace engine
         camPos.Y += m_currentYOffset;
 
         // update current room
-        m_level->findFloorSectorWithClampedPosition(camPos, &m_currentPosition.room);
+        m_level->findRealFloorSector(camPos, &m_currentPosition.room);
 
         auto m = glm::lookAt(camPos.toRenderSystem(), m_currentLookAt.position.toRenderSystem(), {0,1,0});
         m_camera->setViewMatrix(m);
@@ -736,9 +736,9 @@ namespace engine
 
         auto clampZMin = clampBox->zmin;
         const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-        if( !negZverticalOutside && m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex != 0xffff )
+        if( !negZverticalOutside && m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex];
+            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex];
             if( testBox->zmin < clampZMin )
                 clampZMin = testBox->zmin;
         }
@@ -750,9 +750,9 @@ namespace engine
 
         auto clampZMax = clampBox->zmax;
         const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-        if( !posZverticalOutside && m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex != 0xffff )
+        if( !posZverticalOutside && m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex];
+            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex];
             if( testBox->zmax > clampZMax )
                 clampZMax = testBox->zmax;
         }
@@ -764,9 +764,9 @@ namespace engine
 
         auto clampXMin = clampBox->xmin;
         const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-        if( !negXverticalOutside && m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex != 0xffff )
+        if( !negXverticalOutside && m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex];
+            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex];
             if( testBox->xmin < clampXMin )
                 clampXMin = testBox->xmin;
         }
@@ -778,9 +778,9 @@ namespace engine
 
         auto clampXMax = clampBox->xmax;
         const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, camTargetPos.room);
-        if( !posXverticalOutside && m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex != 0xffff )
+        if( !posXverticalOutside && m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findFloorSectorWithClampedPosition(testPos, camTargetPos.room)->boxIndex];
+            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, camTargetPos.room)->boxIndex];
             if( testBox->xmax > clampXMax )
                 clampXMax = testBox->xmax;
         }
@@ -824,7 +824,7 @@ namespace engine
 
         if( !skipRoomPatch )
         {
-            m_level->findFloorSectorWithClampedPosition(camTargetPos);
+            m_level->findRealFloorSector(camTargetPos);
             return;
         }
 
@@ -865,7 +865,7 @@ namespace engine
 
         if( !skipRoomPatch )
         {
-            m_level->findFloorSectorWithClampedPosition(camTargetPos);
+            m_level->findRealFloorSector(camTargetPos);
         }
     }
 

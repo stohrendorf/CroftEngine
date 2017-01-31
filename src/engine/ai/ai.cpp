@@ -253,9 +253,10 @@ namespace engine
                             continue;
                         }
 
-                        const bool unvisited = costs.find(childBox) == costs.end();
+                        auto costIt = costs.find(childBox);
+                        const bool unvisited = costIt == costs.end();
 
-                        if( unvisited || level < costs[childBox] )
+                        if( unvisited || level < costIt->second )
                         {
                             costs[childBox] = level;
                             parents[childBox] = levelBoxIdx;
@@ -267,9 +268,11 @@ namespace engine
                             BOOST_ASSERT(path.empty());
                             BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                             path.push_back(&npc.getLevel().m_boxes[current]);
-                            while( parents.find(current) != parents.end() )
+                            auto parentIt = parents.find(current);
+                            while(parentIt != parents.end() )
                             {
-                                current = parents[current];
+                                current = parentIt->second;
+                                parentIt = parents.find(current);
                                 BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                                 path.push_back(&npc.getLevel().m_boxes[current]);
                             }
@@ -294,15 +297,16 @@ namespace engine
         }
 
 
-        std::set<uint16_t> RoutePlanner::getOverlaps(const level::Level& lvl, uint16_t idx)
+        std::vector<uint16_t> RoutePlanner::getOverlaps(const level::Level& lvl, uint16_t idx)
         {
-            std::set<uint16_t> result;
+            std::vector<uint16_t> result;
+            result.reserve(64);
 
             while( true )
             {
                 BOOST_ASSERT(idx < lvl.m_overlaps.size());
 
-                result.insert(lvl.m_overlaps[idx] & ~0xc000);
+                result.emplace_back(lvl.m_overlaps[idx] & ~0xc000);
 
                 if( lvl.m_overlaps[idx] & 0x8000 )
                 {

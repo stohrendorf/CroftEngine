@@ -14,7 +14,7 @@ namespace engine
 
         gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
         const auto refTestPos = laraPos - core::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
-        gsl::not_null<const loader::Sector*> currentSector = level.findFloorSectorWithClampedPosition(refTestPos.toInexact(), &room);
+        gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector(refTestPos.toInexact(), &room);
 
         current.init(currentSector, refTestPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
@@ -62,7 +62,7 @@ namespace engine
 
         // Front
         auto testPos = refTestPos + core::ExactTRCoordinates(frontX, 0, frontZ);
-        auto sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        auto sector = level.findRealFloorSector(testPos.toInexact(), &room);
         front.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
         if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
         {
@@ -79,7 +79,7 @@ namespace engine
 
         // Front left
         testPos = refTestPos + core::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
-        sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        sector = level.findRealFloorSector(testPos.toInexact(), &room);
         frontLeft.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
         if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
@@ -97,7 +97,7 @@ namespace engine
 
         // Front right
         testPos = refTestPos + core::ExactTRCoordinates(frontRightX, 0, frontRightZ);
-        sector = level.findFloorSectorWithClampedPosition(testPos.toInexact(), &room);
+        sector = level.findRealFloorSector(testPos.toInexact(), &room);
         frontRight.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
 
         if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )

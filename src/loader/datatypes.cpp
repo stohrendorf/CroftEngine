@@ -273,9 +273,9 @@ namespace loader
     {
         core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
         //! @todo Ugly const_cast
-        auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findFloorSectorWithClampedPosition(pos).get());
+        auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findRealFloorSector(pos).get());
         pos.position.Y += height - loader::SectorSize;
-        const auto topSector = ctrl.getLevel().findFloorSectorWithClampedPosition(pos);
+        const auto topSector = ctrl.getLevel().findRealFloorSector(pos);
 
         const auto q = height / loader::QuarterSectorSize;
         if( groundSector->floorHeight == -127 )

@@ -10,7 +10,7 @@ namespace engine
         {
             ItemNode::onFrameChanged( frameChangeType );
             auto pos = getRoomBoundPosition();
-            getLevel().findFloorSectorWithClampedPosition( pos );
+            getLevel().findRealFloorSector( pos );
             setCurrentRoom( pos.room );
         }
     }

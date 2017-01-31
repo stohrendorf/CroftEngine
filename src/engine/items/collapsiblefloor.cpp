@@ -40,7 +40,7 @@ namespace engine
             }
 
             auto room = getCurrentRoom();
-            auto sector = getLevel().findFloorSectorWithClampedPosition( getPosition().toInexact(), &room );
+            auto sector = getLevel().findRealFloorSector( getPosition().toInexact(), &room );
             setCurrentRoom( room );
 
             HeightInfo h = HeightInfo::fromFloor( sector, getPosition().toInexact(), getLevel().m_cameraController );

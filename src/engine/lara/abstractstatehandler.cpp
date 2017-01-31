@@ -377,7 +377,7 @@ namespace engine
             }
 
             auto sector = getLevel()
-                .findFloorSectorWithClampedPosition(pos.toInexact(), m_lara.getCurrentRoom());
+                .findRealFloorSector(pos.toInexact(), m_lara.getCurrentRoom());
             HeightInfo floor = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
             HeightInfo ceil = HeightInfo::fromCeiling(sector, pos.toInexact(), getLevel().m_cameraController);
             return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
@@ -655,7 +655,7 @@ namespace engine
             pos.Z += angle.cos() * dist;
 
             gsl::not_null<const loader::Sector*> sector = getLevel()
-                .findFloorSectorWithClampedPosition(pos.toInexact(), m_lara.getCurrentRoom());
+                .findRealFloorSector(pos.toInexact(), m_lara.getCurrentRoom());
 
             HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
 
@@ -819,7 +819,7 @@ namespace engine
         bool AbstractStateHandler::applyLandingDamage()
         {
             auto sector = getLevel()
-                .findFloorSectorWithClampedPosition(getPosition().toInexact(), m_lara.getCurrentRoom());
+                .findRealFloorSector(getPosition().toInexact(), m_lara.getCurrentRoom());
             HeightInfo h = HeightInfo::fromFloor(sector, getPosition().toInexact()
                                                  - core::TRCoordinates{0, core::ScalpHeight, 0},
                                                  getLevel().m_cameraController);

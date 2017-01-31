@@ -964,7 +964,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 }
 
 
-gsl::not_null<const loader::Sector*> Level::findFloorSectorWithClampedPosition(const core::TRCoordinates& position,
+gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCoordinates& position,
                                                                                gsl::not_null<gsl::not_null<const loader::Room*>*> room) const
 {
     const loader::Sector* sector = nullptr;

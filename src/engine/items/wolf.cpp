@@ -46,7 +46,7 @@ namespace engine
 
         bool isPositionOutOfReach(const ItemNode& item, const core::TRCoordinates& testPosition, int currentBoxFloor, const ai::RoutePlanner& lotInfo)
         {
-            const auto sectorBoxIdx = item.getCurrentRoom()->findFloorSectorWithClampedPosition(testPosition)->boxIndex;
+            const auto sectorBoxIdx = item.getLevel().findRealFloorSector(testPosition, item.getCurrentRoom())->boxIndex;
             if( sectorBoxIdx == 0xffff )
             {
                 return true;
@@ -118,9 +118,13 @@ namespace engine
             const auto initialPos = npc.getPosition();
             auto bboxTop = std::lround(npc.getBoundingBox().min.y);
             auto npcRoom = npc.getCurrentRoom();
-            auto npcSector = npc.getLevel().findFloorSectorWithClampedPosition(
+            auto npcSector = npc.getLevel().findRealFloorSector(
                 npc.getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
                 &npcRoom);
+
+            if(npcSector->boxIndex == 0xffff)
+                return false;
+
             const auto npcBoxFloor = npc.getLevel().m_boxes[npcSector->boxIndex].floor;
 
             const auto inSectorX = std::fmod(npc.getPosition().X, loader::SectorSize);
@@ -159,8 +163,10 @@ namespace engine
                         npcBoxFloor,
                         npc.m_brain.route) )
                     {
+                        // -X/-Z must be clamped. Clamp the lateral direction to allow better forward movement.
                         if( npc.getRotation().Y > -135_deg && npc.getRotation().Y < 45_deg )
                         {
+                            // We're facing -X/+Z
                             moveZ = npc.m_collisionRadius - inSectorZ;
                         }
                         else
@@ -181,21 +187,23 @@ namespace engine
                     {
                         moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
                     }
-                    else if( isPositionOutOfReach(
+                    else if( moveZ == 0
+                             && isPositionOutOfReach(
                         npc,
                         npc.getPosition().toInexact() + core::TRCoordinates(npc.m_collisionRadius, bboxTop, -npc.m_collisionRadius),
                         npcBoxFloor,
                         npc.m_brain.route) )
                     {
-                        if( moveZ == 0 && npc.getRotation().Y > -45_deg && npc.getRotation().Y < 135_deg )
+                        // +X/-Z
+                        if( npc.getRotation().Y > -45_deg && npc.getRotation().Y < 135_deg )
                         {
                             moveZ = npc.m_collisionRadius - inSectorZ;
                         }
+                        else
+                        {
+                            moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
+                        }
                     }
-                }
-                else
-                {
-                    moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
                 }
             }
             else if( inSectorZ > loader::SectorSize - npc.m_collisionRadius )
@@ -219,15 +227,20 @@ namespace engine
                     {
                         moveX = npc.m_collisionRadius - inSectorX;
                     }
-                    else if( isPositionOutOfReach(
+                    else if( moveZ == 0
+                             && isPositionOutOfReach(
                         npc,
                         npc.getPosition().toInexact() + core::TRCoordinates(-npc.m_collisionRadius, bboxTop, -npc.m_collisionRadius),
                         npcBoxFloor,
                         npc.m_brain.route) )
                     {
-                        if( moveZ == 0 && npc.getRotation().Y > -45_deg && npc.getRotation().Y < 135_deg )
+                        if( npc.getRotation().Y > -45_deg && npc.getRotation().Y < 135_deg )
                         {
                             moveX = npc.m_collisionRadius - inSectorX;
+                        }
+                        else
+                        {
+                            moveZ = loader::SectorSize - npc.m_collisionRadius - inSectorZ;
                         }
                     }
                 }
@@ -241,21 +254,22 @@ namespace engine
                     {
                         moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
                     }
-                    else if( isPositionOutOfReach(
+                    else if( moveZ == 0
+                             && isPositionOutOfReach(
                         npc,
                         npc.getPosition().toInexact() + core::TRCoordinates(npc.m_collisionRadius, bboxTop, npc.m_collisionRadius),
                         npcBoxFloor,
                         npc.m_brain.route) )
                     {
-                        if( moveZ == 0 && npc.getRotation().Y > -135_deg && npc.getRotation().Y < 45_deg )
+                        if( npc.getRotation().Y > -135_deg && npc.getRotation().Y < 45_deg )
                         {
                             moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
                         }
+                        else
+                        {
+                            moveZ = loader::SectorSize - npc.m_collisionRadius - inSectorZ;
+                        }
                     }
-                }
-                else
-                {
-                    moveZ = loader::SectorSize - npc.m_collisionRadius - inSectorZ;
                 }
             }
             else if( inSectorX < npc.m_collisionRadius )
@@ -269,14 +283,16 @@ namespace engine
                     moveX = npc.m_collisionRadius - inSectorX;
                 }
             }
-            else if( inSectorX > loader::SectorSize - npc.m_collisionRadius
-                     && isPositionOutOfReach(
-                npc,
-                npc.getPosition().toInexact() + core::TRCoordinates(npc.m_collisionRadius, bboxTop, 0),
-                npcBoxFloor,
-                npc.m_brain.route) )
+            else if(inSectorX > loader::SectorSize - npc.m_collisionRadius)
             {
-                moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
+                if( isPositionOutOfReach(
+                    npc,
+                    npc.getPosition().toInexact() + core::TRCoordinates(npc.m_collisionRadius, bboxTop, 0),
+                    npcBoxFloor,
+                    npc.m_brain.route) )
+                {
+                    moveX = loader::SectorSize - npc.m_collisionRadius - inSectorX;
+                }
             }
 
             npc.moveX(moveX);
@@ -284,7 +300,7 @@ namespace engine
 
             if( moveX != 0 || moveZ != 0 )
             {
-                npcSector = npc.getLevel().findFloorSectorWithClampedPosition(
+                npcSector = npc.getLevel().findRealFloorSector(
                     npc.getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
                     &npcRoom);
                 auto effectiveCurveRoll = util::clamp(core::Angle(8 * roll.toAU()) - npc.getRotation().Z, -3_deg, +3_deg);
@@ -343,7 +359,7 @@ namespace engine
                     dy = -npc.m_brain.route.flyHeight;
                 }
                 npc.moveY(dy);
-                const auto sector = npc.getLevel().findFloorSectorWithClampedPosition(
+                const auto sector = npc.getLevel().findRealFloorSector(
                     npc.getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
                     &npcRoom);
                 npc.setFloorHeight(HeightInfo::fromCeiling(sector,
@@ -375,7 +391,7 @@ namespace engine
             }
 
             npc.setXRotation(0_au);
-            const auto currentSector = npc.getLevel().findFloorSectorWithClampedPosition(
+            const auto currentSector = npc.getLevel().findRealFloorSector(
                 npc.getPosition().toInexact(),
                 &npcRoom);
             npc.setFloorHeight(HeightInfo::fromFloor(currentSector, npc.getPosition().toInexact(), npc.getLevel().m_cameraController).distance);

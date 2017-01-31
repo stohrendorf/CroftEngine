@@ -86,7 +86,7 @@ namespace engine
             void findPath(const items::ItemNode& npc, const items::ItemNode& enemy);
 
 
-            static std::set<uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
+            static std::vector<uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
 
 
             bool canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const;
