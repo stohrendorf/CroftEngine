@@ -1,10 +1,11 @@
-#include <boost/range/adaptors.hpp>
 #include "wolf.h"
 
 #include "engine/heightinfo.h"
 #include "level/level.h"
 #include "engine/laranode.h"
 #include "engine/ai/ai.h"
+
+#include <boost/range/adaptors.hpp>
 
 namespace engine
 {

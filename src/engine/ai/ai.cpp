@@ -36,6 +36,9 @@ namespace engine
                                       bool ignoreProbabilities,
                                       uint16_t attackTargetUpdateProbability)
         {
+            if(!npc.getCurrentBox().is_initialized())
+                return;
+
             const auto npcZone = getZone(npc);
             const auto laraZone = getZone(*npc.getLevel().m_lara);
 

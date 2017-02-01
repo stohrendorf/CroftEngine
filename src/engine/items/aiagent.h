@@ -22,9 +22,12 @@ namespace engine
                     int16_t darkness,
                     const loader::AnimatedModel& animatedModel,
                     uint16_t blockMask,
-                    int collisionRadius)
+                    int collisionRadius,
+                    int dropHeight,
+                    int stepHeight,
+                    int flyHeight)
                 : ItemNode(level, name, room, angle, position, activationState, true, characteristics, darkness, animatedModel)
-                , m_brain{blockMask}
+                , m_brain{blockMask, dropHeight, stepHeight, flyHeight}
                 , m_collisionRadius{collisionRadius}
             {
                 m_flags2_20_collidable = true;

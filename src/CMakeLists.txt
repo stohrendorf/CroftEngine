@@ -187,6 +187,8 @@ set( EDISONENGINE_SRCS
      engine/lara/statehandler_turnslow.h
      engine/lara/statehandler_underwater.h
 
+     engine/items/bat.cpp
+     engine/items/bat.h
      engine/items/block.cpp
      engine/items/block.h
      engine/items/bridgeflat.h

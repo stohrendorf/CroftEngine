@@ -2,6 +2,7 @@
 
 #include "engine/items/itemnode.h"
 
+
 namespace engine
 {
     namespace ai
@@ -51,7 +52,7 @@ namespace engine
         struct RoutePlanner
         {
             //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
-            uint16_t blockMask = 0;
+            uint16_t blockMask;
 
             //! @brief The target box we need to reach
             boost::optional<uint16_t> destinationBox;
@@ -68,14 +69,17 @@ namespace engine
 
             //! @brief Movement limits
             //! @{
-            const int dropHeight = -1024;
-            const int stepHeight = loader::QuarterSectorSize;
-            const int flyHeight = 0;
+            const int dropHeight;
+            const int stepHeight;
+            const int flyHeight;
             //! @}
 
 
-            explicit RoutePlanner(uint16_t blockMask)
+            RoutePlanner(uint16_t blockMask, int dropHeight, int stepHeight, int flyHeight)
                 : blockMask{blockMask}
+                , dropHeight{dropHeight}
+                , stepHeight{stepHeight}
+                , flyHeight{flyHeight}
             {
             }
 
@@ -100,7 +104,7 @@ namespace engine
                 const auto& zone = getZoneData(item.getLevel());
                 const auto box = item.getCurrentBox();
                 BOOST_ASSERT(box.is_initialized());
-                const auto boxIdx = static_cast<uint16_t>( *box & ~0x8000 );
+                const auto boxIdx = static_cast<uint16_t>(*box & ~0x8000);
                 BOOST_ASSERT(boxIdx < zone.size());
                 return zone[boxIdx];
             }
@@ -148,8 +152,8 @@ namespace engine
             RoutePlanner route;
 
 
-            explicit Brain(uint16_t blockMask)
-                : route{blockMask}
+            Brain(uint16_t blockMask, int dropHeight, int stepHeight, int flyHeight)
+                : route{blockMask, dropHeight, stepHeight, flyHeight}
             {
             }
 

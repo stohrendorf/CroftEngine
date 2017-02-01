@@ -8,6 +8,7 @@
 #include "tr4level.h"
 #include "tr5level.h"
 
+#include "engine/items/bat.h"
 #include "engine/items/block.h"
 #include "engine/items/bridgeflat.h"
 #include "engine/items/collapsiblefloor.h"
@@ -407,6 +408,10 @@ engine::LaraNode* Level::createItems()
             else if( type == 7 )
             {
                 modelNode = createSkeletalModel<engine::items::Wolf>(id, *modelIdx, &room, &item);
+            }
+            else if( type == 9 )
+            {
+                modelNode = createSkeletalModel<engine::items::Bat>(id, *modelIdx, &room, &item);
             }
             else if( type == 35 )
             {
