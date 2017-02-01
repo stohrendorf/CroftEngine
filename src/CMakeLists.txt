@@ -212,10 +212,15 @@ set( EDISONENGINE_SRCS
      engine/items/trapdoorup.h
      engine/items/underwaterswitch.h
      engine/items/underwaterswitch.cpp
+     engine/items/wolf.h
+     engine/items/wolf.cpp
+     engine/items/aiagent.h
+     engine/items/aiagent.cpp
 
      engine/floordata/floordata.h
-        engine/ai/ai.h
-        engine/items/wolf.h engine/items/wolf.cpp engine/ai/ai.cpp)
+     engine/ai/ai.h
+     engine/ai/ai.cpp
+)
 
 add_executable(edisonengine
         ${EDISONENGINE_SRCS}

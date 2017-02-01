@@ -1,15 +1,16 @@
 #pragma once
 
-#include "itemnode.h"
+#include "aiagent.h"
 
 #include "engine/ai/ai.h"
+
 
 namespace engine
 {
     namespace items
     {
         class Wolf final
-            : public ItemNode
+            : public AIAgent
         {
         public:
             Wolf(const gsl::not_null<level::Level*>& level,
@@ -20,11 +21,8 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, 0x3e, darkness, animatedModel)
-                  , m_brain{0x4000}
+                : AIAgent(level, name, room, angle, position, activationState, 0x3e, darkness, animatedModel, 0x4000, 384)
             {
-                m_flags2_20_collidable = true;
-                addYRotation(core::Angle(std::rand() % 65536));
             }
 
 
@@ -35,10 +33,6 @@ namespace engine
             {
             }
 
-
-            ai::Brain m_brain;
-            int m_health = 1000;
-            int m_collisionRadius = 384;
 
         private:
             uint16_t m_requiredAnimState = 0;
