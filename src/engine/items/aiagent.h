@@ -18,7 +18,7 @@ namespace engine
                     const core::Angle& angle,
                     const core::ExactTRCoordinates& position,
                     const floordata::ActivationState& activationState,
-                    uint8_t characteristics,
+                    Characteristics characteristics,
                     int16_t darkness,
                     const loader::AnimatedModel& animatedModel,
                     uint16_t blockMask,

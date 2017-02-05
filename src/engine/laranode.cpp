@@ -719,7 +719,7 @@ namespace engine
                     if( item.m_isActive )
                         break;
 
-                    if( (item.m_characteristics & 0x02) == 0 )
+                    if( (item.m_characteristics & ItemNode::Intelligent) == 0 )
                     {
                         item.m_triggerState = engine::items::TriggerState::Enabled;
                         item.activate();

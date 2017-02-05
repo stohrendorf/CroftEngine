@@ -52,7 +52,7 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, angle, position, activationState, false, 0x3c, darkness, animatedModel )
+                : ItemNode( level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel )
         {
             setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
             setTargetState( loader::LaraStateId::Stop );

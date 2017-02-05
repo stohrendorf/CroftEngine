@@ -81,6 +81,15 @@ namespace engine
             void updateSounds();
 
         public:
+            using Characteristics = uint8_t;
+            static const constexpr Characteristics Intelligent = 0x02;
+            static const constexpr Characteristics NonLot = 0x04;
+            static const constexpr Characteristics SavePosition = 0x08;
+            static const constexpr Characteristics SaveHitpoints = 0x10;
+            static const constexpr Characteristics SaveFlags = 0x20;
+            static const constexpr Characteristics SaveAnim = 0x40;
+            static const constexpr Characteristics SemiTransparent = 0x40;
+
             floordata::ActivationState m_activationState;
             bool m_isActive = false;
             TriggerState m_triggerState = TriggerState::Disabled;
@@ -90,7 +99,7 @@ namespace engine
             bool m_flags2_80_dynamicLight = false;
 
             const bool m_hasProcessAnimCommandsOverride;
-            const uint8_t m_characteristics;
+            const Characteristics m_characteristics;
             const int16_t m_darkness;
 
             struct Lighting
@@ -121,7 +130,7 @@ namespace engine
                      const core::ExactTRCoordinates& position,
                      const floordata::ActivationState& activationState,
                      bool hasProcessAnimCommandsOverride,
-                     uint8_t characteristics,
+                     Characteristics characteristics,
                      int16_t darkness,
                      const loader::AnimatedModel& animatedModel);
 

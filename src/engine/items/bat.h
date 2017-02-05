@@ -21,7 +21,7 @@ namespace engine
                 const floordata::ActivationState& activationState,
                 int16_t darkness,
                 const loader::AnimatedModel& animatedModel)
-                : AIAgent(level, name, room, angle, position, activationState, 0x3e, darkness, animatedModel, 0x4000, 0, -20480, 20480, 16)
+                : AIAgent(level, name, room, angle, position, activationState, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, darkness, animatedModel, 0x4000, 0, -20480, 20480, 16)
             {
             }
 

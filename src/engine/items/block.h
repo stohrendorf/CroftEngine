@@ -18,7 +18,7 @@ namespace engine
                   const floordata::ActivationState& activationState,
                   int16_t darkness,
                   const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, 0x34, darkness, animatedModel)
+                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
             {
                 if( m_triggerState != engine::items::TriggerState::Locked )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);

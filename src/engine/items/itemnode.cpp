@@ -34,7 +34,7 @@ namespace engine
                            const core::ExactTRCoordinates& position,
                            const floordata::ActivationState& activationState,
                            bool hasProcessAnimCommandsOverride,
-                           uint8_t characteristics,
+                           Characteristics characteristics,
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
             : SkeletalModelNode(name, level, animatedModel)

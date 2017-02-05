@@ -19,7 +19,7 @@ namespace engine
                        int16_t darkness,
                        const loader::AnimatedModel& animatedModel,
                        bool shotgun = false)
-                : ItemNode(level, name, room, angle, position, activationState, true, 0x30, darkness, animatedModel)
+                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
                 , m_shotgun{shotgun}
             {
             }
