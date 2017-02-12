@@ -9,5 +9,6 @@ namespace engine
 {
     namespace lara
     {
+#pragma message("TODO: Statehandler 42 is not yet implemented")
     }
 }
