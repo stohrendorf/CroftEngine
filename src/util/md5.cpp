@@ -149,7 +149,7 @@ struct State
 {
     bool finalized = false;
     std::array<uint8_t, Blocksize> buffer; // bytes that didn't fit in last 64 byte chunk
-    std::array<uint32_t, 2> count = {0, 0}; // 64bit counter for number of bits (lo, hi)
+    std::array<uint32_t, 2> count{{0, 0}}; // 64bit counter for number of bits (lo, hi)
     uint32_t state[4] = {0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u}; // digest so far
     uint8_t digest[16]; // the result
 

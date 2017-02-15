@@ -1,15 +1,13 @@
 #pragma once
 
-#include "Texture.h"
+#include "Base.h"
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace gameplay
 {
-    class Uniform;
-
-
     /**
      * Defines an effect which can be applied during rendering.
      *
@@ -61,7 +59,7 @@ namespace gameplay
          *
          * @return The vertex attribute, or -1 if no such vertex attribute exists.
          */
-        VertexAttribute getVertexAttribute(const std::string& name) const;
+        const ProgramHandle::ActiveAttribute* getVertexAttribute(const std::string& name) const;
 
         /**
          * Returns the uniform handle for the uniform with the specified name.
@@ -70,7 +68,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if no such uniform exists.
          */
-        std::shared_ptr<Uniform> getUniform(const std::string& name) const;
+        ProgramHandle::ActiveUniform* getUniform(const std::string& name) const;
 
         /**
          * Returns the specified active uniform.
@@ -79,7 +77,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if index is invalid.
          */
-        std::shared_ptr<Uniform> getUniform(size_t index) const;
+        ProgramHandle::ActiveUniform* getUniform(size_t index) const;
 
         /**
          * Returns the number of active uniforms in this effect.
@@ -87,126 +85,6 @@ namespace gameplay
          * @return The number of active uniforms.
          */
         size_t getUniformCount() const;
-
-        /**
-         * Sets a float uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The float value to set.
-         */
-        void setValue(const Uniform& uniform, float value);
-
-        /**
-         * Sets a float array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const float* values, size_t count = 1);
-
-        /**
-         * Sets an integer uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The value to set.
-         */
-        void setValue(const Uniform& uniform, int value);
-
-        /**
-         * Sets an integer array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const int* values, size_t count = 1);
-
-        /**
-         * Sets a matrix uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The value to set.
-         */
-        void setValue(const Uniform& uniform, const glm::mat4& value);
-
-        /**
-         * Sets a matrix array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const glm::mat4* values, size_t count = 1);
-
-        /**
-         * Sets a vector uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The value to set.
-         */
-        void setValue(const Uniform& uniform, const glm::vec2& value);
-
-        /**
-         * Sets a vector array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const glm::vec2* values, size_t count = 1);
-
-        /**
-         * Sets a vector uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The value to set.
-         */
-        void setValue(const Uniform& uniform, const glm::vec3& value);
-
-        /**
-         * Sets a vector array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const glm::vec3* values, size_t count = 1);
-
-        /**
-         * Sets a vector uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param value The value to set.
-         */
-        void setValue(const Uniform& uniform, const glm::vec4& value);
-
-        /**
-         * Sets a vector array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The array to set.
-         * @param count The number of elements in the array.
-         */
-        void setValue(const Uniform& uniform, const glm::vec4* values, size_t count = 1);
-
-        /**
-         * Sets a sampler uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param sampler The sampler to set.
-         */
-        void setValue(const Uniform& uniform, const std::shared_ptr<Texture::Sampler>& sampler);
-
-        /**
-         * Sets a sampler array uniform value.
-         *
-         * @param uniform The uniform to set.
-         * @param values The sampler array to set.
-         *
-         * @script{ignore}
-         */
-        void setValue(const Uniform& uniform, const std::vector<std::shared_ptr<Texture::Sampler>>& values);
 
         /**
          * Binds this effect to make it the currently active effect for the rendering system.
@@ -220,56 +98,9 @@ namespace gameplay
 
         static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines = {});
 
-        GLuint _program = 0;
         std::string _id;
-        std::map<std::string, VertexAttribute> _vertexAttributes;
-        mutable std::map<std::string, std::shared_ptr<Uniform>> _uniforms;
-        static Uniform _emptyUniform;
-    };
-
-
-    /**
-     * Represents a uniform variable within an effect.
-     */
-    class Uniform
-    {
-        friend class ShaderProgram;
-
-    public:
-        Uniform();
-        ~Uniform();
-
-        /**
-         * Returns the name of this uniform.
-         *
-         * @return The name of the uniform.
-         */
-        const std::string& getName() const;
-
-        /**
-         * Returns the OpenGL uniform type.
-         *
-         * @return The OpenGL uniform type.
-         */
-        GLenum getType() const;
-
-        /**
-         * Returns the effect for this uniform.
-         *
-         * @return The uniform's effect.
-         */
-        const std::shared_ptr<ShaderProgram>& getShaderProgram() const;
-
-    private:
-
-        Uniform(const Uniform& copy) = delete;
-
-        Uniform& operator=(const Uniform&) = delete;
-
-        std::string _name;
-        GLint _location = -1;
-        GLenum _type = 0;
-        unsigned int _index = 0;
-        std::shared_ptr<ShaderProgram> _shaderProgram = nullptr;
+        ProgramHandle m_handle;
+        std::map<std::string, ProgramHandle::ActiveAttribute> _vertexAttributes;
+        mutable std::map<std::string, ProgramHandle::ActiveUniform> _uniforms;
     };
 }

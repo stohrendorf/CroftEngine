@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Node.h"
-#include "Texture.h"
 #include "Rectangle.h"
 #include "SpriteBatch.h"
 #include "Drawable.h"
@@ -161,14 +160,17 @@ namespace gameplay
          * @param texture The new texture to set.
          * @param blendMode Blend mode for the new texture.
          */
-        void setTexture(const std::shared_ptr<Texture>& texture, BlendMode blendMode);
+        void setTexture(const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode);
 
         /**
          * Returns the texture currently set for this particle emitter.
          *
          * @return The current texture.
          */
-        std::shared_ptr<Texture> getTexture() const;
+        std::shared_ptr<TextureHandle> getTexture() const
+        {
+            return _spriteBatch ? _spriteBatch->getTexture() : nullptr;
+        }
 
         /**
          * Sets the maximum number of particles that can be emitted.
@@ -605,7 +607,7 @@ namespace gameplay
          * @param particleCountMax The maximum number of particles that can be alive at one time in this ParticleEmitter's system.
          * @script{create}
          */
-        explicit ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax);
+        explicit ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode, size_t particleCountMax);
 
         ParticleEmitter& operator=(const ParticleEmitter&) = delete;
 

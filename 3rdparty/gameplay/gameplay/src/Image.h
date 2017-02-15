@@ -23,21 +23,30 @@ namespace gameplay
          * @return The image's pixel data.
          * @script{ignore}
          */
-        inline const std::vector<glm::vec4>& getData() const;
+        const std::vector<glm::vec4>& getData() const
+        {
+            return _data;
+        }
 
         /**
          * Gets the height of the image.
          *
          * @return The height of the image.
          */
-        inline unsigned int getHeight() const;
+        unsigned int getHeight() const
+        {
+            return _height;
+        }
 
         /**
          * Gets the width of the image.
          *
          * @return The width of the image.
          */
-        inline unsigned int getWidth() const;
+        unsigned int getWidth() const
+        {
+            return _width;
+        }
 
 
         glm::vec4& at(unsigned int x, unsigned int y)
@@ -113,22 +122,4 @@ namespace gameplay
         unsigned int _width;
         unsigned int _height;
     };
-
-
-    inline const std::vector<glm::vec4>& Image::getData() const
-    {
-        return _data;
-    }
-
-
-    inline unsigned int Image::getHeight() const
-    {
-        return _height;
-    }
-
-
-    inline unsigned int Image::getWidth() const
-    {
-        return _width;
-    }
 }

@@ -264,16 +264,4 @@ namespace gameplay
 
         return _parts[index];
     }
-
-
-    const BoundingBox& Mesh::getBoundingBox() const
-    {
-        return _boundingBox;
-    }
-
-
-    void Mesh::setBoundingBox(const BoundingBox& box)
-    {
-        _boundingBox = box;
-    }
 }

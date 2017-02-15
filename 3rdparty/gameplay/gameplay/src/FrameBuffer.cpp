@@ -94,15 +94,6 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, size_t index)
-    {
-        BOOST_ASSERT(face >= Texture::POSITIVE_X && face <= Texture::NEGATIVE_Z);
-        BOOST_ASSERT(!target || target->getTexture() != nullptr);
-
-        setRenderTarget(target, index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face);
-    }
-
-
     void FrameBuffer::setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index, GLenum textureTarget)
     {
         BOOST_ASSERT(index < _maxRenderTargets);
@@ -123,7 +114,7 @@ namespace gameplay
             // Now set this target as the color attachment corresponding to index.
             _handle.bind();
             GLenum attachment = GL_COLOR_ATTACHMENT0 + index;
-            GL_ASSERT( glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, _renderTargets[index]->getTexture()->getHandle().getHandle(), 0) );
+            GL_ASSERT( glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, _renderTargets[index]->getTexture()->getHandle(), 0) );
             auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )
             {
@@ -156,7 +147,7 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setDepthTexture(const std::shared_ptr<Texture>& target)
+    void FrameBuffer::setDepthTexture(const std::shared_ptr<TextureHandle>& target)
     {
         if( _depthTexture == target )
             return;
@@ -167,7 +158,7 @@ namespace gameplay
         {
             _handle.bind();
 
-            GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthTexture->getHandle().getHandle(), 0) );
+            GL_ASSERT( glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthTexture->getHandle(), 0) );
 
             // Check the framebuffer is good to go.
             GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -186,10 +177,7 @@ namespace gameplay
     }
 
 
-    const std::shared_ptr<Texture>& FrameBuffer::getDepthTexture() const
-    {
-        return _depthTexture;
-    }
+
 
 
     void FrameBuffer::bind()

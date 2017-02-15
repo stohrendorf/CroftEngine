@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    Sprite::Sprite(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    Sprite::Sprite(Game* game, const std::shared_ptr<TextureHandle>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
         : Drawable()
         , _width{width}
         , _height{height}
@@ -30,13 +30,15 @@ namespace gameplay
         BOOST_ASSERT(source.width >= -1 && source.height >= -1);
         BOOST_ASSERT(frameCount > 0);
 
-        _batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
-        _batch->getSampler()->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
+        _batch->getTexture()->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        _batch->getTexture()->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        _batch->getTexture()->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        _batch->getTexture()->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         _batch->getStateBlock()->setDepthWrite(false);
         _batch->getStateBlock()->setDepthTest(true);
 
-        auto imageWidth = _batch->getSampler()->getTexture()->getWidth();
-        auto imageHeight = _batch->getSampler()->getTexture()->getHeight();
+        auto imageWidth = _batch->getTexture()->getWidth();
+        auto imageHeight = _batch->getTexture()->getHeight();
         if(width == -1)
             _width = imageWidth;
         if(height == -1)
@@ -125,8 +127,8 @@ namespace gameplay
 
         if( _frames.size() < 2 )
             return;
-        unsigned int imageWidth = _batch->getSampler()->getTexture()->getWidth();
-        unsigned int imageHeight = _batch->getSampler()->getTexture()->getHeight();
+        unsigned int imageWidth = _batch->getTexture()->getWidth();
+        unsigned int imageHeight = _batch->getTexture()->getHeight();
 
         // Mark the start as reference
         float x = _frames[0].x;
@@ -240,12 +242,6 @@ namespace gameplay
                 BOOST_LOG_TRIVIAL(error) << "Unsupported blend mode (" << mode << ").";
                 break;
         }
-    }
-
-
-    const std::shared_ptr<Texture::Sampler>& Sprite::getSampler() const
-    {
-        return _batch->getSampler();
     }
 
 

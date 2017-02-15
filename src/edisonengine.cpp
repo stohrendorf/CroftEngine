@@ -94,18 +94,23 @@ public:
         auto vp = game->getViewport();
 
         if( withDepth )
-            m_fb->setDepthTexture(std::make_shared<gameplay::Texture>(vp.width, vp.height));
+        {
+            auto dt = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+            dt->set2DDepth(vp.width, vp.height);
+            m_fb->setDepthTexture(dt);
+        }
 
         m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
 
         if( withDepth )
         {
-            m_batch->getMaterial()->getParameter("u_depth")->set(std::make_shared<gameplay::Texture::Sampler>(m_fb->getDepthTexture()));
+            m_batch->getMaterial()->getParameter("u_depth")->set(m_fb->getDepthTexture());
             m_batch->getMaterial()->getParameter("u_projection")->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
         }
 
         m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
-        m_batch->getSampler()->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+        m_batch->getTexture()->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        m_batch->getTexture()->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
 
@@ -212,10 +217,10 @@ int main()
     FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {})};
     FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"})};
     depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
-                            [game](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+                            [game](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
                             {
                                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(game->getGameTime());
-                                shaderProgram->setValue(*uniform, gsl::narrow_cast<float>(now.time_since_epoch().count()));
+                                uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
                             }
                         );
 

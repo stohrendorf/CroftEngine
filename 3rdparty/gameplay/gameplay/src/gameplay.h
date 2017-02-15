@@ -12,7 +12,6 @@
 
 // Graphics
 #include "Image.h"
-#include "Texture.h"
 #include "Mesh.h"
 #include "MeshPart.h"
 #include "ShaderProgram.h"

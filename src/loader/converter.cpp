@@ -236,7 +236,7 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Texture> Converter::readTexture(const boost::filesystem::path& path) const
+    std::shared_ptr<gameplay::TextureHandle> Converter::readTexture(const boost::filesystem::path& path) const
     {
         {
             auto it = m_textureCache.find(path);
@@ -264,18 +264,20 @@ namespace loader
         srcImage.permute_axes("cxyz");
 
         auto image = std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(srcImage.data()));
-        return m_textureCache[path] = std::make_shared<gameplay::Texture>(image, true);
+        auto texture = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+        texture->set2D(image->getWidth(), image->getHeight(), image->getData(), true);
+        return m_textureCache[path] = texture;
     }
 
 
     std::shared_ptr<gameplay::Material> Converter::readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const
     {
         auto texture = readTexture(path);
-        auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
-        sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
+        texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         auto material = std::make_shared<gameplay::Material>(shaderProgram);
-        material->getParameter("u_diffuseTexture")->set(sampler);
+        material->getParameter("u_diffuseTexture")->set(texture);
         material->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
         material->getParameter("u_modelMatrix")->bindModelMatrix();
         material->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);

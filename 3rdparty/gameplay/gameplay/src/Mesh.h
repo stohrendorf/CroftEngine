@@ -215,59 +215,9 @@ namespace gameplay
         const std::shared_ptr<MeshPart>& getPart(size_t index);
 
         /**
-         * Returns the bounding box for the points in this mesh.
-         *
-         * Only meshes loaded from bundle files are imported with valid
-         * bounding volumes. Programmatically created meshes will contain
-         * empty bounding volumes until the setBoundingBox and/or
-         * setBoundingSphere methods are called to specify the mesh's
-         * local bounds.
-         *
-         * Meshes that are attached to a Model with a MeshSkin will have
-         * a bounding volume that is not necessarily tight fighting on the
-         * Mesh vertices. Instead, the bounding volume will be an approximation
-         * that contains all possible vertex positions in all possible poses after
-         * skinning is applied. This is necessary since skinning vertices
-         * result in vertex positions that lie outside the original mesh bounds
-         * and could otherwise result in a bounding volume that does not fully
-         * contain an animated/skinned mesh.
-         *
-         * @return The bounding box for the mesh.
-         */
-        const BoundingBox& getBoundingBox() const;
-
-        /**
-         * Sets the bounding box for this mesh.
-         *
-         * @param box The new bounding box for the mesh.
-         */
-        void setBoundingBox(const BoundingBox& box);
-
-        /**
          * Destructor.
          */
         virtual ~Mesh();
-
-        const void* map()
-        {
-            bind();
-            void* data = nullptr;
-            GL_ASSERT(data = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY));
-            return data;
-        }
-
-        void* mapRw()
-        {
-            bind();
-            void* data = nullptr;
-            GL_ASSERT(data = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE));
-            return data;
-        }
-
-        void unmap()
-        {
-            GL_ASSERT(glUnmapBuffer(GL_ARRAY_BUFFER));
-        }
 
     private:
 
@@ -279,6 +229,5 @@ namespace gameplay
         PrimitiveType _primitiveType = TRIANGLES;
         std::vector<std::shared_ptr<MeshPart>> _parts{};
         bool _dynamic = false;
-        BoundingBox _boundingBox;
     };
 }

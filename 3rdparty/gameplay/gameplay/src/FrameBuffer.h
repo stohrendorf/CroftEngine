@@ -81,15 +81,6 @@ namespace gameplay
         void setRenderTarget(const std::shared_ptr<RenderTarget>& target, size_t index = 0);
 
         /**
-        * Set a RenderTarget on this FrameBuffer's color attachment at the specified index.
-        *
-        * @param target The Cubemap RenderTarget to set.
-        * @param face The face of the cubemap to target.
-        * @param index The index of the color attachment to set.
-        */
-        void setRenderTarget(const std::shared_ptr<RenderTarget>& target, Texture::CubeFace face, size_t index = 0);
-
-        /**
          * Get the RenderTarget attached to the FrameBuffer's color attachment at the specified index.
          *
          * @param index The index of the color attachment to retrieve a RenderTarget from.
@@ -105,9 +96,12 @@ namespace gameplay
          */
         size_t getRenderTargetCount() const;
 
-        void setDepthTexture(const std::shared_ptr<Texture>& target);
+        void setDepthTexture(const std::shared_ptr<TextureHandle>& target);
 
-        const std::shared_ptr<Texture>& getDepthTexture() const;
+        const std::shared_ptr<TextureHandle>& getDepthTexture() const
+        {
+            return _depthTexture;
+        }
 
         /**
          * Binds this FrameBuffer for off-screen rendering and return you the currently bound one.
@@ -150,7 +144,7 @@ namespace gameplay
         FrameBufferHandle _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
         size_t _renderTargetCount;
-        std::shared_ptr<Texture> _depthTexture;
+        std::shared_ptr<TextureHandle> _depthTexture;
 
         static size_t _maxRenderTargets;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;

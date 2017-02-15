@@ -50,7 +50,7 @@ namespace gameplay
         for( size_t i = 0, count = vertexFormat.getElementCount(); i < count; ++i )
         {
             const VertexFormat::Element& e = vertexFormat.getElement(i);
-            gameplay::VertexAttribute attrib = -1;
+            const ProgramHandle::ActiveAttribute* attrib = nullptr;
             void* pointer = vertexPointer ? static_cast<void*>(static_cast<uint8_t*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
 
             // Constructor vertex attribute name expected in shader.
@@ -76,13 +76,13 @@ namespace gameplay
                     break;
                 default:
                     // This happens whenever vertex data contains extra information (not an error).
-                    attrib = -1;
+                    attrib = nullptr;
                     break;
             }
 
-            if( attrib != -1 )
+            if( attrib != nullptr )
             {
-                setVertexAttribPointer(attrib, static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
+                setVertexAttribPointer(attrib->getLocation(), static_cast<GLint>(e.size), GL_FLOAT, GL_FALSE, static_cast<GLsizei>(vertexFormat.getVertexSize()), pointer);
             }
             else
             {

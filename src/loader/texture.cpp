@@ -11,14 +11,15 @@
 
 namespace loader
 {
-    std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode,
+    std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::TextureHandle>& texture,
+                                                       BlendingMode bmode,
                                                        const std::shared_ptr<gameplay::ShaderProgram>& shader)
     {
         auto result = std::make_shared<gameplay::Material>(shader);
         // Set some defaults
-        auto sampler = std::make_shared<gameplay::Texture::Sampler>(texture);
-        sampler->setWrapMode(gameplay::Texture::CLAMP, gameplay::Texture::CLAMP);
-        result->getParameter("u_diffuseTexture")->set(sampler);
+        texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        result->getParameter("u_diffuseTexture")->set(texture);
         result->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
         result->getParameter("u_modelMatrix")->bindModelMatrix();
         result->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
@@ -151,8 +152,11 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Texture> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
+    std::shared_ptr<gameplay::TextureHandle> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
     {
-        return std::make_shared<gameplay::Texture>(toImage(glidos, lvlName), true);
+        auto texture = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+        auto img = toImage(glidos, lvlName);
+        texture->set2D(img->getWidth(), img->getHeight(), img->getData(), true);
+        return texture;
     }
 }

@@ -88,7 +88,7 @@ namespace loader
     std::shared_ptr<gameplay::Node> Room::createSceneNode(gameplay::Game* game,
                                                           size_t roomId,
                                                           const level::Level& level,
-                                                          const std::vector<std::shared_ptr<gameplay::Texture>>& textures,
+                                                          const std::vector<std::shared_ptr<gameplay::TextureHandle>>& textures,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
                                                           const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
@@ -172,17 +172,17 @@ namespace loader
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
-        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
         {
-            shaderProgram->setValue(*uniform, glm::vec3{0.0f});
+            uniform.set(glm::vec3{0.0f});
         });
-        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
         {
-            shaderProgram->setValue(*uniform, 1.0f);
+            uniform.set(1.0f);
         });
-        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
         {
-            shaderProgram->setValue(*uniform, 1.0f);
+            uniform.set(1.0f);
         });
 
         for( const RoomStaticMesh& sm : this->staticMeshes )
@@ -196,17 +196,17 @@ namespace loader
 
             float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
 
-            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
-                shaderProgram->setValue(*uniform, brightness);
+                uniform.set(brightness);
             });
-            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
-                shaderProgram->setValue(*uniform, 0.0f);
+                uniform.set(0.0f);
             });
-            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
-                shaderProgram->setValue(*uniform, glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
+                uniform.set(glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
             });
             node->addChild(subNode);
         }

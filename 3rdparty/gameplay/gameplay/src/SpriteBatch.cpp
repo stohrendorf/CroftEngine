@@ -25,9 +25,9 @@ namespace gameplay
     static std::shared_ptr<ShaderProgram> __spriteShaderProgram = nullptr;
 
 
-    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
+    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<TextureHandle>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
         : _batch(nullptr)
-        , _sampler(nullptr)
+        , _texture{texture}
         , _customEffect{ shaderProgram != nullptr }
         , _textureWidthRatio(0.0f)
         , _textureHeightRatio(0.0f)
@@ -54,13 +54,13 @@ namespace gameplay
         }
 
         // Search for the first sampler uniform in the effect.
-        std::shared_ptr<Uniform> samplerUniform = nullptr;
+        ProgramHandle::ActiveUniform* samplerUniform = nullptr;
         if(diffuse.empty())
         {
             for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)
             {
                 auto uniform = fx->getUniform(i);
-                if(uniform && uniform->getType() == GL_SAMPLER_2D)
+                if(uniform != nullptr && uniform->getType() == GL_SAMPLER_2D)
                 {
                     samplerUniform = uniform;
                     break;
@@ -87,8 +87,7 @@ namespace gameplay
         material->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
 
         // Bind the texture to the material as a sampler
-        _sampler = std::make_shared<Texture::Sampler>(texture);
-        material->getParameter(samplerUniform->getName())->set(_sampler);
+        material->getParameter(samplerUniform->getName())->set(_texture);
 
         // Define the vertex format for the batch
         static const VertexFormat::Element vertexElements[] =
@@ -379,12 +378,6 @@ namespace gameplay
     std::shared_ptr<RenderState::StateBlock> SpriteBatch::getStateBlock() const
     {
         return _batch->getMaterial()->getStateBlock();
-    }
-
-
-    const std::shared_ptr<Texture::Sampler>& SpriteBatch::getSampler() const
-    {
-        return _sampler;
     }
 
 

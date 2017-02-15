@@ -50,7 +50,8 @@ namespace gameplay
         _image = std::make_shared<Image>(vp.width, vp.height);
         _image->fill({0,0,0,0});
 
-        _texture = std::make_shared<Texture>(_image, false);
+        _texture = std::make_shared<TextureHandle>(GL_IMAGE_2D);
+        _texture->set2D(_image->getWidth(), _image->getHeight(), _image->getData(), false);
 
         _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram);
 
@@ -60,7 +61,8 @@ namespace gameplay
             _batch->setProjectionMatrix(projectionMatrix);
         }
 
-        _batch->getSampler()->setWrapMode(Texture::CLAMP, Texture::CLAMP);
+        _batch->getTexture()->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        _batch->getTexture()->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         _batch->start();
         _batch->draw(0, 0, vp.width, vp.height, 0, 0, 1, 1, glm::vec4{1,1,1,1});

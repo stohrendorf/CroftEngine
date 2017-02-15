@@ -55,8 +55,6 @@ set( GAMEPLAY_SRC
      src/Sprite.h
      src/SpriteBatch.cpp
      src/SpriteBatch.h
-     src/Texture.cpp
-     src/Texture.h
      src/VertexAttributeBinding.cpp
      src/VertexAttributeBinding.h
      src/VertexFormat.cpp

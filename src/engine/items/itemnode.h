@@ -514,44 +514,44 @@ namespace engine
                 return item;
             }
 
-            static void lightBaseBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            static void lightBaseBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
                 if(item == nullptr)
                 {
-                    shaderProgram->setValue(*uniform, 1.0f);
+                    uniform.set(1.0f);
                     return;
                 }
 
-                shaderProgram->setValue(*uniform, item->m_lighting.base);
+                uniform.set(item->m_lighting.base);
             };
 
-            static void lightBaseDiffBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
                 if(item == nullptr)
                 {
-                    shaderProgram->setValue(*uniform, 1.0f);
+                    uniform.set(1.0f);
                     return;
                 }
 
-                shaderProgram->setValue(*uniform, item->m_lighting.baseDiff);
+                uniform.set(item->m_lighting.baseDiff);
             };
 
-            static void lightPositionBinder(const gameplay::Node& node, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const std::shared_ptr<gameplay::Uniform>& uniform)
+            static void lightPositionBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
                 if(item == nullptr)
                 {
                     static const glm::vec3 invalidPos{ std::numeric_limits<float>::quiet_NaN() };
-                    shaderProgram->setValue(*uniform, invalidPos);
+                    uniform.set(invalidPos);
                     return;
                 }
 
-                shaderProgram->setValue(*uniform, item->m_lighting.position);
+                uniform.set(item->m_lighting.position);
             };
 
         protected:

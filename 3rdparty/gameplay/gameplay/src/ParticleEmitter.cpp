@@ -19,7 +19,7 @@ namespace gameplay
     ParticleEmitter::~ParticleEmitter() = default;
 
 
-    ParticleEmitter::ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<Texture>& texture, BlendMode blendMode, size_t particleCountMax)
+    ParticleEmitter::ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode, size_t particleCountMax)
         : Node(id)
         , _particleCount(0)
         , _particles(particleCountMax)
@@ -70,12 +70,13 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setTexture(const std::shared_ptr<Texture>& texture, BlendMode blendMode)
+    void ParticleEmitter::setTexture(const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode)
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
         auto batch = std::make_shared<SpriteBatch>(_game, texture, nullptr);
-        batch->getSampler()->setFilterMode(Texture::LINEAR_MIPMAP_LINEAR, Texture::LINEAR);
+        batch->getTexture()->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        batch->getTexture()->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         _spriteBatch = batch;
         _spriteBatch->getStateBlock()->setDepthWrite(false);
@@ -89,13 +90,6 @@ namespace gameplay
 
         // By default assume only one frame which uses the entire texture.
         setSpriteFrameCoords(Rectangle(texture->getWidth(), texture->getHeight()));
-    }
-
-
-    std::shared_ptr<Texture> ParticleEmitter::getTexture() const
-    {
-        auto sampler = _spriteBatch ? _spriteBatch->getSampler() : nullptr;
-        return sampler ? sampler->getTexture() : nullptr;
     }
 
 

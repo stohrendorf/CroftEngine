@@ -20,7 +20,7 @@ namespace gameplay
 
         void draw(RenderContext& context) override
         {
-            _texture->setData(_image->getData().data());
+            _texture->set2D(_image->getData());
             _batch->finishAndDraw(context);
         }
 
@@ -37,7 +37,7 @@ namespace gameplay
         ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
         std::shared_ptr<Image> _image{nullptr};
-        std::shared_ptr<Texture> _texture{nullptr};
+        std::shared_ptr<TextureHandle> _texture{nullptr};
         std::shared_ptr<SpriteBatch> _batch{nullptr};
 
         Game* _game;

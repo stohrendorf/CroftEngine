@@ -85,7 +85,7 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+        std::shared_ptr<gameplay::TextureHandle> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
 
         std::shared_ptr<gameplay::Image> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
     };
@@ -163,7 +163,8 @@ namespace loader
     };
 
 
-    extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture, BlendingMode bmode,
+    extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::TextureHandle>& texture,
+                                                              BlendingMode bmode,
                                                               const std::shared_ptr<gameplay::ShaderProgram>& shader);
 
 
@@ -288,7 +289,7 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::Texture>& texture,
+        std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::TextureHandle>& texture,
                                                            const std::shared_ptr<gameplay::ShaderProgram>& shader) const
         {
             return ::loader::createMaterial(texture, textureKey.blendingMode, shader);

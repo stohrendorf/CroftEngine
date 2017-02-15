@@ -26,7 +26,7 @@ namespace gameplay
         friend class Node;
 
     public:
-        Sprite(Game* game, const std::shared_ptr<Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
+        Sprite(Game* game, const std::shared_ptr<TextureHandle>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
         ~Sprite();
 
         /**
@@ -258,7 +258,10 @@ namespace gameplay
          *
          * @return The texture sampler used when sampling the texture.
          */
-        const std::shared_ptr<Texture::Sampler>& getSampler() const;
+        std::shared_ptr<TextureHandle> getTexture() const
+        {
+            return _batch->getTexture();
+        }
 
         /**
          * Gets the StateBlock for the SpriteBatch.

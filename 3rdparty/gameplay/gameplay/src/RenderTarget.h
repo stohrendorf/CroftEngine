@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Base.h"
-#include "Texture.h"
 
 
 namespace gameplay
@@ -16,7 +15,7 @@ namespace gameplay
 
     public:
         explicit RenderTarget(unsigned int width, unsigned int height);
-        explicit RenderTarget(const std::shared_ptr<Texture>& texture);
+        explicit RenderTarget(const std::shared_ptr<TextureHandle>& texture);
 
         ~RenderTarget();
 
@@ -25,7 +24,10 @@ namespace gameplay
          *
          * @return The backing texture of this RenderTarget.
          */
-        const std::shared_ptr<Texture>& getTexture() const;
+        const std::shared_ptr<TextureHandle>& getTexture() const
+        {
+            return _texture;
+        }
 
         /**
          * Returns the width of the RenderTarget.
@@ -45,6 +47,6 @@ namespace gameplay
 
         RenderTarget& operator=(const RenderTarget&) = delete;
 
-        std::shared_ptr<Texture> _texture;
+        std::shared_ptr<TextureHandle> _texture;
     };
 }
