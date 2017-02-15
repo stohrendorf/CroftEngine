@@ -45,7 +45,6 @@ namespace gameplay
         {
             CLEAR_COLOR = GL_COLOR_BUFFER_BIT,
             CLEAR_DEPTH = GL_DEPTH_BUFFER_BIT,
-            CLEAR_STENCIL = GL_STENCIL_BUFFER_BIT,
             CLEAR_COLOR_DEPTH = CLEAR_COLOR | CLEAR_DEPTH
         };
 
@@ -181,9 +180,8 @@ namespace gameplay
          * @param flags The flags indicating which buffers to be cleared.
          * @param clearColor The color value to clear to when the flags includes the color buffer.
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
-         * @param clearStencil The stencil value to clear to when the flags includes the color buffer.
          */
-        void clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth, int clearStencil);
+        void clear(::gameplay::Game::ClearFlags flags, const glm::vec4& clearColor, float clearDepth);
 
         /**
          * Clears the specified resource buffers to the specified clear values.
@@ -194,9 +192,8 @@ namespace gameplay
          * @param blue The blue channel.
          * @param alpha The alpha channel.
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
-         * @param clearStencil The stencil value to clear to when the flags includes the color buffer.
          */
-        void clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil);
+        void clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth);
 
         /**
          * Sets whether multi-sampling is to be enabled/disabled. Default is disabled.
@@ -290,7 +287,6 @@ namespace gameplay
         Rectangle _viewport; // the games's current viewport.
         glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
-        int _clearStencil = 0; // The clear stencil value last used for clearing the stencil buffer.
 
         bool _vsync = WINDOW_VSYNC;
         bool _multiSampling = false;

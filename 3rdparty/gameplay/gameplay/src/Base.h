@@ -9,13 +9,6 @@
 #include <functional>
 #include <vector>
 
-// Array deletion macro
-#define SAFE_DELETE_ARRAY(x) \
-    { \
-        delete[] x; \
-        x = nullptr; \
-    }
-
 #define WINDOW_VSYNC        true
 
 #define WIN32_LEAN_AND_MEAN
@@ -49,6 +42,7 @@ namespace gameplay
         }
     }
 
+
     class BindableResource
     {
     public:
@@ -58,11 +52,13 @@ namespace gameplay
             gl::checkGlError();
         }
 
+
         void unbind() const
         {
             m_binder(0);
             gl::checkGlError();
         }
+
 
         GLuint getHandle() const
         {
@@ -70,15 +66,17 @@ namespace gameplay
             return m_handle;
         }
 
+
     protected:
         using Allocator = void(GLsizei, GLuint*);
         using Binder = void(GLuint);
         using Deleter = void(GLsizei, GLuint*);
 
+
         explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder, const std::function<Deleter>& deleter)
-            : m_allocator{ allocator }
-            , m_binder{ binder }
-            , m_deleter{ deleter }
+            : m_allocator{allocator}
+            , m_binder{binder}
+            , m_deleter{deleter}
         {
             BOOST_ASSERT(allocator != nullptr);
             BOOST_ASSERT(binder != nullptr);
@@ -88,11 +86,13 @@ namespace gameplay
             gl::checkGlError();
         }
 
+
         virtual ~BindableResource()
         {
             m_deleter(1, &m_handle);
             gl::checkGlError();
         }
+
 
     private:
         GLuint m_handle = 0;
@@ -104,14 +104,20 @@ namespace gameplay
         BindableResource& operator=(const BindableResource&) = delete;
     };
 
+
     class VertexBufferHandle : public BindableResource
     {
     public:
         explicit VertexBufferHandle()
-            : BindableResource(glGenBuffers, [](GLuint handle) { glBindBuffer(GL_ARRAY_BUFFER, handle); }, glDeleteBuffers)
+            : BindableResource(glGenBuffers, [](GLuint handle)
+                                           {
+                                               glBindBuffer(GL_ARRAY_BUFFER, handle);
+                                           }, glDeleteBuffers)
         {
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         const void* map()
         {
             bind();
@@ -120,6 +126,8 @@ namespace gameplay
             return data;
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void* mapRw()
         {
             bind();
@@ -128,12 +136,16 @@ namespace gameplay
             return data;
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
+        // ReSharper disable once CppMemberFunctionMayBeStatic
         void unmap()
         {
             glUnmapBuffer(GL_ARRAY_BUFFER);
             gl::checkGlError();
         }
     };
+
 
     class VertexArrayHandle : public BindableResource
     {
@@ -144,50 +156,63 @@ namespace gameplay
         }
     };
 
+
     class IndexBufferHandle : public BindableResource
     {
     public:
         explicit IndexBufferHandle()
-            : BindableResource(glGenBuffers, [](GLuint handle) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle); }, glDeleteBuffers)
+            : BindableResource(glGenBuffers, [](GLuint handle)
+                                           {
+                                               glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle);
+                                           }, glDeleteBuffers)
         {
         }
     };
+
 
     class TextureHandle : public BindableResource
     {
     public:
         explicit TextureHandle(GLenum type)
             : BindableResource(glGenTextures, [type](GLuint handle) { glBindTexture(type, handle); }, glDeleteTextures)
-            , m_type{type}
+            , m_type(type)
         {
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void set(GLenum param, GLint value)
         {
             glTextureParameteri(getHandle(), param, value);
             gl::checkGlError();
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void set(GLenum param, GLfloat value)
         {
             glTextureParameterf(getHandle(), param, value);
             gl::checkGlError();
         }
 
+
         GLint getWidth() const noexcept
         {
             return m_width;
         }
+
 
         GLint getHeight() const noexcept
         {
             return m_height;
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void set2D(const std::vector<glm::vec4>& data)
         {
             BOOST_ASSERT(m_width > 0 && m_height > 0);
-            BOOST_ASSERT(static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
+            BOOST_ASSERT(data.empty() || static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
 
             glTexImage2D(m_type, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
             gl::checkGlError();
@@ -199,10 +224,11 @@ namespace gameplay
             }
         }
 
+
         void set2D(GLint width, GLint height, const std::vector<glm::vec4>& data, bool generateMipmaps)
         {
             BOOST_ASSERT(width > 0 && height > 0);
-            BOOST_ASSERT(static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
+            BOOST_ASSERT(data.empty() || static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
 
             // Create the texture.
             bind();
@@ -214,7 +240,7 @@ namespace gameplay
             gl::checkGlError();
 
             m_width = width;
-            m_width = height;
+            m_height = height;
 
             // Set initial minification filter based on whether or not mipmaping was enabled.
             set(GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR);
@@ -228,6 +254,7 @@ namespace gameplay
                 gl::checkGlError();
             }
         }
+
 
         void set2DDepth(GLint width, GLint height)
         {
@@ -249,6 +276,7 @@ namespace gameplay
             set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         }
 
+
     private:
         const GLenum m_type;
         GLint m_width = -1;
@@ -256,13 +284,18 @@ namespace gameplay
         bool m_mipmap = false;
     };
 
+
     class FrameBufferHandle : public BindableResource
     {
     public:
         explicit FrameBufferHandle()
-            : BindableResource(glGenFramebuffers, [](GLuint handle) { glBindFramebuffer(GL_FRAMEBUFFER, handle); }, glDeleteFramebuffers)
+            : BindableResource(glGenFramebuffers, [](GLuint handle)
+                                                {
+                                                    glBindFramebuffer(GL_FRAMEBUFFER, handle);
+                                                }, glDeleteFramebuffers)
         {
         }
+
 
         static void unbindAll()
         {
@@ -270,14 +303,19 @@ namespace gameplay
         }
     };
 
+
     class RenderBufferHandle : public BindableResource
     {
     public:
         explicit RenderBufferHandle()
-            : BindableResource(glGenRenderbuffers, [](GLuint handle) { glBindRenderbuffer(GL_RENDERBUFFER, handle); }, glDeleteRenderbuffers)
+            : BindableResource(glGenRenderbuffers, [](GLuint handle)
+                                                 {
+                                                     glBindRenderbuffer(GL_RENDERBUFFER, handle);
+                                                 }, glDeleteRenderbuffers)
         {
         }
     };
+
 
     class ShaderHandle
     {
@@ -294,6 +332,7 @@ namespace gameplay
             BOOST_ASSERT(m_handle != 0);
         }
 
+
         ~ShaderHandle()
         {
             glDeleteShader(m_handle);
@@ -307,19 +346,24 @@ namespace gameplay
         }
 
 
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void setSource(const std::string& src)
         {
-            const GLchar* data[1]{ src.c_str() };
+            const GLchar* data[1]{src.c_str()};
             glShaderSource(m_handle, 1, data, nullptr);
             gl::checkGlError();
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void setSource(const GLchar* src[], GLsizei n)
         {
             glShaderSource(m_handle, n, src, nullptr);
             gl::checkGlError();
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void compile()
         {
             glCompileShader(m_handle);
@@ -359,10 +403,12 @@ namespace gameplay
             return {};
         }
 
+
         GLuint getHandle() const noexcept
         {
             return m_handle;
         }
+
 
     private:
         const GLuint m_handle;
@@ -375,13 +421,23 @@ namespace gameplay
     public:
         explicit ProgramHandle()
             : BindableResource{
-                  [](GLsizei n, GLuint* handle){ BOOST_ASSERT(n == 1 && handle != nullptr); *handle = glCreateProgram(); },
-                  glUseProgram,
-                  [](GLsizei n, GLuint* handle){ BOOST_ASSERT(n == 1 && handle != nullptr); glDeleteProgram(*handle); }
+                [](GLsizei n, GLuint* handle)
+                {
+                    BOOST_ASSERT(n == 1 && handle != nullptr);
+                    *handle = glCreateProgram();
+                },
+                glUseProgram,
+                [](GLsizei n, GLuint* handle)
+                {
+                    BOOST_ASSERT(n == 1 && handle != nullptr);
+                    glDeleteProgram(*handle);
+                }
             }
         {
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void attach(const ShaderHandle& shader)
         {
             BOOST_ASSERT(shader.getCompileStatus());
@@ -389,11 +445,14 @@ namespace gameplay
             gl::checkGlError();
         }
 
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void link()
         {
             glLinkProgram(getHandle());
             gl::checkGlError();
         }
+
 
         bool getLinkStatus() const
         {
@@ -436,6 +495,7 @@ namespace gameplay
             return activeAttributes;
         }
 
+
         GLint getActiveAttributeMaxLength() const
         {
             GLint length = 0;
@@ -443,6 +503,7 @@ namespace gameplay
             gl::checkGlError();
             return length;
         }
+
 
         GLint getActiveUniformCount() const
         {
@@ -452,6 +513,7 @@ namespace gameplay
             return activeAttributes;
         }
 
+
         GLint getActiveUniformMaxLength() const
         {
             GLint length = 0;
@@ -459,6 +521,7 @@ namespace gameplay
             gl::checkGlError();
             return length;
         }
+
 
         class ActiveAttribute
         {
@@ -476,15 +539,18 @@ namespace gameplay
                 gl::checkGlError();
             }
 
+
             const std::string& getName() const noexcept
             {
                 return m_name;
             }
 
+
             GLint getLocation() const noexcept
             {
                 return m_location;
             }
+
 
         private:
             GLint m_size = 0;
@@ -492,6 +558,7 @@ namespace gameplay
             std::string m_name{};
             GLint m_location = -1;
         };
+
 
         class ActiveUniform
         {
@@ -501,7 +568,7 @@ namespace gameplay
                 GLchar* uniformName = new GLchar[maxLength + 1];
                 glGetActiveUniform(program, index, maxLength, nullptr, &m_size, &m_type, uniformName);
                 uniformName[maxLength] = '\0';
-                if(auto chr = std::strrchr(uniformName, '['))
+                if( auto chr = std::strrchr(uniformName, '[') )
                     *chr = '\0';
 
                 m_name = uniformName;
@@ -511,7 +578,7 @@ namespace gameplay
                 m_location = glGetUniformLocation(program, m_name.c_str());
                 gl::checkGlError();
 
-                switch(m_type)
+                switch( m_type )
                 {
                     case GL_SAMPLER_1D:
                     case GL_SAMPLER_1D_SHADOW:
@@ -536,19 +603,16 @@ namespace gameplay
                     default:
                         break;
                 }
-
-                if(m_type == GL_SAMPLER_1D || m_type == GL_SAMPLER_2D || m_type == GL_SAMPLER_3D || m_type == GL_SAMPLER_CUBE || m_type == GL_SAMPLER_1D_SHADOW || m_type == GL_SAMPLER_2D_SHADOW)
-                {
-                    m_samplerIndex = samplerIndex;
-                    samplerIndex += m_size;
-                }
             }
+
 
             const std::string& getName() const noexcept
             {
                 return m_name;
             }
 
+
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(GLfloat value)
             {
                 glUniform1f(m_location, value);
@@ -556,7 +620,8 @@ namespace gameplay
             }
 
 
-            void set(const GLfloat* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const GLfloat* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
                 glUniform1fv(m_location, count, values);
@@ -564,13 +629,15 @@ namespace gameplay
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(GLint value)
             {
                 glUniform1i(m_location, value);
             }
 
 
-            void set(const GLint* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const GLint* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
                 glUniform1iv(m_location, count, values);
@@ -578,6 +645,7 @@ namespace gameplay
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const glm::mat4& value)
             {
                 glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(value));
@@ -585,14 +653,16 @@ namespace gameplay
             }
 
 
-            void set(const glm::mat4* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const glm::mat4* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
-                glUniformMatrix4fv(m_location, count, GL_FALSE, (GLfloat*)values);
+                glUniformMatrix4fv(m_location, count, GL_FALSE, reinterpret_cast<const GLfloat*>(values));
                 gl::checkGlError();
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const glm::vec2& value)
             {
                 glUniform2f(m_location, value.x, value.y);
@@ -600,14 +670,16 @@ namespace gameplay
             }
 
 
-            void set(const glm::vec2* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const glm::vec2* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
-                glUniform2fv(m_location, count, (GLfloat*)values);
+                glUniform2fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
                 gl::checkGlError();
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const glm::vec3& value)
             {
                 glUniform3f(m_location, value.x, value.y, value.z);
@@ -615,14 +687,16 @@ namespace gameplay
             }
 
 
-            void set(const glm::vec3* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const glm::vec3* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
-                glUniform3fv(m_location, count, (GLfloat*)values);
+                glUniform3fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
                 gl::checkGlError();
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const glm::vec4& value)
             {
                 glUniform4f(m_location, value.x, value.y, value.z, value.w);
@@ -630,14 +704,16 @@ namespace gameplay
             }
 
 
-            void set(const glm::vec4* values, size_t count)
+            // ReSharper disable once CppMemberFunctionMayBeConst
+            void set(const glm::vec4* values, GLsizei count)
             {
                 BOOST_ASSERT(values != nullptr);
-                glUniform4fv(m_location, count, (GLfloat*)values);
+                glUniform4fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
                 gl::checkGlError();
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const TextureHandle& texture)
             {
                 BOOST_ASSERT(m_samplerIndex >= 0);
@@ -653,6 +729,7 @@ namespace gameplay
             }
 
 
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(const std::vector<std::shared_ptr<TextureHandle>>& values)
             {
                 BOOST_ASSERT(m_samplerIndex >= 0);
@@ -661,24 +738,26 @@ namespace gameplay
                 GLint units[32];
                 for( size_t i = 0; i < values.size(); ++i )
                 {
-                    glActiveTexture(GL_TEXTURE0 + m_samplerIndex + i);
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + m_samplerIndex + i));
                     gl::checkGlError();
 
                     // Bind the sampler - this binds the texture and applies sampler state
                     values[i]->bind();
 
-                    units[i] = m_samplerIndex + i;
+                    units[i] = static_cast<GLint>(m_samplerIndex + i);
                 }
 
                 // Pass texture unit array to GL
-                glUniform1iv(m_location, values.size(), units);
+                glUniform1iv(m_location, static_cast<GLsizei>(values.size()), units);
                 gl::checkGlError();
             }
+
 
             GLenum getType() const noexcept
             {
                 return m_type;
             }
+
 
         private:
             GLint m_size = 0;
@@ -688,35 +767,39 @@ namespace gameplay
             GLint m_samplerIndex = -1;
         };
 
+
         ActiveAttribute getActiveAttribute(GLint index) const
         {
             return ActiveAttribute{getHandle(), index, getActiveAttributeMaxLength()};
         }
+
 
         std::vector<ActiveAttribute> getActiveAttributes() const
         {
             std::vector<ActiveAttribute> attribs;
             auto count = getActiveAttributeCount();
             const auto maxLength = getActiveAttributeMaxLength();
-            for(decltype(count) i=0; i<count; ++i)
+            for( decltype(count) i = 0; i < count; ++i )
                 attribs.emplace_back(getHandle(), i, maxLength);
             return attribs;
         }
 
+
         ActiveUniform getActiveUniform(GLint index, GLint& samplerIndex) const
         {
-            return ActiveUniform{getHandle(), index, getActiveAttributeMaxLength(), samplerIndex};
+            return ActiveUniform{getHandle(), index, getActiveUniformMaxLength(), samplerIndex};
         }
+
 
         std::vector<ActiveUniform> getActiveUniforms() const
         {
-            std::vector<ActiveUniform> attribs;
-            auto count = getActiveAttributeCount();
-            const auto maxLength = getActiveAttributeMaxLength();
+            std::vector<ActiveUniform> uniforms;
+            auto count = getActiveUniformCount();
+            const auto maxLength = getActiveUniformMaxLength();
             GLint samplerIndex = 0;
-            for(decltype(count) i=0; i<count; ++i)
-                attribs.emplace_back(getHandle(), i, maxLength, samplerIndex);
-            return attribs;
+            for( decltype(count) i = 0; i < count; ++i )
+                uniforms.emplace_back(getHandle(), i, maxLength, samplerIndex);
+            return uniforms;
         }
     };
 }

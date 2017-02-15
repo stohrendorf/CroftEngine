@@ -246,7 +246,7 @@ namespace gameplay
          *
          * @return The number of particles that are currently alive.
          */
-        unsigned int getParticlesCount() const;
+        size_t getParticlesCount() const;
 
         /**
          * Sets whether the positions of newly emitted particles are generated within an ellipsoidal domain.

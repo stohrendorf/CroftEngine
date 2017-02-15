@@ -14,10 +14,6 @@
 #define RS_DEPTH_WRITE 16
 #define RS_DEPTH_FUNC 32
 #define RS_CULL_FACE_SIDE 64
-#define RS_STENCIL_TEST 128
-#define RS_STENCIL_WRITE 256
-#define RS_STENCIL_FUNC 512
-#define RS_STENCIL_OP 1024
 #define RS_FRONT_FACE 2048
 
 #define RS_ALL_ONES 0xFFFFFFFF
@@ -201,8 +197,6 @@ namespace gameplay
 
 
     RenderState::StateBlock::StateBlock()
-        : _stencilWrite(RS_ALL_ONES)
-        , _stencilFunctionMask(RS_ALL_ONES)
     {
     }
 
@@ -291,41 +285,6 @@ namespace gameplay
             GL_ASSERT( glDepthFunc(static_cast<GLenum>(_depthFunction)) );
             _defaultState->_depthFunction = _depthFunction;
         }
-        if( (_bits & RS_STENCIL_TEST) && (_stencilTestEnabled != _defaultState->_stencilTestEnabled) )
-        {
-            if(_stencilTestEnabled)
-            {
-                GL_ASSERT(glEnable(GL_STENCIL_TEST));
-            }
-            else
-            {
-                GL_ASSERT(glDisable(GL_STENCIL_TEST));
-            }
-            _defaultState->_stencilTestEnabled = _stencilTestEnabled;
-        }
-        if( (_bits & RS_STENCIL_WRITE) && (_stencilWrite != _defaultState->_stencilWrite) )
-        {
-            GL_ASSERT( glStencilMask(_stencilWrite) );
-            _defaultState->_stencilWrite = _stencilWrite;
-        }
-        if( (_bits & RS_STENCIL_FUNC) && (_stencilFunction != _defaultState->_stencilFunction ||
-            _stencilFunctionRef != _defaultState->_stencilFunctionRef ||
-            _stencilFunctionMask != _defaultState->_stencilFunctionMask) )
-        {
-            GL_ASSERT( glStencilFunc(static_cast<GLenum>(_stencilFunction), _stencilFunctionRef, _stencilFunctionMask) );
-            _defaultState->_stencilFunction = _stencilFunction;
-            _defaultState->_stencilFunctionRef = _stencilFunctionRef;
-            _defaultState->_stencilFunctionMask = _stencilFunctionMask;
-        }
-        if( (_bits & RS_STENCIL_OP) && (_stencilOpSfail != _defaultState->_stencilOpSfail ||
-            _stencilOpDpfail != _defaultState->_stencilOpDpfail ||
-            _stencilOpDppass != _defaultState->_stencilOpDppass) )
-        {
-            GL_ASSERT( glStencilOp(static_cast<GLenum>(_stencilOpSfail), static_cast<GLenum>(_stencilOpDpfail), static_cast<GLenum>(_stencilOpDppass)) );
-            _defaultState->_stencilOpSfail = _stencilOpSfail;
-            _defaultState->_stencilOpDpfail = _stencilOpDpfail;
-            _defaultState->_stencilOpDppass = _stencilOpDppass;
-        }
 
         _defaultState->_bits |= _bits;
     }
@@ -390,34 +349,6 @@ namespace gameplay
             GL_ASSERT( glDepthFunc(GL_LESS) );
             _defaultState->_bits &= ~RS_DEPTH_FUNC;
             _defaultState->_depthFunction = RenderState::DEPTH_LESS;
-        }
-        if( !(stateOverrideBits & RS_STENCIL_TEST) && (_defaultState->_bits & RS_STENCIL_TEST) )
-        {
-            GL_ASSERT( glDisable(GL_STENCIL_TEST) );
-            _defaultState->_bits &= ~RS_STENCIL_TEST;
-            _defaultState->_stencilTestEnabled = false;
-        }
-        if( !(stateOverrideBits & RS_STENCIL_WRITE) && (_defaultState->_bits & RS_STENCIL_WRITE) )
-        {
-            GL_ASSERT( glStencilMask(RS_ALL_ONES) );
-            _defaultState->_bits &= ~RS_STENCIL_WRITE;
-            _defaultState->_stencilWrite = RS_ALL_ONES;
-        }
-        if( !(stateOverrideBits & RS_STENCIL_FUNC) && (_defaultState->_bits & RS_STENCIL_FUNC) )
-        {
-            GL_ASSERT( glStencilFunc(static_cast<GLenum>(RenderState::STENCIL_ALWAYS), 0, RS_ALL_ONES) );
-            _defaultState->_bits &= ~RS_STENCIL_FUNC;
-            _defaultState->_stencilFunction = RenderState::STENCIL_ALWAYS;
-            _defaultState->_stencilFunctionRef = 0;
-            _defaultState->_stencilFunctionMask = RS_ALL_ONES;
-        }
-        if( !(stateOverrideBits & RS_STENCIL_OP) && (_defaultState->_bits & RS_STENCIL_OP) )
-        {
-            GL_ASSERT( glStencilOp(static_cast<GLenum>(RenderState::STENCIL_OP_KEEP), static_cast<GLenum>(RenderState::STENCIL_OP_KEEP), static_cast<GLenum>(RenderState::STENCIL_OP_KEEP)) );
-            _defaultState->_bits &= ~RS_STENCIL_OP;
-            _defaultState->_stencilOpSfail = RenderState::STENCIL_OP_KEEP;
-            _defaultState->_stencilOpDpfail = RenderState::STENCIL_OP_KEEP;
-            _defaultState->_stencilOpDppass = RenderState::STENCIL_OP_KEEP;
         }
     }
 
@@ -565,69 +496,6 @@ namespace gameplay
         else
         {
             _bits |= RS_DEPTH_FUNC;
-        }
-    }
-
-
-    void RenderState::StateBlock::setStencilTest(bool enabled)
-    {
-        _stencilTestEnabled = enabled;
-        if( !enabled )
-        {
-            _bits &= ~RS_STENCIL_TEST;
-        }
-        else
-        {
-            _bits |= RS_STENCIL_TEST;
-        }
-    }
-
-
-    void RenderState::StateBlock::setStencilWrite(unsigned int mask)
-    {
-        _stencilWrite = mask;
-        if( mask == RS_ALL_ONES )
-        {
-            // Default stencil write
-            _bits &= ~RS_STENCIL_WRITE;
-        }
-        else
-        {
-            _bits |= RS_STENCIL_WRITE;
-        }
-    }
-
-
-    void RenderState::StateBlock::setStencilFunction(StencilFunction func, int ref, unsigned int mask)
-    {
-        _stencilFunction = func;
-        _stencilFunctionRef = ref;
-        _stencilFunctionMask = mask;
-        if( func == STENCIL_ALWAYS && ref == 0 && mask == RS_ALL_ONES )
-        {
-            // Default stencil function
-            _bits &= ~RS_STENCIL_FUNC;
-        }
-        else
-        {
-            _bits |= RS_STENCIL_FUNC;
-        }
-    }
-
-
-    void RenderState::StateBlock::setStencilOperation(StencilOperation sfail, StencilOperation dpfail, StencilOperation dppass)
-    {
-        _stencilOpSfail = sfail;
-        _stencilOpDpfail = dpfail;
-        _stencilOpDppass = dppass;
-        if( sfail == STENCIL_OP_KEEP && dpfail == STENCIL_OP_KEEP && dppass == STENCIL_OP_KEEP )
-        {
-            // Default stencil operation
-            _bits &= ~RS_STENCIL_OP;
-        }
-        else
-        {
-            _bits |= RS_STENCIL_OP;
         }
     }
 }

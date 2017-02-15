@@ -113,7 +113,7 @@ namespace gameplay
 
             // Now set this target as the color attachment corresponding to index.
             _handle.bind();
-            GLenum attachment = GL_COLOR_ATTACHMENT0 + index;
+            GLenum attachment = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + index);
             GL_ASSERT( glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, _renderTargets[index]->getTexture()->getHandle(), 0) );
             auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if( fboStatus != GL_FRAMEBUFFER_COMPLETE )

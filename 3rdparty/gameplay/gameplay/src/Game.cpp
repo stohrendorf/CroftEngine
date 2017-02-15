@@ -82,7 +82,6 @@ namespace gameplay
 
         glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, 24);
-        glfwWindowHint(GLFW_STENCIL_BITS, 8);
         glfwWindowHint(GLFW_SAMPLES, samples);
         glfwWindowHint(GLFW_RED_BITS, 8);
         glfwWindowHint(GLFW_GREEN_BITS, 8);
@@ -165,7 +164,7 @@ namespace gameplay
 
     void Game::render(bool wireframe)
     {
-        clear(CLEAR_COLOR_DEPTH, {0, 0, 0, 0}, 1, 0);
+        clear(CLEAR_COLOR_DEPTH, {0, 0, 0, 0}, 1);
 
         RenderContext context{wireframe};
         RenderVisitor visitor{context};
@@ -312,7 +311,7 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth, int clearStencil)
+    void Game::clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth)
     {
         GLbitfield bits = 0;
         if( flags & CLEAR_COLOR )
@@ -343,21 +342,12 @@ namespace gameplay
             RenderState::StateBlock::enableDepthWrite();
         }
 
-        if( flags & CLEAR_STENCIL )
-        {
-            if( clearStencil != _clearStencil )
-            {
-                glClearStencil(clearStencil);
-                _clearStencil = clearStencil;
-            }
-            bits |= GL_STENCIL_BUFFER_BIT;
-        }
         glClear(bits);
     }
 
 
-    void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth, int clearStencil)
+    void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth)
     {
-        clear(flags, glm::vec4(red, green, blue, alpha), clearDepth, clearStencil);
+        clear(flags, glm::vec4(red, green, blue, alpha), clearDepth);
     }
 }

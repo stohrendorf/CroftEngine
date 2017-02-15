@@ -93,47 +93,6 @@ namespace gameplay
 
 
         /**
-     * Defines the supported stencil compare functions.
-         *
-         * Stencil compare functions determine if a new pixel will be drawn.
-         *
-         * The initial stencil compare function is STENCIL_ALWAYS.
-     */
-        enum StencilFunction : GLenum
-        {
-            STENCIL_NEVER = GL_NEVER,
-            STENCIL_ALWAYS = GL_ALWAYS,
-            STENCIL_LESS = GL_LESS,
-            STENCIL_LEQUAL = GL_LEQUAL,
-            STENCIL_EQUAL = GL_EQUAL,
-            STENCIL_GREATER = GL_GREATER,
-            STENCIL_GEQUAL = GL_GEQUAL,
-            STENCIL_NOTEQUAL = GL_NOTEQUAL
-        };
-
-
-        /**
-     * Defines the supported stencil operations to perform.
-         *
-         * Stencil operations determine what should happen to the pixel if the
-         * stencil test fails, passes, or passes but fails the depth test.
-         *
-         * The initial stencil operation is STENCIL_OP_KEEP.
-     */
-        enum StencilOperation : GLenum
-        {
-            STENCIL_OP_KEEP = GL_KEEP,
-            STENCIL_OP_ZERO = GL_ZERO,
-            STENCIL_OP_REPLACE = GL_REPLACE,
-            STENCIL_OP_INCR = GL_INCR,
-            STENCIL_OP_DECR = GL_DECR,
-            STENCIL_OP_INVERT = GL_INVERT,
-            STENCIL_OP_INCR_WRAP = GL_INCR_WRAP,
-            STENCIL_OP_DECR_WRAP = GL_DECR_WRAP
-        };
-
-
-        /**
          * Defines a block of fixed-function render states that can be applied to a
          * RenderState object.
          */
@@ -230,46 +189,6 @@ namespace gameplay
              */
             void setDepthFunction(DepthFunction func);
 
-            /**
-     * Toggles stencil testing.
-     *
-     * By default, stencil testing is disabled.
-     *
-     * @param enabled true to enable, false to disable.
-     */
-            void setStencilTest(bool enabled);
-
-            /**
-     * Sets the stencil writing mask.
-     *
-     * By default, the stencil writing mask is all 1's.
-     *
-     * @param mask Bit mask controlling writing to individual stencil planes.
-     */
-            void setStencilWrite(unsigned int mask);
-
-            /**
-     * Sets the stencil function.
-     *
-     * By default, the function is set to STENCIL_ALWAYS, the reference value is 0, and the mask is all 1's.
-     *
-     * @param func The stencil function.
-             * @param ref The stencil reference value.
-             * @param mask The stencil mask.
-     */
-            void setStencilFunction(StencilFunction func, int ref, unsigned int mask);
-
-            /**
-     * Sets the stencil operation.
-     *
-     * By default, stencil fail, stencil pass/depth fail, and stencil and depth pass are set to STENCIL_OP_KEEP.
-     *
-     * @param sfail The stencil operation if the stencil test fails.
-             * @param dpfail The stencil operation if the stencil test passes, but the depth test fails.
-             * @param dppass The stencil operation if both the stencil test and depth test pass.
-     */
-            void setStencilOperation(StencilOperation sfail, StencilOperation dpfail, StencilOperation dppass);
-
         private:
 
             /**
@@ -293,14 +212,6 @@ namespace gameplay
             Blend _blendDst = RenderState::BLEND_ZERO;
             CullFaceSide _cullFaceSide = CULL_FACE_SIDE_BACK;
             FrontFace _frontFace = FRONT_FACE_CCW;
-            bool _stencilTestEnabled = false;
-            unsigned int _stencilWrite;
-            StencilFunction _stencilFunction = RenderState::STENCIL_ALWAYS;
-            int _stencilFunctionRef = 0;
-            unsigned int _stencilFunctionMask;
-            StencilOperation _stencilOpSfail = RenderState::STENCIL_OP_KEEP;
-            StencilOperation _stencilOpDpfail = RenderState::STENCIL_OP_KEEP;
-            StencilOperation _stencilOpDppass = RenderState::STENCIL_OP_KEEP;
             long _bits = 0;
 
             static std::shared_ptr<StateBlock> _defaultState;

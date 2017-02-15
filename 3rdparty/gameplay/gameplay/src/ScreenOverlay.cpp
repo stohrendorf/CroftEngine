@@ -50,10 +50,10 @@ namespace gameplay
         _image = std::make_shared<Image>(vp.width, vp.height);
         _image->fill({0,0,0,0});
 
-        _texture = std::make_shared<TextureHandle>(GL_IMAGE_2D);
+        _texture = std::make_shared<TextureHandle>(GL_TEXTURE_2D);
         _texture->set2D(_image->getWidth(), _image->getHeight(), _image->getData(), false);
 
-        _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram);
+        _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram, "u_texture");
 
         if( !vp.isEmpty() )
         {

@@ -216,7 +216,7 @@ namespace gameplay
     }
 
 
-    unsigned int ParticleEmitter::getParticlesCount() const
+    size_t ParticleEmitter::getParticlesCount() const
     {
         return _particleCount;
     }
