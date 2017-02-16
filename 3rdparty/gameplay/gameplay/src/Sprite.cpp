@@ -30,15 +30,15 @@ namespace gameplay
         BOOST_ASSERT(source.width >= -1 && source.height >= -1);
         BOOST_ASSERT(frameCount > 0);
 
-        _batch->getTexture()->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        _batch->getTexture()->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        _batch->getTexture()->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        _batch->getTexture()->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        texture->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        texture->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         _batch->getStateBlock()->setDepthWrite(false);
         _batch->getStateBlock()->setDepthTest(true);
 
-        auto imageWidth = _batch->getTexture()->getWidth();
-        auto imageHeight = _batch->getTexture()->getHeight();
+        auto imageWidth = texture->getWidth();
+        auto imageHeight = texture->getHeight();
         if(width == -1)
             _width = imageWidth;
         if(height == -1)

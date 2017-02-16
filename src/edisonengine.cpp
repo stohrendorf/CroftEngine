@@ -4,6 +4,8 @@
 
 #include "LuaState.h"
 
+#include "gl/framebuffer.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -87,30 +89,37 @@ namespace
 
 class FullScreenFX
 {
+    std::shared_ptr<gameplay::gl::Texture> m_depthBuffer{nullptr};
+    std::shared_ptr<gameplay::gl::Texture> m_colorBuffer{nullptr};
+
 public:
-    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
-        : m_fb{std::make_shared<gameplay::FrameBuffer>(game->getViewport().width, game->getViewport().height)}
+    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game, bool withDepth, const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader, GLint multisample = 0)
+        : m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
     {
         auto vp = game->getViewport();
 
+        m_colorBuffer = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D_MULTISAMPLE);
+        m_colorBuffer->set2D(vp.width, vp.height, {}, false, multisample);
+        m_fb->attachTexture2D(GL_COLOR_ATTACHMENT0, *m_colorBuffer);
+
         if( withDepth )
         {
-            auto dt = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
-            dt->set2DDepth(vp.width, vp.height);
-            m_fb->setDepthTexture(dt);
+            m_depthBuffer = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_DEPTH);
+            m_depthBuffer->set2D(vp.width, vp.height, GL_DEPTH_COMPONENT32F, multisample);
+            m_fb->attachTexture2D(GL_DEPTH_ATTACHMENT, *m_depthBuffer);
         }
 
-        m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_fb->getRenderTarget(0)->getTexture(), shader, "u_texture");
+        m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_colorBuffer, shader, "u_texture");
 
         if( withDepth )
         {
-            m_batch->getMaterial()->getParameter("u_depth")->set(m_fb->getDepthTexture());
+            m_batch->getMaterial()->getParameter("u_depth")->set(m_depthBuffer);
             m_batch->getMaterial()->getParameter("u_projection")->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
         }
 
         m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
-        m_batch->getTexture()->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        m_batch->getTexture()->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        m_colorBuffer->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        m_colorBuffer->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
 
@@ -125,7 +134,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_batch->start();
-        m_batch->draw(0, 0, m_fb->getWidth(), m_fb->getHeight(), 0, 1, 1, 0, glm::vec4{1,1,1,1});
+        m_batch->draw(0, 0, m_colorBuffer->getWidth(), m_colorBuffer->getHeight(), 0, 1, 1, 0, glm::vec4{1,1,1,1});
         m_batch->finishAndDraw(context);
     }
 
@@ -137,7 +146,7 @@ public:
 
 
 private:
-    std::shared_ptr<gameplay::FrameBuffer> m_fb;
+    std::shared_ptr<gameplay::gl::FrameBuffer> m_fb;
     std::shared_ptr<gameplay::SpriteBatch> m_batch;
 };
 
@@ -214,8 +223,8 @@ int main()
     auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
-    FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {})};
-    FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"})};
+    FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {}), gsl::narrow<GLint>(game->getMultiSampling())};
+    FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"}), gsl::narrow<GLint>(game->getMultiSampling())};
     depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
                             [game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
                             {
@@ -260,7 +269,7 @@ int main()
         gameplay::Node dummyNode{""};
         context.setCurrentNode(&dummyNode);
 
-        gameplay::FrameBuffer::bindDefault();
+        gameplay::gl::FrameBuffer::unbindAll();
         if(lvl->m_cameraController->getCurrentRoom()->isWaterRoom())
             depthDarknessWaterFx.render(context);
         else

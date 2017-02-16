@@ -4,6 +4,8 @@
 #include "Image.h"
 #include "Drawable.h"
 
+#include "gl/texture.h"
+
 #include <memory>
 
 

@@ -12,8 +12,6 @@ set( GAMEPLAY_SRC
      src/FileSystem.h
      src/Font.cpp
      src/Font.h
-     src/FrameBuffer.cpp
-     src/FrameBuffer.h
      src/Frustum.cpp
      src/Frustum.h
      src/Game.cpp
@@ -45,8 +43,6 @@ set( GAMEPLAY_SRC
      src/RenderContext.h
      src/RenderState.cpp
      src/RenderState.h
-     src/RenderTarget.cpp
-     src/RenderTarget.h
      src/Scene.cpp
      src/Scene.h
      src/ScreenOverlay.cpp
@@ -69,6 +65,7 @@ set( GAMEPLAY_SRC
      src/gl/framebuffer.h
      src/gl/indexbuffer.h
      src/gl/renderbuffer.h
+     src/gl/rendertarget.h
      src/gl/texture.h
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h

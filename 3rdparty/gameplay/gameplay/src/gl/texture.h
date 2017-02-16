@@ -1,16 +1,16 @@
 #pragma once
 
-#include "bindableresource.h"
+#include "rendertarget.h"
 
 namespace gameplay
 {
 namespace gl
 {
-class Texture : public BindableResource
+class Texture : public RenderTarget
 {
 public:
     explicit Texture(GLenum type)
-        : BindableResource(glGenTextures, [type](GLuint handle) { glBindTexture(type, handle); }, glDeleteTextures)
+        : RenderTarget(glGenTextures, [type](GLuint handle) { glBindTexture(type, handle); }, glDeleteTextures)
         , m_type(type)
     {
     }
@@ -32,15 +32,21 @@ public:
     }
 
 
-    GLint getWidth() const noexcept
+    GLint getWidth() const noexcept override
     {
         return m_width;
     }
 
 
-    GLint getHeight() const noexcept
+    GLint getHeight() const noexcept override
     {
         return m_height;
+    }
+
+
+    GLenum getType() const noexcept
+    {
+        return m_type;
     }
 
 
@@ -61,18 +67,49 @@ public:
     }
 
 
-    void set2D(GLint width, GLint height, const std::vector<glm::vec4>& data, bool generateMipmaps)
+    void set2D(GLint width, GLint height, const std::vector<glm::vec4>& data, bool generateMipmaps, GLint multisample = 0)
     {
         BOOST_ASSERT(width > 0 && height > 0);
         BOOST_ASSERT(data.empty() || static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
 
         // Create the texture.
         bind();
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        checkGlError();
 
         // Texture 2D
-        glTexImage2D(m_type, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
+        if(multisample == 0)
+            // (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
+            glTexImage2D(m_type, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
+        else
+            // (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations)
+            glTexImage2DMultisample(m_type, multisample, GL_RGBA32F, width, height, GL_TRUE);
+        checkGlError();
+
+        m_width = width;
+        m_height = height;
+
+        // Set initial minification filter based on whether or not mipmaping was enabled.
+        set(GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR);
+        checkGlError();
+
+        m_mipmap = generateMipmaps;
+
+        if( m_mipmap )
+        {
+            glGenerateMipmap(m_type);
+            checkGlError();
+        }
+    }
+
+
+    void set2D(GLint width, GLint height, GLenum internalFormat, bool generateMipmaps, GLint multisample = 0)
+    {
+        BOOST_ASSERT(width > 0 && height > 0);
+
+        // Create the texture.
+        bind();
+
+        // Texture 2D
+        glTexImage2DMultisample(m_type, multisample, internalFormat, width, height, GL_TRUE);
         checkGlError();
 
         m_width = width;

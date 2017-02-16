@@ -200,14 +200,14 @@ namespace gameplay
          *
          * @param enabled true sets multi-sampling to be enabled, false to be disabled.
          */
-        inline void setMultiSampling(bool enabled);
+        inline void setMultiSampling(unsigned samples);
 
         /**
          * Is multi-sampling enabled.
          *
          * @return true if multi-sampling is enabled.
          */
-        inline bool isMultiSampling() const;
+        inline unsigned getMultiSampling() const;
 
         bool loop()
         {
@@ -247,14 +247,6 @@ namespace gameplay
          */
         virtual void render(bool wireframe = false);
 
-        /**
-         * Renders a single frame once and then swaps it to the display.
-         *
-         * This is useful for rendering splash screens.
-         */
-        template<class T>
-        void swapBuffers(T* instance, void (T::*method)(void*), void* cookie);
-
     private:
 
         /**
@@ -289,7 +281,7 @@ namespace gameplay
         float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
         bool _vsync = WINDOW_VSYNC;
-        bool _multiSampling = false;
+        unsigned _multiSampling = 1;
         GLFWwindow* _window = nullptr;
 
         std::shared_ptr<Scene> _scene;
@@ -340,28 +332,14 @@ namespace gameplay
     }
 
 
-    template<class T>
-    void Game::swapBuffers(T* instance, void (T::*method)(void*), void* cookie)
+    inline void Game::setMultiSampling(unsigned samples)
     {
-        BOOST_ASSERT(instance);
-        (instance ->* method)(cookie);
-        swapBuffers();
-    }
-
-
-    inline void Game::setMultiSampling(bool enabled)
-    {
-        if( enabled == _multiSampling )
-        {
-            return;
-        }
-
         //! @todo Really enable multisampling
-        _multiSampling = enabled;
+        _multiSampling = samples;
     }
 
 
-    inline bool Game::isMultiSampling() const
+    inline unsigned Game::getMultiSampling() const
     {
         return _multiSampling;
     }

@@ -5,6 +5,8 @@
 #include "SpriteBatch.h"
 #include "Drawable.h"
 
+#include "gl/texture.h"
+
 #include <glm/gtc/quaternion.hpp>
 
 #include <chrono>

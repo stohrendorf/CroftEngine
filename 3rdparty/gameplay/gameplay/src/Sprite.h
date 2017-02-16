@@ -5,6 +5,7 @@
 #include "SpriteBatch.h"
 #include "ShaderProgram.h"
 
+#include "gl/texture.h"
 
 namespace gameplay
 {

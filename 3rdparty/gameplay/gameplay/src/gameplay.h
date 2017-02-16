@@ -28,8 +28,6 @@
 #include "SpriteBatch.h"
 #include "Sprite.h"
 #include "ParticleEmitter.h"
-#include "FrameBuffer.h"
-#include "RenderTarget.h"
 #include "ScreenOverlay.h"
 #include "MaterialParameter.h"
 

@@ -75,8 +75,8 @@ namespace gameplay
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).
         auto batch = std::make_shared<SpriteBatch>(_game, texture, nullptr);
-        batch->getTexture()->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        batch->getTexture()->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        texture->set(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        texture->set(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         _spriteBatch = batch;
         _spriteBatch->getStateBlock()->setDepthWrite(false);

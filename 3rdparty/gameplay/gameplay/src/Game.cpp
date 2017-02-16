@@ -1,12 +1,7 @@
 #include "Game.h"
 
-#include "FrameBuffer.h"
 #include "RenderContext.h"
 #include "Scene.h"
-
-/** @script{ignore} */
-GLenum __gl_error_code = GL_NO_ERROR;
-
 
 void glErrorCallback(int err, const char* msg)
 {
@@ -77,12 +72,12 @@ namespace gameplay
         std::atexit(&glfwTerminate);
 
         // Get the window configuration values
-        int width = 1280, height = 800, samples = 1;
+        int width = 1280, height = 800;
         bool fullscreen = false;
 
         glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, 24);
-        glfwWindowHint(GLFW_SAMPLES, samples);
+        glfwWindowHint(GLFW_SAMPLES, _multiSampling);
         glfwWindowHint(GLFW_RED_BITS, 8);
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
@@ -94,8 +89,6 @@ namespace gameplay
 #ifndef NDEBUG
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
-
-        _multiSampling = samples > 0;
 
         // Create the windows
         _window = glfwCreateWindow(width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
@@ -214,7 +207,6 @@ namespace gameplay
 
         setViewport(Rectangle(0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)));
         RenderState::initialize();
-        FrameBuffer::initialize();
 
         _state = RUNNING;
 
