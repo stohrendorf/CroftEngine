@@ -59,7 +59,20 @@ set( GAMEPLAY_SRC
      src/VertexAttributeBinding.h
      src/VertexFormat.cpp
      src/VertexFormat.h
-     src/Visitor.h src/Visitor.cpp src/RenderContext.h )
+     src/Visitor.h
+     src/Visitor.cpp
+     src/RenderContext.h
+     src/gl/util.h
+     src/gl/shader.h
+     src/gl/program.h
+     src/gl/bindableresource.h
+     src/gl/framebuffer.h
+     src/gl/indexbuffer.h
+     src/gl/renderbuffer.h
+     src/gl/texture.h
+     src/gl/vertexarray.h
+     src/gl/vertexbuffer.h
+)
 
 find_package(OpenGL REQUIRED)
 

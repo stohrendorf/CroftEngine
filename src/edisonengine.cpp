@@ -95,7 +95,7 @@ public:
 
         if( withDepth )
         {
-            auto dt = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+            auto dt = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
             dt->set2DDepth(vp.width, vp.height);
             m_fb->setDepthTexture(dt);
         }
@@ -217,7 +217,7 @@ int main()
     FullScreenFX depthDarknessFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {})};
     FullScreenFX depthDarknessWaterFx{game, true, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"})};
     depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
-                            [game](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+                            [game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
                             {
                                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(game->getGameTime());
                                 uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));

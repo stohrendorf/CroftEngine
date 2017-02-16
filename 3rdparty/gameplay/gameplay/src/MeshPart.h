@@ -4,6 +4,7 @@
 #include "VertexAttributeBinding.h"
 #include "Font.h"
 
+#include "gl/indexbuffer.h"
 
 namespace gameplay
 {
@@ -14,7 +15,7 @@ namespace gameplay
      * Defines a part of a mesh describing the way the
      * mesh's vertices are connected together.
      */
-    class MeshPart : public IndexBufferHandle
+    class MeshPart : public gl::IndexBuffer
     {
         friend class Mesh;
         friend class Model;

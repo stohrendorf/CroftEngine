@@ -2,6 +2,8 @@
 
 #include "VertexFormat.h"
 
+#include "gl/vertexarray.h"
+
 #include <memory>
 
 namespace gameplay
@@ -29,7 +31,7 @@ namespace gameplay
      * arrays, since it is slower than the server-side VAOs used by OpenGL
      * (when creating a VertexAttributeBinding between a Mesh and Effect).
      */
-    class VertexAttributeBinding : public VertexArrayHandle
+    class VertexAttributeBinding : public gl::VertexArray
     {
     public:
         explicit VertexAttributeBinding(Mesh* mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram);

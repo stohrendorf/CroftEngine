@@ -109,14 +109,14 @@ namespace gameplay
         /**
          * Sets the value of this parameter to the specified texture sampler.
          */
-        void set(const std::shared_ptr<TextureHandle>& texture);
+        void set(const std::shared_ptr<gl::Texture>& texture);
 
         /**
          * Sets the value of this parameter to the specified texture sampler array.
          *
          * @script{ignore}
          */
-        void set(const std::vector<std::shared_ptr<TextureHandle> >& textures);
+        void set(const std::vector<std::shared_ptr<gl::Texture>>& textures);
 
 
         /**
@@ -136,13 +136,13 @@ namespace gameplay
         template<class ClassType, class ValueType>
         void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+            m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
                 {
                     uniform.set((classInstance ->* valueMethod)());
                 };
         }
 
-        using UniformValueSetter = void(const Node& node, ProgramHandle::ActiveUniform& uniform);
+        using UniformValueSetter = void(const Node& node, gl::Program::ActiveUniform& uniform);
 
         void bind(std::function<UniformValueSetter>&& setter)
         {
@@ -165,7 +165,7 @@ namespace gameplay
         template<class ClassType, class ValueType>
         void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod, countMethod](const Node& node, const ProgramHandle::ActiveUniform& uniform)
+            m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::Program::ActiveUniform& uniform)
                 {
                     uniform.set((classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
                 };
@@ -181,7 +181,7 @@ namespace gameplay
 
         void bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
-        ProgramHandle::ActiveUniform* getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram);
+        gl::Program::ActiveUniform* getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
 
         enum LOGGER_DIRTYBITS

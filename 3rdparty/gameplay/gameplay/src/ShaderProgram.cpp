@@ -3,6 +3,8 @@
 #include "FileSystem.h"
 #include "Game.h"
 
+#include "gl/shader.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/log/trivial.hpp>
@@ -209,7 +211,7 @@ namespace gameplay
         }
         shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-        ShaderHandle vertexShader{GL_VERTEX_SHADER};
+        gl::Shader vertexShader{GL_VERTEX_SHADER};
         vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         vertexShader.compile();
         if( !vertexShader.getCompileStatus() )
@@ -234,7 +236,7 @@ namespace gameplay
         }
         shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-        ShaderHandle fragmentShader{GL_FRAGMENT_SHADER};
+        gl::Shader fragmentShader{GL_FRAGMENT_SHADER};
         fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         fragmentShader.compile();
         if( !fragmentShader.getCompileStatus() )
@@ -291,21 +293,21 @@ namespace gameplay
     }
 
 
-    const ProgramHandle::ActiveAttribute* ShaderProgram::getVertexAttribute(const std::string& name) const
+    const gl::Program::ActiveAttribute* ShaderProgram::getVertexAttribute(const std::string& name) const
     {
         auto itr = _vertexAttributes.find(name);
         return itr == _vertexAttributes.end() ? nullptr : &itr->second;
     }
 
 
-    ProgramHandle::ActiveUniform* ShaderProgram::getUniform(const std::string& name) const
+    gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name) const
     {
         auto itr = _uniforms.find(name);
         return itr == _uniforms.end() ? nullptr : &itr->second;
     }
 
 
-    ProgramHandle::ActiveUniform* ShaderProgram::getUniform(size_t index) const
+    gl::Program::ActiveUniform* ShaderProgram::getUniform(size_t index) const
     {
         size_t i = 0;
         for( auto itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )

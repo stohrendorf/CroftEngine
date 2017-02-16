@@ -11,7 +11,7 @@
 
 namespace loader
 {
-    std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::TextureHandle>& texture,
+    std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::gl::Texture>& texture,
                                                        BlendingMode bmode,
                                                        const std::shared_ptr<gameplay::ShaderProgram>& shader)
     {
@@ -152,9 +152,9 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::TextureHandle> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
+    std::shared_ptr<gameplay::gl::Texture> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
     {
-        auto texture = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+        auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
         auto img = toImage(glidos, lvlName);
         texture->set2D(img->getWidth(), img->getHeight(), img->getData(), true);
         return texture;

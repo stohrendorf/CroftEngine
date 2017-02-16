@@ -316,10 +316,10 @@ boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 }
 
 
-std::vector<std::shared_ptr<gameplay::TextureHandle>> Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
+std::vector<std::shared_ptr<gameplay::gl::Texture> > Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
 {
     BOOST_ASSERT( !m_textures.empty() );
-    std::vector<std::shared_ptr<gameplay::TextureHandle>> textures;
+    std::vector<std::shared_ptr<gameplay::gl::Texture>> textures;
     for( size_t i = 0; i < m_textures.size(); ++i )
     {
         loader::DWordTexture& texture = m_textures[i];
@@ -330,7 +330,7 @@ std::vector<std::shared_ptr<gameplay::TextureHandle>> Level::createTextures(load
 
 
 std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>
-Level::createMaterials(const std::vector<std::shared_ptr<gameplay::TextureHandle>>& textures,
+Level::createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture> >& textures,
                        const std::shared_ptr<gameplay::ShaderProgram>& shader)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4
@@ -746,7 +746,7 @@ void Level::setUpRendering(gameplay::Game* game,
 {
     m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
 
-    std::vector<std::shared_ptr<gameplay::TextureHandle>> textures = createTextures(glidos.get(), lvlName);
+    auto textures = createTextures(glidos.get(), lvlName);
 
     auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(

@@ -19,7 +19,7 @@ namespace gameplay
     ParticleEmitter::~ParticleEmitter() = default;
 
 
-    ParticleEmitter::ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode, size_t particleCountMax)
+    ParticleEmitter::ParticleEmitter(const std::string& id, Game* game, const std::shared_ptr<gl::Texture>& texture, BlendMode blendMode, size_t particleCountMax)
         : Node(id)
         , _particleCount(0)
         , _particles(particleCountMax)
@@ -70,7 +70,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::setTexture(const std::shared_ptr<TextureHandle>& texture, BlendMode blendMode)
+    void ParticleEmitter::setTexture(const std::shared_ptr<gl::Texture>& texture, BlendMode blendMode)
     {
         // Create new batch before releasing old one, in case the same texture
         // is used for both (so it's not released before passing to the new batch).

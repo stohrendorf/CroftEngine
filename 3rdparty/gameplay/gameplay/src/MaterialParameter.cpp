@@ -26,7 +26,7 @@ namespace gameplay
 
     void MaterialParameter::set(float value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -35,7 +35,7 @@ namespace gameplay
 
     void MaterialParameter::set(int value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -46,7 +46,7 @@ namespace gameplay
     {
         std::vector<float> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
@@ -57,7 +57,7 @@ namespace gameplay
     {
         std::vector<int> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
@@ -66,7 +66,7 @@ namespace gameplay
 
     void MaterialParameter::set(const glm::vec2& value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -77,7 +77,7 @@ namespace gameplay
     {
         std::vector<glm::vec2> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
@@ -86,7 +86,7 @@ namespace gameplay
 
     void MaterialParameter::set(const glm::vec3& value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -97,7 +97,7 @@ namespace gameplay
     {
         std::vector<glm::vec3> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
@@ -106,7 +106,7 @@ namespace gameplay
 
     void MaterialParameter::set(const glm::vec4& value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -117,7 +117,7 @@ namespace gameplay
     {
         std::vector<glm::vec4> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
@@ -126,7 +126,7 @@ namespace gameplay
 
     void MaterialParameter::set(const glm::mat4& value)
     {
-        m_valueSetter = [value](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(value);
             };
@@ -137,32 +137,32 @@ namespace gameplay
     {
         std::vector<glm::mat4> tmp;
         tmp.assign(values, values + count);
-        m_valueSetter = [tmp](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(tmp.data(), tmp.size());
             };
     }
 
 
-    void MaterialParameter::set(const std::shared_ptr<TextureHandle>& texture)
+    void MaterialParameter::set(const std::shared_ptr<gl::Texture>& texture)
     {
-        m_valueSetter = [texture](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [texture](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(*texture);
             };
     }
 
 
-    void MaterialParameter::set(const std::vector<std::shared_ptr<TextureHandle>>& textures)
+    void MaterialParameter::set(const std::vector<std::shared_ptr<gl::Texture> >& textures)
     {
-        m_valueSetter = [textures](const Node& /*node*/, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [textures](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(textures);
             };
     }
 
 
-    ProgramHandle::ActiveUniform* MaterialParameter::getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram)
+    gl::Program::ActiveUniform* MaterialParameter::getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         auto uniform = shaderProgram->getUniform(m_name);
 
@@ -208,7 +208,7 @@ namespace gameplay
 
     void MaterialParameter::bindWorldViewProjectionMatrix()
     {
-        m_valueSetter = [](const Node& node, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
         {
             uniform.set(node.getWorldViewProjectionMatrix());
         };
@@ -216,7 +216,7 @@ namespace gameplay
 
     void MaterialParameter::bindModelMatrix()
     {
-        m_valueSetter = [](const Node& node, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
         {
             uniform.set(node.getWorldMatrix());
         };
@@ -224,7 +224,7 @@ namespace gameplay
 
     void MaterialParameter::bindViewMatrix()
     {
-        m_valueSetter = [](const Node& node, ProgramHandle::ActiveUniform& uniform)
+        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
         {
             uniform.set(node.getViewMatrix());
         };

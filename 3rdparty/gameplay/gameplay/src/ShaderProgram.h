@@ -2,6 +2,8 @@
 
 #include "Base.h"
 
+#include "gl/program.h"
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -59,7 +61,7 @@ namespace gameplay
          *
          * @return The vertex attribute, or -1 if no such vertex attribute exists.
          */
-        const ProgramHandle::ActiveAttribute* getVertexAttribute(const std::string& name) const;
+        const gl::Program::ActiveAttribute* getVertexAttribute(const std::string& name) const;
 
         /**
          * Returns the uniform handle for the uniform with the specified name.
@@ -68,7 +70,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if no such uniform exists.
          */
-        ProgramHandle::ActiveUniform* getUniform(const std::string& name) const;
+        gl::Program::ActiveUniform* getUniform(const std::string& name) const;
 
         /**
          * Returns the specified active uniform.
@@ -77,7 +79,7 @@ namespace gameplay
          *
          * @return The uniform, or nullptr if index is invalid.
          */
-        ProgramHandle::ActiveUniform* getUniform(size_t index) const;
+        gl::Program::ActiveUniform* getUniform(size_t index) const;
 
         /**
          * Returns the number of active uniforms in this effect.
@@ -99,8 +101,8 @@ namespace gameplay
         static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines = {});
 
         std::string _id;
-        ProgramHandle m_handle;
-        std::map<std::string, ProgramHandle::ActiveAttribute> _vertexAttributes;
-        mutable std::map<std::string, ProgramHandle::ActiveUniform> _uniforms;
+        gl::Program m_handle;
+        std::map<std::string, gl::Program::ActiveAttribute> _vertexAttributes;
+        mutable std::map<std::string, gl::Program::ActiveUniform> _uniforms;
     };
 }

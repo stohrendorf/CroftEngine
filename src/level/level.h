@@ -109,8 +109,8 @@ namespace level
         boost::optional<size_t> findAnimatedModelIndexForType(uint32_t type) const;
         boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
 
-        std::vector<std::shared_ptr<gameplay::TextureHandle>> createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
-        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::TextureHandle>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
+        std::vector<std::shared_ptr<gameplay::gl::Texture>> createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
+        std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
         engine::LaraNode* createItems();
         void setUpRendering(gameplay::Game* game,
                             const boost::filesystem::path& assetPath,

@@ -514,7 +514,7 @@ namespace engine
                 return item;
             }
 
-            static void lightBaseBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
+            static void lightBaseBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
@@ -527,7 +527,7 @@ namespace engine
                 uniform.set(item->m_lighting.base);
             };
 
-            static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
+            static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
@@ -540,7 +540,7 @@ namespace engine
                 uniform.set(item->m_lighting.baseDiff);
             };
 
-            static void lightPositionBinder(const gameplay::Node& node, gameplay::ProgramHandle::ActiveUniform& uniform)
+            static void lightPositionBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 

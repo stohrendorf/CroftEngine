@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "gl/util.h"
 
 #include <map>
 #include <memory>

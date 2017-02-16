@@ -35,7 +35,7 @@ namespace loader
         void write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const;
 
 
-        std::shared_ptr<gameplay::TextureHandle> readTexture(const boost::filesystem::path& path) const;
+        std::shared_ptr<gameplay::gl::Texture> readTexture(const boost::filesystem::path& path) const;
 
 
         std::shared_ptr<gameplay::Material> readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
@@ -83,6 +83,6 @@ namespace loader
                      const glm::vec3& ambientColor) const;
 
         const boost::filesystem::path m_basePath;
-        mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::TextureHandle>> m_textureCache;
+        mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::gl::Texture>> m_textureCache;
     };
 }

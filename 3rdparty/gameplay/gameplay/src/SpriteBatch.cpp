@@ -25,7 +25,7 @@ namespace gameplay
     static std::shared_ptr<ShaderProgram> __spriteShaderProgram = nullptr;
 
 
-    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<TextureHandle>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
+    SpriteBatch::SpriteBatch(Game* game, const std::shared_ptr<gl::Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
         : _batch(nullptr)
         , _texture{texture}
         , _customEffect{ shaderProgram != nullptr }
@@ -54,7 +54,7 @@ namespace gameplay
         }
 
         // Search for the first sampler uniform in the effect.
-        ProgramHandle::ActiveUniform* samplerUniform = nullptr;
+        gl::Program::ActiveUniform* samplerUniform = nullptr;
         if(diffuse.empty())
         {
             for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)

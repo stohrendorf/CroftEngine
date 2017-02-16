@@ -2,6 +2,7 @@
 
 #include "Base.h"
 
+#include "gl/texture.h"
 
 namespace gameplay
 {
@@ -15,7 +16,7 @@ namespace gameplay
 
     public:
         explicit RenderTarget(unsigned int width, unsigned int height);
-        explicit RenderTarget(const std::shared_ptr<TextureHandle>& texture);
+        explicit RenderTarget(const std::shared_ptr<gl::Texture>& texture);
 
         ~RenderTarget();
 
@@ -24,7 +25,7 @@ namespace gameplay
          *
          * @return The backing texture of this RenderTarget.
          */
-        const std::shared_ptr<TextureHandle>& getTexture() const
+        const std::shared_ptr<gl::Texture>& getTexture() const
         {
             return _texture;
         }
@@ -47,6 +48,6 @@ namespace gameplay
 
         RenderTarget& operator=(const RenderTarget&) = delete;
 
-        std::shared_ptr<TextureHandle> _texture;
+        std::shared_ptr<gl::Texture> _texture;
     };
 }

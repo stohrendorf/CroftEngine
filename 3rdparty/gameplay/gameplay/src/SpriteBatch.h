@@ -43,7 +43,7 @@ namespace gameplay
          * @param texture The texture for this sprite batch.
          * @param shaderProgram An optional effect to use with the SpriteBatch.
          */
-        explicit SpriteBatch(Game* game, const std::shared_ptr<TextureHandle>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, const std::string& diffuse = {});
+        explicit SpriteBatch(Game* game, const std::shared_ptr<gl::Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, const std::string& diffuse = {});
 
         /**
          * Destructor.
@@ -263,7 +263,7 @@ namespace gameplay
          * effect. This can be modified for controlling sampler setting such as
          * filtering modes.
          */
-        const std::shared_ptr<TextureHandle>& getTexture() const
+        const std::shared_ptr<gl::Texture>& getTexture() const
         {
             return _texture;
         }
@@ -345,7 +345,7 @@ namespace gameplay
         bool clipSprite(const Rectangle& clip, float& x, float& y, float& width, float& height, float& u1, float& v1, float& u2, float& v2);
 
         std::unique_ptr<MeshBatch> _batch;
-        std::shared_ptr<TextureHandle> _texture{nullptr};
+        std::shared_ptr<gl::Texture> _texture{nullptr};
         bool _customEffect;
         float _textureWidthRatio;
         float _textureHeightRatio;

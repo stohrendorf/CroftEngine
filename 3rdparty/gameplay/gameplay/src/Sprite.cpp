@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    Sprite::Sprite(Game* game, const std::shared_ptr<TextureHandle>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    Sprite::Sprite(Game* game, const std::shared_ptr<gl::Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
         : Drawable()
         , _width{width}
         , _height{height}

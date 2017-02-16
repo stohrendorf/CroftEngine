@@ -236,7 +236,7 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::TextureHandle> Converter::readTexture(const boost::filesystem::path& path) const
+    std::shared_ptr<gameplay::gl::Texture> Converter::readTexture(const boost::filesystem::path& path) const
     {
         {
             auto it = m_textureCache.find(path);
@@ -264,7 +264,7 @@ namespace loader
         srcImage.permute_axes("cxyz");
 
         auto image = std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(srcImage.data()));
-        auto texture = std::make_shared<gameplay::TextureHandle>(GL_TEXTURE_2D);
+        auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
         texture->set2D(image->getWidth(), image->getHeight(), image->getData(), true);
         return m_textureCache[path] = texture;
     }

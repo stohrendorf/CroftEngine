@@ -88,7 +88,7 @@ namespace loader
     std::shared_ptr<gameplay::Node> Room::createSceneNode(gameplay::Game* game,
                                                           size_t roomId,
                                                           const level::Level& level,
-                                                          const std::vector<std::shared_ptr<gameplay::TextureHandle>>& textures,
+                                                          const std::vector<std::shared_ptr<gameplay::gl::Texture> >& textures,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                           const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
                                                           const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
@@ -172,15 +172,15 @@ namespace loader
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
-        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+        node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
         {
             uniform.set(glm::vec3{0.0f});
         });
-        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+        node->addMaterialParameterSetter("u_baseLight", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
         {
             uniform.set(1.0f);
         });
-        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+        node->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
         {
             uniform.set(1.0f);
         });
@@ -196,15 +196,15 @@ namespace loader
 
             float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
 
-            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(brightness);
             });
-            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+            subNode->addMaterialParameterSetter("u_baseLightDiff", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(0.0f);
             });
-            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::ProgramHandle::ActiveUniform& uniform)
+            subNode->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
             });

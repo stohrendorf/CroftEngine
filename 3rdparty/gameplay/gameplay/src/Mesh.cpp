@@ -10,7 +10,7 @@
 namespace gameplay
 {
     Mesh::Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
-        : VertexBufferHandle()
+        : VertexBuffer()
         , _vertexFormat{vertexFormat}
         , _vertexCount{vertexCount}
         , _dynamic{dynamic}

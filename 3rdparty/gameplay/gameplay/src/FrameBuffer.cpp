@@ -125,7 +125,7 @@ namespace gameplay
             if(_currentFrameBuffer != nullptr)
                 _currentFrameBuffer->bind();
             else
-                FrameBufferHandle::unbindAll();
+                gl::FrameBuffer::unbindAll();
         }
     }
 
@@ -147,7 +147,7 @@ namespace gameplay
     }
 
 
-    void FrameBuffer::setDepthTexture(const std::shared_ptr<TextureHandle>& target)
+    void FrameBuffer::setDepthTexture(const std::shared_ptr<gl::Texture>& target)
     {
         if( _depthTexture == target )
             return;
@@ -172,7 +172,7 @@ namespace gameplay
             if(_currentFrameBuffer != nullptr)
                 _currentFrameBuffer->bind();
             else
-                FrameBufferHandle::unbindAll();
+                gl::FrameBuffer::unbindAll();
         }
     }
 
@@ -205,7 +205,7 @@ namespace gameplay
 
     void FrameBuffer::bindDefault()
     {
-        FrameBufferHandle::unbindAll();
+        gl::FrameBuffer::unbindAll();
         _currentFrameBuffer.reset();
     }
 

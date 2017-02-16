@@ -37,7 +37,7 @@ namespace gameplay
         ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
         std::shared_ptr<Image> _image{nullptr};
-        std::shared_ptr<TextureHandle> _texture{nullptr};
+        std::shared_ptr<gl::Texture> _texture{nullptr};
         std::shared_ptr<SpriteBatch> _batch{nullptr};
 
         Game* _game;

@@ -4,6 +4,7 @@
 #include "RenderTarget.h"
 #include "Image.h"
 
+#include "gl/framebuffer.h"
 
 namespace gameplay
 {
@@ -96,9 +97,9 @@ namespace gameplay
          */
         size_t getRenderTargetCount() const;
 
-        void setDepthTexture(const std::shared_ptr<TextureHandle>& target);
+        void setDepthTexture(const std::shared_ptr<gl::Texture>& target);
 
-        const std::shared_ptr<TextureHandle>& getDepthTexture() const
+        const std::shared_ptr<gl::Texture>& getDepthTexture() const
         {
             return _depthTexture;
         }
@@ -141,10 +142,10 @@ namespace gameplay
 
         static void initialize();
 
-        FrameBufferHandle _handle;
+        gl::FrameBuffer _handle;
         std::vector<std::shared_ptr<RenderTarget>> _renderTargets;
         size_t _renderTargetCount;
-        std::shared_ptr<TextureHandle> _depthTexture;
+        std::shared_ptr<gl::Texture> _depthTexture;
 
         static size_t _maxRenderTargets;
         static std::shared_ptr<FrameBuffer> _currentFrameBuffer;

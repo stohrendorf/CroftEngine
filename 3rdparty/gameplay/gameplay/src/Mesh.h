@@ -3,6 +3,8 @@
 #include "VertexFormat.h"
 #include "BoundingBox.h"
 
+#include "gl/vertexbuffer.h"
+
 #include <memory>
 
 
@@ -16,7 +18,7 @@ namespace gameplay
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
-    class Mesh : public VertexBufferHandle
+    class Mesh : public gl::VertexBuffer
     {
         friend class Model;
 

@@ -15,7 +15,7 @@ namespace gameplay
 
 
     VertexAttributeBinding::VertexAttributeBinding(Mesh* mesh, const VertexFormat& vertexFormat, void* vertexPointer, const std::shared_ptr<ShaderProgram>& shaderProgram)
-        : VertexArrayHandle()
+        : VertexArray()
     {
         BOOST_ASSERT(shaderProgram);
 
@@ -50,7 +50,7 @@ namespace gameplay
         for( size_t i = 0, count = vertexFormat.getElementCount(); i < count; ++i )
         {
             const VertexFormat::Element& e = vertexFormat.getElement(i);
-            const ProgramHandle::ActiveAttribute* attrib = nullptr;
+            const gl::Program::ActiveAttribute* attrib = nullptr;
             void* pointer = vertexPointer ? static_cast<void*>(static_cast<uint8_t*>(vertexPointer) + offset) : reinterpret_cast<void*>(offset);
 
             // Constructor vertex attribute name expected in shader.
