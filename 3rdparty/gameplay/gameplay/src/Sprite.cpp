@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    Sprite::Sprite(Game* game, const std::shared_ptr<gl::Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    Sprite::Sprite(Game* game, const std::shared_ptr<gl::Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse)
         : Drawable()
         , _width{width}
         , _height{height}
@@ -20,7 +20,7 @@ namespace gameplay
         , _frameStride(0)
         , _framePadding(1)
         , _frameIndex(0)
-        , _batch{ std::make_shared<SpriteBatch>(game, texture, shaderProgram) }
+        , _batch{ std::make_shared<SpriteBatch>(game, texture, shaderProgram, diffuse) }
         , _opacity(1.0f)
         , _color{ 1,1,1,1 }
         , _blendMode(BLEND_ALPHA)

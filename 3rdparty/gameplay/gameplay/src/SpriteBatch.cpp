@@ -54,29 +54,14 @@ namespace gameplay
         }
 
         // Search for the first sampler uniform in the effect.
-        gl::Program::ActiveUniform* samplerUniform = nullptr;
-        if(diffuse.empty())
-        {
-            for(size_t i = 0, count = fx->getUniformCount(); i < count; ++i)
-            {
-                auto uniform = fx->getUniform(i);
-                if(uniform != nullptr && uniform->getType() == GL_SAMPLER_2D)
-                {
-                    samplerUniform = uniform;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            samplerUniform = fx->getUniform(diffuse);
-            BOOST_ASSERT(samplerUniform->getType() == GL_SAMPLER_2D);
-        }
+        gl::Program::ActiveUniform* samplerUniform = fx->getUniform(diffuse);
 
         if(!samplerUniform)
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("No uniform of type GL_SAMPLER_2D found in sprite effect."));
         }
+
+        BOOST_ASSERT(samplerUniform->getType() == GL_SAMPLER_2D);
 
         // Wrap the effect in a material
         auto material = std::make_shared<Material>(fx);

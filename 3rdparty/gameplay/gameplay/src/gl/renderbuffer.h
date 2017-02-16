@@ -14,9 +14,9 @@ public:
                                              {
                                                  glBindRenderbuffer(GL_RENDERBUFFER, handle);
                                              }, glDeleteRenderbuffers)
-        , m_width{width}
-        , m_height{height}
-        , m_format{format}
+        , m_width(width)
+        , m_height(height)
+        , m_format(format)
     {
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisample, format, width, height);
         checkGlError();

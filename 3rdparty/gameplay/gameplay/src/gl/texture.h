@@ -2,6 +2,10 @@
 
 #include "rendertarget.h"
 
+#include <glm/glm.hpp>
+
+#include <vector>
+
 namespace gameplay
 {
 namespace gl
@@ -129,24 +133,26 @@ public:
     }
 
 
-    void set2DDepth(GLint width, GLint height)
+    void set2DDepth(GLint width, GLint height, GLint multisample = 0)
     {
         BOOST_ASSERT(width > 0 && height > 0);
 
         // Create the texture.
         bind();
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        checkGlError();
 
         // Texture 2D
-        glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
+        // glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
         checkGlError();
 
         m_width = width;
         m_height = height;
-        m_mipmap = false;
 
+        // Set initial minification filter based on whether or not mipmaping was enabled.
         set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        checkGlError();
+
+        m_mipmap = false;
     }
 
 

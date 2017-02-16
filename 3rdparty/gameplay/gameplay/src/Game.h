@@ -281,7 +281,7 @@ namespace gameplay
         float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
         bool _vsync = WINDOW_VSYNC;
-        unsigned _multiSampling = 1;
+        unsigned _multiSampling = 0;
         GLFWwindow* _window = nullptr;
 
         std::shared_ptr<Scene> _scene;

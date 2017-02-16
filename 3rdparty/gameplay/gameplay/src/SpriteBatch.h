@@ -43,7 +43,7 @@ namespace gameplay
          * @param texture The texture for this sprite batch.
          * @param shaderProgram An optional effect to use with the SpriteBatch.
          */
-        explicit SpriteBatch(Game* game, const std::shared_ptr<gl::Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr, const std::string& diffuse = {});
+        explicit SpriteBatch(Game* game, const std::shared_ptr<gl::Texture>& texture, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse);
 
         /**
          * Destructor.

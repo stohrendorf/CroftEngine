@@ -27,7 +27,7 @@ namespace gameplay
         friend class Node;
 
     public:
-        Sprite(Game* game, const std::shared_ptr<gl::Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount = 1, const std::shared_ptr<ShaderProgram>& shaderProgram = nullptr);
+        Sprite(Game* game, const std::shared_ptr<gl::Texture>& texture, float width, float height, const Rectangle& source, unsigned frameCount, const std::shared_ptr<ShaderProgram>& shaderProgram, const std::string& diffuse);
         ~Sprite();
 
         /**

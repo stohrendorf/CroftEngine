@@ -21,27 +21,31 @@ public:
 
     void attachTexture1D(GLenum attachment, const Texture& texture, GLint level = 0)
     {
-        glFramebufferTexture1D(GL_DRAW_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level);
+        bind();
+        glFramebufferTexture1D(GL_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level);
         checkGlError();
     }
 
 
     void attachTexture2D(GLenum attachment, const Texture& texture, GLint level = 0)
     {
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level);
+        bind();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level);
         checkGlError();
     }
 
 
     void attachTextureLayer(GLenum attachment, const Texture& texture, GLint level = 0, GLint layer = 0)
     {
-        glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture.getHandle(), level, layer);
+        bind();
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, texture.getHandle(), level, layer);
         checkGlError();
     }
 
 
     void attachRenderbuffer(GLenum attachment, const RenderBuffer& renderBuffer)
     {
+        bind();
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer.getHandle());
         checkGlError();
     }
@@ -49,9 +53,46 @@ public:
 
     bool isComplete() const
     {
-        auto result = glCheckFramebufferStatus(getHandle()) == GL_FRAMEBUFFER_COMPLETE;
+        bind();
+
+        auto result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         checkGlError();
-        return result;
+
+#ifndef NDEBUG
+        switch(result)
+        {
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete attachment";
+                break;
+            case GL_FRAMEBUFFER_UNDEFINED:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: default is undefined";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: missing attachment";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete draw buffer";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete read buffer";
+                break;
+            case GL_FRAMEBUFFER_UNSUPPORTED:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: unsupported attachment type";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete multisample";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete layer targets";
+                break;
+            case GL_FRAMEBUFFER_COMPLETE:
+                break;
+            default:
+                BOOST_LOG_TRIVIAL(error) << "Framebuffer #" << getHandle() << " incomplete: unknown code #" << result;
+        }
+#endif
+
+        return result == GL_FRAMEBUFFER_COMPLETE;
     }
 
 
