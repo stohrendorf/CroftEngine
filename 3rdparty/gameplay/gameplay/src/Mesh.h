@@ -98,7 +98,7 @@ namespace gameplay
          * @return The newly created mesh.
          * @script{create}
          */
-        static std::shared_ptr<Mesh> createQuadFullscreen();
+        static std::shared_ptr<Mesh> createQuadFullscreen(float width, float height, bool invertY = false);
 
         /**
          * Creates lines between 2 or more points passed in as a glm::vec3 array.

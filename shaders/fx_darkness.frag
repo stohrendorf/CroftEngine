@@ -22,7 +22,7 @@ float depth(vec2 uv)
 {
     vec4 clipSpaceLocation;
     clipSpaceLocation.xy = uv * 2 - 1;
-    clipSpaceLocation.z = texture(u_depth, uv).r * 2 - 1;
+    clipSpaceLocation.z = texture2D(u_depth, uv).r * 2 - 1;
     clipSpaceLocation.w = 1;
     vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);

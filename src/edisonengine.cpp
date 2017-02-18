@@ -98,24 +98,30 @@ public:
     {
         auto vp = game->getViewport();
 
-        m_colorBuffer = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D_MULTISAMPLE);
-        m_colorBuffer->set2D(vp.width, vp.height, GL_RGBA32F, false, multisample);
+        m_colorBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
+        m_colorBuffer->set2D(vp.width, vp.height, GL_RGBA, false, multisample);
         m_fb->attachTexture2D(GL_COLOR_ATTACHMENT0, *m_colorBuffer);
 
-        m_depthBuffer = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D_MULTISAMPLE);
+        m_depthBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
         m_depthBuffer->set2DDepth(vp.width, vp.height, multisample);
         m_fb->attachTexture2D(GL_DEPTH_ATTACHMENT, *m_depthBuffer);
 
         BOOST_ASSERT(m_fb->isComplete());
 
-        m_batch = std::make_shared<gameplay::SpriteBatch>(game, m_colorBuffer, shader, "u_texture");
+        m_mesh = gameplay::Mesh::createQuadFullscreen(vp.width, vp.height);
+        auto part = m_mesh->getPart(0);
+        part->setMaterial(std::make_shared<gameplay::Material>(shader));
 
-        if(auto tmp = m_batch->getMaterial()->getParameter("u_depth"))
+        if(auto tmp = part->getMaterial()->getParameter("u_depth"))
             tmp->set(m_depthBuffer);
-        if(auto tmp = m_batch->getMaterial()->getParameter("u_projection"))
-            tmp->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
+        part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        part->getMaterial()->getParameter("u_projection")->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
+        if(auto tmp = part->getMaterial()->getParameter("u_texture"))
+            tmp->set(m_colorBuffer);
 
-        m_batch->setProjectionMatrix(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        m_model = std::make_shared<gameplay::Model>();
+        m_model->addMesh(m_mesh);
+
         m_colorBuffer->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         m_colorBuffer->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
@@ -130,22 +136,21 @@ public:
     void render(gameplay::RenderContext& context) const
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gameplay::gl::checkGlError();
 
-        m_batch->start();
-        m_batch->draw(0, 0, m_colorBuffer->getWidth(), m_colorBuffer->getHeight(), 0, 1, 1, 0, glm::vec4{1,1,1,1});
-        m_batch->finishAndDraw(context);
+        m_model->draw(context);
     }
 
 
-    const std::shared_ptr<gameplay::SpriteBatch>& getBatch() const
+    const std::shared_ptr<gameplay::Material>& getMaterial() const
     {
-        return m_batch;
+        return m_mesh->getPart(0)->getMaterial();
     }
-
 
 private:
     std::shared_ptr<gameplay::gl::FrameBuffer> m_fb;
-    std::shared_ptr<gameplay::SpriteBatch> m_batch;
+    std::shared_ptr<gameplay::Mesh> m_mesh;
+    std::shared_ptr<gameplay::Model> m_model;
 };
 
 
@@ -223,7 +228,7 @@ int main()
 
     FullScreenFX depthDarknessFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {}), gsl::narrow<GLint>(game->getMultiSampling())};
     FullScreenFX depthDarknessWaterFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER"}), gsl::narrow<GLint>(game->getMultiSampling())};
-    depthDarknessWaterFx.getBatch()->getMaterial()->getParameter("u_time")->bind(
+    depthDarknessWaterFx.getMaterial()->getParameter("u_time")->bind(
                             [game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
                             {
                                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(game->getGameTime());
@@ -256,6 +261,8 @@ int main()
                                              lvl->m_cameraController->getUpVector());
 
         lvl->drawBars(game, screenOverlay->getImage());
+
+#define WITH_POSTFX
 
 #ifdef WITH_POSTFX
         if(lvl->m_cameraController->getCurrentRoom()->isWaterRoom())

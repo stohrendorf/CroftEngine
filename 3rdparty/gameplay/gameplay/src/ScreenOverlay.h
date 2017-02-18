@@ -20,11 +20,7 @@ namespace gameplay
         void resize();
 
 
-        void draw(RenderContext& context) override
-        {
-            _texture->set2D(_image->getData());
-            _batch->finishAndDraw(context);
-        }
+        void draw(RenderContext& context) override;
 
 
         const std::shared_ptr<Image>& getImage() const
@@ -40,7 +36,8 @@ namespace gameplay
 
         std::shared_ptr<Image> _image{nullptr};
         std::shared_ptr<gl::Texture> _texture{nullptr};
-        std::shared_ptr<SpriteBatch> _batch{nullptr};
+        std::shared_ptr<Mesh> _mesh{nullptr};
+        std::shared_ptr<Model> _model{nullptr};
 
         Game* _game;
     };

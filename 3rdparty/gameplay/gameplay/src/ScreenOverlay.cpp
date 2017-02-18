@@ -1,11 +1,11 @@
-#include "Base.h"
-
 #include "ScreenOverlay.h"
 
 #include "Game.h"
 #include "Image.h"
 #include "Material.h"
 #include "MaterialParameter.h"
+#include "Model.h"
+#include "MeshPart.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <boost/log/trivial.hpp>
@@ -55,18 +55,26 @@ namespace gameplay
         _texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         _texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        _batch = std::make_shared<SpriteBatch>(_game, _texture, screenOverlayProgram, "u_texture");
+        _mesh = Mesh::createQuadFullscreen(vp.width, vp.height, true);
+        auto part = _mesh->getPart(0);
+        part->setMaterial(std::make_shared<Material>(screenOverlayProgram));
+        part->getMaterial()->getParameter("u_texture")->set(_texture);
+        part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        part->getMaterial()->getStateBlock()->setBlend(true);
+        part->getMaterial()->getStateBlock()->setBlendSrc(RenderState::BLEND_SRC_ALPHA);
+        part->getMaterial()->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
 
-        if( !vp.isEmpty() )
-        {
-            glm::mat4 projectionMatrix = glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f);
-            _batch->setProjectionMatrix(projectionMatrix);
-        }
-
-        _batch->start();
-        _batch->draw(0, 0, vp.width, vp.height, 0, 0, 1, 1, glm::vec4{1,1,1,1});
+        _model = std::make_shared<Model>();
+        _model->addMesh(_mesh);
     }
 
 
     ScreenOverlay::~ScreenOverlay() = default;
+
+
+    void ScreenOverlay::draw(RenderContext& context)
+    {
+        _texture->set2D(_image->getData());
+        _model->draw(context);
+    }
 }

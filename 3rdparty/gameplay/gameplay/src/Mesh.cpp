@@ -64,29 +64,35 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Mesh> Mesh::createQuadFullscreen()
+    std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width, float height, bool invertY)
     {
-        float x = -1.0f;
-        float y = -1.0f;
-        float x2 = 1.0f;
-        float y2 = 1.0f;
-
-        float vertices[] =
+        const float vertices[] =
         {
-            x, y2, 0, 1,
-            x, y, 0, 0,
-            x2, y2, 1, 1,
-            x2, y, 1, 0
+            0, 0,          0, invertY ? 0 : 1,
+            width, 0,      1, invertY ? 0 : 1,
+            width, height, 1, invertY ? 1 : 0,
+            0, height,     0, invertY ? 1 : 0
         };
 
-        VertexFormat::Element elements[] =
+        static const VertexFormat::Element elements[] =
         {
             VertexFormat::Element(VertexFormat::POSITION, 2),
             VertexFormat::Element(VertexFormat::TEXCOORD, 2)
         };
+
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 2), 4, false);
         mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
+
+        auto part = mesh->addPart(TRIANGLES, INDEX16, 6, false);
+
+        static const uint16_t indices[6] =
+        {
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        part->setIndexData(indices, 0, 6);
 
         return mesh;
     }

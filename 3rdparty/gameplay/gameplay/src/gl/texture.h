@@ -60,6 +60,8 @@ public:
         BOOST_ASSERT(m_width > 0 && m_height > 0);
         BOOST_ASSERT(data.empty() || static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
 
+        bind();
+
         glTexImage2D(m_type, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
         checkGlError();
 
@@ -76,16 +78,12 @@ public:
         BOOST_ASSERT(width > 0 && height > 0);
         BOOST_ASSERT(data.empty() || static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
 
-        // Create the texture.
         bind();
 
-        // Texture 2D
-        if(multisample == 0)
-            // (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
-            glTexImage2D(m_type, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
-        else
-            // (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations)
+        if(multisample > 0)
             glTexImage2DMultisample(m_type, multisample, GL_RGBA32F, width, height, GL_TRUE);
+        else
+            glTexImage2D(m_type, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
         checkGlError();
 
         m_width = width;
@@ -113,7 +111,10 @@ public:
         bind();
 
         // Texture 2D
-        glTexImage2DMultisample(m_type, multisample, internalFormat, width, height, GL_TRUE);
+        if(multisample > 0)
+            glTexImage2DMultisample(m_type, multisample, internalFormat, width, height, GL_TRUE);
+        else
+            glTexImage2D(m_type, 0, internalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
         checkGlError();
 
         m_width = width;
@@ -141,14 +142,15 @@ public:
         bind();
 
         // Texture 2D
-        glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
-        // glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        if(multisample > 0)
+            glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
+        else
+            glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
         checkGlError();
 
         m_width = width;
         m_height = height;
 
-        // Set initial minification filter based on whether or not mipmaping was enabled.
         set(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         checkGlError();
 
