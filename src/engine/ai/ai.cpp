@@ -276,7 +276,7 @@ namespace engine
                             BOOST_ASSERT(path.empty());
                             BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                             path.push_back(&npc.getLevel().m_boxes[current]);
-                            while(parents.size() >= current && parents[current] != UnsetBoxId )
+                            while(parents.size() > current && parents[current] != UnsetBoxId )
                             {
                                 current = parents[current];
                                 BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
