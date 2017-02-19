@@ -73,6 +73,25 @@ public:
     }
 
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void update2D(const std::vector<glm::vec4>& data)
+    {
+        BOOST_ASSERT(m_width > 0 && m_height > 0);
+        BOOST_ASSERT(static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
+
+        bind();
+
+        glTexSubImage2D(m_type, 0, 0, 0, m_width, m_height, GL_RGBA, GL_FLOAT, data.data());
+        checkGlError();
+
+        if( m_mipmap )
+        {
+            glGenerateMipmap(m_type);
+            checkGlError();
+        }
+    }
+
+
     void set2D(GLint width, GLint height, const std::vector<glm::vec4>& data, bool generateMipmaps, GLint multisample = 0)
     {
         BOOST_ASSERT(width > 0 && height > 0);

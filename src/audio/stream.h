@@ -17,13 +17,7 @@ namespace audio
             : m_stream(std::move(src))
             , m_sampleBuffer(bufferSize * 2)
         {
-            fillBuffer(m_buffers[0]);
-            fillBuffer(m_buffers[1]);
-
-            auto tmp = m_buffers[0].get();
-            alSourceQueueBuffers(m_source.get(), 1, &tmp);
-            tmp = m_buffers[1].get();
-            alSourceQueueBuffers(m_source.get(), 1, &tmp);
+            init();
 
             m_source.play();
         }
@@ -38,12 +32,20 @@ namespace audio
             ALuint bufId;
             alSourceUnqueueBuffers(m_source.get(), 1, &bufId);
 
-            if( bufId == m_buffers[0].get() )
+            if(bufId == m_buffers[0].get())
+            {
                 fillBuffer(m_buffers[0]);
-            else if( bufId == m_buffers[1].get() )
+            }
+            else if(bufId == m_buffers[1].get())
+            {
                 fillBuffer(m_buffers[1]);
+            }
             else
-            BOOST_THROW_EXCEPTION(std::runtime_error("Stream buffer handle corruption"));
+            {
+                BOOST_LOG_TRIVIAL(error) << "Stream buffer torn, re-init";
+                init();
+                return;
+            }
 
             alSourceQueueBuffers(m_source.get(), 1, &bufId);
         }
@@ -59,6 +61,18 @@ namespace audio
         }
 
     private:
+        void init()
+        {
+            fillBuffer(m_buffers[0]);
+            fillBuffer(m_buffers[1]);
+
+            auto tmp = m_buffers[0].get();
+            alSourceQueueBuffers(m_source.get(), 1, &tmp);
+            tmp = m_buffers[1].get();
+            alSourceQueueBuffers(m_source.get(), 1, &tmp);
+        }
+
+
         void fillBuffer(BufferHandle& buffer)
         {
             const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2);

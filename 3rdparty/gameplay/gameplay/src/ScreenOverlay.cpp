@@ -74,7 +74,7 @@ namespace gameplay
 
     void ScreenOverlay::draw(RenderContext& context)
     {
-        _texture->set2D(_image->getData());
+        _texture->update2D(_image->getData());
         _model->draw(context);
     }
 }
