@@ -131,7 +131,7 @@ namespace loader
 
                 for(auto j : { 0,1,2,0,2,3 })
                 {
-                    m_animator.registerVertex(quad.proxyId, { m_mesh, partId }, j, firstVertex + j);
+                    m_animator.registerVertex(quad.proxyId, m_mesh, j, firstVertex + j);
                     m_parts[partId].indices.emplace_back(firstVertex + j);
                 }
             }
@@ -177,9 +177,9 @@ namespace loader
                     append(iv);
                 }
 
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 0, firstVertex + 0);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 1, firstVertex + 1);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 2, firstVertex + 2);
             }
             for( const Triangle& tri : mesh.colored_triangles )
             {
@@ -220,7 +220,7 @@ namespace loader
 
                 for(auto j : { 0,1,2,0,2,3 })
                 {
-                    m_animator.registerVertex(quad.proxyId, { m_mesh, partId }, j, firstVertex + j);
+                    m_animator.registerVertex(quad.proxyId, m_mesh, j, firstVertex + j);
                     m_parts[partId].indices.emplace_back(firstVertex + j);
                 }
             }
@@ -261,9 +261,9 @@ namespace loader
                     append(iv);
                 }
 
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 0, firstVertex + 0);
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 1, firstVertex + 1);
-                m_animator.registerVertex(tri.proxyId, {m_mesh, partId}, 2, firstVertex + 2);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 0, firstVertex + 0);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 1, firstVertex + 1);
+                m_animator.registerVertex(tri.proxyId, m_mesh, 2, firstVertex + 2);
             }
             for( const Triangle& tri : mesh.colored_triangles )
             {

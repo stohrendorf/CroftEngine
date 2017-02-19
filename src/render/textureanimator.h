@@ -2,6 +2,8 @@
 
 #include "loader/texture.h"
 
+#include "Mesh.h"
+
 #include <boost/assert.hpp>
 
 #include <map>
@@ -13,9 +15,6 @@ namespace render
 {
     class TextureAnimator
     {
-        using MeshPartReference = std::pair<std::shared_ptr<gameplay::Mesh>, size_t>;
-
-
         struct Sequence
         {
             struct VertexReference
@@ -48,7 +47,7 @@ namespace render
 
 
             std::vector<uint16_t> proxyIds;
-            std::map<MeshPartReference, std::set<VertexReference>> affectedVertices;
+            std::map<std::shared_ptr<gameplay::Mesh>, std::set<VertexReference>> affectedVertices;
 
 
             void rotate()
@@ -60,14 +59,14 @@ namespace render
             }
 
 
-            void registerVertex(const MeshPartReference& partReference, VertexReference vertex, uint16_t proxyId)
+            void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex, uint16_t proxyId)
             {
-                Expects(partReference.first->getVertexFormat().getElement(0) .usage == gameplay::VertexFormat::TEXCOORD);
+                Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
 
                 auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
                 Expects(it != proxyIds.end());
                 vertex.queueOffset = std::distance(proxyIds.begin(), it);
-                affectedVertices[partReference].insert(vertex);
+                affectedVertices[mesh].insert(vertex);
             }
 
 
@@ -77,11 +76,7 @@ namespace render
 
                 for( const auto& partAndVertices : affectedVertices )
                 {
-                    const MeshPartReference& partReference = partAndVertices.first;
-                    auto mesh = partReference.first;
-
-                    const size_t partId = partReference.second;
-                    BOOST_ASSERT(partId < mesh->getPartCount());
+                    const std::shared_ptr<gameplay::Mesh>& mesh = partAndVertices.first;
 
                     const std::set<VertexReference>& vertices = partAndVertices.second;
 
@@ -129,14 +124,14 @@ namespace render
         }
 
 
-        void registerVertex(uint16_t proxyId, const MeshPartReference& partReference, int sourceIndex, size_t bufferIndex)
+        void registerVertex(uint16_t proxyId, const std::shared_ptr<gameplay::Mesh>& mesh, int sourceIndex, size_t bufferIndex)
         {
             if( m_sequenceByProxyId.find(proxyId) == m_sequenceByProxyId.end() )
                 return;
 
             const size_t sequenceId = m_sequenceByProxyId[proxyId];
             Expects(sequenceId < m_sequences.size());
-            m_sequences[sequenceId].registerVertex(partReference, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);
+            m_sequences[sequenceId].registerVertex(mesh, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);
         }
 
 
