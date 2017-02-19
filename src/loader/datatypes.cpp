@@ -124,17 +124,17 @@ namespace loader
             }
 
             animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 0));
             animator.registerVertex(quad.proxyId, {mesh, partId}, 1, firstVertex + 1);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 1));
             animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 2));
             animator.registerVertex(quad.proxyId, {mesh, partId}, 0, firstVertex + 0);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 0));
             animator.registerVertex(quad.proxyId, {mesh, partId}, 2, firstVertex + 2);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 2));
             animator.registerVertex(quad.proxyId, {mesh, partId}, 3, firstVertex + 3);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 3);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 3));
         }
         for( const Triangle& tri : triangles )
         {
@@ -161,11 +161,11 @@ namespace loader
             }
 
             animator.registerVertex(tri.proxyId, {mesh, partId}, 0, firstVertex + 0);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 0);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 0));
             animator.registerVertex(tri.proxyId, {mesh, partId}, 1, firstVertex + 1);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 1);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 1));
             animator.registerVertex(tri.proxyId, {mesh, partId}, 2, firstVertex + 2);
-            renderModel.m_parts[partId].indices.emplace_back(firstVertex + 2);
+            renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 2));
         }
 
         mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());

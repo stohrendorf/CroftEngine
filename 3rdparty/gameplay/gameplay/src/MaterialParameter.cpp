@@ -48,7 +48,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 
@@ -59,7 +59,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 
@@ -79,7 +79,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 
@@ -99,7 +99,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 
@@ -119,7 +119,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 
@@ -139,7 +139,7 @@ namespace gameplay
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
             {
-                uniform.set(tmp.data(), tmp.size());
+                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
             };
     }
 

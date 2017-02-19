@@ -4,7 +4,7 @@
 
 namespace gameplay
 {
-    Image::Image(unsigned width, unsigned height, const glm::vec4* data)
+    Image::Image(GLint width, GLint height, const glm::vec4* data)
         : _data()
         , _width(width)
         , _height(height)

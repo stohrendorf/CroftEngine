@@ -243,6 +243,10 @@ else ()
 endif ()
 
 
+add_library(GSL INTERFACE)
+target_include_directories(GSL INTERFACE 3rdparty/GSL)
+
+
 find_package(Git)
 if (NOT GIT_FOUND)
     set(GIT_SHA "<unknown>")

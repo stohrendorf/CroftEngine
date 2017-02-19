@@ -5,6 +5,8 @@
 
 #include "gl/vertexbuffer.h"
 
+#include <gsl/gsl>
+
 #include <memory>
 
 
@@ -112,7 +114,7 @@ namespace gameplay
          * @return The newly created mesh.
          * @script{create}
          */
-        static std::shared_ptr<Mesh> createLines(glm::vec3* points, size_t pointCount);
+        static std::shared_ptr<Mesh> createLines(const gsl::not_null<glm::vec3*>& points, size_t pointCount);
 
         /**
          * Creates a bounding box mesh when passed a BoundingBox.
@@ -184,9 +186,9 @@ namespace gameplay
          * @param vertexStart The index of the starting vertex (0 by default).
          * @param vertexCount The number of vertices to be set (default is 0, for all vertices).
          */
-        void setVertexData(const float* vertexData, size_t vertexStart = 0, size_t vertexCount = 0);
+        void setVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexStart = 0, size_t vertexCount = 0);
 
-        void setRawVertexData(const float* vertexData, size_t vertexId, size_t numFloats);
+        void setRawVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexId, size_t numFloats);
 
         /**
          * Creates and adds a new part of primitive data defining how the vertices are connected.

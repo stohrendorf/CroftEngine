@@ -7,7 +7,7 @@
 
 namespace gameplay
 {
-    MeshPart::MeshPart(Mesh* mesh,
+    MeshPart::MeshPart(const gsl::not_null<Mesh*>& mesh,
                        Mesh::PrimitiveType primitiveType,
                        Mesh::IndexFormat indexFormat,
                        size_t indexCount,
@@ -69,7 +69,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void MeshPart::setIndexData(const void* indexData, size_t indexStart, size_t indexCount)
+    void MeshPart::setIndexData(const gsl::not_null<const void*>& indexData, size_t indexStart, size_t indexCount)
     {
         bind();
 
@@ -172,7 +172,7 @@ namespace gameplay
         bind();
         if(!context.isWireframe() || !drawWireframe())
         {
-            GL_ASSERT(glDrawElements(_primitiveType, _indexCount, _indexFormat, nullptr));
+            GL_ASSERT(glDrawElements(_primitiveType, gsl::narrow<GLsizei>(_indexCount), _indexFormat, nullptr));
         }
 
         _material->unbind();

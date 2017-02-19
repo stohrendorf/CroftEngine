@@ -40,15 +40,15 @@ namespace gameplay
         auto imageWidth = texture->getWidth();
         auto imageHeight = texture->getHeight();
         if(width == -1)
-            _width = imageWidth;
+            _width = static_cast<float>(imageWidth);
         if(height == -1)
-            _height = imageHeight;
+            _height = static_cast<float>(imageHeight);
 
         _frames[0] = source;
         if(_frames[0].width == -1.0f)
-            _frames[0].width = imageWidth;
+            _frames[0].width = static_cast<float>(imageWidth);
         if(_frames[0].height == -1.0f)
-            _frames[0].height = imageHeight;
+            _frames[0].height = static_cast<float>(imageHeight);
     }
 
 

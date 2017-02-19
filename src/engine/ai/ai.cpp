@@ -465,7 +465,7 @@ namespace engine
                     return laraToBoxAxis == core::Axis::PosX;
             }
 
-            BOOST_ASSERT(false);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
         }
 
 

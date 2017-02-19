@@ -230,6 +230,8 @@ add_executable(edisonengine
 
 GROUP_FILES(${EDISONENGINE_SRCS})
 
+target_include_directories(edisonengine PRIVATE .)
+
 if (NOT MSVC)
     target_compile_options(edisonengine PRIVATE -Wall -Wextra)
 endif ()
@@ -245,6 +247,7 @@ target_link_libraries(
         assimp-lib
         yaml-cpp-lib
         LuaState
+        GSL
 )
 
 if (LINUX OR UNIX)
@@ -253,5 +256,3 @@ if (LINUX OR UNIX)
             pthread
     )
 endif ()
-
-target_include_directories(edisonengine PRIVATE . ../3rdparty/GSL)

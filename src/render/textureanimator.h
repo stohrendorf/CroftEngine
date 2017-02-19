@@ -8,32 +8,37 @@
 #include <set>
 #include <vector>
 
+
 namespace render
 {
     class TextureAnimator
     {
         using MeshPartReference = std::pair<std::shared_ptr<gameplay::Mesh>, size_t>;
 
+
         struct Sequence
         {
             struct VertexReference
             {
                 //! Vertex buffer index
-                const uint16_t bufferIndex;
+                const size_t bufferIndex;
                 const int sourceIndex;
                 size_t queueOffset = 0;
 
-                VertexReference(uint16_t bufferIdx, int sourceIdx)
+
+                VertexReference(size_t bufferIdx, int sourceIdx)
                     : bufferIndex(bufferIdx)
-                      , sourceIndex(sourceIdx)
+                    , sourceIndex(sourceIdx)
                 {
                     Expects(sourceIdx >= 0 && sourceIdx < 4);
                 }
+
 
                 bool operator<(const VertexReference& rhs) const noexcept
                 {
                     return bufferIndex < rhs.bufferIndex;
                 }
+
 
                 bool operator==(const VertexReference& rhs) const noexcept
                 {
@@ -41,8 +46,10 @@ namespace render
                 }
             };
 
+
             std::vector<uint16_t> proxyIds;
             std::map<MeshPartReference, std::set<VertexReference>> affectedVertices;
+
 
             void rotate()
             {
@@ -51,6 +58,7 @@ namespace render
                 proxyIds.erase(proxyIds.begin(), std::next(proxyIds.begin()));
                 proxyIds.emplace_back(first);
             }
+
 
             void registerVertex(const MeshPartReference& partReference, VertexReference vertex, uint16_t proxyId)
             {
@@ -61,6 +69,7 @@ namespace render
                 vertex.queueOffset = std::distance(proxyIds.begin(), it);
                 affectedVertices[partReference].insert(vertex);
             }
+
 
             void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)
             {
@@ -90,6 +99,7 @@ namespace render
             }
         };
 
+
         std::vector<Sequence> m_sequences;
         std::map<uint16_t, size_t> m_sequenceByProxyId;
 
@@ -118,7 +128,8 @@ namespace render
             }
         }
 
-        void registerVertex(uint16_t proxyId, const MeshPartReference& partReference, int sourceIndex, uint16_t bufferIndex)
+
+        void registerVertex(uint16_t proxyId, const MeshPartReference& partReference, int sourceIndex, size_t bufferIndex)
         {
             if( m_sequenceByProxyId.find(proxyId) == m_sequenceByProxyId.end() )
                 return;
@@ -127,6 +138,7 @@ namespace render
             Expects(sequenceId < m_sequences.size());
             m_sequences[sequenceId].registerVertex(partReference, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);
         }
+
 
         void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)
         {

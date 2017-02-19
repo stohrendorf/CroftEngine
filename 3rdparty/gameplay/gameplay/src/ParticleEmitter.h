@@ -241,7 +241,7 @@ namespace gameplay
          *
          * @param particleCount The number of particles to emit immediately.
          */
-        void emitOnce(unsigned int particleCount);
+        void emitOnce(size_t particleCount);
 
         /**
          * Gets the current number of particles.
@@ -507,14 +507,14 @@ namespace gameplay
          *
          * @return The width of the first frame of the sprite.
          */
-        unsigned int getSpriteWidth() const;
+        float getSpriteWidth() const;
 
         /**
          * Returns the height of the first frame this particle emitter's sprite.
          *
          * @return The height of the first frame of the sprite.
          */
-        unsigned int getSpriteHeight() const;
+        float getSpriteHeight() const;
 
         /**
          * Sets the sprite's texture coordinates in image space (pixels).
@@ -689,10 +689,8 @@ namespace gameplay
         glm::quat _rotation;
         std::shared_ptr<SpriteBatch> _spriteBatch;
         BlendMode _spriteBlendMode;
-        float _spriteTextureWidth;
-        float _spriteTextureHeight;
-        float _spriteTextureWidthRatio;
-        float _spriteTextureHeightRatio;
+        GLint _spriteTextureWidth = 0;
+        GLint _spriteTextureHeight = 0;
         glm::vec2 _spriteTextureCoords[2];
         bool _orbitPosition;
         bool _orbitVelocity;

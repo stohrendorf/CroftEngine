@@ -25,7 +25,7 @@ namespace gameplay
      *
      * @script{ignore}
      */
-    class FileStream : public Stream
+    class FileStream final : public Stream
     {
     public:
         friend class FileSystem;

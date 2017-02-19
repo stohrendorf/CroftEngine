@@ -2,6 +2,8 @@
 
 #include "Base.h"
 
+#include "gl/util.h"
+
 #include <vector>
 
 namespace gameplay
@@ -14,7 +16,7 @@ namespace gameplay
     class Image
     {
     public:
-        explicit Image(unsigned width, unsigned height, const glm::vec4* data = nullptr);
+        explicit Image(GLint width, GLint height, const glm::vec4* data = nullptr);
         ~Image();
 
         /**
@@ -33,7 +35,7 @@ namespace gameplay
          *
          * @return The height of the image.
          */
-        unsigned int getHeight() const
+        GLint getHeight() const
         {
             return _height;
         }
@@ -43,26 +45,26 @@ namespace gameplay
          *
          * @return The width of the image.
          */
-        unsigned int getWidth() const
+        GLint getWidth() const
         {
             return _width;
         }
 
 
-        glm::vec4& at(unsigned int x, unsigned int y)
+        glm::vec4& at(GLint x, GLint y)
         {
             static glm::vec4 none;
-            if( x >= _width || y >= _height )
+            if( x < 0 || x >= _width || y < 0 || y >= _height )
                 return none;
 
             return _data[y * _width + x];
         }
 
 
-        const glm::vec4& at(unsigned int x, unsigned int y) const
+        const glm::vec4& at(GLint x, GLint y) const
         {
             static const glm::vec4 none;
-            if( x >= _width || y >= _height )
+            if( x < 0 || x >= _width || y < 0 || y >= _height )
                 return none;
 
             return _data[y * _width + x];
@@ -75,15 +77,15 @@ namespace gameplay
         }
 
 
-        void line(int x0, int y0, int x1, int y1, const glm::vec4& color)
+        void line(GLint x0, GLint y0, GLint x1, GLint y1, const glm::vec4& color)
         {
             // shamelessly copied from wikipedia
-            const int dx = abs(x1 - x0);
-            const int sx = x0 < x1 ? 1 : -1;
-            const int dy = -abs(y1 - y0);
-            const int sy = y0 < y1 ? 1 : -1;
+            const GLint dx = abs(x1 - x0);
+            const GLint sx = x0 < x1 ? 1 : -1;
+            const GLint dy = -abs(y1 - y0);
+            const GLint sy = y0 < y1 ? 1 : -1;
 
-            int err = dx + dy;
+            GLint err = dx + dy;
 
             while( true )
             {
@@ -119,7 +121,7 @@ namespace gameplay
         Image& operator=(const Image&) = delete;
 
         std::vector<glm::vec4> _data;
-        unsigned int _width;
-        unsigned int _height;
+        GLint _width;
+        GLint _height;
     };
 }

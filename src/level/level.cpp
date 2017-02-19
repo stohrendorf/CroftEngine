@@ -839,7 +839,7 @@ void Level::setUpRendering(gameplay::Game* game,
                 {
                     for( size_t z = 0; z < room.sectorCountZ; ++z )
                     {
-                        const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(x, z);
+                        const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(gsl::narrow<int>(x), gsl::narrow<int>(z));
                         YAML::Node sectorTree;
                         sectorTree["position"]["x"] = x;
                         sectorTree["position"]["z"] = z;

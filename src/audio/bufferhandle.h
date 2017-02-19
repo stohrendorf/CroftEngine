@@ -45,7 +45,7 @@ namespace audio
 
         void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate)
         {
-            alBufferData(m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples, sampleCount * sizeof(samples[0]), sampleRate);
+            alBufferData(m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples, gsl::narrow<ALsizei>(sampleCount * sizeof(samples[0])), sampleRate);
         }
 
         bool fillFromWav(const uint8_t* data)
@@ -69,7 +69,7 @@ namespace audio
             std::vector<int16_t> pcm(sfInfo.frames);
             sf_readf_short(sfFile, pcm.data(), sfInfo.frames);
 
-            alBufferData(m_handle, sfInfo.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, pcm.data(), pcm.size() * sizeof(pcm[0]), sfInfo.samplerate);
+            alBufferData(m_handle, sfInfo.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, pcm.data(), gsl::narrow<ALsizei>(pcm.size() * sizeof(pcm[0])), sfInfo.samplerate);
             DEBUG_CHECK_AL_ERROR();
 
             sf_close(sfFile);

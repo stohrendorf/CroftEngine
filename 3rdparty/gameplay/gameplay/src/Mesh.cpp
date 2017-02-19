@@ -68,10 +68,10 @@ namespace gameplay
     {
         const float vertices[] =
         {
-            0, 0,          0, invertY ? 0 : 1,
-            width, 0,      1, invertY ? 0 : 1,
-            width, height, 1, invertY ? 1 : 0,
-            0, height,     0, invertY ? 1 : 0
+            0.0f, 0.0f,    0.0f, invertY ? 0.0f : 1.0f,
+            width, 0.0f,   1.0f, invertY ? 0.0f : 1.0f,
+            width, height, 1.0f, invertY ? 1.0f : 0.0f,
+            0.0f, height,  0.0f, invertY ? 1.0f : 0.0f
         };
 
         static const VertexFormat::Element elements[] =
@@ -128,7 +128,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<Mesh> Mesh::createLines(glm::vec3* points, size_t pointCount)
+    std::shared_ptr<Mesh> Mesh::createLines(const gsl::not_null<glm::vec3*>& points, size_t pointCount)
     {
         BOOST_ASSERT(points);
         BOOST_ASSERT(pointCount);
@@ -222,7 +222,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void Mesh::setVertexData(const float* vertexData, size_t vertexStart, size_t vertexCount)
+    void Mesh::setVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexStart, size_t vertexCount)
     {
         bind();
 
@@ -243,7 +243,7 @@ namespace gameplay
 
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void Mesh::setRawVertexData(const float* vertexData, size_t vertexId, size_t numFloats)
+    void Mesh::setRawVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexId, size_t numFloats)
     {
         bind();
         GL_ASSERT(glBufferSubData(GL_ARRAY_BUFFER, vertexId * _vertexFormat.getVertexSize(), numFloats * sizeof(float), vertexData));

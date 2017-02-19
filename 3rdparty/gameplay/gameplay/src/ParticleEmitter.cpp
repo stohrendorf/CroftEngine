@@ -50,10 +50,6 @@ namespace gameplay
         , _rotation{}
         , _spriteBatch(nullptr)
         , _spriteBlendMode(BLEND_ALPHA)
-        , _spriteTextureWidth(0)
-        , _spriteTextureHeight(0)
-        , _spriteTextureWidthRatio(0)
-        , _spriteTextureHeightRatio(0)
         , _spriteTextureCoords()
         , _orbitPosition(false)
         , _orbitVelocity(false)
@@ -85,11 +81,9 @@ namespace gameplay
         setBlendMode(blendMode);
         _spriteTextureWidth = texture->getWidth();
         _spriteTextureHeight = texture->getHeight();
-        _spriteTextureWidthRatio = 1.0f / texture->getWidth();
-        _spriteTextureHeightRatio = 1.0f / texture->getHeight();
 
         // By default assume only one frame which uses the entire texture.
-        setSpriteFrameCoords(Rectangle(texture->getWidth(), texture->getHeight()));
+        setSpriteFrameCoords(Rectangle(static_cast<float>(texture->getWidth()), static_cast<float>(texture->getHeight())));
     }
 
 
@@ -145,7 +139,7 @@ namespace gameplay
     }
 
 
-    void ParticleEmitter::emitOnce(unsigned int particleCount)
+    void ParticleEmitter::emitOnce(size_t particleCount)
     {
         // Limit particleCount so as not to go over _particleCountMax.
         if( particleCount + _particleCount > _particles.size() )
@@ -162,7 +156,7 @@ namespace gameplay
         world[3][2] = 0.0f;
 
         // Emit the new particles.
-        for( unsigned int i = 0; i < particleCount; i++ )
+        for( size_t i = 0; i < particleCount; i++ )
         {
             Particle* p = &_particles[_particleCount];
 
@@ -468,24 +462,24 @@ namespace gameplay
     }
 
 
-    unsigned int ParticleEmitter::getSpriteWidth() const
+    float ParticleEmitter::getSpriteWidth() const
     {
-        return (unsigned int)fabs(_spriteTextureWidth * (_spriteTextureCoords[1].x - _spriteTextureCoords[0].x));
+        return std::abs(_spriteTextureWidth * (_spriteTextureCoords[1].x - _spriteTextureCoords[0].x));
     }
 
 
-    unsigned int ParticleEmitter::getSpriteHeight() const
+    float ParticleEmitter::getSpriteHeight() const
     {
-        return (unsigned int)fabs(_spriteTextureHeight * (_spriteTextureCoords[1].y - _spriteTextureCoords[0].y));
+        return std::abs(_spriteTextureHeight * (_spriteTextureCoords[1].y - _spriteTextureCoords[0].y));
     }
 
 
     void ParticleEmitter::setSpriteFrameCoords(const Rectangle& frameCoords)
     {
-        _spriteTextureCoords[0].x = _spriteTextureWidthRatio * frameCoords.x;
-        _spriteTextureCoords[0].y = 1.0f - _spriteTextureHeightRatio * frameCoords.y;
-        _spriteTextureCoords[1].x = _spriteTextureCoords[0].x + _spriteTextureWidthRatio * frameCoords.width;
-        _spriteTextureCoords[1].y = _spriteTextureCoords[0].y - _spriteTextureHeightRatio * frameCoords.height;
+        _spriteTextureCoords[0].x = frameCoords.x / _spriteTextureWidth;
+        _spriteTextureCoords[0].y = 1 - frameCoords.y / _spriteTextureHeight;
+        _spriteTextureCoords[1].x = _spriteTextureCoords[0].x + frameCoords.width / _spriteTextureWidth;
+        _spriteTextureCoords[1].y = _spriteTextureCoords[0].y - frameCoords.height / _spriteTextureHeight;
     }
 
 
@@ -494,7 +488,7 @@ namespace gameplay
         BOOST_ASSERT(width != 0);
         BOOST_ASSERT(height != 0);
 
-        setSpriteFrameCoords(Rectangle(0, 0, width, height));
+        setSpriteFrameCoords(Rectangle(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)));
     }
 
 

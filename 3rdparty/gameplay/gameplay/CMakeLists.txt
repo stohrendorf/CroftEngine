@@ -90,7 +90,7 @@ endif()
 
 target_compile_definitions(gameplay PUBLIC -DGLM_FORCE_RADIANS)
 
-target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype)
+target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype GSL)
 
 set_target_properties(gameplay PROPERTIES
     OUTPUT_NAME "gameplay"
@@ -98,4 +98,4 @@ set_target_properties(gameplay PROPERTIES
     VERSION ${GAMEPLAY_VERSION}
 )
 
-source_group(src FILES ${GAMEPLAY_SRC})
+GROUP_FILES(${GAMEPLAY_SRC})

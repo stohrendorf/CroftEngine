@@ -23,7 +23,7 @@ namespace gameplay
     public:
         using MaterialParameterSetter = void(Material& material);
 
-        explicit MeshPart(Mesh* mesh, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Destructor.
@@ -66,7 +66,7 @@ namespace gameplay
          * @param indexCount The number of indices to be set.
          * @script{ignore}
          */
-        void setIndexData(const void* indexData, size_t indexStart, size_t indexCount);
+        void setIndexData(const gsl::not_null<const void*>& indexData, size_t indexStart, size_t indexCount);
 
 
         const std::shared_ptr<VertexAttributeBinding>& getVaBinding() const
@@ -89,25 +89,12 @@ namespace gameplay
             _materialParameterSetters.emplace_back(setter);
         }
 
-        const void* map()
-        {
-            bind();
-            void* data = nullptr;
-            GL_ASSERT(data = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY));
-            return data;
-        }
-
-        void unmap()
-        {
-            GL_ASSERT(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
-        }
-
     private:
         MeshPart(const MeshPart& copy) = delete;
 
         bool drawWireframe() const;
 
-        Mesh* _mesh = nullptr;
+        const gsl::not_null<Mesh*> _mesh;
         Mesh::PrimitiveType _primitiveType = Mesh::TRIANGLES;
         Mesh::IndexFormat _indexFormat{};
         size_t _indexCount = 0;
