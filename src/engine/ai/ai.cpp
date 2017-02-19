@@ -229,13 +229,14 @@ namespace engine
             destinationBox = *enemy.getCurrentBox() & ~0xc000;
 
             static constexpr const uint16_t maxDepth = 5;
+            static constexpr const int UnsetBoxId = -1;
 
-            std::map<uint16_t, uint16_t> parents;
+            std::vector<int> parents;
 
             std::set<uint16_t> levelNodes;
             levelNodes.insert(startBox);
 
-            std::map<uint16_t, uint16_t> costs;
+            std::vector<int> costs(startBox+1, UnsetBoxId);
             costs[startBox] = 0;
 
             for( uint16_t level = 1; level <= maxDepth; ++level )
@@ -256,12 +257,16 @@ namespace engine
                             continue;
                         }
 
-                        auto costIt = costs.find(childBox);
-                        const bool unvisited = costIt == costs.end();
+                        if(costs.size() <= childBox)
+                            costs.resize(childBox + 1, UnsetBoxId);
 
-                        if( unvisited || level < costIt->second )
+                        const bool unvisited = costs[childBox] == UnsetBoxId;
+
+                        if( unvisited || level < costs[childBox])
                         {
                             costs[childBox] = level;
+                            if(parents.size() <= childBox)
+                                parents.resize(childBox+1, UnsetBoxId);
                             parents[childBox] = levelBoxIdx;
                         }
 
@@ -271,11 +276,9 @@ namespace engine
                             BOOST_ASSERT(path.empty());
                             BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                             path.push_back(&npc.getLevel().m_boxes[current]);
-                            auto parentIt = parents.find(current);
-                            while(parentIt != parents.end() )
+                            while(parents.size() >= current && parents[current] != UnsetBoxId )
                             {
-                                current = parentIt->second;
-                                parentIt = parents.find(current);
+                                current = parents[current];
                                 BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                                 path.push_back(&npc.getLevel().m_boxes[current]);
                             }
