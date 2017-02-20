@@ -3,7 +3,6 @@
 #include "level/level.h"
 #include "render/textureanimator.h"
 #include "util/vmath.h"
-#include "util/md5.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -67,7 +66,7 @@ namespace loader
                     }
 #endif
 
-                    auto part = mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
+                    auto part = mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX16, localPart.indices.size(), true);
                     part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 

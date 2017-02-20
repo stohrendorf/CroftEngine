@@ -84,7 +84,7 @@ namespace gameplay
         static const VertexFormat vertexFormat(vertexElements, 3);
 
         // Create the batch
-        _batch = std::make_unique<MeshBatch>(vertexFormat, Mesh::TRIANGLES, material);
+        _batch = std::make_unique<MeshBatch>(vertexFormat, PrimitiveType::TRIANGLES, material);
         _textureWidthRatio = 1.0f / texture->getWidth();
         _textureHeightRatio = 1.0f / texture->getHeight();
 

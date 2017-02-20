@@ -300,7 +300,7 @@ namespace loader
                 BOOST_ASSERT(idx < m_vertexCount);
             }
 #endif
-            auto part = m_mesh->addPart(gameplay::Mesh::PrimitiveType::TRIANGLES, gameplay::Mesh::IndexFormat::INDEX16, localPart.indices.size(), true);
+            auto part = m_mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX16, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);
             part->setMaterial(localPart.material);
             if( localPart.color )

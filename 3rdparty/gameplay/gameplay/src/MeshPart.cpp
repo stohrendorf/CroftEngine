@@ -8,8 +8,8 @@
 namespace gameplay
 {
     MeshPart::MeshPart(const gsl::not_null<Mesh*>& mesh,
-                       Mesh::PrimitiveType primitiveType,
-                       Mesh::IndexFormat indexFormat,
+                       PrimitiveType primitiveType,
+                       IndexFormat indexFormat,
                        size_t indexCount,
                        bool dynamic)
         : _mesh{mesh}
@@ -23,17 +23,17 @@ namespace gameplay
         size_t indexSize;
         switch( indexFormat )
         {
-            case Mesh::INDEX8:
+            case IndexFormat::INDEX8:
                 indexSize = 1;
                 break;
-            case Mesh::INDEX16:
+            case IndexFormat::INDEX16:
                 indexSize = 2;
                 break;
-            case Mesh::INDEX32:
+            case IndexFormat::INDEX32:
                 indexSize = 4;
                 break;
             default:
-                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << indexFormat << ").";
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format";
                 BOOST_THROW_EXCEPTION(std::runtime_error("Unsupported index format"));
         }
 
@@ -44,7 +44,7 @@ namespace gameplay
     MeshPart::~MeshPart() = default;
 
 
-    Mesh::PrimitiveType MeshPart::getPrimitiveType() const
+    PrimitiveType MeshPart::getPrimitiveType() const
     {
         return _primitiveType;
     }
@@ -56,7 +56,7 @@ namespace gameplay
     }
 
 
-    Mesh::IndexFormat MeshPart::getIndexFormat() const
+    IndexFormat MeshPart::getIndexFormat() const
     {
         return _indexFormat;
     }
@@ -76,17 +76,17 @@ namespace gameplay
         size_t indexSize;
         switch( _indexFormat )
         {
-            case Mesh::INDEX8:
+            case IndexFormat::INDEX8:
                 indexSize = 1;
                 break;
-            case Mesh::INDEX16:
+            case IndexFormat::INDEX16:
                 indexSize = 2;
                 break;
-            case Mesh::INDEX32:
+            case IndexFormat::INDEX32:
                 indexSize = 4;
                 break;
             default:
-                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << _indexFormat << ").";
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format";
                 return;
         }
 
@@ -120,33 +120,33 @@ namespace gameplay
         size_t indexSize;
         switch(_indexFormat)
         {
-            case Mesh::INDEX8:
+            case IndexFormat::INDEX8:
                 indexSize = 1;
                 break;
-            case Mesh::INDEX16:
+            case IndexFormat::INDEX16:
                 indexSize = 2;
                 break;
-            case Mesh::INDEX32:
+            case IndexFormat::INDEX32:
                 indexSize = 4;
                 break;
             default:
-                BOOST_LOG_TRIVIAL(error) << "Unsupported index format (" << _indexFormat << ").";
+                BOOST_LOG_TRIVIAL(error) << "Unsupported index format";
                 return false;
         }
 
         switch(_primitiveType)
         {
-            case Mesh::TRIANGLES:
+            case PrimitiveType::TRIANGLES:
                 for(size_t i = 0; i < _indexCount; i += 3)
                 {
-                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, _indexFormat, (reinterpret_cast<const GLvoid*>(i*indexSize))));
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), (reinterpret_cast<const GLvoid*>(i*indexSize))));
                 }
                 return true;
 
-            case Mesh::TRIANGLE_STRIP:
+            case PrimitiveType::TRIANGLE_STRIP:
                 for(size_t i = 2; i < _indexCount; ++i)
                 {
-                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, _indexFormat, (reinterpret_cast<const GLvoid*>((i - 2)*indexSize))));
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), (reinterpret_cast<const GLvoid*>((i - 2)*indexSize))));
                 }
                 return true;
 
@@ -172,7 +172,7 @@ namespace gameplay
         bind();
         if(!context.isWireframe() || !drawWireframe())
         {
-            GL_ASSERT(glDrawElements(_primitiveType, gsl::narrow<GLsizei>(_indexCount), _indexFormat, nullptr));
+            GL_ASSERT(glDrawElements(static_cast<GLenum>(_primitiveType), gsl::narrow<GLsizei>(_indexCount), static_cast<GLenum>(_indexFormat), nullptr));
         }
 
         _material->unbind();

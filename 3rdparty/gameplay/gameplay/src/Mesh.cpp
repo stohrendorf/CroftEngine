@@ -57,7 +57,6 @@ namespace gameplay
             VertexFormat::Element(VertexFormat::TEXCOORD, 2)
         };
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
-        mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
 
         return mesh;
@@ -81,10 +80,9 @@ namespace gameplay
         };
 
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 2), 4, false);
-        mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
 
-        auto part = mesh->addPart(TRIANGLES, INDEX16, 6, false);
+        auto part = mesh->addPart(PrimitiveType::TRIANGLES, IndexFormat::INDEX16, 6, false);
 
         static const uint16_t indices[6] =
         {
@@ -121,7 +119,6 @@ namespace gameplay
 
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
 
-        mesh->_primitiveType = TRIANGLE_STRIP;
         mesh->setVertexData(vertices, 0, 4);
 
         return mesh;
@@ -139,7 +136,6 @@ namespace gameplay
         };
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), pointCount, false);
 
-        mesh->_primitiveType = LINE_STRIP;
         mesh->setVertexData(glm::value_ptr(*points), 0, pointCount);
 
         return mesh;
@@ -178,7 +174,6 @@ namespace gameplay
             VertexFormat::Element(VertexFormat::POSITION, 3)
         };
         auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), 18, false);
-        mesh->_primitiveType = LINE_STRIP;
         mesh->setVertexData(vertices, 0, 18);
 
         return mesh;
@@ -206,18 +201,6 @@ namespace gameplay
     bool Mesh::isDynamic() const
     {
         return _dynamic;
-    }
-
-
-    Mesh::PrimitiveType Mesh::getPrimitiveType() const
-    {
-        return _primitiveType;
-    }
-
-
-    void Mesh::setPrimitiveType(PrimitiveType type)
-    {
-        _primitiveType = type;
     }
 
 

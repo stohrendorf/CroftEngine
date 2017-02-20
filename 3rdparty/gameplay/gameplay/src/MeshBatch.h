@@ -26,7 +26,7 @@ namespace gameplay
         * @return A new mesh batch.
         * @script{create}
         */
-        MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material);
+        MeshBatch(const VertexFormat& vertexFormat, PrimitiveType primitiveType, const std::shared_ptr<Material>& material);
 
         /**
          * Destructor.
@@ -96,7 +96,7 @@ namespace gameplay
         void add(const void* vertices, size_t vertexCount, const std::vector<uint16_t>& indices);
 
         const VertexFormat m_vertexFormat;
-        Mesh::PrimitiveType m_primitiveType;
+        PrimitiveType m_primitiveType;
         std::shared_ptr<Material> m_material;
         std::vector<uint8_t> m_vertices;
         std::vector<uint16_t> m_indices;

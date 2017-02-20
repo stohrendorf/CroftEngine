@@ -23,7 +23,7 @@ namespace gameplay
     public:
         using MaterialParameterSetter = void(Material& material);
 
-        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, Mesh::PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Destructor.
@@ -35,7 +35,7 @@ namespace gameplay
          *
          * @return The type of primitive.
          */
-        Mesh::PrimitiveType getPrimitiveType() const;
+        PrimitiveType getPrimitiveType() const;
 
         /**
          * Gets the number of indices in the part.
@@ -49,7 +49,7 @@ namespace gameplay
          *
          * @return The part index format.
          */
-        Mesh::IndexFormat getIndexFormat() const;
+        IndexFormat getIndexFormat() const;
 
         /**
          * Determines if the indices are dynamic.
@@ -95,8 +95,8 @@ namespace gameplay
         bool drawWireframe() const;
 
         const gsl::not_null<Mesh*> _mesh;
-        Mesh::PrimitiveType _primitiveType = Mesh::TRIANGLES;
-        Mesh::IndexFormat _indexFormat{};
+        PrimitiveType _primitiveType = PrimitiveType::TRIANGLES;
+        IndexFormat _indexFormat{};
         size_t _indexCount = 0;
         bool _dynamic = false;
         std::shared_ptr<VertexAttributeBinding> _vaBinding;

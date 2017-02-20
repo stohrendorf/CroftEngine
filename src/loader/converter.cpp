@@ -342,7 +342,7 @@ namespace loader
                 faces.push_back(face.mIndices[2]);
             }
 
-            auto part = renderMesh->addPart(gameplay::Mesh::TRIANGLES, gameplay::Mesh::INDEX32, mesh->mNumFaces * 3, false);
+            auto part = renderMesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX32, mesh->mNumFaces * 3, false);
             part->setIndexData(faces.data(), 0, faces.size());
 
             const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -442,7 +442,7 @@ namespace loader
                 allocateElementMemory(mesh, outMesh);
                 copyVertexData(mesh, outMesh);
 
-                BOOST_ASSERT(part->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
+                BOOST_ASSERT(part->getPrimitiveType() == gameplay::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
                 outMesh->mMaterialIndex = globalPartIndex;
                 scene->mMaterials[globalPartIndex] = new aiMaterial();
                 scene->mMaterials[globalPartIndex]->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
@@ -480,13 +480,13 @@ namespace loader
 
                 switch( part->getIndexFormat() )
                 {
-                    case gameplay::Mesh::INDEX8:
+                    case gameplay::IndexFormat::INDEX8:
                         copyIndices<uint8_t>(part, outMesh);
                         break;
-                    case gameplay::Mesh::INDEX16:
+                    case gameplay::IndexFormat::INDEX16:
                         copyIndices<uint16_t>(part, outMesh);
                         break;
-                    case gameplay::Mesh::INDEX32:
+                    case gameplay::IndexFormat::INDEX32:
                         copyIndices<uint32_t>(part, outMesh);
                         break;
                     default:
@@ -642,7 +642,7 @@ namespace loader
                 allocateElementMemory(inMesh, outMesh);
                 copyVertexData(inMesh, outMesh);
 
-                BOOST_ASSERT(inPart->getPrimitiveType() == gameplay::Mesh::PrimitiveType::TRIANGLES && inPart->getIndexCount() % 3 == 0);
+                BOOST_ASSERT(inPart->getPrimitiveType() == gameplay::PrimitiveType::TRIANGLES && inPart->getIndexCount() % 3 == 0);
                 outMesh->mMaterialIndex = scene.mNumMaterials;
                 auto outMaterial = append(scene.mMaterials, scene.mNumMaterials, new aiMaterial());
                 outMaterial->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
@@ -680,13 +680,13 @@ namespace loader
 
                 switch( inPart->getIndexFormat() )
                 {
-                    case gameplay::Mesh::INDEX8:
+                    case gameplay::IndexFormat::INDEX8:
                         copyIndices<uint8_t>(inPart, outMesh);
                         break;
-                    case gameplay::Mesh::INDEX16:
+                    case gameplay::IndexFormat::INDEX16:
                         copyIndices<uint16_t>(inPart, outMesh);
                         break;
-                    case gameplay::Mesh::INDEX32:
+                    case gameplay::IndexFormat::INDEX32:
                         copyIndices<uint32_t>(inPart, outMesh);
                         break;
                     default:

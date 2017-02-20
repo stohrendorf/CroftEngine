@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    MeshBatch::MeshBatch(const VertexFormat& vertexFormat, Mesh::PrimitiveType primitiveType, const std::shared_ptr<Material>& material)
+    MeshBatch::MeshBatch(const VertexFormat& vertexFormat, PrimitiveType primitiveType, const std::shared_ptr<Material>& material)
         : m_vertexFormat(vertexFormat)
         , m_primitiveType(primitiveType)
         , m_material(material)
@@ -40,7 +40,7 @@ namespace gameplay
         {
             const auto currentVertexCount = m_vertices.size() / m_vertexFormat.getVertexSize();
 
-            if( m_primitiveType == Mesh::TRIANGLE_STRIP )
+            if( m_primitiveType == PrimitiveType::TRIANGLE_STRIP )
             {
                 // Create a degenerate triangle to connect separate triangle strips
                 // by duplicating the previous and next vertices.
@@ -94,7 +94,7 @@ namespace gameplay
         //! @todo Find a better way than creating a new model on each draw call.
         auto mesh = std::make_shared<Mesh>(m_vertexFormat, 0, true);
         mesh->rebuild(reinterpret_cast<const float*>(m_vertices.data()), m_vertices.size() / m_vertexFormat.getVertexSize());
-        auto part = mesh->addPart(m_primitiveType, Mesh::INDEX16, m_indices.size(), true);
+        auto part = mesh->addPart(m_primitiveType, IndexFormat::INDEX16, m_indices.size(), true);
         part->setMaterial(m_material);
         part->setIndexData(m_indices.data(), 0, m_indices.size());
 

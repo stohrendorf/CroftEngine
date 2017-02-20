@@ -17,6 +17,30 @@ namespace gameplay
 
 
     /**
+     * Defines supported primitive types.
+     */
+    enum class PrimitiveType
+    {
+        TRIANGLES = GL_TRIANGLES,
+        TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
+        LINES = GL_LINES,
+        LINE_STRIP = GL_LINE_STRIP,
+        POINTS = GL_POINTS
+    };
+
+
+    /**
+     * Defines supported index formats.
+     */
+    enum class IndexFormat
+    {
+        INDEX8 = GL_UNSIGNED_BYTE,
+        INDEX16 = GL_UNSIGNED_SHORT,
+        INDEX32 = GL_UNSIGNED_INT
+    };
+
+
+    /**
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
@@ -26,30 +50,6 @@ namespace gameplay
 
     public:
         explicit Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic);
-
-
-        /**
-         * Defines supported index formats.
-         */
-        enum IndexFormat
-        {
-            INDEX8 = GL_UNSIGNED_BYTE,
-            INDEX16 = GL_UNSIGNED_SHORT,
-            INDEX32 = GL_UNSIGNED_INT
-        };
-
-
-        /**
-         * Defines supported primitive types.
-         */
-        enum PrimitiveType
-        {
-            TRIANGLES = GL_TRIANGLES,
-            TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-            LINES = GL_LINES,
-            LINE_STRIP = GL_LINE_STRIP,
-            POINTS = GL_POINTS
-        };
 
 
         void rebuild(const float* vertexData, size_t vertexCount);
@@ -157,29 +157,6 @@ namespace gameplay
         bool isDynamic() const;
 
         /**
-         * Returns the primitive type of the vertices in the mesh.
-         *
-         * The default primitive type for a Mesh is TRIANGLES.
-         *
-         * @return The primitive type.
-         *
-         * @see setPrimitiveType(PrimitiveType)
-         */
-        PrimitiveType getPrimitiveType() const;
-
-        /**
-         * Sets the primitive type for the vertices in the mesh.
-         *
-         * The primitive type for a Mesh is only meaningful for meshes that do not
-         * have any MeshParts. When there are no MeshParts associated with a mesh,
-         * the Mesh is drawn as non-indexed geometry and the PrimitiveType of the Mesh
-         * determines how the vertices are interpreted when drawn.
-         *
-         * @param type The new primitive type.
-         */
-        void setPrimitiveType(Mesh::PrimitiveType type);
-
-        /**
          * Sets the specified vertex data into the mapped vertex buffer.
          *
          * @param vertexData The vertex data to be set.
@@ -200,7 +177,7 @@ namespace gameplay
          *
          * @return The newly created/added mesh part.
          */
-        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, Mesh::IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Gets the number of mesh parts contained within the mesh.
@@ -230,7 +207,6 @@ namespace gameplay
 
         const VertexFormat _vertexFormat;
         size_t _vertexCount = 0;
-        PrimitiveType _primitiveType = TRIANGLES;
         std::vector<std::shared_ptr<MeshPart>> _parts{};
         bool _dynamic = false;
     };
