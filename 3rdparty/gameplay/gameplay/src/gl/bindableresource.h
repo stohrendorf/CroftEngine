@@ -14,6 +14,9 @@ namespace gameplay
         public:
             void bind() const
             {
+                if(m_handle == 0)
+                    return;
+
                 m_binder(m_handle);
                 checkGlError();
             }
@@ -66,6 +69,9 @@ namespace gameplay
 
             virtual ~BindableResource()
             {
+                if(m_handle == 0)
+                    return;
+
                 unbind();
                 m_deleter(1, &m_handle);
                 checkGlError();

@@ -28,7 +28,7 @@ public:
     {
         BOOST_ASSERT(!mapping.empty());
 
-        GLsizei m_size = -1;
+        m_size = -1;
         for(const auto& attrib : mapping)
         {
             auto tmp = attrib.second.getStride();

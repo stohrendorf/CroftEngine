@@ -5,6 +5,8 @@
 #include "RenderContext.h"
 
 #include "gl/indexbuffer.h"
+#include "gl/vertexarray.h"
+
 
 namespace gameplay
 {
@@ -95,5 +97,6 @@ namespace gameplay
         bool _dynamic = false;
         std::shared_ptr<Material> _material;
         std::vector<std::function<MaterialParameterSetter>> _materialParameterSetters;
+        mutable std::shared_ptr<gl::VertexArray> m_vao = nullptr;
     };
 }

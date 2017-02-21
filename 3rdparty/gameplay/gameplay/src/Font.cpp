@@ -6,6 +6,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <gsl/gsl>
+
 #include <boost/log/trivial.hpp>
 
 #include FT_OUTLINE_H
@@ -15,6 +17,7 @@ namespace gameplay
     namespace
     {
         FT_Library freeTypeLib = nullptr;
+        int _dummyFaceId = 0;
 
 
         const char* getFreeTypeErrorMessage(FT_Error err)
@@ -52,98 +55,105 @@ namespace gameplay
         }
     }
 
+    FT_Error ftcFaceRequester(FTC_FaceID  face_id,
+                          FT_Library  library,
+                          FT_Pointer  req_data,
+                          FT_Face*    aface)
+    {
+        Expects(face_id == &_dummyFaceId);
+        auto error = FT_New_Face(library, static_cast<const char*>(req_data), 0, aface);
+        if(error != FT_Err_Ok)
+        {
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << static_cast<const char*>(req_data) << ": " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font"));
+        }
+        return FT_Err_Ok;
+    }
 
     Font::Font(const std::string& ttf, int size)
+        : m_filename{ttf}
     {
-        auto error = FT_New_Face(loadFreeTypeLib(), ttf.c_str(), 0, &m_face);
-        if( error != FT_Err_Ok )
-        {
-            BOOST_LOG_TRIVIAL(fatal) << "Failed to load font face '" << ttf << "': " << getFreeTypeErrorMessage(error);
-            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font face"));
-        }
-
-        BOOST_ASSERT(m_face != nullptr);
-
-        error = FT_Set_Char_Size(m_face, 0, size * 64, 0, 0);
+        auto error = FTC_Manager_New(loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<char*>(m_filename.c_str()), &m_cache);
         if(error != FT_Err_Ok)
         {
-            BOOST_LOG_TRIVIAL(fatal) << "Failed to set char size for font '" << ttf << "': " << getFreeTypeErrorMessage(error);
-            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to set char size"));
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cache manager"));
         }
+        BOOST_ASSERT(m_cache != nullptr);
 
-        error = FT_Set_Pixel_Sizes(m_face, 0, size);
+        error = FTC_CMapCache_New(m_cache, &m_cmapCache);
         if(error != FT_Err_Ok)
         {
-            BOOST_LOG_TRIVIAL(fatal) << "Failed to set pixel size for font '" << ttf << "': " << getFreeTypeErrorMessage(error);
-            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to set pixel size"));
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
         }
+        BOOST_ASSERT(m_cmapCache != nullptr);
+
+        error = FTC_SBitCache_New(m_cache, &m_sbitCache);
+        if(error != FT_Err_Ok)
+        {
+            BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
+        }
+        BOOST_ASSERT(m_sbitCache != nullptr);
+
+        m_imgType.face_id = &_dummyFaceId;
+        m_imgType.width = size;
+        m_imgType.height = size;
+        m_imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
     }
 
 
     Font::~Font()
     {
-        FT_Done_Face(m_face);
-        m_face = nullptr;
-    }
-
-    void Font::renderCallback(int y, int count, const FT_Span_* spans, void* user)
-    {
-        Font* font = reinterpret_cast<Font*>(user);
-        y = -y;
-
-        auto color = font->m_currentColor;
-        for(int i = 0; i < count; i++)
-        {
-            const FT_Span span = spans[i];
-            color.a = span.coverage / 255.0f;
-
-            font->m_targetImage->line(font->m_x0 + span.x, font->m_y0 + y, font->m_x0 + span.x + span.len - 1, font->m_y0 + y, color);
-        }
+        FTC_Manager_Done(m_cache);
+        m_cache = nullptr;
     }
 
     void Font::drawText(const char* text, int x, int y, const glm::vec4& color)
     {
         BOOST_ASSERT(text);
 
-        m_currentColor = color;
+        auto currentColor = color;
 
         m_x0 = x;
         m_y0 = y;
 
         while(const char chr = *text++)
         {
-            /* load glyph image into the slot (erase previous one) */
-            auto error = FT_Load_Char(m_face, chr, FT_LOAD_RENDER | FT_LOAD_TARGET_NORMAL);
-            if(error)
+            auto glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, &_dummyFaceId, -1, chr);
+            if(glyphIndex <= 0)
             {
                 BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
                 continue;
             }
 
-            /* convert to an anti-aliased bitmap */
-            error = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
-            if(error)
+            FTC_SBit sbit = nullptr;
+            FTC_Node node = nullptr;
+            auto error = FTC_SBitCache_Lookup(m_sbitCache, &m_imgType, glyphIndex, &sbit, &node);
+            if(error != FT_Err_Ok)
             {
-                BOOST_LOG_TRIVIAL(warning) << "Failed to render character '" << chr << "'";
+                BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
+                FTC_Node_Unref(node, m_cache);
                 continue;
             }
 
-            FT_Raster_Params params;
+            {
+                for(int y = 0, i = 0; y < sbit->height; y++)
+                {
+                    for(int x = 0; x < sbit->width; x++, i++)
+                    {
+                        currentColor.a = sbit->buffer[i] / 255.0f;
 
-            params.target = nullptr;
-            params.flags = FT_RASTER_FLAG_DIRECT | FT_RASTER_FLAG_AA;
-            params.user = this;
-            params.gray_spans = &Font::renderCallback;
-            params.black_spans = nullptr;
-            params.bit_set = nullptr;
-            params.bit_test = nullptr;
+                        m_targetImage->at(m_x0 + x + sbit->left, m_y0 + y - sbit->top) = currentColor;
+                    }
+                }
+            }
 
-            FT_Outline_Render(freeTypeLib,
-                              &m_face->glyph->outline,
-                              &params);
+            m_x0 += sbit->xadvance;
+            m_y0 += sbit->yadvance;
 
-            m_x0 += m_face->glyph->advance.x / 64;
-            m_y0 += m_face->glyph->advance.y / 64;
+            FTC_Node_Unref(node, m_cache);
         }
     }
 

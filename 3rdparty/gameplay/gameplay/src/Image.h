@@ -73,7 +73,7 @@ namespace gameplay
 
         void fill(const glm::vec4& color)
         {
-            std::fill(_data.begin(), _data.end(), color);
+            std::fill_n(_data.data(), _data.size(), color);
         }
 
 

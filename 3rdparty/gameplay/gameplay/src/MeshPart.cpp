@@ -168,14 +168,24 @@ namespace gameplay
 
         _material->bind(*context.getCurrentNode());
 
-        for(const auto& buffer : _mesh->getBuffers())
-            buffer.bind(_material->getShaderProgram()->getHandle());
+        if(m_vao == nullptr)
+        {
+            m_vao = std::make_shared<gl::VertexArray>();
+            m_vao->bind();
+            bind();
+            for(const auto& buffer : _mesh->getBuffers())
+                buffer.bind(_material->getShaderProgram()->getHandle());
+            m_vao->unbind();
+        }
 
-        bind();
+        m_vao->bind();
+
         if(!context.isWireframe() || !drawWireframe())
         {
             GL_ASSERT(glDrawElements(static_cast<GLenum>(_primitiveType), gsl::narrow<GLsizei>(_indexCount), static_cast<GLenum>(_indexFormat), nullptr));
         }
+
+        m_vao->unbind();
     }
 
 }

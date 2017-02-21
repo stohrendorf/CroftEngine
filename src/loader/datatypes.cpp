@@ -17,7 +17,6 @@ namespace loader
 #pragma pack(push,1)
         struct RenderVertex
         {
-            glm::vec2 texcoord;
             glm::vec3 position;
             glm::vec4 color;
             glm::vec3 normal{0.0f};
@@ -26,7 +25,6 @@ namespace loader
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
             {
                 static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                    { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::texcoord, 2 } },
                     { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
                     { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::normal, 3 } },
                     { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
@@ -93,6 +91,7 @@ namespace loader
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
+        std::vector<glm::vec2> uvCoords;
         auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false);
 
         for( const QuadFace& quad : rectangles )
@@ -115,7 +114,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[quad.vertices[i]].color;
-                iv.texcoord = proxy.uvCoordinates[i].toGl();
+                uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
                 vbuf.push_back(iv);
             }
 
@@ -152,7 +151,7 @@ namespace loader
                 RenderVertex iv;
                 iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
                 iv.color = vertices[tri.vertices[i]].color;
-                iv.texcoord = proxy.uvCoordinates[i].toGl();
+                uvCoords.push_back(proxy.uvCoordinates[i].toGl());
                 vbuf.push_back(iv);
             }
 
@@ -165,6 +164,14 @@ namespace loader
         }
 
         mesh->getBuffer(0).assign(vbuf);
+
+        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &glm::vec2::x, 2 } }
+        };
+
+        mesh->addBuffer(attribs, true);
+        mesh->getBuffer(1).assign(uvCoords);
+
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);

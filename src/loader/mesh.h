@@ -94,7 +94,6 @@ namespace loader
 
             const bool m_hasNormals;
             std::vector<float> m_vbuf;
-            std::vector<glm::vec2> m_uv;
             const std::vector<TextureLayoutProxy>& m_textureProxies;
             const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& m_materials;
             const std::shared_ptr<gameplay::Material> m_colorMaterial;
@@ -121,9 +120,6 @@ namespace loader
 
             void append(const RenderVertex& v);
             void append(const RenderVertexWithNormal& v);
-
-            void append(const RenderVertex& v, const glm::vec2& uv);
-            void append(const RenderVertexWithNormal& v, const glm::vec2& uv);
 
             size_t getPartForColor(uint16_t proxyId)
             {

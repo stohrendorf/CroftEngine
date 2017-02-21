@@ -4,6 +4,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_CACHE_H
 
 namespace gameplay
 {
@@ -59,12 +60,13 @@ namespace gameplay
 
         Font& operator=(const Font&) = delete;
 
-        FT_Face m_face = nullptr;
+        FTC_Manager m_cache = nullptr;
+        FTC_CMapCache m_cmapCache = nullptr;
+        FTC_SBitCache m_sbitCache = nullptr;
+        FTC_ImageTypeRec m_imgType;
         std::shared_ptr<Image> m_targetImage = nullptr;
-        glm::vec4 m_currentColor;
         int m_x0 = 0;
         int m_y0 = 0;
-
-        static void renderCallback(int y, int count, const FT_Span_* spans, void* user);
+        const std::string m_filename;
     };
 }

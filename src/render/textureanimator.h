@@ -77,6 +77,8 @@ namespace render
                 for( const auto& partAndVertices : affectedVertices )
                 {
                     const std::shared_ptr<gameplay::Mesh>& mesh = partAndVertices.first;
+                    BOOST_ASSERT(mesh->getBuffers().size() == 2);
+
                     auto* uvArray = mesh->getBuffer(1).mapTypedRw<glm::vec2>();
 
                     const std::set<VertexReference>& vertices = partAndVertices.second;
