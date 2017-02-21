@@ -1,8 +1,9 @@
 #pragma once
 
-#include "SpriteBatch.h"
-#include "Image.h"
 #include "Drawable.h"
+#include "Game.h"
+#include "Image.h"
+#include "Mesh.h"
 
 #include "gl/texture.h"
 

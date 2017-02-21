@@ -61,7 +61,7 @@ namespace render
 
             void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex, uint16_t proxyId)
             {
-                Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
+                //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
 
                 auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
                 Expects(it != proxyIds.end());
@@ -77,19 +77,20 @@ namespace render
                 for( const auto& partAndVertices : affectedVertices )
                 {
                     const std::shared_ptr<gameplay::Mesh>& mesh = partAndVertices.first;
+                    auto* uvArray = mesh->getBuffer(1).mapTypedRw<glm::vec2>();
 
                     const std::set<VertexReference>& vertices = partAndVertices.second;
 
                     for( const VertexReference& vref : vertices )
                     {
-                        BOOST_ASSERT(vref.bufferIndex < mesh->getVertexCount());
+                        BOOST_ASSERT(vref.bufferIndex < mesh->getBuffer(1).getVertexCount());
                         BOOST_ASSERT(vref.queueOffset < proxyIds.size());
                         const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
 
-                        glm::vec2 newUv = proxy.uvCoordinates[vref.sourceIndex].toGl();
-
-                        mesh->setRawVertexData(reinterpret_cast<float*>(&newUv), vref.bufferIndex, 2);
+                        uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                     }
+
+                    mesh->getBuffer(1).unmap();
                 }
             }
         };

@@ -2,7 +2,6 @@
 
 #include "RenderState.h"
 #include "ShaderProgram.h"
-#include "VertexAttributeBinding.h"
 
 
 namespace gameplay
@@ -40,28 +39,17 @@ namespace gameplay
          */
         explicit Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
 
-        void unbind()
-        {
-            // If we have a vertex attribute binding, unbind it
-            if(_boundVaBinding)
-            {
-                _boundVaBinding->unbind();
-                _boundVaBinding.reset();
-            }
-        }
-
         const std::shared_ptr<ShaderProgram>& getShaderProgram() const
         {
             return _shaderProgram;
         }
 
-        void bind(const Node& node, const std::shared_ptr<VertexAttributeBinding>& vaBinding);
+        void bind(const Node& node);
 
     private:
 
         Material(const Material&) = delete;
 
         std::shared_ptr<ShaderProgram> _shaderProgram;
-        std::shared_ptr<VertexAttributeBinding> _boundVaBinding;
     };
 }

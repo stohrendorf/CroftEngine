@@ -9,55 +9,33 @@
 
 namespace gameplay
 {
-    Mesh::Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic)
-        : VertexBuffer()
-        , _vertexFormat{vertexFormat}
-        , _vertexCount{vertexCount}
-        , _dynamic{dynamic}
-    {
-        bind();
-        GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, vertexFormat.getVertexSize() * vertexCount, nullptr, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        unbind();
-    }
-
-
-    Mesh::~Mesh()
-    {
-        _parts.clear();
-    }
-
-
-    void Mesh::rebuild(const float* vertexData, size_t vertexCount)
-    {
-        bind();
-        GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        unbind();
-
-        _vertexCount = vertexCount;
-    }
-
-
     std::shared_ptr<Mesh> Mesh::createQuad(float x, float y, float width, float height, float s1, float t1, float s2, float t2)
     {
         float x2 = x + width;
         float y2 = y + height;
 
-        float vertices[] =
+        struct Vertex
         {
-            x, y2, 0, 0, 0, 1, s1, t2,
-            x, y, 0, 0, 0, 1, s1, t1,
-            x2, y2, 0, 0, 0, 1, s2, t2,
-            x2, y, 0, 0, 0, 1, s2, t1,
+            glm::vec3 pos;
+            glm::vec3 normal;
+            glm::vec2 uv;
         };
 
-        VertexFormat::Element elements[] =
-        {
-            VertexFormat::Element(VertexFormat::POSITION, 3),
-            VertexFormat::Element(VertexFormat::NORMAL, 3),
-            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
+        const Vertex vertices[]{
+            {{x, y2, 0.0f}, {0.0f, 0.0f, 1.0f}, {s1, t2}},
+            {{x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {s1, t1}},
+            {{x2, y2, 0.0f}, {0.0f, 0.0f, 1.0f}, {s2, t2}},
+            {{x2, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {s2, t1}}
         };
-        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
-        mesh->setVertexData(vertices, 0, 4);
+
+        ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 3 } },
+            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::normal, 3 } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+        };
+
+        auto mesh = std::make_shared<Mesh>(attribs, false);
+        mesh->getBuffer(0).assign<Vertex>(&vertices[0], 4);
 
         return mesh;
     }
@@ -65,22 +43,26 @@ namespace gameplay
 
     std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width, float height, bool invertY)
     {
-        const float vertices[] =
+        struct Vertex
         {
-            0.0f, 0.0f,    0.0f, invertY ? 0.0f : 1.0f,
-            width, 0.0f,   1.0f, invertY ? 0.0f : 1.0f,
-            width, height, 1.0f, invertY ? 1.0f : 0.0f,
-            0.0f, height,  0.0f, invertY ? 1.0f : 0.0f
+            glm::vec2 pos;
+            glm::vec2 uv;
         };
 
-        static const VertexFormat::Element elements[] =
-        {
-            VertexFormat::Element(VertexFormat::POSITION, 2),
-            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
+        const Vertex vertices[]{
+            {{0.0f, 0.0f},    {0.0f, invertY ? 0.0f : 1.0f}},
+            {{width, 0.0f},   {1.0f, invertY ? 0.0f : 1.0f}},
+            {{width, height}, {1.0f, invertY ? 1.0f : 0.0f}},
+            {{0.0f, height},  {0.0f, invertY ? 1.0f : 0.0f}}
         };
 
-        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 2), 4, false);
-        mesh->setVertexData(vertices, 0, 4);
+        ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 2 } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+        };
+
+        auto mesh = std::make_shared<Mesh>(attribs, false);
+        mesh->getBuffer(0).assign<Vertex>(vertices, 4);
 
         auto part = mesh->addPart(PrimitiveType::TRIANGLES, IndexFormat::INDEX16, 6, false);
 
@@ -99,44 +81,46 @@ namespace gameplay
     std::shared_ptr<Mesh> Mesh::createQuad(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4)
     {
         // Calculate the normal vector of the plane.
-        glm::vec3 v1 = p2 - p1, v2 = p3 - p2;
-        auto n = glm::normalize(glm::cross(v1, v2));
+        const glm::vec3 v1 = p2 - p1, v2 = p3 - p2;
+        const auto n = glm::normalize(glm::cross(v1, v2));
 
-        float vertices[] =
+        struct Vertex
         {
-            p1.x, p1.y, p1.z, n.x, n.y, n.z, 0, 1,
-            p2.x, p2.y, p2.z, n.x, n.y, n.z, 0, 0,
-            p3.x, p3.y, p3.z, n.x, n.y, n.z, 1, 1,
-            p4.x, p4.y, p4.z, n.x, n.y, n.z, 1, 0
+            glm::vec3 pos;
+            glm::vec3 normal;
+            glm::vec2 uv;
         };
 
-        VertexFormat::Element elements[] =
-        {
-            VertexFormat::Element(VertexFormat::POSITION, 3),
-            VertexFormat::Element(VertexFormat::NORMAL, 3),
-            VertexFormat::Element(VertexFormat::TEXCOORD, 2)
+        const Vertex vertices[]{
+            {p1, n, {0.0f, 1.0f}},
+            {p2, n, {0.0f, 0.0f}},
+            {p3, n, {1.0f, 1.0f}},
+            {p4, n, {1.0f, 0.0f}}
         };
 
-        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 3), 4, false);
+        ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 3 } },
+            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::normal, 3 } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+        };
 
-        mesh->setVertexData(vertices, 0, 4);
+        auto mesh = std::make_shared<Mesh>(attribs, false);
+        mesh->getBuffer(0).assign<Vertex>(vertices, 4);
 
         return mesh;
     }
 
 
-    std::shared_ptr<Mesh> Mesh::createLines(const gsl::not_null<glm::vec3*>& points, size_t pointCount)
+    std::shared_ptr<Mesh> Mesh::createLines(const gsl::not_null<const glm::vec3*>& points, size_t pointCount)
     {
-        BOOST_ASSERT(points);
-        BOOST_ASSERT(pointCount);
+        BOOST_ASSERT(pointCount > 0);
 
-        VertexFormat::Element elements[] =
-        {
-            VertexFormat::Element(VertexFormat::POSITION, 3)
+        ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &glm::vec3::x, 3 } }
         };
-        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), pointCount, false);
 
-        mesh->setVertexData(glm::value_ptr(*points), 0, pointCount);
+        auto mesh = std::make_shared<Mesh>(attribs, false);
+        mesh->getBuffer(0).assign(points, pointCount);
 
         return mesh;
     }
@@ -147,89 +131,34 @@ namespace gameplay
         glm::vec3 corners[8];
         box.getCorners(corners);
 
-        float vertices[] =
-        {
-            corners[7].x, corners[7].y, corners[7].z,
-            corners[6].x, corners[6].y, corners[6].z,
-            corners[1].x, corners[1].y, corners[1].z,
-            corners[0].x, corners[0].y, corners[0].z,
-            corners[7].x, corners[7].y, corners[7].z,
-            corners[4].x, corners[4].y, corners[4].z,
-            corners[3].x, corners[3].y, corners[3].z,
-            corners[0].x, corners[0].y, corners[0].z,
-            corners[0].x, corners[0].y, corners[0].z,
-            corners[1].x, corners[1].y, corners[1].z,
-            corners[2].x, corners[2].y, corners[2].z,
-            corners[3].x, corners[3].y, corners[3].z,
-            corners[4].x, corners[4].y, corners[4].z,
-            corners[5].x, corners[5].y, corners[5].z,
-            corners[2].x, corners[2].y, corners[2].z,
-            corners[1].x, corners[1].y, corners[1].z,
-            corners[6].x, corners[6].y, corners[6].z,
-            corners[5].x, corners[5].y, corners[5].z
+        glm::vec3 vertices[]{
+            corners[7],
+            corners[6],
+            corners[1],
+            corners[0],
+            corners[7],
+            corners[4],
+            corners[3],
+            corners[0],
+            corners[0],
+            corners[1],
+            corners[2],
+            corners[3],
+            corners[4],
+            corners[5],
+            corners[2],
+            corners[1],
+            corners[6],
+            corners[5]
         };
 
-        VertexFormat::Element elements[] =
-        {
-            VertexFormat::Element(VertexFormat::POSITION, 3)
+        ext::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &glm::vec3::x, 3 } }
         };
-        auto mesh = std::make_shared<Mesh>(VertexFormat(elements, 1), 18, false);
-        mesh->setVertexData(vertices, 0, 18);
+        auto mesh = std::make_shared<Mesh>(attribs, false);
+        mesh->getBuffer(0).assign<glm::vec3>(vertices, 18);
 
         return mesh;
-    }
-
-
-    const VertexFormat& Mesh::getVertexFormat() const
-    {
-        return _vertexFormat;
-    }
-
-
-    size_t Mesh::getVertexCount() const
-    {
-        return _vertexCount;
-    }
-
-
-    size_t Mesh::getVertexSize() const
-    {
-        return _vertexFormat.getVertexSize();
-    }
-
-
-    bool Mesh::isDynamic() const
-    {
-        return _dynamic;
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Mesh::setVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexStart, size_t vertexCount)
-    {
-        bind();
-
-        if( vertexStart == 0 && vertexCount == 0 )
-        {
-            GL_ASSERT( glBufferData(GL_ARRAY_BUFFER, _vertexFormat.getVertexSize() * _vertexCount, vertexData, _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW) );
-        }
-        else
-        {
-            if( vertexCount == 0 )
-            {
-                vertexCount = _vertexCount - vertexStart;
-            }
-
-            GL_ASSERT( glBufferSubData(GL_ARRAY_BUFFER, vertexStart * _vertexFormat.getVertexSize(), vertexCount * _vertexFormat.getVertexSize(), vertexData) );
-        }
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void Mesh::setRawVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexId, size_t numFloats)
-    {
-        bind();
-        GL_ASSERT(glBufferSubData(GL_ARRAY_BUFFER, vertexId * _vertexFormat.getVertexSize(), numFloats * sizeof(float), vertexData));
     }
 
 

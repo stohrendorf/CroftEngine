@@ -23,19 +23,16 @@ namespace loader
             glm::vec3 normal{0.0f};
 
 
-            static const gameplay::VertexFormat& getFormat()
+            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
             {
-                static const gameplay::VertexFormat::Element elems[4] = {
-                    {gameplay::VertexFormat::TEXCOORD, 2},
-                    {gameplay::VertexFormat::POSITION, 3},
-                    {gameplay::VertexFormat::COLOR, 4},
-                    {gameplay::VertexFormat::NORMAL, 3}
+                static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
+                    { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::texcoord, 2 } },
+                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
+                    { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::normal, 3 } },
+                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
                 };
-                static const gameplay::VertexFormat fmt{elems, 4};
 
-                Expects(fmt.getVertexSize() == sizeof(RenderVertex));
-
-                return fmt;
+                return attribs;
             }
         };
 #pragma pack(pop)
@@ -62,7 +59,7 @@ namespace loader
 #ifndef NDEBUG
                     for( auto idx : localPart.indices )
                     {
-                        BOOST_ASSERT(idx < mesh->getVertexCount());
+                        BOOST_ASSERT(idx < mesh->getBuffer(0).getVertexCount());
                     }
 #endif
 
@@ -96,7 +93,7 @@ namespace loader
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
-        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), vbuf.size(), true);
+        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false);
 
         for( const QuadFace& quad : rectangles )
         {
@@ -167,7 +164,7 @@ namespace loader
             renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 2));
         }
 
-        mesh->rebuild(reinterpret_cast<float*>(vbuf.data()), vbuf.size());
+        mesh->getBuffer(0).assign(vbuf);
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
         node->setDrawable(resModel);
@@ -218,14 +215,14 @@ namespace loader
 
             const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
 
-            auto spriteNode = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle(), 1, nullptr, "u_texture");
-            spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
+            //! @fixme auto spriteNode = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle(), 1, nullptr, "u_texture");
+            // spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
 
-            auto n = std::make_shared<gameplay::Node>("");
-            n->setDrawable(spriteNode);
-            n->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem()));
+            //auto n = std::make_shared<gameplay::Node>("");
+            //n->setDrawable(spriteNode);
+            //n->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem()));
 
-            node->addChild(n);
+            //node->addChild(n);
         }
 
         return node;

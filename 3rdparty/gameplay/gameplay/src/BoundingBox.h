@@ -2,6 +2,7 @@
 
 #include "Frustum.h"
 
+#include <algorithm>
 
 namespace gameplay
 {

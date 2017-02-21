@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Mesh.h"
-#include "VertexAttributeBinding.h"
 #include "Font.h"
+#include "RenderContext.h"
 
 #include "gl/indexbuffer.h"
 
@@ -69,12 +69,6 @@ namespace gameplay
         void setIndexData(const gsl::not_null<const void*>& indexData, size_t indexStart, size_t indexCount);
 
 
-        const std::shared_ptr<VertexAttributeBinding>& getVaBinding() const
-        {
-            return _vaBinding;
-        }
-
-
         void setMaterial(const std::shared_ptr<Material>& material);
 
         const std::shared_ptr<Material>& getMaterial() const
@@ -99,7 +93,6 @@ namespace gameplay
         IndexFormat _indexFormat{};
         size_t _indexCount = 0;
         bool _dynamic = false;
-        std::shared_ptr<VertexAttributeBinding> _vaBinding;
         std::shared_ptr<Material> _material;
         std::vector<std::function<MaterialParameterSetter>> _materialParameterSetters;
     };

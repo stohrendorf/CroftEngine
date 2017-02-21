@@ -1,9 +1,8 @@
 #pragma once
 
-#include "VertexFormat.h"
 #include "BoundingBox.h"
 
-#include "gl/vertexbuffer.h"
+#include "ext/structuredvertexbuffer.h"
 
 #include <gsl/gsl>
 
@@ -44,15 +43,16 @@ namespace gameplay
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
-    class Mesh : public gl::VertexBuffer
+    class Mesh
     {
         friend class Model;
 
     public:
-        explicit Mesh(const VertexFormat& vertexFormat, size_t vertexCount, bool dynamic);
+        explicit Mesh(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic)
+        {
+            addBuffer(mapping, dynamic);
+        }
 
-
-        void rebuild(const float* vertexData, size_t vertexCount);
 
         /**
          * Creates a new textured 3D quad.
@@ -114,7 +114,7 @@ namespace gameplay
          * @return The newly created mesh.
          * @script{create}
          */
-        static std::shared_ptr<Mesh> createLines(const gsl::not_null<glm::vec3*>& points, size_t pointCount);
+        static std::shared_ptr<Mesh> createLines(const gsl::not_null<const glm::vec3*>& points, size_t pointCount);
 
         /**
          * Creates a bounding box mesh when passed a BoundingBox.
@@ -127,45 +127,6 @@ namespace gameplay
          * @script{create}
          */
         static std::shared_ptr<Mesh> createBoundingBox(const BoundingBox& box);
-
-        /**
-         * Gets the vertex format for the mesh.
-         *
-         * @return The vertex format.
-         */
-        const VertexFormat& getVertexFormat() const;
-
-        /**
-         * Gets the number of vertices in the mesh.
-         *
-         * @return The number of vertices in the mesh.
-         */
-        size_t getVertexCount() const;
-
-        /**
-         * Gets the size of a single vertex in the mesh.
-         *
-         * @return The size of 1 vertex in the mesh.
-         */
-        size_t getVertexSize() const;
-
-        /**
-         * Determines if the mesh is dynamic.
-         *
-         * @return true if the mesh is dynamic; false otherwise.
-         */
-        bool isDynamic() const;
-
-        /**
-         * Sets the specified vertex data into the mapped vertex buffer.
-         *
-         * @param vertexData The vertex data to be set.
-         * @param vertexStart The index of the starting vertex (0 by default).
-         * @param vertexCount The number of vertices to be set (default is 0, for all vertices).
-         */
-        void setVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexStart = 0, size_t vertexCount = 0);
-
-        void setRawVertexData(const gsl::not_null<const float*>& vertexData, size_t vertexId, size_t numFloats);
 
         /**
          * Creates and adds a new part of primitive data defining how the vertices are connected.
@@ -198,16 +159,41 @@ namespace gameplay
         /**
          * Destructor.
          */
-        virtual ~Mesh();
+        virtual ~Mesh() = default;
+
+
+        ext::StructuredVertexBuffer& getBuffer(size_t idx)
+        {
+            BOOST_ASSERT(idx < m_buffers.size());
+
+            return m_buffers[idx];
+        }
+
+
+        const std::vector<ext::StructuredVertexBuffer>& getBuffers() const
+        {
+            return m_buffers;
+        }
+
+
+        std::vector<ext::StructuredVertexBuffer>& getBuffers()
+        {
+            return m_buffers;
+        }
+
+
+        size_t addBuffer(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic)
+        {
+            m_buffers.emplace_back(mapping, dynamic);
+            return m_buffers.size() - 1;
+        }
 
     private:
 
         Mesh(const Mesh& copy) = delete;
         Mesh& operator=(const Mesh&) = delete;
 
-        const VertexFormat _vertexFormat;
-        size_t _vertexCount = 0;
         std::vector<std::shared_ptr<MeshPart>> _parts{};
-        bool _dynamic = false;
+        std::vector<ext::StructuredVertexBuffer> m_buffers{};
     };
 }

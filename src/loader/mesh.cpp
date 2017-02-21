@@ -9,45 +9,43 @@ namespace loader
 #pragma pack(push,1)
     struct Mesh::ModelBuilder::RenderVertex
     {
-        glm::vec2 texcoord;
         glm::vec3 position;
         glm::vec4 color;
 
 
-        static gameplay::VertexFormat getFormat()
+        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
-            static const gameplay::VertexFormat::Element elems[4] = {
-                {gameplay::VertexFormat::TEXCOORD, 2},
-                {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::COLOR, 4}
+            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
             };
-            return gameplay::VertexFormat{elems, 3};
+
+            return attribs;
         }
     };
 
 
     struct Mesh::ModelBuilder::RenderVertexWithNormal
     {
-        glm::vec2 texcoord;
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec4 color;
 
 
-        static gameplay::VertexFormat getFormat()
+        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
-            static const gameplay::VertexFormat::Element elems[5] = {
-                {gameplay::VertexFormat::TEXCOORD, 2},
-                {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::NORMAL, 3},
-                {gameplay::VertexFormat::COLOR, 4}
+            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::position, 3 } },
+                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::normal, 3 } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::color, 4 } }
             };
-            return gameplay::VertexFormat{elems, 4};
+
+            return attribs;
         }
     };
 #pragma pack(pop)
 
-    gameplay::VertexFormat Mesh::ModelBuilder::getFormat(bool withNormals)
+    const gameplay::ext::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(bool withNormals)
     {
         return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
     }
@@ -66,7 +64,7 @@ namespace loader
         , m_colorMaterial{colorMaterial}
         , m_palette{palette}
         , m_animator{animator}
-        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals), 0, dynamic)}
+        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals), dynamic)}
     {
     }
 
@@ -78,12 +76,27 @@ namespace loader
     {
         static_assert(sizeof(RenderVertex) % sizeof(float) == 0, "Invalid vertex structure");
         Expects(!m_hasNormals);
-        Expects(sizeof(v) >= m_mesh->getVertexSize());
-        Expects(m_mesh->getVertexSize() % sizeof(float) == 0);
+        Expects(m_uv.empty());
+        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
 
         const float* data = reinterpret_cast<const float*>(&v);
-        const auto n = m_mesh->getVertexSize() / sizeof(float);
+        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
+        ++m_vertexCount;
+    }
+
+
+    void Mesh::ModelBuilder::append(const RenderVertex& v, const glm::vec2& uv)
+    {
+        static_assert(sizeof(RenderVertex) % sizeof(float) == 0, "Invalid vertex structure");
+        Expects(!m_hasNormals);
+        Expects(m_uv.size() == m_vertexCount);
+        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
+
+        const float* data = reinterpret_cast<const float*>(&v);
+        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
+        std::copy_n(data, n, std::back_inserter(m_vbuf));
+        m_uv.push_back(uv);
         ++m_vertexCount;
     }
 
@@ -92,12 +105,29 @@ namespace loader
     {
         static_assert(sizeof(RenderVertexWithNormal) % sizeof(float) == 0, "Invalid vertex structure");
         Expects(m_hasNormals);
-        Expects(sizeof(v) >= m_mesh->getVertexSize());
-        Expects(m_mesh->getVertexSize() % sizeof(float) == 0);
+        Expects(m_uv.empty());
+        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
+        Expects(m_mesh->getBuffer(0).getVertexSize() % sizeof(float) == 0);
 
         const float* data = reinterpret_cast<const float*>(&v);
-        const auto n = m_mesh->getVertexSize() / sizeof(float);
+        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
+        ++m_vertexCount;
+    }
+
+
+    void Mesh::ModelBuilder::append(const RenderVertexWithNormal& v, const glm::vec2& uv)
+    {
+        static_assert(sizeof(RenderVertexWithNormal) % sizeof(float) == 0, "Invalid vertex structure");
+        Expects(m_hasNormals);
+        Expects(m_uv.size() == m_vertexCount);
+        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
+        Expects(m_mesh->getBuffer(0).getVertexSize() % sizeof(float) == 0);
+
+        const float* data = reinterpret_cast<const float*>(&v);
+        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
+        std::copy_n(data, n, std::back_inserter(m_vbuf));
+        m_uv.push_back(uv);
         ++m_vertexCount;
     }
 
@@ -121,12 +151,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     if(quad.vertices[i] < mesh.vertexDarknesses.size())
                         iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
 
                 for(auto j : { 0,1,2,0,2,3 })
@@ -145,12 +174,11 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     if(quad.vertices[i] < mesh.vertexDarknesses.size())
                         iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
 
                 for(auto j : { 0,1,2,0,2,3 })
@@ -168,13 +196,12 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     if(tri.vertices[i] < mesh.vertexDarknesses.size())
                         iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
 
                 m_animator.registerVertex(tri.proxyId, m_mesh, 0, firstVertex + 0);
@@ -190,13 +217,12 @@ namespace loader
                 {
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     if(tri.vertices[i] < mesh.vertexDarknesses.size())
                         iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
             }
         }
@@ -212,10 +238,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
 
                 for(auto j : { 0,1,2,0,2,3 })
@@ -234,10 +259,9 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[quad.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
                 for(auto j : { 0,1,2,0,2,3 })
                 {
@@ -254,11 +278,10 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
 
                 m_animator.registerVertex(tri.proxyId, m_mesh, 0, firstVertex + 0);
@@ -274,11 +297,10 @@ namespace loader
                 {
                     RenderVertexWithNormal iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
-                    iv.texcoord = proxy.uvCoordinates[i].toGl();
                     iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                     iv.color = glm::vec4(1.0f);
                     m_parts[partId].indices.emplace_back(m_vertexCount);
-                    append(iv);
+                    append(iv, proxy.uvCoordinates[i].toGl());
                 }
             }
         }
@@ -287,9 +309,21 @@ namespace loader
 
     std::shared_ptr<gameplay::Model> Mesh::ModelBuilder::finalize()
     {
-        Expects(m_vbuf.size() * sizeof(float) == m_vertexCount * m_mesh->getVertexSize())
+        Expects(m_vbuf.size() * sizeof(m_vbuf[0]) == m_vertexCount * m_mesh->getBuffer(0).getVertexSize());
 
-        m_mesh->rebuild(m_vbuf.data(), m_vertexCount);
+        m_mesh->getBuffer(0).assignRaw(m_vbuf, m_vertexCount);
+
+        if(!m_uv.empty())
+        {
+            BOOST_ASSERT(m_mesh->getBuffers().size() == 1);
+
+            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping uvAttribs{
+                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{GL_FLOAT, &glm::vec2::x, 2}}
+            };
+
+            m_mesh->addBuffer(uvAttribs, true);
+            m_mesh->getBuffer(1).assign(m_uv);
+        }
 
         for( const MeshPart& localPart : m_parts )
         {

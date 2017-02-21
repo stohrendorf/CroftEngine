@@ -93,6 +93,11 @@ namespace gameplay
          */
         void bind();
 
+        const gl::Program& getHandle() const
+        {
+            return m_handle;
+        }
+
     private:
 
         ShaderProgram(const ShaderProgram&) = delete;

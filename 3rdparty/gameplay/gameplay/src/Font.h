@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Image.h"
-#include "SpriteBatch.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

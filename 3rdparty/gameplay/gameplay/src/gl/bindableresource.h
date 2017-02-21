@@ -55,6 +55,15 @@ namespace gameplay
             }
 
 
+            explicit BindableResource(BindableResource&& rhs)
+                : m_handle{std::move(rhs.m_handle)}
+                , m_allocator{std::move(rhs.m_allocator)}
+                , m_binder{std::move(rhs.m_binder)}
+                , m_deleter{std::move(rhs.m_deleter)}
+            {
+                rhs.m_handle = 0;
+            }
+
             virtual ~BindableResource()
             {
                 unbind();

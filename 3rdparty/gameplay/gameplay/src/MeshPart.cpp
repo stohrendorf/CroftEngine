@@ -111,7 +111,6 @@ namespace gameplay
         BOOST_ASSERT(_mesh != nullptr);
 
         _material = material;
-        _vaBinding = std::make_shared<VertexAttributeBinding>(_mesh, material->getShaderProgram());
     }
 
 
@@ -167,15 +166,16 @@ namespace gameplay
         for(const auto& mps : _materialParameterSetters)
             mps(*_material);
 
-        _material->bind(*context.getCurrentNode(), _vaBinding);
+        _material->bind(*context.getCurrentNode());
+
+        for(const auto& buffer : _mesh->getBuffers())
+            buffer.bind(_material->getShaderProgram()->getHandle());
 
         bind();
         if(!context.isWireframe() || !drawWireframe())
         {
             GL_ASSERT(glDrawElements(static_cast<GLenum>(_primitiveType), gsl::narrow<GLsizei>(_indexCount), static_cast<GLenum>(_indexFormat), nullptr));
         }
-
-        _material->unbind();
     }
 
 }

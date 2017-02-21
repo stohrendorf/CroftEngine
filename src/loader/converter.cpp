@@ -42,19 +42,16 @@ namespace
         glm::vec3 normal{0.0f};
 
 
-        static const gameplay::VertexFormat& getFormat()
+        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
-            static const gameplay::VertexFormat::Element elems[4] = {
-                {gameplay::VertexFormat::COLOR, 4},
-                {gameplay::VertexFormat::POSITION, 3},
-                {gameplay::VertexFormat::TEXCOORD, 2},
-                {gameplay::VertexFormat::NORMAL, 3}
+            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
+                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::normal, 3 } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::uv, 2 } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
             };
-            static const gameplay::VertexFormat fmt{elems, 4};
 
-            Expects(fmt.getVertexSize() == sizeof(RenderVertex));
-
-            return fmt;
+            return attribs;
         }
     };
 #pragma pack(pop)
@@ -62,37 +59,32 @@ namespace
 
     void allocateElementMemory(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_null<aiMesh*>& outMesh)
     {
-        for( size_t ei = 0; ei < mesh->getVertexFormat().getElementCount(); ++ei )
+        for(const auto& buffer : mesh->getBuffers())
         {
-            switch( mesh->getVertexFormat().getElement(ei).usage )
+            for( const auto& attrib : buffer.getAttributeMapping() )
             {
-                case gameplay::VertexFormat::POSITION:
+                if(attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME)
+                {
                     BOOST_ASSERT(outMesh->mVertices == nullptr && outMesh->mNumVertices == 0);
-                    outMesh->mNumVertices = mesh->getVertexCount();
-                    outMesh->mVertices = new aiVector3D[mesh->getVertexCount()];
-                    break;
-
-                case gameplay::VertexFormat::NORMAL:
+                    outMesh->mNumVertices = buffer.getVertexCount();
+                    outMesh->mVertices = new aiVector3D[buffer.getVertexCount()];
+                }
+                else if(attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME)
+                {
                     BOOST_ASSERT(outMesh->mNormals == nullptr);
-                    outMesh->mNormals = new aiVector3D[mesh->getVertexCount()];
-                    break;
-
-                case gameplay::VertexFormat::TEXCOORD:
+                    outMesh->mNormals = new aiVector3D[buffer.getVertexCount()];
+                }
+                else if(attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)
+                {
                     BOOST_ASSERT(outMesh->mTextureCoords[0] == nullptr && outMesh->mNumUVComponents[0] == 0);
-                    outMesh->mTextureCoords[0] = new aiVector3D[mesh->getVertexCount()];
+                    outMesh->mTextureCoords[0] = new aiVector3D[buffer.getVertexCount()];
                     outMesh->mNumUVComponents[0] = 2;
-                    break;
-
-                case gameplay::VertexFormat::COLOR:
+                }
+                else if(attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME)
+                {
                     BOOST_ASSERT(outMesh->mColors[0] == nullptr);
-                    outMesh->mColors[0] = new aiColor4D[mesh->getVertexCount()];
-                    break;
-
-                case gameplay::VertexFormat::TANGENT:
-                    break;
-
-                case gameplay::VertexFormat::BINORMAL:
-                    break;
+                    outMesh->mColors[0] = new aiColor4D[buffer.getVertexCount()];
+                }
             }
         }
     }
@@ -100,59 +92,54 @@ namespace
 
     void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_null<aiMesh*>& outMesh)
     {
-        const auto& vfmt = mesh->getVertexFormat();
-        const size_t count = mesh->getVertexCount();
-        const float* data = static_cast<const float*>(mesh->map());
-        for( size_t vi = 0; vi < count; ++vi )
+        for(auto& buffer : mesh->getBuffers())
         {
-            BOOST_ASSERT(vi < outMesh->mNumVertices);
-            for( size_t ei = 0; ei < vfmt.getElementCount(); ++ei )
+            BOOST_ASSERT(buffer.getVertexSize() % sizeof(float) == 0);
+
+            const size_t count = buffer.getVertexCount();
+            const float* data = static_cast<const float*>(buffer.map());
+            for(size_t i=0; i<count; ++i)
             {
-                switch( vfmt.getElement(ei).usage )
+                for( const auto& attrib : buffer.getAttributeMapping() )
                 {
-                    case gameplay::VertexFormat::POSITION:
+                    BOOST_ASSERT(attrib.second.getOffset() % sizeof(float) == 0);
+                    const auto* v = &data[attrib.second.getOffset() / sizeof(float)];
+
+                    if(attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME)
+                    {
                         BOOST_ASSERT(outMesh->HasPositions());
-                        outMesh->mVertices[vi].x = data[0] / loader::SectorSize;
-                        outMesh->mVertices[vi].y = data[1] / loader::SectorSize;
-                        outMesh->mVertices[vi].z = data[2] / loader::SectorSize;
-                        break;
-
-                    case gameplay::VertexFormat::NORMAL:
+                        outMesh->mVertices[i].x = v[0] / loader::SectorSize;
+                        outMesh->mVertices[i].y = v[1] / loader::SectorSize;
+                        outMesh->mVertices[i].z = v[2] / loader::SectorSize;
+                    }
+                    else if(attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME)
+                    {
                         BOOST_ASSERT(outMesh->HasNormals());
-                        outMesh->mNormals[vi].x = data[0];
-                        outMesh->mNormals[vi].y = data[1];
-                        outMesh->mNormals[vi].z = data[2];
-                        break;
-
-                    case gameplay::VertexFormat::TEXCOORD:
+                        outMesh->mNormals[i].x = v[0];
+                        outMesh->mNormals[i].y = v[1];
+                        outMesh->mNormals[i].z = v[2];
+                    }
+                    else if(attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)
+                    {
                         BOOST_ASSERT(outMesh->HasTextureCoords(0));
-                        outMesh->mTextureCoords[0][vi].x = data[0];
-                        outMesh->mTextureCoords[0][vi].y = data[1];
-                        outMesh->mTextureCoords[0][vi].z = 0;
-                        break;
-
-                    case gameplay::VertexFormat::COLOR:
+                        outMesh->mTextureCoords[0][i].x = v[0];
+                        outMesh->mTextureCoords[0][i].y = v[1];
+                        outMesh->mTextureCoords[0][i].z = 0;
+                    }
+                    else if(attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME)
+                    {
                         BOOST_ASSERT(outMesh->HasVertexColors(0));
-                        outMesh->mColors[0][vi].r = data[0];
-                        outMesh->mColors[0][vi].g = data[1];
-                        outMesh->mColors[0][vi].b = data[2];
-                        outMesh->mColors[0][vi].a = data[3];
-                        break;
-
-                    case gameplay::VertexFormat::TANGENT:
-                        break;
-
-                    case gameplay::VertexFormat::BINORMAL:
-                        break;
-
-                    default:
-                        break;
+                        outMesh->mColors[0][i].r = v[0];
+                        outMesh->mColors[0][i].g = v[1];
+                        outMesh->mColors[0][i].b = v[2];
+                        outMesh->mColors[0][i].a = v[3];
+                    }
                 }
-
-                data += vfmt.getElement(ei).size;
+                data += buffer.getVertexSize() / sizeof(float);
             }
+
+            buffer.unmap();
         }
-        mesh->unmap();
     }
 
 
@@ -329,8 +316,8 @@ namespace loader
                         vbuf[i].color = glm::vec4(ambientColor, 1);
                 }
 
-                renderMesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), mesh->mNumVertices, false);
-                renderMesh->rebuild(reinterpret_cast<const float*>(vbuf.data()), mesh->mNumVertices);
+                renderMesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false);
+                renderMesh->getBuffer(0).assign(vbuf);
             }
 
             std::vector<uint32_t> faces;

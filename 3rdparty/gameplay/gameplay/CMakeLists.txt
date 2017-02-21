@@ -24,16 +24,12 @@ set( GAMEPLAY_SRC
      src/MaterialParameter.h
      src/Mesh.cpp
      src/Mesh.h
-     src/MeshBatch.cpp
-     src/MeshBatch.h
      src/MeshPart.cpp
      src/MeshPart.h
      src/Model.cpp
      src/Model.h
      src/Node.cpp
      src/Node.h
-     src/ParticleEmitter.cpp
-     src/ParticleEmitter.h
      src/Plane.cpp
      src/Plane.h
      src/Ray.cpp
@@ -47,14 +43,6 @@ set( GAMEPLAY_SRC
      src/Scene.h
      src/ScreenOverlay.cpp
      src/ScreenOverlay.h
-     src/Sprite.cpp
-     src/Sprite.h
-     src/SpriteBatch.cpp
-     src/SpriteBatch.h
-     src/VertexAttributeBinding.cpp
-     src/VertexAttributeBinding.h
-     src/VertexFormat.cpp
-     src/VertexFormat.h
      src/Visitor.h
      src/Visitor.cpp
      src/RenderContext.h
@@ -69,6 +57,8 @@ set( GAMEPLAY_SRC
      src/gl/texture.h
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h
+     src/ext/vertexattribute.h
+     src/ext/structuredvertexbuffer.h
 )
 
 find_package(OpenGL REQUIRED)
