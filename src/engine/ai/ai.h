@@ -5,6 +5,11 @@
 
 namespace engine
 {
+    namespace items
+    {
+        class AIAgent;
+    }
+
     namespace ai
     {
         enum class Mood
@@ -84,7 +89,7 @@ namespace engine
             }
 
 
-            void updateMood(Brain& brain, LookAhead& lookAhead, items::ItemNode& npc, bool ignoreProbabilities, uint16_t attackTargetUpdateProbability);
+            void updateMood(Brain& brain, LookAhead& lookAhead, items::AIAgent& npc, bool ignoreProbabilities, uint16_t attackTargetUpdateProbability);
 
 
             void findPath(const items::ItemNode& npc, const items::ItemNode& enemy);
@@ -158,7 +163,7 @@ namespace engine
             }
 
 
-            bool isInsideZoneButNotInBox(const items::ItemNode& npc, const loader::ZoneData& zone, uint16_t zoneId, uint16_t boxIdx);
+            bool isInsideZoneButNotInBox(const items::AIAgent& npc, const loader::ZoneData& zone, uint16_t boxIdx) const;
         };
     }
 }

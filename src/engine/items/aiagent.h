@@ -29,11 +29,17 @@ namespace engine
                 : ItemNode(level, name, room, angle, position, activationState, true, characteristics, darkness, animatedModel)
                 , m_brain{blockMask, dropHeight, stepHeight, flyHeight}
                 , m_collisionRadius{collisionRadius}
+                , m_zone{m_brain.route.getZone(*this)}
             {
                 m_flags2_20_collidable = true;
                 addYRotation(core::Angle(std::rand() % 65536));
             }
 
+
+            uint16_t getZone() const
+            {
+                return m_zone;
+            }
 
         protected:
             ai::Brain& getBrain()
@@ -78,6 +84,7 @@ namespace engine
             ai::Brain m_brain;
             int m_health = 1000;
             const int m_collisionRadius;
+            const uint16_t m_zone;
         };
     }
 }

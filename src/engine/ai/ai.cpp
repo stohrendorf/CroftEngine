@@ -2,6 +2,8 @@
 
 #include "level/level.h"
 #include "engine/laranode.h"
+#include "engine/items/aiagent.h"
+
 
 namespace engine
 {
@@ -32,21 +34,20 @@ namespace engine
 
         void RoutePlanner::updateMood(Brain& brain,
                                       LookAhead& lookAhead,
-                                      items::ItemNode& npc,
+                                      items::AIAgent& npc,
                                       bool ignoreProbabilities,
                                       uint16_t attackTargetUpdateProbability)
         {
             if(!npc.getCurrentBox().is_initialized())
                 return;
 
-            const auto npcZone = getZone(npc);
             const auto laraZone = getZone(*npc.getLevel().m_lara);
 
             if( brain.mood != Mood::Attack
                 && searchOverride.is_initialized()
-                && !brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), npcZone, *destinationBox) )
+                && !brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), *destinationBox) )
             {
-                if( npcZone == laraZone )
+                if(npc.getZone() == laraZone )
                 {
                     brain.mood = Mood::Bored;
                 }
@@ -61,7 +62,7 @@ namespace engine
                     {
                         case Mood::Bored:
                         case Mood::Stalk:
-                            if( npcZone == laraZone )
+                            if( npc.getZone() == laraZone )
                             {
                                 brain.mood = Mood::Attack;
                             }
@@ -71,13 +72,13 @@ namespace engine
                             }
                             break;
                         case Mood::Attack:
-                            if( npcZone != laraZone )
+                            if(npc.getZone() != laraZone )
                             {
                                 brain.mood = Mood::Bored;
                             }
                             break;
                         case Mood::Escape:
-                            if( npcZone == laraZone )
+                            if(npc.getZone() == laraZone )
                             {
                                 brain.mood = Mood::Attack;
                             }
@@ -91,11 +92,11 @@ namespace engine
                         case Mood::Bored:
                         case Mood::Stalk:
                             if( npc.m_flags2_10_isHit
-                                && ((std::rand() % 32768) < 2048 || npcZone != laraZone) )
+                                && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
                             {
                                 brain.mood = Mood::Escape;
                             }
-                            else if( npcZone == laraZone )
+                            else if(npc.getZone() == laraZone )
                             {
                                 if( lookAhead.pivotDistanceToLaraSq >= util::square(3 * loader::SectorSize)
                                     && (brain.mood != Mood::Stalk || searchOverride.is_initialized()) )
@@ -110,17 +111,17 @@ namespace engine
                             break;
                         case Mood::Attack:
                             if( npc.m_flags2_10_isHit
-                                && ((std::rand() % 32768) < 2048 || npcZone != laraZone) )
+                                && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
                             {
                                 brain.mood = Mood::Escape;
                             }
-                            else if( npcZone != laraZone )
+                            else if(npc.getZone() != laraZone )
                             {
                                 brain.mood = Mood::Bored;
                             }
                             break;
                         case Mood::Escape:
-                            if( npcZone == laraZone && (std::rand() % 32768) < 256 )
+                            if(npc.getZone() == laraZone && (std::rand() % 32768) < 256 )
                             {
                                 brain.mood = Mood::Stalk;
                             }
@@ -160,7 +161,7 @@ namespace engine
                     break;
                 case Mood::Bored:
                     randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), npcZone, randomBox) )
+                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) )
                     {
                         if( stalkBox(npc, randomBox) )
                         {
@@ -177,7 +178,7 @@ namespace engine
                     if( !searchOverride.is_initialized() || !stalkBox(npc, *searchOverride) )
                     {
                         randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                        if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), npcZone, randomBox) )
+                        if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) )
                         {
                             if( stalkBox(npc, randomBox) )
                             {
@@ -186,7 +187,7 @@ namespace engine
                             else if( !searchOverride.is_initialized() )
                             {
                                 setRandomSearchTarget(randomBox, npc);
-                                if( npcZone != laraZone )
+                                if(npc.getZone() != laraZone )
                                 {
                                     brain.mood = Mood::Bored;
                                 }
@@ -196,13 +197,13 @@ namespace engine
                     break;
                 case Mood::Escape:
                     randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), npcZone, randomBox) && !searchOverride.is_initialized() )
+                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) && !searchOverride.is_initialized() )
                     {
                         if( inSameQuadrantAsBoxRelativeToLara(npc, randomBox) )
                         {
                             setRandomSearchTarget(randomBox, npc);
                         }
-                        else if( npcZone == laraZone && stalkBox(npc, randomBox) )
+                        else if(npc.getZone() == laraZone && stalkBox(npc, randomBox) )
                         {
                             setRandomSearchTarget(randomBox, npc);
                             brain.mood = Mood::Stalk;
@@ -774,11 +775,11 @@ namespace engine
         }
 
 
-        bool Brain::isInsideZoneButNotInBox(const items::ItemNode& npc, const loader::ZoneData& zone, uint16_t zoneId, uint16_t boxIdx)
+        bool Brain::isInsideZoneButNotInBox(const items::AIAgent& npc, const loader::ZoneData& zone, uint16_t boxIdx) const
         {
             Expects(boxIdx < zone.size());
             Expects(boxIdx < npc.getLevel().m_boxes.size());
-            if( zoneId != zone[boxIdx] )
+            if( npc.getZone() != zone[boxIdx] )
             {
                 return false;
             }

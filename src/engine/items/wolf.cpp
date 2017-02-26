@@ -51,7 +51,7 @@ namespace engine
                 {
                     case LyingDown:
                         pitch = 0_deg;
-                        if( getBrain().mood != ai::Mood::Escape && getBrain().route.getZone(*this) != getBrain().route.getZone(*getLevel().m_lara) )
+                        if( getBrain().mood != ai::Mood::Escape && getZone() != getBrain().route.getZone(*getLevel().m_lara) )
                         {
                             if( std::rand() % 32768 < 32 )
                             {
