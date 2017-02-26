@@ -461,6 +461,8 @@ namespace engine
                 if(m_darkness >= 0)
                 {
                     m_lighting.base = (m_darkness - 4096) / 8192.0f;
+                    if(m_lighting.base == 0)
+                        m_lighting.base = 1;
                     return;
                 }
 
@@ -470,6 +472,8 @@ namespace engine
 
                 if(m_position.room->lights.empty())
                 {
+                    m_lighting.base = 1;
+                    m_lighting.baseDiff = 0;
                     return;
                 }
 
@@ -494,6 +498,9 @@ namespace engine
 
                 m_lighting.base = (roomAmbient + maxBrightness) / 2;
                 m_lighting.baseDiff = (maxBrightness - m_lighting.base);
+
+                if(m_lighting.base == 0 && m_lighting.baseDiff == 0)
+                    m_lighting.base = 1;
             }
 
             static const ItemNode* findBaseItemNode(const gameplay::Node& node)

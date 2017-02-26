@@ -385,7 +385,7 @@ namespace loader
         int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
         // TR5 -->
         core::TRCoordinates normal;
-        glm::vec4 color;
+        glm::vec4 color{0.0f};
 
 
         /** \brief reads a room vertex definition.
@@ -407,6 +407,8 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
+            if(f == 0)
+                f = 1;
             room_vertex.color = {f, f, f, 1};
             return room_vertex;
         }
