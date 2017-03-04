@@ -201,7 +201,7 @@ namespace engine
         enum class ClampType
         {
             Vertical,
-            Horizonal,
+            Horizontal,
             None
         };
 

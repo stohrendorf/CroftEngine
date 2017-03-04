@@ -255,7 +255,7 @@ namespace engine
             {
                 origin.position = testPos;
                 origin.room = testRoom;
-                return ClampType::Horizonal;
+                return ClampType::Horizontal;
             }
 
             testPos += step;
@@ -321,7 +321,7 @@ namespace engine
             {
                 origin.position = testPos;
                 origin.room = testRoom;
-                return ClampType::Horizonal;
+                return ClampType::Horizontal;
             }
 
             testPos += step;
@@ -346,7 +346,7 @@ namespace engine
             secondClamp = clampAlongZ(origin);
         }
 
-        if( secondClamp != ClampType::Horizonal )
+        if( secondClamp != ClampType::Horizontal )
         {
             return false;
         }
