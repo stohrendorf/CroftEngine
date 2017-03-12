@@ -135,12 +135,6 @@ namespace gameplay
     }
 
 
-    bool Frustum::intersects(const Ray& ray) const
-    {
-        return ray.intersects(*this);
-    }
-
-
     void Frustum::set(const Frustum& frustum)
     {
         _near = frustum._near;

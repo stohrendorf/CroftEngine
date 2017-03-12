@@ -118,16 +118,6 @@ namespace gameplay
         bool intersects(const BoundingBox& box) const;
 
         /**
-         * Tests whether this ray intersects the specified frustum.
-         *
-         * @param frustum The frustum to test intersection with.
-         *
-         * @return The distance from the origin of this ray to the frustum or
-         *     INTERSECTS_NONE if this ray does not intersect the frustum.
-         */
-        bool intersects(const Frustum& frustum) const;
-
-        /**
          * Tests whether this ray intersects the specified plane and returns the distance
          * from the origin of the ray to the plane.
          *

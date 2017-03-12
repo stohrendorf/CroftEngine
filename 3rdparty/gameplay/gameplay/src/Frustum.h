@@ -3,6 +3,7 @@
 #include "Ray.h"
 #include "Plane.h"
 
+#include <glm/glm.hpp>
 
 namespace gameplay
 {
@@ -30,21 +31,21 @@ namespace gameplay
         /**
          * Constructs the default frustum (corresponds to the identity matrix).
          */
-        Frustum();
+        explicit Frustum();
 
         /**
          * Constructs a new frustum from the specified view projection matrix.
          *
          * @param matrix The view projection matrix to create this frustum from.
          */
-        Frustum(const glm::mat4& matrix);
+        explicit Frustum(const glm::mat4& matrix);
 
         /**
          * Constructs a new frustum from the given frustum.
          *
          * @param frustum The frustum to create this frustum from.
          */
-        Frustum(const Frustum& frustum);
+        explicit Frustum(const Frustum& frustum);
 
         /**
          * Destructor.
@@ -170,17 +171,6 @@ namespace gameplay
          *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
          */
         int intersects(const Plane& plane) const;
-
-        /**
-         * Tests whether this frustum intersects the specified ray.
-         *
-         * @param ray The ray to test intersection with.
-         *
-         * @return Plane::INTERSECTS_BACK if the specified ray is in the negative half-space of
-         *  this plane, Plane::INTERSECTS_FRONT if it is in the positive half-space of this plane,
-         *  and Plane::INTERSECTS_INTERSECTING if it intersects this plane.
-         */
-        bool intersects(const Ray& ray) const;
 
         /**
          * Sets this frustum to the specified frustum.

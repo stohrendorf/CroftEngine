@@ -2,22 +2,9 @@
 #include "FileSystem.h"
 #include "Stream.h"
 
+#include <cstdio>
+
 #include <boost/log/trivial.hpp>
-
-#ifdef WIN32
-    #include <windows.h>
-    #include <tchar.h>
-    #include <stdio.h>
-    #define gp_stat _stat
-    #define gp_stat_struct struct stat
-#else
-    #define __EXT_POSIX2
-    #include <libgen.h>
-    #include <dirent.h>
-    #define gp_stat stat
-    #define gp_stat_struct struct stat
-#endif
-
 
 namespace gameplay
 {
@@ -47,7 +34,7 @@ namespace gameplay
         static FileStream* create(const char* filePath, const char* mode);
 
     private:
-        FileStream(FILE* file);
+        explicit FileStream(FILE* file);
 
     private:
         FILE* _file;
