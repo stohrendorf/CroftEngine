@@ -331,7 +331,7 @@ namespace engine
 
     bool CameraController::clampPosition(core::RoomBoundIntPosition& origin) const
     {
-        BOOST_ASSERT(m_currentLookAt.room->isInnerPositionXZ(m_currentLookAt.position));
+        //BOOST_ASSERT(m_currentLookAt.room->isInnerPositionXZ(m_currentLookAt.position));
 
         bool firstUnclamped;
         ClampType secondClamp;
