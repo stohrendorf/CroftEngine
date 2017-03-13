@@ -234,15 +234,16 @@ namespace engine
 
             std::vector<int> parents;
 
-            std::set<uint16_t> levelNodes;
-            levelNodes.insert(startBox);
+            std::vector<uint16_t> levelNodes;
+            std::vector<uint16_t> nextLevel;
+            levelNodes.emplace_back(startBox);
 
             std::vector<int> costs(startBox+1, UnsetBoxId);
             costs[startBox] = 0;
 
             for( uint16_t level = 1; level <= maxDepth; ++level )
             {
-                std::set<uint16_t> nextLevel;
+                nextLevel.clear();
 
                 for( const auto levelBoxIdx : levelNodes )
                 {
@@ -293,37 +294,30 @@ namespace engine
 
                         if( unvisited )
                         {
-                            nextLevel.insert(childBox);
+                            nextLevel.emplace_back(childBox);
                         }
                     }
                 }
-                levelNodes = std::move(nextLevel);
+
+                levelNodes.swap(nextLevel);
             }
 
             BOOST_ASSERT(path.empty());
         }
 
 
-        std::vector<uint16_t> RoutePlanner::getOverlaps(const level::Level& lvl, uint16_t idx)
+        gsl::span<const uint16_t> RoutePlanner::getOverlaps(const level::Level& lvl, uint16_t idx)
         {
-            std::vector<uint16_t> result;
-            result.reserve(64);
+            const uint16_t* first = &lvl.m_overlaps[idx];
+            const uint16_t* last = first;
+            const uint16_t* const endOfUniverse = &lvl.m_overlaps.back();
 
-            while( true )
+            while( last <= endOfUniverse && (*last & 0x8000) == 0 )
             {
-                BOOST_ASSERT(idx < lvl.m_overlaps.size());
-
-                result.emplace_back(lvl.m_overlaps[idx] & ~0xc000);
-
-                if( lvl.m_overlaps[idx] & 0x8000 )
-                {
-                    break;
-                }
-
-                ++idx;
+                ++last;
             }
 
-            return result;
+            return gsl::span<const uint16_t>(first, last);
         }
 
 
