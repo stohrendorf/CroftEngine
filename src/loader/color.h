@@ -5,6 +5,8 @@
 #include <gsl/gsl>
 
 #include "gameplay.h"
+#include "gl/texture.h"
+
 
 namespace loader
 {
@@ -18,20 +20,30 @@ namespace loader
     {
         uint8_t r = 0, g = 0, b = 0, a = 0;
 
+
         static ByteColor readTr1(io::SDLReader& reader)
         {
             return read(reader, false);
         }
+
 
         static ByteColor readTr2(io::SDLReader& reader)
         {
             return read(reader, true);
         }
 
+
+        gameplay::gl::PixelRGBA_U8 toTextureColor() const
+        {
+            return gameplay::gl::PixelRGBA_U8{r, g, b, a};
+        }
+
+
         glm::vec4 toGLColor() const
         {
-            return glm::vec4{ r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+            return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
         }
+
 
     private:
         static ByteColor read(io::SDLReader& reader, bool withAlpha)
@@ -48,6 +60,7 @@ namespace loader
         }
     };
 
+
     /**
     * @brief 32-Bit float RGBA color.
     * @ingroup native
@@ -55,6 +68,7 @@ namespace loader
     struct FloatColor
     {
         float r, g, b, a;
+
 
         glm::vec4 toSColor(float intensity) const
         {
@@ -68,6 +82,7 @@ namespace loader
         }
     };
 
+
     struct Palette
     {
         ByteColor color[256];
@@ -80,6 +95,7 @@ namespace loader
                 c = ByteColor::readTr1(reader);
             return palette;
         }
+
 
         static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
         {

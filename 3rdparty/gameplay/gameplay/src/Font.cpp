@@ -12,6 +12,7 @@
 
 #include FT_OUTLINE_H
 
+
 namespace gameplay
 {
     namespace
@@ -55,14 +56,15 @@ namespace gameplay
         }
     }
 
-    FT_Error ftcFaceRequester(FTC_FaceID  face_id,
-                          FT_Library  library,
-                          FT_Pointer  req_data,
-                          FT_Face*    aface)
+
+    FT_Error ftcFaceRequester(FTC_FaceID face_id,
+                              FT_Library library,
+                              FT_Pointer req_data,
+                              FT_Face* aface)
     {
         Expects(face_id == &_dummyFaceId);
         auto error = FT_New_Face(library, static_cast<const char*>(req_data), 0, aface);
-        if(error != FT_Err_Ok)
+        if( error != FT_Err_Ok )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << static_cast<const char*>(req_data) << ": " << getFreeTypeErrorMessage(error);
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font"));
@@ -70,11 +72,12 @@ namespace gameplay
         return FT_Err_Ok;
     }
 
+
     Font::Font(const std::string& ttf, int size)
         : m_filename{ttf}
     {
         auto error = FTC_Manager_New(loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<char*>(m_filename.c_str()), &m_cache);
-        if(error != FT_Err_Ok)
+        if( error != FT_Err_Ok )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cache manager"));
@@ -82,7 +85,7 @@ namespace gameplay
         BOOST_ASSERT(m_cache != nullptr);
 
         error = FTC_CMapCache_New(m_cache, &m_cmapCache);
-        if(error != FT_Err_Ok)
+        if( error != FT_Err_Ok )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
@@ -90,7 +93,7 @@ namespace gameplay
         BOOST_ASSERT(m_cmapCache != nullptr);
 
         error = FTC_SBitCache_New(m_cache, &m_sbitCache);
-        if(error != FT_Err_Ok)
+        if( error != FT_Err_Ok )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
@@ -110,7 +113,8 @@ namespace gameplay
         m_cache = nullptr;
     }
 
-    void Font::drawText(const char* text, int x, int y, const glm::vec4& color)
+
+    void Font::drawText(const char* text, int x, int y, const gl::PixelRGBA_U8& color)
     {
         BOOST_ASSERT(text);
 
@@ -119,10 +123,10 @@ namespace gameplay
         m_x0 = x;
         m_y0 = y;
 
-        while(const char chr = *text++)
+        while( const char chr = *text++ )
         {
             auto glyphIndex = FTC_CMapCache_Lookup(m_cmapCache, &_dummyFaceId, -1, chr);
-            if(glyphIndex <= 0)
+            if( glyphIndex <= 0 )
             {
                 BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
                 continue;
@@ -131,7 +135,7 @@ namespace gameplay
             FTC_SBit sbit = nullptr;
             FTC_Node node = nullptr;
             auto error = FTC_SBitCache_Lookup(m_sbitCache, &m_imgType, glyphIndex, &sbit, &node);
-            if(error != FT_Err_Ok)
+            if( error != FT_Err_Ok )
             {
                 BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
                 FTC_Node_Unref(node, m_cache);
@@ -139,11 +143,11 @@ namespace gameplay
             }
 
             {
-                for(int y = 0, i = 0; y < sbit->height; y++)
+                for( int y = 0, i = 0; y < sbit->height; y++ )
                 {
-                    for(int x = 0; x < sbit->width; x++, i++)
+                    for( int x = 0; x < sbit->width; x++ , i++ )
                     {
-                        currentColor.a = sbit->buffer[i] / 255.0f;
+                        currentColor.a = sbit->buffer[i];
 
                         m_targetImage->at(m_x0 + x + sbit->left, m_y0 + y - sbit->top) = currentColor;
                     }
@@ -160,6 +164,6 @@ namespace gameplay
 
     void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha)
     {
-        drawText(text.c_str(), x, y, glm::vec4(red, green, blue, alpha));
+        drawText(text.c_str(), x, y, gl::PixelRGBA_U8(red * 255, green * 255, blue * 255, alpha * 255));
     }
 }

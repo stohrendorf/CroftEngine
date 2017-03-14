@@ -6,6 +6,7 @@
 
 #include <vector>
 
+
 namespace gameplay
 {
     /**
@@ -13,11 +14,29 @@ namespace gameplay
      *
      * Currently only supports loading from .png image files.
      */
+    template<typename TStorage>
     class Image
     {
     public:
-        explicit Image(GLint width, GLint height, const glm::vec4* data = nullptr);
-        ~Image();
+        using StorageType = TStorage;
+
+
+        explicit Image(GLint width, GLint height, const StorageType* data = nullptr)
+            : _data()
+            , _width(width)
+            , _height(height)
+        {
+            BOOST_ASSERT(width > 0 && height > 0);
+
+            if( data == nullptr )
+                _data.resize(width * height);
+            else
+                _data.assign(data, data + width * height);
+        }
+
+
+        ~Image() = default;
+
 
         /**
          * Gets the image's raw pixel data.
@@ -25,10 +44,11 @@ namespace gameplay
          * @return The image's pixel data.
          * @script{ignore}
          */
-        const std::vector<glm::vec4>& getData() const
+        const std::vector<StorageType>& getData() const
         {
             return _data;
         }
+
 
         /**
          * Gets the height of the image.
@@ -39,6 +59,7 @@ namespace gameplay
         {
             return _height;
         }
+
 
         /**
          * Gets the width of the image.
@@ -51,9 +72,9 @@ namespace gameplay
         }
 
 
-        glm::vec4& at(GLint x, GLint y)
+        StorageType& at(GLint x, GLint y)
         {
-            static glm::vec4 none;
+            static StorageType none{};
             if( x < 0 || x >= _width || y < 0 || y >= _height )
                 return none;
 
@@ -61,9 +82,9 @@ namespace gameplay
         }
 
 
-        const glm::vec4& at(GLint x, GLint y) const
+        const StorageType& at(GLint x, GLint y) const
         {
-            static const glm::vec4 none;
+            static const StorageType none{};
             if( x < 0 || x >= _width || y < 0 || y >= _height )
                 return none;
 
@@ -71,13 +92,13 @@ namespace gameplay
         }
 
 
-        void fill(const glm::vec4& color)
+        void fill(const StorageType& color)
         {
             std::fill_n(_data.data(), _data.size(), color);
         }
 
 
-        void line(GLint x0, GLint y0, GLint x1, GLint y1, const glm::vec4& color)
+        void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color)
         {
             // shamelessly copied from wikipedia
             const GLint dx = abs(x1 - x0);
@@ -89,14 +110,7 @@ namespace gameplay
 
             while( true )
             {
-                if( color.a != 1 )
-                {
-                    at(x0, y0) = glm::mix(at(x0, y0), color, color.a);
-                }
-                else
-                {
-                    at(x0, y0) = color;
-                }
+                at(x0, y0) = color;
 
                 if( x0 == x1 && y0 == y1 )
                     break;
@@ -120,7 +134,7 @@ namespace gameplay
 
         Image& operator=(const Image&) = delete;
 
-        std::vector<glm::vec4> _data;
+        std::vector<StorageType> _data;
         GLint _width;
         GLint _height;
     };

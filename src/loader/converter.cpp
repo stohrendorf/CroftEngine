@@ -208,13 +208,12 @@ namespace
 
 namespace loader
 {
-    void Converter::write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const
+    void Converter::write(const std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>>& srcImg, size_t id) const
     {
         Expects(srcImg != nullptr);
 
-        cimg_library::CImg<float> img(glm::value_ptr(srcImg->getData()[0]), 4, srcImg->getWidth(), srcImg->getHeight(), 1);
+        cimg_library::CImg<uint8_t> img(&srcImg->getData()[0].r, 4, srcImg->getWidth(), srcImg->getHeight(), 1);
         img.permute_axes("yzcx");
-        img *= 255;
 
         auto fullPath = m_basePath / makeTextureName(id);
         fullPath.replace_extension("png");
@@ -231,8 +230,7 @@ namespace loader
                 return it->second;
         }
 
-        cimg_library::CImg<float> srcImage((m_basePath / path).string().c_str());
-        srcImage /= 255;
+        cimg_library::CImg<uint8_t> srcImage((m_basePath / path).string().c_str());
 
         const auto w = srcImage.width();
         const auto h = srcImage.height();
@@ -250,7 +248,7 @@ namespace loader
 
         srcImage.permute_axes("cxyz");
 
-        auto image = std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(srcImage.data()));
+        auto image = std::make_shared<gameplay::Image<gameplay::gl::PixelRGBA_U8>>(w, h, reinterpret_cast<const gameplay::gl::PixelRGBA_U8*>(srcImage.data()));
         auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
         texture->set2D(image->getWidth(), image->getHeight(), image->getData(), true);
         return m_textureCache[path] = texture;

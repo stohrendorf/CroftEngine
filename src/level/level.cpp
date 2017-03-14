@@ -935,7 +935,7 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x] = {pal.color[col].r / 255.0f, pal.color[col].g / 255.0f, pal.color[col].b / 255.0f, 1};
+                dst.pixels[y][x] = {pal.color[col].r, pal.color[col].g, pal.color[col].b, 255};
             else
                 dst.pixels[y][x] = {0, 0, 0, 0};
         }
@@ -955,10 +955,10 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 
             if( col & 0x8000 )
             {
-                const uint32_t r = ((col & 0x00007c00) >> 7);
-                const uint32_t g = ((col & 0x000003e0) >> 2);
-                const uint32_t b = ((col & 0x0000001f) << 3);
-                dst.pixels[y][x] = {r / 255.0f, g / 255.0f, b / 255.0f, 1};
+                const uint8_t r = ((col & 0x00007c00) >> 7);
+                const uint8_t g = ((col & 0x000003e0) >> 2);
+                const uint8_t b = ((col & 0x0000001f) << 3);
+                dst.pixels[y][x] = {r, g, b, 1};
             }
             else
             {
@@ -1069,46 +1069,46 @@ engine::items::ItemNode* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image>& image) const
+void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>>& image) const
 {
     if( m_lara->isInWater() )
     {
         const int x0 = game->getViewport().width - 110;
 
         for( int i = 7; i <= 13; ++i )
-            image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toGLColor());
-        image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toGLColor());
-        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toGLColor());
-        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toGLColor());
-        image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toGLColor());
+            image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor());
+        image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor());
+        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor());
+        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
+        image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
 
         const int p = util::clamp(std::lround(m_lara->getAir() * 100 / 1800), 0L, 100L);
         if( p > 0 )
         {
-            image->line(x0, 8, x0 + p, 8, m_palette->color[32].toGLColor());
-            image->line(x0, 9, x0 + p, 9, m_palette->color[41].toGLColor());
-            image->line(x0, 10, x0 + p, 10, m_palette->color[32].toGLColor());
-            image->line(x0, 11, x0 + p, 11, m_palette->color[19].toGLColor());
-            image->line(x0, 12, x0 + p, 12, m_palette->color[21].toGLColor());
+            image->line(x0, 8, x0 + p, 8, m_palette->color[32].toTextureColor());
+            image->line(x0, 9, x0 + p, 9, m_palette->color[41].toTextureColor());
+            image->line(x0, 10, x0 + p, 10, m_palette->color[32].toTextureColor());
+            image->line(x0, 11, x0 + p, 11, m_palette->color[19].toTextureColor());
+            image->line(x0, 12, x0 + p, 12, m_palette->color[21].toTextureColor());
         }
     }
 
     const int x0 = 8;
     for( int i = 7; i <= 13; ++i )
-        image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toGLColor());
-    image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toGLColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toGLColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toGLColor());
-    image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toGLColor());
+        image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor());
+    image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor());
+    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor());
+    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
+    image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
 
     const int p = util::clamp(std::lround(m_lara->getHealth().getCurrentValue() * 100 / 1000), 0L, 100L);
     if( p > 0 )
     {
-        image->line(x0, 8, x0 + p, 8, m_palette->color[8].toGLColor());
-        image->line(x0, 9, x0 + p, 9, m_palette->color[11].toGLColor());
-        image->line(x0, 10, x0 + p, 10, m_palette->color[8].toGLColor());
-        image->line(x0, 11, x0 + p, 11, m_palette->color[6].toGLColor());
-        image->line(x0, 12, x0 + p, 12, m_palette->color[24].toGLColor());
+        image->line(x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor());
+        image->line(x0, 9, x0 + p, 9, m_palette->color[11].toTextureColor());
+        image->line(x0, 10, x0 + p, 10, m_palette->color[8].toTextureColor());
+        image->line(x0, 11, x0 + p, 11, m_palette->color[6].toTextureColor());
+        image->line(x0, 12, x0 + p, 12, m_palette->color[24].toTextureColor());
     }
 }
 

@@ -47,11 +47,11 @@ namespace loader
     }
 
 
-    std::shared_ptr<gameplay::Image> DWordTexture::toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
+    std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>> DWordTexture::toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
     {
         if( glidos == nullptr )
         {
-            return std::make_shared<gameplay::Image>(256, 256, &pixels[0][0]);
+            return std::make_shared<gameplay::Image<gameplay::gl::PixelRGBA_U8>>(256, 256, &pixels[0][0]);
         }
 
         BOOST_LOG_TRIVIAL(info) << "Upgrading texture " << md5 << "...";
@@ -66,8 +66,7 @@ namespace loader
             std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(cacheName)) > mapping.newestSource )
         {
             BOOST_LOG_TRIVIAL(info) << "Loading cached texture " << cacheName << "...";
-            cimg_library::CImg<float> cacheImage(cacheName.string().c_str());
-            cacheImage /= 255;
+            cimg_library::CImg<uint8_t> cacheImage(cacheName.string().c_str());
 
             if( cacheImage.spectrum() == 3 )
             {
@@ -87,15 +86,15 @@ namespace loader
             // interleave
             cacheImage.permute_axes("cxyz");
 
-            return std::make_shared<gameplay::Image>(w, h, reinterpret_cast<const glm::vec4*>(cacheImage.data()));
+            return std::make_shared<gameplay::Image<gameplay::gl::PixelRGBA_U8>>(w, h, reinterpret_cast<const gameplay::gl::PixelRGBA_U8*>(cacheImage.data()));
         }
 
-        cimg_library::CImg<float> original(glm::value_ptr(pixels[0][0]), 4, 256, 256, 1, false);
+        cimg_library::CImg<uint8_t> original(&pixels[0][0].r, 4, 256, 256, 1, false);
         // un-interleave
         original.permute_axes("yzcx");
         BOOST_ASSERT(original.width() == 256 && original.height() == 256 && original.spectrum() == 4);
         original.resize(Resolution, Resolution, 1, 4, 6);
-        original.min(1.0f).max(0.0f); // interpolation may produce values outside the range 0..1
+        original.min(uint8_t(255)).max(uint8_t(0)); // interpolation may produce values outside the range 0..255
         BOOST_ASSERT(original.width() == Resolution && original.height() == Resolution && original.spectrum() == 4);
 
         for( const auto& tile : mapping.tiles )
@@ -133,8 +132,7 @@ namespace loader
 
                     for( int c = 0; c < 4; ++c )
                     {
-                        const auto pixel = srcImage(x, y, 0, c) / 255.0f;
-                        BOOST_ASSERT(pixel >= 0 && pixel <= 1);
+                        const auto pixel = srcImage(x, y, 0, c);
                         original(x + x0, y + y0, 0, c) = pixel;
                     }
                 }
@@ -143,12 +141,12 @@ namespace loader
 
         BOOST_LOG_TRIVIAL(info) << "Writing texture cache " << cacheName << "...";
         boost::filesystem::create_directories(cacheName.parent_path());
-        (original * 255).save_png(cacheName.string().c_str(), 1);
+        original.save_png(cacheName.string().c_str(), 1);
 
         // interleave
         original.permute_axes("cxyz");
 
-        return std::make_shared<gameplay::Image>(Resolution, Resolution, reinterpret_cast<const glm::vec4*>(original.data()));
+        return std::make_shared<gameplay::Image<gameplay::gl::PixelRGBA_U8>>(Resolution, Resolution, reinterpret_cast<const gameplay::gl::PixelRGBA_U8*>(original.data()));
     }
 
 

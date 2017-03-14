@@ -60,7 +60,7 @@ namespace loader
 
     struct DWordTexture final
     {
-        glm::vec4 pixels[256][256];
+        gameplay::gl::PixelRGBA_U8 pixels[256][256];
         std::string md5;
 
 
@@ -73,11 +73,11 @@ namespace loader
                 for( int j = 0; j < 256; j++ )
                 {
                     auto tmp = reader.readU32(); // format is ARGB
-                    const auto a = (tmp >> 24) & 0xff;
-                    const auto r = (tmp >> 16) & 0xff;
-                    const auto g = (tmp >> 8) & 0xff;
-                    const auto b = (tmp >> 0) & 0xff;
-                    textile->pixels[i][j] = {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
+                    const uint8_t a = (tmp >> 24) & 0xff;
+                    const uint8_t r = (tmp >> 16) & 0xff;
+                    const uint8_t g = (tmp >> 8) & 0xff;
+                    const uint8_t b = (tmp >> 0) & 0xff;
+                    textile->pixels[i][j] = {r, g, b, a};
                 }
             }
 
@@ -87,7 +87,7 @@ namespace loader
 
         std::shared_ptr<gameplay::gl::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
 
-        std::shared_ptr<gameplay::Image> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+        std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
     };
 
 

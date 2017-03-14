@@ -4,8 +4,6 @@
 
 #include "gameplay.h"
 
-#include "gsl/gsl"
-
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/filesystem.hpp>
@@ -32,7 +30,7 @@ namespace loader
         }
 
 
-        void write(const std::shared_ptr<gameplay::Image>& srcImg, size_t id) const;
+        void write(const std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>>& srcImg, size_t id) const;
 
 
         std::shared_ptr<gameplay::gl::Texture> readTexture(const boost::filesystem::path& path) const;

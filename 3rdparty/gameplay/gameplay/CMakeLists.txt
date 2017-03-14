@@ -16,7 +16,6 @@ set( GAMEPLAY_SRC
      src/Frustum.h
      src/Game.cpp
      src/Game.h
-     src/Image.cpp
      src/Image.h
      src/Material.cpp
      src/Material.h

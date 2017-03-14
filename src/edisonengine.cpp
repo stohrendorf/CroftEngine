@@ -99,7 +99,7 @@ public:
         auto vp = game->getViewport();
 
         m_colorBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
-        m_colorBuffer->set2D(vp.width, vp.height, GL_RGBA, false, multisample);
+        m_colorBuffer->reserve2D(vp.width, vp.height, GL_RGBA, false, multisample);
         m_fb->attachTexture2D(GL_COLOR_ATTACHMENT0, *m_colorBuffer);
 
         m_depthBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
@@ -311,7 +311,7 @@ int main()
             projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().width;
             projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
 
-            font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, glm::vec4{1,1,1,1});
+            font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, gameplay::gl::PixelRGBA_U8{255});
         }
 
         screenOverlay->draw(context);
