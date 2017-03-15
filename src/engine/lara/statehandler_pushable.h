@@ -18,7 +18,7 @@ namespace engine
             boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override final
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-                setCameraUnknown1(1);
+                setCameraUnknown1(CamOverrideType::NotActivatedByLara);
                 setCameraRotation(-25_deg, 35_deg);
                 return {};
             }

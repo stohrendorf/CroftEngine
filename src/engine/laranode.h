@@ -6,6 +6,7 @@
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/items/itemnode.h"
 #include <chrono>
+#include "cameracontroller.h"
 
 
 namespace engine
@@ -241,7 +242,7 @@ namespace engine
 
         void setCameraDistance(int d);
 
-        void setCameraUnknown1(int k);
+        void setCameraUnknown1(CamOverrideType k);
 
 
         void onFrameChanged(FrameChangeType frameChangeType) override;

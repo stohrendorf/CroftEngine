@@ -402,6 +402,8 @@ namespace engine
             const auto bbox = getBoundingBox();
             long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
+            BOOST_LOG_TRIVIAL(debug) << "spaceToReach = " << spaceToReach << ", getFallSpeed() + spaceToReach = " << (getFallSpeed() + spaceToReach).getCurrentValue();
+
             if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
                 return {};
             if( spaceToReach > 0 && getFallSpeed() + spaceToReach > 0 )
@@ -893,7 +895,7 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::setCameraUnknown1(int k)
+        void AbstractStateHandler::setCameraUnknown1(CamOverrideType k)
         {
             m_lara.setCameraUnknown1(k);
         }

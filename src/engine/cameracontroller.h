@@ -46,24 +46,33 @@ namespace engine
         LaraNode* m_laraController;
 
         // TR state
-        items::ItemNode* m_lookAtItem = nullptr;
-        const items::ItemNode* m_lookAtItem2 = nullptr;
+        //! @brief An item to point the camera to.
+        //! @note Also modifies Lara's head and torso rotation.
+        items::ItemNode* m_itemOfInterest = nullptr;
+        const items::ItemNode* m_previousItemOfInterest = nullptr;
         items::ItemNode* m_enemy = nullptr;
         core::TRRotation m_enemyLookRot;
-        int m_unknown1 = 0;
+        CamOverrideType m_unknown1 = CamOverrideType::None;
         int m_camShakeRadius = 0;
-        int m_currentYOffset = 0;
-        int m_distanceFromLookAt = 1536;
-        int m_smoothFactor = 8;
+        //! @brief Additional height of the camera above the real position.
+        int m_cameraYOffset = 0;
+        //! @brief Goal distance between the pivot point and the camera.
+        int m_pivotDistance = 1536;
+        //! @brief Movement smothness for adjusting the pivot position.
+        int m_pivotMovementSmoothness = 8;
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
         std::chrono::microseconds m_camOverrideTimeout{-1};
         CamOverrideType m_camOverrideType = CamOverrideType::None;
-        core::RoomBoundIntPosition m_currentLookAt;
-        core::TRRotation m_localRotation;
+        //! @brief The point the camera moves around.
+        core::RoomBoundIntPosition m_pivot;
+        //! @brief Global camera rotation.
+        core::TRRotation m_globalRotation;
+        //! @brief Global camera position.
         core::RoomBoundIntPosition m_currentPosition;
         bool m_lookingAtSomething = false;
-        long m_lookAtDistanceSq = 0;
+        //! @brief Floor-projected pivot distance, squared.
+        long m_flatPivotDistanceSq = 0;
 
         // hacks
         core::TRRotation m_headRotation;
@@ -88,11 +97,11 @@ namespace engine
 
         void setLocalDistance(int d)
         {
-            m_distanceFromLookAt = d;
+            m_pivotDistance = d;
         }
 
 
-        void setUnknown1(int k)
+        void setUnknown1(CamOverrideType k)
         {
             m_unknown1 = k;
         }
@@ -106,7 +115,7 @@ namespace engine
             if( item == nullptr || (m_camOverrideType != CamOverrideType::NotActivatedByLara && m_camOverrideType != CamOverrideType::ActivatedByLara) )
                 return;
 
-            m_lookAtItem = item;
+            m_itemOfInterest = item;
         }
 
 

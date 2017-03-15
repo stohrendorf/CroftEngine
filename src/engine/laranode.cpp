@@ -891,7 +891,7 @@ namespace engine
     }
 
 
-    void LaraNode::setCameraUnknown1(int k)
+    void LaraNode::setCameraUnknown1(CamOverrideType k)
     {
         getLevel().m_cameraController->setUnknown1(k);
     }

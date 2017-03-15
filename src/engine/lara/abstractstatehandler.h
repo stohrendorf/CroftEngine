@@ -11,6 +11,7 @@
 
 namespace engine
 {
+    enum class CamOverrideType;
     using LaraStateId = loader::LaraStateId;
     struct CollisionInfo;
     class LaraNode;
@@ -203,7 +204,7 @@ namespace engine
 
             void setCameraDistance(int d);
 
-            void setCameraUnknown1(int k);
+            void setCameraUnknown1(CamOverrideType k);
         };
     }
 }
