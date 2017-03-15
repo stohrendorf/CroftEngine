@@ -399,7 +399,7 @@ namespace engine
 
         if( m_itemOfInterest != nullptr && !lookingAtSomething )
         {
-            BOOST_ASSERT(m_lookAtItem != lookAtItem);
+            BOOST_ASSERT(m_itemOfInterest != lookAtItem);
             BOOST_ASSERT(lookAtItem);
             const auto distToLookAt = m_itemOfInterest->getPosition().distanceTo(lookAtItem->getPosition());
             auto lookAtYAngle = core::Angle::fromAtan(m_itemOfInterest->getPosition().X - lookAtItem->getPosition().X, m_itemOfInterest->getPosition().Z - lookAtItem->getPosition().Z) - lookAtItem->getRotation().Y;
@@ -720,9 +720,9 @@ namespace engine
     void CameraController::clampBox(core::RoomBoundIntPosition& goalPosition, const std::function<ClampCallback>& callback) const
     {
         clampPosition(goalPosition);
-        BOOST_ASSERT(m_currentLookAt.room->getSectorByAbsolutePosition(m_currentLookAt.position)->boxIndex < m_level->m_boxes.size());
+        BOOST_ASSERT(m_pivot.room->getSectorByAbsolutePosition(m_pivot.position)->boxIndex < m_level->m_boxes.size());
         auto clampBox = &m_level->m_boxes[m_pivot.room->getSectorByAbsolutePosition(m_pivot.position)->boxIndex];
-        BOOST_ASSERT(camTargetPos.room->getSectorByAbsolutePosition(camTargetPos.position) != nullptr);
+        BOOST_ASSERT(goalPosition.room->getSectorByAbsolutePosition(goalPosition.position) != nullptr);
         if( goalPosition.room->getSectorByAbsolutePosition(goalPosition.position)->boxIndex != 0xffff )
         {
             if( goalPosition.position.X < clampBox->xmin || goalPosition.position.X > clampBox->xmax
@@ -732,7 +732,7 @@ namespace engine
 
         core::TRCoordinates testPos = goalPosition.position;
         testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
-        BOOST_ASSERT(testPos.Z % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.Z - camTargetPos.position.Z) <= loader::SectorSize);
+        BOOST_ASSERT(testPos.Z % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.Z - goalPosition.position.Z) <= loader::SectorSize);
 
         auto clampZMin = clampBox->zmin;
         const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
@@ -746,7 +746,7 @@ namespace engine
 
         testPos = goalPosition.position;
         testPos.Z = (testPos.Z / loader::SectorSize + 1) * loader::SectorSize;
-        BOOST_ASSERT(testPos.Z % loader::SectorSize == 0 && std::abs(testPos.Z - camTargetPos.position.Z) <= loader::SectorSize);
+        BOOST_ASSERT(testPos.Z % loader::SectorSize == 0 && std::abs(testPos.Z - goalPosition.position.Z) <= loader::SectorSize);
 
         auto clampZMax = clampBox->zmax;
         const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
@@ -760,7 +760,7 @@ namespace engine
 
         testPos = goalPosition.position;
         testPos.X = (testPos.X / loader::SectorSize) * loader::SectorSize - 1;
-        BOOST_ASSERT(testPos.X % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.X - camTargetPos.position.X) <= loader::SectorSize);
+        BOOST_ASSERT(testPos.X % loader::SectorSize == loader::SectorSize - 1 && std::abs(testPos.X - goalPosition.position.X) <= loader::SectorSize);
 
         auto clampXMin = clampBox->xmin;
         const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
@@ -774,7 +774,7 @@ namespace engine
 
         testPos = goalPosition.position;
         testPos.X = (testPos.X / loader::SectorSize + 1) * loader::SectorSize;
-        BOOST_ASSERT(testPos.X % loader::SectorSize == 0 && std::abs(testPos.X - camTargetPos.position.X) <= loader::SectorSize);
+        BOOST_ASSERT(testPos.X % loader::SectorSize == 0 && std::abs(testPos.X - goalPosition.position.X) <= loader::SectorSize);
 
         auto clampXMax = clampBox->xmax;
         const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
