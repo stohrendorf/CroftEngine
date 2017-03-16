@@ -11,9 +11,9 @@
 
 namespace
 {
-    void drawText(const std::unique_ptr<gameplay::Font>& font, int x, int y, const std::string& txt, const glm::vec4& col = {1,1,1,1})
+    void drawText(const std::unique_ptr<gameplay::Font>& font, int x, int y, const std::string& txt, const gameplay::gl::RGBA8& col = {255,255,255,255})
     {
-        font->drawText(txt, x, y, col.x, col.y, col.z, col.w);
+        font->drawText(txt, x, y, col.r, col.g, col.b, col.a);
     }
 
 

@@ -37,7 +37,7 @@ namespace gameplay
          * @param blue The blue channel of the text color.
          * @param alpha The alpha channel of the text color.
          */
-        void drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha);
+        void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
         Font(const std::string& ttf, int size);
 

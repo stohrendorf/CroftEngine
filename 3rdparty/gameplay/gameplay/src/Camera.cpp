@@ -259,7 +259,7 @@ namespace gameplay
         BOOST_ASSERT(y);
 
         // Transform the point to clip-space.
-        glm::vec4 clipPos = getViewProjectionMatrix() * glm::vec4(position.x, position.y, position.z, 1.0f);
+        glm::vec4 clipPos = getViewProjectionMatrix() * glm::vec4{ position.x, position.y, position.z, 1.0f };
 
         // Compute normalized device coordinates.
         BOOST_ASSERT(clipPos.w != 0.0f);

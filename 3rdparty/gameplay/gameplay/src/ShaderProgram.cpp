@@ -81,16 +81,7 @@ namespace gameplay
 
     static std::string replaceDefines(const std::vector<std::string>& defines)
     {
-        const char* globalDefines = nullptr;
-
         std::string out;
-        if( globalDefines && globalDefines[0] )
-        {
-            std::string tmp = globalDefines;
-            boost::algorithm::replace_all(tmp, ";", "\n#define");
-            out += "#define ";
-            out += tmp;
-        }
         if( !defines.empty() )
         {
             out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");

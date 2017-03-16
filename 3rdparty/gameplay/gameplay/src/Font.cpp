@@ -162,8 +162,8 @@ namespace gameplay
     }
 
 
-    void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha)
+    void Font::drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
     {
-        drawText(text.c_str(), x, y, gl::RGBA8(red * 255, green * 255, blue * 255, alpha * 255));
+        drawText(text.c_str(), x, y, gl::RGBA8{ red, green, blue, alpha });
     }
 }

@@ -24,7 +24,7 @@ namespace gameplay
 
     Ray::Ray(float originX, float originY, float originZ, float dirX, float dirY, float dirZ)
     {
-        set(glm::vec3(originX, originY, originZ), glm::vec3(dirX, dirY, dirZ));
+        set(glm::vec3{ originX, originY, originZ }, glm::vec3{ dirX, dirY, dirZ });
     }
 
 

@@ -205,7 +205,7 @@ namespace gameplay
             return false;
         }
 
-        setViewport(Rectangle(0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)));
+        setViewport(Rectangle{ 0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height) });
         RenderState::initialize();
 
         _state = RUNNING;
@@ -303,17 +303,14 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, const glm::vec4& clearColor, float clearDepth)
+    void Game::clear(ClearFlags flags, const gl::RGBAF& clearColor, float clearDepth)
     {
         GLbitfield bits = 0;
         if( flags & CLEAR_COLOR )
         {
-            if( clearColor.x != _clearColor.x ||
-                clearColor.y != _clearColor.y ||
-                clearColor.z != _clearColor.z ||
-                clearColor.w != _clearColor.w )
+            if( clearColor != _clearColor )
             {
-                glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+                glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
                 _clearColor = clearColor;
             }
             bits |= GL_COLOR_BUFFER_BIT;
@@ -340,6 +337,6 @@ namespace gameplay
 
     void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth)
     {
-        clear(flags, glm::vec4(red, green, blue, alpha), clearDepth);
+        clear(flags, gl::RGBAF{ red, green, blue, alpha }, clearDepth);
     }
 }

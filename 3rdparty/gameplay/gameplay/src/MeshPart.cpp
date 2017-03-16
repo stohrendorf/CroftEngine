@@ -138,14 +138,14 @@ namespace gameplay
             case PrimitiveType::TRIANGLES:
                 for(size_t i = 0; i < _indexCount; i += 3)
                 {
-                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), (reinterpret_cast<const GLvoid*>(i*indexSize))));
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), reinterpret_cast<const GLvoid*>(i*indexSize)));
                 }
                 return true;
 
             case PrimitiveType::TRIANGLE_STRIP:
                 for(size_t i = 2; i < _indexCount; ++i)
                 {
-                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), (reinterpret_cast<const GLvoid*>((i - 2)*indexSize))));
+                    GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), reinterpret_cast<const GLvoid*>((i - 2)*indexSize)));
                 }
                 return true;
 

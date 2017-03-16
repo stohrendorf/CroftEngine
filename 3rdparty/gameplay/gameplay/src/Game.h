@@ -3,9 +3,12 @@
 #include "Rectangle.h"
 #include "RenderState.h"
 
+#include "gl/pixel.h"
+
 #include <GLFW/glfw3.h>
 
 #include <chrono>
+
 
 namespace gameplay
 {
@@ -181,7 +184,7 @@ namespace gameplay
          * @param clearColor The color value to clear to when the flags includes the color buffer.
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
          */
-        void clear(::gameplay::Game::ClearFlags flags, const glm::vec4& clearColor, float clearDepth);
+        void clear(::gameplay::Game::ClearFlags flags, const gl::RGBAF& clearColor, float clearDepth);
 
         /**
          * Clears the specified resource buffers to the specified clear values.
@@ -277,7 +280,7 @@ namespace gameplay
         int _width = 0; // The game's display width.
         int _height = 0; // The game's display height.
         Rectangle _viewport; // the games's current viewport.
-        glm::vec4 _clearColor; // The clear color value last used for clearing the color buffer.
+        gl::RGBAF _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
         bool _vsync = WINDOW_VSYNC;

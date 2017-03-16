@@ -24,7 +24,7 @@ namespace gameplay
 
     Plane::Plane(float normalX, float normalY, float normalZ, float distance)
     {
-        set(glm::vec3(normalX, normalY, normalZ), distance);
+        set(glm::vec3{ normalX, normalY, normalZ }, distance);
     }
 
 

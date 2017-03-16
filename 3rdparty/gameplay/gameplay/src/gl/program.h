@@ -328,7 +328,7 @@ public:
             BOOST_ASSERT(m_samplerIndex >= 0);
 
             // Set samplers as active and load texture unit array
-            GLint units[32];
+            std::vector<GLint> units;
             for( size_t i = 0; i < values.size(); ++i )
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + m_samplerIndex + i));
@@ -337,11 +337,11 @@ public:
                 // Bind the sampler - this binds the texture and applies sampler state
                 values[i]->bind();
 
-                units[i] = static_cast<GLint>(m_samplerIndex + i);
+                units.emplace_back( static_cast<GLint>(m_samplerIndex + i) );
             }
 
             // Pass texture unit array to GL
-            glUniform1iv(m_location, static_cast<GLsizei>(values.size()), units);
+            glUniform1iv(m_location, static_cast<GLsizei>(values.size()), units.data());
             checkGlError();
         }
 
