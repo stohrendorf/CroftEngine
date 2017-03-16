@@ -45,10 +45,10 @@ namespace
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
-                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::normal, 3 } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::uv, 2 } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
+                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::normal } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::uv } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } }
             };
 
             return attribs;
@@ -208,7 +208,7 @@ namespace
 
 namespace loader
 {
-    void Converter::write(const std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>>& srcImg, size_t id) const
+    void Converter::write(const std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8> >& srcImg, size_t id) const
     {
         Expects(srcImg != nullptr);
 
@@ -248,7 +248,7 @@ namespace loader
 
         srcImage.permute_axes("cxyz");
 
-        auto image = std::make_shared<gameplay::Image<gameplay::gl::PixelRGBA_U8>>(w, h, reinterpret_cast<const gameplay::gl::PixelRGBA_U8*>(srcImage.data()));
+        auto image = std::make_shared<gameplay::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(srcImage.data()));
         auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
         texture->set2D(image->getWidth(), image->getHeight(), image->getData(), true);
         return m_textureCache[path] = texture;
@@ -327,7 +327,7 @@ namespace loader
                 faces.push_back(face.mIndices[2]);
             }
 
-            auto part = renderMesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX32, mesh->mNumFaces * 3, false);
+            auto part = renderMesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(faces[0])>::TypeId, mesh->mNumFaces * 3, false);
             part->setIndexData(faces.data(), 0, faces.size());
 
             const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -465,13 +465,13 @@ namespace loader
 
                 switch( part->getIndexFormat() )
                 {
-                    case gameplay::IndexFormat::INDEX8:
+                    case gameplay::gl::TypeTraits<uint8_t>::TypeId:
                         copyIndices<uint8_t>(part, outMesh);
                         break;
-                    case gameplay::IndexFormat::INDEX16:
+                    case gameplay::gl::TypeTraits<uint16_t>::TypeId:
                         copyIndices<uint16_t>(part, outMesh);
                         break;
-                    case gameplay::IndexFormat::INDEX32:
+                    case gameplay::gl::TypeTraits<uint32_t>::TypeId:
                         copyIndices<uint32_t>(part, outMesh);
                         break;
                     default:
@@ -665,13 +665,13 @@ namespace loader
 
                 switch( inPart->getIndexFormat() )
                 {
-                    case gameplay::IndexFormat::INDEX8:
+                    case gameplay::gl::TypeTraits<uint8_t>::TypeId:
                         copyIndices<uint8_t>(inPart, outMesh);
                         break;
-                    case gameplay::IndexFormat::INDEX16:
+                    case gameplay::gl::TypeTraits<uint16_t>::TypeId:
                         copyIndices<uint16_t>(inPart, outMesh);
                         break;
-                    case gameplay::IndexFormat::INDEX32:
+                    case gameplay::gl::TypeTraits<uint32_t>::TypeId:
                         copyIndices<uint32_t>(inPart, outMesh);
                         break;
                     default:

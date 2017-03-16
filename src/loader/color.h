@@ -33,9 +33,9 @@ namespace loader
         }
 
 
-        gameplay::gl::PixelRGBA_U8 toTextureColor() const
+        gameplay::gl::RGBA8 toTextureColor() const
         {
-            return gameplay::gl::PixelRGBA_U8{r, g, b, a};
+            return gameplay::gl::RGBA8{r, g, b, a};
         }
 
 

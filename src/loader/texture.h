@@ -60,7 +60,7 @@ namespace loader
 
     struct DWordTexture final
     {
-        gameplay::gl::PixelRGBA_U8 pixels[256][256];
+        gameplay::gl::RGBA8 pixels[256][256];
         std::string md5;
 
 
@@ -87,7 +87,7 @@ namespace loader
 
         std::shared_ptr<gameplay::gl::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
 
-        std::shared_ptr<gameplay::Image<gameplay::gl::PixelRGBA_U8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+        std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
     };
 
 

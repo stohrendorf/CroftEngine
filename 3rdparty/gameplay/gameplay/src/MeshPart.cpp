@@ -9,7 +9,7 @@ namespace gameplay
 {
     MeshPart::MeshPart(const gsl::not_null<Mesh*>& mesh,
                        PrimitiveType primitiveType,
-                       IndexFormat indexFormat,
+                       GLint indexFormat,
                        size_t indexCount,
                        bool dynamic)
         : _mesh{mesh}
@@ -23,13 +23,13 @@ namespace gameplay
         size_t indexSize;
         switch( indexFormat )
         {
-            case IndexFormat::INDEX8:
+            case gl::TypeTraits<uint8_t>::TypeId:
                 indexSize = 1;
                 break;
-            case IndexFormat::INDEX16:
+            case gl::TypeTraits<uint16_t>::TypeId:
                 indexSize = 2;
                 break;
-            case IndexFormat::INDEX32:
+            case gl::TypeTraits<uint32_t>::TypeId:
                 indexSize = 4;
                 break;
             default:
@@ -56,7 +56,7 @@ namespace gameplay
     }
 
 
-    IndexFormat MeshPart::getIndexFormat() const
+    GLint MeshPart::getIndexFormat() const
     {
         return _indexFormat;
     }
@@ -76,13 +76,13 @@ namespace gameplay
         size_t indexSize;
         switch( _indexFormat )
         {
-            case IndexFormat::INDEX8:
+            case gl::TypeTraits<uint8_t>::TypeId:
                 indexSize = 1;
                 break;
-            case IndexFormat::INDEX16:
+            case gl::TypeTraits<uint16_t>::TypeId:
                 indexSize = 2;
                 break;
-            case IndexFormat::INDEX32:
+            case gl::TypeTraits<uint32_t>::TypeId:
                 indexSize = 4;
                 break;
             default:
@@ -119,13 +119,13 @@ namespace gameplay
         size_t indexSize;
         switch(_indexFormat)
         {
-            case IndexFormat::INDEX8:
+            case gl::TypeTraits<uint8_t>::TypeId:
                 indexSize = 1;
                 break;
-            case IndexFormat::INDEX16:
+            case gl::TypeTraits<uint16_t>::TypeId:
                 indexSize = 2;
                 break;
-            case IndexFormat::INDEX32:
+            case gl::TypeTraits<uint32_t>::TypeId:
                 indexSize = 4;
                 break;
             default:

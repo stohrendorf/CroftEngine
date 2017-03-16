@@ -24,7 +24,7 @@ namespace gameplay
          * @param y The viewport y position to draw text at.
          * @param color The color of text.
          */
-        void drawText(const char* text, int x, int y, const gl::PixelRGBA_U8& color);
+        void drawText(const char* text, int x, int y, const gl::RGBA8& color);
 
         /**
          * Draws the specified text in a solid color, with a scaling factor.
@@ -44,13 +44,13 @@ namespace gameplay
         ~Font();
 
 
-        void setTarget(const std::shared_ptr<Image<gl::PixelRGBA_U8>>& img)
+        void setTarget(const std::shared_ptr<Image<gl::RGBA8>>& img)
         {
             m_targetImage = img;
         }
 
 
-        const std::shared_ptr<Image<gl::PixelRGBA_U8>>& getTarget() const
+        const std::shared_ptr<Image<gl::RGBA8>>& getTarget() const
         {
             return m_targetImage;
         }
@@ -66,7 +66,7 @@ namespace gameplay
         FTC_CMapCache m_cmapCache = nullptr;
         FTC_SBitCache m_sbitCache = nullptr;
         FTC_ImageTypeRec m_imgType;
-        std::shared_ptr<Image<gl::PixelRGBA_U8>> m_targetImage = nullptr;
+        std::shared_ptr<Image<gl::RGBA8>> m_targetImage = nullptr;
         int m_x0 = 0;
         int m_y0 = 0;
         const std::string m_filename;

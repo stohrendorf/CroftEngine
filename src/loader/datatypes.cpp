@@ -25,9 +25,9 @@ namespace loader
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
             {
                 static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
-                    { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::normal, 3 } },
-                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } }
+                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
+                    { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::normal } },
+                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } }
                 };
 
                 return attribs;
@@ -61,7 +61,7 @@ namespace loader
                     }
 #endif
 
-                    auto part = mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX16, localPart.indices.size(), true);
+                    auto part = mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
                     part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 
@@ -166,7 +166,7 @@ namespace loader
         mesh->getBuffer(0).assign(vbuf);
 
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &glm::vec2::x, 2 } }
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ gameplay::ext::VertexAttribute::SingleAttribute<glm::vec2>{} } }
         };
 
         mesh->addBuffer(attribs, true);

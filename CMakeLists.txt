@@ -244,7 +244,7 @@ endif ()
 
 
 add_library(GSL INTERFACE)
-target_include_directories(GSL INTERFACE 3rdparty/GSL)
+target_include_directories(GSL INTERFACE 3rdparty/GSL/include)
 
 
 find_package(Git)

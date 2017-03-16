@@ -24,7 +24,7 @@ namespace gameplay
         void draw(RenderContext& context) override;
 
 
-        const std::shared_ptr<Image<gl::PixelRGBA_U8>>& getImage() const
+        const std::shared_ptr<Image<gl::RGBA8>>& getImage() const
         {
             return _image;
         }
@@ -35,7 +35,7 @@ namespace gameplay
         ScreenOverlay(const ScreenOverlay& copy) = delete;
         ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-        std::shared_ptr<Image<gl::PixelRGBA_U8>> _image{nullptr};
+        std::shared_ptr<Image<gl::RGBA8>> _image{nullptr};
         std::shared_ptr<gl::Texture> _texture{nullptr};
         std::shared_ptr<Mesh> _mesh{nullptr};
         std::shared_ptr<Model> _model{nullptr};

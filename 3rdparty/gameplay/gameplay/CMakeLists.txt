@@ -51,9 +51,11 @@ set( GAMEPLAY_SRC
      src/gl/bindableresource.h
      src/gl/framebuffer.h
      src/gl/indexbuffer.h
+     src/gl/pixel.h
      src/gl/renderbuffer.h
      src/gl/rendertarget.h
      src/gl/texture.h
+     src/gl/typetraits.h
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h
      src/ext/vertexattribute.h

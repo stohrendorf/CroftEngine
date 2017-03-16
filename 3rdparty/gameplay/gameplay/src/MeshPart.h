@@ -25,7 +25,7 @@ namespace gameplay
     public:
         using MaterialParameterSetter = void(Material& material);
 
-        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, PrimitiveType primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Destructor.
@@ -51,7 +51,7 @@ namespace gameplay
          *
          * @return The part index format.
          */
-        IndexFormat getIndexFormat() const;
+        GLint getIndexFormat() const;
 
         /**
          * Determines if the indices are dynamic.
@@ -92,7 +92,7 @@ namespace gameplay
 
         const gsl::not_null<Mesh*> _mesh;
         PrimitiveType _primitiveType = PrimitiveType::TRIANGLES;
-        IndexFormat _indexFormat{};
+        GLint _indexFormat{};
         size_t _indexCount = 0;
         bool _dynamic = false;
         std::shared_ptr<Material> _material;

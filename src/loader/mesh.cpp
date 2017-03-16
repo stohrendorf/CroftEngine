@@ -17,9 +17,9 @@ namespace loader
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::position, 3 } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::color, 4 } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertex::uv, 2 } }
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::uv } }
             };
 
             return attribs;
@@ -38,10 +38,10 @@ namespace loader
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::position, 3 } },
-                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::normal, 3 } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::color, 4 } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ GL_FLOAT, &RenderVertexWithNormal::uv, 2 } }
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::position } },
+                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::normal } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::color } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::uv } }
             };
 
             return attribs;
@@ -301,7 +301,7 @@ namespace loader
                 BOOST_ASSERT(idx < m_vertexCount);
             }
 #endif
-            auto part = m_mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::IndexFormat::INDEX16, localPart.indices.size(), true);
+            auto part = m_mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);
             part->setMaterial(localPart.material);
             if( localPart.color )

@@ -11,14 +11,16 @@ Thumbs.db
 
 src/loader/animationids_enum.h
 src/loader/larastate_enum.h
-screen_*.png
+src/loader/larastateids_enum.h
+
 *.log
 *.dll
 *.exe
 *.pdb
 *.trace
 *.7z
-src/loader/larastateids_enum.h
+*.gz
+*.user
 
 shaders/*.err
 
@@ -26,3 +28,4 @@ shaders/*.err
 3rdparty/yaml-cpp-bin
 3rdparty/assimp
 3rdparty/assimp-bin
+

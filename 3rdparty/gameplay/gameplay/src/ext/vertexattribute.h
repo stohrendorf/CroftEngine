@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl/util.h"
+#include "gl/typetraits.h"
 
 namespace gameplay
 {
@@ -10,13 +10,29 @@ namespace ext
 class VertexAttribute
 {
 public:
+    template<typename T>
+    struct SingleAttribute
+    {
+        T attribute;
+    };
+
     template<typename T, typename U>
-    explicit VertexAttribute(GLenum type, const U T::* member, GLint size = 1, bool normalized = false)
-        : m_type{ type }
+    explicit VertexAttribute(const U T::* member, bool normalized = false)
+        : m_type{ gl::TypeTraits<U>::TypeId }
         , m_pointer{&(static_cast<T*>(nullptr)->*member)}
-        , m_size{size}
+        , m_size{ gl::TypeTraits<U>::ElementCount }
         , m_normalized{normalized}
         , m_stride{sizeof(T)}
+    {
+    }
+
+    template<typename U>
+    explicit VertexAttribute(const SingleAttribute<U>&, bool normalized = false)
+        : m_type{ gl::TypeTraits<U>::TypeId }
+        , m_pointer{nullptr}
+        , m_size{ gl::TypeTraits<U>::ElementCount }
+        , m_normalized{normalized}
+        , m_stride{sizeof(U)}
     {
     }
 

@@ -29,17 +29,6 @@ namespace gameplay
 
 
     /**
-     * Defines supported index formats.
-     */
-    enum class IndexFormat
-    {
-        INDEX8 = GL_UNSIGNED_BYTE,
-        INDEX16 = GL_UNSIGNED_SHORT,
-        INDEX32 = GL_UNSIGNED_INT
-    };
-
-
-    /**
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
@@ -138,7 +127,7 @@ namespace gameplay
          *
          * @return The newly created/added mesh part.
          */
-        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic = false);
+        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Gets the number of mesh parts contained within the mesh.

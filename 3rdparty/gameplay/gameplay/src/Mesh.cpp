@@ -29,9 +29,9 @@ namespace gameplay
         };
 
         ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 3 } },
-            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::normal, 3 } },
-            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ &Vertex::pos } },
+            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ &Vertex::normal } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ &Vertex::uv } }
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);
@@ -57,20 +57,20 @@ namespace gameplay
         };
 
         ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 2 } },
-            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ &Vertex::pos } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ &Vertex::uv } }
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);
         mesh->getBuffer(0).assign<Vertex>(vertices, 4);
-
-        auto part = mesh->addPart(PrimitiveType::TRIANGLES, IndexFormat::INDEX16, 6, false);
 
         static const uint16_t indices[6] =
         {
             0, 1, 2,
             0, 2, 3
         };
+
+        auto part = mesh->addPart(PrimitiveType::TRIANGLES, gl::TypeTraits<decltype(indices[0])>::TypeId, 6, false);
 
         part->setIndexData(indices, 0, 6);
 
@@ -99,9 +99,9 @@ namespace gameplay
         };
 
         ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::pos, 3 } },
-            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::normal, 3 } },
-            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ GL_FLOAT, &Vertex::uv, 2 } }
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ &Vertex::pos } },
+            { VERTEX_ATTRIBUTE_NORMAL_NAME, ext::VertexAttribute{ &Vertex::normal } },
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{ &Vertex::uv } }
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);
@@ -116,7 +116,7 @@ namespace gameplay
         BOOST_ASSERT(pointCount > 0);
 
         ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &glm::vec3::x, 3 } }
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ext::VertexAttribute::SingleAttribute<glm::vec3>{}} }
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);
@@ -153,7 +153,7 @@ namespace gameplay
         };
 
         ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ GL_FLOAT, &glm::vec3::x, 3 } }
+            { VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{ ext::VertexAttribute::SingleAttribute<glm::vec3>{} } }
         };
         auto mesh = std::make_shared<Mesh>(attribs, false);
         mesh->getBuffer(0).assign<glm::vec3>(vertices, 18);
@@ -162,7 +162,7 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, IndexFormat indexFormat, size_t indexCount, bool dynamic)
+    std::shared_ptr<MeshPart> Mesh::addPart(PrimitiveType primitiveType, GLint indexFormat, size_t indexCount, bool dynamic)
     {
         auto part = std::make_shared<MeshPart>(this, primitiveType, indexFormat, indexCount, dynamic);
         _parts.emplace_back(part);

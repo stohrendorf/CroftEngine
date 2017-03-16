@@ -114,7 +114,7 @@ namespace gameplay
     }
 
 
-    void Font::drawText(const char* text, int x, int y, const gl::PixelRGBA_U8& color)
+    void Font::drawText(const char* text, int x, int y, const gl::RGBA8& color)
     {
         BOOST_ASSERT(text);
 
@@ -164,6 +164,6 @@ namespace gameplay
 
     void Font::drawText(const std::string& text, int x, int y, float red, float green, float blue, float alpha)
     {
-        drawText(text.c_str(), x, y, gl::PixelRGBA_U8(red * 255, green * 255, blue * 255, alpha * 255));
+        drawText(text.c_str(), x, y, gl::RGBA8(red * 255, green * 255, blue * 255, alpha * 255));
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rendertarget.h"
+#include "gl/pixel.h"
 
 #include <glm/glm.hpp>
 
@@ -11,75 +12,6 @@ namespace gameplay
 {
     namespace gl
     {
-        using PixelRGBA_F = glm::vec4;
-        using PixelRGB_F = glm::vec3;
-
-#pragma pack(push, 1)
-        struct PixelRGBA_U8 final
-        {
-            explicit PixelRGBA_U8()
-                : PixelRGBA_U8{0}
-            {
-            }
-
-
-            explicit constexpr PixelRGBA_U8(uint8_t value) noexcept
-                : r{value}
-                , g{value}
-                , b{value}
-                , a{value}
-            {
-            }
-
-
-            constexpr PixelRGBA_U8(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_) noexcept
-                : r{r_}
-                , g{g_}
-                , b{b_}
-                , a{a_}
-            {
-            }
-
-
-            uint8_t r, g, b, a;
-        };
-
-
-        static_assert(sizeof(PixelRGBA_U8) == 4, "Structure alignment for PixelRGBA_U8 wrong");
-
-
-        struct PixelRGB_U8 final
-        {
-            explicit PixelRGB_U8()
-                : PixelRGB_U8{0}
-            {
-            }
-
-
-            explicit constexpr PixelRGB_U8(uint8_t value) noexcept
-                : r{value}
-                , g{value}
-                , b{value}
-            {
-            }
-
-
-            constexpr PixelRGB_U8(uint8_t r_, uint8_t g_, uint8_t b_) noexcept
-                : r{r_}
-                , g{g_}
-                , b{b_}
-            {
-            }
-
-
-            uint8_t r, g, b;
-        };
-
-
-        static_assert(sizeof(PixelRGB_U8) == 3, "Structure alignment for PixelRGB_U8 wrong");
-#pragma pack(pop)
-
-
         class Texture : public RenderTarget
         {
         public:
@@ -125,14 +57,15 @@ namespace gameplay
 
 
             // ReSharper disable once CppMemberFunctionMayBeConst
-            void set2D(const std::vector<PixelRGBA_U8>& data)
+            template<typename T>
+            void set2D(const std::vector<gl::RGBA<T>>& data)
             {
                 BOOST_ASSERT(m_width > 0 && m_height > 0);
                 BOOST_ASSERT(data.empty() || static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
 
                 bind();
 
-                glTexImage2D(m_type, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.empty() ? nullptr : data.data());
+                glTexImage2D(m_type, 0, gl::RGBA<T>::InternalFormat, m_width, m_height, 0, gl::RGBA<T>::Format, gl::RGBA<T>::TypeId, data.empty() ? nullptr : data.data());
                 checkGlError();
 
                 if( m_mipmap )
@@ -144,14 +77,15 @@ namespace gameplay
 
 
             // ReSharper disable once CppMemberFunctionMayBeConst
-            void update2D(const std::vector<glm::vec4>& data)
+            template<typename T>
+            void update2D(const std::vector<gl::RGBA<T>>& data)
             {
                 BOOST_ASSERT(m_width > 0 && m_height > 0);
                 BOOST_ASSERT(static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
 
                 bind();
 
-                glTexSubImage2D(m_type, 0, 0, 0, m_width, m_height, GL_RGBA, GL_FLOAT, data.data());
+                glTexSubImage2D(m_type, 0, 0, 0, m_width, m_height, gl::RGBA<T>::Format, gl::RGBA<T>::TypeId, data.data());
                 checkGlError();
 
                 if( m_mipmap )
@@ -162,26 +96,8 @@ namespace gameplay
             }
 
 
-            // ReSharper disable once CppMemberFunctionMayBeConst
-            void update2D(const std::vector<PixelRGBA_U8>& data)
-            {
-                BOOST_ASSERT(m_width > 0 && m_height > 0);
-                BOOST_ASSERT(static_cast<size_t>(m_width) * static_cast<size_t>(m_height) == data.size());
-
-                bind();
-
-                glTexSubImage2D(m_type, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-                checkGlError();
-
-                if( m_mipmap )
-                {
-                    glGenerateMipmap(m_type);
-                    checkGlError();
-                }
-            }
-
-
-            void set2D(GLint width, GLint height, const std::vector<glm::vec4>& data, bool generateMipmaps, GLint multisample = 0)
+            template<typename T>
+            void set2D(GLint width, GLint height, const std::vector<gl::RGBA<T>>& data, bool generateMipmaps, GLint multisample = 0)
             {
                 BOOST_ASSERT(width > 0 && height > 0);
                 BOOST_ASSERT(data.empty() || static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
@@ -189,9 +105,9 @@ namespace gameplay
                 bind();
 
                 if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, GL_RGBA32F, width, height, GL_TRUE);
+                    glTexImage2DMultisample(m_type, multisample, gl::RGBA<T>::InternalFormat, width, height, GL_TRUE);
                 else
-                    glTexImage2D(m_type, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data.empty() ? nullptr : data.data());
+                    glTexImage2D(m_type, 0, gl::RGBA<T>::InternalFormat, width, height, 0, gl::RGBA<T>::Format, gl::RGBA<T>::TypeId, data.empty() ? nullptr : data.data());
                 checkGlError();
 
                 m_width = width;
@@ -211,37 +127,8 @@ namespace gameplay
             }
 
 
-            void set2D(GLint width, GLint height, const std::vector<PixelRGBA_U8>& data, bool generateMipmaps, GLint multisample = 0)
-            {
-                BOOST_ASSERT(width > 0 && height > 0);
-                BOOST_ASSERT(data.empty() || static_cast<size_t>(width) * static_cast<size_t>(height) == data.size());
-
-                bind();
-
-                if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, GL_RGBA, width, height, GL_TRUE);
-                else
-                    glTexImage2D(m_type, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.empty() ? nullptr : data.data());
-                checkGlError();
-
-                m_width = width;
-                m_height = height;
-
-                // Set initial minification filter based on whether or not mipmaping was enabled.
-                set(GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR);
-                checkGlError();
-
-                m_mipmap = generateMipmaps;
-
-                if( m_mipmap )
-                {
-                    glGenerateMipmap(m_type);
-                    checkGlError();
-                }
-            }
-
-
-            void reserve2D(GLint width, GLint height, GLenum internalFormat, bool generateMipmaps, GLint multisample = 0)
+            template<typename PixelType>
+            void reserve2D(GLint width, GLint height, bool generateMipmaps, GLint multisample = 0)
             {
                 BOOST_ASSERT(width > 0 && height > 0);
 
@@ -250,40 +137,9 @@ namespace gameplay
 
                 // Texture 2D
                 if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, internalFormat, width, height, GL_TRUE);
+                    glTexImage2DMultisample(m_type, multisample, PixelType::InternalFormat, width, height, GL_TRUE);
                 else
-                    glTexImage2D(m_type, 0, internalFormat, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-                checkGlError();
-
-                m_width = width;
-                m_height = height;
-
-                // Set initial minification filter based on whether or not mipmaping was enabled.
-                set(GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR);
-                checkGlError();
-
-                m_mipmap = generateMipmaps;
-
-                if( m_mipmap )
-                {
-                    glGenerateMipmap(m_type);
-                    checkGlError();
-                }
-            }
-
-
-            void reserve2DRGBA(GLint width, GLint height, GLenum internalFormat, bool generateMipmaps, GLint multisample = 0)
-            {
-                BOOST_ASSERT(width > 0 && height > 0);
-
-                // Create the texture.
-                bind();
-
-                // Texture 2D
-                if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, internalFormat, width, height, GL_TRUE);
-                else
-                    glTexImage2D(m_type, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                    glTexImage2D(m_type, 0, PixelType::InternalFormat, width, height, 0, PixelType::Format, PixelType::TypeId, nullptr);
                 checkGlError();
 
                 m_width = width;
