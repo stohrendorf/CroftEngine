@@ -189,7 +189,7 @@ namespace gameplay
 
         const size_t SHADER_SOURCE_LENGTH = 3;
         const GLchar* shaderSource[SHADER_SOURCE_LENGTH];
-        shaderSource[0] = "#version 440\n";
+        shaderSource[0] = "#version 410\n";
         shaderSource[1] = definesStr.c_str();
 
         std::string vshSourceStr;

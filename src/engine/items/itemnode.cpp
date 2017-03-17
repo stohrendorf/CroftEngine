@@ -305,7 +305,7 @@ namespace engine
             auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position.toInexact());
             if( sector->boxIndex == 0xffff )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Whoops: " << getId();
+                BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << getId();
                 return {};
             }
 

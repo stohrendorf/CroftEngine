@@ -18,7 +18,7 @@ namespace engine
 
             for( auto i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i )
             {
-                if( glfwJoystickPresent(i) != GLFW_TRUE )
+                if( glfwJoystickPresent(i) != GL_TRUE )
                     continue;
 
                 const char* name = glfwGetJoystickName(i);
@@ -37,30 +37,30 @@ namespace engine
         void update()
         {
             // axes
-            static constexpr int LS_X = 0;
-            static constexpr int LS_Y = 1;
-            static constexpr int RS_X = 2;
-            static constexpr int RS_Y = 3;
-            static constexpr int LTRIGGER = 4;
-            static constexpr int RTRIGGER = 5;
+            static const constexpr int LS_X = 0;
+            static const constexpr int LS_Y = 1;
+            static const constexpr int RS_X = 2;
+            static const constexpr int RS_Y = 3;
+            static const constexpr int LTRIGGER = 4;
+            static const constexpr int RTRIGGER = 5;
 
             // buttons
-            static constexpr int A = 0;
-            static constexpr int B = 1;
-            static constexpr int X = 2;
-            static constexpr int Y = 3;
-            static constexpr int LB = 4;
-            static constexpr int RB = 5;
-            static constexpr int BACK = 6;
-            static constexpr int START = 7;
-            static constexpr int LS = 8;
-            static constexpr int RS = 9;
-            static constexpr int DPAD_UP = 10;
-            static constexpr int DPAD_RIGHT = 11;
-            static constexpr int DPAD_DOWN = 12;
-            static constexpr int DPAD_LEFT = 13;
+            static const constexpr int A = 0;
+            static const constexpr int B = 1;
+            static const constexpr int X = 2;
+            static const constexpr int Y = 3;
+            static const constexpr int LB = 4;
+            static const constexpr int RB = 5;
+            static const constexpr int BACK = 6;
+            static const constexpr int START = 7;
+            static const constexpr int LS = 8;
+            static const constexpr int RS = 9;
+            static const constexpr int DPAD_UP = 10;
+            static const constexpr int DPAD_RIGHT = 11;
+            static const constexpr int DPAD_DOWN = 12;
+            static const constexpr int DPAD_LEFT = 13;
 
-            static constexpr float AxisThreshold = 0.5f;
+            static const constexpr float AxisThreshold = 0.5f;
 
             int xboxButtonCount = 0;
             const uint8_t* xboxButtons = nullptr;
