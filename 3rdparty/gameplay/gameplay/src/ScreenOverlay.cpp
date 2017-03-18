@@ -51,7 +51,7 @@ namespace gameplay
         _image->fill({0,0,0,0});
 
         _texture = std::make_shared<gl::Texture>(GL_TEXTURE_2D);
-        _texture->set2D(_image->getWidth(), _image->getHeight(), _image->getData(), false);
+        _texture->image2D(_image->getWidth(), _image->getHeight(), _image->getData(), false);
         _texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         _texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -74,7 +74,7 @@ namespace gameplay
 
     void ScreenOverlay::draw(RenderContext& context)
     {
-        _texture->update2D(_image->getData());
+        _texture->subImage2D(_image->getData());
         _model->draw(context);
     }
 }

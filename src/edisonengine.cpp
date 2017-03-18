@@ -99,11 +99,11 @@ public:
         auto vp = game->getViewport();
 
         m_colorBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
-        m_colorBuffer->reserve2D<gameplay::gl::RGBA8>(vp.width, vp.height, false, multisample);
+        m_colorBuffer->image2D<gameplay::gl::RGBA8>(vp.width, vp.height, false, multisample);
         m_fb->attachTexture2D(GL_COLOR_ATTACHMENT0, *m_colorBuffer);
 
         m_depthBuffer = std::make_shared<gameplay::gl::Texture>(multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
-        m_depthBuffer->set2DDepth(vp.width, vp.height, multisample);
+        m_depthBuffer->depthImage2D(vp.width, vp.height, multisample);
         m_fb->attachTexture2D(GL_DEPTH_ATTACHMENT, *m_depthBuffer);
 
         BOOST_ASSERT(m_fb->isComplete());

@@ -154,7 +154,7 @@ namespace loader
     {
         auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
         auto img = toImage(glidos, lvlName);
-        texture->set2D(img->getWidth(), img->getHeight(), img->getData(), true);
+        texture->image2D(img->getWidth(), img->getHeight(), img->getData(), true);
         return texture;
     }
 }

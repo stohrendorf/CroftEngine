@@ -22,8 +22,8 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 1;
 
-            static const constexpr GLint RgbaInternalFormat = GL_RGBA;
-            static const constexpr GLint RgbInternalFormat = GL_RGB;
+            static const constexpr GLint RgbaInternalFormat = GL_RGBA8;
+            static const constexpr GLint RgbInternalFormat = GL_RGB8;
 
             static const constexpr GLint RgbaFormat = GL_RGBA;
             static const constexpr GLint RgbFormat = GL_RGB;
@@ -37,8 +37,8 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 1;
 
-            static const constexpr GLint RgbaInternalFormat = GL_RGBA;
-            static const constexpr GLint RgbInternalFormat = GL_RGB;
+            static const constexpr GLint RgbaInternalFormat = GL_RGBA16;
+            static const constexpr GLint RgbInternalFormat = GL_RGB16;
 
             static const constexpr GLint RgbaFormat = GL_RGBA;
             static const constexpr GLint RgbFormat = GL_RGB;
@@ -51,12 +51,6 @@ namespace gameplay
             static const constexpr GLint TypeId = GL_UNSIGNED_INT;
 
             static const constexpr GLsizei ElementCount = 1;
-
-            static const constexpr GLint RgbaInternalFormat = GL_RGBA;
-            static const constexpr GLint RgbInternalFormat = GL_RGB;
-
-            static const constexpr GLint RgbaFormat = GL_RGBA;
-            static const constexpr GLint RgbFormat = GL_RGB;
         };
 
 

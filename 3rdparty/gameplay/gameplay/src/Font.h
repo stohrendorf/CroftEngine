@@ -2,6 +2,7 @@
 
 #include "Image.h"
 #include "gl/texture.h"
+#include "gl/pixel.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

@@ -250,7 +250,7 @@ namespace loader
 
         auto image = std::make_shared<gameplay::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(srcImage.data()));
         auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
-        texture->set2D(image->getWidth(), image->getHeight(), image->getData(), true);
+        texture->image2D(image->getWidth(), image->getHeight(), image->getData(), true);
         return m_textureCache[path] = texture;
     }
 
