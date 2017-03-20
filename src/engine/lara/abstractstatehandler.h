@@ -2,7 +2,7 @@
 
 #include "loader/larastateid.h"
 #include "loader/datatypes.h"
-#include "loader/animationids.h"
+#include "loader/animationid.h"
 #include "core/angle.h"
 #include "core/interpolatedvalue.h"
 

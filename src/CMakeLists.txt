@@ -1,5 +1,5 @@
-function(gen_enum name type source dest)
-    if (EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
+function(wrap_enum name type source dest)
+    if (EXISTS dest AND dest IS_NEWER_THAN "${source}")
         return()
     endif ()
     message(STATUS "Generating enum include ${dest} from ${source}")
@@ -9,42 +9,97 @@ function(gen_enum name type source dest)
     file(APPEND "${dest}" "enum class ${name} : ${type}\n")
     file(APPEND "${dest}" "{\n")
     foreach (_val IN LISTS _vals)
-        string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
+        # remove trailing whitespace/comments
+        string(REGEX REPLACE "//.*\$" "" _val "${_val}")
+        string(REPLACE " " "" _val "${_val}")
+        string(REPLACE "\t" "" _val "${_val}")
+        if (_val STREQUAL "")
+            continue()
+        endif ()
+
+        # remove "= 123" part
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if ("${_ename}" STREQUAL "")
+        if (_ename STREQUAL "")
             continue()
         endif ()
-        string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if ("${_eval}" STREQUAL "")
-            continue()
+        if (_val MATCHES ".+=.+")
+            # extract value of "= 123" part
+            string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
+            # emit: Value = IntValue,
+            file(APPEND "${dest}" "    ${_ename} = ${_eval},\n")
+        else ()
+            # emit: Value,
+            file(APPEND "${dest}" "    ${_ename},\n")
         endif ()
-        file(APPEND "${dest}" "    ${_ename} = ${_eval},\n")
     endforeach ()
     file(APPEND "${dest}" "};\n\n")
-    # Write toString
+
+    # toString function
     file(APPEND "${dest}" "inline const char* toString(${name} val)\n")
     file(APPEND "${dest}" "{\n")
     file(APPEND "${dest}" "    switch(val)\n")
     file(APPEND "${dest}" "    {\n")
     foreach (_val IN LISTS _vals)
-        string(REGEX REPLACE "\\s*//.*" "" _val "${_val}")
+        # remove trailing whitespace/comments
+        string(REGEX REPLACE "//.*\$" "" _val "${_val}")
+        string(REPLACE " " "" _val "${_val}")
+        string(REPLACE "\t" "" _val "${_val}")
+        if (_val STREQUAL "")
+            continue()
+        endif ()
+        # remove "= 123" part
         string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
-        if ("${_ename}" STREQUAL "")
+        if (_ename STREQUAL "")
             continue()
         endif ()
-        string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-        if ("${_eval}" STREQUAL "")
-            continue()
+        if (_val MATCHES ".+=.+")
+            # extract value of "= 123" part
+            string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
+            # emit: case Enum::Value: return "Value(IntValue)";
+            file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
+        else ()
+            # emit: case Enum::Value: return "Value";
+            file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}\";\n")
         endif ()
-        file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
     endforeach ()
     file(APPEND "${dest}" "        default: return nullptr;\n")
     file(APPEND "${dest}" "    }\n")
-    file(APPEND "${dest}" "}\n")
+    file(APPEND "${dest}" "}\n\n")
+
+    # EnumUtil forward declaration
+    file(APPEND "${dest}" "template<typename T> struct EnumUtil;\n\n")
+    # EnumUtil specialization
+    file(APPEND "${dest}" "template<> struct EnumUtil<${name}>\n")
+    file(APPEND "${dest}" "{\n")
+    file(APPEND "${dest}" "    ${name} fromString(const std::string& value)\n")
+    file(APPEND "${dest}" "    {\n")
+    foreach (_val IN LISTS _vals)
+        # remove trailing whitespace/comments
+        string(REGEX REPLACE "//.*\$" "" _val "${_val}")
+        string(REPLACE " " "" _val "${_val}")
+        string(REPLACE "\t" "" _val "${_val}")
+        if (_val STREQUAL "")
+            continue()
+        endif ()
+        string(REGEX REPLACE "=.+\$" "" _ename "${_val}")
+        if (_ename STREQUAL "")
+            continue()
+        endif ()
+        if (_eval STREQUAL "")
+            continue()
+        endif ()
+        # emit: if(value == "Value") return Enum::Value;
+        file(APPEND "${dest}" "        if(value == \"${_ename}\") return ${name}::${_ename};\n")
+    endforeach ()
+    file(APPEND "${dest}" "        throw std::domain_error(\"Value '\" + value + \"' invalid for enum '${name}'\");\n")
+    file(APPEND "${dest}" "    }\n")
+    file(APPEND "${dest}" "};\n")
 endfunction()
 
-gen_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationids_enum.h)
-gen_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateids_enum.h)
+wrap_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationid_enum.h)
+wrap_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateid_enum.h)
+wrap_enum(ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controlleraxis_enum.h)
+wrap_enum(ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h)
 
 set( EDISONENGINE_SRCS
      edisonengine.cpp
@@ -60,6 +115,8 @@ set( EDISONENGINE_SRCS
      engine/cameracontroller.h
      engine/collisioninfo.cpp
      engine/collisioninfo.h
+     engine/controlleraxis.h
+     engine/controllerbutton.h
      engine/heightinfo.cpp
      engine/heightinfo.h
      engine/inputhandler.h
@@ -84,6 +141,7 @@ set( EDISONENGINE_SRCS
      level/tr5level.h
 
      loader/animation.h
+     loader/animationid.h
      loader/audio.h
      loader/color.h
      loader/datatypes.cpp

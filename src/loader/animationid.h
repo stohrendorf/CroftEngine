@@ -6,5 +6,5 @@
 
 namespace loader
 {
-#include "larastateid_enum.h"
+#include "animationid_enum.h"
 }

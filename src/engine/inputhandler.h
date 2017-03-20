@@ -2,6 +2,9 @@
 
 #include "inputstate.h"
 
+#include "controlleraxis.h"
+#include "controllerbutton.h"
+
 #include <gsl/gsl>
 #include <GLFW/glfw3.h>
 

@@ -9,9 +9,10 @@ assets/
 # Thank you, Windows!
 Thumbs.db
 
-src/loader/animationids_enum.h
-src/loader/larastate_enum.h
-src/loader/larastateids_enum.h
+src/loader/animationid_enum.h
+src/loader/larastateid_enum.h
+src/engine/controlleraxis_enum.h
+src/engine/controllerbutton_enum.h
 
 *.log
 *.dll
@@ -28,4 +29,3 @@ shaders/*.err
 3rdparty/yaml-cpp-bin
 3rdparty/assimp
 3rdparty/assimp-bin
-

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loader/animationids.h"
+#include "loader/animationid.h"
 #include "loader/larastateid.h"
 #include "collisioninfo.h"
 #include "engine/lara/abstractstatehandler.h"
