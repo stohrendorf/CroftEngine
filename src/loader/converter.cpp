@@ -15,6 +15,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include <algorithm>
+#include <cmath>
 
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
@@ -478,7 +479,7 @@ namespace loader
                         break;
                 }
 
-                if(outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x))
+                if(outMesh->mNormals != nullptr && std::isnan(outMesh->mNormals[0].x))
                 {
                     delete[] outMesh->mNormals;
                     outMesh->mNormals = nullptr;
@@ -678,7 +679,7 @@ namespace loader
                         break;
                 }
 
-                if(outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x))
+                if(outMesh->mNormals != nullptr && std::isnan(outMesh->mNormals[0].x))
                 {
                     delete[] outMesh->mNormals;
                     outMesh->mNormals = nullptr;

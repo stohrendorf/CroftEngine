@@ -1,5 +1,5 @@
 function(wrap_enum name type source dest)
-    if (EXISTS dest AND dest IS_NEWER_THAN "${source}")
+    if (EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}")
         return()
     endif ()
     message(STATUS "Generating enum include ${dest} from ${source}")

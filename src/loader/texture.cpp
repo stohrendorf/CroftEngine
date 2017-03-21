@@ -5,6 +5,10 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#ifdef _X
+#undef _X
+#endif
+
 #include "CImg.h"
 
 

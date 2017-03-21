@@ -1,0 +1,41 @@
+diff --git a/code/DefaultIOSystem.cpp b/code/DefaultIOSystem.cpp
+old mode 100644
+new mode 100755
+index 8c44c8b..f461be5
+--- a/code/DefaultIOSystem.cpp
++++ b/code/DefaultIOSystem.cpp
+@@ -40,6 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+ /** @file Default implementation of IOSystem using the standard C file functions */
+ 
++#ifdef __CYGWIN__
++#undef __STRICT_ANSI__
++#endif
++
+ #include "DefaultIOSystem.h"
+ #include "DefaultIOStream.h"
+ #include "StringComparison.h"
+diff --git a/code/StringComparison.h b/code/StringComparison.h
+old mode 100644
+new mode 100755
+index 0e1dbe4..84ca523
+--- a/code/StringComparison.h
++++ b/code/StringComparison.h
+@@ -138,7 +138,7 @@ inline int ASSIMP_stricmp(const char *s1, const char *s2)
+ #if (defined _MSC_VER)
+ 
+     return ::_stricmp(s1,s2);
+-#elif defined( __GNUC__ )
++#elif defined( __GNUC__ ) && !defined( __CYGWIN__ )
+ 
+     return ::strcasecmp(s1,s2);
+ #else
+@@ -187,7 +187,7 @@ inline int ASSIMP_strincmp(const char *s1, const char *s2, unsigned int n)
+ 
+     return ::_strnicmp(s1,s2,n);
+ 
+-#elif defined( __GNUC__ )
++#elif defined( __GNUC__ ) && !defined( __CYGWIN__ )
+ 
+     return ::strncasecmp(s1,s2, n);
+ 

@@ -170,6 +170,17 @@ if (CYGWIN)
 endif ()
 
 
+find_package(Git REQUIRED)
+execute_process(
+        # COMMAND ${GIT_EXECUTABLE} describe --dirty --tags --long
+        COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+        OUTPUT_VARIABLE GIT_SHA
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+add_definitions(-DGIT_SHA="${GIT_SHA}")
+
 include(ExternalProject)
 
 ExternalProject_Add(
@@ -214,16 +225,20 @@ ExternalProject_Add(
         GIT_REPOSITORY https://github.com/assimp/assimp.git
         GIT_TAG v3.3.1
         EXCLUDE_FROM_ALL 1
+        PATCH_COMMAND ${GIT_EXECUTABLE} apply ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-cygwin-patch.diff
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin
         -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
         -DASSIMP_BUILD_SAMPLES=OFF
         -DASSIMP_BUILD_TESTS=OFF
+        -DASSIMP_BUILD_IFC_IMPORTER=OFF
+        -DASSIMP_BUILD_ZLIB=OFF
         -DASSIMP_INSTALL_PDB=OFF
         -DBUILD_SHARED_LIBS=OFF
         -DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}
         -DZLIB_LIBRARY_DBG=${ZLIB_LIBRARY_DBG}
         -DZLIB_LIBRARY_REL=${ZLIB_LIBRARY_REL}
+        -DZLIB_FOUND=YES
 )
 
 ExternalProject_Get_Property(ext-assimp BINARY_DIR)
@@ -238,6 +253,8 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin/lib/cmake/assimp-3.3/
     target_include_directories(assimp-lib INTERFACE ${ASSIMP_INCLUDE_DIRS})
     target_link_libraries(assimp-lib INTERFACE ${ASSIMP_LIBRARIES})
     link_directories(${ASSIMP_LIBRARY_DIRS})
+
+    target_link_libraries(assimp-lib INTERFACE ZLIB)
 else ()
     message(STATUS "***** Assimp is not built yet. Build the ext-assimp target, and then reconfigure")
 endif ()
@@ -245,22 +262,6 @@ endif ()
 
 add_library(GSL INTERFACE)
 target_include_directories(GSL INTERFACE 3rdparty/GSL/include)
-
-
-find_package(Git)
-if (NOT GIT_FOUND)
-    set(GIT_SHA "<unknown>")
-else ()
-    execute_process(
-            # COMMAND ${GIT_EXECUTABLE} describe --dirty --tags --long
-            COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-            OUTPUT_VARIABLE GIT_SHA
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-endif ()
-
-add_definitions(-DGIT_SHA="${GIT_SHA}")
 
 add_subdirectory(3rdparty/gameplay)
 add_subdirectory(doc)
