@@ -71,7 +71,7 @@ function(wrap_enum name type source dest)
     # EnumUtil specialization
     file(APPEND "${dest}" "template<> struct EnumUtil<${name}>\n")
     file(APPEND "${dest}" "{\n")
-    file(APPEND "${dest}" "    ${name} fromString(const std::string& value)\n")
+    file(APPEND "${dest}" "    static ${name} fromString(const std::string& value)\n")
     file(APPEND "${dest}" "    {\n")
     foreach (_val IN LISTS _vals)
         # remove trailing whitespace/comments
@@ -117,6 +117,7 @@ set( EDISONENGINE_SRCS
      engine/collisioninfo.h
      engine/controlleraxis.h
      engine/controllerbutton.h
+     engine/controllerlayout.h
      engine/heightinfo.cpp
      engine/heightinfo.h
      engine/inputhandler.h
