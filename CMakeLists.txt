@@ -225,7 +225,7 @@ ExternalProject_Add(
         GIT_REPOSITORY https://github.com/assimp/assimp.git
         GIT_TAG v3.3.1
         EXCLUDE_FROM_ALL 1
-        PATCH_COMMAND ${GIT_EXECUTABLE} apply ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-cygwin-patch.diff
+        PATCH_COMMAND ${GIT_EXECUTABLE} apply --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-cygwin-patch.diff
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin
         -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
