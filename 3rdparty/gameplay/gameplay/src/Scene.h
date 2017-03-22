@@ -1,64 +1,85 @@
 #pragma once
 
 #include "Node.h"
-#include "Model.h"
-#include "Drawable.h"
 
 
 namespace gameplay
 {
     class Camera;
 
+
     /**
      * Defines the root container for a hierarchy of Node objects.
-     *
-     * @see http://gameplay3d.github.io/GamePlay/docs/file-formats.html#wiki-Scene
      */
-    class Scene
+    class Scene final
     {
     public:
-        explicit Scene();
-        virtual ~Scene();
+        explicit Scene() = default;
+        ~Scene() = default;
+
 
         /**
          * Adds the specified node to the scene.
          *
          * @param node The node to be added to the scene.
          */
-        void addNode(const std::shared_ptr<Node>& node);
+        void addNode(const std::shared_ptr<Node>& node)
+        {
+            BOOST_ASSERT(node);
+
+            if( node->_scene == this )
+            {
+                // The node is already a member of this scene.
+                return;
+            }
+
+            _nodes.push_back(node);
+            node->_scene = this;
+        }
+
 
         /**
          * Returns the number of nodes at the root level of the scene.
          *
          * @return The node count.
          */
-        size_t getNodeCount() const;
+        size_t getNodeCount() const
+        {
+            return _nodes.size();
+        }
+
 
         /**
          * Gets the active camera for the scene.
          *
          * @return The active camera for the scene.
-         * @see VisibleSet#getActiveCamera
          */
-        const std::shared_ptr<Camera>& getActiveCamera() const;
+        const std::shared_ptr<Camera>& getActiveCamera() const
+        {
+            return _activeCamera;
+        }
+
 
         /**
          * Sets the active camera on the scene.
          *
          * @param camera The active camera to be set on the scene.
          */
-        void setActiveCamera(const std::shared_ptr<Camera>& camera);
+        void setActiveCamera(const std::shared_ptr<Camera>& camera)
+        {
+            _activeCamera = camera;
+        }
+
 
         void accept(Visitor& visitor)
         {
-            for(auto& node : _nodes)
+            for( auto& node : _nodes )
                 visitor.visit(*node);
         }
+
+
     private:
 
-        /**
-         * Hidden copy constructor.
-         */
         Scene(const Scene& copy) = delete;
 
         Scene& operator=(const Scene&) = delete;

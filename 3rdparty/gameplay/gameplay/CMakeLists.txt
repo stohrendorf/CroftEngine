@@ -38,7 +38,6 @@ set( GAMEPLAY_SRC
      src/RenderContext.h
      src/RenderState.cpp
      src/RenderState.h
-     src/Scene.cpp
      src/Scene.h
      src/ScreenOverlay.cpp
      src/ScreenOverlay.h

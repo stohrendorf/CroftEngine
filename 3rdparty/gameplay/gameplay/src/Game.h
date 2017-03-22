@@ -251,13 +251,7 @@ namespace gameplay
         virtual void render(bool wireframe = false);
 
     private:
-
-        /**
-         * Constructor.
-         *
-         * @param copy The game to copy.
-         */
-        Game(const Game& copy);
+        Game(const Game& copy) = delete;
 
         /**
          * Starts the game.
