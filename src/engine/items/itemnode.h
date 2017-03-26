@@ -102,6 +102,8 @@ namespace engine
             const Characteristics m_characteristics;
             const int16_t m_darkness;
 
+            uint16_t m_stateOverride{ 0 };
+
             struct Lighting
             {
                 glm::vec3 position;
@@ -109,7 +111,9 @@ namespace engine
                 float baseDiff;
             };
 
+
             Lighting m_lighting;
+
 
             enum class AnimCommandOpcode : uint16_t
             {
@@ -136,6 +140,10 @@ namespace engine
 
             virtual ~ItemNode() = default;
 
+
+            //void update(const std::chrono::microseconds& deltaTime) override;
+
+            void applyMovement(const std::chrono::microseconds& deltaTime);
 
             const core::ExactTRCoordinates& getPosition() const noexcept
             {
@@ -230,7 +238,7 @@ namespace engine
             }
 
 
-            void  moveLocal(float dx, float dy, float dz)
+            void moveLocal(float dx, float dy, float dz)
             {
                 const auto sin = getRotation().Y.sin();
                 const auto cos = getRotation().Y.cos();
@@ -364,16 +372,9 @@ namespace engine
             }
 
 
-            void onFrameChanged(FrameChangeType frameChangeType) override;
-
             void activate();
 
             void deactivate();
-
-            void update(const std::chrono::microseconds& deltaTime);
-
-            virtual void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType) = 0;
-
 
             core::InterpolatedValue<float>& getHorizontalSpeed()
             {
@@ -458,10 +459,10 @@ namespace engine
             {
                 m_lighting.baseDiff = 0;
 
-                if(m_darkness >= 0)
+                if( m_darkness >= 0 )
                 {
                     m_lighting.base = (m_darkness - 4096) / 8192.0f;
-                    if(m_lighting.base == 0)
+                    if( m_lighting.base == 0 )
                         m_lighting.base = 1;
                     return;
                 }
@@ -470,7 +471,7 @@ namespace engine
                 BOOST_ASSERT(roomAmbient >= 0 && roomAmbient <= 1);
                 m_lighting.base = roomAmbient;
 
-                if(m_position.room->lights.empty())
+                if( m_position.room->lights.empty() )
                 {
                     m_lighting.base = 1;
                     m_lighting.baseDiff = 0;
@@ -479,7 +480,7 @@ namespace engine
 
                 float maxBrightness = 0;
                 const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
-                for(const auto& light : m_position.room->lights)
+                for( const auto& light : m_position.room->lights )
                 {
                     auto radiusSq = light.radius / 4096.0f;
                     radiusSq *= radiusSq;
@@ -489,7 +490,7 @@ namespace engine
                     distanceSq *= distanceSq;
 
                     const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
-                    if(lightBrightness > maxBrightness)
+                    if( lightBrightness > maxBrightness )
                     {
                         maxBrightness = lightBrightness;
                         m_lighting.position = light.position.toRenderSystem();
@@ -499,20 +500,21 @@ namespace engine
                 m_lighting.base = (roomAmbient + maxBrightness) / 2;
                 m_lighting.baseDiff = (maxBrightness - m_lighting.base);
 
-                if(m_lighting.base == 0 && m_lighting.baseDiff == 0)
+                if( m_lighting.base == 0 && m_lighting.baseDiff == 0 )
                     m_lighting.base = 1;
             }
+
 
             static const ItemNode* findBaseItemNode(const gameplay::Node& node)
             {
                 const ItemNode* item = nullptr;
 
                 auto n = &node;
-                while(true)
+                while( true )
                 {
                     item = dynamic_cast<const ItemNode*>(n);
 
-                    if(item != nullptr || n->getParent().expired())
+                    if( item != nullptr || n->getParent().expired() )
                         break;
 
                     n = n->getParent().lock().get();
@@ -521,11 +523,12 @@ namespace engine
                 return item;
             }
 
+
             static void lightBaseBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if(item == nullptr)
+                if( item == nullptr )
                 {
                     uniform.set(1.0f);
                     return;
@@ -534,11 +537,12 @@ namespace engine
                 uniform.set(item->m_lighting.base);
             };
 
+
             static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if(item == nullptr)
+                if( item == nullptr )
                 {
                     uniform.set(1.0f);
                     return;
@@ -547,13 +551,14 @@ namespace engine
                 uniform.set(item->m_lighting.baseDiff);
             };
 
+
             static void lightPositionBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if(item == nullptr)
+                if( item == nullptr )
                 {
-                    static const glm::vec3 invalidPos{ std::numeric_limits<float>::quiet_NaN() };
+                    static const glm::vec3 invalidPos{std::numeric_limits<float>::quiet_NaN()};
                     uniform.set(invalidPos);
                     return;
                 }
@@ -582,7 +587,7 @@ namespace engine
                 BOOST_ASSERT( deltaTime > std::chrono::microseconds::zero() );
                 m_activationState.setTimeout(m_activationState.getTimeout() - deltaTime);
                 if( m_activationState.getTimeout() <= std::chrono::microseconds::zero() )
-                    m_activationState.setTimeout( std::chrono::microseconds(-1) );
+                    m_activationState.setTimeout(std::chrono::microseconds(-1));
 
                 return !m_activationState.isInverted();
             }
@@ -627,6 +632,9 @@ namespace engine
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                        && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
+
+
+            boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& deltaTime) override;
         };
     }
 }

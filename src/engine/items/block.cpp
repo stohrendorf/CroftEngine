@@ -10,7 +10,7 @@ namespace engine
     {
         void Block::onInteract(LaraNode& lara)
         {
-            if( !getLevel().m_inputHandler->getInputState().action || m_triggerState == engine::items::TriggerState::Enabled
+            if( !getLevel().m_inputHandler->getInputState().action || m_triggerState == TriggerState::Enabled
                 || isFalling() || !util::fuzzyEqual(lara.getPosition().Y, getPosition().Y, 1.0f) )
                 return;
 
@@ -104,11 +104,11 @@ namespace engine
 
             activate();
             loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
-            m_triggerState = engine::items::TriggerState::Enabled;
+            m_triggerState = TriggerState::Enabled;
         }
 
 
-        void Block::onFrameChanged(FrameChangeType frameChangeType)
+        void Block::update(const std::chrono::microseconds& deltaTime)
         {
             if(m_activationState.isOneshot())
             {
@@ -118,7 +118,7 @@ namespace engine
                 return;
             }
 
-            ItemNode::onFrameChanged(frameChangeType);
+            const auto frameChangeType = addTime(deltaTime);
 
             auto pos = getRoomBoundPosition();
             auto sector = getLevel().findRealFloorSector(pos);
@@ -133,17 +133,17 @@ namespace engine
                 pos.position.Y = height;
                 setPosition(pos.position);
                 setFalling(false);
-                m_triggerState = engine::items::TriggerState::Activated;
+                m_triggerState = TriggerState::Activated;
                 //! @todo Shake camera
                 playSoundEffect(70);
             }
 
             setCurrentRoom(pos.room);
 
-            if( m_triggerState != engine::items::TriggerState::Activated )
+            if( m_triggerState != TriggerState::Activated )
                 return;
 
-            m_triggerState = engine::items::TriggerState::Disabled;
+            m_triggerState = TriggerState::Disabled;
             deactivate();
             loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
             pos = getRoomBoundPosition();

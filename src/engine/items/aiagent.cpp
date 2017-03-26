@@ -88,7 +88,7 @@ namespace engine
         }
 
 
-        bool AIAgent::animateCreature(core::Angle rotationToMoveTarget, core::Angle roll)
+        bool AIAgent::animateCreature(const std::chrono::microseconds& deltaTime, core::Angle rotationToMoveTarget, core::Angle roll)
         {
             if( m_triggerState == engine::items::TriggerState::Activated )
             {
@@ -98,6 +98,8 @@ namespace engine
                 deactivate();
                 return false;
             }
+
+            addTime(deltaTime);
 
             const auto initialPos = getPosition();
             auto bboxTop = std::lround(getBoundingBox().min.y);

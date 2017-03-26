@@ -62,7 +62,7 @@ namespace engine
             }
 
 
-            bool animateCreature(core::Angle rotationToMoveTarget, core::Angle roll);
+            bool animateCreature(const std::chrono::microseconds& deltaTime, core::Angle rotationToMoveTarget, core::Angle roll);
 
 
             core::Angle rotateTowardsMoveTarget(const ai::Brain& creatureData, core::Angle maxRotationSpeed);

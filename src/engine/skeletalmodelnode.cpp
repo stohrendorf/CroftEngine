@@ -4,6 +4,7 @@
 
 #include <stack>
 #include <chrono>
+#include <chrono>
 
 
 namespace
@@ -73,11 +74,11 @@ namespace engine
     }
 
 
-    float SkeletalModelNode::calculateFloorSpeed() const
+    float SkeletalModelNode::calculateFloorSpeed(const std::chrono::microseconds& offset) const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         auto scaled = currentAnim.speed
-                      + currentAnim.accelleration * core::toFloatFrame(getCurrentLocalTime());
+                      + currentAnim.accelleration * core::toFloatFrame(getCurrentLocalTime() + offset);
         return scaled / (1 << 16);
     }
 
@@ -120,8 +121,8 @@ namespace engine
         const auto startTime = core::fromFrame( anim.firstFrame );
         const auto endTime = core::fromFrame( anim.lastFrame + 1 );
 
-        BOOST_ASSERT( m_time >= startTime && m_time < endTime );
-        const auto animationTime = m_time - startTime;
+        //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
+        const auto animationTime = util::clamp(m_time, startTime, endTime - std::chrono::microseconds{1}) - startTime;
         int firstKeyframeIndex = core::toFrame( animationTime ) / anim.segmentLength;
         BOOST_ASSERT( firstKeyframeIndex >= 0 );
         BOOST_ASSERT( static_cast<size_t>(firstKeyframeIndex) < anim.getKeyframeCount() );
@@ -315,7 +316,7 @@ namespace engine
     }
 
 
-    bool SkeletalModelNode::handleTRTransitions()
+    bool SkeletalModelNode::handleStateTransitions()
     {
         if( getCurrentState() == m_targetState )
             return false;
@@ -339,7 +340,7 @@ namespace engine
                 {
                     BOOST_LOG_TRIVIAL(debug) << getId() << " -- found transition from state " << getCurrentState() << " to state " << m_targetState
                         << ", new animation " << trc.targetAnimation << "/frame " << trc.targetFrame;
-                    setAnimIdGlobalImpl( trc.targetAnimation, trc.targetFrame, false );
+                    setAnimIdGlobal( trc.targetAnimation, trc.targetFrame);
                     return true;
                 }
             }
@@ -349,7 +350,7 @@ namespace engine
     }
 
 
-    void SkeletalModelNode::setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents)
+    void SkeletalModelNode::setAnimIdGlobal(size_t animId, size_t frame)
     {
         BOOST_ASSERT( animId < m_level->m_animations.size() );
 
@@ -360,11 +361,6 @@ namespace engine
 
         m_animId = animId;
         m_time = core::fromFrame( frame );
-
-        if(!fireEvents)
-            return;
-
-        onFrameChanged( FrameChangeType::NewFrame );
     }
 
 
@@ -373,27 +369,16 @@ namespace engine
         bool frameChanged = core::toFrame(m_time) != core::toFrame(m_time + time);
         m_time += time;
 
-        boost::optional<FrameChangeType> result;
-        if(handleTRTransitions() || frameChanged)
+        if(handleStateTransitions() || frameChanged)
         {
-            result = FrameChangeType::NewFrame;
+            return FrameChangeType::NewFrame;
         }
 
         if(m_time >= getEndTime())
         {
-            onFrameChanged(FrameChangeType::EndOfAnim);
-
-            const loader::Animation& currentAnim = getCurrentAnimData();
-            setAnimIdGlobalImpl(currentAnim.nextAnimation, currentAnim.nextFrame, false);
-
-            result = FrameChangeType::EndOfAnim;
-            //setTargetState(getCurrentState());
-        }
-        else if(result.is_initialized())
-        {
-            onFrameChanged(*result);
+            return FrameChangeType::EndOfAnim;
         }
 
-        return result;
+        return {};
     }
 }

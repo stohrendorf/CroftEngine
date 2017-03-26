@@ -27,9 +27,8 @@ namespace engine
         using LaraStateId = loader::LaraStateId;
 
     private:
-        // Lara's vars
         core::InterpolatedValue<float> m_health{1000.0f};
-        //! @brief Additional rotation in AU per TR Engine Frame
+        //! @brief Additional rotation per TR Engine Frame
         core::InterpolatedValue<core::Angle> m_yRotationSpeed{0_deg};
         int m_fallSpeedOverride = 0;
         core::Angle m_movementAngle{0};
@@ -37,12 +36,11 @@ namespace engine
         core::Angle m_currentSlideAngle{0};
 
         int m_handStatus = 0;
+        //! @todo Move this to the Level.
         std::chrono::microseconds m_uvAnimTime{0};
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
         std::unique_ptr<lara::AbstractStateHandler> m_currentStateHandler = nullptr;
-
-        bool m_handlingFrame = false;
 
     public:
         LaraNode(const gsl::not_null<level::Level*>& level,
@@ -63,7 +61,7 @@ namespace engine
 
         ~LaraNode();
 
-        void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override;
+        void update(const std::chrono::microseconds& deltaTime) override;
 
 
         bool isInWater() const
@@ -84,12 +82,16 @@ namespace engine
         }
 
 
+    protected:
+        boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& deltaTime) override;
+
+
     private:
-        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
+        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
 
-        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
+        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
 
-        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& frameChangeType);
+        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
 
         void testInteractions();
 
@@ -243,9 +245,6 @@ namespace engine
         void setCameraDistance(int d);
 
         void setCameraUnknown1(CamOverrideType k);
-
-
-        void onFrameChanged(FrameChangeType frameChangeType) override;
 
 #ifndef NDEBUG
         CollisionInfo lastUsedCollisionInfo;

@@ -23,27 +23,23 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
-            {
-                if( !updateActivationTimeout(deltaTime) )
-                {
-                    setTargetState(1);
-                    m_activationState.setTimeout( std::chrono::microseconds::zero() );
-                }
-            }
-
-
             void onInteract(LaraNode& lara) override;
 
 
-            void onFrameChanged(FrameChangeType frameChangeType) override
+            void update(const std::chrono::microseconds& deltaTime) override
             {
                 if(!m_isActive)
                     return;
 
+                if(!updateActivationTimeout(deltaTime))
+                {
+                    setTargetState(1);
+                    m_activationState.setTimeout(std::chrono::microseconds::zero());
+                }
+
                 m_activationState.fullyActivate();
 
-                ItemNode::onFrameChanged(frameChangeType);
+                addTime(deltaTime);
             }
         };
     }

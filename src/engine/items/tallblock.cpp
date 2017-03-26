@@ -6,9 +6,26 @@ namespace engine
 {
     namespace items
     {
-        void TallBlock::onFrameChanged(FrameChangeType frameChangeType)
+        void TallBlock::update(const std::chrono::microseconds& deltaTime)
         {
-            ItemNode::onFrameChanged( frameChangeType );
+            if(updateActivationTimeout(deltaTime))
+            {
+                if(getCurrentState() == 0)
+                {
+                    loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                    setTargetState(1);
+                }
+            }
+            else
+            {
+                if(getCurrentState() == 1)
+                {
+                    loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+                    setTargetState(0);
+                }
+            }
+
+            addTime( deltaTime );
             auto room = getCurrentRoom();
             getLevel().findRealFloorSector( getPosition().toInexact(), &room );
             setCurrentRoom( room );

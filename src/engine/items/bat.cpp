@@ -12,11 +12,8 @@ namespace engine
 {
     namespace items
     {
-        void Bat::updateImpl(const std::chrono::microseconds& /*deltaTime*/, const boost::optional<FrameChangeType>& frameChangeType)
+        void Bat::update(const std::chrono::microseconds& deltaTime)
         {
-            if( !frameChangeType.is_initialized() )
-                return;
-
             if( m_triggerState == TriggerState::Locked )
             {
                 m_triggerState = TriggerState::Enabled;
@@ -73,7 +70,7 @@ namespace engine
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
             }
-            animateCreature(rotationToMoveTarget, 0_deg);
+            animateCreature(deltaTime, rotationToMoveTarget, 0_deg);
         }
     }
 }

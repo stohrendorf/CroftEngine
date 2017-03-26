@@ -11,11 +11,8 @@ namespace engine
 {
     namespace items
     {
-        void Wolf::updateImpl(const std::chrono::microseconds& /*deltaTime*/, const boost::optional<FrameChangeType>& frameChangeType)
+        void Wolf::update(const std::chrono::microseconds& deltaTime)
         {
-            if(!frameChangeType.is_initialized())
-                return;
-
             if( m_triggerState == TriggerState::Locked )
             {
                 m_triggerState = TriggerState::Enabled;
@@ -215,7 +212,7 @@ namespace engine
             }
             rotateCreatureTilt(roll);
             rotateCreatureHead(pitch);
-            animateCreature(rotationToMoveTarget, roll);
+            animateCreature(deltaTime, rotationToMoveTarget, roll);
         }
     }
 }

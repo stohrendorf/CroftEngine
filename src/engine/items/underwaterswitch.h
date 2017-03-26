@@ -26,14 +26,14 @@ namespace engine
             void onInteract(LaraNode& lara) override;
 
 
-            void onFrameChanged(FrameChangeType frameChangeType) override
+            void update(const std::chrono::microseconds& deltaTime) override
             {
                 if(!m_isActive)
                     return;
 
                 m_activationState.fullyActivate();
 
-                ItemNode::onFrameChanged(frameChangeType);
+                addTime(deltaTime);
             }
         };
     }

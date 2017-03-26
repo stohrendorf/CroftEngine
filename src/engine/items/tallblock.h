@@ -24,33 +24,12 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
-            {
-                if( updateActivationTimeout(deltaTime) )
-                {
-                    if( getCurrentState() == 0 )
-                    {
-                        loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                        setTargetState(1);
-                    }
-                }
-                else
-                {
-                    if( getCurrentState() == 1 )
-                    {
-                        loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                        setTargetState(0);
-                    }
-                }
-            }
-
-
             void onInteract(LaraNode& /*lara*/) override
             {
             }
 
 
-            void onFrameChanged(FrameChangeType frameChangeType) override;
+            void update(const std::chrono::microseconds& deltaTime) override;
         };
     }
 }

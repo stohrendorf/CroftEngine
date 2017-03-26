@@ -27,17 +27,7 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& /*deltaTime*/, const boost::optional<FrameChangeType>& /*frameChangeType*/) override final
-            {
-            }
-
-
             void onInteract(LaraNode& /*lara*/) override final
-            {
-            }
-
-
-            void onFrameChanged(FrameChangeType /*frameChangeType*/) override
             {
             }
 
@@ -57,6 +47,12 @@ namespace engine
                     return;
 
                 y = tmp + loader::QuarterSectorSize;
+            }
+
+
+            void update(const std::chrono::microseconds& deltaTime) override final
+            {
+                addTime(deltaTime);
             }
 
 

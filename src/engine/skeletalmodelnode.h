@@ -29,10 +29,8 @@ namespace engine
 
         void updatePose();
 
-        void setAnimIdGlobal(size_t animId, size_t frame)
-        {
-            setAnimIdGlobalImpl(animId, frame, true);
-        }
+
+        void setAnimIdGlobal(size_t animId, size_t frame);
 
 
         size_t getAnimId() const noexcept
@@ -46,9 +44,6 @@ namespace engine
             NewFrame,
             EndOfAnim
         };
-
-
-        boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& time);
 
 
         const std::chrono::microseconds& getCurrentTime() const
@@ -72,7 +67,7 @@ namespace engine
         }
 
 
-        float calculateFloorSpeed() const;
+        float calculateFloorSpeed(const std::chrono::microseconds& offset) const;
 
         int getAccelleration() const;
 
@@ -84,7 +79,7 @@ namespace engine
         void resetPose()
         {
             m_bonePatches.clear();
-            m_bonePatches.resize( getChildCount(), glm::mat4{1.0f} );
+            m_bonePatches.resize(getChildCount(), glm::mat4{1.0f});
         }
 
 
@@ -100,12 +95,20 @@ namespace engine
         }
 
 
-        virtual void onFrameChanged(FrameChangeType frameChangeType) = 0;
-
         std::chrono::microseconds getCurrentLocalTime() const
         {
             return m_time - getStartTime();
         }
+
+
+        virtual void update(const std::chrono::microseconds& deltaTime) = 0;
+
+    protected:
+        bool handleStateTransitions();
+
+        virtual boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& time);
+
+        const loader::Animation& getCurrentAnimData() const;
 
     private:
         const gsl::not_null<const level::Level*> m_level;
@@ -129,13 +132,13 @@ namespace engine
 
                 glm::vec3 getMinGl() const noexcept
                 {
-                    return glm::vec3( minX, minY, minZ );
+                    return glm::vec3(minX, minY, minZ);
                 }
 
 
                 glm::vec3 getMaxGl() const noexcept
                 {
-                    return glm::vec3( maxX, maxY, maxZ );
+                    return glm::vec3(maxX, maxY, maxZ);
                 }
             };
 
@@ -147,7 +150,7 @@ namespace engine
 
                 glm::vec3 toGl() const noexcept
                 {
-                    return glm::vec3( x, -y, -z );
+                    return glm::vec3(x, -y, -z);
                 }
             };
 
@@ -180,14 +183,8 @@ namespace engine
 
         void updatePoseInterpolated(const InterpolationInfo& framepair);
 
-        const loader::Animation& getCurrentAnimData() const;
-
         std::chrono::microseconds getStartTime() const;
 
         std::chrono::microseconds getEndTime() const;
-
-        bool handleTRTransitions();
-
-        void setAnimIdGlobalImpl(size_t animId, size_t frame, bool fireEvents);
     };
 }

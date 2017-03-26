@@ -23,7 +23,7 @@ namespace engine
             }
 
 
-            void updateImpl(const std::chrono::microseconds& deltaTime, const boost::optional<FrameChangeType>& /*frameChangeType*/) override
+            void update(const std::chrono::microseconds& deltaTime) override
             {
                 if( updateActivationTimeout(deltaTime) )
                 {
@@ -36,13 +36,10 @@ namespace engine
                 {
                     setTargetState(0);
                 }
-            }
 
-            void onFrameChanged(FrameChangeType frameChangeType) override
-            {
-                if(frameChangeType == FrameChangeType::EndOfAnim || getCurrentState() != 1 || getCurrentLocalTime() < 0_frame || getCurrentLocalTime() >= 1_frame)
+                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getCurrentLocalTime() < 0_frame || getCurrentLocalTime() >= 1_frame)
                 {
-                    ItemNode::onFrameChanged(frameChangeType);
+                    addTime(deltaTime);
                     return;
                 }
 
@@ -74,7 +71,7 @@ namespace engine
                 dart->m_triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
-                ItemNode::onFrameChanged(frameChangeType);
+                addTime(deltaTime);
             }
         };
     }

@@ -38,13 +38,13 @@ namespace engine
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
             : SkeletalModelNode(name, level, animatedModel)
-              , m_position(room, position)
-              , m_rotation(0_deg, angle, 0_deg)
-              , m_level(level)
-              , m_activationState(activationState)
-              , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
-              , m_characteristics(characteristics)
-              , m_darkness{darkness}
+            , m_position(room, position)
+            , m_rotation(0_deg, angle, 0_deg)
+            , m_level(level)
+            , m_activationState(activationState)
+            , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
+            , m_characteristics(characteristics)
+            , m_darkness{darkness}
         {
             BOOST_ASSERT(room->isInnerPositionXZ(position.toInexact()));
 
@@ -89,81 +89,114 @@ namespace engine
         }
 
 
-        void ItemNode::onFrameChanged(FrameChangeType frameChangeType)
+        boost::optional<SkeletalModelNode::FrameChangeType> ItemNode::addTime(const std::chrono::microseconds& deltaTime)
         {
+            const auto frameChangeType = SkeletalModelNode::addTime(deltaTime);
+
             m_flags2_10_isHit = false;
 
             const loader::Animation& animation = getLevel().m_animations[getAnimId()];
             if( animation.animCommandCount <= 0 )
             {
-                return;
+                return frameChangeType;
             }
 
-            BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
-            const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
-            for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+            if( frameChangeType.is_initialized() && *frameChangeType == FrameChangeType::EndOfAnim )
             {
-                BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
-                const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
-                ++cmd;
-                switch( opcode )
+                BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
+                const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
+                for( uint16_t i = 0; i < animation.animCommandCount; ++i )
                 {
-                    case AnimCommandOpcode::SetPosition:
-                        if( frameChangeType == FrameChangeType::EndOfAnim )
-                        {
+                    BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
+                    const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
+                    ++cmd;
+                    switch( opcode )
+                    {
+                        case AnimCommandOpcode::SetPosition:
                             moveLocal(
                                 cmd[0],
                                 cmd[1],
                                 cmd[2]
-                                     );
-                        }
-                        cmd += 3;
-                        break;
-                    case AnimCommandOpcode::SetVelocity:
-                        if( frameChangeType == FrameChangeType::EndOfAnim )
-                        {
+                            );
+                            cmd += 3;
+                            break;
+                        case AnimCommandOpcode::SetVelocity:
                             m_fallSpeed = cmd[0];
                             m_falling = true;
                             m_horizontalSpeed = cmd[1];
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::EmptyHands:
-                        break;
-                    case AnimCommandOpcode::PlaySound:
-                        if( frameChangeType == FrameChangeType::NewFrame
-                            && core::toFrame(getCurrentTime()) == cmd[0] )
-                        {
-                            playSoundEffect(cmd[1]);
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::PlayEffect:
-                        if( core::toFrame(getCurrentTime()) == cmd[0] )
-                        {
-                            BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-                            if( frameChangeType == FrameChangeType::NewFrame && cmd[1] == 0 )
+                            cmd += 2;
+                            break;
+                        case AnimCommandOpcode::PlaySound:
+                            cmd += 2;
+                            break;
+                        case AnimCommandOpcode::PlayEffect:
+                            cmd += 2;
+                            break;
+                        case AnimCommandOpcode::Kill:
+                            m_triggerState = TriggerState::Activated;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                const loader::Animation& currentAnim = getCurrentAnimData();
+                setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
+                setTargetState(getCurrentState());
+
+                if(m_stateOverride == getCurrentState())
+                    m_stateOverride = 0;
+            }
+
+            if( frameChangeType.is_initialized() )
+            {
+                BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
+                const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
+                for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+                {
+                    BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
+                    const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
+                    ++cmd;
+                    switch( opcode )
+                    {
+                        case AnimCommandOpcode::SetPosition:
+                            cmd += 3;
+                            break;
+                        case AnimCommandOpcode::SetVelocity:
+                            cmd += 2;
+                            break;
+                        case AnimCommandOpcode::PlaySound:
+                            if( core::toFrame(getCurrentTime()) == cmd[0] )
                             {
-                                addYRotation(180_deg);
+                                playSoundEffect(cmd[1]);
                             }
-                            else if( cmd[1] == 12 )
+                            cmd += 2;
+                            break;
+                        case AnimCommandOpcode::PlayEffect:
+                            if( core::toFrame(getCurrentTime()) == cmd[0] )
                             {
-                                getLevel().m_lara->setHandStatus(0);
+                                BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
+                                if( cmd[1] == 0 )
+                                {
+                                    addYRotation(180_deg);
+                                }
+                                else if( cmd[1] == 12 )
+                                {
+                                    getLevel().m_lara->setHandStatus(0);
+                                }
+                                //! @todo Execute anim effect cmd[1]
                             }
-                            //! @todo Execute anim effect cmd[1]
-                        }
-                        cmd += 2;
-                        break;
-                    case AnimCommandOpcode::Kill:
-                        if( frameChangeType == FrameChangeType::EndOfAnim )
-                        {
-                            m_triggerState = engine::items::TriggerState::Activated;
-                        }
-                        break;
-                    default:
-                        break;
+                            cmd += 2;
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
+
+            applyMovement(deltaTime);
+
+            return frameChangeType;
         }
 
 
@@ -235,7 +268,8 @@ namespace engine
         {
             decltype(m_sounds) cleaned;
             std::copy_if(m_sounds.begin(), m_sounds.end(), std::inserter(cleaned, cleaned.end()),
-                         [](const std::weak_ptr<audio::SourceHandle>& h) {
+                         [](const std::weak_ptr<audio::SourceHandle>& h)
+                         {
                              return h.expired();
                          });
 
@@ -266,13 +300,10 @@ namespace engine
         }
 
 
-        void ItemNode::update(const std::chrono::microseconds& deltaTime)
+        void ItemNode::applyMovement(const std::chrono::microseconds& deltaTime)
         {
-            updateImpl(deltaTime, addTime(deltaTime));
-
             if( m_falling )
             {
-                m_horizontalSpeed.add(getAccelleration(), deltaTime);
                 if( getFallSpeed() >= 128 )
                 {
                     m_fallSpeed.add(1, deltaTime);
@@ -284,14 +315,14 @@ namespace engine
             }
             else
             {
-                m_horizontalSpeed = calculateFloorSpeed();
+                m_horizontalSpeed = calculateFloorSpeed(-deltaTime);
             }
 
             move(
                 getMovementAngle().sin() * m_horizontalSpeed.getScaled(deltaTime),
                 m_falling ? m_fallSpeed.getScaled(deltaTime) : 0,
                 getMovementAngle().cos() * m_horizontalSpeed.getScaled(deltaTime)
-                );
+            );
 
             applyTransform();
 

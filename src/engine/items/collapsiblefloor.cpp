@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        void CollapsibleFloor::onFrameChanged(FrameChangeType frameChangeType)
+        void CollapsibleFloor::update(const std::chrono::microseconds& deltaTime)
         {
             if(!m_isActive)
                 return;
@@ -16,7 +16,7 @@ namespace engine
             {
                 if( !util::fuzzyEqual( getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f ) )
                 {
-                    m_triggerState = engine::items::TriggerState::Disabled;
+                    m_triggerState = TriggerState::Disabled;
                     deactivate();
                     return;
                 }
@@ -31,9 +31,9 @@ namespace engine
                 setFalling( true );
             }
 
-            ItemNode::onFrameChanged( frameChangeType );
+            addTime(deltaTime);
 
-            if( m_triggerState == engine::items::TriggerState::Activated )
+            if( m_triggerState == TriggerState::Activated )
             {
                 deactivate();
                 return;
