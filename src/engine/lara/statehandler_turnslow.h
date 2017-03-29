@@ -16,7 +16,7 @@ namespace engine
             }
 
         public:
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override final
+            void postprocessFrame(CollisionInfo& collisionInfo) override final
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -30,18 +30,16 @@ namespace engine
 
                 if( collisionInfo.current.floor.distance <= 100 )
                 {
-                    boost::optional<LaraStateId> nextHandler;
-                    if( !tryStartSlide(collisionInfo, nextHandler) )
+                    if( !tryStartSlide(collisionInfo) )
                         placeOnFloor(collisionInfo);
 
-                    return nextHandler;
+                    return;
                 }
 
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
-                return LaraStateId::JumpForward;
             }
         };
     }

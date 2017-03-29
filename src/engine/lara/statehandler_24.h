@@ -17,23 +17,23 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 setCameraRotationX(-45_deg);
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::JumpForward);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
-                return commonSlideHandling(collisionInfo);
+                commonSlideHandling(collisionInfo);
             }
         };
     }

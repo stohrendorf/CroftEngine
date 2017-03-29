@@ -19,7 +19,7 @@ namespace engine
             }
 
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
+            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 setCameraRotationY(75_deg);
@@ -27,7 +27,6 @@ namespace engine
                     setTargetState(LaraStateId::Stop);
                 else
                     setTargetState(LaraStateId::PushableGrab);
-                return {};
             }
 
 
@@ -36,7 +35,7 @@ namespace engine
             }
 
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
@@ -45,8 +44,6 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
 
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-
-                return {};
             }
         };
     }

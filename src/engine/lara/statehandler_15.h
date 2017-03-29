@@ -17,7 +17,8 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward && getRelativeHeightAtDirection(getRotation().Y, 256) >= -core::ClimbLimit2ClickMin )
                 {
@@ -44,15 +45,14 @@ namespace engine
                 {
                     setTargetState(LaraStateId::FreeFall);
                 }
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -63,14 +63,12 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
                 if( collisionInfo.current.ceiling.distance <= -100 )
-                    return {};
+                    return;
 
                 setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 setPosition(collisionInfo.position);
-
-                return LaraStateId::Stop;
             }
         };
     }

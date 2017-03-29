@@ -17,7 +17,8 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.yAngle = getRotation().Y;
                 if( abs(getRotation().X) > 90_deg )
@@ -40,7 +41,7 @@ namespace engine
                         break;
                     case CollisionInfo::AxisColl_InvalidPosition:
                         setFallSpeed(core::makeInterpolatedValue(0.0f));
-                        return {};
+                        return;
                     case CollisionInfo::AxisColl_InsufficientFrontCeilingSpace:
                         setFallSpeed(core::makeInterpolatedValue(0.0f));
                         break;
@@ -61,12 +62,10 @@ namespace engine
                 }
 
                 if( collisionInfo.current.floor.distance >= 0 )
-                    return {};
+                    return;
 
                 setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(collisionInfo.current.floor.distance), 0));
                 m_xRotationSpeed = m_xRotationSpeed + 2_deg;
-
-                return {};
             }
 
         protected:

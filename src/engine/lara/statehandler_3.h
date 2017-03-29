@@ -17,40 +17,40 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
                     setTargetState(LaraStateId::JumpForward);
-                else if( getTargetState() == LaraStateId::Death || getTargetState() == LaraStateId::Stop )
-                    return {};
-                else
-                    setTargetState(LaraStateId::JumpForward);
 
-                if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
-                    setTargetState(LaraStateId::Reach);
+                if( getTargetState() != LaraStateId::Death && getTargetState() != LaraStateId::Stop )
+                {
+                    if(getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0)
+                        setTargetState(LaraStateId::Reach);
 
-                if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0 )
-                    setTargetState(LaraStateId::SwandiveBegin);
+                    if(getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0)
+                        setTargetState(LaraStateId::SwandiveBegin);
 
-                if( getFallSpeed() > core::FreeFallSpeedThreshold )
-                    setTargetState(LaraStateId::FreeFall);
+                    if(getFallSpeed() > core::FreeFallSpeedThreshold)
+                        setTargetState(LaraStateId::FreeFall);
+                }
 
-                return {};
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
-            {
-                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+                if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left)
                 {
                     subYRotationSpeed(deltaTime, 2.25_deg, -3_deg);
                 }
-                else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+                else if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right)
                 {
                     addYRotationSpeed(deltaTime, 2.25_deg, 3_deg);
                 }
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            {
+            }
+
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -58,10 +58,10 @@ namespace engine
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.yAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-                auto nextHandler = checkJumpWallSmash(collisionInfo);
+                checkJumpWallSmash(collisionInfo);
 
                 if( collisionInfo.current.floor.distance > 0 || getFallSpeed() < 0 )
-                    return nextHandler;
+                    return;
 
                 if( applyLandingDamage() )
                 {
@@ -80,7 +80,6 @@ namespace engine
                 setFalling(false);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
-                return {};
             }
         };
     }

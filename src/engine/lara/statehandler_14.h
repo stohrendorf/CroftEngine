@@ -15,9 +15,9 @@ namespace engine
         {
         }
 
-        boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+        void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
         {
-            return {};
         }
 
         void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

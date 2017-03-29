@@ -16,19 +16,20 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
+
+            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Death);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().roll )
                 {
                     setAnimIdGlobal(loader::AnimationId::ROLL_BEGIN);
                     setTargetState(LaraStateId::Stop);
-                    return LaraStateId::RollForward;
+                    return;
                 }
 
                 setTargetState(LaraStateId::Stop);
@@ -58,19 +59,17 @@ namespace engine
                 else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 {
                     if( getLevel().m_inputHandler->getInputState().moveSlow )
-                        create(LaraStateId::WalkForward, getLara())->handleInputImpl(collisionInfo);
+                        create(LaraStateId::WalkForward, getLara())->handleInputImpl(collisionInfo, deltaTime);
                     else
-                        create(LaraStateId::RunForward, getLara())->handleInputImpl(collisionInfo);
+                        create(LaraStateId::RunForward, getLara())->handleInputImpl(collisionInfo, deltaTime);
                 }
                 else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
                 {
                     if( getLevel().m_inputHandler->getInputState().moveSlow )
-                        create(LaraStateId::WalkBackward, getLara())->handleInputImpl(collisionInfo);
+                        create(LaraStateId::WalkBackward, getLara())->handleInputImpl(collisionInfo, deltaTime);
                     else
                         setTargetState(LaraStateId::RunBack);
                 }
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

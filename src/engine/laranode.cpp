@@ -100,16 +100,10 @@ namespace engine
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
-        if(m_currentStateHandler == nullptr)
+        if(m_currentStateHandler == nullptr || m_currentStateHandler->getId() != getCurrentAnimState())
             m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
 
-        auto animStateOverride = m_currentStateHandler->handleInput(collisionInfo);
-        if( animStateOverride.is_initialized() && animStateOverride != m_currentStateHandler->getId() )
-        {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
-            BOOST_LOG_TRIVIAL( debug ) << "New input anim state override: "
-                                      << loader::toString(m_currentStateHandler->getId());
-        }
+        m_currentStateHandler->handleInput(collisionInfo, deltaTime);
 
         if(getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook)
         {
@@ -156,13 +150,7 @@ namespace engine
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
 
-        animStateOverride = m_currentStateHandler->postprocessFrame(collisionInfo);
-        if(animStateOverride.is_initialized() && *animStateOverride != m_currentStateHandler->getId())
-        {
-            m_currentStateHandler = lara::AbstractStateHandler::create(*animStateOverride, *this);
-            BOOST_LOG_TRIVIAL(debug) << "New post-processing state override: "
-                << loader::toString(m_currentStateHandler->getId());
-        }
+        m_currentStateHandler->postprocessFrame(collisionInfo);
 
         updateFloorHeight(-381);
 
@@ -390,12 +378,14 @@ namespace engine
             {
                 setXRotation(-45_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
+                //updateImpl();
                 setFallSpeed(getFallSpeed() * 2);
             }
             else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
             {
                 setXRotation(-85_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
+                //updateImpl();
                 setFallSpeed(getFallSpeed() * 2);
             }
             else
@@ -609,6 +599,8 @@ namespace engine
         resetPose();
         patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
         patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
+
+        return frameChangeType;
     }
 
 

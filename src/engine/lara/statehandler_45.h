@@ -15,16 +15,17 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(false);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
@@ -36,25 +37,23 @@ namespace engine
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                auto nextHandler = stopIfCeilingBlocked(collisionInfo);
-                if( nextHandler )
-                    return nextHandler;
-                if( tryStartSlide(collisionInfo, nextHandler) )
-                    return nextHandler;
+                if(stopIfCeilingBlocked(collisionInfo))
+                    return;
+
+                if( tryStartSlide(collisionInfo) )
+                    return;
 
                 if( collisionInfo.current.floor.distance <= 200 )
                 {
                     applyCollisionFeedback(collisionInfo);
                     placeOnFloor(collisionInfo);
-                    return nextHandler;
+                    return;
                 }
 
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(true);
-
-                return LaraStateId::JumpForward;
             }
         };
     }

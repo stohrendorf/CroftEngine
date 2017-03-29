@@ -15,12 +15,13 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
@@ -36,21 +37,20 @@ namespace engine
                 if( !getLevel().m_inputHandler->getInputState().jump )
                 {
                     setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
-                    return {};
+                    return;
                 }
 
                 if(!getSwimToDiveKeypressDuration())
-                    return {}; // not allowed to dive at all
+                    return; // not allowed to dive at all
 
                 if(*getSwimToDiveKeypressDuration() < 10_frame)
-                    return {}; // not yet allowed to dive
+                    return; // not yet allowed to dive
 
                 setTargetState(LaraStateId::UnderwaterForward);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
                 setFallSpeed(core::makeInterpolatedValue(80.0f));
                 setUnderwaterState(UnderwaterState::Diving);
-                return LaraStateId::UnderwaterDiving;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
@@ -82,10 +82,11 @@ namespace engine
                 addSwimToDiveKeypressDuration(deltaTimeMs);
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
-                return commonOnWaterHandling(collisionInfo);
+                commonOnWaterHandling(collisionInfo);
             }
         };
     }

@@ -17,22 +17,21 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) override
+
+            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 setCameraRotation(-60_deg, 0_deg);
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left && getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
                     setTargetState(LaraStateId::Hang);
-
-                return {};
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y - 90_deg);
-                auto nextHandler = commonEdgeHangHandling(collisionInfo);
+                commonEdgeHangHandling(collisionInfo);
                 setMovementAngle(getRotation().Y - 90_deg);
-                return nextHandler;
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override

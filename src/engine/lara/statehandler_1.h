@@ -18,39 +18,37 @@ namespace engine
             }
 
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState( LaraStateId::Death );
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().roll )
                 {
                     setAnimIdGlobal( loader::AnimationId::ROLL_BEGIN, 3857 );
                     setTargetState( LaraStateId::Stop );
-                    return LaraStateId::RollForward;
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().jump && !isFalling() )
                 {
                     setTargetState( LaraStateId::JumpForward );
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 {
                     setTargetState( LaraStateId::Stop );
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().moveSlow )
                     setTargetState( LaraStateId::WalkForward );
                 else
                     setTargetState( LaraStateId::RunForward );
-
-                return {};
             }
 
 
@@ -71,7 +69,7 @@ namespace engine
             }
 
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle( collisionInfo.yAngle );
@@ -81,30 +79,27 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
                 collisionInfo.initHeightInfo( getPosition(), getLevel(), core::ScalpHeight );
 
-                auto nextHandler = stopIfCeilingBlocked( collisionInfo );
-                if( nextHandler )
-                    return nextHandler;
-                nextHandler = tryClimb( collisionInfo );
-                if( nextHandler )
-                    return nextHandler;
+                if(stopIfCeilingBlocked(collisionInfo))
+                    return;
 
-                nextHandler = checkWallCollision( collisionInfo );
-                if( nextHandler.is_initialized() )
+                if(tryClimb(collisionInfo))
+                    return;
+
+                if(checkWallCollision(collisionInfo))
                 {
                     setZRotation( 0_deg );
                     if( collisionInfo.front.floor.slantClass == SlantClass::None
                         && collisionInfo.front.floor.distance < -core::ClimbLimit2ClickMax )
                     {
-                        nextHandler = LaraStateId::Unknown12;
                         if( getCurrentTime() < 10_frame )
                         {
                             setAnimIdGlobal( loader::AnimationId::WALL_SMASH_LEFT, 800 );
-                            return nextHandler;
+                            return;
                         }
                         if( getCurrentTime() >= 10_frame && getCurrentTime() < 22_frame )
                         {
                             setAnimIdGlobal( loader::AnimationId::WALL_SMASH_RIGHT, 815 );
-                            return nextHandler;
+                            return;
                         }
                     }
 
@@ -117,7 +112,7 @@ namespace engine
                     setTargetState( LaraStateId::JumpForward );
                     setFalling( true );
                     setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
-                    return LaraStateId::JumpForward;
+                    return;
                 }
 
                 if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin
@@ -133,14 +128,12 @@ namespace engine
                     }
                 }
 
-                if( !tryStartSlide( collisionInfo, nextHandler ) )
+                if( !tryStartSlide( collisionInfo) )
                 {
                     if( collisionInfo.current.floor.distance > 50 )
                         collisionInfo.current.floor.distance = 50;
                     placeOnFloor( collisionInfo );
                 }
-
-                return nextHandler;
             }
         };
     }

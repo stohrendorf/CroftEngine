@@ -15,19 +15,20 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 setCameraRotationY(85_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(true);
                 collisionInfo.yAngle = getRotation().Y;
@@ -37,13 +38,12 @@ namespace engine
                 collisionInfo.neededCeilingDistance = 192;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                auto nextHandler = tryReach(collisionInfo);
-                if( nextHandler )
-                    return nextHandler;
+                if(tryReach(collisionInfo))
+                    return;
 
                 jumpAgainstWall(collisionInfo);
                 if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
-                    return nextHandler;
+                    return;
 
                 if( applyLandingDamage() )
                     setTargetState(LaraStateId::Death);
@@ -53,8 +53,6 @@ namespace engine
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
                 placeOnFloor(collisionInfo);
-
-                return nextHandler;
             }
         };
     }

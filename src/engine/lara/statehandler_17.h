@@ -14,20 +14,19 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() < 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
-                    return {};
+                    return;
                 }
 
                 handleDiveInput();
 
                 if( !getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::UnderwaterInertia);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override

@@ -14,12 +14,13 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
-                    return {};
+                    return;
                 }
 
                 setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
@@ -29,8 +30,6 @@ namespace engine
 
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::OnWaterStop);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
@@ -45,10 +44,11 @@ namespace engine
                     m_yRotationSpeed = 0_deg;
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
-                return commonOnWaterHandling(collisionInfo);
+                commonOnWaterHandling(collisionInfo);
             }
         };
     }

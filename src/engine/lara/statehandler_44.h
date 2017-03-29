@@ -16,7 +16,8 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getRotation().X < 0_deg )
                     m_xRotationSpeed = -2_deg;
@@ -24,8 +25,6 @@ namespace engine
                     m_xRotationSpeed = 2_deg;
                 else
                     m_xRotationSpeed = 0_deg;
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
@@ -33,7 +32,8 @@ namespace engine
                 setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 setAir(core::makeInterpolatedValue(-1.0f));
@@ -42,7 +42,7 @@ namespace engine
                 if( h && *h < getPosition().Y - 100 )
                     setPosition(getPosition() - core::ExactTRCoordinates(0, 5, 0));
 
-                return StateHandler_Underwater::postprocessFrame(collisionInfo);
+                StateHandler_Underwater::postprocessFrame(collisionInfo);
             }
         };
     }

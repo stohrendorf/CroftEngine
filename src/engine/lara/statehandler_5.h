@@ -17,10 +17,10 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 setTargetState(LaraStateId::Stop);
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
@@ -31,7 +31,8 @@ namespace engine
                     addYRotationSpeed(deltaTime, 2.25_deg, 6_deg);
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -42,8 +43,8 @@ namespace engine
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.yAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-                if( auto nextHandler = stopIfCeilingBlocked(collisionInfo) )
-                    return nextHandler;
+                if( stopIfCeilingBlocked(collisionInfo) )
+                    return;
 
                 if( collisionInfo.current.floor.distance > 200 )
                 {
@@ -51,17 +52,14 @@ namespace engine
                     setTargetState(LaraStateId::FallBackward);
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
                     setFalling(true);
-                    return LaraStateId::FallBackward;
+                    return;
                 }
 
-                auto nextHandler = checkWallCollision(collisionInfo);
-                if( nextHandler )
+                if(checkWallCollision(collisionInfo))
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
                 placeOnFloor(collisionInfo);
-
-                return nextHandler;
             }
         };
     }

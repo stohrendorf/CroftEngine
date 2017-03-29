@@ -17,9 +17,9 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
@@ -31,7 +31,8 @@ namespace engine
                 }
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -41,9 +42,8 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 jumpAgainstWall(collisionInfo);
                 if( collisionInfo.current.floor.distance > 0 )
-                    return {};
+                    return;
 
-                boost::optional<LaraStateId> nextHandler;
                 if( applyLandingDamage() )
                 {
                     setTargetState(LaraStateId::Death);
@@ -51,15 +51,12 @@ namespace engine
                 else
                 {
                     setTargetState(LaraStateId::Stop);
-                    nextHandler = LaraStateId::Stop;
                     setAnimIdGlobal(loader::AnimationId::LANDING_HARD, 358);
                 }
                 getLevel().stopSoundEffect(30);
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
                 setFalling(false);
-
-                return nextHandler;
             }
         };
     }

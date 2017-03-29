@@ -17,12 +17,13 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
@@ -32,15 +33,14 @@ namespace engine
                     setYRotationSpeed(std::max(-4_deg, getYRotationSpeed() - 2.25_deg));
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                     setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -52,22 +52,18 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                auto nextHandler = stopIfCeilingBlocked(collisionInfo);
-                if( nextHandler.is_initialized() )
-                    return nextHandler;
+                if(stopIfCeilingBlocked(collisionInfo))
+                    return;
 
-                nextHandler = checkWallCollision(collisionInfo);
-                if( nextHandler.is_initialized() )
+                if(checkWallCollision(collisionInfo))
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     setTargetState(LaraStateId::Stop);
-                    return LaraStateId::Stop;
+                    return;
                 }
 
-                if( !tryStartSlide(collisionInfo, nextHandler) )
+                if( !tryStartSlide(collisionInfo) )
                     setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(collisionInfo.current.floor.distance), 0));
-
-                return nextHandler;
             }
         };
     }

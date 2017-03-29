@@ -17,20 +17,19 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward && getLevel().m_inputHandler->getInputState().moveSlow )
                     setTargetState(LaraStateId::WalkBackward);
                 else
                     setTargetState(LaraStateId::Stop);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
@@ -41,7 +40,8 @@ namespace engine
                     addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -53,11 +53,10 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if( auto nextHandler = stopIfCeilingBlocked(collisionInfo) )
-                    return nextHandler;
+                if( stopIfCeilingBlocked(collisionInfo) )
+                    return;
 
-                auto nextHandler = checkWallCollision(collisionInfo);
-                if( nextHandler )
+                if(checkWallCollision(collisionInfo))
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
@@ -74,12 +73,10 @@ namespace engine
                     }
                 }
 
-                if( !tryStartSlide(collisionInfo, nextHandler) )
+                if( !tryStartSlide(collisionInfo) )
                 {
                     placeOnFloor(collisionInfo);
                 }
-
-                return nextHandler;
             }
         };
     }

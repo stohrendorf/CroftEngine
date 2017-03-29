@@ -33,12 +33,12 @@ namespace engine
 
             virtual ~AbstractStateHandler() = default;
 
-            virtual boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) = 0;
+            virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
             void animate(::engine::CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs);
 
 
-            boost::optional<LaraStateId> handleInput(CollisionInfo& collisionInfo)
+            void handleInput(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime)
             {
                 m_xMovement = 0;
                 m_yMovement = 0;
@@ -46,7 +46,7 @@ namespace engine
                 m_xRotationSpeed = 0_deg;
                 m_yRotationSpeed = 0_deg;
                 m_zRotationSpeed = 0_deg;
-                return handleInputImpl(collisionInfo);
+                handleInputImpl(collisionInfo, deltaTime);
             }
 
 
@@ -65,7 +65,7 @@ namespace engine
 
             virtual void animateImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
 
-            virtual boost::optional<LaraStateId> handleInputImpl(CollisionInfo& collisionInfo) = 0;
+            virtual void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
 
         protected:
             core::InterpolatedValue<core::Angle> m_xRotationSpeed{0_deg};
@@ -156,31 +156,31 @@ namespace engine
 
             LaraStateId getTargetState() const;
 
-            boost::optional<LaraStateId> stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
+            bool stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> tryClimb(CollisionInfo& collisionInfo);
+            bool tryClimb(CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> checkWallCollision(CollisionInfo& collisionInfo);
+            bool checkWallCollision(CollisionInfo& collisionInfo);
 
-            bool tryStartSlide(const CollisionInfo& collisionInfo, boost::optional<LaraStateId>& nextHandler);
+            bool tryStartSlide(const CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> tryGrabEdge(CollisionInfo& collisionInfo);
+            bool tryGrabEdge(CollisionInfo& collisionInfo);
 
             void jumpAgainstWall(CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> checkJumpWallSmash(CollisionInfo& collisionInfo);
+            void checkJumpWallSmash(CollisionInfo& collisionInfo);
 
             void applyCollisionFeedback(const CollisionInfo& collisionInfo);
 
             int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
 
-            boost::optional<LaraStateId> commonJumpHandling(CollisionInfo& collisionInfo);
+            void commonJumpHandling(CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> commonSlideHandling(CollisionInfo& collisionInfo);
+            void commonSlideHandling(CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> commonEdgeHangHandling(CollisionInfo& collisionInfo);
+            void commonEdgeHangHandling(CollisionInfo& collisionInfo);
 
-            boost::optional<LaraStateId> tryReach(CollisionInfo& collisionInfo);
+            bool tryReach(CollisionInfo& collisionInfo);
 
             bool canClimbOnto(core::Axis axis) const;
 

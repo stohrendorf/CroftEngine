@@ -17,31 +17,31 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
 
                 if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
                     setTargetState(LaraStateId::Reach);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
             {
             }
 
-            boost::optional<LaraStateId> postprocessFrame(CollisionInfo& collisionInfo) override
+
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 192;
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
-                auto nextHandler = checkJumpWallSmash(collisionInfo);
+                checkJumpWallSmash(collisionInfo);
                 if( collisionInfo.current.floor.distance > 0 || getFallSpeed() < 0 )
-                    return nextHandler;
+                    return;
 
                 if( applyLandingDamage() )
                     setTargetState(LaraStateId::Death);
@@ -51,8 +51,6 @@ namespace engine
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
                 setFalling(false);
-
-                return nextHandler;
             }
         };
     }

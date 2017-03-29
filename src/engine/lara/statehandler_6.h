@@ -14,33 +14,32 @@ namespace engine
             {
             }
 
-            boost::optional<LaraStateId> handleInputImpl(CollisionInfo& /*collisionInfo*/) override
+
+            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
             {
                 if( getHealth() <= 0 )
                 {
                     setTargetState(LaraStateId::Stop);
-                    return {};
+                    return;
                 }
 
                 if( getHandStatus() == 4 )
                 {
                     setTargetState(LaraStateId::TurnFast);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                 {
                     if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right )
                         setTargetState(LaraStateId::Stop);
-                    return {};
+                    return;
                 }
 
                 if( getLevel().m_inputHandler->getInputState().moveSlow )
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
-
-                return {};
             }
 
             void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
