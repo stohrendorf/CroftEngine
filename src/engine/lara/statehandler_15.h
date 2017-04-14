@@ -52,7 +52,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);
@@ -68,7 +68,7 @@ namespace engine
                 setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
-                setPosition(collisionInfo.position);
+                setPosition(collisionInfo.oldPosition);
             }
         };
     }

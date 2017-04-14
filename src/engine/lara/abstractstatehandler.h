@@ -33,9 +33,9 @@ namespace engine
 
             virtual ~AbstractStateHandler() = default;
 
-            virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
+            virtual void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
 
-            void animate(::engine::CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs);
+            void animate(::engine::CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime);
 
 
             void handleInput(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime)
@@ -205,6 +205,8 @@ namespace engine
             void setCameraDistance(int d);
 
             void setCameraUnknown1(CamOverrideType k);
+
+            void laraUpdateImpl(const std::chrono::microseconds& deltaTime);
         };
     }
 }

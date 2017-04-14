@@ -77,7 +77,7 @@ namespace engine
     float SkeletalModelNode::calculateFloorSpeed(const std::chrono::microseconds& offset) const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
-        auto scaled = currentAnim.speed
+        const auto scaled = currentAnim.speed
                       + currentAnim.accelleration * core::toFloatFrame(getCurrentLocalTime() + offset);
         return scaled / (1 << 16);
     }

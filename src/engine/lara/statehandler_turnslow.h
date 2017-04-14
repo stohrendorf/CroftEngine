@@ -16,7 +16,7 @@ namespace engine
             }
 
         public:
-            void postprocessFrame(CollisionInfo& collisionInfo) override final
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override final
             {
                 setFallSpeed(core::makeInterpolatedValue(0.0f));
                 setFalling(false);

@@ -61,9 +61,6 @@ namespace engine
 
         ~LaraNode();
 
-        void update(const std::chrono::microseconds& deltaTime) override;
-
-
         bool isInWater() const
         {
             return m_underwaterState == UnderwaterState::Swimming || m_underwaterState == UnderwaterState::Diving;
@@ -82,9 +79,14 @@ namespace engine
         }
 
 
-    protected:
+        boost::optional<FrameChangeType> updateImpl(const std::chrono::microseconds& deltaTime);
+
         boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& deltaTime) override;
 
+        void update(const std::chrono::microseconds& deltaTime) override
+        {
+            addTime(deltaTime);
+        }
 
     private:
         void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);

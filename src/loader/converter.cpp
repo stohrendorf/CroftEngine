@@ -46,10 +46,10 @@ namespace
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
             static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
-                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::normal } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::uv } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } }
+                {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{&RenderVertex::position}},
+                {VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{&RenderVertex::normal}},
+                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{&RenderVertex::uv}},
+                {VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{&RenderVertex::color}}
             };
 
             return attribs;
@@ -60,28 +60,28 @@ namespace
 
     void allocateElementMemory(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_null<aiMesh*>& outMesh)
     {
-        for(const auto& buffer : mesh->getBuffers())
+        for( const auto& buffer : mesh->getBuffers() )
         {
             for( const auto& attrib : buffer.getAttributeMapping() )
             {
-                if(attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME)
+                if( attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME )
                 {
                     BOOST_ASSERT(outMesh->mVertices == nullptr && outMesh->mNumVertices == 0);
                     outMesh->mNumVertices = buffer.getVertexCount();
                     outMesh->mVertices = new aiVector3D[buffer.getVertexCount()];
                 }
-                else if(attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME)
+                else if( attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME )
                 {
                     BOOST_ASSERT(outMesh->mNormals == nullptr);
                     outMesh->mNormals = new aiVector3D[buffer.getVertexCount()];
                 }
-                else if(attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)
+                else if( attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME )
                 {
                     BOOST_ASSERT(outMesh->mTextureCoords[0] == nullptr && outMesh->mNumUVComponents[0] == 0);
                     outMesh->mTextureCoords[0] = new aiVector3D[buffer.getVertexCount()];
                     outMesh->mNumUVComponents[0] = 2;
                 }
-                else if(attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME)
+                else if( attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME )
                 {
                     BOOST_ASSERT(outMesh->mColors[0] == nullptr);
                     outMesh->mColors[0] = new aiColor4D[buffer.getVertexCount()];
@@ -93,41 +93,41 @@ namespace
 
     void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_null<aiMesh*>& outMesh)
     {
-        for(auto& buffer : mesh->getBuffers())
+        for( auto& buffer : mesh->getBuffers() )
         {
             BOOST_ASSERT(buffer.getVertexSize() % sizeof(float) == 0);
 
             const size_t count = buffer.getVertexCount();
             const float* data = static_cast<const float*>(buffer.map());
-            for(size_t i=0; i<count; ++i)
+            for( size_t i = 0; i < count; ++i )
             {
                 for( const auto& attrib : buffer.getAttributeMapping() )
                 {
                     BOOST_ASSERT(attrib.second.getOffset() % sizeof(float) == 0);
                     const auto* v = &data[attrib.second.getOffset() / sizeof(float)];
 
-                    if(attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME)
+                    if( attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME )
                     {
                         BOOST_ASSERT(outMesh->HasPositions());
                         outMesh->mVertices[i].x = v[0] / loader::SectorSize;
                         outMesh->mVertices[i].y = v[1] / loader::SectorSize;
                         outMesh->mVertices[i].z = v[2] / loader::SectorSize;
                     }
-                    else if(attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME)
+                    else if( attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME )
                     {
                         BOOST_ASSERT(outMesh->HasNormals());
                         outMesh->mNormals[i].x = v[0];
                         outMesh->mNormals[i].y = v[1];
                         outMesh->mNormals[i].z = v[2];
                     }
-                    else if(attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME)
+                    else if( attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME )
                     {
                         BOOST_ASSERT(outMesh->HasTextureCoords(0));
                         outMesh->mTextureCoords[0][i].x = v[0];
                         outMesh->mTextureCoords[0][i].y = v[1];
                         outMesh->mTextureCoords[0][i].z = 0;
                     }
-                    else if(attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME)
+                    else if( attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME )
                     {
                         BOOST_ASSERT(outMesh->HasVertexColors(0));
                         outMesh->mColors[0][i].r = v[0];
@@ -209,7 +209,7 @@ namespace
 
 namespace loader
 {
-    void Converter::write(const std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8> >& srcImg, size_t id) const
+    void Converter::write(const std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const
     {
         Expects(srcImg != nullptr);
 
@@ -347,8 +347,8 @@ namespace loader
 
     void Converter::write(const std::shared_ptr<gameplay::Model>& model,
                           const std::string& baseName,
-                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                           const glm::vec3& ambientColor) const
     {
         Expects(model != nullptr);
@@ -409,7 +409,7 @@ namespace loader
             scene->mRootNode->mNumMeshes = totalPartCount;
             scene->mRootNode->mMeshes = new unsigned int[totalPartCount];
             for( size_t i = 0; i < totalPartCount; ++i )
-                scene->mRootNode->mMeshes[i] = i;
+                scene->mRootNode->mMeshes[i] = gsl::narrow<uint32_t>(i);
         }
 
         for( size_t mi = 0, globalPartIndex = 0; mi < model->getMeshes().size(); ++mi )
@@ -429,7 +429,7 @@ namespace loader
                 copyVertexData(mesh, outMesh);
 
                 BOOST_ASSERT(part->getPrimitiveType() == gameplay::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
-                outMesh->mMaterialIndex = globalPartIndex;
+                outMesh->mMaterialIndex = gsl::narrow<uint32_t>(globalPartIndex);
                 scene->mMaterials[globalPartIndex] = new aiMaterial();
                 scene->mMaterials[globalPartIndex]->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
 
@@ -461,7 +461,7 @@ namespace loader
                     }
                 }
 
-                outMesh->mNumFaces = part->getIndexCount() / 3;
+                outMesh->mNumFaces = gsl::narrow<uint32_t>( part->getIndexCount() / 3 );
                 outMesh->mFaces = new aiFace[outMesh->mNumFaces];
 
                 switch( part->getIndexFormat() )
@@ -479,7 +479,7 @@ namespace loader
                         break;
                 }
 
-                if(outMesh->mNormals != nullptr && std::isnan(outMesh->mNormals[0].x))
+                if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
                 {
                     delete[] outMesh->mNormals;
                     outMesh->mNormals = nullptr;
@@ -491,11 +491,11 @@ namespace loader
     }
 
 
-    void Converter::write(const std::vector<loader::Room>& rooms,
-                          const std::vector<loader::Box>& boxes,
+    void Converter::write(const std::vector<Room>& rooms,
+                          const std::vector<Box>& boxes,
                           const std::string& baseName,
-                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                          const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const
+                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                          const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const
     {
         auto fullPath = m_basePath / baseName;
 
@@ -535,17 +535,17 @@ namespace loader
         BOOST_ASSERT(scene->mRootNode == nullptr);
         scene->mRootNode = new aiNode();
 
-        for(const auto& room : rooms)
+        for( const auto& room : rooms )
         {
-            auto node = convert(*scene, *room.node, mtlMap1, mtlMap2, glm::vec3{ room.getAmbientBrightness() });
-            if(node == nullptr)
+            auto node = convert(*scene, *room.node, mtlMap1, mtlMap2, glm::vec3{room.getAmbientBrightness()});
+            if( node == nullptr )
                 continue;
 
             append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, node);
             append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, convert(*scene, room.sectors, boxes))->mName = room.node->getId() + ":boxes";
 
             size_t lightId = 0;
-            for(const auto& light : room.lights)
+            for( const auto& light : room.lights )
             {
                 auto outLight = append(scene->mLights, scene->mNumLights, new aiLight());
                 outLight->mName = room.node->getId() + "_light:" + std::to_string(lightId++);
@@ -560,7 +560,7 @@ namespace loader
                 const auto r = gsl::narrow_cast<float>(light.radius) / SectorSize;
                 outLight->mAttenuationConstant = 0;
                 outLight->mAttenuationLinear = 0;
-                outLight->mAttenuationQuadratic = 2 / (r*r);
+                outLight->mAttenuationQuadratic = 2 / (r * r);
 
                 auto lightNode = append(node->mChildren, node->mNumChildren, new aiNode(outLight->mName.C_Str()));
                 const auto p = light.position.toRenderSystem() - room.position.toRenderSystem();
@@ -576,8 +576,8 @@ namespace loader
 
     aiNode* Converter::convert(aiScene& scene,
                                const gameplay::Node& sourceNode,
-                               const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                               const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                                const glm::vec3& ambientColor) const
     {
         auto outNode = std::make_unique<aiNode>(sourceNode.getId());
@@ -610,8 +610,8 @@ namespace loader
     void Converter::convert(aiScene& scene,
                             aiNode& outNode,
                             const std::shared_ptr<gameplay::Model>& inModel,
-                            const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                            const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                            const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
+                            const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
                             const glm::vec3& ambientColor) const
     {
         Expects(inModel != nullptr);
@@ -661,7 +661,7 @@ namespace loader
                     }
                 }
 
-                outMesh->mNumFaces = inPart->getIndexCount() / 3;
+                outMesh->mNumFaces = gsl::narrow<uint32_t>( inPart->getIndexCount() / 3 );
                 outMesh->mFaces = new aiFace[outMesh->mNumFaces];
 
                 switch( inPart->getIndexFormat() )
@@ -679,7 +679,7 @@ namespace loader
                         break;
                 }
 
-                if(outMesh->mNormals != nullptr && std::isnan(outMesh->mNormals[0].x))
+                if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
                 {
                     delete[] outMesh->mNormals;
                     outMesh->mNormals = nullptr;
@@ -702,16 +702,16 @@ namespace loader
     }
 
 
-    aiNode* Converter::convert(aiScene& scene, const std::vector<loader::Sector>& sectors, const std::vector<loader::Box>& boxes) const
+    aiNode* Converter::convert(aiScene& scene, const std::vector<Sector>& sectors, const std::vector<Box>& boxes) const
     {
         std::unique_ptr<aiNode> outNode = std::make_unique<aiNode>("boxes");
 
         append(outNode->mMeshes, outNode->mNumMeshes, scene.mNumMeshes);
         auto outMesh = append(scene.mMeshes, scene.mNumMeshes, new aiMesh());
 
-        for(const auto& sector : sectors)
+        for( const auto& sector : sectors )
         {
-            if(sector.boxIndex == 0xffff)
+            if( sector.boxIndex == 0xffff )
                 continue;
 
             BOOST_ASSERT(sector.boxIndex < boxes.size());
@@ -739,5 +739,4 @@ namespace loader
 
         return outNode.release();
     }
-
 }

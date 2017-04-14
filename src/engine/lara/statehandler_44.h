@@ -33,7 +33,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 setHealth(core::makeInterpolatedValue(-1.0f));
                 setAir(core::makeInterpolatedValue(-1.0f));
@@ -42,7 +42,7 @@ namespace engine
                 if( h && *h < getPosition().Y - 100 )
                     setPosition(getPosition() - core::ExactTRCoordinates(0, 5, 0));
 
-                StateHandler_Underwater::postprocessFrame(collisionInfo);
+                StateHandler_Underwater::postprocessFrame(collisionInfo, deltaTime);
             }
         };
     }

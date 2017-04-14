@@ -32,7 +32,7 @@ namespace audio
         {
         }
 
-        virtual ~BufferHandle()
+        ~BufferHandle()
         {
             alDeleteBuffers(1, &m_handle);
             DEBUG_CHECK_AL_ERROR();

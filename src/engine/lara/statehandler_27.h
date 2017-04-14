@@ -29,7 +29,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 setMovementAngle(getRotation().Y - 90_deg);
                 commonJumpHandling(collisionInfo);

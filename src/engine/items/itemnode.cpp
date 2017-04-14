@@ -302,6 +302,8 @@ namespace engine
 
         void ItemNode::applyMovement(const std::chrono::microseconds& deltaTime)
         {
+            // Horizontal speed calculations are based on the future if the item
+            // is not in falling state.
             if( m_falling )
             {
                 if( getFallSpeed() >= 128 )
@@ -312,10 +314,12 @@ namespace engine
                 {
                     m_fallSpeed.add(6, deltaTime);
                 }
+
+                m_horizontalSpeed = calculateFloorSpeed(-deltaTime);
             }
             else
             {
-                m_horizontalSpeed = calculateFloorSpeed(-deltaTime);
+                m_horizontalSpeed = calculateFloorSpeed(std::chrono::microseconds{ 0 });
             }
 
             move(

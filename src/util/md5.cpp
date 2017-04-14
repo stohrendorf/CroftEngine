@@ -121,8 +121,8 @@ void decode(uint32_t output[], const uint8_t input[], size_t len)
 {
     for( unsigned int i = 0, j = 0; j < len; i++, j += 4 )
     {
-        output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j + 1]) << 8) |
-                    (((uint32_t)input[j + 2]) << 16) | (((uint32_t)input[j + 3]) << 24);
+        output[i] = static_cast<uint32_t>(input[j]) | (static_cast<uint32_t>(input[j + 1]) << 8) |
+                    (static_cast<uint32_t>(input[j + 2]) << 16) | (static_cast<uint32_t>(input[j + 3]) << 24);
     }
 }
 

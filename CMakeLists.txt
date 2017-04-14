@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-    URL "https://github.com/stohrendorf/hunter/archive/8e7f2b98bd43fbaca10aa2f047eb33ff21bb3719.zip"
-    SHA1 "32343364102716c2ee0669a2cdd068bccc2e38cf"
+    URL "https://github.com/stohrendorf/hunter/archive/115967c40c1756fd35cebc83ee01e403dca94a11.tar.gz"
+    SHA1 "a074fbbcc4b2cf25013a1c8083e62d681864a0c8"
 )
 
 project(EdisonEngine)

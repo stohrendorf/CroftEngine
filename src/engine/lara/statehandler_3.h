@@ -45,12 +45,12 @@ namespace engine
                 }
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTime*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -60,7 +60,7 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 checkJumpWallSmash(collisionInfo);
 
-                if( collisionInfo.current.floor.distance > 0 || getFallSpeed() < 0 )
+                if( collisionInfo.current.floor.distance >= -1 || getFallSpeed() < 0 )
                     return;
 
                 if( applyLandingDamage() )
@@ -80,6 +80,8 @@ namespace engine
                 setFalling(false);
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
+
+                laraUpdateImpl(deltaTime);
             }
         };
     }

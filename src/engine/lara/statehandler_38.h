@@ -35,7 +35,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 setMovementAngle(getRotation().Y);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;

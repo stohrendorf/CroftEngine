@@ -96,7 +96,7 @@ namespace engine
     void LaraNode::handleLaraStateOnLand(const std::chrono::microseconds& deltaTime)
     {
         CollisionInfo collisionInfo;
-        collisionInfo.position = getPosition();
+        collisionInfo.oldPosition = getPosition();
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
@@ -144,15 +144,16 @@ namespace engine
 
         addYRotation(m_yRotationSpeed.getScaled(deltaTime));
 
-        addTime(deltaTime);
+        updateImpl(deltaTime);
 
         testInteractions();
 
         m_currentStateHandler->animate(collisionInfo, deltaTime);
-
-        m_currentStateHandler->postprocessFrame(collisionInfo);
+        m_currentStateHandler->postprocessFrame(collisionInfo, deltaTime);
 
         updateFloorHeight(-381);
+
+        //! @todo updateWeaponState()
 
         handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
 
@@ -364,7 +365,7 @@ namespace engine
     LaraNode::~LaraNode() = default;
 
 
-    void LaraNode::update(const std::chrono::microseconds& deltaTime)
+    boost::optional<LaraNode::FrameChangeType> LaraNode::addTime(const std::chrono::microseconds& deltaTime)
     {
         if(m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom())
         {
@@ -378,14 +379,14 @@ namespace engine
             {
                 setXRotation(-45_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                //updateImpl();
+                updateImpl(deltaTime);
                 setFallSpeed(getFallSpeed() * 2);
             }
             else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
             {
                 setXRotation(-85_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                //updateImpl();
+                updateImpl(deltaTime);
                 setFallSpeed(getFallSpeed() * 2);
             }
             else
@@ -480,8 +481,9 @@ namespace engine
         }
     }
 
-    boost::optional<SkeletalModelNode::FrameChangeType> LaraNode::addTime(const std::chrono::microseconds& deltaTime)
+    boost::optional<SkeletalModelNode::FrameChangeType> LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
     {
+        // >>>>>>>>>>>>>>>>>
         //! @todo Move UV anim code to the level.
         static constexpr auto UVAnimTime = 10_frame;
 
@@ -491,6 +493,7 @@ namespace engine
             getLevel().m_textureAnimator->updateCoordinates(getLevel().m_textureProxies);
             m_uvAnimTime -= UVAnimTime;
         }
+        // <<<<<<<<<<<<<<<<<
 
         const auto frameChangeType = SkeletalModelNode::addTime(deltaTime);
         if(frameChangeType.is_initialized())
@@ -521,9 +524,15 @@ namespace engine
                         case AnimCommandOpcode::SetVelocity:
                             BOOST_LOG_TRIVIAL(debug) << "End of animation velocity: override " << m_fallSpeedOverride
                                 << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
-                            setFallSpeed(core::makeInterpolatedValue<float>(
-                                m_fallSpeedOverride == 0 ? cmd[0] : m_fallSpeedOverride));
-                            m_fallSpeedOverride = 0;
+                            if(m_fallSpeedOverride != 0)
+                            {
+                                setFallSpeed(core::makeInterpolatedValue<float>(m_fallSpeedOverride));
+                                m_fallSpeedOverride = 0;
+                            }
+                            else
+                            {
+                                setFallSpeed(core::makeInterpolatedValue<float>(cmd[0]));
+                            }
                             setHorizontalSpeed(core::makeInterpolatedValue<float>(cmd[1]));
                             setFalling(true);
                             cmd += 2;
@@ -596,6 +605,7 @@ namespace engine
 
         applyMovement(deltaTime);
 
+        //! @todo Check if there is a better place for this.
         resetPose();
         patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
         patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());

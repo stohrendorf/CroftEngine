@@ -1,6 +1,5 @@
 #include "bat.h"
 
-#include "engine/heightinfo.h"
 #include "level/level.h"
 #include "engine/laranode.h"
 #include "engine/ai/ai.h"

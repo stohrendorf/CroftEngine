@@ -117,7 +117,7 @@ namespace engine
 
         if( current.floor.distance == -loader::HeightLimit )
         {
-            collisionFeedback = position - laraPos;
+            collisionFeedback = oldPosition - laraPos;
             axisCollisions = AxisColl_FrontForwardBlocked;
             return;
         }
@@ -125,7 +125,7 @@ namespace engine
         if( current.floor.distance <= current.ceiling.distance )
         {
             axisCollisions = AxisColl_InvalidPosition;
-            collisionFeedback = position - laraPos;
+            collisionFeedback = oldPosition - laraPos;
             return;
         }
 
@@ -142,13 +142,13 @@ namespace engine
             {
             case core::Axis::PosZ:
             case core::Axis::NegZ:
-                collisionFeedback.X = position.X - laraPos.X;
+                collisionFeedback.X = oldPosition.X - laraPos.X;
                 collisionFeedback.Z = reflectAtSectorBoundary(frontZ + laraPos.Z, laraPos.Z);
                 break;
             case core::Axis::PosX:
             case core::Axis::NegX:
                 collisionFeedback.X = reflectAtSectorBoundary(frontX + laraPos.X, laraPos.X);
-                collisionFeedback.Z = position.Z - laraPos.Z;
+                collisionFeedback.Z = oldPosition.Z - laraPos.Z;
                 break;
             }
             return;
@@ -157,7 +157,7 @@ namespace engine
         if( front.ceiling.distance >= neededCeilingDistance )
         {
             axisCollisions = AxisColl_InsufficientFrontCeilingSpace;
-            collisionFeedback = position - laraPos;
+            collisionFeedback = oldPosition - laraPos;
             return;
         }
 
@@ -247,7 +247,7 @@ namespace engine
                     if( dz > collisionRadius || dz < -collisionRadius )
                     {
                         collisionFeedback.X = dx - 1;
-                        collisionFeedback.Z = this->position.Z - position.Z;
+                        collisionFeedback.Z = this->oldPosition.Z - position.Z;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
@@ -273,7 +273,7 @@ namespace engine
                 case core::Axis::PosZ:
                     if( dx > collisionRadius || dx < -collisionRadius )
                     {
-                        collisionFeedback.X = this->position.X - position.X;
+                        collisionFeedback.X = this->oldPosition.X - position.X;
                         collisionFeedback.Z = dz - 1;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
@@ -301,7 +301,7 @@ namespace engine
                     if( dz > collisionRadius || dz < -collisionRadius )
                     {
                         collisionFeedback.X = dx + 1;
-                        collisionFeedback.Z = this->position.Z - position.Z;
+                        collisionFeedback.Z = this->oldPosition.Z - position.Z;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;
                         return true;
@@ -327,7 +327,7 @@ namespace engine
                 case core::Axis::NegZ:
                     if( dx > collisionRadius || dx < -collisionRadius )
                     {
-                        collisionFeedback.X = this->position.X - position.X;
+                        collisionFeedback.X = this->oldPosition.X - position.X;
                         collisionFeedback.Z = dz + 1;
                         axisCollisions = AxisColl_FrontForwardBlocked;
                         hasStaticMeshCollision = true;

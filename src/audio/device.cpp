@@ -60,7 +60,7 @@ namespace audio
                     0};
                 m_context = alcCreateContext(m_device, paramList);
                 // fails e.g. with Rapture3D, where EFX is supported
-                if( m_context )
+                if( m_context != nullptr )
                 {
                     break;
                 }
@@ -69,7 +69,7 @@ namespace audio
             devlist += std::strlen(devlist) + 1;
         }
 
-        if( !m_context )
+        if( m_context == nullptr )
         {
             BOOST_LOG_TRIVIAL(warning) << BOOST_CURRENT_FUNCTION << ": Failed to create OpenAL context.";
             alcCloseDevice(m_device);

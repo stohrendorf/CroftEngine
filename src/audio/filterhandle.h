@@ -29,7 +29,7 @@ namespace audio
         {
         }
 
-        virtual ~FilterHandle()
+        ~FilterHandle()
         {
             alDeleteFilters(1, &m_handle);
             DEBUG_CHECK_AL_ERROR();

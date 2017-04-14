@@ -4,7 +4,6 @@ set( GAMEPLAY_SRC
      src/BoundingBox.h
      src/Camera.cpp
      src/Camera.h
-     src/Drawable.cpp
      src/Drawable.h
      src/ShaderProgram.cpp
      src/ShaderProgram.h

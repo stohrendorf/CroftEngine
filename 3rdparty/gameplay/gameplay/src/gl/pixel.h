@@ -69,7 +69,7 @@ namespace gameplay
         template<typename T>
         struct RGB final
         {
-            static_assert(std::is_integral<T>::value, "Pixel may only have channels of integral types");
+            static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "Pixel may only have channels of integral types");
 
             using Type = T;
             using Traits = TypeTraits<T>;
@@ -119,7 +119,7 @@ namespace gameplay
         }
 
 
-        using RGB8 = RGB<uint8_t>;
-        using RGBF = RGB<float>;
+        using RGB8 = RGB<GLubyte>;
+        using RGBF = RGB<GLfloat>;
     }
 }

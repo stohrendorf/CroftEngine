@@ -75,7 +75,7 @@ namespace gameplay
 
     std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshSource, const std::string& fshSource, const std::vector<std::string>& defines)
     {
-        return createFromSource(nullptr, vshSource, nullptr, fshSource, defines);
+        return createFromSource("", vshSource, "", fshSource, defines);
     }
 
 

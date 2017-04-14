@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo) override
+            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
             {
                 collisionInfo.yAngle = getRotation().Y;
                 if( abs(getRotation().X) > 90_deg )

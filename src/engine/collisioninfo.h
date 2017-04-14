@@ -1,9 +1,9 @@
 #pragma once
 
-#include <set>
-
 #include "heightinfo.h"
 #include "core/angle.h"
+
+#include <set>
 
 namespace engine
 {
@@ -36,7 +36,7 @@ namespace engine
         core::Angle yAngle = 0_deg; // external
         int collisionRadius = 0; // external
         int policyFlags = 0; // external
-        core::ExactTRCoordinates position; // external
+        core::ExactTRCoordinates oldPosition; // external
         //! The deepest floor distance considered passable.
         int passableFloorDistanceBottom = 0; // external
         //! The highest floor distance considered passable.

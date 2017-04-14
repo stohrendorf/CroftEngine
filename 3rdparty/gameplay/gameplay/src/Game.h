@@ -200,8 +200,6 @@ namespace gameplay
 
         /**
          * Sets whether multi-sampling is to be enabled/disabled. Default is disabled.
-         *
-         * @param enabled true sets multi-sampling to be enabled, false to be disabled.
          */
         inline void setMultiSampling(unsigned samples);
 

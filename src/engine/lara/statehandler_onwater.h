@@ -33,7 +33,7 @@ namespace engine
                         )
                 {
                     setFallSpeed(core::makeInterpolatedValue(0.0f));
-                    setPosition(collisionInfo.position);
+                    setPosition(collisionInfo.oldPosition);
                 }
                 else
                 {

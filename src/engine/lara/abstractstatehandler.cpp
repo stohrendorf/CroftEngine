@@ -436,7 +436,7 @@ namespace engine
                 && collisionInfo.axisCollisions != CollisionInfo::AxisColl_InvalidPosition )
                 return false;
 
-            setPosition(collisionInfo.position);
+            setPosition(collisionInfo.oldPosition);
 
             setTargetState(LaraStateId::Stop);
             setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
@@ -771,7 +771,7 @@ namespace engine
             if( gradient >= core::MaxGrabbableGradient || collisionInfo.current.ceiling.distance >= 0
                 || collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked || tooSteepToGrab )
             {
-                setPosition(collisionInfo.position);
+                setPosition(collisionInfo.oldPosition);
                 if( getCurrentAnimState() != LaraStateId::ShimmyLeft
                     && getCurrentAnimState() != LaraStateId::ShimmyRight )
                 {
@@ -953,6 +953,12 @@ namespace engine
 
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision && getFallSpeed() <= 0 )
                 setFallSpeed(core::makeInterpolatedValue(1.0f));
+        }
+
+
+        void AbstractStateHandler::laraUpdateImpl(const std::chrono::microseconds& deltaTime)
+        {
+            m_lara.updateImpl(deltaTime);
         }
     }
 }
