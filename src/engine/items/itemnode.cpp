@@ -120,10 +120,10 @@ namespace engine
                             );
                             cmd += 3;
                             break;
-                        case AnimCommandOpcode::SetVelocity:
+                        case AnimCommandOpcode::StartFalling:
                             m_fallSpeed = cmd[0];
-                            m_falling = true;
                             m_horizontalSpeed = cmd[1];
+                            m_falling = true;
                             cmd += 2;
                             break;
                         case AnimCommandOpcode::PlaySound:
@@ -162,7 +162,7 @@ namespace engine
                         case AnimCommandOpcode::SetPosition:
                             cmd += 3;
                             break;
-                        case AnimCommandOpcode::SetVelocity:
+                        case AnimCommandOpcode::StartFalling:
                             cmd += 2;
                             break;
                         case AnimCommandOpcode::PlaySound:
@@ -315,11 +315,11 @@ namespace engine
                     m_fallSpeed.add(6, deltaTime);
                 }
 
-                m_horizontalSpeed = calculateFloorSpeed(-deltaTime);
+                m_horizontalSpeed.add(calculateFloorSpeed(), deltaTime);
             }
             else
             {
-                m_horizontalSpeed = calculateFloorSpeed(std::chrono::microseconds{ 0 });
+                m_horizontalSpeed = calculateFloorSpeed();
             }
 
             move(

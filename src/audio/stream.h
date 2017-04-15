@@ -26,11 +26,13 @@ namespace audio
         {
             ALint processed = 0;
             alGetSourcei(m_source.get(), AL_BUFFERS_PROCESSED, &processed);
+            DEBUG_CHECK_AL_ERROR();
             if( processed == 0 )
                 return;
 
             ALuint bufId;
             alSourceUnqueueBuffers(m_source.get(), 1, &bufId);
+            DEBUG_CHECK_AL_ERROR();
 
             if(bufId == m_buffers[0].get())
             {
@@ -48,6 +50,7 @@ namespace audio
             }
 
             alSourceQueueBuffers(m_source.get(), 1, &bufId);
+            DEBUG_CHECK_AL_ERROR();
         }
 
         const SourceHandle& getSource() const noexcept
@@ -68,8 +71,10 @@ namespace audio
 
             auto tmp = m_buffers[0].get();
             alSourceQueueBuffers(m_source.get(), 1, &tmp);
+            DEBUG_CHECK_AL_ERROR();
             tmp = m_buffers[1].get();
             alSourceQueueBuffers(m_source.get(), 1, &tmp);
+            DEBUG_CHECK_AL_ERROR();
         }
 
 

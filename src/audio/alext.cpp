@@ -1,4 +1,5 @@
 #include "alext.h"
+#include "utils.h"
 
 #ifndef AL_ALEXT_PROTOTYPES
 
@@ -54,6 +55,7 @@ void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
 
 #define GETPROC(type, name) \
     name = reinterpret_cast<type>(alGetProcAddress(#name)); \
+    DEBUG_CHECK_AL_ERROR(); \
     Expects(name != nullptr)
 
     GETPROC(LPALGENEFFECTS, alGenEffects);

@@ -46,6 +46,7 @@ namespace audio
         void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate)
         {
             alBufferData(m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples, gsl::narrow<ALsizei>(sampleCount * sizeof(samples[0])), sampleRate);
+            DEBUG_CHECK_AL_ERROR();
         }
 
         bool fillFromWav(const uint8_t* data)

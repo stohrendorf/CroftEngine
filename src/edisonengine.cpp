@@ -30,7 +30,8 @@ namespace
         drawText(font, 300, 80, "z=" + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Z)));
 
         // physics
-        drawText(font, 300, 100, "fall " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
+        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
+        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getHorizontalSpeed().getCurrentValue())));
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));

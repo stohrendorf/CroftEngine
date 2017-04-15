@@ -521,8 +521,8 @@ namespace engine
                             );
                             cmd += 3;
                             break;
-                        case AnimCommandOpcode::SetVelocity:
-                            BOOST_LOG_TRIVIAL(debug) << "End of animation velocity: override " << m_fallSpeedOverride
+                        case AnimCommandOpcode::StartFalling:
+                            BOOST_LOG_TRIVIAL(debug) << getId() << " -- end of animation velocity: override " << m_fallSpeedOverride
                                 << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
                             if(m_fallSpeedOverride != 0)
                             {
@@ -574,7 +574,7 @@ namespace engine
                         case AnimCommandOpcode::SetPosition:
                             cmd += 3;
                             break;
-                        case AnimCommandOpcode::SetVelocity:
+                        case AnimCommandOpcode::StartFalling:
                             cmd += 2;
                             break;
                         case AnimCommandOpcode::PlaySound:

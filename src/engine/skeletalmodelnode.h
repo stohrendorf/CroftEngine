@@ -67,7 +67,7 @@ namespace engine
         }
 
 
-        float calculateFloorSpeed(const std::chrono::microseconds& offset) const;
+        float calculateFloorSpeed() const;
 
         int getAccelleration() const;
 

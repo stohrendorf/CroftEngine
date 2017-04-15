@@ -118,7 +118,7 @@ namespace engine
             enum class AnimCommandOpcode : uint16_t
             {
                 SetPosition = 1,
-                SetVelocity = 2,
+                StartFalling = 2,
                 EmptyHands = 3,
                 Kill = 4,
                 PlaySound = 5,
