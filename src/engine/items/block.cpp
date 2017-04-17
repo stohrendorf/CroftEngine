@@ -71,7 +71,7 @@ namespace engine
 
                 lara.setYRotation(getRotation().Y);
                 lara.setTargetState(loader::LaraStateId::PushableGrab);
-                lara.advanceFrame();
+                lara.updateImpl(core::FrameTime, true);
                 if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
                     lara.setHandStatus(1);
                 return;

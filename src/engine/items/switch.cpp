@@ -42,7 +42,7 @@ namespace engine
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchDown );
-                    lara.advanceFrame();
+                    lara.updateImpl(core::FrameTime, true);
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
                 lara.setTargetState( loader::LaraStateId::Stop );
                 setTargetState( 0 );
@@ -57,7 +57,7 @@ namespace engine
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchUp );
-                    lara.advanceFrame();
+                    lara.updateImpl(core::FrameTime, true);
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
                 lara.setTargetState( loader::LaraStateId::Stop );
                 setTargetState( 1 );

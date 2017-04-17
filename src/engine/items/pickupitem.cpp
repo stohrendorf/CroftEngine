@@ -44,7 +44,7 @@ namespace engine
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.advanceFrame();
+                        lara.updateImpl(core::FrameTime, true);
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::UnderwaterStop);
                 }
@@ -86,7 +86,7 @@ namespace engine
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.advanceFrame();
+                        lara.updateImpl(core::FrameTime, true);
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::Stop);
                     lara.setHandStatus(1);

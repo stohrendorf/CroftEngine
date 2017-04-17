@@ -81,7 +81,7 @@ namespace engine
                 setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
                 placeOnFloor(collisionInfo);
 
-                laraUpdateImpl(deltaTime);
+                laraUpdateImpl(core::FrameTime);
             }
         };
     }

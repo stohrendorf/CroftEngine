@@ -79,7 +79,7 @@ namespace engine
         }
 
 
-        boost::optional<FrameChangeType> updateImpl(const std::chrono::microseconds& deltaTime);
+        boost::optional<FrameChangeType> updateImpl(const std::chrono::microseconds& deltaTime, bool skipStateHandlerUpdate);
 
         boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& deltaTime) override;
 

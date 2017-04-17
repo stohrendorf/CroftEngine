@@ -144,7 +144,7 @@ namespace engine
 
         addYRotation(m_yRotationSpeed.getScaled(deltaTime));
 
-        updateImpl(deltaTime);
+        updateImpl(deltaTime, false);
 
         testInteractions();
 
@@ -379,14 +379,14 @@ namespace engine
             {
                 setXRotation(-45_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                updateImpl(deltaTime);
+                updateImpl(deltaTime, false);
                 setFallSpeed(getFallSpeed() * 2);
             }
             else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
             {
                 setXRotation(-85_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                updateImpl(deltaTime);
+                updateImpl(deltaTime, false);
                 setFallSpeed(getFallSpeed() * 2);
             }
             else
@@ -481,7 +481,7 @@ namespace engine
         }
     }
 
-    boost::optional<SkeletalModelNode::FrameChangeType> LaraNode::updateImpl(const std::chrono::microseconds& deltaTime)
+    boost::optional<SkeletalModelNode::FrameChangeType> LaraNode::updateImpl(const std::chrono::microseconds& deltaTime, bool skipStateHandlerUpdate)
     {
         // >>>>>>>>>>>>>>>>>
         //! @todo Move UV anim code to the level.
@@ -496,7 +496,7 @@ namespace engine
         // <<<<<<<<<<<<<<<<<
 
         const auto frameChangeType = SkeletalModelNode::addTime(deltaTime);
-        if(frameChangeType.is_initialized())
+        if(!skipStateHandlerUpdate && frameChangeType.is_initialized())
             m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
 
         if(frameChangeType.is_initialized() && *frameChangeType == FrameChangeType::EndOfAnim)

@@ -958,7 +958,7 @@ namespace engine
 
         void AbstractStateHandler::laraUpdateImpl(const std::chrono::microseconds& deltaTime)
         {
-            m_lara.updateImpl(deltaTime);
+            m_lara.updateImpl(deltaTime, true);
         }
     }
 }

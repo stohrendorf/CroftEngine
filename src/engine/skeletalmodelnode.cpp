@@ -288,7 +288,7 @@ namespace engine
         BOOST_LOG_TRIVIAL( debug ) << "Advance frame: current=" << m_time.count() << "us, end=" << getEndTime().count()
                                    << "us";
 
-        addTime( std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) ) / core::FrameRate );
+        addTime( core::FrameTime );
     }
 
 
