@@ -4,14 +4,11 @@
 #include "engine/laranode.h"
 #include "engine/ai/ai.h"
 
-#include <boost/range/adaptors.hpp>
-
-
 namespace engine
 {
     namespace items
     {
-        void Bat::update(const std::chrono::microseconds& deltaTime)
+        void Bat::update()
         {
             if( m_triggerState == TriggerState::Locked )
             {
@@ -66,10 +63,10 @@ namespace engine
             else
             {
                 setTargetState(Circling);
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
                 setFalling(true);
             }
-            animateCreature(deltaTime, rotationToMoveTarget, 0_deg);
+            animateCreature(rotationToMoveTarget, 0_deg);
         }
     }
 }

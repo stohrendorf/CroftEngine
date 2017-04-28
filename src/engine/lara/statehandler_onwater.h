@@ -23,7 +23,7 @@ namespace engine
             bool commonOnWaterHandling(CollisionInfo& collisionInfo)
             {
                 collisionInfo.yAngle = getMovementAngle();
-                collisionInfo.initHeightInfo(getPosition() + core::ExactTRCoordinates(0, 700, 0), getLevel(), 700);
+                collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates(0, 700, 0), getLevel(), 700);
                 applyCollisionFeedback(collisionInfo);
                 if( collisionInfo.current.floor.distance < 0
                     || collisionInfo.axisCollisions == CollisionInfo::AxisColl_InvalidPosition
@@ -32,7 +32,7 @@ namespace engine
                     || collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked
                         )
                 {
-                    setFallSpeed(core::makeInterpolatedValue(0.0f));
+                    setFallSpeed(0);
                     setPosition(collisionInfo.oldPosition);
                 }
                 else
@@ -54,7 +54,7 @@ namespace engine
                 setTargetState(LaraStateId::UnderwaterForward);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
-                setFallSpeed(core::makeInterpolatedValue(80.0f));
+                setFallSpeed(80);
                 setUnderwaterState(UnderwaterState::Diving);
                 return true;
             }
@@ -91,9 +91,9 @@ namespace engine
                 if( !yRot )
                     return false;
 
-                setPosition(getPosition() + core::ExactTRCoordinates(0, 695 + gsl::narrow_cast<float>(collisionInfo.front.floor.distance), 0));
+                setPosition(getPosition() + core::TRCoordinates(0, 695 + collisionInfo.front.floor.distance, 0));
                 getLara().updateFloorHeight(-381);
-                core::ExactTRCoordinates d = getPosition();
+                core::TRCoordinates d = getPosition();
                 if( *yRot == 0_deg )
                     d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 1) * loader::SectorSize + 100;
                 else if( *yRot == 180_deg )
@@ -109,8 +109,8 @@ namespace engine
 
                 setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
+                setFallSpeed(0);
                 setFalling(false);
                 setXRotation(0_deg);
                 setYRotation(*yRot);

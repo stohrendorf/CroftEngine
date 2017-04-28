@@ -16,7 +16,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 setCameraRotationY(135_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
@@ -25,12 +25,12 @@ namespace engine
                     setTargetState(LaraStateId::JumpBack);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y + 180_deg);
                 commonJumpHandling(collisionInfo);

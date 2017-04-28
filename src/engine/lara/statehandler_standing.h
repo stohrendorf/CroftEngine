@@ -16,9 +16,9 @@ namespace engine
             }
 
         public:
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override final
+            void postprocessFrame(CollisionInfo& collisionInfo) override final
             {
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.yAngle);
@@ -43,7 +43,7 @@ namespace engine
 
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(true);
             }
         };

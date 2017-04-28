@@ -62,19 +62,19 @@ namespace engine
 {
     namespace lara
     {
-        void AbstractStateHandler::animate(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTimeMs)
+        void AbstractStateHandler::animate(CollisionInfo& collisionInfo)
         {
-            animateImpl(collisionInfo, deltaTimeMs);
+            animateImpl(collisionInfo);
 
             m_lara.rotate(
-                m_xRotationSpeed.getScaled(deltaTimeMs),
-                m_yRotationSpeed.getScaled(deltaTimeMs),
-                m_zRotationSpeed.getScaled(deltaTimeMs)
+                m_xRotationSpeed,
+                m_yRotationSpeed,
+                m_zRotationSpeed
             );
             m_lara.move(
-                m_xMovement.getScaled(deltaTimeMs),
-                m_yMovement.getScaled(deltaTimeMs),
-                m_zMovement.getScaled(deltaTimeMs)
+                m_xMovement,
+                m_yMovement,
+                m_zMovement
             );
         }
 
@@ -143,19 +143,19 @@ namespace engine
         }
 
 
-        const core::InterpolatedValue<float>& AbstractStateHandler::getHealth() const noexcept
+        int AbstractStateHandler::getHealth() const noexcept
         {
             return m_lara.getHealth();
         }
 
 
-        void AbstractStateHandler::setHealth(const core::InterpolatedValue<float>& h) noexcept
+        void AbstractStateHandler::setHealth(int h) noexcept
         {
             m_lara.setHealth(h);
         }
 
 
-        void AbstractStateHandler::setAir(const core::InterpolatedValue<float>& a) noexcept
+        void AbstractStateHandler::setAir(int a) noexcept
         {
             m_lara.setAir(a);
         }
@@ -173,13 +173,13 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::setFallSpeed(const core::InterpolatedValue<float>& spd)
+        void AbstractStateHandler::setFallSpeed(int spd)
         {
             m_lara.setFallSpeed(spd);
         }
 
 
-        const core::InterpolatedValue<float>& AbstractStateHandler::getFallSpeed() const noexcept
+        int AbstractStateHandler::getFallSpeed() const noexcept
         {
             return m_lara.getFallSpeed();
         }
@@ -209,9 +209,9 @@ namespace engine
         }
 
 
-        std::chrono::microseconds AbstractStateHandler::getCurrentTime() const
+        int AbstractStateHandler::getCurrentFrame() const
         {
-            return m_lara.getCurrentTime();
+            return m_lara.getCurrentFrame();
         }
 
 
@@ -233,13 +233,13 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::setHorizontalSpeed(const core::InterpolatedValue<float>& speed)
+        void AbstractStateHandler::setHorizontalSpeed(int speed)
         {
             m_lara.setHorizontalSpeed(speed);
         }
 
 
-        const core::InterpolatedValue<float>& AbstractStateHandler::getHorizontalSpeed() const
+        int AbstractStateHandler::getHorizontalSpeed() const
         {
             return m_lara.getHorizontalSpeed();
         }
@@ -257,13 +257,13 @@ namespace engine
         }
 
 
-        const core::ExactTRCoordinates& AbstractStateHandler::getPosition() const
+        const core::TRCoordinates& AbstractStateHandler::getPosition() const
         {
             return m_lara.getPosition();
         }
 
 
-        void AbstractStateHandler::setPosition(const core::ExactTRCoordinates& pos)
+        void AbstractStateHandler::setPosition(const core::TRCoordinates& pos)
         {
             m_lara.setPosition(pos);
         }
@@ -293,17 +293,17 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val,
+        void AbstractStateHandler::subYRotationSpeed(core::Angle val,
                                                      core::Angle limit)
         {
-            m_lara.subYRotationSpeed(deltaTime, val, limit);
+            m_lara.subYRotationSpeed(val, limit);
         }
 
 
-        void AbstractStateHandler::addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val,
+        void AbstractStateHandler::addYRotationSpeed(core::Angle val,
                                                      core::Angle limit)
         {
-            m_lara.addYRotationSpeed(deltaTime, val, limit);
+            m_lara.addYRotationSpeed(val, limit);
         }
 
 
@@ -331,9 +331,9 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f)
+        void AbstractStateHandler::dampenHorizontalSpeed(float f)
         {
-            m_lara.dampenHorizontalSpeed(deltaTime, f);
+            m_lara.dampenHorizontalSpeed(f);
         }
 
 
@@ -377,9 +377,9 @@ namespace engine
             }
 
             auto sector = getLevel()
-                .findRealFloorSector(pos.toInexact(), m_lara.getCurrentRoom());
-            HeightInfo floor = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
-            HeightInfo ceil = HeightInfo::fromCeiling(sector, pos.toInexact(), getLevel().m_cameraController);
+                .findRealFloorSector(pos, m_lara.getCurrentRoom());
+            HeightInfo floor = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
+            HeightInfo ceil = HeightInfo::fromCeiling(sector, pos, getLevel().m_cameraController);
             return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
         }
 
@@ -402,7 +402,7 @@ namespace engine
             const auto bbox = getBoundingBox();
             long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
-            BOOST_LOG_TRIVIAL(debug) << "spaceToReach = " << spaceToReach << ", getFallSpeed() + spaceToReach = " << (getFallSpeed() + spaceToReach).getCurrentValue();
+            BOOST_LOG_TRIVIAL(debug) << "spaceToReach = " << spaceToReach << ", getFallSpeed() + spaceToReach = " << (getFallSpeed() + spaceToReach);
 
             if( spaceToReach < 0 && getFallSpeed() + spaceToReach < 0 )
                 return false;
@@ -419,12 +419,12 @@ namespace engine
                 setAnimIdGlobal(loader::AnimationId::HANG_IDLE, 1493);
 
             setTargetState(LaraStateId::Hang);
-            setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, spaceToReach,
+            setPosition(getPosition() + core::TRCoordinates(collisionInfo.collisionFeedback.X, spaceToReach,
                                                                  collisionInfo.collisionFeedback.Z));
-            setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+            setHorizontalSpeed(0);
             setYRotation(*alignedRotation);
             setFalling(false);
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setFallSpeed(0);
             setHandStatus(1);
             return true;
         }
@@ -440,8 +440,8 @@ namespace engine
 
             setTargetState(LaraStateId::Stop);
             setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
-            setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setHorizontalSpeed(0);
+            setFallSpeed(0);
             setFalling(false);
             return true;
         }
@@ -508,20 +508,6 @@ namespace engine
 
         void AbstractStateHandler::applyCollisionFeedback(const CollisionInfo& collisionInfo)
         {
-            static constexpr float Margin = 1;
-
-            auto shrinkMargin = [](float& x)
-            {
-                if(x < 0)
-                    x += Margin;
-                else if(x > 0)
-                    x -= Margin;
-            };
-
-            shrinkMargin(collisionInfo.collisionFeedback.X);
-            shrinkMargin(collisionInfo.collisionFeedback.Y);
-            shrinkMargin(collisionInfo.collisionFeedback.Z);
-
             setPosition(getPosition() + collisionInfo.collisionFeedback);
             collisionInfo.collisionFeedback = {0, 0, 0};
         }
@@ -535,7 +521,7 @@ namespace engine
                 applyCollisionFeedback(collisionInfo);
                 setTargetState(LaraStateId::Stop);
                 setFalling(false);
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
                 return true;
             }
 
@@ -629,10 +615,10 @@ namespace engine
             bbox = getBoundingBox();
             spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
-            setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
+            setPosition(getPosition() + core::TRCoordinates(0, spaceToReach, 0));
             applyCollisionFeedback(collisionInfo);
-            setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setHorizontalSpeed(0);
+            setFallSpeed(0);
             setFalling(false);
             setHandStatus(1);
             setYRotation(*alignedRotation);
@@ -649,9 +635,9 @@ namespace engine
             pos.Z += angle.cos() * dist;
 
             gsl::not_null<const loader::Sector*> sector = getLevel()
-                .findRealFloorSector(pos.toInexact(), m_lara.getCurrentRoom());
+                .findRealFloorSector(pos, m_lara.getCurrentRoom());
 
-            HeightInfo h = HeightInfo::fromFloor(sector, pos.toInexact(), getLevel().m_cameraController);
+            HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
 
             if( h.distance != -loader::HeightLimit )
                 h.distance -= std::lround(getPosition().Y);
@@ -675,7 +661,7 @@ namespace engine
                 setTargetState(LaraStateId::Death);
             else
                 setTargetState(LaraStateId::Stop);
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setFallSpeed(0);
             placeOnFloor(collisionInfo);
             setFalling(false);
         }
@@ -717,7 +703,7 @@ namespace engine
                 setTargetState(LaraStateId::FallBackward);
             }
 
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setFallSpeed(0);
             setFalling(true);
         }
 
@@ -730,19 +716,19 @@ namespace engine
             collisionInfo.yAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             const bool tooSteepToGrab = collisionInfo.front.floor.distance < 200;
-            setFallSpeed(core::makeInterpolatedValue(0.0f));
+            setFallSpeed(0);
             setFalling(false);
             setMovementAngle(getRotation().Y);
             const auto axis = *core::axisFromAngle(getMovementAngle(), 45_deg);
             switch( axis )
             {
-                case core::Axis::PosZ: setPosition(getPosition() + core::ExactTRCoordinates(0, 0, 2));
+                case core::Axis::PosZ: setPosition(getPosition() + core::TRCoordinates(0, 0, 2));
                     break;
-                case core::Axis::PosX: setPosition(getPosition() + core::ExactTRCoordinates(2, 0, 0));
+                case core::Axis::PosX: setPosition(getPosition() + core::TRCoordinates(2, 0, 0));
                     break;
-                case core::Axis::NegZ: setPosition(getPosition() - core::ExactTRCoordinates(0, 0, 2));
+                case core::Axis::NegZ: setPosition(getPosition() - core::TRCoordinates(0, 0, 2));
                     break;
-                case core::Axis::NegX: setPosition(getPosition() - core::ExactTRCoordinates(2, 0, 0));
+                case core::Axis::NegX: setPosition(getPosition() - core::TRCoordinates(2, 0, 0));
                     break;
             }
 
@@ -758,10 +744,10 @@ namespace engine
                 setHandStatus(0);
                 const auto bbox = getBoundingBox();
                 const long hangDistance = collisionInfo.front.floor.distance - bbox.min.y + 2;
-                setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, hangDistance,
+                setPosition(getPosition() + core::TRCoordinates(collisionInfo.collisionFeedback.X, hangDistance,
                                                                      collisionInfo.collisionFeedback.Z));
-                setHorizontalSpeed(core::makeInterpolatedValue(2.0f));
-                setFallSpeed(core::makeInterpolatedValue(1.0f));
+                setHorizontalSpeed(2);
+                setFallSpeed(1);
                 setFalling(true);
                 return;
             }
@@ -787,11 +773,11 @@ namespace engine
             {
                 case core::Axis::PosZ:
                 case core::Axis::NegZ:
-                    setPosition(getPosition() + core::ExactTRCoordinates(0, 0, collisionInfo.collisionFeedback.Z));
+                    setPosition(getPosition() + core::TRCoordinates(0, 0, collisionInfo.collisionFeedback.Z));
                     break;
                 case core::Axis::PosX:
                 case core::Axis::NegX:
-                    setPosition(getPosition() + core::ExactTRCoordinates(collisionInfo.collisionFeedback.X, 0, 0));
+                    setPosition(getPosition() + core::TRCoordinates(collisionInfo.collisionFeedback.X, 0, 0));
                     break;
             }
 
@@ -799,15 +785,15 @@ namespace engine
             const long spaceToReach = collisionInfo.front.floor.distance - bbox.min.y;
 
             if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
-                setPosition(getPosition() + core::ExactTRCoordinates(0, spaceToReach, 0));
+                setPosition(getPosition() + core::TRCoordinates(0, spaceToReach, 0));
         }
 
 
         bool AbstractStateHandler::applyLandingDamage()
         {
             auto sector = getLevel()
-                .findRealFloorSector(getPosition().toInexact(), m_lara.getCurrentRoom());
-            HeightInfo h = HeightInfo::fromFloor(sector, getPosition().toInexact()
+                .findRealFloorSector(getPosition(), m_lara.getCurrentRoom());
+            HeightInfo h = HeightInfo::fromFloor(sector, getPosition()
                                                  - core::TRCoordinates{0, core::ScalpHeight, 0},
                                                  getLevel().m_cameraController);
             setFloorHeight(h.distance);
@@ -821,7 +807,7 @@ namespace engine
             if( damageSpeed <= DeathSpeedLimit )
                 setHealth(getHealth() - 1000 * damageSpeed * damageSpeed / (DeathSpeedLimit * DeathSpeedLimit));
             else
-                setHealth(core::makeInterpolatedValue(-1.0f));
+                setHealth(-1);
             return getHealth() <= 0;
         }
 
@@ -832,19 +818,19 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
+        void AbstractStateHandler::addSwimToDiveKeypressDuration(int n) noexcept
         {
-            m_lara.addSwimToDiveKeypressDuration(ms);
+            m_lara.addSwimToDiveKeypressDuration(n);
         }
 
 
-        void AbstractStateHandler::setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
+        void AbstractStateHandler::setSwimToDiveKeypressDuration(int n) noexcept
         {
-            m_lara.setSwimToDiveKeypressDuration(ms);
+            m_lara.setSwimToDiveKeypressDuration(n);
         }
 
 
-        const boost::optional<std::chrono::microseconds>& AbstractStateHandler::getSwimToDiveKeypressDuration() const
+        int AbstractStateHandler::getSwimToDiveKeypressDuration() const
         {
             return m_lara.getSwimToDiveKeypressDuration();
         }
@@ -896,16 +882,16 @@ namespace engine
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision )
             {
                 if( getFallSpeed() <= 0 )
-                    setFallSpeed(core::makeInterpolatedValue(1.0f));
+                    setFallSpeed(1);
             }
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_InvalidPosition )
             {
                 m_xMovement = 100 * getRotation().Y.sin();
                 m_zMovement = 100 * getRotation().Y.cos();
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
                 collisionInfo.current.floor.distance = 0;
                 if( getFallSpeed() < 0 )
-                    setFallSpeed(core::makeInterpolatedValue(16.0f));
+                    setFallSpeed(16);
             }
         }
 
@@ -926,7 +912,7 @@ namespace engine
                 setMovementAngle(getMovementAngle() - 180_deg);
                 setAnimIdGlobal(loader::AnimationId::SMASH_JUMP, 481);
                 if( getFallSpeed() <= 0 )
-                    setFallSpeed(core::makeInterpolatedValue(1.0f));
+                    setFallSpeed(1);
                 return;
             }
 
@@ -945,20 +931,20 @@ namespace engine
             {
                 m_xMovement = 100 * collisionInfo.yAngle.sin();
                 m_zMovement = 100 * collisionInfo.yAngle.cos();
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
                 collisionInfo.current.floor.distance = 0;
                 if( getFallSpeed() <= 0 )
-                    setFallSpeed(core::makeInterpolatedValue(16.0f));
+                    setFallSpeed(16);
             }
 
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision && getFallSpeed() <= 0 )
-                setFallSpeed(core::makeInterpolatedValue(1.0f));
+                setFallSpeed(1);
         }
 
 
-        void AbstractStateHandler::laraUpdateImpl(const std::chrono::microseconds& deltaTime)
+        void AbstractStateHandler::laraUpdateImpl()
         {
-            m_lara.updateImpl(deltaTime, true);
+            m_lara.updateImpl(true);
         }
     }
 }

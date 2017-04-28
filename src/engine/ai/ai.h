@@ -66,9 +66,9 @@ namespace engine
             boost::optional<uint16_t> searchOverride;
 
             //! @brief The coordinates (within #destinationBox) the NPC needs to reach
-            core::ExactTRCoordinates searchTarget;
+            core::TRCoordinates searchTarget;
 
-            void calculateTarget(core::ExactTRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy);
+            void calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy);
 
             std::vector<gsl::not_null<const loader::Box*>> path;
 
@@ -152,7 +152,7 @@ namespace engine
             Mood mood = Mood::Bored;
             core::TRRotation jointRotation;
 
-            core::ExactTRCoordinates moveTarget;
+            core::TRCoordinates moveTarget;
 
             RoutePlanner route;
 

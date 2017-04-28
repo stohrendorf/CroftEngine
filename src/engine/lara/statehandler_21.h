@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -35,14 +35,14 @@ namespace engine
                     setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 collisionInfo.passableFloorDistanceBottom = 128;
                 collisionInfo.passableFloorDistanceTop = -128;
@@ -63,7 +63,7 @@ namespace engine
                 }
 
                 if( !tryStartSlide(collisionInfo) )
-                    setPosition(getPosition() + core::ExactTRCoordinates(0, gsl::narrow_cast<float>(collisionInfo.current.floor.distance), 0));
+                    setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.current.floor.distance, 0));
             }
         };
     }

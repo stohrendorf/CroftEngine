@@ -18,13 +18,13 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                dampenHorizontalSpeed(deltaTime, 0.05f);
+                dampenHorizontalSpeed(0.05f);
                 if( getFallSpeed() > 154 )
                 {
                     getLara().playSoundEffect(30);
@@ -32,7 +32,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -54,7 +54,7 @@ namespace engine
                     setAnimIdGlobal(loader::AnimationId::LANDING_HARD, 358);
                 }
                 getLevel().stopSoundEffect(30);
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 placeOnFloor(collisionInfo);
                 setFalling(false);
             }

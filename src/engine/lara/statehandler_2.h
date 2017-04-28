@@ -17,7 +17,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& collisionInfo) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -59,20 +59,20 @@ namespace engine
                 else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                 {
                     if( getLevel().m_inputHandler->getInputState().moveSlow )
-                        create(LaraStateId::WalkForward, getLara())->handleInputImpl(collisionInfo, deltaTime);
+                        create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
                     else
-                        create(LaraStateId::RunForward, getLara())->handleInputImpl(collisionInfo, deltaTime);
+                        create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
                 }
                 else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
                 {
                     if( getLevel().m_inputHandler->getInputState().moveSlow )
-                        create(LaraStateId::WalkBackward, getLara())->handleInputImpl(collisionInfo, deltaTime);
+                        create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
                     else
                         setTargetState(LaraStateId::RunBack);
                 }
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if(getLevel().m_inputHandler->getInputState().freeLook)
                 {

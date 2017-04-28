@@ -30,14 +30,14 @@ namespace
         drawText(font, 300, 80, "z=" + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Z)));
 
         // physics
-        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed().getCurrentValue())));
-        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getHorizontalSpeed().getCurrentValue())));
+        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed())));
+        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getHorizontalSpeed())));
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 10, 80, std::string("current/handler ") + loader::toString(lvl->m_lara->getCurrentState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 120, std::string("frame           ") + boost::lexical_cast<std::string>(core::toFrame(lvl->m_lara->getCurrentTime())));
+        drawText(font, 10, 120, std::string("frame           ") + boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame()));
         drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers
@@ -64,7 +64,7 @@ namespace
                         drawText(font, 180, y, "locked");
                         break;
                 }
-                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_activationState.getTimeout().count()));
+                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_activationState.getTimeout()));
                 y += 20;
             }
         }
@@ -155,32 +155,22 @@ private:
 };
 
 
-void update(std::chrono::microseconds deltaTime, const std::unique_ptr<level::Level>& lvl)
+void update(const std::unique_ptr<level::Level>& lvl)
 {
-    // deltaTime /= 10;
-    if(deltaTime == std::chrono::microseconds::zero())
-        deltaTime = std::chrono::microseconds(1);
-
-    while( deltaTime > std::chrono::microseconds::zero() )
+    for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
     {
-        auto subTime = std::min(deltaTime, core::FrameTime);
-        deltaTime -= subTime;
+        if( ctrl.get() == lvl->m_lara ) // Lara is special and needs to be updated last
+            continue;
 
-        for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
-        {
-            if( ctrl.get() == lvl->m_lara ) // Lara is special and needs to be updated last
-                continue;
-
-            ctrl->update(subTime);
-        }
-
-        for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
-        {
-            ctrl->update(subTime);
-        }
-
-        lvl->m_lara->update(subTime);
+        ctrl->update();
     }
+
+    for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
+    {
+        ctrl->update();
+    }
+
+    lvl->m_lara->update();
 
     lvl->applyScheduledDeletions();
 }
@@ -237,6 +227,8 @@ int main()
                             }
                         );
 
+    static const auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate;
+
     auto lastTime = game->getGameTime();
     while( game->loop() )
     {
@@ -246,16 +238,16 @@ int main()
         lvl->m_inputHandler->update();
 
         auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>( game->getGameTime() - lastTime );
-        if( deltaTime <= std::chrono::microseconds::zero() )
+        if( deltaTime < frameTime )
         {
-            continue;
+            std::this_thread::sleep_for(frameTime - deltaTime);
         }
 
         lastTime = game->getGameTime();
 
-        update(deltaTime, lvl);
+        update(lvl);
 
-        lvl->m_cameraController->update(deltaTime);
+        lvl->m_cameraController->update();
 
         lvl->m_audioDev.setListenerTransform(lvl->m_cameraController->getPosition(),
                                              lvl->m_cameraController->getFrontVector(),

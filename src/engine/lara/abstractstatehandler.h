@@ -4,7 +4,6 @@
 #include "loader/datatypes.h"
 #include "loader/animationid.h"
 #include "core/angle.h"
-#include "core/interpolatedvalue.h"
 
 #include <memory>
 
@@ -33,21 +32,12 @@ namespace engine
 
             virtual ~AbstractStateHandler() = default;
 
-            virtual void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
+            virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
-            void animate(::engine::CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime);
+            void animate(CollisionInfo& collisionInfo);
 
 
-            void handleInput(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime)
-            {
-                m_xMovement = 0;
-                m_yMovement = 0;
-                m_zMovement = 0;
-                m_xRotationSpeed = 0_deg;
-                m_yRotationSpeed = 0_deg;
-                m_zRotationSpeed = 0_deg;
-                handleInputImpl(collisionInfo, deltaTime);
-            }
+            virtual void handleInput(CollisionInfo& collisionInfo) = 0;
 
 
             static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, LaraNode& lara);
@@ -63,17 +53,15 @@ namespace engine
 
             friend class StateHandler_2;
 
-            virtual void animateImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
-
-            virtual void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) = 0;
+            virtual void animateImpl(CollisionInfo& collisionInfo) = 0;
 
         protected:
-            core::InterpolatedValue<core::Angle> m_xRotationSpeed{0_deg};
-            core::InterpolatedValue<core::Angle> m_yRotationSpeed{0_deg};
-            core::InterpolatedValue<core::Angle> m_zRotationSpeed{0_deg};
-            core::InterpolatedValue<float> m_xMovement{0.0f};
-            core::InterpolatedValue<float> m_yMovement{0.0f};
-            core::InterpolatedValue<float> m_zMovement{0.0f};
+            core::Angle m_xRotationSpeed{ 0_deg };
+            core::Angle m_yRotationSpeed{ 0_deg };
+            core::Angle m_zRotationSpeed{ 0_deg };
+            int m_xMovement{ 0 };
+            int m_yMovement{ 0 };
+            int m_zMovement{ 0 };
 
 
             LaraNode& getLara()
@@ -82,19 +70,19 @@ namespace engine
             }
 
 
-            const core::InterpolatedValue<float>& getHealth() const noexcept;
+            int getHealth() const noexcept;
 
-            void setHealth(const core::InterpolatedValue<float>& h) noexcept;
+            void setHealth(int h) noexcept;
 
-            void setAir(const core::InterpolatedValue<float>& a) noexcept;
+            void setAir(int a) noexcept;
 
             void setMovementAngle(core::Angle angle) noexcept;
 
             core::Angle getMovementAngle() const noexcept;
 
-            void setFallSpeed(const core::InterpolatedValue<float>& spd);
+            void setFallSpeed(int spd);
 
-            const core::InterpolatedValue<float>& getFallSpeed() const noexcept;
+            int getFallSpeed() const noexcept;
 
             bool isFalling() const noexcept;
 
@@ -104,7 +92,7 @@ namespace engine
 
             void setHandStatus(int status) noexcept;
 
-            std::chrono::microseconds getCurrentTime() const;
+            int getCurrentFrame() const;
 
             LaraStateId getCurrentAnimState() const;
 
@@ -112,17 +100,17 @@ namespace engine
 
             const core::TRRotation& getRotation() const noexcept;
 
-            void setHorizontalSpeed(const core::InterpolatedValue<float>& speed);
+            void setHorizontalSpeed(int speed);
 
-            const core::InterpolatedValue<float>& getHorizontalSpeed() const;
+            int getHorizontalSpeed() const;
 
             const level::Level& getLevel() const;
 
             void placeOnFloor(const CollisionInfo& collisionInfo);
 
-            const core::ExactTRCoordinates& getPosition() const;
+            const core::TRCoordinates& getPosition() const;
 
-            void setPosition(const core::ExactTRCoordinates& pos);
+            void setPosition(const core::TRCoordinates& pos);
 
             long getFloorHeight() const;
 
@@ -132,10 +120,10 @@ namespace engine
 
             core::Angle getYRotationSpeed() const;
 
-            void subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val,
+            void subYRotationSpeed(core::Angle val,
                                    core::Angle limit = -32768_au);
 
-            void addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val,
+            void addYRotationSpeed(core::Angle val,
                                    core::Angle limit = 32767_au);
 
             void setXRotation(core::Angle y);
@@ -146,7 +134,7 @@ namespace engine
 
             void setFallSpeedOverride(int v);
 
-            void dampenHorizontalSpeed(const std::chrono::microseconds& deltaTime, float f);
+            void dampenHorizontalSpeed(float f);
 
             core::Angle getCurrentSlideAngle() const noexcept;
 
@@ -188,11 +176,11 @@ namespace engine
 
             gameplay::BoundingBox getBoundingBox() const;
 
-            void addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept;
+            void addSwimToDiveKeypressDuration(int n) noexcept;
 
-            void setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept;
+            void setSwimToDiveKeypressDuration(int n) noexcept;
 
-            const boost::optional<std::chrono::microseconds>& getSwimToDiveKeypressDuration() const;
+            int getSwimToDiveKeypressDuration() const;
 
             void setUnderwaterState(UnderwaterState u) noexcept;
 
@@ -206,7 +194,7 @@ namespace engine
 
             void setCameraUnknown1(CamOverrideType k);
 
-            void laraUpdateImpl(const std::chrono::microseconds& deltaTime);
+            void laraUpdateImpl();
         };
     }
 }

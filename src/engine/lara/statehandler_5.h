@@ -18,23 +18,23 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 setTargetState(LaraStateId::Stop);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    subYRotationSpeed(deltaTime, 2.25_deg, -6_deg);
+                    subYRotationSpeed(2.25_deg, -6_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    addYRotationSpeed(deltaTime, 2.25_deg, 6_deg);
+                    addYRotationSpeed(2.25_deg, 6_deg);
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -50,7 +50,7 @@ namespace engine
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
                     setTargetState(LaraStateId::FallBackward);
-                    setFallSpeed(core::makeInterpolatedValue(0.0f));
+                    setFallSpeed(0);
                     setFalling(true);
                     return;
                 }

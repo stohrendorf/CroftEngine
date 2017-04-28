@@ -15,7 +15,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -23,15 +23,15 @@ namespace engine
                     return;
                 }
 
-                setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
+                setSwimToDiveKeypressDuration(0);
 
                 if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
                     setTargetState(LaraStateId::OnWaterStop);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                setFallSpeed(std::min(core::makeInterpolatedValue(60.0f), getFallSpeed() + core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
+                setFallSpeed(std::min(60, getFallSpeed() + 8));
 
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     m_yRotationSpeed = -2_deg;
@@ -42,7 +42,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y + 90_deg);
                 commonOnWaterHandling(collisionInfo);

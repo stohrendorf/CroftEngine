@@ -16,19 +16,19 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 setCameraRotationY(85_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(true);
                 collisionInfo.yAngle = getRotation().Y;
@@ -50,7 +50,7 @@ namespace engine
                 else
                     setTargetState(LaraStateId::Stop);
 
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 placeOnFloor(collisionInfo);
             }

@@ -17,7 +17,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getRotation().X < 0_deg )
                     m_xRotationSpeed = -2_deg;
@@ -27,22 +27,22 @@ namespace engine
                     m_xRotationSpeed = 0_deg;
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(8.0f).getScaled(deltaTimeMs)));
+                setFallSpeed(std::max(0, getFallSpeed() - 8));
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                setHealth(core::makeInterpolatedValue(-1.0f));
-                setAir(core::makeInterpolatedValue(-1.0f));
+                setHealth(-1);
+                setAir(-1);
                 setHandStatus(1);
                 auto h = getLara().getWaterSurfaceHeight();
                 if( h && *h < getPosition().Y - 100 )
-                    setPosition(getPosition() - core::ExactTRCoordinates(0, 5, 0));
+                    setPosition(getPosition() - core::TRCoordinates(0, 5, 0));
 
-                StateHandler_Underwater::postprocessFrame(collisionInfo, deltaTime);
+                StateHandler_Underwater::postprocessFrame(collisionInfo);
             }
         };
     }

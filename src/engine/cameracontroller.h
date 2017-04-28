@@ -62,14 +62,14 @@ namespace engine
         int m_pivotMovementSmoothness = 8;
         int m_camOverrideId = -1;
         int m_activeCamOverrideId = -1;
-        std::chrono::microseconds m_camOverrideTimeout{-1};
+        int m_camOverrideTimeout{-1};
         CamOverrideType m_camOverrideType = CamOverrideType::None;
         //! @brief The point the camera moves around.
-        core::RoomBoundIntPosition m_pivot;
+        core::RoomBoundPosition m_pivot;
         //! @brief Global camera rotation.
         core::TRRotation m_globalRotation;
         //! @brief Global camera position.
-        core::RoomBoundIntPosition m_currentPosition;
+        core::RoomBoundPosition m_currentPosition;
         bool m_lookingAtSomething = false;
         //! @brief Floor-projected pivot distance, squared.
         long m_flatPivotDistanceSq = 0;
@@ -121,7 +121,7 @@ namespace engine
 
         void findCameraTarget(const uint16_t* floorData);
 
-        void update(const std::chrono::microseconds& deltaTimeMs);
+        void update();
 
 
         void setCamOverrideType(CamOverrideType t)
@@ -215,21 +215,21 @@ namespace engine
         };
 
 
-        ClampType clampAlongX(core::RoomBoundIntPosition& origin) const;
-        ClampType clampAlongZ(core::RoomBoundIntPosition& origin) const;
-        bool clampPosition(core::RoomBoundIntPosition& origin) const;
+        ClampType clampAlongX(core::RoomBoundPosition& origin) const;
+        ClampType clampAlongZ(core::RoomBoundPosition& origin) const;
+        bool clampPosition(core::RoomBoundPosition& origin) const;
 
-        void handleCamOverride(const std::chrono::microseconds& deltaTimeMs);
-        int moveIntoGeometry(core::RoomBoundIntPosition& pos, int margin) const;
+        void handleCamOverride();
+        int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-        void updatePosition(const ::core::RoomBoundIntPosition& position, int smoothFactor, const std::chrono::microseconds& deltaTimeMs);
-        void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleFreeLook(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
-        void handleEnemy(const items::ItemNode& item, const std::chrono::microseconds& deltaTimeMs);
+        void updatePosition(const ::core::RoomBoundPosition& position, int smoothFactor);
+        void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item);
+        void handleFreeLook(const items::ItemNode& item);
+        void handleEnemy(const items::ItemNode& item);
 
         using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
 
-        void clampBox(core::RoomBoundIntPosition& camTargetPos, const std::function<ClampCallback>& callback) const;
+        void clampBox(core::RoomBoundPosition& camTargetPos, const std::function<ClampCallback>& callback) const;
         static void freeLookClamp(long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
         static void clampToCorners(const long lookAtDistanceSq, long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
     };

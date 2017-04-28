@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& collisionInfo) override
             {
                 setCameraRotation(-60_deg, 0_deg);
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
@@ -27,14 +27,14 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y + 90_deg);
                 commonEdgeHangHandling(collisionInfo);
                 setMovementAngle(getRotation().Y + 90_deg);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
         };

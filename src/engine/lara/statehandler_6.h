@@ -15,7 +15,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -42,9 +42,9 @@ namespace engine
                     setTargetState(LaraStateId::RunForward);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                addYRotationSpeed(deltaTime, 2.25_deg);
+                addYRotationSpeed(2.25_deg);
                 if( getYRotationSpeed() <= 4_deg )
                     return;
 

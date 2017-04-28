@@ -7,9 +7,9 @@ namespace engine
 {
     namespace items
     {
-        void SwingingBlade::update(const std::chrono::microseconds& deltaTime)
+        void SwingingBlade::update()
         {
-            if( updateActivationTimeout( deltaTime ) )
+            if( updateActivationTimeout() )
             {
                 if( getCurrentState() == 0 )
                     setTargetState( 2 );
@@ -20,12 +20,12 @@ namespace engine
             }
 
             auto room = getCurrentRoom();
-            auto sector = getLevel().findRealFloorSector(getPosition().toInexact(), &room);
+            auto sector = getLevel().findRealFloorSector(getPosition(), &room);
             setCurrentRoom(room);
-            setFloorHeight(HeightInfo::fromFloor(sector, getPosition().toInexact(), getLevel().m_cameraController)
+            setFloorHeight(HeightInfo::fromFloor(sector, getPosition(), getLevel().m_cameraController)
                            .distance);
 
-            addTime(deltaTime);
+            nextFrame();
         }
     }
 }

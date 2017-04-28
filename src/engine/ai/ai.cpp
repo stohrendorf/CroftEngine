@@ -490,7 +490,7 @@ namespace engine
         }
 
 
-        void RoutePlanner::calculateTarget(core::ExactTRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy)
+        void RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy)
         {
             targetPos = npc.getPosition();
 

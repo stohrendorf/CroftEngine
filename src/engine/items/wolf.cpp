@@ -11,7 +11,7 @@ namespace engine
 {
     namespace items
     {
-        void Wolf::update(const std::chrono::microseconds& deltaTime)
+        void Wolf::update()
         {
             if( m_triggerState == TriggerState::Locked )
             {
@@ -212,7 +212,7 @@ namespace engine
             }
             rotateCreatureTilt(roll);
             rotateCreatureHead(pitch);
-            animateCreature(deltaTime, rotationToMoveTarget, roll);
+            animateCreature(rotationToMoveTarget, roll);
         }
     }
 }

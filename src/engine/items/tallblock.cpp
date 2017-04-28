@@ -6,9 +6,9 @@ namespace engine
 {
     namespace items
     {
-        void TallBlock::update(const std::chrono::microseconds& deltaTime)
+        void TallBlock::update()
         {
-            if(updateActivationTimeout(deltaTime))
+            if(updateActivationTimeout())
             {
                 if(getCurrentState() == 0)
                 {
@@ -25,9 +25,9 @@ namespace engine
                 }
             }
 
-            addTime( deltaTime );
+            nextFrame();
             auto room = getCurrentRoom();
-            getLevel().findRealFloorSector( getPosition().toInexact(), &room );
+            getLevel().findRealFloorSector( getPosition(), &room );
             setCurrentRoom( room );
 
             if( m_triggerState != engine::items::TriggerState::Activated )

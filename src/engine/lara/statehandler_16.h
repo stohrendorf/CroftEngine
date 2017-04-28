@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -32,18 +32,18 @@ namespace engine
                     setTargetState(LaraStateId::Stop);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    subYRotationSpeed(deltaTime, 2.25_deg, -4_deg);
+                    subYRotationSpeed(2.25_deg, -4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
+                    addYRotationSpeed(2.25_deg, 4_deg);
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -63,7 +63,7 @@ namespace engine
 
                 if( collisionInfo.current.floor.distance > loader::QuarterSectorSize && collisionInfo.current.floor.distance < core::ClimbLimit2ClickMin )
                 {
-                    if(getCurrentTime() < 964_frame || getCurrentTime() >= 994_frame)
+                    if(getCurrentFrame() < 964 || getCurrentFrame() >= 994)
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
                     }

@@ -16,7 +16,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -36,24 +36,25 @@ namespace engine
 
                 if( !getLevel().m_inputHandler->getInputState().jump )
                 {
-                    setSwimToDiveKeypressDuration(std::chrono::microseconds::zero());
+                    setSwimToDiveKeypressDuration(0);
                     return;
                 }
 
+                //! @todo Check condition
                 if(!getSwimToDiveKeypressDuration())
                     return; // not allowed to dive at all
 
-                if(*getSwimToDiveKeypressDuration() < 10_frame)
+                if(getSwimToDiveKeypressDuration() < 10)
                     return; // not yet allowed to dive
 
                 setTargetState(LaraStateId::UnderwaterForward);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
                 setXRotation(-45_deg);
-                setFallSpeed(core::makeInterpolatedValue(80.0f));
+                setFallSpeed(80);
                 setUnderwaterState(UnderwaterState::Diving);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if(getLevel().m_inputHandler->getInputState().freeLook)
                 {
@@ -70,7 +71,7 @@ namespace engine
                     getLevel().m_cameraController->setCamOverrideType(CamOverrideType::None);
                 }
 
-                setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(4.0f).getScaled(deltaTimeMs)));
+                setFallSpeed(std::max(0, getFallSpeed() - 4));
 
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     m_yRotationSpeed = -4_deg;
@@ -79,11 +80,11 @@ namespace engine
                 else
                     m_yRotationSpeed = 0_deg;
 
-                addSwimToDiveKeypressDuration(deltaTimeMs);
+                addSwimToDiveKeypressDuration(1);
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setMovementAngle(getRotation().Y);
                 commonOnWaterHandling(collisionInfo);

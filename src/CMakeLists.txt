@@ -106,7 +106,6 @@ set( EDISONENGINE_SRCS
 
      core/angle.h
      core/coordinates.h
-     core/interpolatedvalue.h
      core/magic.h
 
      engine/lara/abstractstatehandler.cpp

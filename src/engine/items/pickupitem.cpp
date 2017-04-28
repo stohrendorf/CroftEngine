@@ -32,7 +32,7 @@ namespace engine
 
                 if( lara.getCurrentState() == LaraStateId::PickUp )
                 {
-                    if( core::toFrame(lara.getCurrentTime()) == 2970 )
+                    if( lara.getCurrentFrame() == 2970 )
                     {
                         // TODO: Remove item from room, handle pick up
 
@@ -44,7 +44,7 @@ namespace engine
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.updateImpl(core::FrameTime, true);
+                        lara.updateImpl(true);
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::UnderwaterStop);
                 }
@@ -63,7 +63,7 @@ namespace engine
 
                 if( lara.getCurrentState() == LaraStateId::PickUp )
                 {
-                    if( core::toFrame(lara.getCurrentTime()) == 3443 )
+                    if( lara.getCurrentFrame() == 3443 )
                     {
                         if( m_shotgun )
                         {
@@ -80,13 +80,13 @@ namespace engine
                 }
                 else if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == 0 && !lara.isFalling() && lara.getCurrentState() == LaraStateId::Stop )
                 {
-                    lara.setRelativeOrientedPosition(core::ExactTRCoordinates{0, 0, -100.0f}, *this);
+                    lara.setRelativeOrientedPosition(core::TRCoordinates{0, 0, -100}, *this);
 
                     // TODO: position Lara
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.updateImpl(core::FrameTime, true);
+                        lara.updateImpl(true);
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::Stop);
                     lara.setHandStatus(1);

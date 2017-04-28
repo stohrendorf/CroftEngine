@@ -6,9 +6,9 @@ namespace engine
 {
     namespace items
     {
-        void TrapDoorUp::update(const std::chrono::microseconds& deltaTime)
+        void TrapDoorUp::update()
         {
-            addTime(deltaTime);
+            nextFrame();
             auto pos = getRoomBoundPosition();
             getLevel().findRealFloorSector( pos );
             setCurrentRoom( pos.room );

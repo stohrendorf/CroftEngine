@@ -6,19 +6,19 @@
 
 namespace engine
 {
-    void CollisionInfo::initHeightInfo(const core::ExactTRCoordinates& laraPos, const level::Level& level, int height)
+    void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const level::Level& level, int height)
     {
         axisCollisions = AxisColl_None;
         collisionFeedback = {0,0,0};
         orientationAxis = *core::axisFromAngle(yAngle, 45_deg);
 
         gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
-        const auto refTestPos = laraPos - core::ExactTRCoordinates(0, height + core::ScalpToHandsHeight, 0);
-        gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector(refTestPos.toInexact(), &room);
+        const auto refTestPos = laraPos - core::TRCoordinates(0, height + core::ScalpToHandsHeight, 0);
+        gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector(refTestPos, &room);
 
-        current.init(currentSector, refTestPos.toInexact(), level.m_cameraController, laraPos.Y, height);
+        current.init(currentSector, refTestPos, level.m_cameraController, laraPos.Y, height);
 
-        std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos.toInexact());
+        std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos);
 
         float frontX = 0, frontZ = 0;
         float frontLeftX = 0, frontLeftZ = 0;
@@ -61,9 +61,9 @@ namespace engine
         }
 
         // Front
-        auto testPos = refTestPos + core::ExactTRCoordinates(frontX, 0, frontZ);
-        auto sector = level.findRealFloorSector(testPos.toInexact(), &room);
-        front.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
+        auto testPos = refTestPos + core::TRCoordinates(frontX, 0, frontZ);
+        auto sector = level.findRealFloorSector(testPos, &room);
+        front.init(sector, testPos, level.m_cameraController, laraPos.Y, height);
         if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
         {
             front.floor.distance = -32767;
@@ -78,9 +78,9 @@ namespace engine
         }
 
         // Front left
-        testPos = refTestPos + core::ExactTRCoordinates(frontLeftX, 0, frontLeftZ);
-        sector = level.findRealFloorSector(testPos.toInexact(), &room);
-        frontLeft.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
+        testPos = refTestPos + core::TRCoordinates(frontLeftX, 0, frontLeftZ);
+        sector = level.findRealFloorSector(testPos, &room);
+        frontLeft.init(sector, testPos, level.m_cameraController, laraPos.Y, height);
 
         if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep && frontLeft.floor.distance < 0 )
         {
@@ -96,9 +96,9 @@ namespace engine
         }
 
         // Front right
-        testPos = refTestPos + core::ExactTRCoordinates(frontRightX, 0, frontRightZ);
-        sector = level.findRealFloorSector(testPos.toInexact(), &room);
-        frontRight.init(sector, testPos.toInexact(), level.m_cameraController, laraPos.Y, height);
+        testPos = refTestPos + core::TRCoordinates(frontRightX, 0, frontRightZ);
+        sector = level.findRealFloorSector(testPos, &room);
+        frontRight.init(sector, testPos, level.m_cameraController, laraPos.Y, height);
 
         if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep && frontRight.floor.distance < 0 )
         {
@@ -195,22 +195,22 @@ namespace engine
         }
     }
 
-    std::set<const loader::Room*> CollisionInfo::collectNeighborRooms(const core::ExactTRCoordinates& position, int radius, int height, const level::Level& level)
+    std::set<const loader::Room*> CollisionInfo::collectNeighborRooms(const core::TRCoordinates& position, int radius, int height, const level::Level& level)
     {
         std::set<const loader::Room*> result;
         result.insert(level.m_lara->getCurrentRoom());
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::ExactTRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
+        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
         return result;
     }
 
-    bool CollisionInfo::checkStaticMeshCollisions(const core::ExactTRCoordinates& position, int height, const level::Level& level)
+    bool CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, int height, const level::Level& level)
     {
         auto rooms = collectNeighborRooms(position, collisionRadius + 50, height + 50, level);
 

@@ -38,11 +38,11 @@ namespace engine
             if(!lara.alignTransform(alignSpeed, *this))
                 return;
 
-            lara.setFallSpeed(core::makeInterpolatedValue(0.0f));
+            lara.setFallSpeed(0);
             do
             {
                 lara.setTargetState(LaraStateId::SwitchDown);
-                lara.updateImpl(core::FrameTime, true);
+                lara.updateImpl(true);
             } while(lara.getCurrentAnimState() != LaraStateId::SwitchDown);
             lara.setTargetState(LaraStateId::UnderwaterStop);
             lara.setHandStatus(1);

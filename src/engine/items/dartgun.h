@@ -14,7 +14,7 @@ namespace engine
                     const std::string& name,
                     const gsl::not_null<const loader::Room*>& room,
                     const core::Angle& angle,
-                    const core::ExactTRCoordinates& position,
+                    const core::TRCoordinates& position,
                     const floordata::ActivationState& activationState,
                     int16_t darkness,
                     const loader::AnimatedModel& animatedModel)
@@ -23,9 +23,9 @@ namespace engine
             }
 
 
-            void update(const std::chrono::microseconds& deltaTime) override
+            void update() override
             {
-                if( updateActivationTimeout(deltaTime) )
+                if( updateActivationTimeout() )
                 {
                     if( getCurrentState() == 0 )
                     {
@@ -37,16 +37,16 @@ namespace engine
                     setTargetState(0);
                 }
 
-                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getCurrentLocalTime() < 0_frame || getCurrentLocalTime() >= 1_frame)
+                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getCurrentLocalFrame() < 0 || getCurrentLocalFrame() >= 1)
                 {
-                    addTime(deltaTime);
+                    nextFrame();
                     return;
                 }
 
                 auto axis = core::axisFromAngle(getRotation().Y, 45_deg);
                 BOOST_ASSERT(axis.is_initialized());
 
-                core::ExactTRCoordinates d(0, 512, 0);
+                core::TRCoordinates d(0, 512, 0);
 
                 switch(*axis)
                 {
@@ -71,7 +71,7 @@ namespace engine
                 dart->m_triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
-                addTime(deltaTime);
+                nextFrame();
             }
         };
     }

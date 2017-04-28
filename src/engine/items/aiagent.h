@@ -16,7 +16,7 @@ namespace engine
                     const std::string& name,
                     const gsl::not_null<const loader::Room*>& room,
                     const core::Angle& angle,
-                    const core::ExactTRCoordinates& position,
+                    const core::TRCoordinates& position,
                     const floordata::ActivationState& activationState,
                     Characteristics characteristics,
                     int16_t darkness,
@@ -62,7 +62,7 @@ namespace engine
             }
 
 
-            bool animateCreature(const std::chrono::microseconds& deltaTime, core::Angle rotationToMoveTarget, core::Angle roll);
+            bool animateCreature(core::Angle rotationToMoveTarget, core::Angle roll);
 
 
             core::Angle rotateTowardsMoveTarget(const ai::Brain& creatureData, core::Angle maxRotationSpeed);

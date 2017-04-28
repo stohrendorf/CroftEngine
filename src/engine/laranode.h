@@ -5,7 +5,6 @@
 #include "collisioninfo.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/items/itemnode.h"
-#include <chrono>
 #include "cameracontroller.h"
 
 
@@ -27,17 +26,17 @@ namespace engine
         using LaraStateId = loader::LaraStateId;
 
     private:
-        core::InterpolatedValue<float> m_health{1000.0f};
+        int m_health{1000};
         //! @brief Additional rotation per TR Engine Frame
-        core::InterpolatedValue<core::Angle> m_yRotationSpeed{0_deg};
+        core::Angle m_yRotationSpeed{0_deg};
         int m_fallSpeedOverride = 0;
         core::Angle m_movementAngle{0};
-        core::InterpolatedValue<float> m_air{1800.0f};
+        int m_air{1800};
         core::Angle m_currentSlideAngle{0};
 
         int m_handStatus = 0;
         //! @todo Move this to the Level.
-        std::chrono::microseconds m_uvAnimTime{0};
+        int m_uvAnimTime{0};
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
         std::unique_ptr<lara::AbstractStateHandler> m_currentStateHandler = nullptr;
@@ -47,7 +46,7 @@ namespace engine
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const core::Angle& angle,
-                 const core::ExactTRCoordinates& position,
+                 const core::TRCoordinates& position,
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
@@ -73,27 +72,27 @@ namespace engine
         }
 
 
-        float getAir() const
+        int getAir() const
         {
-            return m_air.getCurrentValue();
+            return m_air;
         }
 
 
-        boost::optional<FrameChangeType> updateImpl(const std::chrono::microseconds& deltaTime, bool skipStateHandlerUpdate);
+        bool updateImpl(bool skipStateHandlerUpdate);
 
-        boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& deltaTime) override;
+        bool nextFrame() override;
 
-        void update(const std::chrono::microseconds& deltaTime) override
+        void update() override
         {
-            addTime(deltaTime);
+            nextFrame();
         }
 
     private:
-        void handleLaraStateOnLand(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateOnLand();
 
-        void handleLaraStateDiving(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateDiving();
 
-        void handleLaraStateSwimming(const std::chrono::microseconds& deltaTime);
+        void handleLaraStateSwimming();
 
         void testInteractions();
 
@@ -101,23 +100,23 @@ namespace engine
         //! @remarks This happens e.g. just after dive-to-swim transition, when players still
         //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
         //!          diving immediately again.
-        boost::optional<std::chrono::microseconds> m_swimToDiveKeypressDuration = boost::none;
+        int m_swimToDiveKeypressDuration = 0;
         uint16_t m_secretsFoundBitmask = 0;
 
     public:
-        const core::InterpolatedValue<float>& getHealth() const noexcept
+        int getHealth() const noexcept
         {
             return m_health;
         }
 
 
-        void setHealth(const core::InterpolatedValue<float>& h) noexcept
+        void setHealth(int h) noexcept
         {
             m_health = h;
         }
 
 
-        void setAir(const core::InterpolatedValue<float>& a) noexcept
+        void setAir(int a) noexcept
         {
             m_air = a;
         }
@@ -162,17 +161,15 @@ namespace engine
         }
 
 
-        void
-        subYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = -32768_au)
+        void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au)
         {
-            m_yRotationSpeed.sub( val, deltaTime ).limitMin( limit );
+            m_yRotationSpeed = std::max(m_yRotationSpeed - val, limit);
         }
 
 
-        void
-        addYRotationSpeed(const std::chrono::microseconds& deltaTime, core::Angle val, core::Angle limit = 32767_au)
+        void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au)
         {
-            m_yRotationSpeed.add( val, deltaTime ).limitMax( limit );
+            m_yRotationSpeed = std::min(m_yRotationSpeed + val, limit);
         }
 
 
@@ -211,22 +208,19 @@ namespace engine
         boost::optional<int> getWaterSurfaceHeight() const;
 
 
-        void addSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
+        void addSwimToDiveKeypressDuration(int n) noexcept
         {
-            if( !m_swimToDiveKeypressDuration )
-                return;
-
-            *m_swimToDiveKeypressDuration += ms;
+            m_swimToDiveKeypressDuration += n;
         }
 
 
-        void setSwimToDiveKeypressDuration(const std::chrono::microseconds& ms) noexcept
+        void setSwimToDiveKeypressDuration(int n) noexcept
         {
-            m_swimToDiveKeypressDuration = ms;
+            m_swimToDiveKeypressDuration = n;
         }
 
 
-        const boost::optional<std::chrono::microseconds>& getSwimToDiveKeypressDuration() const noexcept
+        int getSwimToDiveKeypressDuration() const noexcept
         {
             return m_swimToDiveKeypressDuration;
         }

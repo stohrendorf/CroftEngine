@@ -14,7 +14,7 @@ namespace engine
                        const std::string& name,
                        const gsl::not_null<const loader::Room*>& room,
                        const core::Angle& angle,
-                       const core::ExactTRCoordinates& position,
+                       const core::TRCoordinates& position,
                        const floordata::ActivationState& activationState,
                        int16_t darkness,
                        const loader::AnimatedModel& animatedModel,
@@ -25,7 +25,7 @@ namespace engine
             }
 
 
-            void update(const std::chrono::microseconds& /*deltaTime*/) override
+            void update() override
             {
             }
 

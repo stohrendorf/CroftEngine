@@ -2,8 +2,6 @@
 
 #include "loader/datatypes.h"
 
-#include <chrono>
-
 namespace core
 {
     constexpr int SteppableHeight = loader::QuarterSectorSize / 2;
@@ -19,25 +17,4 @@ namespace core
     constexpr int MaxGrabbableGradient = 60;
 
     constexpr int FrameRate = 30;
-    constexpr std::chrono::microseconds FrameTime = std::chrono::microseconds(std::chrono::seconds(1)) / FrameRate;
-
-    constexpr std::chrono::microseconds fromFrame(unsigned long long f)
-    {
-        return std::chrono::microseconds(std::chrono::seconds(f)) / core::FrameRate;
-    }
-
-    inline uint16_t toFrame(const std::chrono::microseconds& time)
-    {
-        return gsl::narrow<uint16_t>(time * FrameRate / std::chrono::microseconds(std::chrono::seconds(1)));
-    }
-
-    inline float toFloatFrame(const std::chrono::microseconds& time)
-    {
-        return gsl::narrow_cast<float>(time.count()) * FrameRate / std::chrono::microseconds(std::chrono::seconds(1)).count();
-    }
-}
-
-constexpr std::chrono::microseconds operator""_frame(unsigned long long f)
-{
-    return core::fromFrame(f);
 }

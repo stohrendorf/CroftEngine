@@ -15,7 +15,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() < 0 )
                 {
@@ -28,9 +28,9 @@ namespace engine
                     setTargetState(LaraStateId::UnderwaterForward);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTimeMs) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
-                setFallSpeed(std::max(core::makeInterpolatedValue(0.0f), getFallSpeed() - core::makeInterpolatedValue(6.0f).getScaled(deltaTimeMs)));
+                setFallSpeed(std::max(0, getFallSpeed() - 6));
             }
         };
     }

@@ -22,7 +22,7 @@ namespace engine
             if( rotation > 90_deg || rotation < -90_deg )
             {
                 // the move target is behind the NPC
-                auto relativeSpeed = getHorizontalSpeed().getCurrentValue() * (1 << 14) / maxRotationSpeed.toAU();
+                auto relativeSpeed = getHorizontalSpeed() * (1 << 14) / maxRotationSpeed.toAU();
                 if( dx * dx + dz * dz < relativeSpeed * relativeSpeed )
                 {
                     maxRotationSpeed /= 2;
@@ -78,7 +78,7 @@ namespace engine
                 }
 
                 if( item->m_triggerState == items::TriggerState::Enabled
-                    && item->getHorizontalSpeed().getCurrentValue() != 0
+                    && item->getHorizontalSpeed() != 0
                     && item->getPosition().distanceTo(getPosition()) < m_collisionRadius )
                 {
                     return true;
@@ -88,7 +88,7 @@ namespace engine
         }
 
 
-        bool AIAgent::animateCreature(const std::chrono::microseconds& deltaTime, core::Angle rotationToMoveTarget, core::Angle roll)
+        bool AIAgent::animateCreature(core::Angle rotationToMoveTarget, core::Angle roll)
         {
             if( m_triggerState == engine::items::TriggerState::Activated )
             {
@@ -99,13 +99,13 @@ namespace engine
                 return false;
             }
 
-            addTime(deltaTime);
+            nextFrame();
 
             const auto initialPos = getPosition();
             auto bboxTop = std::lround(getBoundingBox().min.y);
             auto npcRoom = getCurrentRoom();
             auto npcSector = getLevel().findRealFloorSector(
-                getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                getPosition() + core::TRCoordinates(0, bboxTop, 0),
                 &npcRoom);
 
             if( npcSector->boxIndex == 0xffff )
@@ -122,7 +122,7 @@ namespace engine
                 // Clamp movement to -Z
 
                 if( isPositionOutOfReach(
-                    getPosition().toInexact() + core::TRCoordinates(0, bboxTop, -m_collisionRadius),
+                    getPosition() + core::TRCoordinates(0, bboxTop, -m_collisionRadius),
                     npcBoxFloor,
                     m_brain.route) )
                 {
@@ -134,7 +134,7 @@ namespace engine
                     // Clamp movement to -X
 
                     if( isPositionOutOfReach(
-                        getPosition().toInexact() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
+                        getPosition() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
                         npcBoxFloor,
                         m_brain.route) )
                     {
@@ -142,7 +142,7 @@ namespace engine
                     }
                     else if( moveZ == 0
                              && isPositionOutOfReach(
-                                 getPosition().toInexact() + core::TRCoordinates(-m_collisionRadius, bboxTop, -m_collisionRadius),
+                                 getPosition() + core::TRCoordinates(-m_collisionRadius, bboxTop, -m_collisionRadius),
                                  npcBoxFloor,
                                  m_brain.route) )
                     {
@@ -163,7 +163,7 @@ namespace engine
                     // Clamp movement to +X
 
                     if( isPositionOutOfReach(
-                        getPosition().toInexact() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
+                        getPosition() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
                         npcBoxFloor,
                         m_brain.route) )
                     {
@@ -171,7 +171,7 @@ namespace engine
                     }
                     else if( moveZ == 0
                              && isPositionOutOfReach(
-                                 getPosition().toInexact() + core::TRCoordinates(m_collisionRadius, bboxTop, -m_collisionRadius),
+                                 getPosition() + core::TRCoordinates(m_collisionRadius, bboxTop, -m_collisionRadius),
                                  npcBoxFloor,
                                  m_brain.route) )
                     {
@@ -190,7 +190,7 @@ namespace engine
             else if( inSectorZ > loader::SectorSize - m_collisionRadius )
             {
                 if( isPositionOutOfReach(
-                    getPosition().toInexact() + core::TRCoordinates(0, bboxTop, m_collisionRadius),
+                    getPosition() + core::TRCoordinates(0, bboxTop, m_collisionRadius),
                     npcBoxFloor,
                     m_brain.route) )
                 {
@@ -200,7 +200,7 @@ namespace engine
                 if( inSectorX < m_collisionRadius )
                 {
                     if( isPositionOutOfReach(
-                        getPosition().toInexact() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
+                        getPosition() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
                         npcBoxFloor,
                         m_brain.route) )
                     {
@@ -208,7 +208,7 @@ namespace engine
                     }
                     else if( moveZ == 0
                              && isPositionOutOfReach(
-                                 getPosition().toInexact() + core::TRCoordinates(-m_collisionRadius, bboxTop, -m_collisionRadius),
+                                 getPosition() + core::TRCoordinates(-m_collisionRadius, bboxTop, -m_collisionRadius),
                                  npcBoxFloor,
                                  m_brain.route) )
                     {
@@ -225,7 +225,7 @@ namespace engine
                 else if( inSectorX > loader::SectorSize - m_collisionRadius )
                 {
                     if( isPositionOutOfReach(
-                        getPosition().toInexact() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
+                        getPosition() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
                         npcBoxFloor,
                         m_brain.route) )
                     {
@@ -233,7 +233,7 @@ namespace engine
                     }
                     else if( moveZ == 0
                              && isPositionOutOfReach(
-                                 getPosition().toInexact() + core::TRCoordinates(m_collisionRadius, bboxTop, m_collisionRadius),
+                                 getPosition() + core::TRCoordinates(m_collisionRadius, bboxTop, m_collisionRadius),
                                  npcBoxFloor,
                                  m_brain.route) )
                     {
@@ -251,7 +251,7 @@ namespace engine
             else if( inSectorX < m_collisionRadius )
             {
                 if( isPositionOutOfReach(
-                    getPosition().toInexact() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
+                    getPosition() + core::TRCoordinates(-m_collisionRadius, bboxTop, 0),
                     npcBoxFloor,
                     m_brain.route) )
                 {
@@ -261,7 +261,7 @@ namespace engine
             else if( inSectorX > loader::SectorSize - m_collisionRadius )
             {
                 if( isPositionOutOfReach(
-                    getPosition().toInexact() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
+                    getPosition() + core::TRCoordinates(m_collisionRadius, bboxTop, 0),
                     npcBoxFloor,
                     m_brain.route) )
                 {
@@ -275,7 +275,7 @@ namespace engine
             if( moveX != 0 || moveZ != 0 )
             {
                 npcSector = getLevel().findRealFloorSector(
-                    getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                    getPosition() + core::TRCoordinates(0, bboxTop, 0),
                     &npcRoom);
                 auto effectiveCurveRoll = util::clamp(core::Angle(8 * roll.toAU()) - getRotation().Z, -3_deg, +3_deg);
                 addYRotation(rotationToMoveTarget);
@@ -294,12 +294,12 @@ namespace engine
                                              -m_brain.route.flyHeight,
                                              m_brain.route.flyHeight);
                 const auto currentFloor = engine::HeightInfo::fromFloor(npcSector,
-                                                                        getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                                                                        getPosition() + core::TRCoordinates(0, bboxTop, 0),
                                                                         getLevel().m_cameraController).distance;
                 if( dy + getPosition().Y <= currentFloor )
                 {
                     const auto currentCeiling = HeightInfo::fromCeiling(npcSector,
-                                                                        getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                                                                        getPosition() + core::TRCoordinates(0, bboxTop, 0),
                                                                         getLevel().m_cameraController).distance;
                     /** @fixme
                     if( npc is CrocodileInWater )
@@ -334,16 +334,16 @@ namespace engine
                 }
                 moveY(dy);
                 const auto sector = getLevel().findRealFloorSector(
-                    getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                    getPosition() + core::TRCoordinates(0, bboxTop, 0),
                     &npcRoom);
                 setFloorHeight(HeightInfo::fromCeiling(sector,
-                                                       getPosition().toInexact() + core::TRCoordinates(0, bboxTop, 0),
+                                                       getPosition() + core::TRCoordinates(0, bboxTop, 0),
                                                        getLevel().m_cameraController).distance);
 
                 core::Angle flyAngle = 0_au;
-                if( getHorizontalSpeed().getCurrentValue() != 0 )
+                if( getHorizontalSpeed() != 0 )
                 {
-                    flyAngle = core::Angle::fromAtan(getHorizontalSpeed().getCurrentValue(), dy);
+                    flyAngle = core::Angle::fromAtan(getHorizontalSpeed(), dy);
                 }
 
                 setXRotation(util::clamp(flyAngle, -1_deg, +1_deg));
@@ -366,9 +366,9 @@ namespace engine
 
             setXRotation(0_au);
             const auto currentSector = getLevel().findRealFloorSector(
-                getPosition().toInexact(),
+                getPosition(),
                 &npcRoom);
-            setFloorHeight(HeightInfo::fromFloor(currentSector, getPosition().toInexact(), getLevel().m_cameraController).distance);
+            setFloorHeight(HeightInfo::fromFloor(currentSector, getPosition(), getLevel().m_cameraController).distance);
             if( npcRoom != getCurrentRoom() )
             {
                 setCurrentRoom(npcRoom);

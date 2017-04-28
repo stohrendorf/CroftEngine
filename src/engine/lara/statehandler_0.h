@@ -19,7 +19,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -40,18 +40,18 @@ namespace engine
                 }
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    subYRotationSpeed(deltaTime, 2.25_deg, -4_deg);
+                    subYRotationSpeed(2.25_deg, -4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    addYRotationSpeed(deltaTime, 2.25_deg, 4_deg);
+                    addYRotationSpeed(2.25_deg, 4_deg);
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.yAngle);
@@ -69,12 +69,12 @@ namespace engine
 
                 if(checkWallCollision(collisionInfo))
                 {
-                    const auto fr = getCurrentTime();
-                    if( fr >= 29_frame && fr < 48_frame)
+                    const auto fr = getCurrentFrame();
+                    if( fr >= 29 && fr < 48)
                     {
                         setAnimIdGlobal(loader::AnimationId::END_WALK_LEFT, 74);
                     }
-                    else if( (fr >= 22_frame && fr < 29_frame) || (fr >= 48_frame && fr < 58_frame) )
+                    else if( (fr >= 22 && fr < 29) || (fr >= 48 && fr < 58) )
                     {
                         setAnimIdGlobal(loader::AnimationId::END_WALK_RIGHT, 58);
                     }
@@ -88,14 +88,14 @@ namespace engine
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                     setTargetState(LaraStateId::JumpForward);
-                    setFallSpeed(core::makeInterpolatedValue(0.0f));
+                    setFallSpeed(0);
                     setFalling(true);
                 }
 
                 if( collisionInfo.current.floor.distance > core::SteppableHeight )
                 {
-                    const auto fr = getCurrentTime();
-                    if( fr < 28_frame || fr >= 46_frame)
+                    const auto fr = getCurrentFrame();
+                    if( fr < 28 || fr >= 46)
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_DOWN_RIGHT, 887);
                     }
@@ -107,8 +107,8 @@ namespace engine
 
                 if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.current.floor.distance < -core::SteppableHeight )
                 {
-                    const auto fr = getCurrentTime();
-                    if( fr < 27_frame || fr >= 45_frame)
+                    const auto fr = getCurrentFrame();
+                    if( fr < 27 || fr >= 45)
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
                     }

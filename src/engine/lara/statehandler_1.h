@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getHealth() <= 0 )
                 {
@@ -52,24 +52,22 @@ namespace engine
             }
 
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 {
-                    subYRotationSpeed( deltaTime, 2.25_deg, -8_deg );
-                    setZRotation( std::max( -11_deg, getRotation().Z - core::makeInterpolatedValue( +1.5_deg )
-                            .getScaled( deltaTime ) ) );
+                    subYRotationSpeed( 2.25_deg, -8_deg);
+                    setZRotation( std::max( -11_deg, getRotation().Z - +1.5_deg ) );
                 }
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 {
-                    addYRotationSpeed( deltaTime, 2.25_deg, 8_deg );
-                    setZRotation( std::min( +11_deg, getRotation().Z + core::makeInterpolatedValue( +1.5_deg )
-                            .getScaled( deltaTime ) ) );
+                    addYRotationSpeed( 2.25_deg, 8_deg);
+                    setZRotation( std::min( +11_deg, getRotation().Z + +1.5_deg ) );
                 }
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.yAngle = getRotation().Y;
                 setMovementAngle( collisionInfo.yAngle );
@@ -91,12 +89,12 @@ namespace engine
                     if( collisionInfo.front.floor.slantClass == SlantClass::None
                         && collisionInfo.front.floor.distance < -core::ClimbLimit2ClickMax )
                     {
-                        if( getCurrentTime() < 10_frame )
+                        if( getCurrentFrame() < 10 )
                         {
                             setAnimIdGlobal( loader::AnimationId::WALL_SMASH_LEFT, 800 );
                             return;
                         }
-                        if( getCurrentTime() >= 10_frame && getCurrentTime() < 22_frame )
+                        if( getCurrentFrame() >= 10 && getCurrentFrame() < 22 )
                         {
                             setAnimIdGlobal( loader::AnimationId::WALL_SMASH_RIGHT, 815 );
                             return;
@@ -111,14 +109,14 @@ namespace engine
                     setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
                     setTargetState( LaraStateId::JumpForward );
                     setFalling( true );
-                    setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
+                    setFallSpeed( 0 );
                     return;
                 }
 
                 if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin
                     && collisionInfo.current.floor.distance < -core::SteppableHeight )
                 {
-                    if( getCurrentTime() >= 3_frame && getCurrentTime() < 15_frame )
+                    if( getCurrentFrame() >= 3 && getCurrentFrame() < 15 )
                     {
                         setAnimIdGlobal( loader::AnimationId::RUN_UP_STEP_LEFT, 837 );
                     }

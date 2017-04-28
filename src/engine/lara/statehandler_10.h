@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& collisionInfo) override
             {
                 setCameraRotation(-60_deg, 0_deg);
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
@@ -29,7 +29,7 @@ namespace engine
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 commonEdgeHangHandling(collisionInfo);
 
@@ -54,7 +54,7 @@ namespace engine
                     setTargetState(LaraStateId::Climbing);
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
         };

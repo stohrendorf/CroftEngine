@@ -122,7 +122,7 @@ namespace level
         std::shared_ptr<engine::items::ItemNode> createItem(uint32_t type,
                                                             const gsl::not_null<const loader::Room*>& room,
                                                             const core::Angle& angle,
-                                                            const core::ExactTRCoordinates& position,
+                                                            const core::TRCoordinates& position,
                                                             const engine::floordata::ActivationState& activationState)
         {
             const auto modelIdx = findAnimatedModelIndexForType(type);
@@ -157,19 +157,13 @@ namespace level
 
         gsl::not_null<const loader::Sector*> findRealFloorSector(core::RoomBoundPosition& rbs) const
         {
-            return findRealFloorSector(rbs.position.toInexact(), &rbs.room);
-        }
-
-
-        gsl::not_null<const loader::Sector*> findRealFloorSector(core::RoomBoundIntPosition& rbs) const
-        {
             return findRealFloorSector(rbs.position, &rbs.room);
         }
 
 
         gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const loader::Room*>*> room) const;
 
-        gsl::not_null<const loader::Room*> findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const loader::Room*> room) const;
+        gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const;
 
 
         std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::Sector*> sector, const core::TRCoordinates& position) const
@@ -402,7 +396,7 @@ namespace level
                                                size_t type,
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
-                                               const core::ExactTRCoordinates& position,
+                                               const core::TRCoordinates& position,
                                                const engine::floordata::ActivationState& activationState,
                                                int16_t darkness);
 
@@ -413,7 +407,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, modelIdx, item->type, room, core::Angle{item->rotation}, core::ExactTRCoordinates{item->position}, item->activationState, item->darkness);
+            return createSkeletalModel<T>(id, modelIdx, item->type, room, core::Angle{item->rotation}, core::TRCoordinates{item->position}, item->activationState, item->darkness);
         }
 
 

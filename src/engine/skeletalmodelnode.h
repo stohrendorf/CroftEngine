@@ -39,16 +39,9 @@ namespace engine
         }
 
 
-        enum class FrameChangeType
+        int getCurrentFrame() const
         {
-            NewFrame,
-            EndOfAnim
-        };
-
-
-        const std::chrono::microseconds& getCurrentTime() const
-        {
-            return m_time;
+            return m_frame;
         }
 
 
@@ -95,25 +88,25 @@ namespace engine
         }
 
 
-        std::chrono::microseconds getCurrentLocalTime() const
+        int getCurrentLocalFrame() const
         {
-            return m_time - getStartTime();
+            return m_frame - getStartFrame();
         }
 
 
-        virtual void update(const std::chrono::microseconds& deltaTime) = 0;
+        virtual void update() = 0;
 
     protected:
         bool handleStateTransitions();
 
-        virtual boost::optional<FrameChangeType> addTime(const std::chrono::microseconds& time);
+        virtual bool nextFrame();
 
         const loader::Animation& getCurrentAnimData() const;
 
     private:
         const gsl::not_null<const level::Level*> m_level;
         size_t m_animId = 0;
-        std::chrono::microseconds m_time = std::chrono::microseconds::zero();
+        uint16_t m_frame = 0;
         const loader::AnimatedModel& m_model;
         uint16_t m_targetState = 0;
         std::vector<glm::mat4> m_bonePatches;
@@ -183,8 +176,8 @@ namespace engine
 
         void updatePoseInterpolated(const InterpolationInfo& framepair);
 
-        std::chrono::microseconds getStartTime() const;
+        int getStartFrame() const;
 
-        std::chrono::microseconds getEndTime() const;
+        int getEndFrame() const;
     };
 }

@@ -18,7 +18,7 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
                     setTargetState(LaraStateId::JumpForward);
@@ -37,20 +37,20 @@ namespace engine
 
                 if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left)
                 {
-                    subYRotationSpeed(deltaTime, 2.25_deg, -3_deg);
+                    subYRotationSpeed(2.25_deg, -3_deg);
                 }
                 else if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right)
                 {
-                    addYRotationSpeed(deltaTime, 2.25_deg, 3_deg);
+                    addYRotationSpeed(2.25_deg, 3_deg);
                 }
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTime*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -76,12 +76,12 @@ namespace engine
                     setTargetState(LaraStateId::RunForward);
                 }
 
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(false);
-                setHorizontalSpeed(core::makeInterpolatedValue(0.0f));
+                setHorizontalSpeed(0);
                 placeOnFloor(collisionInfo);
 
-                laraUpdateImpl(core::FrameTime);
+                laraUpdateImpl();
             }
         };
     }

@@ -31,12 +31,12 @@ namespace engine
         //! @}
 
         int axisCollisions = AxisColl_None;
-        mutable core::ExactTRCoordinates collisionFeedback;
+        mutable core::TRCoordinates collisionFeedback;
         core::Axis orientationAxis = core::Axis::PosZ;
         core::Angle yAngle = 0_deg; // external
         int collisionRadius = 0; // external
         int policyFlags = 0; // external
-        core::ExactTRCoordinates oldPosition; // external
+        core::TRCoordinates oldPosition; // external
         //! The deepest floor distance considered passable.
         int passableFloorDistanceBottom = 0; // external
         //! The highest floor distance considered passable.
@@ -67,9 +67,9 @@ namespace engine
                 return loader::SectorSize - 1 - targetInSector;
         }
 
-        void initHeightInfo(const core::ExactTRCoordinates& laraPos, const level::Level& level, int height);
+        void initHeightInfo(const core::TRCoordinates& laraPos, const level::Level& level, int height);
 
-        static std::set<const loader::Room*> collectNeighborRooms(const core::ExactTRCoordinates& position, int radius, int height, const level::Level& level);
-        bool checkStaticMeshCollisions(const core::ExactTRCoordinates& position, int height, const level::Level& level);
+        static std::set<const loader::Room*> collectNeighborRooms(const core::TRCoordinates& position, int radius, int height, const level::Level& level);
+        bool checkStaticMeshCollisions(const core::TRCoordinates& position, int height, const level::Level& level);
     };
 }

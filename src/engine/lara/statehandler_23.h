@@ -16,19 +16,19 @@ namespace engine
             }
 
 
-            void handleInputImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& deltaTime) override
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/, const std::chrono::microseconds& /*deltaTimeMs*/) override
+            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
 
-            void postprocessFrame(CollisionInfo& collisionInfo, const std::chrono::microseconds& deltaTime) override
+            void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(false);
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 collisionInfo.yAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.yAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
@@ -51,7 +51,7 @@ namespace engine
 
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
                 setTargetState(LaraStateId::FallBackward);
-                setFallSpeed(core::makeInterpolatedValue(0.0f));
+                setFallSpeed(0);
                 setFalling(true);
             }
         };

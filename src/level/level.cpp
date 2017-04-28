@@ -532,7 +532,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               size_t type,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
-                                              const core::ExactTRCoordinates& position,
+                                              const core::TRCoordinates& position,
                                               const engine::floordata::ActivationState& activationState,
                                               int16_t darkness)
 {
@@ -582,7 +582,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
         if( activationRequest.isInActivationSet(i) )
             sequence["activationBits"].push_back(i);
     }
-    sequence["timeout"] = activationRequest.getTimeout().count();
+    sequence["timeout"] = activationRequest.getTimeout();
     sequence["oneshot"] = activationRequest.isOneshot();
     sequence["locked"] = activationRequest.isLocked();
     sequence["inverted"] = activationRequest.isInverted();
@@ -1014,7 +1014,7 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
 }
 
 
-gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactTRCoordinates& position, gsl::not_null<const loader::Room*> room) const
+gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
@@ -1040,7 +1040,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
         {
             BOOST_ASSERT( sector->roomAbove < m_rooms.size() );
             room = &m_rooms[sector->roomAbove];
-            sector = room->getSectorByAbsolutePosition(position.toInexact());
+            sector = room->getSectorByAbsolutePosition(position);
             Expects( sector != nullptr );
         }
     }
@@ -1050,7 +1050,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::ExactT
         {
             BOOST_ASSERT( sector->roomBelow < m_rooms.size() );
             room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition(position.toInexact());
+            sector = room->getSectorByAbsolutePosition(position);
             Expects( sector != nullptr );
         }
     }
@@ -1101,7 +1101,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
     image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
     image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
 
-    const int p = util::clamp(std::lround(m_lara->getHealth().getCurrentValue() * 100 / 1000), 0L, 100L);
+    const int p = util::clamp(m_lara->getHealth() * 100 / 1000, 0, 100);
     if( p > 0 )
     {
         image->line(x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor());

@@ -7,14 +7,14 @@ namespace engine
 {
     namespace items
     {
-        void CollapsibleFloor::update(const std::chrono::microseconds& deltaTime)
+        void CollapsibleFloor::update()
         {
             if(!m_isActive)
                 return;
 
             if( getCurrentState() == 0 ) // stationary
             {
-                if( !util::fuzzyEqual( getPosition().Y - 512, getLevel().m_lara->getPosition().Y, 1.0f ) )
+                if( getPosition().Y - 512 != getLevel().m_lara->getPosition().Y )
                 {
                     m_triggerState = TriggerState::Disabled;
                     deactivate();
@@ -31,7 +31,7 @@ namespace engine
                 setFalling( true );
             }
 
-            addTime(deltaTime);
+            nextFrame();
 
             if( m_triggerState == TriggerState::Activated )
             {
@@ -40,17 +40,17 @@ namespace engine
             }
 
             auto room = getCurrentRoom();
-            auto sector = getLevel().findRealFloorSector( getPosition().toInexact(), &room );
+            auto sector = getLevel().findRealFloorSector( getPosition(), &room );
             setCurrentRoom( room );
 
-            HeightInfo h = HeightInfo::fromFloor( sector, getPosition().toInexact(), getLevel().m_cameraController );
+            HeightInfo h = HeightInfo::fromFloor( sector, getPosition(), getLevel().m_cameraController );
             setFloorHeight( h.distance );
             if( getCurrentState() != 2 || getPosition().Y < h.distance )
                 return;
 
             // settle
             setTargetState( 3 );
-            setFallSpeed( core::makeInterpolatedValue( 0.0f ) );
+            setFallSpeed( 0 );
             auto pos = getPosition();
             pos.Y = getFloorHeight();
             setPosition( pos );
