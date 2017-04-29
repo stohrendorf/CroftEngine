@@ -18,38 +18,37 @@ namespace engine
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
-                if( getHealth() <= 0 )
+                if (getHealth() <= 0)
                 {
                     setTargetState(LaraStateId::Stop);
                     return;
                 }
 
-                if( getHandStatus() == 4 )
+                addYRotationSpeed(-2.25_deg);
+
+                if (getHandStatus() == 4)
                 {
                     setTargetState(LaraStateId::TurnFast);
-                    return;
+                }
+                else if (getYRotationSpeed() < -4_deg)
+                {
+                    if (!getLevel().m_inputHandler->getInputState().moveSlow)
+                        setYRotationSpeed(-4_deg);
+                    else
+                        setTargetState(LaraStateId::TurnFast);
                 }
 
-                if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
+                if (getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward)
                 {
-                    if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left )
+                    if (getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left)
                         setTargetState(LaraStateId::Stop);
                     return;
                 }
 
-                if( getLevel().m_inputHandler->getInputState().moveSlow )
+                if (getLevel().m_inputHandler->getInputState().moveSlow)
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
-
-                subYRotationSpeed(2.25_deg);
-                if( getYRotationSpeed() >= -4_deg )
-                    return;
-
-                if( !getLevel().m_inputHandler->getInputState().moveSlow )
-                    setYRotationSpeed(-4_deg);
-                else
-                    setTargetState(LaraStateId::TurnFast);
             }
         };
     }

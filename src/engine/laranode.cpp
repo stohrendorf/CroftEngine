@@ -124,17 +124,17 @@ namespace engine
                 setZRotation(0_deg);
         }
 
-        if(getYRotationSpeed() < 0_deg)
+        if(m_yRotationSpeed > 2_deg)
         {
-            m_yRotationSpeed = std::min(m_yRotationSpeed + 2_deg, +0_deg);
+            m_yRotationSpeed -= 2_deg;
         }
-        else if(getYRotationSpeed() > 0_deg)
+        else if(m_yRotationSpeed < -2_deg)
         {
-            m_yRotationSpeed = std::max(m_yRotationSpeed - 2_deg, +0_deg);
+            m_yRotationSpeed += 2_deg;
         }
         else
         {
-            setYRotationSpeed(0_deg);
+            m_yRotationSpeed = 0_deg;
         }
 
         addYRotation(m_yRotationSpeed);

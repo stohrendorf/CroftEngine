@@ -24,10 +24,18 @@ namespace engine
                     return;
                 }
 
+                addYRotationSpeed(2.25_deg);
+
                 if( getHandStatus() == 4 )
                 {
                     setTargetState(LaraStateId::TurnFast);
-                    return;
+                }
+                else if( getYRotationSpeed() > 4_deg )
+                {
+                    if( !getLevel().m_inputHandler->getInputState().moveSlow )
+                        setYRotationSpeed(4_deg);
+                    else
+                        setTargetState(LaraStateId::TurnFast);
                 }
 
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
@@ -41,15 +49,6 @@ namespace engine
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
-
-                addYRotationSpeed(2.25_deg);
-                if( getYRotationSpeed() <= 4_deg )
-                    return;
-
-                if( !getLevel().m_inputHandler->getInputState().moveSlow )
-                    setYRotationSpeed(4_deg);
-                else
-                    setTargetState(LaraStateId::TurnFast);
             }
         };
     }

@@ -151,7 +151,7 @@ namespace engine
 
         core::Angle getYRotationSpeed() const
         {
-            return static_cast<core::Angle>(m_yRotationSpeed);
+            return m_yRotationSpeed;
         }
 
 
