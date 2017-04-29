@@ -34,18 +34,17 @@ namespace engine
 
             virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
-            void animate(CollisionInfo& collisionInfo);
-
-
             virtual void handleInput(CollisionInfo& collisionInfo) = 0;
 
 
             static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, LaraNode& lara);
 
+
             LaraStateId getId() const noexcept
             {
                 return m_id;
             }
+
 
         private:
             LaraNode& m_lara;
@@ -53,17 +52,7 @@ namespace engine
 
             friend class StateHandler_2;
 
-            virtual void animateImpl(CollisionInfo& collisionInfo) = 0;
-
         protected:
-            core::Angle m_xRotationSpeed{ 0_deg };
-            core::Angle m_yRotationSpeed{ 0_deg };
-            core::Angle m_zRotationSpeed{ 0_deg };
-            int m_xMovement{ 0 };
-            int m_yMovement{ 0 };
-            int m_zMovement{ 0 };
-
-
             LaraNode& getLara()
             {
                 return m_lara;

@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_53(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::SwandiveEnd)
+                : AbstractStateHandler(lara, LaraStateId::SwandiveEnd)
             {
             }
 
@@ -20,10 +21,7 @@ namespace engine
             {
                 collisionInfo.policyFlags &= ~CollisionInfo::EnableSpaz;
                 collisionInfo.policyFlags |= CollisionInfo::EnableBaddiePush;
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 dampenHorizontalSpeed(0.05f);
             }
 

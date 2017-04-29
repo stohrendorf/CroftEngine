@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_5(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::RunBack)
+                : AbstractStateHandler(lara, LaraStateId::RunBack)
             {
             }
 
@@ -21,10 +22,7 @@ namespace engine
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 setTargetState(LaraStateId::Stop);
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     subYRotationSpeed(2.25_deg, -6_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
@@ -55,7 +53,7 @@ namespace engine
                     return;
                 }
 
-                if(checkWallCollision(collisionInfo))
+                if( checkWallCollision(collisionInfo) )
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }

@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_8(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::Death)
+                : AbstractStateHandler(lara, LaraStateId::Death)
             {
             }
 
@@ -35,10 +36,6 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 setHealth(-1);
                 setAir(-1);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
         };
     }

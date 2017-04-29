@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_Pushable(LaraNode& lara, LaraStateId id)
-                    : AbstractStateHandler(lara, id)
+                : AbstractStateHandler(lara, id)
             {
             }
 
@@ -21,10 +22,6 @@ namespace engine
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 setCameraUnknown1(CamOverrideType::NotActivatedByLara);
                 setCameraRotation(-25_deg, 35_deg);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override final
-            {
             }
 
 

@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -14,7 +15,7 @@ namespace engine
         public:
 
             explicit StateHandler_0(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::WalkForward)
+                : AbstractStateHandler(lara, LaraStateId::WalkForward)
             {
             }
 
@@ -38,10 +39,7 @@ namespace engine
                 {
                     setTargetState(LaraStateId::Stop);
                 }
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     subYRotationSpeed(2.25_deg, -4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
@@ -61,16 +59,16 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits | CollisionInfo::LavaIsPit;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if(stopIfCeilingBlocked(collisionInfo))
+                if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
-                if(tryClimb(collisionInfo))
+                if( tryClimb(collisionInfo) )
                     return;
 
-                if(checkWallCollision(collisionInfo))
+                if( checkWallCollision(collisionInfo) )
                 {
                     const auto fr = getCurrentFrame();
-                    if( fr >= 29 && fr < 48)
+                    if( fr >= 29 && fr < 48 )
                     {
                         setAnimIdGlobal(loader::AnimationId::END_WALK_LEFT, 74);
                     }
@@ -95,7 +93,7 @@ namespace engine
                 if( collisionInfo.current.floor.distance > core::SteppableHeight )
                 {
                     const auto fr = getCurrentFrame();
-                    if( fr < 28 || fr >= 46)
+                    if( fr < 28 || fr >= 46 )
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_DOWN_RIGHT, 887);
                     }
@@ -108,7 +106,7 @@ namespace engine
                 if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.current.floor.distance < -core::SteppableHeight )
                 {
                     const auto fr = getCurrentFrame();
-                    if( fr < 27 || fr >= 45)
+                    if( fr < 27 || fr >= 45 )
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_UP_STEP_RIGHT, 844);
                     }

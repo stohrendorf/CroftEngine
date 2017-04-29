@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_10(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::Hang)
+                : AbstractStateHandler(lara, LaraStateId::Hang)
             {
             }
 
@@ -52,10 +53,6 @@ namespace engine
                     setTargetState(LaraStateId::Handstand);
                 else
                     setTargetState(LaraStateId::Climbing);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
         };
     }

@@ -2,6 +2,7 @@
 
 #include "statehandler_onwater.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_34(LaraNode& lara)
-                    : StateHandler_OnWater(lara, LaraStateId::OnWaterForward)
+                : StateHandler_OnWater(lara, LaraStateId::OnWaterForward)
             {
             }
 
@@ -30,18 +31,13 @@ namespace engine
 
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::OnWaterStop);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
-                setFallSpeed(std::min(60, getFallSpeed() + 8));
 
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    m_yRotationSpeed = -4_deg;
+                    getLara().addYRotation(-4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    m_yRotationSpeed = 4_deg;
-                else
-                    m_yRotationSpeed = 0_deg;
+                    getLara().addYRotation(4_deg);
+
+                setFallSpeed(std::min(60, getFallSpeed() + 8));
             }
 
 

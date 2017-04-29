@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_52(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::SwandiveBegin)
+                : AbstractStateHandler(lara, LaraStateId::SwandiveBegin)
             {
             }
 
@@ -22,10 +23,6 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::EnableBaddiePush;
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::SwandiveEnd);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 

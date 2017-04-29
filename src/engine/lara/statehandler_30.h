@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_30(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::ShimmyLeft)
+                : AbstractStateHandler(lara, LaraStateId::ShimmyLeft)
             {
             }
 
@@ -32,10 +33,6 @@ namespace engine
                 setMovementAngle(getRotation().Y - 90_deg);
                 commonEdgeHangHandling(collisionInfo);
                 setMovementAngle(getRotation().Y - 90_deg);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
         };
     }

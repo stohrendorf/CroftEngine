@@ -2,6 +2,7 @@
 
 #include "statehandler_standing.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,16 +11,12 @@ namespace engine
         {
         public:
             explicit StateHandler_4(LaraNode& lara)
-                    : StateHandler_Standing(lara, LaraStateId::Pose)
+                : StateHandler_Standing(lara, LaraStateId::Pose)
             {
             }
 
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
-            {
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
         };

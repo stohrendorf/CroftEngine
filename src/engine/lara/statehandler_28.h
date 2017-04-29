@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_28(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::JumpUp)
+                : AbstractStateHandler(lara, LaraStateId::JumpUp)
             {
             }
 
@@ -20,10 +21,6 @@ namespace engine
             {
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 
@@ -39,7 +36,7 @@ namespace engine
                     return;
 
                 jumpAgainstWall(collisionInfo);
-                if(getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0)
+                if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
                 {
                     setTargetState(LaraStateId::JumpUp);
                     return;
@@ -52,8 +49,6 @@ namespace engine
                 setFallSpeed(0);
                 placeOnFloor(collisionInfo);
                 setFalling(false);
-
-                return;
             }
         };
     }

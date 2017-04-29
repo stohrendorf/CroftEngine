@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_16(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::WalkBackward)
+                : AbstractStateHandler(lara, LaraStateId::WalkBackward)
             {
             }
 
@@ -30,10 +31,7 @@ namespace engine
                     setTargetState(LaraStateId::WalkBackward);
                 else
                     setTargetState(LaraStateId::Stop);
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                     subYRotationSpeed(2.25_deg, -4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
@@ -56,14 +54,14 @@ namespace engine
                 if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
-                if(checkWallCollision(collisionInfo))
+                if( checkWallCollision(collisionInfo) )
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
 
                 if( collisionInfo.current.floor.distance > loader::QuarterSectorSize && collisionInfo.current.floor.distance < core::ClimbLimit2ClickMin )
                 {
-                    if(getCurrentFrame() < 964 || getCurrentFrame() >= 994)
+                    if( getCurrentFrame() < 964 || getCurrentFrame() >= 994 )
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
                     }

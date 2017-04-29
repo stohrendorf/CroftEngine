@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_3(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::JumpForward)
+                : AbstractStateHandler(lara, LaraStateId::JumpForward)
             {
             }
 
@@ -25,28 +26,24 @@ namespace engine
 
                 if( getTargetState() != LaraStateId::Death && getTargetState() != LaraStateId::Stop )
                 {
-                    if(getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0)
+                    if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
                         setTargetState(LaraStateId::Reach);
 
-                    if(getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0)
+                    if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0 )
                         setTargetState(LaraStateId::SwandiveBegin);
 
-                    if(getFallSpeed() > core::FreeFallSpeedThreshold)
+                    if( getFallSpeed() > core::FreeFallSpeedThreshold )
                         setTargetState(LaraStateId::FreeFall);
                 }
 
-                if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left)
+                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 {
                     subYRotationSpeed(2.25_deg, -3_deg);
                 }
-                else if(getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right)
+                else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 {
                     addYRotationSpeed(2.25_deg, 3_deg);
                 }
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 

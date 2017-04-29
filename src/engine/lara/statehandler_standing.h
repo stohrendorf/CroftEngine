@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,9 +12,10 @@ namespace engine
         {
         protected:
             explicit StateHandler_Standing(LaraNode& lara, LaraStateId id)
-                    : AbstractStateHandler(lara, id)
+                : AbstractStateHandler(lara, id)
             {
             }
+
 
         public:
             void postprocessFrame(CollisionInfo& collisionInfo) override final
@@ -28,7 +30,7 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if(stopIfCeilingBlocked(collisionInfo))
+                if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
                 if( collisionInfo.current.floor.distance <= 100 )

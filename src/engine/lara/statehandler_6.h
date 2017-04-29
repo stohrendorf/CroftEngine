@@ -2,6 +2,7 @@
 
 #include "statehandler_turnslow.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_6(LaraNode& lara)
-                    : StateHandler_TurnSlow(lara, LaraStateId::TurnRightSlow)
+                : StateHandler_TurnSlow(lara, LaraStateId::TurnRightSlow)
             {
             }
 
@@ -40,10 +41,7 @@ namespace engine
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 addYRotationSpeed(2.25_deg);
                 if( getYRotationSpeed() <= 4_deg )
                     return;

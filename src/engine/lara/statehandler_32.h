@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_32(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::SlideBackward)
+                : AbstractStateHandler(lara, LaraStateId::SlideBackward)
             {
             }
 
@@ -22,10 +23,6 @@ namespace engine
             {
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::JumpBack);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 

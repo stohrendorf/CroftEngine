@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,9 +12,10 @@ namespace engine
         {
         protected:
             explicit StateHandler_TurnSlow(LaraNode& lara, LaraStateId id)
-                    : AbstractStateHandler(lara, id)
+                : AbstractStateHandler(lara, id)
             {
             }
+
 
         public:
             void postprocessFrame(CollisionInfo& collisionInfo) override final

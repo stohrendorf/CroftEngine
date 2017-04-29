@@ -5,6 +5,7 @@
 #include "engine/laranode.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,22 +14,18 @@ namespace engine
         {
         public:
             explicit StateHandler_9(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::FreeFall)
+                : AbstractStateHandler(lara, LaraStateId::FreeFall)
             {
             }
 
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
-                dampenHorizontalSpeed(0.05f);
-                if( getFallSpeed() > 154 )
+                if( getFallSpeed() >= 154 )
                 {
                     getLara().playSoundEffect(30);
                 }
+                dampenHorizontalSpeed(0.05f);
             }
 
 

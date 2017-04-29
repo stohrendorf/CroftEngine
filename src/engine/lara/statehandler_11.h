@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_11(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::Reach)
+                : AbstractStateHandler(lara, LaraStateId::Reach)
             {
             }
 
@@ -21,10 +22,6 @@ namespace engine
                 setCameraRotationY(85_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 
@@ -38,7 +35,7 @@ namespace engine
                 collisionInfo.neededCeilingDistance = 192;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if(tryReach(collisionInfo))
+                if( tryReach(collisionInfo) )
                     return;
 
                 jumpAgainstWall(collisionInfo);

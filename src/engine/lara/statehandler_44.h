@@ -4,6 +4,7 @@
 
 #include "engine/laranode.h"
 
+
 namespace engine
 {
     namespace lara
@@ -12,24 +13,29 @@ namespace engine
         {
         public:
             explicit StateHandler_44(LaraNode& lara)
-                    : StateHandler_Underwater(lara, LaraStateId::WaterDeath)
+                : StateHandler_Underwater(lara, LaraStateId::WaterDeath)
             {
             }
 
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
-                if( getRotation().X < 0_deg )
-                    m_xRotationSpeed = -2_deg;
-                else if( getRotation().X > 0_deg )
-                    m_xRotationSpeed = 2_deg;
-                else
-                    m_xRotationSpeed = 0_deg;
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 setFallSpeed(std::max(0, getFallSpeed() - 8));
+
+                if( getRotation().X < 0_deg )
+                {
+                    if( getRotation().X >= 2_deg )
+                        getLara().addXRotation(-2_deg);
+                    else
+                        setXRotation(0_deg);
+                }
+                else if( getRotation().X > 0_deg )
+                {
+                    if( getRotation().X <= -2_deg )
+                        getLara().addXRotation(2_deg);
+                    else
+                        setXRotation(0_deg);
+                }
             }
 
 

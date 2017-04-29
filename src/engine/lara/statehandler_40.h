@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,7 +12,7 @@ namespace engine
         {
         public:
             explicit StateHandler_40(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::SwitchDown)
+                : AbstractStateHandler(lara, LaraStateId::SwitchDown)
             {
             }
 
@@ -21,10 +22,6 @@ namespace engine
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush);
                 setCameraRotation(-25_deg, 80_deg);
                 setCameraDistance(1024);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 

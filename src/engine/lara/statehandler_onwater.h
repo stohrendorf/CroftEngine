@@ -7,6 +7,7 @@
 
 #include "engine/laranode.h"
 
+
 namespace engine
 {
     namespace lara
@@ -15,9 +16,10 @@ namespace engine
         {
         public:
             explicit StateHandler_OnWater(LaraNode& lara, LaraStateId id)
-                    : AbstractStateHandler(lara, id)
+                : AbstractStateHandler(lara, id)
             {
             }
+
 
         protected:
             bool commonOnWaterHandling(CollisionInfo& collisionInfo)
@@ -30,7 +32,7 @@ namespace engine
                     || collisionInfo.axisCollisions == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace
                     || collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision
                     || collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked
-                        )
+                )
                 {
                     setFallSpeed(0);
                     setPosition(collisionInfo.oldPosition);
@@ -38,11 +40,9 @@ namespace engine
                 else
                 {
                     if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
-                        m_yRotationSpeed = 5_deg;
+                        getLara().addYRotation(5_deg);
                     else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
-                        m_yRotationSpeed = -5_deg;
-                    else
-                        m_yRotationSpeed = 0_deg;
+                        getLara().addYRotation(-5_deg);
                 }
 
                 auto wsh = getLara().getWaterSurfaceHeight();
@@ -58,6 +58,7 @@ namespace engine
                 setUnderwaterState(UnderwaterState::Diving);
                 return true;
             }
+
 
         private:
             bool tryClimbOutOfWater(CollisionInfo& collisionInfo)
@@ -87,7 +88,7 @@ namespace engine
                 if( collisionInfo.front.floor.distance + 700 > 100 )
                     return false;
 
-                const auto yRot = core::alignRotation(getRotation().Y, 35_deg);
+                const auto yRot = alignRotation(getRotation().Y, 35_deg);
                 if( !yRot )
                     return false;
 
@@ -95,13 +96,13 @@ namespace engine
                 getLara().updateFloorHeight(-381);
                 core::TRCoordinates d = getPosition();
                 if( *yRot == 0_deg )
-                    d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 1) * loader::SectorSize + 100;
+                    d.Z = (floor(getPosition().Z / loader::SectorSize) + 1) * loader::SectorSize + 100;
                 else if( *yRot == 180_deg )
-                    d.Z = (std::floor(getPosition().Z / loader::SectorSize) + 0) * loader::SectorSize - 100;
+                    d.Z = (floor(getPosition().Z / loader::SectorSize) + 0) * loader::SectorSize - 100;
                 else if( *yRot == -90_deg )
-                    d.X = (std::floor(getPosition().X / loader::SectorSize) + 0) * loader::SectorSize - 100;
+                    d.X = (floor(getPosition().X / loader::SectorSize) + 0) * loader::SectorSize - 100;
                 else if( *yRot == 90_deg )
-                    d.X = (std::floor(getPosition().X / loader::SectorSize) + 1) * loader::SectorSize + 100;
+                    d.X = (floor(getPosition().X / loader::SectorSize) + 1) * loader::SectorSize + 100;
                 else
                     throw std::runtime_error("Unexpected angle value");
 

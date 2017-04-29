@@ -143,6 +143,13 @@ namespace engine
         }
 
 
+        void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y, const core::Angle& minY, const core::Angle& maxY)
+        {
+            m_headRotation.X = util::clamp(m_headRotation.X + x, minX, maxX);
+            m_headRotation.Y = util::clamp(m_headRotation.Y + y, minY, maxY);
+        }
+
+
         const core::TRRotation& getHeadRotation() const noexcept
         {
             return m_headRotation;

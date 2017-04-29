@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
+
 namespace engine
 {
     namespace lara
@@ -11,16 +12,12 @@ namespace engine
         {
         public:
             explicit StateHandler_23(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::RollBackward)
+                : AbstractStateHandler(lara, LaraStateId::RollBackward)
             {
             }
 
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
-            {
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
             {
             }
 
@@ -37,7 +34,7 @@ namespace engine
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if(stopIfCeilingBlocked(collisionInfo))
+                if( stopIfCeilingBlocked(collisionInfo) )
                     return;
                 if( tryStartSlide(collisionInfo) )
                     return;

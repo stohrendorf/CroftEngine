@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_24(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::SlideForward)
+                : AbstractStateHandler(lara, LaraStateId::SlideForward)
             {
             }
 
@@ -23,10 +24,6 @@ namespace engine
                 setCameraRotationX(-45_deg);
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::JumpForward);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
 
 

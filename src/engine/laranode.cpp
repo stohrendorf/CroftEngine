@@ -143,7 +143,6 @@ namespace engine
 
         testInteractions();
 
-        currentStateHandler->animate(collisionInfo);
         currentStateHandler->postprocessFrame(collisionInfo);
 
         updateFloorHeight(-381);

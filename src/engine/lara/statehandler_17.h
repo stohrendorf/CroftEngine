@@ -2,6 +2,7 @@
 
 #include "statehandler_underwater.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_17(LaraNode& lara)
-                    : StateHandler_Underwater(lara, LaraStateId::UnderwaterForward)
+                : StateHandler_Underwater(lara, LaraStateId::UnderwaterForward)
             {
             }
 
@@ -27,10 +28,7 @@ namespace engine
 
                 if( !getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::UnderwaterInertia);
-            }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
                 setFallSpeed(std::min(getFallSpeed() + 8, 200));
             }
         };

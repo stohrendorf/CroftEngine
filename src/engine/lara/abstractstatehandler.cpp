@@ -62,23 +62,6 @@ namespace engine
 {
     namespace lara
     {
-        void AbstractStateHandler::animate(CollisionInfo& collisionInfo)
-        {
-            animateImpl(collisionInfo);
-
-            m_lara.rotate(
-                m_xRotationSpeed,
-                m_yRotationSpeed,
-                m_zRotationSpeed
-            );
-            m_lara.move(
-                m_xMovement,
-                m_yMovement,
-                m_zMovement
-            );
-        }
-
-
         std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraNode& lara)
         {
             switch( id )
@@ -409,18 +392,18 @@ namespace engine
             if( spaceToReach > 0 && getFallSpeed() + spaceToReach > 0 )
                 return false;
 
-            auto alignedRotation = core::alignRotation(getRotation().Y, 35_deg);
+            auto alignedRotation = alignRotation(getRotation().Y, 35_deg);
             if( !alignedRotation )
                 return false;
 
-            if( canClimbOnto(*core::axisFromAngle(getRotation().Y, 35_deg)) )
+            if( canClimbOnto(*axisFromAngle(getRotation().Y, 35_deg)) )
                 setAnimIdGlobal(loader::AnimationId::OSCILLATE_HANG_ON, 3974);
             else
                 setAnimIdGlobal(loader::AnimationId::HANG_IDLE, 1493);
 
             setTargetState(LaraStateId::Hang);
             setPosition(getPosition() + core::TRCoordinates(collisionInfo.collisionFeedback.X, spaceToReach,
-                                                                 collisionInfo.collisionFeedback.Z));
+                                                            collisionInfo.collisionFeedback.Z));
             setHorizontalSpeed(0);
             setYRotation(*alignedRotation);
             setFalling(false);
@@ -459,7 +442,7 @@ namespace engine
                 return false;
 
             //! @todo MAGICK +/- 30 degrees
-            auto alignedRotation = core::alignRotation(getRotation().Y, 30_deg);
+            auto alignedRotation = alignRotation(getRotation().Y, 30_deg);
             if( !alignedRotation )
                 return false;
 
@@ -473,7 +456,7 @@ namespace engine
 
                 setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::CLIMB_2CLICK, 759);
-                m_yMovement = 2.0f * loader::QuarterSectorSize + climbHeight;
+                m_lara.moveY(2 * loader::QuarterSectorSize + climbHeight);
                 setHandStatus(1);
             }
             else if( climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax )
@@ -485,7 +468,7 @@ namespace engine
 
                 setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::CLIMB_3CLICK, 614);
-                m_yMovement = 3.0f * loader::QuarterSectorSize + climbHeight;
+                m_lara.moveY(3 * loader::QuarterSectorSize + climbHeight);
                 setHandStatus(1);
             }
             else if( climbHeight >= -core::JumpReachableHeight && climbHeight <= -core::ClimbLimit3ClickMax )
@@ -528,12 +511,12 @@ namespace engine
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
             {
                 applyCollisionFeedback(collisionInfo);
-                m_yRotationSpeed = 5_deg;
+                m_lara.addYRotation(5_deg);
             }
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
             {
                 applyCollisionFeedback(collisionInfo);
-                m_yRotationSpeed = -5_deg;
+                m_lara.addYRotation(-5_deg);
             }
 
             return false;
@@ -606,7 +589,7 @@ namespace engine
             if( spaceToReach > 0 && getFallSpeed() + spaceToReach > 0 )
                 return false;
 
-            auto alignedRotation = core::alignRotation(getRotation().Y, 35_deg);
+            auto alignedRotation = alignRotation(getRotation().Y, 35_deg);
             if( !alignedRotation )
                 return false;
 
@@ -640,7 +623,7 @@ namespace engine
             HeightInfo h = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
 
             if( h.distance != -loader::HeightLimit )
-                h.distance -= std::lround(getPosition().Y);
+                h.distance -= lround(getPosition().Y);
 
             return h.distance;
         }
@@ -719,7 +702,7 @@ namespace engine
             setFallSpeed(0);
             setFalling(false);
             setMovementAngle(getRotation().Y);
-            const auto axis = *core::axisFromAngle(getMovementAngle(), 45_deg);
+            const auto axis = *axisFromAngle(getMovementAngle(), 45_deg);
             switch( axis )
             {
                 case core::Axis::PosZ: setPosition(getPosition() + core::TRCoordinates(0, 0, 2));
@@ -745,7 +728,7 @@ namespace engine
                 const auto bbox = getBoundingBox();
                 const long hangDistance = collisionInfo.front.floor.distance - bbox.min.y + 2;
                 setPosition(getPosition() + core::TRCoordinates(collisionInfo.collisionFeedback.X, hangDistance,
-                                                                     collisionInfo.collisionFeedback.Z));
+                                                                collisionInfo.collisionFeedback.Z));
                 setHorizontalSpeed(2);
                 setFallSpeed(1);
                 setFalling(true);
@@ -794,7 +777,7 @@ namespace engine
             auto sector = getLevel()
                 .findRealFloorSector(getPosition(), m_lara.getCurrentRoom());
             HeightInfo h = HeightInfo::fromFloor(sector, getPosition()
-                                                 - core::TRCoordinates{0, core::ScalpHeight, 0},
+                                                         - core::TRCoordinates{0, core::ScalpHeight, 0},
                                                  getLevel().m_cameraController);
             setFloorHeight(h.distance);
             getLara().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
@@ -876,9 +859,9 @@ namespace engine
         {
             applyCollisionFeedback(collisionInfo);
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
-                m_yRotationSpeed = 5_deg;
+                m_lara.addYRotation(5_deg);
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
-                m_yRotationSpeed = -5_deg;
+                m_lara.addYRotation(-5_deg);
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision )
             {
                 if( getFallSpeed() <= 0 )
@@ -886,8 +869,8 @@ namespace engine
             }
             else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_InvalidPosition )
             {
-                m_xMovement = 100 * getRotation().Y.sin();
-                m_zMovement = 100 * getRotation().Y.cos();
+                m_lara.moveX(100 * getRotation().Y.sin());
+                m_lara.moveZ(100 * getRotation().Y.cos());
                 setHorizontalSpeed(0);
                 collisionInfo.current.floor.distance = 0;
                 if( getFallSpeed() < 0 )
@@ -918,19 +901,19 @@ namespace engine
 
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
             {
-                m_yRotationSpeed = 5_deg;
+                m_lara.addYRotation(5_deg);
                 return;
             }
-            else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
+            if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
             {
-                m_yRotationSpeed = -5_deg;
+                m_lara.addYRotation(-5_deg);
                 return;
             }
 
             if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_InvalidPosition )
             {
-                m_xMovement = 100 * collisionInfo.yAngle.sin();
-                m_zMovement = 100 * collisionInfo.yAngle.cos();
+                m_lara.moveX(100 * collisionInfo.yAngle.sin());
+                m_lara.moveZ(100 * collisionInfo.yAngle.cos());
                 setHorizontalSpeed(0);
                 collisionInfo.current.floor.distance = 0;
                 if( getFallSpeed() <= 0 )

@@ -28,11 +28,6 @@ namespace engine
             }
 
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
-            }
-
-
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.yAngle = getRotation().Y;

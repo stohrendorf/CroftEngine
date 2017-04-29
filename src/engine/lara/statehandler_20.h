@@ -2,6 +2,7 @@
 
 #include "statehandler_standing.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_20(LaraNode& lara)
-                    : StateHandler_Standing(lara, LaraStateId::TurnFast)
+                : StateHandler_Standing(lara, LaraStateId::TurnFast)
             {
             }
 
@@ -37,10 +38,6 @@ namespace engine
                 }
 
                 setTargetState(LaraStateId::Stop);
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
             }
         };
     }

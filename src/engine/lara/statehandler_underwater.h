@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_Underwater(LaraNode& lara, LaraStateId id)
-                    : AbstractStateHandler(lara, id)
+                : AbstractStateHandler(lara, id)
             {
             }
 
@@ -28,16 +29,13 @@ namespace engine
 
                 applyCollisionFeedback(collisionInfo);
 
-                m_xRotationSpeed = 0_deg;
-                m_yRotationSpeed = 0_deg;
-
                 switch( collisionInfo.axisCollisions )
                 {
                     case CollisionInfo::AxisColl_FrontLeftBlocked:
-                        m_yRotationSpeed = 5_deg;
+                        getLara().addYRotation(5_deg);
                         break;
                     case CollisionInfo::AxisColl_FrontRightBlocked:
-                        m_yRotationSpeed = -5_deg;
+                        getLara().addYRotation(-5_deg);
                         break;
                     case CollisionInfo::AxisColl_InvalidPosition:
                         setFallSpeed(0);
@@ -47,13 +45,13 @@ namespace engine
                         break;
                     case CollisionInfo::AxisColl_ScalpCollision:
                         if( getRotation().X > -45_deg )
-                            m_xRotationSpeed = -2_deg; // setXRotation(getRotation().X - 364);
+                            getLara().addXRotation(-2_deg);
                         break;
                     case CollisionInfo::AxisColl_FrontForwardBlocked:
                         if( getRotation().X > 35_deg )
-                            m_xRotationSpeed = 2_deg; // setXRotation(getRotation().X + 364);
+                            getLara().addXRotation(2_deg);
                         else if( getRotation().X < -35_deg )
-                            m_xRotationSpeed = -2_deg; // setXRotation(getRotation().X - 364);
+                            getLara().addXRotation(-2_deg);
                         else
                             setFallSpeed(0);
                         break;
@@ -65,32 +63,27 @@ namespace engine
                     return;
 
                 setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.current.floor.distance, 0));
-                m_xRotationSpeed = m_xRotationSpeed + 2_deg;
+                getLara().addXRotation(2_deg);
             }
+
 
         protected:
             void handleDiveInput()
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
-                    m_xRotationSpeed = -2_deg;
+                    getLara().addXRotation(-2_deg);
                 else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
-                    m_xRotationSpeed = 2_deg;
-                else
-                    m_xRotationSpeed = 0_deg;
+                    getLara().addXRotation(2_deg);
+
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
                 {
-                    m_yRotationSpeed = -6_deg;
-                    m_zRotationSpeed = -3_deg;
+                    getLara().addYRotation(-6_deg);
+                    getLara().addZRotation(-3_deg);
                 }
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
                 {
-                    m_yRotationSpeed = 6_deg;
-                    m_zRotationSpeed = 3_deg;
-                }
-                else
-                {
-                    m_yRotationSpeed = 0_deg;
-                    m_zRotationSpeed = 0_deg;
+                    getLara().addYRotation(6_deg);
+                    getLara().addZRotation(3_deg);
                 }
             }
         };

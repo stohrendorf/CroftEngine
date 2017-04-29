@@ -2,6 +2,7 @@
 
 #include "statehandler_underwater.h"
 
+
 namespace engine
 {
     namespace lara
@@ -10,7 +11,7 @@ namespace engine
         {
         public:
             explicit StateHandler_35(LaraNode& lara)
-                    : StateHandler_Underwater(lara, LaraStateId::UnderwaterDiving)
+                : StateHandler_Underwater(lara, LaraStateId::UnderwaterDiving)
             {
             }
 
@@ -18,13 +19,7 @@ namespace engine
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
-                    m_yRotationSpeed = -1_deg;
-                else
-                    m_yRotationSpeed = 0_deg;
-            }
-
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
+                    getLara().addYRotation(-1_deg);
             }
         };
     }

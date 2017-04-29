@@ -5,6 +5,7 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
+
 namespace engine
 {
     namespace lara
@@ -13,7 +14,7 @@ namespace engine
         {
         public:
             explicit StateHandler_21(LaraNode& lara)
-                    : AbstractStateHandler(lara, LaraStateId::StepRight)
+                : AbstractStateHandler(lara, LaraStateId::StepRight)
             {
             }
 
@@ -35,10 +36,6 @@ namespace engine
                     setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
             }
 
-            void animateImpl(CollisionInfo& /*collisionInfo*/) override
-            {
-            }
-
 
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
@@ -52,10 +49,10 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if(stopIfCeilingBlocked(collisionInfo))
+                if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
-                if(checkWallCollision(collisionInfo))
+                if( checkWallCollision(collisionInfo) )
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     setTargetState(LaraStateId::Stop);
