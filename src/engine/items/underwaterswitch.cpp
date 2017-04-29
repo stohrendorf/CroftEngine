@@ -42,7 +42,7 @@ namespace engine
             do
             {
                 lara.setTargetState(LaraStateId::SwitchDown);
-                lara.updateImpl(true);
+                lara.updateImpl();
             } while(lara.getCurrentAnimState() != LaraStateId::SwitchDown);
             lara.setTargetState(LaraStateId::UnderwaterStop);
             lara.setHandStatus(1);

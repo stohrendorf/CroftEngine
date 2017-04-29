@@ -21,7 +21,7 @@ namespace engine
             if( m_triggerState != engine::items::TriggerState::Disabled )
                 return;
 
-            if( lara.getCurrentState() != loader::LaraStateId::Stop )
+            if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
                 return;
 
             static const InteractionLimits limits{
@@ -42,7 +42,7 @@ namespace engine
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchDown );
-                    lara.updateImpl(true);
+                    lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
                 lara.setTargetState( loader::LaraStateId::Stop );
                 setTargetState( 0 );
@@ -57,7 +57,7 @@ namespace engine
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchUp );
-                    lara.updateImpl(true);
+                    lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
                 lara.setTargetState( loader::LaraStateId::Stop );
                 setTargetState( 1 );

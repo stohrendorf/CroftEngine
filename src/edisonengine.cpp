@@ -35,7 +35,6 @@ namespace
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
-        drawText(font, 10, 80, std::string("current/handler ") + loader::toString(lvl->m_lara->getCurrentState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
         drawText(font, 10, 120, std::string("frame           ") + boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame()));
         drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));

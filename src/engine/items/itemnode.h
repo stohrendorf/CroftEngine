@@ -138,6 +138,7 @@ namespace engine
 
             virtual ~ItemNode() = default;
 
+            void update() override;
 
             void applyMovement();
 
@@ -627,9 +628,6 @@ namespace engine
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                        && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
-
-
-            bool nextFrame() override;
         };
     }
 }

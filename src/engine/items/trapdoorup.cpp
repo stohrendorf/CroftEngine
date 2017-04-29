@@ -8,7 +8,7 @@ namespace engine
     {
         void TrapDoorUp::update()
         {
-            nextFrame();
+            ItemNode::update();
             auto pos = getRoomBoundPosition();
             getLevel().findRealFloorSector( pos );
             setCurrentRoom( pos.room );

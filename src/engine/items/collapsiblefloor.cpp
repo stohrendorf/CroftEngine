@@ -31,7 +31,7 @@ namespace engine
                 setFalling( true );
             }
 
-            nextFrame();
+            ItemNode::update();
 
             if( m_triggerState == TriggerState::Activated )
             {

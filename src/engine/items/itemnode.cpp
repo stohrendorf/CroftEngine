@@ -89,16 +89,19 @@ namespace engine
         }
 
 
-        bool ItemNode::nextFrame()
+        void ItemNode::update()
         {
-            const auto endOfAnim = SkeletalModelNode::nextFrame();
+            const auto endOfAnim = SkeletalModelNode::advanceFrame();
 
             m_flags2_10_isHit = false;
 
             const loader::Animation& animation = getLevel().m_animations[getAnimId()];
             if( animation.animCommandCount <= 0 )
             {
-                return endOfAnim;
+                if (m_stateOverride == getCurrentState())
+                    m_stateOverride = 0;
+
+                return;
             }
 
             if( endOfAnim )
@@ -192,8 +195,6 @@ namespace engine
             }
 
             applyMovement();
-
-            return endOfAnim;
         }
 
 

@@ -39,7 +39,7 @@ namespace engine
 
                 if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getCurrentLocalFrame() < 0 || getCurrentLocalFrame() >= 1)
                 {
-                    nextFrame();
+                    ItemNode::update();
                     return;
                 }
 
@@ -71,7 +71,7 @@ namespace engine
                 dart->m_triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
-                nextFrame();
+                ItemNode::update();
             }
         };
     }

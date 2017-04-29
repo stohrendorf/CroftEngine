@@ -52,7 +52,7 @@ namespace engine
 
             void update() override final
             {
-                nextFrame();
+                ItemNode::update();
             }
 
 

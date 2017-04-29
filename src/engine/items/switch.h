@@ -39,7 +39,7 @@ namespace engine
 
                 m_activationState.fullyActivate();
 
-                nextFrame();
+                ItemNode::update();
             }
         };
     }

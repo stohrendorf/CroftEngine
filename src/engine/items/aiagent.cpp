@@ -99,7 +99,7 @@ namespace engine
                 return false;
             }
 
-            nextFrame();
+            ItemNode::update();
 
             const auto initialPos = getPosition();
             auto bboxTop = std::lround(getBoundingBox().min.y);

@@ -39,7 +39,6 @@ namespace engine
         int m_uvAnimTime{0};
 
         UnderwaterState m_underwaterState = UnderwaterState::OnLand;
-        std::unique_ptr<lara::AbstractStateHandler> m_currentStateHandler = nullptr;
 
     public:
         LaraNode(const gsl::not_null<level::Level*>& level,
@@ -78,14 +77,9 @@ namespace engine
         }
 
 
-        bool updateImpl(bool skipStateHandlerUpdate);
+        void updateImpl();
 
-        bool nextFrame() override;
-
-        void update() override
-        {
-            nextFrame();
-        }
+        void update() override;
 
     private:
         void handleLaraStateOnLand();
@@ -194,8 +188,6 @@ namespace engine
         LaraStateId getTargetState() const;
 
         void setTargetState(loader::LaraStateId st);
-
-        loader::LaraStateId getCurrentState() const;
 
         loader::LaraStateId getCurrentAnimState() const;
 

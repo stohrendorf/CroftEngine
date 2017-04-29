@@ -25,7 +25,7 @@ namespace engine
                 }
             }
 
-            nextFrame();
+            ItemNode::update();
             auto room = getCurrentRoom();
             getLevel().findRealFloorSector( getPosition(), &room );
             setCurrentRoom( room );

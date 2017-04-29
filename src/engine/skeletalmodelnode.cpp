@@ -72,11 +72,11 @@ namespace engine
     }
 
 
-    float SkeletalModelNode::calculateFloorSpeed() const
+    int SkeletalModelNode::calculateFloorSpeed() const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         const auto scaled = currentAnim.speed
-                      + currentAnim.accelleration * getCurrentLocalFrame() / core::FrameRate;
+                      + currentAnim.accelleration * getCurrentLocalFrame();
         return scaled / (1 << 16);
     }
 
@@ -281,15 +281,6 @@ namespace engine
     }
 
 
-    void SkeletalModelNode::advanceFrame()
-    {
-        BOOST_LOG_TRIVIAL( debug ) << "Advance frame: current=" << m_frame << ", end=" << getEndFrame()
-                                   << "us";
-
-        nextFrame();
-    }
-
-
     gameplay::BoundingBox SkeletalModelNode::getBoundingBox() const
     {
         auto framePair = getInterpolationInfo();
@@ -334,7 +325,7 @@ namespace engine
                 BOOST_ASSERT( j < m_level->m_transitionCases.size() );
                 const loader::TransitionCase& trc = m_level->m_transitionCases[j];
 
-                if( m_frame >= trc.firstFrame && m_frame < trc.lastFrame + 1 )
+                if( m_frame >= trc.firstFrame && m_frame <= trc.lastFrame )
                 {
                     BOOST_LOG_TRIVIAL(debug) << getId() << " -- found transition from state " << getCurrentState() << " to state " << m_targetState
                         << ", new animation " << trc.targetAnimation << "/frame " << trc.targetFrame;
@@ -362,16 +353,10 @@ namespace engine
     }
 
 
-    bool SkeletalModelNode::nextFrame()
+    bool SkeletalModelNode::advanceFrame()
     {
         ++m_frame;
-        bool endOfAnim = m_frame >= getEndFrame();
-
-        if(handleStateTransitions())
-        {
-            return endOfAnim;
-        }
-
-        return endOfAnim;
+        handleStateTransitions();
+        return m_frame >= getEndFrame();
     }
 }

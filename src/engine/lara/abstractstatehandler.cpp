@@ -944,7 +944,7 @@ namespace engine
 
         void AbstractStateHandler::laraUpdateImpl()
         {
-            m_lara.updateImpl(true);
+            m_lara.updateImpl();
         }
     }
 }

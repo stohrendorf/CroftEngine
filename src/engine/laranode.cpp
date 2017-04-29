@@ -98,10 +98,9 @@ namespace engine
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
-        if(m_currentStateHandler == nullptr || m_currentStateHandler->getId() != getCurrentAnimState())
-            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
+        const auto currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
 
-        m_currentStateHandler->handleInput(collisionInfo);
+        currentStateHandler->handleInput(collisionInfo);
 
         if(getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook)
         {
@@ -140,12 +139,12 @@ namespace engine
 
         addYRotation(m_yRotationSpeed);
 
-        updateImpl(false);
+        updateImpl();
 
         testInteractions();
 
-        m_currentStateHandler->animate(collisionInfo);
-        m_currentStateHandler->postprocessFrame(collisionInfo);
+        currentStateHandler->animate(collisionInfo);
+        currentStateHandler->postprocessFrame(collisionInfo);
 
         updateFloorHeight(-381);
 
@@ -346,12 +345,6 @@ namespace engine
     }
 
 
-    loader::LaraStateId LaraNode::getCurrentState() const
-    {
-        return m_currentStateHandler->getId();
-    }
-
-
     loader::LaraStateId LaraNode::getCurrentAnimState() const
     {
         return static_cast<loader::LaraStateId>(items::ItemNode::getCurrentState());
@@ -361,7 +354,7 @@ namespace engine
     LaraNode::~LaraNode() = default;
 
 
-    bool LaraNode::nextFrame()
+    void LaraNode::update()
     {
         if(m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom())
         {
@@ -375,14 +368,14 @@ namespace engine
             {
                 setXRotation(-45_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                updateImpl(false);
+                updateImpl();
                 setFallSpeed(getFallSpeed() * 2);
             }
             else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
             {
                 setXRotation(-85_deg);
                 setTargetState(LaraStateId::UnderwaterDiving);
-                updateImpl(false);
+                updateImpl();
                 setFallSpeed(getFallSpeed() * 2);
             }
             else
@@ -390,7 +383,7 @@ namespace engine
                 setXRotation(-45_deg);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
                 setTargetState(LaraStateId::UnderwaterForward);
-                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
+                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
                 setFallSpeed(getFallSpeed() * 1.5f);
             }
 
@@ -412,7 +405,7 @@ namespace engine
                 m_underwaterState = UnderwaterState::OnLand;
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                 setTargetState(LaraStateId::JumpForward);
-                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
                 //! @todo Check formula
                 setHorizontalSpeed(getHorizontalSpeed() / 4);
                 setFalling(true);
@@ -422,7 +415,7 @@ namespace engine
                 m_underwaterState = UnderwaterState::Swimming;
                 setAnimIdGlobal(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
                 setTargetState(LaraStateId::OnWaterStop);
-                m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
+                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
                 {
                     auto pos = getPosition();
                     pos.Y = *waterSurfaceHeight + 1;
@@ -438,7 +431,7 @@ namespace engine
             m_underwaterState = UnderwaterState::OnLand;
             setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
-            m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+            //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
             setFallSpeed(0);
             //! @todo Check formula
             setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
@@ -477,7 +470,8 @@ namespace engine
         }
     }
 
-    bool LaraNode::updateImpl(bool skipStateHandlerUpdate)
+
+    void LaraNode::updateImpl()
     {
         // >>>>>>>>>>>>>>>>>
         //! @todo Move UV anim code to the level.
@@ -491,9 +485,7 @@ namespace engine
         }
         // <<<<<<<<<<<<<<<<<
 
-        const auto endOfAnim = SkeletalModelNode::nextFrame();
-        if(!skipStateHandlerUpdate)
-            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
+        const auto endOfAnim = SkeletalModelNode::advanceFrame();
 
         if(endOfAnim)
         {
@@ -550,7 +542,6 @@ namespace engine
 
             const loader::Animation& currentAnim = getCurrentAnimData();
             ItemNode::setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
-            m_currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
         }
 
         const loader::Animation& animation = getLevel().m_animations[getAnimId()];
@@ -602,8 +593,6 @@ namespace engine
         resetPose();
         patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
         patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
-
-        return endOfAnim;
     }
 
 

@@ -30,7 +30,7 @@ namespace engine
 
                 static const glm::vec3 aimSpeed{0, -200.0f, -350.0f};
 
-                if( lara.getCurrentState() == LaraStateId::PickUp )
+                if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
                     if( lara.getCurrentFrame() == 2970 )
                     {
@@ -39,12 +39,12 @@ namespace engine
                         m_triggerState = engine::items::TriggerState::Locked;
                     }
                 }
-                else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentState() == LaraStateId::UnderwaterStop && lara.alignTransform(aimSpeed, *this) )
+                else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop && lara.alignTransform(aimSpeed, *this) )
                 {
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.updateImpl(true);
+                        lara.updateImpl();
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::UnderwaterStop);
                 }
@@ -61,7 +61,7 @@ namespace engine
                 if( !limits.canInteract(*this, lara) )
                     return;
 
-                if( lara.getCurrentState() == LaraStateId::PickUp )
+                if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
                     if( lara.getCurrentFrame() == 3443 )
                     {
@@ -78,7 +78,7 @@ namespace engine
                         // TODO: Remove item from room, handle pick up
                     }
                 }
-                else if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == 0 && !lara.isFalling() && lara.getCurrentState() == LaraStateId::Stop )
+                else if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == 0 && !lara.isFalling() && lara.getCurrentAnimState() == LaraStateId::Stop )
                 {
                     lara.setRelativeOrientedPosition(core::TRCoordinates{0, 0, -100}, *this);
 
@@ -86,7 +86,7 @@ namespace engine
                     do
                     {
                         lara.setTargetState(LaraStateId::PickUp);
-                        lara.updateImpl(true);
+                        lara.updateImpl();
                     } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                     lara.setTargetState(LaraStateId::Stop);
                     lara.setHandStatus(1);

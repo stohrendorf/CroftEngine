@@ -25,7 +25,7 @@ namespace engine
 
             void update() override
             {
-                nextFrame();
+                ItemNode::update();
             }
         };
     }

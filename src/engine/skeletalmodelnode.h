@@ -60,11 +60,9 @@ namespace engine
         }
 
 
-        float calculateFloorSpeed() const;
+        int calculateFloorSpeed() const;
 
         int getAccelleration() const;
-
-        void advanceFrame();
 
         gameplay::BoundingBox getBoundingBox() const;
 
@@ -99,7 +97,7 @@ namespace engine
     protected:
         bool handleStateTransitions();
 
-        virtual bool nextFrame();
+        bool advanceFrame();
 
         const loader::Animation& getCurrentAnimData() const;
 

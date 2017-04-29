@@ -71,7 +71,7 @@ namespace engine
 
                 lara.setYRotation(getRotation().Y);
                 lara.setTargetState(loader::LaraStateId::PushableGrab);
-                lara.updateImpl(true);
+                lara.updateImpl();
                 if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
                     lara.setHandStatus(1);
                 return;
@@ -118,7 +118,7 @@ namespace engine
                 return;
             }
 
-            const auto frameChangeType = nextFrame();
+            ItemNode::update();
 
             auto pos = getRoomBoundPosition();
             auto sector = getLevel().findRealFloorSector(pos);
