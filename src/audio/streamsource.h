@@ -18,28 +18,24 @@ namespace audio
     public:
         virtual ~AbstractStreamSource() = default;
 
-        bool atEnd() const noexcept
-        {
-            return m_eof;
-        }
-
         virtual size_t readStereo(int16_t* buffer, size_t bufferSize) = 0;
         virtual int getSampleRate() const = 0;
 
     protected:
-        size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, bool sourceIsMono)
+        static size_t readStereo(int16_t* frameBuffer, size_t frameCount, SNDFILE* sndFile, bool sourceIsMono)
         {
             size_t count = 0;
             while( count < frameCount )
             {
                 const auto n = sf_readf_short(sndFile, frameBuffer + count, frameCount - count);
-                count += n;
-                if( n == 0 )
-                    break;
-
-                // restart if there are not enough samples
-                if( count < frameCount )
+                if(n <= 0)
+                {
+                    // restart if there are not enough samples
                     sf_seek(sndFile, 0, SEEK_SET);
+                    continue;
+                }
+
+                count += n;
             }
 
             if( sourceIsMono )
@@ -53,14 +49,8 @@ namespace audio
                 }
             }
 
-            if( count < frameCount )
-                m_eof = true;
-
             return count;
         }
-
-    private:
-        bool m_eof = false;
     };
 
     class WadStreamSource final : public AbstractStreamSource
