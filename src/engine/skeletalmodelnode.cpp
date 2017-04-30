@@ -72,11 +72,11 @@ namespace engine
     }
 
 
-    int SkeletalModelNode::calculateFloorSpeed() const
+    int SkeletalModelNode::calculateFloorSpeed(int frameOffset) const
     {
         const loader::Animation& currentAnim = getCurrentAnimData();
         const auto scaled = currentAnim.speed
-                      + currentAnim.accelleration * getCurrentLocalFrame();
+                      + currentAnim.accelleration * (getCurrentLocalFrame() + frameOffset);
         return scaled / (1 << 16);
     }
 
@@ -281,27 +281,19 @@ namespace engine
     }
 
 
-    gameplay::BoundingBox SkeletalModelNode::getBoundingBox() const
+    BoundingBox SkeletalModelNode::getBoundingBox() const
     {
         auto framePair = getInterpolationInfo();
-        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
-
-        gameplay::BoundingBox result;
+        BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 1 );
 
         if( framePair.secondFrame != nullptr )
         {
-            result.min = glm::mix( framePair.firstFrame->bbox.getMinGl(), framePair.secondFrame->bbox.getMinGl(),
-                                   framePair.bias );
-            result.max = glm::mix( framePair.firstFrame->bbox.getMaxGl(), framePair.secondFrame->bbox.getMaxGl(),
-                                   framePair.bias );
+            return BoundingBox(framePair.firstFrame->bbox, framePair.secondFrame->bbox, framePair.bias);
         }
         else
         {
-            result.min = framePair.firstFrame->bbox.getMinGl();
-            result.max = framePair.firstFrame->bbox.getMaxGl();
+            return framePair.firstFrame->bbox;
         }
-
-        return result;
     }
 
 

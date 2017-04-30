@@ -30,20 +30,21 @@ namespace engine
         static constexpr int EnableSpaz = 0x10;
         //! @}
 
-        int axisCollisions = AxisColl_None;
-        mutable core::TRCoordinates collisionFeedback;
-        core::Axis orientationAxis = core::Axis::PosZ;
-        core::Angle yAngle = 0_deg; // external
+        int collisionType = AxisColl_None;
+        mutable core::TRCoordinates shift;
+        core::Axis facingAxis = core::Axis::PosZ;
+        core::Angle facingAngle = 0_deg; // external
         int collisionRadius = 0; // external
         int policyFlags = 0; // external
         core::TRCoordinates oldPosition; // external
-        //! The deepest floor distance considered passable.
+        //! The deepest floor distance considered passable (aka @c bad_pos).
         int passableFloorDistanceBottom = 0; // external
-        //! The highest floor distance considered passable.
+        //! The highest floor distance considered passable (aka @c bad_neg).
         int passableFloorDistanceTop = 0; // external
+        //! (aka @c bad_ceiling).
         int neededCeilingDistance = 0; // external
 
-        VerticalInfo current;
+        VerticalInfo mid;
         VerticalInfo front;
         VerticalInfo frontLeft;
         VerticalInfo frontRight;
@@ -52,20 +53,6 @@ namespace engine
         int8_t floorSlantZ = 0;
 
         bool hasStaticMeshCollision = false;
-
-        static float reflectAtSectorBoundary(float target, float current)
-        {
-            const auto targetSector = gsl::narrow_cast<int>(std::floor(target / loader::SectorSize));
-            const auto currentSector = gsl::narrow_cast<int>(std::floor(current / loader::SectorSize));
-            if( targetSector == currentSector )
-                return 0;
-
-            const auto targetInSector = gsl::narrow_cast<float>(std::fmod(target, loader::SectorSize));
-            if( current <= target )
-                return -targetInSector;
-            else
-                return loader::SectorSize - 1 - targetInSector;
-        }
 
         void initHeightInfo(const core::TRCoordinates& laraPos, const level::Level& level, int height);
 

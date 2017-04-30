@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/skeletalmodelnode.h"
 #include "loader/larastateid.h"
 #include "loader/datatypes.h"
 #include "loader/animationid.h"
@@ -101,9 +102,9 @@ namespace engine
 
             void setPosition(const core::TRCoordinates& pos);
 
-            long getFloorHeight() const;
+            int getFloorHeight() const;
 
-            void setFloorHeight(long h);
+            void setFloorHeight(int h);
 
             void setYRotationSpeed(core::Angle spd);
 
@@ -163,7 +164,7 @@ namespace engine
 
             bool applyLandingDamage();
 
-            gameplay::BoundingBox getBoundingBox() const;
+            BoundingBox getBoundingBox() const;
 
             void addSwimToDiveKeypressDuration(int n) noexcept;
 

@@ -15,7 +15,7 @@ namespace engine
 
     struct HeightInfo
     {
-        long distance = 0;
+        int distance = 0;
         SlantClass slantClass = SlantClass::None;
         const uint16_t* lastCommandSequenceOrDeath = nullptr;
 

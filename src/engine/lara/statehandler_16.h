@@ -46,8 +46,8 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.yAngle = getRotation().Y + 180_deg;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y + 180_deg;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -59,7 +59,7 @@ namespace engine
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
 
-                if( collisionInfo.current.floor.distance > loader::QuarterSectorSize && collisionInfo.current.floor.distance < core::ClimbLimit2ClickMin )
+                if( collisionInfo.mid.floor.distance > loader::QuarterSectorSize && collisionInfo.mid.floor.distance < core::ClimbLimit2ClickMin )
                 {
                     if( getCurrentFrame() < 964 || getCurrentFrame() >= 994 )
                     {

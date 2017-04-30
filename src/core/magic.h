@@ -17,4 +17,7 @@ namespace core
     constexpr int MaxGrabbableGradient = 60;
 
     constexpr int FrameRate = 30;
+
+    constexpr int LaraAir = 1800;
+    constexpr int LaraHealth = 1000;
 }

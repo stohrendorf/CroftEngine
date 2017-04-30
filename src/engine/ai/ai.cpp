@@ -155,7 +155,7 @@ namespace engine
                         BOOST_ASSERT(searchOverride.is_initialized());
                         if( flyHeight != 0 && !npc.getLevel().m_lara->isInWater() )
                         {
-                            searchTarget.Y += npc.getLevel().m_lara->getBoundingBox().min.y;
+                            searchTarget.Y += npc.getLevel().m_lara->getBoundingBox().minY;
                         }
                     }
                     break;

@@ -22,15 +22,15 @@ namespace engine
             {
                 setFallSpeed(0);
                 setFalling(false);
-                collisionInfo.yAngle = getRotation().Y;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if( collisionInfo.current.floor.distance <= 100 )
+                if( collisionInfo.mid.floor.distance <= 100 )
                 {
                     if( !tryStartSlide(collisionInfo) )
                         placeOnFloor(collisionInfo);

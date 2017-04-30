@@ -17,24 +17,24 @@ namespace core
 {
     struct TRCoordinates
     {
-        long X = 0, Y = 0, Z = 0;
+        int X = 0, Y = 0, Z = 0;
 
         TRCoordinates() = default;
         TRCoordinates(const TRCoordinates&) = default;
 
 
         explicit TRCoordinates(const glm::vec3& v)
-            : X(std::lround(v.x))
-            , Y(-std::lround(v.y))
-            , Z(-std::lround(v.z))
+            : X{ gsl::narrow<int>(v.x) }
+            , Y{ -gsl::narrow<int>(v.y) }
+            , Z{ -gsl::narrow<int>(v.z) }
         {
         }
 
 
-        TRCoordinates(long x, long y, long z)
-            : X(x)
-            , Y(y)
-            , Z(z)
+        TRCoordinates(int x, int y, int z)
+            : X{ x }
+            , Y{ y }
+            , Z{ z }
         {
         }
 
@@ -78,12 +78,12 @@ namespace core
         }
 
 
-        long distanceTo(const TRCoordinates& rhs) const
+        int distanceTo(const TRCoordinates& rhs) const
         {
-            const float dx = gsl::narrow<float>(X - rhs.X);
-            const float dy = gsl::narrow<float>(Y - rhs.Y);
-            const float dz = gsl::narrow<float>(Z - rhs.Z);
-            return std::lround(std::sqrt(dx*dx + dy*dy + dz*dz));
+            const auto dx = gsl::narrow<float>(X - rhs.X);
+            const auto dy = gsl::narrow<float>(Y - rhs.Y);
+            const auto dz = gsl::narrow<float>(Z - rhs.Z);
+            return static_cast<int>(std::sqrt(dx*dx + dy*dy + dz*dz));
         }
     };
 
@@ -95,8 +95,8 @@ namespace core
 
 
         explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const TRCoordinates& pos = {})
-            : room(r)
-            , position(pos)
+            : room{ r }
+            , position{ pos }
         {
         }
     };

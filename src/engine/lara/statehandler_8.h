@@ -29,8 +29,8 @@ namespace engine
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.collisionRadius = 400;
-                collisionInfo.yAngle = getRotation().Y;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 applyCollisionFeedback(collisionInfo);
                 placeOnFloor(collisionInfo);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

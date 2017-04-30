@@ -27,7 +27,7 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.yAngle = getMovementAngle();
+                collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 applyCollisionFeedback(collisionInfo);

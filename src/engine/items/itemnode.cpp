@@ -300,8 +300,6 @@ namespace engine
 
         void ItemNode::applyMovement()
         {
-            // Horizontal speed calculations are based on the future if the item
-            // is not in falling state.
             if( m_falling )
             {
                 if( getFallSpeed() >= 128 )
@@ -313,7 +311,8 @@ namespace engine
                     m_fallSpeed += 6;
                 }
 
-                m_horizontalSpeed += calculateFloorSpeed();
+                // we only add accelleration here
+                m_horizontalSpeed += calculateFloorSpeed(0) - calculateFloorSpeed(-1);
             }
             else
             {

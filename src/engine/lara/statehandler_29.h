@@ -34,10 +34,10 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 192;
-                collisionInfo.yAngle = getRotation().Y + 180_deg;
+                collisionInfo.facingAngle = getRotation().Y + 180_deg;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
                 checkJumpWallSmash(collisionInfo);
-                if( collisionInfo.current.floor.distance > 0 || getFallSpeed() < 0 )
+                if( collisionInfo.mid.floor.distance > 0 || getFallSpeed() < 0 )
                     return;
 
                 if( applyLandingDamage() )

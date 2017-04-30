@@ -28,8 +28,8 @@ namespace engine
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
                 setFalling(true);
-                collisionInfo.yAngle = getRotation().Y;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = 0;
                 collisionInfo.neededCeilingDistance = 192;
@@ -39,7 +39,7 @@ namespace engine
                     return;
 
                 jumpAgainstWall(collisionInfo);
-                if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
+                if( getFallSpeed() < 0 || collisionInfo.mid.floor.distance > 0 )
                     return;
 
                 if( applyLandingDamage() )

@@ -44,8 +44,8 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = 128;
                 collisionInfo.passableFloorDistanceTop = -128;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.yAngle = getRotation().Y - 90_deg;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y - 90_deg;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -60,7 +60,7 @@ namespace engine
                 }
 
                 if( !tryStartSlide(collisionInfo) )
-                    setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.current.floor.distance, 0));
+                    setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.mid.floor.distance, 0));
             }
         };
     }

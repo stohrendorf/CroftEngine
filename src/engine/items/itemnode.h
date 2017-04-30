@@ -72,7 +72,7 @@ namespace engine
 
             bool m_falling = false; // flags2_08
 
-            long m_floorHeight = 0;
+            int m_floorHeight = 0;
 
             std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
 
@@ -160,13 +160,13 @@ namespace engine
             }
 
 
-            long getFloorHeight() const noexcept
+            int getFloorHeight() const noexcept
             {
                 return m_floorHeight;
             }
 
 
-            void setFloorHeight(long h) noexcept
+            void setFloorHeight(int h) noexcept
             {
                 m_floorHeight = h;
             }
@@ -353,12 +353,12 @@ namespace engine
             }
 
 
-            virtual void patchFloor(const core::TRCoordinates& /*pos*/, long& /*y*/)
+            virtual void patchFloor(const core::TRCoordinates& /*pos*/, int& /*y*/)
             {
             }
 
 
-            virtual void patchCeiling(const core::TRCoordinates& /*pos*/, long& /*y*/)
+            virtual void patchCeiling(const core::TRCoordinates& /*pos*/, int& /*y*/)
             {
             }
 
@@ -476,14 +476,13 @@ namespace engine
                 }
 
                 float maxBrightness = 0;
-                const auto bboxCtr = m_position.position.toRenderSystem() + getBoundingBox().getCenter();
+                const auto bboxCtr = m_position.position + getBoundingBox().getCenter();
                 for( const auto& light : m_position.room->lights )
                 {
                     auto radiusSq = light.radius / 4096.0f;
                     radiusSq *= radiusSq;
 
-                    auto distanceSq = glm::length(bboxCtr - light.position.toRenderSystem());
-                    distanceSq /= 4096.0f;
+                    auto distanceSq = bboxCtr.distanceTo(light.position) / 4096.0f;
                     distanceSq *= distanceSq;
 
                     const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);

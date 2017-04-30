@@ -82,7 +82,7 @@ namespace engine
 
             uint16_t m_requiredAnimState = 0;
             ai::Brain m_brain;
-            int m_health = 1000;
+            int m_health{ 1000 };
             const int m_collisionRadius;
             const uint16_t m_zone;
         };

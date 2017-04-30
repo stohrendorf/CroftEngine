@@ -20,6 +20,33 @@ namespace loader
 
 namespace engine
 {
+    struct BoundingBox
+    {
+        int16_t minX{0}, maxX{0};
+        int16_t minY{0}, maxY{0};
+        int16_t minZ{0}, maxZ{0};
+
+        explicit BoundingBox() = default;
+
+
+        BoundingBox(const BoundingBox& a, const BoundingBox& b, float bias)
+            : minX{static_cast<int16_t>(a.minX * (1 - bias) + b.minX * bias)}
+            , maxX{static_cast<int16_t>(a.maxX * (1 - bias) + b.maxX * bias)}
+            , minY{static_cast<int16_t>(a.minY * (1 - bias) + b.minY * bias)}
+            , maxY{static_cast<int16_t>(a.maxY * (1 - bias) + b.maxY * bias)}
+            , minZ{static_cast<int16_t>(a.minZ * (1 - bias) + b.minZ * bias)}
+            , maxZ{static_cast<int16_t>(a.maxZ * (1 - bias) + b.maxZ * bias)}
+        {
+        }
+
+
+        core::TRCoordinates getCenter() const
+        {
+            return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
+        }
+    };
+
+
     class SkeletalModelNode : public gameplay::Node
     {
     public:
@@ -60,11 +87,11 @@ namespace engine
         }
 
 
-        int calculateFloorSpeed() const;
-
+        int calculateFloorSpeed(int frameOffset = 0) const;
+        
         int getAccelleration() const;
 
-        gameplay::BoundingBox getBoundingBox() const;
+        BoundingBox getBoundingBox() const;
 
 
         void resetPose()
@@ -114,26 +141,6 @@ namespace engine
 
         struct AnimFrame
         {
-            struct BBox
-            {
-                int16_t minX, maxX;
-                int16_t minY, maxY;
-                int16_t minZ, maxZ;
-
-
-                glm::vec3 getMinGl() const noexcept
-                {
-                    return glm::vec3(minX, minY, minZ);
-                }
-
-
-                glm::vec3 getMaxGl() const noexcept
-                {
-                    return glm::vec3(maxX, maxY, maxZ);
-                }
-            };
-
-
             struct Vec
             {
                 int16_t x, y, z;
@@ -146,7 +153,7 @@ namespace engine
             };
 
 
-            BBox bbox;
+            BoundingBox bbox;
             Vec pos;
             uint16_t numValues;
 

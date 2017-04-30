@@ -24,14 +24,14 @@ namespace engine
         protected:
             bool commonOnWaterHandling(CollisionInfo& collisionInfo)
             {
-                collisionInfo.yAngle = getMovementAngle();
+                collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates(0, 700, 0), getLevel(), 700);
                 applyCollisionFeedback(collisionInfo);
-                if( collisionInfo.current.floor.distance < 0
-                    || collisionInfo.axisCollisions == CollisionInfo::AxisColl_InvalidPosition
-                    || collisionInfo.axisCollisions == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace
-                    || collisionInfo.axisCollisions == CollisionInfo::AxisColl_ScalpCollision
-                    || collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontForwardBlocked
+                if( collisionInfo.mid.floor.distance < 0
+                    || collisionInfo.collisionType == CollisionInfo::AxisColl_InvalidPosition
+                    || collisionInfo.collisionType == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace
+                    || collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision
+                    || collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked
                 )
                 {
                     setFallSpeed(0);
@@ -39,9 +39,9 @@ namespace engine
                 }
                 else
                 {
-                    if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontLeftBlocked )
+                    if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked )
                         getLara().addYRotation(5_deg);
-                    else if( collisionInfo.axisCollisions == CollisionInfo::AxisColl_FrontRightBlocked )
+                    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked )
                         getLara().addYRotation(-5_deg);
                 }
 
@@ -66,7 +66,7 @@ namespace engine
                 if( getMovementAngle() != getRotation().Y )
                     return false;
 
-                if( collisionInfo.axisCollisions != CollisionInfo::AxisColl_FrontForwardBlocked )
+                if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked )
                     return false;
 
                 if( !getLevel().m_inputHandler->getInputState().action )
@@ -79,7 +79,7 @@ namespace engine
                 if( collisionInfo.front.ceiling.distance > 0 )
                     return false;
 
-                if( collisionInfo.current.ceiling.distance > -core::ClimbLimit2ClickMin )
+                if( collisionInfo.mid.ceiling.distance > -core::ClimbLimit2ClickMin )
                     return false;
 
                 if( collisionInfo.front.floor.distance + 700 <= -2 * loader::QuarterSectorSize )

@@ -29,14 +29,14 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 192;
-                collisionInfo.yAngle = getRotation().Y;
+                collisionInfo.facingAngle = getRotation().Y;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), 870); //! @todo MAGICK 870
 
                 if( tryGrabEdge(collisionInfo) )
                     return;
 
                 jumpAgainstWall(collisionInfo);
-                if( getFallSpeed() < 0 || collisionInfo.current.floor.distance > 0 )
+                if( getFallSpeed() < 0 || collisionInfo.mid.floor.distance > 0 )
                 {
                     setTargetState(LaraStateId::JumpUp);
                     return;

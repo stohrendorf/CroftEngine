@@ -38,13 +38,13 @@ namespace engine
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
-                collisionInfo.yAngle = getRotation().Y + 180_deg;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y + 180_deg;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
-                if( collisionInfo.current.floor.distance > 200 )
+                if( collisionInfo.mid.floor.distance > 200 )
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
                     setTargetState(LaraStateId::FallBackward);

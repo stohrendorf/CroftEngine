@@ -34,11 +34,11 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 192;
-                collisionInfo.yAngle = getMovementAngle();
+                collisionInfo.facingAngle = getMovementAngle();
                 setFalling(true);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 jumpAgainstWall(collisionInfo);
-                if( collisionInfo.current.floor.distance > 0 )
+                if( collisionInfo.mid.floor.distance > 0 )
                     return;
 
                 if( applyLandingDamage() )

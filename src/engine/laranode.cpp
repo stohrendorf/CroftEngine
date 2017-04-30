@@ -98,26 +98,39 @@ namespace engine
         collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
-        const auto currentStateHandler = lara::AbstractStateHandler::create(getCurrentAnimState(), *this);
-
-        currentStateHandler->handleInput(collisionInfo);
+        lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
         if(getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook)
         {
-            auto x = getLevel().m_cameraController->getHeadRotation().X / 8;
-            auto y = getLevel().m_cameraController->getHeadRotation().Y / 8;
-            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
+            const auto headX = getLevel().m_cameraController->getHeadRotation().X;
+            if (headX <= -2_deg || headX >= 2_deg)
+            {
+                getLevel().m_cameraController->setHeadRotationX(headX - headX / 8);
+            }
+            else
+            {
+                getLevel().m_cameraController->setHeadRotationX(0_deg);
+            }
+            const auto headY = getLevel().m_cameraController->getHeadRotation().Y;
+            if (headY <= -2_deg || headY >= 2_deg)
+            {
+                getLevel().m_cameraController->setHeadRotationY(headY - headY / 8);
+            }
+            else
+            {
+                getLevel().m_cameraController->setHeadRotationY(0_deg);
+            }
             getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
         }
 
         // "slowly" revert rotations to zero
-        if(getRotation().Z < 0_deg)
+        if(getRotation().Z < -1_deg)
         {
             addZRotation(+1_deg);
             if(getRotation().Z >= 0_deg)
                 setZRotation(0_deg);
         }
-        else if(getRotation().Z > 0_deg)
+        else if(getRotation().Z > 1_deg)
         {
             addZRotation(-1_deg);
             if(getRotation().Z <= 0_deg)
@@ -143,13 +156,13 @@ namespace engine
 
         testInteractions();
 
-        currentStateHandler->postprocessFrame(collisionInfo);
+        lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
 
         updateFloorHeight(-381);
 
         //! @todo updateWeaponState()
 
-        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
+        handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
         applyTransform();
 
@@ -233,7 +246,7 @@ namespace engine
         }
 
         updateFloorHeight(0);
-        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
+        handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -328,7 +341,7 @@ namespace engine
         }
 
         updateFloorHeight(100);
-        handleCommandSequence(collisionInfo.current.floor.lastCommandSequenceOrDeath, false);
+        handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
         lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -338,9 +351,7 @@ namespace engine
 
     void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
     {
-        auto pos = getPosition();
-        pos.Y += collisionInfo.current.floor.distance;
-        setPosition(pos);
+        moveY(collisionInfo.mid.floor.distance);
     }
 
 
@@ -357,7 +368,7 @@ namespace engine
     {
         if(m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom())
         {
-            m_air = 1800;
+            m_air = core::LaraAir;
             m_underwaterState = UnderwaterState::Diving;
             setFalling(false);
             setPosition(getPosition() + core::TRCoordinates(0, 100, 0));
@@ -383,7 +394,7 @@ namespace engine
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
                 setTargetState(LaraStateId::UnderwaterForward);
                 //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
-                setFallSpeed(getFallSpeed() * 1.5f);
+                setFallSpeed(getFallSpeed() * 3 / 2);
             }
 
             getLevel().m_cameraController->resetHeadTorsoRotation();
@@ -420,7 +431,7 @@ namespace engine
                     pos.Y = *waterSurfaceHeight + 1;
                     setPosition(pos);
                 }
-                m_swimToDiveKeypressDuration = 0; //! @fixme
+                m_swimToDiveKeypressDuration = 11;
                 updateFloorHeight(-381);
                 playSoundEffect(36);
             }
@@ -443,7 +454,7 @@ namespace engine
 
         if(m_underwaterState == UnderwaterState::OnLand)
         {
-            m_air = 1800;
+            m_air = core::LaraAir;
             handleLaraStateOnLand();
         }
         else if(m_underwaterState == UnderwaterState::Diving)
@@ -463,7 +474,7 @@ namespace engine
         {
             if(m_health >= 0)
             {
-                m_air = std::min(m_air + 10, 1800);
+                m_air = std::min(m_air + 10, core::LaraAir);
             }
             handleLaraStateSwimming();
         }
@@ -618,7 +629,7 @@ namespace engine
         {
             if( !isNotLara )
             {
-                if( util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L) )
+                if( getPosition().Y == getFloorHeight() )
                 {
                     //! @todo kill Lara
                 }
@@ -646,7 +657,7 @@ namespace engine
                     break;
                 case floordata::SequenceCondition::LaraOnGround:
                 case floordata::SequenceCondition::LaraOnGroundInverted:
-                    conditionFulfilled = util::fuzzyEqual(std::lround(getPosition().Y), getFloorHeight(), 1L);
+                    conditionFulfilled = getPosition().Y == getFloorHeight();
                     break;
                 case floordata::SequenceCondition::ItemActivated:
                 {

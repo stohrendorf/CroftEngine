@@ -31,7 +31,7 @@ namespace engine
             }
 
 
-            void patchFloor(const core::TRCoordinates& pos, long& y) override
+            void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
                 if( pos.Y > getPosition().Y - 512 )
                     return;
@@ -39,11 +39,11 @@ namespace engine
                 if( getCurrentState() != 0 && getCurrentState() != 1 )
                     return;
 
-                y = std::lround(getPosition().Y - 512);
+                y = getPosition().Y - 512;
             }
 
 
-            void patchCeiling(const core::TRCoordinates& pos, long& y) override
+            void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
                 if( pos.Y <= getPosition().Y - 512 )
                     return;
@@ -51,7 +51,7 @@ namespace engine
                 if( getCurrentState() != 0 && getCurrentState() != 1 )
                     return;
 
-                y = std::lround(getPosition().Y - 256);
+                y = getPosition().Y - 256;
             }
         };
     }

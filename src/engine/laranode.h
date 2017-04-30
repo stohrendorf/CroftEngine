@@ -26,12 +26,12 @@ namespace engine
         using LaraStateId = loader::LaraStateId;
 
     private:
-        int m_health{1000};
+        int m_health{ core::LaraHealth };
         //! @brief Additional rotation per TR Engine Frame
         core::Angle m_yRotationSpeed{0_deg};
         int m_fallSpeedOverride = 0;
         core::Angle m_movementAngle{0};
-        int m_air{1800};
+        int m_air{ core::LaraAir };
         core::Angle m_currentSlideAngle{0};
 
         int m_handStatus = 0;

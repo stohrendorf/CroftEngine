@@ -72,7 +72,7 @@ namespace engine
         core::RoomBoundPosition m_currentPosition;
         bool m_lookingAtSomething = false;
         //! @brief Floor-projected pivot distance, squared.
-        long m_flatPivotDistanceSq = 0;
+        int m_flatPivotDistanceSq = 0;
 
         // hacks
         core::TRRotation m_headRotation;
@@ -140,6 +140,18 @@ namespace engine
         {
             m_headRotation.X += x;
             m_headRotation.Y += y;
+        }
+
+
+        void setHeadRotationX(const core::Angle& v)
+        {
+            m_headRotation.X = v;
+        }
+
+
+        void setHeadRotationY(const core::Angle& v)
+        {
+            m_headRotation.Y = v;
         }
 
 
@@ -234,10 +246,10 @@ namespace engine
         void handleFreeLook(const items::ItemNode& item);
         void handleEnemy(const items::ItemNode& item);
 
-        using ClampCallback = void(long& current1, long& current2, long target1, long target2, long lowLimit1, long lowLimit2, long highLimit1, long highLimit2);
+        using ClampCallback = void(int& current1, int& current2, int target1, int target2, int lowLimit1, int lowLimit2, int highLimit1, int highLimit2);
 
         void clampBox(core::RoomBoundPosition& camTargetPos, const std::function<ClampCallback>& callback) const;
-        static void freeLookClamp(long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
-        static void clampToCorners(const long lookAtDistanceSq, long& currentFrontBack, long& currentLeftRight, long targetFrontBack, long targetLeftRight, long back, long right, long front, long left);
+        static void freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back, int right, int front, int left);
+        static void clampToCorners(const int lookAtDistanceSq, int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back, int right, int front, int left);
     };
 }

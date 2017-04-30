@@ -66,8 +66,8 @@ namespace engine
 
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.yAngle = getRotation().Y;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
@@ -101,7 +101,7 @@ namespace engine
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                 }
 
-                if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
+                if( collisionInfo.mid.floor.distance > core::ClimbLimit2ClickMin )
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                     setTargetState(LaraStateId::JumpForward);
@@ -110,8 +110,8 @@ namespace engine
                     return;
                 }
 
-                if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin
-                    && collisionInfo.current.floor.distance < -core::SteppableHeight )
+                if( collisionInfo.mid.floor.distance >= -core::ClimbLimit2ClickMin
+                    && collisionInfo.mid.floor.distance < -core::SteppableHeight )
                 {
                     if( getCurrentFrame() >= 3 && getCurrentFrame() < 15 )
                     {
@@ -125,8 +125,8 @@ namespace engine
 
                 if( !tryStartSlide(collisionInfo) )
                 {
-                    if( collisionInfo.current.floor.distance > 50 )
-                        collisionInfo.current.floor.distance = 50;
+                    if( collisionInfo.mid.floor.distance > 50 )
+                        collisionInfo.mid.floor.distance = 50;
                     placeOnFloor(collisionInfo);
                 }
             }

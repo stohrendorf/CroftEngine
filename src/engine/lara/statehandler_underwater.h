@@ -21,15 +21,15 @@ namespace engine
 
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.yAngle = getRotation().Y;
+                collisionInfo.facingAngle = getRotation().Y;
                 if( abs(getRotation().X) > 90_deg )
-                    collisionInfo.yAngle += 180_deg;
-                setMovementAngle(collisionInfo.yAngle);
+                    collisionInfo.facingAngle += 180_deg;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{0, 200, 0}, getLevel(), 400);
 
                 applyCollisionFeedback(collisionInfo);
 
-                switch( collisionInfo.axisCollisions )
+                switch( collisionInfo.collisionType )
                 {
                     case CollisionInfo::AxisColl_FrontLeftBlocked:
                         getLara().addYRotation(5_deg);
@@ -59,10 +59,10 @@ namespace engine
                         break;
                 }
 
-                if( collisionInfo.current.floor.distance >= 0 )
+                if( collisionInfo.mid.floor.distance >= 0 )
                     return;
 
-                setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.current.floor.distance, 0));
+                setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.mid.floor.distance, 0));
                 getLara().addXRotation(2_deg);
             }
 

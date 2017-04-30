@@ -26,8 +26,8 @@ namespace engine
             {
                 setFalling(false);
                 setFallSpeed(0);
-                collisionInfo.yAngle = getRotation().Y + 180_deg;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y + 180_deg;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
@@ -39,7 +39,7 @@ namespace engine
                 if( tryStartSlide(collisionInfo) )
                     return;
 
-                if( collisionInfo.current.floor.distance <= 200 )
+                if( collisionInfo.mid.floor.distance <= 200 )
                 {
                     applyCollisionFeedback(collisionInfo);
                     placeOnFloor(collisionInfo);

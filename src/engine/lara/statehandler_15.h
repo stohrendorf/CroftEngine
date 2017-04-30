@@ -56,10 +56,10 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.yAngle = getRotation().Y;
+                collisionInfo.facingAngle = getRotation().Y;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if( collisionInfo.current.ceiling.distance <= -100 )
+                if( collisionInfo.mid.ceiling.distance <= -100 )
                     return;
 
                 setTargetState(LaraStateId::Stop);

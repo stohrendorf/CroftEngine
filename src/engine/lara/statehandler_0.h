@@ -51,8 +51,8 @@ namespace engine
             {
                 setFallSpeed(0);
                 setFalling(false);
-                collisionInfo.yAngle = getRotation().Y;
-                setMovementAngle(collisionInfo.yAngle);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;
@@ -82,7 +82,7 @@ namespace engine
                     }
                 }
 
-                if( collisionInfo.current.floor.distance > core::ClimbLimit2ClickMin )
+                if( collisionInfo.mid.floor.distance > core::ClimbLimit2ClickMin )
                 {
                     setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
                     setTargetState(LaraStateId::JumpForward);
@@ -90,7 +90,7 @@ namespace engine
                     setFalling(true);
                 }
 
-                if( collisionInfo.current.floor.distance > core::SteppableHeight )
+                if( collisionInfo.mid.floor.distance > core::SteppableHeight )
                 {
                     const auto fr = getCurrentFrame();
                     if( fr < 28 || fr >= 46 )
@@ -103,7 +103,7 @@ namespace engine
                     }
                 }
 
-                if( collisionInfo.current.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.current.floor.distance < -core::SteppableHeight )
+                if( collisionInfo.mid.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.distance < -core::SteppableHeight )
                 {
                     const auto fr = getCurrentFrame();
                     if( fr < 27 || fr >= 45 )

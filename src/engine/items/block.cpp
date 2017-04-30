@@ -186,7 +186,7 @@ namespace engine
             }
 
             CollisionInfo tmp;
-            tmp.orientationAxis = axis;
+            tmp.facingAxis = axis;
             tmp.collisionRadius = 500;
             if( tmp.checkStaticMeshCollisions(pos, 1000, getLevel()) )
                 return false;
@@ -230,7 +230,7 @@ namespace engine
             auto sector = getLevel().findRealFloorSector(pos, &room);
 
             CollisionInfo tmp;
-            tmp.orientationAxis = axis;
+            tmp.facingAxis = axis;
             tmp.collisionRadius = 500;
             if( tmp.checkStaticMeshCollisions(pos, 1000, getLevel()) )
                 return false;
@@ -277,19 +277,19 @@ namespace engine
             {
                 case core::Axis::PosZ:
                     laraPos.Z -= loader::SectorSize;
-                    tmp.orientationAxis = core::Axis::NegZ;
+                    tmp.facingAxis = core::Axis::NegZ;
                     break;
                 case core::Axis::PosX:
                     laraPos.X -= loader::SectorSize;
-                    tmp.orientationAxis = core::Axis::NegX;
+                    tmp.facingAxis = core::Axis::NegX;
                     break;
                 case core::Axis::NegZ:
                     laraPos.Z += loader::SectorSize;
-                    tmp.orientationAxis = core::Axis::PosZ;
+                    tmp.facingAxis = core::Axis::PosZ;
                     break;
                 case core::Axis::NegX:
                     laraPos.X += loader::SectorSize;
-                    tmp.orientationAxis = core::Axis::PosX;
+                    tmp.facingAxis = core::Axis::PosX;
                     break;
                 default:
                     break;
