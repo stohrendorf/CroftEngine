@@ -38,15 +38,10 @@ namespace engine
                 {
                     getLevel().m_cameraController->setCamOverrideType(CamOverrideType::FreeLook);
                     getLevel().m_cameraController->addHeadRotationXY(
-                        -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000),
-                        FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000)
+                        -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -42_deg, 22_deg,
+                        FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -44_deg, 44_deg
                     );
-                    auto r = getLevel().m_cameraController->getHeadRotation();
-                    r.Y = util::clamp(r.Y, -44_deg, +44_deg);
-                    r.X = util::clamp(r.Y, -42_deg, +22_deg);
-
-                    getLevel().m_cameraController->setHeadRotation(r);
-                    getLevel().m_cameraController->setTorsoRotation(r);
+                    getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
 
                     return;
                 }

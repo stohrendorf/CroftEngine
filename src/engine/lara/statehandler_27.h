@@ -21,8 +21,6 @@ namespace engine
             {
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
-                else
-                    setTargetState(LaraStateId::JumpRight);
             }
 
 

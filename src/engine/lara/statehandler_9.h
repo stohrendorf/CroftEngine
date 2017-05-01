@@ -21,7 +21,7 @@ namespace engine
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
-                if( getFallSpeed() >= 154 )
+                if( getFallSpeed() >= core::DeadlyFallSpeedThreshold )
                 {
                     getLara().playSoundEffect(30);
                 }

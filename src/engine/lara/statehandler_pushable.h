@@ -17,7 +17,7 @@ namespace engine
             }
 
 
-            void handleInput(CollisionInfo& collisionInfo) override final
+            void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 setCameraUnknown1(CamOverrideType::NotActivatedByLara);
@@ -27,7 +27,8 @@ namespace engine
 
             void postprocessFrame(CollisionInfo& collisionInfo) override final
             {
-                setMovementAngle(getRotation().Y);
+                collisionInfo.facingAngle = getRotation().Y;
+                setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
                 collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
                 collisionInfo.neededCeilingDistance = 0;

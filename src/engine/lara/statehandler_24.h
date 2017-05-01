@@ -21,6 +21,7 @@ namespace engine
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
+                getLevel().m_cameraController->setUnknown1(CamOverrideType::FreeLook);
                 setCameraRotationX(-45_deg);
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::JumpForward);

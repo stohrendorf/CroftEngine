@@ -41,7 +41,7 @@ namespace engine
 
                 if( collisionInfo.mid.floor.distance <= 200 )
                 {
-                    applyCollisionFeedback(collisionInfo);
+                    applyShift(collisionInfo);
                     placeOnFloor(collisionInfo);
                     return;
                 }

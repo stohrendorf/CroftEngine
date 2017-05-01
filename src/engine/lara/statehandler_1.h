@@ -34,6 +34,17 @@ namespace engine
                     return;
                 }
 
+                if (getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left)
+                {
+                    subYRotationSpeed(2.25_deg, -8_deg);
+                    setZRotation(std::max(-11_deg, getRotation().Z - 1.5_deg));
+                }
+                else if (getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right)
+                {
+                    addYRotationSpeed(2.25_deg, 8_deg);
+                    setZRotation(std::min(+11_deg, getRotation().Z + 1.5_deg));
+                }
+
                 if( getLevel().m_inputHandler->getInputState().jump && !isFalling() )
                 {
                     setTargetState(LaraStateId::JumpForward);
@@ -50,17 +61,6 @@ namespace engine
                     setTargetState(LaraStateId::WalkForward);
                 else
                     setTargetState(LaraStateId::RunForward);
-
-                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                {
-                    subYRotationSpeed(2.25_deg, -8_deg);
-                    setZRotation(std::max(-11_deg, getRotation().Z - 1.5_deg));
-                }
-                else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                {
-                    addYRotationSpeed(2.25_deg, 8_deg);
-                    setZRotation(std::min(+11_deg, getRotation().Z + 1.5_deg));
-                }
             }
 
 
@@ -113,7 +113,7 @@ namespace engine
                 if( collisionInfo.mid.floor.distance >= -core::ClimbLimit2ClickMin
                     && collisionInfo.mid.floor.distance < -core::SteppableHeight )
                 {
-                    if( getCurrentFrame() >= 3 && getCurrentFrame() < 15 )
+                    if( getCurrentFrame() >= 3 && getCurrentFrame() <= 14 )
                     {
                         setAnimIdGlobal(loader::AnimationId::RUN_UP_STEP_LEFT, 837);
                     }
@@ -125,6 +125,7 @@ namespace engine
 
                 if( !tryStartSlide(collisionInfo) )
                 {
+                    //! @todo Check if this does not affect other things, otherwise call moveY() directly.
                     if( collisionInfo.mid.floor.distance > 50 )
                         collisionInfo.mid.floor.distance = 50;
                     placeOnFloor(collisionInfo);

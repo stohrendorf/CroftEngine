@@ -22,17 +22,14 @@ namespace engine
 
 
         protected:
-            bool commonOnWaterHandling(CollisionInfo& collisionInfo)
+            void commonOnWaterHandling(CollisionInfo& collisionInfo)
             {
                 collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates(0, 700, 0), getLevel(), 700);
-                applyCollisionFeedback(collisionInfo);
+                applyShift(collisionInfo);
                 if( collisionInfo.mid.floor.distance < 0
-                    || collisionInfo.collisionType == CollisionInfo::AxisColl_InvalidPosition
-                    || collisionInfo.collisionType == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace
-                    || collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision
-                    || collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked
-                )
+                    || (collisionInfo.collisionType & (CollisionInfo::AxisColl_InvalidPosition|CollisionInfo::AxisColl_InsufficientFrontCeilingSpace|CollisionInfo::AxisColl_ScalpCollision|CollisionInfo::AxisColl_FrontForwardBlocked)) != 0
+                    )
                 {
                     setFallSpeed(0);
                     setPosition(collisionInfo.oldPosition);
@@ -46,51 +43,51 @@ namespace engine
                 }
 
                 auto wsh = getLara().getWaterSurfaceHeight();
-                if( wsh && *wsh > getPosition().Y - 100 )
+                if( wsh.is_initialized() && *wsh > getPosition().Y - 100 )
                 {
-                    return tryClimbOutOfWater(collisionInfo);
+                    tryClimbOutOfWater(collisionInfo);
+                    return;
                 }
 
-                setTargetState(LaraStateId::UnderwaterForward);
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+                setTargetState(LaraStateId::UnderwaterForward);
                 setXRotation(-45_deg);
                 setFallSpeed(80);
                 setUnderwaterState(UnderwaterState::Diving);
-                return true;
             }
 
 
         private:
-            bool tryClimbOutOfWater(CollisionInfo& collisionInfo)
+            void tryClimbOutOfWater(CollisionInfo& collisionInfo)
             {
                 if( getMovementAngle() != getRotation().Y )
-                    return false;
+                    return;
 
                 if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked )
-                    return false;
+                    return;
 
                 if( !getLevel().m_inputHandler->getInputState().action )
-                    return false;
+                    return;
 
                 const auto gradient = std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
                 if( gradient >= core::MaxGrabbableGradient )
-                    return false;
+                    return;
 
                 if( collisionInfo.front.ceiling.distance > 0 )
-                    return false;
+                    return;
 
                 if( collisionInfo.mid.ceiling.distance > -core::ClimbLimit2ClickMin )
-                    return false;
+                    return;
 
                 if( collisionInfo.front.floor.distance + 700 <= -2 * loader::QuarterSectorSize )
-                    return false;
+                    return;
 
                 if( collisionInfo.front.floor.distance + 700 > 100 )
-                    return false;
+                    return;
 
                 const auto yRot = alignRotation(getRotation().Y, 35_deg);
-                if( !yRot )
-                    return false;
+                if( !yRot.is_initialized() )
+                    return;
 
                 setPosition(getPosition() + core::TRCoordinates(0, 695 + collisionInfo.front.floor.distance, 0));
                 getLara().updateFloorHeight(-381);
@@ -108,8 +105,8 @@ namespace engine
 
                 setPosition(d);
 
-                setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::CLIMB_OUT_OF_WATER, 1849);
+                setTargetState(LaraStateId::Stop);
                 setHorizontalSpeed(0);
                 setFallSpeed(0);
                 setFalling(false);
@@ -118,7 +115,6 @@ namespace engine
                 setZRotation(0_deg);
                 setHandStatus(1);
                 setUnderwaterState(UnderwaterState::OnLand);
-                return true;
             }
         };
     }

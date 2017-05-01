@@ -27,7 +27,7 @@ namespace engine
                 setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{0, 200, 0}, getLevel(), 400);
 
-                applyCollisionFeedback(collisionInfo);
+                applyShift(collisionInfo);
 
                 switch( collisionInfo.collisionType )
                 {
@@ -62,13 +62,13 @@ namespace engine
                 if( collisionInfo.mid.floor.distance >= 0 )
                     return;
 
-                setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.mid.floor.distance, 0));
+                placeOnFloor(collisionInfo);
                 getLara().addXRotation(2_deg);
             }
 
 
         protected:
-            void handleDiveInput()
+            void handleDiveRotationInput()
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
                     getLara().addXRotation(-2_deg);

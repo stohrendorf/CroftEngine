@@ -10,6 +10,23 @@ namespace engine
 {
     namespace lara
     {
-#pragma message("TODO: Statehandler 46 is not yet implemented")
+        class StateHandler_46 final : public AbstractStateHandler
+        {
+        public:
+            explicit StateHandler_46(LaraNode& lara)
+                : AbstractStateHandler(lara, LaraStateId::BoulderDeath)
+            {
+            }
+
+
+            void handleInput(CollisionInfo& /*collisionInfo*/) override
+            {
+            }
+
+
+            void postprocessFrame(CollisionInfo& /*collisionInfo*/) override
+            {
+            }
+        };
     }
 }

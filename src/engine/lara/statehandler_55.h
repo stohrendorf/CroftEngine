@@ -20,6 +20,7 @@ namespace engine
             void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
+                setCameraUnknown1(CamOverrideType::NotActivatedByLara);
             }
 
 

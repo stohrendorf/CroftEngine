@@ -56,14 +56,14 @@ namespace engine
                 collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
                 collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
                 collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.facingAngle = getRotation().Y;
+                collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
                 if( collisionInfo.mid.ceiling.distance <= -100 )
                     return;
 
-                setTargetState(LaraStateId::Stop);
                 setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
+                setTargetState(LaraStateId::Stop);
                 setHorizontalSpeed(0);
                 setPosition(collisionInfo.oldPosition);
             }

@@ -10,11 +10,11 @@ namespace engine
 {
     namespace lara
     {
-        class StateHandler_38 final : public AbstractStateHandler
+        class StateHandler_38 final : public StateHandler_Pushable
         {
         public:
             explicit StateHandler_38(LaraNode& lara)
-                : AbstractStateHandler(lara, LaraStateId::PushableGrab)
+                : StateHandler_Pushable(lara, LaraStateId::PushableGrab)
             {
             }
 
@@ -25,20 +25,6 @@ namespace engine
                 setCameraRotationY(75_deg);
                 if( !getLevel().m_inputHandler->getInputState().action )
                     setTargetState(LaraStateId::Stop);
-                else
-                    setTargetState(LaraStateId::PushableGrab);
-            }
-
-
-            void postprocessFrame(CollisionInfo& collisionInfo) override
-            {
-                setMovementAngle(getRotation().Y);
-                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 0;
-                collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
-
-                collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             }
         };
     }

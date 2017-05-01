@@ -30,7 +30,7 @@ namespace engine
                 collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
-                applyCollisionFeedback(collisionInfo);
+                applyShift(collisionInfo);
             }
         };
     }

@@ -21,7 +21,7 @@ namespace engine
                 tr = m_position.position.toRenderSystem();
             }
 
-            setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
+            setLocalMatrix(translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }
@@ -56,7 +56,7 @@ namespace engine
             if( m_activationState.isOneshot() )
             {
                 m_activationState.setOneshot(false);
-                m_triggerState = engine::items::TriggerState::Locked;
+                m_triggerState = TriggerState::Locked;
             }
 
             if( m_activationState.isFullyActivated() )
@@ -64,7 +64,7 @@ namespace engine
                 m_activationState.fullyDeactivate();
                 m_activationState.setInverted(true);
                 activate();
-                m_triggerState = engine::items::TriggerState::Enabled;
+                m_triggerState = TriggerState::Enabled;
             }
         }
 
@@ -91,23 +91,15 @@ namespace engine
 
         void ItemNode::update()
         {
-            const auto endOfAnim = SkeletalModelNode::advanceFrame();
+            const auto endOfAnim = advanceFrame();
 
             m_flags2_10_isHit = false;
 
-            const loader::Animation& animation = getLevel().m_animations[getAnimId()];
-            if( animation.animCommandCount <= 0 )
-            {
-                if (m_stateOverride == getCurrentState())
-                    m_stateOverride = 0;
-
-                return;
-            }
-
             if( endOfAnim )
             {
-                BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
-                const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
+                const loader::Animation& animation = getCurrentAnimData();
+                BOOST_ASSERT(animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size());
+                const auto* cmd = animation.animCommandCount == 0 ? nullptr : &getLevel().m_animCommands[animation.animCommandIndex];
                 for( uint16_t i = 0; i < animation.animCommandCount; ++i )
                 {
                     BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
@@ -146,13 +138,11 @@ namespace engine
                 const loader::Animation& currentAnim = getCurrentAnimData();
                 setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
                 setTargetState(getCurrentState());
-
-                if(m_stateOverride == getCurrentState())
-                    m_stateOverride = 0;
             }
 
-            BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
-            const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
+            const loader::Animation& animation = getCurrentAnimData();
+            BOOST_ASSERT(animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size());
+            const auto* cmd = animation.animCommandCount == 0 ? nullptr : &getLevel().m_animCommands[animation.animCommandIndex];
             for( uint16_t i = 0; i < animation.animCommandCount; ++i )
             {
                 BOOST_ASSERT(cmd < &getLevel().m_animCommands.back());
@@ -194,7 +184,7 @@ namespace engine
                 }
             }
 
-            applyMovement();
+            applyMovement(false);
         }
 
 
@@ -202,7 +192,7 @@ namespace engine
         {
             if( !m_hasProcessAnimCommandsOverride )
             {
-                m_triggerState = engine::items::TriggerState::Disabled;
+                m_triggerState = TriggerState::Disabled;
                 return;
             }
 
@@ -252,12 +242,12 @@ namespace engine
                 return false;
             }
 
-            if( m_triggerState != engine::items::TriggerState::Enabled )
+            if( m_triggerState != TriggerState::Enabled )
             {
                 return false;
             }
 
-            m_triggerState = engine::items::TriggerState::Activated;
+            m_triggerState = TriggerState::Activated;
             return true;
         }
 
@@ -265,11 +255,11 @@ namespace engine
         void ItemNode::updateSounds()
         {
             decltype(m_sounds) cleaned;
-            std::copy_if(m_sounds.begin(), m_sounds.end(), std::inserter(cleaned, cleaned.end()),
+            std::copy_if(m_sounds.begin(), m_sounds.end(), inserter(cleaned, cleaned.end()),
                          [](const std::weak_ptr<audio::SourceHandle>& h)
-                         {
-                             return h.expired();
-                         });
+                     {
+                         return h.expired();
+                     });
 
             m_sounds = std::move(cleaned);
 
@@ -298,7 +288,7 @@ namespace engine
         }
 
 
-        void ItemNode::applyMovement()
+        void ItemNode::applyMovement(bool forLara)
         {
             if( m_falling )
             {
@@ -311,8 +301,11 @@ namespace engine
                     m_fallSpeed += 6;
                 }
 
-                // we only add accelleration here
-                m_horizontalSpeed += calculateFloorSpeed(0) - calculateFloorSpeed(-1);
+                if( forLara )
+                {
+                    // we only add accelleration here
+                    m_horizontalSpeed += calculateFloorSpeed(0) - calculateFloorSpeed(-1);
+                }
             }
             else
             {

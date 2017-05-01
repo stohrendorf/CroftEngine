@@ -21,9 +21,10 @@ namespace engine
                 if( getHealth() < 0 )
                 {
                     setTargetState(LaraStateId::WaterDeath);
+                    return;
                 }
 
-                handleDiveInput();
+                handleDiveRotationInput();
 
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::UnderwaterForward);

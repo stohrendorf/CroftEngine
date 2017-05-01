@@ -24,15 +24,14 @@ namespace engine
                     return;
                 }
 
-                handleDiveInput();
+                handleDiveRotationInput();
 
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::UnderwaterForward);
 
+                setFallSpeed(std::max(0, getFallSpeed() - 6));
                 if( getFallSpeed() <= 133 )
                     setTargetState(LaraStateId::UnderwaterStop);
-
-                setFallSpeed(std::max(0, getFallSpeed() - 6));
             }
         };
     }

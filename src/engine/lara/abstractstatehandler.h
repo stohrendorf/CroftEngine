@@ -148,7 +148,7 @@ namespace engine
 
             void checkJumpWallSmash(CollisionInfo& collisionInfo);
 
-            void applyCollisionFeedback(const CollisionInfo& collisionInfo);
+            void applyShift(const CollisionInfo& collisionInfo);
 
             int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
 

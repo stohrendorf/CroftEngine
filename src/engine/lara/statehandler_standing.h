@@ -37,7 +37,7 @@ namespace engine
                 {
                     if( !tryStartSlide(collisionInfo) )
                     {
-                        applyCollisionFeedback(collisionInfo);
+                        applyShift(collisionInfo);
                         placeOnFloor(collisionInfo);
                     }
                     return;

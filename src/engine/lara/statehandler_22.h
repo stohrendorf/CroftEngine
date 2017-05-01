@@ -31,9 +31,9 @@ namespace engine
                     setTargetState(LaraStateId::Stop);
 
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    setYRotationSpeed(std::max(-4_deg, getYRotationSpeed() - 2.25_deg));
+                    subYRotationSpeed(2.25_deg, -4_deg);
                 else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    setYRotationSpeed(std::min(+4_deg, getYRotationSpeed() + 2.25_deg));
+                    addYRotationSpeed(2.25_deg, 4_deg);
             }
 
 
@@ -56,11 +56,10 @@ namespace engine
                 {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
                     setTargetState(LaraStateId::Stop);
-                    return;
                 }
 
                 if( !tryStartSlide(collisionInfo) )
-                    setPosition(getPosition() + core::TRCoordinates(0, collisionInfo.mid.floor.distance, 0));
+                    placeOnFloor(collisionInfo);
             }
         };
     }

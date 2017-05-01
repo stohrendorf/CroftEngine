@@ -35,7 +35,7 @@ namespace engine
                 setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 checkJumpWallSmash(collisionInfo);
-                if( collisionInfo.mid.floor.distance > 0 || getFallSpeed() < 0 )
+                if( collisionInfo.mid.floor.distance > 0 || getFallSpeed() <= 0 )
                     return;
 
                 if( getFallSpeed() <= 133 )

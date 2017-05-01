@@ -19,7 +19,7 @@ namespace engine
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
                 if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
-                    getLara().addYRotation(-1_deg);
+                    getLara().addXRotation(-1_deg);
             }
         };
     }

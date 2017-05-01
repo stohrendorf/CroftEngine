@@ -24,7 +24,7 @@ namespace engine
                     return;
                 }
 
-                handleDiveInput();
+                handleDiveRotationInput();
 
                 if( !getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::UnderwaterInertia);

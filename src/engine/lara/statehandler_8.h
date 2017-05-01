@@ -31,7 +31,7 @@ namespace engine
                 collisionInfo.collisionRadius = 400;
                 collisionInfo.facingAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.facingAngle);
-                applyCollisionFeedback(collisionInfo);
+                applyShift(collisionInfo);
                 placeOnFloor(collisionInfo);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
                 setHealth(-1);

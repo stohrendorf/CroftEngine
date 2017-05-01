@@ -597,7 +597,7 @@ namespace engine
             }
         }
 
-        applyMovement();
+        applyMovement(true);
 
         //! @todo Check if there is a better place for this.
         resetPose();

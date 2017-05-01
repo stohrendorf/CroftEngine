@@ -39,7 +39,7 @@ namespace engine
                     return;
 
                 jumpAgainstWall(collisionInfo);
-                if( getFallSpeed() < 0 || collisionInfo.mid.floor.distance > 0 )
+                if( getFallSpeed() <= 0 || collisionInfo.mid.floor.distance > 0 )
                     return;
 
                 if( applyLandingDamage() )

@@ -26,16 +26,16 @@ namespace engine
 
                 setSwimToDiveKeypressDuration(0);
 
+                if (getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left)
+                    getLara().addYRotation(-4_deg);
+                else if (getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right)
+                    getLara().addYRotation(4_deg);
+
                 if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
                     setTargetState(LaraStateId::OnWaterStop);
 
                 if( getLevel().m_inputHandler->getInputState().jump )
                     setTargetState(LaraStateId::OnWaterStop);
-
-                if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
-                    getLara().addYRotation(-4_deg);
-                else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
-                    getLara().addYRotation(4_deg);
 
                 setFallSpeed(std::min(60, getFallSpeed() + 8));
             }

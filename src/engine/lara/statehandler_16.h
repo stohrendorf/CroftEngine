@@ -55,13 +55,11 @@ namespace engine
                     return;
 
                 if( checkWallCollision(collisionInfo) )
-                {
                     setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
-                }
 
                 if( collisionInfo.mid.floor.distance > loader::QuarterSectorSize && collisionInfo.mid.floor.distance < core::ClimbLimit2ClickMin )
                 {
-                    if( getCurrentFrame() < 964 || getCurrentFrame() >= 994 )
+                    if( getCurrentFrame() < 964 || getCurrentFrame() > 993 )
                     {
                         setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
                     }

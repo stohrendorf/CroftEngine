@@ -100,8 +100,6 @@ namespace engine
             const Characteristics m_characteristics;
             const int16_t m_darkness;
 
-            uint16_t m_stateOverride{ 0 };
-
             struct Lighting
             {
                 glm::vec3 position;
@@ -140,7 +138,7 @@ namespace engine
 
             void update() override;
 
-            void applyMovement();
+            void applyMovement(bool forLara);
 
             const core::TRCoordinates& getPosition() const noexcept
             {

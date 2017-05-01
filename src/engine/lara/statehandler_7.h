@@ -24,7 +24,7 @@ namespace engine
                     return;
                 }
 
-                addYRotationSpeed(-2.25_deg);
+                subYRotationSpeed(2.25_deg);
 
                 if (getHandStatus() == 4)
                 {
@@ -32,7 +32,7 @@ namespace engine
                 }
                 else if (getYRotationSpeed() < -4_deg)
                 {
-                    if (!getLevel().m_inputHandler->getInputState().moveSlow)
+                    if (getLevel().m_inputHandler->getInputState().moveSlow)
                         setYRotationSpeed(-4_deg);
                     else
                         setTargetState(LaraStateId::TurnFast);

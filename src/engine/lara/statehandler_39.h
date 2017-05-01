@@ -23,7 +23,7 @@ namespace engine
             void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-                setCameraRotation(15_deg, 130_deg);
+                setCameraRotation(-15_deg, -130_deg);
                 setCameraDistance(1024);
             }
 
