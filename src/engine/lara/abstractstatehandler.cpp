@@ -477,7 +477,7 @@ namespace engine
             {
                 setTargetState(LaraStateId::JumpUp);
                 setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
-                setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800) + 3)));
+                setFallSpeedOverride(-static_cast<int>(std::sqrt(-12 * (climbHeight + 800)) + 3));
             }
             else
             {
