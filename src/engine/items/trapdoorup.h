@@ -52,8 +52,8 @@ namespace engine
         private:
             bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
             {
-                auto trapdoorSectorX = std::lround(std::floor(getPosition().X / loader::SectorSize));
-                auto trapdoorSectorZ = std::lround(std::floor(getPosition().Z / loader::SectorSize));
+                auto trapdoorSectorX = getPosition().X / loader::SectorSize;
+                auto trapdoorSectorZ = getPosition().Z / loader::SectorSize;
                 auto posSectorX = pos.X / loader::SectorSize;
                 auto posSectorZ = pos.Z / loader::SectorSize;
                 auto trapdoorAxis = core::axisFromAngle(getRotation().Y, 1_au);

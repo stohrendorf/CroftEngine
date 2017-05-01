@@ -238,7 +238,7 @@ namespace core
 
 
             explicit UnsignedRawAngle(long double val)
-                : value{gsl::narrow<uint32_t>(std::llround(val * Angle::Scale))}
+                : value{gsl::narrow<uint32_t>(std::lround(val * Angle::Scale))}
             {
                 Expects(value <= 32768U * Angle::Scale);
             }

@@ -32,17 +32,17 @@ namespace engine
             }
 
 
-            void patchFloor(const core::TRCoordinates& pos, long& y) override final
+            void patchFloor(const core::TRCoordinates& pos, int& y) override final
             {
-                auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
+                auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
                 if( pos.Y <= tmp )
                     y = tmp;
             }
 
 
-            void patchCeiling(const core::TRCoordinates& pos, long& y) override final
+            void patchCeiling(const core::TRCoordinates& pos, int& y) override final
             {
-                auto tmp = std::lround(getPosition().Y + getBridgeSlopeHeight(pos) / m_div);
+                auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
                 if( pos.Y <= tmp )
                     return;
 
@@ -57,7 +57,7 @@ namespace engine
 
 
         private:
-            long getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+            int getBridgeSlopeHeight(const core::TRCoordinates& pos) const
             {
                 auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
                 Expects( axis.is_initialized() );

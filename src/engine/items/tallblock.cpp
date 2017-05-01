@@ -36,8 +36,8 @@ namespace engine
             m_triggerState = engine::items::TriggerState::Enabled;
             loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
             auto pos = getPosition();
-            pos.X = std::floor( pos.X / loader::SectorSize ) * loader::SectorSize + loader::SectorSize / 2;
-            pos.Z = std::floor( pos.Z / loader::SectorSize ) * loader::SectorSize + loader::SectorSize / 2;
+            pos.X = ( pos.X / loader::SectorSize ) * loader::SectorSize + loader::SectorSize / 2;
+            pos.Z = ( pos.Z / loader::SectorSize ) * loader::SectorSize + loader::SectorSize / 2;
             setPosition( pos );
         }
     }

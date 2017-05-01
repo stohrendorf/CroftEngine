@@ -113,10 +113,10 @@ namespace engine
 
             const auto npcBoxFloor = getLevel().m_boxes[npcSector->boxIndex].floor;
 
-            const auto inSectorX = std::fmod(getPosition().X, loader::SectorSize);
-            const auto inSectorZ = std::fmod(getPosition().Z, loader::SectorSize);
-            float moveZ = 0;
-            float moveX = 0;
+            const auto inSectorX = getPosition().X % loader::SectorSize;
+            const auto inSectorZ = getPosition().Z % loader::SectorSize;
+            int moveZ = 0;
+            int moveX = 0;
             if( inSectorZ < m_collisionRadius )
             {
                 // Clamp movement to -Z
@@ -290,7 +290,7 @@ namespace engine
 
             if( m_brain.route.flyHeight != 0 )
             {
-                auto dy = util::clamp<float>(m_brain.moveTarget.Y - getPosition().Y,
+                auto dy = util::clamp(m_brain.moveTarget.Y - getPosition().Y,
                                              -m_brain.route.flyHeight,
                                              m_brain.route.flyHeight);
                 const auto currentFloor = engine::HeightInfo::fromFloor(npcSector,

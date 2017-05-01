@@ -1082,7 +1082,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image
         image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
         image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
 
-        const int p = util::clamp(std::lround(m_lara->getAir() * 100 / core::LaraAir), 0L, 100L);
+        const int p = util::clamp(m_lara->getAir() * 100 / core::LaraAir, 0, 100);
         if( p > 0 )
         {
             image->line(x0, 8, x0 + p, 8, m_palette->color[32].toTextureColor());

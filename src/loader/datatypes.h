@@ -503,8 +503,8 @@ namespace loader
         static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
         core::TRCoordinates position;
-        long lowestHeight;
-        long greatestHeight;
+        int lowestHeight;
+        int greatestHeight;
         std::vector<Layer> layers;
         std::vector<RoomVertex> vertices;
         std::vector<QuadFace> rectangles;

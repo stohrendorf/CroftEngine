@@ -29,19 +29,19 @@ namespace engine
             }
 
 
-            void patchFloor(const core::TRCoordinates& pos, long& y) override
+            void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
                 if( pos.Y <= getPosition().Y )
-                    y = std::lround(getPosition().Y);
+                    y = getPosition().Y;
             }
 
 
-            void patchCeiling(const core::TRCoordinates& pos, long& y) override
+            void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
                 if( pos.Y <= getPosition().Y )
                     return;
 
-                y = std::lround(getPosition().Y + loader::QuarterSectorSize);
+                y = getPosition().Y + loader::QuarterSectorSize;
             }
         };
     }

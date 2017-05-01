@@ -594,7 +594,7 @@ namespace engine
                 const auto dist = glm::length(d);
                 if( maxDistance < dist )
                 {
-                    move(float(maxDistance) * glm::normalize(d));
+                    move(static_cast<float>(maxDistance) * glm::normalize(d));
                 }
                 else
                 {

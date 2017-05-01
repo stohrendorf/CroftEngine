@@ -42,31 +42,31 @@ namespace engine
             }
 
 
-            void patchFloor(const core::TRCoordinates& pos, long& y) override
+            void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
                 if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y
                     || y <= getPosition().Y )
                     return;
 
-                y = std::lround(getPosition().Y);
+                y = getPosition().Y;
             }
 
 
-            void patchCeiling(const core::TRCoordinates& pos, long& y) override
+            void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
                 if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
                     || y > getPosition().Y )
                     return;
 
-                y = std::lround(getPosition().Y + loader::QuarterSectorSize);
+                y = getPosition().Y + loader::QuarterSectorSize;
             }
 
 
         private:
             bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
             {
-                auto trapdoorSectorX = std::lround(std::floor(getPosition().X / loader::SectorSize));
-                auto trapdoorSectorZ = std::lround(std::floor(getPosition().Z / loader::SectorSize));
+                auto trapdoorSectorX = getPosition().X / loader::SectorSize;
+                auto trapdoorSectorZ = getPosition().Z / loader::SectorSize;
                 auto posSectorX = pos.X / loader::SectorSize;
                 auto posSectorZ = pos.Z / loader::SectorSize;
                 auto trapdoorAxis = core::axisFromAngle(getRotation().Y, 1_au);

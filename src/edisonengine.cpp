@@ -25,13 +25,13 @@ namespace
         drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
 
         drawText(font, 300, 20, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getRotation().Y.toDegrees())) + " deg");
-        drawText(font, 300, 40, "x=" + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().X)));
-        drawText(font, 300, 60, "y=" + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Y)));
-        drawText(font, 300, 80, "z=" + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getPosition().Z)));
+        drawText(font, 300, 40, "x=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().X));
+        drawText(font, 300, 60, "y=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().Y));
+        drawText(font, 300, 80, "z=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().Z));
 
         // physics
-        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getFallSpeed())));
-        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getHorizontalSpeed())));
+        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(lvl->m_lara->getFallSpeed()));
+        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(lvl->m_lara->getHorizontalSpeed()));
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));

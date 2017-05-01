@@ -16,7 +16,7 @@ namespace engine
             const auto dz = npc.getLevel().m_lara->getPosition().Z
                             - (npc.getPosition().Z + pivotDistance * npc.getRotation().Y.cos());
             const auto angle = core::Angle::fromAtan(dx, dz);
-            pivotDistanceToLaraSq = std::lround(dx * dx + dz * dz);
+            pivotDistanceToLaraSq = dx * dx + dz * dz;
             pivotAngleToLara = angle - npc.getRotation().Y;
             laraAngleToPivot = angle + 180_deg - npc.getLevel().m_lara->getRotation().Y;
             laraAhead = pivotAngleToLara > -90_deg && pivotAngleToLara < 90_deg;
@@ -702,10 +702,10 @@ namespace engine
                     }
                     if( !(reachable & StayInBox) )
                     {
-                        targetPos.X = glm::clamp(std::lround(targetPos.X), currentBox->xmin + loader::SectorSize / 2L,
-                                                 currentBox->xmax - loader::SectorSize / 2L);
-                        targetPos.Z = glm::clamp(std::lround(targetPos.Z), currentBox->zmin + loader::SectorSize / 2L,
-                                                 currentBox->zmax - loader::SectorSize / 2L);
+                        targetPos.X = util::clamp(targetPos.X, currentBox->xmin + loader::SectorSize / 2,
+                                                 currentBox->xmax - loader::SectorSize / 2);
+                        targetPos.Z = util::clamp(targetPos.Z, currentBox->zmin + loader::SectorSize / 2,
+                                                 currentBox->zmax - loader::SectorSize / 2);
                     }
 
                     targetPos.Y = searchTarget.Y;

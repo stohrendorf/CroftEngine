@@ -37,9 +37,9 @@ namespace engine
 
         std::tie(floorSlantX, floorSlantZ) = level.getFloorSlantInfo(currentSector, laraPos);
 
-        float frontX = 0, frontZ = 0;
-        float frontLeftX = 0, frontLeftZ = 0;
-        float frontRightX = 0, frontRightZ = 0;
+        int frontX = 0, frontZ = 0;
+        int frontLeftX = 0, frontLeftZ = 0;
+        int frontRightX = 0, frontRightZ = 0;
 
         switch( facingAxis )
         {

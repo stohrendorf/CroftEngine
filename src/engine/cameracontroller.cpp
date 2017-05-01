@@ -437,14 +437,14 @@ namespace engine
 
         if( m_camOverrideType != CamOverrideType::FreeLook && m_camOverrideType != CamOverrideType::_3 )
         {
-            m_pivot.position.X = std::lround(lookAtItem->getPosition().X);
-            m_pivot.position.Z = std::lround(lookAtItem->getPosition().Z);
+            m_pivot.position.X = lookAtItem->getPosition().X;
+            m_pivot.position.Z = lookAtItem->getPosition().Z;
 
             if( m_unknown1 == CamOverrideType::NotActivatedByLara )
             {
                 const auto midZ = (lookAtBbox.minZ + lookAtBbox.maxZ) / 2;
-                m_pivot.position.Z += std::lround(midZ * lookAtItem->getRotation().Y.cos());
-                m_pivot.position.X += std::lround(midZ * lookAtItem->getRotation().Y.sin());
+                m_pivot.position.Z += midZ * lookAtItem->getRotation().Y.cos();
+                m_pivot.position.X += midZ * lookAtItem->getRotation().Y.sin();
             }
 
             if( m_lookingAtSomething == lookingAtSomething )
@@ -637,11 +637,11 @@ namespace engine
         m_flatPivotDistanceSq = gsl::narrow_cast<int>(dist * dist);
 
         core::RoomBoundPosition targetPos(m_currentPosition.room);
-        targetPos.position.Y = std::lround(m_pivotDistance * m_globalRotation.X.sin() + m_pivot.position.Y);
+        targetPos.position.Y = m_pivotDistance * m_globalRotation.X.sin() + m_pivot.position.Y;
 
         core::Angle y = m_globalRotation.Y + item->getRotation().Y;
-        targetPos.position.X = std::lround(m_pivot.position.X - dist * y.sin());
-        targetPos.position.Z = std::lround(m_pivot.position.Z - dist * y.cos());
+        targetPos.position.X = m_pivot.position.X - dist * y.sin();
+        targetPos.position.Z = m_pivot.position.Z - dist * y.cos();
         clampBox(targetPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h)
                  {
                      clampToCorners(m_flatPivotDistanceSq, a, b, c, d, e, f, g, h);
@@ -654,27 +654,27 @@ namespace engine
     void CameraController::handleFreeLook(const items::ItemNode& item)
     {
         const auto originalPivotPosition = m_pivot.position;
-        m_pivot.position.X = std::lround(item.getPosition().X);
-        m_pivot.position.Z = std::lround(item.getPosition().Z);
+        m_pivot.position.X = item.getPosition().X;
+        m_pivot.position.Z = item.getPosition().Z;
         m_globalRotation.X = m_torsoRotation.X + m_headRotation.X + item.getRotation().X;
         m_globalRotation.Y = m_torsoRotation.Y + m_headRotation.Y + item.getRotation().Y;
         m_pivotDistance = 1536;
         m_cameraYOffset = gsl::narrow_cast<int>(-2 * loader::QuarterSectorSize * m_globalRotation.Y.sin());
-        m_pivot.position.X += std::lround(m_cameraYOffset * item.getRotation().Y.sin());
-        m_pivot.position.Z += std::lround(m_cameraYOffset * item.getRotation().Y.cos());
+        m_pivot.position.X += m_cameraYOffset * item.getRotation().Y.sin();
+        m_pivot.position.Z += m_cameraYOffset * item.getRotation().Y.cos();
 
         if( isVerticallyOutsideRoom(m_pivot.position, m_currentPosition.room) )
         {
-            m_pivot.position.X = std::lround(item.getPosition().X);
-            m_pivot.position.Z = std::lround(item.getPosition().Z);
+            m_pivot.position.X = item.getPosition().X;
+            m_pivot.position.Z = item.getPosition().Z;
         }
 
         m_pivot.position.Y += moveIntoGeometry(m_pivot, loader::QuarterSectorSize + 50);
 
         auto cameraPosition = m_pivot;
-        cameraPosition.position.X -= std::lround(m_pivotDistance * m_globalRotation.Y.sin() * m_globalRotation.X.cos());
-        cameraPosition.position.Z -= std::lround(m_pivotDistance * m_globalRotation.Y.cos() * m_globalRotation.X.cos());
-        cameraPosition.position.Y += std::lround(m_pivotDistance * m_globalRotation.X.sin());
+        cameraPosition.position.X -= m_pivotDistance * m_globalRotation.Y.sin() * m_globalRotation.X.cos();
+        cameraPosition.position.Z -= m_pivotDistance * m_globalRotation.Y.cos() * m_globalRotation.X.cos();
+        cameraPosition.position.Y += m_pivotDistance * m_globalRotation.X.sin();
         cameraPosition.room = m_currentPosition.room;
 
         clampBox(cameraPosition, &freeLookClamp);
@@ -688,8 +688,8 @@ namespace engine
 
     void CameraController::handleEnemy(const items::ItemNode& item)
     {
-        m_pivot.position.X = std::lround(item.getPosition().X);
-        m_pivot.position.Z = std::lround(item.getPosition().Z);
+        m_pivot.position.X = item.getPosition().X;
+        m_pivot.position.Z = item.getPosition().Z;
 
         if( m_enemy != nullptr )
         {
@@ -705,9 +705,9 @@ namespace engine
         m_pivotDistance = 2560;
         auto tmp = m_pivot;
         auto d = m_pivotDistance * m_globalRotation.X.cos();
-        tmp.position.X -= std::lround(d * m_globalRotation.Y.sin());
-        tmp.position.Z -= std::lround(d * m_globalRotation.Y.cos());
-        tmp.position.Y += std::lround(m_pivotDistance * m_globalRotation.X.sin());
+        tmp.position.X -= d * m_globalRotation.Y.sin();
+        tmp.position.Z -= d * m_globalRotation.Y.cos();
+        tmp.position.Y += m_pivotDistance * m_globalRotation.X.sin();
         tmp.room = m_currentPosition.room;
 
         clampBox(tmp, [this](int& a, int& b, int c, int d, int e, int f, int g, int h)
@@ -900,7 +900,7 @@ namespace engine
             currentFrontBack = back;
             if( pivotDistanceSq >= targetBackDistSq )
             {
-                auto tmp = std::lround(std::sqrt(pivotDistanceSq - targetBackDistSq));
+                auto tmp = std::sqrt(pivotDistanceSq - targetBackDistSq);
                 if( right < left )
                     tmp = -tmp;
                 currentLeftRight = tmp + targetLeftRight;
@@ -925,7 +925,7 @@ namespace engine
             currentFrontBack = back;
             if( pivotDistanceSq >= targetBackDistSq )
             {
-                auto tmp = std::lround(std::sqrt(pivotDistanceSq - targetBackDistSq));
+                auto tmp = std::sqrt(pivotDistanceSq - targetBackDistSq);
                 if( right >= left )
                     tmp = -tmp;
                 currentLeftRight = tmp + targetLeftRight;
@@ -951,7 +951,7 @@ namespace engine
             if( pivotDistanceSq >= targetRightDistSq )
             {
                 currentLeftRight = right;
-                auto tmp = std::lround(std::sqrt(pivotDistanceSq - targetRightDistSq));
+                auto tmp = std::sqrt(pivotDistanceSq - targetRightDistSq);
                 if( back >= front )
                     tmp = -tmp;
                 currentFrontBack = tmp + targetFrontBack;

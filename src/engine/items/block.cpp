@@ -40,28 +40,28 @@ namespace engine
                     case core::Axis::PosZ:
                     {
                         auto pos = lara.getPosition();
-                        pos.Z = std::floor(pos.Z / loader::SectorSize) * loader::SectorSize + 924;
+                        pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 924;
                         lara.setPosition(pos);
                         break;
                     }
                     case core::Axis::PosX:
                     {
                         auto pos = lara.getPosition();
-                        pos.X = std::floor(pos.X / loader::SectorSize) * loader::SectorSize + 924;
+                        pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 924;
                         lara.setPosition(pos);
                         break;
                     }
                     case core::Axis::NegZ:
                     {
                         auto pos = lara.getPosition();
-                        pos.Z = std::floor(pos.Z / loader::SectorSize) * loader::SectorSize + 100;
+                        pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 100;
                         lara.setPosition(pos);
                         break;
                     }
                     case core::Axis::NegX:
                     {
                         auto pos = lara.getPosition();
-                        pos.X = std::floor(pos.X / loader::SectorSize) * loader::SectorSize + 100;
+                        pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 100;
                         lara.setPosition(pos);
                         break;
                     }
