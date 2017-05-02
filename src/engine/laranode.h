@@ -26,12 +26,12 @@ namespace engine
         using LaraStateId = loader::LaraStateId;
 
     private:
-        int m_health{ core::LaraHealth };
+        int m_health{core::LaraHealth};
         //! @brief Additional rotation per TR Engine Frame
         core::Angle m_yRotationSpeed{0_deg};
         int m_fallSpeedOverride = 0;
         core::Angle m_movementAngle{0};
-        int m_air{ core::LaraAir };
+        int m_air{core::LaraAir};
         core::Angle m_currentSlideAngle{0};
 
         int m_handStatus = 0;
@@ -49,15 +49,16 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode( level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel )
+            : ItemNode(level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel)
         {
-            setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
-            setTargetState( loader::LaraStateId::Stop );
-            setMovementAngle( getRotation().Y );
+            setAnimIdGlobal(loader::AnimationId::STAY_IDLE);
+            setTargetState(LaraStateId::Stop);
+            setMovementAngle(getRotation().Y);
         }
 
 
         ~LaraNode();
+
 
         bool isInWater() const
         {
@@ -233,6 +234,67 @@ namespace engine
         void setCameraDistance(int d);
 
         void setCameraUnknown1(CamOverrideType k);
+
+
+        void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
+        {
+            m_headRotation.X += x;
+            m_headRotation.Y += y;
+        }
+
+
+        void setHeadRotationX(const core::Angle& v)
+        {
+            m_headRotation.X = v;
+        }
+
+
+        void setHeadRotationY(const core::Angle& v)
+        {
+            m_headRotation.Y = v;
+        }
+
+
+        void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y, const core::Angle& minY, const core::Angle& maxY)
+        {
+            m_headRotation.X = util::clamp(m_headRotation.X + x, minX, maxX);
+            m_headRotation.Y = util::clamp(m_headRotation.Y + y, minY, maxY);
+        }
+
+
+        const core::TRRotation& getHeadRotation() const noexcept
+        {
+            return m_headRotation;
+        }
+
+
+        void setTorsoRotation(const core::TRRotation& r)
+        {
+            m_torsoRotation = r;
+        }
+
+
+        void setHeadRotation(const core::TRRotation& r)
+        {
+            m_headRotation = r;
+        }
+
+
+        const core::TRRotation& getTorsoRotation() const noexcept
+        {
+            return m_torsoRotation;
+        }
+
+
+        void resetHeadTorsoRotation()
+        {
+            m_headRotation = {0_deg, 0_deg, 0_deg};
+            m_torsoRotation = {0_deg, 0_deg, 0_deg};
+        }
+
+
+        core::TRRotation m_headRotation;
+        core::TRRotation m_torsoRotation;
 
 #ifndef NDEBUG
         CollisionInfo lastUsedCollisionInfo;

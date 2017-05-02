@@ -102,25 +102,25 @@ namespace engine
 
         if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
-            const auto headX = getLevel().m_cameraController->getHeadRotation().X;
+            const auto headX = m_headRotation.X;
             if( headX <= -2_deg || headX >= 2_deg )
             {
-                getLevel().m_cameraController->setHeadRotationX(headX - headX / 8);
+                m_headRotation.X = headX - headX / 8;
             }
             else
             {
-                getLevel().m_cameraController->setHeadRotationX(0_deg);
+                m_headRotation.X = 0_deg;
             }
-            const auto headY = getLevel().m_cameraController->getHeadRotation().Y;
+            const auto headY = m_headRotation.Y;
             if( headY <= -2_deg || headY >= 2_deg )
             {
-                getLevel().m_cameraController->setHeadRotationY(headY - headY / 8);
+                m_headRotation.Y = headY - headY / 8;
             }
             else
             {
-                getLevel().m_cameraController->setHeadRotationY(0_deg);
+                m_headRotation.Y = 0_deg;
             }
-            getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+            m_torsoRotation = m_headRotation;
         }
 
         // "slowly" revert rotations to zero
@@ -261,13 +261,10 @@ namespace engine
 
         if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
         {
-            auto x = getLevel().m_cameraController->getHeadRotation().X / 8;
-            auto y = getLevel().m_cameraController->getHeadRotation().Y / 8;
-            getLevel().m_cameraController->addHeadRotationXY(-x, -y);
-            auto r = getLevel().m_cameraController->getHeadRotation();
-            r.X = 0_deg;
-            r.Y /= 2;
-            getLevel().m_cameraController->setTorsoRotation(r);
+            m_headRotation.X -= m_headRotation.X / 8;
+            m_headRotation.Y -= m_headRotation.Y / 8;
+            m_torsoRotation.X = 0_deg;
+            m_torsoRotation.Y /= 2;
         }
 
         //! @todo Handle underwater current
@@ -341,7 +338,7 @@ namespace engine
                 setFallSpeed(getFallSpeed() * 3 / 2);
             }
 
-            getLevel().m_cameraController->resetHeadTorsoRotation();
+            resetHeadTorsoRotation();
 
             //! @todo Show water splash effect
         }
@@ -351,7 +348,7 @@ namespace engine
             setFallSpeed(0);
             setXRotation(0_deg);
             setZRotation(0_deg);
-            getLevel().m_cameraController->resetHeadTorsoRotation();
+            resetHeadTorsoRotation();
             m_handStatus = 0;
 
             if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
@@ -393,7 +390,7 @@ namespace engine
             m_handStatus = 0;
             setXRotation(0_deg);
             setZRotation(0_deg);
-            getLevel().m_cameraController->resetHeadTorsoRotation();
+            resetHeadTorsoRotation();
         }
 
         if( m_underwaterState == UnderwaterState::OnLand )
@@ -545,8 +542,8 @@ namespace engine
 
         //! @todo Check if there is a better place for this.
         resetPose();
-        patchBone(7, getLevel().m_cameraController->getTorsoRotation().toMatrix());
-        patchBone(14, getLevel().m_cameraController->getHeadRotation().toMatrix());
+        patchBone(7, m_torsoRotation.toMatrix());
+        patchBone(14, m_headRotation.toMatrix());
     }
 
 

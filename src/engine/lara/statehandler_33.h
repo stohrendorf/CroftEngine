@@ -30,16 +30,16 @@ namespace engine
                 if( getLevel().m_inputHandler->getInputState().freeLook )
                 {
                     getLevel().m_cameraController->setCamOverrideType(CamOverrideType::FreeLook);
-                    getLevel().m_cameraController->addHeadRotationXY(
+                    getLara().addHeadRotationXY(
                         -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -40_deg, 40_deg,
                         FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -50_deg, 50_deg
                     );
 
-                    auto torsoRot = getLevel().m_cameraController->getTorsoRotation();
+                    auto torsoRot = getLara().getTorsoRotation();
                     torsoRot.X = 0_deg;
-                    torsoRot.Y = getLevel().m_cameraController->getHeadRotation().Y / 2;
+                    torsoRot.Y = getLara().getHeadRotation().Y / 2;
 
-                    getLevel().m_cameraController->setTorsoRotation(torsoRot);
+                    getLara().setTorsoRotation(torsoRot);
 
                     return;
                 }

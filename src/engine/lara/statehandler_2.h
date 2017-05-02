@@ -2,7 +2,7 @@
 
 #include "statehandler_standing.h"
 #include "engine/cameracontroller.h"
-
+#include "engine/laranode.h"
 
 namespace engine
 {
@@ -37,11 +37,11 @@ namespace engine
                 if( getLevel().m_inputHandler->getInputState().freeLook )
                 {
                     getLevel().m_cameraController->setCamOverrideType(CamOverrideType::FreeLook);
-                    getLevel().m_cameraController->addHeadRotationXY(
+                    getLara().addHeadRotationXY(
                         -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -42_deg, 22_deg,
                         FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -44_deg, 44_deg
                     );
-                    getLevel().m_cameraController->setTorsoRotation(getLevel().m_cameraController->getHeadRotation());
+                    getLara().setTorsoRotation(getLara().getHeadRotation());
 
                     return;
                 }

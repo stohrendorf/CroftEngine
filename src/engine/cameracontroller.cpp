@@ -13,7 +13,7 @@ namespace engine
         : m_camera(camera)
         , m_level(level)
         , m_laraController(laraController)
-        , m_cameraYOffset(gsl::narrow_cast<int>(laraController->getPosition().Y - 1024))
+        , m_cameraYOffset(laraController->getPosition().Y - 1024)
         , m_pivot(laraController->getCurrentRoom(), m_laraController->getPosition())
         , m_currentPosition(laraController->getCurrentRoom())
     {
@@ -231,7 +231,7 @@ namespace engine
                 origin.room = newRoom;
                 return ClampType::None;
             }
-            else if( sign < 0 && testPos.X <= origin.position.X )
+            if( sign < 0 && testPos.X <= origin.position.X )
             {
                 origin.room = newRoom;
                 return ClampType::None;
@@ -297,7 +297,7 @@ namespace engine
                 origin.room = newRoom;
                 return ClampType::None;
             }
-            else if( sign < 0 && testPos.Z <= origin.position.Z )
+            if( sign < 0 && testPos.Z <= origin.position.Z )
             {
                 origin.room = newRoom;
                 return ClampType::None;
@@ -384,7 +384,7 @@ namespace engine
             return;
         }
 
-        if( m_unknown1 != CamOverrideType::FreeLook)
+        if( m_unknown1 != CamOverrideType::FreeLook )
             HeightInfo::skipSteepSlants = true;
 
         const bool lookingAtSomething = m_itemOfInterest != nullptr && (m_camOverrideType == CamOverrideType::NotActivatedByLara || m_camOverrideType == CamOverrideType::ActivatedByLara);
@@ -410,23 +410,23 @@ namespace engine
 
             if( lookAtYAngle < 50_deg && lookAtYAngle > -50_deg && lookAtXAngle < 85_deg && lookAtXAngle > -85_deg )
             {
-                lookAtYAngle -= m_headRotation.Y;
+                lookAtYAngle -= m_laraController->m_headRotation.Y;
                 if( lookAtYAngle > 4_deg )
-                    m_headRotation.Y += 4_deg;
+                    m_laraController->m_headRotation.Y += 4_deg;
                 else if( lookAtYAngle < -4_deg )
-                    m_headRotation.Y -= 4_deg;
+                    m_laraController->m_headRotation.Y -= 4_deg;
                 else
-                    m_headRotation.Y += lookAtYAngle;
-                m_torsoRotation.Y = m_headRotation.Y;
+                    m_laraController->m_headRotation.Y += lookAtYAngle;
+                m_laraController->m_torsoRotation.Y = m_laraController->m_headRotation.Y;
 
-                lookAtXAngle -= m_headRotation.X;
+                lookAtXAngle -= m_laraController->m_headRotation.X;
                 if( lookAtXAngle > 4_deg )
-                    m_headRotation.X += 4_deg;
+                    m_laraController->m_headRotation.X += 4_deg;
                 else if( lookAtXAngle < -4_deg )
-                    m_headRotation.X -= 4_deg;
+                    m_laraController->m_headRotation.X -= 4_deg;
                 else
-                    m_headRotation.X += lookAtXAngle;
-                m_torsoRotation.X = m_headRotation.X;
+                    m_laraController->m_headRotation.X += lookAtXAngle;
+                m_laraController->m_torsoRotation.X = m_laraController->m_headRotation.X;
 
                 m_camOverrideType = CamOverrideType::FreeLook;
                 m_itemOfInterest->m_flags2_40_alreadyLookedAt = true;
@@ -464,7 +464,7 @@ namespace engine
             if( HeightInfo::fromFloor(sector, m_pivot.position, this).distance < m_pivot.position.Y )
                 HeightInfo::skipSteepSlants = false;
 
-            if( m_camOverrideType != CamOverrideType::None && m_unknown1 != CamOverrideType::_3)
+            if( m_camOverrideType != CamOverrideType::None && m_unknown1 != CamOverrideType::_3 )
                 handleCamOverride();
             else
                 doUsualMovement(lookAtItem);
@@ -556,10 +556,9 @@ namespace engine
 
         if( pos.position.Y > bottom )
             return bottom - pos.position.Y;
-        else if( top > pos.position.Y )
+        if( top > pos.position.Y )
             return top - pos.position.Y;
-        else
-            return 0;
+        return 0;
     }
 
 
@@ -620,7 +619,7 @@ namespace engine
         // update current room
         m_level->findRealFloorSector(camPos, &m_currentPosition.room);
 
-        auto m = glm::lookAt(camPos.toRenderSystem(), m_pivot.position.toRenderSystem(), {0,1,0});
+        auto m = lookAt(camPos.toRenderSystem(), m_pivot.position.toRenderSystem(), {0,1,0});
         m_camera->setViewMatrix(m);
     }
 
@@ -643,9 +642,9 @@ namespace engine
         targetPos.position.X = m_pivot.position.X - dist * y.sin();
         targetPos.position.Z = m_pivot.position.Z - dist * y.cos();
         clampBox(targetPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h)
-                 {
-                     clampToCorners(m_flatPivotDistanceSq, a, b, c, d, e, f, g, h);
-                 });
+             {
+                 clampToCorners(m_flatPivotDistanceSq, a, b, c, d, e, f, g, h);
+             });
 
         updatePosition(targetPos, m_lookingAtSomething ? m_pivotMovementSmoothness : 12);
     }
@@ -656,8 +655,8 @@ namespace engine
         const auto originalPivotPosition = m_pivot.position;
         m_pivot.position.X = item.getPosition().X;
         m_pivot.position.Z = item.getPosition().Z;
-        m_globalRotation.X = m_torsoRotation.X + m_headRotation.X + item.getRotation().X;
-        m_globalRotation.Y = m_torsoRotation.Y + m_headRotation.Y + item.getRotation().Y;
+        m_globalRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.getRotation().X;
+        m_globalRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.getRotation().Y;
         m_pivotDistance = 1536;
         m_cameraYOffset = gsl::narrow_cast<int>(-2 * loader::QuarterSectorSize * m_globalRotation.Y.sin());
         m_pivot.position.X += m_cameraYOffset * item.getRotation().Y.sin();
@@ -698,8 +697,8 @@ namespace engine
         }
         else
         {
-            m_globalRotation.X = m_torsoRotation.X + m_headRotation.X + item.getRotation().X;
-            m_globalRotation.Y = m_torsoRotation.Y + m_headRotation.Y + item.getRotation().Y;
+            m_globalRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.getRotation().X;
+            m_globalRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.getRotation().Y;
         }
 
         m_pivotDistance = 2560;
@@ -711,9 +710,9 @@ namespace engine
         tmp.room = m_currentPosition.room;
 
         clampBox(tmp, [this](int& a, int& b, int c, int d, int e, int f, int g, int h)
-                 {
-                     clampToCorners(m_flatPivotDistanceSq, a, b, c, d, e, f, g, h);
-                 });
+             {
+                 clampToCorners(m_flatPivotDistanceSq, a, b, c, d, e, f, g, h);
+             });
         updatePosition(tmp, m_pivotMovementSmoothness);
     }
 

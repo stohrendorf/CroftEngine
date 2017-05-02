@@ -74,10 +74,6 @@ namespace engine
         //! @brief Floor-projected pivot distance, squared.
         int m_flatPivotDistanceSq = 0;
 
-        // hacks
-        core::TRRotation m_headRotation;
-        core::TRRotation m_torsoRotation;
-
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     public:
@@ -136,56 +132,6 @@ namespace engine
         }
 
 
-        void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
-        {
-            m_headRotation.X += x;
-            m_headRotation.Y += y;
-        }
-
-
-        void setHeadRotationX(const core::Angle& v)
-        {
-            m_headRotation.X = v;
-        }
-
-
-        void setHeadRotationY(const core::Angle& v)
-        {
-            m_headRotation.Y = v;
-        }
-
-
-        void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y, const core::Angle& minY, const core::Angle& maxY)
-        {
-            m_headRotation.X = util::clamp(m_headRotation.X + x, minX, maxX);
-            m_headRotation.Y = util::clamp(m_headRotation.Y + y, minY, maxY);
-        }
-
-
-        const core::TRRotation& getHeadRotation() const noexcept
-        {
-            return m_headRotation;
-        }
-
-
-        void setTorsoRotation(const core::TRRotation& r)
-        {
-            m_torsoRotation = r;
-        }
-
-
-        void setHeadRotation(const core::TRRotation& r)
-        {
-            m_headRotation = r;
-        }
-
-
-        const core::TRRotation& getTorsoRotation() const noexcept
-        {
-            return m_torsoRotation;
-        }
-
-
         glm::vec3 getPosition() const
         {
             return glm::vec3{m_camera->getInverseViewMatrix()[3]};
@@ -205,13 +151,6 @@ namespace engine
             auto rs = m_camera->getInverseViewMatrix();
             rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
             return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
-        }
-
-
-        void resetHeadTorsoRotation()
-        {
-            m_headRotation = {0_deg, 0_deg, 0_deg};
-            m_torsoRotation = {0_deg, 0_deg, 0_deg};
         }
 
 
@@ -241,7 +180,7 @@ namespace engine
         void handleCamOverride();
         int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
         bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
-        void updatePosition(const ::core::RoomBoundPosition& position, int smoothFactor);
+        void updatePosition(const core::RoomBoundPosition& position, int smoothFactor);
         void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item);
         void handleFreeLook(const items::ItemNode& item);
         void handleEnemy(const items::ItemNode& item);
