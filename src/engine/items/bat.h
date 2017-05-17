@@ -32,10 +32,6 @@ namespace engine
             void onInteract(LaraNode& /*lara*/) override
             {
             }
-
-
-        private:
-            uint16_t m_requiredAnimState = 0;
         };
     }
 }

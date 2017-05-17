@@ -117,7 +117,6 @@ namespace audio
     private:
         SF_INFO m_sfInfo;
         SNDFILE* m_sndFile = nullptr;
-        bool m_eof = false;
 
         // CDAUDIO.WAD step size defines CDAUDIO's header stride, on which each track
         // info is placed. Also CDAUDIO count specifies static amount of tracks existing

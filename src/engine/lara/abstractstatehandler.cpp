@@ -57,6 +57,7 @@
 #include "statehandler_54.h"
 #include "statehandler_55.h"
 
+#include <cstdlib>
 
 namespace engine
 {
@@ -375,7 +376,7 @@ namespace engine
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
-            if( std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance)
+            if( std::labs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance)
                 >= core::MaxGrabbableGradient )
                 return false;
 
@@ -438,7 +439,7 @@ namespace engine
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
-            const auto floorGradient = std::abs(
+            const auto floorGradient = std::labs(
                 collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
             if( floorGradient >= core::MaxGrabbableGradient )
                 return false;
@@ -527,8 +528,8 @@ namespace engine
 
         bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
         {
-            const auto slantX = std::abs(collisionInfo.floorSlantX);
-            const auto slantZ = std::abs(collisionInfo.floorSlantZ);
+            const auto slantX = std::labs(collisionInfo.floorSlantX);
+            const auto slantZ = std::labs(collisionInfo.floorSlantZ);
             if( slantX <= 2 && slantZ <= 2 )
                 return false;
 
@@ -538,9 +539,9 @@ namespace engine
             else if( collisionInfo.floorSlantX > 2 )
                 targetAngle = -90_deg;
 
-            if( collisionInfo.floorSlantZ > std::max(2, slantX) )
+            if( collisionInfo.floorSlantZ > std::max(2L, slantX) )
                 targetAngle = 180_deg;
-            else if( collisionInfo.floorSlantZ < std::min(-2, -slantX) )
+            else if( collisionInfo.floorSlantZ < std::min(-2L, -slantX) )
                 targetAngle = 0_deg;
 
             core::Angle dy = abs(targetAngle - getRotation().Y);
@@ -574,7 +575,7 @@ namespace engine
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
-            const auto floorGradient = std::abs(
+            const auto floorGradient = std::labs(
                 collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
             if( floorGradient >= core::MaxGrabbableGradient )
                 return false;
@@ -667,7 +668,7 @@ namespace engine
             {
                 tryStartSlide(collisionInfo);
                 placeOnFloor(collisionInfo);
-                if(std::abs(collisionInfo.floorSlantX) <= 2 && std::abs(collisionInfo.floorSlantZ) <= 2 )
+                if(std::labs(collisionInfo.floorSlantX) <= 2 && std::labs(collisionInfo.floorSlantZ) <= 2 )
                 {
                     setTargetState(LaraStateId::Stop);
                 }
@@ -734,7 +735,7 @@ namespace engine
                 return;
             }
 
-            auto gradient = std::abs(
+            auto gradient = std::labs(
                 collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
             if( gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.distance >= 0
                 || collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked || tooSteepToGrab )

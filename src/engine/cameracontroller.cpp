@@ -619,7 +619,7 @@ namespace engine
         // update current room
         m_level->findRealFloorSector(camPos, &m_currentPosition.room);
 
-        auto m = lookAt(camPos.toRenderSystem(), m_pivot.position.toRenderSystem(), {0,1,0});
+        auto m = glm::lookAt(camPos.toRenderSystem(), m_pivot.position.toRenderSystem(), {0,1,0});
         m_camera->setViewMatrix(m);
     }
 

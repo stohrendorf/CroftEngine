@@ -21,7 +21,7 @@ namespace engine
                 tr = m_position.position.toRenderSystem();
             }
 
-            setLocalMatrix(translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
+            setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }

@@ -43,6 +43,6 @@ namespace util
 
     inline std::string md5(const char* data, size_t length)
     {
-        return md5(static_cast<const char*>(data), length);
+        return md5(reinterpret_cast<const uint8_t*>(data), length);
     }
 }
