@@ -9,13 +9,10 @@ set( GAMEPLAY_SRC
      src/ShaderProgram.h
      src/FileSystem.cpp
      src/FileSystem.h
-     src/Font.cpp
-     src/Font.h
      src/Frustum.cpp
      src/Frustum.h
      src/Game.cpp
      src/Game.h
-     src/Image.h
      src/Material.cpp
      src/Material.h
      src/MaterialParameter.cpp
@@ -56,8 +53,11 @@ set( GAMEPLAY_SRC
      src/gl/typetraits.h
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h
-     src/ext/vertexattribute.h
+     src/ext/font.cpp
+     src/ext/font.h
+     src/ext/image.h
      src/ext/structuredvertexbuffer.h
+     src/ext/vertexattribute.h
 )
 
 find_package(OpenGL REQUIRED)

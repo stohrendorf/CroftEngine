@@ -114,9 +114,9 @@ levelInfos = {
 }
 
 function getLevelInfo()
-    return levelInfos[2]
+    return levelInfos[7]
 end
 
 function getGlidosPack()
-    return "assets/trx/1SilverlokAllVers/silverlok/silverlok.txtx"
+    return nil -- "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
 end

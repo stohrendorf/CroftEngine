@@ -5,19 +5,20 @@
 #include "LuaState.h"
 
 #include "gl/framebuffer.h"
+#include "ext/font.h"
 
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
 namespace
 {
-    void drawText(const std::unique_ptr<gameplay::Font>& font, int x, int y, const std::string& txt, const gameplay::gl::RGBA8& col = {255,255,255,255})
+    void drawText(const std::unique_ptr<gameplay::ext::Font>& font, int x, int y, const std::string& txt, const gameplay::gl::RGBA8& col = {255,255,255,255})
     {
         font->drawText(txt, x, y, col.r, col.g, col.b, col.a);
     }
 
 
-    void drawDebugInfo(const std::unique_ptr<gameplay::Font>& font, gsl::not_null<level::Level*> lvl, int fps)
+    void drawDebugInfo(const std::unique_ptr<gameplay::ext::Font>& font, gsl::not_null<level::Level*> lvl, int fps)
     {
         drawText(font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string(fps));
 
@@ -213,7 +214,7 @@ int main()
     }
 
     auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game);
-    auto font = std::make_unique<gameplay::Font>("DroidSansMono.ttf", 12);
+    auto font = std::make_unique<gameplay::ext::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
     FullScreenFX depthDarknessFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {}), gsl::narrow<GLint>(game->getMultiSampling())};

@@ -653,7 +653,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
             sequence["if"] = "climb";
             break;
         default:
-            BOOST_ASSERT(false);
+            sequence["if"] = "true(" + std::to_string(static_cast<int>(sequenceCondition)) + ")";
     }
 
     while( true )
@@ -1069,7 +1069,7 @@ engine::items::ItemNode* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8> >& image) const
+void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8> >& image) const
 {
     if( m_lara->isInWater() )
     {

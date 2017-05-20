@@ -483,7 +483,7 @@ namespace loader
 
                     if( ref.empty() )
                     {
-                        BOOST_LOG_TRIVIAL(warning) << "Invalid equiv set: No entry references a known texture part";
+                        BOOST_LOG_TRIVIAL(debug) << "Invalid equiv set: No entry references a known texture part";
                         continue;
                     }
 

@@ -5,8 +5,6 @@
 
 #include "gl/shader.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
 

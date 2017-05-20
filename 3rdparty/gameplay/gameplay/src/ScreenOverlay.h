@@ -2,7 +2,7 @@
 
 #include "Drawable.h"
 #include "Game.h"
-#include "Image.h"
+#include "ext/image.h"
 #include "Mesh.h"
 
 #include "gl/texture.h"
@@ -12,34 +12,39 @@
 
 namespace gameplay
 {
-    class ScreenOverlay : public Drawable
+class ScreenOverlay : public Drawable
+{
+public:
+    explicit ScreenOverlay(Game* game);
+
+    ~ScreenOverlay();
+
+    void resize();
+
+
+    void draw(RenderContext& context) override;
+
+
+    const std::shared_ptr<ext::Image<gl::RGBA8>>& getImage() const
     {
-    public:
-        explicit ScreenOverlay(Game* game);
-        ~ScreenOverlay();
-
-        void resize();
+        return _image;
+    }
 
 
-        void draw(RenderContext& context) override;
+private:
 
+    ScreenOverlay(const ScreenOverlay& copy) = delete;
 
-        const std::shared_ptr<Image<gl::RGBA8>>& getImage() const
-        {
-            return _image;
-        }
+    ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
+    std::shared_ptr<ext::Image<gl::RGBA8>> _image{nullptr};
 
-    private:
+    std::shared_ptr<gl::Texture> _texture{nullptr};
 
-        ScreenOverlay(const ScreenOverlay& copy) = delete;
-        ScreenOverlay& operator=(const ScreenOverlay&) = delete;
+    std::shared_ptr<Mesh> _mesh{nullptr};
 
-        std::shared_ptr<Image<gl::RGBA8>> _image{nullptr};
-        std::shared_ptr<gl::Texture> _texture{nullptr};
-        std::shared_ptr<Mesh> _mesh{nullptr};
-        std::shared_ptr<Model> _model{nullptr};
+    std::shared_ptr<Model> _model{nullptr};
 
-        Game* _game;
-    };
+    Game* _game;
+};
 }

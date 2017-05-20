@@ -193,7 +193,7 @@ namespace level
 
         engine::items::ItemNode* getItemController(uint16_t id) const;
 
-        void drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::Image<gameplay::gl::RGBA8>>& image) const;
+        void drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>>& image) const;
 
         std::unique_ptr<engine::InputHandler> m_inputHandler;
 

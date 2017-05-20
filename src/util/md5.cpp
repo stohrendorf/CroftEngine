@@ -33,6 +33,7 @@ documentation and/or software.
 #include "md5.h"
 
 #include <array>
+#include <gsl/gsl>
 
 constexpr size_t Blocksize = 64;
 
@@ -119,7 +120,7 @@ inline void II(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint
 // decodes input (unsigned char) into output (uint32_t). Assumes len is a multiple of 4.
 void decode(uint32_t output[], const uint8_t input[], size_t len)
 {
-    for( unsigned int i = 0, j = 0; j < len; i++, j += 4 )
+    for( size_t i = 0, j = 0; j < len; i++, j += 4 )
     {
         output[i] = static_cast<uint32_t>(input[j]) | (static_cast<uint32_t>(input[j + 1]) << 8) |
                     (static_cast<uint32_t>(input[j + 2]) << 16) | (static_cast<uint32_t>(input[j + 3]) << 24);
@@ -157,7 +158,7 @@ struct State
     // the message digest and zeroizing the context.
     void finalize()
     {
-        static unsigned char padding[64] = {
+        static uint8_t padding[64] = {
             0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -280,17 +281,17 @@ struct State
 
     // MD5 block update operation. Continues an MD5 message-digest
     // operation, processing another message block
-    void update(const unsigned char input[], size_t length)
+    void update(const uint8_t input[], size_t length)
     {
         // compute number of bytes mod 64
         size_t index = count[0] / 8 % Blocksize;
 
         // Update number of bits
-        if( (count[0] += (length << 3)) < (length << 3) )
+        if( (count[0] += gsl::narrow_cast<uint32_t>(length << 3)) < gsl::narrow_cast<uint32_t>(length << 3) )
         {
-            count[1]++;
+            ++count[1];
         }
-        count[1] += (length >> 29);
+        count[1] += gsl::narrow_cast<uint32_t>(length >> 29);
 
         // number of bytes we need to fill in buffer
         size_t firstpart = 64 - index;
