@@ -7,18 +7,46 @@ varying vec2 v_texCoord;
 out vec4 out_color;
 
 #ifdef WATER
-    const float Frq1 = 0.126;
+    const float Frq1 = 12.6;
     const float TimeMult1 = 0.005;
     const float Amplitude1 = 0.00175;
 
-    const float Frq2 = 0.0197;
+    const float Frq2 = 19.7;
     const float TimeMult2 = 0.002;
     const float Amplitude2 = 0.0125;
 
     uniform float u_time;
 #endif
 
-float depth(vec2 uv)
+#ifdef LENS_DISTORTION
+    uniform float aspect_ratio;
+    uniform float distortion_power;
+
+float getStationaryRadius(in vec2 ctr) {
+    if (distortion_power > 0.0)
+        return length(ctr);
+
+    if (aspect_ratio < 1.0)
+        return ctr.x;
+    else
+        return ctr.y;
+}
+
+vec2 fisheye(in vec2 polar, in float stationary_radius) {
+    float polar_dist = length(polar);
+    float power = abs(distortion_power);
+    return normalize(polar) * tan(polar_dist * power) * stationary_radius / tan(stationary_radius * power);
+}
+
+// same as fisheye, except that atan is used instead of tan
+vec2 antiFisheye(in vec2 polar, in float stationary_radius) {
+    float polar_dist = length(polar);
+    float power = abs(distortion_power);
+    return normalize(polar) * atan(polar_dist * power) * stationary_radius / atan(stationary_radius * power);
+}
+#endif
+
+float depthAt(in vec2 uv)
 {
     vec4 clipSpaceLocation;
     clipSpaceLocation.xy = uv * 2 - 1;
@@ -34,21 +62,34 @@ void main()
 {
     vec2 uv = v_texCoord;
 
-#ifdef WATER
-    float d = depth(uv);
+#ifdef LENS_DISTORTION
+    // normalized center coords
+    vec2 norm_ctr = vec2(0.5, 0.5 / aspect_ratio);
+    
+    vec2 polar = uv - norm_ctr;
+    float polar_dist = length(polar);
 
-    float time = u_time * TimeMult1;
-    float xAngle = time + gl_FragCoord.y * Frq1;
-    float yAngle = time + gl_FragCoord.x * Frq1;
+    float stationary_radius = getStationaryRadius(norm_ctr);
 
-    uv += vec2(sin(xAngle), sin(yAngle)) * Amplitude1 * (d + 0.1);
-
-    time = u_time * TimeMult2;
-    xAngle = time + gl_FragCoord.y * Frq2;
-    yAngle = time + gl_FragCoord.x * Frq2;
-
-    uv += vec2(sin(xAngle), sin(yAngle)) * Amplitude2 * (d + 0.1);
+    if (distortion_power > 0.0)
+        uv = norm_ctr + fisheye(polar, stationary_radius);
+    else if (distortion_power < 0.0)
+        uv = norm_ctr + antiFisheye(polar, stationary_radius);
 #endif
 
-    out_color = texture(u_texture, uv) * (1-depth(uv));
+#ifdef WATER
+    float depth = depthAt(uv);
+
+    float time = u_time * TimeMult1;
+    vec2 angle = time + uv * Frq1;
+    
+    uv += vec2(sin(angle.x), sin(angle.y)) * Amplitude1 * (depth + 0.1);
+
+    time = u_time * TimeMult2;
+    angle = time + uv * Frq2;
+
+    uv += vec2(sin(angle.x), sin(angle.y)) * Amplitude2 * (depth + 0.1);
+#endif
+
+    out_color = texture(u_texture, uv) * (1-depthAt(uv));
 }
