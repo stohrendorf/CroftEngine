@@ -1,9 +1,10 @@
 #include "Base.h"
 #include "ShaderProgram.h"
-#include "FileSystem.h"
 #include "Game.h"
 
 #include "gl/shader.h"
+
+#include <fstream>
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
@@ -11,6 +12,35 @@
 
 namespace gameplay
 {
+    namespace
+    {
+        std::string readAll(const std::string& filePath)
+        {
+            // Open file for reading.
+            std::ifstream stream(filePath, std::ios::in | std::ios::binary);
+            if (!stream.is_open())
+            {
+                BOOST_LOG_TRIVIAL(error) << "Failed to load file: " << filePath;
+                return {};
+            }
+            stream.seekg(0, std::ios::end);
+            size_t size = stream.tellg();
+            stream.seekg(0, std::ios::beg);
+
+            // Read entire file contents.
+            std::string buffer;
+            buffer.resize(size);
+            stream.read(&buffer[0], size);
+            if (stream.gcount() != size)
+            {
+                BOOST_LOG_TRIVIAL(error) << "Failed to read complete contents of file '" << filePath << "' (amount read vs. file size: " << stream.gcount() << " < " << size << ").";
+                return {};
+            }
+
+            return buffer;
+        }
+    }
+
     // Cache of unique effects.
     static ShaderProgram* __currentEffect = nullptr;
 
@@ -42,13 +72,13 @@ namespace gameplay
         uniqueId += boost::algorithm::join(defines, ";");
 
         // Read source from file.
-        std::string vshSource = FileSystem::readAll(vshPath);
+        std::string vshSource = readAll(vshPath);
         if( vshSource.empty() )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
             return nullptr;
         }
-        std::string fshSource = FileSystem::readAll(fshPath);
+        std::string fshSource = readAll(fshPath);
         if( fshSource.empty() )
         {
             BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
@@ -144,10 +174,10 @@ namespace gameplay
                 // File path to include and 'stitch' in the value in the quotes to the file path and source it.
                 std::string filepathStr = filepath;
                 std::string directoryPath = filepathStr.substr(0, filepathStr.rfind('/') + 1);
-                size_t len = endQuote - (startQuote);
+                size_t len = endQuote - startQuote;
                 std::string includeStr = str.substr(startQuote, len);
                 directoryPath.append(includeStr);
-                std::string includedSource = FileSystem::readAll(directoryPath.c_str());
+                std::string includedSource = readAll(directoryPath);
                 if( includedSource.empty() )
                 {
                     BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
@@ -170,12 +200,8 @@ namespace gameplay
 
     static void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
     {
-        std::string path = filePath + ".err";
-        std::unique_ptr<Stream> stream(FileSystem::open(path.c_str(), FileSystem::WRITE));
-        if( stream.get() != nullptr && stream->canWrite() )
-        {
-            stream->write(source.c_str(), 1, source.size());
-        }
+        std::ofstream stream{ filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc };
+        stream.write(source.c_str(), source.size());
     }
 
 

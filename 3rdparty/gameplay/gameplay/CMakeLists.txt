@@ -7,8 +7,6 @@ set( GAMEPLAY_SRC
      src/Drawable.h
      src/ShaderProgram.cpp
      src/ShaderProgram.h
-     src/FileSystem.cpp
-     src/FileSystem.h
      src/Frustum.cpp
      src/Frustum.h
      src/Game.cpp
