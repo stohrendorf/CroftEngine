@@ -8,7 +8,7 @@
 namespace gameplay
 {
     MeshPart::MeshPart(const gsl::not_null<Mesh*>& mesh,
-                       PrimitiveType primitiveType,
+                       GLenum primitiveType,
                        GLint indexFormat,
                        size_t indexCount,
                        bool dynamic)
@@ -44,7 +44,7 @@ namespace gameplay
     MeshPart::~MeshPart() = default;
 
 
-    PrimitiveType MeshPart::getPrimitiveType() const
+    GLenum MeshPart::getPrimitiveType() const
     {
         return _primitiveType;
     }
@@ -135,14 +135,14 @@ namespace gameplay
 
         switch(_primitiveType)
         {
-            case PrimitiveType::TRIANGLES:
+            case GL_TRIANGLES:
                 for(size_t i = 0; i < _indexCount; i += 3)
                 {
                     GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), reinterpret_cast<const GLvoid*>(i*indexSize)));
                 }
                 return true;
 
-            case PrimitiveType::TRIANGLE_STRIP:
+            case GL_TRIANGLE_STRIP:
                 for(size_t i = 2; i < _indexCount; ++i)
                 {
                     GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), reinterpret_cast<const GLvoid*>((i - 2)*indexSize)));

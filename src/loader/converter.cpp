@@ -331,7 +331,7 @@ std::shared_ptr<gameplay::Model> Converter::readModel(const boost::filesystem::p
             faces.push_back(face.mIndices[2]);
         }
 
-        auto part = renderMesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(faces[0])>::TypeId, mesh->mNumFaces * 3, false);
+        auto part = renderMesh->addPart(GL_TRIANGLES, gameplay::gl::TypeTraits<decltype(faces[0])>::TypeId, mesh->mNumFaces * 3, false);
         part->setIndexData(faces.data(), 0, faces.size());
 
         const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -431,7 +431,7 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
             allocateElementMemory(mesh, outMesh);
             copyVertexData(mesh, outMesh);
 
-            BOOST_ASSERT(part->getPrimitiveType() == gameplay::PrimitiveType::TRIANGLES && part->getIndexCount() % 3 == 0);
+            BOOST_ASSERT(part->getPrimitiveType() == GL_TRIANGLES && part->getIndexCount() % 3 == 0);
             outMesh->mMaterialIndex = gsl::narrow<uint32_t>(globalPartIndex);
             scene->mMaterials[globalPartIndex] = new aiMaterial();
             scene->mMaterials[globalPartIndex]->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
@@ -631,7 +631,7 @@ void Converter::convert(aiScene& scene,
             allocateElementMemory(inMesh, outMesh);
             copyVertexData(inMesh, outMesh);
 
-            BOOST_ASSERT(inPart->getPrimitiveType() == gameplay::PrimitiveType::TRIANGLES && inPart->getIndexCount() % 3 == 0);
+            BOOST_ASSERT(inPart->getPrimitiveType() == GL_TRIANGLES && inPart->getIndexCount() % 3 == 0);
             outMesh->mMaterialIndex = scene.mNumMaterials;
             auto outMaterial = append(scene.mMaterials, scene.mNumMaterials, new aiMaterial());
             outMaterial->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);

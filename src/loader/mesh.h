@@ -37,7 +37,7 @@ namespace loader
         */
         static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<Mesh> mesh{new Mesh()};
+            std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
             mesh->center = readCoordinates16(reader);
             mesh->collision_size = reader.readI32();
 
@@ -64,7 +64,7 @@ namespace loader
 
         static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
         {
-            std::unique_ptr<Mesh> mesh{new Mesh()};
+            std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
             mesh->center = readCoordinates16(reader);
             mesh->collision_size = reader.readI32();
 
@@ -163,7 +163,8 @@ namespace loader
                                   const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                   const std::shared_ptr<gameplay::Material>& colorMaterial,
                                   const Palette& palette,
-                                  render::TextureAnimator& animator);
+                                  render::TextureAnimator& animator,
+                                  const std::string& label = {});
             ~ModelBuilder();
 
 
@@ -176,6 +177,7 @@ namespace loader
         std::shared_ptr<gameplay::Model> createModel(const std::vector<TextureLayoutProxy>& textureProxies,
                                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                      const std::shared_ptr<gameplay::Material>& colorMaterial,
-                                                     const Palette& palette, render::TextureAnimator& animator) const;
+                                                     const Palette& palette, render::TextureAnimator& animator,
+                                                     const std::string& label = {}) const;
     };
 }

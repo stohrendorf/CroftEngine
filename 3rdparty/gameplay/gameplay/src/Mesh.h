@@ -16,19 +16,6 @@ namespace gameplay
 
 
     /**
-     * Defines supported primitive types.
-     */
-    enum class PrimitiveType
-    {
-        TRIANGLES = GL_TRIANGLES,
-        TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-        LINES = GL_LINES,
-        LINE_STRIP = GL_LINE_STRIP,
-        POINTS = GL_POINTS
-    };
-
-
-    /**
      * Defines a mesh supporting various vertex formats and 1 or more
      * MeshPart(s) to define how the vertices are connected.
      */
@@ -37,9 +24,9 @@ namespace gameplay
         friend class Model;
 
     public:
-        explicit Mesh(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic)
+        explicit Mesh(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
-            addBuffer(mapping, dynamic);
+            addBuffer(mapping, dynamic, label);
         }
 
 
@@ -127,7 +114,7 @@ namespace gameplay
          *
          * @return The newly created/added mesh part.
          */
-        std::shared_ptr<MeshPart> addPart(PrimitiveType primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
+        std::shared_ptr<MeshPart> addPart(GLenum primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Gets the number of mesh parts contained within the mesh.
@@ -171,9 +158,9 @@ namespace gameplay
         }
 
 
-        size_t addBuffer(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic)
+        size_t addBuffer(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
-            m_buffers.emplace_back(mapping, dynamic);
+            m_buffers.emplace_back(mapping, dynamic, label);
             return m_buffers.size() - 1;
         }
 

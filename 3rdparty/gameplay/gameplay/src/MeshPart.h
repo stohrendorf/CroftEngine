@@ -24,7 +24,7 @@ namespace gameplay
     public:
         using MaterialParameterSetter = void(Material& material);
 
-        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, PrimitiveType primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
+        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, GLenum primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
 
         /**
          * Destructor.
@@ -36,7 +36,7 @@ namespace gameplay
          *
          * @return The type of primitive.
          */
-        PrimitiveType getPrimitiveType() const;
+        GLenum getPrimitiveType() const;
 
         /**
          * Gets the number of indices in the part.
@@ -90,7 +90,7 @@ namespace gameplay
         bool drawWireframe() const;
 
         const gsl::not_null<Mesh*> _mesh;
-        PrimitiveType _primitiveType = PrimitiveType::TRIANGLES;
+        GLenum _primitiveType = GL_TRIANGLES;
         GLint _indexFormat{};
         size_t _indexCount = 0;
         bool _dynamic = false;

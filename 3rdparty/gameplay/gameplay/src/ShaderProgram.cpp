@@ -226,7 +226,7 @@ namespace gameplay
         }
         shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-        gl::Shader vertexShader{GL_VERTEX_SHADER};
+        gl::Shader vertexShader{GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join(defines, ";") };
         vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         vertexShader.compile();
         if( !vertexShader.getCompileStatus() )
@@ -251,7 +251,7 @@ namespace gameplay
         }
         shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-        gl::Shader fragmentShader{GL_FRAGMENT_SHADER};
+        gl::Shader fragmentShader{ GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join(defines, ";") };
         fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         fragmentShader.compile();
         if( !fragmentShader.getCompileStatus() )
@@ -270,7 +270,7 @@ namespace gameplay
         auto shaderProgram = std::make_shared<ShaderProgram>();
         shaderProgram->m_handle.attach(vertexShader);
         shaderProgram->m_handle.attach(fragmentShader);
-        shaderProgram->m_handle.link();
+        shaderProgram->m_handle.link(vshPath + ";" + fshPath + ";" + boost::algorithm::join(defines, ";"));
 
         // Check link status.
         if( !shaderProgram->m_handle.getLinkStatus() )

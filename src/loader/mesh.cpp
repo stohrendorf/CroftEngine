@@ -61,14 +61,15 @@ namespace loader
                                      const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                      const std::shared_ptr<gameplay::Material>& colorMaterial,
                                      const Palette& palette,
-                                     render::TextureAnimator& animator)
+                                     render::TextureAnimator& animator,
+                                     const std::string& label)
         : m_hasNormals{withNormals}
         , m_textureProxies{textureProxies}
         , m_materials{materials}
         , m_colorMaterial{colorMaterial}
         , m_palette{palette}
         , m_animator{animator}
-        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals), dynamic)}
+        , m_mesh{std::make_shared<gameplay::Mesh>(getFormat(withNormals), dynamic, label)}
     {
     }
 
@@ -301,7 +302,7 @@ namespace loader
                 BOOST_ASSERT(idx < m_vertexCount);
             }
 #endif
-            auto part = m_mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
+            auto part = m_mesh->addPart(GL_TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
             part->setIndexData(localPart.indices.data(), 0, 0);
             part->setMaterial(localPart.material);
             if( localPart.color )
@@ -324,7 +325,8 @@ namespace loader
                                                        const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                        const std::shared_ptr<gameplay::Material>& colorMaterial,
                                                        const Palette& palette,
-                                                       render::TextureAnimator& animator) const
+                                                       render::TextureAnimator& animator,
+                                                       const std::string& label) const
     {
         ModelBuilder mb{
             !normals.empty(),
@@ -333,11 +335,11 @@ namespace loader
             materials,
             colorMaterial,
             palette,
-            animator
+            animator,
+            label
         };
 
         mb.append(*this);
-
 
         return mb.finalize();
     }

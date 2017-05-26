@@ -10,11 +10,12 @@ namespace gameplay
         class IndexBuffer : public BindableResource
         {
         public:
-            explicit IndexBuffer()
-                : BindableResource(glGenBuffers, [](GLuint handle)
-                                               {
-                                                   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle);
-                                               }, glDeleteBuffers)
+            explicit IndexBuffer(const std::string& label = {})
+                : BindableResource{glGenBuffers,
+                                   [](GLuint handle) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle); },
+                                   glDeleteBuffers,
+                                   GL_BUFFER,
+                                   label}
             {
             }
 
@@ -29,9 +30,7 @@ namespace gameplay
             }
 
 
-            // ReSharper disable once CppMemberFunctionMayBeStatic
-            // ReSharper disable once CppMemberFunctionMayBeConst
-            void unmap()
+            static void unmap()
             {
                 glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
                 checkGlError();

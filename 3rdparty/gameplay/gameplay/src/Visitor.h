@@ -3,13 +3,15 @@
 namespace gameplay
 {
     class RenderContext;
+
     class Node;
+
 
     class Visitor
     {
     public:
         explicit Visitor(RenderContext& context)
-                : m_context{context}
+            : m_context{context}
         {
         }
 
@@ -17,6 +19,7 @@ namespace gameplay
         virtual ~Visitor() = default;
 
         virtual void visit(Node& node);
+
 
         RenderContext& getContext()
         {

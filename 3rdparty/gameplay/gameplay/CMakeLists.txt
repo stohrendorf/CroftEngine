@@ -51,6 +51,7 @@ set( GAMEPLAY_SRC
      src/gl/typetraits.h
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h
+     src/gl/debuggroup.h
      src/ext/font.cpp
      src/ext/font.h
      src/ext/image.h

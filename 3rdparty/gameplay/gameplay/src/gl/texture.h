@@ -2,8 +2,6 @@
 
 #include "rendertarget.h"
 
-#include <glm/glm.hpp>
-
 #include <vector>
 
 
@@ -14,9 +12,9 @@ namespace gameplay
         class Texture : public RenderTarget
         {
         public:
-            explicit Texture(GLenum type)
-                : RenderTarget(glGenTextures, [type](GLuint handle) { glBindTexture(type, handle); }, glDeleteTextures)
-                , m_type(type)
+            explicit Texture(GLenum type, const std::string& label = {})
+                : RenderTarget{glGenTextures, [type](GLuint handle) { glBindTexture(type, handle); }, glDeleteTextures, GL_TEXTURE, label}
+                , m_type{type}
             {
             }
 
@@ -111,7 +109,7 @@ namespace gameplay
                 bind();
 
                 if( multisample > 0 )
-                    glTexImage2DMultisample(m_type, multisample, T::InternalFormat, width, height, GL_TRUE);
+                glTexImage2DMultisample(m_type, multisample, T::InternalFormat, width, height, GL_TRUE);
                 else
                     glTexImage2D(m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId, data.empty() ? nullptr : data.data());
                 checkGlError();
@@ -140,7 +138,7 @@ namespace gameplay
                 bind();
 
                 if( multisample > 0 )
-                    glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
+                glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
                 else
                     glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
                 checkGlError();
@@ -157,8 +155,11 @@ namespace gameplay
 
         private:
             const GLenum m_type;
+
             GLint m_width = -1;
+
             GLint m_height = -1;
+
             bool m_mipmap = false;
         };
     }

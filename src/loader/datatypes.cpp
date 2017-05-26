@@ -61,7 +61,7 @@ namespace loader
                     }
 #endif
 
-                    auto part = mesh->addPart(gameplay::PrimitiveType::TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
+                    auto part = mesh->addPart(GL_TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
                     part->setIndexData(localPart.indices.data(), 0, 0);
                 }
 
@@ -92,7 +92,7 @@ namespace loader
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
         std::vector<glm::vec2> uvCoords;
-        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false);
+        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false, "Room:" + boost::lexical_cast<std::string>(roomId));
 
         for( const QuadFace& quad : rectangles )
         {
