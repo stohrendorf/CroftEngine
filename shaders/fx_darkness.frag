@@ -34,7 +34,7 @@ vec3 dofColor(in vec2 uv)
 }
 
 // get a random 2D-vector, each component within -1..1
-vec2 dofRand(vec2 uv)
+vec2 dofRand(in vec2 uv)
 {
     float noiseX = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)    )) * 43758.5453), 0.0, 1.0)*2.0-1.0;
     float noiseY = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)*2.0)) * 43758.5453), 0.0, 1.0)*2.0-1.0;
