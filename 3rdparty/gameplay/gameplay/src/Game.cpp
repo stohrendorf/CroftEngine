@@ -59,6 +59,9 @@ inline const char* glDebugSeverityToString(GLenum severity)
 
 void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
+    if (source == GL_DEBUG_SOURCE_APPLICATION)
+        return;
+
     BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type " << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": " << message;
 }
 

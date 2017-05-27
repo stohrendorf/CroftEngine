@@ -21,7 +21,7 @@ namespace gameplay
 
                 if( !label.empty() )
                 {
-                    glObjectLabel(GL_SHADER, m_handle, label.length(), label.c_str());
+                    glObjectLabel(GL_SHADER, m_handle, -1, label.c_str());
                     checkGlError();
                 }
             }

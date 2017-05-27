@@ -18,7 +18,7 @@ namespace gameplay
         {
             // Open file for reading.
             std::ifstream stream(filePath, std::ios::in | std::ios::binary);
-            if (!stream.is_open())
+            if( !stream.is_open() )
             {
                 BOOST_LOG_TRIVIAL(error) << "Failed to load file: " << filePath;
                 return {};
@@ -31,7 +31,7 @@ namespace gameplay
             std::string buffer;
             buffer.resize(size);
             stream.read(&buffer[0], size);
-            if (stream.gcount() != size)
+            if( stream.gcount() != size )
             {
                 BOOST_LOG_TRIVIAL(error) << "Failed to read complete contents of file '" << filePath << "' (amount read vs. file size: " << stream.gcount() << " < " << size << ").";
                 return {};
@@ -39,10 +39,102 @@ namespace gameplay
 
             return buffer;
         }
-    }
 
-    // Cache of unique effects.
-    static ShaderProgram* __currentEffect = nullptr;
+
+        std::string replaceDefines(const std::vector<std::string>& defines)
+        {
+            std::string out;
+            if( !defines.empty() )
+            {
+                out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");
+            }
+
+            if( !out.empty() )
+            {
+                out += "\n";
+            }
+
+            return out;
+        }
+
+
+        void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
+        {
+            // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
+            std::string str = source;
+            size_t headPos = 0;
+            const auto fileLen = str.length();
+            const auto tailPos = fileLen;
+            while( headPos < fileLen )
+            {
+                const auto lastPos = headPos;
+                if( headPos == 0 )
+                {
+                    // find the first "#include"
+                    headPos = str.find("#include");
+                }
+                else
+                {
+                    // find the next "#include"
+                    headPos = str.find("#include", headPos + 1);
+                }
+
+                // If "#include" is found
+                if( headPos != std::string::npos )
+                {
+                    // append from our last position for the legth (head - last position)
+                    out.append(str.substr(lastPos, headPos - lastPos));
+
+                    // find the start quote "
+                    size_t startQuote = str.find("\"", headPos) + 1;
+                    if( startQuote == std::string::npos )
+                    {
+                        // We have started an "#include" but missing the leading quote "
+                        BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing leading \".";
+                        return;
+                    }
+                    // find the end quote "
+                    size_t endQuote = str.find("\"", startQuote);
+                    if( endQuote == std::string::npos )
+                    {
+                        // We have a start quote but missing the trailing quote "
+                        BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing trailing \".";
+                        return;
+                    }
+
+                    // jump the head position past the end quote
+                    headPos = endQuote + 1;
+
+                    // File path to include and 'stitch' in the value in the quotes to the file path and source it.
+                    std::string filepathStr = filepath;
+                    std::string directoryPath = filepathStr.substr(0, filepathStr.rfind('/') + 1);
+                    size_t len = endQuote - startQuote;
+                    std::string includeStr = str.substr(startQuote, len);
+                    directoryPath.append(includeStr);
+                    std::string includedSource = readAll(directoryPath);
+                    if( includedSource.empty() )
+                    {
+                        BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
+                        return;
+                    }
+                    // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
+                    replaceIncludes(directoryPath, includedSource, out);
+                }
+                else
+                {
+                    // Append the remaining
+                    out.append(str, lastPos, tailPos);
+                }
+            }
+        }
+
+
+        void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
+        {
+            std::ofstream stream{filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc};
+            stream.write(source.c_str(), source.size());
+        }
+    }
 
 
     ShaderProgram::ShaderProgram() = default;
@@ -52,13 +144,6 @@ namespace gameplay
     {
         // Free uniforms.
         _uniforms.clear();
-
-        // If our program object is currently bound, unbind it before we're destroyed.
-        if( __currentEffect == this )
-        {
-            m_handle.unbind();
-            __currentEffect = nullptr;
-        }
     }
 
 
@@ -101,110 +186,6 @@ namespace gameplay
     }
 
 
-    std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshSource, const std::string& fshSource, const std::vector<std::string>& defines)
-    {
-        return createFromSource("", vshSource, "", fshSource, defines);
-    }
-
-
-    static std::string replaceDefines(const std::vector<std::string>& defines)
-    {
-        std::string out;
-        if( !defines.empty() )
-        {
-            out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");
-        }
-
-        if( !out.empty() )
-        {
-            out += "\n";
-        }
-
-        return out;
-    }
-
-
-    static void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
-    {
-        // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
-        std::string str = source;
-        size_t headPos = 0;
-        const auto fileLen = str.length();
-        const auto tailPos = fileLen;
-        while( headPos < fileLen )
-        {
-            const auto lastPos = headPos;
-            if( headPos == 0 )
-            {
-                // find the first "#include"
-                headPos = str.find("#include");
-            }
-            else
-            {
-                // find the next "#include"
-                headPos = str.find("#include", headPos + 1);
-            }
-
-            // If "#include" is found
-            if( headPos != std::string::npos )
-            {
-                // append from our last position for the legth (head - last position)
-                out.append(str.substr(lastPos, headPos - lastPos));
-
-                // find the start quote "
-                size_t startQuote = str.find("\"", headPos) + 1;
-                if( startQuote == std::string::npos )
-                {
-                    // We have started an "#include" but missing the leading quote "
-                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing leading \".";
-                    return;
-                }
-                // find the end quote "
-                size_t endQuote = str.find("\"", startQuote);
-                if( endQuote == std::string::npos )
-                {
-                    // We have a start quote but missing the trailing quote "
-                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "' missing trailing \".";
-                    return;
-                }
-
-                // jump the head position past the end quote
-                headPos = endQuote + 1;
-
-                // File path to include and 'stitch' in the value in the quotes to the file path and source it.
-                std::string filepathStr = filepath;
-                std::string directoryPath = filepathStr.substr(0, filepathStr.rfind('/') + 1);
-                size_t len = endQuote - startQuote;
-                std::string includeStr = str.substr(startQuote, len);
-                directoryPath.append(includeStr);
-                std::string includedSource = readAll(directoryPath);
-                if( includedSource.empty() )
-                {
-                    BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
-                    return;
-                }
-                else
-                {
-                    // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
-                    replaceIncludes(directoryPath, includedSource, out);
-                }
-            }
-            else
-            {
-                // Append the remaining
-                out.append(str, lastPos, tailPos);
-            }
-        }
-    }
-
-
-    static void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
-    {
-        std::ofstream stream{ filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc };
-        stream.write(source.c_str(), source.size());
-    }
-
-
     std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines)
     {
         // Replace all comma separated definitions with #define prefix and \n suffix
@@ -226,7 +207,7 @@ namespace gameplay
         }
         shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-        gl::Shader vertexShader{GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join(defines, ";") };
+        gl::Shader vertexShader{GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join(defines, ";")};
         vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         vertexShader.compile();
         if( !vertexShader.getCompileStatus() )
@@ -251,7 +232,7 @@ namespace gameplay
         }
         shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-        gl::Shader fragmentShader{ GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join(defines, ";") };
+        gl::Shader fragmentShader{GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join(defines, ";")};
         fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
         fragmentShader.compile();
         if( !fragmentShader.getCompileStatus() )
@@ -264,7 +245,6 @@ namespace gameplay
 
             return nullptr;
         }
-
 
         // Create and return the new Effect.
         auto shaderProgram = std::make_shared<ShaderProgram>();
@@ -288,14 +268,14 @@ namespace gameplay
         // and therefore using this function can create compatibility issues between
         // different hardware vendors.
 
-        for(auto&& attrib : shaderProgram->m_handle.getActiveAttributes())
+        for( auto&& attrib : shaderProgram->m_handle.getActiveAttributes() )
         {
-            shaderProgram->_vertexAttributes.insert(std::make_pair(attrib.getName(), std::move(attrib)));
+            shaderProgram->_vertexAttributes.insert(make_pair(attrib.getName(), std::move(attrib)));
         }
 
-        for(auto&& uniform : shaderProgram->m_handle.getActiveUniforms())
+        for( auto&& uniform : shaderProgram->m_handle.getActiveUniforms() )
         {
-            shaderProgram->_uniforms.insert(std::make_pair(uniform.getName(), std::move(uniform)));
+            shaderProgram->_uniforms.insert(make_pair(uniform.getName(), std::move(uniform)));
         }
 
         return shaderProgram;
@@ -345,6 +325,5 @@ namespace gameplay
     void ShaderProgram::bind()
     {
         m_handle.bind();
-        __currentEffect = this;
     }
 }
