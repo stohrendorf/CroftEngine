@@ -3,14 +3,18 @@
 #include "RenderContext.h"
 #include "Scene.h"
 
+#include "gl/debuggroup.h"
+
+
 void glErrorCallback(int err, const char* msg)
 {
     BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
 }
 
+
 inline const char* glDebugSourceToString(GLenum src)
 {
-    switch(src)
+    switch( src )
     {
         case GL_DEBUG_SOURCE_API: return "API";
         case GL_DEBUG_SOURCE_APPLICATION: return "Application";
@@ -22,9 +26,10 @@ inline const char* glDebugSourceToString(GLenum src)
     }
 }
 
+
 inline const char* glDebugTypeToString(GLenum type)
 {
-    switch(type)
+    switch( type )
     {
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behavior";
         case GL_DEBUG_TYPE_ERROR: return "Error";
@@ -38,9 +43,10 @@ inline const char* glDebugTypeToString(GLenum type)
     }
 }
 
+
 inline const char* glDebugSeverityToString(GLenum severity)
 {
-    switch(severity)
+    switch( severity )
     {
         case GL_DEBUG_SEVERITY_HIGH: return "High";
         case GL_DEBUG_SEVERITY_LOW: return "Low";
@@ -49,6 +55,7 @@ inline const char* glDebugSeverityToString(GLenum severity)
         default: return "<unknown>";
     }
 }
+
 
 void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
@@ -69,7 +76,7 @@ namespace gameplay
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLFW"));
         }
 
-        std::atexit(&glfwTerminate);
+        atexit(&glfwTerminate);
 
         // Get the window configuration values
         int width = 1280, height = 800;
@@ -142,6 +149,8 @@ namespace gameplay
                     return;
                 }
 
+                gl::DebugGroup debugGroup{node.getId()};
+
                 getContext().setCurrentNode(&node);
 
                 if( auto dr = node.getDrawable() )
@@ -205,7 +214,7 @@ namespace gameplay
             return false;
         }
 
-        setViewport(Rectangle{ 0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height) });
+        setViewport(Rectangle{0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)});
         RenderState::initialize();
 
         _state = RUNNING;
@@ -268,21 +277,21 @@ namespace gameplay
             _initialized = true;
         }
 
-        if( _state == Game::RUNNING )
+        if( _state == RUNNING )
         {
             // Graphics Rendering.
             render();
 
             // Update FPS.
             ++_frameCount;
-            if( (Game::getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
+            if( (getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
             {
                 _frameRate = _frameCount;
                 _frameCount = 0;
                 _frameLastFPS = getGameTime();
             }
         }
-        else if( _state == Game::PAUSED )
+        else if( _state == PAUSED )
         {
             render();
         }
@@ -299,7 +308,7 @@ namespace gameplay
     {
         _viewport = viewport;
         GL_ASSERT(glViewport(static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y), static_cast<GLuint>(viewport.width),
-                             static_cast<GLuint>(viewport.height)));
+            static_cast<GLuint>(viewport.height)));
     }
 
 
@@ -337,6 +346,6 @@ namespace gameplay
 
     void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth)
     {
-        clear(flags, gl::RGBAF{ red, green, blue, alpha }, clearDepth);
+        clear(flags, gl::RGBAF{red, green, blue, alpha}, clearDepth);
     }
 }
