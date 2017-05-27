@@ -6,10 +6,11 @@
 
 #include <boost/log/trivial.hpp>
 
+
 namespace gameplay
 {
     Model::Model()
-        : Drawable()
+        : Drawable{}
         , _meshes{}
     {
     }
@@ -20,11 +21,11 @@ namespace gameplay
 
     void Model::draw(RenderContext& context)
     {
-        for(const auto& mesh : _meshes)
+        for( const auto& mesh : _meshes )
         {
             BOOST_ASSERT(mesh);
 
-            for(const auto& part : mesh->_parts)
+            for( const auto& part : mesh->_parts )
             {
                 BOOST_ASSERT(part);
 

@@ -182,7 +182,7 @@ namespace gameplay
 
         if(!context.isWireframe() || !drawWireframe())
         {
-            GL_ASSERT(glDrawElements(static_cast<GLenum>(_primitiveType), gsl::narrow<GLsizei>(_indexCount), static_cast<GLenum>(_indexFormat), nullptr));
+            GL_ASSERT(glDrawElements(_primitiveType, gsl::narrow<GLsizei>(_indexCount), static_cast<GLenum>(_indexFormat), nullptr));
         }
 
         m_vao->unbind();
