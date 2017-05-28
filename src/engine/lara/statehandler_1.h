@@ -125,10 +125,7 @@ namespace engine
 
                 if( !tryStartSlide(collisionInfo) )
                 {
-                    //! @todo Check if this does not affect other things, otherwise call moveY() directly.
-                    if( collisionInfo.mid.floor.distance > 50 )
-                        collisionInfo.mid.floor.distance = 50;
-                    placeOnFloor(collisionInfo);
+                    moveY(std::min(collisionInfo.mid.floor.distance, 50));
                 }
             }
         };

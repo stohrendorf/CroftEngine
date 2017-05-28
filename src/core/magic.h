@@ -15,7 +15,7 @@ namespace core
 
     constexpr int ScalpHeight = 762;
     constexpr int ScalpToHandsHeight = 160;
-    constexpr int JumpReachableHeight = 896 + loader::SectorSize;
+    constexpr int JumpReachableHeight = ClimbLimit3ClickMax + loader::SectorSize;
 
     constexpr int FreeFallSpeedThreshold = 131;
     constexpr int DamageFallSpeedThreshold = 140;

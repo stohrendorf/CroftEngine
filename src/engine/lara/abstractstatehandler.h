@@ -102,6 +102,13 @@ namespace engine
 
             void setPosition(const core::TRCoordinates& pos);
 
+            void moveY(int d)
+            {
+                auto pos = getPosition();
+                pos.Y += d;
+                setPosition(pos);
+            }
+
             int getFloorHeight() const;
 
             void setFloorHeight(int h);
