@@ -31,6 +31,7 @@ namespace engine
         bool roll = false;
         bool action = false;
         bool freeLook = false;
+        bool debug = false;
         glm::vec2 mouseMovement;
 
         void setXAxisMovement(bool left, bool right)

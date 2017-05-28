@@ -99,6 +99,8 @@ namespace engine
             if(m_controllerLayout.isButtonPressed(ControllerButton::Y, gsl::span<const uint8_t>{controllerButtons, controllerButtonCount}))
                 m_inputState.freeLook = true;
 
+            m_inputState.debug = glfwGetKey(m_window, GLFW_KEY_F11) == GLFW_PRESS;
+
             double x, y;
             glfwGetCursorPos(m_window, &x, &y);
 

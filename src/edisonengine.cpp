@@ -233,6 +233,9 @@ int main()
 
     static const auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate;
 
+    bool showDebugInfo = false;
+    bool showDebugInfoToggled = false;
+
     auto lastTime = game->getGameTime();
     while( game->loop() )
     {
@@ -240,6 +243,19 @@ int main()
 
         lvl->m_audioDev.update();
         lvl->m_inputHandler->update();
+
+        if(lvl->m_inputHandler->getInputState().debug)
+        {
+            if(!showDebugInfoToggled)
+            {
+                showDebugInfoToggled = true;
+                showDebugInfo = !showDebugInfo;
+            }
+        }
+        else
+        {
+            showDebugInfoToggled = false;
+        }
 
         auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>( game->getGameTime() - lastTime );
         if( deltaTime < frameTime )
@@ -283,7 +299,8 @@ int main()
             depthDarknessFx.render(context);
 #endif
 
-        drawDebugInfo(font, lvl.get(), game->getFrameRate());
+        if(showDebugInfo)
+            drawDebugInfo(font, lvl.get(), game->getFrameRate());
 
         for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
         {
@@ -308,7 +325,8 @@ int main()
             projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().width;
             projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
 
-            font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, gameplay::gl::RGBA8{255});
+            if (showDebugInfo)
+                font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, gameplay::gl::RGBA8{255});
         }
 
         screenOverlay->draw(context);
