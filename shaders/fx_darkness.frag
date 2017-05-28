@@ -6,26 +6,41 @@ varying vec2 v_texCoord;
 
 out vec4 out_color;
 
-#define PI 3.14159265
+const float PI = 3.14159265;
+const float Z_max = 20480;
+
+#ifdef WATER
+    const float Frq1 = 12.6;
+    const float TimeMult1 = 0.005;
+    const float Amplitude1 = 0.00175;
+
+    const float Frq2 = 19.7;
+    const float TimeMult2 = 0.002;
+    const float Amplitude2 = 0.0125;
+
+    uniform float u_time;
+#endif
 
 #define DOF
 
 #ifdef DOF
 #ifdef WATER
-const float dof_sensor_size = 80.0 / 20480;
-const float dof_focal = 512.0 / 20480;
+const float dof_sensor_size = 80.0 / Z_max;
+const float dof_center_size = 80.0 / Z_max;
+const float dof_focal = 1536.0 / Z_max;
 #else
-const float dof_sensor_size = 20.0 / 20480;
-const float dof_focal = 1536.0 / 20480;
+const float dof_sensor_size = 20.0 / Z_max;
+const float dof_center_size = 20.0 / Z_max;
+const float dof_focal = 1536.0 / Z_max;
 #endif
 
 const float dof_threshold = 0.8;
 const float dof_gain = 3.0;
 
 // get an over-exposed pixel
-vec3 dofColor(in vec2 uv)
+vec3 dofColor(in vec2 uv, in float depth)
 {
-    vec3 col = texture2D(u_texture, uv).rgb;
+    vec3 col = texture2D(u_texture, uv).rgb * (1-depth);
     
     const vec3 luminance_factor = vec3(0.299, 0.587, 0.114);
     float luminance = dot(col, luminance_factor);
@@ -41,22 +56,15 @@ vec2 dofRand(in vec2 uv)
     return vec2(noiseX, noiseY);
 }
 
-float calcDofBlurRadius(in float depth) {
-    float d = abs(depth - dof_focal) / dof_focal;
-    return d * dof_sensor_size;
+float calcDofFactor(in float depth)
+{
+    return clamp(abs(depth - dof_focal) / dof_focal, 0.0, 1.0);
 }
-#endif
 
-#ifdef WATER
-    const float Frq1 = 12.6;
-    const float TimeMult1 = 0.005;
-    const float Amplitude1 = 0.00175;
-
-    const float Frq2 = 19.7;
-    const float TimeMult2 = 0.002;
-    const float Amplitude2 = 0.0125;
-
-    uniform float u_time;
+float calcDofBlurRadius(in float depth) {
+    float d = calcDofFactor(depth);
+    return d * dof_sensor_size + dof_center_size;
+}
 #endif
 
 #ifdef LENS_DISTORTION
@@ -95,15 +103,13 @@ float depthAt(in vec2 uv)
     clipSpaceLocation.w = 1;
     vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
-    d /= 20480;
-    return clamp(d, 0, 1);
+    d /= Z_max;
+    return clamp(pow(d, 0.9), 0, 1);
 }
 
-void main()
-{
-    vec2 uv = v_texCoord;
-
 #ifdef LENS_DISTORTION
+void doLensDistortion(inout vec2 uv)
+{
     // normalized center coords
     vec2 norm_ctr = vec2(0.5, 0.5 / aspect_ratio);
     
@@ -116,27 +122,28 @@ void main()
         uv = norm_ctr + fisheye(polar, stationary_radius);
     else if (distortion_power < 0.0)
         uv = norm_ctr + antiFisheye(polar, stationary_radius);
+}
 #endif
 
-    float depth;
 #ifdef WATER
-    depth = depthAt(uv);
-
-    float time = u_time * TimeMult1;
-    vec2 angle = time + uv * Frq1;
+void doWaterFrq(inout vec2 uv, in float timeMult, in float frq, in float amplitude)
+{
+    vec2 phase = vec2(u_time * timeMult) + uv * frq * PI / 180;
     
-    uv += vec2(sin(angle.x), sin(angle.y)) * Amplitude1 * (depth + 0.1);
+    uv += vec2(sin(phase.x), sin(phase.y)) * amplitude;
+}
 
-    time = u_time * TimeMult2;
-    angle = time + uv * Frq2;
-
-    uv += vec2(sin(angle.x), sin(angle.y)) * Amplitude2 * (depth + 0.1);
+void doWater(inout vec2 uv)
+{
+    doWaterFrq(uv, TimeMult1, Frq1, Amplitude1);
+    doWaterFrq(uv, TimeMult2, Frq2, Amplitude2);
+}
 #endif
-
-    depth = depthAt(uv);
-    out_color = texture(u_texture, uv) * (1-depth);
 
 #ifdef DOF
+void doDof(in vec2 uv)
+{
+    float depth = depthAt(uv);
     float blurRadius = calcDofBlurRadius(depth);
     
     const int dof_blends = 6;
@@ -145,7 +152,10 @@ void main()
     const float angle_step = PI*2.0 / dof_blends;
     float dist_step = blurRadius / dof_rings;
 
-    float peek_sum = 1;
+    // avoid DOF effect in-bleeding
+    float center_weight = 1.0 - calcDofFactor(depth);
+    vec3 sample_color = dofColor(uv, depth) * center_weight;
+    float sample_weight_sum = center_weight;
     for (int i = 1; i <= dof_blends; i += 1)
     {   
         for (int j = 0; j < dof_rings; j += 1)   
@@ -155,12 +165,31 @@ void main()
             p.y = cos(i*angle_step) * dist_step * j;
             vec2 r = dofRand(uv + p) * dist_step / 2;
             vec2 peek = uv + p + r;
-            float peek_d = depthAt(peek);
-            float peek_f = abs(dof_focal - peek_d) / dof_focal;
-            out_color.rgb += dofColor(peek) * peek_f * (1-peek_d);
-            peek_sum += peek_f;
+            depth = depthAt(peek);
+            sample_color += dofColor(peek, depth) * (1.0 - center_weight);
+            sample_weight_sum += (1.0 - center_weight);
         }
     }
-    out_color.rgb /= peek_sum; //divide by sample count
+    sample_color /= sample_weight_sum;
+    out_color = vec4(sample_color, 1.0);
+}
+#endif
+
+void main()
+{
+    vec2 uv = v_texCoord;
+
+#ifdef LENS_DISTORTION
+    doLensDistortion(uv);
+#endif
+
+#ifdef WATER
+    doWater(uv);
+#endif
+
+#ifndef DOF
+    out_color = texture(u_texture, uv) * (1-depthAt(uv));
+#else
+    doDof(uv);
 #endif
 }
