@@ -18,14 +18,8 @@ namespace engine
                        const floordata::ActivationState& activationState,
                        int16_t darkness,
                        const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, false, 0, darkness, animatedModel)
+                : ItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
             {
-            }
-
-
-            void update() override
-            {
-                ItemNode::update();
             }
 
 

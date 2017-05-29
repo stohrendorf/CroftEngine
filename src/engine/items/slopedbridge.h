@@ -11,6 +11,7 @@ namespace engine
         {
         private:
             const int m_div;
+
         public:
             SlopedBridge(const gsl::not_null<level::Level*>& level,
                          const std::string& name,
@@ -21,8 +22,8 @@ namespace engine
                          int16_t darkness,
                          const loader::AnimatedModel& animatedModel,
                          int div)
-                : ItemNode(level, name, room, angle, position, activationState, false, 0, darkness, animatedModel)
-                , m_div(div)
+                : ItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
+                , m_div{div}
             {
             }
 
@@ -50,16 +51,10 @@ namespace engine
             }
 
 
-            void update() override final
-            {
-                ItemNode::update();
-            }
-
-
         private:
             int getBridgeSlopeHeight(const core::TRCoordinates& pos) const
             {
-                auto axis = core::axisFromAngle(getRotation().Y, 1_deg);
+                auto axis = axisFromAngle(getRotation().Y, 1_deg);
                 Expects( axis.is_initialized() );
 
                 switch( *axis )
@@ -85,7 +80,7 @@ namespace engine
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
                          const loader::AnimatedModel& animatedModel)
-                : SlopedBridge(level, name, room, angle, position, activationState, darkness, animatedModel, 4)
+                : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 4}
             {
             }
         };
@@ -102,7 +97,7 @@ namespace engine
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
                          const loader::AnimatedModel& animatedModel)
-                : SlopedBridge(level, name, room, angle, position, activationState, darkness, animatedModel, 2)
+                : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 2}
             {
             }
         };

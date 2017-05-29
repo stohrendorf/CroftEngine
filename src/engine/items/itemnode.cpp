@@ -21,7 +21,7 @@ namespace engine
                 tr = m_position.position.toRenderSystem();
             }
 
-            setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
+            setLocalMatrix(translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }
@@ -37,13 +37,13 @@ namespace engine
                            Characteristics characteristics,
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
-            : SkeletalModelNode(name, level, animatedModel)
-            , m_position(room, position)
-            , m_rotation(0_deg, angle, 0_deg)
-            , m_level(level)
-            , m_activationState(activationState)
-            , m_hasProcessAnimCommandsOverride(hasProcessAnimCommandsOverride)
-            , m_characteristics(characteristics)
+            : SkeletalModelNode{name, level, animatedModel}
+            , m_position{room, position}
+            , m_rotation{0_deg, angle, 0_deg}
+            , m_level{level}
+            , m_activationState{activationState}
+            , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
+            , m_characteristics{characteristics}
             , m_darkness{darkness}
         {
             BOOST_ASSERT(room->isInnerPositionXZ(position));
@@ -66,6 +66,8 @@ namespace engine
                 activate();
                 m_triggerState = TriggerState::Enabled;
             }
+
+            setAnimIdGlobal(animatedModel.animationIndex, m_level->m_animations.at(animatedModel.animationIndex).firstFrame);
         }
 
 

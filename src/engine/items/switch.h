@@ -28,9 +28,6 @@ namespace engine
 
             void update() override
             {
-                if(!m_isActive)
-                    return;
-
                 if(!updateActivationTimeout())
                 {
                     setTargetState(1);
