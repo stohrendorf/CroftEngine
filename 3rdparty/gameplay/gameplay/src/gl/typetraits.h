@@ -18,7 +18,7 @@ namespace gameplay
         template<>
         struct TypeTraits<uint8_t>
         {
-            static const constexpr GLint TypeId = GL_UNSIGNED_BYTE;
+            static const constexpr GLenum TypeId = GL_UNSIGNED_BYTE;
 
             static const constexpr GLsizei ElementCount = 1;
 
@@ -33,7 +33,7 @@ namespace gameplay
         template<>
         struct TypeTraits<uint16_t>
         {
-            static const constexpr GLint TypeId = GL_UNSIGNED_SHORT;
+            static const constexpr GLenum TypeId = GL_UNSIGNED_SHORT;
 
             static const constexpr GLsizei ElementCount = 1;
 
@@ -48,7 +48,7 @@ namespace gameplay
         template<>
         struct TypeTraits<uint32_t>
         {
-            static const constexpr GLint TypeId = GL_UNSIGNED_INT;
+            static const constexpr GLenum TypeId = GL_UNSIGNED_INT;
 
             static const constexpr GLsizei ElementCount = 1;
         };
@@ -57,7 +57,7 @@ namespace gameplay
         template<>
         struct TypeTraits<int8_t>
         {
-            static const constexpr GLint TypeId = GL_BYTE;
+            static const constexpr GLenum TypeId = GL_BYTE;
 
             static const constexpr GLsizei ElementCount = 1;
         };
@@ -66,7 +66,7 @@ namespace gameplay
         template<>
         struct TypeTraits<int16_t>
         {
-            static const constexpr GLint TypeId = GL_SHORT;
+            static const constexpr GLenum TypeId = GL_SHORT;
 
             static const constexpr GLsizei ElementCount = 1;
         };
@@ -75,7 +75,7 @@ namespace gameplay
         template<>
         struct TypeTraits<int32_t>
         {
-            static const constexpr GLint TypeId = GL_INT;
+            static const constexpr GLenum TypeId = GL_INT;
 
             static const constexpr GLsizei ElementCount = 1;
         };
@@ -84,7 +84,7 @@ namespace gameplay
         template<>
         struct TypeTraits<float>
         {
-            static const constexpr GLint TypeId = GL_FLOAT;
+            static const constexpr GLenum TypeId = GL_FLOAT;
 
             static const constexpr GLsizei ElementCount = 1;
 
@@ -99,7 +99,7 @@ namespace gameplay
         template<>
         struct TypeTraits<glm::vec2>
         {
-            static const constexpr GLint TypeId = GL_FLOAT;
+            static const constexpr GLenum TypeId = GL_FLOAT;
 
             static const constexpr GLsizei ElementCount = 2;
         };
@@ -108,7 +108,7 @@ namespace gameplay
         template<>
         struct TypeTraits<glm::vec3>
         {
-            static const constexpr GLint TypeId = GL_FLOAT;
+            static const constexpr GLenum TypeId = GL_FLOAT;
 
             static const constexpr GLsizei ElementCount = 3;
         };
@@ -117,7 +117,7 @@ namespace gameplay
         template<>
         struct TypeTraits<glm::vec4>
         {
-            static const constexpr GLint TypeId = GL_FLOAT;
+            static const constexpr GLenum TypeId = GL_FLOAT;
 
             static const constexpr GLsizei ElementCount = 4;
         };

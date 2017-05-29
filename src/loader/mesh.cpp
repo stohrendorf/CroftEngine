@@ -302,8 +302,8 @@ namespace loader
                 BOOST_ASSERT(idx < m_vertexCount);
             }
 #endif
-            auto part = m_mesh->addPart(GL_TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
-            part->setIndexData(localPart.indices.data(), 0, 0);
+            auto part = m_mesh->addPart(gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId);
+            part->setData(localPart.indices.data(), localPart.indices.size(), true);
             part->setMaterial(localPart.material);
             if( localPart.color )
             {

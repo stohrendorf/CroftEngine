@@ -29,7 +29,7 @@ namespace gameplay
 
         static std::shared_ptr<Mesh> createQuadFullscreen(float width, float height, bool invertY = false);
 
-        std::shared_ptr<MeshPart> addPart(GLenum primitiveType, GLint indexFormat, size_t indexCount, bool dynamic = false);
+        std::shared_ptr<MeshPart> addPart(GLint indexFormat);
 
         size_t getPartCount() const;
 

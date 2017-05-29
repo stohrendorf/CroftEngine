@@ -39,17 +39,17 @@ namespace gameplay
             0, 2, 3
         };
 
-        auto part = mesh->addPart(GL_TRIANGLES, gl::TypeTraits<decltype(indices[0])>::TypeId, 6, false);
+        auto part = mesh->addPart(gl::TypeTraits<decltype(indices[0])>::TypeId);
 
-        part->setIndexData(indices, 0, 6);
+        part->setData(indices, 6, false);
 
         return mesh;
     }
 
 
-    std::shared_ptr<MeshPart> Mesh::addPart(GLenum primitiveType, GLint indexFormat, size_t indexCount, bool dynamic)
+    std::shared_ptr<MeshPart> Mesh::addPart(GLint indexFormat)
     {
-        auto part = std::make_shared<MeshPart>(this, primitiveType, indexFormat, indexCount, dynamic);
+        auto part = std::make_shared<MeshPart>(this, indexFormat);
         _parts.emplace_back(part);
         return part;
     }

@@ -61,8 +61,8 @@ namespace loader
                     }
 #endif
 
-                    auto part = mesh->addPart(GL_TRIANGLES, gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId, localPart.indices.size(), true);
-                    part->setIndexData(localPart.indices.data(), 0, 0);
+                    auto part = mesh->addPart(gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId);
+                    part->setData(localPart.indices.data(), localPart.indices.size(), true);
                 }
 
                 auto model = std::make_shared<gameplay::Model>();
