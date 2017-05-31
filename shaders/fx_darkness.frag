@@ -25,17 +25,20 @@ const float Z_max = 20480;
 
 #ifdef DOF
 #ifdef WATER
-const float dof_sensor_size = 80.0 / Z_max;
+const float dof_sensor_size = 200.0 / Z_max;
 const float dof_center_size = 80.0 / Z_max;
 const float dof_focal = 1536.0 / Z_max;
+
+const float dof_threshold = 0.2;
+const float dof_gain = 30.0;
 #else
 const float dof_sensor_size = 20.0 / Z_max;
 const float dof_center_size = 20.0 / Z_max;
 const float dof_focal = 1536.0 / Z_max;
-#endif
 
 const float dof_threshold = 0.8;
 const float dof_gain = 3.0;
+#endif
 
 // get an over-exposed pixel
 vec3 dofColor(in vec2 uv, in float depth)
@@ -128,7 +131,7 @@ void doLensDistortion(inout vec2 uv)
 #ifdef WATER
 void doWaterFrq(inout vec2 uv, in float timeMult, in float frq, in float amplitude)
 {
-    vec2 phase = vec2(u_time * timeMult) + uv * frq * PI / 180;
+    vec2 phase = vec2(u_time * timeMult) + uv * frq;
     
     uv += vec2(sin(phase.x), sin(phase.y)) * amplitude;
 }
@@ -166,8 +169,9 @@ void doDof(in vec2 uv)
             vec2 r = dofRand(uv + p) * dist_step / 2;
             vec2 peek = uv + p + r;
             depth = depthAt(peek);
-            sample_color += dofColor(peek, depth) * (1.0 - center_weight);
-            sample_weight_sum += (1.0 - center_weight);
+            float localWeight = (1.0-center_weight) * (1.0 - smoothstep(j + 1, 0, dof_rings));
+            sample_color += dofColor(peek, depth) * localWeight;
+            sample_weight_sum += localWeight;
         }
     }
     sample_color /= sample_weight_sum;
