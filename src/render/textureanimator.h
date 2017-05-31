@@ -79,20 +79,20 @@ namespace render
                     const std::shared_ptr<gameplay::Mesh>& mesh = partAndVertices.first;
                     BOOST_ASSERT(mesh->getBuffers().size() == 2);
 
-                    auto* uvArray = mesh->getBuffer(1).mapTypedRw<glm::vec2>();
+                    auto* uvArray = mesh->getBuffer(1)->mapTypedRw<glm::vec2>();
 
                     const std::set<VertexReference>& vertices = partAndVertices.second;
 
                     for( const VertexReference& vref : vertices )
                     {
-                        BOOST_ASSERT(vref.bufferIndex < mesh->getBuffer(1).getVertexCount());
+                        BOOST_ASSERT(vref.bufferIndex < mesh->getBuffer(1)->getVertexCount());
                         BOOST_ASSERT(vref.queueOffset < proxyIds.size());
                         const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
 
                         uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                     }
 
-                    mesh->getBuffer(1).unmap();
+                    gameplay::gl::VertexBuffer::unmap();
                 }
             }
         };

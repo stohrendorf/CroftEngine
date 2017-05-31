@@ -52,6 +52,7 @@ namespace gameplay
                 checkGlError();
 
                 m_indexCount = indexCount;
+                m_storageType = TypeTraits<T>::TypeId;
             }
 
 
@@ -62,20 +63,26 @@ namespace gameplay
                 Expects(indexData != nullptr);
                 Expects(indexStart >= 0);
                 Expects(indexCount >= 0);
+                if( indexStart + indexCount > m_indexCount )
+                {
+                    BOOST_THROW_EXCEPTION(std::out_of_range{ "Sub-range exceeds buffer range" });
+                }
+
+                if( TypeTraits<T>::TypeId != m_storageType )
+                {
+                    BOOST_THROW_EXCEPTION(std::logic_error{"Incompatible storage type for buffer sub-data"});
+                }
 
                 bind();
 
                 glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLintptr>(indexStart * sizeof(T)), gsl::narrow<GLsizeiptr>(indexCount * sizeof(T)), indexData);
                 checkGlError();
-
-                m_indexCount = indexCount;
             }
 
 
-            template<typename T>
             void draw(GLenum mode) const
             {
-                glDrawElements(mode, m_indexCount, TypeTraits<T>::TypeId, nullptr);
+                glDrawElements(mode, m_indexCount, m_storageType, nullptr);
                 checkGlError();
             }
 
@@ -86,8 +93,16 @@ namespace gameplay
             }
 
 
+            const GLenum& getStorageType() const
+            {
+                return m_storageType;
+            }
+
+
         private:
             GLsizeiptr m_indexCount = 0;
+
+            GLenum m_storageType = -1;
         };
     }
 }

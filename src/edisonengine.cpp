@@ -109,7 +109,7 @@ public:
 
         BOOST_ASSERT(m_fb->isComplete());
 
-        m_mesh = gameplay::Mesh::createQuadFullscreen(vp.width, vp.height);
+        m_mesh = gameplay::Mesh::createQuadFullscreen(vp.width, vp.height, shader->getHandle());
         auto part = m_mesh->getPart(0);
         part->setMaterial(std::make_shared<gameplay::Material>(shader));
 

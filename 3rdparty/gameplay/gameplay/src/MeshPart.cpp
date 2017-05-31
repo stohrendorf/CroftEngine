@@ -6,10 +6,8 @@
 
 namespace gameplay
 {
-    MeshPart::MeshPart(const gsl::not_null<Mesh*>& mesh,
-                       GLint indexFormat)
-        : _mesh{mesh}
-        , _indexFormat{indexFormat}
+    MeshPart::MeshPart(const std::shared_ptr<gl::VertexArray>& vao)
+        : m_vao{vao}
     {
     }
 
@@ -17,19 +15,15 @@ namespace gameplay
     MeshPart::~MeshPart() = default;
 
 
-    void MeshPart::setMaterial(const std::shared_ptr<Material>& material)
-    {
-        BOOST_ASSERT(_mesh != nullptr);
-
-        _material = material;
-    }
-
-
     bool MeshPart::drawWireframe() const
     {
-        size_t indexSize;
-        switch( _indexFormat )
+        BOOST_ASSERT(m_vao->getIndexBuffers().size() == 1 && m_vao->getIndexBuffers()[0] != nullptr);
+
+        for (const auto& buffer : m_vao->getIndexBuffers())
         {
+            size_t indexSize;
+            switch (buffer->getStorageType())
+            {
             case gl::TypeTraits<uint8_t>::TypeId:
                 indexSize = 1;
                 break;
@@ -42,11 +36,12 @@ namespace gameplay
             default:
                 BOOST_LOG_TRIVIAL(error) << "Unsupported index format";
                 return false;
-        }
+            }
 
-        for( GLsizeiptr i = 0; i < getIndexCount(); i += 3 )
-        {
-            GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, static_cast<GLenum>(_indexFormat), reinterpret_cast<const GLvoid*>(i*indexSize)));
+            for (GLsizeiptr i = 0; i < buffer->getIndexCount(); i += 3)
+            {
+                GL_ASSERT(glDrawElements(GL_LINE_LOOP, 3, buffer->getStorageType(), reinterpret_cast<const GLvoid*>(i*indexSize)));
+            }
         }
         return true;
     }
@@ -64,34 +59,15 @@ namespace gameplay
 
         _material->bind(*context.getCurrentNode());
 
-        if( m_vao == nullptr )
-        {
-            m_vao = std::make_shared<gl::VertexArray>();
-            m_vao->bind();
-            bind();
-            for( const auto& buffer : _mesh->getBuffers() )
-                buffer.bind(_material->getShaderProgram()->getHandle());
-            m_vao->unbind();
-        }
+        BOOST_ASSERT(m_vao->getIndexBuffers().size() == 1 && m_vao->getIndexBuffers()[0] != nullptr);
 
         m_vao->bind();
 
         if( !context.isWireframe() || !drawWireframe() )
         {
-            switch( _indexFormat )
+            for (const auto& buffer : m_vao->getIndexBuffers())
             {
-                case gl::TypeTraits<uint8_t>::TypeId:
-                    IndexBuffer::draw<uint8_t>(GL_TRIANGLES);
-                    break;
-                case gl::TypeTraits<uint16_t>::TypeId:
-                    IndexBuffer::draw<uint16_t>(GL_TRIANGLES);
-                    break;
-                case gl::TypeTraits<uint32_t>::TypeId:
-                    IndexBuffer::draw<uint32_t>(GL_TRIANGLES);
-                    break;
-                default:
-                    BOOST_LOG_TRIVIAL(error) << "Unsupported index format";
-                    break;
+                buffer->draw(GL_TRIANGLES);
             }
         }
 

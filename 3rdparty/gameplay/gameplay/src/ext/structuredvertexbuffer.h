@@ -33,7 +33,9 @@ namespace gameplay
                 {
                     auto tmp = attrib.second.getStride();
                     if( m_size != -1 && m_size != tmp )
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Inconsistent stride in vertex attribute mapping"));
+                    {
+                        BOOST_THROW_EXCEPTION(std::runtime_error("Inconsistent stride in vertex attribute mapping"));
+                    }
 
                     m_size = tmp;
                 }
@@ -61,7 +63,9 @@ namespace gameplay
             void assignSub(const gsl::not_null<const T*>& vertexData, size_t vertexStart, size_t vertexCount)
             {
                 if( sizeof(T) != m_size )
-                BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                {
+                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                }
 
                 VertexBuffer::bind();
 
@@ -79,7 +83,9 @@ namespace gameplay
             void assign(const gsl::not_null<const T*>& vertexData, size_t vertexCount)
             {
                 if( sizeof(T) != m_size )
-                BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                {
+                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                }
 
                 VertexBuffer::bind();
 
@@ -129,7 +135,9 @@ namespace gameplay
             T* mapTypedRw()
             {
                 if( sizeof(T) != m_size )
-                BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                {
+                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                }
 
                 return static_cast<T*>(mapRw());
             }
@@ -139,7 +147,9 @@ namespace gameplay
             const T* mapTyped()
             {
                 if( sizeof(T) != m_size )
-                BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                {
+                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                }
 
                 return static_cast<T*>(map());
             }

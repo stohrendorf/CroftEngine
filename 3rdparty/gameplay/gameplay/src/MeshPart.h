@@ -12,7 +12,7 @@ namespace gameplay
     class Material;
 
 
-    class MeshPart : public gl::IndexBuffer
+    class MeshPart
     {
         friend class Mesh;
 
@@ -21,18 +21,15 @@ namespace gameplay
     public:
         using MaterialParameterSetter = void(Material& material);
 
-        explicit MeshPart(const gsl::not_null<Mesh*>& mesh, GLint indexFormat);
+        explicit MeshPart(const std::shared_ptr<gl::VertexArray>& vao);
 
         ~MeshPart();
 
 
-        GLint getIndexFormat() const
+        void setMaterial(const std::shared_ptr<Material>& material)
         {
-            return _indexFormat;
+            _material = material;
         }
-
-
-        void setMaterial(const std::shared_ptr<Material>& material);
 
 
         const std::shared_ptr<Material>& getMaterial() const
@@ -50,19 +47,21 @@ namespace gameplay
         }
 
 
+        const std::shared_ptr<gl::VertexArray>& getVao() const
+        {
+            return m_vao;
+        }
+
+
     private:
         MeshPart(const MeshPart& copy) = delete;
 
         bool drawWireframe() const;
 
-        const gsl::not_null<Mesh*> _mesh;
-
-        GLint _indexFormat{};
-
         std::shared_ptr<Material> _material;
 
         std::vector<std::function<MaterialParameterSetter>> _materialParameterSetters;
 
-        mutable std::shared_ptr<gl::VertexArray> m_vao = nullptr;
+        std::shared_ptr<gl::VertexArray> m_vao;
     };
 }

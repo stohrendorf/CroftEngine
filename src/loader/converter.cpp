@@ -65,29 +65,29 @@ void allocateElementMemory(const std::shared_ptr<gameplay::Mesh>& mesh, const gs
 {
     for( const auto& buffer : mesh->getBuffers() )
     {
-        for( const auto& attrib : buffer.getAttributeMapping() )
+        for( const auto& attrib : buffer->getAttributeMapping() )
         {
             if( attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME )
             {
                 BOOST_ASSERT(outMesh->mVertices == nullptr && outMesh->mNumVertices == 0);
-                outMesh->mNumVertices = buffer.getVertexCount();
-                outMesh->mVertices = new aiVector3D[buffer.getVertexCount()];
+                outMesh->mNumVertices = buffer->getVertexCount();
+                outMesh->mVertices = new aiVector3D[buffer->getVertexCount()];
             }
             else if( attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME )
             {
                 BOOST_ASSERT(outMesh->mNormals == nullptr);
-                outMesh->mNormals = new aiVector3D[buffer.getVertexCount()];
+                outMesh->mNormals = new aiVector3D[buffer->getVertexCount()];
             }
             else if( attrib.first == VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME )
             {
                 BOOST_ASSERT(outMesh->mTextureCoords[0] == nullptr && outMesh->mNumUVComponents[0] == 0);
-                outMesh->mTextureCoords[0] = new aiVector3D[buffer.getVertexCount()];
+                outMesh->mTextureCoords[0] = new aiVector3D[buffer->getVertexCount()];
                 outMesh->mNumUVComponents[0] = 2;
             }
             else if( attrib.first == VERTEX_ATTRIBUTE_COLOR_NAME )
             {
                 BOOST_ASSERT(outMesh->mColors[0] == nullptr);
-                outMesh->mColors[0] = new aiColor4D[buffer.getVertexCount()];
+                outMesh->mColors[0] = new aiColor4D[buffer->getVertexCount()];
             }
         }
     }
@@ -98,13 +98,13 @@ void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_
 {
     for( auto& buffer : mesh->getBuffers() )
     {
-        BOOST_ASSERT(buffer.getVertexSize() % sizeof(float) == 0);
+        BOOST_ASSERT(buffer->getVertexSize() % sizeof(float) == 0);
 
-        const size_t count = buffer.getVertexCount();
-        const float* data = static_cast<const float*>(buffer.map());
+        const size_t count = buffer->getVertexCount();
+        const float* data = static_cast<const float*>(buffer->map());
         for( size_t i = 0; i < count; ++i )
         {
-            for( const auto& attrib : buffer.getAttributeMapping() )
+            for( const auto& attrib : buffer->getAttributeMapping() )
             {
                 BOOST_ASSERT(attrib.second.getOffset() % sizeof(float) == 0);
                 const auto* v = &data[attrib.second.getOffset() / sizeof(float)];
@@ -139,30 +139,63 @@ void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_
                     outMesh->mColors[0][i].a = v[3];
                 }
             }
-            data += buffer.getVertexSize() / sizeof(float);
+            data += buffer->getVertexSize() / sizeof(float);
         }
 
-        buffer.unmap();
+        gameplay::gl::VertexBuffer::unmap();
     }
 }
 
 
 template<typename T>
-void copyIndices(const std::shared_ptr<gameplay::MeshPart>& part, const gsl::not_null<aiMesh*>& outMesh)
+void copyIndices(const std::shared_ptr<gameplay::gl::IndexBuffer>& buffer, const gsl::not_null<aiMesh*>& outMesh, size_t& indexOffset)
 {
-    const T* data = static_cast<const T*>(part->map());
-    for( size_t fi = 0; fi < part->getIndexCount() / 3; ++fi )
+    const T* data = static_cast<const T*>(buffer->map());
+    for( size_t fi = 0; fi < buffer->getIndexCount() / 3; ++fi )
     {
-        BOOST_ASSERT(fi < outMesh->mNumFaces);
-        outMesh->mFaces[fi].mNumIndices = 3;
-        outMesh->mFaces[fi].mIndices = new unsigned int[3];
-        outMesh->mFaces[fi].mIndices[0] = data[3 * fi + 0];
-        outMesh->mFaces[fi].mIndices[1] = data[3 * fi + 1];
-        outMesh->mFaces[fi].mIndices[2] = data[3 * fi + 2];
+        BOOST_ASSERT(indexOffset < outMesh->mNumFaces);
+        outMesh->mFaces[indexOffset].mNumIndices = 3;
+        outMesh->mFaces[indexOffset].mIndices = new unsigned int[3];
+        outMesh->mFaces[indexOffset].mIndices[0] = data[3 * fi + 0];
+        outMesh->mFaces[indexOffset].mIndices[1] = data[3 * fi + 1];
+        outMesh->mFaces[indexOffset].mIndices[2] = data[3 * fi + 2];
+
+        ++indexOffset;
     }
-    part->unmap();
+    gameplay::gl::IndexBuffer::unmap();
 }
 
+void copyIndices(const std::shared_ptr<gameplay::MeshPart>& part, const gsl::not_null<aiMesh*>& outMesh)
+{
+    BOOST_ASSERT(outMesh->mFaces == nullptr);
+
+    outMesh->mNumFaces = 0;
+    for (const auto& buffer : part->getVao()->getIndexBuffers())
+    {
+        BOOST_ASSERT(buffer->getIndexCount() % 3 == 0);
+        outMesh->mNumFaces += gsl::narrow<uint32_t>(buffer->getIndexCount() / 3);
+    }
+    outMesh->mFaces = new aiFace[outMesh->mNumFaces];
+    
+    size_t offset = 0;
+    for (const auto& buffer : part->getVao()->getIndexBuffers())
+    {
+        switch (buffer->getStorageType())
+        {
+        case gameplay::gl::TypeTraits<uint8_t>::TypeId:
+            copyIndices<uint8_t>(buffer, outMesh, offset);
+            break;
+        case gameplay::gl::TypeTraits<uint16_t>::TypeId:
+            copyIndices<uint16_t>(buffer, outMesh, offset);
+            break;
+        case gameplay::gl::TypeTraits<uint32_t>::TypeId:
+            copyIndices<uint32_t>(buffer, outMesh, offset);
+            break;
+        default:
+            break;
+        }
+    }
+}
 
 template<typename T>
 T& append(T*& array, unsigned int& size, const T& value)
@@ -319,7 +352,7 @@ std::shared_ptr<gameplay::Model> Converter::readModel(const boost::filesystem::p
             }
 
             renderMesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false);
-            renderMesh->getBuffer(0).assign(vbuf);
+            renderMesh->getBuffer(0)->assign(vbuf);
         }
 
         std::vector<uint32_t> faces;
@@ -331,13 +364,22 @@ std::shared_ptr<gameplay::Model> Converter::readModel(const boost::filesystem::p
             faces.push_back(face.mIndices[2]);
         }
 
-        auto part = renderMesh->addPart(gameplay::gl::TypeTraits<decltype(faces[0])>::TypeId);
-        part->setData(faces.data(), faces.size(), false);
+        gameplay::gl::VertexArrayBuilder builder;
+        auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+        indexBuffer->setData(faces.data(), faces.size(), false);
+        builder.attach(indexBuffer);
+
+        builder.attach(renderMesh->getBuffers());
+        auto part = std::make_shared<gameplay::MeshPart>(builder.build(shaderProgram->getHandle()));
+
+        renderMesh->addPart(part);
 
         const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         aiString textureName;
-        if( material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) != aiReturn_SUCCESS )
-        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to get diffuse texture path from mesh"));
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) != aiReturn_SUCCESS)
+        {
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to get diffuse texture path from mesh"));
+        }
 
         part->setMaterial(readMaterial(textureName.C_Str(), shaderProgram));
 
@@ -431,7 +473,6 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
             allocateElementMemory(mesh, outMesh);
             copyVertexData(mesh, outMesh);
 
-            BOOST_ASSERT(part->getIndexCount() % 3 == 0);
             outMesh->mMaterialIndex = gsl::narrow<uint32_t>(globalPartIndex);
             scene->mMaterials[globalPartIndex] = new aiMaterial();
             scene->mMaterials[globalPartIndex]->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
@@ -464,23 +505,7 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
                 }
             }
 
-            outMesh->mNumFaces = gsl::narrow<uint32_t>(part->getIndexCount() / 3);
-            outMesh->mFaces = new aiFace[outMesh->mNumFaces];
-
-            switch( part->getIndexFormat() )
-            {
-                case gameplay::gl::TypeTraits<uint8_t>::TypeId:
-                    copyIndices<uint8_t>(part, outMesh);
-                    break;
-                case gameplay::gl::TypeTraits<uint16_t>::TypeId:
-                    copyIndices<uint16_t>(part, outMesh);
-                    break;
-                case gameplay::gl::TypeTraits<uint32_t>::TypeId:
-                    copyIndices<uint32_t>(part, outMesh);
-                    break;
-                default:
-                    break;
-            }
+            copyIndices(part, outMesh);
 
             if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
             {
@@ -631,7 +656,6 @@ void Converter::convert(aiScene& scene,
             allocateElementMemory(inMesh, outMesh);
             copyVertexData(inMesh, outMesh);
 
-            BOOST_ASSERT(inPart->getIndexCount() % 3 == 0);
             outMesh->mMaterialIndex = scene.mNumMaterials;
             auto outMaterial = append(scene.mMaterials, scene.mNumMaterials, new aiMaterial());
             outMaterial->AddProperty(new aiColor4D(ambientColor.r, ambientColor.g, ambientColor.b, 1), 1, AI_MATKEY_COLOR_AMBIENT);
@@ -664,23 +688,7 @@ void Converter::convert(aiScene& scene,
                 }
             }
 
-            outMesh->mNumFaces = gsl::narrow<uint32_t>(inPart->getIndexCount() / 3);
-            outMesh->mFaces = new aiFace[outMesh->mNumFaces];
-
-            switch( inPart->getIndexFormat() )
-            {
-                case gameplay::gl::TypeTraits<uint8_t>::TypeId:
-                    copyIndices<uint8_t>(inPart, outMesh);
-                    break;
-                case gameplay::gl::TypeTraits<uint16_t>::TypeId:
-                    copyIndices<uint16_t>(inPart, outMesh);
-                    break;
-                case gameplay::gl::TypeTraits<uint32_t>::TypeId:
-                    copyIndices<uint32_t>(inPart, outMesh);
-                    break;
-                default:
-                    break;
-            }
+            copyIndices(inPart, outMesh);
 
             if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
             {

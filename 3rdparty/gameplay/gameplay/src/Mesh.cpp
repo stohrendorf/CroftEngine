@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width, float height, bool invertY)
+    std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY)
     {
         struct Vertex
         {
@@ -31,7 +31,7 @@ namespace gameplay
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);
-        mesh->getBuffer(0).assign<Vertex>(vertices, 4);
+        mesh->getBuffer(0)->assign<Vertex>(vertices, 4);
 
         static const uint16_t indices[6] =
         {
@@ -39,19 +39,17 @@ namespace gameplay
             0, 2, 3
         };
 
-        auto part = mesh->addPart(gl::TypeTraits<decltype(indices[0])>::TypeId);
+        gl::VertexArrayBuilder builder;
+        
+        auto indexBuffer = std::make_shared<gl::IndexBuffer>();
+        indexBuffer->setData(indices, 6, false);
+        builder.attach(indexBuffer);
+        builder.attach(mesh->getBuffers());
 
-        part->setData(indices, 6, false);
+        auto part = std::make_shared<MeshPart>(builder.build(program));
+        mesh->addPart(part);
 
         return mesh;
-    }
-
-
-    std::shared_ptr<MeshPart> Mesh::addPart(GLint indexFormat)
-    {
-        auto part = std::make_shared<MeshPart>(this, indexFormat);
-        _parts.emplace_back(part);
-        return part;
     }
 
 

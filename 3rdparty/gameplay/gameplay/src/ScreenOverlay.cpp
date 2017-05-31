@@ -55,7 +55,7 @@ namespace gameplay
         _texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         _texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        _mesh = Mesh::createQuadFullscreen(vp.width, vp.height, true);
+        _mesh = Mesh::createQuadFullscreen(vp.width, vp.height, screenOverlayProgram->getHandle(), true);
         auto part = _mesh->getPart(0);
         part->setMaterial(std::make_shared<Material>(screenOverlayProgram));
         part->getMaterial()->getParameter("u_texture")->set(_texture);

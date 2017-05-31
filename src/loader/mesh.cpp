@@ -81,10 +81,10 @@ namespace loader
     {
         static_assert(sizeof(RenderVertex) % sizeof(float) == 0, "Invalid vertex structure");
         Expects(!m_hasNormals);
-        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
+        Expects(sizeof(v) == m_mesh->getBuffer(0)->getVertexSize());
 
         const float* data = reinterpret_cast<const float*>(&v);
-        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
+        const auto n = m_mesh->getBuffer(0)->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
         ++m_vertexCount;
     }
@@ -94,11 +94,11 @@ namespace loader
     {
         static_assert(sizeof(RenderVertexWithNormal) % sizeof(float) == 0, "Invalid vertex structure");
         Expects(m_hasNormals);
-        Expects(sizeof(v) == m_mesh->getBuffer(0).getVertexSize());
-        Expects(m_mesh->getBuffer(0).getVertexSize() % sizeof(float) == 0);
+        Expects(sizeof(v) == m_mesh->getBuffer(0)->getVertexSize());
+        Expects(m_mesh->getBuffer(0)->getVertexSize() % sizeof(float) == 0);
 
         const float* data = reinterpret_cast<const float*>(&v);
-        const auto n = m_mesh->getBuffer(0).getVertexSize() / sizeof(float);
+        const auto n = m_mesh->getBuffer(0)->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
         ++m_vertexCount;
     }
@@ -289,9 +289,9 @@ namespace loader
 
     std::shared_ptr<gameplay::Model> Mesh::ModelBuilder::finalize()
     {
-        Expects(m_vbuf.size() * sizeof(m_vbuf[0]) == m_vertexCount * m_mesh->getBuffer(0).getVertexSize());
+        Expects(m_vbuf.size() * sizeof(m_vbuf[0]) == m_vertexCount * m_mesh->getBuffer(0)->getVertexSize());
 
-        m_mesh->getBuffer(0).assignRaw(m_vbuf, m_vertexCount);
+        m_mesh->getBuffer(0)->assignRaw(m_vbuf, m_vertexCount);
 
         for( const MeshPart& localPart : m_parts )
         {
@@ -302,8 +302,16 @@ namespace loader
                 BOOST_ASSERT(idx < m_vertexCount);
             }
 #endif
-            auto part = m_mesh->addPart(gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId);
-            part->setData(localPart.indices.data(), localPart.indices.size(), true);
+            gameplay::gl::VertexArrayBuilder builder;
+            
+            auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+            indexBuffer->setData(localPart.indices.data(), localPart.indices.size(), true);
+            builder.attach(indexBuffer);
+            
+            builder.attach(m_mesh->getBuffers());
+
+            auto part = std::make_shared<gameplay::MeshPart>(builder.build(localPart.material->getShaderProgram()->getHandle()));
+            m_mesh->addPart(part);
             part->setMaterial(localPart.material);
             if( localPart.color )
             {

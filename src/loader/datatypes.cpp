@@ -57,21 +57,24 @@ namespace loader
 #ifndef NDEBUG
                     for( auto idx : localPart.indices )
                     {
-                        BOOST_ASSERT(idx < mesh->getBuffer(0).getVertexCount());
+                        BOOST_ASSERT(idx < mesh->getBuffer(0)->getVertexCount());
                     }
 #endif
+                    gameplay::gl::VertexArrayBuilder builder;
 
-                    auto part = mesh->addPart(gameplay::gl::TypeTraits<decltype(localPart.indices[0])>::TypeId);
-                    part->setData(localPart.indices.data(), localPart.indices.size(), true);
+                    auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+                    indexBuffer->setData(localPart.indices.data(), localPart.indices.size(), true);
+                    builder.attach(indexBuffer);
+
+                    builder.attach(mesh->getBuffers());
+
+                    auto part = std::make_shared<gameplay::MeshPart>(builder.build(localPart.material->getShaderProgram()->getHandle()));
+                    part->setMaterial(localPart.material);
+                    mesh->addPart(part);
                 }
 
                 auto model = std::make_shared<gameplay::Model>();
                 model->addMesh(mesh);
-
-                for( size_t i = 0; i < m_parts.size(); ++i )
-                {
-                    mesh->getPart(i)->setMaterial(m_parts[i].material);
-                }
 
                 return model;
             }
@@ -163,14 +166,14 @@ namespace loader
             renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<uint16_t>(firstVertex + 2));
         }
 
-        mesh->getBuffer(0).assign(vbuf);
+        mesh->getBuffer(0)->assign(vbuf);
 
         static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
             { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ gameplay::ext::VertexAttribute::SingleAttribute<glm::vec2>{} } }
         };
 
         mesh->addBuffer(attribs, true);
-        mesh->getBuffer(1).assign(uvCoords);
+        mesh->getBuffer(1)->assign(uvCoords);
 
         auto resModel = renderModel.toModel(mesh);
         node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));

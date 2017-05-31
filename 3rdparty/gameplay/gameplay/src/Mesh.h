@@ -27,9 +27,12 @@ namespace gameplay
         }
 
 
-        static std::shared_ptr<Mesh> createQuadFullscreen(float width, float height, bool invertY = false);
+        static std::shared_ptr<Mesh> createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
 
-        std::shared_ptr<MeshPart> addPart(GLint indexFormat);
+        void addPart(const std::shared_ptr<MeshPart>& meshPart)
+        {
+            _parts.emplace_back(meshPart);
+        }
 
         size_t getPartCount() const;
 
@@ -38,7 +41,7 @@ namespace gameplay
         virtual ~Mesh() = default;
 
 
-        ext::StructuredVertexBuffer& getBuffer(size_t idx)
+        const std::shared_ptr<ext::StructuredVertexBuffer>& getBuffer(size_t idx)
         {
             BOOST_ASSERT(idx < m_buffers.size());
 
@@ -46,13 +49,13 @@ namespace gameplay
         }
 
 
-        const std::vector<ext::StructuredVertexBuffer>& getBuffers() const
+        const std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& getBuffers() const
         {
             return m_buffers;
         }
 
 
-        std::vector<ext::StructuredVertexBuffer>& getBuffers()
+        std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& getBuffers()
         {
             return m_buffers;
         }
@@ -60,7 +63,7 @@ namespace gameplay
 
         size_t addBuffer(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
-            m_buffers.emplace_back(mapping, dynamic, label);
+            m_buffers.emplace_back(std::make_shared<ext::StructuredVertexBuffer>(mapping, dynamic, label));
             return m_buffers.size() - 1;
         }
 
@@ -73,6 +76,6 @@ namespace gameplay
 
         std::vector<std::shared_ptr<MeshPart>> _parts{};
 
-        std::vector<ext::StructuredVertexBuffer> m_buffers{};
+        std::vector<std::shared_ptr<ext::StructuredVertexBuffer>> m_buffers{};
     };
 }
