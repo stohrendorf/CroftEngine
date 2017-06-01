@@ -302,26 +302,6 @@ namespace gameplay
     }
 
 
-    gl::Program::ActiveUniform* ShaderProgram::getUniform(size_t index) const
-    {
-        size_t i = 0;
-        for( auto itr = _uniforms.begin(); itr != _uniforms.end(); ++itr , ++i )
-        {
-            if( i == index )
-            {
-                return &itr->second;
-            }
-        }
-        return nullptr;
-    }
-
-
-    size_t ShaderProgram::getUniformCount() const
-    {
-        return _uniforms.size();
-    }
-
-
     void ShaderProgram::bind()
     {
         m_handle.bind();

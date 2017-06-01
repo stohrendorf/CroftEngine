@@ -247,7 +247,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(const glm::mat4& value)
                 {
-                    glUniformMatrix4fv(m_location, 1, GL_FALSE, value_ptr(value));
+                    glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(value));
                     checkGlError();
                 }
 

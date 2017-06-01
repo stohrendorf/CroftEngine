@@ -24,10 +24,6 @@ namespace gameplay
 
         gl::Program::ActiveUniform* getUniform(const std::string& name) const;
 
-        gl::Program::ActiveUniform* getUniform(size_t index) const;
-
-        size_t getUniformCount() const;
-
         void bind();
 
 
