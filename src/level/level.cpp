@@ -1069,7 +1069,7 @@ engine::items::ItemNode* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8> >& image) const
+void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8> >& image) const
 {
     if( m_lara->isInWater() )
     {

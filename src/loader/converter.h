@@ -31,7 +31,7 @@ public:
     }
 
 
-    void write(const std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const;
+    void write(const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const;
 
 
     std::shared_ptr<gameplay::gl::Texture> readTexture(const boost::filesystem::path& path) const;

@@ -2,7 +2,7 @@
 
 #include "BoundingBox.h"
 
-#include "ext/structuredvertexbuffer.h"
+#include "gl/structuredvertexbuffer.h"
 
 #include <gsl/gsl>
 
@@ -21,7 +21,7 @@ namespace gameplay
         friend class Model;
 
     public:
-        explicit Mesh(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
+        explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
             addBuffer(mapping, dynamic, label);
         }
@@ -41,7 +41,7 @@ namespace gameplay
         virtual ~Mesh() = default;
 
 
-        const std::shared_ptr<ext::StructuredVertexBuffer>& getBuffer(size_t idx)
+        const std::shared_ptr<gl::StructuredVertexBuffer>& getBuffer(size_t idx)
         {
             BOOST_ASSERT(idx < m_buffers.size());
 
@@ -49,21 +49,21 @@ namespace gameplay
         }
 
 
-        const std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& getBuffers() const
+        const std::vector<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffers() const
         {
             return m_buffers;
         }
 
 
-        std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& getBuffers()
+        std::vector<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffers()
         {
             return m_buffers;
         }
 
 
-        size_t addBuffer(const ext::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
+        size_t addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
-            m_buffers.emplace_back(std::make_shared<ext::StructuredVertexBuffer>(mapping, dynamic, label));
+            m_buffers.emplace_back(std::make_shared<gl::StructuredVertexBuffer>(mapping, dynamic, label));
             return m_buffers.size() - 1;
         }
 
@@ -76,6 +76,6 @@ namespace gameplay
 
         std::vector<std::shared_ptr<MeshPart>> _parts{};
 
-        std::vector<std::shared_ptr<ext::StructuredVertexBuffer>> m_buffers{};
+        std::vector<std::shared_ptr<gl::StructuredVertexBuffer>> m_buffers{};
     };
 }

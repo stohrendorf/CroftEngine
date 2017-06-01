@@ -1,11 +1,11 @@
 #pragma once
 
-#include "gl/typetraits.h"
+#include "typetraits.h"
 
 
 namespace gameplay
 {
-    namespace ext
+    namespace gl
     {
         class VertexAttribute
         {
@@ -19,9 +19,9 @@ namespace gameplay
 
             template<typename T, typename U>
             explicit VertexAttribute(const U T::* member, bool normalized = false)
-                : m_type{gl::TypeTraits<U>::TypeId}
+                : m_type{TypeTraits<U>::TypeId}
                 , m_pointer{&(static_cast<T*>(nullptr) ->* member)}
-                , m_size{gl::TypeTraits<U>::ElementCount}
+                , m_size{TypeTraits<U>::ElementCount}
                 , m_normalized{normalized}
                 , m_stride{sizeof(T)}
             {
@@ -30,9 +30,9 @@ namespace gameplay
 
             template<typename U>
             explicit VertexAttribute(const SingleAttribute<U>&, bool normalized = false)
-                : m_type{gl::TypeTraits<U>::TypeId}
+                : m_type{TypeTraits<U>::TypeId}
                 , m_pointer{nullptr}
-                , m_size{gl::TypeTraits<U>::ElementCount}
+                , m_size{TypeTraits<U>::ElementCount}
                 , m_normalized{normalized}
                 , m_stride{sizeof(U)}
             {
@@ -42,10 +42,10 @@ namespace gameplay
             void bind(GLuint index) const
             {
                 glVertexAttribPointer(index, m_size, m_type, m_normalized ? GL_TRUE : GL_FALSE, m_stride, m_pointer);
-                gl::checkGlError();
+                checkGlError();
 
                 glEnableVertexAttribArray(index);
-                gl::checkGlError();
+                checkGlError();
             }
 
 

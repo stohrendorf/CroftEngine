@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gl/pixel.h"
-#include "ext/image.h"
+#include "pixel.h"
+#include "image.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -10,12 +10,12 @@
 
 namespace gameplay
 {
-    namespace ext
+    namespace gl
     {
         class Font
         {
         public:
-            void drawText(const char* text, int x, int y, const gl::RGBA8& color);
+            void drawText(const char* text, int x, int y, const RGBA8& color);
 
             void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
@@ -24,13 +24,13 @@ namespace gameplay
             ~Font();
 
 
-            void setTarget(const std::shared_ptr<Image<gl::RGBA8>>& img)
+            void setTarget(const std::shared_ptr<Image<RGBA8>>& img)
             {
                 m_targetImage = img;
             }
 
 
-            const std::shared_ptr<Image<gl::RGBA8>>& getTarget() const
+            const std::shared_ptr<Image<RGBA8>>& getTarget() const
             {
                 return m_targetImage;
             }
@@ -50,7 +50,7 @@ namespace gameplay
 
             FTC_ImageTypeRec m_imgType;
 
-            std::shared_ptr<Image<gl::RGBA8>> m_targetImage = nullptr;
+            std::shared_ptr<Image<RGBA8>> m_targetImage = nullptr;
 
             int m_x0 = 0;
 

@@ -5,7 +5,7 @@
 #include "MaterialParameter.h"
 #include "Model.h"
 #include "MeshPart.h"
-#include "ext/image.h"
+#include "gl/image.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <boost/log/trivial.hpp>
@@ -47,7 +47,7 @@ namespace gameplay
             BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
         }
 
-        _image = std::make_shared<ext::Image<gl::RGBA8>>(static_cast<GLint>(vp.width), static_cast<GLint>(vp.height));
+        _image = std::make_shared<gl::Image<gl::RGBA8>>(static_cast<GLint>(vp.width), static_cast<GLint>(vp.height));
         _image->fill({0,0,0,0});
 
         _texture = std::make_shared<gl::Texture>(GL_TEXTURE_2D);

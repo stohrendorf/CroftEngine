@@ -5,7 +5,7 @@
 #include "indexbuffer.h"
 #include "program.h"
 
-#include "ext/structuredvertexbuffer.h"
+#include "structuredvertexbuffer.h"
 
 #include <vector>
 
@@ -18,7 +18,7 @@ namespace gameplay
         {
         public:
             explicit VertexArray(const std::vector<std::shared_ptr<IndexBuffer>>& indexBuffers,
-                                 const std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& vertexBuffers,
+                                 const std::vector<std::shared_ptr<StructuredVertexBuffer>>& vertexBuffers,
                                  const Program& program,
                                  const std::string& label = {})
                 : BindableResource{glGenVertexArrays, glBindVertexArray, glDeleteVertexArrays, GL_VERTEX_ARRAY, label}
@@ -40,7 +40,7 @@ namespace gameplay
             }
 
 
-            const std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& getVertexBuffers() const
+            const std::vector<std::shared_ptr<StructuredVertexBuffer>>& getVertexBuffers() const
             {
                 return m_vertexBuffers;
             }
@@ -49,7 +49,7 @@ namespace gameplay
         private:
             std::vector<std::shared_ptr<IndexBuffer>> m_indexBuffers;
 
-            std::vector<std::shared_ptr<ext::StructuredVertexBuffer>> m_vertexBuffers;
+            std::vector<std::shared_ptr<StructuredVertexBuffer>> m_vertexBuffers;
         };
 
 
@@ -70,14 +70,14 @@ namespace gameplay
             }
 
 
-            VertexArrayBuilder& attach(const std::shared_ptr<ext::StructuredVertexBuffer>& buffer)
+            VertexArrayBuilder& attach(const std::shared_ptr<StructuredVertexBuffer>& buffer)
             {
                 m_vertexBuffers.emplace_back(buffer);
                 return *this;
             }
 
 
-            VertexArrayBuilder& attach(const std::vector<std::shared_ptr<ext::StructuredVertexBuffer>>& buffers)
+            VertexArrayBuilder& attach(const std::vector<std::shared_ptr<StructuredVertexBuffer>>& buffers)
             {
                 copy(buffers.begin(), buffers.end(), back_inserter(m_vertexBuffers));
                 return *this;
@@ -93,7 +93,7 @@ namespace gameplay
         private:
             std::vector<std::shared_ptr<IndexBuffer>> m_indexBuffers;
 
-            std::vector<std::shared_ptr<ext::StructuredVertexBuffer>> m_vertexBuffers;
+            std::vector<std::shared_ptr<StructuredVertexBuffer>> m_vertexBuffers;
         };
     }
 }

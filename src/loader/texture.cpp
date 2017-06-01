@@ -49,11 +49,11 @@ std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gamepla
 }
 
 
-std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>> DWordTexture::toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
+std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> DWordTexture::toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
 {
     if( glidos == nullptr )
     {
-        return std::make_shared<gameplay::ext::Image<gameplay::gl::RGBA8>>(256, 256, &pixels[0][0]);
+        return std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(256, 256, &pixels[0][0]);
     }
 
     BOOST_LOG_TRIVIAL(info) << "Upgrading texture " << md5 << "...";
@@ -88,7 +88,7 @@ std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>> DWordTexture::toImage
         // interleave
         cacheImage.permute_axes("cxyz");
 
-        return std::make_shared<gameplay::ext::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(cacheImage.data()));
+        return std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(cacheImage.data()));
     }
 
     cimg_library::CImg<uint8_t> original(&pixels[0][0].r, 4, 256, 256, 1, false);
@@ -148,7 +148,7 @@ std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>> DWordTexture::toImage
     // interleave
     original.permute_axes("cxyz");
 
-    return std::make_shared<gameplay::ext::Image<gameplay::gl::RGBA8>>(Resolution, Resolution, reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()));
+    return std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(Resolution, Resolution, reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()));
 }
 
 

@@ -103,7 +103,7 @@ namespace loader
             size_t m_vertexCount = 0;
             std::shared_ptr<gameplay::Mesh> m_mesh;
 
-            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
+            static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
 
 
             struct MeshPart

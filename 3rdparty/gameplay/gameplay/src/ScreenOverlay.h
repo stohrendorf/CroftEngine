@@ -2,7 +2,7 @@
 
 #include "Drawable.h"
 #include "Game.h"
-#include "ext/image.h"
+#include "gl/image.h"
 #include "Mesh.h"
 
 #include "gl/texture.h"
@@ -25,7 +25,7 @@ public:
     void draw(RenderContext& context) override;
 
 
-    const std::shared_ptr<ext::Image<gl::RGBA8>>& getImage() const
+    const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
     {
         return _image;
     }
@@ -37,7 +37,7 @@ private:
 
     ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-    std::shared_ptr<ext::Image<gl::RGBA8>> _image{nullptr};
+    std::shared_ptr<gl::Image<gl::RGBA8>> _image{nullptr};
 
     std::shared_ptr<gl::Texture> _texture{nullptr};
 

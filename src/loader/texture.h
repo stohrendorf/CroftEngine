@@ -89,7 +89,7 @@ struct DWordTexture final
 
     std::shared_ptr<gameplay::gl::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
 
-    std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
 };
 
 

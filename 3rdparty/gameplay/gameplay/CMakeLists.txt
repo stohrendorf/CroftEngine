@@ -52,11 +52,11 @@ set( GAMEPLAY_SRC
      src/gl/vertexarray.h
      src/gl/vertexbuffer.h
      src/gl/debuggroup.h
-     src/ext/font.cpp
-     src/ext/font.h
-     src/ext/image.h
-     src/ext/structuredvertexbuffer.h
-     src/ext/vertexattribute.h
+     src/gl/font.cpp
+     src/gl/font.h
+     src/gl/image.h
+     src/gl/structuredvertexbuffer.h
+     src/gl/vertexattribute.h
 )
 
 find_package(OpenGL REQUIRED)

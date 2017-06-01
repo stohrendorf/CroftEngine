@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl/util.h"
+#include "util.h"
 
 #include <vector>
 
@@ -9,7 +9,7 @@
 
 namespace gameplay
 {
-    namespace ext
+    namespace gl
     {
         template<typename TStorage>
         class Image

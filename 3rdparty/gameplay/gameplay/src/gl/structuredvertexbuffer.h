@@ -2,8 +2,8 @@
 
 #include "vertexattribute.h"
 
-#include "gl/vertexbuffer.h"
-#include "gl/program.h"
+#include "vertexbuffer.h"
+#include "program.h"
 
 #include <gsl/gsl>
 
@@ -12,9 +12,9 @@
 
 namespace gameplay
 {
-    namespace ext
+    namespace gl
     {
-        class StructuredVertexBuffer : public gl::VertexBuffer
+        class StructuredVertexBuffer : public VertexBuffer
         {
         public:
             using AttributeMapping = std::map<std::string, VertexAttribute>;
@@ -44,7 +44,7 @@ namespace gameplay
             }
 
 
-            void bind(const gl::Program& program) const
+            void bind(const Program& program) const
             {
                 VertexBuffer::bind();
 
@@ -75,7 +75,7 @@ namespace gameplay
                 }
 
                 glBufferSubData(GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData);
-                gl::checkGlError();
+                checkGlError();
             }
 
 
@@ -93,7 +93,7 @@ namespace gameplay
                     m_vertexCount = vertexCount;
 
                 glBufferData(GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData, m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
-                gl::checkGlError();
+                checkGlError();
             }
 
 
@@ -106,7 +106,7 @@ namespace gameplay
                     m_vertexCount = vertexCount;
 
                 glBufferData(GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData, m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
-                gl::checkGlError();
+                checkGlError();
             }
 
 

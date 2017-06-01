@@ -25,9 +25,9 @@ namespace gameplay
             {{0.0f, height}, {0.0f, invertY ? 1.0f : 0.0f}}
         };
 
-        ext::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, ext::VertexAttribute{&Vertex::pos}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, ext::VertexAttribute{&Vertex::uv}}
+        gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute{&Vertex::pos}},
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
         };
 
         auto mesh = std::make_shared<Mesh>(attribs, false);

@@ -14,12 +14,12 @@ namespace loader
         glm::vec2 uv;
 
 
-        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
+        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
-            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::uv } }
+            static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::position } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::color } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::uv } }
             };
 
             return attribs;
@@ -35,13 +35,13 @@ namespace loader
         glm::vec2 uv;
 
 
-        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
+        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
         {
-            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::position } },
-                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::normal } },
-                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::color } },
-                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ &RenderVertexWithNormal::uv } }
+            static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{ &RenderVertexWithNormal::position } },
+                { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::gl::VertexAttribute{ &RenderVertexWithNormal::normal } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{ &RenderVertexWithNormal::color } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{ &RenderVertexWithNormal::uv } }
             };
 
             return attribs;
@@ -49,7 +49,7 @@ namespace loader
     };
 #pragma pack(pop)
 
-    const gameplay::ext::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(bool withNormals)
+    const gameplay::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(bool withNormals)
     {
         return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
     }

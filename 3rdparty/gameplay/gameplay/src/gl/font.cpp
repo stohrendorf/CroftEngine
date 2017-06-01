@@ -12,7 +12,7 @@
 
 namespace gameplay
 {
-    namespace ext
+    namespace gl
     {
         namespace
         {
@@ -114,7 +114,7 @@ namespace gameplay
         }
 
 
-        void Font::drawText(const char* text, int x, int y, const gl::RGBA8& color)
+        void Font::drawText(const char* text, int x, int y, const RGBA8& color)
         {
             BOOST_ASSERT(text);
 
@@ -164,7 +164,7 @@ namespace gameplay
 
         void Font::drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
         {
-            drawText(text.c_str(), x, y, gl::RGBA8{red, green, blue, alpha});
+            drawText(text.c_str(), x, y, RGBA8{red, green, blue, alpha});
         }
     }
 }

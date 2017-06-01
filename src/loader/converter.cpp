@@ -46,13 +46,13 @@ struct RenderVertex
     glm::vec3 normal{0.0f};
 
 
-    static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
+    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
-        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{&RenderVertex::position}},
-            {VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{&RenderVertex::normal}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{&RenderVertex::uv}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{&RenderVertex::color}}
+        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{&RenderVertex::position}},
+            {VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::gl::VertexAttribute{&RenderVertex::normal}},
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&RenderVertex::uv}},
+            {VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{&RenderVertex::color}}
         };
 
         return attribs;
@@ -245,7 +245,7 @@ void convert(aiMatrix4x4& dst, const glm::mat4& src)
 
 namespace loader
 {
-void Converter::write(const std::shared_ptr<gameplay::ext::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const
+void Converter::write(const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const
 {
     Expects(srcImg != nullptr);
 
@@ -285,7 +285,7 @@ std::shared_ptr<gameplay::gl::Texture> Converter::readTexture(const boost::files
 
     srcImage.permute_axes("cxyz");
 
-    auto image = std::make_shared<gameplay::ext::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(srcImage.data()));
+    auto image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(w, h, reinterpret_cast<const gameplay::gl::RGBA8*>(srcImage.data()));
     auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
     texture->image2D(image->getWidth(), image->getHeight(), image->getData(), true);
     return m_textureCache[path] = texture;
