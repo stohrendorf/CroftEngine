@@ -29,14 +29,26 @@ namespace gameplay
 
         static std::shared_ptr<Mesh> createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
 
+
         void addPart(const std::shared_ptr<MeshPart>& meshPart)
         {
             _parts.emplace_back(meshPart);
         }
 
-        size_t getPartCount() const;
 
-        const std::shared_ptr<MeshPart>& getPart(size_t index);
+        size_t getPartCount() const
+        {
+            return _parts.size();
+        }
+
+
+        const std::shared_ptr<MeshPart>& getPart(size_t index)
+        {
+            BOOST_ASSERT(index < _parts.size());
+
+            return _parts[index];
+        }
+
 
         virtual ~Mesh() = default;
 
