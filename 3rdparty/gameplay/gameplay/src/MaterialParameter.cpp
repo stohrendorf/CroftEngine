@@ -27,18 +27,18 @@ namespace gameplay
     void MaterialParameter::set(float value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
     void MaterialParameter::set(int value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
@@ -47,9 +47,9 @@ namespace gameplay
         std::vector<float> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
@@ -58,18 +58,18 @@ namespace gameplay
         std::vector<int> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
     void MaterialParameter::set(const glm::vec2& value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
@@ -78,18 +78,18 @@ namespace gameplay
         std::vector<glm::vec2> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
     void MaterialParameter::set(const glm::vec3& value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
@@ -98,18 +98,18 @@ namespace gameplay
         std::vector<glm::vec3> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
     void MaterialParameter::set(const glm::vec4& value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
@@ -118,18 +118,18 @@ namespace gameplay
         std::vector<glm::vec4> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
     void MaterialParameter::set(const glm::mat4& value)
     {
         m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(value);
-            };
+        {
+            uniform.set(value);
+        };
     }
 
 
@@ -138,27 +138,27 @@ namespace gameplay
         std::vector<glm::mat4> tmp;
         tmp.assign(values, values + count);
         m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
-            };
+        {
+            uniform.set(tmp.data(), gsl::narrow<GLsizei>(tmp.size()));
+        };
     }
 
 
     void MaterialParameter::set(const std::shared_ptr<gl::Texture>& texture)
     {
         m_valueSetter = [texture](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(*texture);
-            };
+        {
+            uniform.set(*texture);
+        };
     }
 
 
-    void MaterialParameter::set(const std::vector<std::shared_ptr<gl::Texture> >& textures)
+    void MaterialParameter::set(const std::vector<std::shared_ptr<gl::Texture>>& textures)
     {
         m_valueSetter = [textures](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(textures);
-            };
+        {
+            uniform.set(textures);
+        };
     }
 
 
@@ -200,11 +200,12 @@ namespace gameplay
         if( uniform == nullptr )
             return;
 
-        if(mpsIt != node.getMaterialParameterSetters().end())
+        if( mpsIt != node.getMaterialParameterSetters().end() )
             mpsIt->second(node, *uniform);
         else
             (*m_valueSetter)(node, *uniform);
     }
+
 
     void MaterialParameter::bindWorldViewProjectionMatrix()
     {
@@ -214,6 +215,7 @@ namespace gameplay
         };
     }
 
+
     void MaterialParameter::bindModelMatrix()
     {
         m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
@@ -221,6 +223,7 @@ namespace gameplay
             uniform.set(node.getWorldMatrix());
         };
     }
+
 
     void MaterialParameter::bindViewMatrix()
     {

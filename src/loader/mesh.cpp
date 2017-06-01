@@ -305,7 +305,7 @@ namespace loader
             gameplay::gl::VertexArrayBuilder builder;
             
             auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
-            indexBuffer->setData(localPart.indices.data(), localPart.indices.size(), true);
+            indexBuffer->setData(localPart.indices, true);
             builder.attach(indexBuffer);
             
             builder.attach(m_mesh->getBuffers());

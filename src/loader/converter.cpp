@@ -366,7 +366,7 @@ std::shared_ptr<gameplay::Model> Converter::readModel(const boost::filesystem::p
 
         gameplay::gl::VertexArrayBuilder builder;
         auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
-        indexBuffer->setData(faces.data(), faces.size(), false);
+        indexBuffer->setData(faces, false);
         builder.attach(indexBuffer);
 
         builder.attach(renderMesh->getBuffers());

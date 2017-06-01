@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "RenderState.h"
 #include "Node.h"
-#include "Scene.h"
 #include "MaterialParameter.h"
 
 #include <boost/log/trivial.hpp>
@@ -24,16 +23,6 @@ namespace gameplay
     std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::_defaultState = nullptr;
 
 
-    RenderState::RenderState()
-        : _state(nullptr)
-        , _parent(nullptr)
-    {
-    }
-
-
-    RenderState::~RenderState() = default;
-
-
     void RenderState::initialize()
     {
         if( StateBlock::_defaultState == nullptr )
@@ -46,67 +35,6 @@ namespace gameplay
     void RenderState::finalize()
     {
         StateBlock::_defaultState.reset();
-    }
-
-
-    std::shared_ptr<MaterialParameter> RenderState::getParameter(const std::string& name) const
-    {
-        // Search for an existing parameter with this name.
-        for( const auto& param : _parameters )
-        {
-            BOOST_ASSERT(param);
-            if( param->getName() == name )
-            {
-                return param;
-            }
-        }
-
-        // Create a new parameter and store it in our list.
-        auto param = std::make_shared<MaterialParameter>(name);
-        _parameters.push_back(param);
-
-        return param;
-    }
-
-
-    size_t RenderState::getParameterCount() const
-    {
-        return _parameters.size();
-    }
-
-
-    const std::shared_ptr<MaterialParameter>& RenderState::getParameterByIndex(size_t index) const
-    {
-        return _parameters[index];
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void RenderState::addParameter(const std::shared_ptr<MaterialParameter>& param)
-    {
-        _parameters.push_back(param);
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void RenderState::removeParameter(const char* name)
-    {
-        for( size_t i = 0, count = _parameters.size(); i < count; ++i )
-        {
-            auto p = _parameters[i];
-            if( p->m_name == name )
-            {
-                _parameters.erase(_parameters.begin() + i);
-                break;
-            }
-        }
-    }
-
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void RenderState::setStateBlock(const std::shared_ptr<StateBlock>& state)
-    {
-        _state = state;
     }
 
 
@@ -135,70 +63,18 @@ namespace gameplay
     }
 
 
-    void RenderState::bind(const Node& node, Material* material)
+    void RenderState::bind()
     {
-        BOOST_ASSERT(material);
+        StateBlock::restore(_state ? _state->_bits : 0);
 
-        // Get the combined modified state bits for our RenderState hierarchy.
-        long stateOverrideBits = _state ? _state->_bits : 0;
-        auto rs = _parent;
-        while( rs )
+        if( _state )
         {
-            if( rs->_state )
-            {
-                stateOverrideBits |= rs->_state->_bits;
-            }
-            rs = rs->_parent;
-        }
-
-        // Restore renderer state to its default, except for explicitly specified states
-        StateBlock::restore(stateOverrideBits);
-
-        // Apply parameter bindings and renderer state for the entire hierarchy, top-down.
-        rs = nullptr;
-        auto shader = material->getShaderProgram();
-        while( (rs = getTopmost(rs)) )
-        {
-            for( const auto& param : rs->_parameters )
-            {
-                BOOST_ASSERT(param);
-                param->bind(node, shader);
-            }
-
-            if( rs->_state )
-            {
-                rs->_state->bindNoRestore();
-            }
+            _state->bindNoRestore();
         }
     }
 
 
-    RenderState* RenderState::getTopmost(const RenderState* below)
-    {
-        RenderState* rs = this;
-        if( rs == below )
-        {
-            // Nothing below ourself.
-            return nullptr;
-        }
-
-        while( rs )
-        {
-            if( rs->_parent == below || rs->_parent == nullptr )
-            {
-                // Stop traversing up here.
-                return rs;
-            }
-            rs = rs->_parent;
-        }
-
-        return nullptr;
-    }
-
-
-    RenderState::StateBlock::StateBlock()
-    {
-    }
+    RenderState::StateBlock::StateBlock() = default;
 
 
     RenderState::StateBlock::~StateBlock() = default;
@@ -211,7 +87,7 @@ namespace gameplay
         // irrespective of whether it belongs to a hierarchy of RenderStates.
         // Therefore, we call restore() here with only this StateBlock's override
         // bits to restore state before applying the new state.
-        StateBlock::restore(_bits);
+        restore(_bits);
 
         bindNoRestore();
     }
@@ -225,7 +101,7 @@ namespace gameplay
         // Update any state that differs from _defaultState and flip _defaultState bits
         if( (_bits & RS_BLEND) && (_blendEnabled != _defaultState->_blendEnabled) )
         {
-            if(_blendEnabled)
+            if( _blendEnabled )
             {
                 GL_ASSERT(glEnable(GL_BLEND));
             }
@@ -243,7 +119,7 @@ namespace gameplay
         }
         if( (_bits & RS_CULL_FACE) && (_cullFaceEnabled != _defaultState->_cullFaceEnabled) )
         {
-            if(_cullFaceEnabled)
+            if( _cullFaceEnabled )
             {
                 GL_ASSERT(glEnable(GL_CULL_FACE));
             }
@@ -265,7 +141,7 @@ namespace gameplay
         }
         if( (_bits & RS_DEPTH_TEST) && (_depthTestEnabled != _defaultState->_depthTestEnabled) )
         {
-            if(_depthTestEnabled)
+            if( _depthTestEnabled )
             {
                 GL_ASSERT(glEnable(GL_DEPTH_TEST));
             }
@@ -311,8 +187,8 @@ namespace gameplay
         {
             GL_ASSERT( glBlendFunc(GL_ONE, GL_ZERO) );
             _defaultState->_bits &= ~RS_BLEND_FUNC;
-            _defaultState->_blendSrc = RenderState::BLEND_ONE;
-            _defaultState->_blendDst = RenderState::BLEND_ZERO;
+            _defaultState->_blendSrc = BLEND_ONE;
+            _defaultState->_blendDst = BLEND_ZERO;
         }
         if( !(stateOverrideBits & RS_CULL_FACE) && (_defaultState->_bits & RS_CULL_FACE) )
         {
@@ -324,13 +200,13 @@ namespace gameplay
         {
             GL_ASSERT( glCullFace(GL_BACK) );
             _defaultState->_bits &= ~RS_CULL_FACE_SIDE;
-            _defaultState->_cullFaceSide = RenderState::CULL_FACE_SIDE_BACK;
+            _defaultState->_cullFaceSide = CULL_FACE_SIDE_BACK;
         }
         if( !(stateOverrideBits & RS_FRONT_FACE) && (_defaultState->_bits & RS_FRONT_FACE) )
         {
             GL_ASSERT( glFrontFace(GL_CCW) );
             _defaultState->_bits &= ~RS_FRONT_FACE;
-            _defaultState->_frontFace = RenderState::FRONT_FACE_CCW;
+            _defaultState->_frontFace = FRONT_FACE_CCW;
         }
         if( !(stateOverrideBits & RS_DEPTH_TEST) && (_defaultState->_bits & RS_DEPTH_TEST) )
         {
@@ -348,7 +224,7 @@ namespace gameplay
         {
             GL_ASSERT( glDepthFunc(GL_LESS) );
             _defaultState->_bits &= ~RS_DEPTH_FUNC;
-            _defaultState->_depthFunction = RenderState::DEPTH_LESS;
+            _defaultState->_depthFunction = DEPTH_LESS;
         }
     }
 

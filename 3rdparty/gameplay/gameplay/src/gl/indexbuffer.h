@@ -56,6 +56,13 @@ namespace gameplay
             }
 
 
+            template<typename T>
+            void setData(const std::vector<T>& data, bool dynamic)
+            {
+                setData(data.data(), gsl::narrow<GLsizei>(data.size()), dynamic);
+            }
+
+
             // ReSharper disable once CppMemberFunctionMayBeConst
             template<typename T>
             void setSubData(const T* indexData, GLsizei indexStart, GLsizei indexCount)

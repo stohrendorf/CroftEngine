@@ -51,18 +51,4 @@ namespace gameplay
 
         return mesh;
     }
-
-
-    size_t Mesh::getPartCount() const
-    {
-        return _parts.size();
-    }
-
-
-    const std::shared_ptr<MeshPart>& Mesh::getPart(size_t index)
-    {
-        BOOST_ASSERT(index < _parts.size());
-
-        return _parts[index];
-    }
 }

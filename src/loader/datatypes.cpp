@@ -22,12 +22,12 @@ namespace loader
             glm::vec3 normal{0.0f};
 
 
-            static const gameplay::ext::StructuredVertexBuffer::AttributeMapping& getFormat()
+            static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
             {
-                static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::position } },
-                    { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::normal } },
-                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::ext::VertexAttribute{ &RenderVertex::color } }
+                static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::position } },
+                    { VERTEX_ATTRIBUTE_NORMAL_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::normal } },
+                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{ &RenderVertex::color } }
                 };
 
                 return attribs;
@@ -63,7 +63,7 @@ namespace loader
                     gameplay::gl::VertexArrayBuilder builder;
 
                     auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
-                    indexBuffer->setData(localPart.indices.data(), localPart.indices.size(), true);
+                    indexBuffer->setData(localPart.indices, true);
                     builder.attach(indexBuffer);
 
                     builder.attach(mesh->getBuffers());
@@ -168,8 +168,8 @@ namespace loader
 
         mesh->getBuffer(0)->assign(vbuf);
 
-        static const gameplay::ext::StructuredVertexBuffer::AttributeMapping attribs{
-            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::ext::VertexAttribute{ gameplay::ext::VertexAttribute::SingleAttribute<glm::vec2>{} } }
+        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+            { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{ gameplay::gl::VertexAttribute::SingleAttribute<glm::vec2>{} } }
         };
 
         mesh->addBuffer(attribs, true);
