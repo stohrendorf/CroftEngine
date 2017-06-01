@@ -264,5 +264,4 @@ add_library(GSL INTERFACE)
 target_include_directories(GSL INTERFACE 3rdparty/GSL/include)
 
 add_subdirectory(3rdparty/gameplay)
-add_subdirectory(doc)
 add_subdirectory(src)
