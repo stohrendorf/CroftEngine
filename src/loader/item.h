@@ -2,6 +2,7 @@
 
 #include "datatypes.h"
 
+
 namespace loader
 {
     struct Item
@@ -16,55 +17,59 @@ namespace loader
 
         engine::floordata::ActivationState activationState{};
 
+
         static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<Item> item{new Item()};
+            std::unique_ptr<Item> item{std::make_unique<Item>()};
             item->type = reader.readU16();
             item->room = reader.readU16();
-            item->position = io::readCoordinates32(reader);
+            item->position = readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
-            item->activationState = engine::floordata::ActivationState{ reader.readU16() };
+            item->activationState = engine::floordata::ActivationState{reader.readU16()};
             return item;
         }
+
 
         static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
         {
-            std::unique_ptr<Item> item{new Item()};
+            std::unique_ptr<Item> item{std::make_unique<Item>()};
             item->type = reader.readU16();
             item->room = reader.readU16();
-            item->position = io::readCoordinates32(reader);
+            item->position = readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
             item->intensity2 = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{ reader.readU16() };
+            item->activationState = engine::floordata::ActivationState{reader.readU16()};
             return item;
         }
+
 
         static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
         {
-            std::unique_ptr<Item> item{new Item()};
+            std::unique_ptr<Item> item{std::make_unique<Item>()};
             item->type = reader.readU16();
             item->room = reader.readU16();
-            item->position = io::readCoordinates32(reader);
+            item->position = readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readU16();
             item->intensity2 = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{ reader.readU16() };
+            item->activationState = engine::floordata::ActivationState{reader.readU16()};
             return item;
         }
 
+
         static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
         {
-            std::unique_ptr<Item> item{new Item()};
+            std::unique_ptr<Item> item{std::make_unique<Item>()};
             item->type = reader.readU16();
             item->room = reader.readU16();
-            item->position = io::readCoordinates32(reader);
+            item->position = readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readU16();
             item->intensity2 = item->darkness;
             item->ocb = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{ reader.readU16() };
+            item->activationState = engine::floordata::ActivationState{reader.readU16()};
             return item;
         }
     };
