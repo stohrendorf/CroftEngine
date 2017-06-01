@@ -210,6 +210,7 @@ namespace engine
         void AbstractStateHandler::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
         {
             m_lara.setAnimIdGlobal(anim, firstFrame);
+            m_lara.updatePose();
         }
 
 
