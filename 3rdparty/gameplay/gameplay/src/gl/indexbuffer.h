@@ -41,7 +41,7 @@ namespace gameplay
 
             // ReSharper disable once CppMemberFunctionMayBeConst
             template<typename T>
-            void setData(const T* indexData, GLsizeiptr indexCount, bool dynamic)
+            void setData(const T* indexData, GLsizei indexCount, bool dynamic)
             {
                 Expects(indexData != nullptr);
                 Expects(indexCount >= 0);
@@ -58,7 +58,7 @@ namespace gameplay
 
             // ReSharper disable once CppMemberFunctionMayBeConst
             template<typename T>
-            void setSubData(const T* indexData, GLintptr indexStart, GLsizeiptr indexCount)
+            void setSubData(const T* indexData, GLsizei indexStart, GLsizei indexCount)
             {
                 Expects(indexData != nullptr);
                 Expects(indexStart >= 0);
@@ -87,7 +87,7 @@ namespace gameplay
             }
 
 
-            GLsizeiptr getIndexCount() const
+            GLsizei getIndexCount() const
             {
                 return m_indexCount;
             }
@@ -100,7 +100,7 @@ namespace gameplay
 
 
         private:
-            GLsizeiptr m_indexCount = 0;
+            GLsizei m_indexCount = 0;
 
             GLenum m_storageType = -1;
         };

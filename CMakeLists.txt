@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-    URL "https://github.com/stohrendorf/hunter/archive/115967c40c1756fd35cebc83ee01e403dca94a11.tar.gz"
-    SHA1 "a074fbbcc4b2cf25013a1c8083e62d681864a0c8"
+    URL "https://github.com/stohrendorf/hunter/archive/da56b07e4a409694a58bead0a5226f2963a6045a.tar.gz"
+    SHA1 "d033bee973a48f2f5e8415459f158a01074380af"
 )
 
 project(EdisonEngine)
@@ -148,12 +148,12 @@ ot_find_dependency_alt(freetype Freetype)
 target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(freetype INTERFACE ${FREETYPE_LIBRARIES})
 
-find_package(GLEW REQUIRED)
+ot_find_dependency_alt(glew GLEW)
 add_library(GLEW INTERFACE)
 target_include_directories(GLEW INTERFACE ${GLEW_INCLUDE_DIRS})
 target_link_libraries(GLEW INTERFACE ${GLEW_LIBRARIES})
 
-find_package(GLFW REQUIRED)
+ot_find_dependency_alt(glfw GLFW)
 add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${GLFW_INCLUDE_DIR})
 target_link_libraries(GLFW INTERFACE ${GLFW_LIBRARIES})
