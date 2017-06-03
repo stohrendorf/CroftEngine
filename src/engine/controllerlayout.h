@@ -40,11 +40,11 @@ public:
         return buttons.size() > it->second && buttons[it->second] == GLFW_PRESS;
     };
 
-    double getAxisValue(ControllerAxis axis, const gsl::span<const float>& values, float def) const
+    float getAxisValue(ControllerAxis axis, const gsl::span<const float>& values, float def) const
     {
         const auto it = m_axes.find(axis);
         if(it == m_axes.end())
-            return false;
+            return def;
 
         return values.size() > it->second ? values[it->second] : def;
     };

@@ -151,7 +151,7 @@ template<typename T>
 void copyIndices(const std::shared_ptr<gameplay::gl::IndexBuffer>& buffer, const gsl::not_null<aiMesh*>& outMesh, size_t& indexOffset)
 {
     const T* data = static_cast<const T*>(buffer->map());
-    for( size_t fi = 0; fi < buffer->getIndexCount() / 3; ++fi )
+    for( GLsizei fi = 0; fi < buffer->getIndexCount() / 3; ++fi )
     {
         BOOST_ASSERT(indexOffset < outMesh->mNumFaces);
         outMesh->mFaces[indexOffset].mNumIndices = 3;

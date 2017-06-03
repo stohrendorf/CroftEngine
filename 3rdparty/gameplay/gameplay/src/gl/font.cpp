@@ -1,5 +1,6 @@
+#include "font.h"
+
 #include "Base.h"
-#include "Font.h"
 #include "Game.h"
 #include "MaterialParameter.h"
 
