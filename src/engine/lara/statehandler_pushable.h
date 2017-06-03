@@ -20,8 +20,8 @@ namespace engine
             void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-                setCameraUnknown1(CamOverrideType::NotActivatedByLara);
-                setCameraRotation(-25_deg, 35_deg);
+                setCameraOldMode(CameraMode::Fixed);
+                setCameraCurrentRotation(-25_deg, 35_deg);
             }
 
 

@@ -6,6 +6,7 @@
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/items/itemnode.h"
 #include "cameracontroller.h"
+#include "ai/ai.h"
 
 
 namespace engine
@@ -50,6 +51,7 @@ namespace engine
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
             : ItemNode(level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel)
+            , routePlanner{0, -20 * loader::SectorSize, 20*loader::SectorSize, loader::QuarterSectorSize}
         {
             setAnimIdGlobal(loader::AnimationId::STAY_IDLE);
             setTargetState(LaraStateId::Stop);
@@ -225,15 +227,15 @@ namespace engine
         }
 
 
-        void setCameraRotation(core::Angle x, core::Angle y);
+        void setCameraCurrentRotation(core::Angle x, core::Angle y);
 
-        void setCameraRotationX(core::Angle x);
+        void setCameraCurrentRotationX(core::Angle x);
 
-        void setCameraRotationY(core::Angle y);
+        void setCameraCurrentRotationY(core::Angle y);
 
-        void setCameraDistance(int d);
+        void setCameraTargetDistance(int d);
 
-        void setCameraUnknown1(CamOverrideType k);
+        void setCameraOldMode(CameraMode k);
 
 
         void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
@@ -299,5 +301,10 @@ namespace engine
 #ifndef NDEBUG
         CollisionInfo lastUsedCollisionInfo;
 #endif
+
+        ai::RoutePlanner routePlanner;
+        int m_underwaterCurrentStrength = 0;
+
+        void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
     };
 }

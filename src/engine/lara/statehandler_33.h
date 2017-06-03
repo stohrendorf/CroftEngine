@@ -29,7 +29,7 @@ namespace engine
 
                 if( getLevel().m_inputHandler->getInputState().freeLook )
                 {
-                    getLevel().m_cameraController->setCamOverrideType(CamOverrideType::FreeLook);
+                    getLevel().m_cameraController->setMode(CameraMode::FreeLook);
                     getLara().addHeadRotationXY(
                         -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -40_deg, 40_deg,
                         FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -50_deg, 50_deg
@@ -44,9 +44,9 @@ namespace engine
                     return;
                 }
 
-                if( getLevel().m_cameraController->getCamOverrideType() == CamOverrideType::FreeLook )
+                if( getLevel().m_cameraController->getMode() == CameraMode::FreeLook )
                 {
-                    getLevel().m_cameraController->setCamOverrideType(CamOverrideType::None);
+                    getLevel().m_cameraController->setMode(CameraMode::Chase);
                 }
 
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )

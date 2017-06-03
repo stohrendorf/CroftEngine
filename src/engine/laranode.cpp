@@ -100,7 +100,7 @@ namespace engine
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
-        if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
+        if( getLevel().m_cameraController->getMode() != CameraMode::FreeLook )
         {
             const auto headX = m_headRotation.X;
             if( headX <= -2_deg || headX >= 2_deg )
@@ -203,7 +203,10 @@ namespace engine
         setXRotation(util::clamp(getRotation().X, -100_deg, +100_deg));
         setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
 
-        //! @todo Handle undewater current here.
+        if(m_underwaterCurrentStrength != 0)
+        {
+            handleUnderwaterCurrent(collisionInfo);
+        }
 
         updateImpl();
 
@@ -241,7 +244,7 @@ namespace engine
         collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
         collisionInfo.passableFloorDistanceTop = -100;
 
-        setCameraRotationX(-22_deg);
+        setCameraCurrentRotationX(-22_deg);
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -259,7 +262,7 @@ namespace engine
             setZRotation(0_deg);
         }
 
-        if( getLevel().m_cameraController->getCamOverrideType() != CamOverrideType::FreeLook )
+        if( getLevel().m_cameraController->getMode() != CameraMode::FreeLook )
         {
             m_headRotation.X -= m_headRotation.X / 8;
             m_headRotation.Y -= m_headRotation.Y / 8;
@@ -267,7 +270,10 @@ namespace engine
             m_torsoRotation.Y /= 2;
         }
 
-        //! @todo Handle underwater current
+        if (m_underwaterCurrentStrength != 0)
+        {
+            handleUnderwaterCurrent(collisionInfo);
+        }
 
         updateImpl();
 
@@ -559,7 +565,7 @@ namespace engine
     }
 
 
-    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool isNotLara)
+    void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
     {
         if( floorData == nullptr )
             return;
@@ -568,7 +574,7 @@ namespace engine
 
         if( chunkHeader.type == floordata::FloorDataChunkType::Death )
         {
-            if( !isNotLara )
+            if( !fromHeavy )
             {
                 if( getPosition().Y == getFloorHeight() )
                 {
@@ -586,10 +592,10 @@ namespace engine
         BOOST_ASSERT(chunkHeader.type == floordata::FloorDataChunkType::CommandSequence);
         const floordata::ActivationState activationRequest{*floorData++};
 
-        getLevel().m_cameraController->findCameraTarget(floorData);
+        getLevel().m_cameraController->findItem(floorData);
 
         bool conditionFulfilled = false, switchIsOn = false;
-        if( !isNotLara )
+        if( !fromHeavy )
         {
             switch( chunkHeader.sequenceCondition )
             {
@@ -708,15 +714,24 @@ namespace engine
                 {
                     const floordata::CameraParameters camParams{*floorData++};
                     getLevel().m_cameraController->setCamOverride(camParams, command.parameter, chunkHeader.sequenceCondition,
-                                                                  isNotLara, activationRequest, switchIsOn);
+                                                                  fromHeavy, activationRequest, switchIsOn);
                     command.isLast = camParams.isLast;
                 }
                     break;
                 case floordata::CommandOpcode::LookAt:
-                    getLevel().m_cameraController->setLookAtItem(getLevel().getItemController(command.parameter));
+                    getLevel().m_cameraController->setItem(getLevel().getItemController(command.parameter));
                     break;
                 case floordata::CommandOpcode::UnderwaterCurrent:
-                    //! @todo handle underwater current
+                {
+                    BOOST_ASSERT(command.parameter < getLevel().m_cameras.size());
+                    const auto& sink = getLevel().m_cameras[command.parameter];
+                    if(!routePlanner.searchOverride.is_initialized() || *routePlanner.searchOverride != sink.zoneId)
+                    {
+                        routePlanner.searchOverride = sink.zoneId;
+                        routePlanner.searchTarget = sink.position;
+                    }
+                    m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
+                }
                     break;
                 case floordata::CommandOpcode::FlipMap:
                     BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
@@ -830,33 +845,33 @@ namespace engine
     }
 
 
-    void LaraNode::setCameraRotation(core::Angle x, core::Angle y)
+    void LaraNode::setCameraCurrentRotation(core::Angle x, core::Angle y)
     {
-        getLevel().m_cameraController->setLocalRotation(x, y);
+        getLevel().m_cameraController->setCurrentRotation(x, y);
     }
 
 
-    void LaraNode::setCameraRotationY(core::Angle y)
+    void LaraNode::setCameraCurrentRotationY(core::Angle y)
     {
-        getLevel().m_cameraController->setLocalRotationY(y);
+        getLevel().m_cameraController->setCurrentRotationY(y);
     }
 
 
-    void LaraNode::setCameraRotationX(core::Angle x)
+    void LaraNode::setCameraCurrentRotationX(core::Angle x)
     {
-        getLevel().m_cameraController->setLocalRotationX(x);
+        getLevel().m_cameraController->setCurrentRotationX(x);
     }
 
 
-    void LaraNode::setCameraDistance(int d)
+    void LaraNode::setCameraTargetDistance(int d)
     {
-        getLevel().m_cameraController->setLocalDistance(d);
+        getLevel().m_cameraController->setTargetDistance(d);
     }
 
 
-    void LaraNode::setCameraUnknown1(CamOverrideType k)
+    void LaraNode::setCameraOldMode(CameraMode k)
     {
-        getLevel().m_cameraController->setUnknown1(k);
+        getLevel().m_cameraController->setOldMode(k);
     }
 
 
@@ -888,6 +903,65 @@ namespace engine
                 continue;
 
             item->onInteract(*this);
+        }
+    }
+
+    void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
+    {
+        core::TRCoordinates targetPos;
+        if (routePlanner.calculateTarget(targetPos , *this, *this))
+        {
+            targetPos -= getPosition();
+            moveX(util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+            moveZ(util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+            moveY(util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+            m_underwaterCurrentStrength = 0;
+            collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
+            collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
+            if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked)
+            {
+                if (getRotation().X > 35_deg)
+                {
+                    addXRotation(2_deg);
+                L_exit:
+                    if (collisionInfo.mid.floor.distance < 0)
+                    {
+                        moveY(collisionInfo.mid.floor.distance);
+                        addXRotation(2_deg);
+                    }
+                    setPosition(getPosition() + collisionInfo.shift);
+                    collisionInfo.shift = { 0, 0, 0 };
+                    collisionInfo.oldPosition = getPosition();
+                    return;
+                }
+                if (getRotation().X < -35_deg)
+                {
+                    addXRotation(-2_deg);
+                    goto L_exit;
+                }
+            }
+            else
+            {
+                if (collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision)
+                {
+                    addXRotation(-2_deg);
+                    goto L_exit;
+                }
+                if (collisionInfo.collisionType != CollisionInfo::AxisColl_InsufficientFrontCeilingSpace)
+                {
+                    if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked)
+                    {
+                        addYRotation(5_deg);
+                    }
+                    else if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked)
+                    {
+                        addYRotation(-5_deg);
+                    }
+                    goto L_exit;
+                }
+            }
+            setFallSpeed(0);
+            goto L_exit;
         }
     }
 }

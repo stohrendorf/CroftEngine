@@ -68,7 +68,7 @@ namespace engine
             //! @brief The coordinates (within #destinationBox) the NPC needs to reach
             core::TRCoordinates searchTarget;
 
-            void calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy);
+            bool calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy);
 
             std::vector<gsl::not_null<const loader::Box*>> path;
 

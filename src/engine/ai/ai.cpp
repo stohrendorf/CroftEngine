@@ -490,14 +490,14 @@ namespace engine
         }
 
 
-        void RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy)
+        bool RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy)
         {
             targetPos = npc.getPosition();
 
             findPath(npc, enemy);
             if( path.empty() )
             {
-                return;
+                return false;
             }
 
             static constexpr const uint16_t AllowNegX = (1 << 0);
@@ -555,7 +555,7 @@ namespace engine
 
                         if( reachable & StayInBox )
                         {
-                            return;
+                            return true;
                         }
 
                         // clamp the reachable area on the X axis
@@ -581,7 +581,7 @@ namespace engine
                             // This is only the case if we're not examining the NPC's start box anymore.
                             // Thus, there's no use of searching further, as we need to reach a target
                             // which we can't reach due to the obstacles we encountered so far.
-                            return;
+                            return true;
                         }
                         reachable |= StayInBox;
                     }
@@ -598,7 +598,7 @@ namespace engine
                         }
                         if( reachable & StayInBox )
                         {
-                            return;
+                            return true;
                         }
                         if( currentBox->xmin > minX )
                         {
@@ -615,7 +615,7 @@ namespace engine
                         targetPos.Z = maxZ - loader::SectorSize / 2;
                         if( reachable != AllowAll )
                         {
-                            return;
+                            return true;
                         }
                         reachable |= StayInBox;
                     }
@@ -633,7 +633,7 @@ namespace engine
                         }
                         if( reachable & StayInBox )
                         {
-                            return;
+                            return true;
                         }
                         if( currentBox->zmin > minZ )
                         {
@@ -650,7 +650,7 @@ namespace engine
                         targetPos.X = minX + loader::SectorSize / 2;
                         if( reachable != AllowAll )
                         {
-                            return;
+                            return true;
                         }
                         reachable |= StayInBox;
                     }
@@ -667,7 +667,7 @@ namespace engine
                         }
                         if( reachable & StayInBox )
                         {
-                            return;
+                            return true;
                         }
                         if( currentBox->zmin > minZ )
                         {
@@ -684,7 +684,7 @@ namespace engine
                         targetPos.X = maxX - loader::SectorSize / 2;
                         if( reachable != AllowAll )
                         {
-                            return;
+                            return true;
                         }
                         reachable |= StayInBox;
                     }
@@ -709,7 +709,7 @@ namespace engine
                     }
 
                     targetPos.Y = searchTarget.Y;
-                    return;
+                    return true;
                 }
             }
 
@@ -766,6 +766,8 @@ namespace engine
             {
                 targetPos.Y = endBox->floor;
             }
+
+            return false;
         }
 
 

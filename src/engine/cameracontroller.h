@@ -24,14 +24,14 @@ namespace engine
     class LaraNode;
 
 
-    enum class CamOverrideType
+    enum class CameraMode
     {
-        None, // 0
-        NotActivatedByLara,
+        Chase, // 0
+        Fixed,
         FreeLook, // 2
-        _3,
+        Combat,
         Cinematic,
-        ActivatedByLara
+        Heavy
     };
 
 
@@ -45,34 +45,45 @@ namespace engine
         level::Level* m_level;
         LaraNode* m_laraController;
 
-        // TR state
-        //! @brief An item to point the camera to.
-        //! @note Also modifies Lara's head and torso rotation.
-        items::ItemNode* m_itemOfInterest = nullptr;
-        const items::ItemNode* m_previousItemOfInterest = nullptr;
-        items::ItemNode* m_enemy = nullptr;
-        core::TRRotation m_enemyLookRot;
-        CamOverrideType m_unknown1 = CamOverrideType::None;
-        int m_camShakeRadius = 0;
+        //! @brief Global camera position.
+        core::RoomBoundPosition m_position;
+        //! @brief The point the camera moves around.
+        core::RoomBoundPosition m_target;
+        CameraMode m_mode = CameraMode::Chase;
+
         //! @brief Additional height of the camera above the real position.
         int m_cameraYOffset = 0;
+
+        CameraMode m_oldMode = CameraMode::Chase;
+
+        bool m_tracking = false;
+
+        // int frameCount
+
+        int m_bounce = 0;
+
+        // int underwater
+
         //! @brief Goal distance between the pivot point and the camera.
-        int m_pivotDistance = 1536;
-        //! @brief Movement smothness for adjusting the pivot position.
-        int m_pivotMovementSmoothness = 8;
-        int m_camOverrideId = -1;
-        int m_activeCamOverrideId = -1;
-        int m_camOverrideTimeout{-1};
-        CamOverrideType m_camOverrideType = CamOverrideType::None;
-        //! @brief The point the camera moves around.
-        core::RoomBoundPosition m_pivot;
-        //! @brief Global camera rotation.
-        core::TRRotation m_globalRotation;
-        //! @brief Global camera position.
-        core::RoomBoundPosition m_currentPosition;
-        bool m_lookingAtSomething = false;
+        int m_targetDistance = 1536;
         //! @brief Floor-projected pivot distance, squared.
-        int m_flatPivotDistanceSq = 0;
+        int m_targetDistanceSq = 0;
+
+        core::TRRotation m_targetRotation;
+
+        //! @brief Global camera rotation.
+        core::TRRotation m_currentRotation;
+
+        //! @brief An item to point the camera to.
+        //! @note Also modifies Lara's head and torso rotation.
+        items::ItemNode* m_item = nullptr;
+        const items::ItemNode* m_lastItem = nullptr;
+        items::ItemNode* m_enemy = nullptr;
+        //! @brief Movement smothness for adjusting the pivot position.
+        int m_trackingSmoothness = 8;
+        int m_fixedCameraId = -1;
+        int m_currentFixedCameraId = -1;
+        int m_camOverrideTimeout{-1};
 
         std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
 
@@ -86,49 +97,49 @@ namespace engine
         }
 
 
-        void setLocalRotation(core::Angle x, core::Angle y);
-        void setLocalRotationX(core::Angle x);
-        void setLocalRotationY(core::Angle y);
+        void setCurrentRotation(core::Angle x, core::Angle y);
+        void setCurrentRotationX(core::Angle x);
+        void setCurrentRotationY(core::Angle y);
 
 
-        void setLocalDistance(int d)
+        void setTargetDistance(int d)
         {
-            m_pivotDistance = d;
+            m_targetDistance = d;
         }
 
 
-        void setUnknown1(CamOverrideType k)
+        void setOldMode(CameraMode k)
         {
-            m_unknown1 = k;
+            m_oldMode = k;
         }
 
 
         void setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool isDoppelganger, const floordata::ActivationState& activationRequest, bool switchIsOn);
 
 
-        void setLookAtItem(items::ItemNode* item)
+        void setItem(items::ItemNode* item)
         {
-            if( item == nullptr || (m_camOverrideType != CamOverrideType::NotActivatedByLara && m_camOverrideType != CamOverrideType::ActivatedByLara) )
+            if( item == nullptr || (m_mode != CameraMode::Fixed && m_mode != CameraMode::Heavy) )
                 return;
 
-            m_itemOfInterest = item;
+            m_item = item;
         }
 
 
-        void findCameraTarget(const uint16_t* floorData);
+        void findItem(const uint16_t* floorData);
 
         void update();
 
 
-        void setCamOverrideType(CamOverrideType t)
+        void setMode(CameraMode t)
         {
-            m_camOverrideType = t;
+            m_mode = t;
         }
 
 
-        CamOverrideType getCamOverrideType() const noexcept
+        CameraMode getMode() const noexcept
         {
-            return m_camOverrideType;
+            return m_mode;
         }
 
 
@@ -156,7 +167,7 @@ namespace engine
 
         const loader::Room* getCurrentRoom() const
         {
-            return m_currentPosition.room;
+            return m_position.room;
         }
 
 

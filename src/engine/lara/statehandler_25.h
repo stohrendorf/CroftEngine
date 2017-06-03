@@ -19,7 +19,7 @@ namespace engine
 
             void handleInput(CollisionInfo& /*collisionInfo*/) override
             {
-                setCameraRotationY(135_deg);
+                setCameraCurrentRotationY(135_deg);
                 if( getFallSpeed() > core::FreeFallSpeedThreshold )
                     setTargetState(LaraStateId::FreeFall);
             }

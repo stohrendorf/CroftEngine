@@ -11,7 +11,7 @@
 
 namespace engine
 {
-    enum class CamOverrideType;
+    enum class CameraMode;
     using LaraStateId = loader::LaraStateId;
     struct CollisionInfo;
     class LaraNode;
@@ -181,15 +181,15 @@ namespace engine
 
             void setUnderwaterState(UnderwaterState u) noexcept;
 
-            void setCameraRotation(core::Angle x, core::Angle y);
+            void setCameraCurrentRotation(core::Angle x, core::Angle y);
 
-            void setCameraRotationX(core::Angle x);
+            void setCameraCurrentRotationX(core::Angle x);
 
-            void setCameraRotationY(core::Angle y);
+            void setCameraCurrentRotationY(core::Angle y);
 
-            void setCameraDistance(int d);
+            void setCameraTargetDistance(int d);
 
-            void setCameraUnknown1(CamOverrideType k);
+            void setCameraOldMode(CameraMode k);
 
             void laraUpdateImpl();
         };

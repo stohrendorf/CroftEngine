@@ -1338,20 +1338,26 @@ namespace loader
 
     struct Camera
     {
-        int32_t x;
-        int32_t y;
-        int32_t z;
-        uint16_t room;
-        //! @todo mutable flags
-        mutable uint16_t flags;
+        core::TRCoordinates position;
+        
+        union
+        {
+            uint16_t room;
+            uint16_t underwaterCurrentStrength;
+        };
+
+        union
+        {
+            //! @todo mutable flags
+            mutable uint16_t flags;
+            uint16_t zoneId;
+        };
 
 
         static std::unique_ptr<Camera> read(io::SDLReader& reader)
         {
             std::unique_ptr<Camera> camera{new Camera()};
-            camera->x = reader.readI32();
-            camera->y = reader.readI32();
-            camera->z = reader.readI32();
+            camera->position = io::readCoordinates32(reader);
 
             camera->room = reader.readU16();
             camera->flags = reader.readU16();

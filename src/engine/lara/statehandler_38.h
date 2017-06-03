@@ -22,7 +22,7 @@ namespace engine
             void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-                setCameraRotationY(75_deg);
+                setCameraCurrentRotationY(75_deg);
                 if( !getLevel().m_inputHandler->getInputState().action )
                     setTargetState(LaraStateId::Stop);
             }

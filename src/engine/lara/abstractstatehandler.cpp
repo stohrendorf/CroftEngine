@@ -827,33 +827,33 @@ namespace engine
         }
 
 
-        void AbstractStateHandler::setCameraRotation(core::Angle x, core::Angle y)
+        void AbstractStateHandler::setCameraCurrentRotation(core::Angle x, core::Angle y)
         {
-            m_lara.setCameraRotation(x, y);
+            m_lara.setCameraCurrentRotation(x, y);
         }
 
 
-        void AbstractStateHandler::setCameraRotationX(core::Angle x)
+        void AbstractStateHandler::setCameraCurrentRotationX(core::Angle x)
         {
-            m_lara.setCameraRotationX(x);
+            m_lara.setCameraCurrentRotationX(x);
         }
 
 
-        void AbstractStateHandler::setCameraRotationY(core::Angle y)
+        void AbstractStateHandler::setCameraCurrentRotationY(core::Angle y)
         {
-            m_lara.setCameraRotationY(y);
+            m_lara.setCameraCurrentRotationY(y);
         }
 
 
-        void AbstractStateHandler::setCameraDistance(int d)
+        void AbstractStateHandler::setCameraTargetDistance(int d)
         {
-            m_lara.setCameraDistance(d);
+            m_lara.setCameraTargetDistance(d);
         }
 
 
-        void AbstractStateHandler::setCameraUnknown1(CamOverrideType k)
+        void AbstractStateHandler::setCameraOldMode(CameraMode k)
         {
-            m_lara.setCameraUnknown1(k);
+            m_lara.setCameraOldMode(k);
         }
 
 

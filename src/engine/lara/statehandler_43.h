@@ -22,8 +22,8 @@ namespace engine
             void handleInput(CollisionInfo& collisionInfo) override
             {
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush);
-                setCameraRotation(-25_deg, -80_deg);
-                setCameraDistance(1024);
+                setCameraCurrentRotation(-25_deg, -80_deg);
+                setCameraTargetDistance(1024);
             }
 
 

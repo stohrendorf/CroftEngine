@@ -21,7 +21,7 @@ namespace engine
 
             void handleInput(CollisionInfo& collisionInfo) override
             {
-                setCameraRotation(-60_deg, 0_deg);
+                setCameraCurrentRotation(-60_deg, 0_deg);
                 collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
                 if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left || getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
                     setTargetState(LaraStateId::ShimmyLeft);
