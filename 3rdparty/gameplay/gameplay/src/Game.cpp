@@ -124,9 +124,9 @@ namespace gameplay
         GL_ASSERT(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 
         GL_ASSERT(glDebugMessageCallback(&debugCallback, nullptr));
-#endif
-
+#else
         glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+#endif
     }
 
 

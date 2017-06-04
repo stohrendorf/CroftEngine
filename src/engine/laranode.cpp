@@ -729,6 +729,7 @@ namespace engine
                     {
                         routePlanner.searchOverride = sink.zoneId;
                         routePlanner.searchTarget = sink.position;
+                        routePlanner.destinationBox.reset();
                     }
                     m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
                 }
@@ -909,59 +910,54 @@ namespace engine
     void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     {
         core::TRCoordinates targetPos;
-        if (routePlanner.calculateTarget(targetPos , *this, *this))
+        if (!routePlanner.calculateTarget(targetPos , *this, nullptr))
+            return;
+
+        targetPos -= getPosition();
+        moveX(util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+        moveZ(util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+        moveY(util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+        m_underwaterCurrentStrength = 0;
+        collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
+        collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
+        if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked)
         {
-            targetPos -= getPosition();
-            moveX(util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
-            moveZ(util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
-            moveY(util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
-            m_underwaterCurrentStrength = 0;
-            collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
-            collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
-            if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked)
+            if (getRotation().X > 35_deg)
             {
-                if (getRotation().X > 35_deg)
-                {
-                    addXRotation(2_deg);
-                L_exit:
-                    if (collisionInfo.mid.floor.distance < 0)
-                    {
-                        moveY(collisionInfo.mid.floor.distance);
-                        addXRotation(2_deg);
-                    }
-                    setPosition(getPosition() + collisionInfo.shift);
-                    collisionInfo.shift = { 0, 0, 0 };
-                    collisionInfo.oldPosition = getPosition();
-                    return;
-                }
-                if (getRotation().X < -35_deg)
-                {
-                    addXRotation(-2_deg);
-                    goto L_exit;
-                }
+                addXRotation(2_deg);
             }
-            else
+            else if (getRotation().X < -35_deg)
             {
-                if (collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision)
-                {
-                    addXRotation(-2_deg);
-                    goto L_exit;
-                }
-                if (collisionInfo.collisionType != CollisionInfo::AxisColl_InsufficientFrontCeilingSpace)
-                {
-                    if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked)
-                    {
-                        addYRotation(5_deg);
-                    }
-                    else if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked)
-                    {
-                        addYRotation(-5_deg);
-                    }
-                    goto L_exit;
-                }
+                addXRotation(-2_deg);
             }
-            setFallSpeed(0);
-            goto L_exit;
         }
+        else if (collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision)
+        {
+            addXRotation(-2_deg);
+        }
+        else if (collisionInfo.collisionType != CollisionInfo::AxisColl_InsufficientFrontCeilingSpace)
+        {
+            if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked)
+            {
+                addYRotation(5_deg);
+            }
+            else if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked)
+            {
+                addYRotation(-5_deg);
+            }
+        }
+        else
+        {
+            setFallSpeed(0);
+        }
+
+        if (collisionInfo.mid.floor.distance < 0)
+        {
+            moveY(collisionInfo.mid.floor.distance);
+            addXRotation(2_deg);
+        }
+        setPosition(getPosition() + collisionInfo.shift);
+        collisionInfo.shift = { 0, 0, 0 };
+        collisionInfo.oldPosition = getPosition();
     }
 }

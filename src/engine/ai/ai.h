@@ -68,7 +68,7 @@ namespace engine
             //! @brief The coordinates (within #destinationBox) the NPC needs to reach
             core::TRCoordinates searchTarget;
 
-            bool calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy);
+            bool calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode* enemy);
 
             std::vector<gsl::not_null<const loader::Box*>> path;
 
@@ -92,7 +92,7 @@ namespace engine
             void updateMood(Brain& brain, LookAhead& lookAhead, items::AIAgent& npc, bool ignoreProbabilities, uint16_t attackTargetUpdateProbability);
 
 
-            void findPath(const items::ItemNode& npc, const items::ItemNode& enemy);
+            void findPath(const items::ItemNode& npc, const items::ItemNode* enemy);
 
 
             static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);

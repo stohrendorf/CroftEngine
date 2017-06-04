@@ -215,19 +215,24 @@ namespace engine
             {
                 setRandomSearchTarget(*npc.getCurrentBox(), npc);
             }
-            calculateTarget(brain.moveTarget, npc, *npc.getLevel().m_lara);
+            calculateTarget(brain.moveTarget, npc, npc.getLevel().m_lara);
         }
 
 
-        void RoutePlanner::findPath(const items::ItemNode& npc, const items::ItemNode& enemy)
+        void RoutePlanner::findPath(const items::ItemNode& npc, const items::ItemNode* enemy)
         {
             path.clear();
-            searchTarget = enemy.getPosition();
 
-            BOOST_ASSERT(enemy.getCurrentBox().is_initialized());
+            if(enemy != nullptr)
+            {
+                searchTarget = enemy->getPosition();
+
+                BOOST_ASSERT(enemy->getCurrentBox().is_initialized());
+
+                destinationBox = *enemy->getCurrentBox() & ~0xc000;
+            }
 
             const auto startBox = *npc.getCurrentBox() & ~0xc000;
-            destinationBox = *enemy.getCurrentBox() & ~0xc000;
 
             static constexpr const uint16_t maxDepth = 5;
             static constexpr const int UnsetBoxId = -1;
@@ -490,8 +495,13 @@ namespace engine
         }
 
 
-        bool RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode& enemy)
+        bool RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode* enemy)
         {
+            if(searchOverride.is_initialized())
+            {
+                destinationBox = searchOverride;
+            }
+
             targetPos = npc.getPosition();
 
             findPath(npc, enemy);
