@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio/sourcehandle.h"
+#include "core/boundingbox.h"
 #include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 
@@ -31,17 +32,17 @@ namespace engine
     {
         struct InteractionLimits
         {
-            gameplay::BoundingBox distance;
+            core::BoundingBox distance;
             core::TRRotation minAngle;
             core::TRRotation maxAngle;
 
 
-            InteractionLimits(const gameplay::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
+            InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
                 : distance{bbox}
                 , minAngle{min}
                 , maxAngle{max}
             {
-                distance.repair();
+                distance.makeValid();
             }
 
 

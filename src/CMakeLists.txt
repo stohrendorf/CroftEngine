@@ -105,6 +105,7 @@ set( EDISONENGINE_SRCS
      edisonengine.cpp
 
      core/angle.h
+     core/boundingbox.h
      core/coordinates.h
      core/magic.h
 

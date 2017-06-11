@@ -286,7 +286,7 @@ namespace engine
             auto dist = glm::vec4(lara.getPosition().toRenderSystem() - item.getPosition().toRenderSystem(), 1.0f);
             glm::vec3 tdist{dist * item.getRotation().toMatrix()};
 
-            return distance.contains(tdist, 1);
+            return distance.contains(tdist);
         }
 
 

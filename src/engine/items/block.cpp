@@ -2,6 +2,7 @@
 
 #include "engine/laranode.h"
 #include "level/level.h"
+#include "core/boundingbox.h"
 
 
 namespace engine
@@ -15,8 +16,7 @@ namespace engine
                 return;
 
             static const InteractionLimits limits{
-                gameplay::BoundingBox{core::TRCoordinates{-300, 0, -692}.toRenderSystem(),
-                    core::TRCoordinates{200, 0, -512}.toRenderSystem()},
+                core::BoundingBox{{-300, 0, -692}, {200, 0, -512}},
                 {-10_deg, -30_deg, -10_deg},
                 {+10_deg, +30_deg, +10_deg}
             };

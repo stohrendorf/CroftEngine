@@ -239,7 +239,7 @@ namespace loader
     }
 
 
-    gameplay::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
+    core::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
     {
         auto result = collision_box;
 

@@ -3,6 +3,8 @@
 #include "color.h"
 #include "texture.h"
 #include "util.h"
+#include "core/boundingbox.h"
+
 
 namespace core
 {
@@ -113,8 +115,8 @@ namespace loader
     {
         uint32_t id; // Object Identifier (matched in Items[])
         uint16_t mesh; // mesh (offset into MeshPointers[])
-        gameplay::BoundingBox visibility_box;
-        gameplay::BoundingBox collision_box;
+        core::BoundingBox visibility_box;
+        core::BoundingBox collision_box;
         uint16_t flags; // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
         // like TR2's skeletons and underwater vegetation
 
@@ -124,7 +126,7 @@ namespace loader
         }
 
 
-        gameplay::BoundingBox getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
+        core::BoundingBox getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
 
 
         static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
