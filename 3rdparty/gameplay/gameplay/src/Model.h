@@ -1,20 +1,13 @@
 #pragma once
 
-#include "Mesh.h"
-#include "Material.h"
 #include "Drawable.h"
+#include "Mesh.h"
 
 
 namespace gameplay
 {
     class Model : public Drawable
     {
-        friend class Node;
-
-        friend class Scene;
-
-        friend class Mesh;
-
     public:
         explicit Model();
 
