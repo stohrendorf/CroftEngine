@@ -13,10 +13,10 @@ void main()
     if(baseColor.a < 0.5)
         discard;
 
-out_color.r = baseColor.r * v_color.r;
-out_color.g = baseColor.g * v_color.g;
-out_color.b = baseColor.b * v_color.b;
-out_color.a = baseColor.a;
+    out_color.r = baseColor.r * v_color.r;
+    out_color.g = baseColor.g * v_color.g;
+    out_color.b = baseColor.b * v_color.b;
+    out_color.a = baseColor.a;
 
 #ifdef WATER
     const vec4 WaterColor = vec4(149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 1);

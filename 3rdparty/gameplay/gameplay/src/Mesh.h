@@ -18,8 +18,6 @@ namespace gameplay
 
     class Mesh
     {
-        friend class Model;
-
     public:
         explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
@@ -70,6 +68,12 @@ namespace gameplay
         std::vector<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffers()
         {
             return m_buffers;
+        }
+
+
+        const std::vector<std::shared_ptr<MeshPart>>& getParts() const noexcept
+        {
+            return _parts;
         }
 
 

@@ -42,6 +42,51 @@ using namespace level;
 namespace
 {
     const glm::vec4 WaterColor{149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 0};
+
+
+    struct SpriteVertex
+    {
+        glm::vec3 pos;
+
+        glm::vec2 uv;
+    };
+
+
+    std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::SpriteTexture& sprite, const std::shared_ptr<gameplay::Material>& material)
+    {
+        const SpriteVertex vertices[]{
+            {{sprite.left_side, sprite.top_side, 0}, {sprite.t0.x, sprite.t0.y}},
+            {{sprite.right_side, sprite.top_side, 0}, {sprite.t1.x, sprite.t0.y}},
+            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t1.y}},
+            {{sprite.left_side, sprite.bottom_side, 0}, {sprite.t0.x, sprite.t1.y}}
+        };
+
+        gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::pos}},
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}}
+        };
+
+        auto mesh = std::make_shared<gameplay::Mesh>(attribs, false);
+        mesh->getBuffer(0)->assign<SpriteVertex>(vertices, 4);
+
+        static const uint16_t indices[6] =
+        {
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        gameplay::gl::VertexArrayBuilder builder;
+
+        auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+        indexBuffer->setData(indices, 6, false);
+        builder.attach(indexBuffer);
+        builder.attach(mesh->getBuffers());
+
+        auto part = std::make_shared<gameplay::MeshPart>(builder.build(material->getShaderProgram()->getHandle()));
+        mesh->addPart(part);
+
+        return mesh;
+    }
 }
 
 
@@ -65,7 +110,7 @@ void Level::readMeshData(loader::io::SDLReader& reader)
     size_t meshDataPos = 0;
     for( size_t i = 0; i < m_meshIndices.size(); i++ )
     {
-        std::replace(m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i);
+        replace(m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i);
 
         reader.seek(basePos + std::streamoff(meshDataPos));
 
@@ -316,7 +361,7 @@ boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 }
 
 
-std::vector<std::shared_ptr<gameplay::gl::Texture> > Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
+std::vector<std::shared_ptr<gameplay::gl::Texture>> Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
 {
     BOOST_ASSERT( !m_textures.empty() );
     std::vector<std::shared_ptr<gameplay::gl::Texture>> textures;
@@ -330,7 +375,7 @@ std::vector<std::shared_ptr<gameplay::gl::Texture> > Level::createTextures(loade
 
 
 std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>
-Level::createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture> >& textures,
+Level::createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures,
                        const std::shared_ptr<gameplay::ShaderProgram>& shader)
 {
     const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4
@@ -385,6 +430,24 @@ namespace
 
 engine::LaraNode* Level::createItems()
 {
+    auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert",
+        "shaders/colored_2.frag");
+    spriteMaterial->initStateBlockDefaults();
+    spriteMaterial->getParameter("u_worldViewProjectionMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
+    {
+        auto m = node.getViewProjectionMatrix();
+        // clear out rotation component
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                m[i][j] = 0;
+        
+        uniform.set(m);
+    });
+    spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
+    spriteMaterial->getParameter("u_baseLight")->set(glm::vec3{ 1.0f });
+    spriteMaterial->getParameter("u_baseLightDiff")->set(glm::vec3{0.0f});
+    spriteMaterial->getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
+
     engine::LaraNode* lara = nullptr;
     int id = -1;
     for( loader::Item& item : m_items )
@@ -481,42 +544,44 @@ engine::LaraNode* Level::createItems()
             m_itemNodes[id] = modelNode;
             room.node->addChild(modelNode);
 
-            modelNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
+            modelNode->setLocalMatrix(translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
             continue;
         }
 
-#if 0
-            if( const auto sequenceId = findSpriteSequenceForType(item.type) )
-            {
-                BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
-                BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
-                const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
+        if( const auto sequenceId = findSpriteSequenceForType(item.type) )
+        {
+            BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
+            BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
+            const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
-                BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
+            BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
 
-                const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
+            const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
 
-                auto sprite = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle());
-                sprite->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
+            auto spriteMesh = createSpriteMesh(tex, spriteMaterial);
+            auto model = std::make_shared<gameplay::Model>();
+            model->addMesh(spriteMesh);
 
-                std::string name = "item";
-                name += std::to_string(id);
-                name += "(type";
-                name += std::to_string(item.type);
-                name += "/spriteSequence)";
+            std::string name = "item";
+            name += std::to_string(id);
+            name += "(type";
+            name += std::to_string(item.type);
+            name += "/spriteSequence)";
 
-                auto node = std::make_shared<gameplay::Node>(name);
-                node->setDrawable(sprite);
-                node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
+            auto node = std::make_shared<gameplay::Node>(name);
+            node->setDrawable(model);
+            node->setLocalMatrix(translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
 
-        //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
-        //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
-        //m_itemNodes[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+            // m_itemNodes[id] = node;
+            room.node->addChild(node);
 
-                continue;
-            }
-#endif
+            //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
+            //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
+            //m_itemNodes[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+
+            continue;
+        }
 
         BOOST_LOG_TRIVIAL( error ) << "Failed to find an appropriate animated model for item " << id << "/type "
                                   << int(item.type);
@@ -970,7 +1035,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 
 
 gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCoordinates& position,
-                                                                               gsl::not_null<gsl::not_null<const loader::Room*>*> room) const
+                                                                gsl::not_null<gsl::not_null<const loader::Room*>*> room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
@@ -1069,7 +1134,7 @@ engine::items::ItemNode* Level::getItemController(uint16_t id) const
 }
 
 
-void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8> >& image) const
+void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>& image) const
 {
     if( m_lara->isInWater() )
     {
@@ -1183,7 +1248,6 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
     if( trackId >= 51 && trackId <= 63 )
     {
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
-        return;
     }
 }
 

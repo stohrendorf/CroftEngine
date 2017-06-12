@@ -25,7 +25,7 @@ namespace gameplay
         {
             BOOST_ASSERT(mesh);
 
-            for( const auto& part : mesh->_parts )
+            for( const auto& part : mesh->getParts() )
             {
                 BOOST_ASSERT(part);
 
