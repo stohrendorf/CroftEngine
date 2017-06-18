@@ -315,8 +315,7 @@ namespace loader
             part->setMaterial(localPart.material);
             if( localPart.color )
             {
-                auto color = *localPart.color;
-                part->registerMaterialParameterSetter([color](gameplay::Material& material)
+                part->registerMaterialParameterSetter([color = *localPart.color](gameplay::Material& material)
                     {
                         material.getParameter("u_diffuseColor")->set(color);
                     });

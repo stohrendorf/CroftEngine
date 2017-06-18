@@ -2,7 +2,6 @@ uniform sampler2D u_diffuseTexture;
 
 uniform vec3 u_diffuseColor;
 
-// varying vec2 v_texCoord;
 varying vec3 v_color;
 varying float v_shadeFactor;
 

@@ -84,7 +84,7 @@ void TR1Level::loadFileData()
     m_reader.readVector(m_textureProxies, m_reader.readU32(), loader::TextureLayoutProxy::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite textures";
-    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &loader::SpriteTexture::readTr1);
+    m_reader.readVector(m_sprites, m_reader.readU32(), &loader::Sprite::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite sequences";
     m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::readTr1);

@@ -14,10 +14,6 @@ namespace gameplay
 
     class MeshPart
     {
-        friend class Mesh;
-
-        friend class Model;
-
     public:
         using MaterialParameterSetter = void(Material& material);
 

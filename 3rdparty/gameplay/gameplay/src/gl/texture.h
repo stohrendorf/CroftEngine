@@ -20,6 +20,15 @@ namespace gameplay
 
 
             // ReSharper disable once CppMemberFunctionMayBeConst
+            void setLabel(const std::string& lbl)
+            {
+                bind();
+                glObjectLabel(GL_TEXTURE, getHandle(), lbl.length(), lbl.c_str());
+                checkGlError();
+            }
+
+
+            // ReSharper disable once CppMemberFunctionMayBeConst
             void set(GLenum param, GLint value)
             {
                 glTextureParameteri(getHandle(), param, value);
@@ -109,7 +118,7 @@ namespace gameplay
                 bind();
 
                 if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, T::InternalFormat, width, height, GL_TRUE);
+                    glTexImage2DMultisample(m_type, multisample, T::InternalFormat, width, height, GL_TRUE);
                 else
                     glTexImage2D(m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId, data.empty() ? nullptr : data.data());
                 checkGlError();
@@ -138,7 +147,7 @@ namespace gameplay
                 bind();
 
                 if( multisample > 0 )
-                glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
+                    glTexImage2DMultisample(m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
                 else
                     glTexImage2D(m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
                 checkGlError();

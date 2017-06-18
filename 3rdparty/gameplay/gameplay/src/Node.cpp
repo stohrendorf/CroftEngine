@@ -82,27 +82,27 @@ namespace gameplay
     }
 
 
-    void Node::setEnabled(bool enabled)
+    void Node::setVisible(bool visible)
     {
-        _enabled = enabled;
+        m_visible = visible;
     }
 
 
-    bool Node::isEnabled() const
+    bool Node::isVisible() const
     {
-        return _enabled;
+        return m_visible;
     }
 
 
-    bool Node::isEnabledInHierarchy() const
+    bool Node::isVisibleInHierarchy() const
     {
-        if( !_enabled )
+        if( !m_visible )
             return false;
 
         auto node = _parent;
         while( !node.expired() )
         {
-            if( !node.lock()->_enabled )
+            if( !node.lock()->m_visible )
             {
                 return false;
             }
@@ -112,12 +112,12 @@ namespace gameplay
     }
 
 
-    const glm::mat4& Node::getWorldMatrix() const
+    const glm::mat4& Node::getModelMatrix() const
     {
         if( _dirty )
         {
             // Clear our dirty flag immediately to prevent this block from being entered if our
-            // parent calls our getWorldMatrix() method as a result of the following calculations.
+            // parent calls our getModelMatrix() method as a result of the following calculations.
             _dirty = false;
 
             // If we have a parent, multiply our parent world transform by our local
@@ -125,32 +125,32 @@ namespace gameplay
             auto parent = getParent();
             if( !parent.expired() )
             {
-                m_worldMatrix = parent.lock()->getWorldMatrix() * getLocalMatrix();
+                m_modelMatrix = parent.lock()->getModelMatrix() * getLocalMatrix();
             }
             else
             {
-                m_worldMatrix = getLocalMatrix();
+                m_modelMatrix = getLocalMatrix();
             }
         }
-        return m_worldMatrix;
+        return m_modelMatrix;
     }
 
 
-    glm::mat4 Node::getWorldViewMatrix() const
+    glm::mat4 Node::getModelViewMatrix() const
     {
-        return getViewMatrix() * getWorldMatrix();
+        return getViewMatrix() * getModelMatrix();
     }
 
 
     glm::mat4 Node::getInverseTransposeWorldViewMatrix() const
     {
-        return glm::transpose(glm::inverse(getViewMatrix() * getWorldMatrix()));
+        return glm::transpose(glm::inverse(getViewMatrix() * getModelMatrix()));
     }
 
 
     glm::mat4 Node::getInverseTransposeWorldMatrix() const
     {
-        return glm::transpose(glm::inverse(getWorldMatrix()));
+        return glm::transpose(glm::inverse(getModelMatrix()));
     }
 
 
@@ -231,17 +231,9 @@ namespace gameplay
     }
 
 
-    glm::mat4 Node::getWorldViewProjectionMatrix() const
-    {
-        // Always re-calculate worldViewProjection matrix since it's extremely difficult
-        // to track whether the camera has changed (it may frequently change every frame).
-        return getViewProjectionMatrix() * getWorldMatrix();
-    }
-
-
     glm::vec3 Node::getTranslationWorld() const
     {
-        return glm::vec3(getWorldMatrix()[3]);
+        return glm::vec3(getModelMatrix()[3]);
     }
 
 

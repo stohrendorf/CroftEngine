@@ -157,7 +157,7 @@ void TR5Level::loadFileData()
     if(m_reader.readI8() != 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    m_reader.readVector(m_spriteTextures, m_reader.readU32(), &loader::SpriteTexture::readTr4);
+    m_reader.readVector(m_sprites, m_reader.readU32(), &loader::Sprite::readTr4);
 
     m_reader.readVector(m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::read);
 

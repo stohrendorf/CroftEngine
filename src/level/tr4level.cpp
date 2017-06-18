@@ -155,7 +155,7 @@ void TR4Level::loadFileData()
     if(newsrc.readI8() != 'R')
         BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: 'SPR' not found"));
 
-    newsrc.readVector(m_spriteTextures, newsrc.readU32(), &loader::SpriteTexture::readTr4);
+    newsrc.readVector(m_sprites, newsrc.readU32(), &loader::Sprite::readTr4);
 
     newsrc.readVector(m_spriteSequences, newsrc.readU32(), &loader::SpriteSequence::read);
 

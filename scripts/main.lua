@@ -114,7 +114,7 @@ levelInfos = {
 }
 
 function getLevelInfo()
-    return levelInfos[4]
+    return levelInfos[2]
 end
 
 function getGlidosPack()

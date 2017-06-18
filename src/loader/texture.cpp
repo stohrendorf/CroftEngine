@@ -23,8 +23,9 @@ std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gamepla
     texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     result->getParameter("u_diffuseTexture")->set(texture);
-    result->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
     result->getParameter("u_modelMatrix")->bindModelMatrix();
+    result->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
+    result->getParameter("u_projectionMatrix")->bindProjectionMatrix();
     result->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
     result->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
     result->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
@@ -142,7 +143,7 @@ std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> DWordTexture::toImage(
     }
 
     BOOST_LOG_TRIVIAL(info) << "Writing texture cache " << cacheName << "...";
-    create_directories(cacheName.parent_path());
+    boost::filesystem::create_directories(cacheName.parent_path());
     original.save_png(cacheName.string().c_str(), 1);
 
     // interleave
@@ -155,6 +156,7 @@ std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> DWordTexture::toImage(
 std::shared_ptr<gameplay::gl::Texture> DWordTexture::toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const
 {
     auto texture = std::make_shared<gameplay::gl::Texture>(GL_TEXTURE_2D);
+    texture->setLabel(md5);
     auto img = toImage(glidos, lvlName);
     texture->image2D(img->getWidth(), img->getHeight(), img->getData(), true);
     return texture;

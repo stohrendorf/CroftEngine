@@ -163,6 +163,7 @@ namespace gameplay
             {
             public:
                 explicit ActiveUniform(GLuint program, GLint index, GLint maxLength, GLint& samplerIndex)
+                    : m_program{ program }
                 {
                     GLchar* uniformName = new GLchar[maxLength + 1];
                     glGetActiveUniform(program, index, maxLength, nullptr, &m_size, &m_type, uniformName);
@@ -214,7 +215,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(GLfloat value)
                 {
-                    glUniform1f(m_location, value);
+                    glProgramUniform1f(m_program, m_location, value);
                     checkGlError();
                 }
 
@@ -223,7 +224,7 @@ namespace gameplay
                 void set(const GLfloat* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniform1fv(m_location, count, values);
+                    glProgramUniform1fv(m_program, m_location, count, values);
                     checkGlError();
                 }
 
@@ -231,7 +232,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(GLint value)
                 {
-                    glUniform1i(m_location, value);
+                    glProgramUniform1i(m_program, m_location, value);
                 }
 
 
@@ -239,7 +240,7 @@ namespace gameplay
                 void set(const GLint* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniform1iv(m_location, count, values);
+                    glProgramUniform1iv(m_program, m_location, count, values);
                     checkGlError();
                 }
 
@@ -247,7 +248,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(const glm::mat4& value)
                 {
-                    glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(value));
+                    glProgramUniformMatrix4fv(m_program, m_location, 1, GL_FALSE, glm::value_ptr(value));
                     checkGlError();
                 }
 
@@ -256,7 +257,7 @@ namespace gameplay
                 void set(const glm::mat4* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniformMatrix4fv(m_location, count, GL_FALSE, reinterpret_cast<const GLfloat*>(values));
+                    glProgramUniformMatrix4fv(m_program, m_location, count, GL_FALSE, reinterpret_cast<const GLfloat*>(values));
                     checkGlError();
                 }
 
@@ -264,7 +265,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(const glm::vec2& value)
                 {
-                    glUniform2f(m_location, value.x, value.y);
+                    glProgramUniform2f(m_program, m_location, value.x, value.y);
                     checkGlError();
                 }
 
@@ -273,7 +274,7 @@ namespace gameplay
                 void set(const glm::vec2* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniform2fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
+                    glProgramUniform2fv(m_program, m_location, count, reinterpret_cast<const GLfloat*>(values));
                     checkGlError();
                 }
 
@@ -281,7 +282,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(const glm::vec3& value)
                 {
-                    glUniform3f(m_location, value.x, value.y, value.z);
+                    glProgramUniform3f(m_program, m_location, value.x, value.y, value.z);
                     checkGlError();
                 }
 
@@ -290,7 +291,7 @@ namespace gameplay
                 void set(const glm::vec3* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniform3fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
+                    glProgramUniform3fv(m_program, m_location, count, reinterpret_cast<const GLfloat*>(values));
                     checkGlError();
                 }
 
@@ -298,7 +299,7 @@ namespace gameplay
                 // ReSharper disable once CppMemberFunctionMayBeConst
                 void set(const glm::vec4& value)
                 {
-                    glUniform4f(m_location, value.x, value.y, value.z, value.w);
+                    glProgramUniform4f(m_program, m_location, value.x, value.y, value.z, value.w);
                     checkGlError();
                 }
 
@@ -307,7 +308,7 @@ namespace gameplay
                 void set(const glm::vec4* values, GLsizei count)
                 {
                     BOOST_ASSERT(values != nullptr);
-                    glUniform4fv(m_location, count, reinterpret_cast<const GLfloat*>(values));
+                    glProgramUniform4fv(m_program, m_location, count, reinterpret_cast<const GLfloat*>(values));
                     checkGlError();
                 }
 
@@ -323,7 +324,7 @@ namespace gameplay
                     // Bind the sampler - this binds the texture and applies sampler state
                     texture.bind();
 
-                    glUniform1i(m_location, m_samplerIndex);
+                    glProgramUniform1i(m_program, m_location, m_samplerIndex);
                     checkGlError();
                 }
 
@@ -347,7 +348,7 @@ namespace gameplay
                     }
 
                     // Pass texture unit array to GL
-                    glUniform1iv(m_location, static_cast<GLsizei>(values.size()), units.data());
+                    glProgramUniform1iv(m_program, m_location, static_cast<GLsizei>(values.size()), units.data());
                     checkGlError();
                 }
 
@@ -368,6 +369,8 @@ namespace gameplay
                 GLint m_location = -1;
 
                 GLint m_samplerIndex = -1;
+
+                const GLuint m_program;
             };
 
 

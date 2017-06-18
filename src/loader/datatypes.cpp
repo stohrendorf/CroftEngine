@@ -79,6 +79,55 @@ namespace loader
                 return model;
             }
         };
+
+
+        struct SpriteVertex
+        {
+            glm::vec3 pos;
+
+            glm::vec2 uv;
+
+            glm::vec3 color{ 1.0f };
+        };
+
+
+        std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite, const std::shared_ptr<gameplay::Material>& material)
+        {
+            const SpriteVertex vertices[]{
+                { { sprite.left_side, sprite.top_side, 0 },{ sprite.t0.x, sprite.t1.y } },
+                { { sprite.right_side, sprite.top_side, 0 },{ sprite.t1.x, sprite.t1.y } },
+                { { sprite.right_side, sprite.bottom_side, 0 },{ sprite.t1.x, sprite.t0.y } },
+                { { sprite.left_side, sprite.bottom_side, 0 },{ sprite.t0.x, sprite.t0.y } }
+            };
+
+            gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::pos } },
+                { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::uv } },
+                { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::color } }
+            };
+
+            auto mesh = std::make_shared<gameplay::Mesh>(attribs, false);
+            mesh->getBuffer(0)->assign<SpriteVertex>(vertices, 4);
+
+            static const uint16_t indices[6] =
+            {
+                0, 1, 2,
+                0, 2, 3
+            };
+
+            gameplay::gl::VertexArrayBuilder builder;
+
+            auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+            indexBuffer->setData(indices, 6, false);
+            builder.attach(indexBuffer);
+            builder.attach(mesh->getBuffers());
+
+            auto part = std::make_shared<gameplay::MeshPart>(builder.build(material->getShaderProgram()->getHandle()));
+            part->setMaterial(material);
+            mesh->addPart(part);
+
+            return mesh;
+        }
     }
 
 
@@ -91,6 +140,33 @@ namespace loader
                                                           const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
                                                           render::TextureAnimator& animator)
     {
+        auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/textured_2.vert",
+            "shaders/textured_2.frag");
+        spriteMaterial->initStateBlockDefaults();
+        spriteMaterial->getStateBlock()->setCullFace(false);
+
+#if 1
+        spriteMaterial->getParameter("u_modelViewMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
+        {
+            auto m = node.getModelViewMatrix();
+            // clear out rotation component
+            for (int i : {0, 2})
+                for (int j = 0; j < 3; ++j)
+                    m[i][j] = i == j ? 1 : 0;
+
+            uniform.set(m);
+        });
+#else
+        spriteMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
+#endif
+
+        spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
+        spriteMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
+
+        spriteMaterial->getParameter("u_baseLight")->set(1.0f);
+        spriteMaterial->getParameter("u_baseLightDiff")->set(0.0f);
+        spriteMaterial->getParameter("u_lightPosition")->set(glm::vec3{ std::numeric_limits<float>::quiet_NaN() });
+
         RenderModel renderModel;
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
@@ -196,7 +272,7 @@ namespace loader
             auto idx = level.findStaticMeshIndexById(sm.meshId);
             BOOST_ASSERT(idx >= 0);
             BOOST_ASSERT(static_cast<size_t>(idx) < staticMeshes.size());
-            auto subNode = std::make_shared<gameplay::Node>("");
+            auto subNode = std::make_shared<gameplay::Node>("staticMesh");
             subNode->setDrawable(staticMeshes[idx]);
             subNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{0,-1,0}));
 
@@ -218,21 +294,28 @@ namespace loader
         }
         node->setLocalMatrix(glm::translate(glm::mat4{1.0f}, position.toRenderSystem()));
 
-        for( const Sprite& sprite : sprites )
+        for( const SpriteInstance& spriteInstance : sprites )
         {
-            BOOST_ASSERT(sprite.vertex < vertices.size());
-            BOOST_ASSERT(sprite.texture < level.m_spriteTextures.size());
+            BOOST_ASSERT(spriteInstance.vertex < vertices.size());
+            BOOST_ASSERT(spriteInstance.id < level.m_sprites.size());
 
-            const SpriteTexture& tex = level.m_spriteTextures[sprite.texture];
+            const Sprite& sprite = level.m_sprites[spriteInstance.id];
+            BOOST_ASSERT(sprite.texture < textures.size());
 
-            //! @fixme auto spriteNode = std::make_shared<gameplay::Sprite>(game, textures[tex.texture], tex.right_side - tex.left_side + 1, tex.bottom_side - tex.top_side + 1, tex.buildSourceRectangle(), 1, nullptr, "u_texture");
-            // spriteNode->setBlendMode(gameplay::Sprite::BLEND_ADDITIVE);
+            auto spriteMesh = createSpriteMesh(sprite, spriteMaterial);
+            auto model = std::make_shared<gameplay::Model>();
+            model->addMesh(spriteMesh);
 
-            //auto n = std::make_shared<gameplay::Node>("");
-            //n->setDrawable(spriteNode);
-            //n->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (vertices[sprite.vertex].position - core::TRCoordinates{0, tex.bottom_side / 2, 0}).toRenderSystem()));
+            auto spriteNode = std::make_shared<gameplay::Node>("sprite");
+            spriteNode->setDrawable(model);
+            spriteNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, vertices[spriteInstance.vertex].position.toRenderSystem()));
+            auto setter = [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set(*texture);
+            };
+            spriteNode->addMaterialParameterSetter("u_diffuseTexture", setter);
 
-            //node->addChild(n);
+            node->addChild(spriteNode);
         }
 
         return node;

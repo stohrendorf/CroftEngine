@@ -180,7 +180,7 @@ namespace gameplay
     }
 
 
-    void MaterialParameter::bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram)
+    bool MaterialParameter::bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram)
     {
         BOOST_ASSERT(shaderProgram);
 
@@ -193,26 +193,19 @@ namespace gameplay
                 m_loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
             }
 
-            return;
+            return false;
         }
 
         auto uniform = getUniform(shaderProgram);
         if( uniform == nullptr )
-            return;
+            return false;
 
         if( mpsIt != node.getMaterialParameterSetters().end() )
             mpsIt->second(node, *uniform);
         else
             (*m_valueSetter)(node, *uniform);
-    }
 
-
-    void MaterialParameter::bindWorldViewProjectionMatrix()
-    {
-        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
-        {
-            uniform.set(node.getWorldViewProjectionMatrix());
-        };
+        return true;
     }
 
 
@@ -220,7 +213,7 @@ namespace gameplay
     {
         m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
         {
-            uniform.set(node.getWorldMatrix());
+            uniform.set(node.getModelMatrix());
         };
     }
 
@@ -230,6 +223,24 @@ namespace gameplay
         m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
         {
             uniform.set(node.getViewMatrix());
+        };
+    }
+
+
+    void MaterialParameter::bindModelViewMatrix()
+    {
+        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
+        {
+            uniform.set(node.getViewMatrix() * node.getModelMatrix());
+        };
+    }
+
+
+    void MaterialParameter::bindProjectionMatrix()
+    {
+        m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform)
+        {
+            uniform.set(node.getProjectionMatrix());
         };
     }
 }

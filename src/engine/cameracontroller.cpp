@@ -124,10 +124,10 @@ namespace engine
     void CameraController::tracePortals()
     {
         for( const loader::Room& room : m_level->m_rooms )
-            room.node->setEnabled(false);
+            room.node->setVisible(false);
 
         auto startRoom = m_position.room;
-        startRoom->node->setEnabled(true);
+        startRoom->node->setVisible(true);
 
         // Breadth-first queue
         std::queue<render::PortalTracer> toVisit;
@@ -139,7 +139,7 @@ namespace engine
             if( !path.checkVisibility(&portal, *m_camera.get()) )
                 continue;
 
-            m_level->m_rooms[portal.adjoining_room].node->setEnabled(true);
+            m_level->m_rooms[portal.adjoining_room].node->setVisible(true);
 
             toVisit.emplace(std::move(path));
         }
@@ -164,7 +164,7 @@ namespace engine
                 if( !newPath.checkVisibility(&srcPortal, *m_camera.get()) )
                     continue;
 
-                m_level->m_rooms[srcPortal.adjoining_room].node->setEnabled(true);
+                m_level->m_rooms[srcPortal.adjoining_room].node->setVisible(true);
                 toVisit.emplace(std::move(newPath));
             }
         }

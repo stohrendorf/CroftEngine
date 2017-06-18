@@ -49,21 +49,24 @@ namespace
         glm::vec3 pos;
 
         glm::vec2 uv;
+
+        glm::vec3 color{1.0f};
     };
 
 
-    std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::SpriteTexture& sprite, const std::shared_ptr<gameplay::Material>& material)
+    std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite, const std::shared_ptr<gameplay::Material>& material)
     {
         const SpriteVertex vertices[]{
-            {{sprite.left_side, sprite.top_side, 0}, {sprite.t0.x, sprite.t0.y}},
-            {{sprite.right_side, sprite.top_side, 0}, {sprite.t1.x, sprite.t0.y}},
-            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t1.y}},
-            {{sprite.left_side, sprite.bottom_side, 0}, {sprite.t0.x, sprite.t1.y}}
+            {{sprite.left_side, sprite.top_side, 0}, {sprite.t0.x, sprite.t1.y}},
+            {{sprite.right_side, sprite.top_side, 0}, {sprite.t1.x, sprite.t1.y}},
+            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t0.y}},
+            {{sprite.left_side, sprite.bottom_side, 0}, {sprite.t0.x, sprite.t0.y}}
         };
 
         gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
             {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::pos}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}}
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}},
+            {VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::color}}
         };
 
         auto mesh = std::make_shared<gameplay::Mesh>(attribs, false);
@@ -84,6 +87,7 @@ namespace
 
         auto part = std::make_shared<gameplay::MeshPart>(builder.build(material->getShaderProgram()->getHandle()));
         mesh->addPart(part);
+        part->setMaterial(material);
 
         return mesh;
     }
@@ -428,24 +432,33 @@ namespace
 }
 
 
-engine::LaraNode* Level::createItems()
+engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
 {
-    auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert",
-        "shaders/colored_2.frag");
+    auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/textured_2.vert",
+        "shaders/textured_2.frag");
     spriteMaterial->initStateBlockDefaults();
-    spriteMaterial->getParameter("u_worldViewProjectionMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
+    spriteMaterial->getStateBlock()->setCullFace(false);
+
+#if 1
+    spriteMaterial->getParameter("u_modelViewMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
     {
-        auto m = node.getViewProjectionMatrix();
+        auto m = node.getModelViewMatrix();
         // clear out rotation component
-        for (int i = 0; i < 3; ++i)
+        for (int i : {0, 2})
             for (int j = 0; j < 3; ++j)
-                m[i][j] = 0;
-        
+                m[i][j] = i == j ? 1 : 0;
+
         uniform.set(m);
     });
+#else
+    spriteMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
+#endif
+
     spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    spriteMaterial->getParameter("u_baseLight")->set(glm::vec3{ 1.0f });
-    spriteMaterial->getParameter("u_baseLightDiff")->set(glm::vec3{0.0f});
+    spriteMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
+
+    spriteMaterial->getParameter("u_baseLight")->set(1.0f);
+    spriteMaterial->getParameter("u_baseLightDiff")->set(0.0f);
     spriteMaterial->getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
 
     engine::LaraNode* lara = nullptr;
@@ -457,7 +470,7 @@ engine::LaraNode* Level::createItems()
         BOOST_ASSERT( item.room < m_rooms.size() );
         loader::Room& room = m_rooms[item.room];
 
-        const auto type = mapSpriteToModel(item.type);
+        const auto type = item.type; // TODO mapSpriteToModel(item.type);
 
         if( const auto modelIdx = findAnimatedModelIndexForType(type) )
         {
@@ -544,22 +557,22 @@ engine::LaraNode* Level::createItems()
             m_itemNodes[id] = modelNode;
             room.node->addChild(modelNode);
 
-            modelNode->setLocalMatrix(translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
+            modelNode->setLocalMatrix(translate(glm::mat4{1.0f}, (item.position - room.position).toRenderSystem()));
 
             continue;
         }
 
-        if( const auto sequenceId = findSpriteSequenceForType(item.type) )
+        if( const auto sequenceId = findSpriteSequenceForType(type) )
         {
-            BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
+            BOOST_ASSERT(!findAnimatedModelIndexForType(type));
             BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
-            BOOST_ASSERT(spriteSequence.offset < m_spriteTextures.size());
+            BOOST_ASSERT(spriteSequence.offset < m_sprites.size());
 
-            const loader::SpriteTexture& tex = m_spriteTextures[spriteSequence.offset];
+            const loader::Sprite& sprite = m_sprites[spriteSequence.offset];
 
-            auto spriteMesh = createSpriteMesh(tex, spriteMaterial);
+            auto spriteMesh = createSpriteMesh(sprite, spriteMaterial);
             auto model = std::make_shared<gameplay::Model>();
             model->addMesh(spriteMesh);
 
@@ -571,10 +584,16 @@ engine::LaraNode* Level::createItems()
 
             auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(model);
-            node->setLocalMatrix(translate(glm::mat4{1.0f}, item.position.toRenderSystem()));
+            auto setter = [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set(*texture);
+            };
+            node->addMaterialParameterSetter("u_diffuseTexture", setter);
 
             // m_itemNodes[id] = node;
             room.node->addChild(node);
+
+            node->setLocalMatrix(translate(glm::mat4{ 1.0f }, (item.position - room.position).toRenderSystem()));
 
             //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
             //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
@@ -820,8 +839,9 @@ void Level::setUpRendering(gameplay::Game* game,
     std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert",
                                                                                              "shaders/colored_2.frag");
     colorMaterial->initStateBlockDefaults();
-    colorMaterial->getParameter("u_worldViewProjectionMatrix")->bindWorldViewProjectionMatrix();
     colorMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
+    colorMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
+    colorMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
     colorMaterial->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
     colorMaterial->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
     colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
@@ -976,7 +996,7 @@ void Level::setUpRendering(gameplay::Game* game,
         objWriter.write(m_rooms, m_boxes, "_level.dae", materials, waterMaterials);
     }
 
-    m_lara = createItems();
+    m_lara = createItems(textures);
     if( m_lara == nullptr )
         return;
 

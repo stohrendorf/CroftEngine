@@ -79,13 +79,15 @@ namespace gameplay
         }
 
 
-        void bindWorldViewProjectionMatrix();
-
         void bindModelMatrix();
 
         void bindViewMatrix();
 
-        void bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram);
+        void bindModelViewMatrix();
+
+        void bindProjectionMatrix();
+
+        bool bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram);
 
     private:
 

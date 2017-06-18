@@ -14,6 +14,9 @@ namespace gameplay
         : _shaderProgram{shaderProgram}
     {
         BOOST_ASSERT(shaderProgram != nullptr);
+
+        for (const auto& u : _shaderProgram->getHandle().getActiveUniforms())
+            _parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
     }
 
 
@@ -28,6 +31,9 @@ namespace gameplay
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create shader. vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << boost::algorithm::join(defines, "; ");
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader"));
         }
+
+        for (const auto& u : _shaderProgram->getHandle().getActiveUniforms())
+            _parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
     }
 
 
@@ -35,15 +41,21 @@ namespace gameplay
     {
         BOOST_ASSERT(_shaderProgram != nullptr);
 
-        _shaderProgram->bind();
-
-        RenderState::bind();
-
         for( const auto& param : _parameters )
         {
             BOOST_ASSERT(param);
-            param->bind(node, _shaderProgram);
+            const auto success = param->bind(node, _shaderProgram);
+#ifndef NDEBUG
+            if(!success)
+            {
+                BOOST_LOG_TRIVIAL(warning) << "Failed to bind material parameter " << param->getName();
+            }
+#endif
         }
+
+        _shaderProgram->bind();
+
+        RenderState::bind();
     }
 
 

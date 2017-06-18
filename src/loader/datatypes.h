@@ -48,11 +48,14 @@ namespace loader
 {
     constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
     constexpr const uint16_t TextureIndexMask = 0x0FFF;
+
     //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
     constexpr const uint16_t TextureFlippedMask = 0x8000;
 
     constexpr int SectorSize = 1024;
+
     constexpr int QuarterSectorSize = SectorSize / 4;
+
     constexpr int HeightLimit = 127 * QuarterSectorSize;
 
 
@@ -137,9 +140,13 @@ namespace loader
         uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
         uint8_t unknown; // always 0xff?
         int r_inner;
+
         int r_outer;
+
         int length;
+
         int cutoff;
+
         core::TRCoordinates dir; // direction
         core::TRCoordinates pos2; // world coords
         core::TRCoordinates dir2; // direction
@@ -297,17 +304,17 @@ namespace loader
     };
 
 
-    struct Sprite
+    struct SpriteInstance
     {
         uint16_t vertex; // offset into vertex list
-        uint16_t texture; // offset into sprite texture list
+        uint16_t id;
 
         /// \brief reads a room sprite definition.
-        static Sprite read(io::SDLReader& reader)
+        static SpriteInstance read(io::SDLReader& reader)
         {
-            Sprite room_sprite;
+            SpriteInstance room_sprite;
             room_sprite.vertex = reader.readU16();
-            room_sprite.texture = reader.readU16();
+            room_sprite.id = reader.readU16();
             return room_sprite;
         }
     };
@@ -318,24 +325,42 @@ namespace loader
     struct Layer
     {
         uint16_t num_vertices;
+
         uint16_t unknown_l1;
+
         uint16_t unknown_l2;
+
         uint16_t num_rectangles;
+
         uint16_t num_triangles;
+
         uint16_t unknown_l3;
+
         uint16_t unknown_l4;
+
         //  The following 6 floats define the bounding box for the layer
         float bounding_box_x1;
+
         float bounding_box_y1;
+
         float bounding_box_z1;
+
         float bounding_box_x2;
+
         float bounding_box_y2;
+
         float bounding_box_z2;
+
         int16_t unknown_l6a;
+
         int16_t unknown_l6b;
+
         int16_t unknown_l7a;
+
         int16_t unknown_l7b;
+
         int16_t unknown_l8a;
+
         int16_t unknown_l8b;
 
 
@@ -376,6 +401,7 @@ namespace loader
     {
         core::TRCoordinates position; // where this vertex lies (relative to tr2_room_info::x/z)
         int16_t darkness;
+
         uint16_t attributes; // A set of flags for special rendering effects [absent from TR1 data files]
         // 0x8000 something to do with water surface
         // 0x4000 under water lighting modulation and
@@ -385,6 +411,7 @@ namespace loader
         int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
         // TR5 -->
         core::TRCoordinates normal;
+
         glm::vec4 color{0.0f};
 
 
@@ -407,7 +434,7 @@ namespace loader
             // only in TR5
             room_vertex.normal = {0,0,0};
             auto f = 1.0f - float(room_vertex.darkness) / 0x1fff;
-            if(f == 0)
+            if( f == 0 )
                 f = 1;
             room_vertex.color = {f, f, f, 1};
             return room_vertex;
@@ -490,27 +517,42 @@ namespace loader
         // specify environment type and some additional actions which should
         // be performed in such rooms.
         static constexpr uint16_t TR_ROOM_FLAG_WATER = 0x0001;
+
         static constexpr uint16_t TR_ROOM_FLAG_QUICKSAND = 0x0002; // Moved from 0x0080 to avoid confusion with NL.
         static constexpr uint16_t TR_ROOM_FLAG_SKYBOX = 0x0008;
+
         static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN1 = 0x0010;
+
         static constexpr uint16_t TR_ROOM_FLAG_WIND = 0x0020;
+
         static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2 = 0x0040; ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
         static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE = 0x0080; // In TR4-5. Was quicksand in TR3.
         static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100; ///< @FIXME: Unknown meaning in TR1!!!
         static constexpr uint16_t TR_ROOM_FLAG_CAUSTICS = 0x0200;
+
         static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN3 = 0x0400;
+
         static constexpr uint16_t TR_ROOM_FLAG_DAMAGE = 0x0800; ///< @FIXME: Is it really damage (D)?
         static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
         core::TRCoordinates position;
+
         int lowestHeight;
+
         int greatestHeight;
+
         std::vector<Layer> layers;
+
         std::vector<RoomVertex> vertices;
+
         std::vector<QuadFace> rectangles;
+
         std::vector<Triangle> triangles;
-        std::vector<Sprite> sprites;
+
+        std::vector<SpriteInstance> sprites;
+
         std::vector<Portal> portals;
+
         uint16_t sectorCountZ; // "width" of sector list
         uint16_t sectorCountX; // "height" of sector list
         std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
@@ -539,13 +581,14 @@ namespace loader
         // TR3 most likely has flags for "is raining", "is snowing", "water is cold", and "is
         // filled by quicksand", among others.
 
-        inline bool isWaterRoom() const noexcept
+        bool isWaterRoom() const noexcept
         {
             return (flags & TR_ROOM_FLAG_WATER) != 0;
         }
 
 
         uint8_t waterScheme;
+
         // Water scheme is used with various room options, for example, R and M room flags in TRLE.
         // Also, it specifies lighting scheme, when 0x4000 vertex attribute is set.
 
@@ -559,16 +602,25 @@ namespace loader
         // TR5 only:
 
         float room_x;
+
         float room_z;
+
         float room_y_bottom;
+
         float room_y_top;
 
         uint32_t unknown_r1;
+
         uint32_t unknown_r2;
+
         uint32_t unknown_r3;
+
         uint16_t unknown_r4a;
+
         uint16_t unknown_r4b;
+
         uint32_t unknown_r5;
+
         uint32_t unknown_r6;
 
 
@@ -581,7 +633,7 @@ namespace loader
           */
         static std::unique_ptr<Room> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<Room> room{new Room()};
+            std::unique_ptr<Room> room{std::make_unique<Room>()};
 
             // read and change coordinate system
             room->position.X = reader.readI32();
@@ -597,7 +649,7 @@ namespace loader
             reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr1);
             reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
             reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
-            reader.readVector(room->sprites, reader.readU16(), &Sprite::read);
+            reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
             // set to the right position in case that there is some unused data
             reader.seek(position + num_data_words * 2);
@@ -636,7 +688,7 @@ namespace loader
 
         static std::unique_ptr<Room> readTr2(io::SDLReader& reader)
         {
-            std::unique_ptr<Room> room{new Room()};
+            std::unique_ptr<Room> room{std::make_unique<Room>()};
             // read and change coordinate system
             room->position.X = reader.readI32();
             room->position.Y = 0;
@@ -651,7 +703,7 @@ namespace loader
             reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr2);
             reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
             reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
-            reader.readVector(room->sprites, reader.readU16(), &Sprite::read);
+            reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
             // set to the right position in case that there is some unused data
             reader.seek(position + num_data_words * 2);
@@ -696,7 +748,7 @@ namespace loader
 
         static std::unique_ptr<Room> readTr3(io::SDLReader& reader)
         {
-            std::unique_ptr<Room> room{new Room()};
+            std::unique_ptr<Room> room{std::make_unique<Room>()};
 
             // read and change coordinate system
             room->position.X = reader.readI32();
@@ -712,7 +764,7 @@ namespace loader
             reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr3);
             reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
             reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
-            reader.readVector(room->sprites, reader.readU16(), &Sprite::read);
+            reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
             // set to the right position in case that there is some unused data
             reader.seek(position + num_data_words * 2);
@@ -762,7 +814,7 @@ namespace loader
 
         static std::unique_ptr<Room> readTr4(io::SDLReader& reader)
         {
-            std::unique_ptr<Room> room{new Room()};
+            std::unique_ptr<Room> room{std::make_unique<Room>()};
             // read and change coordinate system
             room->position.X = reader.readI32();
             room->position.Y = 0;
@@ -777,7 +829,7 @@ namespace loader
             reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr4);
             reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
             reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
-            reader.readVector(room->sprites, reader.readU16(), &Sprite::read);
+            reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
             // set to the right position in case that there is some unused data
             reader.seek(position + num_data_words * 2);
@@ -828,7 +880,7 @@ namespace loader
             const std::streampos position = reader.tell();
             const std::streampos endPos = position + room_data_size;
 
-            std::unique_ptr<Room> room{new Room()};
+            std::unique_ptr<Room> room{std::make_unique<Room>()};
             room->ambientDarkness = 32767;
             room->intensity2 = 32767;
             room->lightMode = 0;
@@ -1052,8 +1104,8 @@ namespace loader
 
         std::shared_ptr<gameplay::Node> createSceneNode(gameplay::Game* game, size_t roomId, const level::Level& level,
                                                         const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures,
-                                                        const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                        const std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
+                                                        const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
+                                                        const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
                                                         const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes, render::TextureAnimator& animator);
 
 
@@ -1152,15 +1204,20 @@ namespace loader
     };
 
 
-    struct SpriteTexture
+    struct Sprite
     {
         uint16_t texture;
+
         glm::vec2 t0;
+
         glm::vec2 t1;
 
         int16_t left_side;
+
         int16_t top_side;
+
         int16_t right_side;
+
         int16_t bottom_side;
 
 
@@ -1168,13 +1225,15 @@ namespace loader
           *
           * some sanity checks get done and if they fail an exception gets thrown.
           */
-        static std::unique_ptr<SpriteTexture> readTr1(io::SDLReader& reader)
+        static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<SpriteTexture> sprite_texture{new SpriteTexture()};
+            std::unique_ptr<Sprite> sprite_texture{std::make_unique<Sprite>()};
 
             sprite_texture->texture = reader.readU16();
             if( sprite_texture->texture > 64 )
-            BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture: tile > 64";
+            {
+                BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture: tile > 64";
+            }
 
             int tx = reader.readU8();
             int ty = reader.readU8();
@@ -1200,12 +1259,14 @@ namespace loader
         }
 
 
-        static std::unique_ptr<SpriteTexture> readTr4(io::SDLReader& reader)
+        static std::unique_ptr<Sprite> readTr4(io::SDLReader& reader)
         {
-            std::unique_ptr<SpriteTexture> sprite_texture{new SpriteTexture()};
+            std::unique_ptr<Sprite> sprite_texture{std::make_unique<Sprite>()};
             sprite_texture->texture = reader.readU16();
             if( sprite_texture->texture > 128 )
-            BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture: tile > 128";
+            {
+                BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture: tile > 128";
+            }
 
             int tx = reader.readU8();
             int ty = reader.readU8();
@@ -1227,16 +1288,6 @@ namespace loader
             sprite_texture->top_side = ty + th / 256;
             return sprite_texture;
         }
-
-
-        gameplay::Rectangle buildSourceRectangle() const
-        {
-            auto size = t1 - t0;
-            return gameplay::Rectangle{
-                t0.x, t0.y,
-                size.x, size.y
-            };
-        }
     };
 
 
@@ -1252,7 +1303,7 @@ namespace loader
           */
         static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
+            std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
             sprite_sequence->type = reader.readU32();
             sprite_sequence->length = reader.readI16();
             sprite_sequence->offset = reader.readU16();
@@ -1268,7 +1319,7 @@ namespace loader
 
         static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
         {
-            std::unique_ptr<SpriteSequence> sprite_sequence{new SpriteSequence()};
+            std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
             sprite_sequence->type = reader.readU32();
             sprite_sequence->length = reader.readI16();
             sprite_sequence->offset = reader.readI16();
@@ -1281,8 +1332,11 @@ namespace loader
     {
         int32_t zmin; // sectors (* 1024 units)
         int32_t zmax;
+
         int32_t xmin;
+
         int32_t xmax;
+
         int16_t floor; // Y value (no scaling)
         //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
         //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
@@ -1292,7 +1346,7 @@ namespace loader
 
         static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<Box> box{new Box()};
+            std::unique_ptr<Box> box{std::make_unique<Box>()};
             box->zmin = reader.readI32();
             box->zmax = reader.readI32();
             box->xmin = reader.readI32();
@@ -1305,7 +1359,7 @@ namespace loader
 
         static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
         {
-            std::unique_ptr<Box> box{new Box()};
+            std::unique_ptr<Box> box{std::make_unique<Box>()};
             box->zmin = 1024 * reader.readU8();
             box->zmax = 1024 * reader.readU8();
             box->xmin = 1024 * reader.readU8();
@@ -1331,7 +1385,9 @@ namespace loader
 
 
         ZoneData groundZone1{};
+
         ZoneData groundZone2{};
+
         ZoneData flyZone{};
     };
 
@@ -1339,25 +1395,29 @@ namespace loader
     struct Camera
     {
         core::TRCoordinates position;
-        
+
+
         union
         {
             uint16_t room;
+
             uint16_t underwaterCurrentStrength;
         };
+
 
         union
         {
             //! @todo mutable flags
             mutable uint16_t flags;
+
             uint16_t zoneId;
         };
 
 
         static std::unique_ptr<Camera> read(io::SDLReader& reader)
         {
-            std::unique_ptr<Camera> camera{new Camera()};
-            camera->position = io::readCoordinates32(reader);
+            std::unique_ptr<Camera> camera{std::make_unique<Camera>()};
+            camera->position = readCoordinates32(reader);
 
             camera->room = reader.readU16();
             camera->flags = reader.readU16();
@@ -1384,24 +1444,37 @@ namespace loader
     struct FlybyCamera
     {
         int32_t cam_x;
+
         int32_t cam_y;
+
         int32_t cam_z;
+
         int32_t target_x;
+
         int32_t target_y;
+
         int32_t target_z;
+
         uint8_t sequence;
+
         uint8_t index;
+
         uint16_t fov;
+
         uint16_t roll;
+
         uint16_t timer;
+
         uint16_t speed;
+
         uint16_t flags;
+
         uint32_t room_id;
 
 
         static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
         {
-            std::unique_ptr<FlybyCamera> camera{new FlybyCamera()};
+            std::unique_ptr<FlybyCamera> camera{std::make_unique<FlybyCamera>()};
             camera->cam_x = reader.readI32();
             camera->cam_y = reader.readI32();
             camera->cam_z = reader.readI32();
@@ -1428,17 +1501,22 @@ namespace loader
     {
         uint16_t object_id; // the objectID from the AI object (AI_FOLLOW is 402)
         uint16_t room;
+
         int32_t x;
+
         int32_t y;
+
         int32_t z;
+
         uint16_t ocb;
+
         uint16_t flags; // The trigger flags (button 1-5, first button has value 2)
         int32_t angle;
 
 
         static std::unique_ptr<AIObject> read(io::SDLReader& reader)
         {
-            std::unique_ptr<AIObject> object{new AIObject()};
+            std::unique_ptr<AIObject> object{std::make_unique<AIObject>()};
             object->object_id = reader.readU16();
             object->room = reader.readU16(); // 4
 
@@ -1470,7 +1548,7 @@ namespace loader
         /// \brief reads a cinematic frame
         static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
         {
-            std::unique_ptr<CinematicFrame> cf{new CinematicFrame()};
+            std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
             cf->roty = reader.readI16(); // rotation about Y axis, +/- 32767 == +/- 180 degrees
             cf->rotz = reader.readI16(); // rotation about Z axis, +/- 32767 == +/- 180 degrees
             cf->rotz2 = reader.readI16(); // seems to work a lot like rotZ;  I haven't yet been able to
@@ -1493,7 +1571,7 @@ namespace loader
         /// \brief reads the lightmap.
         static std::unique_ptr<LightMap> read(io::SDLReader& reader)
         {
-            std::unique_ptr<LightMap> lightmap{new LightMap()};
+            std::unique_ptr<LightMap> lightmap{std::make_unique<LightMap>()};
             reader.readBytes(lightmap->map.data(), lightmap->map.size());
             return lightmap;
         }

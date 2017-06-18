@@ -54,7 +54,7 @@ namespace gameplay
 
         BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
-        for( const auto& mps : _materialParameterSetters )
+        for (const auto& mps : _materialParameterSetters)
             mps(*_material);
 
         _material->bind(*context.getCurrentNode());

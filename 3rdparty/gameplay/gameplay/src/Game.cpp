@@ -147,7 +147,7 @@ namespace gameplay
 
             void visit(Node& node) override
             {
-                if( !node.isEnabled() )
+                if( !node.isVisible() )
                 {
                     return;
                 }

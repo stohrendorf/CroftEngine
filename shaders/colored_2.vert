@@ -1,22 +1,20 @@
 attribute vec3 a_position;
 attribute vec3 a_normal;
-// attribute vec2 a_texCoord;
 attribute vec3 a_color;
 
-uniform mat4 u_worldViewProjectionMatrix;
 uniform mat4 u_modelMatrix;
+uniform mat4 u_modelViewMatrix;
+uniform mat4 u_projectionMatrix;
 uniform vec3 u_lightPosition;
 uniform float u_baseLight;
 uniform float u_baseLightDiff;
 
-// varying vec2 v_texCoord;
 varying vec3 v_color;
 varying float v_shadeFactor;
 
 void main()
 {
-    gl_Position = u_worldViewProjectionMatrix * vec4(a_position, 1);
-    // v_texCoord = a_texCoord;
+    gl_Position = u_projectionMatrix * u_modelViewMatrix * vec4(a_position, 1);
     v_color = a_color;
 
     if(isnan(u_lightPosition.x))

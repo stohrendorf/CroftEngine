@@ -56,7 +56,7 @@ namespace level
         std::vector<loader::TextureLayoutProxy> m_textureProxies;
         std::vector<uint16_t> m_animatedTextures;
         size_t m_animatedTexturesUvCount = 0;
-        std::vector<loader::SpriteTexture> m_spriteTextures;
+        std::vector<loader::Sprite> m_sprites;
         std::vector<loader::SpriteSequence> m_spriteSequences;
         std::vector<loader::Camera> m_cameras;
         std::vector<loader::FlybyCamera> m_flybyCameras;
@@ -111,7 +111,7 @@ namespace level
 
         std::vector<std::shared_ptr<gameplay::gl::Texture>> createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
         std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures, const std::shared_ptr<gameplay::ShaderProgram>& shader);
-        engine::LaraNode* createItems();
+        engine::LaraNode* createItems(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);
         void setUpRendering(gameplay::Game* game,
                             const boost::filesystem::path& assetPath,
                             const boost::filesystem::path& lvlName,

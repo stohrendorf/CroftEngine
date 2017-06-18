@@ -50,11 +50,6 @@ namespace engine
 
             if( m_activationState.isOneshot() )
             {
-                setEnabled(false);
-            }
-
-            if( m_activationState.isOneshot() )
-            {
                 m_activationState.setOneshot(false);
                 m_triggerState = TriggerState::Locked;
             }
