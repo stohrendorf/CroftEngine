@@ -333,27 +333,27 @@ namespace loader
                 // nothing to do
                 break;
             case core::Axis::PosX:
-                std::swap(result.min.x, result.min.z);
-                result.min.z *= -1;
-                std::swap(result.max.x, result.max.z);
-                result.max.z *= -1;
+                std::swap(result.min.X, result.min.Z);
+                result.min.Z *= -1;
+                std::swap(result.max.X, result.max.Z);
+                result.max.Z *= -1;
                 break;
             case core::Axis::NegZ:
-                result.min.x *= -1;
-                result.min.z *= -1;
-                result.max.x *= -1;
-                result.max.z *= -1;
+                result.min.X *= -1;
+                result.min.Z *= -1;
+                result.max.X *= -1;
+                result.max.Z *= -1;
                 break;
             case core::Axis::NegX:
-                std::swap(result.min.x, result.min.z);
-                result.min.x *= -1;
-                std::swap(result.max.x, result.max.z);
-                result.max.x *= -1;
+                std::swap(result.min.X, result.min.Z);
+                result.min.X *= -1;
+                std::swap(result.max.X, result.max.Z);
+                result.max.X *= -1;
                 break;
         }
 
-        result.min += glm::vec3(pos.X, pos.Y, pos.Z);
-        result.max += glm::vec3(pos.X, pos.Y, pos.Z);
+        result.min += pos;
+        result.max += pos;
         return result;
     }
 

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
-#include <glm/glm.hpp>
-
+#include "coordinates.h"
 
 namespace core
 {
@@ -10,7 +9,7 @@ namespace core
         explicit BoundingBox() = default;
 
 
-        explicit BoundingBox(const glm::ivec3& min_, const glm::ivec3& max_)
+        explicit BoundingBox(const TRCoordinates& min_, const TRCoordinates& max_)
             : min{min_}
             , max{max_}
         {
@@ -18,35 +17,35 @@ namespace core
 
         bool isValid() const noexcept
         {
-            return min.x <= max.x && min.y <= max.y && min.z <= max.z;
+            return min.X <= max.X && min.Y <= max.Y && min.Z <= max.Z;
         }
 
         void makeValid() noexcept
         {
-            if (min.x > max.x)
-                std::swap(min.x, max.x);
-            if (min.y > max.y)
-                std::swap(min.y, max.y);
-            if (min.z > max.z)
-                std::swap(min.z, max.z);
+            if (min.X > max.X)
+                std::swap(min.X, max.X);
+            if (min.Y > max.Y)
+                std::swap(min.Y, max.Y);
+            if (min.Z > max.Z)
+                std::swap(min.Z, max.Z);
         }
 
         bool intersects(const BoundingBox& box) const noexcept
         {
-            return ((min.x >= box.min.x && min.x <= box.max.x) || (box.min.x >= min.x && box.min.x <= max.x)) &&
-                ((min.y >= box.min.y && min.y <= box.max.y) || (box.min.y >= min.y && box.min.y <= max.y)) &&
-                ((min.z >= box.min.z && min.z <= box.max.z) || (box.min.z >= min.z && box.min.z <= max.z));
+            return ((min.X >= box.min.X && min.X <= box.max.X) || (box.min.X >= min.X && box.min.X <= max.X)) &&
+                ((min.Y >= box.min.Y && min.Y <= box.max.Y) || (box.min.Y >= min.Y && box.min.Y <= max.Y)) &&
+                ((min.Z >= box.min.Z && min.Z <= box.max.Z) || (box.min.Z >= min.Z && box.min.Z <= max.Z));
         }
 
-        bool contains(const glm::ivec3& v) const noexcept
+        bool contains(const TRCoordinates& v) const noexcept
         {
-            return v.x >= min.x && v.x <= max.x
-                && v.y >= min.y && v.y <= max.y
-                && v.z >= min.z && v.z <= max.z;
+            return v.X >= min.X && v.X <= max.X
+                && v.Y >= min.Y && v.Y <= max.Y
+                && v.Z >= min.Z && v.Z <= max.Z;
         }
 
-        glm::ivec3 min{0};
+        TRCoordinates min{0, 0, 0};
 
-        glm::ivec3 max{0};
+        TRCoordinates max{0, 0, 0};
     };
 }

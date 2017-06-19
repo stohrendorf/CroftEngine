@@ -315,14 +315,14 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, const gl::RGBAF& clearColor, float clearDepth)
+    void Game::clear(ClearFlags flags, const gl::RGBA8& clearColor, float clearDepth)
     {
         GLbitfield bits = 0;
         if( flags & CLEAR_COLOR )
         {
             if( clearColor != _clearColor )
             {
-                glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                glClearColor(clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f, clearColor.a / 255.0f);
                 _clearColor = clearColor;
             }
             bits |= GL_COLOR_BUFFER_BIT;
@@ -347,8 +347,8 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth)
+    void Game::clear(ClearFlags flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
     {
-        clear(flags, gl::RGBAF{red, green, blue, alpha}, clearDepth);
+        clear(flags, gl::RGBA8{red, green, blue, alpha}, clearDepth);
     }
 }

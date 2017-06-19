@@ -557,7 +557,8 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             m_itemNodes[id] = modelNode;
             room.node->addChild(modelNode);
 
-            modelNode->setLocalMatrix(translate(glm::mat4{1.0f}, (item.position - room.position).toRenderSystem()));
+            modelNode->applyTransform();
+            modelNode->updateLighting();
 
             continue;
         }

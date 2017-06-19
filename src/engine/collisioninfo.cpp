@@ -255,12 +255,12 @@ namespace engine
                 if( !meshCollisionBox.intersects(baseCollisionBox) )
                     continue;
 
-                auto dx = meshCollisionBox.max.x - baseCollisionBox.min.x;
-                if( baseCollisionBox.max.x - meshCollisionBox.min.x < dx )
-                    dx = -(baseCollisionBox.max.x - meshCollisionBox.min.x);
-                auto dz = meshCollisionBox.max.z - baseCollisionBox.min.z;
-                if( baseCollisionBox.max.z - meshCollisionBox.min.z < dz )
-                    dz = -(baseCollisionBox.max.z - meshCollisionBox.min.z);
+                auto dx = meshCollisionBox.max.X - baseCollisionBox.min.X;
+                if( baseCollisionBox.max.X - meshCollisionBox.min.X < dx )
+                    dx = -(baseCollisionBox.max.X - meshCollisionBox.min.X);
+                auto dz = meshCollisionBox.max.Z - baseCollisionBox.min.Z;
+                if( baseCollisionBox.max.Z - meshCollisionBox.min.Z < dz )
+                    dz = -(baseCollisionBox.max.Z - meshCollisionBox.min.Z);
 
                 switch( facingAxis )
                 {

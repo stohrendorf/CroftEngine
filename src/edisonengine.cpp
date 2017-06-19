@@ -237,6 +237,8 @@ int main()
     bool showDebugInfoToggled = false;
 
     auto lastTime = game->getGameTime();
+    glEnable(GL_FRAMEBUFFER_SRGB);
+    gameplay::gl::checkGlError();
     while( game->loop() )
     {
         screenOverlay->getImage()->fill({0,0,0,0});
@@ -293,6 +295,7 @@ int main()
 
 #ifdef WITH_POSTFX
         gameplay::gl::FrameBuffer::unbindAll();
+
         if(lvl->m_cameraController->getCurrentRoom()->isWaterRoom())
             depthDarknessWaterFx.render(context);
         else

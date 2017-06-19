@@ -63,7 +63,6 @@ namespace gameplay
 
 
         using RGBA8 = RGBA<GLubyte>;
-        using RGBAF = RGBA<GLfloat>;
 
 
         template<typename T>
@@ -120,6 +119,5 @@ namespace gameplay
 
 
         using RGB8 = RGB<GLubyte>;
-        using RGBF = RGB<GLfloat>;
     }
 }

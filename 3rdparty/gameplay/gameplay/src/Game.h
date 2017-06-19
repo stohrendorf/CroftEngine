@@ -184,7 +184,7 @@ namespace gameplay
          * @param clearColor The color value to clear to when the flags includes the color buffer.
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
          */
-        void clear(::gameplay::Game::ClearFlags flags, const gl::RGBAF& clearColor, float clearDepth);
+        void clear(ClearFlags flags, const gl::RGBA8& clearColor, float clearDepth);
 
         /**
          * Clears the specified resource buffers to the specified clear values.
@@ -196,7 +196,7 @@ namespace gameplay
          * @param alpha The alpha channel.
          * @param clearDepth The depth value to clear to when the flags includes the color buffer.
          */
-        void clear(ClearFlags flags, float red, float green, float blue, float alpha, float clearDepth);
+        void clear(ClearFlags flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
 
         /**
          * Sets whether multi-sampling is to be enabled/disabled. Default is disabled.
@@ -272,7 +272,7 @@ namespace gameplay
         int _width = 0; // The game's display width.
         int _height = 0; // The game's display height.
         Rectangle _viewport; // the games's current viewport.
-        gl::RGBAF _clearColor; // The clear color value last used for clearing the color buffer.
+        gl::RGBA8 _clearColor; // The clear color value last used for clearing the color buffer.
         float _clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
         bool _vsync = WINDOW_VSYNC;

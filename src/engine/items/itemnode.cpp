@@ -278,10 +278,10 @@ namespace engine
                 return false;
             }
 
-            auto dist = glm::vec4(lara.getPosition().toRenderSystem() - item.getPosition().toRenderSystem(), 1.0f);
-            glm::vec3 tdist{dist * item.getRotation().toMatrix()};
+            auto dist = glm::vec4{ (lara.getPosition() - item.getPosition()).toRenderSystem(), 1.0f } * item.getRotation().toMatrix();
+            glm::vec3 tdist{dist};
 
-            return distance.contains(tdist);
+            return distance.contains(core::TRCoordinates{ tdist });
         }
 
 

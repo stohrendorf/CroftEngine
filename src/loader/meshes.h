@@ -135,19 +135,19 @@ namespace loader
             mesh->id = reader.readU32();
             mesh->mesh = reader.readU16();
 
-            mesh->visibility_box.min.x = reader.readI16();
-            mesh->visibility_box.max.x = reader.readI16();
-            mesh->visibility_box.min.y = reader.readI16();
-            mesh->visibility_box.max.y = reader.readI16();
-            mesh->visibility_box.min.z = reader.readI16();
-            mesh->visibility_box.max.z = reader.readI16();
+            mesh->visibility_box.min.X = reader.readI16();
+            mesh->visibility_box.max.X = reader.readI16();
+            mesh->visibility_box.min.Y = reader.readI16();
+            mesh->visibility_box.max.Y = reader.readI16();
+            mesh->visibility_box.min.Z = reader.readI16();
+            mesh->visibility_box.max.Z = reader.readI16();
 
-            mesh->collision_box.min.x = reader.readI16();
-            mesh->collision_box.max.x = reader.readI16();
-            mesh->collision_box.min.y = reader.readI16();
-            mesh->collision_box.max.y = reader.readI16();
-            mesh->collision_box.min.z = reader.readI16();
-            mesh->collision_box.max.z = reader.readI16();
+            mesh->collision_box.min.X = reader.readI16();
+            mesh->collision_box.max.X = reader.readI16();
+            mesh->collision_box.min.Y = reader.readI16();
+            mesh->collision_box.max.Y = reader.readI16();
+            mesh->collision_box.min.Z = reader.readI16();
+            mesh->collision_box.max.Z = reader.readI16();
 
             mesh->flags = reader.readU16();
             return mesh;
