@@ -457,7 +457,6 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
     spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
     spriteMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
 
-    spriteMaterial->getParameter("u_baseLight")->set(1.0f);
     spriteMaterial->getParameter("u_baseLightDiff")->set(0.0f);
     spriteMaterial->getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
 
@@ -585,11 +584,14 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
             auto node = std::make_shared<gameplay::Node>(name);
             node->setDrawable(model);
-            auto setter = [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            node->addMaterialParameterSetter("u_diffuseTexture", [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(*texture);
-            };
-            node->addMaterialParameterSetter("u_diffuseTexture", setter);
+            });
+            node->addMaterialParameterSetter("u_baseLight", [darkness = item.darkness](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set((8192 - darkness) / 32.0f);
+            });
 
             // m_itemNodes[id] = node;
             room.node->addChild(node);
