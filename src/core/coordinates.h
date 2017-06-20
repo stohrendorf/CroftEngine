@@ -25,9 +25,17 @@ namespace core
 
 
         explicit TRCoordinates(const glm::vec3& v)
-            : X{gsl::narrow<int>(v.x)}
-            , Y{-gsl::narrow<int>(v.y)}
-            , Z{-gsl::narrow<int>(v.z)}
+            : X{gsl::narrow_cast<int>(v.x)}
+            , Y{-gsl::narrow_cast<int>(v.y)}
+            , Z{-gsl::narrow_cast<int>(v.z)}
+        {
+        }
+
+
+        explicit TRCoordinates(const glm::ivec3& v)
+            : X{v.x}
+            , Y{-v.y}
+            , Z{-v.z}
         {
         }
 
