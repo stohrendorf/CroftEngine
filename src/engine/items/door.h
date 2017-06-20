@@ -45,6 +45,8 @@ namespace engine
                     }
                     //! @todo Patch original sector data with blocking heights
                 }
+
+                ItemNode::update();
             }
 
 
