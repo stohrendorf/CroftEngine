@@ -113,10 +113,14 @@ levelInfos = {
     }
 }
 
+cheats = {
+    godMode = true
+}
+
 function getLevelInfo()
-    return levelInfos[8]
+    return levelInfos[4]
 end
 
 function getGlidosPack()
-    return "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
+    return nil -- "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
 end

@@ -155,7 +155,7 @@ private:
 };
 
 
-void update(const std::unique_ptr<level::Level>& lvl)
+void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
 {
     for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
     {
@@ -169,6 +169,9 @@ void update(const std::unique_ptr<level::Level>& lvl)
     {
         ctrl->update();
     }
+
+    if (godMode)
+        lvl->m_lara->setHealth(core::LaraHealth);
 
     lvl->m_lara->update();
 
@@ -267,7 +270,7 @@ int main()
 
         lastTime = game->getGameTime();
 
-        update(lvl);
+        update(lvl, mainScript["cheats"]["godMode"].toBool());
 
         lvl->m_cameraController->update();
 
