@@ -105,6 +105,9 @@ namespace engine
             activate();
             loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
             m_triggerState = TriggerState::Enabled;
+
+            ItemNode::update();
+            getLevel().m_lara->updateImpl();
         }
 
 

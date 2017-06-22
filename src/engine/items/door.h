@@ -41,6 +41,7 @@ namespace engine
                     if( getCurrentState() == 1 )
                     {
                         setTargetState(0);
+                        ItemNode::update();
                         return;
                     }
                     //! @todo Patch original sector data with blocking heights

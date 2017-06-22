@@ -53,6 +53,7 @@ namespace engine
                 setTargetState(1);
 
             activate();
+            ItemNode::update();
         }
     }
 }

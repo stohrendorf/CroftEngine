@@ -27,6 +27,8 @@ namespace engine
             {
                 // TODO: check bone collisions
 
+                ItemNode::update();
+
                 auto room = getCurrentRoom();
                 auto sector = getLevel().findRealFloorSector(getPosition(), &room);
                 if( room != getCurrentRoom() )
@@ -35,7 +37,7 @@ namespace engine
                 HeightInfo h = HeightInfo::fromFloor(sector, getPosition(), getLevel().m_cameraController);
                 setFloorHeight(h.distance);
 
-                if( getPosition().Y < getFloorHeight() + 1 )
+                if( getPosition().Y < getFloorHeight() )
                     return;
 
                 getLevel().scheduleDeletion(shared_from_this());
