@@ -28,9 +28,9 @@ namespace engine
 
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 192;
+                collisionInfo.badPositiveDistance = loader::HeightLimit;
+                collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+                collisionInfo.badCeilingDistance = 192;
                 collisionInfo.facingAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

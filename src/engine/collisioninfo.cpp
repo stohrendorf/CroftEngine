@@ -137,26 +137,26 @@ namespace engine
         if( mid.floor.distance == -loader::HeightLimit )
         {
             shift = oldPosition - laraPos;
-            collisionType = AxisColl_FrontForwardBlocked;
+            collisionType = AxisColl_Front;
             return;
         }
 
         if( mid.floor.distance <= mid.ceiling.distance )
         {
-            collisionType = AxisColl_InvalidPosition;
+            collisionType = AxisColl_TopFront;
             shift = oldPosition - laraPos;
             return;
         }
 
         if( mid.ceiling.distance >= 0 )
         {
-            collisionType = AxisColl_ScalpCollision;
+            collisionType = AxisColl_Top;
             shift.Y = mid.ceiling.distance;
         }
 
         if( front.floor.distance > passableFloorDistanceBottom || front.floor.distance < passableFloorDistanceTop || front.ceiling.distance > neededCeilingDistance )
         {
-            collisionType = AxisColl_FrontForwardBlocked;
+            collisionType = AxisColl_Front;
             switch( facingAxis )
             {
                 case core::Axis::PosZ:
@@ -175,14 +175,14 @@ namespace engine
 
         if( front.ceiling.distance >= neededCeilingDistance )
         {
-            collisionType = AxisColl_InsufficientFrontCeilingSpace;
+            collisionType = AxisColl_TopBottom;
             shift = oldPosition - laraPos;
             return;
         }
 
         if( frontLeft.floor.distance > passableFloorDistanceBottom || frontLeft.floor.distance < passableFloorDistanceTop )
         {
-            collisionType = AxisColl_FrontLeftBlocked;
+            collisionType = AxisColl_Left;
             switch( facingAxis )
             {
                 case core::Axis::PosZ:
@@ -199,7 +199,7 @@ namespace engine
 
         if( frontRight.floor.distance > passableFloorDistanceBottom || frontRight.floor.distance < passableFloorDistanceTop )
         {
-            collisionType = AxisColl_FrontRightBlocked;
+            collisionType = AxisColl_Right;
             switch( facingAxis )
             {
                 case core::Axis::PosZ:
@@ -269,7 +269,7 @@ namespace engine
                         {
                             shift.X = dx - 1;
                             shift.Z = this->oldPosition.Z - position.Z;
-                            collisionType = AxisColl_FrontForwardBlocked;
+                            collisionType = AxisColl_Front;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -277,7 +277,7 @@ namespace engine
                         {
                             shift.X = 0;
                             shift.Z = dz;
-                            collisionType = AxisColl_FrontRightBlocked;
+                            collisionType = AxisColl_Right;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -288,7 +288,7 @@ namespace engine
                         }
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_FrontLeftBlocked;
+                        collisionType = AxisColl_Left;
                         hasStaticMeshCollision = true;
                         return true;
                     case core::Axis::PosZ:
@@ -296,7 +296,7 @@ namespace engine
                         {
                             shift.X = this->oldPosition.X - position.X;
                             shift.Z = dz - 1;
-                            collisionType = AxisColl_FrontForwardBlocked;
+                            collisionType = AxisColl_Front;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -304,7 +304,7 @@ namespace engine
                         {
                             shift.X = dx;
                             shift.Z = 0;
-                            collisionType = AxisColl_FrontLeftBlocked;
+                            collisionType = AxisColl_Left;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -315,7 +315,7 @@ namespace engine
                         }
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_FrontRightBlocked;
+                        collisionType = AxisColl_Right;
                         hasStaticMeshCollision = true;
                         return true;
                     case core::Axis::NegX:
@@ -323,7 +323,7 @@ namespace engine
                         {
                             shift.X = dx + 1;
                             shift.Z = this->oldPosition.Z - position.Z;
-                            collisionType = AxisColl_FrontForwardBlocked;
+                            collisionType = AxisColl_Front;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -331,7 +331,7 @@ namespace engine
                         {
                             shift.X = 0;
                             shift.Z = dz;
-                            collisionType = AxisColl_FrontLeftBlocked;
+                            collisionType = AxisColl_Left;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -342,7 +342,7 @@ namespace engine
                         }
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_FrontRightBlocked;
+                        collisionType = AxisColl_Right;
                         hasStaticMeshCollision = true;
                         return true;
                     case core::Axis::NegZ:
@@ -350,7 +350,7 @@ namespace engine
                         {
                             shift.X = this->oldPosition.X - position.X;
                             shift.Z = dz + 1;
-                            collisionType = AxisColl_FrontForwardBlocked;
+                            collisionType = AxisColl_Front;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -358,7 +358,7 @@ namespace engine
                         {
                             shift.X = dx;
                             shift.Z = 0;
-                            collisionType = AxisColl_FrontRightBlocked;
+                            collisionType = AxisColl_Right;
                             hasStaticMeshCollision = true;
                             return true;
                         }
@@ -369,7 +369,7 @@ namespace engine
                         }
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_FrontLeftBlocked;
+                        collisionType = AxisColl_Left;
                         hasStaticMeshCollision = true;
                         return true;
                 }

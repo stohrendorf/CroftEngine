@@ -12,12 +12,12 @@ namespace engine
     struct CollisionInfo
     {
         static constexpr int AxisColl_None = 0x00;
-        static constexpr int AxisColl_FrontForwardBlocked = 0x01;
-        static constexpr int AxisColl_FrontLeftBlocked = 0x02;
-        static constexpr int AxisColl_FrontRightBlocked = 0x04;
-        static constexpr int AxisColl_ScalpCollision = 0x08;
-        static constexpr int AxisColl_InsufficientFrontCeilingSpace = 0x10;
-        static constexpr int AxisColl_InvalidPosition = 0x20;
+        static constexpr int AxisColl_Front = 0x01;
+        static constexpr int AxisColl_Left = 0x02;
+        static constexpr int AxisColl_Right = 0x04;
+        static constexpr int AxisColl_Top = 0x08;
+        static constexpr int AxisColl_TopBottom = 0x10;
+        static constexpr int AxisColl_TopFront = 0x20;
 
         //! @name PolicyFlags
         //! @brief Policy flags
@@ -37,12 +37,11 @@ namespace engine
         int collisionRadius = 0; // external
         int policyFlags = 0; // external
         core::TRCoordinates oldPosition; // external
-        //! The deepest floor distance considered passable (aka @c bad_pos).
-        int passableFloorDistanceBottom = 0; // external
-        //! The highest floor distance considered passable (aka @c bad_neg).
-        int passableFloorDistanceTop = 0; // external
-        //! (aka @c bad_ceiling).
-        int neededCeilingDistance = 0; // external
+        //! The deepest floor distance considered passable.
+        int badPositiveDistance = 0; // external
+        //! The highest floor distance considered passable.
+        int badNegativeDistance = 0; // external
+        int badCeilingDistance = 0; // external
 
         VerticalInfo mid;
         VerticalInfo front;

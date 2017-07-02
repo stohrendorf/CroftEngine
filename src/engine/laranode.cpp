@@ -181,9 +181,9 @@ namespace engine
                                        | CollisionInfo::LavaIsPit
                                        | CollisionInfo::SlopesArePits
                                        | CollisionInfo::SlopesAreWalls);
-        collisionInfo.neededCeilingDistance = 400;
-        collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-        collisionInfo.passableFloorDistanceTop = -400;
+        collisionInfo.badCeilingDistance = 400;
+        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badNegativeDistance = -400;
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -240,9 +240,9 @@ namespace engine
                                        | CollisionInfo::LavaIsPit
                                        | CollisionInfo::SlopesArePits
                                        | CollisionInfo::SlopesAreWalls);
-        collisionInfo.neededCeilingDistance = 100;
-        collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-        collisionInfo.passableFloorDistanceTop = -100;
+        collisionInfo.badCeilingDistance = 100;
+        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badNegativeDistance = -100;
 
         setCameraCurrentRotationX(-22_deg);
 
@@ -920,7 +920,7 @@ namespace engine
         m_underwaterCurrentStrength = 0;
         collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
         collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
-        if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked)
+        if (collisionInfo.collisionType == CollisionInfo::AxisColl_Front)
         {
             if (getRotation().X > 35_deg)
             {
@@ -931,17 +931,17 @@ namespace engine
                 addXRotation(-2_deg);
             }
         }
-        else if (collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision)
+        else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Top)
         {
             addXRotation(-2_deg);
         }
-        else if (collisionInfo.collisionType != CollisionInfo::AxisColl_InsufficientFrontCeilingSpace)
+        else if (collisionInfo.collisionType != CollisionInfo::AxisColl_TopBottom)
         {
-            if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked)
+            if (collisionInfo.collisionType == CollisionInfo::AxisColl_Left)
             {
                 addYRotation(5_deg);
             }
-            else if (collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked)
+            else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Right)
             {
                 addYRotation(-5_deg);
             }

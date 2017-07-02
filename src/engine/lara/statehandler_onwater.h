@@ -28,7 +28,7 @@ namespace engine
                 collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates(0, 700, 0), getLevel(), 700);
                 applyShift(collisionInfo);
                 if( collisionInfo.mid.floor.distance < 0
-                    || (collisionInfo.collisionType & (CollisionInfo::AxisColl_InvalidPosition|CollisionInfo::AxisColl_InsufficientFrontCeilingSpace|CollisionInfo::AxisColl_ScalpCollision|CollisionInfo::AxisColl_FrontForwardBlocked)) != 0
+                    || (collisionInfo.collisionType & (CollisionInfo::AxisColl_TopFront|CollisionInfo::AxisColl_TopBottom|CollisionInfo::AxisColl_Top|CollisionInfo::AxisColl_Front)) != 0
                     )
                 {
                     setFallSpeed(0);
@@ -36,9 +36,9 @@ namespace engine
                 }
                 else
                 {
-                    if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked )
+                    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
                         getLara().addYRotation(5_deg);
-                    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked )
+                    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
                         getLara().addYRotation(-5_deg);
                 }
 
@@ -63,7 +63,7 @@ namespace engine
                 if( getMovementAngle() != getRotation().Y )
                     return;
 
-                if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked )
+                if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front )
                     return;
 
                 if( !getLevel().m_inputHandler->getInputState().action )

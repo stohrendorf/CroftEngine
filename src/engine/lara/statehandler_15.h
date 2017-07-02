@@ -53,9 +53,9 @@ namespace engine
             {
                 setFallSpeed(0);
                 setFalling(false);
-                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = loader::HeightLimit;
+                collisionInfo.badNegativeDistance = -loader::HeightLimit;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 

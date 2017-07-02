@@ -373,7 +373,7 @@ namespace engine
 
         bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
         {
-            if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked
+            if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
@@ -419,8 +419,8 @@ namespace engine
 
         bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionInfo)
         {
-            if( collisionInfo.collisionType != CollisionInfo::AxisColl_ScalpCollision
-                && collisionInfo.collisionType != CollisionInfo::AxisColl_InvalidPosition )
+            if( collisionInfo.collisionType != CollisionInfo::AxisColl_Top
+                && collisionInfo.collisionType != CollisionInfo::AxisColl_TopFront )
                 return false;
 
             setPosition(collisionInfo.oldPosition);
@@ -436,7 +436,7 @@ namespace engine
 
         bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
         {
-            if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked
+            if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
@@ -503,8 +503,8 @@ namespace engine
 
         bool AbstractStateHandler::checkWallCollision(CollisionInfo& collisionInfo)
         {
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked
-                || collisionInfo.collisionType == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front
+                || collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
             {
                 applyShift(collisionInfo);
                 setTargetState(LaraStateId::Stop);
@@ -513,12 +513,12 @@ namespace engine
                 return true;
             }
 
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
             {
                 applyShift(collisionInfo);
                 m_lara.addYRotation(5_deg);
             }
-            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked )
+            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
             {
                 applyShift(collisionInfo);
                 m_lara.addYRotation(-5_deg);
@@ -573,7 +573,7 @@ namespace engine
 
         bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
         {
-            if( collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked
+            if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
                 || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
                 return false;
 
@@ -635,9 +635,9 @@ namespace engine
 
         void AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-            collisionInfo.neededCeilingDistance = 192;
+            collisionInfo.badPositiveDistance = loader::HeightLimit;
+            collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+            collisionInfo.badCeilingDistance = 192;
             collisionInfo.facingAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             checkJumpWallSmash(collisionInfo);
@@ -656,9 +656,9 @@ namespace engine
 
         void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.passableFloorDistanceTop = -loader::QuarterSectorSize * 2;
-            collisionInfo.neededCeilingDistance = 0;
+            collisionInfo.badPositiveDistance = loader::HeightLimit;
+            collisionInfo.badNegativeDistance = -loader::QuarterSectorSize * 2;
+            collisionInfo.badCeilingDistance = 0;
             collisionInfo.facingAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
@@ -695,9 +695,9 @@ namespace engine
 
         void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         {
-            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.passableFloorDistanceTop = -loader::HeightLimit;
-            collisionInfo.neededCeilingDistance = 0;
+            collisionInfo.badPositiveDistance = loader::HeightLimit;
+            collisionInfo.badNegativeDistance = -loader::HeightLimit;
+            collisionInfo.badCeilingDistance = 0;
             collisionInfo.facingAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             const bool tooSteepToGrab = collisionInfo.front.floor.distance < 200;
@@ -717,9 +717,9 @@ namespace engine
                     break;
             }
 
-            collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-            collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-            collisionInfo.neededCeilingDistance = 0;
+            collisionInfo.badPositiveDistance = loader::HeightLimit;
+            collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+            collisionInfo.badCeilingDistance = 0;
             collisionInfo.facingAngle = getMovementAngle();
             collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
             if( !getLevel().m_inputHandler->getInputState().action || getHealth() <= 0 )
@@ -740,7 +740,7 @@ namespace engine
             auto gradient = std::labs(
                 collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
             if( gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.distance >= 0
-                || collisionInfo.collisionType != CollisionInfo::AxisColl_FrontForwardBlocked || tooSteepToGrab )
+                || collisionInfo.collisionType != CollisionInfo::AxisColl_Front || tooSteepToGrab )
             {
                 setPosition(collisionInfo.oldPosition);
                 if( getCurrentAnimState() != LaraStateId::ShimmyLeft
@@ -860,16 +860,16 @@ namespace engine
         void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
         {
             applyShift(collisionInfo);
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
                 m_lara.addYRotation(5_deg);
-            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked )
+            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
                 m_lara.addYRotation(-5_deg);
-            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision )
+            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Top )
             {
                 if( getFallSpeed() <= 0 )
                     setFallSpeed(1);
             }
-            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_InvalidPosition )
+            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopFront )
             {
                 m_lara.moveX(100 * getRotation().Y.sin());
                 m_lara.moveZ(100 * getRotation().Y.cos());
@@ -888,8 +888,8 @@ namespace engine
             if( collisionInfo.collisionType == CollisionInfo::AxisColl_None )
                 return;
 
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontForwardBlocked
-                || collisionInfo.collisionType == CollisionInfo::AxisColl_InsufficientFrontCeilingSpace )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front
+                || collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
             {
                 setTargetState(LaraStateId::FreeFall);
                 //! @todo Check formula
@@ -901,18 +901,18 @@ namespace engine
                 return;
             }
 
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontLeftBlocked )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
             {
                 m_lara.addYRotation(5_deg);
                 return;
             }
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_FrontRightBlocked )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
             {
                 m_lara.addYRotation(-5_deg);
                 return;
             }
 
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_InvalidPosition )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopFront )
             {
                 m_lara.moveX(100 * collisionInfo.facingAngle.sin());
                 m_lara.moveZ(100 * collisionInfo.facingAngle.cos());
@@ -922,7 +922,7 @@ namespace engine
                     setFallSpeed(16);
             }
 
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_ScalpCollision && getFallSpeed() <= 0 )
+            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Top && getFallSpeed() <= 0 )
                 setFallSpeed(1);
         }
 

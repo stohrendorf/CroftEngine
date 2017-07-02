@@ -34,9 +34,9 @@ namespace engine
             {
                 setFallSpeed(0);
                 setFalling(false);
-                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = loader::HeightLimit;
+                collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.facingAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.facingAngle);

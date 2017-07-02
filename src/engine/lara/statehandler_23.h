@@ -29,9 +29,9 @@ namespace engine
                 collisionInfo.facingAngle = getRotation().Y + 180_deg;
                 setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls;
-                collisionInfo.passableFloorDistanceBottom = loader::HeightLimit;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = loader::HeightLimit;
+                collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
                 if( stopIfCeilingBlocked(collisionInfo) )

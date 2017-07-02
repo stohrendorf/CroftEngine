@@ -31,23 +31,23 @@ namespace engine
 
                 switch( collisionInfo.collisionType )
                 {
-                    case CollisionInfo::AxisColl_FrontLeftBlocked:
+                    case CollisionInfo::AxisColl_Left:
                         getLara().addYRotation(5_deg);
                         break;
-                    case CollisionInfo::AxisColl_FrontRightBlocked:
+                    case CollisionInfo::AxisColl_Right:
                         getLara().addYRotation(-5_deg);
                         break;
-                    case CollisionInfo::AxisColl_InvalidPosition:
+                    case CollisionInfo::AxisColl_TopFront:
                         setFallSpeed(0);
                         return;
-                    case CollisionInfo::AxisColl_InsufficientFrontCeilingSpace:
+                    case CollisionInfo::AxisColl_TopBottom:
                         setFallSpeed(0);
                         break;
-                    case CollisionInfo::AxisColl_ScalpCollision:
+                    case CollisionInfo::AxisColl_Top:
                         if( getRotation().X > -45_deg )
                             getLara().addXRotation(-2_deg);
                         break;
-                    case CollisionInfo::AxisColl_FrontForwardBlocked:
+                    case CollisionInfo::AxisColl_Front:
                         if( getRotation().X > 35_deg )
                             getLara().addXRotation(2_deg);
                         else if( getRotation().X < -35_deg )

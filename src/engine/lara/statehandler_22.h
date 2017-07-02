@@ -41,9 +41,9 @@ namespace engine
             {
                 setFallSpeed(0);
                 setFalling(false);
-                collisionInfo.passableFloorDistanceBottom = 128;
-                collisionInfo.passableFloorDistanceTop = -128;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = 128;
+                collisionInfo.badNegativeDistance = -128;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.facingAngle = getRotation().Y - 90_deg;
                 setMovementAngle(collisionInfo.facingAngle);
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;

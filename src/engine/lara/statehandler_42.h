@@ -31,9 +31,9 @@ namespace engine
             {
                 setMovementAngle(getRotation().Y);
                 collisionInfo.facingAngle = getRotation().Y;
-                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
+                collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
 
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);

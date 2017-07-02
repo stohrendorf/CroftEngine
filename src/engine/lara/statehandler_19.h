@@ -25,9 +25,9 @@ namespace engine
 
             void postprocessFrame(CollisionInfo& collisionInfo) override
             {
-                collisionInfo.passableFloorDistanceBottom = core::ClimbLimit2ClickMin;
-                collisionInfo.passableFloorDistanceTop = -core::ClimbLimit2ClickMin;
-                collisionInfo.neededCeilingDistance = 0;
+                collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
+                collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+                collisionInfo.badCeilingDistance = 0;
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.facingAngle = getRotation().Y;
                 setMovementAngle(collisionInfo.facingAngle);
