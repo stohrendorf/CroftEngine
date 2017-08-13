@@ -12,6 +12,7 @@
 #include <boost/throw_exception.hpp>
 
 #include <boost/version.hpp>
+
 #if BOOST_VERSION >= 105800
 #include <boost/type_index.hpp>
 #endif
@@ -56,43 +57,43 @@ namespace loader
         public:
             explicit SDLReader(std::shared_ptr<DataStreamBuf> stream)
                 : m_streamBuf(std::move(stream))
-                , m_stream(m_streamBuf.get())
+                  , m_stream(m_streamBuf.get())
             {
             }
 
 
             SDLReader(SDLReader&& rhs)
                 : m_memory(move(rhs.m_memory))
-                , m_file(move(rhs.m_file))
-                , m_array(move(rhs.m_array))
-                , m_streamBuf(move(rhs.m_streamBuf))
-                , m_stream(m_streamBuf.get())
+                  , m_file(move(rhs.m_file))
+                  , m_array(move(rhs.m_array))
+                  , m_streamBuf(move(rhs.m_streamBuf))
+                  , m_stream(m_streamBuf.get())
             {
             }
 
 
             explicit SDLReader(const std::string& filename)
                 : m_file(std::make_unique<boost::iostreams::file>(filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary))
-                , m_streamBuf(std::make_shared<DataStreamBuf>(*m_file))
-                , m_stream(m_streamBuf.get())
+                  , m_streamBuf(std::make_shared<DataStreamBuf>(*m_file))
+                  , m_stream(m_streamBuf.get())
             {
             }
 
 
             explicit SDLReader(const std::vector<char>& data)
                 : m_memory(data)
-                , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
-                , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
-                , m_stream(m_streamBuf.get())
+                  , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
+                  , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
+                  , m_stream(m_streamBuf.get())
             {
             }
 
 
             explicit SDLReader(std::vector<char>&& data)
                 : m_memory(move(data))
-                , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
-                , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
-                , m_stream(m_streamBuf.get())
+                  , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
+                  , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
+                  , m_stream(m_streamBuf.get())
             {
             }
 
@@ -106,14 +107,14 @@ namespace loader
 
                 auto size = static_cast<uLongf>(uncompressedSize);
                 if( uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), &size, compressed.data(), static_cast<uLong>(compressed.size())) != Z_OK )
-                BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
 
                 if( size != uncompressedSize )
-                BOOST_THROW_EXCEPTION(std::runtime_error("Decompressed size mismatch"));
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Decompressed size mismatch"));
 
                 SDLReader reader(move(uncomp_buffer));
                 if( !reader.isOpen() )
-                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create reader from decompressed memory"));
+                    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create reader from decompressed memory"));
 
                 return reader;
             }
@@ -191,7 +192,8 @@ namespace loader
             template<typename T>
             void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T> producer)
             {
-                BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
+                BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T)
+                                         << ") to a vector of size " << elements.size();
 
                 elements.reserve(elements.size() + count);
                 for( size_t i = 0; i < count; ++i )
@@ -204,7 +206,8 @@ namespace loader
             template<typename T>
             void appendVector(std::vector<T>& elements, size_t count, StackProducer<T> producer)
             {
-                BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ") to a vector of size " << elements.size();
+                BOOST_LOG_TRIVIAL(debug) << "Appending " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T)
+                                         << ") to a vector of size " << elements.size();
 
                 elements.reserve(elements.size() + count);
                 for( size_t i = 0; i < count; ++i )
@@ -217,20 +220,22 @@ namespace loader
             template<typename T>
             void readVector(std::vector<T>& elements, size_t count)
             {
-                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T) << ")";
+                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<T>().pretty_name() << "` (size " << sizeof(T)
+                                         << ")";
 
                 elements.clear();
                 elements.reserve(count);
                 for( size_t i = 0; i < count; ++i )
                 {
-                    elements.emplace_back(read<T>());
+                    elements.emplace_back(read < T > ());
                 }
             }
 
 
             void readVector(std::vector<uint8_t>& elements, size_t count)
             {
-                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<uint8_t>().pretty_name() << "` (size " << sizeof(uint8_t) << ")";
+                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<uint8_t>().pretty_name() << "` (size "
+                                         << sizeof(uint8_t) << ")";
 
                 elements.clear();
                 elements.resize(count);
@@ -240,7 +245,8 @@ namespace loader
 
             void readVector(std::vector<int8_t>& elements, size_t count)
             {
-                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<int8_t>().pretty_name() << "` (size " << sizeof(int8_t) << ")";
+                BOOST_LOG_TRIVIAL(debug) << "Reading " << count << " elements of type `" << detail::TypeInfo<int8_t>().pretty_name() << "` (size "
+                                         << sizeof(int8_t) << ")";
 
                 elements.clear();
                 elements.resize(count);

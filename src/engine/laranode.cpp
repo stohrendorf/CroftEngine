@@ -95,7 +95,7 @@ namespace engine
     {
         CollisionInfo collisionInfo;
         collisionInfo.oldPosition = getPosition();
-        collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
+        collisionInfo.collisionRadius = core::DefaultCollisionRadius;
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
@@ -176,14 +176,14 @@ namespace engine
     {
         CollisionInfo collisionInfo;
         collisionInfo.oldPosition = getPosition();
-        collisionInfo.collisionRadius = 300; //!< @todo MAGICK 300
+        collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
                                        | CollisionInfo::LavaIsPit
                                        | CollisionInfo::SlopesArePits
                                        | CollisionInfo::SlopesAreWalls);
-        collisionInfo.badCeilingDistance = 400;
+        collisionInfo.badCeilingDistance = core::LaraHeightUnderwater;
         collisionInfo.badPositiveDistance = loader::HeightLimit;
-        collisionInfo.badNegativeDistance = -400;
+        collisionInfo.badNegativeDistance = -core::LaraHeightUnderwater;
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -235,14 +235,14 @@ namespace engine
     {
         CollisionInfo collisionInfo;
         collisionInfo.oldPosition = getPosition();
-        collisionInfo.collisionRadius = 100; //!< @todo MAGICK 100
+        collisionInfo.collisionRadius = core::DefaultCollisionRadius;
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
                                        | CollisionInfo::LavaIsPit
                                        | CollisionInfo::SlopesArePits
                                        | CollisionInfo::SlopesAreWalls);
-        collisionInfo.badCeilingDistance = 100;
+        collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
         collisionInfo.badPositiveDistance = loader::HeightLimit;
-        collisionInfo.badNegativeDistance = -100;
+        collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
 
         setCameraCurrentRotationX(-22_deg);
 
@@ -287,7 +287,7 @@ namespace engine
 
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
 
-        updateFloorHeight(100);
+        updateFloorHeight(core::DefaultCollisionRadius);
         //! @todo Update weapon state
         handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
@@ -919,7 +919,7 @@ namespace engine
         moveY(util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
         m_underwaterCurrentStrength = 0;
         collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
-        collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), 400);
+        collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), core::LaraHeightUnderwater);
         if (collisionInfo.collisionType == CollisionInfo::AxisColl_Front)
         {
             if (getRotation().X > 35_deg)

@@ -30,4 +30,8 @@ namespace core
 
     constexpr int LaraAir = 1800;
     constexpr int LaraHealth = 1000;
+
+    constexpr int DefaultCollisionRadius = 100;
+    constexpr int DefaultCollisionRadiusUnderwater = 300;
+    constexpr int LaraHeightUnderwater = 400;
 }

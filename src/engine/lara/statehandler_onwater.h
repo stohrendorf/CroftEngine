@@ -82,7 +82,7 @@ namespace engine
                 if( collisionInfo.front.floor.distance + 700 <= -2 * loader::QuarterSectorSize )
                     return;
 
-                if( collisionInfo.front.floor.distance + 700 > 100 )
+                if( collisionInfo.front.floor.distance + 700 > core::DefaultCollisionRadius )
                     return;
 
                 const auto yRot = alignRotation(getRotation().Y, 35_deg);
@@ -93,13 +93,13 @@ namespace engine
                 getLara().updateFloorHeight(-381);
                 core::TRCoordinates d = getPosition();
                 if( *yRot == 0_deg )
-                    d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + 100;
+                    d.Z = (getPosition().Z / loader::SectorSize + 1) * loader::SectorSize + core::DefaultCollisionRadius;
                 else if( *yRot == 180_deg )
-                    d.Z = (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - 100;
+                    d.Z = (getPosition().Z / loader::SectorSize + 0) * loader::SectorSize - core::DefaultCollisionRadius;
                 else if( *yRot == -90_deg )
-                    d.X = (getPosition().X / loader::SectorSize + 0) * loader::SectorSize - 100;
+                    d.X = (getPosition().X / loader::SectorSize + 0) * loader::SectorSize - core::DefaultCollisionRadius;
                 else if( *yRot == 90_deg )
-                    d.X = (getPosition().X / loader::SectorSize + 1) * loader::SectorSize + 100;
+                    d.X = (getPosition().X / loader::SectorSize + 1) * loader::SectorSize + core::DefaultCollisionRadius;
                 else
                     throw std::runtime_error("Unexpected angle value");
 

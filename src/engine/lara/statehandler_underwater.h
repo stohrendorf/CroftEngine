@@ -25,7 +25,7 @@ namespace engine
                 if( abs(getRotation().X) > 90_deg )
                     collisionInfo.facingAngle += 180_deg;
                 setMovementAngle(collisionInfo.facingAngle);
-                collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{0, 200, 0}, getLevel(), 400);
+                collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{0, 200, 0}, getLevel(), core::LaraHeightUnderwater);
 
                 applyShift(collisionInfo);
 

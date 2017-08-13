@@ -59,7 +59,7 @@ namespace engine
                 collisionInfo.facingAngle = getMovementAngle();
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if( collisionInfo.mid.ceiling.distance <= -100 )
+                if( collisionInfo.mid.ceiling.distance <= -core::DefaultCollisionRadius )
                     return;
 
                 setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);

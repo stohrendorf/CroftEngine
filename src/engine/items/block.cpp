@@ -297,7 +297,7 @@ namespace engine
                 default:
                     break;
             }
-            tmp.collisionRadius = 100;
+            tmp.collisionRadius = core::DefaultCollisionRadius;
 
             return !tmp.checkStaticMeshCollisions(laraPos, core::ScalpHeight, getLevel());
         }

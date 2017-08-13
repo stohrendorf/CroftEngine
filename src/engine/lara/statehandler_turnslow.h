@@ -30,7 +30,7 @@ namespace engine
                 collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
                 collisionInfo.initHeightInfo(getPosition(), getLevel(), core::ScalpHeight);
 
-                if( collisionInfo.mid.floor.distance <= 100 )
+                if( collisionInfo.mid.floor.distance <= core::DefaultCollisionRadius )
                 {
                     if( !tryStartSlide(collisionInfo) )
                         placeOnFloor(collisionInfo);

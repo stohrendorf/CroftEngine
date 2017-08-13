@@ -33,7 +33,7 @@ namespace engine
                 if( stopIfCeilingBlocked(collisionInfo) )
                     return;
 
-                if( collisionInfo.mid.floor.distance <= 100 )
+                if( collisionInfo.mid.floor.distance <= core::DefaultCollisionRadius )
                 {
                     if( !tryStartSlide(collisionInfo) )
                     {

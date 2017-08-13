@@ -37,7 +37,7 @@ namespace engine
                 setAir(-1);
                 setHandStatus(1);
                 auto h = getLara().getWaterSurfaceHeight();
-                if( h.is_initialized() && *h < getPosition().Y - 100 )
+                if( h.is_initialized() && *h < getPosition().Y - core::DefaultCollisionRadius )
                     setPosition(getPosition() - core::TRCoordinates(0, 5, 0));
 
                 StateHandler_Underwater::postprocessFrame(collisionInfo);
