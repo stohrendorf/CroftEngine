@@ -2,12 +2,26 @@
 
 #include "loader/datatypes.h"
 
+namespace
+{
+    struct BoundingBox
+    {
+        glm::vec3 min;
+        glm::vec3 max;
+
+        BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
+            : min{ minX, minY, minZ }
+            , max{ maxX, maxY, maxZ }
+        {
+        }
+    };
+}
 
 namespace render
 {
     struct PortalTracer
     {
-        gameplay::BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
+        BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
         const loader::Portal* lastPortal = nullptr;
 
 
@@ -22,7 +36,7 @@ namespace render
             int numBehind = 0, numTooFar = 0;
 
             // screen space bounding box of the portal
-            gameplay::BoundingBox portalBB{0, 0, 0, 0, 0, 0};
+            BoundingBox portalBB{0, 0, 0, 0, 0, 0};
             portalBB.min = {1,1,0};
             portalBB.max = {-1,-1,0};
 

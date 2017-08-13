@@ -1,7 +1,5 @@
 set( GAMEPLAY_SRC
      src/Base.h
-     src/BoundingBox.cpp
-     src/BoundingBox.h
      src/Camera.cpp
      src/Camera.h
      src/Drawable.h

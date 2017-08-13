@@ -4,7 +4,6 @@
 
 // Math
 #include "Rectangle.h"
-#include "BoundingBox.h"
 
 // Graphics
 #include "Mesh.h"

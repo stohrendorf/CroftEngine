@@ -1,7 +1,5 @@
 #pragma once
 
-#include "BoundingBox.h"
-
 #include "gl/structuredvertexbuffer.h"
 
 #include <gsl/gsl>

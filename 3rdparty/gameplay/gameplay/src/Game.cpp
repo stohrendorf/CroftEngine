@@ -59,7 +59,7 @@ inline const char* glDebugSeverityToString(GLenum severity)
 
 void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
-    if (source == GL_DEBUG_SOURCE_APPLICATION)
+    if( source == GL_DEBUG_SOURCE_APPLICATION )
         return;
 
     BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type " << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": " << message;
@@ -169,7 +169,7 @@ namespace gameplay
 
     void Game::render(bool wireframe)
     {
-        clear(CLEAR_COLOR_DEPTH, {0, 0, 0, 0}, 1);
+        clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1);
 
         RenderContext context{wireframe};
         RenderVisitor visitor{context};
@@ -192,7 +192,7 @@ namespace gameplay
 
     int Game::run()
     {
-        if( _state != UNINITIALIZED )
+        if( _initialized )
         {
             return -1;
         }
@@ -212,7 +212,7 @@ namespace gameplay
 
     bool Game::startup()
     {
-        if( _state != UNINITIALIZED )
+        if( _initialized )
         {
             return false;
         }
@@ -220,7 +220,7 @@ namespace gameplay
         setViewport(Rectangle{0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)});
         RenderState::initialize();
 
-        _state = RUNNING;
+        _initialized = true;
 
         return true;
     }
@@ -229,74 +229,27 @@ namespace gameplay
     void Game::shutdown()
     {
         // Call user finalization.
-        if( _state != UNINITIALIZED )
+        if( _initialized )
         {
             RenderState::finalize();
 
-            _state = UNINITIALIZED;
+            _initialized = false;
         }
-    }
-
-
-    void Game::pause()
-    {
-        if( _state == RUNNING )
-        {
-            _state = PAUSED;
-            _pauseStart = std::chrono::high_resolution_clock::now();
-        }
-    }
-
-
-    void Game::resume()
-    {
-        if( _state == PAUSED )
-        {
-            _pausedTimeTotal += std::chrono::high_resolution_clock::now() - _pauseStart;
-            _pauseStart = std::chrono::high_resolution_clock::now();
-            _state = RUNNING;
-        }
-    }
-
-
-    void Game::exit()
-    {
-        // Only perform a full/clean shutdown if GP_USE_MEM_LEAK_DETECTION is defined.
-        // Every modern OS is able to handle reclaiming process memory hundreds of times
-        // faster than it would take us to go through every pointer in the engine and
-        // release them nicely. For large games, shutdown can end up taking long time,
-        // so we'll just call ::exit(0) to force an instant shutdown.
-
-        // End the process immediately without a full shutdown
-        std::exit(0);
     }
 
 
     void Game::frame()
     {
-        if( !_initialized )
-        {
-            // Perform lazy first time initialization
-            _initialized = true;
-        }
+        // Graphics Rendering.
+        render();
 
-        if( _state == RUNNING )
+        // Update FPS.
+        ++_frameCount;
+        if( (getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
         {
-            // Graphics Rendering.
-            render();
-
-            // Update FPS.
-            ++_frameCount;
-            if( (getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
-            {
-                _frameRate = _frameCount;
-                _frameCount = 0;
-                _frameLastFPS = getGameTime();
-            }
-        }
-        else if( _state == PAUSED )
-        {
-            render();
+            _frameRate = _frameCount;
+            _frameCount = 0;
+            _frameLastFPS = getGameTime();
         }
     }
 
@@ -315,10 +268,10 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, const gl::RGBA8& clearColor, float clearDepth)
+    void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)
     {
         GLbitfield bits = 0;
-        if( flags & CLEAR_COLOR )
+        if( flags & GL_COLOR_BUFFER_BIT )
         {
             if( clearColor != _clearColor )
             {
@@ -328,7 +281,7 @@ namespace gameplay
             bits |= GL_COLOR_BUFFER_BIT;
         }
 
-        if( flags & CLEAR_DEPTH )
+        if( flags & GL_DEPTH_BUFFER_BIT )
         {
             if( clearDepth != _clearDepth )
             {
@@ -347,7 +300,7 @@ namespace gameplay
     }
 
 
-    void Game::clear(ClearFlags flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
+    void Game::clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
     {
         clear(flags, gl::RGBA8{red, green, blue, alpha}, clearDepth);
     }
