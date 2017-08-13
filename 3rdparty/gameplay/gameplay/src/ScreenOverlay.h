@@ -12,39 +12,34 @@
 
 namespace gameplay
 {
-class ScreenOverlay : public Drawable
-{
-public:
-    explicit ScreenOverlay(Game* game);
-
-    ~ScreenOverlay();
-
-    void resize();
-
-
-    void draw(RenderContext& context) override;
-
-
-    const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
+    class ScreenOverlay : public Drawable
     {
-        return _image;
-    }
+    public:
+        explicit ScreenOverlay(const Rectangle& viewport);
+
+        ~ScreenOverlay();
+
+        void draw(RenderContext& context) override;
 
 
-private:
+        const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
+        {
+            return _image;
+        }
 
-    ScreenOverlay(const ScreenOverlay& copy) = delete;
 
-    ScreenOverlay& operator=(const ScreenOverlay&) = delete;
+    private:
 
-    std::shared_ptr<gl::Image<gl::RGBA8>> _image{nullptr};
+        ScreenOverlay(const ScreenOverlay& copy) = delete;
 
-    std::shared_ptr<gl::Texture> _texture{nullptr};
+        ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-    std::shared_ptr<Mesh> _mesh{nullptr};
+        std::shared_ptr<gl::Image<gl::RGBA8>> _image{nullptr};
 
-    std::shared_ptr<Model> _model{nullptr};
+        std::shared_ptr<gl::Texture> _texture{nullptr};
 
-    Game* _game;
-};
+        std::shared_ptr<Mesh> _mesh{nullptr};
+
+        std::shared_ptr<Model> _model{nullptr};
+    };
 }

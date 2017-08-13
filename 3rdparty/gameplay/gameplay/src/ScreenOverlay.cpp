@@ -13,53 +13,33 @@
 
 namespace gameplay
 {
-    namespace
-    {
-        std::shared_ptr<ShaderProgram> screenOverlayProgram = nullptr;
-    }
-
-
-    ScreenOverlay::ScreenOverlay(Game* game)
-        : _game{game}
-    {
-        BOOST_ASSERT(game != nullptr);
-
-        if( screenOverlayProgram == nullptr )
-        {
-            screenOverlayProgram = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
-            if( screenOverlayProgram == nullptr )
-            {
-                BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create effect for screen overlay."));
-            }
-        }
-
-        resize();
-    }
-
-
-    void ScreenOverlay::resize()
+    ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
     {
         // Update the projection matrix for our batch to match the current viewport
-        const Rectangle& vp = _game->getViewport();
-
-        if(vp.isEmpty())
+        if (viewport.isEmpty())
         {
             BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
         }
 
-        _image = std::make_shared<gl::Image<gl::RGBA8>>(static_cast<GLint>(vp.width), static_cast<GLint>(vp.height));
-        _image->fill({0,0,0,0});
+        auto screenOverlayProgram = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
+        if( screenOverlayProgram == nullptr )
+        {
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create effect for screen overlay."));
+        }
+
+        _image = std::make_shared<gl::Image<gl::RGBA8>>(static_cast<GLint>(viewport.width), static_cast<GLint>(viewport.height));
+        _image->fill({ 0,0,0,0 });
 
         _texture = std::make_shared<gl::Texture>(GL_TEXTURE_2D);
         _texture->image2D(_image->getWidth(), _image->getHeight(), _image->getData(), false);
         _texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         _texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        _mesh = Mesh::createQuadFullscreen(vp.width, vp.height, screenOverlayProgram->getHandle(), true);
+        _mesh = Mesh::createQuadFullscreen(viewport.width, viewport.height, screenOverlayProgram->getHandle(), true);
         auto part = _mesh->getPart(0);
         part->setMaterial(std::make_shared<Material>(screenOverlayProgram));
         part->getMaterial()->getParameter("u_texture")->set(_texture);
-        part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
+        part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(viewport.x, viewport.width, viewport.height, viewport.y, 0.0f, 1.0f));
         part->getMaterial()->getStateBlock()->setBlend(true);
         part->getMaterial()->getStateBlock()->setBlendSrc(GL_SRC_ALPHA);
         part->getMaterial()->getStateBlock()->setBlendDst(GL_ONE_MINUS_SRC_ALPHA);

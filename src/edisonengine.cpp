@@ -216,7 +216,7 @@ int main()
         lvl->playCdTrack(levelInfo["track"].toUInt());
     }
 
-    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game);
+    auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game->getViewport());
     auto font = std::make_unique<gameplay::gl::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
