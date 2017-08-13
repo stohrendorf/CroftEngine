@@ -113,7 +113,7 @@ namespace gameplay
         }
         if( (_bits & RS_BLEND_FUNC) && (_blendSrc != _defaultState->_blendSrc || _blendDst != _defaultState->_blendDst) )
         {
-            GL_ASSERT( glBlendFunc(static_cast<GLenum>(_blendSrc), static_cast<GLenum>(_blendDst)) );
+            GL_ASSERT( glBlendFunc(_blendSrc, _blendDst) );
             _defaultState->_blendSrc = _blendSrc;
             _defaultState->_blendDst = _blendDst;
         }
@@ -131,12 +131,12 @@ namespace gameplay
         }
         if( (_bits & RS_CULL_FACE_SIDE) && (_cullFaceSide != _defaultState->_cullFaceSide) )
         {
-            GL_ASSERT( glCullFace(static_cast<GLenum>(_cullFaceSide)) );
+            GL_ASSERT( glCullFace(_cullFaceSide) );
             _defaultState->_cullFaceSide = _cullFaceSide;
         }
         if( (_bits & RS_FRONT_FACE) && (_frontFace != _defaultState->_frontFace) )
         {
-            GL_ASSERT( glFrontFace(static_cast<GLenum>(_frontFace)) );
+            GL_ASSERT( glFrontFace(_frontFace) );
             _defaultState->_frontFace = _frontFace;
         }
         if( (_bits & RS_DEPTH_TEST) && (_depthTestEnabled != _defaultState->_depthTestEnabled) )
@@ -158,7 +158,7 @@ namespace gameplay
         }
         if( (_bits & RS_DEPTH_FUNC) && (_depthFunction != _defaultState->_depthFunction) )
         {
-            GL_ASSERT( glDepthFunc(static_cast<GLenum>(_depthFunction)) );
+            GL_ASSERT( glDepthFunc(_depthFunction) );
             _defaultState->_depthFunction = _depthFunction;
         }
 
