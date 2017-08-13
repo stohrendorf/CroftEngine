@@ -61,8 +61,8 @@ namespace gameplay
         part->getMaterial()->getParameter("u_texture")->set(_texture);
         part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
         part->getMaterial()->getStateBlock()->setBlend(true);
-        part->getMaterial()->getStateBlock()->setBlendSrc(RenderState::BLEND_SRC_ALPHA);
-        part->getMaterial()->getStateBlock()->setBlendDst(RenderState::BLEND_ONE_MINUS_SRC_ALPHA);
+        part->getMaterial()->getStateBlock()->setBlendSrc(GL_SRC_ALPHA);
+        part->getMaterial()->getStateBlock()->setBlendDst(GL_ONE_MINUS_SRC_ALPHA);
 
         _model = std::make_shared<Model>();
         _model->addMesh(_mesh);

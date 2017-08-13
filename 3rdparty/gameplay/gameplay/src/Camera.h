@@ -52,27 +52,6 @@ namespace gameplay
 
 
         /**
-         * Listener interface for camera events.
-         */
-        class Listener
-        {
-        public:
-
-            virtual ~Listener()
-            {
-            }
-
-
-            /**
-             * Handles when an camera settings change or the transform changed for the node its attached to.
-             *
-             * @param camera The camera that was changed.
-             */
-            virtual void cameraChanged(Camera* camera) = 0;
-        };
-
-
-        /**
          * Gets the type of camera.
          *
          * @return The camera type.
@@ -268,27 +247,11 @@ namespace gameplay
          */
         void unproject(const Rectangle& viewport, float x, float y, float depth, glm::vec3* dst) const;
 
-        /**
-        * Adds a camera listener.
-        *
-        * @param listener The listener to add.
-        */
-        void addListener(Camera::Listener* listener);
-
-        /**
-         * Removes a camera listener.
-         *
-         * @param listener The listener to remove.
-         */
-        void removeListener(Camera::Listener* listener);
-
     private:
 
         Camera& operator=(const Camera&) = delete;
 
         void transformChanged();
-
-        void cameraChanged();
 
         Camera::Type _type;
         float _fieldOfView;
@@ -302,6 +265,5 @@ namespace gameplay
         mutable glm::mat4 _inverseView;
         mutable glm::mat4 _inverseViewProjection;
         mutable int _bits;
-        std::list<Camera::Listener*> _listeners;
     };
 }

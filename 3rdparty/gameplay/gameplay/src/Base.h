@@ -29,11 +29,11 @@
  * function calls.
  */
 #ifdef NDEBUG
-#define GL_ASSERT( gl_code ) gl_code
+#define GL_ASSERT( gl_code ) do { gl_code } while(false)
 #else
 #define GL_ASSERT( gl_code ) \
-    { \
+    do { \
         gl_code; \
         BOOST_ASSERT(glGetError() == GL_NO_ERROR); \
-    }
+    } while(false)
 #endif

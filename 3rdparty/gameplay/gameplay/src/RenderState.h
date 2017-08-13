@@ -32,52 +32,6 @@ namespace gameplay
         friend class Model;
 
     public:
-        enum Blend : GLenum
-        {
-            BLEND_ZERO = GL_ZERO,
-            BLEND_ONE = GL_ONE,
-            BLEND_SRC_COLOR = GL_SRC_COLOR,
-            BLEND_ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR,
-            BLEND_DST_COLOR = GL_DST_COLOR,
-            BLEND_ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR,
-            BLEND_SRC_ALPHA = GL_SRC_ALPHA,
-            BLEND_ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA,
-            BLEND_DST_ALPHA = GL_DST_ALPHA,
-            BLEND_ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA,
-            BLEND_CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
-            BLEND_ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA,
-            BLEND_SRC_ALPHA_SATURATE = GL_SRC_ALPHA_SATURATE
-        };
-
-
-        enum DepthFunction : GLenum
-        {
-            DEPTH_NEVER = GL_NEVER,
-            DEPTH_LESS = GL_LESS,
-            DEPTH_EQUAL = GL_EQUAL,
-            DEPTH_LEQUAL = GL_LEQUAL,
-            DEPTH_GREATER = GL_GREATER,
-            DEPTH_NOTEQUAL = GL_NOTEQUAL,
-            DEPTH_GEQUAL = GL_GEQUAL,
-            DEPTH_ALWAYS = GL_ALWAYS
-        };
-
-
-        enum CullFaceSide : GLenum
-        {
-            CULL_FACE_SIDE_BACK = GL_BACK,
-            CULL_FACE_SIDE_FRONT = GL_FRONT,
-            CULL_FACE_SIDE_FRONT_AND_BACK = GL_FRONT_AND_BACK
-        };
-
-
-        enum FrontFace : GLenum
-        {
-            FRONT_FACE_CW = GL_CW,
-            FRONT_FACE_CCW = GL_CCW
-        };
-
-
         class StateBlock
         {
             friend class RenderState;
@@ -93,21 +47,21 @@ namespace gameplay
 
             void setBlend(bool enabled);
 
-            void setBlendSrc(Blend blend);
+            void setBlendSrc(GLenum blend);
 
-            void setBlendDst(Blend blend);
+            void setBlendDst(GLenum blend);
 
             void setCullFace(bool enabled);
 
-            void setCullFaceSide(CullFaceSide side);
+            void setCullFaceSide(GLenum side);
 
-            void setFrontFace(FrontFace winding);
+            void setFrontFace(GLenum winding);
 
             void setDepthTest(bool enabled);
 
             void setDepthWrite(bool enabled);
 
-            void setDepthFunction(DepthFunction func);
+            void setDepthFunction(GLenum func);
 
         private:
 
@@ -126,17 +80,17 @@ namespace gameplay
 
             bool _depthWriteEnabled = true;
 
-            DepthFunction _depthFunction = DEPTH_LESS;
+            GLenum _depthFunction = GL_LESS;
 
             bool _blendEnabled = false;
 
-            Blend _blendSrc = BLEND_ONE;
+            GLenum _blendSrc = GL_ONE;
 
-            Blend _blendDst = BLEND_ZERO;
+            GLenum _blendDst = GL_ZERO;
 
-            CullFaceSide _cullFaceSide = CULL_FACE_SIDE_BACK;
+            GLenum _cullFaceSide = GL_BACK;
 
-            FrontFace _frontFace = FRONT_FACE_CCW;
+            GLenum _frontFace = GL_CCW;
 
             long _bits = 0;
 

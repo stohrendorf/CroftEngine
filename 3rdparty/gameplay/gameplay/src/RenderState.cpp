@@ -54,12 +54,12 @@ namespace gameplay
     {
         getStateBlock(); // alloc if not done yet
         _state->setDepthTest(true);
-        _state->setDepthFunction(DEPTH_LESS);
+        _state->setDepthFunction(GL_LESS);
         _state->setCullFace(true);
-        _state->setFrontFace(FRONT_FACE_CW);
+        _state->setFrontFace(GL_CW);
         _state->setBlend(true);
-        _state->setBlendSrc(BLEND_SRC_ALPHA);
-        _state->setBlendDst(BLEND_ONE_MINUS_SRC_ALPHA);
+        _state->setBlendSrc(GL_SRC_ALPHA);
+        _state->setBlendDst(GL_ONE_MINUS_SRC_ALPHA);
     }
 
 
@@ -187,8 +187,8 @@ namespace gameplay
         {
             GL_ASSERT( glBlendFunc(GL_ONE, GL_ZERO) );
             _defaultState->_bits &= ~RS_BLEND_FUNC;
-            _defaultState->_blendSrc = BLEND_ONE;
-            _defaultState->_blendDst = BLEND_ZERO;
+            _defaultState->_blendSrc = GL_ONE;
+            _defaultState->_blendDst = GL_ZERO;
         }
         if( !(stateOverrideBits & RS_CULL_FACE) && (_defaultState->_bits & RS_CULL_FACE) )
         {
@@ -200,13 +200,13 @@ namespace gameplay
         {
             GL_ASSERT( glCullFace(GL_BACK) );
             _defaultState->_bits &= ~RS_CULL_FACE_SIDE;
-            _defaultState->_cullFaceSide = CULL_FACE_SIDE_BACK;
+            _defaultState->_cullFaceSide = GL_BACK;
         }
         if( !(stateOverrideBits & RS_FRONT_FACE) && (_defaultState->_bits & RS_FRONT_FACE) )
         {
             GL_ASSERT( glFrontFace(GL_CCW) );
             _defaultState->_bits &= ~RS_FRONT_FACE;
-            _defaultState->_frontFace = FRONT_FACE_CCW;
+            _defaultState->_frontFace = GL_CCW;
         }
         if( !(stateOverrideBits & RS_DEPTH_TEST) && (_defaultState->_bits & RS_DEPTH_TEST) )
         {
@@ -224,7 +224,7 @@ namespace gameplay
         {
             GL_ASSERT( glDepthFunc(GL_LESS) );
             _defaultState->_bits &= ~RS_DEPTH_FUNC;
-            _defaultState->_depthFunction = DEPTH_LESS;
+            _defaultState->_depthFunction = GL_LESS;
         }
     }
 
@@ -259,10 +259,10 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::setBlendSrc(Blend blend)
+    void RenderState::StateBlock::setBlendSrc(GLenum blend)
     {
         _blendSrc = blend;
-        if( _blendSrc == BLEND_ONE && _blendDst == BLEND_ZERO )
+        if( _blendSrc == GL_ONE && _blendDst == GL_ZERO)
         {
             // Default blend func
             _bits &= ~RS_BLEND_FUNC;
@@ -274,10 +274,10 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::setBlendDst(Blend blend)
+    void RenderState::StateBlock::setBlendDst(GLenum blend)
     {
         _blendDst = blend;
-        if( _blendSrc == BLEND_ONE && _blendDst == BLEND_ZERO )
+        if( _blendSrc == GL_ONE && _blendDst == GL_ZERO)
         {
             // Default blend func
             _bits &= ~RS_BLEND_FUNC;
@@ -303,10 +303,10 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::setCullFaceSide(CullFaceSide side)
+    void RenderState::StateBlock::setCullFaceSide(GLenum side)
     {
         _cullFaceSide = side;
-        if( _cullFaceSide == CULL_FACE_SIDE_BACK )
+        if( _cullFaceSide == GL_BACK)
         {
             // Default cull side
             _bits &= ~RS_CULL_FACE_SIDE;
@@ -318,10 +318,10 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::setFrontFace(FrontFace winding)
+    void RenderState::StateBlock::setFrontFace(GLenum winding)
     {
         _frontFace = winding;
-        if( _frontFace == FRONT_FACE_CCW )
+        if( _frontFace == GL_CCW)
         {
             // Default front face
             _bits &= ~RS_FRONT_FACE;
@@ -361,10 +361,10 @@ namespace gameplay
     }
 
 
-    void RenderState::StateBlock::setDepthFunction(DepthFunction func)
+    void RenderState::StateBlock::setDepthFunction(GLenum func)
     {
         _depthFunction = func;
-        if( _depthFunction == DEPTH_LESS )
+        if( _depthFunction == GL_LESS)
         {
             // Default depth function
             _bits &= ~RS_DEPTH_FUNC;

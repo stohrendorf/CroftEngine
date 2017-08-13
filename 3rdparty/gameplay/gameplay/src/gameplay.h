@@ -4,8 +4,6 @@
 
 // Math
 #include "Rectangle.h"
-#include "Plane.h"
-#include "Frustum.h"
 #include "BoundingBox.h"
 
 // Graphics
