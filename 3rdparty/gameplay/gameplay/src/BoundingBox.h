@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Frustum.h"
+#include <glm/glm.hpp>
 
 #include <algorithm>
 
@@ -111,36 +111,6 @@ namespace gameplay
          * @return true if the specified bounding box intersects this bounding box; false otherwise.
          */
         bool intersects(const BoundingBox& box) const;
-
-        /**
-         * Tests whether this bounding box intersects the specified frustum.
-         *
-         * @param frustum The frustum to test intersection with.
-         *
-         * @return true if this bounding sphere intersects the specified frustum; false otherwise.
-         */
-        bool intersects(const Frustum& frustum) const;
-
-        /**
-         * Tests whether this bounding box intersects the specified plane.
-         *
-         * @param plane The plane to test intersection with.
-         *
-         * @return Plane::INTERSECTS_BACK INTERSECTS_BACK if this bounding box is in the negative half-space of
-         *  the plane, Plane::INTERSECTS_FRONT INTERSECTS_FRONT if it is in the positive half-space of the plane;
-         *  and Plane::INTERSECTS_INTERSECTING INTERSECTS_INTERSECTING if it intersects the plane.
-         */
-        int intersects(const Plane& plane) const;
-
-        /**
-         * Tests whether this bounding box intersects the specified ray.
-         *
-         * @param ray The ray to test intersection with.
-         *
-         * @return The distance from the origin of the ray to this bounding box or
-         *  INTERSECTS_NONE INTERSECTS_NONE if the ray does not intersect this bounding box.
-         */
-        bool intersects(const Ray& ray) const;
 
         /**
          * Determines if this bounding box is empty.

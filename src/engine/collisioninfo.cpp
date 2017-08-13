@@ -154,7 +154,7 @@ namespace engine
             shift.Y = mid.ceiling.distance;
         }
 
-        if( front.floor.distance > passableFloorDistanceBottom || front.floor.distance < passableFloorDistanceTop || front.ceiling.distance > neededCeilingDistance )
+        if( front.floor.distance > badPositiveDistance || front.floor.distance < badNegativeDistance || front.ceiling.distance > badCeilingDistance )
         {
             collisionType = AxisColl_Front;
             switch( facingAxis )
@@ -173,14 +173,14 @@ namespace engine
             return;
         }
 
-        if( front.ceiling.distance >= neededCeilingDistance )
+        if( front.ceiling.distance >= badCeilingDistance )
         {
             collisionType = AxisColl_TopBottom;
             shift = oldPosition - laraPos;
             return;
         }
 
-        if( frontLeft.floor.distance > passableFloorDistanceBottom || frontLeft.floor.distance < passableFloorDistanceTop )
+        if( frontLeft.floor.distance > badPositiveDistance || frontLeft.floor.distance < badNegativeDistance )
         {
             collisionType = AxisColl_Left;
             switch( facingAxis )
@@ -197,7 +197,7 @@ namespace engine
             return;
         }
 
-        if( frontRight.floor.distance > passableFloorDistanceBottom || frontRight.floor.distance < passableFloorDistanceTop )
+        if( frontRight.floor.distance > badPositiveDistance || frontRight.floor.distance < badNegativeDistance )
         {
             collisionType = AxisColl_Right;
             switch( facingAxis )

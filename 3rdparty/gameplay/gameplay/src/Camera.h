@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Frustum.h"
 #include "Rectangle.h"
 
 #include <list>
@@ -225,13 +224,6 @@ namespace gameplay
         const glm::mat4& getInverseViewProjectionMatrix() const;
 
         /**
-         * Gets the view bounding frustum.
-         *
-         * @return The viewing bounding frustum.
-         */
-        const Frustum& getFrustum() const;
-
-        /**
          * Projects the specified world position into the viewport coordinates.
          *
          * @param viewport The viewport rectangle to use.
@@ -277,16 +269,6 @@ namespace gameplay
         void unproject(const Rectangle& viewport, float x, float y, float depth, glm::vec3* dst) const;
 
         /**
-         * Picks a ray that can be used for picking given the specified viewport-space coordinates.
-         *
-         * @param viewport The viewport rectangle to use.
-         * @param x The viewport x-coordinate.
-         * @param y The viewport y-coordinate.
-         * @param dst The computed pick ray.
-         */
-        void pickRay(const Rectangle& viewport, float x, float y, Ray* dst) const;
-
-        /**
         * Adds a camera listener.
         *
         * @param listener The listener to add.
@@ -319,7 +301,6 @@ namespace gameplay
         mutable glm::mat4 _viewProjection;
         mutable glm::mat4 _inverseView;
         mutable glm::mat4 _inverseViewProjection;
-        mutable Frustum _bounds;
         mutable int _bits;
         std::list<Camera::Listener*> _listeners;
     };

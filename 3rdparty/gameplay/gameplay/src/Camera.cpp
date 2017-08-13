@@ -239,20 +239,6 @@ namespace gameplay
     }
 
 
-    const Frustum& Camera::getFrustum() const
-    {
-        if( _bits & CAMERA_DIRTY_BOUNDS )
-        {
-            // Update our bounding frustum from our view projection matrix.
-            _bounds.set(getViewProjectionMatrix());
-
-            _bits &= ~CAMERA_DIRTY_BOUNDS;
-        }
-
-        return _bounds;
-    }
-
-
     void Camera::project(const Rectangle& viewport, const glm::vec3& position, float* x, float* y, float* depth) const
     {
         BOOST_ASSERT(x);
@@ -320,25 +306,6 @@ namespace gameplay
         }
 
         *dst = glm::vec3{ screen };
-    }
-
-
-    void Camera::pickRay(const Rectangle& viewport, float x, float y, Ray* dst) const
-    {
-        BOOST_ASSERT(dst);
-
-        // Get the world-space position at the near clip plane.
-        glm::vec3 nearPoint;
-        unproject(viewport, x, y, 0.0f, &nearPoint);
-
-        // Get the world-space position at the far clip plane.
-        glm::vec3 farPoint;
-        unproject(viewport, x, y, 1.0f, &farPoint);
-
-        // Set the direction of the ray.
-        glm::vec3 direction = glm::normalize(farPoint - nearPoint);
-
-        dst->set(nearPoint, direction);
     }
 
 

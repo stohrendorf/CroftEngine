@@ -7,8 +7,6 @@ set( GAMEPLAY_SRC
      src/Drawable.h
      src/ShaderProgram.cpp
      src/ShaderProgram.h
-     src/Frustum.cpp
-     src/Frustum.h
      src/Game.cpp
      src/Game.h
      src/Material.cpp
@@ -23,10 +21,6 @@ set( GAMEPLAY_SRC
      src/Model.h
      src/Node.cpp
      src/Node.h
-     src/Plane.cpp
-     src/Plane.h
-     src/Ray.cpp
-     src/Ray.h
      src/Rectangle.cpp
      src/Rectangle.h
      src/RenderContext.h
