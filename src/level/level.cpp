@@ -596,7 +596,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             // m_itemNodes[id] = node;
             room.node->addChild(node);
 
-            node->setLocalMatrix(translate(glm::mat4{ 1.0f }, (item.position - room.position).toRenderSystem()));
+            node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (item.position - room.position).toRenderSystem()));
 
             //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
             //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
