@@ -107,11 +107,11 @@ void TR3Level::loadFileData()
     m_reader.readVector(m_sampleIndices, m_reader.readU32());
 
     // remap all sample indices here
-    for(size_t i = 0; i < m_soundDetails.size(); i++)
+    for( auto& soundDetail : m_soundDetails )
     {
-        if(m_soundDetails[i].sample < m_sampleIndices.size())
+        if( soundDetail.sample < m_sampleIndices.size())
         {
-            m_soundDetails[i].sample = m_sampleIndices[m_soundDetails[i].sample];
+            soundDetail.sample = m_sampleIndices[soundDetail.sample];
         }
     }
 

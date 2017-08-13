@@ -83,7 +83,7 @@ namespace loader
         Expects(!m_hasNormals);
         Expects(sizeof(v) == m_mesh->getBuffer(0)->getVertexSize());
 
-        const float* data = reinterpret_cast<const float*>(&v);
+        const auto* data = reinterpret_cast<const float*>(&v);
         const auto n = m_mesh->getBuffer(0)->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
         ++m_vertexCount;
@@ -97,7 +97,7 @@ namespace loader
         Expects(sizeof(v) == m_mesh->getBuffer(0)->getVertexSize());
         Expects(m_mesh->getBuffer(0)->getVertexSize() % sizeof(float) == 0);
 
-        const float* data = reinterpret_cast<const float*>(&v);
+        const auto* data = reinterpret_cast<const float*>(&v);
         const auto n = m_mesh->getBuffer(0)->getVertexSize() / sizeof(float);
         std::copy_n(data, n, std::back_inserter(m_vbuf));
         ++m_vertexCount;
@@ -313,7 +313,7 @@ namespace loader
             auto part = std::make_shared<gameplay::MeshPart>(builder.build(localPart.material->getShaderProgram()->getHandle()));
             m_mesh->addPart(part);
             part->setMaterial(localPart.material);
-            if( localPart.color )
+            if( localPart.color.is_initialized() )
             {
                 part->registerMaterialParameterSetter([color = *localPart.color](gameplay::Material& material)
                     {

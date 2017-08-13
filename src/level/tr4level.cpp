@@ -112,7 +112,7 @@ void TR4Level::loadFileData()
 
     auto comp_size = m_reader.readU32();
 
-    if(!comp_size)
+    if(comp_size == 0)
         BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: packed geometry (compressed) is empty"));
 
     std::vector<uint8_t> comp_buffer(comp_size);

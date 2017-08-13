@@ -40,9 +40,9 @@ namespace render
             portalBB.min = {1,1,0};
             portalBB.max = {-1,-1,0};
 
-            for( int i = 0; i < 4; ++i )
+            for( auto vertex : portal->vertices )
             {
-                const auto screen = projectOnScreen(portal->vertices[i].toRenderSystem(), camera, numBehind, numTooFar);
+                const auto screen = projectOnScreen(vertex.toRenderSystem(), camera, numBehind, numTooFar);
 
                 portalBB.min.x = std::min(portalBB.min.x, screen.x);
                 portalBB.min.y = std::min(portalBB.min.y, screen.y);

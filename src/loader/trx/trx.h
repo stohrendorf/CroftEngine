@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 
 #include <regex>
+#include <utility>
 
 
 namespace loader
@@ -23,7 +24,7 @@ namespace loader
             explicit Rectangle(const std::string& serialized)
             {
                 // Format: (x0--x1)(y0--y1)
-                std::regex fmt("\\(([0-9]+)--([0-9]+)\\)\\(([0-9]+)--([0-9]+)\\).*");
+                std::regex fmt(R"(\(([0-9]+)--([0-9]+)\)\(([0-9]+)--([0-9]+)\).*)");
                 std::smatch matches;
                 if( !std::regex_match(serialized, matches, fmt) )
                 {
@@ -120,8 +121,8 @@ namespace loader
             }
 
 
-            explicit TexturePart(const std::string& filename, const Rectangle& r)
-                : m_textureId{filename}
+            explicit TexturePart(std::string filename, const Rectangle& r)
+                : m_textureId{std::move(filename)}
                 , m_rect{r}
             {
             }

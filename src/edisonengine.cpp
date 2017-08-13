@@ -25,19 +25,19 @@ namespace
         // position/rotation
         drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
 
-        drawText(font, 300, 20, boost::lexical_cast<std::string>(std::lround(lvl->m_lara->getRotation().Y.toDegrees())) + " deg");
-        drawText(font, 300, 40, "x=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().X));
-        drawText(font, 300, 60, "y=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().Y));
-        drawText(font, 300, 80, "z=" + boost::lexical_cast<std::string>(lvl->m_lara->getPosition().Z));
+        drawText(font, 300, 20, std::to_string(std::lround(lvl->m_lara->getRotation().Y.toDegrees())) + " deg");
+        drawText(font, 300, 40, "x=" + std::to_string(lvl->m_lara->getPosition().X));
+        drawText(font, 300, 60, "y=" + std::to_string(lvl->m_lara->getPosition().Y));
+        drawText(font, 300, 80, "z=" + std::to_string(lvl->m_lara->getPosition().Z));
 
         // physics
-        drawText(font, 300, 100, "grav " + boost::lexical_cast<std::string>(lvl->m_lara->getFallSpeed()));
-        drawText(font, 300, 120, "fwd  " + boost::lexical_cast<std::string>(lvl->m_lara->getHorizontalSpeed()));
+        drawText(font, 300, 100, "grav " + std::to_string(lvl->m_lara->getFallSpeed()));
+        drawText(font, 300, 120, "fwd  " + std::to_string(lvl->m_lara->getHorizontalSpeed()));
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 120, std::string("frame           ") + boost::lexical_cast<std::string>(lvl->m_lara->getCurrentFrame()));
+        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getCurrentFrame()));
         drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
 
         // triggers
@@ -64,25 +64,25 @@ namespace
                         drawText(font, 180, y, "locked");
                         break;
                 }
-                drawText(font, 260, y, boost::lexical_cast<std::string>(item->m_activationState.getTimeout()));
+                drawText(font, 260, y, std::to_string(item->m_activationState.getTimeout()));
                 y += 20;
             }
         }
 
 #ifndef NDEBUG
         // collision
-        drawText(font, 400, 20, boost::lexical_cast<std::string>("AxisColl: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.collisionType));
-        drawText(font, 400, 40, boost::lexical_cast<std::string>("Current floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.mid.floor.distance));
-        drawText(font, 400, 60, boost::lexical_cast<std::string>("Current ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.mid.ceiling.distance));
-        drawText(font, 400, 80, boost::lexical_cast<std::string>("Front floor:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.front.floor.distance));
-        drawText(font, 400, 100, boost::lexical_cast<std::string>("Front ceiling:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.front.ceiling.distance));
-        drawText(font, 400, 120, boost::lexical_cast<std::string>("Front/L floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontLeft.floor.distance));
-        drawText(font, 400, 140, boost::lexical_cast<std::string>("Front/L ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontLeft.ceiling.distance));
-        drawText(font, 400, 160, boost::lexical_cast<std::string>("Front/R floor:   ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontRight.floor.distance));
-        drawText(font, 400, 180, boost::lexical_cast<std::string>("Front/R ceiling: ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.frontRight.ceiling.distance));
-        drawText(font, 400, 200, boost::lexical_cast<std::string>("Need bottom:     ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.badPositiveDistance));
-        drawText(font, 400, 220, boost::lexical_cast<std::string>("Need top:        ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.badNegativeDistance));
-        drawText(font, 400, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + boost::lexical_cast<std::string>(lvl->m_lara->lastUsedCollisionInfo.badCeilingDistance));
+        drawText(font, 400, 20, boost::lexical_cast<std::string>("AxisColl: ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.collisionType));
+        drawText(font, 400, 40, boost::lexical_cast<std::string>("Current floor:   ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.mid.floor.distance));
+        drawText(font, 400, 60, boost::lexical_cast<std::string>("Current ceiling: ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.mid.ceiling.distance));
+        drawText(font, 400, 80, boost::lexical_cast<std::string>("Front floor:     ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.front.floor.distance));
+        drawText(font, 400, 100, boost::lexical_cast<std::string>("Front ceiling:   ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.front.ceiling.distance));
+        drawText(font, 400, 120, boost::lexical_cast<std::string>("Front/L floor:   ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.frontLeft.floor.distance));
+        drawText(font, 400, 140, boost::lexical_cast<std::string>("Front/L ceiling: ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.frontLeft.ceiling.distance));
+        drawText(font, 400, 160, boost::lexical_cast<std::string>("Front/R floor:   ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.frontRight.floor.distance));
+        drawText(font, 400, 180, boost::lexical_cast<std::string>("Front/R ceiling: ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.frontRight.ceiling.distance));
+        drawText(font, 400, 200, boost::lexical_cast<std::string>("Need bottom:     ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.badPositiveDistance));
+        drawText(font, 400, 220, boost::lexical_cast<std::string>("Need top:        ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.badNegativeDistance));
+        drawText(font, 400, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.badCeilingDistance));
 #endif
     }
 }
@@ -181,7 +181,7 @@ void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
 
 int main()
 {
-    gameplay::Game* game = new gameplay::Game();
+    auto* game = new gameplay::Game();
     game->run();
 
     lua::State mainScript;

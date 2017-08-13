@@ -59,7 +59,7 @@ namespace engine
         }
 
 
-        ~LaraNode();
+        ~LaraNode() override;
 
 
         bool isInWater() const

@@ -41,10 +41,7 @@ using namespace level;
 
 namespace
 {
-    const glm::vec4 WaterColor{149 / 255.0f, 229 / 255.0f, 229 / 255.0f, 0};
-
-
-    struct SpriteVertex
+   struct SpriteVertex
     {
         glm::vec3 pos;
 
@@ -123,11 +120,11 @@ void Level::readMeshData(loader::io::SDLReader& reader)
         else
             m_meshes.emplace_back(*loader::Mesh::readTr1(reader));
 
-        for( size_t j = 0; j < m_meshIndices.size(); j++ )
+        for( auto pos : m_meshIndices )
         {
-            if( m_meshIndices[j] > meshDataPos )
+            if( pos > meshDataPos )
             {
-                meshDataPos = m_meshIndices[j];
+                meshDataPos = pos;
                 break;
             }
         }
@@ -213,23 +210,23 @@ std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game 
 
     switch( game_version )
     {
-        case Game::TR1: result.reset(new TR1Level(game_version, std::move(reader)));
+        case Game::TR1: result = std::make_unique<level::TR1Level>(game_version, std::move(reader));
             break;
         case Game::TR1Demo:
-        case Game::TR1UnfinishedBusiness: result.reset(new TR1Level(game_version, std::move(reader)));
+        case Game::TR1UnfinishedBusiness: result = std::make_unique<level::TR1Level>(game_version, std::move(reader));
             result->m_demoOrUb = true;
             break;
-        case Game::TR2: result.reset(new TR2Level(game_version, std::move(reader)));
+        case Game::TR2: result = std::make_unique<level::TR2Level>(game_version, std::move(reader));
             break;
-        case Game::TR2Demo: result.reset(new TR2Level(game_version, std::move(reader)));
+        case Game::TR2Demo: result = std::make_unique<level::TR2Level>(game_version, std::move(reader));
             result->m_demoOrUb = true;
             break;
-        case Game::TR3: result.reset(new TR3Level(game_version, std::move(reader)));
+        case Game::TR3: result = std::make_unique<level::TR3Level>(game_version, std::move(reader));
             break;
         case Game::TR4:
-        case Game::TR4Demo: result.reset(new TR4Level(game_version, std::move(reader)));
+        case Game::TR4Demo: result = std::make_unique<level::TR4Level>(game_version, std::move(reader));
             break;
-        case Game::TR5: result.reset(new TR5Level(game_version, std::move(reader)));
+        case Game::TR5: result = std::make_unique<level::TR5Level>(game_version, std::move(reader));
             break;
         default: BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
     }
@@ -246,9 +243,9 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
 
     std::string ext;
     ext += filename[filename.length() - 4];
-    ext += toupper(filename[filename.length() - 3]);
-    ext += toupper(filename[filename.length() - 2]);
-    ext += toupper(filename[filename.length() - 1]);
+    ext += (char) toupper(filename[filename.length() - 3]);
+    ext += (char) toupper(filename[filename.length() - 2]);
+    ext += (char) toupper(filename[filename.length() - 1]);
 
     reader.seek(0);
     uint8_t check[4];
@@ -322,9 +319,9 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
 
 const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
 {
-    for( size_t i = 0; i < m_staticMeshes.size(); i++ )
-        if( m_staticMeshes[i].id == meshId )
-            return &m_staticMeshes[i];
+    for( const auto& mesh : m_staticMeshes )
+        if( mesh.id == meshId )
+            return &mesh;
 
     return nullptr;
 }
@@ -332,12 +329,12 @@ const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
 
 int Level::findStaticMeshIndexById(uint32_t meshId) const
 {
-    for( size_t i = 0; i < m_staticMeshes.size(); i++ )
+    for( const auto& mesh : m_staticMeshes )
     {
-        if( m_staticMeshes[i].id == meshId )
+        if( mesh.id == meshId )
         {
-            BOOST_ASSERT( m_staticMeshes[i].mesh < m_meshIndices.size() );
-            return m_meshIndices[m_staticMeshes[i].mesh];
+            BOOST_ASSERT(mesh.mesh < m_meshIndices.size() );
+            return m_meshIndices[mesh.mesh];
         }
     }
 
@@ -369,9 +366,8 @@ std::vector<std::shared_ptr<gameplay::gl::Texture>> Level::createTextures(loader
 {
     BOOST_ASSERT( !m_textures.empty() );
     std::vector<std::shared_ptr<gameplay::gl::Texture>> textures;
-    for( size_t i = 0; i < m_textures.size(); ++i )
+    for( auto& texture : m_textures )
     {
-        loader::DWordTexture& texture = m_textures[i];
         textures.emplace_back(texture.toTexture(glidos, lvlName));
     }
     return textures;
@@ -638,7 +634,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     }
 
     auto skeletalModel = std::make_shared<T>(this,
-                                             "skeleton:" + boost::lexical_cast<std::string>(id) + "(type:" + boost::lexical_cast<std::string>(type) + ")",
+                                             "skeleton:" + std::to_string(id) + "(type:" + std::to_string(type) + ")",
                                              room,
                                              angle,
                                              position,
@@ -649,7 +645,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     {
         BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
         auto node = std::make_shared<gameplay::Node>(
-            skeletalModel->getId() + "/bone:" + boost::lexical_cast<std::string>(boneIndex));
+            skeletalModel->getId() + "/bone:" + std::to_string(boneIndex));
         node->setDrawable(m_models[m_meshIndices[model.firstMesh + boneIndex]]);
         skeletalModel->addChild(node);
     }
@@ -851,10 +847,10 @@ void Level::setUpRendering(gameplay::Game* game,
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
 
-    for( size_t i = 0; i < m_meshes.size(); ++i )
+    for( auto& mesh : m_meshes )
     {
-        m_models.emplace_back(m_meshes[i].createModel(m_textureProxies, materials, colorMaterial, *m_palette,
-                                                      *m_textureAnimator));
+        m_models.emplace_back(mesh.createModel(m_textureProxies, materials, colorMaterial, *m_palette,
+                                               *m_textureAnimator));
     }
 
     game->getScene()->setActiveCamera(
@@ -1041,7 +1037,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
         {
             int col = tex.pixels[y][x];
 
-            if( col & 0x8000 )
+            if( (col & 0x8000) != 0 )
             {
                 const uint8_t r = ((col & 0x00007c00) >> 7);
                 const uint8_t g = ((col & 0x000003e0) >> 2);

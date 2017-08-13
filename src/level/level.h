@@ -216,7 +216,7 @@ namespace level
             src->setBuffer(buf);
             src->setPitch(pitch);
             src->setGain(volume);
-            if( pos )
+            if( pos != nullptr )
                 src->setPosition(*pos);
 
             src->play();

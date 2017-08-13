@@ -1030,8 +1030,8 @@ namespace loader
             if( reader.readU32() != 0xCDCDCDCD )
             BOOST_LOG_TRIVIAL(warning) << "TR5 Room: seperator18 has wrong value";
 
-            for( size_t i = 0; i < room->lights.size(); i++ )
-                room->lights[i] = Light::readTr5(reader);
+            for( auto& light : room->lights )
+                light = Light::readTr5(reader);
 
             reader.seek(position + std::streamoff(208) + sector_data_offset);
 
@@ -1043,13 +1043,13 @@ namespace loader
 
             reader.seek(position + std::streamoff(208) + static_meshes_offset);
 
-            for( size_t i = 0; i < room->staticMeshes.size(); i++ )
-                room->staticMeshes[i] = RoomStaticMesh::readTr4(reader);
+            for( auto& staticMesh : room->staticMeshes )
+                staticMesh = RoomStaticMesh::readTr4(reader);
 
             reader.seek(position + std::streamoff(208) + layer_offset);
 
-            for( size_t i = 0; i < room->layers.size(); i++ )
-                room->layers[i] = Layer::read(reader);
+            for( auto& layer : room->layers )
+                layer = Layer::read(reader);
 
             reader.seek(position + std::streamoff(208) + poly_offset);
 

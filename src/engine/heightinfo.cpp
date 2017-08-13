@@ -84,7 +84,7 @@ namespace engine
                     hi.lastCommandSequenceOrDeath = floorData - 1;
                     break;
                 case floordata::FloorDataChunkType::CommandSequence:
-                    if( !hi.lastCommandSequenceOrDeath )
+                    if( hi.lastCommandSequenceOrDeath == nullptr )
                         hi.lastCommandSequenceOrDeath = floorData - 1;
                     ++floorData;
                     while( true )

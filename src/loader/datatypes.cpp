@@ -171,7 +171,7 @@ namespace loader
         std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
         std::vector<RenderVertex> vbuf;
         std::vector<glm::vec2> uvCoords;
-        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false, "Room:" + boost::lexical_cast<std::string>(roomId));
+        auto mesh = std::make_shared<gameplay::Mesh>(RenderVertex::getFormat(), false, "Room:" + std::to_string(roomId));
 
         for( const QuadFace& quad : rectangles )
         {
@@ -252,7 +252,7 @@ namespace loader
         mesh->getBuffer(1)->assign(uvCoords);
 
         auto resModel = renderModel.toModel(mesh);
-        node = std::make_shared<gameplay::Node>("Room:" + boost::lexical_cast<std::string>(roomId));
+        node = std::make_shared<gameplay::Node>("Room:" + std::to_string(roomId));
         node->setDrawable(resModel);
         node->addMaterialParameterSetter("u_lightPosition", [](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
         {
@@ -382,7 +382,7 @@ namespace loader
             return;
 
         //! @todo Ugly const_cast
-        loader::Box& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
+        auto& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
         if( (box.overlap_index & 0x8000) == 0 )
             return;
 

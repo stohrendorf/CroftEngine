@@ -107,7 +107,7 @@ namespace core
             const auto dx = gsl::narrow<float>(X - rhs.X);
             const auto dy = gsl::narrow<float>(Y - rhs.Y);
             const auto dz = gsl::narrow<float>(Z - rhs.Z);
-            return static_cast<int>(sqrt(dx * dx + dy * dy + dz * dz));
+            return static_cast<int>(sqrtf(dx * dx + dy * dy + dz * dz));
         }
     };
 

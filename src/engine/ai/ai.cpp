@@ -254,7 +254,7 @@ namespace engine
                 {
                     BOOST_ASSERT(levelBoxIdx < npc.getLevel().m_boxes.size());
                     const auto& levelBox = npc.getLevel().m_boxes[levelBoxIdx];
-                    const uint16_t overlapIdx = static_cast<uint16_t>( levelBox.overlap_index & ~0xc000 );
+                    const auto overlapIdx = static_cast<uint16_t>( levelBox.overlap_index & ~0xc000 );
                     // examine edge levelBox --> childBox
                     for( auto childBox : getOverlaps(npc.getLevel(), overlapIdx) )
                     {

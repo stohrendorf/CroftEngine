@@ -101,7 +101,7 @@ void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_
         BOOST_ASSERT(buffer->getVertexSize() % sizeof(float) == 0);
 
         const size_t count = buffer->getVertexCount();
-        const float* data = static_cast<const float*>(buffer->map());
+        const auto* data = static_cast<const float*>(buffer->map());
         for( size_t i = 0; i < count; ++i )
         {
             for( const auto& attrib : buffer->getAttributeMapping() )
@@ -150,7 +150,7 @@ void copyVertexData(const std::shared_ptr<gameplay::Mesh>& mesh, const gsl::not_
 template<typename T>
 void copyIndices(const std::shared_ptr<gameplay::gl::IndexBuffer>& buffer, const gsl::not_null<aiMesh*>& outMesh, size_t& indexOffset)
 {
-    const T* data = static_cast<const T*>(buffer->map());
+    const auto* data = static_cast<const T*>(buffer->map());
     for( GLsizei fi = 0; fi < buffer->getIndexCount() / 3; ++fi )
     {
         BOOST_ASSERT(indexOffset < outMesh->mNumFaces);
@@ -212,7 +212,7 @@ T& append(T*& array, unsigned int& size, const T& value)
 
     BOOST_ASSERT(array != nullptr && size > 0);
 
-    T* tmp = new T[size + 1];
+    auto* tmp = new T[size + 1];
     std::copy_n(array, size, tmp);
     tmp[size] = value;
     std::swap(tmp, array);
@@ -516,7 +516,7 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
         }
     }
 
-    exporter.Export(scene.get(), formatIdentifier.c_str(), fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
+    exporter.Export(scene.get(), formatIdentifier, fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
 }
 
 
@@ -599,7 +599,7 @@ void Converter::write(const std::vector<Room>& rooms,
         }
     }
 
-    exporter.Export(scene.get(), formatIdentifier.c_str(), fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
+    exporter.Export(scene.get(), formatIdentifier, fullPath.string(), aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FlipUVs);
 }
 
 

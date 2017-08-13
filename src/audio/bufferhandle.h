@@ -67,7 +67,7 @@ namespace audio
 
             BOOST_ASSERT(sfInfo.frames >= 0);
 
-            std::vector<int16_t> pcm(sfInfo.frames);
+            std::vector<short> pcm(sfInfo.frames);
             sf_readf_short(sfFile, pcm.data(), sfInfo.frames);
 
             alBufferData(m_handle, sfInfo.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, pcm.data(), gsl::narrow<ALsizei>(pcm.size() * sizeof(pcm[0])), sfInfo.samplerate);

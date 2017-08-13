@@ -65,7 +65,7 @@ namespace audio
 
                 BOOST_ASSERT(self->m_where + count <= self->m_dataSize);
 
-                uint8_t* buf = static_cast<uint8_t*>(ptr);
+                auto buf = static_cast<uint8_t*>(ptr);
                 std::copy_n(self->m_data + self->m_where, count, buf);
                 self->m_where += count;
                 return count;
@@ -146,7 +146,7 @@ namespace audio
 
                 BOOST_ASSERT(self->m_stream.tellg() + count <= getFileLength(user_data));
 
-                char* buf = static_cast<char*>(ptr);
+                auto buf = static_cast<char*>(ptr);
                 self->m_stream.read(buf, count);
                 return self->m_stream.gcount();
             }

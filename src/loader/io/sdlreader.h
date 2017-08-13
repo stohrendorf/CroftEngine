@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 
@@ -53,11 +54,8 @@ namespace loader
             SDLReader& operator=(const SDLReader&) = delete;
 
         public:
-            explicit SDLReader(const std::shared_ptr<DataStreamBuf>& stream)
-                : m_memory()
-                , m_file()
-                , m_array()
-                , m_streamBuf(stream)
+            explicit SDLReader(std::shared_ptr<DataStreamBuf> stream)
+                : m_streamBuf(std::move(stream))
                 , m_stream(m_streamBuf.get())
             {
             }
@@ -74,9 +72,7 @@ namespace loader
 
 
             explicit SDLReader(const std::string& filename)
-                : m_memory()
-                , m_file(std::make_unique<boost::iostreams::file>(filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary))
-                , m_array()
+                : m_file(std::make_unique<boost::iostreams::file>(filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary))
                 , m_streamBuf(std::make_shared<DataStreamBuf>(*m_file))
                 , m_stream(m_streamBuf.get())
             {
@@ -85,7 +81,6 @@ namespace loader
 
             explicit SDLReader(const std::vector<char>& data)
                 : m_memory(data)
-                , m_file()
                 , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
                 , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
                 , m_stream(m_streamBuf.get())
@@ -95,7 +90,6 @@ namespace loader
 
             explicit SDLReader(std::vector<char>&& data)
                 : m_memory(move(data))
-                , m_file()
                 , m_array(std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size()))
                 , m_streamBuf(std::make_shared<DataStreamBuf>(*m_array))
                 , m_stream(m_streamBuf.get())
@@ -110,7 +104,7 @@ namespace loader
             {
                 std::vector<char> uncomp_buffer(uncompressedSize);
 
-                uLongf size = static_cast<uLongf>(uncompressedSize);
+                auto size = static_cast<uLongf>(uncompressedSize);
                 if( uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), &size, compressed.data(), static_cast<uLong>(compressed.size())) != Z_OK )
                 BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
 

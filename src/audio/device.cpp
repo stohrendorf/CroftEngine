@@ -11,7 +11,7 @@ namespace audio
             m_streamUpdater.join();
         }
 
-        if( m_context )
+        if( m_context != nullptr )
         {
             alcMakeContextCurrent(nullptr);
             DEBUG_CHECK_AL_ERROR();
@@ -19,7 +19,7 @@ namespace audio
             DEBUG_CHECK_AL_ERROR();
         }
 
-        if( m_device )
+        if( m_device != nullptr )
         {
             alcCloseDevice(m_device);
             DEBUG_CHECK_AL_ERROR();
@@ -51,7 +51,7 @@ namespace audio
                 return;
             }
 
-            while(*devlist)
+            while(*devlist != '\0')
             {
                 BOOST_LOG_TRIVIAL(info) << "Probing device `" << devlist << "`";
                 ALCdevice* dev = alcOpenDevice(devlist);

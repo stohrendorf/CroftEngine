@@ -46,11 +46,11 @@ struct WordTexture
     {
         std::unique_ptr<WordTexture> texture{new WordTexture()};
 
-        for( int i = 0; i < 256; i++ )
+        for( auto& row : texture->pixels )
         {
             for( int j = 0; j < 256; j++ )
             {
-                texture->pixels[i][j] = reader.readU16();
+                row[j] = reader.readU16();
             }
         }
 
@@ -70,7 +70,7 @@ struct DWordTexture final
     {
         std::unique_ptr<DWordTexture> textile{new DWordTexture()};
 
-        for( int i = 0; i < 256; i++ )
+        for( auto& row : textile->pixels )
         {
             for( int j = 0; j < 256; j++ )
             {
@@ -79,7 +79,7 @@ struct DWordTexture final
                 const uint8_t r = (tmp >> 16) & 0xff;
                 const uint8_t g = (tmp >> 8) & 0xff;
                 const uint8_t b = (tmp >> 0) & 0xff;
-                textile->pixels[i][j] = {r, g, b, a};
+                row[j] = {r, g, b, a};
             }
         }
 
