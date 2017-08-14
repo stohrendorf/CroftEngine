@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Mesh.h"
 #include "RenderContext.h"
 
-#include "gl/indexbuffer.h"
 #include "gl/vertexarray.h"
 
 
@@ -24,13 +22,13 @@ namespace gameplay
 
         void setMaterial(const std::shared_ptr<Material>& material)
         {
-            _material = material;
+            m_material = material;
         }
 
 
         const std::shared_ptr<Material>& getMaterial() const
         {
-            return _material;
+            return m_material;
         }
 
 
@@ -39,7 +37,7 @@ namespace gameplay
 
         void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
         {
-            _materialParameterSetters.emplace_back(setter);
+            m_materialParameterSetters.emplace_back(setter);
         }
 
 
@@ -54,9 +52,9 @@ namespace gameplay
 
         bool drawWireframe() const;
 
-        std::shared_ptr<Material> _material;
+        std::shared_ptr<Material> m_material;
 
-        std::vector<std::function<MaterialParameterSetter>> _materialParameterSetters;
+        std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;
 
         std::shared_ptr<gl::VertexArray> m_vao;
     };

@@ -142,8 +142,7 @@ namespace gameplay
 
     ShaderProgram::~ShaderProgram()
     {
-        // Free uniforms.
-        _uniforms.clear();
+        m_uniforms.clear();
     }
 
 
@@ -179,7 +178,7 @@ namespace gameplay
         else
         {
             // Store this effect in the cache.
-            shaderProgram->_id = uniqueId;
+            shaderProgram->m_id = uniqueId;
         }
 
         return shaderProgram;
@@ -270,12 +269,12 @@ namespace gameplay
 
         for( auto&& attrib : shaderProgram->m_handle.getActiveAttributes() )
         {
-            shaderProgram->_vertexAttributes.insert(make_pair(attrib.getName(), std::move(attrib)));
+            shaderProgram->m_vertexAttributes.insert(make_pair(attrib.getName(), std::move(attrib)));
         }
 
         for( auto&& uniform : shaderProgram->m_handle.getActiveUniforms() )
         {
-            shaderProgram->_uniforms.insert(make_pair(uniform.getName(), std::move(uniform)));
+            shaderProgram->m_uniforms.insert(make_pair(uniform.getName(), std::move(uniform)));
         }
 
         return shaderProgram;
@@ -284,21 +283,21 @@ namespace gameplay
 
     const std::string& ShaderProgram::getId() const
     {
-        return _id;
+        return m_id;
     }
 
 
     const gl::Program::ActiveAttribute* ShaderProgram::getVertexAttribute(const std::string& name) const
     {
-        auto itr = _vertexAttributes.find(name);
-        return itr == _vertexAttributes.end() ? nullptr : &itr->second;
+        auto it = m_vertexAttributes.find(name);
+        return it == m_vertexAttributes.end() ? nullptr : &it->second;
     }
 
 
     gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name) const
     {
-        auto itr = _uniforms.find(name);
-        return itr == _uniforms.end() ? nullptr : &itr->second;
+        auto it = m_uniforms.find(name);
+        return it == m_uniforms.end() ? nullptr : &it->second;
     }
 
 

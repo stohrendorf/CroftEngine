@@ -28,21 +28,21 @@ namespace gameplay
 
         void addPart(const std::shared_ptr<MeshPart>& meshPart)
         {
-            _parts.emplace_back(meshPart);
+            m_parts.emplace_back(meshPart);
         }
 
 
         size_t getPartCount() const
         {
-            return _parts.size();
+            return m_parts.size();
         }
 
 
         const std::shared_ptr<MeshPart>& getPart(size_t index)
         {
-            BOOST_ASSERT(index < _parts.size());
+            BOOST_ASSERT(index < m_parts.size());
 
-            return _parts[index];
+            return m_parts[index];
         }
 
 
@@ -71,7 +71,7 @@ namespace gameplay
 
         const std::vector<std::shared_ptr<MeshPart>>& getParts() const noexcept
         {
-            return _parts;
+            return m_parts;
         }
 
 
@@ -88,7 +88,7 @@ namespace gameplay
 
         Mesh& operator=(const Mesh&) = delete;
 
-        std::vector<std::shared_ptr<MeshPart>> _parts{};
+        std::vector<std::shared_ptr<MeshPart>> m_parts{};
 
         std::vector<std::shared_ptr<gl::StructuredVertexBuffer>> m_buffers{};
     };

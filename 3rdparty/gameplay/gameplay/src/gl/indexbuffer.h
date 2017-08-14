@@ -1,9 +1,11 @@
 #pragma once
 
 #include "bindableresource.h"
+#include "typetraits.h"
 
 #include <gsl/gsl>
 
+#include <vector>
 
 namespace gameplay
 {

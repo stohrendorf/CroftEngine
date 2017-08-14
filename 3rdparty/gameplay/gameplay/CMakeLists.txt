@@ -19,7 +19,6 @@ set( GAMEPLAY_SRC
      src/Model.h
      src/Node.cpp
      src/Node.h
-     src/Rectangle.cpp
      src/Rectangle.h
      src/RenderContext.h
      src/RenderState.cpp

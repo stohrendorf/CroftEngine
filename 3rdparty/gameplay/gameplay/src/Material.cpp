@@ -11,12 +11,12 @@
 namespace gameplay
 {
     Material::Material(const std::shared_ptr<ShaderProgram>& shaderProgram)
-        : _shaderProgram{shaderProgram}
+        : m_shaderProgram{shaderProgram}
     {
         BOOST_ASSERT(shaderProgram != nullptr);
 
-        for (const auto& u : _shaderProgram->getHandle().getActiveUniforms())
-            _parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
+        for (const auto& u : m_shaderProgram->getHandle().getActiveUniforms())
+            m_parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
     }
 
 
@@ -24,27 +24,27 @@ namespace gameplay
 
 
     Material::Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
-        : _shaderProgram{ShaderProgram::createFromFile(vshPath, fshPath, defines)}
+        : m_shaderProgram{ShaderProgram::createFromFile(vshPath, fshPath, defines)}
     {
-        if( _shaderProgram == nullptr )
+        if( m_shaderProgram == nullptr )
         {
             BOOST_LOG_TRIVIAL(fatal) << "Failed to create shader. vertexShader = " << vshPath << ", fragmentShader = " << fshPath << ", defines = " << boost::algorithm::join(defines, "; ");
             BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader"));
         }
 
-        for (const auto& u : _shaderProgram->getHandle().getActiveUniforms())
-            _parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
+        for (const auto& u : m_shaderProgram->getHandle().getActiveUniforms())
+            m_parameters.push_back(std::make_shared<MaterialParameter>(u.getName()));
     }
 
 
     void Material::bind(const Node& node)
     {
-        BOOST_ASSERT(_shaderProgram != nullptr);
+        BOOST_ASSERT(m_shaderProgram != nullptr);
 
-        for( const auto& param : _parameters )
+        for( const auto& param : m_parameters )
         {
             BOOST_ASSERT(param);
-            const auto success = param->bind(node, _shaderProgram);
+            const auto success = param->bind(node, m_shaderProgram);
 #ifndef NDEBUG
             if(!success)
             {
@@ -53,7 +53,7 @@ namespace gameplay
 #endif
         }
 
-        _shaderProgram->bind();
+        m_shaderProgram->bind();
 
         RenderState::bind();
     }
@@ -62,7 +62,7 @@ namespace gameplay
     std::shared_ptr<MaterialParameter> Material::getParameter(const std::string& name) const
     {
         // Search for an existing parameter with this name.
-        for( const auto& param : _parameters )
+        for( const auto& param : m_parameters )
         {
             BOOST_ASSERT(param);
             if( param->getName() == name )
@@ -73,7 +73,7 @@ namespace gameplay
 
         // Create a new parameter and store it in our list.
         auto param = std::make_shared<MaterialParameter>(name);
-        _parameters.push_back(param);
+        m_parameters.push_back(param);
         return param;
     }
 }

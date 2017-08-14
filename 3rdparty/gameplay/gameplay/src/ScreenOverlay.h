@@ -24,22 +24,22 @@ namespace gameplay
 
         const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
         {
-            return _image;
+            return m_image;
         }
 
 
     private:
-
+        
         ScreenOverlay(const ScreenOverlay& copy) = delete;
 
         ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-        std::shared_ptr<gl::Image<gl::RGBA8>> _image{nullptr};
+        std::shared_ptr<gl::Image<gl::RGBA8>> m_image{nullptr};
 
-        std::shared_ptr<gl::Texture> _texture{nullptr};
+        std::shared_ptr<gl::Texture> m_texture{nullptr};
 
-        std::shared_ptr<Mesh> _mesh{nullptr};
+        std::shared_ptr<Mesh> m_mesh{nullptr};
 
-        std::shared_ptr<Model> _model{nullptr};
+        std::shared_ptr<Model> m_model{nullptr};
     };
 }

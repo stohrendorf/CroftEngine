@@ -18,7 +18,7 @@ namespace gameplay
 
         const std::shared_ptr<ShaderProgram>& getShaderProgram() const
         {
-            return _shaderProgram;
+            return m_shaderProgram;
         }
 
 
@@ -30,8 +30,8 @@ namespace gameplay
 
         Material(const Material&) = delete;
 
-        std::shared_ptr<ShaderProgram> _shaderProgram;
+        std::shared_ptr<ShaderProgram> m_shaderProgram;
 
-        mutable std::vector<std::shared_ptr<MaterialParameter>> _parameters;
+        mutable std::vector<std::shared_ptr<MaterialParameter>> m_parameters;
     };
 }

@@ -9,21 +9,21 @@ namespace gameplay
     class Model : public Drawable
     {
     public:
-        explicit Model();
+        explicit Model() = default;
 
-        ~Model();
+        ~Model() = default;
 
 
         const std::vector<std::shared_ptr<Mesh>>& getMeshes() const
         {
-            return _meshes;
+            return m_meshes;
         }
 
 
         void addMesh(const std::shared_ptr<Mesh>& mesh)
         {
             BOOST_ASSERT(mesh != nullptr);
-            _meshes.push_back(mesh);
+            m_meshes.push_back(mesh);
         }
 
 
@@ -34,6 +34,6 @@ namespace gameplay
 
         Model& operator=(const Model&) = delete;
 
-        std::vector<std::shared_ptr<Mesh>> _meshes;
+        std::vector<std::shared_ptr<Mesh>> m_meshes{};
     };
 }

@@ -76,14 +76,14 @@ namespace gameplay
 
         const List& getChildren() const
         {
-            return _children;
+            return m_children;
         }
 
 
         const std::shared_ptr<Node>& getChild(size_t idx) const
         {
-            BOOST_ASSERT(idx < _children.size());
-            return _children[idx];
+            BOOST_ASSERT(idx < m_children.size());
+            return m_children[idx];
         }
 
 
@@ -102,25 +102,25 @@ namespace gameplay
 
         void accept(Visitor& visitor)
         {
-            for( auto& node : _children )
+            for( auto& node : m_children )
                 visitor.visit(*node);
         }
 
 
         void setParent(const std::shared_ptr<Node>& parent)
         {
-            if( !_parent.expired() )
+            if( !m_parent.expired() )
             {
-                auto p = _parent.lock();
-                auto it = find(p->_children.begin(), p->_children.end(), shared_from_this());
-                BOOST_ASSERT(it != p->_children.end());
-                _parent.lock()->_children.erase(it);
+                auto p = m_parent.lock();
+                auto it = find(p->m_children.begin(), p->m_children.end(), shared_from_this());
+                BOOST_ASSERT(it != p->m_children.end());
+                m_parent.lock()->m_children.erase(it);
             }
 
-            _parent = parent;
+            m_parent = parent;
 
             if( parent != nullptr )
-                parent->_children.push_back(shared_from_this());
+                parent->m_children.push_back(shared_from_this());
 
             transformChanged();
         }
@@ -128,15 +128,15 @@ namespace gameplay
 
         void swapChildren(const std::shared_ptr<Node>& other)
         {
-            auto otherChildren = other->_children;
+            auto otherChildren = other->m_children;
             for( auto& child : otherChildren )
                 child->setParent(nullptr);
-            BOOST_ASSERT(other->_children.empty());
+            BOOST_ASSERT(other->m_children.empty());
 
-            auto thisChildren = _children;
+            auto thisChildren = m_children;
             for( auto& child : thisChildren )
                 child->setParent(nullptr);
-            BOOST_ASSERT(_children.empty());
+            BOOST_ASSERT(m_children.empty());
 
             for( auto& child : otherChildren )
                 child->setParent(shared_from_this());
@@ -148,19 +148,19 @@ namespace gameplay
 
         void addMaterialParameterSetter(const std::string& name, const std::function<MaterialParameter::UniformValueSetter>& setter)
         {
-            _materialParemeterSetters[name] = setter;
+            m_materialParemeterSetters[name] = setter;
         }
 
 
         void addMaterialParameterSetter(const std::string& name, std::function<MaterialParameter::UniformValueSetter>&& setter)
         {
-            _materialParemeterSetters[name] = move(setter);
+            m_materialParemeterSetters[name] = move(setter);
         }
 
 
         const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>& getMaterialParameterSetters() const
         {
-            return _materialParemeterSetters;
+            return m_materialParemeterSetters;
         }
 
 
@@ -174,24 +174,24 @@ namespace gameplay
 
         Node& operator=(const Node&) = delete;
 
-        Scene* _scene = nullptr;
+        Scene* m_scene = nullptr;
 
-        std::string _id;
+        std::string m_id;
 
-        List _children;
+        List m_children;
 
-        std::weak_ptr<Node> _parent{};
+        std::weak_ptr<Node> m_parent{};
 
         bool m_visible = true;
 
-        std::shared_ptr<Drawable> _drawable = nullptr;
+        std::shared_ptr<Drawable> m_drawable = nullptr;
 
         glm::mat4 m_localMatrix{1.0f};
 
         mutable glm::mat4 m_modelMatrix{1.0f};
 
-        mutable bool _dirty = false;
+        mutable bool m_dirty = false;
 
-        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> _materialParemeterSetters;
+        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParemeterSetters;
     };
 }

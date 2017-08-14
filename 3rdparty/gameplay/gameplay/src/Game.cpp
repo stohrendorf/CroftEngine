@@ -179,25 +179,25 @@ namespace gameplay
 
     void Game::setVsync(bool enable)
     {
-        _vsync = enable;
+        m_vsync = enable;
         glfwSwapInterval(enable ? 1 : 0);
     }
 
 
     bool Game::isVsync() const
     {
-        return _vsync;
+        return m_vsync;
     }
 
-
+    
     int Game::run()
     {
-        if( _initialized )
+        if( m_initialized )
         {
             return -1;
         }
 
-        GL_ASSERT(glfwGetWindowSize(_window, &_width, &_height));
+        GL_ASSERT(glfwGetWindowSize(_window, &m_width, &m_height));
 
         // Start up game systems.
         if( !startup() )
@@ -212,15 +212,15 @@ namespace gameplay
 
     bool Game::startup()
     {
-        if( _initialized )
+        if( m_initialized )
         {
             return false;
         }
 
-        setViewport(Rectangle{0.0f, 0.0f, static_cast<float>(_width), static_cast<float>(_height)});
+        setViewport(Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)});
         RenderState::initialize();
 
-        _initialized = true;
+        m_initialized = true;
 
         return true;
     }
@@ -229,11 +229,11 @@ namespace gameplay
     void Game::shutdown()
     {
         // Call user finalization.
-        if( _initialized )
+        if( m_initialized )
         {
             RenderState::finalize();
 
-            _initialized = false;
+            m_initialized = false;
         }
     }
 
@@ -242,14 +242,14 @@ namespace gameplay
     {
         // Graphics Rendering.
         render();
-
+        
         // Update FPS.
-        ++_frameCount;
-        if( (getGameTime() - _frameLastFPS) >= std::chrono::seconds(1) )
+        ++m_frameCount;
+        if( (getGameTime() - m_frameLastFPS) >= std::chrono::seconds(1) )
         {
-            _frameRate = _frameCount;
-            _frameCount = 0;
-            _frameLastFPS = getGameTime();
+            m_frameRate = m_frameCount;
+            m_frameCount = 0;
+            m_frameLastFPS = getGameTime();
         }
     }
 
@@ -262,7 +262,7 @@ namespace gameplay
 
     void Game::setViewport(const Rectangle& viewport)
     {
-        _viewport = viewport;
+        m_viewport = viewport;
         GL_ASSERT(glViewport(static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y), static_cast<GLuint>(viewport.width),
             static_cast<GLuint>(viewport.height)));
     }
@@ -273,20 +273,20 @@ namespace gameplay
         GLbitfield bits = 0;
         if( flags & GL_COLOR_BUFFER_BIT )
         {
-            if( clearColor != _clearColor )
+            if( clearColor != m_clearColor )
             {
                 glClearColor(clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f, clearColor.a / 255.0f);
-                _clearColor = clearColor;
+                m_clearColor = clearColor;
             }
             bits |= GL_COLOR_BUFFER_BIT;
         }
 
         if( flags & GL_DEPTH_BUFFER_BIT )
         {
-            if( clearDepth != _clearDepth )
+            if( clearDepth != m_clearDepth )
             {
                 glClearDepth(clearDepth);
-                _clearDepth = clearDepth;
+                m_clearDepth = clearDepth;
             }
             bits |= GL_DEPTH_BUFFER_BIT;
 

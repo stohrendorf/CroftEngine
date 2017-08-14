@@ -6,7 +6,7 @@
 namespace gameplay
 {
     Node::Node(const std::string& id)
-        : _id(id)
+        : m_id(id)
     {
     }
 
@@ -19,13 +19,13 @@ namespace gameplay
 
     const std::string& Node::getId() const
     {
-        return _id;
+        return m_id;
     }
 
 
     void Node::setId(const std::string& id)
     {
-        _id = id;
+        m_id = id;
     }
 
 
@@ -33,7 +33,7 @@ namespace gameplay
     {
         BOOST_ASSERT(child);
 
-        if( !child->_parent.expired() && child->_parent.lock() == shared_from_this() )
+        if( !child->m_parent.expired() && child->m_parent.lock() == shared_from_this() )
         {
             // This node is already present in our hierarchy
             return;
@@ -45,13 +45,13 @@ namespace gameplay
 
     const std::weak_ptr<Node>& Node::getParent() const
     {
-        return _parent;
+        return m_parent;
     }
 
 
     size_t Node::getChildCount() const
     {
-        return _children.size();
+        return m_children.size();
     }
 
 
@@ -68,13 +68,13 @@ namespace gameplay
 
     Scene* Node::getScene() const
     {
-        if( _scene )
-            return _scene;
+        if( m_scene )
+            return m_scene;
 
         // Search our parent for the scene
-        if( !_parent.expired() )
+        if( !m_parent.expired() )
         {
-            Scene* scene = _parent.lock()->getScene();
+            Scene* scene = m_parent.lock()->getScene();
             if( scene )
                 return scene;
         }
@@ -99,14 +99,14 @@ namespace gameplay
         if( !m_visible )
             return false;
 
-        auto node = _parent;
+        auto node = m_parent;
         while( !node.expired() )
         {
             if( !node.lock()->m_visible )
             {
                 return false;
             }
-            node = node.lock()->_parent;
+            node = node.lock()->m_parent;
         }
         return true;
     }
@@ -114,11 +114,11 @@ namespace gameplay
 
     const glm::mat4& Node::getModelMatrix() const
     {
-        if( _dirty )
+        if( m_dirty )
         {
             // Clear our dirty flag immediately to prevent this block from being entered if our
             // parent calls our getModelMatrix() method as a result of the following calculations.
-            _dirty = false;
+            m_dirty = false;
 
             // If we have a parent, multiply our parent world transform by our local
             // transform to obtain our final resolved world transform.
@@ -258,10 +258,10 @@ namespace gameplay
 
     void Node::transformChanged()
     {
-        _dirty = true;
+        m_dirty = true;
 
         // Notify our children that their transform has also changed (since transforms are inherited).
-        for( const auto& child : _children )
+        for( const auto& child : m_children )
         {
             child->transformChanged();
         }
@@ -270,12 +270,12 @@ namespace gameplay
 
     const std::shared_ptr<Drawable>& Node::getDrawable() const
     {
-        return _drawable;
+        return m_drawable;
     }
-
+    
 
     void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
     {
-        _drawable = drawable;
+        m_drawable = drawable;
     }
 }

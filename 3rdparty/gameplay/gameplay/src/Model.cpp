@@ -9,19 +9,9 @@
 
 namespace gameplay
 {
-    Model::Model()
-        : Drawable{}
-        , _meshes{}
-    {
-    }
-
-
-    Model::~Model() = default;
-
-
     void Model::draw(RenderContext& context)
     {
-        for( const auto& mesh : _meshes )
+        for( const auto& mesh : m_meshes )
         {
             BOOST_ASSERT(mesh);
 

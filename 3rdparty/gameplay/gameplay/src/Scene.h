@@ -27,14 +27,14 @@ namespace gameplay
         {
             BOOST_ASSERT(node);
 
-            if( node->_scene == this )
+            if( node->m_scene == this )
             {
                 // The node is already a member of this scene.
                 return;
             }
 
             _nodes.push_back(node);
-            node->_scene = this;
+            node->m_scene = this;
         }
 
 

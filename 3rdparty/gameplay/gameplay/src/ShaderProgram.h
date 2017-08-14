@@ -41,12 +41,12 @@ namespace gameplay
 
         static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines = {});
 
-        std::string _id;
+        std::string m_id;
 
         gl::Program m_handle;
 
-        std::map<std::string, gl::Program::ActiveAttribute> _vertexAttributes;
+        std::map<std::string, gl::Program::ActiveAttribute> m_vertexAttributes;
 
-        mutable std::map<std::string, gl::Program::ActiveUniform> _uniforms;
+        mutable std::map<std::string, gl::Program::ActiveUniform> m_uniforms;
     };
 }

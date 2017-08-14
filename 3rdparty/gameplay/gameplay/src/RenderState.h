@@ -74,27 +74,27 @@ namespace gameplay
             static void enableDepthWrite();
 
             // States
-            bool _cullFaceEnabled = false;
+            bool m_cullFaceEnabled = false;
 
-            bool _depthTestEnabled = false;
+            bool m_depthTestEnabled = false;
 
-            bool _depthWriteEnabled = true;
+            bool m_depthWriteEnabled = true;
 
-            GLenum _depthFunction = GL_LESS;
+            GLenum m_depthFunction = GL_LESS;
 
-            bool _blendEnabled = false;
+            bool m_blendEnabled = false;
 
-            GLenum _blendSrc = GL_ONE;
+            GLenum m_blendSrc = GL_ONE;
 
-            GLenum _blendDst = GL_ZERO;
+            GLenum m_blendDst = GL_ZERO;
 
-            GLenum _cullFaceSide = GL_BACK;
+            GLenum m_cullFaceSide = GL_BACK;
 
-            GLenum _frontFace = GL_CCW;
+            GLenum m_frontFace = GL_CCW;
 
-            long _bits = 0;
+            long m_bits = 0;
 
-            static std::shared_ptr<StateBlock> _defaultState;
+            static std::shared_ptr<StateBlock> m_defaultState;
         };
 
 
@@ -121,6 +121,6 @@ namespace gameplay
         RenderState& operator=(const RenderState&) = delete;
 
     protected:
-        mutable std::shared_ptr<StateBlock> _state = nullptr;
+        mutable std::shared_ptr<StateBlock> m_state = nullptr;
     };
 }

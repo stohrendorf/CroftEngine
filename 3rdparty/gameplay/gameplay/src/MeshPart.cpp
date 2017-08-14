@@ -49,15 +49,15 @@ namespace gameplay
 
     void MeshPart::draw(RenderContext& context) const
     {
-        if( !_material )
+        if( m_material == nullptr )
             return;
 
         BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
-        for (const auto& mps : _materialParameterSetters)
-            mps(*_material);
+        for (const auto& mps : m_materialParameterSetters)
+            mps(*m_material);
 
-        _material->bind(*context.getCurrentNode());
+        m_material->bind(*context.getCurrentNode());
 
         BOOST_ASSERT(m_vao->getIndexBuffers().size() == 1 && m_vao->getIndexBuffers()[0] != nullptr);
 
