@@ -508,7 +508,7 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
 
             copyIndices(part, outMesh);
 
-            if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
+            if( outMesh->mNormals != nullptr && std::isnan( outMesh->mNormals[0].x ) )
             {
                 delete[] outMesh->mNormals;
                 outMesh->mNormals = nullptr;
@@ -691,7 +691,7 @@ void Converter::convert(aiScene& scene,
 
             copyIndices(inPart, outMesh);
 
-            if( outMesh->mNormals != nullptr && isnan(outMesh->mNormals[0].x) )
+            if( outMesh->mNormals != nullptr && std::isnan( outMesh->mNormals[0].x ) )
             {
                 delete[] outMesh->mNormals;
                 outMesh->mNormals = nullptr;

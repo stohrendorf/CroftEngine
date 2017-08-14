@@ -3,7 +3,6 @@
 #include "core/magic.h"
 #include "level/level.h"
 #include "laranode.h"
-#include "core/boundingbox.h"
 
 
 namespace engine
@@ -215,18 +214,28 @@ namespace engine
     }
 
 
-    std::set<const loader::Room*> CollisionInfo::collectNeighborRooms(const core::TRCoordinates& position, int radius, int height, const level::Level& level)
+    std::set<gsl::not_null<const loader::Room*>>
+    CollisionInfo::collectNeighborRooms(const core::TRCoordinates& position, int radius, int height,
+                                        const level::Level& level)
     {
-        std::set<const loader::Room*> result;
-        result.insert(level.m_lara->getCurrentRoom());
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, -radius), level.m_lara->getCurrentRoom()));
-        result.insert(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, -radius), level.m_lara->getCurrentRoom()));
+        std::set<gsl::not_null<const loader::Room*>> result;
+        result.emplace( level.m_lara->getCurrentRoom() );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, -radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, -radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, -radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, -radius ),
+                                                   level.m_lara->getCurrentRoom() ) );
         return result;
     }
 
@@ -242,7 +251,7 @@ namespace engine
 
         hasStaticMeshCollision = false;
 
-        for( const loader::Room* room : rooms )
+        for( const auto& room : rooms )
         {
             for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
             {

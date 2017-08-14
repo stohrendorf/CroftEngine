@@ -55,7 +55,8 @@ namespace engine
 
         void initHeightInfo(const core::TRCoordinates& laraPos, const level::Level& level, int height);
 
-        static std::set<const loader::Room*> collectNeighborRooms(const core::TRCoordinates& position, int radius, int height, const level::Level& level);
+        static std::set<gsl::not_null<const loader::Room*>>
+        collectNeighborRooms(const core::TRCoordinates& position, int radius, int height, const level::Level& level);
         bool checkStaticMeshCollisions(const core::TRCoordinates& position, int height, const level::Level& level);
     };
 }
