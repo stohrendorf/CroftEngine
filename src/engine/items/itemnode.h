@@ -59,7 +59,7 @@ namespace engine
         };
 
 
-        class ItemNode : public SkeletalModelNode
+        class ItemNode : public std::enable_shared_from_this<ItemNode>
         {
             core::RoomBoundPosition m_position;
 
@@ -76,6 +76,8 @@ namespace engine
             int m_floorHeight = 0;
 
             std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
+
+            std::shared_ptr<SkeletalModelNode> m_skeleton;
 
             void updateSounds();
 
@@ -137,7 +139,12 @@ namespace engine
 
             virtual ~ItemNode() = default;
 
-            void update() override;
+            virtual void update();
+
+            const std::shared_ptr<SkeletalModelNode>& getNode() const
+            {
+                return m_skeleton;
+            }
 
             void applyMovement(bool forLara);
 
@@ -391,7 +398,7 @@ namespace engine
                     return false;
                 }
 
-                if( getCurrentState() != 0 || arg.isLocked() )
+                if( m_skeleton->getCurrentState() != 0 || arg.isLocked() )
                 {
                     deactivate();
                     m_triggerState = TriggerState::Disabled;
@@ -475,7 +482,7 @@ namespace engine
                 }
 
                 float maxBrightness = 0;
-                const auto bboxCtr = m_position.position + getBoundingBox().getCenter();
+                const auto bboxCtr = m_position.position + m_skeleton->getBoundingBox().getCenter();
                 for( const auto& light : m_position.room->lights )
                 {
                     auto radiusSq = light.radius / 4096.0f;

@@ -102,7 +102,7 @@ namespace engine
             ItemNode::update();
 
             const auto initialPos = getPosition();
-            auto bboxTop = getBoundingBox().minY;
+            auto bboxTop = getNode()->getBoundingBox().minY;
             auto npcRoom = getCurrentRoom();
             auto npcSector = getLevel().findRealFloorSector(
                 getPosition() + core::TRCoordinates(0, bboxTop, 0),

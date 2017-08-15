@@ -35,31 +35,31 @@ namespace engine
 
             lara.setYRotation( getRotation().Y );
 
-            if( getCurrentState() == 1 )
+            if( getNode()->getCurrentState() == 1 )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "Switch " << getId() << ": pull down";
+                BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull down";
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchDown );
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
                 lara.setTargetState( loader::LaraStateId::Stop );
-                setTargetState( 0 );
+                getNode()->setTargetState( 0 );
                 lara.setHandStatus( 1 );
             }
             else
             {
-                if( getCurrentState() != 0 )
+                if( getNode()->getCurrentState() != 0 )
                     return;
 
-                BOOST_LOG_TRIVIAL( debug ) << "Switch " << getId() << ": pull up";
+                BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull up";
                 do
                 {
                     lara.setTargetState( loader::LaraStateId::SwitchUp );
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
                 lara.setTargetState( loader::LaraStateId::Stop );
-                setTargetState( 1 );
+                getNode()->setTargetState( 1 );
                 lara.setHandStatus( 1 );
             }
 

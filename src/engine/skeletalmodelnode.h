@@ -119,14 +119,12 @@ namespace engine
         }
 
 
-        virtual void update() = 0;
-
-    protected:
-        bool handleStateTransitions();
+        const loader::Animation& getCurrentAnimData() const;
 
         bool advanceFrame();
 
-        const loader::Animation& getCurrentAnimData() const;
+    protected:
+        bool handleStateTransitions();
 
     private:
         const gsl::not_null<const level::Level*> m_level;
