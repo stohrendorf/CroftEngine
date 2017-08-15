@@ -61,6 +61,8 @@ namespace engine
 
         class ItemNode : public std::enable_shared_from_this<ItemNode>
         {
+            std::shared_ptr<SkeletalModelNode> m_skeleton;
+
             core::RoomBoundPosition m_position;
 
             // needed for YPR rotation, because the scene node uses XYZ rotation
@@ -76,8 +78,6 @@ namespace engine
             int m_floorHeight = 0;
 
             std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
-
-            std::shared_ptr<SkeletalModelNode> m_skeleton;
 
             void updateSounds();
 
