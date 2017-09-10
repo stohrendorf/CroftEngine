@@ -40,7 +40,7 @@ namespace engine
                 if( getPosition().Y < getFloorHeight() )
                     return;
 
-                getLevel().scheduleDeletion(shared_from_this());
+                getLevel().scheduleDeletion(this);
                 deactivate();
 
                 // TODO: fx

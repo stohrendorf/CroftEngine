@@ -67,8 +67,8 @@ namespace level
         loader::Zones m_alternateZones;
         std::vector<loader::Item> m_items;
         std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemNodes;
-        std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;
-        std::set<std::shared_ptr<engine::items::ItemNode>> m_scheduledDeletions;
+        std::set<engine::items::ItemNode*> m_dynamicItems;
+        std::set<engine::items::ItemNode*> m_scheduledDeletions;
         std::unique_ptr<loader::LightMap> m_lightmap;
         std::vector<loader::AIObject> m_aiObjects;
         std::vector<loader::CinematicFrame> m_cinematicFrames;
@@ -142,7 +142,7 @@ namespace level
 
             auto node = createSkeletalModel<T>(99999, *modelIdx, type, room, angle, position, activationState, darkness);
 
-            m_dynamicItems.insert(node);
+            m_dynamicItems.insert(node.get());
             room->node->addChild(node->getNode());
 
             return node;
@@ -356,7 +356,7 @@ namespace level
         }
 
 
-        void scheduleDeletion(const std::shared_ptr<engine::items::ItemNode>& item)
+        void scheduleDeletion(engine::items::ItemNode* item)
         {
             m_scheduledDeletions.insert(item);
         }

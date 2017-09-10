@@ -59,7 +59,7 @@ namespace engine
         };
 
 
-        class ItemNode : public std::enable_shared_from_this<ItemNode>
+        class ItemNode
         {
             std::shared_ptr<SkeletalModelNode> m_skeleton;
 
