@@ -31,7 +31,7 @@ namespace engine
 
                 if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
-                    if( lara.getCurrentFrame() == 2970 )
+                    if( lara.getNode()->getCurrentFrame() == 2970 )
                     {
                         // TODO: Remove item from room, handle pick up
 
@@ -61,14 +61,14 @@ namespace engine
 
                 if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
-                    if( lara.getCurrentFrame() == 3443 )
+                    if( lara.getNode()->getCurrentFrame() == 3443 )
                     {
                         if( m_shotgun )
                         {
                             const auto& shotgunLara = *getLevel().m_animatedModels[2];
-                            BOOST_ASSERT(shotgunLara.boneCount == lara.getChildCount());
+                            BOOST_ASSERT(shotgunLara.boneCount == lara.getNode()->getChildCount());
 
-                            lara.getChild(7)->setDrawable(getLevel().getModel(getLevel().m_meshIndices[shotgunLara.firstMesh + 7]));
+                            lara.getNode()->getChild(7)->setDrawable(getLevel().getModel(getLevel().m_meshIndices[shotgunLara.firstMesh + 7]));
                         }
 
                         m_triggerState = engine::items::TriggerState::Locked;

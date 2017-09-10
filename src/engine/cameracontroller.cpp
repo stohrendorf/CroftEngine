@@ -390,7 +390,7 @@ namespace engine
         const bool tracking = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
         items::ItemNode* trackedItem = tracking ? m_item : m_laraController;
-        auto trackedBBox = trackedItem->getBoundingBox();
+        auto trackedBBox = trackedItem->getNode()->getBoundingBox();
         int trackedY = trackedItem->getPosition().Y;
         if( tracking )
             trackedY += (trackedBBox.minY + trackedBBox.maxY) / 2;
@@ -404,7 +404,7 @@ namespace engine
             const auto distToTarget = m_item->getPosition().distanceTo(trackedItem->getPosition());
             auto trackAngleY = core::Angle::fromAtan(m_item->getPosition().X - trackedItem->getPosition().X, m_item->getPosition().Z - trackedItem->getPosition().Z) - trackedItem->getRotation().Y;
             trackAngleY *= 0.5f;
-            trackedBBox = m_item->getBoundingBox();
+            trackedBBox = m_item->getNode()->getBoundingBox();
             auto trackAngleX = core::Angle::fromAtan(distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2 + m_item->getPosition().Y);
             trackAngleX *= 0.5f;
 

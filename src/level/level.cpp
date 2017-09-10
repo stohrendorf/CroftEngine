@@ -550,7 +550,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             }
 
             m_itemNodes[id] = modelNode;
-            room.node->addChild(modelNode);
+            room.node->addChild(modelNode->getNode());
 
             modelNode->applyTransform();
             modelNode->updateLighting();
@@ -645,12 +645,12 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     {
         BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
         auto node = std::make_shared<gameplay::Node>(
-            skeletalModel->getId() + "/bone:" + std::to_string(boneIndex));
+            skeletalModel->getNode()->getId() + "/bone:" + std::to_string(boneIndex));
         node->setDrawable(m_models[m_meshIndices[model.firstMesh + boneIndex]]);
-        skeletalModel->addChild(node);
+        skeletalModel->getNode()->addChild(node);
     }
 
-    BOOST_ASSERT( skeletalModel->getChildCount() == model.boneCount );
+    BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.boneCount );
 
     return skeletalModel;
 }
@@ -1394,14 +1394,14 @@ void Level::playStream(uint16_t trackId)
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[0];
-    BOOST_ASSERT(base.boneCount == m_lara->getChildCount());
+    BOOST_ASSERT(base.boneCount == m_lara->getNode()->getChildCount());
 
     const auto& alternate = *m_animatedModels[5];
-    BOOST_ASSERT(alternate.boneCount == m_lara->getChildCount());
+    BOOST_ASSERT(alternate.boneCount == m_lara->getNode()->getChildCount());
 
-    for( size_t i = 0; i < m_lara->getChildCount(); ++i )
-        m_lara->getChild(i)->setDrawable(m_models[m_meshIndices[alternate.firstMesh + i]]);
+    for( size_t i = 0; i < m_lara->getNode()->getChildCount(); ++i )
+        m_lara->getNode()->getChild(i)->setDrawable(m_models[m_meshIndices[alternate.firstMesh + i]]);
 
     // Don't replace the head.
-    m_lara->getChild(14)->setDrawable(m_models[m_meshIndices[base.firstMesh + 14]]);
+    m_lara->getNode()->getChild(14)->setDrawable(m_models[m_meshIndices[base.firstMesh + 14]]);
 }

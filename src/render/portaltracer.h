@@ -2,25 +2,22 @@
 
 #include "loader/datatypes.h"
 
-namespace
-{
-    struct BoundingBox
-    {
-        glm::vec3 min;
-        glm::vec3 max;
-
-        BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
-            : min{ minX, minY, minZ }
-            , max{ maxX, maxY, maxZ }
-        {
-        }
-    };
-}
-
 namespace render
 {
     struct PortalTracer
     {
+        struct BoundingBox
+        {
+            glm::vec3 min;
+            glm::vec3 max;
+
+            BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
+                : min{ minX, minY, minZ }
+                , max{ maxX, maxY, maxZ }
+            {
+            }
+        };
+
         BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
         const loader::Portal* lastPortal = nullptr;
 

@@ -37,8 +37,8 @@ namespace
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getCurrentFrame()));
-        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getAnimId())));
+        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getNode()->getCurrentFrame()));
+        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getNode()->getAnimId())));
 
         // triggers
         {
@@ -48,7 +48,7 @@ namespace
                 if( !item->m_isActive )
                     continue;
 
-                drawText(font, 10, y, item->getId());
+                drawText(font, 10, y, item->getNode()->getId());
                 switch(item->m_triggerState)
                 {
                     case engine::items::TriggerState::Disabled:
@@ -310,7 +310,7 @@ int main()
 
         for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
         {
-            auto vertex = glm::vec3(game->getScene()->getActiveCamera()->getViewMatrix() * glm::vec4(ctrl->getTranslationWorld(), 1));
+            auto vertex = glm::vec3(game->getScene()->getActiveCamera()->getViewMatrix() * glm::vec4(ctrl->getNode()->getTranslationWorld(), 1));
 
             if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
             {
@@ -332,7 +332,7 @@ int main()
             projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
 
             if (showDebugInfo)
-                font->drawText(ctrl->getId().c_str(), projVertex.x, projVertex.y, gameplay::gl::RGBA8{255});
+                font->drawText(ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y, gameplay::gl::RGBA8{255});
         }
 
         screenOverlay->draw(context);

@@ -21,7 +21,7 @@ namespace engine
                 tr = m_position.position.toRenderSystem();
             }
 
-            setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
+            m_skeleton->setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }
@@ -37,7 +37,7 @@ namespace engine
                            Characteristics characteristics,
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
-            : SkeletalModelNode{name, level, animatedModel}
+            : m_skeleton{std::make_shared<SkeletalModelNode>(name, level, animatedModel)}
             , m_position{room, position}
             , m_rotation{0_deg, angle, 0_deg}
             , m_level{level}
@@ -62,7 +62,7 @@ namespace engine
                 m_triggerState = TriggerState::Enabled;
             }
 
-            setAnimIdGlobal(animatedModel.animationIndex, m_level->m_animations.at(animatedModel.animationIndex).firstFrame);
+            m_skeleton->setAnimIdGlobal(animatedModel.animationIndex, m_level->m_animations.at(animatedModel.animationIndex).firstFrame);
         }
 
 
@@ -78,9 +78,9 @@ namespace engine
                 BOOST_LOG_TRIVIAL(fatal) << "No room to switch to.";
                 return;
             }
-            BOOST_LOG_TRIVIAL(debug) << "Room switch of " << getId() << " to " << newRoom->node->getId();
+            BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_skeleton->getId() << " to " << newRoom->node->getId();
 
-            newRoom->node->addChild(shared_from_this());
+            newRoom->node->addChild(m_skeleton);
 
             m_position.room = newRoom;
         }
@@ -88,13 +88,13 @@ namespace engine
 
         void ItemNode::update()
         {
-            const auto endOfAnim = advanceFrame();
+            const auto endOfAnim = m_skeleton->advanceFrame();
 
             m_flags2_10_isHit = false;
 
             if( endOfAnim )
             {
-                const loader::Animation& animation = getCurrentAnimData();
+                const loader::Animation& animation = m_skeleton->getCurrentAnimData();
                 BOOST_ASSERT(animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size());
                 const auto* cmd = animation.animCommandCount == 0 ? nullptr : &getLevel().m_animCommands[animation.animCommandIndex];
                 for( uint16_t i = 0; i < animation.animCommandCount; ++i )
@@ -132,12 +132,12 @@ namespace engine
                     }
                 }
 
-                const loader::Animation& currentAnim = getCurrentAnimData();
-                setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
-                setTargetState(getCurrentState());
+                const loader::Animation& currentAnim = m_skeleton->getCurrentAnimData();
+                m_skeleton->setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
+                m_skeleton->setTargetState(m_skeleton->getCurrentState());
             }
 
-            const loader::Animation& animation = getCurrentAnimData();
+            const loader::Animation& animation = m_skeleton->getCurrentAnimData();
             BOOST_ASSERT(animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size());
             const auto* cmd = animation.animCommandCount == 0 ? nullptr : &getLevel().m_animCommands[animation.animCommandIndex];
             for( uint16_t i = 0; i < animation.animCommandCount; ++i )
@@ -154,14 +154,14 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if( getCurrentFrame() == cmd[0] )
+                        if( m_skeleton->getCurrentFrame() == cmd[0] )
                         {
                             playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if( getCurrentFrame() == cmd[0] )
+                        if( m_skeleton->getCurrentFrame() == cmd[0] )
                         {
                             BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                             if( cmd[1] == 0 )
@@ -199,7 +199,7 @@ namespace engine
             }
             else
             {
-                BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << getId();
+                BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << m_skeleton->getId();
             }
 
             m_isActive = true;
@@ -214,7 +214,7 @@ namespace engine
             }
             else
             {
-                BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << getId();
+                BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << m_skeleton->getId();
             }
 
             m_isActive = false;
@@ -223,10 +223,10 @@ namespace engine
 
         std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(int id)
         {
-            auto handle = getLevel().playSound(id, getTranslationWorld());
+            auto handle = getLevel().playSound(id, m_skeleton->getTranslationWorld());
             if( handle != nullptr )
             {
-                m_sounds.insert(handle);
+                m_sounds.emplace(handle);
             }
             return handle;
         }
@@ -263,7 +263,7 @@ namespace engine
             for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
             {
                 std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-                lockedHandle->setPosition(getTranslationWorld());
+                lockedHandle->setPosition(m_skeleton->getTranslationWorld());
             }
         }
 
@@ -301,12 +301,12 @@ namespace engine
                 if( forLara )
                 {
                     // we only add accelleration here
-                    m_horizontalSpeed += calculateFloorSpeed(0) - calculateFloorSpeed(-1);
+                    m_horizontalSpeed += m_skeleton->calculateFloorSpeed(0) - m_skeleton->calculateFloorSpeed(-1);
                 }
             }
             else
             {
-                m_horizontalSpeed = calculateFloorSpeed();
+                m_horizontalSpeed = m_skeleton->calculateFloorSpeed();
             }
 
             move(
@@ -317,7 +317,7 @@ namespace engine
 
             applyTransform();
 
-            updatePose();
+            m_skeleton->updatePose();
             updateLighting();
         }
 
@@ -327,7 +327,7 @@ namespace engine
             auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position);
             if( sector->boxIndex == 0xffff )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << getId();
+                BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << m_skeleton->getId();
                 return {};
             }
 

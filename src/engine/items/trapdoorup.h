@@ -33,7 +33,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y )
+                if( getNode()->getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y )
                     return;
 
                 y = getPosition().Y;
@@ -42,7 +42,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y )
+                if( getNode()->getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y )
                     return;
 
                 y = getPosition().Y + loader::QuarterSectorSize;

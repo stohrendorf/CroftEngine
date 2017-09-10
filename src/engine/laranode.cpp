@@ -75,19 +75,19 @@ namespace engine
 {
     void LaraNode::setTargetState(LaraStateId st)
     {
-        ItemNode::setTargetState(static_cast<uint16_t>(st));
+        getNode()->setTargetState(static_cast<uint16_t>(st));
     }
 
 
     loader::LaraStateId LaraNode::getTargetState() const
     {
-        return static_cast<LaraStateId>(ItemNode::getTargetState());
+        return static_cast<LaraStateId>(getNode()->getTargetState());
     }
 
 
     void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
-        ItemNode::setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
+        getNode()->setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
     }
 
 
@@ -304,7 +304,7 @@ namespace engine
 
     loader::LaraStateId LaraNode::getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(getCurrentState());
+        return static_cast<loader::LaraStateId>(getNode()->getCurrentState());
     }
 
 
@@ -442,11 +442,11 @@ namespace engine
         }
         // <<<<<<<<<<<<<<<<<
 
-        const auto endOfAnim = advanceFrame();
+        const auto endOfAnim = getNode()->advanceFrame();
 
         if( endOfAnim )
         {
-            const loader::Animation& animation = getLevel().m_animations[getAnimId()];
+            const loader::Animation& animation = getLevel().m_animations[getNode()->getAnimId()];
             if( animation.animCommandCount > 0 )
             {
                 BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -467,7 +467,7 @@ namespace engine
                             cmd += 3;
                             break;
                         case AnimCommandOpcode::StartFalling:
-                            BOOST_LOG_TRIVIAL(debug) << getId() << " -- end of animation velocity: override " << m_fallSpeedOverride
+                            BOOST_LOG_TRIVIAL(debug) << getNode()->getId() << " -- end of animation velocity: override " << m_fallSpeedOverride
                                                     << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
                             if( m_fallSpeedOverride != 0 )
                             {
@@ -497,11 +497,11 @@ namespace engine
                 }
             }
 
-            const loader::Animation& currentAnim = getCurrentAnimData();
-            ItemNode::setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
+            const loader::Animation& currentAnim = getNode()->getCurrentAnimData();
+            getNode()->setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
         }
 
-        const loader::Animation& animation = getLevel().m_animations[getAnimId()];
+        const loader::Animation& animation = getLevel().m_animations[getNode()->getAnimId()];
         if( animation.animCommandCount > 0 )
         {
             BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -520,14 +520,14 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if( getCurrentFrame() == cmd[0] )
+                        if( getNode()->getCurrentFrame() == cmd[0] )
                         {
                             playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if( getCurrentFrame() == cmd[0] )
+                        if( getNode()->getCurrentFrame() == cmd[0] )
                         {
                             BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                             if( cmd[1] == 0 )
@@ -547,9 +547,9 @@ namespace engine
         applyMovement(true);
 
         //! @todo Check if there is a better place for this.
-        resetPose();
-        patchBone(7, m_torsoRotation.toMatrix());
-        patchBone(14, m_headRotation.toMatrix());
+        getNode()->resetPose();
+        getNode()->patchBone(7, m_torsoRotation.toMatrix());
+        getNode()->patchBone(14, m_headRotation.toMatrix());
     }
 
 
@@ -614,7 +614,7 @@ namespace engine
                     if( !swtch.triggerSwitch(activationRequest) )
                         return;
 
-                    switchIsOn = (swtch.getCurrentState() == 1);
+                    switchIsOn = (swtch.getNode()->getCurrentState() == 1);
                     conditionFulfilled = true;
                 }
                     break;

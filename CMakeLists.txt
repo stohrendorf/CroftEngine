@@ -190,6 +190,7 @@ ExternalProject_Add(
         GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
         GIT_TAG release-0.5.3
         EXCLUDE_FROM_ALL 1
+        PATCH_COMMAND ${GIT_EXECUTABLE} apply --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/yaml-cpp-autoptr.diff
         CMAKE_ARGS
         -DBUILD_SHARED_LIBS=OFF
         -DBoost_DIR=${Boost_DIR}

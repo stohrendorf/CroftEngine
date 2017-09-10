@@ -1,0 +1,183 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d4a8e29..76907ba 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -28,6 +28,7 @@ set(YAML_CPP_VERSION "${YAML_CPP_VERSION_MAJOR}.${YAML_CPP_VERSION_MINOR}.${YAML
+ 
+ enable_testing()
+ 
++set(CMAKE_CXX_STANDARD 11)
+ 
+ ###
+ ### Project options
+diff --git a/include/yaml-cpp/emitter.h b/include/yaml-cpp/emitter.h
+index cc49659..5bffc25 100644
+--- a/include/yaml-cpp/emitter.h
++++ b/include/yaml-cpp/emitter.h
+@@ -122,7 +122,7 @@ class YAML_CPP_API Emitter : private noncopyable {
+   bool CanEmitNewline() const;
+ 
+  private:
+-  std::auto_ptr<EmitterState> m_pState;
++  std::unique_ptr<EmitterState> m_pState;
+   ostream_wrapper m_stream;
+ };
+ 
+diff --git a/include/yaml-cpp/parser.h b/include/yaml-cpp/parser.h
+index 24880e4..edbfd8f 100644
+--- a/include/yaml-cpp/parser.h
++++ b/include/yaml-cpp/parser.h
+@@ -40,8 +40,8 @@ class YAML_CPP_API Parser : private noncopyable {
+   void HandleTagDirective(const Token& token);
+ 
+  private:
+-  std::auto_ptr<Scanner> m_pScanner;
+-  std::auto_ptr<Directives> m_pDirectives;
++  std::unique_ptr<Scanner> m_pScanner;
++  std::unique_ptr<Directives> m_pDirectives;
+ };
+ }
+ 
+diff --git a/src/emitterstate.cpp b/src/emitterstate.cpp
+index a0874ac..3ea5570 100644
+--- a/src/emitterstate.cpp
++++ b/src/emitterstate.cpp
+@@ -124,7 +124,7 @@ void EmitterState::StartedGroup(GroupType::value type) {
+   const int lastGroupIndent = (m_groups.empty() ? 0 : m_groups.top().indent);
+   m_curIndent += lastGroupIndent;
+ 
+-  std::auto_ptr<Group> pGroup(new Group(type));
++  std::unique_ptr<Group> pGroup(new Group(type));
+ 
+   // transfer settings (which last until this group is done)
+   pGroup->modifiedSettings = m_modifiedSettings;
+@@ -136,7 +136,7 @@ void EmitterState::StartedGroup(GroupType::value type) {
+     pGroup->flowType = FlowType::Flow;
+   pGroup->indent = GetIndent();
+ 
+-  m_groups.push(pGroup);
++  m_groups.push(std::move(pGroup));
+ }
+ 
+ void EmitterState::EndedGroup(GroupType::value type) {
+@@ -149,7 +149,7 @@ void EmitterState::EndedGroup(GroupType::value type) {
+ 
+   // get rid of the current group
+   {
+-    std::auto_ptr<Group> pFinishedGroup = m_groups.pop();
++    std::unique_ptr<Group> pFinishedGroup = m_groups.pop();
+     if (pFinishedGroup->type != type)
+       return SetError(ErrorMsg::UNMATCHED_GROUP_TAG);
+   }
+diff --git a/src/ptr_stack.h b/src/ptr_stack.h
+index f378ffc..14ed1b4 100644
+--- a/src/ptr_stack.h
++++ b/src/ptr_stack.h
+@@ -29,12 +29,12 @@ class ptr_stack : private YAML::noncopyable {
+   std::size_t size() const { return m_data.size(); }
+   bool empty() const { return m_data.empty(); }
+ 
+-  void push(std::auto_ptr<T> t) {
++  void push(std::unique_ptr<T>&& t) {
+     m_data.push_back(NULL);
+     m_data.back() = t.release();
+   }
+-  std::auto_ptr<T> pop() {
+-    std::auto_ptr<T> t(m_data.back());
++  std::unique_ptr<T> pop() {
++    std::unique_ptr<T> t(m_data.back());
+     m_data.pop_back();
+     return t;
+   }
+diff --git a/src/ptr_vector.h b/src/ptr_vector.h
+index a546a89..d9e1410 100644
+--- a/src/ptr_vector.h
++++ b/src/ptr_vector.h
+@@ -31,7 +31,7 @@ class ptr_vector : private YAML::noncopyable {
+   std::size_t size() const { return m_data.size(); }
+   bool empty() const { return m_data.empty(); }
+ 
+-  void push_back(std::auto_ptr<T> t) {
++  void push_back(std::unique_ptr<T>&& t) {
+     m_data.push_back(NULL);
+     m_data.back() = t.release();
+   }
+diff --git a/src/scanner.cpp b/src/scanner.cpp
+index 680c73b..767b8e1 100644
+--- a/src/scanner.cpp
++++ b/src/scanner.cpp
+@@ -233,8 +233,8 @@ const RegEx& Scanner::GetValueRegex() const {
+ void Scanner::StartStream() {
+   m_startedStream = true;
+   m_simpleKeyAllowed = true;
+-  std::auto_ptr<IndentMarker> pIndent(new IndentMarker(-1, IndentMarker::NONE));
+-  m_indentRefs.push_back(pIndent);
++  std::unique_ptr<IndentMarker> pIndent(new IndentMarker(-1, IndentMarker::NONE));
++  m_indentRefs.push_back(std::move(pIndent));
+   m_indents.push(&m_indentRefs.back());
+ }
+ 
+@@ -281,7 +281,7 @@ Scanner::IndentMarker* Scanner::PushIndentTo(int column,
+   if (InFlowContext())
+     return 0;
+ 
+-  std::auto_ptr<IndentMarker> pIndent(new IndentMarker(column, type));
++  std::unique_ptr<IndentMarker> pIndent(new IndentMarker(column, type));
+   IndentMarker& indent = *pIndent;
+   const IndentMarker& lastIndent = *m_indents.top();
+ 
+@@ -298,7 +298,7 @@ Scanner::IndentMarker* Scanner::PushIndentTo(int column,
+ 
+   // and then the indent
+   m_indents.push(&indent);
+-  m_indentRefs.push_back(pIndent);
++  m_indentRefs.push_back(std::move(pIndent));
+   return &m_indentRefs.back();
+ }
+ 
+diff --git a/src/setting.h b/src/setting.h
+index 3ff8c20..5eb5f69 100644
+--- a/src/setting.h
++++ b/src/setting.h
+@@ -20,7 +20,7 @@ class Setting {
+   Setting() : m_value() {}
+ 
+   const T get() const { return m_value; }
+-  std::auto_ptr<SettingChangeBase> set(const T& value);
++  std::unique_ptr<SettingChangeBase> set(const T& value);
+   void restore(const Setting<T>& oldSetting) { m_value = oldSetting.get(); }
+ 
+  private:
+@@ -49,8 +49,8 @@ class SettingChange : public SettingChangeBase {
+ };
+ 
+ template <typename T>
+-inline std::auto_ptr<SettingChangeBase> Setting<T>::set(const T& value) {
+-  std::auto_ptr<SettingChangeBase> pChange(new SettingChange<T>(this));
++inline std::unique_ptr<SettingChangeBase> Setting<T>::set(const T& value) {
++  std::unique_ptr<SettingChangeBase> pChange(new SettingChange<T>(this));
+   m_value = value;
+   return pChange;
+ }
+@@ -75,7 +75,7 @@ class SettingChanges : private noncopyable {
+       (*it)->pop();
+   }
+ 
+-  void push(std::auto_ptr<SettingChangeBase> pSettingChange) {
++  void push(std::unique_ptr<SettingChangeBase>&& pSettingChange) {
+     m_settingChanges.push_back(pSettingChange.release());
+   }
+ 
+diff --git a/src/singledocparser.h b/src/singledocparser.h
+index ed0aad5..2b92067 100644
+--- a/src/singledocparser.h
++++ b/src/singledocparser.h
+@@ -53,7 +53,7 @@ class SingleDocParser : private noncopyable {
+  private:
+   Scanner& m_scanner;
+   const Directives& m_directives;
+-  std::auto_ptr<CollectionStack> m_pCollectionStack;
++  std::unique_ptr<CollectionStack> m_pCollectionStack;
+ 
+   typedef std::map<std::string, anchor_t> Anchors;
+   Anchors m_anchors;
