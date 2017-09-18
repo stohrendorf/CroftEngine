@@ -12,7 +12,7 @@ namespace engine
             if(!m_isActive)
                 return;
 
-            if( getNode()->getCurrentState() == 0 ) // stationary
+            if( getCurrentState() == 0 ) // stationary
             {
                 if( getPosition().Y - 512 != getLevel().m_lara->getPosition().Y )
                 {
@@ -20,13 +20,13 @@ namespace engine
                     deactivate();
                     return;
                 }
-                getNode()->setTargetState( 1 );
+                getSkeleton()->setTargetState( 1 );
             }
-            else if( getNode()->getCurrentState() == 1 ) // shaking
+            else if( getCurrentState() == 1 ) // shaking
             {
-                getNode()->setTargetState( 2 );
+                getSkeleton()->setTargetState( 2 );
             }
-            else if( getNode()->getCurrentState() == 2 && getNode()->getTargetState() != 3 ) // falling, not going to settle
+            else if( getCurrentState() == 2 && getSkeleton()->getTargetState() != 3 ) // falling, not going to settle
             {
                 setFalling( true );
             }
@@ -45,11 +45,11 @@ namespace engine
 
             HeightInfo h = HeightInfo::fromFloor( sector, getPosition(), getLevel().m_cameraController );
             setFloorHeight( h.distance );
-            if( getNode()->getCurrentState() != 2 || getPosition().Y < h.distance )
+            if( getCurrentState() != 2 || getPosition().Y < h.distance )
                 return;
 
             // settle
-            getNode()->setTargetState( 3 );
+            getSkeleton()->setTargetState( 3 );
             setFallSpeed( 0 );
             auto pos = getPosition();
             pos.Y = getFloorHeight();

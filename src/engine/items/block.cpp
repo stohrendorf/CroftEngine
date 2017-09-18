@@ -78,7 +78,7 @@ namespace engine
             }
 
             if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-                || lara.getNode()->getCurrentFrame() != 2091 || !limits.canInteract(*this, lara) )
+                || lara.getSkeleton()->getCurrentFrame() != 2091 || !limits.canInteract(*this, lara) )
                 return;
 
             if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
@@ -86,7 +86,7 @@ namespace engine
                 if( !canPushBlock(loader::SectorSize, *axis) )
                     return;
 
-                getNode()->setTargetState(2);
+                getSkeleton()->setTargetState(2);
                 lara.setTargetState(loader::LaraStateId::PushablePush);
             }
             else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
@@ -94,7 +94,7 @@ namespace engine
                 if( !canPullBlock(loader::SectorSize, *axis) )
                     return;
 
-                getNode()->setTargetState(3);
+                getSkeleton()->setTargetState(3);
                 lara.setTargetState(loader::LaraStateId::PushablePull);
             }
             else

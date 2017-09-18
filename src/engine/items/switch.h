@@ -30,7 +30,7 @@ namespace engine
             {
                 if(!updateActivationTimeout())
                 {
-                    getNode()->setTargetState(1);
+                    getSkeleton()->setTargetState(1);
                     m_activationState.setTimeout(0);
                 }
 

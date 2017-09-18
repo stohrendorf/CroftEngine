@@ -10,18 +10,18 @@ namespace engine
         {
             if(updateActivationTimeout())
             {
-                if(getNode()->getCurrentState() == 0)
+                if( getCurrentState() == 0)
                 {
                     loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                    getNode()->setTargetState(1);
+                    getSkeleton()->setTargetState(1);
                 }
             }
             else
             {
-                if(getNode()->getCurrentState() == 1)
+                if( getCurrentState() == 1)
                 {
                     loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
-                    getNode()->setTargetState(0);
+                    getSkeleton()->setTargetState(0);
                 }
             }
 

@@ -37,8 +37,8 @@ namespace
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getNode()->getCurrentFrame()));
-        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getNode()->getAnimId())));
+        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getSkeleton()->getCurrentFrame()));
+        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getSkeleton()->getAnimId())));
 
         // triggers
         {

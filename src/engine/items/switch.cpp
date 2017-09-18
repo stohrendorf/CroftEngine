@@ -35,7 +35,7 @@ namespace engine
 
             lara.setYRotation( getRotation().Y );
 
-            if( getNode()->getCurrentState() == 1 )
+            if( getCurrentState() == 1 )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull down";
                 do
@@ -44,12 +44,12 @@ namespace engine
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
                 lara.setTargetState( loader::LaraStateId::Stop );
-                getNode()->setTargetState( 0 );
+                getSkeleton()->setTargetState( 0 );
                 lara.setHandStatus( 1 );
             }
             else
             {
-                if( getNode()->getCurrentState() != 0 )
+                if( getCurrentState() != 0 )
                     return;
 
                 BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull up";
@@ -59,7 +59,7 @@ namespace engine
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
                 lara.setTargetState( loader::LaraStateId::Stop );
-                getNode()->setTargetState( 1 );
+                getSkeleton()->setTargetState( 1 );
                 lara.setHandStatus( 1 );
             }
 

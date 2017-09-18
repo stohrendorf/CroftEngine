@@ -27,20 +27,20 @@ namespace engine
             {
                 if( updateActivationTimeout() )
                 {
-                    if( getNode()->getCurrentState() != 0 )
+                    if( getCurrentState() != 0 )
                     {
                         //! @todo Restore original sector data
                     }
                     else
                     {
-                        getNode()->setTargetState(1);
+                        getSkeleton()->setTargetState(1);
                     }
                 }
                 else
                 {
-                    if( getNode()->getCurrentState() == 1 )
+                    if( getCurrentState() == 1 )
                     {
-                        getNode()->setTargetState(0);
+                        getSkeleton()->setTargetState(0);
                         ModelItemNode::update();
                         return;
                     }

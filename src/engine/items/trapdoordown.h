@@ -27,12 +27,12 @@ namespace engine
             {
                 if( updateActivationTimeout() )
                 {
-                    if( getNode()->getCurrentState() == 0 )
-                        getNode()->setTargetState(1);
+                    if( getCurrentState() == 0 )
+                        getSkeleton()->setTargetState(1);
                 }
-                else if( getNode()->getCurrentState() == 1 )
+                else if( getCurrentState() == 1 )
                 {
-                    getNode()->setTargetState(0);
+                    getSkeleton()->setTargetState(0);
                 }
             }
 
@@ -44,7 +44,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( getNode()->getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y
+                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y
                     || y <= getPosition().Y )
                     return;
 
@@ -54,7 +54,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( getNode()->getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
+                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
                     || y > getPosition().Y )
                     return;
 

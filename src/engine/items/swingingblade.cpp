@@ -11,12 +11,12 @@ namespace engine
         {
             if( updateActivationTimeout() )
             {
-                if( getNode()->getCurrentState() == 0 )
-                    getNode()->setTargetState( 2 );
+                if( getCurrentState() == 0 )
+                    getSkeleton()->setTargetState( 2 );
             }
-            else if( getNode()->getCurrentState() == 2 )
+            else if( getCurrentState() == 2 )
             {
-                getNode()->setTargetState( 0 );
+                getSkeleton()->setTargetState( 0 );
             }
 
             auto room = getCurrentRoom();

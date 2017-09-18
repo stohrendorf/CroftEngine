@@ -157,7 +157,7 @@ namespace engine
             }
 
             // iterate through the last room's portals and add the destinations if suitable
-            uint16_t destRoom = currentPath.getLastDestinationRoom();
+            const uint16_t destRoom = currentPath.getLastDestinationRoom();
             for( const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals )
             {
                 render::PortalTracer newPath = currentPath;
@@ -351,7 +351,7 @@ namespace engine
             return false;
         }
 
-        auto sector = m_level->findRealFloorSector(current);
+        const auto sector = m_level->findRealFloorSector(current);
         return clampY(m_target.position, current.position, sector) && firstUnclamped && secondClamp == ClampType::None;
     }
 
@@ -390,7 +390,7 @@ namespace engine
         const bool tracking = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
         items::ItemNode* trackedItem = tracking ? m_item : m_laraController;
-        auto trackedBBox = trackedItem->getNode()->getBoundingBox();
+        auto trackedBBox = trackedItem->getBoundingBox();
         int trackedY = trackedItem->getPosition().Y;
         if( tracking )
             trackedY += (trackedBBox.minY + trackedBBox.maxY) / 2;
@@ -404,7 +404,7 @@ namespace engine
             const auto distToTarget = m_item->getPosition().distanceTo(trackedItem->getPosition());
             auto trackAngleY = core::Angle::fromAtan(m_item->getPosition().X - trackedItem->getPosition().X, m_item->getPosition().Z - trackedItem->getPosition().Z) - trackedItem->getRotation().Y;
             trackAngleY *= 0.5f;
-            trackedBBox = m_item->getNode()->getBoundingBox();
+            trackedBBox = m_item->getBoundingBox();
             auto trackAngleX = core::Angle::fromAtan(distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2 + m_item->getPosition().Y);
             trackAngleX *= 0.5f;
 
@@ -460,7 +460,7 @@ namespace engine
                 m_trackingSmoothness = 1;
             }
 
-            auto sector = m_level->findRealFloorSector(m_target);
+            const auto sector = m_level->findRealFloorSector(m_target);
             if( HeightInfo::fromFloor(sector, m_target.position, this).distance < m_target.position.Y )
                 HeightInfo::skipSteepSlants = false;
 
@@ -562,7 +562,7 @@ namespace engine
 
     bool CameraController::isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const
     {
-        gsl::not_null<const loader::Sector*> sector = m_level->findRealFloorSector(pos, room);
+        const gsl::not_null<const loader::Sector*> sector = m_level->findRealFloorSector(pos, room);
         const auto floor = HeightInfo::fromFloor(sector, pos, this).distance;
         const auto ceiling = HeightInfo::fromCeiling(sector, pos, this).distance;
         return pos.Y > floor || pos.Y <= ceiling;
@@ -615,7 +615,7 @@ namespace engine
         // update current room
         m_level->findRealFloorSector(camPos, &m_position.room);
 
-        auto m = glm::lookAt(camPos.toRenderSystem(), m_target.position.toRenderSystem(), {0,1,0});
+        const auto m = glm::lookAt(camPos.toRenderSystem(), m_target.position.toRenderSystem(), {0,1,0});
         m_camera->setViewMatrix(m);
     }
 
@@ -628,7 +628,7 @@ namespace engine
         else if( m_currentRotation.X < -85_deg )
             m_currentRotation.X = -85_deg;
 
-        auto dist = m_currentRotation.X.cos() * m_targetDistance;
+        const auto dist = m_currentRotation.X.cos() * m_targetDistance;
         m_targetDistanceSq = gsl::narrow_cast<int>(dist * dist);
 
         core::RoomBoundPosition targetPos(m_position.room);
@@ -699,7 +699,7 @@ namespace engine
 
         m_targetDistance = 2560;
         auto tmp = m_target;
-        auto d = m_targetDistance * m_currentRotation.X.cos();
+        const auto d = m_targetDistance * m_currentRotation.X.cos();
         tmp.position.X -= d * m_currentRotation.Y.sin();
         tmp.position.Z -= d * m_currentRotation.Y.cos();
         tmp.position.Y += m_targetDistance * m_currentRotation.X.sin();
@@ -734,7 +734,7 @@ namespace engine
         const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
         if( !negZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
+            const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->zmin < clampZMin )
                 clampZMin = testBox->zmin;
         }
@@ -748,7 +748,7 @@ namespace engine
         const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
         if( !posZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
+            const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->zmax > clampZMax )
                 clampZMax = testBox->zmax;
         }
@@ -762,7 +762,7 @@ namespace engine
         const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
         if( !negXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
+            const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->xmin < clampXMin )
                 clampXMin = testBox->xmin;
         }
@@ -776,7 +776,7 @@ namespace engine
         const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
         if( !posXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
         {
-            auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
+            const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->xmax > clampXMax )
                 clampXMax = testBox->xmax;
         }

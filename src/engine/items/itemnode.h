@@ -38,9 +38,9 @@ namespace engine
 
 
             InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
-                : distance{bbox}
-                , minAngle{min}
-                , maxAngle{max}
+                : distance{ bbox }
+                , minAngle{ min }
+                , maxAngle{ max }
             {
                 distance.makeValid();
             }
@@ -68,8 +68,8 @@ namespace engine
 
             gsl::not_null<level::Level*> const m_level;
 
-            int m_fallSpeed{0};
-            int m_horizontalSpeed{0};
+            int m_fallSpeed{ 0 };
+            int m_horizontalSpeed{ 0 };
 
             bool m_falling = false; // flags2_08
 
@@ -125,21 +125,21 @@ namespace engine
 
 
             ItemNode(const gsl::not_null<level::Level*>& level,
-                     const std::string& name,
-                     const gsl::not_null<const loader::Room*>& room,
-                     const core::Angle& angle,
-                     const core::TRCoordinates& position,
-                     const floordata::ActivationState& activationState,
-                     bool hasProcessAnimCommandsOverride,
-                     Characteristics characteristics,
-                     int16_t darkness,
-                     const loader::AnimatedModel& animatedModel);
+                const std::string& name,
+                const gsl::not_null<const loader::Room*>& room,
+                const core::Angle& angle,
+                const core::TRCoordinates& position,
+                const floordata::ActivationState& activationState,
+                bool hasProcessAnimCommandsOverride,
+                Characteristics characteristics,
+                int16_t darkness,
+                const loader::AnimatedModel& animatedModel);
 
             virtual ~ItemNode() = default;
 
             virtual void update() = 0;
 
-            virtual const std::shared_ptr<SkeletalModelNode>& getNode() const = 0;
+            virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
 
             virtual void applyMovement(bool forLara) = 0;
 
@@ -394,7 +394,7 @@ namespace engine
 
             bool triggerPickUp()
             {
-                if( m_triggerState != engine::items::TriggerState::Locked )
+                if (m_triggerState != engine::items::TriggerState::Locked)
                     return false;
 
                 m_triggerState = TriggerState::Activated;
@@ -439,10 +439,10 @@ namespace engine
             {
                 m_lighting.baseDiff = 0;
 
-                if( m_darkness >= 0 )
+                if (m_darkness >= 0)
                 {
                     m_lighting.base = (m_darkness - 4096) / 8192.0f;
-                    if( m_lighting.base == 0 )
+                    if (m_lighting.base == 0)
                         m_lighting.base = 1;
                     return;
                 }
@@ -451,7 +451,7 @@ namespace engine
                 BOOST_ASSERT(roomAmbient >= 0 && roomAmbient <= 1);
                 m_lighting.base = roomAmbient;
 
-                if( m_position.room->lights.empty() )
+                if (m_position.room->lights.empty())
                 {
                     m_lighting.base = 1;
                     m_lighting.baseDiff = 0;
@@ -460,7 +460,7 @@ namespace engine
 
                 float maxBrightness = 0;
                 const auto bboxCtr = m_position.position + getBoundingBoxCenter();
-                for( const auto& light : m_position.room->lights )
+                for (const auto& light : m_position.room->lights)
                 {
                     auto radiusSq = light.radius / 4096.0f;
                     radiusSq *= radiusSq;
@@ -469,7 +469,7 @@ namespace engine
                     distanceSq *= distanceSq;
 
                     const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
-                    if( lightBrightness > maxBrightness )
+                    if (lightBrightness > maxBrightness)
                     {
                         maxBrightness = lightBrightness;
                         m_lighting.position = light.position.toRenderSystem();
@@ -479,7 +479,7 @@ namespace engine
                 m_lighting.base = (roomAmbient + maxBrightness) / 2;
                 m_lighting.baseDiff = (maxBrightness - m_lighting.base);
 
-                if( m_lighting.base == 0 && m_lighting.baseDiff == 0 )
+                if (m_lighting.base == 0 && m_lighting.baseDiff == 0)
                     m_lighting.base = 1;
             }
 
@@ -489,11 +489,11 @@ namespace engine
                 const ItemNode* item = nullptr;
 
                 auto n = &node;
-                while( true )
+                while (true)
                 {
                     item = dynamic_cast<const ItemNode*>(n);
 
-                    if( item != nullptr || n->getParent().expired() )
+                    if (item != nullptr || n->getParent().expired())
                         break;
 
                     n = n->getParent().lock().get();
@@ -507,7 +507,7 @@ namespace engine
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if( item == nullptr )
+                if (item == nullptr)
                 {
                     uniform.set(1.0f);
                     return;
@@ -521,7 +521,7 @@ namespace engine
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if( item == nullptr )
+                if (item == nullptr)
                 {
                     uniform.set(1.0f);
                     return;
@@ -535,9 +535,9 @@ namespace engine
             {
                 const ItemNode* item = findBaseItemNode(node);
 
-                if( item == nullptr )
+                if (item == nullptr)
                 {
-                    static const glm::vec3 invalidPos{std::numeric_limits<float>::quiet_NaN()};
+                    static const glm::vec3 invalidPos{ std::numeric_limits<float>::quiet_NaN() };
                     uniform.set(invalidPos);
                     return;
                 }
@@ -545,26 +545,30 @@ namespace engine
                 uniform.set(item->m_lighting.position);
             };
 
+            virtual BoundingBox getBoundingBox() const = 0;
+
+            virtual uint16_t getCurrentState() const = 0;
+
         protected:
             bool updateActivationTimeout()
             {
-                if( !m_activationState.isFullyActivated() )
+                if (!m_activationState.isFullyActivated())
                 {
                     return m_activationState.isInverted();
                 }
 
-                if( m_activationState.getTimeout() == 0 )
+                if (m_activationState.getTimeout() == 0)
                 {
                     return !m_activationState.isInverted();
                 }
 
-                if( m_activationState.getTimeout() < 0 )
+                if (m_activationState.getTimeout() < 0)
                 {
                     return m_activationState.isInverted();
                 }
 
                 m_activationState.setTimeout(m_activationState.getTimeout() - 1);
-                if( m_activationState.getTimeout() <= 0 )
+                if (m_activationState.getTimeout() <= 0)
                     m_activationState.setTimeout(-1);
 
                 return !m_activationState.isInverted();
@@ -575,7 +579,7 @@ namespace engine
             {
                 auto d = targetPos - getPosition().toRenderSystem();
                 const auto dist = glm::length(d);
-                if( maxDistance < dist )
+                if (maxDistance < dist)
                 {
                     move(static_cast<float>(maxDistance) * glm::normalize(d));
                 }
@@ -585,21 +589,21 @@ namespace engine
                 }
 
                 core::TRRotation phi = targetRot - getRotation();
-                if( phi.X > maxAngle )
+                if (phi.X > maxAngle)
                     addXRotation(maxAngle);
-                else if( phi.X < -maxAngle )
+                else if (phi.X < -maxAngle)
                     addXRotation(-maxAngle);
                 else
                     addXRotation(phi.X);
-                if( phi.Y > maxAngle )
+                if (phi.Y > maxAngle)
                     addYRotation(maxAngle);
-                else if( phi.Y < -maxAngle )
+                else if (phi.Y < -maxAngle)
                     addYRotation(-maxAngle);
                 else
                     addYRotation(phi.Y);
-                if( phi.Z > maxAngle )
+                if (phi.Z > maxAngle)
                     addZRotation(maxAngle);
-                else if( phi.Z < -maxAngle )
+                else if (phi.Z < -maxAngle)
                     addZRotation(-maxAngle);
                 else
                     addZRotation(phi.Z);
@@ -608,10 +612,10 @@ namespace engine
                 d = targetPos - getPosition().toRenderSystem();
 
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
-                       && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
+                    && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
         };
-    
+
         class ModelItemNode : public ItemNode
         {
             std::shared_ptr<SkeletalModelNode> m_skeleton;
@@ -630,7 +634,12 @@ namespace engine
                 const loader::AnimatedModel& animatedModel);
 
 
-            const std::shared_ptr<SkeletalModelNode>& getNode() const override
+            std::shared_ptr<gameplay::Node> getNode() const override
+            {
+                return m_skeleton;
+            }
+
+            const std::shared_ptr<SkeletalModelNode>& getSkeleton() const
             {
                 return m_skeleton;
             }
@@ -665,6 +674,76 @@ namespace engine
             void update() override;
 
             void applyMovement(bool forLara) override;
+
+            BoundingBox getBoundingBox() const override;
+
+            uint16_t getCurrentState() const override;
+        };
+
+        class SpriteItemNode : public ItemNode
+        {
+        private:
+            std::shared_ptr<gameplay::Node> m_node;
+
+        public:
+            SpriteItemNode(
+                const gsl::not_null<level::Level*>& level,
+                const std::string& name,
+                const gsl::not_null<const loader::Room*>& room,
+                const core::Angle& angle,
+                const core::TRCoordinates& position, 
+                const floordata::ActivationState& activationState,
+                bool hasProcessAnimCommandsOverride, 
+                Characteristics characteristics,
+                int16_t darkness,
+                const loader::AnimatedModel& animatedModel)
+                : ItemNode{
+                    level,
+                    name,
+                    room,
+                    angle,
+                    position, 
+                    activationState,
+                    hasProcessAnimCommandsOverride,
+                    characteristics, 
+                    darkness, 
+                    animatedModel
+                }
+            {
+            }
+
+            bool triggerSwitch(const floordata::ActivationState& arg) override
+            {
+                BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
+            }
+
+            std::shared_ptr<gameplay::Node> getNode() const override
+            {
+                return m_node;
+            }
+
+            void update() override
+            {
+            }
+
+            void applyMovement(bool forLara) override
+            {
+            }
+
+            BoundingBox getBoundingBox() const override
+            {
+                BoundingBox bb;
+                bb.minX = bb.maxX = getPosition().X;
+                bb.minY = bb.maxY = getPosition().Y;
+                bb.minZ = bb.maxZ = getPosition().Z;
+                return bb;
+            }
+
+            uint16_t getCurrentState() const override
+            {
+                // TODO
+                return 0;
+            }
         };
     }
 }

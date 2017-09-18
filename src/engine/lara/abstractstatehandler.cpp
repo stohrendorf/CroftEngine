@@ -197,7 +197,7 @@ namespace engine
 
         int AbstractStateHandler::getCurrentFrame() const
         {
-            return m_lara.getNode()->getCurrentFrame();
+            return m_lara.getSkeleton()->getCurrentFrame();
         }
 
 
@@ -210,7 +210,7 @@ namespace engine
         void AbstractStateHandler::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
         {
             m_lara.setAnimIdGlobal(anim, firstFrame);
-            m_lara.getNode()->updatePose();
+            m_lara.getSkeleton()->updatePose();
         }
 
 
@@ -799,7 +799,7 @@ namespace engine
 
         BoundingBox AbstractStateHandler::getBoundingBox() const
         {
-            return m_lara.getNode()->getBoundingBox();
+            return m_lara.getBoundingBox();
         }
 
 

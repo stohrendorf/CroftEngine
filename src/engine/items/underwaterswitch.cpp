@@ -30,7 +30,7 @@ namespace engine
             if(!limits.canInteract(*this, lara))
                 return;
 
-            if(getNode()->getCurrentState() != 0 && getNode()->getCurrentState() != 1)
+            if( getCurrentState() != 0 && getSkeleton()->getCurrentState() != 1)
                 return;
 
             static const glm::vec3 alignSpeed{ 0, 0, -108.0f };
@@ -47,10 +47,10 @@ namespace engine
             lara.setHandStatus(1);
             m_triggerState = engine::items::TriggerState::Enabled;
 
-            if(getNode()->getCurrentState() == 1)
-                getNode()->setTargetState(0);
+            if( getCurrentState() == 1)
+                getSkeleton()->setTargetState(0);
             else
-                getNode()->setTargetState(1);
+                getSkeleton()->setTargetState(1);
 
             activate();
             ModelItemNode::update();

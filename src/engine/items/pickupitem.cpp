@@ -31,7 +31,7 @@ namespace engine
 
                 if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
-                    if( lara.getNode()->getCurrentFrame() == 2970 )
+                    if( lara.getSkeleton()->getCurrentFrame() == 2970 )
                     {
                         // TODO: Remove item from room, handle pick up
 
@@ -61,7 +61,7 @@ namespace engine
 
                 if( lara.getCurrentAnimState() == LaraStateId::PickUp )
                 {
-                    if( lara.getNode()->getCurrentFrame() == 3443 )
+                    if( lara.getSkeleton()->getCurrentFrame() == 3443 )
                     {
                         if( m_shotgun )
                         {

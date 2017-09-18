@@ -345,6 +345,12 @@ namespace engine
         }
 
 
+        BoundingBox ModelItemNode::getBoundingBox() const
+        {
+            return m_skeleton->getBoundingBox();
+        }
+
+
         boost::optional<uint16_t> ItemNode::getCurrentBox() const
         {
             const auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position);
@@ -355,6 +361,12 @@ namespace engine
             }
 
             return sector->boxIndex;
+        }
+
+
+        uint16_t ModelItemNode::getCurrentState() const
+        {
+            return m_skeleton->getCurrentState();
         }
     }
 }

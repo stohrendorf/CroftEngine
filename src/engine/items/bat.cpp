@@ -28,14 +28,14 @@ namespace engine
 
                 getBrain().route.updateMood(getBrain(), lookAhead, *this, false, 1024);
                 rotationToMoveTarget = rotateTowardsMoveTarget(getBrain(), 20_deg);
-                switch( getNode()->getCurrentState() )
+                switch(getCurrentState() )
                 {
                     case StartingToFly:
-                        getNode()->setTargetState(FlyingStraight);
+                        getSkeleton()->setTargetState(FlyingStraight);
                         break;
                     case FlyingStraight:
                         if( false /** @fixme touch_bits != 0 */ )
-                            getNode()->setTargetState(Biting);
+                            getSkeleton()->setTargetState(Biting);
                         break;
                     case Biting:
                         if( false /** @fixme touch_bits != 0 */ )
@@ -46,7 +46,7 @@ namespace engine
                         }
                         else
                         {
-                            getNode()->setTargetState(FlyingStraight);
+                            getSkeleton()->setTargetState(FlyingStraight);
                             getBrain().mood = ai::Mood::Bored;
                         }
                         break;
@@ -56,13 +56,13 @@ namespace engine
             }
             else if( getPosition().Y >= getFloorHeight() )
             {
-                getNode()->setTargetState(Dying);
+                getSkeleton()->setTargetState(Dying);
                 setY(getFloorHeight());
                 setFalling(false);
             }
             else
             {
-                getNode()->setTargetState(Circling);
+                getSkeleton()->setTargetState(Circling);
                 setHorizontalSpeed(0);
                 setFalling(true);
             }

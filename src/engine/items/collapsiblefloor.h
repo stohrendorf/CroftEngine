@@ -36,7 +36,7 @@ namespace engine
                 if( pos.Y > getPosition().Y - 512 )
                     return;
 
-                if( getNode()->getCurrentState() != 0 && getNode()->getCurrentState() != 1 )
+                if( getCurrentState() != 0 && getSkeleton()->getCurrentState() != 1 )
                     return;
 
                 y = getPosition().Y - 512;
@@ -48,7 +48,7 @@ namespace engine
                 if( pos.Y <= getPosition().Y - 512 )
                     return;
 
-                if( getNode()->getCurrentState() != 0 && getNode()->getCurrentState() != 1 )
+                if( getCurrentState() != 0 && getSkeleton()->getCurrentState() != 1 )
                     return;
 
                 y = getPosition().Y - 256;

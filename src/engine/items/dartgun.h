@@ -27,17 +27,17 @@ namespace engine
             {
                 if( updateActivationTimeout() )
                 {
-                    if( getNode()->getCurrentState() == 0 )
+                    if( getCurrentState() == 0 )
                     {
-                        getNode()->setTargetState(1);
+                        getSkeleton()->setTargetState(1);
                     }
                 }
-                else if( getNode()->getCurrentState() == 1 )
+                else if( getCurrentState() == 1 )
                 {
-                    getNode()->setTargetState(0);
+                    getSkeleton()->setTargetState(0);
                 }
 
-                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getNode()->getCurrentState() != 1 || getNode()->getCurrentLocalFrame() < 0 || getNode()->getCurrentLocalFrame() >= 1)
+                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getSkeleton()->getCurrentLocalFrame() < 0 || getSkeleton()->getCurrentLocalFrame() >= 1)
                 {
                     ModelItemNode::update();
                     return;
