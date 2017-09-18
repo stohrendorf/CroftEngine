@@ -22,7 +22,7 @@ namespace engine
     };
 
 
-    class LaraNode final : public items::ItemNode
+    class LaraNode final : public items::ModelItemNode
     {
         using LaraStateId = loader::LaraStateId;
 
@@ -50,7 +50,7 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-            : ItemNode(level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel)
+            : ModelItemNode(level, name, room, angle, position, activationState, false, SaveHitpoints | SaveFlags | SavePosition | NonLot, darkness, animatedModel)
             , routePlanner{0, -20 * loader::SectorSize, 20*loader::SectorSize, loader::QuarterSectorSize}
         {
             setAnimIdGlobal(loader::AnimationId::STAY_IDLE);

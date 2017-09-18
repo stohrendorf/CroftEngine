@@ -99,7 +99,7 @@ namespace engine
                 return false;
             }
 
-            ItemNode::update();
+            ModelItemNode::update();
 
             const auto initialPos = getPosition();
             auto bboxTop = getNode()->getBoundingBox().minY;

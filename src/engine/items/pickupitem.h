@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class PickupItem final : public ItemNode
+        class PickupItem final : public ModelItemNode
         {
         public:
             PickupItem(const gsl::not_null<level::Level*>& level,
@@ -19,7 +19,7 @@ namespace engine
                        int16_t darkness,
                        const loader::AnimatedModel& animatedModel,
                        bool shotgun = false)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
                 , m_shotgun{shotgun}
             {
             }

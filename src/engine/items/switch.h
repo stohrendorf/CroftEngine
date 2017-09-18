@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class Switch : public ItemNode
+        class Switch : public ModelItemNode
         {
         public:
             Switch(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                    const floordata::ActivationState& activationState,
                    int16_t darkness,
                    const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
             {
             }
 
@@ -36,7 +36,7 @@ namespace engine
 
                 m_activationState.fullyActivate();
 
-                ItemNode::update();
+                ModelItemNode::update();
             }
         };
     }

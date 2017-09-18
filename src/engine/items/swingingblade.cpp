@@ -25,7 +25,7 @@ namespace engine
             setFloorHeight(HeightInfo::fromFloor(sector, getPosition(), getLevel().m_cameraController)
                            .distance);
 
-            ItemNode::update();
+            ModelItemNode::update();
         }
     }
 }

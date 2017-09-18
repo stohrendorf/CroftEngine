@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class CollapsibleFloor final : public ItemNode
+        class CollapsibleFloor final : public ModelItemNode
         {
         public:
             CollapsibleFloor(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                              const floordata::ActivationState& activationState,
                              int16_t darkness,
                              const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
             {
             }
 

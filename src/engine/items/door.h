@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class Door final : public ItemNode
+        class Door final : public ModelItemNode
         {
         public:
             Door(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
             {
             }
 
@@ -41,13 +41,13 @@ namespace engine
                     if( getNode()->getCurrentState() == 1 )
                     {
                         getNode()->setTargetState(0);
-                        ItemNode::update();
+                        ModelItemNode::update();
                         return;
                     }
                     //! @todo Patch original sector data with blocking heights
                 }
 
-                ItemNode::update();
+                ModelItemNode::update();
             }
 
 

@@ -66,7 +66,7 @@ namespace engine
             m_triggerState = engine::items::TriggerState::Enabled;
 
             activate();
-            ItemNode::update();
+            ModelItemNode::update();
         }
     }
 }

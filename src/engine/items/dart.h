@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class Dart final : public ItemNode
+        class Dart final : public ModelItemNode
         {
         public:
             Dart(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                  const floordata::ActivationState& activationState,
                  int16_t darkness,
                  const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints, darkness, animatedModel)
             {
             }
 
@@ -27,7 +27,7 @@ namespace engine
             {
                 // TODO: check bone collisions
 
-                ItemNode::update();
+                ModelItemNode::update();
 
                 auto room = getCurrentRoom();
                 auto sector = getLevel().findRealFloorSector(getPosition(), &room);

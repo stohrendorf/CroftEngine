@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class Block final : public ItemNode
+        class Block final : public ModelItemNode
         {
         public:
             Block(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                   const floordata::ActivationState& activationState,
                   int16_t darkness,
                   const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
             {
                 if( m_triggerState != TriggerState::Locked )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);

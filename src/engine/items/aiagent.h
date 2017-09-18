@@ -9,7 +9,7 @@ namespace engine
 {
     namespace items
     {
-        class AIAgent : public ItemNode
+        class AIAgent : public ModelItemNode
         {
         public:
             AIAgent(const gsl::not_null<level::Level*>& level,
@@ -26,7 +26,7 @@ namespace engine
                     int dropHeight,
                     int stepHeight,
                     int flyHeight)
-                : ItemNode(level, name, room, angle, position, activationState, true, characteristics, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, characteristics, darkness, animatedModel)
                 , m_brain{blockMask, dropHeight, stepHeight, flyHeight}
                 , m_collisionRadius{collisionRadius}
                 , m_zone{m_brain.route.getZone(*this)}

@@ -33,7 +33,7 @@ namespace engine
 
                 m_activationState.fullyActivate();
 
-                ItemNode::update();
+                ModelItemNode::update();
             }
         };
     }

@@ -106,7 +106,7 @@ namespace engine
             loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
             m_triggerState = TriggerState::Enabled;
 
-            ItemNode::update();
+            ModelItemNode::update();
             getLevel().m_lara->updateImpl();
         }
 
@@ -121,7 +121,7 @@ namespace engine
                 return;
             }
 
-            ItemNode::update();
+            ModelItemNode::update();
 
             auto pos = getRoomBoundPosition();
             auto sector = getLevel().findRealFloorSector(pos);

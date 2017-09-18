@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class DartGun final : public ItemNode
+        class DartGun final : public ModelItemNode
         {
         public:
             DartGun(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                     const floordata::ActivationState& activationState,
                     int16_t darkness,
                     const loader::AnimatedModel& animatedModel)
-                : ItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints, darkness, animatedModel)
+                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints, darkness, animatedModel)
             {
             }
 
@@ -39,7 +39,7 @@ namespace engine
 
                 if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getNode()->getCurrentState() != 1 || getNode()->getCurrentLocalFrame() < 0 || getNode()->getCurrentLocalFrame() >= 1)
                 {
-                    ItemNode::update();
+                    ModelItemNode::update();
                     return;
                 }
 
@@ -71,7 +71,7 @@ namespace engine
                 dart->m_triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
-                ItemNode::update();
+                ModelItemNode::update();
             }
         };
     }

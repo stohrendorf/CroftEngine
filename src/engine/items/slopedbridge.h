@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class SlopedBridge : public ItemNode
+        class SlopedBridge : public ModelItemNode
         {
         private:
             const int m_div;
@@ -22,7 +22,7 @@ namespace engine
                          int16_t darkness,
                          const loader::AnimatedModel& animatedModel,
                          int div)
-                : ItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
+                : ModelItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
                 , m_div{div}
             {
             }

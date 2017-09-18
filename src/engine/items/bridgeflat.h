@@ -7,7 +7,7 @@ namespace engine
 {
     namespace items
     {
-        class BridgeFlat final : public ItemNode
+        class BridgeFlat final : public ModelItemNode
         {
         public:
             BridgeFlat(const gsl::not_null<level::Level*>& level,
@@ -18,7 +18,7 @@ namespace engine
                        const floordata::ActivationState& activationState,
                        int16_t darkness,
                        const loader::AnimatedModel& animatedModel)
-                : ItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
+                : ModelItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
             {
             }
 

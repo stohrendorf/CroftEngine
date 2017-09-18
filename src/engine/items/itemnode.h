@@ -61,8 +61,6 @@ namespace engine
 
         class ItemNode
         {
-            std::shared_ptr<SkeletalModelNode> m_skeleton;
-
             core::RoomBoundPosition m_position;
 
             // needed for YPR rotation, because the scene node uses XYZ rotation
@@ -139,14 +137,11 @@ namespace engine
 
             virtual ~ItemNode() = default;
 
-            virtual void update();
+            virtual void update() = 0;
 
-            const std::shared_ptr<SkeletalModelNode>& getNode() const
-            {
-                return m_skeleton;
-            }
+            virtual const std::shared_ptr<SkeletalModelNode>& getNode() const = 0;
 
-            void applyMovement(bool forLara);
+            virtual void applyMovement(bool forLara) = 0;
 
             const core::TRCoordinates& getPosition() const noexcept
             {
@@ -391,26 +386,7 @@ namespace engine
             }
 
 
-            bool triggerSwitch(const floordata::ActivationState& arg)
-            {
-                if( m_triggerState != engine::items::TriggerState::Activated )
-                {
-                    return false;
-                }
-
-                if( m_skeleton->getCurrentState() != 0 || arg.isLocked() )
-                {
-                    deactivate();
-                    m_triggerState = TriggerState::Disabled;
-                }
-                else
-                {
-                    m_activationState.setTimeout(arg.getTimeout());
-                    m_triggerState = TriggerState::Enabled;
-                }
-
-                return true;
-            }
+            virtual bool triggerSwitch(const floordata::ActivationState& arg) = 0;
 
 
             std::shared_ptr<audio::SourceHandle> playSoundEffect(int id);
@@ -457,6 +433,7 @@ namespace engine
 
             boost::optional<uint16_t> getCurrentBox() const;
 
+            virtual core::TRCoordinates getBoundingBoxCenter() const = 0;
 
             void updateLighting()
             {
@@ -482,7 +459,7 @@ namespace engine
                 }
 
                 float maxBrightness = 0;
-                const auto bboxCtr = m_position.position + m_skeleton->getBoundingBox().getCenter();
+                const auto bboxCtr = m_position.position + getBoundingBoxCenter();
                 for( const auto& light : m_position.room->lights )
                 {
                     auto radiusSq = light.radius / 4096.0f;
@@ -633,6 +610,61 @@ namespace engine
                 return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                        && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
             }
+        };
+    
+        class ModelItemNode : public ItemNode
+        {
+            std::shared_ptr<SkeletalModelNode> m_skeleton;
+
+        public:
+            ModelItemNode(
+                const gsl::not_null<level::Level*>& level,
+                const std::string& name,
+                const gsl::not_null<const loader::Room*>& room,
+                const core::Angle& angle,
+                const core::TRCoordinates& position,
+                const floordata::ActivationState& activationState,
+                bool hasProcessAnimCommandsOverride,
+                Characteristics characteristics,
+                int16_t darkness,
+                const loader::AnimatedModel& animatedModel);
+
+
+            const std::shared_ptr<SkeletalModelNode>& getNode() const override
+            {
+                return m_skeleton;
+            }
+
+            bool triggerSwitch(const floordata::ActivationState& arg) override
+            {
+                if (m_triggerState != engine::items::TriggerState::Activated)
+                {
+                    return false;
+                }
+
+                if (m_skeleton->getCurrentState() != 0 || arg.isLocked())
+                {
+                    deactivate();
+                    m_triggerState = TriggerState::Disabled;
+                }
+                else
+                {
+                    m_activationState.setTimeout(arg.getTimeout());
+                    m_triggerState = TriggerState::Enabled;
+                }
+
+                return true;
+            }
+
+
+            core::TRCoordinates getBoundingBoxCenter() const override
+            {
+                return m_skeleton->getBoundingBox().getCenter();
+            }
+
+            void update() override;
+
+            void applyMovement(bool forLara) override;
         };
     }
 }

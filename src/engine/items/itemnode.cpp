@@ -12,7 +12,7 @@ namespace engine
         {
             glm::vec3 tr;
 
-            if( auto parent = m_position.room )
+            if( const auto parent = m_position.room )
             {
                 tr = m_position.position.toRenderSystem() - parent->position.toRenderSystem();
             }
@@ -21,7 +21,7 @@ namespace engine
                 tr = m_position.position.toRenderSystem();
             }
 
-            m_skeleton->setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
+            getNode()->setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
 
             updateSounds();
         }
@@ -37,8 +37,7 @@ namespace engine
                            Characteristics characteristics,
                            int16_t darkness,
                            const loader::AnimatedModel& animatedModel)
-            : m_skeleton{std::make_shared<SkeletalModelNode>(name, level, animatedModel)}
-            , m_position{room, position}
+            : m_position{room, position}
             , m_rotation{0_deg, angle, 0_deg}
             , m_level{level}
             , m_activationState{activationState}
@@ -61,8 +60,6 @@ namespace engine
                 activate();
                 m_triggerState = TriggerState::Enabled;
             }
-
-            m_skeleton->setAnimIdGlobal(animatedModel.animationIndex, m_level->m_animations.at(animatedModel.animationIndex).firstFrame);
         }
 
 
@@ -78,15 +75,41 @@ namespace engine
                 BOOST_LOG_TRIVIAL(fatal) << "No room to switch to.";
                 return;
             }
-            BOOST_LOG_TRIVIAL(debug) << "Room switch of " << m_skeleton->getId() << " to " << newRoom->node->getId();
+            BOOST_LOG_TRIVIAL(debug) << "Room switch of " << getNode()->getId() << " to " << newRoom->node->getId();
 
-            newRoom->node->addChild(m_skeleton);
+            newRoom->node->addChild(getNode());
 
             m_position.room = newRoom;
         }
 
 
-        void ItemNode::update()
+        ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level, const std::string& name,
+                                     const gsl::not_null<const loader::Room*>& room, const core::Angle& angle,
+                                     const core::TRCoordinates& position,
+                                     const floordata::ActivationState& activationState,
+                                     bool hasProcessAnimCommandsOverride, Characteristics characteristics,
+                                     int16_t darkness,
+                                     const loader::AnimatedModel& animatedModel)
+            : ItemNode{
+                level,
+                name,
+                room,
+                angle,
+                position,
+                activationState,
+                hasProcessAnimCommandsOverride,
+                characteristics,
+                darkness,
+                animatedModel
+            }
+            , m_skeleton{std::make_shared<SkeletalModelNode>(name, level, animatedModel)}
+        {
+            m_skeleton->setAnimIdGlobal(animatedModel.animationIndex,
+                                        getLevel().m_animations.at(animatedModel.animationIndex).firstFrame);
+        }
+
+
+        void ModelItemNode::update()
         {
             const auto endOfAnim = m_skeleton->advanceFrame();
 
@@ -113,9 +136,9 @@ namespace engine
                             cmd += 3;
                             break;
                         case AnimCommandOpcode::StartFalling:
-                            m_fallSpeed = cmd[0];
-                            m_horizontalSpeed = cmd[1];
-                            m_falling = true;
+                            setFallSpeed(cmd[0]);
+                            setHorizontalSpeed(cmd[1]);
+                            setFalling(true);
                             cmd += 2;
                             break;
                         case AnimCommandOpcode::PlaySound:
@@ -199,7 +222,7 @@ namespace engine
             }
             else
             {
-                BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << m_skeleton->getId();
+                BOOST_LOG_TRIVIAL(trace) << "Activating item controller " << getNode()->getId();
             }
 
             m_isActive = true;
@@ -214,7 +237,7 @@ namespace engine
             }
             else
             {
-                BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << m_skeleton->getId();
+                BOOST_LOG_TRIVIAL(trace) << "Deactivating item controller " << getNode()->getId();
             }
 
             m_isActive = false;
@@ -223,7 +246,7 @@ namespace engine
 
         std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(int id)
         {
-            auto handle = getLevel().playSound(id, m_skeleton->getTranslationWorld());
+            auto handle = getLevel().playSound(id, getNode()->getTranslationWorld());
             if( handle != nullptr )
             {
                 m_sounds.emplace(handle);
@@ -263,7 +286,7 @@ namespace engine
             for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
             {
                 std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-                lockedHandle->setPosition(m_skeleton->getTranslationWorld());
+                lockedHandle->setPosition(getNode()->getTranslationWorld());
             }
         }
 
@@ -278,41 +301,41 @@ namespace engine
                 return false;
             }
 
-            auto dist = glm::vec4{ (lara.getPosition() - item.getPosition()).toRenderSystem(), 1.0f } * item.getRotation().toMatrix();
-            glm::vec3 tdist{dist};
+            const auto dist = glm::vec4{ (lara.getPosition() - item.getPosition()).toRenderSystem(), 1.0f } * item.getRotation().toMatrix();
+            const glm::vec3 tdist{dist};
 
             return distance.contains(core::TRCoordinates{ tdist });
         }
 
 
-        void ItemNode::applyMovement(bool forLara)
+        void ModelItemNode::applyMovement(bool forLara)
         {
-            if( m_falling )
+            if( isFalling() )
             {
                 if( getFallSpeed() >= 128 )
                 {
-                    m_fallSpeed += 1;
+                    setFallSpeed(getFallSpeed() + 1);
                 }
                 else
                 {
-                    m_fallSpeed += 6;
+                    setFallSpeed(getFallSpeed() + 6);
                 }
 
                 if( forLara )
                 {
                     // we only add accelleration here
-                    m_horizontalSpeed += m_skeleton->calculateFloorSpeed(0) - m_skeleton->calculateFloorSpeed(-1);
+                    setHorizontalSpeed( getHorizontalSpeed() + m_skeleton->calculateFloorSpeed(0) - m_skeleton->calculateFloorSpeed(-1) );
                 }
             }
             else
             {
-                m_horizontalSpeed = m_skeleton->calculateFloorSpeed();
+                setHorizontalSpeed(m_skeleton->calculateFloorSpeed());
             }
 
             move(
-                getMovementAngle().sin() * m_horizontalSpeed,
-                m_falling ? m_fallSpeed : 0,
-                getMovementAngle().cos() * m_horizontalSpeed
+                getMovementAngle().sin() * getHorizontalSpeed(),
+                isFalling() ? getFallSpeed() : 0,
+                getMovementAngle().cos() * getHorizontalSpeed()
             );
 
             applyTransform();
@@ -324,10 +347,10 @@ namespace engine
 
         boost::optional<uint16_t> ItemNode::getCurrentBox() const
         {
-            auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position);
+            const auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position);
             if( sector->boxIndex == 0xffff )
             {
-                BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << m_skeleton->getId();
+                BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << getNode()->getId();
                 return {};
             }
 
