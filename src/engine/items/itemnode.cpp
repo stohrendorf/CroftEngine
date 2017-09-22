@@ -8,6 +8,56 @@ namespace engine
 {
     namespace items
     {
+        namespace
+        {
+            struct SpriteVertex
+            {
+                glm::vec3 pos;
+
+                glm::vec2 uv;
+
+                glm::vec3 color{ 1.0f };
+            };
+
+            std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite, const std::shared_ptr<gameplay::Material>& material)
+            {
+                const SpriteVertex vertices[]{
+                    { { sprite.left_side, sprite.top_side, 0 },{ sprite.t0.x, sprite.t1.y } },
+                    { { sprite.right_side, sprite.top_side, 0 },{ sprite.t1.x, sprite.t1.y } },
+                    { { sprite.right_side, sprite.bottom_side, 0 },{ sprite.t1.x, sprite.t0.y } },
+                    { { sprite.left_side, sprite.bottom_side, 0 },{ sprite.t0.x, sprite.t0.y } }
+                };
+
+                gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                    { VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::pos } },
+                    { VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::uv } },
+                    { VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{ &SpriteVertex::color } }
+                };
+
+                auto mesh = std::make_shared<gameplay::Mesh>(attribs, false);
+                mesh->getBuffer(0)->assign<SpriteVertex>(vertices, 4);
+
+                static const uint16_t indices[6] =
+                {
+                    0, 1, 2,
+                    0, 2, 3
+                };
+
+                gameplay::gl::VertexArrayBuilder builder;
+
+                auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+                indexBuffer->setData(indices, 6, false);
+                builder.attach(indexBuffer);
+                builder.attach(mesh->getBuffers());
+
+                auto part = std::make_shared<gameplay::MeshPart>(builder.build(material->getShaderProgram()->getHandle()));
+                mesh->addPart(part);
+                part->setMaterial(material);
+
+                return mesh;
+            }
+        }
+
         void ItemNode::applyTransform()
         {
             glm::vec3 tr;
@@ -28,15 +78,13 @@ namespace engine
 
 
         ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
-                           const std::string& name,
                            const gsl::not_null<const loader::Room*>& room,
                            const core::Angle& angle,
                            const core::TRCoordinates& position,
                            const floordata::ActivationState& activationState,
                            bool hasProcessAnimCommandsOverride,
                            Characteristics characteristics,
-                           int16_t darkness,
-                           const loader::AnimatedModel& animatedModel)
+                           int16_t darkness)
             : m_position{room, position}
             , m_rotation{0_deg, angle, 0_deg}
             , m_level{level}
@@ -92,15 +140,13 @@ namespace engine
                                      const loader::AnimatedModel& animatedModel)
             : ItemNode{
                 level,
-                name,
                 room,
                 angle,
                 position,
                 activationState,
                 hasProcessAnimCommandsOverride,
                 characteristics,
-                darkness,
-                animatedModel
+                darkness
             }
             , m_skeleton{std::make_shared<SkeletalModelNode>(name, level, animatedModel)}
         {
@@ -367,6 +413,46 @@ namespace engine
         uint16_t ModelItemNode::getCurrentState() const
         {
             return m_skeleton->getCurrentState();
+        }
+
+
+        SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
+                                       const std::string& name,
+                                       const gsl::not_null<const loader::Room*>& room,
+                                       const core::Angle& angle,
+                                       const core::TRCoordinates& position,
+                                       const floordata::ActivationState& activationState,
+                                       bool hasProcessAnimCommandsOverride,
+                                       Characteristics characteristics,
+                                       int16_t darkness,
+                                       const loader::Sprite& sprite,
+                                       const std::shared_ptr<gameplay::Material>& material,
+                                       const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
+            : ItemNode{
+                level,
+                room,
+                angle,
+                position,
+                activationState,
+                hasProcessAnimCommandsOverride,
+                characteristics,
+                darkness
+            }
+        {
+            const auto spriteMesh = createSpriteMesh(sprite, material);
+            auto model = std::make_shared<gameplay::Model>();
+            model->addMesh(spriteMesh);
+
+            m_node = std::make_shared<gameplay::Node>(name);
+            m_node->setDrawable(model);
+            m_node->addMaterialParameterSetter("u_diffuseTexture", [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set(*texture);
+            });
+            m_node->addMaterialParameterSetter("u_baseLight", [darkness](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set((8192 - darkness) / 32.0f);
+            });
         }
     }
 }

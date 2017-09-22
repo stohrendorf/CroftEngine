@@ -41,7 +41,7 @@ using namespace level;
 
 namespace
 {
-   struct SpriteVertex
+    struct SpriteVertex
     {
         glm::vec3 pos;
 
@@ -568,35 +568,24 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
             const loader::Sprite& sprite = m_sprites[spriteSequence.offset];
 
-            auto spriteMesh = createSpriteMesh(sprite, spriteMaterial);
-            auto model = std::make_shared<gameplay::Model>();
-            model->addMesh(spriteMesh);
+            auto node = std::make_shared<engine::items::SpriteItemNode>(this,
+                "sprite:" + std::to_string(id) + "(type:" + std::to_string(type) + ")",
+                &room,
+                core::Angle{ item.rotation },
+                item.position,
+                item.activationState,
+                true,
+                0,
+                item.darkness,
+                sprite,
+                spriteMaterial,
+                textures);
 
-            std::string name = "item";
-            name += std::to_string(id);
-            name += "(type";
-            name += std::to_string(item.type);
-            name += "/spriteSequence)";
+            m_itemNodes[id] = node;
+            room.node->addChild(node->getNode());
 
-            auto node = std::make_shared<gameplay::Node>(name);
-            node->setDrawable(model);
-            node->addMaterialParameterSetter("u_diffuseTexture", [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set(*texture);
-            });
-            node->addMaterialParameterSetter("u_baseLight", [darkness = item.darkness](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set((8192 - darkness) / 32.0f);
-            });
-
-            // m_itemNodes[id] = node;
-            room.node->addChild(node);
-
-            node->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, (item.position - room.position).toRenderSystem()));
-
-            //m_itemNodes[id] = std::make_unique<engine::StubItem>(this, node, name + ":controller", &room, &item);
-            //m_itemNodes[id]->setYRotation(core::Angle{item.rotation});
-            //m_itemNodes[id]->setPosition(core::ExactTRCoordinates(item.position - core::TRCoordinates(0, tex.bottom_side, 0)));
+            node->applyTransform();
+            node->updateLighting();
 
             continue;
         }

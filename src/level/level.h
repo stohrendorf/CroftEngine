@@ -407,7 +407,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const gsl::not_null<const loader::Item*>& item)
         {
-            return createSkeletalModel<T>(id, modelIdx, item->type, room, core::Angle{item->rotation}, core::TRCoordinates{item->position}, item->activationState, item->darkness);
+            return createSkeletalModel<T>(id, modelIdx, item->type, room, core::Angle{item->rotation}, item->position, item->activationState, item->darkness);
         }
 
 

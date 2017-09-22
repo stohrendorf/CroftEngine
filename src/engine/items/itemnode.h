@@ -125,15 +125,13 @@ namespace engine
 
 
             ItemNode(const gsl::not_null<level::Level*>& level,
-                const std::string& name,
                 const gsl::not_null<const loader::Room*>& room,
                 const core::Angle& angle,
                 const core::TRCoordinates& position,
                 const floordata::ActivationState& activationState,
                 bool hasProcessAnimCommandsOverride,
                 Characteristics characteristics,
-                int16_t darkness,
-                const loader::AnimatedModel& animatedModel);
+                int16_t darkness);
 
             virtual ~ItemNode() = default;
 
@@ -433,8 +431,6 @@ namespace engine
 
             boost::optional<uint16_t> getCurrentBox() const;
 
-            virtual core::TRCoordinates getBoundingBoxCenter() const = 0;
-
             void updateLighting()
             {
                 m_lighting.baseDiff = 0;
@@ -459,7 +455,7 @@ namespace engine
                 }
 
                 float maxBrightness = 0;
-                const auto bboxCtr = m_position.position + getBoundingBoxCenter();
+                const auto bboxCtr = m_position.position + getBoundingBox().getCenter();
                 for (const auto& light : m_position.room->lights)
                 {
                     auto radiusSq = light.radius / 4096.0f;
@@ -666,11 +662,6 @@ namespace engine
             }
 
 
-            core::TRCoordinates getBoundingBoxCenter() const override
-            {
-                return m_skeleton->getBoundingBox().getCenter();
-            }
-
             void update() override;
 
             void applyMovement(bool forLara) override;
@@ -691,28 +682,17 @@ namespace engine
                 const std::string& name,
                 const gsl::not_null<const loader::Room*>& room,
                 const core::Angle& angle,
-                const core::TRCoordinates& position, 
+                const core::TRCoordinates& position,
                 const floordata::ActivationState& activationState,
-                bool hasProcessAnimCommandsOverride, 
+                bool hasProcessAnimCommandsOverride,
                 Characteristics characteristics,
                 int16_t darkness,
-                const loader::AnimatedModel& animatedModel)
-                : ItemNode{
-                    level,
-                    name,
-                    room,
-                    angle,
-                    position, 
-                    activationState,
-                    hasProcessAnimCommandsOverride,
-                    characteristics, 
-                    darkness, 
-                    animatedModel
-                }
-            {
-            }
+                const loader::Sprite& sprite,
+                const std::shared_ptr<gameplay::Material>& material,
+                const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);
 
-            bool triggerSwitch(const floordata::ActivationState& arg) override
+
+            bool triggerSwitch(const floordata::ActivationState&) override
             {
                 BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
             }
@@ -724,9 +704,10 @@ namespace engine
 
             void update() override
             {
+                // TODO
             }
 
-            void applyMovement(bool forLara) override
+            void applyMovement(bool) override
             {
             }
 
