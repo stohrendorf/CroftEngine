@@ -139,8 +139,6 @@ namespace engine
 
             virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
 
-            virtual void applyMovement(bool forLara) = 0;
-
             const core::TRCoordinates& getPosition() const noexcept
             {
                 return m_position.position;
@@ -165,7 +163,7 @@ namespace engine
             }
 
 
-            void setFloorHeight(int h) noexcept
+            void setFloorHeight(const int h) noexcept
             {
                 m_floorHeight = h;
             }
@@ -176,7 +174,7 @@ namespace engine
             void applyTransform();
 
 
-            void rotate(core::Angle dx, core::Angle dy, core::Angle dz)
+            void rotate(const core::Angle dx, const core::Angle dy, const core::Angle dz)
             {
                 m_rotation.X += dx;
                 m_rotation.Y += dy;
@@ -184,7 +182,7 @@ namespace engine
             }
 
 
-            void move(int dx, int dy, int dz)
+            void move(const int dx, const int dy, const int dz)
             {
                 m_position.position.X += dx;
                 m_position.position.Y += dy;
@@ -192,37 +190,37 @@ namespace engine
             }
 
 
-            void moveX(int d)
+            void moveX(const int d)
             {
                 m_position.position.X += d;
             }
 
 
-            void moveY(int d)
+            void moveY(const int d)
             {
                 m_position.position.Y += d;
             }
 
 
-            void moveZ(int d)
+            void moveZ(const int d)
             {
                 m_position.position.Z += d;
             }
 
 
-            void setX(int d)
+            void setX(const int d)
             {
                 m_position.position.X = d;
             }
 
 
-            void setY(int d)
+            void setY(const int d)
             {
                 m_position.position.Y = d;
             }
 
 
-            void setZ(int d)
+            void setZ(const int d)
             {
                 m_position.position.Z = d;
             }
@@ -234,7 +232,7 @@ namespace engine
             }
 
 
-            void moveLocal(int dx, int dy, int dz)
+            void moveLocal(const int dx, const int dy, const int dz)
             {
                 const auto sin = getRotation().Y.sin();
                 const auto cos = getRotation().Y.cos();
@@ -250,37 +248,37 @@ namespace engine
             }
 
 
-            void setXRotation(core::Angle x)
+            void setXRotation(const core::Angle x)
             {
                 m_rotation.X = x;
             }
 
 
-            void addXRotation(core::Angle x)
+            void addXRotation(const core::Angle x)
             {
                 m_rotation.X += x;
             }
 
 
-            void setYRotation(core::Angle y)
+            void setYRotation(const core::Angle y)
             {
                 m_rotation.Y = y;
             }
 
 
-            void addYRotation(core::Angle v)
+            void addYRotation(const core::Angle v)
             {
                 m_rotation.Y += v;
             }
 
 
-            void setZRotation(core::Angle z)
+            void setZRotation(const core::Angle z)
             {
                 m_rotation.Z = z;
             }
 
 
-            void addZRotation(core::Angle z)
+            void addZRotation(const core::Angle z)
             {
                 m_rotation.Z += z;
             }
@@ -316,13 +314,13 @@ namespace engine
             }
 
 
-            void setFalling(bool falling) noexcept
+            void setFalling(const bool falling) noexcept
             {
                 m_falling = falling;
             }
 
 
-            void setFallSpeed(int spd)
+            void setFallSpeed(const int spd)
             {
                 m_fallSpeed = spd;
             }
@@ -334,7 +332,7 @@ namespace engine
             }
 
 
-            void setHorizontalSpeed(int speed)
+            void setHorizontalSpeed(const int speed)
             {
                 m_horizontalSpeed = speed;
             }
@@ -346,7 +344,7 @@ namespace engine
             }
 
 
-            void dampenHorizontalSpeed(float f)
+            void dampenHorizontalSpeed(const float f)
             {
                 m_horizontalSpeed -= m_horizontalSpeed * f;
             }
@@ -412,7 +410,7 @@ namespace engine
             bool alignTransform(const glm::vec3& trSpeed, const ItemNode& target)
             {
                 const auto speed = trSpeed / 16384.0f;
-                auto targetRot = target.getRotation().toMatrix();
+                const auto targetRot = target.getRotation().toMatrix();
                 auto targetPos = target.getPosition().toRenderSystem();
                 targetPos += glm::vec3(glm::vec4(speed, 0) * targetRot);
 
@@ -424,7 +422,7 @@ namespace engine
             {
                 setRotation(target.getRotation());
 
-                auto r = target.getRotation().toMatrix();
+                const auto r = target.getRotation().toMatrix();
                 move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
             }
 
@@ -571,7 +569,7 @@ namespace engine
             }
 
 
-            bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, int maxDistance, const core::Angle& maxAngle)
+            bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance, const core::Angle& maxAngle)
             {
                 auto d = targetPos - getPosition().toRenderSystem();
                 const auto dist = glm::length(d);
@@ -664,7 +662,7 @@ namespace engine
 
             void update() override;
 
-            void applyMovement(bool forLara) override;
+            void applyMovement(bool forLara);
 
             BoundingBox getBoundingBox() const override;
 
@@ -705,10 +703,6 @@ namespace engine
             void update() override
             {
                 // TODO
-            }
-
-            void applyMovement(bool) override
-            {
             }
 
             BoundingBox getBoundingBox() const override
