@@ -4,6 +4,7 @@ namespace gameplay
 {
     class RenderContext;
 
+
     class Drawable
     {
     public:

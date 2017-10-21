@@ -9,16 +9,19 @@
 #include <memory>
 #include <vector>
 
-
 namespace gameplay
 {
     class Material;
 
+
     class Game;
+
 
     class Model;
 
+
     class MaterialParameter;
+
 
     class Node;
 
@@ -27,18 +30,30 @@ namespace gameplay
     {
         friend class Game;
 
+
         friend class Material;
+
 
         friend class Model;
 
+
     public:
+        RenderState(const RenderState&) = delete;
+
+        RenderState& operator=(const RenderState&) = delete;
+
+
         class StateBlock
         {
             friend class RenderState;
 
+
             friend class Game;
 
+
         public:
+            StateBlock(const StateBlock& copy) = delete;
+
             explicit StateBlock();
 
             ~StateBlock();
@@ -64,9 +79,6 @@ namespace gameplay
             void setDepthFunction(GLenum func);
 
         private:
-
-            StateBlock(const StateBlock& copy) = delete;
-
             void bindNoRestore();
 
             static void restore(long stateOverrideBits);
@@ -113,12 +125,6 @@ namespace gameplay
         static void finalize();
 
         void bind();
-
-    private:
-
-        RenderState(const RenderState&) = delete;
-
-        RenderState& operator=(const RenderState&) = delete;
 
     protected:
         mutable std::shared_ptr<StateBlock> m_state = nullptr;

@@ -4,7 +4,6 @@
 
 #include "gl/vertexarray.h"
 
-
 namespace gameplay
 {
     class Material;
@@ -19,33 +18,27 @@ namespace gameplay
 
         ~MeshPart();
 
-
         void setMaterial(const std::shared_ptr<Material>& material)
         {
             m_material = material;
         }
-
 
         const std::shared_ptr<Material>& getMaterial() const
         {
             return m_material;
         }
 
-
         void draw(RenderContext& context) const;
-
 
         void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
         {
-            m_materialParameterSetters.emplace_back(setter);
+            m_materialParameterSetters.emplace_back( setter );
         }
-
 
         const std::shared_ptr<gl::VertexArray>& getVao() const
         {
             return m_vao;
         }
-
 
     private:
         MeshPart(const MeshPart& copy) = delete;

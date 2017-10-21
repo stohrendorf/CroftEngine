@@ -9,31 +9,27 @@
 
 #include <memory>
 
-
 namespace gameplay
 {
     class ScreenOverlay : public Drawable
     {
     public:
+        ScreenOverlay(const ScreenOverlay&) = delete;
+
+        ScreenOverlay& operator=(const ScreenOverlay&) = delete;
+
         explicit ScreenOverlay(const Rectangle& viewport);
 
-        ~ScreenOverlay();
+        ~ScreenOverlay() override;
 
         void draw(RenderContext& context) override;
-
 
         const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
         {
             return m_image;
         }
 
-
     private:
-        
-        ScreenOverlay(const ScreenOverlay& copy) = delete;
-
-        ScreenOverlay& operator=(const ScreenOverlay&) = delete;
-
         std::shared_ptr<gl::Image<gl::RGBA8>> m_image{nullptr};
 
         std::shared_ptr<gl::Texture> m_texture{nullptr};

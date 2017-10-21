@@ -6,14 +6,12 @@
 
 #include <cstdint>
 
-
 namespace gameplay
 {
     namespace gl
     {
         template<typename T>
         struct TypeTraits;
-
 
         template<>
         struct TypeTraits<uint8_t>
@@ -29,7 +27,6 @@ namespace gameplay
             static const constexpr GLint RgbFormat = GL_RGB;
         };
 
-
         template<>
         struct TypeTraits<uint16_t>
         {
@@ -37,7 +34,6 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 1;
         };
-
 
         template<>
         struct TypeTraits<uint32_t>
@@ -47,7 +43,6 @@ namespace gameplay
             static const constexpr GLsizei ElementCount = 1;
         };
 
-
         template<>
         struct TypeTraits<int8_t>
         {
@@ -55,7 +50,6 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 1;
         };
-
 
         template<>
         struct TypeTraits<int16_t>
@@ -65,7 +59,6 @@ namespace gameplay
             static const constexpr GLsizei ElementCount = 1;
         };
 
-
         template<>
         struct TypeTraits<int32_t>
         {
@@ -73,7 +66,6 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 1;
         };
-
 
         template<>
         struct TypeTraits<float>
@@ -83,7 +75,6 @@ namespace gameplay
             static const constexpr GLsizei ElementCount = 1;
         };
 
-
         template<>
         struct TypeTraits<glm::vec2>
         {
@@ -91,7 +82,6 @@ namespace gameplay
 
             static const constexpr GLsizei ElementCount = 2;
         };
-
 
         template<>
         struct TypeTraits<glm::vec3>
@@ -101,7 +91,6 @@ namespace gameplay
             static const constexpr GLsizei ElementCount = 3;
         };
 
-
         template<>
         struct TypeTraits<glm::vec4>
         {
@@ -110,12 +99,10 @@ namespace gameplay
             static const constexpr GLsizei ElementCount = 4;
         };
 
-
         template<typename T>
         struct TypeTraits<const T> : TypeTraits<T>
         {
         };
-
 
         template<typename T>
         struct TypeTraits<T&> : TypeTraits<T>

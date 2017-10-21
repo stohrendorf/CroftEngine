@@ -4,6 +4,7 @@ namespace gameplay
 {
     class Node;
 
+
     class RenderContext
     {
     public:
@@ -11,24 +12,20 @@ namespace gameplay
                 : m_wireframe{wireframe}
         {}
 
-
         Node* getCurrentNode() const noexcept
         {
             return m_currentNode;
         }
-
 
         void setCurrentNode(Node* n) noexcept
         {
             m_currentNode = n;
         }
 
-
         bool isWireframe() const noexcept
         {
             return m_wireframe;
         }
-
 
     private:
         Node* m_currentNode = nullptr;

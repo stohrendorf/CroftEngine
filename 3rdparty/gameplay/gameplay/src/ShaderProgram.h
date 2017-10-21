@@ -6,7 +6,6 @@
 #include <memory>
 #include <vector>
 
-
 namespace gameplay
 {
     class ShaderProgram
@@ -16,7 +15,9 @@ namespace gameplay
 
         ~ShaderProgram();
 
-        static std::shared_ptr<ShaderProgram> createFromFile(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
+        static std::shared_ptr<ShaderProgram> createFromFile(const std::string& vshPath,
+                                                             const std::string& fshPath,
+                                                             const std::vector<std::string>& defines = {});
 
         const std::string& getId() const;
 
@@ -26,12 +27,10 @@ namespace gameplay
 
         void bind();
 
-
         const gl::Program& getHandle() const
         {
             return m_handle;
         }
-
 
     private:
 
@@ -39,7 +38,12 @@ namespace gameplay
 
         ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-        static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource, const std::string& fshPath, const std::string& fshSource, const std::vector<std::string>& defines = {});
+        static std::shared_ptr<ShaderProgram>
+        createFromSource(const std::string& vshPath,
+                         const std::string& vshSource,
+                         const std::string& fshPath,
+                         const std::string& fshSource,
+                         const std::vector<std::string>& defines = {});
 
         std::string m_id;
 

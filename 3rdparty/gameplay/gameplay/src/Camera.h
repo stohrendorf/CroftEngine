@@ -11,6 +11,7 @@ namespace gameplay
     {
         friend class Node;
 
+
     public:
         Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
@@ -41,8 +42,6 @@ namespace gameplay
     private:
 
         Camera& operator=(const Camera&) = delete;
-
-        void transformChanged();
 
         float _fieldOfView;
         float _aspectRatio;

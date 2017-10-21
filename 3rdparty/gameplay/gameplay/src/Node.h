@@ -6,10 +6,10 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-
 namespace gameplay
 {
     class Drawable;
+
 
     class Scene;
 
@@ -18,7 +18,12 @@ namespace gameplay
     {
         friend class Scene;
 
+
     public:
+        Node(const Node& copy) = delete;
+
+        Node& operator=(const Node&) = delete;
+
         using List = std::vector<std::shared_ptr<Node>>;
 
         explicit Node(const std::string& id);
@@ -27,15 +32,11 @@ namespace gameplay
 
         const std::string& getId() const;
 
-        void setId(const std::string& id);
-
         void addChild(const std::shared_ptr<Node>& child);
 
         const std::weak_ptr<Node>& getParent() const;
 
         size_t getChildCount() const;
-
-        Node* getRootNode() const;
 
         virtual Scene* getScene() const;
 
@@ -49,10 +50,6 @@ namespace gameplay
 
         glm::mat4 getModelViewMatrix() const;
 
-        glm::mat4 getInverseTransposeWorldMatrix() const;
-
-        glm::mat4 getInverseTransposeWorldViewMatrix() const;
-
         const glm::mat4& getViewMatrix() const;
 
         const glm::mat4& getInverseViewMatrix() const;
@@ -65,33 +62,25 @@ namespace gameplay
 
         glm::vec3 getTranslationWorld() const;
 
-        glm::vec3 getTranslationView() const;
-
-        glm::vec3 getActiveCameraTranslationWorld() const;
-
         const std::shared_ptr<Drawable>& getDrawable() const;
 
         void setDrawable(const std::shared_ptr<Drawable>& drawable);
-
 
         const List& getChildren() const
         {
             return m_children;
         }
 
-
         const std::shared_ptr<Node>& getChild(size_t idx) const
         {
-            BOOST_ASSERT(idx < m_children.size());
+            BOOST_ASSERT( idx < m_children.size() );
             return m_children[idx];
         }
-
 
         const glm::mat4& getLocalMatrix() const
         {
             return m_localMatrix;
         }
-
 
         void setLocalMatrix(const glm::mat4& m)
         {
@@ -99,81 +88,71 @@ namespace gameplay
             transformChanged();
         }
 
-
         void accept(Visitor& visitor)
         {
             for( auto& node : m_children )
-                visitor.visit(*node);
+                visitor.visit( *node );
         }
-
 
         void setParent(const std::shared_ptr<Node>& parent)
         {
             if( !m_parent.expired() )
             {
                 auto p = m_parent.lock();
-                auto it = find(p->m_children.begin(), p->m_children.end(), shared_from_this());
-                BOOST_ASSERT(it != p->m_children.end());
-                m_parent.lock()->m_children.erase(it);
+                auto it = find( p->m_children.begin(), p->m_children.end(), shared_from_this() );
+                BOOST_ASSERT( it != p->m_children.end() );
+                m_parent.lock()->m_children.erase( it );
             }
 
             m_parent = parent;
 
             if( parent != nullptr )
-                parent->m_children.push_back(shared_from_this());
+                parent->m_children.push_back( shared_from_this() );
 
             transformChanged();
         }
-
 
         void swapChildren(const std::shared_ptr<Node>& other)
         {
             auto otherChildren = other->m_children;
             for( auto& child : otherChildren )
-                child->setParent(nullptr);
-            BOOST_ASSERT(other->m_children.empty());
+                child->setParent( nullptr );
+            BOOST_ASSERT( other->m_children.empty() );
 
             auto thisChildren = m_children;
             for( auto& child : thisChildren )
-                child->setParent(nullptr);
-            BOOST_ASSERT(m_children.empty());
+                child->setParent( nullptr );
+            BOOST_ASSERT( m_children.empty() );
 
             for( auto& child : otherChildren )
-                child->setParent(shared_from_this());
+                child->setParent( shared_from_this() );
 
             for( auto& child : thisChildren )
-                child->setParent(other);
+                child->setParent( other );
         }
 
-
-        void addMaterialParameterSetter(const std::string& name, const std::function<MaterialParameter::UniformValueSetter>& setter)
+        void addMaterialParameterSetter(const std::string& name,
+                                        const std::function<MaterialParameter::UniformValueSetter>& setter)
         {
-            m_materialParemeterSetters[name] = setter;
+            m_materialParameterSetters[name] = setter;
         }
 
-
-        void addMaterialParameterSetter(const std::string& name, std::function<MaterialParameter::UniformValueSetter>&& setter)
+        void addMaterialParameterSetter(const std::string& name,
+                                        std::function<MaterialParameter::UniformValueSetter>&& setter)
         {
-            m_materialParemeterSetters[name] = move(setter);
+            m_materialParameterSetters[name] = move( setter );
         }
 
-
-        const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>& getMaterialParameterSetters() const
+        const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>&
+        getMaterialParameterSetters() const
         {
-            return m_materialParemeterSetters;
+            return m_materialParameterSetters;
         }
-
 
     protected:
-
         void transformChanged();
 
     private:
-
-        Node(const Node& copy) = delete;
-
-        Node& operator=(const Node&) = delete;
-
         Scene* m_scene = nullptr;
 
         std::string m_id;
@@ -192,6 +171,6 @@ namespace gameplay
 
         mutable bool m_dirty = false;
 
-        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParemeterSetters;
+        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
     };
 }

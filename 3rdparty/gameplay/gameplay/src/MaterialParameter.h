@@ -6,7 +6,6 @@
 
 #include <boost/optional.hpp>
 
-
 namespace gameplay
 {
     class Node;
@@ -25,59 +24,54 @@ namespace gameplay
 
         void set(int value);
 
-        void set(const float* values, size_t count = 1);
+        void set(const float* values, std::size_t count = 1);
 
-        void set(const int* values, size_t count = 1);
+        void set(const int* values, std::size_t count = 1);
 
         void set(const glm::vec2& value);
 
-        void set(const glm::vec2* values, size_t count = 1);
+        void set(const glm::vec2* values, std::size_t count = 1);
 
         void set(const glm::vec3& value);
 
-        void set(const glm::vec3* values, size_t count = 1);
+        void set(const glm::vec3* values, std::size_t count = 1);
 
         void set(const glm::vec4& value);
 
-        void set(const glm::vec4* values, size_t count = 1);
+        void set(const glm::vec4* values, std::size_t count = 1);
 
         void set(const glm::mat4& value);
 
-        void set(const glm::mat4* values, size_t count = 1);
+        void set(const glm::mat4* values, std::size_t count = 1);
 
         void set(const std::shared_ptr<gl::Texture>& texture);
 
         void set(const std::vector<std::shared_ptr<gl::Texture>>& textures);
 
-
         template<class ClassType, class ValueType>
         void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set((classInstance ->* valueMethod)());
+            m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
+                uniform.set( (classInstance->*valueMethod)() );
             };
         }
-
 
         using UniformValueSetter = void(const Node& node, gl::Program::ActiveUniform& uniform);
 
-
         void bind(std::function<UniformValueSetter>&& setter)
         {
-            m_valueSetter = move(setter);
+            m_valueSetter = move( setter );
         }
-
 
         template<class ClassType, class ValueType>
-        void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const, size_t (ClassType::*countMethod)() const)
+        void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const,
+                  std::size_t (ClassType::*countMethod)() const)
         {
-            m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::Program::ActiveUniform& uniform)
-            {
-                uniform.set((classInstance ->* valueMethod)(), (classInstance ->* countMethod)());
+            m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/,
+                                                                      const gl::Program::ActiveUniform& uniform) {
+                uniform.set( (classInstance->*valueMethod)(), (classInstance->*countMethod)() );
             };
         }
-
 
         void bindModelMatrix();
 
@@ -95,13 +89,11 @@ namespace gameplay
 
         gl::Program::ActiveUniform* getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
-
         enum LOGGER_DIRTYBITS
         {
             UNIFORM_NOT_FOUND = 0x01,
             PARAMETER_VALUE_NOT_SET = 0x02
         };
-
 
         const std::string m_name;
 

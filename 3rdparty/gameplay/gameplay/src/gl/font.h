@@ -7,7 +7,6 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 
-
 namespace gameplay
 {
     namespace gl
@@ -15,6 +14,10 @@ namespace gameplay
         class Font
         {
         public:
+            Font(const Font& copy) = delete;
+
+            Font& operator=(const Font&) = delete;
+
             void drawText(const char* text, int x, int y, const RGBA8& color);
 
             void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
@@ -23,25 +26,17 @@ namespace gameplay
 
             ~Font();
 
-
             void setTarget(const std::shared_ptr<Image<RGBA8>>& img)
             {
                 m_targetImage = img;
             }
-
 
             const std::shared_ptr<Image<RGBA8>>& getTarget() const
             {
                 return m_targetImage;
             }
 
-
         private:
-
-            Font(const Font& copy) = delete;
-
-            Font& operator=(const Font&) = delete;
-
             FTC_Manager m_cache = nullptr;
 
             FTC_CMapCache m_cmapCache = nullptr;

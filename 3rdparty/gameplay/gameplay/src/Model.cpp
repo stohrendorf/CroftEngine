@@ -2,10 +2,6 @@
 #include "Model.h"
 #include "MeshPart.h"
 #include "Node.h"
-#include "MaterialParameter.h"
-
-#include <boost/log/trivial.hpp>
-
 
 namespace gameplay
 {
@@ -13,13 +9,13 @@ namespace gameplay
     {
         for( const auto& mesh : m_meshes )
         {
-            BOOST_ASSERT(mesh);
+            BOOST_ASSERT( mesh );
 
             for( const auto& part : mesh->getParts() )
             {
-                BOOST_ASSERT(part);
+                BOOST_ASSERT( part );
 
-                part->draw(context);
+                part->draw( context );
             }
         }
     }

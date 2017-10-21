@@ -3,7 +3,6 @@
 #include "RenderState.h"
 #include "ShaderProgram.h"
 
-
 namespace gameplay
 {
     class Material : public RenderState
@@ -13,14 +12,13 @@ namespace gameplay
 
         ~Material();
 
-        explicit Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines = {});
-
+        explicit Material(const std::string& vshPath, const std::string& fshPath,
+                          const std::vector<std::string>& defines = {});
 
         const std::shared_ptr<ShaderProgram>& getShaderProgram() const
         {
             return m_shaderProgram;
         }
-
 
         void bind(const Node& node);
 

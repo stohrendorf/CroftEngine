@@ -9,7 +9,6 @@
 
 #include <map>
 
-
 namespace gameplay
 {
     namespace gl
@@ -19,14 +18,14 @@ namespace gameplay
         public:
             using AttributeMapping = std::map<std::string, VertexAttribute>;
 
-
-            explicit StructuredVertexBuffer(const AttributeMapping& mapping, bool dynamic, const std::string& label = {})
-                : VertexBuffer{label}
-                , m_mapping{mapping}
-                , m_dynamic{dynamic}
-                , m_vertexCount{0}
+            explicit StructuredVertexBuffer(const AttributeMapping& mapping, bool dynamic,
+                                            const std::string& label = {})
+                    : VertexBuffer{label}
+                    , m_mapping{mapping}
+                    , m_dynamic{dynamic}
+                    , m_vertexCount{0}
             {
-                BOOST_ASSERT(!mapping.empty());
+                BOOST_ASSERT( !mapping.empty() );
 
                 m_size = -1;
                 for( const auto& attrib : mapping )
@@ -34,15 +33,15 @@ namespace gameplay
                     auto tmp = attrib.second.getStride();
                     if( m_size != -1 && m_size != tmp )
                     {
-                        BOOST_THROW_EXCEPTION(std::runtime_error("Inconsistent stride in vertex attribute mapping"));
+                        BOOST_THROW_EXCEPTION(
+                                std::runtime_error( "Inconsistent stride in vertex attribute mapping" ) );
                     }
 
                     m_size = tmp;
                 }
 
-                BOOST_ASSERT(m_size > 0);
+                BOOST_ASSERT( m_size > 0 );
             }
-
 
             void bind(const Program& program) const
             {
@@ -50,21 +49,21 @@ namespace gameplay
 
                 for( const auto& attrib : program.getActiveAttributes() )
                 {
-                    auto it = m_mapping.find(attrib.getName());
+                    auto it = m_mapping.find( attrib.getName() );
                     if( it == m_mapping.end() )
                         continue;
 
-                    it->second.bind(gsl::narrow<GLuint>(attrib.getLocation()));
+                    it->second.bind( gsl::narrow<GLuint>( attrib.getLocation() ) );
                 }
             }
-
 
             template<typename T>
             void assignSub(const gsl::not_null<const T*>& vertexData, size_t vertexStart, size_t vertexCount)
             {
-                if( sizeof(T) != m_size )
+                if( sizeof( T ) != m_size )
                 {
-                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                    BOOST_THROW_EXCEPTION( std::invalid_argument(
+                            "Trying to assign vertex data which has a different size than specified in the format" ) );
                 }
 
                 VertexBuffer::bind();
@@ -74,17 +73,17 @@ namespace gameplay
                     vertexCount = m_vertexCount - vertexStart;
                 }
 
-                glBufferSubData(GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData);
+                glBufferSubData( GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData );
                 checkGlError();
             }
-
 
             template<typename T>
             void assign(const gsl::not_null<const T*>& vertexData, size_t vertexCount)
             {
-                if( sizeof(T) != m_size )
+                if( sizeof( T ) != m_size )
                 {
-                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to assign vertex data which has a different size than specified in the format"));
+                    BOOST_THROW_EXCEPTION( std::invalid_argument(
+                            "Trying to assign vertex data which has a different size than specified in the format" ) );
                 }
 
                 VertexBuffer::bind();
@@ -92,10 +91,10 @@ namespace gameplay
                 if( vertexCount != 0 )
                     m_vertexCount = vertexCount;
 
-                glBufferData(GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData, m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+                glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
+                              m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
                 checkGlError();
             }
-
 
             template<typename T>
             void assignRaw(const gsl::not_null<const T*>& vertexData, size_t vertexCount)
@@ -105,79 +104,73 @@ namespace gameplay
                 if( vertexCount != 0 )
                     m_vertexCount = vertexCount;
 
-                glBufferData(GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData, m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+                glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
+                              m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
                 checkGlError();
             }
-
 
             template<typename T>
             void assign(const std::vector<T>& data)
             {
-                assign<T>(data.data(), data.size());
+                assign<T>( data.data(), data.size() );
             }
-
 
             template<typename T>
             void assignRaw(const std::vector<T>& data, size_t vertexCount)
             {
-                assignRaw<T>(data.data(), vertexCount);
+                assignRaw<T>( data.data(), vertexCount );
             }
-
 
             void reserve(size_t n)
             {
                 m_vertexCount = n;
-                glBufferData(GL_ARRAY_BUFFER, m_size * m_vertexCount, nullptr, m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+                glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, nullptr,
+                              m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
             }
-
 
             template<typename T>
             T* mapTypedRw()
             {
-                if( sizeof(T) != m_size )
+                if( sizeof( T ) != m_size )
                 {
-                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                    BOOST_THROW_EXCEPTION( std::invalid_argument(
+                            "Trying to map vertex data which has a different size than specified in the format" ) );
                 }
 
                 return static_cast<T*>(mapRw());
             }
 
-
             template<typename T>
             const T* mapTyped()
             {
-                if( sizeof(T) != m_size )
+                if( sizeof( T ) != m_size )
                 {
-                    BOOST_THROW_EXCEPTION(std::invalid_argument("Trying to map vertex data which has a different size than specified in the format"));
+                    BOOST_THROW_EXCEPTION( std::invalid_argument(
+                            "Trying to map vertex data which has a different size than specified in the format" ) );
                 }
 
                 return static_cast<T*>(map());
             }
-
 
             size_t getVertexCount() const noexcept
             {
                 return m_vertexCount;
             }
 
-
             bool isDynamic() const noexcept
             {
                 return m_dynamic;
             }
-
 
             GLsizei getVertexSize() const noexcept
             {
                 return m_size;
             }
 
-
             const AttributeMapping& getAttributeMapping() const
             {
                 return m_mapping;
             }
-
 
         private:
             const AttributeMapping m_mapping;

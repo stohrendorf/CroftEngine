@@ -3,7 +3,6 @@
 #include "Drawable.h"
 #include "Mesh.h"
 
-
 namespace gameplay
 {
     class Model : public Drawable
@@ -13,22 +12,18 @@ namespace gameplay
 
         ~Model() = default;
 
-
         const std::vector<std::shared_ptr<Mesh>>& getMeshes() const
         {
             return m_meshes;
         }
 
-
         void addMesh(const std::shared_ptr<Mesh>& mesh)
         {
-            BOOST_ASSERT(mesh != nullptr);
-            m_meshes.push_back(mesh);
+            BOOST_ASSERT( mesh != nullptr );
+            m_meshes.push_back( mesh );
         }
 
-
         void draw(RenderContext& context) override;
-
 
     private:
 

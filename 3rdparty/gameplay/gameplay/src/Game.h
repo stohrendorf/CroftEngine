@@ -9,10 +9,10 @@
 
 #include <chrono>
 
-
 namespace gameplay
 {
     class Scene;
+
 
     class RenderContext;
 
@@ -20,6 +20,7 @@ namespace gameplay
     class Game
     {
         friend class ShutdownListener;
+
 
     public:
 
@@ -31,12 +32,10 @@ namespace gameplay
 
         void setVsync(bool enable);
 
-
         std::chrono::high_resolution_clock::time_point getGameTime() const
         {
             return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
         }
-
 
         int run();
 
@@ -58,29 +57,24 @@ namespace gameplay
 
         inline unsigned getMultiSampling() const;
 
-
         bool loop()
         {
             glfwPollEvents();
 
-            return glfwWindowShouldClose(_window) == GL_FALSE;
+            return glfwWindowShouldClose( _window ) == GL_FALSE;
         }
 
-
         void swapBuffers();
-
 
         GLFWwindow* getWindow() const
         {
             return _window;
         }
 
-
         const std::shared_ptr<Scene>& getScene() const
         {
             return _scene;
         }
-
 
     protected:
 
@@ -94,7 +88,8 @@ namespace gameplay
         void shutdown();
 
         bool m_initialized = false; // If game has initialized yet.
-        const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
+        const std::chrono::high_resolution_clock::time_point m_constructionTime{
+                std::chrono::high_resolution_clock::now()};
 
         std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
         unsigned int m_frameCount = 0; // The current frame count.
@@ -113,6 +108,7 @@ namespace gameplay
 
         std::shared_ptr<Scene> _scene;
 
+
         friend class ScreenDisplayer;
     };
 
@@ -121,26 +117,22 @@ namespace gameplay
     {
         return m_frameRate;
     }
-    
 
     inline float Game::getAspectRatio() const
     {
         return static_cast<float>(m_width) / static_cast<float>(m_height);
     }
 
-
     inline const Rectangle& Game::getViewport() const
     {
         return m_viewport;
     }
-
 
     inline void Game::setMultiSampling(unsigned samples)
     {
         //! @todo Really enable multisampling
         _multiSampling = samples;
     }
-
 
     inline unsigned Game::getMultiSampling() const
     {

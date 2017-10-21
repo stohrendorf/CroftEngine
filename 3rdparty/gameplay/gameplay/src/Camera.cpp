@@ -10,24 +10,21 @@
 #define CAMERA_DIRTY_INV_VIEW_PROJ 16
 #define CAMERA_DIRTY_ALL (CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ)
 
-
 namespace gameplay
 {
     Camera::Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
-        : _fieldOfView(fieldOfView)
-        , _aspectRatio(aspectRatio)
-        , _nearPlane(nearPlane)
-        , _farPlane(farPlane)
-        , _bits(CAMERA_DIRTY_ALL)
+            : _fieldOfView( fieldOfView )
+            , _aspectRatio( aspectRatio )
+            , _nearPlane( nearPlane )
+            , _farPlane( farPlane )
+            , _bits( CAMERA_DIRTY_ALL )
     {
     }
-
 
     float Camera::getFieldOfView() const
     {
         return _fieldOfView;
     }
-
 
     void Camera::setFieldOfView(float fieldOfView)
     {
@@ -35,36 +32,31 @@ namespace gameplay
         _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
     }
 
-
     float Camera::getAspectRatio() const
     {
         return _aspectRatio;
     }
-
 
     float Camera::getNearPlane() const
     {
         return _nearPlane;
     }
 
-
     float Camera::getFarPlane() const
     {
         return _farPlane;
     }
-
 
     const glm::mat4& Camera::getViewMatrix() const
     {
         return _view;
     }
 
-
     const glm::mat4& Camera::getInverseViewMatrix() const
     {
         if( _bits & CAMERA_DIRTY_INV_VIEW )
         {
-            _inverseView = glm::inverse(_view);
+            _inverseView = glm::inverse( _view );
 
             _bits &= ~CAMERA_DIRTY_INV_VIEW;
         }
@@ -72,18 +64,16 @@ namespace gameplay
         return _inverseView;
     }
 
-
     const glm::mat4& Camera::getProjectionMatrix() const
     {
         if( _bits & CAMERA_DIRTY_PROJ )
         {
-            _projection = glm::perspective(_fieldOfView, _aspectRatio, _nearPlane, _farPlane);
+            _projection = glm::perspective( _fieldOfView, _aspectRatio, _nearPlane, _farPlane );
             _bits &= ~CAMERA_DIRTY_PROJ;
         }
 
         return _projection;
     }
-
 
     const glm::mat4& Camera::getViewProjectionMatrix() const
     {
@@ -97,25 +87,17 @@ namespace gameplay
         return _viewProjection;
     }
 
-
     const glm::mat4& Camera::getInverseViewProjectionMatrix() const
     {
         if( _bits & CAMERA_DIRTY_INV_VIEW_PROJ )
         {
-            _inverseViewProjection = glm::inverse(getViewProjectionMatrix());
+            _inverseViewProjection = glm::inverse( getViewProjectionMatrix() );
 
             _bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
         }
 
         return _inverseViewProjection;
     }
-
-
-    void Camera::transformChanged()
-    {
-        _bits |= CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_VIEW_PROJ;
-    }
-
 
     void Camera::setViewMatrix(const glm::mat4& m)
     {

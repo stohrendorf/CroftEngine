@@ -32,13 +32,13 @@ namespace gameplay
         }
 
 
-        size_t getPartCount() const
+        std::size_t getPartCount() const
         {
             return m_parts.size();
         }
 
 
-        const std::shared_ptr<MeshPart>& getPart(size_t index)
+        const std::shared_ptr<MeshPart>& getPart(std::size_t index)
         {
             BOOST_ASSERT(index < m_parts.size());
 
@@ -49,7 +49,7 @@ namespace gameplay
         virtual ~Mesh() = default;
 
 
-        const std::shared_ptr<gl::StructuredVertexBuffer>& getBuffer(size_t idx)
+        const std::shared_ptr<gl::StructuredVertexBuffer>& getBuffer(std::size_t idx)
         {
             BOOST_ASSERT(idx < m_buffers.size());
 
@@ -75,7 +75,7 @@ namespace gameplay
         }
 
 
-        size_t addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
+        std::size_t addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
         {
             m_buffers.emplace_back(std::make_shared<gl::StructuredVertexBuffer>(mapping, dynamic, label));
             return m_buffers.size() - 1;

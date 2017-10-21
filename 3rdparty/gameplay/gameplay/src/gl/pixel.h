@@ -2,7 +2,6 @@
 
 #include "typetraits.h"
 
-
 namespace gameplay
 {
     namespace gl
@@ -10,7 +9,8 @@ namespace gameplay
         template<typename T>
         struct RGBA final
         {
-            static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "Pixel may only have channels of integral types");
+            static_assert( std::is_integral<T>::value || std::is_floating_point<T>::value,
+                           "Pixel may only have channels of integral types" );
 
             using Type = T;
             using Traits = TypeTraits<T>;
@@ -19,30 +19,26 @@ namespace gameplay
             static constexpr const auto InternalFormat = Traits::RgbaInternalFormat;
             static constexpr const auto Format = Traits::RgbaFormat;
 
-
             explicit RGBA()
-                : RGBA{0}
+                    : RGBA{0}
             {
             }
-
 
             explicit constexpr RGBA(Type value) noexcept
-                : r{value}
-                , g{value}
-                , b{value}
-                , a{value}
+                    : r{value}
+                    , g{value}
+                    , b{value}
+                    , a{value}
             {
             }
-
 
             constexpr RGBA(Type r_, Type g_, Type b_, Type a_) noexcept
-                : r{r_}
-                , g{g_}
-                , b{b_}
-                , a{a_}
+                    : r{r_}
+                    , g{g_}
+                    , b{b_}
+                    , a{a_}
             {
             }
-
 
             Type r, g, b, a;
         };
@@ -54,13 +50,11 @@ namespace gameplay
             return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
         }
 
-
         template<typename T>
         constexpr bool operator!=(const RGBA<T>& lhs, const RGBA<T>& rhs)
         {
             return !(lhs == rhs);
         }
-
 
         using RGBA8 = RGBA<GLubyte>;
 
@@ -68,7 +62,8 @@ namespace gameplay
         template<typename T>
         struct RGB final
         {
-            static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "Pixel may only have channels of integral types");
+            static_assert( std::is_integral<T>::value || std::is_floating_point<T>::value,
+                           "Pixel may only have channels of integral types" );
 
             using Type = T;
             using Traits = TypeTraits<T>;
@@ -77,28 +72,24 @@ namespace gameplay
             static constexpr const auto InternalFormat = Traits::RgbInternalFormat;
             static constexpr const auto Format = Traits::RgbFormat;
 
-
             explicit RGB()
-                : RGB{0}
+                    : RGB{0}
             {
             }
-
 
             explicit constexpr RGB(Type value) noexcept
-                : r{value}
-                , g{value}
-                , b{value}
+                    : r{value}
+                    , g{value}
+                    , b{value}
             {
             }
-
 
             constexpr RGB(Type r_, Type g_, Type b_) noexcept
-                : r{r_}
-                , g{g_}
-                , b{b_}
+                    : r{r_}
+                    , g{g_}
+                    , b{b_}
             {
             }
-
 
             Type r, g, b;
         };
@@ -110,13 +101,11 @@ namespace gameplay
             return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b;
         }
 
-
         template<typename T>
         constexpr bool operator!=(const RGB<T>& lhs, const RGB<T>& rhs)
         {
             return !(lhs == rhs);
         }
-
 
         using RGB8 = RGB<GLubyte>;
     }

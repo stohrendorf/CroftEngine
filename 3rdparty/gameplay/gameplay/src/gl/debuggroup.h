@@ -13,10 +13,12 @@ namespace gameplay
         public:
             explicit DebugGroup(const std::string& message, GLuint id = 0)
             {
-                glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, id, gsl::narrow<GLsizei>(message.length()), message.c_str());
+                glPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION,
+                                  id,
+                                  gsl::narrow<GLsizei>( message.length() ),
+                                  message.c_str() );
                 checkGlError();
             }
-
 
             ~DebugGroup()
             {

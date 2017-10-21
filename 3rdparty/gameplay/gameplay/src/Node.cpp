@@ -6,32 +6,23 @@
 namespace gameplay
 {
     Node::Node(const std::string& id)
-        : m_id(id)
+            : m_id( id )
     {
     }
-
 
     Node::~Node()
     {
-        setParent(nullptr);
+        setParent( nullptr );
     }
-
 
     const std::string& Node::getId() const
     {
         return m_id;
     }
 
-
-    void Node::setId(const std::string& id)
-    {
-        m_id = id;
-    }
-
-
     void Node::addChild(const std::shared_ptr<Node>& child)
     {
-        BOOST_ASSERT(child);
+        BOOST_ASSERT( child );
 
         if( !child->m_parent.expired() && child->m_parent.lock() == shared_from_this() )
         {
@@ -39,32 +30,18 @@ namespace gameplay
             return;
         }
 
-        child->setParent(shared_from_this());
+        child->setParent( shared_from_this() );
     }
-
 
     const std::weak_ptr<Node>& Node::getParent() const
     {
         return m_parent;
     }
 
-
     size_t Node::getChildCount() const
     {
         return m_children.size();
     }
-
-
-    Node* Node::getRootNode() const
-    {
-        Node* n = const_cast<Node*>(this);
-        while( !n->getParent().expired() )
-        {
-            n = n->getParent().lock().get();
-        }
-        return n;
-    }
-
 
     Scene* Node::getScene() const
     {
@@ -81,18 +58,15 @@ namespace gameplay
         return nullptr;
     }
 
-
     void Node::setVisible(bool visible)
     {
         m_visible = visible;
     }
 
-
     bool Node::isVisible() const
     {
         return m_visible;
     }
-
 
     bool Node::isVisibleInHierarchy() const
     {
@@ -110,7 +84,6 @@ namespace gameplay
         }
         return true;
     }
-
 
     const glm::mat4& Node::getModelMatrix() const
     {
@@ -135,24 +108,10 @@ namespace gameplay
         return m_modelMatrix;
     }
 
-
     glm::mat4 Node::getModelViewMatrix() const
     {
         return getViewMatrix() * getModelMatrix();
     }
-
-
-    glm::mat4 Node::getInverseTransposeWorldViewMatrix() const
-    {
-        return glm::transpose(glm::inverse(getViewMatrix() * getModelMatrix()));
-    }
-
-
-    glm::mat4 Node::getInverseTransposeWorldMatrix() const
-    {
-        return glm::transpose(glm::inverse(getModelMatrix()));
-    }
-
 
     const glm::mat4& Node::getViewMatrix() const
     {
@@ -169,7 +128,6 @@ namespace gameplay
         }
     }
 
-
     const glm::mat4& Node::getInverseViewMatrix() const
     {
         Scene* scene = getScene();
@@ -184,7 +142,6 @@ namespace gameplay
             return identity;
         }
     }
-
 
     const glm::mat4& Node::getProjectionMatrix() const
     {
@@ -201,7 +158,6 @@ namespace gameplay
         }
     }
 
-
     const glm::mat4& Node::getViewProjectionMatrix() const
     {
         Scene* scene = getScene();
@@ -217,7 +173,6 @@ namespace gameplay
         }
     }
 
-
     const glm::mat4& Node::getInverseViewProjectionMatrix() const
     {
         Scene* scene = getScene();
@@ -230,31 +185,10 @@ namespace gameplay
         return identity;
     }
 
-
     glm::vec3 Node::getTranslationWorld() const
     {
-        return glm::vec3(getModelMatrix()[3]);
+        return glm::vec3( getModelMatrix()[3] );
     }
-
-
-    glm::vec3 Node::getTranslationView() const
-    {
-        return glm::vec3(glm::vec4(getTranslationWorld(), 1.0f) * getViewMatrix());
-    }
-
-
-    glm::vec3 Node::getActiveCameraTranslationWorld() const
-    {
-        Scene* scene = getScene();
-        if( !scene )
-            return{ 0,0,0 };
-
-        if( auto camera = scene->getActiveCamera() )
-            return glm::vec3(camera->getInverseViewMatrix()[3]);
-
-        return{ 0,0,0 };
-    }
-
 
     void Node::transformChanged()
     {
@@ -267,12 +201,10 @@ namespace gameplay
         }
     }
 
-
     const std::shared_ptr<Drawable>& Node::getDrawable() const
     {
         return m_drawable;
     }
-    
 
     void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
     {
