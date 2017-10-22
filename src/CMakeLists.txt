@@ -281,6 +281,18 @@ set( EDISONENGINE_SRCS
      engine/floordata/floordata.h
      engine/ai/ai.h
      engine/ai/ai.cpp
+
+     scriptengine/lua/Any.h
+     scriptengine/lua/LuaException.h
+     scriptengine/lua/LuaFunctor.h
+     scriptengine/lua/LuaPrimitives.h
+     scriptengine/lua/LuaReturn.h
+     scriptengine/lua/LuaStack.h
+     scriptengine/lua/LuaStackItem.h
+     scriptengine/lua/LuaState.h
+     scriptengine/lua/LuaValue.h
+     scriptengine/lua/Traits.h
+     scriptengine/lua/ValueReference.h
 )
 
 add_executable(edisonengine
@@ -305,8 +317,8 @@ target_link_libraries(
         CImg
         assimp-lib
         yaml-cpp-lib
-        LuaState
         GSL
+        Lua
 )
 
 if (LINUX OR UNIX)

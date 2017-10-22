@@ -105,10 +105,6 @@ ot_find_dependency(Lua)
 target_link_libraries(Lua INTERFACE ${LUA_LIBRARIES})
 target_include_directories(Lua INTERFACE ${LUA_INCLUDE_DIR})
 
-add_library(LuaState INTERFACE)
-target_link_libraries(LuaState INTERFACE Lua)
-target_include_directories(LuaState INTERFACE 3rdparty/LuaState/include)
-
 ot_find_dependency_alt(glm GLM)
 target_link_libraries(glm INTERFACE ${GLM_LIBRARIES})
 target_include_directories(glm INTERFACE ${GLM_INCLUDE_DIR})

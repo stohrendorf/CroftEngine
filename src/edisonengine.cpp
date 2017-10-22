@@ -2,7 +2,7 @@
 #include "engine/laranode.h"
 #include "loader/trx/trx.h"
 
-#include "LuaState.h"
+#include "scriptengine/lua/LuaState.h"
 
 #include "gl/framebuffer.h"
 #include "gl/font.h"
