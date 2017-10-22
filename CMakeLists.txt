@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-    URL "https://github.com/stohrendorf/hunter/archive/433eba0b6afbd7eae119d6dca56546afae4dcde9.tar.gz"
-    SHA1 "ac24a5cf51fe2df771e7e18ca9fc7a1b9d9d1b45"
+    URL "https://github.com/stohrendorf/hunter/archive/2f6a30deaa7abd17dd0a5f6bfe79da0c22280dfa.tar.gz"
+    SHA1 "db0c63179daad2e2243c221571b180a2dd035767"
 )
 
 project(EdisonEngine)
@@ -36,7 +36,8 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
-if (WIN32 OR APPLE)
+option(SKIP_NO_SYSTEM_LIBS "Override the default setting so that system libraries are never skipped when searching for dependencies" OFF)
+if ((WIN32 OR APPLE) AND NOT SKIP_NO_SYSTEM_LIBS)
     option(DEFAULT_EXTERNAL_HUNTER "Always ignore system-provided libraries." ON)
 else ()
     option(DEFAULT_EXTERNAL_HUNTER "Always ignore system-provided libraries." OFF)

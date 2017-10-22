@@ -185,7 +185,17 @@ int main()
     game->run();
 
     lua::State mainScript;
-    mainScript.doFile("scripts/main.lua");
+    mainScript["package"].setString("path", (boost::filesystem::path("scripts") / "?.lua").string());
+    mainScript["package"].setString("cpath", "");
+    try
+    {
+        mainScript.doFile("scripts/main.lua");
+    }
+    catch(lua::RuntimeError& e)
+    {
+        BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.lua: " << e.what();
+        return EXIT_FAILURE;
+    }
     lua::Value levelInfo = mainScript["getLevelInfo"].call();
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo["baseName"].toString() + ".PHD", level::Game::Unknown);
