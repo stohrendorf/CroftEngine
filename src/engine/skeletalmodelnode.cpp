@@ -181,17 +181,15 @@ namespace engine
             resetPose();
         BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
 
-        auto angleDataFirst = framePair.firstFrame->getAngleData();
+        const auto angleDataFirst = framePair.firstFrame->getAngleData();
         std::stack<glm::mat4> transformsFirst;
         transformsFirst.push( glm::translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
-                              * core::xyzToYprMatrix( *angleDataFirst ) * m_bonePatches[0] );
-        ++angleDataFirst;
+                              * core::fromPackedAngles( angleDataFirst[0] ) * m_bonePatches[0] );
 
-        auto angleDataSecond = framePair.secondFrame->getAngleData();
+        const auto angleDataSecond = framePair.secondFrame->getAngleData();
         std::stack<glm::mat4> transformsSecond;
         transformsSecond.push( glm::translate( glm::mat4{1.0f}, framePair.secondFrame->pos.toGl() )
-                               * core::xyzToYprMatrix( *angleDataSecond ) * m_bonePatches[0] );
-        ++angleDataSecond;
+                               * core::fromPackedAngles( angleDataSecond[0] ) * m_bonePatches[0] );
 
         BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
 
@@ -202,7 +200,7 @@ namespace engine
 
         const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
 
-        for( uint16_t i = 1; i < m_model.boneCount; ++i, ++positionData, ++angleDataFirst, ++angleDataSecond )
+        for( uint16_t i = 1; i < m_model.boneCount; ++i, ++positionData )
         {
             if( positionData->flags & 0x01 )
             {
@@ -221,13 +219,13 @@ namespace engine
                 transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
             else
                 transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
-                                         * core::xyzToYprMatrix( *angleDataFirst ) * m_bonePatches[i];
+                                         * core::fromPackedAngles( angleDataFirst[i] ) * m_bonePatches[i];
 
             if( framePair.firstFrame->numValues < i )
                 transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
             else
                 transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
-                                          * core::xyzToYprMatrix( *angleDataSecond ) * m_bonePatches[i];
+                                          * core::fromPackedAngles( angleDataSecond[i] ) * m_bonePatches[i];
 
             getChildren()[i]
                     ->setLocalMatrix( glm::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
@@ -243,12 +241,11 @@ namespace engine
             resetPose();
         BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
 
-        auto angleData = framePair.firstFrame->getAngleData();
+        const auto angleData = framePair.firstFrame->getAngleData();
 
         std::stack<glm::mat4> transforms;
         transforms.push( glm::translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
-                         * core::xyzToYprMatrix( *angleData ) * m_bonePatches[0] );
-        ++angleData;
+                         * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0] );
 
         getChildren()[0]->setLocalMatrix( transforms.top() );
 
@@ -257,7 +254,7 @@ namespace engine
 
         const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
 
-        for( uint16_t i = 1; i < m_model.boneCount; ++i, ++positionData, ++angleData )
+        for( uint16_t i = 1; i < m_model.boneCount; ++i, ++positionData )
         {
             BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
 
@@ -274,7 +271,7 @@ namespace engine
                 transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
             else
                 transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
-                                    * core::xyzToYprMatrix( *angleData ) * m_bonePatches[i];
+                                    * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
             getChildren()[i]->setLocalMatrix( transforms.top() );
         }

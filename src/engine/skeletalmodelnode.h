@@ -156,9 +156,11 @@ namespace engine
             uint16_t numValues;
 
 
-            const uint32_t* getAngleData() const noexcept
+            gsl::span<const uint32_t> getAngleData() const noexcept
             {
-                return reinterpret_cast<const uint32_t*>(this + 1);
+                const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
+                const auto end = begin + numValues;
+                return gsl::make_span(begin, numValues);
             }
         };
 

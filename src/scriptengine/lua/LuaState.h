@@ -23,7 +23,7 @@ class State
 
     /// Class deletes DeallocQueue in destructor
     std::unique_ptr<detail::DeallocQueue> m_deallocQueue = nullptr;
-    
+
     /// Function for metatable "__call" field. It calls stored functor pushes return values to stack.
     ///
     /// @pre In Lua C API during function calls lua_State moves stack index to place, where first element is our userdata, and next elements are returned values
@@ -32,7 +32,7 @@ class State
         auto functor = *static_cast<BaseFunctor **>(luaL_checkudata(luaState, 1, "luaL_Functor"));
         return functor->call(luaState);
     }
-    
+
     /// Function for metatable "__gc" field. It deletes captured variables from stored functors.
     static int metatableDeleteFunction(lua_State* luaState)
     {
@@ -40,7 +40,7 @@ class State
         delete functor;
         return 0;
     }
-    
+
     Value executeLoadedFunction(int index) const
     {
         if( lua_pcall(m_luaState, 0, LUA_MULTRET, 0) )
@@ -50,12 +50,12 @@ class State
         return Value(std::make_shared<detail::StackItem>(m_luaState, m_deallocQueue.get(), index, pushedValues,
                                                          pushedValues > 0 ? pushedValues - 1 : 0));
     }
-    
+
     void initialize(const bool loadLibs)
     {
         m_deallocQueue = std::make_unique<detail::DeallocQueue>();
         m_luaState = luaL_newstate();
-        assert(m_luaState != nullptr);
+        BOOST_ASSERT(m_luaState != nullptr);
 
         if( loadLibs )
             luaL_openlibs(m_luaState);
@@ -77,19 +77,19 @@ class State
 
 
 public:
-        /// Constructor creates new state and stores it to pointer.
-    ///
-    /// @param loadLibs     If we want to open standard libraries - function luaL_openlibs
+    /// Constructor creates new state and stores it to pointer.
+///
+/// @param loadLibs     If we want to open standard libraries - function luaL_openlibs
     explicit State(const bool loadLibs = true)
     {
         initialize(loadLibs);
     }
-    
+
     ~State()
     {
         lua_close(m_luaState);
     }
-    
+
     // State is non-copyable
     State(const State& other) = delete;
 
@@ -102,10 +102,10 @@ public:
     {
         return Value{m_luaState, m_deallocQueue.get(), name};
     }
-    
+
     /// Deleted compare operator
     bool operator==(Value& other) = delete;
-    
+
     /// Sets global value to Lua state
     ///
     /// @param key      Stores value to _G[key]
@@ -132,7 +132,7 @@ public:
 
         return executeLoadedFunction(stackTop);
     }
-    
+
     /// Execute string on Lua state
     ///
     /// @throws lua::LoadError      When string cannot be loaded
@@ -148,7 +148,7 @@ public:
 
         return executeLoadedFunction(stackTop);
     }
-    
+
     /// Get pointer of Lua state
     ///
     /// @return Pointer of Lua state
@@ -156,7 +156,7 @@ public:
     {
         return m_luaState;
     }
-    
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Conventional setting functions
 
@@ -164,7 +164,7 @@ public:
     {
         set<const char*>(key, std::forward<const char*>(value));
     }
-    
+
     void setData(String key, const String value, const size_t length) const
     {
         traits::ValueTraits<String>::push(m_luaState, value, length);
@@ -175,20 +175,25 @@ public:
     {
         setData(key, string.c_str(), string.length());
     }
-    
+
     void set(const String key, std::string&& value) const
     {
         setString(key, std::forward<std::string>(value));
     }
-    
+
     void setNumber(const String key, Number&& number) const
     {
         set<Number>(key, std::forward<Number>(number));
     }
-    
+
     void setInt(const String key, Integer&& number) const
     {
         set<Integer>(key, std::forward<Integer>(number));
+    }
+
+    Value createTable() const
+    {
+        return Value{ m_luaState, m_deallocQueue.get(), nullptr };
     }
 };
 }

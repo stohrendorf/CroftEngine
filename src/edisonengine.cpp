@@ -196,6 +196,7 @@ int main()
         BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.lua: " << e.what();
         return EXIT_FAILURE;
     }
+
     lua::Value levelInfo = mainScript["getLevelInfo"].call();
 
     auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo["baseName"].toString() + ".PHD", level::Game::Unknown);

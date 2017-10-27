@@ -292,7 +292,6 @@ set( EDISONENGINE_SRCS
      scriptengine/lua/LuaState.h
      scriptengine/lua/LuaValue.h
      scriptengine/lua/Traits.h
-     scriptengine/lua/ValueReference.h
 )
 
 add_executable(edisonengine

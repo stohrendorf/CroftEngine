@@ -1,4 +1,4 @@
-object_infos = require "tr1.object_infos"
+object_infos = (require "tr1.object_infos").object_infos
 
 levelInfos = {
     {

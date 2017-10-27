@@ -32,17 +32,17 @@ template<size_t I, typename IndexTuple, typename... Types>
 struct MakeIndexTupleImpl;
 
 
-template<size_t I, size_t... Indexes, typename T, typename ... Types>
-struct MakeIndexTupleImpl<I, IndexTuple<Indexes...>, T, Types...>
+template<size_t I, size_t... Indices, typename T, typename... Types>
+struct MakeIndexTupleImpl<I, IndexTuple<Indices...>, T, Types...>
 {
-    using Type = typename MakeIndexTupleImpl<I + 1, IndexTuple<Indexes..., I>, Types...>::Type;
+    using Type = typename MakeIndexTupleImpl<I + 1, IndexTuple<Indices..., I>, Types...>::Type;
 };
 
 
-template<size_t I, size_t... Indexes>
-struct MakeIndexTupleImpl<I, IndexTuple<Indexes...>>
+template<size_t I, size_t... Indices>
+struct MakeIndexTupleImpl<I, IndexTuple<Indices...>>
 {
-    using Type = IndexTuple<Indexes...>;
+    using Type = IndexTuple<Indices...>;
 };
 
 

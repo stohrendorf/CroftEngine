@@ -17,7 +17,7 @@ namespace core
 {
     struct TRCoordinates
     {
-        int X = 0, Y = 0, Z = 0;
+        int32_t X = 0, Y = 0, Z = 0;
 
         TRCoordinates() = default;
 

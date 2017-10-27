@@ -376,7 +376,7 @@ namespace core
     };
 
 
-    inline glm::mat4 xyzToYprMatrix(uint32_t angleData)
+    inline glm::mat4 fromPackedAngles(uint32_t angleData)
     {
         auto getAngle = [angleData](uint8_t n) -> Angle
         {

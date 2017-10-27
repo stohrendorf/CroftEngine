@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LuaException.h"
+#include "LuaFunctor.h"
 #include "LuaPrimitives.h"
 #include "LuaStackItem.h"
 
@@ -13,8 +14,6 @@ namespace lua
 class Value;
 
 class State;
-
-class ValueReference;
 
 template<typename... Ts>
 class Return;
@@ -30,8 +29,6 @@ class Value
 {
     friend class State;
 
-    friend class ValueReference;
-
     template<typename... Ts>
     friend class Return;
 
@@ -41,18 +38,21 @@ class Value
     ///
     /// @param luaState     Pointer of Lua state
     /// @param deallocQueue Queue for deletion values initialized from given luaState
-    /// @param name         Key of global value
+    /// @param name         Key of global value (if @c nullptr, creates an anonymous table)
     Value(lua_State* luaState, detail::DeallocQueue* deallocQueue, const char* name)
         : m_stack{std::make_shared<detail::StackItem>(luaState, deallocQueue, lua_gettop(luaState), 1, 0)}
     {
-        lua_getglobal(m_stack->state, name);
+        if( name != nullptr )
+            lua_getglobal(m_stack->state, name);
+        else
+            lua_newtable(m_stack->state);
     }
 
     template<typename... Ts>
     void callFunction(const bool protectedCall, Ts&&... args) const
     {
         // Function must be on top of stack
-        assert(traits::ValueTraits<lua::Callable>::isCompatible(m_stack->state, lua_gettop(m_stack->state)));
+        BOOST_ASSERT(traits::ValueTraits<lua::Callable>::isCompatible(m_stack->state, lua_gettop(m_stack->state)));
 
         const auto argCount = traits::ValueTraits<std::tuple<Ts...>>::push(m_stack->state, std::forward<Ts>(args)...);
 
@@ -78,7 +78,7 @@ class Value
         callFunction(protectedCall, std::forward<Ts>(args)...);
         auto returnedValues = lua_gettop(m_stack->state) - stackTop;
 
-        assert(returnedValues >= 0);
+        BOOST_ASSERT(returnedValues >= 0);
 
         return Value{
             std::make_shared<detail::StackItem>(m_stack->state, m_stack->deallocQueue, stackTop, returnedValues,
@@ -106,14 +106,14 @@ class Value
         }
 
         // StackItem top must same as top of current stack
-        assert(m_stack->top + m_stack->pushed == lua_gettop(m_stack->state));
+        BOOST_ASSERT(m_stack->top + m_stack->pushed == lua_gettop(m_stack->state));
 
         callFunction(protectedCall, std::forward<Ts>(args)...);
 
         m_stack->grouped = lua_gettop(m_stack->state) - stackTop;
         m_stack->pushed += m_stack->grouped;
 
-        assert(m_stack->pushed >= 0);
+        BOOST_ASSERT(m_stack->pushed >= 0);
 
         return std::move(*this);
     }
@@ -171,10 +171,11 @@ public:
     /// @param key      Key to which value will be stored
     /// @param value    Value to be stored to table on given key
     ///
-    /// @note This function doesn't check if current value is lua::Table. You must use is<lua::Table>() function if you want to be sure
+    /// @note This function doesn't check if current value is lua::Table. You must use @c is<lua::Table>() function if you want to be sure
     template<typename K, typename T>
     void set(K&& key, T&& value) const
     {
+        BOOST_ASSERT(is<Table>());
         traits::ValueTraits<K>::push(m_stack->state, std::forward<K>(key));
         traits::ValueTraits<T>::push(m_stack->state, std::forward<T>(value));
         lua_settable(m_stack->state, m_stack->top + m_stack->pushed - m_stack->grouped);
@@ -364,6 +365,66 @@ public:
     void setDouble(K&& key, double number) const
     {
         set<double>(std::forward<K>(key), number);
+    }
+
+    /////////////////////////////////
+    // Instance exposure
+
+    template<typename T, typename R, typename... Args>
+    void bind(const std::string& name,
+              const std::shared_ptr<T>& self,
+              R (T::*member)(Args ...))
+    {
+        BOOST_ASSERT(is<lua::Table>());
+        set(name, std::function<R(Value, Args ...)>([self = self, member](Value, Args&&... args)
+        {
+            return (self.get() ->* member)(std::forward<Args>(args)...);
+        }));
+    }
+
+
+    template<typename T, typename R, typename... Args>
+    void bind(const std::string& name,
+              const std::shared_ptr<T>& self,
+              R (T::*member)(Args ...) const)
+    {
+        BOOST_ASSERT(is<lua::Table>());
+        set(name, std::function<R(Value, Args ...)>([self = self, member](Value, Args&&... args)
+        {
+            return (self.get() ->* member)(std::forward<Args>(args)...);
+        }));
+    }
+
+
+    template<typename T, typename R>
+    void bind(const std::string& getterName,
+              const std::string& setterName,
+              const std::shared_ptr<T>& self,
+              R T::* member)
+    {
+        static_assert(!std::is_function<R>::value, "Must not bind functions as getter/setter");
+
+        BOOST_ASSERT(is<lua::Table>());
+        set(getterName, std::function<R(Value)>([self = self, member](Value)
+        {
+            return self.get() ->* member;
+        }));
+        set(setterName, std::function<void(Value, R)>([self = self, member](Value, R&& value)
+        {
+            self.get() ->* member = value;
+        }));
+    }
+
+
+    template<typename T, typename R>
+    void bind(const std::string& baseName,
+              const std::shared_ptr<T>& self,
+              R T::* member)
+    {
+        static_assert(!std::is_function<R>::value, "Must not bind functions as getter/setter");
+
+        BOOST_ASSERT(is<lua::Table>());
+        bind("get_" + baseName, "set_" + baseName, self, member);
     }
 };
 

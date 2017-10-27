@@ -1,28 +1,68 @@
 #pragma once
 
-#include "LuaReturn.h"
-
 #include <functional>
 #include <type_traits>
 
 
 namespace lua
 {
+namespace detail
+{
+template<typename T>
+T readValue(lua_State* luaState,
+            DeallocQueue* deallocQueue,
+            const int stackTop)
+{
+    static_assert(std::is_same<traits::RemoveCVR<T>, T>::value, "T must not be CV-qualified or a reference");
+    return Value{std::make_shared<StackItem>(luaState, deallocQueue, stackTop - 1, 1, 0)}.to<T>();
+}
+
+template<typename... Ts, size_t... Is>
+std::tuple<Ts...> unpackMultiValues(lua_State* luaState,
+                                    DeallocQueue* deallocQueue,
+                                    int stackTop,
+                                    traits::Indices<Is...>)
+{
+    return std::make_tuple(readValue<Ts>(luaState, deallocQueue, Is + stackTop)...);
+}
+
+/// Function expects that number of elements in tuple and number of pushed values in stack are same. Applications takes care of this requirement by popping overlapping values before calling this function
+template<typename... Ts>
+std::tuple<Ts...> getAndPop(lua_State* luaState,
+                            DeallocQueue* deallocQueue,
+                            int stackTop)
+{
+    return unpackMultiValues<Ts...>(luaState, deallocQueue, stackTop,
+                                    typename traits::MakeIndices<sizeof...(Ts)>::Type());
+}
+
+template<>
+inline std::tuple<> getAndPop<>(lua_State*,
+                                DeallocQueue*,
+                                int)
+{
+    return {};
+}
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// Base functor class with call function. It is used for registering lamdas, or regular functions
 struct BaseFunctor
 {
-    template<typename Ret, typename... Args, size_t... Indexes>
-    static Ret callHelper(std::function<Ret(Args ...)> func, std::tuple<Args...>&& args,
-                          const traits::IndexTuple<Indexes...>&)
+    template<typename ReturnType, typename... Args, size_t... Indices>
+    static ReturnType callHelper(std::function<ReturnType(Args ...)> callee,
+                                 std::tuple<Args...>&& args,
+                                 const traits::IndexTuple<Indices...>&)
     {
-        return func(std::forward<Args>(std::get<Indexes>(args))...);
+        return callee(std::forward<Args>(std::get<Indices>(args))...);
     }
 
-    template<typename Ret, typename... Args>
-    static Ret call(std::function<Ret(Args ...)> pf, std::tuple<Args...>&& tup)
+    template<typename ReturnType, typename... Args>
+    static ReturnType call(std::function<ReturnType(Args ...)> callee, std::tuple<Args...>&& args)
     {
-        return callHelper(pf, std::forward<std::tuple<Args...>>(tup), typename traits::MakeIndexTuple<Args...>::Type());
+        return callHelper(callee, std::forward<std::tuple<Args...>>(args),
+                          typename traits::MakeIndexTuple<Args...>::Type());
     }
 
     explicit BaseFunctor() = default;
@@ -50,13 +90,13 @@ struct BaseFunctor
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// Functor with return values
-template<typename Ret, typename ... Args>
+template<typename ReturnType, typename... Args>
 struct Functor : public BaseFunctor
 {
-    std::function<Ret(Args ...)> function;
+    std::function<ReturnType(Args...)> function;
 
     /// Constructor creates functor to be pushed to Lua interpret
-    explicit Functor(std::function<Ret(Args ...)> function)
+    explicit Functor(std::function<ReturnType(Args...)> function)
         : BaseFunctor{}
         , function{std::move(function)}
     {
@@ -69,21 +109,21 @@ struct Functor : public BaseFunctor
     /// @param luaState     Pointer of Lua state
     int call(lua_State* luaState) override
     {
-        Ret value = BaseFunctor::call(function, stack::getAndPop<Args...>(luaState, nullptr, 2));
-        return traits::ValueTraits<Ret>::push(luaState, std::forward<Ret>(value));
+        ReturnType value = BaseFunctor::call(function, detail::getAndPop<Args...>(luaState, nullptr, 2));
+        return traits::ValueTraits<ReturnType>::push(luaState, std::forward<ReturnType>(value));
     }
 };
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// Functor with no return values
-template<typename ... Args>
+template<typename... Args>
 struct Functor<void, Args...> : public BaseFunctor
 {
-    std::function<void(Args ...)> function;
+    std::function<void(Args...)> function;
 
     /// Constructor creates functor to be pushed to Lua interpret
-    explicit Functor(std::function<void(Args ...)> function)
+    explicit Functor(std::function<void(Args...)> function)
         : BaseFunctor{}
         , function{std::move(function)}
     {
@@ -96,7 +136,7 @@ struct Functor<void, Args...> : public BaseFunctor
     /// @param luaState     Pointer of Lua state
     int call(lua_State* luaState) override
     {
-        BaseFunctor::call(function, stack::getAndPop<Args...>(luaState, nullptr, 2));
+        BaseFunctor::call(function, detail::getAndPop<Args...>(luaState, nullptr, 2));
         return 0;
     }
 };
@@ -104,13 +144,13 @@ struct Functor<void, Args...> : public BaseFunctor
 
 namespace traits
 {
-template<typename Ret, typename... Args>
-struct ValueTraits<std::function<Ret(Args ...)>>
+template<typename ReturnType, typename... Args>
+struct ValueTraits<std::function<ReturnType(Args ...)>>
 {
-    static int push(lua_State* luaState, std::function<Ret(Args ...)> function)
+    static int push(lua_State* luaState, std::function<ReturnType(Args ...)> function)
     {
         const auto udata{static_cast<BaseFunctor**>(lua_newuserdata(luaState, sizeof(BaseFunctor *)))};
-        *udata = new Functor<Ret, RemoveCVR<Args>...>(function);
+        *udata = new Functor<ReturnType, RemoveCVR<Args>...>(function);
 
         luaL_getmetatable(luaState, "luaL_Functor");
         lua_setmetatable(luaState, -2);
@@ -119,26 +159,26 @@ struct ValueTraits<std::function<Ret(Args ...)>>
 };
 
 
-template<typename Ret, typename... Args>
-struct ValueTraits<Ret(Args ...)> : ValueTraits<std::function<Ret(Args ...)>>
+template<typename ReturnType, typename... Args>
+struct ValueTraits<ReturnType(Args ...)> : ValueTraits<std::function<ReturnType(Args ...)>>
 {
 };
 
 
-template<typename Ret, typename... Args>
-struct ValueTraits<Ret(*)(Args ...)> : ValueTraits<std::function<Ret(Args ...)>>
+template<typename ReturnType, typename... Args>
+struct ValueTraits<ReturnType(*)(Args ...)> : ValueTraits<std::function<ReturnType(Args ...)>>
 {
 };
 
 
-template<typename C, typename R, typename... Args>
-struct ValueTraits<R(C::*)(Args ...)> : ValueTraits<R(Args ...)>
+template<typename Class, typename ReturnType, typename... Args>
+struct ValueTraits<ReturnType(Class::*)(Args ...)> : ValueTraits<ReturnType(Args ...)>
 {
 };
 
 
-template<typename C, typename R, typename... Args>
-struct ValueTraits<R(C::*)(Args ...) const> : ValueTraits<R(Args ...)>
+template<typename Class, typename ReturnType, typename... Args>
+struct ValueTraits<ReturnType(Class::*)(Args ...) const> : ValueTraits<ReturnType(Args ...)>
 {
 };
 }
