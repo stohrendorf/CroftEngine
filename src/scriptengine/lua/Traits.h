@@ -1,11 +1,3 @@
-//
-//  Traits.h
-//  LuaState
-//
-//  Created by Simon Mikuda on 22/03/14.
-//
-//  See LICENSE and README.md files//
-
 #pragma once
 
 #include "LuaPrimitives.h"
@@ -14,7 +6,6 @@
 #include <cmath>
 #include <limits>
 #include <string>
-
 
 namespace lua
 {
@@ -27,10 +18,8 @@ struct IndexTuple
 {
 };
 
-
 template<size_t I, typename IndexTuple, typename... Types>
 struct MakeIndexTupleImpl;
-
 
 template<size_t I, size_t... Indices, typename T, typename... Types>
 struct MakeIndexTupleImpl<I, IndexTuple<Indices...>, T, Types...>
@@ -38,16 +27,15 @@ struct MakeIndexTupleImpl<I, IndexTuple<Indices...>, T, Types...>
     using Type = typename MakeIndexTupleImpl<I + 1, IndexTuple<Indices..., I>, Types...>::Type;
 };
 
-
 template<size_t I, size_t... Indices>
 struct MakeIndexTupleImpl<I, IndexTuple<Indices...>>
 {
     using Type = IndexTuple<Indices...>;
 };
 
-
 template<typename... Types>
-struct MakeIndexTuple : MakeIndexTupleImpl<0, IndexTuple<>, Types...>
+struct MakeIndexTuple
+    : MakeIndexTupleImpl<0, IndexTuple<>, Types...>
 {
 };
 
@@ -59,12 +47,11 @@ struct Indices
 {
 };
 
-
 template<size_t N, size_t... Is>
-struct MakeIndices : MakeIndices<N - 1, N - 1, Is...>
+struct MakeIndices
+    : MakeIndices<N - 1, N - 1, Is...>
 {
 };
-
 
 template<size_t... Is>
 struct MakeIndices<0, Is...>
@@ -79,18 +66,17 @@ using RemoveCVR = typename std::remove_cv<typename std::remove_reference<T>::typ
 template<typename T>
 struct ValueTraits;
 
-
 template<typename T>
-struct ValueTraits<T&> : ValueTraits<RemoveCVR<T>>
+struct ValueTraits<T&>
+    : ValueTraits<RemoveCVR<T>>
 {
 };
 
-
 template<typename T>
-struct ValueTraits<T&&> : ValueTraits<RemoveCVR<T>>
+struct ValueTraits<T&&>
+    : ValueTraits<RemoveCVR<T>>
 {
 };
-
 
 template<typename T>
 struct IntValueTraits
@@ -107,14 +93,18 @@ struct IntValueTraits
     static bool isCompatible(lua_State* luaState, int index) noexcept
     {
         if( !lua_isnumber(luaState, index) )
+        {
             return false;
+        }
 
         const auto eps = std::numeric_limits<T>::epsilon();
         const auto min = std::numeric_limits<T>::min();
         const auto max = std::numeric_limits<T>::max();
         const auto number = lua_tonumber(luaState, index);
         if( number < min || number > max )
+        {
             return false;
+        }
 
         return std::abs(number - static_cast<T>(number + eps)) <= eps;
     }
@@ -131,36 +121,35 @@ struct IntValueTraits
     }
 };
 
-
 template<>
-struct ValueTraits<long long> : IntValueTraits<long long>
+struct ValueTraits<long long>
+    : IntValueTraits<long long>
 {
 };
 
-
 template<>
-struct ValueTraits<long> : IntValueTraits<long>
+struct ValueTraits<long>
+    : IntValueTraits<long>
 {
 };
 
-
 template<>
-struct ValueTraits<int> : IntValueTraits<int>
+struct ValueTraits<int>
+    : IntValueTraits<int>
 {
 };
 
-
 template<>
-struct ValueTraits<short> : IntValueTraits<short>
+struct ValueTraits<short>
+    : IntValueTraits<short>
 {
 };
 
-
 template<>
-struct ValueTraits<signed char> : IntValueTraits<signed char>
+struct ValueTraits<signed char>
+    : IntValueTraits<signed char>
 {
 };
-
 
 template<typename T>
 struct UIntValueTraits
@@ -177,13 +166,17 @@ struct UIntValueTraits
     static bool isCompatible(lua_State* luaState, int index) noexcept
     {
         if( !lua_isnumber(luaState, index) )
+        {
             return false;
+        }
 
         const auto eps = std::numeric_limits<T>::epsilon();
         const auto max = std::numeric_limits<T>::max();
         const auto number = lua_tonumber(luaState, index);
         if( number < 0 || number > max )
+        {
             return false;
+        }
 
         return std::abs(number - static_cast<T>(number + eps)) <= eps;
     }
@@ -200,36 +193,35 @@ struct UIntValueTraits
     }
 };
 
-
 template<>
-struct ValueTraits<unsigned long long> : UIntValueTraits<unsigned long long>
+struct ValueTraits<unsigned long long>
+    : UIntValueTraits<unsigned long long>
 {
 };
 
-
 template<>
-struct ValueTraits<unsigned long> : UIntValueTraits<unsigned long>
+struct ValueTraits<unsigned long>
+    : UIntValueTraits<unsigned long>
 {
 };
 
-
 template<>
-struct ValueTraits<unsigned int> : UIntValueTraits<unsigned int>
+struct ValueTraits<unsigned int>
+    : UIntValueTraits<unsigned int>
 {
 };
 
-
 template<>
-struct ValueTraits<unsigned short> : UIntValueTraits<unsigned short>
+struct ValueTraits<unsigned short>
+    : UIntValueTraits<unsigned short>
 {
 };
 
-
 template<>
-struct ValueTraits<unsigned char> : UIntValueTraits<unsigned char>
+struct ValueTraits<unsigned char>
+    : UIntValueTraits<unsigned char>
 {
 };
-
 
 template<>
 struct ValueTraits<Boolean>
@@ -256,7 +248,6 @@ struct ValueTraits<Boolean>
     }
 };
 
-
 template<typename T>
 struct FloatValueTraits
 {
@@ -279,24 +270,23 @@ struct FloatValueTraits
     }
 };
 
-
 template<>
-struct ValueTraits<Number> : FloatValueTraits<Number>
+struct ValueTraits<Number>
+    : FloatValueTraits<Number>
 {
 };
 
-
 template<>
-struct ValueTraits<float> : FloatValueTraits<float>
+struct ValueTraits<float>
+    : FloatValueTraits<float>
 {
 };
 
-
 template<>
-struct ValueTraits<long double> : FloatValueTraits<long double>
+struct ValueTraits<long double>
+    : FloatValueTraits<long double>
 {
 };
-
 
 template<>
 struct ValueTraits<String>
@@ -310,7 +300,9 @@ struct ValueTraits<String>
     {
         // Lua is treating numbers also like strings, because they are always convertible to string
         if( lua_isnumber(luaState, index) )
+        {
             return false;
+        }
 
         return lua_isstring(luaState, index) != 0;
     }
@@ -333,7 +325,6 @@ struct ValueTraits<String>
     }
 };
 
-
 template<>
 struct ValueTraits<std::string>
 {
@@ -347,7 +338,9 @@ struct ValueTraits<std::string>
     {
         // Lua is treating numbers also like strings, because they are always convertible to string
         if( lua_isnumber(luaState, index) )
+        {
             return false;
+        }
 
         return lua_isstring(luaState, index) != 0;
     }
@@ -370,18 +363,17 @@ struct ValueTraits<std::string>
     }
 };
 
-
 template<size_t N>
-struct ValueTraits<const char[N]> : ValueTraits<String>
+struct ValueTraits<const char[N]>
+    : ValueTraits<String>
 {
 };
 
-
 template<size_t N>
-struct ValueTraits<char[N]> : ValueTraits<String>
+struct ValueTraits<char[N]>
+    : ValueTraits<String>
 {
 };
-
 
 template<>
 struct ValueTraits<Nil>
@@ -403,7 +395,6 @@ struct ValueTraits<Nil>
     }
 };
 
-
 template<>
 struct ValueTraits<Pointer>
 {
@@ -423,7 +414,6 @@ struct ValueTraits<Pointer>
         return 1;
     }
 };
-
 
 template<>
 struct ValueTraits<Table>
@@ -450,7 +440,6 @@ struct ValueTraits<Table>
     }
 };
 
-
 template<>
 struct ValueTraits<Callable>
 {
@@ -475,13 +464,12 @@ struct ValueTraits<Callable>
     }
 };
 
-
 template<typename... Args>
 struct ValueTraits<std::tuple<Args...>>
 {
 private:
     template<size_t... Indexes>
-    static int pushTuple(lua_State* luaState, IndexTuple<Indexes...>, std::tuple<Args&&...>&& tup) noexcept
+    static int pushTuple(lua_State* luaState, IndexTuple<Indexes...>, std::tuple<Args&& ...>&& tup) noexcept
     {
         return pushRec(luaState, std::get<Indexes>(tup)...);
     }
@@ -493,7 +481,7 @@ private:
     }
 
     template<typename T1, typename... Ts>
-    static int pushRec(lua_State* luaState, T1&& value1, Ts&&... values) noexcept
+    static int pushRec(lua_State* luaState, T1&& value1, Ts&& ... values) noexcept
     {
         auto n = ValueTraits<T1>::push(luaState, std::forward<T1>(value1));
         n += pushRec(luaState, std::forward<Ts>(values)...);
@@ -506,10 +494,10 @@ private:
     }
 
 public:
-    static int push(lua_State* luaState, std::tuple<Args&&...>&& value) noexcept
+    static int push(lua_State* luaState, std::tuple<Args&& ...>&& value) noexcept
     {
         return pushTuple(luaState, typename MakeIndexTuple<Args...>::Type{},
-                         std::forward<std::tuple<Args&&...>>(value));
+                         std::forward<std::tuple<Args&& ...>>(value));
     }
 
     static int push(lua_State* luaState, const std::tuple<Args...>& value) noexcept
@@ -517,7 +505,7 @@ public:
         return pushTuple(luaState, typename MakeIndexTuple<Args...>::Type{}, value);
     }
 
-    static int push(lua_State* luaState, Args&&... args) noexcept
+    static int push(lua_State* luaState, Args&& ... args) noexcept
     {
         return pushRec(luaState, std::forward<Args>(args)...);
     }

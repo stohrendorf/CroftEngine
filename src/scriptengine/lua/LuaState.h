@@ -11,14 +11,13 @@
 
 #include <memory>
 
-
 namespace lua
 {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// Class that hold lua interpreter state. Lua state is managed by pointer which also is copied to lua::Ref values.
 class State
 {
-    /// Class takes care of automaticaly closing Lua state when in destructor
+    /// Class takes care of automatically closing Lua state when in destructor
     lua_State* m_luaState = nullptr;
 
     /// Class deletes DeallocQueue in destructor
@@ -29,14 +28,14 @@ class State
     /// @pre In Lua C API during function calls lua_State moves stack index to place, where first element is our userdata, and next elements are returned values
     static int metatableCallFunction(lua_State* luaState)
     {
-        auto functor = *static_cast<BaseFunctor **>(luaL_checkudata(luaState, 1, "luaL_Functor"));
+        auto functor = *static_cast<BaseFunctor**>(luaL_checkudata(luaState, 1, "luaL_Functor"));
         return functor->call(luaState);
     }
 
     /// Function for metatable "__gc" field. It deletes captured variables from stored functors.
     static int metatableDeleteFunction(lua_State* luaState)
     {
-        const auto functor = *static_cast<BaseFunctor **>(luaL_checkudata(luaState, 1, "luaL_Functor"));
+        const auto functor = *static_cast<BaseFunctor**>(luaL_checkudata(luaState, 1, "luaL_Functor"));
         delete functor;
         return 0;
     }
@@ -44,7 +43,9 @@ class State
     Value executeLoadedFunction(int index) const
     {
         if( lua_pcall(m_luaState, 0, LUA_MULTRET, 0) )
+        {
             throw RuntimeError{m_luaState};
+        }
 
         auto pushedValues = lua_gettop(m_luaState) - index;
         return Value(std::make_shared<detail::StackItem>(m_luaState, m_deallocQueue.get(), index, pushedValues,
@@ -58,7 +59,9 @@ class State
         BOOST_ASSERT(m_luaState != nullptr);
 
         if( loadLibs )
+        {
             luaL_openlibs(m_luaState);
+        }
 
         // We will create metatable for Lua functors for memory management and actual function call
         luaL_newmetatable(m_luaState, "luaL_Functor");
@@ -74,7 +77,6 @@ class State
         // Pop metatable
         lua_pop(m_luaState, 1);
     }
-
 
 public:
     /// Constructor creates new state and stores it to pointer.
@@ -128,7 +130,9 @@ public:
         const auto stackTop = lua_gettop(m_luaState);
 
         if( luaL_loadfile(m_luaState, filePath.c_str()) )
+        {
             throw LoadError(m_luaState);
+        }
 
         return executeLoadedFunction(stackTop);
     }
@@ -144,7 +148,9 @@ public:
         const auto stackTop = lua_gettop(m_luaState);
 
         if( luaL_loadstring(m_luaState, string.c_str()) )
+        {
             throw LoadError{m_luaState};
+        }
 
         return executeLoadedFunction(stackTop);
     }
@@ -193,7 +199,7 @@ public:
 
     Value createTable() const
     {
-        return Value{ m_luaState, m_deallocQueue.get(), nullptr };
+        return Value{m_luaState, m_deallocQueue.get(), nullptr};
     }
 };
 }

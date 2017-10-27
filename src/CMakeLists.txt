@@ -287,7 +287,6 @@ set( EDISONENGINE_SRCS
      scriptengine/lua/LuaFunctor.h
      scriptengine/lua/LuaPrimitives.h
      scriptengine/lua/LuaReturn.h
-     scriptengine/lua/LuaStack.h
      scriptengine/lua/LuaStackItem.h
      scriptengine/lua/LuaState.h
      scriptengine/lua/LuaValue.h

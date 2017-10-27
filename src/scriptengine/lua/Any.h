@@ -1,10 +1,9 @@
 #pragma once
 
 #include "LuaPrimitives.h"
-#include "Traits.h"
 
 #include <memory>
-
+#include <utility>
 
 namespace lua
 {
@@ -18,41 +17,36 @@ public:
     virtual ~Pushable() = default;
 };
 
-
 template<typename... Args>
-class TupleHolder : public Pushable
+class TupleHolder final
+    : public Pushable
 {
     using Tuple = std::tuple<Args...>;
 public:
-    TupleHolder(Tuple&& tuple)
+    explicit TupleHolder(Tuple&& tuple)
         : m_tuple(std::forward<Tuple>(tuple))
     {
     }
 
-
-    TupleHolder(const Tuple& tuple)
+    explicit TupleHolder(const Tuple& tuple)
         : m_tuple(tuple)
     {
     }
 
-
-    TupleHolder(Args&&... args)
+    explicit TupleHolder(Args&& ... args)
         : m_tuple(std::forward<Args>(args)...)
     {
     }
-
 
     int push(lua_State* state) const override
     {
         return traits::ValueTraits<Tuple>::push(state, m_tuple);
     }
 
-
 private:
     Tuple m_tuple;
 };
 }
-
 
 enum class Type
 {
@@ -65,154 +59,133 @@ enum class Type
     Tuple
 };
 
-
-class Any
+class Any final
 {
 public:
-    Any(Nil = nullptr)
+    explicit Any(Nil = nullptr)
     {
     }
 
-
-    Any(const long double nbr)
+    explicit Any(const long double nbr)
         : number{static_cast<Number>(nbr)}
-        , m_type{Type::Number}
+          , m_type{Type::Number}
     {
     }
 
-
-    Any(const double nbr)
+    explicit Any(const double nbr)
         : number{nbr}
-        , m_type{Type::Number}
+          , m_type{Type::Number}
     {
     }
 
-
-    Any(const float nbr)
+    explicit Any(const float nbr)
         : number{nbr}
-        , m_type{Type::Number}
+          , m_type{Type::Number}
     {
     }
 
-
-    Any(const long long nbr)
+    explicit Any(const long long nbr)
         : integer{nbr}
-        , m_type{Type::Integer}
+          , m_type{Type::Integer}
     {
     }
 
-
-    Any(const long nbr)
+    explicit Any(const long nbr)
         : integer{nbr}
-        , m_type{Type::Integer}
+          , m_type{Type::Integer}
     {
     }
 
-
-    Any(const int nbr)
+    explicit Any(const int nbr)
         : integer{nbr}
-        , m_type{Type::Integer}
+          , m_type{Type::Integer}
     {
     }
 
-
-    Any(const short nbr)
+    explicit Any(const short nbr)
         : integer{nbr}
-        , m_type{Type::Integer}
+          , m_type{Type::Integer}
     {
     }
 
-
-    Any(const signed char nbr)
+    explicit Any(const signed char nbr)
         : integer{nbr}
-        , m_type{Type::Integer}
+          , m_type{Type::Integer}
     {
     }
 
-
-    Any(const unsigned long long nbr)
+    explicit Any(const unsigned long long nbr)
         : uinteger{nbr}
-        , m_type{Type::Unsigned}
+          , m_type{Type::Unsigned}
     {
     }
 
-
-    Any(const unsigned long nbr)
+    explicit Any(const unsigned long nbr)
         : uinteger{nbr}
-        , m_type{Type::Unsigned}
+          , m_type{Type::Unsigned}
     {
     }
 
-
-    Any(const unsigned int nbr)
+    explicit Any(const unsigned int nbr)
         : uinteger{nbr}
-        , m_type{Type::Unsigned}
+          , m_type{Type::Unsigned}
     {
     }
 
-
-    Any(const unsigned short nbr)
+    explicit Any(const unsigned short nbr)
         : uinteger{nbr}
-        , m_type{Type::Unsigned}
+          , m_type{Type::Unsigned}
     {
     }
 
-
-    Any(const unsigned char nbr)
+    explicit Any(const unsigned char nbr)
         : uinteger{nbr}
-        , m_type{Type::Unsigned}
+          , m_type{Type::Unsigned}
     {
     }
 
-
-    Any(const bool b)
+    explicit Any(const bool b)
         : boolean{b}
-        , m_type{Type::Boolean}
+          , m_type{Type::Boolean}
     {
     }
 
-
-    Any(const char* str)
+    explicit Any(const char* str)
         : string{str}
-        , m_type{str == nullptr ? Type::Nil : Type::String}
+          , m_type{str == nullptr ? Type::Nil : Type::String}
     {
     }
 
-
-    Any(std::string&& str)
+    explicit Any(std::string&& str)
         : string{std::forward<std::string>(str)}
-        , m_type{Type::String}
+          , m_type{Type::String}
     {
     }
 
-
-    Any(const std::string& str)
-        : string{str}
-        , m_type{Type::String}
+    explicit Any(std::string str)
+        : string{std::move(str)}
+          , m_type{Type::String}
     {
     }
-
 
     template<typename T0, typename T1, typename... Ts>
-    Any(T0&& arg0, T1&& arg1, Ts&&... args)
+    explicit Any(T0&& arg0, T1&& arg1, Ts&& ... args)
         : tuple{
-            std::make_unique<detail::TupleHolder<T0, T1, Ts...>>(
-                std::forward<T0>(arg0),
-                std::forward<T1>(arg1),
-                std::forward<Ts>(args)...)
-        }
-        , m_type{Type::Tuple}
+        std::make_unique<detail::TupleHolder<T0, T1, Ts...>>(
+            std::forward<T0>(arg0),
+            std::forward<T1>(arg1),
+            std::forward<Ts>(args)...)
+    }
+          , m_type{Type::Tuple}
     {
     }
-
 
     template<typename... Args>
-    Any(std::tuple<Args...>&& args)
+    explicit Any(std::tuple<Args...>&& args)
         : tuple{std::make_unique<detail::TupleHolder<Args...>>(std::forward<std::tuple<Args...>>(args))}
-        , m_type{Type::Tuple}
+          , m_type{Type::Tuple}
     {
     }
-
 
     int push(lua_State* state) const
     {
@@ -230,13 +203,10 @@ public:
                 return traits::ValueTraits<String>::push(state, string.c_str());
             case Type::Tuple:
                 return tuple->push(state);
-
             case Type::Nil:
-            default:
                 return traits::ValueTraits<Nil>::push(state, nullptr);
         }
     }
-
 
 private:
     union
@@ -250,14 +220,12 @@ private:
         Boolean boolean;
     };
 
-
     std::string string{};
 
     std::unique_ptr<detail::Pushable> tuple;
 
     Type m_type = Type::Nil;
 };
-
 
 namespace traits
 {

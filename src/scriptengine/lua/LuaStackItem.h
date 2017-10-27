@@ -4,12 +4,10 @@
 
 #include <queue>
 
-
 namespace lua
 {
 namespace detail
 {
-//////////////////////////////////////////////////////////////////////////////////////////////
 struct DeallocStackItem
 {
     int end;
@@ -18,7 +16,7 @@ struct DeallocStackItem
 
     DeallocStackItem(const int stackTop, const int numElements)
         : end{stackTop + numElements}
-        , size{numElements}
+          , size{numElements}
     {
     }
 
@@ -28,13 +26,9 @@ struct DeallocStackItem
     }
 };
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 using DeallocQueue = std::priority_queue<DeallocStackItem>;
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-struct StackItem
+struct StackItem final
 {
     lua_State* state = nullptr;
 
@@ -51,21 +45,22 @@ struct StackItem
 
     StackItem() = default;
 
-    StackItem(lua_State* luaState, DeallocQueue* deallocQueue, const int stackTop, const int pushedValues,
-              const int groupedValues)
+    StackItem(lua_State* luaState, DeallocQueue* deallocQueue, const int stackTop, const int pushedValues, const int groupedValues)
         : state{luaState}
-        , deallocQueue{deallocQueue}
-        , top{stackTop}
-        , pushed{pushedValues}
-        , grouped{groupedValues}
+          , deallocQueue{deallocQueue}
+          , top{stackTop}
+          , pushed{pushedValues}
+          , grouped{groupedValues}
     {
     }
 
     ~StackItem()
     {
-        // Check if stack is managed automaticaly (_deallocQueue == nullptr), which is when we call C functions from Lua
+        // Check if stack is managed automatically (_deallocQueue == nullptr), which is when we call C functions from Lua
         if( deallocQueue == nullptr )
+        {
             return;
+        }
 
         // Check if we dont try to release same values twice
         const auto currentStackTop = lua_gettop(state);

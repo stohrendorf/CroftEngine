@@ -159,7 +159,6 @@ namespace engine
             gsl::span<const uint32_t> getAngleData() const noexcept
             {
                 const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-                const auto end = begin + numValues;
                 return gsl::make_span(begin, numValues);
             }
         };

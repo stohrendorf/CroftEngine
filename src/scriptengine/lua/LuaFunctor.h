@@ -1,8 +1,9 @@
 #pragma once
 
+#include "LuaValue.h"
+
 #include <functional>
 #include <type_traits>
-
 
 namespace lua
 {

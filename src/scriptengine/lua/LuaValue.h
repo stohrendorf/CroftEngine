@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LuaException.h"
-#include "LuaFunctor.h"
 #include "LuaPrimitives.h"
 #include "LuaStackItem.h"
 
@@ -19,12 +18,6 @@ template<typename... Ts>
 class Return;
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// This is class for:
-/// * querying values from lua tables,
-/// * setting values to lua tables,
-/// * calling values as functions,
-/// * checking value type.
 class Value
 {
     friend class State;
@@ -304,7 +297,7 @@ public:
         if( success )
             pointer = static_cast<T*>(cptr);
 
-        return success;
+        return pointer;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////

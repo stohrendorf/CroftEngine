@@ -4,16 +4,12 @@
 
 #include <type_traits>
 
-
 namespace lua
 {
-/// Lua table type
 struct Table
 {
 };
 
-
-/// Any Lua function, C function, or table/userdata with __call metamethod
 struct Callable
 {
 };
