@@ -97,7 +97,7 @@ Level::~Level() = default;
 /// \brief reads the mesh data.
 void Level::readMeshData(loader::io::SDLReader& reader)
 {
-    uint32_t meshDataWords = reader.readU32();
+    const auto meshDataWords = reader.readU32();
     const auto basePos = reader.tell();
 
     const auto meshDataSize = meshDataWords * 2;
@@ -132,33 +132,6 @@ void Level::readMeshData(loader::io::SDLReader& reader)
 
     reader.seek(endPos);
 }
-
-
-/// \brief reads frame and moveable data.
-void Level::readPoseDataAndModels(loader::io::SDLReader& reader)
-{
-    m_poseData.resize(reader.readU32());
-    reader.readVector(m_poseData, m_poseData.size());
-
-    m_animatedModels.resize(reader.readU32());
-    for( std::unique_ptr<loader::AnimatedModel>& model : m_animatedModels )
-    {
-        if( gameToEngine(m_gameVersion) < Engine::TR5 )
-        {
-            model = loader::AnimatedModel::readTr1(reader);
-            // Disable unused skybox polygons.
-            if( gameToEngine(m_gameVersion) == Engine::TR3 && model->type == 355 )
-            {
-                m_meshes[m_meshIndices[model->firstMesh]].colored_triangles.resize(16);
-            }
-        }
-        else
-        {
-            model = loader::AnimatedModel::readTr5(reader);
-        }
-    }
-}
-
 
 std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game game_version)
 {
@@ -345,7 +318,7 @@ int Level::findStaticMeshIndexById(uint32_t meshId) const
 boost::optional<size_t> Level::findAnimatedModelIndexForType(uint32_t type) const
 {
     for( size_t i = 0; i < m_animatedModels.size(); i++ )
-        if( m_animatedModels[i]->type == type )
+        if( m_animatedModels[i]->typeId == type )
             return i;
 
     return boost::none;
@@ -871,7 +844,7 @@ void Level::setUpRendering(gameplay::Game* game,
                 BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
                 BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
 
-                std::string filename = "model_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
+                std::string filename = "model_" + std::to_string(trModel->typeId) + "_" + std::to_string(boneIndex) + ".dae";
                 if( !objWriter.exists(filename) )
                 {
                     BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
@@ -880,7 +853,7 @@ void Level::setUpRendering(gameplay::Game* game,
                     objWriter.write(model, filename, materials, {}, glm::vec3(0.8f));
                 }
 
-                filename = "model_override_" + std::to_string(trModel->type) + "_" + std::to_string(boneIndex) + ".dae";
+                filename = "model_override_" + std::to_string(trModel->typeId) + "_" + std::to_string(boneIndex) + ".dae";
                 if( objWriter.exists(filename) )
                 {
                     BOOST_LOG_TRIVIAL(info) << "Loading override model " << filename;

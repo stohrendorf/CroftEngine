@@ -69,13 +69,11 @@ void TR1Level::loadFileData()
     BOOST_LOG_TRIVIAL(debug) << "Reading bone trees";
     m_reader.readVector(m_boneTrees, m_reader.readU32());
 
-    BOOST_LOG_TRIVIAL(debug) << "Reading pose data and models";
-    readPoseDataAndModels(m_reader);
+    BOOST_LOG_TRIVIAL(debug) << "Reading pose data";
+    m_reader.readVector(m_poseData, m_reader.readU32());
 
-    for(loader::Animation& anim : m_animations)
-    {
-        anim.poseDataSize = m_poseData[anim.poseDataOffset / 2 + 9] * 2 + 10;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "Reading skeletal model types";
+    m_reader.readVector(m_animatedModels, m_reader.readU32(), loader::SkeletalModelType::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading static meshes";
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &loader::StaticMesh::read);

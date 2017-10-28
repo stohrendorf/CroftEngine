@@ -142,7 +142,9 @@ void TR4Level::loadFileData()
 
     newsrc.readVector(m_boneTrees, newsrc.readU32());
 
-    readPoseDataAndModels(newsrc);
+    newsrc.readVector(m_poseData, newsrc.readU32());
+
+    newsrc.readVector(m_animatedModels, newsrc.readU32(), loader::SkeletalModelType::readTr1);
 
     newsrc.readVector(m_staticMeshes, newsrc.readU32(), &loader::StaticMesh::read);
 

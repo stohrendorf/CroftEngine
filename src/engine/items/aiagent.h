@@ -20,7 +20,7 @@ namespace engine
                     const floordata::ActivationState& activationState,
                     Characteristics characteristics,
                     int16_t darkness,
-                    const loader::AnimatedModel& animatedModel,
+                    const loader::SkeletalModelType& animatedModel,
                     uint16_t blockMask,
                     int collisionRadius,
                     int dropHeight,

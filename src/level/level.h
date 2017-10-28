@@ -51,7 +51,7 @@ namespace level
         std::vector<loader::Transitions> m_transitions;
         std::vector<loader::TransitionCase> m_transitionCases;
         std::vector<int16_t> m_animCommands;
-        std::vector<std::unique_ptr<loader::AnimatedModel>> m_animatedModels;
+        std::vector<std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
         std::vector<loader::StaticMesh> m_staticMeshes;
         std::vector<loader::TextureLayoutProxy> m_textureProxies;
         std::vector<uint16_t> m_animatedTextures;
@@ -381,7 +381,6 @@ namespace level
         bool m_demoOrUb = false;
 
         void readMeshData(loader::io::SDLReader& reader);
-        void readPoseDataAndModels(loader::io::SDLReader& reader);
 
         static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
         static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);

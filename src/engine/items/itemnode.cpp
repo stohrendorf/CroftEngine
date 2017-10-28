@@ -137,7 +137,7 @@ namespace engine
                                      const floordata::ActivationState& activationState,
                                      bool hasProcessAnimCommandsOverride, Characteristics characteristics,
                                      int16_t darkness,
-                                     const loader::AnimatedModel& animatedModel)
+                                     const loader::SkeletalModelType& animatedModel)
             : ItemNode{
                 level,
                 room,

@@ -20,7 +20,7 @@ namespace engine
                          const core::TRCoordinates& position,
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
-                         const loader::AnimatedModel& animatedModel,
+                         const loader::SkeletalModelType& animatedModel,
                          int div)
                 : ModelItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
                 , m_div{div}
@@ -79,7 +79,7 @@ namespace engine
                          const core::TRCoordinates& position,
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
-                         const loader::AnimatedModel& animatedModel)
+                         const loader::SkeletalModelType& animatedModel)
                 : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 4}
             {
             }
@@ -96,7 +96,7 @@ namespace engine
                          const core::TRCoordinates& position,
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
-                         const loader::AnimatedModel& animatedModel)
+                         const loader::SkeletalModelType& animatedModel)
                 : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 2}
             {
             }

@@ -17,7 +17,7 @@ namespace engine
                          const core::TRCoordinates& position,
                          const floordata::ActivationState& activationState,
                          int16_t darkness,
-                         const loader::AnimatedModel& animatedModel)
+                         const loader::SkeletalModelType& animatedModel)
                 : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
             {
             }

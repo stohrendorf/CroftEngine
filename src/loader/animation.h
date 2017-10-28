@@ -143,9 +143,9 @@ namespace loader
         }
     };
 
-    struct AnimatedModel
+    struct SkeletalModelType
     {
-        uint32_t type; // Item Identifier (matched in Items[])
+        uint32_t typeId; // Item Identifier (matched in Items[])
         uint16_t boneCount; // number of meshes in this object
         uint16_t firstMesh; // starting mesh (offset into MeshPointers[])
         uint32_t boneTreeIndex; // offset into MeshTree[]
@@ -157,10 +157,10 @@ namespace loader
         * some sanity checks get done which throw a exception on failure.
         * frame_offset needs to be corrected later in TR_Level::read_tr_level.
         */
-        static std::unique_ptr<AnimatedModel> readTr1(io::SDLReader& reader)
+        static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
         {
-            std::unique_ptr<AnimatedModel> moveable{new AnimatedModel()};
-            moveable->type = reader.readU32();
+            std::unique_ptr<SkeletalModelType> moveable{new SkeletalModelType()};
+            moveable->typeId = reader.readU32();
             moveable->boneCount = reader.readU16();
             moveable->firstMesh = reader.readU16();
             moveable->boneTreeIndex = reader.readU32();
@@ -169,9 +169,9 @@ namespace loader
             return moveable;
         }
 
-        static std::unique_ptr<AnimatedModel> readTr5(io::SDLReader& reader)
+        static std::unique_ptr<SkeletalModelType> readTr5(io::SDLReader& reader)
         {
-            std::unique_ptr<AnimatedModel> moveable = readTr1(reader);
+            std::unique_ptr<SkeletalModelType> moveable = readTr1(reader);
             if( reader.readU16() != 0xFFEF )
             BOOST_LOG_TRIVIAL(warning) << "TR5 Moveable: filler has wrong value";
             return moveable;

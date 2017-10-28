@@ -625,7 +625,7 @@ namespace engine
                 bool hasProcessAnimCommandsOverride,
                 Characteristics characteristics,
                 int16_t darkness,
-                const loader::AnimatedModel& animatedModel);
+                const loader::SkeletalModelType& animatedModel);
 
 
             std::shared_ptr<gameplay::Node> getNode() const override

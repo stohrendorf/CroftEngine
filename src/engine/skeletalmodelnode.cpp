@@ -33,7 +33,7 @@ namespace engine
 {
     SkeletalModelNode::SkeletalModelNode(const std::string& id,
                                          const gsl::not_null<const level::Level*>& lvl,
-                                         const loader::AnimatedModel& mdl)
+                                         const loader::SkeletalModelType& mdl)
             : Node{id}
             , m_level{lvl}
             , m_animId{mdl.animationIndex}

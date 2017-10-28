@@ -61,7 +61,9 @@ void TR2Level::loadFileData()
 
     m_reader.readVector(m_boneTrees, m_reader.readU32());
 
-    readPoseDataAndModels(m_reader);
+    m_reader.readVector(m_poseData, m_reader.readU32());
+
+    m_reader.readVector(m_animatedModels, m_reader.readU32(), loader::SkeletalModelType::readTr1);
 
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &loader::StaticMesh::read);
 
