@@ -30,7 +30,7 @@ namespace gameplay
             std::string buffer;
             buffer.resize( size );
             stream.read( &buffer[0], size );
-            if( stream.gcount() != size )
+            if( static_cast<std::size_t>(stream.gcount()) != size )
             {
                 BOOST_LOG_TRIVIAL( error ) << "Failed to read complete contents of file '" << filePath
                                            << "' (amount read vs. file size: " << stream.gcount() << " < " << size

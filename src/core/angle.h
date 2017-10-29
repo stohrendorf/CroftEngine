@@ -52,7 +52,6 @@ namespace core
 
 
     public:
-        [[implicit]]
         constexpr Angle() noexcept
             : m_value{0}
         {

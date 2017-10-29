@@ -109,17 +109,6 @@ public:
 
     bool advanceFrame();
 
-protected:
-    bool handleStateTransitions();
-
-private:
-    const gsl::not_null<const level::Level*> m_level;
-    size_t m_animId = 0;
-    uint16_t m_frame = 0;
-    const loader::SkeletalModelType& m_model;
-    uint16_t m_targetState = 0;
-    std::vector<glm::mat4> m_bonePatches;
-
 #pragma pack(push, 1)
 
     struct AnimFrame
@@ -152,9 +141,33 @@ private:
         const AnimFrame* firstFrame = nullptr;
         const AnimFrame* secondFrame = nullptr;
         float bias = 0;
+
+        const AnimFrame* getNearestFrame() const
+        {
+            if (bias <= 0.5f)
+            {
+                return firstFrame;
+            }
+            else
+            {
+                BOOST_ASSERT(secondFrame != nullptr);
+                return secondFrame;
+            }
+        }
     };
 
     InterpolationInfo getInterpolationInfo() const;
+
+protected:
+    bool handleStateTransitions();
+
+private:
+    const gsl::not_null<const level::Level*> m_level;
+    size_t m_animId = 0;
+    uint16_t m_frame = 0;
+    const loader::SkeletalModelType& m_model;
+    uint16_t m_targetState = 0;
+    std::vector<glm::mat4> m_bonePatches;
 
     void updatePoseKeyframe(const InterpolationInfo& framepair);
 

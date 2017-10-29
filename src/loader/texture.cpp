@@ -130,8 +130,8 @@ std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> DWordTexture::toImage(
         {
             for( int y = 0; y < srcImage.height(); ++y )
             {
-                BOOST_ASSERT(x + x0 < original.width());
-                BOOST_ASSERT(y + y0 < original.height());
+                BOOST_ASSERT(x + static_cast<int>(x0) < original.width());
+                BOOST_ASSERT(y + static_cast<int>(y0) < original.height());
 
                 for( int c = 0; c < 4; ++c )
                 {

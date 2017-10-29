@@ -667,6 +667,8 @@ namespace engine
             BoundingBox getBoundingBox() const override;
 
             uint16_t getCurrentState() const override;
+
+            bool isNear(const ModelItemNode& other, const int radius) const;
         };
 
         class SpriteItemNode : public ItemNode

@@ -39,58 +39,6 @@
 using namespace level;
 
 
-namespace
-{
-    struct SpriteVertex
-    {
-        glm::vec3 pos;
-
-        glm::vec2 uv;
-
-        glm::vec3 color{1.0f};
-    };
-
-
-    std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite, const std::shared_ptr<gameplay::Material>& material)
-    {
-        const SpriteVertex vertices[]{
-            {{sprite.left_side, sprite.top_side, 0}, {sprite.t0.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.top_side, 0}, {sprite.t1.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t0.y}},
-            {{sprite.left_side, sprite.bottom_side, 0}, {sprite.t0.x, sprite.t0.y}}
-        };
-
-        gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::pos}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::color}}
-        };
-
-        auto mesh = std::make_shared<gameplay::Mesh>(attribs, false);
-        mesh->getBuffer(0)->assign<SpriteVertex>(vertices, 4);
-
-        static const uint16_t indices[6] =
-        {
-            0, 1, 2,
-            0, 2, 3
-        };
-
-        gameplay::gl::VertexArrayBuilder builder;
-
-        auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
-        indexBuffer->setData(indices, 6, false);
-        builder.attach(indexBuffer);
-        builder.attach(mesh->getBuffers());
-
-        auto part = std::make_shared<gameplay::MeshPart>(builder.build(material->getShaderProgram()->getHandle()));
-        mesh->addPart(part);
-        part->setMaterial(material);
-
-        return mesh;
-    }
-}
-
-
 Level::~Level() = default;
 
 
@@ -366,41 +314,6 @@ Level::createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture>>
 }
 
 
-namespace
-{
-    uint16_t mapSpriteToModel(uint16_t id)
-    {
-        switch( id )
-        {
-            case 84: return 99;
-            case 85: return 100;
-            case 86: return 101;
-            case 87: return 102;
-            case 89: return 104;
-            case 90: return 105;
-            case 91: return 106;
-            case 92: return 107;
-            case 93: return 108;
-            case 94: return 109;
-            case 126: return 127;
-            case 141: return 148;
-            case 142: return 149;
-            case 143:
-            case 144: return 150;
-            case 110: return 114;
-            case 111: return 115;
-            case 112: return 116;
-            case 113: return 117;
-            case 129: return 133;
-            case 130: return 134;
-            case 131: return 135;
-            case 132: return 136;
-            default: return id;
-        }
-    }
-}
-
-
 engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
 {
     auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/textured_2.vert",
@@ -438,78 +351,76 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
         BOOST_ASSERT( item.room < m_rooms.size() );
         loader::Room& room = m_rooms[item.room];
 
-        const auto type = item.type; // TODO mapSpriteToModel(item.type);
-
-        if( const auto modelIdx = findAnimatedModelIndexForType(type) )
+        if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
         {
             std::shared_ptr<engine::items::ItemNode> modelNode;
 
-            if( type == 0 )
+            if( item.type == 0 )
             {
                 modelNode = createSkeletalModel<engine::LaraNode>(id, *modelIdx, &room, &item);
                 lara = static_cast<engine::LaraNode*>(modelNode.get());
             }
-            else if( type == 7 )
+            else if( item.type == 7 )
             {
                 modelNode = createSkeletalModel<engine::items::Wolf>(id, *modelIdx, &room, &item);
             }
-            else if( type == 9 )
+            else if( item.type == 9 )
             {
                 modelNode = createSkeletalModel<engine::items::Bat>(id, *modelIdx, &room, &item);
             }
-            else if( type == 35 )
+            else if( item.type == 35 )
             {
                 modelNode = createSkeletalModel<engine::items::CollapsibleFloor>(id, *modelIdx, &room, &item);
             }
-            else if( type == 36 )
+            else if( item.type == 36 )
             {
                 modelNode = createSkeletalModel<engine::items::SwingingBlade>(id, *modelIdx, &room, &item);
             }
-            else if( type == 39 )
+            else if( item.type == 39 )
             {
                 modelNode = createSkeletalModel<engine::items::Dart>(id, *modelIdx, &room, &item);
             }
-            else if( type == 40 )
+            else if( item.type == 40 )
             {
                 modelNode = createSkeletalModel<engine::items::DartGun>(id, *modelIdx, &room, &item);
             }
-            else if( type == 41 )
+            else if( item.type == 41 )
             {
                 modelNode = createSkeletalModel<engine::items::TrapDoorUp>(id, *modelIdx, &room, &item);
             }
-            else if( type >= 48 && type <= 51 )
+            else if( item.type >= 48 && item.type <= 51 )
             {
                 modelNode = createSkeletalModel<engine::items::Block>(id, *modelIdx, &room, &item);
             }
-            else if( type == 52 )
+            else if( item.type == 52 )
             {
                 modelNode = createSkeletalModel<engine::items::TallBlock>(id, *modelIdx, &room, &item);
             }
-            else if( type == 55 )
+            else if( item.type == 55 )
             {
                 modelNode = createSkeletalModel<engine::items::Switch>(id, *modelIdx, &room, &item);
             }
-            else if( type == 56 )
+            else if( item.type == 56 )
             {
                 modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>(id, *modelIdx, &room, &item);
             }
-            else if( type >= 57 && type <= 64 )
+            else if( item.type >= 57 && item.type <= 64 )
             {
                 modelNode = createSkeletalModel<engine::items::Door>(id, *modelIdx, &room, &item);
             }
-            else if( type >= 65 && type <= 66 )
+            else if( item.type >= 65 && item.type <= 66 )
             {
                 modelNode = createSkeletalModel<engine::items::TrapDoorDown>(id, *modelIdx, &room, &item);
             }
-            else if( type == 68 )
+            else if( item.type == 68 )
             {
                 modelNode = createSkeletalModel<engine::items::BridgeFlat>(id, *modelIdx, &room, &item);
             }
-            else if( type == 69 )
+            else if( item.type == 69 )
             {
                 modelNode = createSkeletalModel<engine::items::BridgeSlope1>(id, *modelIdx, &room, &item);
             }
-            else if( type == 70 )
+            else if( item.type == 70 )
             {
                 modelNode = createSkeletalModel<engine::items::BridgeSlope2>(id, *modelIdx, &room, &item);
             }
@@ -531,9 +442,9 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             continue;
         }
 
-        if( const auto sequenceId = findSpriteSequenceForType(type) )
+        if( const auto sequenceId = findSpriteSequenceForType(item.type) )
         {
-            BOOST_ASSERT(!findAnimatedModelIndexForType(type));
+            BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
             BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
@@ -542,7 +453,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             const loader::Sprite& sprite = m_sprites[spriteSequence.offset];
 
             auto node = std::make_shared<engine::items::SpriteItemNode>(this,
-                "sprite:" + std::to_string(id) + "(type:" + std::to_string(type) + ")",
+                "sprite:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")",
                 &room,
                 core::Angle{ item.rotation },
                 item.position,
@@ -825,7 +736,7 @@ void Level::setUpRendering(gameplay::Game* game,
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(game, i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator);
+        m_rooms[i].createSceneNode(i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator);
         game->getScene()->addNode(m_rooms[i].node);
     }
 

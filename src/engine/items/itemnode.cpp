@@ -454,5 +454,25 @@ namespace engine
                 uniform.set((8192 - darkness) / 32.0f);
             });
         }
+
+        bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
+        {
+            const auto aFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
+            const auto bFrame = other.getSkeleton()->getInterpolationInfo().getNearestFrame();
+            if (other.getPosition().Y + bFrame->bbox.minY >= aFrame->bbox.maxY + getPosition().Y
+                || getPosition().Y + aFrame->bbox.minY >= other.getPosition().Y + bFrame->bbox.maxY)
+                return false;
+
+            const auto c = getRotation().Y.cos();
+            const auto s = getRotation().Y.sin();
+            const auto dx = other.getPosition().X - getPosition().X;
+            const auto dz = other.getPosition().Z - getPosition().Z;
+            const auto x = c * dx - s * dz;
+            const auto z = s * dx + c * dz;
+            return x >= aFrame->bbox.minX - radius
+                && x <= aFrame->bbox.maxX + radius
+                && z >= aFrame->bbox.minZ - radius
+                && z <= aFrame->bbox.maxZ + radius;
+        }
     }
 }

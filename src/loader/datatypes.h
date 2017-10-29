@@ -1102,7 +1102,7 @@ namespace loader
         }
 
 
-        std::shared_ptr<gameplay::Node> createSceneNode(gameplay::Game* game, size_t roomId, const level::Level& level,
+        std::shared_ptr<gameplay::Node> createSceneNode(size_t roomId, const level::Level& level,
                                                         const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures,
                                                         const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
                                                         const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,

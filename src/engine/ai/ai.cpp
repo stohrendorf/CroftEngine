@@ -16,7 +16,7 @@ namespace engine
             const auto dz = npc.getLevel().m_lara->getPosition().Z
                             - (npc.getPosition().Z + pivotDistance * npc.getRotation().Y.cos());
             const auto angle = core::Angle::fromAtan(dx, dz);
-            pivotDistanceToLaraSq = dx * dx + dz * dz;
+            pivotDistanceToLaraSq = std::lround(dx * dx + dz * dz);
             pivotAngleToLara = angle - npc.getRotation().Y;
             laraAngleToPivot = angle + 180_deg - npc.getLevel().m_lara->getRotation().Y;
             laraAhead = pivotAngleToLara > -90_deg && pivotAngleToLara < 90_deg;
@@ -285,7 +285,7 @@ namespace engine
                             path.push_back(&npc.getLevel().m_boxes[current]);
                             while(parents.size() > current && parents[current] != UnsetBoxId )
                             {
-                                current = parents[current];
+                                current = gsl::narrow<uint16_t>(parents[current]);
                                 BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
                                 path.push_back(&npc.getLevel().m_boxes[current]);
                             }
@@ -322,7 +322,7 @@ namespace engine
                 ++last;
             }
 
-            return gsl::span<const uint16_t>(first, last);
+            return gsl::make_span(first, last);
         }
 
 
@@ -487,8 +487,8 @@ namespace engine
             {
                 const auto laraToNpcX = npc.getPosition().X - npc.getLevel().m_lara->getPosition().X;
                 const auto laraToNpcZ = npc.getPosition().Z - npc.getLevel().m_lara->getPosition().Z;
-                return (laraToNpcZ > 0 == laraToBoxZ > 0)
-                       || (laraToNpcX > 0 == laraToBoxX > 0);
+                return ((laraToNpcZ > 0) == (laraToBoxZ > 0))
+                       || ((laraToNpcX > 0) == (laraToBoxX > 0));
             }
 
             return false;
