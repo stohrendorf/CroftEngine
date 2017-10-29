@@ -2,37 +2,41 @@
 
 #include "statehandler_underwater.h"
 
-
 namespace engine
 {
-    namespace lara
+namespace lara
+{
+class StateHandler_18 final
+    : public StateHandler_Underwater
+{
+public:
+    explicit StateHandler_18(LaraNode& lara)
+        : StateHandler_Underwater(lara, LaraStateId::UnderwaterInertia)
     {
-        class StateHandler_18 final : public StateHandler_Underwater
-        {
-        public:
-            explicit StateHandler_18(LaraNode& lara)
-                : StateHandler_Underwater(lara, LaraStateId::UnderwaterInertia)
-            {
-            }
-
-
-            void handleInput(CollisionInfo& /*collisionInfo*/) override
-            {
-                if( getHealth() < 0 )
-                {
-                    setTargetState(LaraStateId::WaterDeath);
-                    return;
-                }
-
-                handleDiveRotationInput();
-
-                if( getLevel().m_inputHandler->getInputState().jump )
-                    setTargetState(LaraStateId::UnderwaterForward);
-
-                setFallSpeed(std::max(0, getFallSpeed() - 6));
-                if( getFallSpeed() <= 133 )
-                    setTargetState(LaraStateId::UnderwaterStop);
-            }
-        };
     }
+
+    void handleInput(CollisionInfo& /*collisionInfo*/) override
+    {
+        if( getLara().m_state.health < 0 )
+        {
+            setTargetState(LaraStateId::WaterDeath);
+            return;
+        }
+
+        handleDiveRotationInput();
+
+        if( getLevel().m_inputHandler->getInputState().jump )
+        {
+            setTargetState(LaraStateId::UnderwaterForward);
+        }
+
+        int spd = std::max(0, getLara().m_state.fallspeed - 6);
+        getLara().m_state.fallspeed = spd;
+        if( getLara().m_state.fallspeed <= 133 )
+        {
+            setTargetState(LaraStateId::UnderwaterStop);
+        }
+    }
+};
+}
 }

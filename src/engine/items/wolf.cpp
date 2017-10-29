@@ -53,76 +53,76 @@ namespace engine
                             if( std::rand() % 32768 < 32 )
                             {
                                 m_requiredAnimState = Running;
-                                getSkeleton()->setTargetState(Walking);
+                                m_state.goal_anim_state = Walking;
                             }
                         }
                         else
                         {
                             m_requiredAnimState = PrepareToStrike;
-                            getSkeleton()->setTargetState(Walking);
+                            m_state.goal_anim_state = Walking;
                         }
                         break;
                     case Walking:
                         if( m_requiredAnimState != 0 )
                         {
-                            getSkeleton()->setTargetState(m_requiredAnimState);
+                            m_state.goal_anim_state = m_requiredAnimState;
                             m_requiredAnimState = 0;
                         }
                         else
                         {
-                            getSkeleton()->setTargetState(Running);
+                            m_state.goal_anim_state = Running;
                         }
                         break;
                     case Running:
                         getBrain().jointRotation.Z = 2_deg;
                         if( getBrain().mood != ai::Mood::Bored )
                         {
-                            getSkeleton()->setTargetState(Stalking);
+                            m_state.goal_anim_state = Stalking;
                             m_requiredAnimState = 0;
                         }
                         else if( std::rand() % 32768 < 32 )
                         {
-                            getSkeleton()->setTargetState(Walking);
+                            m_state.goal_anim_state = Walking;
                             m_requiredAnimState = LyingDown;
                         }
                         break;
                     case PrepareToStrike:
                         if( m_requiredAnimState != 0 )
                         {
-                            getSkeleton()->setTargetState(m_requiredAnimState);
+                            m_state.goal_anim_state = m_requiredAnimState;
                             m_requiredAnimState = 0;
                             break;
                         }
                         if( getBrain().mood == ai::Mood::Escape )
                         {
-                            getSkeleton()->setTargetState(Jumping);
+                            m_state.goal_anim_state = Jumping;
                         }
                         else if( lookAhead.pivotDistanceToLaraSq < util::square(345) && lookAhead.enemyFacing )
                         {
-                            getSkeleton()->setTargetState(Biting);
+                            m_state.goal_anim_state = Biting;
                         }
                         else if( getBrain().mood == ai::Mood::Stalk )
                         {
-                            getSkeleton()->setTargetState(Stalking);
+                            m_state.goal_anim_state = Stalking;
                         }
                         else if( getBrain().mood != ai::Mood::Bored )
                         {
-                            getSkeleton()->setTargetState(Jumping);
+                            m_state.goal_anim_state = Jumping;
                         }
                         else
                         {
-                            getSkeleton()->setTargetState(Walking);
+                            m_state.goal_anim_state = Walking;
                         }
                         break;
                     case Stalking:
                         getBrain().jointRotation.Z = 2_deg;
                         if( getBrain().mood == ai::Mood::Escape )
                         {
-                            getSkeleton()->setTargetState(Jumping);
+                            m_state.goal_anim_state = Jumping;
                         }
                         else if( lookAhead.pivotDistanceToLaraSq < util::square(345) && lookAhead.enemyFacing )
                         {
-                            getSkeleton()->setTargetState(Biting);
+                            m_state.goal_anim_state = Biting;
                         }
                         else if( lookAhead.pivotDistanceToLaraSq <= util::square(3*loader::SectorSize) )
                         {
@@ -132,25 +132,25 @@ namespace engine
                                     || lookAhead.pivotDistanceToLaraSq > util::square(3*loader::SectorSize/2)
                                     || (lookAhead.laraAngleToPivot < 90_deg && lookAhead.laraAngleToPivot > -90_deg) )
                                 {
-                                    getSkeleton()->setTargetState(Jumping);
+                                    m_state.goal_anim_state = Jumping;
                                 }
                             }
                             else if( std::rand() % 32768 >= 384 )
                             {
                                 if( getBrain().mood == ai::Mood::Bored )
                                 {
-                                    getSkeleton()->setTargetState(PrepareToStrike);
+                                    m_state.goal_anim_state = PrepareToStrike;
                                 }
                             }
                             else
                             {
-                                getSkeleton()->setTargetState(PrepareToStrike);
+                                m_state.goal_anim_state = PrepareToStrike;
                                 m_requiredAnimState = Attacking;
                             }
                         }
                         else
                         {
-                            getSkeleton()->setTargetState(Jumping);
+                            m_state.goal_anim_state = Jumping;
                         }
                         break;
                     case Jumping:
@@ -160,12 +160,12 @@ namespace engine
                         {
                             if( lookAhead.pivotDistanceToLaraSq <= util::square(3*loader::SectorSize/2)/2 || (lookAhead.laraAngleToPivot <= 90_deg && lookAhead.laraAngleToPivot >= -90_deg) )
                             {
-                                getSkeleton()->setTargetState(JumpAttack);
+                                m_state.goal_anim_state = JumpAttack;
                                 m_requiredAnimState = 0;
                             }
                             else
                             {
-                                getSkeleton()->setTargetState(PrepareToStrike);
+                                m_state.goal_anim_state = PrepareToStrike;
                                 m_requiredAnimState = Stalking;
                             }
                         }
@@ -173,12 +173,12 @@ namespace engine
                         {
                             if( getBrain().mood == ai::Mood::Bored )
                             {
-                                getSkeleton()->setTargetState(PrepareToStrike);
+                                m_state.goal_anim_state = PrepareToStrike;
                             }
                         }
                         else
                         {
-                            getSkeleton()->setTargetState(PrepareToStrike);
+                            m_state.goal_anim_state = PrepareToStrike;
                             m_requiredAnimState = Stalking;
                         }
                         break;
@@ -188,17 +188,17 @@ namespace engine
                         {
                             //! @todo show blood splatter fx
                             getLevel().m_lara->m_state.is_hit = true;
-                            getLevel().m_lara->setHealth(getLevel().m_lara->getHealth() - 50);
+                            getLevel().m_lara->m_state.health -= 50;
                             m_requiredAnimState = Jumping;
                         }
-                        getSkeleton()->setTargetState(Jumping);
+                        m_state.goal_anim_state = Jumping;
                         break;
                     case Biting:
                         if( m_requiredAnimState == 0 /** @fixme && this->touch_bits & 0x774F */ && lookAhead.laraAhead )
                         {
                             //! @todo show blood splatter fx
                             getLevel().m_lara->m_state.is_hit = true;
-                            getLevel().m_lara->setHealth(getLevel().m_lara->getHealth() - 100);
+                            getLevel().m_lara->m_state.health -= 100;
                             m_requiredAnimState = PrepareToStrike;
                         }
                         break;
@@ -208,7 +208,7 @@ namespace engine
             }
             else if( getCurrentState() != Dying )
             {
-                getSkeleton()->setAnimIdGlobal(getLevel().m_animatedModels[7]->animationIndex + 20 + 3 * std::rand() / RAND_MAX, 0);
+                getSkeleton()->setAnimIdGlobal(m_state, getLevel().m_animatedModels[7]->animationIndex + 20 + 3 * std::rand() / RAND_MAX, 0);
             }
             rotateCreatureTilt(roll);
             rotateCreatureHead(pitch);

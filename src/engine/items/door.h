@@ -33,14 +33,14 @@ namespace engine
                     }
                     else
                     {
-                        getSkeleton()->setTargetState(1);
+                        m_state.goal_anim_state = 1;
                     }
                 }
                 else
                 {
                     if( getCurrentState() == 1 )
                     {
-                        getSkeleton()->setTargetState(0);
+                        m_state.goal_anim_state = 0;
                         ModelItemNode::update();
                         return;
                     }

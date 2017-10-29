@@ -75,26 +75,26 @@ namespace engine
 {
     void LaraNode::setTargetState(LaraStateId st)
     {
-        getSkeleton()->setTargetState(static_cast<uint16_t>(st));
+        m_state.goal_anim_state = static_cast<uint16_t>(st);
     }
 
 
     loader::LaraStateId LaraNode::getTargetState() const
     {
-        return static_cast<LaraStateId>(getSkeleton()->getTargetState());
+        return static_cast<LaraStateId>(m_state.goal_anim_state);
     }
 
 
     void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
     {
-        getSkeleton()->setAnimIdGlobal(static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
+        getSkeleton()->setAnimIdGlobal(m_state, static_cast<uint16_t>(anim), firstFrame.get_value_or(0));
     }
 
 
     void LaraNode::handleLaraStateOnLand()
     {
         CollisionInfo collisionInfo;
-        collisionInfo.oldPosition = getPosition();
+        collisionInfo.oldPosition = m_state.position.position;
         collisionInfo.collisionRadius = core::DefaultCollisionRadius;
         collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
 
@@ -124,17 +124,24 @@ namespace engine
         }
 
         // "slowly" revert rotations to zero
-        if( getRotation().Z < -1_deg )
+        if( m_state.rotation.Z < -1_deg )
         {
-            addZRotation(+1_deg);
-            if( getRotation().Z >= 0_deg )
-                setZRotation(0_deg);
+            m_state.rotation.Z += +1_deg;
+            if( m_state.rotation.Z >= 0_deg )
+            {
+                m_state.rotation.Z = 0_deg;
+            }
         }
-        else if( getRotation().Z > 1_deg )
+        else
         {
-            addZRotation(-1_deg);
-            if( getRotation().Z <= 0_deg )
-                setZRotation(0_deg);
+            if( m_state.rotation.Z > 1_deg )
+                {
+                    m_state.rotation.Z += -1_deg;
+                    if( m_state.rotation.Z <= 0_deg )
+                    {
+                        m_state.rotation.Z = 0_deg;
+                    }
+                }
         }
 
         if( m_yRotationSpeed > 2_deg )
@@ -150,7 +157,7 @@ namespace engine
             m_yRotationSpeed = 0_deg;
         }
 
-        addYRotation(m_yRotationSpeed);
+        m_state.rotation.Y += m_yRotationSpeed;
 
         updateImpl();
 
@@ -175,7 +182,7 @@ namespace engine
     void LaraNode::handleLaraStateDiving()
     {
         CollisionInfo collisionInfo;
-        collisionInfo.oldPosition = getPosition();
+        collisionInfo.oldPosition = m_state.position.position;
         collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
                                        | CollisionInfo::LavaIsPit
@@ -188,20 +195,25 @@ namespace engine
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
         // "slowly" revert rotations to zero
-        if( getRotation().Z < -2_deg )
+        if( m_state.rotation.Z < -2_deg )
         {
-            addZRotation(+2_deg);
-        }
-        else if( getRotation().Z > 2_deg )
-        {
-            addZRotation(-2_deg);
+            m_state.rotation.Z += +2_deg;
         }
         else
         {
-            setZRotation(0_deg);
+            if( m_state.rotation.Z > 2_deg )
+                {
+                    m_state.rotation.Z += -2_deg;
+                }
+                else
+                {
+                    m_state.rotation.Z = 0_deg;
+                }
         }
-        setXRotation(util::clamp(getRotation().X, -100_deg, +100_deg));
-        setZRotation(util::clamp(getRotation().Z, -22_deg, +22_deg));
+        const core::Angle x = util::clamp(m_state.rotation.X, -100_deg, +100_deg);
+        m_state.rotation.X = x;
+        const core::Angle z = util::clamp(m_state.rotation.Z, -22_deg, +22_deg);
+        m_state.rotation.Z = z;
 
         if(m_underwaterCurrentStrength != 0)
         {
@@ -211,11 +223,11 @@ namespace engine
         updateImpl();
 
         {
-            auto pos = getPosition();
-            pos.X += getRotation().Y.sin() * getRotation().X.cos() * getFallSpeed() / 4;
-            pos.Y -= getRotation().X.sin() * getFallSpeed() / 4;
-            pos.Z += getRotation().Y.cos() * getRotation().X.cos() * getFallSpeed() / 4;
-            setPosition(pos);
+            auto pos = m_state.position.position;
+            pos.X += m_state.rotation.Y.sin() * m_state.rotation.X.cos() * m_state.fallspeed / 4;
+            pos.Y -= m_state.rotation.X.sin() * m_state.fallspeed / 4;
+            pos.Z += m_state.rotation.Y.cos() * m_state.rotation.X.cos() * m_state.fallspeed / 4;
+            m_state.position.position = pos;
         }
 
         testInteractions();
@@ -234,7 +246,7 @@ namespace engine
     void LaraNode::handleLaraStateSwimming()
     {
         CollisionInfo collisionInfo;
-        collisionInfo.oldPosition = getPosition();
+        collisionInfo.oldPosition = m_state.position.position;
         collisionInfo.collisionRadius = core::DefaultCollisionRadius;
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
                                        | CollisionInfo::LavaIsPit
@@ -249,17 +261,20 @@ namespace engine
         lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
         // "slowly" revert rotations to zero
-        if( getRotation().Z < 0_deg )
+        if( m_state.rotation.Z < 0_deg )
         {
-            addZRotation(+2_deg);
-        }
-        else if( getRotation().Z > 2_deg )
-        {
-            addZRotation(-2_deg);
+            m_state.rotation.Z += +2_deg;
         }
         else
         {
-            setZRotation(0_deg);
+            if( m_state.rotation.Z > 2_deg )
+                {
+                    m_state.rotation.Z += -2_deg;
+                }
+                else
+                {
+                    m_state.rotation.Z = 0_deg;
+                }
         }
 
         if( getLevel().m_cameraController->getMode() != CameraMode::FreeLook )
@@ -278,9 +293,9 @@ namespace engine
         updateImpl();
 
         move(
-            getMovementAngle().sin() * getFallSpeed() / 4,
+            getMovementAngle().sin() * m_state.fallspeed / 4,
             0,
-            getMovementAngle().cos() * getFallSpeed() / 4
+            getMovementAngle().cos() * m_state.fallspeed / 4
         );
 
         testInteractions();
@@ -298,7 +313,7 @@ namespace engine
 
     void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
     {
-        moveY(collisionInfo.mid.floor.distance);
+        m_state.position.position.Y += collisionInfo.mid.floor.distance;
     }
 
 
@@ -313,90 +328,99 @@ namespace engine
 
     void LaraNode::update()
     {
-        if( m_underwaterState == UnderwaterState::OnLand && getCurrentRoom()->isWaterRoom() )
+        if( m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom() )
         {
             m_air = core::LaraAir;
             m_underwaterState = UnderwaterState::Diving;
-            setFalling(false);
-            setPosition(getPosition() + core::TRCoordinates(0, 100, 0));
+            m_state.falling = false;
+            const core::TRCoordinates& pos = m_state.position.position + core::TRCoordinates(0, 100, 0);
+            m_state.position.position = pos;
             updateFloorHeight(0);
             getLevel().stopSoundEffect(30);
             if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
             {
-                setXRotation(-45_deg);
+                m_state.rotation.X = -45_deg;
                 setTargetState(LaraStateId::UnderwaterDiving);
                 updateImpl();
-                setFallSpeed(getFallSpeed() * 2);
+                const int16_t spd = m_state.fallspeed * 2;
+                m_state.fallspeed = spd;
             }
             else if( getCurrentAnimState() == LaraStateId::SwandiveEnd )
             {
-                setXRotation(-85_deg);
+                m_state.rotation.X = -85_deg;
                 setTargetState(LaraStateId::UnderwaterDiving);
                 updateImpl();
-                setFallSpeed(getFallSpeed() * 2);
+                const int16_t spd = m_state.fallspeed * 2;
+                m_state.fallspeed = spd;
             }
             else
             {
-                setXRotation(-45_deg);
+                m_state.rotation.X = -45_deg;
                 setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895);
                 setTargetState(LaraStateId::UnderwaterForward);
                 //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
-                setFallSpeed(getFallSpeed() * 3 / 2);
+                const int16_t spd = m_state.fallspeed * 3 / 2;
+                m_state.fallspeed = spd;
             }
 
             resetHeadTorsoRotation();
 
             //! @todo Show water splash effect
         }
-        else if( m_underwaterState == UnderwaterState::Diving && !getCurrentRoom()->isWaterRoom() )
+        else
         {
-            auto waterSurfaceHeight = getWaterSurfaceHeight();
-            setFallSpeed(0);
-            setXRotation(0_deg);
-            setZRotation(0_deg);
-            resetHeadTorsoRotation();
-            m_handStatus = 0;
-
-            if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - getPosition().Y) >= loader::QuarterSectorSize )
-            {
-                m_underwaterState = UnderwaterState::OnLand;
-                setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
-                setTargetState(LaraStateId::JumpForward);
-                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-                //! @todo Check formula
-                setHorizontalSpeed(getHorizontalSpeed() / 4);
-                setFalling(true);
-            }
-            else
-            {
-                m_underwaterState = UnderwaterState::Swimming;
-                setAnimIdGlobal(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
-                setTargetState(LaraStateId::OnWaterStop);
-                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
+            if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
                 {
-                    auto pos = getPosition();
-                    pos.Y = *waterSurfaceHeight + 1;
-                    setPosition(pos);
+                    auto waterSurfaceHeight = getWaterSurfaceHeight();
+                    m_state.fallspeed = 0;
+                    m_state.rotation.X = 0_deg;
+                    m_state.rotation.Z = 0_deg;
+                    resetHeadTorsoRotation();
+                    m_handStatus = 0;
+
+                    if( !waterSurfaceHeight || std::abs(*waterSurfaceHeight - m_state.position.position.Y) >= loader::QuarterSectorSize )
+                    {
+                        m_underwaterState = UnderwaterState::OnLand;
+                        setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                        setTargetState(LaraStateId::JumpForward);
+                        //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+                        //! @todo Check formula
+                        const int16_t speed = m_state.speed / 4;
+                        m_state.speed = speed;
+                        m_state.falling = true;
+                    }
+                    else
+                    {
+                        m_underwaterState = UnderwaterState::Swimming;
+                        setAnimIdGlobal(loader::AnimationId::UNDERWATER_TO_ONWATER, 1937);
+                        setTargetState(LaraStateId::OnWaterStop);
+                        //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
+                        {
+                            auto pos = m_state.position.position;
+                            pos.Y = *waterSurfaceHeight + 1;
+                            m_state.position.position = pos;
+                        }
+                        m_swimToDiveKeypressDuration = 11;
+                        updateFloorHeight(-381);
+                        playSoundEffect(36);
+                    }
                 }
-                m_swimToDiveKeypressDuration = 11;
-                updateFloorHeight(-381);
-                playSoundEffect(36);
-            }
-        }
-        else if( m_underwaterState == UnderwaterState::Swimming && !getCurrentRoom()->isWaterRoom() )
-        {
-            m_underwaterState = UnderwaterState::OnLand;
-            setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
-            setTargetState(LaraStateId::JumpForward);
-            //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-            setFallSpeed(0);
-            //! @todo Check formula
-            setHorizontalSpeed(getHorizontalSpeed() * 0.2f);
-            setFalling(true);
-            m_handStatus = 0;
-            setXRotation(0_deg);
-            setZRotation(0_deg);
-            resetHeadTorsoRotation();
+                else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
+                {
+                    m_underwaterState = UnderwaterState::OnLand;
+                    setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
+                    setTargetState(LaraStateId::JumpForward);
+                    //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
+                    m_state.fallspeed = 0;
+                    //! @todo Check formula
+                    const int16_t speed = m_state.speed * 0.2f;
+                    m_state.speed = speed;
+                    m_state.falling = true;
+                    m_handStatus = 0;
+                    m_state.rotation.X = 0_deg;
+                    m_state.rotation.Z = 0_deg;
+                    resetHeadTorsoRotation();
+                }
         }
 
         if( m_underwaterState == UnderwaterState::OnLand )
@@ -442,11 +466,11 @@ namespace engine
         }
         // <<<<<<<<<<<<<<<<<
 
-        const auto endOfAnim = getSkeleton()->advanceFrame();
+        const auto endOfAnim = getSkeleton()->advanceFrame(m_state);
 
         if( endOfAnim )
         {
-            const loader::Animation& animation = getLevel().m_animations[getSkeleton()->getAnimId()];
+            const loader::Animation& animation = getLevel().m_animations[m_state.anim_number];
             if( animation.animCommandCount > 0 )
             {
                 BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -471,15 +495,15 @@ namespace engine
                                                     << ", anim fall speed " << cmd[0] << ", anim horizontal speed " << cmd[1];
                             if( m_fallSpeedOverride != 0 )
                             {
-                                setFallSpeed(m_fallSpeedOverride);
+                                m_state.fallspeed = m_fallSpeedOverride;
                                 m_fallSpeedOverride = 0;
                             }
                             else
                             {
-                                setFallSpeed(cmd[0]);
+                                m_state.fallspeed = cmd[0];
                             }
-                            setHorizontalSpeed(cmd[1]);
-                            setFalling(true);
+                            m_state.speed = cmd[1];
+                            m_state.falling = true;
                             cmd += 2;
                             break;
                         case AnimCommandOpcode::EmptyHands:
@@ -497,11 +521,11 @@ namespace engine
                 }
             }
 
-            const loader::Animation& currentAnim = getSkeleton()->getCurrentAnimData();
-            getSkeleton()->setAnimIdGlobal(currentAnim.nextAnimation, currentAnim.nextFrame);
+            const loader::Animation& currentAnim = getSkeleton()->getCurrentAnimData(m_state);
+            getSkeleton()->setAnimIdGlobal(m_state, currentAnim.nextAnimation, currentAnim.nextFrame);
         }
 
-        const loader::Animation& animation = getLevel().m_animations[getSkeleton()->getAnimId()];
+        const loader::Animation& animation = getLevel().m_animations[m_state.anim_number];
         if( animation.animCommandCount > 0 )
         {
             BOOST_ASSERT(animation.animCommandIndex < getLevel().m_animCommands.size());
@@ -520,18 +544,20 @@ namespace engine
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlaySound:
-                        if(getSkeleton()->getCurrentFrame() == cmd[0] )
+                        if( m_state.frame_number == cmd[0] )
                         {
                             playSoundEffect(cmd[1]);
                         }
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::PlayEffect:
-                        if(getSkeleton()->getCurrentFrame() == cmd[0] )
+                        if( m_state.frame_number == cmd[0] )
                         {
                             BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
                             if( cmd[1] == 0 )
-                                addYRotation(180_deg);
+                            {
+                                m_state.rotation.Y += 180_deg;
+                            }
                             else if( cmd[1] == 12 )
                                 setHandStatus(0);
                             //! @todo Execute anim effect cmd[1]
@@ -555,13 +581,13 @@ namespace engine
 
     void LaraNode::updateFloorHeight(int dy)
     {
-        auto pos = getPosition();
+        auto pos = m_state.position.position;
         pos.Y += dy;
-        const loader::Room* room = getCurrentRoom();
+        const loader::Room* room = m_state.position.room;
         auto sector = getLevel().findRealFloorSector(pos, &room);
         setCurrentRoom(room);
         HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
-        setFloorHeight(hi.distance);
+        m_state.floor = hi.distance;
     }
 
 
@@ -576,7 +602,7 @@ namespace engine
         {
             if( !fromHeavy )
             {
-                if( getPosition().Y == getFloorHeight() )
+                if( m_state.position.position.Y == m_state.floor )
                 {
                     //! @todo kill Lara
                 }
@@ -605,7 +631,9 @@ namespace engine
                     break;
                 case floordata::SequenceCondition::LaraOnGround:
                 case floordata::SequenceCondition::LaraOnGroundInverted:
-                    conditionFulfilled = getPosition().Y == getFloorHeight();
+                {
+                    conditionFulfilled = m_state.position.position.Y == m_state.floor;
+                }
                     break;
                 case floordata::SequenceCondition::ItemActivated:
                 {
@@ -807,10 +835,10 @@ namespace engine
 
     boost::optional<int> LaraNode::getWaterSurfaceHeight() const
     {
-        gsl::not_null<const loader::Sector*> sector = getCurrentRoom()
-            ->getSectorByAbsolutePosition(getPosition());
+        gsl::not_null<const loader::Sector*> sector = m_state.position.room
+            ->getSectorByAbsolutePosition(m_state.position.position);
 
-        if( getCurrentRoom()->isWaterRoom() )
+        if( m_state.position.room->isWaterRoom() )
         {
             while( true )
             {
@@ -822,7 +850,7 @@ namespace engine
                 if( !room.isWaterRoom() )
                     break;
 
-                sector = room.getSectorByAbsolutePosition(getPosition());
+                sector = room.getSectorByAbsolutePosition(m_state.position.position);
             }
 
             return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -840,7 +868,7 @@ namespace engine
                 return sector->floorHeight * loader::QuarterSectorSize;
             }
 
-            sector = room.getSectorByAbsolutePosition(getPosition());
+            sector = room.getSectorByAbsolutePosition(m_state.position.position);
         }
 
         return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -885,13 +913,13 @@ namespace engine
             return;
 
         std::set<const loader::Room*> rooms;
-        rooms.insert(getCurrentRoom());
-        for( const loader::Portal& p : getCurrentRoom()->portals )
+        rooms.insert(m_state.position.room);
+        for( const loader::Portal& p : m_state.position.room->portals )
             rooms.insert(&getLevel().m_rooms[p.adjoining_room]);
 
-        for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
+        for( const std::shared_ptr<items::ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
         {
-            if( rooms.find(item->getCurrentRoom()) == rooms.end() )
+            if( rooms.find(item->m_state.position.room) == rooms.end() )
                 continue;
 
             if( !item->m_state.collidable )
@@ -900,7 +928,7 @@ namespace engine
             if( item->m_triggerState == items::TriggerState::Locked )
                 continue;
 
-            const auto d = getPosition() - item->getPosition();
+            const auto d = m_state.position.position - item->m_state.position.position;
             if( std::abs(d.X) >= 4096 || std::abs(d.Y) >= 4096 || std::abs(d.Z) >= 4096 )
                 continue;
 
@@ -914,51 +942,57 @@ namespace engine
         if (!routePlanner.calculateTarget(targetPos , *this, nullptr))
             return;
 
-        targetPos -= getPosition();
-        moveX(util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
-        moveZ(util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
-        moveY(util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength));
+        targetPos -= m_state.position.position;
+        const int d2 = util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+        m_state.position.position.X += d2;
+        const int d = util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+        m_state.position.position.Z += d;
+        const int d1 = util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+        m_state.position.position.Y += d1;
         m_underwaterCurrentStrength = 0;
-        collisionInfo.facingAngle = core::Angle::fromAtan(getPosition().X - collisionInfo.oldPosition.X, getPosition().Z - collisionInfo.oldPosition.Z);
-        collisionInfo.initHeightInfo(getPosition() + core::TRCoordinates{ 0, 200, 0 }, getLevel(), core::LaraHeightUnderwater);
+        collisionInfo.facingAngle = core::Angle::fromAtan(m_state.position.position.X - collisionInfo.oldPosition.X, m_state.position.position.Z - collisionInfo.oldPosition.Z);
+        collisionInfo.initHeightInfo(m_state.position.position + core::TRCoordinates{ 0, 200, 0 }, getLevel(), core::LaraHeightUnderwater);
         if (collisionInfo.collisionType == CollisionInfo::AxisColl_Front)
         {
-            if (getRotation().X > 35_deg)
+            if ( m_state.rotation.X > 35_deg)
             {
-                addXRotation(2_deg);
+                m_state.rotation.X += 2_deg;
             }
-            else if (getRotation().X < -35_deg)
+            else
             {
-                addXRotation(-2_deg);
+                if ( m_state.rotation.X < -35_deg)
+                        {
+                            m_state.rotation.X += -2_deg;
+                        }
             }
         }
         else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Top)
         {
-            addXRotation(-2_deg);
+            m_state.rotation.X += -2_deg;
         }
         else if (collisionInfo.collisionType != CollisionInfo::AxisColl_TopBottom)
         {
             if (collisionInfo.collisionType == CollisionInfo::AxisColl_Left)
             {
-                addYRotation(5_deg);
+                m_state.rotation.Y += 5_deg;
             }
             else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Right)
             {
-                addYRotation(-5_deg);
+                m_state.rotation.Y += -5_deg;
             }
         }
         else
         {
-            setFallSpeed(0);
+            m_state.fallspeed = 0;
         }
 
         if (collisionInfo.mid.floor.distance < 0)
         {
-            moveY(collisionInfo.mid.floor.distance);
-            addXRotation(2_deg);
+            m_state.position.position.Y += collisionInfo.mid.floor.distance;
+            m_state.rotation.X += 2_deg;
         }
-        setPosition(getPosition() + collisionInfo.shift);
+        m_state.position.position = m_state.position.position + collisionInfo.shift;
         collisionInfo.shift = { 0, 0, 0 };
-        collisionInfo.oldPosition = getPosition();
+        collisionInfo.oldPosition = m_state.position.position;
     }
 }

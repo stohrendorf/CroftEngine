@@ -11,20 +11,20 @@ namespace engine
     {
         LookAhead::LookAhead(const items::ItemNode& npc, int pivotDistance)
         {
-            const auto dx = npc.getLevel().m_lara->getPosition().X
-                            - (npc.getPosition().X + pivotDistance * npc.getRotation().Y.sin());
-            const auto dz = npc.getLevel().m_lara->getPosition().Z
-                            - (npc.getPosition().Z + pivotDistance * npc.getRotation().Y.cos());
+            const auto dx = npc.getLevel().m_lara->m_state.position.position.X
+                            - (npc.m_state.position.position.X + pivotDistance * npc.m_state.rotation.Y.sin());
+            const auto dz = npc.getLevel().m_lara->m_state.position.position.Z
+                            - (npc.m_state.position.position.Z + pivotDistance * npc.m_state.rotation.Y.cos());
             const auto angle = core::Angle::fromAtan(dx, dz);
             pivotDistanceToLaraSq = std::lround(dx * dx + dz * dz);
-            pivotAngleToLara = angle - npc.getRotation().Y;
-            laraAngleToPivot = angle + 180_deg - npc.getLevel().m_lara->getRotation().Y;
+            pivotAngleToLara = angle - npc.m_state.rotation.Y;
+            laraAngleToPivot = angle + 180_deg - npc.getLevel().m_lara->m_state.rotation.Y;
             laraAhead = pivotAngleToLara > -90_deg && pivotAngleToLara < 90_deg;
             enemyFacing = false;
             if( laraAhead )
             {
-                if( npc.getPosition().Y - loader::QuarterSectorSize < npc.getLevel().m_lara->getPosition().Y
-                    && npc.getPosition().Y + loader::QuarterSectorSize > npc.getLevel().m_lara->getPosition().Y )
+                if( npc.m_state.position.position.Y - loader::QuarterSectorSize < npc.getLevel().m_lara->m_state.position.position.Y
+                    && npc.m_state.position.position.Y + loader::QuarterSectorSize > npc.getLevel().m_lara->m_state.position.position.Y )
                 {
                     enemyFacing = true;
                 }
@@ -54,7 +54,7 @@ namespace engine
                 searchOverride.reset();
             }
             const auto originalMood = brain.mood;
-            if( npc.getLevel().m_lara->getHealth() > 0 )
+            if( npc.getLevel().m_lara->m_state.health > 0 )
             {
                 if( ignoreProbabilities )
                 {
@@ -150,12 +150,12 @@ namespace engine
                 case Mood::Attack:
                     if( (std::rand() % 32768) < attackTargetUpdateProbability )
                     {
-                        searchTarget = npc.getLevel().m_lara->getPosition();
+                        searchTarget = npc.getLevel().m_lara->m_state.position.position;
                         searchOverride = npc.getLevel().m_lara->getCurrentBox();
                         BOOST_ASSERT(searchOverride.is_initialized());
                         if( flyHeight != 0 && !npc.getLevel().m_lara->isInWater() )
                         {
-                            searchTarget.Y += npc.getLevel().m_lara->getSkeleton()->getBoundingBox().minY;
+                            searchTarget.Y += npc.getLevel().m_lara->getSkeleton()->getBoundingBox(npc.getLevel().m_lara->m_state).minY;
                         }
                     }
                     break;
@@ -225,7 +225,7 @@ namespace engine
 
             if(enemy != nullptr)
             {
-                searchTarget = enemy->getPosition();
+                searchTarget = enemy->m_state.position.position;
 
                 BOOST_ASSERT(enemy->getCurrentBox().is_initialized());
 
@@ -385,8 +385,8 @@ namespace engine
 
         bool RoutePlanner::stalkBox(const items::ItemNode& npc, const loader::Box& box)
         {
-            const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->getPosition().X;
-            const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->getPosition().Z;
+            const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->m_state.position.position.X;
+            const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->m_state.position.position.Z;
 
             if( laraToBoxDistX > 3 * loader::SectorSize || laraToBoxDistX < -3 * loader::SectorSize || laraToBoxDistZ > 3 * loader::SectorSize ||
                 laraToBoxDistZ < -3 * loader::SectorSize )
@@ -394,7 +394,7 @@ namespace engine
                 return false;
             }
 
-            auto laraAxisBack = *core::axisFromAngle(npc.getLevel().m_lara->getRotation().Y + 180_deg, 45_deg);
+            auto laraAxisBack = *core::axisFromAngle(npc.getLevel().m_lara->m_state.rotation.Y + 180_deg, 45_deg);
             core::Axis laraToBoxAxis;
             if( laraToBoxDistZ > 0 )
             {
@@ -424,9 +424,9 @@ namespace engine
             }
 
             core::Axis itemToLaraAxis;
-            if( npc.getPosition().Z <= npc.getLevel().m_lara->getPosition().Z )
+            if( npc.m_state.position.position.Z <= npc.getLevel().m_lara->m_state.position.position.Z )
             {
-                if( npc.getPosition().X <= npc.getLevel().m_lara->getPosition().X )
+                if( npc.m_state.position.position.X <= npc.getLevel().m_lara->m_state.position.position.X )
                 {
                     itemToLaraAxis = core::Axis::PosZ;
                 }
@@ -437,7 +437,7 @@ namespace engine
             }
             else
             {
-                if( npc.getPosition().X > npc.getLevel().m_lara->getPosition().X )
+                if( npc.m_state.position.position.X > npc.getLevel().m_lara->m_state.position.position.X )
                 {
                     itemToLaraAxis = core::Axis::PosX;
                 }
@@ -478,15 +478,15 @@ namespace engine
 
         bool RoutePlanner::inSameQuadrantAsBoxRelativeToLara(const items::ItemNode& npc, const loader::Box& box)
         {
-            const auto laraToBoxX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->getPosition().X;
-            const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->getPosition().Z;
+            const auto laraToBoxX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->m_state.position.position.X;
+            const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->m_state.position.position.Z;
             if( laraToBoxX <= -5 * loader::SectorSize
                 || laraToBoxX >= 5 * loader::SectorSize
                 || laraToBoxZ <= -5 * loader::SectorSize
                 || laraToBoxZ >= 5 * loader::SectorSize )
             {
-                const auto laraToNpcX = npc.getPosition().X - npc.getLevel().m_lara->getPosition().X;
-                const auto laraToNpcZ = npc.getPosition().Z - npc.getLevel().m_lara->getPosition().Z;
+                const auto laraToNpcX = npc.m_state.position.position.X - npc.getLevel().m_lara->m_state.position.position.X;
+                const auto laraToNpcZ = npc.m_state.position.position.Z - npc.getLevel().m_lara->m_state.position.position.Z;
                 return ((laraToNpcZ > 0) == (laraToBoxZ > 0))
                        || ((laraToNpcX > 0) == (laraToBoxX > 0));
             }
@@ -502,7 +502,7 @@ namespace engine
                 destinationBox = searchOverride;
             }
 
-            targetPos = npc.getPosition();
+            targetPos = npc.m_state.position.position;
 
             findPath(npc, enemy);
             if( path.empty() )
@@ -519,7 +519,7 @@ namespace engine
             uint16_t reachable = AllowAll;
 
             // Defines the reachable area
-            int minZ = npc.getPosition().Z, maxZ = npc.getPosition().Z, minX = npc.getPosition().X, maxX = npc.getPosition().X;
+            int minZ = npc.m_state.position.position.Z, maxZ = npc.m_state.position.position.Z, minX = npc.m_state.position.position.X, maxX = npc.m_state.position.position.X;
             for( const auto& currentBox : path )
             {
                 if( flyHeight != 0 )
@@ -537,8 +537,8 @@ namespace engine
                     }
                 }
 
-                if( npc.getPosition().Z + 1 >= currentBox->zmin && npc.getPosition().Z <= currentBox->zmax - 1
-                    && npc.getPosition().X + 1 >= currentBox->xmin && npc.getPosition().X <= currentBox->xmax - 1 )
+                if( npc.m_state.position.position.Z + 1 >= currentBox->zmin && npc.m_state.position.position.Z <= currentBox->zmax - 1
+                    && npc.m_state.position.position.X + 1 >= currentBox->xmin && npc.m_state.position.position.X <= currentBox->xmax - 1 )
                 {
                     // initialize the reachable area to the box the NPC is in.
                     minZ = currentBox->zmin;
@@ -547,12 +547,12 @@ namespace engine
                     minX = currentBox->xmin;
                 }
 
-                if( npc.getPosition().Z > currentBox->zmax )
+                if( npc.m_state.position.position.Z > currentBox->zmax )
                 {
                     // need to travel to -Z
                     if( (reachable & AllowNegZ)
-                        && npc.getPosition().X >= currentBox->xmin
-                        && npc.getPosition().X <= currentBox->xmax )
+                        && npc.m_state.position.position.X >= currentBox->xmin
+                        && npc.m_state.position.position.X <= currentBox->xmax )
                     {
                         // we may expand the line, as we have an overlap on the X axis,
                         // an are also allowed to travel towards -Z
@@ -596,11 +596,11 @@ namespace engine
                         reachable |= StayInBox;
                     }
                 }
-                else if( npc.getPosition().Z < currentBox->zmin )
+                else if( npc.m_state.position.position.Z < currentBox->zmin )
                 {
                     if( (reachable & AllowPosZ)
-                        && npc.getPosition().X >= currentBox->xmin
-                        && npc.getPosition().X <= currentBox->xmax )
+                        && npc.m_state.position.position.X >= currentBox->xmin
+                        && npc.m_state.position.position.X <= currentBox->xmax )
                     {
                         if( currentBox->zmin + loader::SectorSize / 2 > targetPos.Z )
                         {
@@ -631,11 +631,11 @@ namespace engine
                     }
                 }
 
-                if( npc.getPosition().X > currentBox->xmax )
+                if( npc.m_state.position.position.X > currentBox->xmax )
                 {
                     if( (reachable & AllowNegX)
-                        && npc.getPosition().Z >= currentBox->zmin
-                        && npc.getPosition().Z <= currentBox->zmax )
+                        && npc.m_state.position.position.Z >= currentBox->zmin
+                        && npc.m_state.position.position.Z <= currentBox->zmax )
                     {
                         if( currentBox->xmax - loader::SectorSize / 2 < targetPos.X )
                         {
@@ -665,11 +665,11 @@ namespace engine
                         reachable |= StayInBox;
                     }
                 }
-                else if( npc.getPosition().X < currentBox->xmin )
+                else if( npc.m_state.position.position.X < currentBox->xmin )
                 {
                     if( (reachable & AllowPosX)
-                        && npc.getPosition().Z >= currentBox->zmin
-                        && npc.getPosition().Z <= currentBox->zmax )
+                        && npc.m_state.position.position.Z >= currentBox->zmin
+                        && npc.m_state.position.position.Z <= currentBox->zmax )
                     {
                         if( currentBox->xmin + loader::SectorSize / 2 > targetPos.X )
                         {
@@ -796,7 +796,7 @@ namespace engine
                 return false;
             }
 
-            return !(npc.getPosition().Z > box.zmin && npc.getPosition().Z < box.zmax && npc.getPosition().X > box.xmin && npc.getPosition().X < box.xmax);
+            return !(npc.m_state.position.position.Z > box.zmin && npc.m_state.position.position.Z < box.zmax && npc.m_state.position.position.X > box.xmin && npc.m_state.position.position.X < box.xmax);
         }
     }
 }

@@ -28,11 +28,11 @@ namespace engine
                 if( m_state.updateActivationTimeout() )
                 {
                     if( getCurrentState() == 0 )
-                        getSkeleton()->setTargetState(1);
+                        m_state.goal_anim_state = 1;
                 }
                 else if( getCurrentState() == 1 )
                 {
-                    getSkeleton()->setTargetState(0);
+                    m_state.goal_anim_state = 0;
                 }
             }
 
@@ -44,32 +44,32 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > getPosition().Y
-                    || y <= getPosition().Y )
+                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y
+                    || y <= m_state.position.position.Y )
                     return;
 
-                y = getPosition().Y;
+                y = m_state.position.position.Y;
             }
 
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= getPosition().Y
-                    || y > getPosition().Y )
+                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y
+                    || y > m_state.position.position.Y )
                     return;
 
-                y = getPosition().Y + loader::QuarterSectorSize;
+                y = m_state.position.position.Y + loader::QuarterSectorSize;
             }
 
 
         private:
             bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
             {
-                auto trapdoorSectorX = getPosition().X / loader::SectorSize;
-                auto trapdoorSectorZ = getPosition().Z / loader::SectorSize;
+                auto trapdoorSectorX = m_state.position.position.X / loader::SectorSize;
+                auto trapdoorSectorZ = m_state.position.position.Z / loader::SectorSize;
                 auto posSectorX = pos.X / loader::SectorSize;
                 auto posSectorZ = pos.Z / loader::SectorSize;
-                auto trapdoorAxis = core::axisFromAngle(getRotation().Y, 1_au);
+                auto trapdoorAxis = core::axisFromAngle(m_state.rotation.Y, 1_au);
                 BOOST_ASSERT(trapdoorAxis.is_initialized());
 
                 if( *trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX && (trapdoorSectorZ + 1 == posSectorZ || trapdoorSectorZ == posSectorZ) )

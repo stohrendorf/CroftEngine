@@ -1059,7 +1059,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::I
     image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
     image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
 
-    const int p = util::clamp(m_lara->getHealth() * 100 / core::LaraHealth, 0, 100);
+    const int p = util::clamp(m_lara->m_state.health * 100 / core::LaraHealth, 0, 100);
     if( p > 0 )
     {
         image->line(x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor());

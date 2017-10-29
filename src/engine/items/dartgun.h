@@ -29,21 +29,21 @@ namespace engine
                 {
                     if( getCurrentState() == 0 )
                     {
-                        getSkeleton()->setTargetState(1);
+                        m_state.goal_anim_state = 1;
                     }
                 }
                 else if( getCurrentState() == 1 )
                 {
-                    getSkeleton()->setTargetState(0);
+                    m_state.goal_anim_state = 0;
                 }
 
-                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || getSkeleton()->getCurrentLocalFrame() < 0 || getSkeleton()->getCurrentLocalFrame() >= 1)
+                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || m_state.frame_number != getLevel().m_animations[m_state.anim_number].firstFrame)
                 {
                     ModelItemNode::update();
                     return;
                 }
 
-                auto axis = core::axisFromAngle(getRotation().Y, 45_deg);
+                auto axis = core::axisFromAngle(m_state.rotation.Y, 45_deg);
                 BOOST_ASSERT(axis.is_initialized());
 
                 core::TRCoordinates d(0, 512, 0);
@@ -66,7 +66,7 @@ namespace engine
                         break;
                 }
 
-                auto dart = getLevel().createItem<Dart>(39, getCurrentRoom(), getRotation().Y, getPosition() - d, 0);
+                auto dart = getLevel().createItem<Dart>(39, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0);
                 dart->activate();
                 dart->m_triggerState = engine::items::TriggerState::Enabled;
 

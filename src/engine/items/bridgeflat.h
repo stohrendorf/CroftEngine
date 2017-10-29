@@ -25,17 +25,17 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( pos.Y <= getPosition().Y )
-                    y = getPosition().Y;
+                if( pos.Y <= m_state.position.position.Y )
+                    y = m_state.position.position.Y;
             }
 
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( pos.Y <= getPosition().Y )
+                if( pos.Y <= m_state.position.position.Y )
                     return;
 
-                y = getPosition().Y + loader::QuarterSectorSize;
+                y = m_state.position.position.Y + loader::QuarterSectorSize;
             }
         };
     }

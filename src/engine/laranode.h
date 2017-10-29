@@ -55,7 +55,7 @@ namespace engine
         {
             setAnimIdGlobal(loader::AnimationId::STAY_IDLE);
             setTargetState(LaraStateId::Stop);
-            setMovementAngle(getRotation().Y);
+            setMovementAngle(m_state.rotation.Y);
         }
 
 
@@ -101,18 +101,6 @@ namespace engine
         uint16_t m_secretsFoundBitmask = 0;
 
     public:
-        int getHealth() const noexcept
-        {
-            return m_health;
-        }
-
-
-        void setHealth(int h) noexcept
-        {
-            m_health = h;
-        }
-
-
         void setAir(int a) noexcept
         {
             m_air = a;

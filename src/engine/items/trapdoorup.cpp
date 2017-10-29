@@ -9,7 +9,7 @@ namespace engine
         void TrapDoorUp::update()
         {
             ModelItemNode::update();
-            auto pos = getRoomBoundPosition();
+            auto pos = m_state.position;
             getLevel().findRealFloorSector( pos );
             setCurrentRoom( pos.room );
         }

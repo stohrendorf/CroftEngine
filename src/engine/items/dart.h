@@ -29,15 +29,15 @@ namespace engine
 
                 ModelItemNode::update();
 
-                const loader::Room* room = getCurrentRoom();
-                auto sector = getLevel().findRealFloorSector(getPosition(), &room);
-                if( room != getCurrentRoom() )
+                const loader::Room* room = m_state.position.room;
+                auto sector = getLevel().findRealFloorSector(m_state.position.position, &room);
+                if( room != m_state.position.room )
                     setCurrentRoom(room);
 
-                HeightInfo h = HeightInfo::fromFloor(sector, getPosition(), getLevel().m_cameraController);
-                setFloorHeight(h.distance);
+                HeightInfo h = HeightInfo::fromFloor(sector, m_state.position.position, getLevel().m_cameraController);
+                m_state.floor = h.distance;
 
-                if( getPosition().Y < getFloorHeight() )
+                if( m_state.position.position.Y < m_state.floor )
                     return;
 
                 getLevel().scheduleDeletion(this);

@@ -35,7 +35,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override final
             {
-                auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+                auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_div;
                 if( pos.Y <= tmp )
                     y = tmp;
             }
@@ -43,7 +43,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override final
             {
-                auto tmp = getPosition().Y + getBridgeSlopeHeight(pos) / m_div;
+                auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_div;
                 if( pos.Y <= tmp )
                     return;
 
@@ -54,7 +54,7 @@ namespace engine
         private:
             int getBridgeSlopeHeight(const core::TRCoordinates& pos) const
             {
-                auto axis = axisFromAngle(getRotation().Y, 1_deg);
+                auto axis = axisFromAngle(m_state.rotation.Y, 1_deg);
                 Expects( axis.is_initialized() );
 
                 switch( *axis )

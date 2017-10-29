@@ -5,32 +5,32 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
-
 namespace engine
 {
-    namespace lara
+namespace lara
+{
+class StateHandler_32 final
+    : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_32(LaraNode& lara)
+        : AbstractStateHandler(lara, LaraStateId::SlideBackward)
     {
-        class StateHandler_32 final : public AbstractStateHandler
-        {
-        public:
-            explicit StateHandler_32(LaraNode& lara)
-                : AbstractStateHandler(lara, LaraStateId::SlideBackward)
-            {
-            }
-
-
-            void handleInput(CollisionInfo& /*collisionInfo*/) override
-            {
-                if( getLevel().m_inputHandler->getInputState().jump )
-                    setTargetState(LaraStateId::JumpBack);
-            }
-
-
-            void postprocessFrame(CollisionInfo& collisionInfo) override
-            {
-                setMovementAngle(getRotation().Y + 180_deg);
-                commonSlideHandling(collisionInfo);
-            }
-        };
     }
+
+    void handleInput(CollisionInfo& /*collisionInfo*/) override
+    {
+        if( getLevel().m_inputHandler->getInputState().jump )
+        {
+            setTargetState(LaraStateId::JumpBack);
+        }
+    }
+
+    void postprocessFrame(CollisionInfo& collisionInfo) override
+    {
+        setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
+        commonSlideHandling(collisionInfo);
+    }
+};
+}
 }

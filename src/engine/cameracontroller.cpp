@@ -13,9 +13,9 @@ namespace engine
         : m_camera{ camera }
         , m_level{ level }
         , m_laraController{ laraController }
-        , m_position{ laraController->getCurrentRoom() }
-        , m_target{ laraController->getCurrentRoom(), m_laraController->getPosition() }
-        , m_cameraYOffset{ laraController->getPosition().Y - loader::SectorSize }
+        , m_position{ laraController->m_state.position.room }
+        , m_target{ laraController->m_state.position.room, m_laraController->m_state.position.position }
+        , m_cameraYOffset{ laraController->m_state.position.position.Y - loader::SectorSize }
     {
         m_target.position.Y -= m_cameraYOffset;
         m_position = m_target;
@@ -391,7 +391,7 @@ namespace engine
 
         items::ItemNode* trackedItem = tracking ? m_item : m_laraController;
         auto trackedBBox = trackedItem->getBoundingBox();
-        int trackedY = trackedItem->getPosition().Y;
+        int trackedY = trackedItem->m_state.position.position.Y;
         if( tracking )
             trackedY += (trackedBBox.minY + trackedBBox.maxY) / 2;
         else
@@ -401,11 +401,11 @@ namespace engine
         {
             BOOST_ASSERT(m_item != trackedItem);
             BOOST_ASSERT(trackedItem);
-            const auto distToTarget = m_item->getPosition().distanceTo(trackedItem->getPosition());
-            auto trackAngleY = core::Angle::fromAtan(m_item->getPosition().X - trackedItem->getPosition().X, m_item->getPosition().Z - trackedItem->getPosition().Z) - trackedItem->getRotation().Y;
+            const auto distToTarget = m_item->m_state.position.position.distanceTo(trackedItem->m_state.position.position);
+            auto trackAngleY = core::Angle::fromAtan(m_item->m_state.position.position.X - trackedItem->m_state.position.position.X, m_item->m_state.position.position.Z - trackedItem->m_state.position.position.Z) - trackedItem->m_state.rotation.Y;
             trackAngleY *= 0.5f;
             trackedBBox = m_item->getBoundingBox();
-            auto trackAngleX = core::Angle::fromAtan(distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2 + m_item->getPosition().Y);
+            auto trackAngleX = core::Angle::fromAtan(distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2 + m_item->m_state.position.position.Y);
             trackAngleX *= 0.5f;
 
             if( trackAngleY < 50_deg && trackAngleY > -50_deg && trackAngleX < 85_deg && trackAngleX > -85_deg )
@@ -433,18 +433,18 @@ namespace engine
             }
         }
 
-        m_target.room = trackedItem->getCurrentRoom();
+        m_target.room = trackedItem->m_state.position.room;
 
         if( m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat )
         {
-            m_target.position.X = trackedItem->getPosition().X;
-            m_target.position.Z = trackedItem->getPosition().Z;
+            m_target.position.X = trackedItem->m_state.position.position.X;
+            m_target.position.Z = trackedItem->m_state.position.position.Z;
 
             if( m_oldMode == CameraMode::Fixed )
             {
                 const auto midZ = (trackedBBox.minZ + trackedBBox.maxZ) / 2;
-                m_target.position.Z += midZ * trackedItem->getRotation().Y.cos();
-                m_target.position.X += midZ * trackedItem->getRotation().Y.sin();
+                m_target.position.Z += midZ * trackedItem->m_state.rotation.Y.cos();
+                m_target.position.X += midZ * trackedItem->m_state.rotation.Y.sin();
             }
 
             if( m_tracking == tracking )
@@ -622,7 +622,7 @@ namespace engine
 
     void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode*>& item)
     {
-        m_currentRotation.X += item->getRotation().X;
+        m_currentRotation.X += item->m_state.rotation.X;
         if( m_currentRotation.X > 85_deg )
             m_currentRotation.X = 85_deg;
         else if( m_currentRotation.X < -85_deg )
@@ -634,7 +634,7 @@ namespace engine
         core::RoomBoundPosition targetPos(m_position.room);
         targetPos.position.Y = m_targetDistance * m_currentRotation.X.sin() + m_target.position.Y;
 
-        core::Angle y = m_currentRotation.Y + item->getRotation().Y;
+        core::Angle y = m_currentRotation.Y + item->m_state.rotation.Y;
         targetPos.position.X = m_target.position.X - dist * y.sin();
         targetPos.position.Z = m_target.position.Z - dist * y.cos();
         clampBox(targetPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h)
@@ -649,19 +649,19 @@ namespace engine
     void CameraController::handleFreeLook(const items::ItemNode& item)
     {
         const auto originalPivotPosition = m_target.position;
-        m_target.position.X = item.getPosition().X;
-        m_target.position.Z = item.getPosition().Z;
-        m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.getRotation().X;
-        m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.getRotation().Y;
+        m_target.position.X = item.m_state.position.position.X;
+        m_target.position.Z = item.m_state.position.position.Z;
+        m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.m_state.rotation.X;
+        m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.m_state.rotation.Y;
         m_targetDistance = 1536;
         m_cameraYOffset = gsl::narrow_cast<int>(-2 * loader::QuarterSectorSize * m_currentRotation.Y.sin());
-        m_target.position.X += m_cameraYOffset * item.getRotation().Y.sin();
-        m_target.position.Z += m_cameraYOffset * item.getRotation().Y.cos();
+        m_target.position.X += m_cameraYOffset * item.m_state.rotation.Y.sin();
+        m_target.position.Z += m_cameraYOffset * item.m_state.rotation.Y.cos();
 
         if( isVerticallyOutsideRoom(m_target.position, m_position.room) )
         {
-            m_target.position.X = item.getPosition().X;
-            m_target.position.Z = item.getPosition().Z;
+            m_target.position.X = item.m_state.position.position.X;
+            m_target.position.Z = item.m_state.position.position.Z;
         }
 
         m_target.position.Y += moveIntoGeometry(m_target, loader::QuarterSectorSize + 50);
@@ -683,18 +683,18 @@ namespace engine
 
     void CameraController::handleEnemy(const items::ItemNode& item)
     {
-        m_target.position.X = item.getPosition().X;
-        m_target.position.Z = item.getPosition().Z;
+        m_target.position.X = item.m_state.position.position.X;
+        m_target.position.Z = item.m_state.position.position.Z;
 
         if( m_enemy != nullptr )
         {
-            m_currentRotation.X = m_targetRotation.X + item.getRotation().X;
-            m_currentRotation.Y = m_targetRotation.Y + item.getRotation().Y;
+            m_currentRotation.X = m_targetRotation.X + item.m_state.rotation.X;
+            m_currentRotation.Y = m_targetRotation.Y + item.m_state.rotation.Y;
         }
         else
         {
-            m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.getRotation().X;
-            m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.getRotation().Y;
+            m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X + item.m_state.rotation.X;
+            m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y + item.m_state.rotation.Y;
         }
 
         m_targetDistance = 2560;

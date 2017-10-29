@@ -30,7 +30,7 @@ namespace engine
         shift = {0,0,0};
         facingAxis = *axisFromAngle(facingAngle, 45_deg);
 
-        const loader::Room* room = level.m_lara->getCurrentRoom();
+        const loader::Room* room = level.m_lara->m_state.position.room;
         const auto refTestPos = laraPos - core::TRCoordinates(0, height + core::ScalpToHandsHeight, 0);
         gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector(refTestPos, &room);
 
@@ -219,23 +219,23 @@ namespace engine
                                         const level::Level& level)
     {
         std::set<gsl::not_null<const loader::Room*>> result;
-        result.emplace( level.m_lara->getCurrentRoom() );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, -radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, -radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, -radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
-        result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, -radius ),
-                                                   level.m_lara->getCurrentRoom() ) );
+        result.emplace(level.m_lara->m_state.position.room);
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(radius, 0, -radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(-radius, 0, -radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(radius, -height, -radius),
+                                                 level.m_lara->m_state.position.room));
+        result.emplace(level.findRoomForPosition(position + core::TRCoordinates(-radius, -height, -radius),
+                                                 level.m_lara->m_state.position.room));
         return result;
     }
 

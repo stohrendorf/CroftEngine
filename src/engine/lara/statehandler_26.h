@@ -3,32 +3,32 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
-
 namespace engine
 {
-    namespace lara
+namespace lara
+{
+class StateHandler_26 final
+    : public AbstractStateHandler
+{
+public:
+    explicit StateHandler_26(LaraNode& lara)
+        : AbstractStateHandler(lara, LaraStateId::JumpLeft)
     {
-        class StateHandler_26 final : public AbstractStateHandler
-        {
-        public:
-            explicit StateHandler_26(LaraNode& lara)
-                : AbstractStateHandler(lara, LaraStateId::JumpLeft)
-            {
-            }
-
-
-            void handleInput(CollisionInfo& /*collisionInfo*/) override
-            {
-                if( getFallSpeed() > core::FreeFallSpeedThreshold )
-                    setTargetState(LaraStateId::FreeFall);
-            }
-
-
-            void postprocessFrame(CollisionInfo& collisionInfo) override
-            {
-                setMovementAngle(getRotation().Y + 90_deg);
-                commonJumpHandling(collisionInfo);
-            }
-        };
     }
+
+    void handleInput(CollisionInfo& /*collisionInfo*/) override
+    {
+        if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
+        {
+            setTargetState(LaraStateId::FreeFall);
+        }
+    }
+
+    void postprocessFrame(CollisionInfo& collisionInfo) override
+    {
+        setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
+        commonJumpHandling(collisionInfo);
+    }
+};
+}
 }

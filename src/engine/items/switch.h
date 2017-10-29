@@ -30,7 +30,7 @@ namespace engine
             {
                 if(!m_state.updateActivationTimeout())
                 {
-                    getSkeleton()->setTargetState(1);
+                    m_state.goal_anim_state = 1;
                     m_state.timer = 0;
                 }
 

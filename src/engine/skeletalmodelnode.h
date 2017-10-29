@@ -17,6 +17,11 @@ struct Animation;
 
 namespace engine
 {
+namespace items
+{
+class ItemState;
+}
+
 struct BoundingBox
 {
     int16_t minX{0}, maxX{0};
@@ -49,37 +54,15 @@ public:
                                const gsl::not_null<const level::Level*>& lvl,
                                const loader::SkeletalModelType& mdl);
 
-    void updatePose();
+    void updatePose(engine::items::ItemState& state);
 
-    void setAnimIdGlobal(size_t animId, size_t frame);
+    void setAnimIdGlobal(engine::items::ItemState& state, int16_t animId, int16_t frame);
 
-    size_t getAnimId() const noexcept
-    {
-        return m_animId;
-    }
+    int calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset = 0) const;
 
-    int getCurrentFrame() const
-    {
-        return m_frame;
-    }
+    int getAccelleration(const engine::items::ItemState& state) const;
 
-    uint16_t getCurrentState() const;
-
-    void setTargetState(uint16_t state) noexcept
-    {
-        m_targetState = state;
-    }
-
-    uint16_t getTargetState() const noexcept
-    {
-        return m_targetState;
-    }
-
-    int calculateFloorSpeed(int frameOffset = 0) const;
-
-    int getAccelleration() const;
-
-    BoundingBox getBoundingBox() const;
+    BoundingBox getBoundingBox(const engine::items::ItemState& state) const;
 
     void resetPose()
     {
@@ -100,14 +83,9 @@ public:
         m_bonePatches[idx] = m;
     }
 
-    int getCurrentLocalFrame() const
-    {
-        return m_frame - getStartFrame();
-    }
+    const loader::Animation& getCurrentAnimData(const engine::items::ItemState& state) const;
 
-    const loader::Animation& getCurrentAnimData() const;
-
-    bool advanceFrame();
+    bool advanceFrame(engine::items::ItemState& state);
 
 #pragma pack(push, 1)
 
@@ -156,25 +134,20 @@ public:
         }
     };
 
-    InterpolationInfo getInterpolationInfo() const;
+    InterpolationInfo getInterpolationInfo(const engine::items::ItemState& state) const;
 
 protected:
-    bool handleStateTransitions();
+    bool handleStateTransitions(engine::items::ItemState& state);
 
 private:
     const gsl::not_null<const level::Level*> m_level;
-    size_t m_animId = 0;
-    uint16_t m_frame = 0;
     const loader::SkeletalModelType& m_model;
-    uint16_t m_targetState = 0;
     std::vector<glm::mat4> m_bonePatches;
 
     void updatePoseKeyframe(const InterpolationInfo& framepair);
 
     void updatePoseInterpolated(const InterpolationInfo& framepair);
 
-    int getStartFrame() const;
-
-    int getEndFrame() const;
+    int getEndFrame(const engine::items::ItemState& state) const;
 };
 }

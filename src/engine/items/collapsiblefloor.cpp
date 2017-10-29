@@ -14,21 +14,21 @@ namespace engine
 
             if( getCurrentState() == 0 ) // stationary
             {
-                if( getPosition().Y - 512 != getLevel().m_lara->getPosition().Y )
+                if( m_state.position.position.Y - 512 != getLevel().m_lara->m_state.position.position.Y )
                 {
                     m_triggerState = TriggerState::Disabled;
                     deactivate();
                     return;
                 }
-                getSkeleton()->setTargetState( 1 );
+                m_state.goal_anim_state = 1;
             }
             else if( getCurrentState() == 1 ) // shaking
             {
-                getSkeleton()->setTargetState( 2 );
+                m_state.goal_anim_state = 2;
             }
-            else if( getCurrentState() == 2 && getSkeleton()->getTargetState() != 3 ) // falling, not going to settle
+            else if( getCurrentState() == 2 && m_state.goal_anim_state != 3 ) // falling, not going to settle
             {
-                setFalling( true );
+                m_state.falling = true;
             }
 
             ModelItemNode::update();
@@ -39,22 +39,22 @@ namespace engine
                 return;
             }
 
-            const loader::Room* room = getCurrentRoom();
-            auto sector = getLevel().findRealFloorSector( getPosition(), &room );
+            const loader::Room* room = m_state.position.room;
+            auto sector = getLevel().findRealFloorSector( m_state.position.position, &room );
             setCurrentRoom( room );
 
-            HeightInfo h = HeightInfo::fromFloor( sector, getPosition(), getLevel().m_cameraController );
-            setFloorHeight( h.distance );
-            if( getCurrentState() != 2 || getPosition().Y < h.distance )
+            HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_cameraController );
+            m_state.floor = h.distance;
+            if( getCurrentState() != 2 || m_state.position.position.Y < h.distance )
                 return;
 
             // settle
-            getSkeleton()->setTargetState( 3 );
-            setFallSpeed( 0 );
-            auto pos = getPosition();
-            pos.Y = getFloorHeight();
-            setPosition( pos );
-            setFalling( false );
+            m_state.goal_anim_state = 3;
+            m_state.fallspeed = 0;
+            auto pos = m_state.position.position;
+            pos.Y = m_state.floor;
+            m_state.position.position = pos;
+            m_state.falling = false;
         }
     }
 }

@@ -23,22 +23,22 @@ namespace
         drawText(font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string(fps));
 
         // position/rotation
-        drawText(font, 10, 40, lvl->m_lara->getCurrentRoom()->node->getId());
+        drawText(font, 10, 40, lvl->m_lara->m_state.position.room->node->getId());
 
-        drawText(font, 300, 20, std::to_string(std::lround(lvl->m_lara->getRotation().Y.toDegrees())) + " deg");
-        drawText(font, 300, 40, "x=" + std::to_string(lvl->m_lara->getPosition().X));
-        drawText(font, 300, 60, "y=" + std::to_string(lvl->m_lara->getPosition().Y));
-        drawText(font, 300, 80, "z=" + std::to_string(lvl->m_lara->getPosition().Z));
+        drawText(font, 300, 20, std::to_string(std::lround(lvl->m_lara->m_state.rotation.Y.toDegrees())) + " deg");
+        drawText(font, 300, 40, "x=" + std::to_string(lvl->m_lara->m_state.position.position.X));
+        drawText(font, 300, 60, "y=" + std::to_string(lvl->m_lara->m_state.position.position.Y));
+        drawText(font, 300, 80, "z=" + std::to_string(lvl->m_lara->m_state.position.position.Z));
 
         // physics
-        drawText(font, 300, 100, "grav " + std::to_string(lvl->m_lara->getFallSpeed()));
-        drawText(font, 300, 120, "fwd  " + std::to_string(lvl->m_lara->getHorizontalSpeed()));
+        drawText(font, 300, 100, "grav " + std::to_string(lvl->m_lara->m_state.fallspeed));
+        drawText(font, 300, 120, "fwd  " + std::to_string(lvl->m_lara->m_state.speed));
 
         // animation
         drawText(font, 10, 60, std::string("current/anim    ") + loader::toString(lvl->m_lara->getCurrentAnimState()));
         drawText(font, 10, 100, std::string("target          ") + loader::toString(lvl->m_lara->getTargetState()));
-        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->getSkeleton()->getCurrentFrame()));
-        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->getSkeleton()->getAnimId())));
+        drawText(font, 10, 120, std::string("frame           ") + std::to_string(lvl->m_lara->m_state.frame_number));
+        drawText(font, 10, 140, std::string("anim            ") + toString(static_cast<loader::AnimationId>(lvl->m_lara->m_state.anim_number)));
 
         // triggers
         {
@@ -171,7 +171,7 @@ void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
     }
 
     if (godMode)
-        lvl->m_lara->setHealth(core::LaraHealth);
+        lvl->m_lara->m_state.health = core::LaraHealth;
 
     lvl->m_lara->update();
 

@@ -5,11 +5,10 @@
 #include "engine/inputstate.h"
 #include "level/level.h"
 
-
 namespace engine
 {
-    namespace lara
-    {
+namespace lara
+{
 #pragma message("TODO: Statehandler 50 is not yet implemented")
-    }
+}
 }

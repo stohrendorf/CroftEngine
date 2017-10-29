@@ -33,25 +33,25 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( pos.Y > getPosition().Y - 512 )
+                if( pos.Y > m_state.position.position.Y - 512 )
                     return;
 
-                if( getCurrentState() != 0 && getSkeleton()->getCurrentState() != 1 )
+                if( getCurrentState() != 0 && m_state.current_anim_state != 1 )
                     return;
 
-                y = getPosition().Y - 512;
+                y = m_state.position.position.Y - 512;
             }
 
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( pos.Y <= getPosition().Y - 512 )
+                if( pos.Y <= m_state.position.position.Y - 512 )
                     return;
 
-                if( getCurrentState() != 0 && getSkeleton()->getCurrentState() != 1 )
+                if( getCurrentState() != 0 && m_state.current_anim_state != 1 )
                     return;
 
-                y = getPosition().Y - 256;
+                y = m_state.position.position.Y - 256;
             }
         };
     }

@@ -56,11 +56,11 @@ struct ItemState
     int32_t touch_bits;
     uint32_t mesh_bits;
     uint16_t object_number;
-    int16_t current_anim_state;
-    int16_t goal_anim_state;
-    int16_t required_anim_state;
-    int16_t anim_number;
-    int16_t frame_number;
+    uint16_t current_anim_state;
+    uint16_t goal_anim_state;
+    uint16_t required_anim_state;
+    uint16_t anim_number;
+    uint16_t frame_number;
     int16_t speed;
     int16_t fallspeed;
     int16_t health;
@@ -127,8 +127,6 @@ class ItemNode
 {
     gsl::not_null<level::Level*> const m_level;
 
-    int m_floorHeight = 0;
-
     std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
 
     void updateSounds();
@@ -187,31 +185,6 @@ public:
 
     virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
 
-    const core::TRCoordinates& getPosition() const noexcept
-    {
-        return m_state.position.position;
-    }
-
-    const core::TRRotation& getRotation() const noexcept
-    {
-        return m_state.rotation;
-    }
-
-    gsl::not_null<const loader::Room*> getCurrentRoom() const noexcept
-    {
-        return m_state.position.room;
-    }
-
-    int getFloorHeight() const noexcept
-    {
-        return m_floorHeight;
-    }
-
-    void setFloorHeight(const int h) noexcept
-    {
-        m_floorHeight = h;
-    }
-
     void setCurrentRoom(const loader::Room* newRoom);
 
     void applyTransform();
@@ -230,36 +203,6 @@ public:
         m_state.position.position.Z += dz;
     }
 
-    void moveX(const int d)
-    {
-        m_state.position.position.X += d;
-    }
-
-    void moveY(const int d)
-    {
-        m_state.position.position.Y += d;
-    }
-
-    void moveZ(const int d)
-    {
-        m_state.position.position.Z += d;
-    }
-
-    void setX(const int d)
-    {
-        m_state.position.position.X = d;
-    }
-
-    void setY(const int d)
-    {
-        m_state.position.position.Y = d;
-    }
-
-    void setZ(const int d)
-    {
-        m_state.position.position.Z = d;
-    }
-
     void move(const glm::vec3& d)
     {
         m_state.position.position += core::TRCoordinates(d);
@@ -267,51 +210,11 @@ public:
 
     void moveLocal(const int dx, const int dy, const int dz)
     {
-        const auto sin = getRotation().Y.sin();
-        const auto cos = getRotation().Y.cos();
+        const auto sin = m_state.rotation.Y.sin();
+        const auto cos = m_state.rotation.Y.cos();
         m_state.position.position.X += dz * sin + dx * cos;
         m_state.position.position.Y += dy;
         m_state.position.position.Z += dz * cos - dx * sin;
-    }
-
-    void setPosition(const core::TRCoordinates& pos)
-    {
-        m_state.position.position = pos;
-    }
-
-    void setXRotation(const core::Angle x)
-    {
-        m_state.rotation.X = x;
-    }
-
-    void addXRotation(const core::Angle x)
-    {
-        m_state.rotation.X += x;
-    }
-
-    void setYRotation(const core::Angle y)
-    {
-        m_state.rotation.Y = y;
-    }
-
-    void addYRotation(const core::Angle v)
-    {
-        m_state.rotation.Y += v;
-    }
-
-    void setZRotation(const core::Angle z)
-    {
-        m_state.rotation.Z = z;
-    }
-
-    void addZRotation(const core::Angle z)
-    {
-        m_state.rotation.Z += z;
-    }
-
-    void setRotation(const core::TRRotation& a)
-    {
-        m_state.rotation = a;
     }
 
     const level::Level& getLevel() const
@@ -322,41 +225,6 @@ public:
     level::Level& getLevel()
     {
         return *m_level;
-    }
-
-    const core::RoomBoundPosition& getRoomBoundPosition() const noexcept
-    {
-        return m_state.position;
-    }
-
-    bool isFalling() const noexcept
-    {
-        return m_state.falling != 0;
-    }
-
-    void setFalling(const bool falling) noexcept
-    {
-        m_state.falling = falling;
-    }
-
-    void setFallSpeed(const int16_t spd)
-    {
-        m_state.fallspeed = spd;
-    }
-
-    int16_t getFallSpeed() const noexcept
-    {
-        return m_state.fallspeed;
-    }
-
-    void setHorizontalSpeed(const int16_t speed)
-    {
-        m_state.speed = speed;
-    }
-
-    int16_t getHorizontalSpeed() const
-    {
-        return m_state.speed;
     }
 
     void dampenHorizontalSpeed(const float f)
@@ -381,16 +249,6 @@ public:
 
     void deactivate();
 
-    int getHorizontalSpeed()
-    {
-        return m_state.speed;
-    }
-
-    int getFallSpeed() noexcept
-    {
-        return m_state.fallspeed;
-    }
-
     virtual bool triggerSwitch(uint16_t arg) = 0;
 
     std::shared_ptr<audio::SourceHandle> playSoundEffect(int id);
@@ -410,24 +268,24 @@ public:
 
     virtual core::Angle getMovementAngle() const
     {
-        return getRotation().Y;
+        return m_state.rotation.Y;
     }
 
     bool alignTransform(const glm::vec3& trSpeed, const ItemNode& target)
     {
         const auto speed = trSpeed / 16384.0f;
-        const auto targetRot = target.getRotation().toMatrix();
-        auto targetPos = target.getPosition().toRenderSystem();
+        const auto targetRot = target.m_state.rotation.toMatrix();
+        auto targetPos = target.m_state.position.position.toRenderSystem();
         targetPos += glm::vec3(glm::vec4(speed, 0) * targetRot);
 
-        return alignTransformClamped(targetPos, target.getRotation(), 16, 364_au);
+        return alignTransformClamped(targetPos, target.m_state.rotation, 16, 364_au);
     }
 
     void setRelativeOrientedPosition(const core::TRCoordinates& offset, const ItemNode& target)
     {
-        setRotation(target.getRotation());
+        m_state.rotation = target.m_state.rotation;
 
-        const auto r = target.getRotation().toMatrix();
+        const auto r = target.m_state.rotation.toMatrix();
         move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
     }
 
@@ -552,7 +410,7 @@ public:
 protected:
     bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance, const core::Angle& maxAngle)
     {
-        auto d = targetPos - getPosition().toRenderSystem();
+        auto d = targetPos - m_state.position.position.toRenderSystem();
         const auto dist = glm::length(d);
         if( maxDistance < dist )
         {
@@ -560,49 +418,50 @@ protected:
         }
         else
         {
-            setPosition(core::TRCoordinates(targetPos));
+            const core::TRCoordinates& pos = core::TRCoordinates(targetPos);
+            m_state.position.position = pos;
         }
 
-        core::TRRotation phi = targetRot - getRotation();
+        core::TRRotation phi = targetRot - m_state.rotation;
         if( phi.X > maxAngle )
         {
-            addXRotation(maxAngle);
+            m_state.rotation.X += maxAngle;
         }
         else if( phi.X < -maxAngle )
         {
-            addXRotation(-maxAngle);
+            m_state.rotation.X += -maxAngle;
         }
         else
         {
-            addXRotation(phi.X);
+            m_state.rotation.X += phi.X;
         }
         if( phi.Y > maxAngle )
         {
-            addYRotation(maxAngle);
+            m_state.rotation.Y += maxAngle;
         }
         else if( phi.Y < -maxAngle )
         {
-            addYRotation(-maxAngle);
+            m_state.rotation.Y += -maxAngle;
         }
         else
         {
-            addYRotation(phi.Y);
+            m_state.rotation.Y += phi.Y;
         }
         if( phi.Z > maxAngle )
         {
-            addZRotation(maxAngle);
+            m_state.rotation.Z += maxAngle;
         }
         else if( phi.Z < -maxAngle )
         {
-            addZRotation(-maxAngle);
+            m_state.rotation.Z += -maxAngle;
         }
         else
         {
-            addZRotation(phi.Z);
+            m_state.rotation.Z += phi.Z;
         }
 
-        phi = targetRot - getRotation();
-        d = targetPos - getPosition().toRenderSystem();
+        phi = targetRot - m_state.rotation;
+        d = targetPos - m_state.position.position.toRenderSystem();
 
         return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
                && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
@@ -644,7 +503,7 @@ public:
             return false;
         }
 
-        if( m_skeleton->getCurrentState() != 0 || engine::floordata::ActivationState{arg}.isLocked() )
+        if( m_state.current_anim_state != 0 || engine::floordata::ActivationState{arg}.isLocked() )
         {
             deactivate();
             m_triggerState = TriggerState::Disabled;
@@ -708,9 +567,9 @@ public:
     BoundingBox getBoundingBox() const override
     {
         BoundingBox bb;
-        bb.minX = bb.maxX = getPosition().X;
-        bb.minY = bb.maxY = getPosition().Y;
-        bb.minZ = bb.maxZ = getPosition().Z;
+        bb.minX = bb.maxX = m_state.position.position.X;
+        bb.minY = bb.maxY = m_state.position.position.Y;
+        bb.minZ = bb.maxZ = m_state.position.position.Z;
         return bb;
     }
 

@@ -359,7 +359,7 @@ namespace loader
 
     void Room::patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height)
     {
-        core::RoomBoundPosition pos = ctrl.getRoomBoundPosition();
+        core::RoomBoundPosition pos = ctrl.m_state.position;
         //! @todo Ugly const_cast
         auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findRealFloorSector(pos).get());
         pos.position.Y += height - loader::SectorSize;

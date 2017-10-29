@@ -32,7 +32,8 @@ namespace engine
                 , m_zone{m_brain.route.getZone(*this)}
             {
                 m_state.collidable = true;
-                addYRotation(core::Angle(std::rand() % 65536));
+                const core::Angle v = core::Angle(std::rand() % 65536);
+                m_state.rotation.Y += v;
             }
 
 
@@ -50,8 +51,9 @@ namespace engine
 
             void rotateCreatureTilt(core::Angle angle)
             {
-                const auto dz = core::Angle(4 * angle.toAU()) - getRotation().Z;
-                addZRotation(util::clamp(dz, -3_deg, +3_deg));
+                const auto dz = core::Angle(4 * angle.toAU()) - m_state.rotation.Z;
+                const core::Angle z = util::clamp(dz, -3_deg, +3_deg);
+                m_state.rotation.Z += z;
             }
 
 
