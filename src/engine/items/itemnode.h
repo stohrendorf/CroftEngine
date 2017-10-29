@@ -52,25 +52,25 @@ enum class TriggerState
 
 struct ItemState
 {
-    int32_t floor;
-    int32_t touch_bits;
-    uint32_t mesh_bits;
-    uint16_t object_number;
-    uint16_t current_anim_state;
-    uint16_t goal_anim_state;
-    uint16_t required_anim_state;
-    uint16_t anim_number;
-    uint16_t frame_number;
-    int16_t speed;
-    int16_t fallspeed;
-    int16_t health;
-    int16_t box_number;
-    int16_t timer;
+    int32_t floor = 0;
+    int32_t touch_bits = 0;
+    uint32_t mesh_bits = 0;
+    uint16_t object_number = 0;
+    uint16_t current_anim_state = 0;
+    uint16_t goal_anim_state = 0;
+    uint16_t required_anim_state = 0;
+    uint16_t anim_number = 0;
+    uint16_t frame_number = 0;
+    int16_t speed = 0;
+    int16_t fallspeed = 0;
+    int16_t health = 0;
+    int16_t box_number = 0;
+    int16_t timer = 0;
     floordata::ActivationState activationState;
-    int16_t shade;
+    int16_t shade = 0;
     union
     {
-        uint16_t flags;
+        uint16_t flags = 0;
         struct
         {
             bool loaded

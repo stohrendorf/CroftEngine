@@ -19,7 +19,7 @@ namespace engine
 {
 namespace items
 {
-class ItemState;
+struct ItemState;
 }
 
 struct BoundingBox
