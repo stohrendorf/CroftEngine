@@ -18,7 +18,7 @@ namespace engine
                          const gsl::not_null<const loader::Room*>& room,
                          const core::Angle& angle,
                          const core::TRCoordinates& position,
-                         const floordata::ActivationState& activationState,
+                         uint16_t activationState,
                          int16_t darkness,
                          const loader::SkeletalModelType& animatedModel,
                          int div)
@@ -77,7 +77,7 @@ namespace engine
                          const gsl::not_null<const loader::Room*>& room,
                          const core::Angle& angle,
                          const core::TRCoordinates& position,
-                         const floordata::ActivationState& activationState,
+                         uint16_t activationState,
                          int16_t darkness,
                          const loader::SkeletalModelType& animatedModel)
                 : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 4}
@@ -94,7 +94,7 @@ namespace engine
                          const gsl::not_null<const loader::Room*>& room,
                          const core::Angle& angle,
                          const core::TRCoordinates& position,
-                         const floordata::ActivationState& activationState,
+                         uint16_t activationState,
                          int16_t darkness,
                          const loader::SkeletalModelType& animatedModel)
                 : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 2}

@@ -93,7 +93,7 @@ namespace engine
             if( m_triggerState == engine::items::TriggerState::Activated )
             {
                 m_health = -16384;
-                m_flags2_20_collidable = false;
+                m_state.collidable = false;
                 //! @todo disposeCreatureData();
                 deactivate();
                 return false;
@@ -103,7 +103,7 @@ namespace engine
 
             const auto initialPos = getPosition();
             auto bboxTop = getSkeleton()->getBoundingBox().minY;
-            auto npcRoom = getCurrentRoom();
+            const loader::Room* npcRoom = getCurrentRoom();
             auto npcSector = getLevel().findRealFloorSector(
                 getPosition() + core::TRCoordinates(0, bboxTop, 0),
                 &npcRoom);

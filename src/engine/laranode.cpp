@@ -557,7 +557,7 @@ namespace engine
     {
         auto pos = getPosition();
         pos.Y += dy;
-        gsl::not_null<const loader::Room*> room = getCurrentRoom();
+        const loader::Room* room = getCurrentRoom();
         auto sector = getLevel().findRealFloorSector(pos, &room);
         setCurrentRoom(room);
         HeightInfo hi = HeightInfo::fromFloor(sector, pos, getLevel().m_cameraController);
@@ -590,7 +590,8 @@ namespace engine
 
         chunkHeader = floordata::FloorDataChunk{*floorData++};
         BOOST_ASSERT(chunkHeader.type == floordata::FloorDataChunkType::CommandSequence);
-        const floordata::ActivationState activationRequest{*floorData++};
+        const uint16_t activationRequestRaw = *floorData++;
+        const floordata::ActivationState activationRequest{activationRequestRaw};
 
         getLevel().m_cameraController->findItem(floorData);
 
@@ -610,8 +611,8 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
-                    if( !swtch.triggerSwitch(activationRequest) )
+                    items::ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
+                    if( !swtch.triggerSwitch(activationRequestRaw) )
                         return;
 
                     switchIsOn = (swtch.getCurrentState() == 1);
@@ -622,7 +623,7 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& key = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& key = *getLevel().m_itemNodes[command.parameter];
                     if( key.triggerKey() )
                         conditionFulfilled = true;
                 }
@@ -631,7 +632,7 @@ namespace engine
                 {
                     const floordata::Command command{*floorData++};
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
+                    items::ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
                     if( pickup.triggerPickUp() )
                         conditionFulfilled = true;
                 }
@@ -664,26 +665,26 @@ namespace engine
                 case floordata::CommandOpcode::Activate:
                 {
                     Expects( getLevel().m_itemNodes.find(command.parameter) != getLevel().m_itemNodes.end() );
-                    ItemNode& item = *getLevel().m_itemNodes[command.parameter];
-                    if( item.m_activationState.isOneshot() )
+                    engine::items::ItemNode& item = *getLevel().m_itemNodes[command.parameter];
+                    if( item.m_state.activationState.isOneshot() )
                         break;
 
-                    item.m_activationState.setTimeout(activationRequest.getTimeout());
+                    item.m_state.timer = floordata::ActivationState::extractTimeout(activationRequestRaw);
 
                     //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                     if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
-                        item.m_activationState ^= activationRequest.getActivationSet();
+                        item.m_state.activationState ^= activationRequest.getActivationSet();
                     else if( chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted )
-                        item.m_activationState &= ~activationRequest.getActivationSet();
+                        item.m_state.activationState &= ~activationRequest.getActivationSet();
                     else
-                        item.m_activationState |= activationRequest.getActivationSet();
+                        item.m_state.activationState |= activationRequest.getActivationSet();
 
-                    if( !item.m_activationState.isFullyActivated() )
+                    if( !item.m_state.activationState.isFullyActivated() )
                         break;
 
                     if( activationRequest.isOneshot() )
-                        item.m_activationState.setOneshot(true);
+                        item.m_state.activationState.setOneshot(true);
 
                     if( item.m_isActive )
                         break;
@@ -714,7 +715,7 @@ namespace engine
                 {
                     const floordata::CameraParameters camParams{*floorData++};
                     getLevel().m_cameraController->setCamOverride(camParams, command.parameter, chunkHeader.sequenceCondition,
-                                                                  fromHeavy, activationRequest, switchIsOn);
+                                                                  fromHeavy, activationRequestRaw, switchIsOn);
                     command.isLast = camParams.isLast;
                 }
                     break;
@@ -878,7 +879,7 @@ namespace engine
 
     void LaraNode::testInteractions()
     {
-        m_flags2_10_isHit = false;
+        m_state.is_hit = false;
 
         if( m_health < 0 )
             return;
@@ -893,7 +894,7 @@ namespace engine
             if( rooms.find(item->getCurrentRoom()) == rooms.end() )
                 continue;
 
-            if( !item->m_flags2_20_collidable )
+            if( !item->m_state.collidable )
                 continue;
 
             if( item->m_triggerState == items::TriggerState::Locked )

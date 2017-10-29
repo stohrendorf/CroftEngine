@@ -489,7 +489,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const core::Angle& angle,
                                               const core::TRCoordinates& position,
-                                              const engine::floordata::ActivationState& activationState,
+                                              const uint16_t activationState,
                                               int16_t darkness)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
@@ -532,13 +532,14 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::floordata::SequenceCondition sequenceCondition)
 {
     YAML::Node sequence;
-    const engine::floordata::ActivationState activationRequest{*rawFloorData++};
+    const uint16_t activationRequestRaw{*rawFloorData++};
+    const engine::floordata::ActivationState activationRequest{activationRequestRaw};
     for( size_t i = 0; i < 5; ++i )
     {
         if( activationRequest.isInActivationSet(i) )
             sequence["activationBits"].push_back(i);
     }
-    sequence["timeout"] = activationRequest.getTimeout();
+    sequence["timeout"] = engine::floordata::ActivationState::extractTimeout(activationRequestRaw);
     sequence["oneshot"] = activationRequest.isOneshot();
     sequence["locked"] = activationRequest.isLocked();
     sequence["inverted"] = activationRequest.isInverted();
@@ -927,7 +928,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 
 
 gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCoordinates& position,
-                                                                gsl::not_null<gsl::not_null<const loader::Room*>*> room) const
+                                                                const loader::Room** room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )

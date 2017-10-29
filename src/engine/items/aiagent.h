@@ -17,7 +17,7 @@ namespace engine
                     const gsl::not_null<const loader::Room*>& room,
                     const core::Angle& angle,
                     const core::TRCoordinates& position,
-                    const floordata::ActivationState& activationState,
+                    uint16_t activationState,
                     Characteristics characteristics,
                     int16_t darkness,
                     const loader::SkeletalModelType& animatedModel,
@@ -31,7 +31,7 @@ namespace engine
                 , m_collisionRadius{collisionRadius}
                 , m_zone{m_brain.route.getZone(*this)}
             {
-                m_flags2_20_collidable = true;
+                m_state.collidable = true;
                 addYRotation(core::Angle(std::rand() % 65536));
             }
 

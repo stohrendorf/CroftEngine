@@ -15,7 +15,7 @@ namespace loader
         int16_t intensity2 = 0; //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
         int16_t ocb = 0; //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
 
-        engine::floordata::ActivationState activationState{};
+        uint16_t activationState = 0;
 
 
         static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
@@ -26,7 +26,7 @@ namespace loader
             item->position = readCoordinates32(reader);
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
-            item->activationState = engine::floordata::ActivationState{reader.readU16()};
+            item->activationState = reader.readU16();
             return item;
         }
 
@@ -40,7 +40,7 @@ namespace loader
             item->rotation = reader.readI16();
             item->darkness = reader.readI16();
             item->intensity2 = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{reader.readU16()};
+            item->activationState = reader.readU16();
             return item;
         }
 
@@ -54,7 +54,7 @@ namespace loader
             item->rotation = reader.readI16();
             item->darkness = reader.readU16();
             item->intensity2 = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{reader.readU16()};
+            item->activationState = reader.readU16();
             return item;
         }
 
@@ -69,7 +69,7 @@ namespace loader
             item->darkness = reader.readU16();
             item->intensity2 = item->darkness;
             item->ocb = reader.readU16();
-            item->activationState = engine::floordata::ActivationState{reader.readU16()};
+            item->activationState = reader.readU16();
             return item;
         }
     };

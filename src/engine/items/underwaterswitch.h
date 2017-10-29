@@ -15,7 +15,7 @@ namespace engine
                              const gsl::not_null<const loader::Room*>& room,
                              const core::Angle& angle,
                              const core::TRCoordinates& position,
-                             const floordata::ActivationState& activationState,
+                             uint16_t activationState,
                              int16_t darkness,
                              const loader::SkeletalModelType& animatedModel)
                 : Switch(level, name, room, angle, position, activationState, darkness, animatedModel)
@@ -31,7 +31,7 @@ namespace engine
                 if(!m_isActive)
                     return;
 
-                m_activationState.fullyActivate();
+                m_state.activationState.fullyActivate();
 
                 ModelItemNode::update();
             }

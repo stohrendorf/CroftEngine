@@ -144,8 +144,7 @@ namespace engine
 
 
             explicit ActivationState(FloorData::value_type fd)
-                : m_timeout{extractTimeout(fd)}
-                , m_oneshot{(fd & Oneshot) != 0}
+                : m_oneshot{(fd & Oneshot) != 0}
                 , m_inverted{(fd & InvertedActivation) != 0}
                 , m_locked{(fd & Locked) != 0}
                 , m_activationSet{extractActivationSet(fd)}
@@ -174,18 +173,6 @@ namespace engine
             bool isLocked() const noexcept
             {
                 return m_locked;
-            }
-
-
-            int getTimeout() const noexcept
-            {
-                return m_timeout;
-            }
-
-
-            void setTimeout(int timeout)
-            {
-                m_timeout = timeout;
             }
 
 
@@ -249,6 +236,16 @@ namespace engine
             }
 
 
+            static int16_t extractTimeout(FloorData::value_type fd)
+            {
+                const auto seconds = gsl::narrow_cast<uint8_t>(fd & 0xff);
+                if( seconds > 1 )
+                    return gsl::narrow<int16_t>(seconds * core::FrameRate);
+                else
+                    return seconds;
+            }
+
+
         private:
             static ActivationSet extractActivationSet(FloorData::value_type fd)
             {
@@ -257,17 +254,6 @@ namespace engine
             }
 
 
-            static int extractTimeout(FloorData::value_type fd)
-            {
-                const auto seconds = gsl::narrow_cast<uint8_t>(fd & 0xff);
-                if( seconds > 1 )
-                    return seconds * core::FrameRate;
-                else
-                    return seconds;
-            }
-
-
-            int m_timeout = 0;
             bool m_oneshot = false;
             bool m_inverted = false;
             bool m_locked = false;

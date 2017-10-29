@@ -18,7 +18,7 @@ namespace engine
                 const gsl::not_null<const loader::Room*>& room,
                 const core::Angle& angle,
                 const core::TRCoordinates& position,
-                const floordata::ActivationState& activationState,
+                uint16_t activationState,
                 int16_t darkness,
                 const loader::SkeletalModelType& animatedModel)
                 : AIAgent(level, name, room, angle, position, activationState, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, darkness, animatedModel, 0x4000, 0, -20480, 20480, 16)

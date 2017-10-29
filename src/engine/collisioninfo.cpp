@@ -30,7 +30,7 @@ namespace engine
         shift = {0,0,0};
         facingAxis = *axisFromAngle(facingAngle, 45_deg);
 
-        gsl::not_null<const loader::Room*> room = level.m_lara->getCurrentRoom();
+        const loader::Room* room = level.m_lara->getCurrentRoom();
         const auto refTestPos = laraPos - core::TRCoordinates(0, height + core::ScalpToHandsHeight, 0);
         gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector(refTestPos, &room);
 

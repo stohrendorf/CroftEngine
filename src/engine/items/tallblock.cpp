@@ -8,7 +8,7 @@ namespace engine
     {
         void TallBlock::update()
         {
-            if(updateActivationTimeout())
+            if(m_state.updateActivationTimeout())
             {
                 if( getCurrentState() == 0)
                 {
@@ -26,7 +26,7 @@ namespace engine
             }
 
             ModelItemNode::update();
-            auto room = getCurrentRoom();
+            const loader::Room* room = getCurrentRoom();
             getLevel().findRealFloorSector( getPosition(), &room );
             setCurrentRoom( room );
 

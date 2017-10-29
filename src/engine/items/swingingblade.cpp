@@ -9,7 +9,7 @@ namespace engine
     {
         void SwingingBlade::update()
         {
-            if( updateActivationTimeout() )
+            if( m_state.updateActivationTimeout() )
             {
                 if( getCurrentState() == 0 )
                     getSkeleton()->setTargetState( 2 );
@@ -19,7 +19,7 @@ namespace engine
                 getSkeleton()->setTargetState( 0 );
             }
 
-            auto room = getCurrentRoom();
+            const loader::Room* room = getCurrentRoom();
             auto sector = getLevel().findRealFloorSector(getPosition(), &room);
             setCurrentRoom(room);
             setFloorHeight(HeightInfo::fromFloor(sector, getPosition(), getLevel().m_cameraController)

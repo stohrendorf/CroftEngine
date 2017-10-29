@@ -41,7 +41,7 @@ namespace engine
                         if( false /** @fixme touch_bits != 0 */ )
                         {
                             //! @fixme Show blood splatter FX
-                            getLevel().m_lara->m_flags2_10_isHit = true;
+                            getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->setHealth(getLevel().m_lara->getHealth() - 2);
                         }
                         else

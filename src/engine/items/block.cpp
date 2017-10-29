@@ -113,11 +113,11 @@ namespace engine
 
         void Block::update()
         {
-            if(m_activationState.isOneshot())
+            if(m_state.activationState.isOneshot())
             {
                 loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
                 m_isActive = false;
-                m_activationState.setLocked(true);
+                m_state.activationState.setLocked(true);
                 return;
             }
 
@@ -229,7 +229,7 @@ namespace engine
                     break;
             }
 
-            auto room = getCurrentRoom();
+            const loader::Room* room = getCurrentRoom();
             auto sector = getLevel().findRealFloorSector(pos, &room);
 
             CollisionInfo tmp;

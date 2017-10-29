@@ -123,7 +123,7 @@ namespace level
                                                             const gsl::not_null<const loader::Room*>& room,
                                                             const core::Angle& angle,
                                                             const core::TRCoordinates& position,
-                                                            const engine::floordata::ActivationState& activationState)
+                                                            uint16_t activationState)
         {
             const auto modelIdx = findAnimatedModelIndexForType(type);
             if( !modelIdx )
@@ -149,7 +149,7 @@ namespace level
         }
 
 
-        gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
+        gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position, const loader::Room* room) const
         {
             return findRealFloorSector(position, &room);
         }
@@ -161,7 +161,7 @@ namespace level
         }
 
 
-        gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position, gsl::not_null<gsl::not_null<const loader::Room*>*> room) const;
+        gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position, const loader::Room** room) const;
 
         gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const;
 
@@ -396,7 +396,7 @@ namespace level
                                                const gsl::not_null<const loader::Room*>& room,
                                                const core::Angle& angle,
                                                const core::TRCoordinates& position,
-                                               const engine::floordata::ActivationState& activationState,
+                                               uint16_t activationState,
                                                int16_t darkness);
 
 

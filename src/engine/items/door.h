@@ -15,7 +15,7 @@ namespace engine
                  const gsl::not_null<const loader::Room*>& room,
                  const core::Angle& angle,
                  const core::TRCoordinates& position,
-                 const floordata::ActivationState& activationState,
+                 uint16_t activationState,
                  int16_t darkness,
                  const loader::SkeletalModelType& animatedModel)
                 : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags, darkness, animatedModel)
@@ -25,7 +25,7 @@ namespace engine
 
             void update() override
             {
-                if( updateActivationTimeout() )
+                if( m_state.updateActivationTimeout() )
                 {
                     if( getCurrentState() != 0 )
                     {

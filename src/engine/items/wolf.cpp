@@ -187,7 +187,7 @@ namespace engine
                         if( m_requiredAnimState == 0 /** @fixme && this->touch_bits & 0x774F */ )
                         {
                             //! @todo show blood splatter fx
-                            getLevel().m_lara->m_flags2_10_isHit = true;
+                            getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->setHealth(getLevel().m_lara->getHealth() - 50);
                             m_requiredAnimState = Jumping;
                         }
@@ -197,7 +197,7 @@ namespace engine
                         if( m_requiredAnimState == 0 /** @fixme && this->touch_bits & 0x774F */ && lookAhead.laraAhead )
                         {
                             //! @todo show blood splatter fx
-                            getLevel().m_lara->m_flags2_10_isHit = true;
+                            getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->setHealth(getLevel().m_lara->getHealth() - 100);
                             m_requiredAnimState = PrepareToStrike;
                         }

@@ -114,7 +114,7 @@ namespace engine
         }
 
 
-        void setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool isDoppelganger, const floordata::ActivationState& activationRequest, bool switchIsOn);
+        void setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool isDoppelganger, uint16_t activationRequest, bool switchIsOn);
 
 
         void setItem(items::ItemNode* item)

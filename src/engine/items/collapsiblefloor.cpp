@@ -39,7 +39,7 @@ namespace engine
                 return;
             }
 
-            auto room = getCurrentRoom();
+            const loader::Room* room = getCurrentRoom();
             auto sector = getLevel().findRealFloorSector( getPosition(), &room );
             setCurrentRoom( room );
 

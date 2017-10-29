@@ -15,7 +15,7 @@ namespace engine
                  const gsl::not_null<const loader::Room*>& room,
                  const core::Angle& angle,
                  const core::TRCoordinates& position,
-                 const floordata::ActivationState& activationState,
+                 uint16_t activationState,
                  int16_t darkness,
                  const loader::SkeletalModelType& animatedModel)
                 : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints, darkness, animatedModel)
@@ -29,7 +29,7 @@ namespace engine
 
                 ModelItemNode::update();
 
-                auto room = getCurrentRoom();
+                const loader::Room* room = getCurrentRoom();
                 auto sector = getLevel().findRealFloorSector(getPosition(), &room);
                 if( room != getCurrentRoom() )
                     setCurrentRoom(room);

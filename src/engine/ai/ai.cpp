@@ -66,7 +66,7 @@ namespace engine
                             {
                                 brain.mood = Mood::Attack;
                             }
-                            else if( npc.m_flags2_10_isHit )
+                            else if( npc.m_state.is_hit )
                             {
                                 brain.mood = Mood::Escape;
                             }
@@ -91,7 +91,7 @@ namespace engine
                     {
                         case Mood::Bored:
                         case Mood::Stalk:
-                            if( npc.m_flags2_10_isHit
+                            if( npc.m_state.is_hit
                                 && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
                             {
                                 brain.mood = Mood::Escape;
@@ -110,7 +110,7 @@ namespace engine
                             }
                             break;
                         case Mood::Attack:
-                            if( npc.m_flags2_10_isHit
+                            if( npc.m_state.is_hit
                                 && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
                             {
                                 brain.mood = Mood::Escape;

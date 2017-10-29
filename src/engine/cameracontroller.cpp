@@ -44,7 +44,7 @@ namespace engine
     }
 
 
-    void CameraController::setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool fromHeavy, const floordata::ActivationState& activationRequest, bool switchIsOn)
+    void CameraController::setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition, bool fromHeavy, uint16_t activationRequest, bool switchIsOn)
     {
         Expects(camId < m_level->m_cameras.size());
         if( m_level->m_cameras[camId].isActive() )
@@ -54,7 +54,7 @@ namespace engine
         if( m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat || condition == floordata::SequenceCondition::LaraInCombatMode )
             return;
 
-        if( condition == floordata::SequenceCondition::ItemActivated && activationRequest.getTimeout() != 0 && switchIsOn )
+        if( condition == floordata::SequenceCondition::ItemActivated && engine::floordata::ActivationState::extractTimeout(activationRequest) != 0 && switchIsOn )
             return;
 
         if( condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId )
@@ -116,7 +116,7 @@ namespace engine
                 break;
         }
 
-        if( type == CameraMode::Chase || (type == CameraMode::FreeLook && m_item != nullptr && m_item->m_flags2_40_alreadyLookedAt && m_item != m_lastItem) )
+        if( type == CameraMode::Chase || (type == CameraMode::FreeLook && m_item != nullptr && m_item->m_state.already_looked_at && m_item != m_lastItem) )
             m_item = nullptr;
     }
 
@@ -429,7 +429,7 @@ namespace engine
                 m_laraController->m_torsoRotation.X = m_laraController->m_headRotation.X;
 
                 m_mode = CameraMode::FreeLook;
-                m_item->m_flags2_40_alreadyLookedAt = true;
+                m_item->m_state.already_looked_at = true;
             }
         }
 

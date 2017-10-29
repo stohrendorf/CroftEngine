@@ -62,13 +62,13 @@ namespace engine
         {
             glm::vec3 tr;
 
-            if( const auto parent = m_position.room )
+            if( const auto parent = m_state.position.room )
             {
-                tr = m_position.position.toRenderSystem() - parent->position.toRenderSystem();
+                tr = m_state.position.position.toRenderSystem() - parent->position.toRenderSystem();
             }
             else
             {
-                tr = m_position.position.toRenderSystem();
+                tr = m_state.position.position.toRenderSystem();
             }
 
             getNode()->setLocalMatrix(glm::translate(glm::mat4{1.0f}, tr) * getRotation().toMatrix());
@@ -81,30 +81,33 @@ namespace engine
                            const gsl::not_null<const loader::Room*>& room,
                            const core::Angle& angle,
                            const core::TRCoordinates& position,
-                           const floordata::ActivationState& activationState,
+                           uint16_t activationState,
                            bool hasProcessAnimCommandsOverride,
                            Characteristics characteristics,
                            int16_t darkness)
-            : m_position{room, position}
-            , m_rotation{0_deg, angle, 0_deg}
-            , m_level{level}
-            , m_activationState{activationState}
+            : m_level{level}
             , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
             , m_characteristics{characteristics}
-            , m_darkness{darkness}
         {
             BOOST_ASSERT(room->isInnerPositionXZ(position));
 
-            if( m_activationState.isOneshot() )
+            m_state.position.position = position;
+            m_state.position.room = room;
+            m_state.rotation.Y = angle;
+            m_state.shade = darkness;
+            m_state.activationState = engine::floordata::ActivationState(activationState);
+            m_state.timer = engine::floordata::ActivationState::extractTimeout(activationState);
+
+            if( m_state.activationState.isOneshot() )
             {
-                m_activationState.setOneshot(false);
+                m_state.activationState.setOneshot(false);
                 m_triggerState = TriggerState::Locked;
             }
 
-            if( m_activationState.isFullyActivated() )
+            if( m_state.activationState.isFullyActivated() )
             {
-                m_activationState.fullyDeactivate();
-                m_activationState.setInverted(true);
+                m_state.activationState.fullyDeactivate();
+                m_state.activationState.setInverted(true);
                 activate();
                 m_triggerState = TriggerState::Enabled;
             }
@@ -113,7 +116,7 @@ namespace engine
 
         void ItemNode::setCurrentRoom(const loader::Room* newRoom)
         {
-            if( newRoom == m_position.room )
+            if( newRoom == m_state.position.room )
             {
                 return;
             }
@@ -127,14 +130,14 @@ namespace engine
 
             newRoom->node->addChild(getNode());
 
-            m_position.room = newRoom;
+            m_state.position.room = newRoom;
         }
 
 
         ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level, const std::string& name,
                                      const gsl::not_null<const loader::Room*>& room, const core::Angle& angle,
                                      const core::TRCoordinates& position,
-                                     const floordata::ActivationState& activationState,
+                                     uint16_t activationState,
                                      bool hasProcessAnimCommandsOverride, Characteristics characteristics,
                                      int16_t darkness,
                                      const loader::SkeletalModelType& animatedModel)
@@ -159,7 +162,7 @@ namespace engine
         {
             const auto endOfAnim = m_skeleton->advanceFrame();
 
-            m_flags2_10_isHit = false;
+            m_state.is_hit = false;
 
             if( endOfAnim )
             {
@@ -399,7 +402,7 @@ namespace engine
 
         boost::optional<uint16_t> ItemNode::getCurrentBox() const
         {
-            const auto sector = m_position.room->getInnerSectorByAbsolutePosition(m_position.position);
+            const auto sector = m_state.position.room->getInnerSectorByAbsolutePosition(m_state.position.position);
             if( sector->boxIndex == 0xffff )
             {
                 BOOST_LOG_TRIVIAL(warning) << "Not within a box: " << getNode()->getId();
@@ -421,7 +424,7 @@ namespace engine
                                        const gsl::not_null<const loader::Room*>& room,
                                        const core::Angle& angle,
                                        const core::TRCoordinates& position,
-                                       const floordata::ActivationState& activationState,
+                                       uint16_t activationState,
                                        bool hasProcessAnimCommandsOverride,
                                        Characteristics characteristics,
                                        int16_t darkness,

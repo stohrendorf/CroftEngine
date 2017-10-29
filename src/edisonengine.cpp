@@ -64,7 +64,7 @@ namespace
                         drawText(font, 180, y, "locked");
                         break;
                 }
-                drawText(font, 260, y, std::to_string(item->m_activationState.getTimeout()));
+                drawText(font, 260, y, std::to_string(item->m_state.timer));
                 y += 20;
             }
         }
