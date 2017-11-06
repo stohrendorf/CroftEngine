@@ -68,7 +68,7 @@ namespace engine
 
                 auto dart = getLevel().createItem<Dart>(39, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0);
                 dart->activate();
-                dart->m_triggerState = engine::items::TriggerState::Enabled;
+                dart->m_state.triggerState = engine::items::TriggerState::Enabled;
 
                 playSoundEffect(0x97);
                 ModelItemNode::update();

@@ -24,7 +24,7 @@ void Switch::onInteract(LaraNode& lara)
         return;
     }
 
-    if( m_triggerState != engine::items::TriggerState::Disabled )
+    if( m_state.triggerState != engine::items::TriggerState::Disabled )
     {
         return;
     }
@@ -78,7 +78,7 @@ void Switch::onInteract(LaraNode& lara)
         lara.setHandStatus(1);
     }
 
-    m_triggerState = engine::items::TriggerState::Enabled;
+    m_state.triggerState = engine::items::TriggerState::Enabled;
 
     activate();
     ModelItemNode::update();

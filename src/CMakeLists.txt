@@ -282,15 +282,7 @@ set( EDISONENGINE_SRCS
      engine/ai/ai.h
      engine/ai/ai.cpp
 
-     scriptengine/lua/Any.h
-     scriptengine/lua/LuaException.h
-     scriptengine/lua/LuaFunctor.h
-     scriptengine/lua/LuaPrimitives.h
-     scriptengine/lua/LuaReturn.h
-     scriptengine/lua/LuaStackItem.h
-     scriptengine/lua/LuaState.h
-     scriptengine/lua/LuaValue.h
-     scriptengine/lua/Traits.h
+     scriptengine/lua/sol.hpp
 )
 
 add_executable(edisonengine

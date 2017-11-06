@@ -74,7 +74,7 @@ bool AIAgent::anyMovingEnabledItemInReach() const
             continue;
         }
 
-        if( item->m_triggerState == items::TriggerState::Enabled
+        if( item->m_state.triggerState == items::TriggerState::Enabled
             && item->m_state.speed != 0
             && item->m_state.position.position.distanceTo(m_state.position.position) < m_collisionRadius )
         {
@@ -86,7 +86,7 @@ bool AIAgent::anyMovingEnabledItemInReach() const
 
 bool AIAgent::animateCreature(core::Angle rotationToMoveTarget, core::Angle roll)
 {
-    if( m_triggerState == engine::items::TriggerState::Activated )
+    if( m_state.triggerState == engine::items::TriggerState::Activated )
     {
         m_health = -16384;
         m_state.collidable = false;

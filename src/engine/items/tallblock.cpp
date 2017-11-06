@@ -30,12 +30,12 @@ void TallBlock::update()
     getLevel().findRealFloorSector(m_state.position.position, &room);
     setCurrentRoom(room);
 
-    if( m_triggerState != engine::items::TriggerState::Activated )
+    if( m_state.triggerState != engine::items::TriggerState::Activated )
     {
         return;
     }
 
-    m_triggerState = engine::items::TriggerState::Enabled;
+    m_state.triggerState = engine::items::TriggerState::Enabled;
     loader::Room::patchHeightsForBlock(*this, -2 * loader::SectorSize);
     auto pos = m_state.position.position;
     pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;

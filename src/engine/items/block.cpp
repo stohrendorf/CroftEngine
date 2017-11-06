@@ -10,7 +10,7 @@ namespace items
 {
 void Block::onInteract(LaraNode& lara)
 {
-    if( !getLevel().m_inputHandler->getInputState().action || m_triggerState == TriggerState::Enabled
+    if( !getLevel().m_inputHandler->getInputState().action || m_state.triggerState == TriggerState::Enabled
         || m_state.falling || lara.m_state.position.position.Y != m_state.position.position.Y )
     {
         return;
@@ -119,7 +119,7 @@ void Block::onInteract(LaraNode& lara)
 
     activate();
     loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
-    m_triggerState = TriggerState::Enabled;
+    m_state.triggerState = TriggerState::Enabled;
 
     ModelItemNode::update();
     getLevel().m_lara->updateImpl();
@@ -152,7 +152,7 @@ void Block::update()
             pos.position.Y = height;
             m_state.position.position = pos.position;
             m_state.falling = false;
-            m_triggerState = TriggerState::Activated;
+            m_state.triggerState = TriggerState::Activated;
             //! @todo Shake camera
             playSoundEffect(70);
         }
@@ -160,12 +160,12 @@ void Block::update()
 
     setCurrentRoom(pos.room);
 
-    if( m_triggerState != TriggerState::Activated )
+    if( m_state.triggerState != TriggerState::Activated )
     {
         return;
     }
 
-    m_triggerState = TriggerState::Disabled;
+    m_state.triggerState = TriggerState::Disabled;
     deactivate();
     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
     pos = m_state.position;

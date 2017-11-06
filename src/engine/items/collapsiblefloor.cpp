@@ -16,7 +16,7 @@ namespace engine
             {
                 if( m_state.position.position.Y - 512 != getLevel().m_lara->m_state.position.position.Y )
                 {
-                    m_triggerState = TriggerState::Disabled;
+                    m_state.triggerState = TriggerState::Disabled;
                     deactivate();
                     return;
                 }
@@ -33,7 +33,7 @@ namespace engine
 
             ModelItemNode::update();
 
-            if( m_triggerState == TriggerState::Activated )
+            if( m_state.triggerState == TriggerState::Activated )
             {
                 deactivate();
                 return;

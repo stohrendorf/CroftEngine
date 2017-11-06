@@ -5,6 +5,7 @@
 #include <gsl/gsl>
 
 #include <cmath>
+#include <scriptengine/lua/sol.hpp>
 
 namespace loader
 {
@@ -22,23 +23,23 @@ struct TRCoordinates
     TRCoordinates(const TRCoordinates&) = default;
 
     explicit TRCoordinates(const glm::vec3& v)
-        : X{gsl::narrow_cast<int>(v.x)}
-          , Y{-gsl::narrow_cast<int>(v.y)}
-          , Z{-gsl::narrow_cast<int>(v.z)}
+            : X{gsl::narrow_cast<int>( v.x )}
+            , Y{-gsl::narrow_cast<int>( v.y )}
+            , Z{-gsl::narrow_cast<int>( v.z )}
     {
     }
 
     explicit TRCoordinates(const glm::ivec3& v)
-        : X{v.x}
-          , Y{-v.y}
-          , Z{-v.z}
+            : X{v.x}
+            , Y{-v.y}
+            , Z{-v.z}
     {
     }
 
     TRCoordinates(int x, int y, int z)
-        : X{x}
-          , Y{y}
-          , Z{z}
+            : X{x}
+            , Y{y}
+            , Z{z}
     {
     }
 
@@ -85,17 +86,28 @@ struct TRCoordinates
 
     glm::vec3 toRenderSystem() const noexcept
     {
-        return {gsl::narrow_cast<float>(X), -gsl::narrow_cast<float>(Y), -gsl::narrow_cast<float>(Z)};
+        return {gsl::narrow_cast<float>( X ), -gsl::narrow_cast<float>( Y ), -gsl::narrow_cast<float>( Z )};
     }
 
     int distanceTo(const TRCoordinates& rhs) const
     {
-        const auto dx = gsl::narrow<float>(X - rhs.X);
-        const auto dy = gsl::narrow<float>(Y - rhs.Y);
-        const auto dz = gsl::narrow<float>(Z - rhs.Z);
-        return static_cast<int>(sqrtf(dx * dx + dy * dy + dz * dz));
+        const auto dx = gsl::narrow<float>( X - rhs.X );
+        const auto dy = gsl::narrow<float>( Y - rhs.Y );
+        const auto dz = gsl::narrow<float>( Z - rhs.Z );
+        return static_cast<int>(sqrtf( dx * dx + dy * dy + dz * dz ));
+    }
+
+    static sol::usertype<TRCoordinates> userType()
+    {
+        return sol::usertype<TRCoordinates>(
+                sol::meta_function::construct, sol::no_constructor,
+                "x", &TRCoordinates::X,
+                "y", &TRCoordinates::Y,
+                "z", &TRCoordinates::Z
+        );
     }
 };
+
 
 struct RoomBoundPosition
 {
@@ -104,14 +116,14 @@ struct RoomBoundPosition
     TRCoordinates position;
 
     explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const TRCoordinates& pos = {})
-        : room{r}
-          , position{pos}
+            : room{r}
+            , position{pos}
     {
     }
 
     explicit RoomBoundPosition()
-        : room{nullptr}
-          , position{0, 0, 0}
+            : room{nullptr}
+            , position{0, 0, 0}
     {
     }
 };

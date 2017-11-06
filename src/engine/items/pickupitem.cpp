@@ -40,7 +40,7 @@ void PickupItem::onInteract(LaraNode& lara)
             {
                 // TODO: Remove item from room, handle pick up
 
-                m_triggerState = engine::items::TriggerState::Locked;
+                m_state.triggerState = engine::items::TriggerState::Locked;
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop &&
@@ -80,7 +80,7 @@ void PickupItem::onInteract(LaraNode& lara)
                     lara.getNode()->getChild(7)->setDrawable(getLevel().getModel(getLevel().m_meshIndices[shotgunLara.firstMesh + 7]));
                 }
 
-                m_triggerState = engine::items::TriggerState::Locked;
+                m_state.triggerState = engine::items::TriggerState::Locked;
 
                 // TODO: Remove item from room, handle pick up
             }

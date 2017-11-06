@@ -719,23 +719,23 @@ namespace engine
 
                     if( (item.m_characteristics & Intelligent) == 0 )
                     {
-                        item.m_triggerState = items::TriggerState::Enabled;
+                        item.m_state.triggerState = items::TriggerState::Enabled;
                         item.activate();
                         break;
                     }
 
-                    if( item.m_triggerState == items::TriggerState::Disabled )
+                    if( item.m_state.triggerState == items::TriggerState::Disabled )
                     {
                         //! @todo Implement baddie
-                        item.m_triggerState = items::TriggerState::Enabled;
+                        item.m_state.triggerState = items::TriggerState::Enabled;
                         item.activate();
                         break;
                     }
 
-                    if( item.m_triggerState != items::TriggerState::Locked )
+                    if( item.m_state.triggerState != items::TriggerState::Locked )
                         break;
 
-                    item.m_triggerState = items::TriggerState::Enabled;
+                    item.m_state.triggerState = items::TriggerState::Enabled;
                     item.activate();
                 }
                     break;
@@ -925,7 +925,7 @@ namespace engine
             if( !item->m_state.collidable )
                 continue;
 
-            if( item->m_triggerState == items::TriggerState::Locked )
+            if( item->m_state.triggerState == items::TriggerState::Locked )
                 continue;
 
             const auto d = m_state.position.position - item->m_state.position.position;

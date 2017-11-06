@@ -20,7 +20,7 @@ namespace engine
                   const loader::SkeletalModelType& animatedModel)
                 : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
             {
-                if( m_triggerState != TriggerState::Locked )
+                if( m_state.triggerState != TriggerState::Locked )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
             }
 

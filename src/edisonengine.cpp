@@ -2,8 +2,6 @@
 #include "engine/laranode.h"
 #include "loader/trx/trx.h"
 
-#include "scriptengine/lua/LuaState.h"
-
 #include "gl/framebuffer.h"
 #include "gl/font.h"
 
@@ -49,7 +47,7 @@ namespace
                     continue;
 
                 drawText(font, 10, y, item->getNode()->getId());
-                switch(item->m_triggerState)
+                switch(item->m_state.triggerState)
                 {
                     case engine::items::TriggerState::Disabled:
                         drawText(font, 180, y, "disabled");
@@ -184,47 +182,54 @@ int main()
     auto* game = new gameplay::Game();
     game->run();
 
-    lua::State mainScript;
-    mainScript["package"].setString("path", (boost::filesystem::path("scripts") / "?.lua").string());
-    mainScript["package"].setString("cpath", "");
+    sol::state mainScript;
+    mainScript.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
+    mainScript["package"]["path"] = (boost::filesystem::path("scripts") / "?.lua").string();
+    mainScript["package"]["cpath"] = "";
+
+    mainScript.set_usertype(core::Angle::userType());
+    mainScript.set_usertype(core::TRRotation::userType());
+    mainScript.set_usertype(core::TRCoordinates::userType());
+    mainScript.set_usertype(engine::items::ItemState::userType());
+
     try
     {
-        mainScript.doFile("scripts/main.lua");
+        mainScript.do_file("scripts/main.lua");
     }
-    catch(lua::RuntimeError& e)
+    catch(sol::error& e)
     {
         BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.lua: " << e.what();
         return EXIT_FAILURE;
     }
 
-    lua::Value levelInfo = mainScript["getLevelInfo"].call();
+    sol::table levelInfo = mainScript["getLevelInfo"].call();
 
-    auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo["baseName"].toString() + ".PHD", level::Game::Unknown);
+    auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo.get<std::string>("baseName") + ".PHD", level::Game::Unknown);
 
     BOOST_ASSERT(lvl != nullptr);
     lvl->loadFileData();
 
-    const auto glidosPack = mainScript["getGlidosPack"].call();
+    const sol::optional<std::string> glidosPack = mainScript["getGlidosPack"].call();
 
     std::unique_ptr<loader::trx::Glidos> glidos;
-    if(!glidosPack.isNil() && boost::filesystem::is_regular_file(glidosPack.toString()))
+    if(glidosPack && boost::filesystem::is_regular_file(glidosPack.value()))
     {
-        glidos = std::make_unique<loader::trx::Glidos>(glidosPack.toString());
+        glidos = std::make_unique<loader::trx::Glidos>(glidosPack.value());
         glidos->dump();
     }
 
-    lvl->setUpRendering(game, "assets/tr1", levelInfo["baseName"].toString(), glidos);
+    lvl->setUpRendering(game, "assets/tr1", levelInfo.get<std::string>("baseName"), glidos);
 
-    if( !levelInfo["swapRooms"].isNil() && levelInfo["swapRooms"].toBool() )
+    if( levelInfo.get_or("swapRooms", false) )
     {
         lvl->useAlternativeLaraAppearance();
     }
 
     // device->setWindowCaption("EdisonEngine");
 
-    if( !levelInfo["track"].isNil() )
+    if( sol::optional<uint32_t> trackToPlay = levelInfo["track"] )
     {
-        lvl->playCdTrack(levelInfo["track"].toUInt());
+        lvl->playCdTrack(trackToPlay.value());
     }
 
     auto screenOverlay = std::make_unique<gameplay::ScreenOverlay>(game->getViewport());
@@ -281,7 +286,7 @@ int main()
 
         lastTime = game->getGameTime();
 
-        update(lvl, mainScript["cheats"]["godMode"].toBool());
+        update(lvl, bool(mainScript["cheats"]["godMode"]));
 
         lvl->m_cameraController->update();
 

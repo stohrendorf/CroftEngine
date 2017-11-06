@@ -99,7 +99,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     if( m_state.activationState.isOneshot() )
     {
         m_state.activationState.setOneshot(false);
-        m_triggerState = TriggerState::Locked;
+        m_state.triggerState = TriggerState::Locked;
     }
 
     if( m_state.activationState.isFullyActivated() )
@@ -107,7 +107,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
         m_state.activationState.fullyDeactivate();
         m_state.activationState.setInverted(true);
         activate();
-        m_triggerState = TriggerState::Enabled;
+        m_state.triggerState = TriggerState::Enabled;
     }
 }
 
@@ -195,7 +195,7 @@ void ModelItemNode::update()
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::Kill:
-                    m_triggerState = TriggerState::Activated;
+                    m_state.triggerState = TriggerState::Activated;
                     break;
                 default:
                     break;
@@ -258,7 +258,7 @@ void ItemNode::activate()
 {
     if( !m_hasProcessAnimCommandsOverride )
     {
-        m_triggerState = TriggerState::Disabled;
+        m_state.triggerState = TriggerState::Disabled;
         return;
     }
 
@@ -305,12 +305,12 @@ bool ItemNode::triggerKey()
         return false;
     }
 
-    if( m_triggerState != TriggerState::Enabled )
+    if( m_state.triggerState != TriggerState::Enabled )
     {
         return false;
     }
 
-    m_triggerState = TriggerState::Activated;
+    m_state.triggerState = TriggerState::Activated;
     return true;
 }
 

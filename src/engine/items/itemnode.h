@@ -6,6 +6,7 @@
 #include "engine/skeletalmodelnode.h"
 
 #include <set>
+#include <scriptengine/lua/sol.hpp>
 
 namespace loader
 {
@@ -21,6 +22,7 @@ namespace engine
 {
 class LaraNode;
 
+
 struct CollisionInfo;
 
 namespace items
@@ -32,15 +34,16 @@ struct InteractionLimits
     core::TRRotation maxAngle;
 
     InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
-        : distance{bbox}
-          , minAngle{min}
-          , maxAngle{max}
+            : distance{bbox}
+            , minAngle{min}
+            , maxAngle{max}
     {
         distance.makeValid();
     }
 
     bool canInteract(const ItemNode& item, const LaraNode& lara) const;
 };
+
 
 enum class TriggerState
 {
@@ -49,6 +52,23 @@ enum class TriggerState
     Activated,
     Locked
 };
+
+constexpr int toLua(TriggerState s)
+{
+    switch( s )
+    {
+
+        case TriggerState::Disabled:
+            return 0;
+        case TriggerState::Enabled:
+            return 1;
+        case TriggerState::Activated:
+            return 2;
+        case TriggerState::Locked:
+            return 3;
+    }
+}
+
 
 struct ItemState
 {
@@ -68,28 +88,29 @@ struct ItemState
     int16_t timer = 0;
     floordata::ActivationState activationState;
     int16_t shade = 0;
+    TriggerState triggerState = TriggerState::Disabled;
     union
     {
         uint16_t flags = 0;
         struct
         {
             bool loaded
-                : 1;
+                    : 1;
             bool intelligent
-                : 1;
+                    : 1;
             bool non_lot
-                : 1;
+                    : 1;
             bool falling
-                : 1;
+                    : 1;
 
             bool is_hit
-                : 1;
+                    : 1;
             bool collidable
-                : 1;
+                    : 1;
             bool already_looked_at
-                : 1;
+                    : 1;
             bool dynamic_light
-                : 1;
+                    : 1;
         };
     };
 
@@ -121,7 +142,37 @@ struct ItemState
 
         return !activationState.isInverted();
     }
+
+    bool isNear(const ItemState& other, int radius) const
+    {
+        return false;
+    }
+
+    bool testBoneCollision(const ItemState& other) const
+    {
+        return false;
+    }
+
+    static sol::usertype<ItemState> userType()
+    {
+        return sol::usertype<ItemState>(
+                sol::meta_function::construct, sol::no_constructor,
+                "position", [](ItemState& self) { return self.position.position; },
+                "rotation", [](ItemState& self) { return self.rotation; },
+                "current_anim_state", sol::readonly(&ItemState::current_anim_state),
+                "get_activation_state", [](ItemState& self) { return toLua(self.triggerState); },
+                "patch_heights", [](ItemState& self, int delta) { /* TODO */ },
+                "health", &ItemState::health,
+                "is_near", &ItemState::isNear,
+                "test_bone_collision", &ItemState::testBoneCollision,
+                "do_enemy_push", [](){ /* TODO */ },
+                "set_y_angle", [](ItemState& self, int16_t angle){ self.rotation.Y = core::Angle(angle); },
+                "collidable", [](ItemState& self, bool flag){ self.collidable = flag; },
+                "frame_number", &ItemState::frame_number
+        );
+    }
 };
+
 
 class ItemNode
 {
@@ -144,7 +195,6 @@ public:
     ItemState m_state;
 
     bool m_isActive = false;
-    TriggerState m_triggerState = TriggerState::Disabled;
 
     const bool m_hasProcessAnimCommandsOverride;
     const Characteristics m_characteristics;
@@ -159,7 +209,7 @@ public:
     Lighting m_lighting;
 
     enum class AnimCommandOpcode
-        : uint16_t
+            : uint16_t
     {
         SetPosition = 1,
         StartFalling = 2,
@@ -205,7 +255,7 @@ public:
 
     void move(const glm::vec3& d)
     {
-        m_state.position.position += core::TRCoordinates(d);
+        m_state.position.position += core::TRCoordinates( d );
     }
 
     void moveLocal(const int dx, const int dy, const int dz)
@@ -255,12 +305,12 @@ public:
 
     bool triggerPickUp()
     {
-        if( m_triggerState != engine::items::TriggerState::Locked )
+        if( m_state.triggerState != engine::items::TriggerState::Locked )
         {
             return false;
         }
 
-        m_triggerState = TriggerState::Activated;
+        m_state.triggerState = TriggerState::Activated;
         return true;
     }
 
@@ -276,9 +326,9 @@ public:
         const auto speed = trSpeed / 16384.0f;
         const auto targetRot = target.m_state.rotation.toMatrix();
         auto targetPos = target.m_state.position.position.toRenderSystem();
-        targetPos += glm::vec3(glm::vec4(speed, 0) * targetRot);
+        targetPos += glm::vec3( glm::vec4( speed, 0 ) * targetRot );
 
-        return alignTransformClamped(targetPos, target.m_state.rotation, 16, 364_au);
+        return alignTransformClamped( targetPos, target.m_state.rotation, 16, 364_au );
     }
 
     void setRelativeOrientedPosition(const core::TRCoordinates& offset, const ItemNode& target)
@@ -286,7 +336,7 @@ public:
         m_state.rotation = target.m_state.rotation;
 
         const auto r = target.m_state.rotation.toMatrix();
-        move(glm::vec3(glm::vec4(offset.toRenderSystem(), 0) * r));
+        move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
     boost::optional<uint16_t> getCurrentBox() const;
@@ -306,7 +356,7 @@ public:
         }
 
         const auto roomAmbient = 1 - m_state.position.room->ambientDarkness / 8191.0f;
-        BOOST_ASSERT(roomAmbient >= 0 && roomAmbient <= 1);
+        BOOST_ASSERT( roomAmbient >= 0 && roomAmbient <= 1 );
         m_lighting.base = roomAmbient;
 
         if( m_state.position.room->lights.empty() )
@@ -323,7 +373,7 @@ public:
             auto radiusSq = light.radius / 4096.0f;
             radiusSq *= radiusSq;
 
-            auto distanceSq = bboxCtr.distanceTo(light.position) / 4096.0f;
+            auto distanceSq = bboxCtr.distanceTo( light.position ) / 4096.0f;
             distanceSq *= distanceSq;
 
             const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
@@ -365,42 +415,42 @@ public:
 
     static void lightBaseBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
     {
-        const ItemNode* item = findBaseItemNode(node);
+        const ItemNode* item = findBaseItemNode( node );
 
         if( item == nullptr )
         {
-            uniform.set(1.0f);
+            uniform.set( 1.0f );
             return;
         }
 
-        uniform.set(item->m_lighting.base);
+        uniform.set( item->m_lighting.base );
     };
 
     static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
     {
-        const ItemNode* item = findBaseItemNode(node);
+        const ItemNode* item = findBaseItemNode( node );
 
         if( item == nullptr )
         {
-            uniform.set(1.0f);
+            uniform.set( 1.0f );
             return;
         }
 
-        uniform.set(item->m_lighting.baseDiff);
+        uniform.set( item->m_lighting.baseDiff );
     };
 
     static void lightPositionBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
     {
-        const ItemNode* item = findBaseItemNode(node);
+        const ItemNode* item = findBaseItemNode( node );
 
         if( item == nullptr )
         {
             static const glm::vec3 invalidPos{std::numeric_limits<float>::quiet_NaN()};
-            uniform.set(invalidPos);
+            uniform.set( invalidPos );
             return;
         }
 
-        uniform.set(item->m_lighting.position);
+        uniform.set( item->m_lighting.position );
     };
 
     virtual BoundingBox getBoundingBox() const = 0;
@@ -408,17 +458,18 @@ public:
     virtual uint16_t getCurrentState() const = 0;
 
 protected:
-    bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance, const core::Angle& maxAngle)
+    bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
+                               const core::Angle& maxAngle)
     {
         auto d = targetPos - m_state.position.position.toRenderSystem();
-        const auto dist = glm::length(d);
+        const auto dist = glm::length( d );
         if( maxDistance < dist )
         {
-            move(static_cast<float>(maxDistance) * glm::normalize(d));
+            move( static_cast<float>(maxDistance) * glm::normalize( d ) );
         }
         else
         {
-            const core::TRCoordinates& pos = core::TRCoordinates(targetPos);
+            const core::TRCoordinates& pos = core::TRCoordinates( targetPos );
             m_state.position.position = pos;
         }
 
@@ -463,28 +514,29 @@ protected:
         phi = targetRot - m_state.rotation;
         d = targetPos - m_state.position.position.toRenderSystem();
 
-        return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au
-               && abs(d.x) < 1 && abs(d.y) < 1 && abs(d.z) < 1;
+        return abs( phi.X ) < 1_au && abs( phi.Y ) < 1_au && abs( phi.Z ) < 1_au
+               && abs( d.x ) < 1 && abs( d.y ) < 1 && abs( d.z ) < 1;
     }
 };
 
+
 class ModelItemNode
-    : public ItemNode
+        : public ItemNode
 {
     std::shared_ptr<SkeletalModelNode> m_skeleton;
 
 public:
     ModelItemNode(
-        const gsl::not_null<level::Level*>& level,
-        const std::string& name,
-        const gsl::not_null<const loader::Room*>& room,
-        const core::Angle& angle,
-        const core::TRCoordinates& position,
-        uint16_t activationState,
-        bool hasProcessAnimCommandsOverride,
-        Characteristics characteristics,
-        int16_t darkness,
-        const loader::SkeletalModelType& animatedModel);
+            const gsl::not_null<level::Level*>& level,
+            const std::string& name,
+            const gsl::not_null<const loader::Room*>& room,
+            const core::Angle& angle,
+            const core::TRCoordinates& position,
+            uint16_t activationState,
+            bool hasProcessAnimCommandsOverride,
+            Characteristics characteristics,
+            int16_t darkness,
+            const loader::SkeletalModelType& animatedModel);
 
     std::shared_ptr<gameplay::Node> getNode() const override
     {
@@ -498,7 +550,7 @@ public:
 
     bool triggerSwitch(uint16_t arg) override
     {
-        if( m_triggerState != engine::items::TriggerState::Activated )
+        if( m_state.triggerState != engine::items::TriggerState::Activated )
         {
             return false;
         }
@@ -506,12 +558,12 @@ public:
         if( m_state.current_anim_state != 0 || engine::floordata::ActivationState{arg}.isLocked() )
         {
             deactivate();
-            m_triggerState = TriggerState::Disabled;
+            m_state.triggerState = TriggerState::Disabled;
         }
         else
         {
-            m_state.timer = engine::floordata::ActivationState::extractTimeout(arg);
-            m_triggerState = TriggerState::Enabled;
+            m_state.timer = engine::floordata::ActivationState::extractTimeout( arg );
+            m_state.triggerState = TriggerState::Enabled;
         }
 
         return true;
@@ -528,30 +580,31 @@ public:
     bool isNear(const ModelItemNode& other, int radius) const;
 };
 
+
 class SpriteItemNode
-    : public ItemNode
+        : public ItemNode
 {
 private:
     std::shared_ptr<gameplay::Node> m_node;
 
 public:
     SpriteItemNode(
-        const gsl::not_null<level::Level*>& level,
-        const std::string& name,
-        const gsl::not_null<const loader::Room*>& room,
-        const core::Angle& angle,
-        const core::TRCoordinates& position,
-        uint16_t activationState,
-        bool hasProcessAnimCommandsOverride,
-        Characteristics characteristics,
-        int16_t darkness,
-        const loader::Sprite& sprite,
-        const std::shared_ptr<gameplay::Material>& material,
-        const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);
+            const gsl::not_null<level::Level*>& level,
+            const std::string& name,
+            const gsl::not_null<const loader::Room*>& room,
+            const core::Angle& angle,
+            const core::TRCoordinates& position,
+            uint16_t activationState,
+            bool hasProcessAnimCommandsOverride,
+            Characteristics characteristics,
+            int16_t darkness,
+            const loader::Sprite& sprite,
+            const std::shared_ptr<gameplay::Material>& material,
+            const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);
 
     bool triggerSwitch(uint16_t) override
     {
-        BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
+        BOOST_THROW_EXCEPTION( std::runtime_error( "triggerSwitch called on sprite" ) );
     }
 
     std::shared_ptr<gameplay::Node> getNode() const override

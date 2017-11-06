@@ -13,9 +13,9 @@ namespace engine
     {
         void Wolf::update()
         {
-            if( m_triggerState == TriggerState::Locked )
+            if( m_state.triggerState == TriggerState::Locked )
             {
-                m_triggerState = TriggerState::Enabled;
+                m_state.triggerState = TriggerState::Enabled;
             }
 
             static constexpr const uint16_t Walking = 1;
