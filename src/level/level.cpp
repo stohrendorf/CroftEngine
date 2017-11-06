@@ -38,9 +38,7 @@
 
 using namespace level;
 
-
 Level::~Level() = default;
-
 
 /// \brief reads the mesh data.
 void Level::readMeshData(loader::io::SDLReader& reader)
@@ -49,9 +47,9 @@ void Level::readMeshData(loader::io::SDLReader& reader)
     const auto basePos = reader.tell();
 
     const auto meshDataSize = meshDataWords * 2;
-    reader.skip(meshDataSize);
+    reader.skip( meshDataSize );
 
-    reader.readVector(m_meshIndices, reader.readU32());
+    reader.readVector( m_meshIndices, reader.readU32() );
     const auto endPos = reader.tell();
 
     m_meshes.clear();
@@ -59,14 +57,14 @@ void Level::readMeshData(loader::io::SDLReader& reader)
     size_t meshDataPos = 0;
     for( size_t i = 0; i < m_meshIndices.size(); i++ )
     {
-        replace(m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i);
+        replace( m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i );
 
-        reader.seek(basePos + std::streamoff(meshDataPos));
+        reader.seek( basePos + std::streamoff( meshDataPos ) );
 
-        if( gameToEngine(m_gameVersion) >= Engine::TR4 )
-            m_meshes.emplace_back(*loader::Mesh::readTr4(reader));
+        if( gameToEngine( m_gameVersion ) >= Engine::TR4 )
+            m_meshes.emplace_back( *loader::Mesh::readTr4( reader ) );
         else
-            m_meshes.emplace_back(*loader::Mesh::readTr1(reader));
+            m_meshes.emplace_back( *loader::Mesh::readTr1( reader ) );
 
         for( auto pos : m_meshIndices )
         {
@@ -78,32 +76,33 @@ void Level::readMeshData(loader::io::SDLReader& reader)
         }
     }
 
-    reader.seek(endPos);
+    reader.seek( endPos );
 }
 
 std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game gameVersion, sol::state&& scriptEngine)
 {
-    std::string sfxPath = (boost::filesystem::path(filename).remove_filename() / "MAIN.SFX").string();
+    std::string sfxPath = (boost::filesystem::path( filename ).remove_filename() / "MAIN.SFX").string();
 
-    loader::io::SDLReader reader(filename);
+    loader::io::SDLReader reader( filename );
     if( !reader.isOpen() )
         return nullptr;
 
     if( gameVersion == Game::Unknown )
-        gameVersion = probeVersion(reader, filename);
+        gameVersion = probeVersion( reader, filename );
     if( gameVersion == Game::Unknown )
         return nullptr;
 
-    reader.seek(0);
-    return createLoader(std::move(reader), gameVersion, sfxPath, std::move(scriptEngine));
+    reader.seek( 0 );
+    return createLoader( std::move( reader ), gameVersion, sfxPath, std::move( scriptEngine ) );
 }
-
 
 /** \brief reads the level.
   *
   * Takes a SDL_RWop and the game_version of the file and reads the structures into the members of TR_Level.
   */
-std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath, sol::state&& scriptEngine)
+std::unique_ptr<Level>
+Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
+                    sol::state&& scriptEngine)
 {
     if( !reader.isOpen() )
         return nullptr;
@@ -113,29 +112,29 @@ std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game 
     switch( game_version )
     {
         case Game::TR1:
-            result = std::make_unique<level::TR1Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR1Demo:
         case Game::TR1UnfinishedBusiness:
-            result = std::make_unique<level::TR1Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR2:
-            result = std::make_unique<level::TR2Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR2Demo:
-            result = std::make_unique<level::TR2Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR3:
-            result = std::make_unique<level::TR3Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR3Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR4:
         case Game::TR4Demo:
-            result = std::make_unique<level::TR4Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR4Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR5:
-            result = std::make_unique<level::TR5Level>(game_version, std::move(reader), std::move(scriptEngine));
+            result = std::make_unique<level::TR5Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         default:
             BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
@@ -145,7 +144,6 @@ std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game 
     return result;
 }
 
-
 Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filename)
 {
     if( !reader.isOpen() || filename.length() < 5 )
@@ -153,13 +151,13 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
 
     std::string ext;
     ext += filename[filename.length() - 4];
-    ext += (char) toupper(filename[filename.length() - 3]);
-    ext += (char) toupper(filename[filename.length() - 2]);
-    ext += (char) toupper(filename[filename.length() - 1]);
+    ext += (char)toupper( filename[filename.length() - 3] );
+    ext += (char)toupper( filename[filename.length() - 2] );
+    ext += (char)toupper( filename[filename.length() - 1] );
 
-    reader.seek(0);
+    reader.seek( 0 );
     uint8_t check[4];
-    reader.readBytes(check, 4);
+    reader.readBytes( check, 4 );
 
     Game ret = Game::Unknown;
     if( ext == ".PHD" )
@@ -226,7 +224,6 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
     return ret;
 }
 
-
 const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
@@ -236,21 +233,19 @@ const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
     return nullptr;
 }
 
-
 int Level::findStaticMeshIndexById(uint32_t meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
     {
         if( mesh.id == meshId )
         {
-            BOOST_ASSERT(mesh.mesh < m_meshIndices.size() );
+            BOOST_ASSERT( mesh.mesh < m_meshIndices.size() );
             return m_meshIndices[mesh.mesh];
         }
     }
 
     return -1;
 }
-
 
 boost::optional<size_t> Level::findAnimatedModelIndexForType(uint32_t type) const
 {
@@ -261,7 +256,6 @@ boost::optional<size_t> Level::findAnimatedModelIndexForType(uint32_t type) cons
     return boost::none;
 }
 
-
 boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
 {
     for( size_t i = 0; i < m_spriteSequences.size(); i++ )
@@ -271,65 +265,63 @@ boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
     return boost::none;
 }
 
-
-std::vector<std::shared_ptr<gameplay::gl::Texture>> Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
+std::vector<std::shared_ptr<gameplay::gl::Texture>>
+Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
 {
     BOOST_ASSERT( !m_textures.empty() );
     std::vector<std::shared_ptr<gameplay::gl::Texture>> textures;
     for( auto& texture : m_textures )
     {
-        textures.emplace_back(texture.toTexture(glidos, lvlName));
+        textures.emplace_back( texture.toTexture( glidos, lvlName ) );
     }
     return textures;
 }
-
 
 std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>
 Level::createMaterials(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures,
                        const std::shared_ptr<gameplay::ShaderProgram>& shader)
 {
-    const auto texMask = gameToEngine(m_gameVersion) == Engine::TR4 ? loader::TextureIndexMaskTr4
-                             : loader::TextureIndexMask;
+    const auto texMask = gameToEngine( m_gameVersion ) == Engine::TR4 ? loader::TextureIndexMaskTr4
+                                                                      : loader::TextureIndexMask;
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials;
     for( loader::TextureLayoutProxy& proxy : m_textureProxies )
     {
         const auto& key = proxy.textureKey;
-        if( materials.find(key) != materials.end() )
+        if( materials.find( key ) != materials.end() )
             continue;
 
-        materials[key] = proxy.createMaterial(textures[key.tileAndFlag & texMask], shader);
+        materials[key] = proxy.createMaterial( textures[key.tileAndFlag & texMask], shader );
     }
     return materials;
 }
 
-
 engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
 {
-    auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/textured_2.vert",
-        "shaders/textured_2.frag");
+    auto spriteMaterial = std::make_shared<gameplay::Material>( "shaders/textured_2.vert",
+                                                                "shaders/textured_2.frag" );
     spriteMaterial->initStateBlockDefaults();
-    spriteMaterial->getStateBlock()->setCullFace(false);
+    spriteMaterial->getStateBlock()->setCullFace( false );
 
 #if 1
-    spriteMaterial->getParameter("u_modelViewMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
-    {
-        auto m = node.getModelViewMatrix();
-        // clear out rotation component
-        for (int i : {0, 2})
-            for (int j = 0; j < 3; ++j)
-                m[i][j] = i == j ? 1 : 0;
+    spriteMaterial->getParameter( "u_modelViewMatrix" )
+                  ->bind( [](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform) {
+                      auto m = node.getModelViewMatrix();
+                      // clear out rotation component
+                      for( int i : {0, 2} )
+                          for( int j = 0; j < 3; ++j )
+                              m[i][j] = i == j ? 1 : 0;
 
-        uniform.set(m);
-    });
+                      uniform.set( m );
+                  } );
 #else
     spriteMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
 #endif
 
-    spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    spriteMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
+    spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
+    spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
-    spriteMaterial->getParameter("u_baseLightDiff")->set(0.0f);
-    spriteMaterial->getParameter("u_lightPosition")->set(glm::vec3{std::numeric_limits<float>::quiet_NaN()});
+    spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
+    spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
 
     engine::LaraNode* lara = nullptr;
     int id = -1;
@@ -340,90 +332,123 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
         BOOST_ASSERT( item.room < m_rooms.size() );
         loader::Room& room = m_rooms[item.room];
 
-        if( const auto modelIdx = findAnimatedModelIndexForType(item.type) )
+        if( const auto modelIdx = findAnimatedModelIndexForType( item.type ) )
         {
             std::shared_ptr<engine::items::ItemNode> modelNode;
 
             if( item.type == 0 )
             {
-                modelNode = createSkeletalModel<engine::LaraNode>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::LaraNode>( id, *modelIdx, &room, &item );
                 lara = static_cast<engine::LaraNode*>(modelNode.get());
+            }
+            else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( item.type ) )
+            {
+                BOOST_LOG_TRIVIAL(info) << "Instantiating scripted type " << item.type << "/id " << id;
+
+                BOOST_ASSERT( !m_animatedModels.empty() );
+                BOOST_ASSERT( *modelIdx < m_animatedModels.size() );
+                BOOST_ASSERT( m_animatedModels[*modelIdx] != nullptr );
+                const auto& model = *m_animatedModels[*modelIdx];
+
+                modelNode = std::make_shared<engine::items::ScriptedItem>( this,
+                                                                           "skeleton:" + std::to_string( id ) + "(type:" + std::to_string( item.type ) + ")",
+                                                                           &room,
+                                                                           core::Angle{item.rotation},
+                                                                           item.position,
+                                                                           item.activationState,
+                                                                           item.darkness,
+                                                                           model,
+                                                                           objectInfo);
+                for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
+                {
+                    BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
+                    auto node = std::make_shared<gameplay::Node>(
+                            modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
+                    node->setDrawable( m_models[m_meshIndices[model.firstMesh + boneIndex]] );
+                    modelNode->getNode()->addChild( node );
+                }
+
+                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model.boneCount );
             }
             else if( item.type == 7 )
             {
-                modelNode = createSkeletalModel<engine::items::Wolf>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Wolf>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 9 )
             {
-                modelNode = createSkeletalModel<engine::items::Bat>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Bat>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 35 )
             {
-                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 36 )
             {
-                modelNode = createSkeletalModel<engine::items::SwingingBlade>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::SwingingBlade>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 39 )
             {
-                modelNode = createSkeletalModel<engine::items::Dart>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Dart>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 40 )
             {
-                modelNode = createSkeletalModel<engine::items::DartGun>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::DartGun>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 41 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorUp>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( id, *modelIdx, &room, &item );
             }
             else if( item.type >= 48 && item.type <= 51 )
             {
-                modelNode = createSkeletalModel<engine::items::Block>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Block>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 52 )
             {
-                modelNode = createSkeletalModel<engine::items::TallBlock>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::TallBlock>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 55 )
             {
-                modelNode = createSkeletalModel<engine::items::Switch>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Switch>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 56 )
             {
-                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>( id, *modelIdx, &room, &item );
             }
             else if( item.type >= 57 && item.type <= 64 )
             {
-                modelNode = createSkeletalModel<engine::items::Door>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::Door>( id, *modelIdx, &room, &item );
             }
             else if( item.type >= 65 && item.type <= 66 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorDown>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 68 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeFlat>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::BridgeFlat>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 69 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope1>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( id, *modelIdx, &room, &item );
             }
             else if( item.type == 70 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope2>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( id, *modelIdx, &room, &item );
             }
-            else if( item.type == 141 || item.type == 142 || item.type == 129 || item.type == 130 || item.type == 131 || item.type == 132 || item.type == 110 || item.type == 111 || item.type == 112 || item.type == 113 || item.type == 84 || item.type == 85 || item.type == 86 || item.type == 87 || item.type == 88 || item.type == 89 || item.type == 90 || item.type == 91 || item.type == 92 || item.type == 93 || item.type == 94 || item.type == 144 || item.type == 126 )
+            else if( item.type == 141 || item.type == 142 || item.type == 129 || item.type == 130 || item.type == 131
+                     || item.type == 132 || item.type == 110 || item.type == 111 || item.type == 112 || item.type == 113
+                     || item.type == 84 || item.type == 85 || item.type == 86 || item.type == 87 || item.type == 88
+                     || item.type == 89 || item.type == 90 || item.type == 91 || item.type == 92 || item.type == 93
+                     || item.type == 94 || item.type == 144 || item.type == 126 )
             {
-                modelNode = createSkeletalModel<engine::items::PickupItem>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::PickupItem>( id, *modelIdx, &room, &item );
             }
             else
             {
-                modelNode = createSkeletalModel<engine::items::StubItem>(id, *modelIdx, &room, &item);
+                modelNode = createSkeletalModel<engine::items::StubItem>( id, *modelIdx, &room, &item );
             }
 
             m_itemNodes[id] = modelNode;
-            room.node->addChild(modelNode->getNode());
+            room.node->addChild( modelNode->getNode() );
 
             modelNode->applyTransform();
             modelNode->updateLighting();
@@ -431,31 +456,32 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             continue;
         }
 
-        if( const auto sequenceId = findSpriteSequenceForType(item.type) )
+        if( const auto sequenceId = findSpriteSequenceForType( item.type ) )
         {
-            BOOST_ASSERT(!findAnimatedModelIndexForType(item.type));
-            BOOST_ASSERT(*sequenceId < m_spriteSequences.size());
+            BOOST_ASSERT( !findAnimatedModelIndexForType( item.type ) );
+            BOOST_ASSERT( *sequenceId < m_spriteSequences.size() );
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
-            BOOST_ASSERT(spriteSequence.offset < m_sprites.size());
+            BOOST_ASSERT( spriteSequence.offset < m_sprites.size() );
 
             const loader::Sprite& sprite = m_sprites[spriteSequence.offset];
 
-            auto node = std::make_shared<engine::items::SpriteItemNode>(this,
-                "sprite:" + std::to_string(id) + "(type:" + std::to_string(item.type) + ")",
-                &room,
-                core::Angle{ item.rotation },
-                item.position,
-                item.activationState,
-                true,
-                0,
-                item.darkness,
-                sprite,
-                spriteMaterial,
-                textures);
+            auto node = std::make_shared<engine::items::SpriteItemNode>( this,
+                                                                         "sprite:" + std::to_string( id ) + "(type:"
+                                                                         + std::to_string( item.type ) + ")",
+                                                                         &room,
+                                                                         core::Angle{item.rotation},
+                                                                         item.position,
+                                                                         item.activationState,
+                                                                         true,
+                                                                         0,
+                                                                         item.darkness,
+                                                                         sprite,
+                                                                         spriteMaterial,
+                                                                         textures );
 
             m_itemNodes[id] = node;
-            room.node->addChild(node->getNode());
+            room.node->addChild( node->getNode() );
 
             node->applyTransform();
             node->updateLighting();
@@ -464,12 +490,11 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
         }
 
         BOOST_LOG_TRIVIAL( error ) << "Failed to find an appropriate animated model for item " << id << "/type "
-                                  << int(item.type);
+                                   << int( item.type );
     }
 
     return lara;
 }
-
 
 template<typename T>
 std::shared_ptr<T> Level::createSkeletalModel(size_t id,
@@ -491,25 +516,26 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     if( model.animationIndex == 0xffff )
     {
         BOOST_LOG_TRIVIAL( error ) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec
-                                  << " has animationIndex==0xffff";
+                                   << " has animationIndex==0xffff";
         return nullptr;
     }
 
-    auto skeletalModel = std::make_shared<T>(this,
-                                             "skeleton:" + std::to_string(id) + "(type:" + std::to_string(type) + ")",
-                                             room,
-                                             angle,
-                                             position,
-                                             activationState,
-                                             darkness,
-                                             model);
+    auto skeletalModel = std::make_shared<T>( this,
+                                              "skeleton:" + std::to_string( id ) + "(type:" + std::to_string( type )
+                                              + ")",
+                                              room,
+                                              angle,
+                                              position,
+                                              activationState,
+                                              darkness,
+                                              model );
     for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
     {
         BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
         auto node = std::make_shared<gameplay::Node>(
-            skeletalModel->getNode()->getId() + "/bone:" + std::to_string(boneIndex));
-        node->setDrawable(m_models[m_meshIndices[model.firstMesh + boneIndex]]);
-        skeletalModel->getNode()->addChild(node);
+                skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
+        node->setDrawable( m_models[m_meshIndices[model.firstMesh + boneIndex]] );
+        skeletalModel->getNode()->addChild( node );
     }
 
     BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.boneCount );
@@ -517,18 +543,18 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     return skeletalModel;
 }
 
-
-YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::floordata::SequenceCondition sequenceCondition)
+YAML::Node
+parseCommandSequence(const uint16_t*& rawFloorData, const engine::floordata::SequenceCondition sequenceCondition)
 {
     YAML::Node sequence;
     const uint16_t activationRequestRaw{*rawFloorData++};
     const engine::floordata::ActivationState activationRequest{activationRequestRaw};
     for( size_t i = 0; i < 5; ++i )
     {
-        if( activationRequest.isInActivationSet(i) )
-            sequence["activationBits"].push_back(i);
+        if( activationRequest.isInActivationSet( i ) )
+            sequence["activationBits"].push_back( i );
     }
-    sequence["timeout"] = engine::floordata::ActivationState::extractTimeout(activationRequestRaw);
+    sequence["timeout"] = engine::floordata::ActivationState::extractTimeout( activationRequestRaw );
     sequence["oneshot"] = activationRequest.isOneshot();
     sequence["locked"] = activationRequest.isLocked();
     sequence["inverted"] = activationRequest.isInverted();
@@ -599,7 +625,7 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
             sequence["if"] = "climb";
             break;
         default:
-            sequence["if"] = "true(" + std::to_string(static_cast<int>(sequenceCondition)) + ")";
+            sequence["if"] = "true(" + std::to_string( static_cast<int>(sequenceCondition) ) + ")";
     }
 
     while( true )
@@ -619,9 +645,9 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
                 const engine::floordata::CameraParameters camParams{*rawFloorData++};
                 commandTree["opcode"] = "switchCamera";
                 commandTree["cameraId"] = commandHeader.parameter;
-                commandTree["duration"] = int(camParams.timeout);
+                commandTree["duration"] = int( camParams.timeout );
                 commandTree["onlyOnce"] = camParams.oneshot;
-                commandTree["smoothness"] = int(camParams.smoothness);
+                commandTree["smoothness"] = int( camParams.smoothness );
                 commandHeader.isLast = camParams.isLast;
             }
                 break;
@@ -672,10 +698,10 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
                 commandTree["target"] = commandHeader.parameter;
                 break;
             default:
-                BOOST_ASSERT(false);
+                BOOST_ASSERT( false );
         }
 
-        sequence["commands"].push_back(commandTree);
+        sequence["commands"].push_back( commandTree );
 
         if( commandHeader.isLast )
             break;
@@ -684,50 +710,51 @@ YAML::Node parseCommandSequence(const uint16_t*& rawFloorData, const engine::flo
     return sequence;
 }
 
-
 void Level::setUpRendering(gameplay::Game* game,
                            const boost::filesystem::path& assetPath,
                            const boost::filesystem::path& lvlName,
                            const std::unique_ptr<loader::trx::Glidos>& glidos)
 {
-    m_inputHandler = std::make_unique<engine::InputHandler>(game->getWindow());
+    m_inputHandler = std::make_unique<engine::InputHandler>( game->getWindow() );
 
-    auto textures = createTextures(glidos.get(), lvlName);
+    auto textures = createTextures( glidos.get(), lvlName );
 
-    auto texturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
+    auto texturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                                   "shaders/textured_2.frag" );
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> materials = createMaterials(
-        textures, texturedShader);
+            textures, texturedShader );
 
-    std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>("shaders/colored_2.vert",
-                                                                                             "shaders/colored_2.frag");
+    std::shared_ptr<gameplay::Material> colorMaterial = std::make_shared<gameplay::Material>( "shaders/colored_2.vert",
+                                                                                              "shaders/colored_2.frag" );
     colorMaterial->initStateBlockDefaults();
-    colorMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    colorMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
-    colorMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
-    colorMaterial->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
-    colorMaterial->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
-    colorMaterial->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
+    colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
+    colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
+    colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+    colorMaterial->getParameter( "u_baseLight" )->bind( &engine::items::ItemNode::lightBaseBinder );
+    colorMaterial->getParameter( "u_baseLightDiff" )->bind( &engine::items::ItemNode::lightBaseDiffBinder );
+    colorMaterial->getParameter( "u_lightPosition" )->bind( &engine::items::ItemNode::lightPositionBinder );
 
-    m_textureAnimator = std::make_shared<render::TextureAnimator>(m_animatedTextures);
+    m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures );
 
     for( auto& mesh : m_meshes )
     {
-        m_models.emplace_back(mesh.createModel(m_textureProxies, materials, colorMaterial, *m_palette,
-                                               *m_textureAnimator));
+        m_models.emplace_back( mesh.createModel( m_textureProxies, materials, colorMaterial, *m_palette,
+                                                 *m_textureAnimator ) );
     }
 
     game->getScene()->setActiveCamera(
-        std::make_shared<gameplay::Camera>(glm::radians(80.0f), game->getAspectRatio(), 10, 20480));
+            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10, 20480 ) );
 
-    auto waterTexturedShader = gameplay::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag",
-                                                                       {"WATER"});
+    auto waterTexturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                                        "shaders/textured_2.frag",
+                                                                        {"WATER"} );
     std::map<loader::TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>> waterMaterials = createMaterials(
-        textures, waterTexturedShader);
+            textures, waterTexturedShader );
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode(i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator);
-        game->getScene()->addNode(m_rooms[i].node);
+        m_rooms[i].createSceneNode( i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator );
+        game->getScene()->addNode( m_rooms[i].node );
     }
 
     {
@@ -735,31 +762,34 @@ void Level::setUpRendering(gameplay::Game* game,
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {
-            objWriter.write(m_textures[i].toImage(nullptr, {}), i);
+            objWriter.write( m_textures[i].toImage( nullptr, {} ), i );
         }
 
         for( const auto& trModel : m_animatedModels )
         {
             for( size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex )
             {
-                BOOST_ASSERT(trModel->firstMesh + boneIndex < m_meshIndices.size());
-                BOOST_ASSERT(m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size());
+                BOOST_ASSERT( trModel->firstMesh + boneIndex < m_meshIndices.size() );
+                BOOST_ASSERT( m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size() );
 
-                std::string filename = "model_" + std::to_string(trModel->typeId) + "_" + std::to_string(boneIndex) + ".dae";
-                if( !objWriter.exists(filename) )
+                std::string filename = "model_" + std::to_string( trModel->typeId ) + "_" + std::to_string( boneIndex )
+                                       + ".dae";
+                if( !objWriter.exists( filename ) )
                 {
-                    BOOST_LOG_TRIVIAL(info) << "Saving model " << filename;
+                    BOOST_LOG_TRIVIAL( info ) << "Saving model " << filename;
 
                     const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
-                    objWriter.write(model, filename, materials, {}, glm::vec3(0.8f));
+                    objWriter.write( model, filename, materials, {}, glm::vec3( 0.8f ) );
                 }
 
-                filename = "model_override_" + std::to_string(trModel->typeId) + "_" + std::to_string(boneIndex) + ".dae";
-                if( objWriter.exists(filename) )
+                filename = "model_override_" + std::to_string( trModel->typeId ) + "_" + std::to_string( boneIndex )
+                           + ".dae";
+                if( objWriter.exists( filename ) )
                 {
-                    BOOST_LOG_TRIVIAL(info) << "Loading override model " << filename;
+                    BOOST_LOG_TRIVIAL( info ) << "Loading override model " << filename;
 
-                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter.readModel(filename, texturedShader, glm::vec3(0.8f));
+                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter
+                            .readModel( filename, texturedShader, glm::vec3( 0.8f ) );
                 }
             }
         }
@@ -768,36 +798,39 @@ void Level::setUpRendering(gameplay::Game* game,
         {
             auto& room = m_rooms[i];
 
-            std::string filename = "room_" + std::to_string(i) + ".dae";
-            if( !objWriter.exists(filename) )
+            std::string filename = "room_" + std::to_string( i ) + ".dae";
+            if( !objWriter.exists( filename ) )
             {
-                BOOST_LOG_TRIVIAL(info) << "Saving room model " << filename;
+                BOOST_LOG_TRIVIAL( info ) << "Saving room model " << filename;
 
                 const auto drawable = room.node->getDrawable();
-                const auto model = std::dynamic_pointer_cast<gameplay::Model>(drawable);
-                BOOST_ASSERT(model != nullptr);
-                objWriter.write(model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()});
+                const auto model = std::dynamic_pointer_cast<gameplay::Model>( drawable );
+                BOOST_ASSERT( model != nullptr );
+                objWriter.write( model, filename, materials, waterMaterials, glm::vec3{room.getAmbientBrightness()} );
 
-                filename = "room_" + std::to_string(i) + ".yaml";
-                BOOST_LOG_TRIVIAL(info) << "Saving floor data to " << filename;
+                filename = "room_" + std::to_string( i ) + ".yaml";
+                BOOST_LOG_TRIVIAL( info ) << "Saving floor data to " << filename;
 
                 YAML::Node floorDataTree;
                 for( size_t x = 0; x < room.sectorCountX; ++x )
                 {
                     for( size_t z = 0; z < room.sectorCountZ; ++z )
                     {
-                        const gsl::not_null<const loader::Sector*> sector = room.getSectorByIndex(gsl::narrow<int>(x), gsl::narrow<int>(z));
+                        const gsl::not_null<const loader::Sector*> sector = room
+                                .getSectorByIndex( gsl::narrow<int>( x ), gsl::narrow<int>( z ) );
                         YAML::Node sectorTree;
                         sectorTree["position"]["x"] = x;
                         sectorTree["position"]["z"] = z;
                         if( sector->floorHeight != -127 )
-                            sectorTree["layout"]["floor"] = sector->floorHeight * loader::QuarterSectorSize - room.position.Y;
+                            sectorTree["layout"]["floor"] = sector->floorHeight * loader::QuarterSectorSize
+                                                            - room.position.Y;
                         if( sector->ceilingHeight != -127 )
-                            sectorTree["layout"]["ceiling"] = sector->ceilingHeight * loader::QuarterSectorSize - room.position.Y;
+                            sectorTree["layout"]["ceiling"] = sector->ceilingHeight * loader::QuarterSectorSize
+                                                              - room.position.Y;
                         if( sector->roomBelow != 0xff )
-                            sectorTree["relations"]["roomBelow"] = int(sector->roomBelow);
+                            sectorTree["relations"]["roomBelow"] = int( sector->roomBelow );
                         if( sector->roomAbove != 0xff )
-                            sectorTree["relations"]["roomAbove"] = int(sector->roomAbove);
+                            sectorTree["relations"]["roomAbove"] = int( sector->roomAbove );
                         if( sector->boxIndex != 0xffff )
                             sectorTree["relations"]["box"] = sector->boxIndex;
 
@@ -808,13 +841,17 @@ void Level::setUpRendering(gameplay::Game* game,
                             switch( chunkHeader.type )
                             {
                                 case engine::floordata::FloorDataChunkType::FloorSlant:
-                                    sectorTree["layout"]["floorSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
-                                    sectorTree["layout"]["floorSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
+                                    sectorTree["layout"]["floorSlant"]["x"] =
+                                            gsl::narrow_cast<int8_t>( *rawFloorData & 0xff ) + 0;
+                                    sectorTree["layout"]["floorSlant"]["z"] =
+                                            gsl::narrow_cast<int8_t>( (*rawFloorData >> 8) & 0xff ) + 0;
                                     ++rawFloorData;
                                     break;
                                 case engine::floordata::FloorDataChunkType::CeilingSlant:
-                                    sectorTree["layout"]["ceilingSlant"]["x"] = gsl::narrow_cast<int8_t>(*rawFloorData & 0xff) + 0;
-                                    sectorTree["layout"]["ceilingSlant"]["z"] = gsl::narrow_cast<int8_t>((*rawFloorData >> 8) & 0xff) + 0;
+                                    sectorTree["layout"]["ceilingSlant"]["x"] =
+                                            gsl::narrow_cast<int8_t>( *rawFloorData & 0xff ) + 0;
+                                    sectorTree["layout"]["ceilingSlant"]["z"] =
+                                            gsl::narrow_cast<int8_t>( (*rawFloorData >> 8) & 0xff ) + 0;
                                     ++rawFloorData;
                                     break;
                                 case engine::floordata::FloorDataChunkType::PortalSector:
@@ -822,10 +859,11 @@ void Level::setUpRendering(gameplay::Game* game,
                                     ++rawFloorData;
                                     break;
                                 case engine::floordata::FloorDataChunkType::Death:
-                                    sectorTree["characteristics"].push_back("deadly");
+                                    sectorTree["characteristics"].push_back( "deadly" );
                                     break;
                                 case engine::floordata::FloorDataChunkType::CommandSequence:
-                                    sectorTree["sequences"].push_back(parseCommandSequence(rawFloorData, chunkHeader.sequenceCondition));
+                                    sectorTree["sequences"].push_back(
+                                            parseCommandSequence( rawFloorData, chunkHeader.sequenceCondition ) );
                                     break;
                                 default:
                                     break;
@@ -835,43 +873,43 @@ void Level::setUpRendering(gameplay::Game* game,
                         }
 
                         if( sectorTree.size() > 2 ) // only emit if we have more information than x/y coordinates
-                            floorDataTree["sectors"].push_back(sectorTree);
+                            floorDataTree["sectors"].push_back( sectorTree );
                     }
                 }
 
-                objWriter.write(filename, floorDataTree);
+                objWriter.write( filename, floorDataTree );
             }
 
-            filename = "room_override_" + std::to_string(i) + ".dae";
-            if( !objWriter.exists(filename) )
+            filename = "room_override_" + std::to_string( i ) + ".dae";
+            if( !objWriter.exists( filename ) )
                 continue;
 
-            BOOST_LOG_TRIVIAL(info) << "Loading room override model " << filename;
+            BOOST_LOG_TRIVIAL( info ) << "Loading room override model " << filename;
 
-            room.node->setDrawable(nullptr);
+            room.node->setDrawable( nullptr );
 
-            auto model = objWriter.readModel(filename, room.isWaterRoom() ? waterTexturedShader : texturedShader, glm::vec3(room.ambientDarkness / 8191.0f));
-            room.node->setDrawable(model);
+            auto model = objWriter.readModel( filename, room.isWaterRoom() ? waterTexturedShader : texturedShader,
+                                              glm::vec3( room.ambientDarkness / 8191.0f ) );
+            room.node->setDrawable( model );
         }
 
-        BOOST_LOG_TRIVIAL(info) << "Saving full level to _level.dae";
-        objWriter.write(m_rooms, m_boxes, "_level.dae", materials, waterMaterials);
+        BOOST_LOG_TRIVIAL( info ) << "Saving full level to _level.dae";
+        objWriter.write( m_rooms, m_boxes, "_level.dae", materials, waterMaterials );
     }
 
-    m_lara = createItems(textures);
+    m_lara = createItems( textures );
     if( m_lara == nullptr )
         return;
 
-    m_cameraController = new engine::CameraController(this, m_lara, game->getScene()->getActiveCamera());
+    m_cameraController = new engine::CameraController( this, m_lara, game->getScene()->getActiveCamera() );
 
     for( const loader::SoundSource& src : m_soundSources )
     {
-        auto handle = playSound(src.sound_id, src.position.toRenderSystem());
-        handle->setLooping(true);
-        m_audioDev.registerSource(handle);
+        auto handle = playSound( src.sound_id, src.position.toRenderSystem() );
+        handle->setLooping( true );
+        m_audioDev.registerSource( handle );
     }
 }
-
 
 void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst)
 {
@@ -888,9 +926,8 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
         }
     }
 
-    dst.md5 = util::md5(&tex.pixels[0][0], 256 * 256);
+    dst.md5 = util::md5( &tex.pixels[0][0], 256 * 256 );
 }
-
 
 void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 {
@@ -915,17 +952,16 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
     }
 }
 
-
 gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCoordinates& position,
                                                                 const loader::Room** room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
     {
-        sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / loader::SectorSize,
-                                                          (position.Z - (*room)->position.Z) / loader::SectorSize);
+        sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / loader::SectorSize,
+                                                           (position.Z - (*room)->position.Z) / loader::SectorSize );
         Expects( sector != nullptr );
-        const auto portalTarget = engine::floordata::getPortalTarget(m_floorData, sector->floorDataIndex);
+        const auto portalTarget = engine::floordata::getPortalTarget( m_floorData, sector->floorDataIndex );
         if( !portalTarget )
         {
             break;
@@ -942,7 +978,7 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
         {
             BOOST_ASSERT( sector->roomAbove < m_rooms.size() );
             *room = &m_rooms[sector->roomAbove];
-            sector = (*room)->getSectorByAbsolutePosition(position);
+            sector = (*room)->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
@@ -952,7 +988,7 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
         {
             BOOST_ASSERT( sector->roomBelow < m_rooms.size() );
             *room = &m_rooms[sector->roomBelow];
-            sector = (*room)->getSectorByAbsolutePosition(position);
+            sector = (*room)->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
@@ -960,17 +996,17 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
     return sector;
 }
 
-
-gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
+gsl::not_null<const loader::Room*>
+Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
     {
         sector = room->findFloorSectorWithClampedIndex(
-            gsl::narrow_cast<int>(position.X - room->position.X) / loader::SectorSize,
-            gsl::narrow_cast<int>(position.Z - room->position.Z) / loader::SectorSize);
+                gsl::narrow_cast<int>( position.X - room->position.X ) / loader::SectorSize,
+                gsl::narrow_cast<int>( position.Z - room->position.Z ) / loader::SectorSize );
         Expects( sector != nullptr );
-        const auto portalTarget = engine::floordata::getPortalTarget(m_floorData, sector->floorDataIndex);
+        const auto portalTarget = engine::floordata::getPortalTarget( m_floorData, sector->floorDataIndex );
         if( !portalTarget )
         {
             break;
@@ -987,7 +1023,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::TRCoor
         {
             BOOST_ASSERT( sector->roomAbove < m_rooms.size() );
             room = &m_rooms[sector->roomAbove];
-            sector = room->getSectorByAbsolutePosition(position);
+            sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
@@ -997,7 +1033,7 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::TRCoor
         {
             BOOST_ASSERT( sector->roomBelow < m_rooms.size() );
             room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition(position);
+            sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
@@ -1005,16 +1041,14 @@ gsl::not_null<const loader::Room*> Level::findRoomForPosition(const core::TRCoor
     return room;
 }
 
-
 engine::items::ItemNode* Level::getItemController(uint16_t id) const
 {
-    auto it = m_itemNodes.find(id);
+    auto it = m_itemNodes.find( id );
     if( it == m_itemNodes.end() )
         return nullptr;
 
     return it->second.get();
 }
-
 
 void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>& image) const
 {
@@ -1023,51 +1057,51 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::I
         const int x0 = game->getViewport().width - 110;
 
         for( int i = 7; i <= 13; ++i )
-            image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor());
-        image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor());
-        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor());
-        image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
-        image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
+            image->line( x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor() );
+        image->line( x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor() );
+        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor() );
+        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor() );
+        image->line( x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor() );
 
-        const int p = util::clamp(m_lara->getAir() * 100 / core::LaraAir, 0, 100);
+        const int p = util::clamp( m_lara->getAir() * 100 / core::LaraAir, 0, 100 );
         if( p > 0 )
         {
-            image->line(x0, 8, x0 + p, 8, m_palette->color[32].toTextureColor());
-            image->line(x0, 9, x0 + p, 9, m_palette->color[41].toTextureColor());
-            image->line(x0, 10, x0 + p, 10, m_palette->color[32].toTextureColor());
-            image->line(x0, 11, x0 + p, 11, m_palette->color[19].toTextureColor());
-            image->line(x0, 12, x0 + p, 12, m_palette->color[21].toTextureColor());
+            image->line( x0, 8, x0 + p, 8, m_palette->color[32].toTextureColor() );
+            image->line( x0, 9, x0 + p, 9, m_palette->color[41].toTextureColor() );
+            image->line( x0, 10, x0 + p, 10, m_palette->color[32].toTextureColor() );
+            image->line( x0, 11, x0 + p, 11, m_palette->color[19].toTextureColor() );
+            image->line( x0, 12, x0 + p, 12, m_palette->color[21].toTextureColor() );
         }
     }
 
     const int x0 = 8;
     for( int i = 7; i <= 13; ++i )
-        image->line(x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor());
-    image->line(x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor());
-    image->line(x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor());
+        image->line( x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor() );
+    image->line( x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor() );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor() );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor() );
+    image->line( x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor() );
 
-    const int p = util::clamp(m_lara->m_state.health * 100 / core::LaraHealth, 0, 100);
+    const int p = util::clamp( m_lara->m_state.health * 100 / core::LaraHealth, 0, 100 );
     if( p > 0 )
     {
-        image->line(x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor());
-        image->line(x0, 9, x0 + p, 9, m_palette->color[11].toTextureColor());
-        image->line(x0, 10, x0 + p, 10, m_palette->color[8].toTextureColor());
-        image->line(x0, 11, x0 + p, 11, m_palette->color[6].toTextureColor());
-        image->line(x0, 12, x0 + p, 12, m_palette->color[24].toTextureColor());
+        image->line( x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor() );
+        image->line( x0, 9, x0 + p, 9, m_palette->color[11].toTextureColor() );
+        image->line( x0, 10, x0 + p, 10, m_palette->color[8].toTextureColor() );
+        image->line( x0, 11, x0 + p, 11, m_palette->color[6].toTextureColor() );
+        image->line( x0, 12, x0 + p, 12, m_palette->color[24].toTextureColor() );
     }
 }
 
-
-void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType)
+void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
+                           engine::floordata::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
 
     if( trackId < 28 )
     {
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
@@ -1076,20 +1110,20 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
         if( m_cdTrackActivationStates[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
             trackId = 29;
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
     if( trackId == 37 || trackId == 41 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
-            triggerNormalCdTrack(trackId, activationRequest, triggerType);
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
     if( trackId >= 29 && trackId <= 40 )
     {
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
@@ -1098,14 +1132,14 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
         if( trackId == 42 && m_cdTrackActivationStates[42].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             trackId = 43;
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
     if( trackId == 49 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
-            triggerNormalCdTrack(trackId, activationRequest, triggerType);
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
@@ -1118,23 +1152,23 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
                 //! @todo End level
                 m_cdTrack50time = 0;
             }
-            triggerNormalCdTrack(trackId, activationRequest, triggerType);
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
             return;
         }
 
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit )
-            triggerNormalCdTrack(trackId, activationRequest, triggerType);
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
     if( trackId >= 51 && trackId <= 63 )
     {
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
 }
 
-
-void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest, engine::floordata::SequenceCondition triggerType)
+void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
+                                 engine::floordata::SequenceCondition triggerType)
 {
     if( m_cdTrackActivationStates[trackId].isOneshot() )
         return;
@@ -1149,23 +1183,22 @@ void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::Acti
     if( m_cdTrackActivationStates[trackId].isFullyActivated() )
     {
         if( activationRequest.isOneshot() )
-            m_cdTrackActivationStates[trackId].setOneshot(true);
+            m_cdTrackActivationStates[trackId].setOneshot( true );
 
         if( m_activeCDTrack != trackId )
-            playCdTrack(trackId);
+            playCdTrack( trackId );
     }
     else
     {
-        stopCdTrack(trackId);
+        stopCdTrack( trackId );
     }
 }
-
 
 void Level::playCdTrack(uint16_t trackId)
 {
     if( trackId == 13 )
     {
-        m_lara->playSoundEffect(173);
+        m_lara->playSoundEffect( 173 );
         return;
     }
 
@@ -1176,11 +1209,11 @@ void Level::playCdTrack(uint16_t trackId)
 
     if( m_activeCDTrack >= 26 && m_activeCDTrack <= 56 )
     {
-        stopSoundEffect(m_activeCDTrack + 148);
+        stopSoundEffect( m_activeCDTrack + 148 );
     }
     else if( m_activeCDTrack > 0 )
     {
-        m_audioDev.removeStream(m_cdStream);
+        m_audioDev.removeStream( m_cdStream );
         m_cdStream.reset();
     }
     m_activeCDTrack = 0;
@@ -1189,7 +1222,7 @@ void Level::playCdTrack(uint16_t trackId)
 
     if( trackId >= 26 && trackId <= 56 )
     {
-        m_lara->playSoundEffect(trackId + 148);
+        m_lara->playSoundEffect( trackId + 148 );
         m_activeCDTrack = trackId;
         return;
     }
@@ -1212,10 +1245,9 @@ void Level::playCdTrack(uint16_t trackId)
         trackId -= 54;
     }
 
-    playStream(trackId);
+    playStream( trackId );
     m_activeCDTrack = trackId;
 }
-
 
 void Level::stopCdTrack(uint16_t trackId)
 {
@@ -1224,47 +1256,45 @@ void Level::stopCdTrack(uint16_t trackId)
 
     if( m_activeCDTrack < 26 || m_activeCDTrack > 56 )
     {
-        m_audioDev.removeStream(m_cdStream);
+        m_audioDev.removeStream( m_cdStream );
         m_cdStream.reset();
     }
     else
     {
-        stopSoundEffect(trackId + 148);
+        stopSoundEffect( trackId + 148 );
     }
 
     m_activeCDTrack = 0;
 }
 
-
 void Level::playStream(uint16_t trackId)
 {
     static constexpr size_t DefaultBufferSize = 16384;
 
-    m_audioDev.removeStream(m_cdStream);
+    m_audioDev.removeStream( m_cdStream );
     m_cdStream.reset();
 
-    if( boost::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD") )
+    if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
         m_cdStream = std::make_unique<audio::Stream>(
-            std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId), DefaultBufferSize);
+                std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ), DefaultBufferSize );
     else
-        m_cdStream = std::make_unique<audio::Stream>(std::make_unique<audio::SndfileStreamSource>(
-                                                         (boost::format("data/tr1/audio/%03d.ogg") % trackId).str()), DefaultBufferSize);
+        m_cdStream = std::make_unique<audio::Stream>( std::make_unique<audio::SndfileStreamSource>(
+                (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ), DefaultBufferSize );
 
-    m_audioDev.registerStream(m_cdStream);
+    m_audioDev.registerStream( m_cdStream );
 }
-
 
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[0];
-    BOOST_ASSERT(base.boneCount == m_lara->getNode()->getChildCount());
+    BOOST_ASSERT( base.boneCount == m_lara->getNode()->getChildCount() );
 
     const auto& alternate = *m_animatedModels[5];
-    BOOST_ASSERT(alternate.boneCount == m_lara->getNode()->getChildCount());
+    BOOST_ASSERT( alternate.boneCount == m_lara->getNode()->getChildCount() );
 
     for( size_t i = 0; i < m_lara->getNode()->getChildCount(); ++i )
-        m_lara->getNode()->getChild(i)->setDrawable(m_models[m_meshIndices[alternate.firstMesh + i]]);
+        m_lara->getNode()->getChild( i )->setDrawable( m_models[m_meshIndices[alternate.firstMesh + i]] );
 
     // Don't replace the head.
-    m_lara->getNode()->getChild(14)->setDrawable(m_models[m_meshIndices[base.firstMesh + 14]]);
+    m_lara->getNode()->getChild( 14 )->setDrawable( m_models[m_meshIndices[base.firstMesh + 14]] );
 }

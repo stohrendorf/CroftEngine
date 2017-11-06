@@ -167,7 +167,7 @@ struct ItemState
                 "test_bone_collision", &ItemState::testBoneCollision,
                 "do_enemy_push", [](){ /* TODO */ },
                 "set_y_angle", [](ItemState& self, int16_t angle){ self.rotation.Y = core::Angle(angle); },
-                "collidable", [](ItemState& self, bool flag){ self.collidable = flag; },
+                "set_collidable", [](ItemState& self, bool flag){ self.collidable = flag; },
                 "frame_number", &ItemState::frame_number
         );
     }

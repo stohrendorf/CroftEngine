@@ -126,3 +126,7 @@ end
 function getGlidosPack()
     return nil -- "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
 end
+
+function getObjectInfo(id)
+    return object_infos[id]
+end
