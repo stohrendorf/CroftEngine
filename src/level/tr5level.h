@@ -7,8 +7,8 @@ namespace level
 class TR5Level : public Level
 {
 public:
-    TR5Level(Game gameVersion, loader::io::SDLReader&& reader)
-        : Level(gameVersion, std::move(reader))
+    TR5Level(Game gameVersion, loader::io::SDLReader&& reader, sol::state&& scriptEngine)
+            : Level( gameVersion, std::move( reader ), std::move( scriptEngine ) )
     {
     }
 

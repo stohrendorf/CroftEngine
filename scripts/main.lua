@@ -6,7 +6,7 @@ levelInfos = {
         baseName = "GYM",
         name = "Lara's home",
         secrets = 0,
-        swapRooms = true
+        useAlternativeLara = true
     },
     {
         -- 2

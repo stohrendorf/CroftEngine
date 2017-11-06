@@ -177,24 +177,32 @@ void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
 }
 
 
+sol::state createScriptEngine()
+{
+    sol::state engine;
+    engine.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
+    engine["package"]["path"] = (boost::filesystem::path("scripts") / "?.lua").string();
+    engine["package"]["cpath"] = "";
+
+    engine.set_usertype(core::Angle::userType());
+    engine.set_usertype(core::TRRotation::userType());
+    engine.set_usertype(core::TRCoordinates::userType());
+    engine.set_usertype(engine::items::ItemState::userType());
+
+    return engine;
+}
+
+
 int main()
 {
     auto* game = new gameplay::Game();
     game->run();
 
-    sol::state mainScript;
-    mainScript.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
-    mainScript["package"]["path"] = (boost::filesystem::path("scripts") / "?.lua").string();
-    mainScript["package"]["cpath"] = "";
-
-    mainScript.set_usertype(core::Angle::userType());
-    mainScript.set_usertype(core::TRRotation::userType());
-    mainScript.set_usertype(core::TRCoordinates::userType());
-    mainScript.set_usertype(engine::items::ItemState::userType());
+    auto scriptEngine = createScriptEngine();
 
     try
     {
-        mainScript.do_file("scripts/main.lua");
+        scriptEngine.do_file("scripts/main.lua");
     }
     catch(sol::error& e)
     {
@@ -202,32 +210,38 @@ int main()
         return EXIT_FAILURE;
     }
 
-    sol::table levelInfo = mainScript["getLevelInfo"].call();
-
-    auto lvl = level::Level::createLoader("data/tr1/data/" + levelInfo.get<std::string>("baseName") + ".PHD", level::Game::Unknown);
-
-    BOOST_ASSERT(lvl != nullptr);
-    lvl->loadFileData();
-
-    const sol::optional<std::string> glidosPack = mainScript["getGlidosPack"].call();
+    const sol::optional<std::string> glidosPack = scriptEngine["getGlidosPack"].call();
 
     std::unique_ptr<loader::trx::Glidos> glidos;
     if(glidosPack && boost::filesystem::is_regular_file(glidosPack.value()))
     {
         glidos = std::make_unique<loader::trx::Glidos>(glidosPack.value());
+#ifndef NDEBUG
         glidos->dump();
+#endif
     }
 
-    lvl->setUpRendering(game, "assets/tr1", levelInfo.get<std::string>("baseName"), glidos);
+    sol::table levelInfo = scriptEngine["getLevelInfo"].call();
+    const auto baseName = levelInfo.get<std::string>("baseName");
+    sol::optional<uint32_t> trackToPlay = levelInfo["track"];
+    const bool useAlternativeLara = levelInfo.get_or("useAlternativeLara", false);
+    levelInfo = sol::table(); // do not keep a reference to the engine
 
-    if( levelInfo.get_or("swapRooms", false) )
+    auto lvl = level::Level::createLoader("data/tr1/data/" + baseName + ".PHD", level::Game::Unknown, std::move(scriptEngine));
+
+    BOOST_ASSERT(lvl != nullptr);
+    lvl->loadFileData();
+
+    lvl->setUpRendering(game, "assets/tr1", baseName, glidos);
+
+    if(useAlternativeLara)
     {
         lvl->useAlternativeLaraAppearance();
     }
 
     // device->setWindowCaption("EdisonEngine");
 
-    if( sol::optional<uint32_t> trackToPlay = levelInfo["track"] )
+    if( trackToPlay )
     {
         lvl->playCdTrack(trackToPlay.value());
     }
@@ -286,7 +300,7 @@ int main()
 
         lastTime = game->getGameTime();
 
-        update(lvl, bool(mainScript["cheats"]["godMode"]));
+        update(lvl, bool(lvl->m_scriptEngine["cheats"]["godMode"]));
 
         lvl->m_cameraController->update();
 

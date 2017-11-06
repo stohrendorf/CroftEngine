@@ -81,40 +81,21 @@ void Level::readMeshData(loader::io::SDLReader& reader)
     reader.seek(endPos);
 }
 
-std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game game_version)
+std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game gameVersion, sol::state&& scriptEngine)
 {
-    size_t len2 = 0;
-
-    for( size_t i = 0; i < filename.length(); i++ )
-    {
-        if( filename[i] == '/' || filename[i] == '\\' )
-        {
-            len2 = i;
-        }
-    }
-
-    std::string sfxPath;
-
-    if( len2 > 0 )
-    {
-        sfxPath = filename.substr(0, len2 + 1) + "MAIN.SFX";
-    }
-    else
-    {
-        sfxPath = "MAIN.SFX";
-    }
+    std::string sfxPath = (boost::filesystem::path(filename).remove_filename() / "MAIN.SFX").string();
 
     loader::io::SDLReader reader(filename);
     if( !reader.isOpen() )
         return nullptr;
 
-    if( game_version == Game::Unknown )
-        game_version = probeVersion(reader, filename);
-    if( game_version == Game::Unknown )
+    if( gameVersion == Game::Unknown )
+        gameVersion = probeVersion(reader, filename);
+    if( gameVersion == Game::Unknown )
         return nullptr;
 
     reader.seek(0);
-    return createLoader(std::move(reader), game_version, sfxPath);
+    return createLoader(std::move(reader), gameVersion, sfxPath, std::move(scriptEngine));
 }
 
 
@@ -122,7 +103,7 @@ std::unique_ptr<Level> Level::createLoader(const std::string& filename, Game gam
   *
   * Takes a SDL_RWop and the game_version of the file and reads the structures into the members of TR_Level.
   */
-std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath)
+std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath, sol::state&& scriptEngine)
 {
     if( !reader.isOpen() )
         return nullptr;
@@ -131,25 +112,33 @@ std::unique_ptr<Level> Level::createLoader(loader::io::SDLReader&& reader, Game 
 
     switch( game_version )
     {
-        case Game::TR1: result = std::make_unique<level::TR1Level>(game_version, std::move(reader));
+        case Game::TR1:
+            result = std::make_unique<level::TR1Level>(game_version, std::move(reader), std::move(scriptEngine));
             break;
         case Game::TR1Demo:
-        case Game::TR1UnfinishedBusiness: result = std::make_unique<level::TR1Level>(game_version, std::move(reader));
+        case Game::TR1UnfinishedBusiness:
+            result = std::make_unique<level::TR1Level>(game_version, std::move(reader), std::move(scriptEngine));
             result->m_demoOrUb = true;
             break;
-        case Game::TR2: result = std::make_unique<level::TR2Level>(game_version, std::move(reader));
+        case Game::TR2:
+            result = std::make_unique<level::TR2Level>(game_version, std::move(reader), std::move(scriptEngine));
             break;
-        case Game::TR2Demo: result = std::make_unique<level::TR2Level>(game_version, std::move(reader));
+        case Game::TR2Demo:
+            result = std::make_unique<level::TR2Level>(game_version, std::move(reader), std::move(scriptEngine));
             result->m_demoOrUb = true;
             break;
-        case Game::TR3: result = std::make_unique<level::TR3Level>(game_version, std::move(reader));
+        case Game::TR3:
+            result = std::make_unique<level::TR3Level>(game_version, std::move(reader), std::move(scriptEngine));
             break;
         case Game::TR4:
-        case Game::TR4Demo: result = std::make_unique<level::TR4Level>(game_version, std::move(reader));
+        case Game::TR4Demo:
+            result = std::make_unique<level::TR4Level>(game_version, std::move(reader), std::move(scriptEngine));
             break;
-        case Game::TR5: result = std::make_unique<level::TR5Level>(game_version, std::move(reader));
+        case Game::TR5:
+            result = std::make_unique<level::TR5Level>(game_version, std::move(reader), std::move(scriptEngine));
             break;
-        default: BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
+        default:
+            BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
     }
 
     result->m_sfxPath = sfxPath;
