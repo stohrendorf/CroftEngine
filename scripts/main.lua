@@ -130,3 +130,5 @@ end
 function getObjectInfo(id)
     return object_infos[id]
 end
+
+print("Yay! Main script loaded.")

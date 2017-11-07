@@ -12,12 +12,9 @@ public:
     StubItem(const gsl::not_null<level::Level*>& level,
              const std::string& name,
              const gsl::not_null<const loader::Room*>& room,
-             const core::Angle& angle,
-             const core::TRCoordinates& position,
-             uint16_t activationState,
-             int16_t darkness,
+             const loader::Item& item,
              const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, angle, position, activationState, false, 0, darkness, animatedModel )
+            : ModelItemNode( level, name, room, item, false, 0, animatedModel )
     {
     }
 };
@@ -29,14 +26,10 @@ public:
     ScriptedItem(const gsl::not_null<level::Level*>& level,
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
-                 const core::Angle& angle,
-                 const core::TRCoordinates& position,
-                 uint16_t activationState,
-                 int16_t darkness,
+                 const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel,
                  const sol::table& objectInfo)
-            : ModelItemNode( level, name, room, angle, position, activationState, false, objectInfo["flags"], darkness,
-                             animatedModel )
+            : ModelItemNode( level, name, room, item, false, objectInfo["flags"], animatedModel )
             , m_objectInfo( objectInfo )
     {
         auto initialise = objectInfo["initialise"];

@@ -285,6 +285,12 @@ set( EDISONENGINE_SRCS
      scriptengine/lua/sol.hpp
 )
 
+add_definitions(
+        -DSOL_USE_BOOST
+        -DSOL_SAFE_USERTYPE
+        -DSOL_SAFE_FUNCTION
+)
+
 add_executable(edisonengine
         ${EDISONENGINE_SRCS}
         )

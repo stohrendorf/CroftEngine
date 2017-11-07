@@ -1,169 +1,481 @@
 #pragma once
 
+#include <level/level.h>
 #include "engine/items/itemnode.h"
-
 
 namespace engine
 {
-    namespace items
+namespace items
+{
+class AIAgent;
+}
+
+namespace ai
+{
+enum class Mood
+{
+    Bored,
+    Attack,
+    Escape,
+    Stalk
+};
+
+inline std::ostream& operator<<(std::ostream& str, Mood mood)
+{
+    switch( mood )
     {
-        class AIAgent;
+        case Mood::Bored:
+            return str << "Bored";
+        case Mood::Attack:
+            return str << "Attack";
+        case Mood::Escape:
+            return str << "Escape";
+        case Mood::Stalk:
+            return str << "Stalk";
+        default:
+            BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid mood" ) );
+    }
+}
+
+struct BoxNode
+{
+    int16_t exit_box = -1;
+    uint16_t search_number = 0;
+    int16_t next_expansion = -1;
+    uint16_t box_number = 0;
+};
+
+
+struct LotInfo
+{
+    std::vector<BoxNode> nodes;
+    int16_t head;
+    int16_t tail;
+    uint16_t search_number;
+    //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
+    uint16_t block_mask = 0x4000;
+    //! @brief Movement limits
+    //! @{
+    int16_t step = loader::QuarterSectorSize;
+    int16_t drop = -loader::QuarterSectorSize;
+    int16_t fly = 0;
+    //! @}
+    uint16_t zone_count;
+    //! @brief The target box we need to reach
+    int16_t target_box;
+    int16_t required_box;
+    core::TRCoordinates target;
+
+    static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
+
+    bool canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const;
+
+    const loader::ZoneData& getZoneData(const level::Level& lvl) const;
+
+    uint16_t getZone(const items::ItemNode& item) const
+    {
+        const auto& zone = getZoneData( item.getLevel() );
+        const auto box = item.getCurrentBox();
+        BOOST_ASSERT( box.is_initialized() );
+        const auto boxIdx = static_cast<uint16_t>(*box & ~0x8000);
+        BOOST_ASSERT( boxIdx < zone.size() );
+        return zone[boxIdx];
     }
 
-    namespace ai
+    void setRandomSearchTarget(const level::Level& lvl, int16_t boxIdx)
     {
-        enum class Mood
+        required_box = boxIdx & 0x7fff;
+        const auto box = &lvl.m_boxes[required_box];
+        const auto zSize = box->zmax - box->zmin - loader::SectorSize;
+        target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + box->zmin + loader::SectorSize / 2;
+        const auto xSize = box->xmax - box->xmin - loader::SectorSize;
+        target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + box->xmin + loader::SectorSize / 2;
+        if( fly )
         {
-            Bored,
-            Attack,
-            Escape,
-            Stalk
-        };
-
-
-        inline std::ostream& operator<<(std::ostream& str, Mood mood)
+            target.Y = box->floor - 384;
+        }
+        else
         {
-            switch( mood )
-            {
-                case Mood::Bored:
-                    return str << "Bored";
-                case Mood::Attack:
-                    return str << "Attack";
-                case Mood::Escape:
-                    return str << "Escape";
-                case Mood::Stalk:
-                    return str << "Stalk";
-                default:
-                    BOOST_THROW_EXCEPTION(std::runtime_error("Invalid mood"));
-            }
+            target.Y = box->floor;
+        }
+    }
+
+    bool calculateTarget(const level::Level& lvl, core::TRCoordinates& target, const engine::items::ItemState& item)
+    {
+        updatePath( lvl, 5 );
+        target = item.position.position;
+        auto boxNumber = item.box_number;
+        if( boxNumber == -1 )
+        {
+            return false;
         }
 
+        constexpr auto NoClampXPos = 0x01;
+        constexpr auto NoClampXNeg = 0x02;
+        constexpr auto NoClampZPos = 0x04;
+        constexpr auto NoClampZNeg = 0x08;
+        constexpr auto ClampNone = NoClampXPos | NoClampXNeg | NoClampZPos | NoClampZNeg;
+        constexpr auto Flag10 = 0x10;
+        auto unclampedDirs = ClampNone;
 
-        struct LookAhead
+        int32_t minZ = 0, maxZ = 0, minX = 0, maxX = 0;
+
+        const loader::Box* box = nullptr;
+        do
         {
-            core::Angle pivotAngleToLara;
-            core::Angle laraAngleToPivot;
-            long pivotDistanceToLaraSq = 0;
-            bool enemyFacing = false;
-            bool laraAhead = false;
+            box = &lvl.m_boxes[boxNumber];
 
-            explicit LookAhead(const items::ItemNode& npc, int pivotDistance);
-        };
-
-
-        struct Brain;
-
-
-        struct RoutePlanner
-        {
-            //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
-            uint16_t blockMask;
-
-            //! @brief The target box we need to reach
-            boost::optional<uint16_t> destinationBox;
-
-            //! @brief Temporary override for #searchTarget
-            boost::optional<uint16_t> searchOverride;
-
-            //! @brief The coordinates (within #destinationBox) the NPC needs to reach
-            core::TRCoordinates searchTarget;
-
-            bool calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode* enemy);
-
-            std::vector<gsl::not_null<const loader::Box*>> path;
-
-            //! @brief Movement limits
-            //! @{
-            const int dropHeight;
-            const int stepHeight;
-            const int flyHeight;
-            //! @}
-
-
-            RoutePlanner(uint16_t blockMask, int dropHeight, int stepHeight, int flyHeight)
-                : blockMask{blockMask}
-                , dropHeight{dropHeight}
-                , stepHeight{stepHeight}
-                , flyHeight{flyHeight}
+            if( fly != 0 )
             {
-            }
-
-
-            void updateMood(Brain& brain, LookAhead& lookAhead, items::AIAgent& npc, bool ignoreProbabilities, uint16_t attackTargetUpdateProbability);
-
-
-            void findPath(const items::ItemNode& npc, const items::ItemNode* enemy);
-
-
-            static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
-
-
-            bool canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const;
-
-
-            const loader::ZoneData& getZoneData(const level::Level& lvl) const;
-
-
-            uint16_t getZone(const items::ItemNode& item) const
-            {
-                const auto& zone = getZoneData(item.getLevel());
-                const auto box = item.getCurrentBox();
-                BOOST_ASSERT(box.is_initialized());
-                const auto boxIdx = static_cast<uint16_t>(*box & ~0x8000);
-                BOOST_ASSERT(boxIdx < zone.size());
-                return zone[boxIdx];
-            }
-
-
-            void setRandomSearchTarget(uint16_t boxIdx, const items::ItemNode& npc);
-
-
-            void setRandomSearchTarget(uint16_t boxIdx, const loader::Box& box)
-            {
-                searchTarget.X = (box.xmin + box.xmax - loader::SectorSize) * std::rand() / RAND_MAX + loader::SectorSize / 2;
-                searchTarget.Z = (box.zmin + box.zmax - loader::SectorSize) * std::rand() / RAND_MAX + loader::SectorSize / 2;
-                searchOverride = boxIdx & ~0x8000;
-                if( flyHeight != 0 )
+                if( box->floor - loader::SectorSize < target.Y )
                 {
-                    searchTarget.Y = box.floor - core::ClimbLimit2ClickMin;
+                    target.Y = box->floor - loader::SectorSize;
                 }
-                else
+            }
+            else
+            {
+                if( box->floor < target.Y )
                 {
-                    searchTarget.Y = box.floor;
+                    target.Y = box->floor;
                 }
             }
 
-
-            static bool stalkBox(const items::ItemNode& npc, uint16_t box);
-
-
-            static bool stalkBox(const items::ItemNode& npc, const loader::Box& box);
-
-
-            static bool inSameQuadrantAsBoxRelativeToLara(const items::ItemNode& npc, uint16_t box);
-
-
-            static bool inSameQuadrantAsBoxRelativeToLara(const items::ItemNode& npc, const loader::Box& box);
-        };
-
-
-        struct Brain
-        {
-            Mood mood = Mood::Bored;
-            core::TRRotation jointRotation;
-
-            core::TRCoordinates moveTarget;
-
-            RoutePlanner route;
-
-
-            Brain(uint16_t blockMask, int dropHeight, int stepHeight, int flyHeight)
-                : route{blockMask, dropHeight, stepHeight, flyHeight}
+            if( item.position.position.Z >= box->zmin && item.position.position.Z <= box->zmax
+                && item.position.position.X >= box->xmin && item.position.position.X <= box->xmax )
             {
+                minZ = box->zmin;
+                maxZ = box->zmax;
+                maxX = box->xmax;
+                minX = box->xmin;
+            }
+            else
+            {
+                if( item.position.position.Z < box->zmin )
+                {
+                    if( (unclampedDirs & NoClampZNeg) && item.position.position.X >= box->xmin
+                        && item.position.position.X <= box->xmax )
+                    {
+                        target.Z = std::max( target.Z, box->zmin + loader::SectorSize / 2 );
+
+                        if( unclampedDirs & Flag10 )
+                            return true;
+
+                        minX = std::max( minX, box->xmin );
+                        maxX = std::min( maxX, box->xmax );
+                        unclampedDirs = NoClampZNeg;
+                    }
+                    else if( unclampedDirs != NoClampZNeg )
+                    {
+                        target.Z = maxZ - loader::SectorSize / 2;
+                        if( unclampedDirs != ClampNone )
+                            return true;
+
+                        unclampedDirs |= Flag10;
+                    }
+                }
+                else if( item.position.position.Z > box->zmax )
+                {
+                    if( (unclampedDirs & NoClampZPos) && item.position.position.X >= box->xmin
+                        && item.position.position.X <= box->xmax )
+                    {
+                        target.Z = std::min( target.Z, box->zmax - loader::SectorSize / 2 );
+
+                        if( unclampedDirs & Flag10 )
+                            return true;
+
+                        minX = std::max( minX, box->xmin );
+                        maxX = std::min( maxX, box->xmax );
+                        unclampedDirs = NoClampZPos;
+                    }
+                    else if( unclampedDirs != NoClampZPos )
+                    {
+                        target.Z = minZ + loader::SectorSize / 2;
+                        if( unclampedDirs != ClampNone )
+                            return true;
+
+                        unclampedDirs |= Flag10;
+                    }
+                }
+
+                if( item.position.position.X < box->xmin )
+                {
+                    if( (unclampedDirs & NoClampXNeg) && item.position.position.Z >= box->zmin
+                        && item.position.position.Z <= box->zmax )
+                    {
+                        target.X = std::min( target.X, box->xmin + loader::SectorSize / 2 );
+
+                        if( unclampedDirs & Flag10 )
+                            return true;
+
+                        minZ = std::max( minZ, box->zmin );
+                        maxZ = std::min( maxZ, box->zmax );
+                        unclampedDirs = NoClampXNeg;
+                    }
+                    else if( unclampedDirs != NoClampXNeg )
+                    {
+                        target.X = maxX - loader::SectorSize / 2;
+                        if( unclampedDirs != ClampNone )
+                            return true;
+
+                        unclampedDirs |= Flag10;
+                    }
+                }
+                else if( item.position.position.X > box->xmax )
+                {
+                    if( (unclampedDirs & NoClampXPos) && item.position.position.Z >= box->zmin
+                        && item.position.position.Z <= box->zmax )
+                    {
+                        target.X = std::min( target.X, box->xmax - loader::SectorSize / 2 );
+
+                        if( unclampedDirs & Flag10 )
+                            return true;
+
+                        minZ = std::max( minZ, box->zmin );
+                        maxZ = std::min( maxZ, box->zmax );
+                        unclampedDirs = NoClampXPos;
+                    }
+                    else if( unclampedDirs != NoClampXPos )
+                    {
+                        target.X = minX + loader::SectorSize / 2;
+                        if( unclampedDirs != ClampNone )
+                            return true;
+
+                        unclampedDirs |= Flag10;
+                    }
+                }
             }
 
+            if( boxNumber == this->target_box )
+            {
+                if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
+                {
+                    target.Z = this->target.Z;
+                }
+                else if( !(unclampedDirs & Flag10) )
+                {
+                    target.Z = util::clamp( target.Z, box->zmin + loader::SectorSize / 2,
+                                            box->zmax - loader::SectorSize / 2 );
+                }
 
-            bool isInsideZoneButNotInBox(const items::AIAgent& npc, const loader::ZoneData& zone, uint16_t boxIdx) const;
-        };
+                target.Y = this->target.Y;
+                if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
+                {
+                    target.X = this->target.X;
+                }
+                else if( !(unclampedDirs & Flag10) )
+                {
+                    target.X = util::clamp( target.X, box->xmin + loader::SectorSize / 2,
+                                            box->xmax - loader::SectorSize / 2 );
+                }
+
+                return true;
+            }
+            boxNumber = this->nodes[boxNumber].exit_box;
+        } while( (boxNumber == -1 || !(lvl.m_boxes[boxNumber].overlap_index & this->block_mask)) && boxNumber != -1 );
+
+        BOOST_ASSERT( box != nullptr );
+        if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
+        {
+            const auto center = box->zmax - box->zmin - loader::SectorSize;
+            const auto r = std::rand() & 0x7fff;
+            target.Z = (r * center / 0x8000) + box->zmin + loader::SectorSize / 2;
+        }
+        else if( !(unclampedDirs & Flag10) )
+        {
+            target.Z = util::clamp( target.Z, box->zmin + loader::SectorSize / 2, box->zmax - loader::SectorSize / 2 );
+        }
+
+        if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
+        {
+            const auto center = box->xmax - box->xmin - loader::SectorSize;
+            const auto r = std::rand() & 0x7fff;
+            target.X = (r * center / 0x8000) + box->xmin + loader::SectorSize / 2;
+        }
+        else if( !(unclampedDirs & Flag10) )
+        {
+            target.X = util::clamp( target.X, box->xmin + loader::SectorSize / 2, box->xmax - loader::SectorSize / 2 );
+        }
+
+        if( this->fly != 0 )
+        {
+            target.Y = box->floor - 384;
+        }
+        else
+        {
+            target.Y = box->floor;
+        }
+        return false;
     }
+
+    void updatePath(const level::Level& lvl, uint8_t maxDepth)
+    {
+        if( required_box != -1 && required_box != target_box )
+        {
+            target_box = required_box;
+            const auto expand = &nodes[target_box];
+            if( expand->next_expansion == -1 && tail != target_box )
+            {
+                expand->next_expansion = head;
+                if( head == -1 )
+                {
+                    tail = target_box;
+                }
+                head = target_box;
+            }
+            ++search_number;
+            expand->exit_box = -1;
+            expand->search_number = search_number;
+        }
+        searchPath( lvl, maxDepth );
+    }
+
+    void searchPath(const level::Level& lvl, uint8_t maxDepth)
+    {
+        const loader::ZoneData* zone;
+        if( fly != 0 )
+        {
+            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
+        }
+        else if( step == loader::QuarterSectorSize )
+        {
+            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
+        }
+        else
+        {
+            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
+        }
+        const auto currentZone = (*zone)[head];
+        for( uint8_t i = 0; i < maxDepth; ++i )
+        {
+            const auto index = head;
+            if( index == -1 )
+            {
+                return;
+            }
+            const auto node = &this->nodes[index];
+            const auto box = &lvl.m_boxes[index];
+            auto overlapIdx = box->overlap_index & 0x3FFFu;
+            bool done = false;
+            do
+            {
+                ++overlapIdx;
+                auto overlapBoxId = lvl.m_overlaps[overlapIdx];
+                if( overlapBoxId & 0x8000 )
+                {
+                    overlapBoxId &= 0x7FFFu;
+                    done = true;
+                }
+                if( currentZone == (*zone)[overlapBoxId] )
+                {
+                    const auto floorDist = lvl.m_boxes[overlapBoxId].floor - box->floor;
+                    if( floorDist <= step && floorDist >= drop )
+                    {
+                        // overlap is in zone, height diff is OK
+                        const auto expand = &this->nodes[overlapBoxId];
+                        const auto currentSearch = node->search_number & 0x7FFF;
+                        const auto expandSearch = expand->search_number & 0x7FFF;
+                        if( currentSearch >= expandSearch )
+                        {
+                            if( node->search_number & 0x8000 )
+                            {
+                                if( currentSearch == expandSearch )
+                                {
+                                    continue;
+                                }
+                                expand->search_number = node->search_number;
+                            }
+                            else if( currentSearch != expandSearch || expand->search_number & 0x8000 )
+                            {
+                                if( block_mask & lvl.m_boxes[overlapBoxId].overlap_index )
+                                {
+                                    expand->search_number = node->search_number | 0x8000u;
+                                }
+                                else
+                                {
+                                    expand->search_number = node->search_number;
+                                    expand->exit_box = head;
+                                }
+                            }
+                            if( expand->next_expansion == -1 )
+                            {
+                                if( overlapBoxId != tail )
+                                {
+                                    this->nodes[tail].next_expansion = overlapBoxId;
+                                    tail = overlapBoxId;
+                                }
+                            }
+                            continue;
+                        }
+                    }
+                }
+            } while( !done );
+            head = node->next_expansion;
+            node->next_expansion = -1;
+        }
+    };
+
+    void reset(const level::Level& lvl)
+    {
+        head = -1;
+        tail = -1;
+        search_number = 0;
+        target_box = -1;
+        required_box = -1;
+        nodes.clear();
+        nodes.resize(lvl.m_boxes.size());
+    }
+};
+
+
+struct AiInfo
+{
+    int16_t zone_number;
+    int16_t enemy_zone;
+    int32_t distance;
+    bool ahead;
+    bool bite;
+    core::Angle angle;
+    core::Angle enemy_facing;
+
+    AiInfo(const level::Level& lvl, engine::items::ItemState& item);
+};
+
+struct CreatureInfo
+{
+    core::Angle head_rotation = 0_deg;
+    core::Angle neck_rotation = 0_deg;
+
+    core::Angle maximum_turn = 1_deg;
+    uint16_t flags = 0;
+
+    engine::items::ItemState* item = nullptr;
+    uint16_t frame_number;
+    Mood mood = Mood::Bored;
+    LotInfo lot;
+    core::TRCoordinates target;
+
+    void rotateHead(const core::Angle& angle)
+    {
+        const auto delta = util::clamp(angle - head_rotation, -5_deg, +5_deg);
+        head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
+    }
+
+    static sol::usertype<CreatureInfo> userType()
+    {
+        return sol::usertype<CreatureInfo>(
+                sol::meta_function::construct, sol::no_constructor,
+                "head_rotation", &CreatureInfo::head_rotation,
+                "neck_rotation", &CreatureInfo::neck_rotation,
+                "maximum_turn", &CreatureInfo::maximum_turn,
+                "flags", &CreatureInfo::flags,
+                "item", sol::readonly(&CreatureInfo::item),
+                "frame_number", &CreatureInfo::frame_number,
+                "mood", &CreatureInfo::mood,
+                "target", &CreatureInfo::target
+        );
+    }
+};
+
+void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, bool violent);
+}
 }

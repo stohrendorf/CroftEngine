@@ -22,11 +22,17 @@ namespace engine
 {
 class LaraNode;
 
+namespace ai
+{
+struct CreatureInfo;
+}
+
 
 struct CollisionInfo;
 
 namespace items
 {
+
 struct InteractionLimits
 {
     core::BoundingBox distance;
@@ -57,7 +63,6 @@ constexpr int toLua(TriggerState s)
 {
     switch( s )
     {
-
         case TriggerState::Disabled:
             return 0;
         case TriggerState::Enabled:
@@ -70,8 +75,29 @@ constexpr int toLua(TriggerState s)
 }
 
 
-struct ItemState
+constexpr TriggerState triggerStateFromLua(int s)
 {
+    switch( s )
+    {
+
+        case 0:
+            return TriggerState::Disabled;
+        case 1:
+            return TriggerState::Enabled;
+        case 2:
+            return TriggerState::Activated;
+        case 3:
+            return TriggerState::Locked;
+        default:
+            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid trigger state number"));
+    }
+}
+
+
+struct ItemState final
+{
+    ~ItemState();
+
     int32_t floor = 0;
     int32_t touch_bits = 0;
     uint32_t mesh_bits = 0;
@@ -102,7 +128,6 @@ struct ItemState
                     : 1;
             bool falling
                     : 1;
-
             bool is_hit
                     : 1;
             bool collidable
@@ -116,6 +141,8 @@ struct ItemState
 
     core::TRRotation rotation;
     core::RoomBoundPosition position;
+
+    std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
     bool updateActivationTimeout()
     {
@@ -145,32 +172,33 @@ struct ItemState
 
     bool isNear(const ItemState& other, int radius) const
     {
+        // TODO
         return false;
     }
 
     bool testBoneCollision(const ItemState& other) const
     {
+        // TODO
         return false;
     }
 
-    static sol::usertype<ItemState> userType()
+    bool stalkBox(const level::Level& lvl, int16_t boxNumber) const;
+
+    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, int16_t boxNumber) const;
+
+    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, int16_t boxNumber) const;
+
+    void initCreatureInfo(const level::Level& lvl);
+
+    void collectZoneBoxes(const level::Level& lvl);
+
+    const loader::Sector* getCurrentSector() const
     {
-        return sol::usertype<ItemState>(
-                sol::meta_function::construct, sol::no_constructor,
-                "position", [](ItemState& self) { return self.position.position; },
-                "rotation", [](ItemState& self) { return self.rotation; },
-                "current_anim_state", sol::readonly(&ItemState::current_anim_state),
-                "get_activation_state", [](ItemState& self) { return toLua(self.triggerState); },
-                "patch_heights", [](ItemState& self, int delta) { /* TODO */ },
-                "health", &ItemState::health,
-                "is_near", &ItemState::isNear,
-                "test_bone_collision", &ItemState::testBoneCollision,
-                "do_enemy_push", [](){ /* TODO */ },
-                "set_y_angle", [](ItemState& self, int16_t angle){ self.rotation.Y = core::Angle(angle); },
-                "set_collidable", [](ItemState& self, bool flag){ self.collidable = flag; },
-                "frame_number", &ItemState::frame_number
-        );
+        Expects(position.room != nullptr);
+        return position.room->getSectorByAbsolutePosition(position.position);
     }
+
+    static sol::usertype<ItemState> userType();
 };
 
 
@@ -222,12 +250,9 @@ public:
 
     ItemNode(const gsl::not_null<level::Level*>& level,
              const gsl::not_null<const loader::Room*>& room,
-             const core::Angle& angle,
-             const core::TRCoordinates& position,
-             uint16_t activationState,
+             const loader::Item& item,
              bool hasProcessAnimCommandsOverride,
-             Characteristics characteristics,
-             int16_t darkness);
+             Characteristics characteristics);
 
     virtual ~ItemNode() = default;
 
@@ -530,12 +555,9 @@ public:
             const gsl::not_null<level::Level*>& level,
             const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
-            const core::Angle& angle,
-            const core::TRCoordinates& position,
-            uint16_t activationState,
+            const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
             Characteristics characteristics,
-            int16_t darkness,
             const loader::SkeletalModelType& animatedModel);
 
     std::shared_ptr<gameplay::Node> getNode() const override
@@ -592,12 +614,9 @@ public:
             const gsl::not_null<level::Level*>& level,
             const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
-            const core::Angle& angle,
-            const core::TRCoordinates& position,
-            uint16_t activationState,
+            const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
             Characteristics characteristics,
-            int16_t darkness,
             const loader::Sprite& sprite,
             const std::shared_ptr<gameplay::Material>& material,
             const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);

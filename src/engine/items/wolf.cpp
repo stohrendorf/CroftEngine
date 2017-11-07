@@ -18,6 +18,8 @@ namespace engine
                 m_state.triggerState = TriggerState::Enabled;
             }
 
+            m_state.initCreatureInfo(getLevel());
+
             static constexpr const uint16_t Walking = 1;
             static constexpr const uint16_t Running = 2;
             static constexpr const uint16_t Jumping = 3;
@@ -35,20 +37,20 @@ namespace engine
             core::Angle rotationToMoveTarget = 0_deg;
             if( getHealth() > 0 )
             {
-                ai::LookAhead lookAhead(*this, 375);
+                ai::AiInfo lookAhead(getLevel(), m_state);
 
-                if( lookAhead.laraAhead )
+                if( lookAhead.ahead )
                 {
-                    pitch = lookAhead.pivotAngleToLara;
+                    pitch = lookAhead.angle;
                 }
 
-                getBrain().route.updateMood(getBrain(), lookAhead, *this, false, 0x2000);
-                rotationToMoveTarget = rotateTowardsMoveTarget(getBrain(), getBrain().jointRotation.Z);
+                ai::updateMood(getLevel(), m_state, lookAhead, false);
+                rotationToMoveTarget = rotateTowardsMoveTarget(m_state.creatureInfo->maximum_turn);
                 switch( getCurrentState() )
                 {
                     case LyingDown:
                         pitch = 0_deg;
-                        if( getBrain().mood != ai::Mood::Escape && getZone() != getBrain().route.getZone(*getLevel().m_lara) )
+                        if( m_state.creatureInfo->mood != ai::Mood::Escape && lookAhead.enemy_zone != lookAhead.zone_number )
                         {
                             if( std::rand() % 32768 < 32 )
                             {
@@ -74,8 +76,8 @@ namespace engine
                         }
                         break;
                     case Running:
-                        getBrain().jointRotation.Z = 2_deg;
-                        if( getBrain().mood != ai::Mood::Bored )
+                        m_state.creatureInfo->maximum_turn = 2_deg;
+                        if( m_state.creatureInfo->mood != ai::Mood::Bored )
                         {
                             m_state.goal_anim_state = Stalking;
                             m_requiredAnimState = 0;
@@ -93,19 +95,19 @@ namespace engine
                             m_requiredAnimState = 0;
                             break;
                         }
-                        if( getBrain().mood == ai::Mood::Escape )
+                        if( m_state.creatureInfo->mood == ai::Mood::Escape )
                         {
                             m_state.goal_anim_state = Jumping;
                         }
-                        else if( lookAhead.pivotDistanceToLaraSq < util::square(345) && lookAhead.enemyFacing )
+                        else if( lookAhead.distance < util::square(345) && lookAhead.bite )
                         {
                             m_state.goal_anim_state = Biting;
                         }
-                        else if( getBrain().mood == ai::Mood::Stalk )
+                        else if( m_state.creatureInfo->mood == ai::Mood::Stalk )
                         {
                             m_state.goal_anim_state = Stalking;
                         }
-                        else if( getBrain().mood != ai::Mood::Bored )
+                        else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                         {
                             m_state.goal_anim_state = Jumping;
                         }
@@ -115,29 +117,29 @@ namespace engine
                         }
                         break;
                     case Stalking:
-                        getBrain().jointRotation.Z = 2_deg;
-                        if( getBrain().mood == ai::Mood::Escape )
+                        m_state.creatureInfo->maximum_turn = 2_deg;
+                        if( m_state.creatureInfo->mood == ai::Mood::Escape )
                         {
                             m_state.goal_anim_state = Jumping;
                         }
-                        else if( lookAhead.pivotDistanceToLaraSq < util::square(345) && lookAhead.enemyFacing )
+                        else if( lookAhead.distance < util::square(345) && lookAhead.bite )
                         {
                             m_state.goal_anim_state = Biting;
                         }
-                        else if( lookAhead.pivotDistanceToLaraSq <= util::square(3*loader::SectorSize) )
+                        else if( lookAhead.distance <= util::square(3*loader::SectorSize) )
                         {
-                            if( getBrain().mood == ai::Mood::Attack )
+                            if( m_state.creatureInfo->mood == ai::Mood::Attack )
                             {
-                                if( !lookAhead.laraAhead
-                                    || lookAhead.pivotDistanceToLaraSq > util::square(3*loader::SectorSize/2)
-                                    || (lookAhead.laraAngleToPivot < 90_deg && lookAhead.laraAngleToPivot > -90_deg) )
+                                if( !lookAhead.ahead
+                                    || lookAhead.distance > util::square(3*loader::SectorSize/2)
+                                    || (lookAhead.enemy_facing < 90_deg && lookAhead.enemy_facing > -90_deg) )
                                 {
                                     m_state.goal_anim_state = Jumping;
                                 }
                             }
                             else if( std::rand() % 32768 >= 384 )
                             {
-                                if( getBrain().mood == ai::Mood::Bored )
+                                if( m_state.creatureInfo->mood == ai::Mood::Bored )
                                 {
                                     m_state.goal_anim_state = PrepareToStrike;
                                 }
@@ -154,11 +156,11 @@ namespace engine
                         }
                         break;
                     case Jumping:
-                        getBrain().jointRotation.Z = 5_deg;
+                        m_state.creatureInfo->maximum_turn = 5_deg;
                         roll = rotationToMoveTarget;
-                        if( lookAhead.laraAhead && lookAhead.pivotDistanceToLaraSq < util::square(3*loader::SectorSize/2) )
+                        if( lookAhead.ahead && lookAhead.distance < util::square(3*loader::SectorSize/2) )
                         {
-                            if( lookAhead.pivotDistanceToLaraSq <= util::square(3*loader::SectorSize/2)/2 || (lookAhead.laraAngleToPivot <= 90_deg && lookAhead.laraAngleToPivot >= -90_deg) )
+                            if( lookAhead.distance <= util::square(3*loader::SectorSize/2)/2 || (lookAhead.enemy_facing <= 90_deg && lookAhead.enemy_facing >= -90_deg) )
                             {
                                 m_state.goal_anim_state = JumpAttack;
                                 m_requiredAnimState = 0;
@@ -169,9 +171,9 @@ namespace engine
                                 m_requiredAnimState = Stalking;
                             }
                         }
-                        else if( getBrain().mood != ai::Mood::Stalk || lookAhead.pivotDistanceToLaraSq >= util::square(3*loader::SectorSize) )
+                        else if( m_state.creatureInfo->mood != ai::Mood::Stalk || lookAhead.distance >= util::square(3*loader::SectorSize) )
                         {
-                            if( getBrain().mood == ai::Mood::Bored )
+                            if( m_state.creatureInfo->mood == ai::Mood::Bored )
                             {
                                 m_state.goal_anim_state = PrepareToStrike;
                             }
@@ -194,7 +196,7 @@ namespace engine
                         m_state.goal_anim_state = Jumping;
                         break;
                     case Biting:
-                        if( m_requiredAnimState == 0 /** @fixme && this->touch_bits & 0x774F */ && lookAhead.laraAhead )
+                        if( m_requiredAnimState == 0 /** @fixme && this->touch_bits & 0x774F */ && lookAhead.ahead )
                         {
                             //! @todo show blood splatter fx
                             getLevel().m_lara->m_state.is_hit = true;

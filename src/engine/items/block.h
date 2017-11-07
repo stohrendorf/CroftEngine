@@ -13,12 +13,9 @@ namespace engine
             Block(const gsl::not_null<level::Level*>& level,
                   const std::string& name,
                   const gsl::not_null<const loader::Room*>& room,
-                  const core::Angle& angle,
-                  const core::TRCoordinates& position,
-                  uint16_t activationState,
-                  int16_t darkness,
+                  const loader::Item& item,
                   const loader::SkeletalModelType& animatedModel)
-                : ModelItemNode(level, name, room, angle, position, activationState, true, SaveHitpoints | SaveFlags | NonLot, darkness, animatedModel)
+                : ModelItemNode(level, name, room, item, true, SaveHitpoints | SaveFlags | NonLot, animatedModel)
             {
                 if( m_state.triggerState != TriggerState::Locked )
                     loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);

@@ -4,799 +4,299 @@
 #include "engine/laranode.h"
 #include "engine/items/aiagent.h"
 
-
 namespace engine
 {
-    namespace ai
+namespace ai
+{
+gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, uint16_t idx)
+{
+    const uint16_t* first = &lvl.m_overlaps[idx];
+    const uint16_t* last = first;
+    const uint16_t* const endOfUniverse = &lvl.m_overlaps.back();
+
+    while( last <= endOfUniverse && (*last & 0x8000) == 0 )
     {
-        LookAhead::LookAhead(const items::ItemNode& npc, int pivotDistance)
+        ++last;
+    }
+
+    return gsl::make_span( first, last );
+}
+
+bool LotInfo::canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const
+{
+    Expects( from < lvl.m_boxes.size() );
+    Expects( to < lvl.m_boxes.size() );
+
+    const auto& fromBox = lvl.m_boxes[from];
+    const auto& toBox = lvl.m_boxes[to];
+    if( (toBox.overlap_index & block_mask) != 0 )
+    {
+        return false;
+    }
+
+    const auto& zone = getZoneData( lvl );
+
+    BOOST_ASSERT( from < zone.size() );
+    BOOST_ASSERT( to < zone.size() );
+
+    if( zone[from] != zone[to] )
+    {
+        return false;
+    }
+
+    const auto d = toBox.floor - fromBox.floor;
+    return d >= drop && d <= step;
+}
+
+const loader::ZoneData& LotInfo::getZoneData(const level::Level& lvl) const
+{
+    if( fly != 0 )
+    {
+        return lvl.roomsAreSwapped ? lvl.m_alternateZones.flyZone : lvl.m_baseZones.flyZone;
+    }
+    else if( step == loader::QuarterSectorSize )
+    {
+        return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone1 : lvl.m_baseZones.groundZone1;
+    }
+    else
+    {
+        return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone2 : lvl.m_baseZones.groundZone2;
+    }
+}
+
+void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, bool violent)
+{
+    if( item.creatureInfo == nullptr )
+        return;
+
+    CreatureInfo& creatureInfo = *item.creatureInfo;
+    if( creatureInfo.lot.nodes[item.box_number].search_number == (creatureInfo.lot.search_number | 0x8000) )
+    {
+        creatureInfo.lot.required_box = -1;
+    }
+    if( creatureInfo.mood != Mood::Attack
+        && creatureInfo.lot.required_box >= 0
+        && !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, creatureInfo.lot.target_box ) )
+    {
+        if( aiInfo.zone_number == aiInfo.enemy_zone )
         {
-            const auto dx = npc.getLevel().m_lara->m_state.position.position.X
-                            - (npc.m_state.position.position.X + pivotDistance * npc.m_state.rotation.Y.sin());
-            const auto dz = npc.getLevel().m_lara->m_state.position.position.Z
-                            - (npc.m_state.position.position.Z + pivotDistance * npc.m_state.rotation.Y.cos());
-            const auto angle = core::Angle::fromAtan(dx, dz);
-            pivotDistanceToLaraSq = std::lround(dx * dx + dz * dz);
-            pivotAngleToLara = angle - npc.m_state.rotation.Y;
-            laraAngleToPivot = angle + 180_deg - npc.getLevel().m_lara->m_state.rotation.Y;
-            laraAhead = pivotAngleToLara > -90_deg && pivotAngleToLara < 90_deg;
-            enemyFacing = false;
-            if( laraAhead )
-            {
-                if( npc.m_state.position.position.Y - loader::QuarterSectorSize < npc.getLevel().m_lara->m_state.position.position.Y
-                    && npc.m_state.position.position.Y + loader::QuarterSectorSize > npc.getLevel().m_lara->m_state.position.position.Y )
-                {
-                    enemyFacing = true;
-                }
-            }
+            creatureInfo.mood = Mood::Bored;
         }
-
-
-        void RoutePlanner::updateMood(Brain& brain,
-                                      LookAhead& lookAhead,
-                                      items::AIAgent& npc,
-                                      bool ignoreProbabilities,
-                                      uint16_t attackTargetUpdateProbability)
+        creatureInfo.lot.required_box = -1;
+    }
+    const auto originalMood = creatureInfo.mood;
+    if( lvl.m_lara->m_state.health > 0 )
+    {
+        if( violent )
         {
-            if(!npc.getCurrentBox().is_initialized())
-                return;
-
-            const auto laraZone = getZone(*npc.getLevel().m_lara);
-
-            if( brain.mood != Mood::Attack
-                && searchOverride.is_initialized()
-                && !brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), *destinationBox) )
+            switch( originalMood )
             {
-                if(npc.getZone() == laraZone )
-                {
-                    brain.mood = Mood::Bored;
-                }
-                searchOverride.reset();
-            }
-            const auto originalMood = brain.mood;
-            if( npc.getLevel().m_lara->m_state.health > 0 )
-            {
-                if( ignoreProbabilities )
-                {
-                    switch( brain.mood )
-                    {
-                        case Mood::Bored:
-                        case Mood::Stalk:
-                            if( npc.getZone() == laraZone )
-                            {
-                                brain.mood = Mood::Attack;
-                            }
-                            else if( npc.m_state.is_hit )
-                            {
-                                brain.mood = Mood::Escape;
-                            }
-                            break;
-                        case Mood::Attack:
-                            if(npc.getZone() != laraZone )
-                            {
-                                brain.mood = Mood::Bored;
-                            }
-                            break;
-                        case Mood::Escape:
-                            if(npc.getZone() == laraZone )
-                            {
-                                brain.mood = Mood::Attack;
-                            }
-                            break;
-                    }
-                }
-                else
-                {
-                    switch( brain.mood )
-                    {
-                        case Mood::Bored:
-                        case Mood::Stalk:
-                            if( npc.m_state.is_hit
-                                && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
-                            {
-                                brain.mood = Mood::Escape;
-                            }
-                            else if(npc.getZone() == laraZone )
-                            {
-                                if( lookAhead.pivotDistanceToLaraSq >= util::square(3 * loader::SectorSize)
-                                    && (brain.mood != Mood::Stalk || searchOverride.is_initialized()) )
-                                {
-                                    brain.mood = Mood::Stalk;
-                                }
-                                else
-                                {
-                                    brain.mood = Mood::Attack;
-                                }
-                            }
-                            break;
-                        case Mood::Attack:
-                            if( npc.m_state.is_hit
-                                && ((std::rand() % 32768) < 2048 || npc.getZone() != laraZone) )
-                            {
-                                brain.mood = Mood::Escape;
-                            }
-                            else if(npc.getZone() != laraZone )
-                            {
-                                brain.mood = Mood::Bored;
-                            }
-                            break;
-                        case Mood::Escape:
-                            if(npc.getZone() == laraZone && (std::rand() % 32768) < 256 )
-                            {
-                                brain.mood = Mood::Stalk;
-                            }
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                brain.mood = Mood::Bored;
-            }
-
-            if( originalMood != brain.mood )
-            {
-                if( originalMood == Mood::Attack )
-                {
-                    setRandomSearchTarget(*destinationBox, npc);
-                }
-                searchOverride.reset();
-            }
-
-            uint16_t randomBox;
-
-            switch( brain.mood )
-            {
-                case Mood::Attack:
-                    if( (std::rand() % 32768) < attackTargetUpdateProbability )
-                    {
-                        searchTarget = npc.getLevel().m_lara->m_state.position.position;
-                        searchOverride = npc.getLevel().m_lara->getCurrentBox();
-                        BOOST_ASSERT(searchOverride.is_initialized());
-                        if( flyHeight != 0 && !npc.getLevel().m_lara->isInWater() )
-                        {
-                            searchTarget.Y += npc.getLevel().m_lara->getSkeleton()->getBoundingBox(npc.getLevel().m_lara->m_state).minY;
-                        }
-                    }
-                    break;
                 case Mood::Bored:
-                    randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) )
+                case Mood::Stalk:
+                    if( aiInfo.zone_number == aiInfo.enemy_zone )
                     {
-                        if( stalkBox(npc, randomBox) )
-                        {
-                            setRandomSearchTarget(randomBox, npc);
-                            brain.mood = Mood::Stalk;
-                        }
-                        else if( !searchOverride.is_initialized() )
-                        {
-                            setRandomSearchTarget(randomBox, npc);
-                        }
+                        creatureInfo.mood = Mood::Attack;
+                    }
+                    else if( item.is_hit )
+                    {
+                        creatureInfo.mood = Mood::Escape;
                     }
                     break;
-                case Mood::Stalk:
-                    if( !searchOverride.is_initialized() || !stalkBox(npc, *searchOverride) )
+                case Mood::Attack:
+                    if( aiInfo.zone_number != aiInfo.enemy_zone )
                     {
-                        randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                        if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) )
-                        {
-                            if( stalkBox(npc, randomBox) )
-                            {
-                                setRandomSearchTarget(randomBox, npc);
-                            }
-                            else if( !searchOverride.is_initialized() )
-                            {
-                                setRandomSearchTarget(randomBox, npc);
-                                if(npc.getZone() != laraZone )
-                                {
-                                    brain.mood = Mood::Bored;
-                                }
-                            }
-                        }
+                        creatureInfo.mood = Mood::Bored;
                     }
                     break;
                 case Mood::Escape:
-                    randomBox = gsl::narrow_cast<uint16_t>(std::rand() % npc.getLevel().m_boxes.size());
-                    if( brain.isInsideZoneButNotInBox(npc, getZoneData(npc.getLevel()), randomBox) && !searchOverride.is_initialized() )
+                    if( aiInfo.zone_number == aiInfo.enemy_zone )
                     {
-                        if( inSameQuadrantAsBoxRelativeToLara(npc, randomBox) )
-                        {
-                            setRandomSearchTarget(randomBox, npc);
-                        }
-                        else if(npc.getZone() == laraZone && stalkBox(npc, randomBox) )
-                        {
-                            setRandomSearchTarget(randomBox, npc);
-                            brain.mood = Mood::Stalk;
-                        }
+                        creatureInfo.mood = Mood::Attack;
                     }
                     break;
             }
-            if( !destinationBox.is_initialized() )
-            {
-                setRandomSearchTarget(*npc.getCurrentBox(), npc);
-            }
-            calculateTarget(brain.moveTarget, npc, npc.getLevel().m_lara);
         }
-
-
-        void RoutePlanner::findPath(const items::ItemNode& npc, const items::ItemNode* enemy)
+        else
         {
-            path.clear();
-
-            if(enemy != nullptr)
+            switch( originalMood )
             {
-                searchTarget = enemy->m_state.position.position;
-
-                BOOST_ASSERT(enemy->getCurrentBox().is_initialized());
-
-                destinationBox = *enemy->getCurrentBox() & ~0xc000;
-            }
-
-            const auto startBox = *npc.getCurrentBox() & ~0xc000;
-
-            static constexpr const uint16_t maxDepth = 5;
-            static constexpr const int UnsetBoxId = -1;
-
-            std::vector<int> parents;
-
-            std::vector<uint16_t> levelNodes;
-            std::vector<uint16_t> nextLevel;
-            levelNodes.emplace_back(startBox);
-
-            std::vector<int> costs(startBox+1, UnsetBoxId);
-            costs[startBox] = 0;
-
-            for( uint16_t level = 1; level <= maxDepth; ++level )
-            {
-                nextLevel.clear();
-
-                for( const auto levelBoxIdx : levelNodes )
-                {
-                    BOOST_ASSERT(levelBoxIdx < npc.getLevel().m_boxes.size());
-                    const auto& levelBox = npc.getLevel().m_boxes[levelBoxIdx];
-                    const auto overlapIdx = static_cast<uint16_t>( levelBox.overlap_index & ~0xc000 );
-                    // examine edge levelBox --> childBox
-                    for( auto childBox : getOverlaps(npc.getLevel(), overlapIdx) )
+                case Mood::Bored:
+                case Mood::Stalk:
+                    if( item.is_hit && ((std::rand() & 0x7fff) < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
                     {
-                        BOOST_ASSERT(childBox != levelBoxIdx);
-                        if( !canTravelFromTo(npc.getLevel(), levelBoxIdx, childBox) )
+                        creatureInfo.mood = Mood::Escape;
+                    }
+                    else if( aiInfo.zone_number == aiInfo.enemy_zone )
+                    {
+                        if( aiInfo.distance >= util::square( 3 * loader::SectorSize )
+                            && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != -1) )
                         {
-                            continue;
+                            creatureInfo.mood = Mood::Stalk;
                         }
-
-                        if(costs.size() <= childBox)
-                            costs.resize(childBox + 1, UnsetBoxId);
-
-                        const bool unvisited = costs[childBox] == UnsetBoxId;
-
-                        if( unvisited || level < costs[childBox])
+                        else
                         {
-                            costs[childBox] = level;
-                            if(parents.size() <= childBox)
-                                parents.resize(childBox+1, UnsetBoxId);
-                            parents[childBox] = levelBoxIdx;
-                        }
-
-                        if( childBox == destinationBox )
-                        {
-                            auto current = *destinationBox;
-                            BOOST_ASSERT(path.empty());
-                            BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
-                            path.push_back(&npc.getLevel().m_boxes[current]);
-                            while(parents.size() > current && parents[current] != UnsetBoxId )
-                            {
-                                current = gsl::narrow<uint16_t>(parents[current]);
-                                BOOST_ASSERT(current < npc.getLevel().m_boxes.size());
-                                path.push_back(&npc.getLevel().m_boxes[current]);
-                            }
-
-                            std::reverse(path.begin(), path.end());
-
-                            BOOST_ASSERT(path.front() == &npc.getLevel().m_boxes[startBox]);
-
-                            return;
-                        }
-
-                        if( unvisited )
-                        {
-                            nextLevel.emplace_back(childBox);
+                            creatureInfo.mood = Mood::Attack;
                         }
                     }
-                }
-
-                levelNodes.swap(nextLevel);
-            }
-
-            BOOST_ASSERT(path.empty());
-        }
-
-
-        gsl::span<const uint16_t> RoutePlanner::getOverlaps(const level::Level& lvl, uint16_t idx)
-        {
-            const uint16_t* first = &lvl.m_overlaps[idx];
-            const uint16_t* last = first;
-            const uint16_t* const endOfUniverse = &lvl.m_overlaps.back();
-
-            while( last <= endOfUniverse && (*last & 0x8000) == 0 )
-            {
-                ++last;
-            }
-
-            return gsl::make_span(first, last);
-        }
-
-
-        bool RoutePlanner::canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const
-        {
-            Expects(from < lvl.m_boxes.size());
-            Expects(to < lvl.m_boxes.size());
-
-            const auto& fromBox = lvl.m_boxes[from];
-            const auto& toBox = lvl.m_boxes[to];
-            if( (toBox.overlap_index & blockMask) != 0 )
-            {
-                return false;
-            }
-
-            const auto& zone = getZoneData(lvl);
-
-            BOOST_ASSERT(from < zone.size());
-            BOOST_ASSERT(to < zone.size());
-
-            if( zone[from] != zone[to] )
-            {
-                return false;
-            }
-
-            const auto d = toBox.floor - fromBox.floor;
-            return d >= dropHeight && d <= stepHeight;
-        }
-
-
-        const loader::ZoneData& RoutePlanner::getZoneData(const level::Level& lvl) const
-        {
-            if( flyHeight != 0 )
-            {
-                return lvl.roomsAreSwapped ? lvl.m_alternateZones.flyZone : lvl.m_baseZones.flyZone;
-            }
-            else if( stepHeight == loader::QuarterSectorSize )
-            {
-                return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone1 : lvl.m_baseZones.groundZone1;
-            }
-            else
-            {
-                return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone2 : lvl.m_baseZones.groundZone2;
-            }
-        }
-
-
-        void RoutePlanner::setRandomSearchTarget(uint16_t boxIdx, const items::ItemNode& npc)
-        {
-            setRandomSearchTarget(boxIdx, npc.getLevel().m_boxes[boxIdx & ~0x8000]);
-        }
-
-
-        bool RoutePlanner::stalkBox(const items::ItemNode& npc, uint16_t box)
-        {
-            Expects(box < npc.getLevel().m_boxes.size());
-            return stalkBox(npc, npc.getLevel().m_boxes[box]);
-        }
-
-
-        bool RoutePlanner::stalkBox(const items::ItemNode& npc, const loader::Box& box)
-        {
-            const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->m_state.position.position.X;
-            const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->m_state.position.position.Z;
-
-            if( laraToBoxDistX > 3 * loader::SectorSize || laraToBoxDistX < -3 * loader::SectorSize || laraToBoxDistZ > 3 * loader::SectorSize ||
-                laraToBoxDistZ < -3 * loader::SectorSize )
-            {
-                return false;
-            }
-
-            auto laraAxisBack = *core::axisFromAngle(npc.getLevel().m_lara->m_state.rotation.Y + 180_deg, 45_deg);
-            core::Axis laraToBoxAxis;
-            if( laraToBoxDistZ > 0 )
-            {
-                if( laraToBoxDistX > 0 )
-                {
-                    laraToBoxAxis = core::Axis::PosX;
-                }
-                else
-                {
-                    laraToBoxAxis = core::Axis::NegZ;
-                }
-            }
-            else if( laraToBoxDistX > 0 )
-            {
-                // Z <= 0, X > 0
-                laraToBoxAxis = core::Axis::NegX;
-            }
-            else
-            {
-                // Z <= 0, X <= 0
-                laraToBoxAxis = core::Axis::PosZ;
-            }
-
-            if( laraAxisBack == laraToBoxAxis )
-            {
-                return false;
-            }
-
-            core::Axis itemToLaraAxis;
-            if( npc.m_state.position.position.Z <= npc.getLevel().m_lara->m_state.position.position.Z )
-            {
-                if( npc.m_state.position.position.X <= npc.getLevel().m_lara->m_state.position.position.X )
-                {
-                    itemToLaraAxis = core::Axis::PosZ;
-                }
-                else
-                {
-                    itemToLaraAxis = core::Axis::NegX;
-                }
-            }
-            else
-            {
-                if( npc.m_state.position.position.X > npc.getLevel().m_lara->m_state.position.position.X )
-                {
-                    itemToLaraAxis = core::Axis::PosX;
-                }
-                else
-                {
-                    itemToLaraAxis = core::Axis::NegZ;
-                }
-            }
-
-            if( laraAxisBack != itemToLaraAxis )
-            {
-                return true;
-            }
-
-            switch( laraAxisBack )
-            {
-
-                case core::Axis::PosZ:
-                    return laraToBoxAxis == core::Axis::NegZ;
-                case core::Axis::PosX:
-                    return laraToBoxAxis == core::Axis::NegX;
-                case core::Axis::NegZ:
-                    return laraToBoxAxis == core::Axis::PosZ;
-                case core::Axis::NegX:
-                    return laraToBoxAxis == core::Axis::PosX;
-            }
-
-            BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
-        }
-
-
-        bool RoutePlanner::inSameQuadrantAsBoxRelativeToLara(const items::ItemNode& npc, uint16_t box)
-        {
-            Expects(box < npc.getLevel().m_boxes.size());
-            return inSameQuadrantAsBoxRelativeToLara(npc, npc.getLevel().m_boxes[box]);
-        }
-
-
-        bool RoutePlanner::inSameQuadrantAsBoxRelativeToLara(const items::ItemNode& npc, const loader::Box& box)
-        {
-            const auto laraToBoxX = (box.xmin + box.xmax) / 2 - npc.getLevel().m_lara->m_state.position.position.X;
-            const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - npc.getLevel().m_lara->m_state.position.position.Z;
-            if( laraToBoxX <= -5 * loader::SectorSize
-                || laraToBoxX >= 5 * loader::SectorSize
-                || laraToBoxZ <= -5 * loader::SectorSize
-                || laraToBoxZ >= 5 * loader::SectorSize )
-            {
-                const auto laraToNpcX = npc.m_state.position.position.X - npc.getLevel().m_lara->m_state.position.position.X;
-                const auto laraToNpcZ = npc.m_state.position.position.Z - npc.getLevel().m_lara->m_state.position.position.Z;
-                return ((laraToNpcZ > 0) == (laraToBoxZ > 0))
-                       || ((laraToNpcX > 0) == (laraToBoxX > 0));
-            }
-
-            return false;
-        }
-
-
-        bool RoutePlanner::calculateTarget(core::TRCoordinates& targetPos, const items::ItemNode& npc, const items::ItemNode* enemy)
-        {
-            if(searchOverride.is_initialized())
-            {
-                destinationBox = searchOverride;
-            }
-
-            targetPos = npc.m_state.position.position;
-
-            findPath(npc, enemy);
-            if( path.empty() )
-            {
-                return false;
-            }
-
-            static constexpr const uint16_t AllowNegX = (1 << 0);
-            static constexpr const uint16_t AllowPosX = (1 << 1);
-            static constexpr const uint16_t AllowNegZ = (1 << 2);
-            static constexpr const uint16_t AllowPosZ = (1 << 3);
-            static constexpr const uint16_t AllowAll = AllowNegX | AllowPosX | AllowNegZ | AllowPosZ;
-            static constexpr const uint16_t StayInBox = (1 << 4);
-            uint16_t reachable = AllowAll;
-
-            // Defines the reachable area
-            int minZ = npc.m_state.position.position.Z, maxZ = npc.m_state.position.position.Z, minX = npc.m_state.position.position.X, maxX = npc.m_state.position.position.X;
-            for( const auto& currentBox : path )
-            {
-                if( flyHeight != 0 )
-                {
-                    if( currentBox->floor - loader::SectorSize < targetPos.Y )
+                    break;
+                case Mood::Attack:
+                    if( item.is_hit
+                        && ((std::rand() & 0x7fff) < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
                     {
-                        targetPos.Y = currentBox->floor - loader::SectorSize;
+                        creatureInfo.mood = Mood::Escape;
                     }
-                }
-                else
-                {
-                    if( currentBox->floor < targetPos.Y )
+                    else if( aiInfo.zone_number != aiInfo.enemy_zone )
                     {
-                        targetPos.Y = currentBox->floor;
+                        creatureInfo.mood = Mood::Bored;
                     }
-                }
-
-                if( npc.m_state.position.position.Z + 1 >= currentBox->zmin && npc.m_state.position.position.Z <= currentBox->zmax - 1
-                    && npc.m_state.position.position.X + 1 >= currentBox->xmin && npc.m_state.position.position.X <= currentBox->xmax - 1 )
-                {
-                    // initialize the reachable area to the box the NPC is in.
-                    minZ = currentBox->zmin;
-                    maxZ = currentBox->zmax;
-                    maxX = currentBox->xmax;
-                    minX = currentBox->xmin;
-                }
-
-                if( npc.m_state.position.position.Z > currentBox->zmax )
-                {
-                    // need to travel to -Z
-                    if( (reachable & AllowNegZ)
-                        && npc.m_state.position.position.X >= currentBox->xmin
-                        && npc.m_state.position.position.X <= currentBox->xmax )
+                    break;
+                case Mood::Escape:
+                    if( aiInfo.zone_number == aiInfo.enemy_zone && (std::rand() & 0x7fff) < 256 )
                     {
-                        // we may expand the line, as we have an overlap on the X axis,
-                        // an are also allowed to travel towards -Z
-
-                        if( currentBox->zmax - loader::SectorSize / 2 < targetPos.Z )
-                        {
-                            // travel as far as we can
-                            targetPos.Z = currentBox->zmax - loader::SectorSize / 2;
-                        }
-
-                        if( reachable & StayInBox )
-                        {
-                            return true;
-                        }
-
-                        // clamp the reachable area on the X axis
-                        if( currentBox->xmin > minX )
-                        {
-                            minX = currentBox->xmin;
-                        }
-                        if( currentBox->xmax < maxX )
-                        {
-                            maxX = currentBox->xmax;
-                        }
-
-                        // Now we only can travel towards -Z
-                        reachable = AllowNegZ;
+                        creatureInfo.mood = Mood::Stalk;
                     }
-                    else if( reachable != AllowNegZ )
-                    {
-                        // We can't travel to -Z, but there are other axes we may travel to.
-                        // So let's travel towards -Z as far as we can, stopping right before the reachable area limit.
-                        targetPos.Z = minZ + loader::SectorSize / 2;
-                        if( reachable != AllowAll )
-                        {
-                            // This is only the case if we're not examining the NPC's start box anymore.
-                            // Thus, there's no use of searching further, as we need to reach a target
-                            // which we can't reach due to the obstacles we encountered so far.
-                            return true;
-                        }
-                        reachable |= StayInBox;
-                    }
-                }
-                else if( npc.m_state.position.position.Z < currentBox->zmin )
-                {
-                    if( (reachable & AllowPosZ)
-                        && npc.m_state.position.position.X >= currentBox->xmin
-                        && npc.m_state.position.position.X <= currentBox->xmax )
-                    {
-                        if( currentBox->zmin + loader::SectorSize / 2 > targetPos.Z )
-                        {
-                            targetPos.Z = currentBox->zmin + loader::SectorSize / 2;
-                        }
-                        if( reachable & StayInBox )
-                        {
-                            return true;
-                        }
-                        if( currentBox->xmin > minX )
-                        {
-                            minX = currentBox->xmin;
-                        }
-                        if( currentBox->xmax < maxX )
-                        {
-                            maxX = currentBox->xmax;
-                        }
-                        reachable = AllowPosZ;
-                    }
-                    else if( reachable != AllowPosZ )
-                    {
-                        targetPos.Z = maxZ - loader::SectorSize / 2;
-                        if( reachable != AllowAll )
-                        {
-                            return true;
-                        }
-                        reachable |= StayInBox;
-                    }
-                }
-
-                if( npc.m_state.position.position.X > currentBox->xmax )
-                {
-                    if( (reachable & AllowNegX)
-                        && npc.m_state.position.position.Z >= currentBox->zmin
-                        && npc.m_state.position.position.Z <= currentBox->zmax )
-                    {
-                        if( currentBox->xmax - loader::SectorSize / 2 < targetPos.X )
-                        {
-                            targetPos.X = currentBox->xmax - loader::SectorSize / 2;
-                        }
-                        if( reachable & StayInBox )
-                        {
-                            return true;
-                        }
-                        if( currentBox->zmin > minZ )
-                        {
-                            minZ = currentBox->zmin;
-                        }
-                        if( currentBox->zmax < maxZ )
-                        {
-                            maxZ = currentBox->zmax;
-                        }
-                        reachable = AllowNegX;
-                    }
-                    else if( reachable != AllowNegX )
-                    {
-                        targetPos.X = minX + loader::SectorSize / 2;
-                        if( reachable != AllowAll )
-                        {
-                            return true;
-                        }
-                        reachable |= StayInBox;
-                    }
-                }
-                else if( npc.m_state.position.position.X < currentBox->xmin )
-                {
-                    if( (reachable & AllowPosX)
-                        && npc.m_state.position.position.Z >= currentBox->zmin
-                        && npc.m_state.position.position.Z <= currentBox->zmax )
-                    {
-                        if( currentBox->xmin + loader::SectorSize / 2 > targetPos.X )
-                        {
-                            targetPos.X = currentBox->xmin + loader::SectorSize / 2;
-                        }
-                        if( reachable & StayInBox )
-                        {
-                            return true;
-                        }
-                        if( currentBox->zmin > minZ )
-                        {
-                            minZ = currentBox->zmin;
-                        }
-                        if( currentBox->zmax < maxZ )
-                        {
-                            maxZ = currentBox->zmax;
-                        }
-                        reachable = AllowPosX;
-                    }
-                    else if( reachable != AllowPosX )
-                    {
-                        targetPos.X = maxX - loader::SectorSize / 2;
-                        if( reachable != AllowAll )
-                        {
-                            return true;
-                        }
-                        reachable |= StayInBox;
-                    }
-                }
-
-                if( currentBox == path.back() )
-                {
-                    if( reachable & (AllowNegZ | AllowPosZ) )
-                    {
-                        targetPos.Z = searchTarget.Z;
-                    }
-                    if( reachable & (AllowNegX | AllowPosX) )
-                    {
-                        targetPos.X = searchTarget.X;
-                    }
-                    if( !(reachable & StayInBox) )
-                    {
-                        targetPos.X = util::clamp(targetPos.X, currentBox->xmin + loader::SectorSize / 2,
-                                                 currentBox->xmax - loader::SectorSize / 2);
-                        targetPos.Z = util::clamp(targetPos.Z, currentBox->zmin + loader::SectorSize / 2,
-                                                 currentBox->zmax - loader::SectorSize / 2);
-                    }
-
-                    targetPos.Y = searchTarget.Y;
-                    return true;
-                }
+                    break;
             }
-
-            const loader::Box* endBox = nullptr;
-            if( !path.empty() )
-            {
-                endBox = path.back();
-            }
-            else
-            {
-                BOOST_ASSERT(*npc.getCurrentBox() < npc.getLevel().m_boxes.size());
-                endBox = &npc.getLevel().m_boxes[*npc.getCurrentBox()];
-            }
-
-            if( reachable & (AllowNegZ | AllowPosZ) )
-            {
-                const auto v_centerZ = endBox->zmax - endBox->zmin - loader::SectorSize;
-                targetPos.Z = (v_centerZ * std::rand() / RAND_MAX) + endBox->zmin + loader::SectorSize / 2;
-            }
-            else if( !(reachable & StayInBox) )
-            {
-                if( endBox->zmin + loader::SectorSize / 2 > targetPos.Z )
-                {
-                    targetPos.Z = endBox->zmin + loader::SectorSize / 2;
-                }
-                else if( endBox->zmax - loader::SectorSize / 2 < targetPos.Z )
-                {
-                    targetPos.Z = endBox->zmax - loader::SectorSize / 2;
-                }
-            }
-
-            if( reachable & (AllowNegX | AllowPosX) )
-            {
-                const auto v_centerX = endBox->xmax - endBox->xmin - loader::SectorSize;
-                targetPos.X = (v_centerX * std::rand() / RAND_MAX) + endBox->xmin + loader::SectorSize / 2;
-            }
-            else if( !(reachable & StayInBox) )
-            {
-                if( endBox->xmin + loader::SectorSize / 2 > targetPos.X )
-                {
-                    targetPos.X = endBox->xmin + loader::SectorSize / 2;
-                }
-                else if( endBox->xmax - loader::SectorSize / 2 < targetPos.X )
-                {
-                    targetPos.X = endBox->xmax - loader::SectorSize / 2;
-                }
-            }
-
-            if( flyHeight != 0 )
-            {
-                targetPos.Y = endBox->floor - core::ClimbLimit2ClickMin;
-            }
-            else
-            {
-                targetPos.Y = endBox->floor;
-            }
-
-            return false;
-        }
-
-
-        bool Brain::isInsideZoneButNotInBox(const items::AIAgent& npc, const loader::ZoneData& zone, uint16_t boxIdx) const
-        {
-            Expects(boxIdx < zone.size());
-            Expects(boxIdx < npc.getLevel().m_boxes.size());
-            if( npc.getZone() != zone[boxIdx] )
-            {
-                return false;
-            }
-
-            const auto& box = npc.getLevel().m_boxes[boxIdx];
-            if( (route.blockMask & box.overlap_index) != 0 )
-            {
-                return false;
-            }
-
-            return !(npc.m_state.position.position.Z > box.zmin && npc.m_state.position.position.Z < box.zmax && npc.m_state.position.position.X > box.xmin && npc.m_state.position.position.X < box.xmax);
         }
     }
+    else
+    {
+        creatureInfo.mood = Mood::Bored;
+    }
+    if( originalMood != creatureInfo.mood )
+    {
+        if( originalMood == Mood::Attack )
+        {
+            creatureInfo.lot.setRandomSearchTarget( lvl, creatureInfo.lot.target_box );
+        }
+        creatureInfo.lot.required_box = -1;
+    }
+    switch( creatureInfo.mood )
+    {
+        case Mood::Attack:
+            if( (std::rand() & 0x7fff) >= int(lvl.m_scriptEngine["getObjectInfo"].call<sol::table>( item.object_number )["target_update_chance"]) )
+                break;
+
+            creatureInfo.lot.target = lvl.m_lara->m_state.position.position;
+            creatureInfo.lot.required_box = lvl.m_lara->m_state.box_number;
+            if( creatureInfo.lot.fly != 0 && lvl.m_lara->isOnLand() )
+                creatureInfo.lot.target.Y += lvl.m_lara->getSkeleton()->getInterpolationInfo( item ).getNearestFrame()
+                                                ->bbox.minY;
+
+            break;
+        case Mood::Bored:
+        {
+            const auto boxNumber = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber ) )
+                break;
+
+            if( item.stalkBox( lvl, boxNumber ) )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.mood = Mood::Stalk;
+            }
+            else if( creatureInfo.lot.required_box == -1 )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+            }
+            break;
+        }
+        case Mood::Stalk:
+        {
+            if( creatureInfo.lot.required_box != -1 && item.stalkBox( lvl, creatureInfo.lot.required_box ) )
+                break;
+
+            const auto boxNumber1 = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber1 ) )
+                break;
+
+            if( item.stalkBox( lvl, boxNumber1 ) )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber1 );
+            }
+            else if( creatureInfo.lot.required_box == -1 )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber1 );
+                if( aiInfo.zone_number != aiInfo.enemy_zone )
+                {
+                    creatureInfo.mood = Mood::Bored;
+                }
+            }
+            break;
+        }
+        case Mood::Escape:
+        {
+            const auto boxNumber = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber )
+                || creatureInfo.lot.required_box != -1 )
+                break;
+
+            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, boxNumber ) )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+            }
+            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( lvl, boxNumber ) )
+            {
+                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.mood = Mood::Stalk;
+            }
+            break;
+        }
+    }
+    if( creatureInfo.lot.target_box < 0 )
+    {
+        creatureInfo.lot.setRandomSearchTarget( lvl, item.box_number );
+    }
+    creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
+}
+
+AiInfo::AiInfo(const level::Level& lvl, engine::items::ItemState& item)
+{
+    if( item.creatureInfo == nullptr)
+        return;
+
+    const loader::ZoneData* zone = nullptr;
+    if( item.creatureInfo->lot.fly != 0 )
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
+    }
+    else if( item.creatureInfo->lot.step == loader::QuarterSectorSize )
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
+    }
+    else
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
+    }
+
+    item.box_number = item.getCurrentSector()->boxIndex;
+    zone_number = (*zone)[item.box_number];
+    lvl.m_lara->m_state.box_number = lvl.m_lara->m_state.getCurrentSector()->boxIndex;
+    enemy_zone = (*zone)[lvl.m_lara->m_state.box_number];
+    if( (item.creatureInfo->lot.block_mask & lvl.m_boxes[lvl.m_lara->m_state.box_number].overlap_index)
+        || item.creatureInfo->lot.nodes[item.box_number].search_number == (item.creatureInfo->lot.search_number | 0x8000) )
+    {
+        enemy_zone |= 0x4000;
+    }
+
+    sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.object_number );
+    const int pivotLength = objectInfo["pivot_length"];
+    const auto dz = lvl.m_lara->m_state.position.position.Z - (item.position.position.Z + pivotLength * item.rotation.Y.cos());
+    const auto dx = lvl.m_lara->m_state.position.position.X - (item.position.position.X + pivotLength * item.rotation.Y.sin());
+    const auto pivotAngle = core::Angle::fromAtan(dx, dz);
+    distance = util::square(dx) + util::square(dz);
+    angle = pivotAngle - item.rotation.Y;
+    enemy_facing = pivotAngle - 180_deg - lvl.m_lara->m_state.rotation.Y;
+    ahead = angle > -90_deg && angle < 90_deg;
+    bite = false;
+    if( ahead )
+    {
+        const auto laraY = lvl.m_lara->m_state.position.position.Y;
+        if( item.position.position.Y - loader::QuarterSectorSize < laraY && item.position.position.Y + loader::QuarterSectorSize > laraY )
+        {
+            bite = true;
+        }
+    }
+}
+}
 }

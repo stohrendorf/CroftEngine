@@ -16,13 +16,10 @@ namespace engine
             SlopedBridge(const gsl::not_null<level::Level*>& level,
                          const std::string& name,
                          const gsl::not_null<const loader::Room*>& room,
-                         const core::Angle& angle,
-                         const core::TRCoordinates& position,
-                         uint16_t activationState,
-                         int16_t darkness,
+                         const loader::Item& item,
                          const loader::SkeletalModelType& animatedModel,
                          int div)
-                : ModelItemNode{level, name, room, angle, position, activationState, false, 0, darkness, animatedModel}
+                : ModelItemNode{level, name, room, item, false, 0, animatedModel}
                 , m_div{div}
             {
             }
@@ -75,12 +72,9 @@ namespace engine
             BridgeSlope1(const gsl::not_null<level::Level*>& level,
                          const std::string& name,
                          const gsl::not_null<const loader::Room*>& room,
-                         const core::Angle& angle,
-                         const core::TRCoordinates& position,
-                         uint16_t activationState,
-                         int16_t darkness,
+                         const loader::Item& item,
                          const loader::SkeletalModelType& animatedModel)
-                : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 4}
+                : SlopedBridge{level, name, room, item, animatedModel, 4}
             {
             }
         };
@@ -92,12 +86,9 @@ namespace engine
             BridgeSlope2(const gsl::not_null<level::Level*>& level,
                          const std::string& name,
                          const gsl::not_null<const loader::Room*>& room,
-                         const core::Angle& angle,
-                         const core::TRCoordinates& position,
-                         uint16_t activationState,
-                         int16_t darkness,
+                         const loader::Item& item,
                          const loader::SkeletalModelType& animatedModel)
-                : SlopedBridge{level, name, room, angle, position, activationState, darkness, animatedModel, 2}
+                : SlopedBridge{level, name, room, item, animatedModel, 2}
             {
             }
         };

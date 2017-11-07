@@ -139,18 +139,15 @@ public:
         if( !modelIdx )
             return nullptr;
 
-        int16_t darkness = -1;
+        auto it = std::find_if(m_items.begin(), m_items.end(), [type](const loader::Item& item) { return item.type == type; });
+        Expects(it != m_items.end());
 
-        for( const auto& item : m_items )
-        {
-            if( item.type != type )
-                continue;
+        loader::Item item = *it;
+        item.rotation = angle.toAU();
+        item.position = position;
+        item.activationState = activationState;
 
-            darkness = item.darkness;
-            break;
-        }
-
-        auto node = createSkeletalModel<T>( 99999, *modelIdx, type, room, angle, position, activationState, darkness );
+        auto node = createSkeletalModel<T>( 99999, *modelIdx, room, item );
 
         m_dynamicItems.insert( node.get() );
         room->node->addChild( node->getNode() );
@@ -405,22 +402,8 @@ private:
     template<typename T>
     std::shared_ptr<T> createSkeletalModel(size_t id,
                                            size_t modelIdx,
-                                           size_t type,
                                            const gsl::not_null<const loader::Room*>& room,
-                                           const core::Angle& angle,
-                                           const core::TRCoordinates& position,
-                                           uint16_t activationState,
-                                           int16_t darkness);
-
-    template<typename T>
-    std::shared_ptr<T> createSkeletalModel(size_t id,
-                                           size_t modelIdx,
-                                           const gsl::not_null<const loader::Room*>& room,
-                                           const gsl::not_null<const loader::Item*>& item)
-    {
-        return createSkeletalModel<T>( id, modelIdx, item->type, room, core::Angle{item->rotation}, item->position,
-                                       item->activationState, item->darkness );
-    }
+                                           const loader::Item& item);
 
     std::array<engine::floordata::ActivationState, 64> m_cdTrackActivationStates;
     int m_cdTrack50time = 0;

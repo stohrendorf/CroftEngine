@@ -754,12 +754,12 @@ namespace engine
                 {
                     BOOST_ASSERT(command.parameter < getLevel().m_cameras.size());
                     const auto& sink = getLevel().m_cameras[command.parameter];
-                    if(!routePlanner.searchOverride.is_initialized() || *routePlanner.searchOverride != sink.zoneId)
+                    /* FIXME if(!routePlanner.searchOverride.is_initialized() || *routePlanner.searchOverride != sink.zoneId)
                     {
                         routePlanner.searchOverride = sink.zoneId;
                         routePlanner.searchTarget = sink.position;
                         routePlanner.destinationBox.reset();
-                    }
+                    }*/
                     m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
                 }
                     break;
@@ -939,7 +939,7 @@ namespace engine
     void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     {
         core::TRCoordinates targetPos;
-        if (!routePlanner.calculateTarget(targetPos , *this, nullptr))
+        // FIXME if (!routePlanner.calculateTarget(targetPos , *this, nullptr))
             return;
 
         targetPos -= m_state.position.position;

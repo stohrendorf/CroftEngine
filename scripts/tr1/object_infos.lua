@@ -6,13 +6,6 @@ local DEFAULT_PIVOT_LENGTH = 0
 local DEFAULT_SHADOW_SIZE = 0
 local DEFAULT_FLAGS = 0
 
-local ActivationState = {
-    DISABLED = 0,
-    ENABLED = 1,
-    ACTIVE = 2,
-    LOCKED = 3
-}
-
 ---------------------------------------------------------------------------
 -- Code Completion Stubs
 
@@ -302,7 +295,7 @@ infos[48] = {
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     initialise = function(item)
-        if item:get_activation_state() ~= ActivationState.LOCKED then
+        if item.activation_state ~= ActivationState.LOCKED then
             item:patch_heights(-1024)
         end
     end

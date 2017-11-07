@@ -78,24 +78,22 @@ void ItemNode::applyTransform()
 
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const gsl::not_null<const loader::Room*>& room,
-                   const core::Angle& angle,
-                   const core::TRCoordinates& position,
-                   uint16_t activationState,
+                   const loader::Item& item,
                    bool hasProcessAnimCommandsOverride,
-                   Characteristics characteristics,
-                   int16_t darkness)
+                   Characteristics characteristics)
         : m_level{level}
         , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
         , m_characteristics{characteristics}
 {
-    BOOST_ASSERT( room->isInnerPositionXZ( position ) );
+    BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
-    m_state.position.position = position;
+    m_state.object_number = item.type;
+    m_state.position.position = item.position;
     m_state.position.room = room;
-    m_state.rotation.Y = angle;
-    m_state.shade = darkness;
-    m_state.activationState = engine::floordata::ActivationState( activationState );
-    m_state.timer = engine::floordata::ActivationState::extractTimeout( activationState );
+    m_state.rotation.Y = core::Angle{item.rotation};
+    m_state.shade = item.darkness;
+    m_state.activationState = engine::floordata::ActivationState( item.activationState );
+    m_state.timer = engine::floordata::ActivationState::extractTimeout( item.activationState );
 
     if( m_state.activationState.isOneshot() )
     {
@@ -134,23 +132,17 @@ void ItemNode::setCurrentRoom(const loader::Room* newRoom)
 ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const std::string& name,
                              const gsl::not_null<const loader::Room*>& room,
-                             const core::Angle& angle,
-                             const core::TRCoordinates& position,
-                             uint16_t activationState,
+                             const loader::Item& item,
                              bool hasProcessAnimCommandsOverride,
                              Characteristics characteristics,
-                             int16_t darkness,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{
-        level,
-        room,
-        angle,
-        position,
-        activationState,
-        hasProcessAnimCommandsOverride,
-        characteristics,
-        darkness
-}
+            level,
+            room,
+            item,
+            hasProcessAnimCommandsOverride,
+            characteristics
+        }
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
     m_skeleton->setAnimIdGlobal( m_state,
@@ -422,24 +414,18 @@ uint16_t ModelItemNode::getCurrentState() const
 SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,
-                               const core::Angle& angle,
-                               const core::TRCoordinates& position,
-                               uint16_t activationState,
+                               const loader::Item& item,
                                bool hasProcessAnimCommandsOverride,
                                Characteristics characteristics,
-                               int16_t darkness,
                                const loader::Sprite& sprite,
                                const std::shared_ptr<gameplay::Material>& material,
                                const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
         : ItemNode{
         level,
         room,
-        angle,
-        position,
-        activationState,
+        item,
         hasProcessAnimCommandsOverride,
-        characteristics,
-        darkness
+        characteristics
 }
 {
     const auto spriteMesh = createSpriteMesh( sprite, material );
@@ -453,7 +439,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                                                              gameplay::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( *texture );
                                         } );
-    m_node->addMaterialParameterSetter( "u_baseLight", [darkness](const gameplay::Node& /*node*/,
+    m_node->addMaterialParameterSetter( "u_baseLight", [darkness = item.darkness](const gameplay::Node& /*node*/,
                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
         uniform.set( (8192 - darkness) / 32.0f );
     } );
@@ -480,5 +466,256 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
            && z >= aFrame->bbox.minZ - radius
            && z <= aFrame->bbox.maxZ + radius;
 }
+
+bool ItemState::stalkBox(const level::Level& lvl, int16_t boxNumber) const
+{
+    BOOST_ASSERT( boxNumber >= 0 && boxNumber < lvl.m_boxes.size() );
+    const auto& box = lvl.m_boxes[boxNumber];
+
+    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
+    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+
+    if( laraToBoxDistX > 3 * loader::SectorSize || laraToBoxDistX < -3 * loader::SectorSize
+        || laraToBoxDistZ > 3 * loader::SectorSize ||
+        laraToBoxDistZ < -3 * loader::SectorSize )
+    {
+        return false;
+    }
+
+    auto laraAxisBack = *core::axisFromAngle( lvl.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
+    core::Axis laraToBoxAxis;
+    if( laraToBoxDistZ > 0 )
+    {
+        if( laraToBoxDistX > 0 )
+        {
+            laraToBoxAxis = core::Axis::PosX;
+        }
+        else
+        {
+            laraToBoxAxis = core::Axis::NegZ;
+        }
+    }
+    else if( laraToBoxDistX > 0 )
+    {
+        // Z <= 0, X > 0
+        laraToBoxAxis = core::Axis::NegX;
+    }
+    else
+    {
+        // Z <= 0, X <= 0
+        laraToBoxAxis = core::Axis::PosZ;
+    }
+
+    if( laraAxisBack == laraToBoxAxis )
+    {
+        return false;
+    }
+
+    core::Axis itemToLaraAxis;
+    if( position.position.Z <= lvl.m_lara->m_state.position.position.Z )
+    {
+        if( position.position.X <= lvl.m_lara->m_state.position.position.X )
+        {
+            itemToLaraAxis = core::Axis::PosZ;
+        }
+        else
+        {
+            itemToLaraAxis = core::Axis::NegX;
+        }
+    }
+    else
+    {
+        if( position.position.X > lvl.m_lara->m_state.position.position.X )
+        {
+            itemToLaraAxis = core::Axis::PosX;
+        }
+        else
+        {
+            itemToLaraAxis = core::Axis::NegZ;
+        }
+    }
+
+    if( laraAxisBack != itemToLaraAxis )
+    {
+        return true;
+    }
+
+    switch( laraAxisBack )
+    {
+
+        case core::Axis::PosZ:
+            return laraToBoxAxis == core::Axis::NegZ;
+        case core::Axis::PosX:
+            return laraToBoxAxis == core::Axis::NegX;
+        case core::Axis::NegZ:
+            return laraToBoxAxis == core::Axis::PosZ;
+        case core::Axis::NegX:
+            return laraToBoxAxis == core::Axis::PosX;
+    }
+
+    BOOST_THROW_EXCEPTION( std::runtime_error( "Unreachable code reached" ) );
+}
+
+bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, int16_t boxNumber) const
+{
+    BOOST_ASSERT( creatureInfo != nullptr );
+    const loader::ZoneData* zone;
+    if( creatureInfo->lot.fly != 0 )
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
+    }
+    else if( creatureInfo->lot.step == loader::QuarterSectorSize )
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
+    }
+    else
+    {
+        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
+    }
+
+    if( zoneId != (*zone)[boxNumber] )
+    {
+        return false;
+    }
+
+    const auto v_box = &lvl.m_boxes[boxNumber];
+    if( creatureInfo->lot.block_mask & v_box->overlap_index )
+    {
+        return false;
+    }
+
+    if( position.position.Z > v_box->zmin && position.position.Z < v_box->zmax )
+    {
+        if( position.position.X > v_box->xmin && position.position.X < v_box->xmax )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, int16_t boxNumber) const
+{
+    Expects( boxNumber >= 0 && boxNumber < lvl.m_boxes.size() );
+    const auto& box = lvl.m_boxes[boxNumber];
+    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
+    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    if( laraToBoxX <= -5 * loader::SectorSize
+        || laraToBoxX >= 5 * loader::SectorSize
+        || laraToBoxZ <= -5 * loader::SectorSize
+        || laraToBoxZ >= 5 * loader::SectorSize )
+    {
+        const auto laraToNpcX = position.position.X - lvl.m_lara->m_state.position.position.X;
+        const auto laraToNpcZ = position.position.Z - lvl.m_lara->m_state.position.position.Z;
+        return ((laraToNpcZ > 0) == (laraToBoxZ > 0))
+               || ((laraToNpcX > 0) == (laraToBoxX > 0));
+    }
+
+    return false;
+}
+
+void ItemState::initCreatureInfo(const level::Level& lvl)
+{
+    if( creatureInfo != nullptr )
+        return;
+
+    creatureInfo = std::make_shared<ai::CreatureInfo>();
+
+    creatureInfo->item = this;
+
+    switch( object_number )
+    {
+        case 7:
+        case 12:
+        case 13:
+        case 14:
+            creatureInfo->lot.drop = -loader::SectorSize;
+            break;
+
+        case 9:
+        case 11:
+        case 26:
+            creatureInfo->lot.step = 20 * loader::SectorSize;
+            creatureInfo->lot.drop = -20 * loader::SectorSize;
+            creatureInfo->lot.fly = 16;
+            break;
+
+        case 15:
+            creatureInfo->lot.step = loader::SectorSize / 2;
+            creatureInfo->lot.drop = -loader::SectorSize;
+            break;
+
+        case 18:
+        case 20:
+        case 23:
+            creatureInfo->lot.block_mask = 0x8000;
+            break;
+    }
+
+    creatureInfo->lot.reset( lvl );
+    collectZoneBoxes( lvl );
+}
+
+void ItemState::collectZoneBoxes(const level::Level& lvl)
+{
+    const loader::ZoneData* zone1 = nullptr;
+    const loader::ZoneData* zone2 = nullptr;
+    if( creatureInfo->lot.fly != 0 )
+    {
+        zone1 = &lvl.m_baseZones.flyZone;
+        zone2 = &lvl.m_alternateZones.flyZone;
+    }
+    else if( creatureInfo->lot.step == 256 )
+    {
+        zone1 = &lvl.m_baseZones.groundZone1;
+        zone2 = &lvl.m_alternateZones.groundZone1;
+    }
+    else
+    {
+        zone1 = &lvl.m_baseZones.groundZone2;
+        zone2 = &lvl.m_alternateZones.groundZone2;
+    }
+
+    box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->boxIndex;
+    const auto v_zoneData1 = (*zone1)[box_number];
+    const auto v_zoneData2 = (*zone2)[box_number];
+    creatureInfo->lot.zone_count = 0;
+    auto v_boxInZone = creatureInfo->lot.nodes;
+    for( uint16_t i = 0; i < lvl.m_boxes.size(); ++i )
+    {
+        if( (*zone1)[i] == v_zoneData1 || (*zone2)[i] == v_zoneData2 )
+        {
+            creatureInfo->lot.nodes[creatureInfo->lot.zone_count].box_number = i;
+            ++creatureInfo->lot.zone_count;
+        }
+    }
+}
+
+sol::usertype<ItemState> ItemState::userType()
+{
+    return sol::usertype<ItemState>(
+            sol::meta_function::construct, sol::no_constructor,
+            "position", [](ItemState& self) { return self.position.position; },
+            "rotation", [](ItemState& self) { return self.rotation; },
+            "current_anim_state", sol::readonly( &ItemState::current_anim_state ),
+            "goal_anim_state", &ItemState::goal_anim_state,
+            "required_anim_state", &ItemState::required_anim_state,
+            "activation_state", &ItemState::triggerState,
+            "patch_heights", [](ItemState& self, int delta) { /* TODO */ },
+            "health", &ItemState::health,
+            "is_near", &ItemState::isNear,
+            "test_bone_collision", &ItemState::testBoneCollision,
+            "do_enemy_push", []() { /* TODO */ },
+            "set_y_angle", [](ItemState& self, int16_t angle) { self.rotation.Y = core::Angle( angle ); },
+            "set_collidable", [](ItemState& self, bool flag) { self.collidable = flag; },
+            "frame_number", &ItemState::frame_number,
+            "enable_ai", &ItemState::initCreatureInfo,
+            "creature_info", sol::readonly( &ItemState::creatureInfo )
+    );
+}
+
+ItemState::~ItemState() = default;
+
 }
 }

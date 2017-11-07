@@ -160,12 +160,14 @@ void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
         if( ctrl.get() == lvl->m_lara ) // Lara is special and needs to be updated last
             continue;
 
-        ctrl->update();
+        if(ctrl->m_isActive)
+            ctrl->update();
     }
 
     for( engine::items::ItemNode* ctrl : lvl->m_dynamicItems )
     {
-        ctrl->update();
+        if (ctrl->m_isActive)
+            ctrl->update();
     }
 
     if (godMode)
@@ -187,7 +189,22 @@ sol::state createScriptEngine()
     engine.set_usertype(core::Angle::userType());
     engine.set_usertype(core::TRRotation::userType());
     engine.set_usertype(core::TRCoordinates::userType());
+    engine.set_usertype(engine::ai::CreatureInfo::userType());
     engine.set_usertype(engine::items::ItemState::userType());
+
+    engine["ActivationState"] = engine.create_table_with(
+        "DISABLED", engine::items::TriggerState::Disabled,
+        "ENABLED", engine::items::TriggerState::Enabled,
+        "ACTIVATED", engine::items::TriggerState::Activated,
+        "LOCKED", engine::items::TriggerState::Locked
+    );
+
+    engine["Mood"] = engine.create_table_with(
+        "BORED", engine::ai::Mood::Bored,
+        "ATTACK", engine::ai::Mood::Attack,
+        "ESCAPE", engine::ai::Mood::Escape,
+        "STALK", engine::ai::Mood::Stalk
+    );
 
     return engine;
 }
@@ -202,7 +219,7 @@ int main()
 
     try
     {
-        scriptEngine.do_file("scripts/main.lua");
+        scriptEngine.safe_script_file("scripts/main.lua");
     }
     catch(sol::error& e)
     {
@@ -210,7 +227,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    const sol::optional<std::string> glidosPack = scriptEngine["getGlidosPack"].call();
+    const sol::optional<std::string> glidosPack = scriptEngine["getGlidosPack"]();
 
     std::unique_ptr<loader::trx::Glidos> glidos;
     if(glidosPack && boost::filesystem::is_regular_file(glidosPack.value()))
@@ -221,7 +238,7 @@ int main()
 #endif
     }
 
-    sol::table levelInfo = scriptEngine["getLevelInfo"].call();
+    sol::table levelInfo = scriptEngine["getLevelInfo"]();
     const auto baseName = levelInfo.get<std::string>("baseName");
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
     const bool useAlternativeLara = levelInfo.get_or("useAlternativeLara", false);

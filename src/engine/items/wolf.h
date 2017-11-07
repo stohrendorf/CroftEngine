@@ -16,12 +16,9 @@ namespace engine
             Wolf(const gsl::not_null<level::Level*>& level,
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
-                 const core::Angle& angle,
-                 const core::TRCoordinates& position,
-                 uint16_t activationState,
-                 int16_t darkness,
+                 const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-                : AIAgent(level, name, room, angle, position, activationState, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, darkness, animatedModel, 0x4000, 384, -1024, 256, 0)
+                : AIAgent(level, name, room, item, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, animatedModel, 384)
             {
             }
 

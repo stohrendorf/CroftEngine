@@ -15,6 +15,8 @@ void Bat::update()
         m_state.triggerState = TriggerState::Enabled;
     }
 
+    m_state.initCreatureInfo(getLevel());
+
     static constexpr const uint16_t StartingToFly = 1;
     static constexpr const uint16_t FlyingStraight = 2;
     static constexpr const uint16_t Biting = 3;
@@ -24,10 +26,10 @@ void Bat::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::LookAhead lookAhead(*this, 0);
+        ai::AiInfo lookAhead(getLevel(), m_state);
+        ai::updateMood(getLevel(), m_state, lookAhead, false);
 
-        getBrain().route.updateMood(getBrain(), lookAhead, *this, false, 1024);
-        rotationToMoveTarget = rotateTowardsMoveTarget(getBrain(), 20_deg);
+        rotationToMoveTarget = rotateTowardsMoveTarget(20_deg);
         switch( getCurrentState() )
         {
             case StartingToFly:
@@ -49,7 +51,7 @@ void Bat::update()
                 else
                 {
                     m_state.goal_anim_state = FlyingStraight;
-                    getBrain().mood = ai::Mood::Bored;
+                    m_state.creatureInfo->mood = ai::Mood::Bored;
                 }
                 break;
             default:
