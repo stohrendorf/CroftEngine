@@ -35,7 +35,7 @@ namespace engine
             }
 
 
-            bool animateCreature(core::Angle rotationToMoveTarget, core::Angle roll);
+            bool animateCreature(core::Angle angle, core::Angle tilt);
 
 
             core::Angle rotateTowardsMoveTarget(core::Angle maxRotationSpeed);
@@ -51,7 +51,7 @@ namespace engine
 
             bool anyMovingEnabledItemInReach() const;
 
-            bool isPositionOutOfReach(const core::TRCoordinates& testPosition, int currentBoxFloor, const ai::LotInfo& lotInfo) const;
+            bool isPositionOutOfReach(const core::TRCoordinates& testPosition, int currentBoxFloor, int nextBoxFloor, const ai::LotInfo& lotInfo) const;
 
             uint16_t m_requiredAnimState = 0;
             int m_health{ 1000 };

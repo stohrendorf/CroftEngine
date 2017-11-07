@@ -394,10 +394,10 @@ BoundingBox ModelItemNode::getBoundingBox() const
     return m_skeleton->getBoundingBox( m_state );
 }
 
-boost::optional<uint16_t> ItemNode::getCurrentBox() const
+boost::optional<int16_t> ItemNode::getCurrentBox() const
 {
     const auto sector = m_state.position.room->getInnerSectorByAbsolutePosition( m_state.position.position );
-    if( sector->boxIndex == 0xffff )
+    if( sector->boxIndex < 0 )
     {
         BOOST_LOG_TRIVIAL( warning ) << "Not within a box: " << getNode()->getId();
         return {};

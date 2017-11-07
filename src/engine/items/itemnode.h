@@ -364,7 +364,7 @@ public:
         move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
-    boost::optional<uint16_t> getCurrentBox() const;
+    boost::optional<int16_t> getCurrentBox() const;
 
     void updateLighting()
     {

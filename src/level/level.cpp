@@ -818,7 +818,7 @@ void Level::setUpRendering(gameplay::Game* game,
                             sectorTree["relations"]["roomBelow"] = int( sector->roomBelow );
                         if( sector->roomAbove != 0xff )
                             sectorTree["relations"]["roomAbove"] = int( sector->roomAbove );
-                        if( sector->boxIndex != 0xffff )
+                        if( sector->boxIndex >= 0 )
                             sectorTree["relations"]["box"] = sector->boxIndex;
 
                         const uint16_t* rawFloorData = &m_floorData[sector->floorDataIndex];

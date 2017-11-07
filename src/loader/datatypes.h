@@ -96,7 +96,7 @@ namespace loader
          */
         uint16_t floorDataIndex;
 
-        uint16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
+        int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
         uint8_t roomBelow; //!< The number of the room below this one (255 if none)
         int8_t floorHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
         uint8_t roomAbove; //!< The number of the room above this one (255 if none)
@@ -106,7 +106,7 @@ namespace loader
         {
             Sector sector;
             sector.floorDataIndex = reader.readU16();
-            sector.boxIndex = reader.readU16();
+            sector.boxIndex = reader.readI16();
             sector.roomBelow = reader.readU8();
             sector.floorHeight = reader.readI8();
             sector.roomAbove = reader.readU8();

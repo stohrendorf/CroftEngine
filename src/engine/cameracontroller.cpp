@@ -534,6 +534,7 @@ namespace engine
     int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const
     {
         auto sector = m_level->findRealFloorSector(pos);
+        BOOST_ASSERT(sector->boxIndex >= 0);
         BOOST_ASSERT(sector->boxIndex < m_level->m_boxes.size());
         const loader::Box& box = m_level->m_boxes[sector->boxIndex];
 
@@ -716,10 +717,11 @@ namespace engine
     void CameraController::clampBox(core::RoomBoundPosition& goalPosition, const std::function<ClampCallback>& callback) const
     {
         clampPosition(goalPosition);
+        BOOST_ASSERT(m_target.room->getSectorByAbsolutePosition(m_target.position)->boxIndex >= 0);
         BOOST_ASSERT(m_target.room->getSectorByAbsolutePosition(m_target.position)->boxIndex < m_level->m_boxes.size());
         auto clampBox = &m_level->m_boxes[m_target.room->getSectorByAbsolutePosition(m_target.position)->boxIndex];
         BOOST_ASSERT(goalPosition.room->getSectorByAbsolutePosition(goalPosition.position) != nullptr);
-        if( goalPosition.room->getSectorByAbsolutePosition(goalPosition.position)->boxIndex != 0xffff )
+        if( goalPosition.room->getSectorByAbsolutePosition(goalPosition.position)->boxIndex >= 0 )
         {
             if( goalPosition.position.X < clampBox->xmin || goalPosition.position.X > clampBox->xmax
                 || goalPosition.position.Z < clampBox->zmin || goalPosition.position.Z > clampBox->zmax )
@@ -732,7 +734,7 @@ namespace engine
 
         auto clampZMin = clampBox->zmin;
         const bool negZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
-        if( !negZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
+        if( !negZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex >= 0 )
         {
             const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->zmin < clampZMin )
@@ -746,7 +748,7 @@ namespace engine
 
         auto clampZMax = clampBox->zmax;
         const bool posZverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
-        if( !posZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
+        if( !posZverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex >= 0 )
         {
             const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->zmax > clampZMax )
@@ -760,7 +762,7 @@ namespace engine
 
         auto clampXMin = clampBox->xmin;
         const bool negXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
-        if( !negXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
+        if( !negXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex >= 0 )
         {
             const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->xmin < clampXMin )
@@ -774,7 +776,7 @@ namespace engine
 
         auto clampXMax = clampBox->xmax;
         const bool posXverticalOutside = isVerticallyOutsideRoom(testPos, goalPosition.room);
-        if( !posXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex != 0xffff )
+        if( !posXverticalOutside && m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex >= 0 )
         {
             const auto testBox = &m_level->m_boxes[m_level->findRealFloorSector(testPos, goalPosition.room)->boxIndex];
             if( testBox->xmax > clampXMax )

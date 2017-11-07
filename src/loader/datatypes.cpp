@@ -377,7 +377,7 @@ namespace loader
                 groundSector->floorHeight = -127;
         }
 
-        if( groundSector->boxIndex == 0xffff )
+        if( groundSector->boxIndex < 0 )
             return;
 
         //! @todo Ugly const_cast

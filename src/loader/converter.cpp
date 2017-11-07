@@ -723,7 +723,7 @@ aiNode* Converter::convert(aiScene& scene, const std::vector<Sector>& sectors, c
 
     for( const auto& sector : sectors )
     {
-        if( sector.boxIndex == 0xffff )
+        if( sector.boxIndex < 0 )
             continue;
 
         BOOST_ASSERT(sector.boxIndex < boxes.size());
