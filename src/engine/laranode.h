@@ -47,10 +47,15 @@ public:
              const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, false,
                              SaveHitpoints | SaveFlags | SavePosition | NonLot, animatedModel )
+            , m_underwaterRoute{*level}
     {
         setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
         setTargetState( LaraStateId::Stop );
         setMovementAngle( m_state.rotation.Y );
+
+        m_underwaterRoute.step = 20 * loader::SectorSize;
+        m_underwaterRoute.drop = -20 * loader::SectorSize;
+        m_underwaterRoute.fly = loader::QuarterSectorSize;
     }
 
     ~LaraNode() override;
@@ -78,6 +83,12 @@ public:
     void updateImpl();
 
     void update() override;
+
+    void applyShift(const CollisionInfo& collisionInfo)
+    {
+        m_state.position.position = m_state.position.position + collisionInfo.shift;
+        collisionInfo.shift = {0, 0, 0};
+    }
 
 private:
     void handleLaraStateOnLand();
@@ -259,6 +270,7 @@ public:
 #endif
 
     int m_underwaterCurrentStrength = 0;
+    ai::LotInfo m_underwaterRoute;
 
     void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
 };

@@ -754,12 +754,11 @@ namespace engine
                 {
                     BOOST_ASSERT(command.parameter < getLevel().m_cameras.size());
                     const auto& sink = getLevel().m_cameras[command.parameter];
-                    /* FIXME if(!routePlanner.searchOverride.is_initialized() || *routePlanner.searchOverride != sink.zoneId)
+                    if(m_underwaterRoute.required_box != sink.zoneId)
                     {
-                        routePlanner.searchOverride = sink.zoneId;
-                        routePlanner.searchTarget = sink.position;
-                        routePlanner.destinationBox.reset();
-                    }*/
+                        m_underwaterRoute.required_box = sink.zoneId;
+                        m_underwaterRoute.target = sink.position;
+                    }
                     m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
                 }
                     break;
@@ -938,61 +937,45 @@ namespace engine
 
     void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     {
+        m_state.box_number = m_state.getCurrentSector()->boxIndex;
         core::TRCoordinates targetPos;
-        // FIXME if (!routePlanner.calculateTarget(targetPos , *this, nullptr))
+        if( !m_underwaterRoute.calculateTarget( getLevel(), targetPos, m_state ) )
             return;
 
         targetPos -= m_state.position.position;
-        const int d2 = util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-        m_state.position.position.X += d2;
-        const int d = util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-        m_state.position.position.Z += d;
-        const int d1 = util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-        m_state.position.position.Y += d1;
-        m_underwaterCurrentStrength = 0;
-        collisionInfo.facingAngle = core::Angle::fromAtan(m_state.position.position.X - collisionInfo.oldPosition.X, m_state.position.position.Z - collisionInfo.oldPosition.Z);
-        collisionInfo.initHeightInfo(m_state.position.position + core::TRCoordinates{ 0, 200, 0 }, getLevel(), core::LaraHeightUnderwater);
-        if (collisionInfo.collisionType == CollisionInfo::AxisColl_Front)
-        {
-            if ( m_state.rotation.X > 35_deg)
-            {
-                m_state.rotation.X += 2_deg;
-            }
-            else
-            {
-                if ( m_state.rotation.X < -35_deg)
-                        {
-                            m_state.rotation.X += -2_deg;
-                        }
-            }
-        }
-        else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Top)
-        {
-            m_state.rotation.X += -2_deg;
-        }
-        else if (collisionInfo.collisionType != CollisionInfo::AxisColl_TopBottom)
-        {
-            if (collisionInfo.collisionType == CollisionInfo::AxisColl_Left)
-            {
-                m_state.rotation.Y += 5_deg;
-            }
-            else if (collisionInfo.collisionType == CollisionInfo::AxisColl_Right)
-            {
-                m_state.rotation.Y += -5_deg;
-            }
-        }
-        else
-        {
-            m_state.fallspeed = 0;
-        }
+        m_state.position.position.X += util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+        m_state.position.position.Y += util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+        m_state.position.position.Z += util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
 
-        if (collisionInfo.mid.floor.distance < 0)
+        m_underwaterCurrentStrength = 0;
+        collisionInfo.facingAngle = core::Angle::fromAtan(
+                m_state.position.position.X - collisionInfo.oldPosition.X,
+                m_state.position.position.Z - collisionInfo.oldPosition.Z
+        );
+
+        collisionInfo.initHeightInfo(m_state.position.position + core::TRCoordinates{0, 200, 0}, getLevel(), 400);
+        if ( collisionInfo.collisionType == CollisionInfo::AxisColl_Front )
+        {
+            if ( m_state.rotation.X > 35_deg )
+                m_state.rotation.X += 2_deg;
+            else if ( m_state.rotation.X < -35_deg )
+                m_state.rotation.X -= 2_deg;
+        }
+        else if ( collisionInfo.collisionType == CollisionInfo::AxisColl_Top )
+            m_state.rotation.X -= 2_deg;
+        else if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
+            m_state.fallspeed = 0;
+        else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
+            m_state.rotation.Y += 5_deg;
+        else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
+            m_state.rotation.Y -= 5_deg;
+
+        if ( collisionInfo.mid.floor.distance < 0 )
         {
             m_state.position.position.Y += collisionInfo.mid.floor.distance;
             m_state.rotation.X += 2_deg;
         }
-        m_state.position.position = m_state.position.position + collisionInfo.shift;
-        collisionInfo.shift = { 0, 0, 0 };
+        applyShift(collisionInfo);
         collisionInfo.oldPosition = m_state.position.position;
     }
 }

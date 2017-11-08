@@ -363,56 +363,55 @@ struct LotInfo
             bool done = false;
             do
             {
-                ++overlapIdx;
-                auto overlapBoxId = lvl.m_overlaps[overlapIdx];
-                if( overlapBoxId & 0x8000 )
+                auto nextExpansionId = lvl.m_overlaps[overlapIdx++];
+                if( nextExpansionId & 0x8000 )
                 {
-                    overlapBoxId &= 0x7FFFu;
+                    nextExpansionId &= 0x7FFFu;
                     done = true;
                 }
-                if( currentZone == (*zone)[overlapBoxId] )
+
+                if( currentZone != (*zone)[nextExpansionId] )
+                    continue;
+
+                const auto boxHeightDiff = lvl.m_boxes[nextExpansionId].floor - box->floor;
+                if( boxHeightDiff > step || boxHeightDiff < drop )
+                    continue;
+
+                const auto nextExpansion = &this->nodes[nextExpansionId];
+                const auto currentSearch = node->search_number & 0x7FFF;
+                const auto expandSearch = nextExpansion->search_number & 0x7FFF;
+                if( currentSearch < expandSearch )
+                    continue;
+
+                if( node->search_number & 0x8000 )
                 {
-                    const auto floorDist = lvl.m_boxes[overlapBoxId].floor - box->floor;
-                    if( floorDist <= step && floorDist >= drop )
+                    if( currentSearch == expandSearch )
                     {
-                        // overlap is in zone, height diff is OK
-                        const auto expand = &this->nodes[overlapBoxId];
-                        const auto currentSearch = node->search_number & 0x7FFF;
-                        const auto expandSearch = expand->search_number & 0x7FFF;
-                        if( currentSearch >= expandSearch )
-                        {
-                            if( node->search_number & 0x8000 )
-                            {
-                                if( currentSearch == expandSearch )
-                                {
-                                    continue;
-                                }
-                                expand->search_number = node->search_number;
-                            }
-                            else if( currentSearch != expandSearch || expand->search_number & 0x8000 )
-                            {
-                                if( block_mask & lvl.m_boxes[overlapBoxId].overlap_index )
-                                {
-                                    expand->search_number = node->search_number | 0x8000u;
-                                }
-                                else
-                                {
-                                    expand->search_number = node->search_number;
-                                    expand->exit_box = head;
-                                }
-                            }
-                            if( expand->next_expansion == -1 )
-                            {
-                                if( overlapBoxId != tail )
-                                {
-                                    this->nodes[tail].next_expansion = overlapBoxId;
-                                    tail = overlapBoxId;
-                                }
-                            }
-                            continue;
-                        }
+                        continue;
+                    }
+                    nextExpansion->search_number = node->search_number;
+                }
+                else if( currentSearch != expandSearch || (nextExpansion->search_number & 0x8000) )
+                {
+                    if( block_mask & lvl.m_boxes[nextExpansionId].overlap_index )
+                    {
+                        nextExpansion->search_number = node->search_number | 0x8000u;
+                    }
+                    else
+                    {
+                        nextExpansion->search_number = node->search_number;
+                        nextExpansion->exit_box = head;
                     }
                 }
+
+                if( nextExpansion->next_expansion != -1 )
+                    continue;
+
+                if( nextExpansionId == tail )
+                    continue;
+
+                this->nodes[tail].next_expansion = nextExpansionId;
+                tail = nextExpansionId;
             } while( !done );
             head = node->next_expansion;
             node->next_expansion = -1;

@@ -578,15 +578,15 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId,
         return false;
     }
 
-    const auto v_box = &lvl.m_boxes[boxNumber];
-    if( creatureInfo->lot.block_mask & v_box->overlap_index )
+    const auto box = &lvl.m_boxes[boxNumber];
+    if( creatureInfo->lot.block_mask & box->overlap_index )
     {
         return false;
     }
 
-    if( position.position.Z > v_box->zmin && position.position.Z < v_box->zmax )
+    if( position.position.Z > box->zmin && position.position.Z < box->zmax )
     {
-        if( position.position.X > v_box->xmin && position.position.X < v_box->xmax )
+        if( position.position.X > box->xmin && position.position.X < box->xmax )
         {
             return false;
         }

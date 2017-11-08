@@ -456,8 +456,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 
 void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
 {
-    m_lara.m_state.position.position = m_lara.m_state.position.position + collisionInfo.shift;
-    collisionInfo.shift = {0, 0, 0};
+    m_lara.applyShift(collisionInfo);
 }
 
 bool AbstractStateHandler::checkWallCollision(CollisionInfo& collisionInfo)
