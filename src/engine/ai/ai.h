@@ -207,7 +207,7 @@ struct LotInfo
                     if( (unclampedDirs & NoClampXNeg) && item.position.position.Z >= box->zmin
                         && item.position.position.Z <= box->zmax )
                     {
-                        target.X = std::min( target.X, box->xmin + loader::SectorSize / 2 );
+                        target.X = std::max( target.X, box->xmin + loader::SectorSize / 2 );
 
                         if( unclampedDirs & Flag10 )
                             return true;

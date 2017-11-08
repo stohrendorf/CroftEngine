@@ -59,40 +59,6 @@ enum class TriggerState
     Locked
 };
 
-constexpr int toLua(TriggerState s)
-{
-    switch( s )
-    {
-        case TriggerState::Disabled:
-            return 0;
-        case TriggerState::Enabled:
-            return 1;
-        case TriggerState::Activated:
-            return 2;
-        case TriggerState::Locked:
-            return 3;
-    }
-}
-
-
-constexpr TriggerState triggerStateFromLua(int s)
-{
-    switch( s )
-    {
-
-        case 0:
-            return TriggerState::Disabled;
-        case 1:
-            return TriggerState::Enabled;
-        case 2:
-            return TriggerState::Activated;
-        case 3:
-            return TriggerState::Locked;
-        default:
-            BOOST_THROW_EXCEPTION(std::runtime_error("Invalid trigger state number"));
-    }
-}
-
 
 struct ItemState final
 {
