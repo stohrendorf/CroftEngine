@@ -839,35 +839,25 @@ namespace engine
 
         if( m_state.position.room->isWaterRoom() )
         {
-            while( true )
+            while( sector->roomAbove != nullptr )
             {
-                if( sector->roomAbove == 0xff )
+                if( !sector->roomAbove->isWaterRoom() )
                     break;
 
-                BOOST_ASSERT( sector->roomAbove < getLevel().m_rooms.size() );
-                const auto& room = getLevel().m_rooms[sector->roomAbove];
-                if( !room.isWaterRoom() )
-                    break;
-
-                sector = room.getSectorByAbsolutePosition(m_state.position.position);
+                sector = sector->roomAbove->getSectorByAbsolutePosition(m_state.position.position);
             }
 
             return sector->ceilingHeight * loader::QuarterSectorSize;
         }
 
-        while( true )
+        while(sector->roomBelow != nullptr)
         {
-            if( sector->roomBelow == 0xff )
-                break;
-
-            BOOST_ASSERT( sector->roomBelow < getLevel().m_rooms.size() );
-            const auto& room = getLevel().m_rooms[sector->roomBelow];
-            if( room.isWaterRoom() )
+            if(sector->roomBelow->isWaterRoom() )
             {
                 return sector->floorHeight * loader::QuarterSectorSize;
             }
 
-            sector = room.getSectorByAbsolutePosition(m_state.position.position);
+            sector = sector->roomBelow->getSectorByAbsolutePosition(m_state.position.position);
         }
 
         return sector->ceilingHeight * loader::QuarterSectorSize;

@@ -377,17 +377,15 @@ namespace loader
                 groundSector->floorHeight = -127;
         }
 
-        if( groundSector->boxIndex < 0 )
+        if( groundSector->box == nullptr )
             return;
 
-        //! @todo Ugly const_cast
-        auto& box = const_cast<loader::Box&>(ctrl.getLevel().m_boxes[groundSector->boxIndex]);
-        if( (box.overlap_index & 0x8000) == 0 )
+        if( (groundSector->box->overlap_index & 0x8000) == 0 )
             return;
 
         if( height >= 0 )
-            box.overlap_index &= ~0x4000;
+            groundSector->box->overlap_index &= ~0x4000;
         else
-            box.overlap_index |= 0x4000;
+            groundSector->box->overlap_index |= 0x4000;
     }
 }

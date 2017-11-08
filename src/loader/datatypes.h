@@ -87,6 +87,9 @@ namespace loader
     };
 
 
+    struct Box;
+
+
     struct Sector
     {
         /**
@@ -97,9 +100,12 @@ namespace loader
         uint16_t floorDataIndex;
 
         int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
-        uint8_t roomBelow; //!< The number of the room below this one (255 if none)
+        Box* box = nullptr;
+        uint8_t roomIndexBelow; //!< The number of the room below this one (255 if none)
+        Room* roomBelow = nullptr;
         int8_t floorHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
-        uint8_t roomAbove; //!< The number of the room above this one (255 if none)
+        uint8_t roomIndexAbove; //!< The number of the room above this one (255 if none)
+        Room* roomAbove = nullptr;
         int8_t ceilingHeight; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
         static Sector read(io::SDLReader& reader)
@@ -107,9 +113,9 @@ namespace loader
             Sector sector;
             sector.floorDataIndex = reader.readU16();
             sector.boxIndex = reader.readI16();
-            sector.roomBelow = reader.readU8();
+            sector.roomIndexBelow = reader.readU8();
             sector.floorHeight = reader.readI8();
-            sector.roomAbove = reader.readU8();
+            sector.roomIndexAbove = reader.readU8();
             sector.ceilingHeight = reader.readI8();
             return sector;
         }

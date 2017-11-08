@@ -39,23 +39,22 @@ bool AIAgent::isPositionOutOfReach(const core::TRCoordinates& testPosition,
                                    int nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
 {
-    const auto sectorBoxIdx = getLevel().findRealFloorSector( testPosition, m_state.position.room )->boxIndex;
-    if( sectorBoxIdx < 0 )
+    const auto sectorBox = getLevel().findRealFloorSector( testPosition, m_state.position.room )->box;
+    if(sectorBox == nullptr )
         return true;
 
-    const auto& sectorBox = getLevel().m_boxes[sectorBoxIdx];
-    if( lotInfo.block_mask & sectorBox.overlap_index )
+    if( lotInfo.block_mask & sectorBox->overlap_index )
         return true;
 
-    const auto stepHeight = currentBoxFloor - sectorBox.floor;
+    const auto stepHeight = currentBoxFloor - sectorBox->floor;
 
     if( stepHeight > lotInfo.step || stepHeight < lotInfo.drop )
         return true;
 
-    if( stepHeight < -lotInfo.step && sectorBox.floor > nextBoxFloor )
+    if( stepHeight < -lotInfo.step && sectorBox->floor > nextBoxFloor )
         return true;
 
-    return lotInfo.fly != 0 && testPosition.Y > lotInfo.fly + sectorBox.floor;
+    return lotInfo.fly != 0 && testPosition.Y > lotInfo.fly + sectorBox->floor;
 
 }
 
@@ -114,7 +113,9 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
 
     auto room = m_state.position.room;
     auto sector = getLevel().findRealFloorSector(m_state.position.position, &room);
-    auto currentFloor = getLevel().m_boxes[sector->boxIndex].floor;
+    Expects(sector != nullptr);
+    Expects(sector->box != nullptr);
+    auto currentFloor = sector->box->floor;
 
     int nextFloor;
     if ( lotInfo.nodes[sector->boxIndex].exit_box < 0 )
@@ -126,7 +127,7 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
         nextFloor = getLevel().m_boxes[lotInfo.nodes[sector->boxIndex].exit_box].floor;
     }
 
-    if ( sector->boxIndex < 0
+    if ( sector->box == nullptr
          || (*zoneData)[m_state.box_number] != (*zoneData)[sector->boxIndex]
          || boxFloor - currentFloor > lotInfo.step
          || boxFloor - currentFloor < lotInfo.drop )
@@ -149,10 +150,10 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
         sector = getLevel().findRealFloorSector(
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 &room );
-        currentFloor = getLevel().m_boxes[sector->boxIndex].floor;
+        currentFloor = sector->box->floor;
         if( lotInfo.nodes[sector->boxIndex].exit_box < 0 )
         {
-            nextFloor = getLevel().m_boxes[sector->boxIndex].floor;
+            nextFloor = sector->box->floor;
         }
         else
         {

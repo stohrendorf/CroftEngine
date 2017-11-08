@@ -15,11 +15,9 @@ namespace engine
 
         hi.slantClass = SlantClass::None;
 
-        while( roomSector->roomBelow != 0xff )
+        while( roomSector->roomBelow != nullptr )
         {
-            BOOST_ASSERT(roomSector->roomBelow < camera->getLevel()->m_rooms.size());
-            auto room = &camera->getLevel()->m_rooms[roomSector->roomBelow];
-            roomSector = room->getSectorByAbsolutePosition(pos);
+            roomSector = roomSector->roomBelow->getSectorByAbsolutePosition(pos);
         }
 
         hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;
@@ -120,11 +118,9 @@ namespace engine
     {
         HeightInfo hi;
 
-        while( roomSector->roomAbove != 0xff )
+        while( roomSector->roomAbove != nullptr )
         {
-            BOOST_ASSERT(roomSector->roomAbove < camera->getLevel()->m_rooms.size());
-            auto room = &camera->getLevel()->m_rooms[roomSector->roomAbove];
-            roomSector = room->getSectorByAbsolutePosition(pos);
+            roomSector = roomSector->roomAbove->getSectorByAbsolutePosition(pos);
         }
 
         hi.distance = roomSector->ceilingHeight * loader::QuarterSectorSize;
@@ -179,12 +175,9 @@ namespace engine
             }
         }
 
-        while( true )
+        while(roomSector->roomBelow != nullptr)
         {
-            if( roomSector->roomBelow == 255 )
-                break;
-
-            roomSector = camera->getLevel()->m_rooms[roomSector->roomBelow].getSectorByAbsolutePosition(pos);
+            roomSector = roomSector->roomBelow->getSectorByAbsolutePosition(pos);
         }
 
         if( roomSector->floorDataIndex == 0 )

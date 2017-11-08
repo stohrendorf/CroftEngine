@@ -160,5 +160,7 @@ void TR1Level::loadFileData()
     for(size_t i = 0; i < texture8.size(); i++)
         convertTexture(texture8[i], *m_palette, m_textures[i]);
 
+    postProcessDataStructures();
+
     BOOST_LOG_TRIVIAL(debug) << "Done. File position = " << m_reader.tell();
 }

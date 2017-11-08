@@ -397,7 +397,7 @@ BoundingBox ModelItemNode::getBoundingBox() const
 boost::optional<int16_t> ItemNode::getCurrentBox() const
 {
     const auto sector = m_state.position.room->getInnerSectorByAbsolutePosition( m_state.position.position );
-    if( sector->boxIndex < 0 )
+    if( sector->box == nullptr )
     {
         BOOST_LOG_TRIVIAL( warning ) << "Not within a box: " << getNode()->getId();
         return {};

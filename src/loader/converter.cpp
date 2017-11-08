@@ -723,23 +723,20 @@ aiNode* Converter::convert(aiScene& scene, const std::vector<Sector>& sectors, c
 
     for( const auto& sector : sectors )
     {
-        if( sector.boxIndex < 0 )
+        if( sector.box == nullptr )
             continue;
-
-        BOOST_ASSERT(sector.boxIndex < boxes.size());
-        const auto& box = boxes[sector.boxIndex];
 
         const auto firstVertex = outMesh->mNumVertices;
 
         glm::vec3 v;
 
-        v = core::TRCoordinates(box.xmin, box.floor, box.zmin).toRenderSystem() / float(SectorSize);
+        v = core::TRCoordinates(sector.box->xmin, sector.box->floor, sector.box->zmin).toRenderSystem() / float(SectorSize);
         append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-        v = core::TRCoordinates(box.xmax, box.floor, box.zmin).toRenderSystem() / float(SectorSize);
+        v = core::TRCoordinates(sector.box->xmax, sector.box->floor, sector.box->zmin).toRenderSystem() / float(SectorSize);
         append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-        v = core::TRCoordinates(box.xmax, box.floor, box.zmax).toRenderSystem() / float(SectorSize);
+        v = core::TRCoordinates(sector.box->xmax, sector.box->floor, sector.box->zmax).toRenderSystem() / float(SectorSize);
         append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
-        v = core::TRCoordinates(box.xmin, box.floor, box.zmax).toRenderSystem() / float(SectorSize);
+        v = core::TRCoordinates(sector.box->xmin, sector.box->floor, sector.box->zmax).toRenderSystem() / float(SectorSize);
         append(outMesh->mVertices, outMesh->mNumVertices, aiVector3D(v.x, v.y, v.z));
 
         auto& face = append(outMesh->mFaces, outMesh->mNumFaces, aiFace());

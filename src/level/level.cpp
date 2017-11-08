@@ -814,10 +814,10 @@ void Level::setUpRendering(gameplay::Game* game,
                         if( sector->ceilingHeight != -127 )
                             sectorTree["layout"]["ceiling"] = sector->ceilingHeight * loader::QuarterSectorSize
                                                               - room.position.Y;
-                        if( sector->roomBelow != 0xff )
-                            sectorTree["relations"]["roomBelow"] = int( sector->roomBelow );
-                        if( sector->roomAbove != 0xff )
-                            sectorTree["relations"]["roomAbove"] = int( sector->roomAbove );
+                        if( sector->roomIndexBelow != 0xff )
+                            sectorTree["relations"]["roomBelow"] = int( sector->roomIndexBelow );
+                        if( sector->roomIndexAbove != 0xff )
+                            sectorTree["relations"]["roomAbove"] = int( sector->roomIndexAbove );
                         if( sector->boxIndex >= 0 )
                             sectorTree["relations"]["box"] = sector->boxIndex;
 
@@ -961,20 +961,18 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
     Expects( sector != nullptr );
     if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize >= position.Y && sector->roomAbove != 0xff )
+        while( sector->ceilingHeight * loader::QuarterSectorSize >= position.Y && sector->roomAbove != nullptr )
         {
-            BOOST_ASSERT( sector->roomAbove < m_rooms.size() );
-            *room = &m_rooms[sector->roomAbove];
+            *room = sector->roomAbove;
             sector = (*room)->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
     else
     {
-        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
+        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != nullptr )
         {
-            BOOST_ASSERT( sector->roomBelow < m_rooms.size() );
-            *room = &m_rooms[sector->roomBelow];
+            *room = sector->roomBelow;
             sector = (*room)->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
@@ -1006,20 +1004,18 @@ Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<co
     Expects( sector != nullptr );
     if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != 0xff )
+        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
         {
-            BOOST_ASSERT( sector->roomAbove < m_rooms.size() );
-            room = &m_rooms[sector->roomAbove];
+            room = sector->roomAbove;
             sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
     }
     else
     {
-        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != 0xff )
+        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != nullptr )
         {
-            BOOST_ASSERT( sector->roomBelow < m_rooms.size() );
-            room = &m_rooms[sector->roomBelow];
+            room = sector->roomBelow;
             sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
@@ -1284,4 +1280,33 @@ void Level::useAlternativeLaraAppearance()
 
     // Don't replace the head.
     m_lara->getNode()->getChild( 14 )->setDrawable( m_models[m_meshIndices[base.firstMesh + 14]] );
+}
+
+void Level::postProcessDataStructures()
+{
+    BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
+
+    for(loader::Room& room : m_rooms)
+    {
+        for(loader::Sector& sector : room.sectors)
+        {
+            if(sector.boxIndex >= 0)
+            {
+                Expects(sector.boxIndex < m_boxes.size());
+                sector.box = &m_boxes[sector.boxIndex];
+            }
+
+            if(sector.roomIndexBelow != 0xff)
+            {
+                Expects(sector.roomIndexBelow < m_rooms.size());
+                sector.roomBelow = &m_rooms[sector.roomIndexBelow];
+            }
+
+            if(sector.roomIndexAbove != 0xff)
+            {
+                Expects(sector.roomIndexAbove < m_rooms.size());
+                sector.roomAbove = &m_rooms[sector.roomIndexAbove];
+            }
+        }
+    }
 }

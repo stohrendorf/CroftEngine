@@ -175,10 +175,9 @@ public:
     std::tuple<int8_t, int8_t>
     getFloorSlantInfo(gsl::not_null<const loader::Sector*> sector, const core::TRCoordinates& position) const
     {
-        while( sector->roomBelow != 0xff )
+        while( sector->roomBelow != nullptr )
         {
-            auto room = &m_rooms[sector->roomBelow];
-            sector = room->getSectorByAbsolutePosition( position );
+            sector = sector->roomBelow->getSectorByAbsolutePosition( position );
         }
 
         static const auto zero = std::make_tuple( 0, 0 );
@@ -391,6 +390,8 @@ protected:
     static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
 
     static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);
+
+    void postProcessDataStructures();
 
 private:
     static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);

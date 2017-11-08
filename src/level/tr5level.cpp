@@ -224,4 +224,6 @@ void TR5Level::loadFileData()
     m_textures.resize(texture16.size());
     for(size_t i = 0; i < texture16.size(); i++)
         convertTexture(texture16[i], m_textures[i]);
+
+    postProcessDataStructures();
 }
