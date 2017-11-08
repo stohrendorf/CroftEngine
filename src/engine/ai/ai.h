@@ -326,34 +326,26 @@ struct LotInfo
         const auto currentZone = head->*zoneRef;
         for( uint8_t i = 0; i < maxDepth; ++i )
         {
-            const auto index = head;
-            if( index == nullptr )
+            const auto box = head;
+            if(box == nullptr )
             {
                 return;
             }
-            const auto node = &this->nodes[index];
-            const auto box = index;
-            auto overlapIdx = box->overlap_index & 0x3FFFu;
-            bool done = false;
-            do
+            const auto node = &this->nodes[box];
+            for(auto overlapBoxIdx : getOverlaps(lvl, box->overlap_index))
             {
-                auto nextExpansionId = lvl.m_overlaps[overlapIdx++];
-                if( nextExpansionId & 0x8000 )
-                {
-                    nextExpansionId &= 0x7FFFu;
-                    done = true;
-                }
+                overlapBoxIdx &= 0x7FFFu;
 
-                const auto* nextExpansionBox = &lvl.m_boxes[nextExpansionId];
+                const auto* overlapBox = &lvl.m_boxes[overlapBoxIdx];
 
-                if( currentZone != nextExpansionBox->*zoneRef )
+                if( currentZone != overlapBox->*zoneRef )
                     continue;
 
-                const auto boxHeightDiff = nextExpansionBox->floor - box->floor;
+                const auto boxHeightDiff = overlapBox->floor - box->floor;
                 if( boxHeightDiff > step || boxHeightDiff < drop )
                     continue;
 
-                const auto nextExpansion = &this->nodes[nextExpansionBox];
+                const auto nextExpansion = &this->nodes[overlapBox];
                 const auto currentSearch = node->search_number & 0x7FFF;
                 const auto expandSearch = nextExpansion->search_number & 0x7FFF;
                 if( currentSearch < expandSearch )
@@ -369,7 +361,7 @@ struct LotInfo
                 }
                 else if( currentSearch != expandSearch || (nextExpansion->search_number & 0x8000) )
                 {
-                    if( block_mask & nextExpansionBox->overlap_index )
+                    if( block_mask & overlapBox->overlap_index )
                     {
                         nextExpansion->search_number = node->search_number | 0x8000u;
                     }
@@ -383,12 +375,12 @@ struct LotInfo
                 if( nextExpansion->next_expansion != nullptr )
                     continue;
 
-                if(nextExpansionBox == tail )
+                if(overlapBox == tail )
                     continue;
 
-                this->nodes[tail].next_expansion = nextExpansionBox;
-                tail = nextExpansionBox;
-            } while( !done );
+                this->nodes[tail].next_expansion = overlapBox;
+                tail = overlapBox;
+            }
             head = node->next_expansion;
             node->next_expansion = nullptr;
         }

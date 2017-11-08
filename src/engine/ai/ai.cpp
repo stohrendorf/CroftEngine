@@ -9,16 +9,16 @@ namespace ai
 {
 gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const uint16_t idx)
 {
-    const uint16_t* first = &lvl.m_overlaps[idx];
-    const uint16_t* last = first;
-    const uint16_t* const endOfUniverse = &lvl.m_overlaps.back();
+    const auto first = &lvl.m_overlaps[idx & 0x3fff];
+    auto last = first;
+    const auto endOfUniverse = &lvl.m_overlaps.back() + 1;
 
-    while( last <= endOfUniverse && (*last & 0x8000) == 0 )
+    while( last < endOfUniverse && (*last & 0x8000) == 0 )
     {
         ++last;
     }
 
-    return gsl::make_span( first, last );
+    return gsl::make_span( first, last + 1 );
 }
 
 void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, const bool violent)
