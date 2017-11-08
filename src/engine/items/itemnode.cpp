@@ -267,7 +267,7 @@ void ItemNode::activate()
     }
     else
     {
-        BOOST_LOG_TRIVIAL( trace ) << "Activating item controller " << getNode()->getId();
+        BOOST_LOG_TRIVIAL( trace ) << "Activating item controller";
     }
 
     m_isActive = true;
