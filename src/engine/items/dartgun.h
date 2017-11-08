@@ -24,17 +24,17 @@ namespace engine
             {
                 if( m_state.updateActivationTimeout() )
                 {
-                    if( getCurrentState() == 0 )
+                    if( m_state.current_anim_state == 0 )
                     {
                         m_state.goal_anim_state = 1;
                     }
                 }
-                else if( getCurrentState() == 1 )
+                else if( m_state.current_anim_state == 1 )
                 {
                     m_state.goal_anim_state = 0;
                 }
 
-                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ getCurrentState() != 1 || m_state.frame_number != getLevel().m_animations[m_state.anim_number].firstFrame)
+                if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ m_state.current_anim_state != 1 || m_state.frame_number != getLevel().m_animations[m_state.anim_number].firstFrame)
                 {
                     ModelItemNode::update();
                     return;

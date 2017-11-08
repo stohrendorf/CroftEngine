@@ -24,7 +24,7 @@ namespace engine
             {
                 if( m_state.updateActivationTimeout() )
                 {
-                    if( getCurrentState() != 0 )
+                    if( m_state.current_anim_state != 0 )
                     {
                         //! @todo Restore original sector data
                     }
@@ -35,7 +35,7 @@ namespace engine
                 }
                 else
                 {
-                    if( getCurrentState() == 1 )
+                    if( m_state.current_anim_state == 1 )
                     {
                         m_state.goal_anim_state = 0;
                         ModelItemNode::update();

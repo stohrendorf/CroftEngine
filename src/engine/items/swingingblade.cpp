@@ -11,12 +11,12 @@ void SwingingBlade::update()
 {
     if( m_state.updateActivationTimeout() )
     {
-        if( getCurrentState() == 0 )
+        if( m_state.current_anim_state == 0 )
         {
             m_state.goal_anim_state = 2;
         }
     }
-    else if( getCurrentState() == 2 )
+    else if( m_state.current_anim_state == 2 )
     {
         m_state.goal_anim_state = 0;
     }

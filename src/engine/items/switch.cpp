@@ -48,7 +48,7 @@ void Switch::onInteract(LaraNode& lara)
 
     lara.m_state.rotation.Y = m_state.rotation.Y;
 
-    if( getCurrentState() == 1 )
+    if( m_state.current_anim_state == 1 )
     {
         BOOST_LOG_TRIVIAL(debug) << "Switch " << getNode()->getId() << ": pull down";
         do
@@ -62,7 +62,7 @@ void Switch::onInteract(LaraNode& lara)
     }
     else
     {
-        if( getCurrentState() != 0 )
+        if( m_state.current_anim_state != 0 )
         {
             return;
         }

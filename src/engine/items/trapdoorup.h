@@ -30,7 +30,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y )
+                if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y )
                     return;
 
                 y = m_state.position.position.Y;
@@ -39,7 +39,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y )
+                if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y )
                     return;
 
                 y = m_state.position.position.Y + loader::QuarterSectorSize;

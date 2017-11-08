@@ -444,8 +444,6 @@ public:
 
     virtual BoundingBox getBoundingBox() const = 0;
 
-    virtual uint16_t getCurrentState() const = 0;
-
 protected:
     bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
                                const core::Angle& maxAngle)
@@ -561,8 +559,6 @@ public:
 
     BoundingBox getBoundingBox() const override;
 
-    uint16_t getCurrentState() const override;
-
     bool isNear(const ModelItemNode& other, int radius) const;
 };
 
@@ -607,12 +603,6 @@ public:
         bb.minY = bb.maxY = m_state.position.position.Y;
         bb.minZ = bb.maxZ = m_state.position.position.Z;
         return bb;
-    }
-
-    uint16_t getCurrentState() const override
-    {
-        // TODO
-        return 0;
     }
 };
 }

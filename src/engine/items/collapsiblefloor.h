@@ -33,7 +33,7 @@ namespace engine
                 if( pos.Y > m_state.position.position.Y - 512 )
                     return;
 
-                if( getCurrentState() != 0 && m_state.current_anim_state != 1 )
+                if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
                     return;
 
                 y = m_state.position.position.Y - 512;
@@ -45,7 +45,7 @@ namespace engine
                 if( pos.Y <= m_state.position.position.Y - 512 )
                     return;
 
-                if( getCurrentState() != 0 && m_state.current_anim_state != 1 )
+                if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
                     return;
 
                 y = m_state.position.position.Y - 256;

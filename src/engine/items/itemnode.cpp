@@ -394,11 +394,6 @@ BoundingBox ModelItemNode::getBoundingBox() const
     return m_skeleton->getBoundingBox( m_state );
 }
 
-uint16_t ModelItemNode::getCurrentState() const
-{
-    return m_state.current_anim_state;
-}
-
 SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,

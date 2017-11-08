@@ -41,7 +41,7 @@ void UnderwaterSwitch::onInteract(LaraNode& lara)
         return;
     }
 
-    if( getCurrentState() != 0 && m_state.current_anim_state != 1 )
+    if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
     {
         return;
     }
@@ -62,7 +62,7 @@ void UnderwaterSwitch::onInteract(LaraNode& lara)
     lara.setHandStatus(1);
     m_state.triggerState = engine::items::TriggerState::Enabled;
 
-    if( getCurrentState() == 1 )
+    if( m_state.current_anim_state == 1 )
     {
         m_state.goal_anim_state = 0;
     }

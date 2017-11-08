@@ -24,10 +24,10 @@ namespace engine
             {
                 if( m_state.updateActivationTimeout() )
                 {
-                    if( getCurrentState() == 0 )
+                    if( m_state.current_anim_state == 0 )
                         m_state.goal_anim_state = 1;
                 }
-                else if( getCurrentState() == 1 )
+                else if( m_state.current_anim_state == 1 )
                 {
                     m_state.goal_anim_state = 0;
                 }
@@ -41,7 +41,7 @@ namespace engine
 
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y
+                if( m_state.current_anim_state != 0 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y
                     || y <= m_state.position.position.Y )
                     return;
 
@@ -51,7 +51,7 @@ namespace engine
 
             void patchCeiling(const core::TRCoordinates& pos, int& y) override
             {
-                if( getCurrentState() != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y
+                if( m_state.current_anim_state != 0 || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y
                     || y > m_state.position.position.Y )
                     return;
 

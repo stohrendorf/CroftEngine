@@ -10,7 +10,7 @@ void TallBlock::update()
 {
     if( m_state.updateActivationTimeout() )
     {
-        if( getCurrentState() == 0 )
+        if( m_state.current_anim_state == 0 )
         {
             loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
             m_state.goal_anim_state = 1;
@@ -18,7 +18,7 @@ void TallBlock::update()
     }
     else
     {
-        if( getCurrentState() == 1 )
+        if( m_state.current_anim_state == 1 )
         {
             loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
             m_state.goal_anim_state = 0;
