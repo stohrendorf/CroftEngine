@@ -49,9 +49,9 @@ struct BoxNode
 struct LotInfo
 {
     std::vector<BoxNode> nodes;
-    int16_t head;
-    int16_t tail;
-    uint16_t search_number;
+    int16_t head = -1;
+    int16_t tail = -1;
+    uint16_t search_number = 0;
     //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
     uint16_t block_mask = 0x4000;
     //! @brief Movement limits
@@ -62,9 +62,14 @@ struct LotInfo
     //! @}
     uint16_t zone_count;
     //! @brief The target box we need to reach
-    int16_t target_box;
-    int16_t required_box;
+    int16_t target_box = -1;
+    int16_t required_box = -1;
     core::TRCoordinates target;
+
+    explicit LotInfo(const level::Level& lvl)
+    {
+        nodes.resize(lvl.m_boxes.size());
+    }
 
     static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
 
@@ -413,17 +418,6 @@ struct LotInfo
             node->next_expansion = -1;
         }
     };
-
-    void reset(const level::Level& lvl)
-    {
-        head = -1;
-        tail = -1;
-        search_number = 0;
-        target_box = -1;
-        required_box = -1;
-        nodes.clear();
-        nodes.resize(lvl.m_boxes.size());
-    }
 };
 
 
@@ -448,11 +442,47 @@ struct CreatureInfo
     core::Angle maximum_turn = 1_deg;
     uint16_t flags = 0;
 
-    engine::items::ItemState* item = nullptr;
+    engine::items::ItemState* item;
     uint16_t frame_number;
     Mood mood = Mood::Bored;
     LotInfo lot;
     core::TRCoordinates target;
+
+    CreatureInfo(const level::Level& lvl, engine::items::ItemState* item)
+        : item{item}
+        , lot{lvl}
+    {
+        Expects(item != nullptr);
+
+        switch( item->object_number )
+        {
+            case 7:
+            case 12:
+            case 13:
+            case 14:
+                lot.drop = -loader::SectorSize;
+                break;
+
+            case 9:
+            case 11:
+            case 26:
+                lot.step = 20 * loader::SectorSize;
+                lot.drop = -20 * loader::SectorSize;
+                lot.fly = 16;
+                break;
+
+            case 15:
+                lot.step = loader::SectorSize / 2;
+                lot.drop = -loader::SectorSize;
+                break;
+
+            case 18:
+            case 20:
+            case 23:
+                lot.block_mask = 0x8000;
+                break;
+        }
+    }
 
     void rotateHead(const core::Angle& angle)
     {

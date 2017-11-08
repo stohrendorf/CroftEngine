@@ -620,40 +620,7 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>();
-
-    creatureInfo->item = this;
-
-    switch( object_number )
-    {
-        case 7:
-        case 12:
-        case 13:
-        case 14:
-            creatureInfo->lot.drop = -loader::SectorSize;
-            break;
-
-        case 9:
-        case 11:
-        case 26:
-            creatureInfo->lot.step = 20 * loader::SectorSize;
-            creatureInfo->lot.drop = -20 * loader::SectorSize;
-            creatureInfo->lot.fly = 16;
-            break;
-
-        case 15:
-            creatureInfo->lot.step = loader::SectorSize / 2;
-            creatureInfo->lot.drop = -loader::SectorSize;
-            break;
-
-        case 18:
-        case 20:
-        case 23:
-            creatureInfo->lot.block_mask = 0x8000;
-            break;
-    }
-
-    creatureInfo->lot.reset( lvl );
+    creatureInfo = std::make_shared<ai::CreatureInfo>(lvl, this);
     collectZoneBoxes( lvl );
 }
 
@@ -678,13 +645,12 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     }
 
     box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->boxIndex;
-    const auto v_zoneData1 = (*zone1)[box_number];
-    const auto v_zoneData2 = (*zone2)[box_number];
+    const auto zoneData1 = (*zone1)[box_number];
+    const auto zoneData2 = (*zone2)[box_number];
     creatureInfo->lot.zone_count = 0;
-    auto v_boxInZone = creatureInfo->lot.nodes;
     for( uint16_t i = 0; i < lvl.m_boxes.size(); ++i )
     {
-        if( (*zone1)[i] == v_zoneData1 || (*zone2)[i] == v_zoneData2 )
+        if( (*zone1)[i] == zoneData1 || (*zone2)[i] == zoneData2 )
         {
             creatureInfo->lot.nodes[creatureInfo->lot.zone_count].box_number = i;
             ++creatureInfo->lot.zone_count;

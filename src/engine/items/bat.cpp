@@ -29,7 +29,7 @@ void Bat::update()
         ai::AiInfo lookAhead(getLevel(), m_state);
         ai::updateMood(getLevel(), m_state, lookAhead, false);
 
-        rotationToMoveTarget = rotateTowardsMoveTarget(20_deg);
+        rotationToMoveTarget = rotateTowardsTarget( 20_deg );
         switch( getCurrentState() )
         {
             case StartingToFly:

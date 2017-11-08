@@ -8,7 +8,7 @@ namespace engine
 {
 namespace items
 {
-core::Angle AIAgent::rotateTowardsMoveTarget(core::Angle maxRotationSpeed)
+core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 {
     if( m_state.speed == 0 || maxRotationSpeed == 0_au )
     {
@@ -17,28 +17,21 @@ core::Angle AIAgent::rotateTowardsMoveTarget(core::Angle maxRotationSpeed)
 
     const auto dx = m_state.creatureInfo->target.X - m_state.position.position.X;
     const auto dz = m_state.creatureInfo->target.Z - m_state.position.position.Z;
-    auto rotation = core::Angle::fromAtan( dx, dz ) - m_state.rotation.Y;
-    if( rotation > 90_deg || rotation < -90_deg )
+    auto turnAngle = core::Angle::fromAtan( dx, dz ) - m_state.rotation.Y;
+    if( turnAngle < -90_deg || turnAngle > 90_deg )
     {
-        // the move target is behind the NPC
-        auto relativeSpeed = m_state.speed * (1 << 14) / maxRotationSpeed.toAU();
+        // the target is behind the current item, so we need a U-turn
+        auto relativeSpeed = m_state.speed * (+90_deg).toAU() / maxRotationSpeed.toAU();
         if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed ) )
         {
             maxRotationSpeed /= 2;
         }
     }
 
-    if( rotation > maxRotationSpeed )
-    {
-        rotation = maxRotationSpeed;
-    }
-    else if( rotation < -maxRotationSpeed )
-    {
-        rotation = -maxRotationSpeed;
-    }
+    turnAngle = util::clamp(turnAngle, -maxRotationSpeed, maxRotationSpeed);
 
-    m_state.rotation.Y += rotation;
-    return rotation;
+    m_state.rotation.Y += turnAngle;
+    return turnAngle;
 }
 
 bool AIAgent::isPositionOutOfReach(const core::TRCoordinates& testPosition,
@@ -48,27 +41,22 @@ bool AIAgent::isPositionOutOfReach(const core::TRCoordinates& testPosition,
 {
     const auto sectorBoxIdx = getLevel().findRealFloorSector( testPosition, m_state.position.room )->boxIndex;
     if( sectorBoxIdx < 0 )
-    {
         return true;
-    }
 
     const auto& sectorBox = getLevel().m_boxes[sectorBoxIdx];
     if( lotInfo.block_mask & sectorBox.overlap_index )
-    {
         return true;
-    }
 
     const auto stepHeight = currentBoxFloor - sectorBox.floor;
 
-    if ( stepHeight <= lotInfo.step && stepHeight >= lotInfo.drop )
-    {
-        if ( stepHeight >= -lotInfo.step || sectorBox.floor <= nextBoxFloor )
-        {
-            return lotInfo.fly != 0 && testPosition.Y > lotInfo.fly + sectorBox.floor;
-        }
-    }
+    if( stepHeight > lotInfo.step || stepHeight < lotInfo.drop )
+        return true;
 
-    return true;
+    if( stepHeight < -lotInfo.step && sectorBox.floor > nextBoxFloor )
+        return true;
+
+    return lotInfo.fly != 0 && testPosition.Y > lotInfo.fly + sectorBox.floor;
+
 }
 
 bool AIAgent::anyMovingEnabledItemInReach() const
@@ -76,9 +64,7 @@ bool AIAgent::anyMovingEnabledItemInReach() const
     for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
         if( !item->m_isActive || item.get() == this )
-        {
             continue;
-        }
 
         if( item->m_state.triggerState == items::TriggerState::Enabled
             && item->m_state.speed != 0
@@ -155,9 +141,9 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
         else if( newSectorX > oldSectorX )
             m_state.position.position.X = oldPosition.X | 0x3ff;
 
-        if( newSectorX < oldSectorZ )
+        if( newSectorZ < oldSectorZ )
             m_state.position.position.Z = oldPosition.Z & ~0x3ff;
-        else if( newSectorX > oldSectorZ )
+        else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = oldPosition.Z | 0x3ff;
 
         sector = getLevel().findRealFloorSector(

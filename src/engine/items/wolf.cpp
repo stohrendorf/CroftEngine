@@ -45,7 +45,7 @@ namespace engine
                 }
 
                 ai::updateMood(getLevel(), m_state, lookAhead, false);
-                rotationToMoveTarget = rotateTowardsMoveTarget(m_state.creatureInfo->maximum_turn);
+                rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
                 switch( getCurrentState() )
                 {
                     case LyingDown:

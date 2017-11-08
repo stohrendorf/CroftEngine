@@ -38,7 +38,7 @@ namespace engine
             bool animateCreature(core::Angle angle, core::Angle tilt);
 
 
-            core::Angle rotateTowardsMoveTarget(core::Angle maxRotationSpeed);
+            core::Angle rotateTowardsTarget(core::Angle maxRotationSpeed);
 
 
             int getHealth() const
