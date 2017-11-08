@@ -2,13 +2,12 @@
 
 #include "level/level.h"
 #include "engine/laranode.h"
-#include "engine/items/aiagent.h"
 
 namespace engine
 {
 namespace ai
 {
-gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, uint16_t idx)
+gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const uint16_t idx)
 {
     const uint16_t* first = &lvl.m_overlaps[idx];
     const uint16_t* last = first;
@@ -22,49 +21,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, uint16_t
     return gsl::make_span( first, last );
 }
 
-bool LotInfo::canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const
-{
-    Expects( from < lvl.m_boxes.size() );
-    Expects( to < lvl.m_boxes.size() );
-
-    const auto& fromBox = lvl.m_boxes[from];
-    const auto& toBox = lvl.m_boxes[to];
-    if( (toBox.overlap_index & block_mask) != 0 )
-    {
-        return false;
-    }
-
-    const auto& zone = getZoneData( lvl );
-
-    BOOST_ASSERT( from < zone.size() );
-    BOOST_ASSERT( to < zone.size() );
-
-    if( zone[from] != zone[to] )
-    {
-        return false;
-    }
-
-    const auto d = toBox.floor - fromBox.floor;
-    return d >= drop && d <= step;
-}
-
-const loader::ZoneData& LotInfo::getZoneData(const level::Level& lvl) const
-{
-    if( fly != 0 )
-    {
-        return lvl.roomsAreSwapped ? lvl.m_alternateZones.flyZone : lvl.m_baseZones.flyZone;
-    }
-    else if( step == loader::QuarterSectorSize )
-    {
-        return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone1 : lvl.m_baseZones.groundZone1;
-    }
-    else
-    {
-        return lvl.roomsAreSwapped ? lvl.m_alternateZones.groundZone2 : lvl.m_baseZones.groundZone2;
-    }
-}
-
-void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, bool violent)
+void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -72,17 +29,17 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
     CreatureInfo& creatureInfo = *item.creatureInfo;
     if( creatureInfo.lot.nodes[item.box_number].search_number == (creatureInfo.lot.search_number | 0x8000) )
     {
-        creatureInfo.lot.required_box = -1;
+        creatureInfo.lot.required_box = nullptr;
     }
     if( creatureInfo.mood != Mood::Attack
-        && creatureInfo.lot.required_box >= 0
-        && !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, creatureInfo.lot.target_box ) )
+        && creatureInfo.lot.required_box != nullptr
+        && !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, creatureInfo.lot.target_box) )
     {
         if( aiInfo.zone_number == aiInfo.enemy_zone )
         {
             creatureInfo.mood = Mood::Bored;
         }
-        creatureInfo.lot.required_box = -1;
+        creatureInfo.lot.required_box = nullptr;
     }
     const auto originalMood = creatureInfo.mood;
     if( lvl.m_lara->m_state.health > 0 )
@@ -129,7 +86,7 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
                     else if( aiInfo.zone_number == aiInfo.enemy_zone )
                     {
                         if( aiInfo.distance >= util::square( 3 * loader::SectorSize )
-                            && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != -1) )
+                            && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != nullptr) )
                         {
                             creatureInfo.mood = Mood::Stalk;
                         }
@@ -167,9 +124,9 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
     {
         if( originalMood == Mood::Attack )
         {
-            creatureInfo.lot.setRandomSearchTarget( lvl, creatureInfo.lot.target_box );
+            creatureInfo.lot.setRandomSearchTarget( creatureInfo.lot.target_box);
         }
-        creatureInfo.lot.required_box = -1;
+        creatureInfo.lot.required_box = nullptr;
     }
     switch( creatureInfo.mood )
     {
@@ -186,37 +143,37 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
             break;
         case Mood::Bored:
         {
-            const auto boxNumber = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber ) )
+            const auto box = creatureInfo.lot.boxes[std::rand() % creatureInfo.lot.boxes.size()];
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box) )
                 break;
 
-            if( item.stalkBox( lvl, boxNumber ) )
+            if( item.stalkBox( lvl, box ) )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.lot.setRandomSearchTarget( box);
                 creatureInfo.mood = Mood::Stalk;
             }
-            else if( creatureInfo.lot.required_box == -1 )
+            else if( creatureInfo.lot.required_box == nullptr )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.lot.setRandomSearchTarget( box);
             }
             break;
         }
         case Mood::Stalk:
         {
-            if( creatureInfo.lot.required_box != -1 && item.stalkBox( lvl, creatureInfo.lot.required_box ) )
+            if( creatureInfo.lot.required_box != nullptr && item.stalkBox( lvl, creatureInfo.lot.required_box ) )
                 break;
 
-            const auto boxNumber1 = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber1 ) )
+            const auto box = creatureInfo.lot.boxes[std::rand() % creatureInfo.lot.boxes.size()];
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box) )
                 break;
 
-            if( item.stalkBox( lvl, boxNumber1 ) )
+            if( item.stalkBox( lvl, box ) )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber1 );
+                creatureInfo.lot.setRandomSearchTarget( box);
             }
-            else if( creatureInfo.lot.required_box == -1 )
+            else if( creatureInfo.lot.required_box == nullptr )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber1 );
+                creatureInfo.lot.setRandomSearchTarget( box);
                 if( aiInfo.zone_number != aiInfo.enemy_zone )
                 {
                     creatureInfo.mood = Mood::Bored;
@@ -226,26 +183,26 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
         }
         case Mood::Escape:
         {
-            const auto boxNumber = creatureInfo.lot.nodes[std::rand() % creatureInfo.lot.zone_count].box_number;
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, boxNumber )
-                || creatureInfo.lot.required_box != -1 )
+            const auto box = creatureInfo.lot.boxes[std::rand() % creatureInfo.lot.boxes.size()];
+            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box)
+                || creatureInfo.lot.required_box != nullptr )
                 break;
 
-            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, boxNumber ) )
+            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, box ) )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.lot.setRandomSearchTarget( box);
             }
-            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( lvl, boxNumber ) )
+            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( lvl, box ) )
             {
-                creatureInfo.lot.setRandomSearchTarget( lvl, boxNumber );
+                creatureInfo.lot.setRandomSearchTarget( box);
                 creatureInfo.mood = Mood::Stalk;
             }
             break;
         }
     }
-    if( creatureInfo.lot.target_box < 0 )
+    if( creatureInfo.lot.target_box == nullptr )
     {
-        creatureInfo.lot.setRandomSearchTarget( lvl, item.box_number );
+        creatureInfo.lot.setRandomSearchTarget( item.box_number);
     }
     creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
 }
@@ -255,25 +212,13 @@ AiInfo::AiInfo(const level::Level& lvl, engine::items::ItemState& item)
     if( item.creatureInfo == nullptr)
         return;
 
-    const loader::ZoneData* zone = nullptr;
-    if( item.creatureInfo->lot.fly != 0 )
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
-    }
-    else if( item.creatureInfo->lot.step == loader::QuarterSectorSize )
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
-    }
-    else
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
-    }
+    const auto zoneRef = loader::Box::getZoneRef(lvl.roomsAreSwapped, item.creatureInfo->lot.fly, item.creatureInfo->lot.step);
 
-    item.box_number = item.getCurrentSector()->boxIndex;
-    zone_number = (*zone)[item.box_number];
-    lvl.m_lara->m_state.box_number = lvl.m_lara->m_state.getCurrentSector()->boxIndex;
-    enemy_zone = (*zone)[lvl.m_lara->m_state.box_number];
-    if( (item.creatureInfo->lot.block_mask & lvl.m_boxes[lvl.m_lara->m_state.box_number].overlap_index)
+    item.box_number = item.getCurrentSector()->box;
+    zone_number = item.box_number->*zoneRef;
+    lvl.m_lara->m_state.box_number = lvl.m_lara->m_state.getCurrentSector()->box;
+    enemy_zone = lvl.m_lara->m_state.box_number->*zoneRef;
+    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box_number->overlap_index)
         || item.creatureInfo->lot.nodes[item.box_number].search_number == (item.creatureInfo->lot.search_number | 0x8000) )
     {
         enemy_zone |= 0x4000;

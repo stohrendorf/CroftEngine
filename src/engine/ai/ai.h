@@ -20,7 +20,7 @@ enum class Mood
     Stalk
 };
 
-inline std::ostream& operator<<(std::ostream& str, Mood mood)
+inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 {
     switch( mood )
     {
@@ -39,18 +39,18 @@ inline std::ostream& operator<<(std::ostream& str, Mood mood)
 
 struct BoxNode
 {
-    int16_t exit_box = -1;
+    const loader::Box* exit_box = nullptr;
     uint16_t search_number = 0;
-    int16_t next_expansion = -1;
-    uint16_t box_number = 0;
+    const loader::Box* next_expansion = nullptr;
 };
 
 
 struct LotInfo
 {
-    std::vector<BoxNode> nodes;
-    int16_t head = -1;
-    int16_t tail = -1;
+    std::unordered_map<const loader::Box*, BoxNode> nodes;
+    std::vector<const loader::Box*> boxes;
+    const loader::Box* head = nullptr;
+    const loader::Box* tail = nullptr;
     uint16_t search_number = 0;
     //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
     uint16_t block_mask = 0x4000;
@@ -60,48 +60,34 @@ struct LotInfo
     int16_t drop = -loader::QuarterSectorSize;
     int16_t fly = 0;
     //! @}
-    uint16_t zone_count;
     //! @brief The target box we need to reach
-    int16_t target_box = -1;
-    int16_t required_box = -1;
+    const loader::Box* target_box = nullptr;
+    const loader::Box* required_box = nullptr;
     core::TRCoordinates target;
 
     explicit LotInfo(const level::Level& lvl)
     {
-        nodes.resize(lvl.m_boxes.size());
+        for (const auto& box : lvl.m_boxes)
+            nodes.insert(std::make_pair(&box, BoxNode{}));
     }
 
     static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
 
-    bool canTravelFromTo(const level::Level& lvl, uint16_t from, uint16_t to) const;
-
-    const loader::ZoneData& getZoneData(const level::Level& lvl) const;
-
-    uint16_t getZone(const items::ItemNode& item) const
+    void setRandomSearchTarget(const loader::Box* box)
     {
-        const auto& zone = getZoneData( item.getLevel() );
-        const auto box = item.getCurrentBox();
-        BOOST_ASSERT( box.is_initialized() );
-        const auto boxIdx = static_cast<uint16_t>(*box & ~0x8000);
-        BOOST_ASSERT( boxIdx < zone.size() );
-        return zone[boxIdx];
-    }
-
-    void setRandomSearchTarget(const level::Level& lvl, int16_t boxIdx)
-    {
-        required_box = boxIdx & 0x7fff;
-        const auto box = &lvl.m_boxes[required_box];
-        const auto zSize = box->zmax - box->zmin - loader::SectorSize;
-        target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + box->zmin + loader::SectorSize / 2;
-        const auto xSize = box->xmax - box->xmin - loader::SectorSize;
-        target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + box->xmin + loader::SectorSize / 2;
+        Expects(box != nullptr);
+        required_box = box;
+        const auto zSize = required_box->zmax - required_box->zmin - loader::SectorSize;
+        target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + required_box->zmin + loader::SectorSize / 2;
+        const auto xSize = required_box->xmax - required_box->xmin - loader::SectorSize;
+        target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + required_box->xmin + loader::SectorSize / 2;
         if( fly )
         {
-            target.Y = box->floor - 384;
+            target.Y = required_box->floor - 384;
         }
         else
         {
-            target.Y = box->floor;
+            target.Y = required_box->floor;
         }
     }
 
@@ -110,7 +96,7 @@ struct LotInfo
         updatePath( lvl, 5 );
         target = item.position.position;
         auto boxNumber = item.box_number;
-        if( boxNumber == -1 )
+        if( boxNumber == nullptr )
         {
             return false;
         }
@@ -128,7 +114,7 @@ struct LotInfo
         const loader::Box* box = nullptr;
         do
         {
-            box = &lvl.m_boxes[boxNumber];
+            box = boxNumber;
 
             if( fly != 0 )
             {
@@ -276,7 +262,7 @@ struct LotInfo
                 return true;
             }
             boxNumber = this->nodes[boxNumber].exit_box;
-        } while( (boxNumber == -1 || !(lvl.m_boxes[boxNumber].overlap_index & this->block_mask)) && boxNumber != -1 );
+        } while( boxNumber != nullptr && !(boxNumber->overlap_index & this->block_mask) );
 
         BOOST_ASSERT( box != nullptr );
         if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
@@ -312,53 +298,41 @@ struct LotInfo
         return false;
     }
 
-    void updatePath(const level::Level& lvl, uint8_t maxDepth)
+    void updatePath(const level::Level& lvl, const uint8_t maxDepth)
     {
-        if( required_box != -1 && required_box != target_box )
+        if( required_box != nullptr && required_box != target_box )
         {
             target_box = required_box;
             const auto expand = &nodes[target_box];
-            if( expand->next_expansion == -1 && tail != target_box )
+            if( expand->next_expansion == nullptr && tail != target_box )
             {
                 expand->next_expansion = head;
-                if( head == -1 )
+                if( head == nullptr )
                 {
                     tail = target_box;
                 }
                 head = target_box;
             }
             ++search_number;
-            expand->exit_box = -1;
+            expand->exit_box = nullptr;
             expand->search_number = search_number;
         }
         searchPath( lvl, maxDepth );
     }
 
-    void searchPath(const level::Level& lvl, uint8_t maxDepth)
+    void searchPath(const level::Level& lvl, const uint8_t maxDepth)
     {
-        const loader::ZoneData* zone;
-        if( fly != 0 )
-        {
-            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
-        }
-        else if( step == loader::QuarterSectorSize )
-        {
-            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
-        }
-        else
-        {
-            zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
-        }
-        const auto currentZone = (*zone)[head];
+        const auto zoneRef = loader::Box::getZoneRef(lvl.roomsAreSwapped, fly, step);
+        const auto currentZone = head->*zoneRef;
         for( uint8_t i = 0; i < maxDepth; ++i )
         {
             const auto index = head;
-            if( index == -1 )
+            if( index == nullptr )
             {
                 return;
             }
             const auto node = &this->nodes[index];
-            const auto box = &lvl.m_boxes[index];
+            const auto box = index;
             auto overlapIdx = box->overlap_index & 0x3FFFu;
             bool done = false;
             do
@@ -370,14 +344,16 @@ struct LotInfo
                     done = true;
                 }
 
-                if( currentZone != (*zone)[nextExpansionId] )
+                const auto* nextExpansionBox = &lvl.m_boxes[nextExpansionId];
+
+                if( currentZone != nextExpansionBox->*zoneRef )
                     continue;
 
-                const auto boxHeightDiff = lvl.m_boxes[nextExpansionId].floor - box->floor;
+                const auto boxHeightDiff = nextExpansionBox->floor - box->floor;
                 if( boxHeightDiff > step || boxHeightDiff < drop )
                     continue;
 
-                const auto nextExpansion = &this->nodes[nextExpansionId];
+                const auto nextExpansion = &this->nodes[nextExpansionBox];
                 const auto currentSearch = node->search_number & 0x7FFF;
                 const auto expandSearch = nextExpansion->search_number & 0x7FFF;
                 if( currentSearch < expandSearch )
@@ -393,7 +369,7 @@ struct LotInfo
                 }
                 else if( currentSearch != expandSearch || (nextExpansion->search_number & 0x8000) )
                 {
-                    if( block_mask & lvl.m_boxes[nextExpansionId].overlap_index )
+                    if( block_mask & nextExpansionBox->overlap_index )
                     {
                         nextExpansion->search_number = node->search_number | 0x8000u;
                     }
@@ -404,17 +380,17 @@ struct LotInfo
                     }
                 }
 
-                if( nextExpansion->next_expansion != -1 )
+                if( nextExpansion->next_expansion != nullptr )
                     continue;
 
-                if( nextExpansionId == tail )
+                if(nextExpansionBox == tail )
                     continue;
 
-                this->nodes[tail].next_expansion = nextExpansionId;
-                tail = nextExpansionId;
+                this->nodes[tail].next_expansion = nextExpansionBox;
+                tail = nextExpansionBox;
             } while( !done );
             head = node->next_expansion;
-            node->next_expansion = -1;
+            node->next_expansion = nullptr;
         }
     };
 };
@@ -422,8 +398,8 @@ struct LotInfo
 
 struct AiInfo
 {
-    int16_t zone_number;
-    int16_t enemy_zone;
+    loader::ZoneId zone_number;
+    loader::ZoneId enemy_zone;
     int32_t distance;
     bool ahead;
     bool bite;

@@ -754,9 +754,9 @@ namespace engine
                 {
                     BOOST_ASSERT(command.parameter < getLevel().m_cameras.size());
                     const auto& sink = getLevel().m_cameras[command.parameter];
-                    if(m_underwaterRoute.required_box != sink.zoneId)
+                    if(m_underwaterRoute.required_box != &getLevel().m_boxes[sink.box_index])
                     {
-                        m_underwaterRoute.required_box = sink.zoneId;
+                        m_underwaterRoute.required_box = &getLevel().m_boxes[sink.box_index];
                         m_underwaterRoute.target = sink.position;
                     }
                     m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
@@ -927,7 +927,7 @@ namespace engine
 
     void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     {
-        m_state.box_number = m_state.getCurrentSector()->boxIndex;
+        m_state.box_number = m_state.getCurrentSector()->box;
         core::TRCoordinates targetPos;
         if( !m_underwaterRoute.calculateTarget( getLevel(), targetPos, m_state ) )
             return;

@@ -21,7 +21,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     if( turnAngle < -90_deg || turnAngle > 90_deg )
     {
         // the target is behind the current item, so we need a U-turn
-        auto relativeSpeed = m_state.speed * (+90_deg).toAU() / maxRotationSpeed.toAU();
+        const auto relativeSpeed = m_state.speed * (+90_deg).toAU() / maxRotationSpeed.toAU();
         if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed ) )
         {
             maxRotationSpeed /= 2;
@@ -35,8 +35,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 }
 
 bool AIAgent::isPositionOutOfReach(const core::TRCoordinates& testPosition,
-                                   int currentBoxFloor,
-                                   int nextBoxFloor,
+                                   const int currentBoxFloor,
+                                   const int nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
 {
     const auto sectorBox = getLevel().findRealFloorSector( testPosition, m_state.position.room )->box;
@@ -75,7 +75,7 @@ bool AIAgent::anyMovingEnabledItemInReach() const
     return false;
 }
 
-bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
+bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 {
     const auto creatureInfo = m_state.creatureInfo;
     if ( creatureInfo == nullptr )
@@ -84,20 +84,8 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
     }
     const auto& lotInfo = creatureInfo->lot;
     const auto oldPosition = m_state.position.position;
-    const auto boxFloor = getLevel().m_boxes[m_state.box_number].floor;
-    const loader::ZoneData* zoneData = nullptr;
-    if ( creatureInfo->lot.fly != 0 )
-    {
-        zoneData = getLevel().roomsAreSwapped ? &getLevel().m_alternateZones.flyZone : &getLevel().m_baseZones.flyZone;
-    }
-    else if ( creatureInfo->lot.step == loader::QuarterSectorSize )
-    {
-        zoneData = getLevel().roomsAreSwapped ? &getLevel().m_alternateZones.groundZone1 : &getLevel().m_baseZones.groundZone1;
-    }
-    else
-    {
-        zoneData = getLevel().roomsAreSwapped ? &getLevel().m_alternateZones.groundZone2 : &getLevel().m_baseZones.groundZone2;
-    }
+    const auto boxFloor = m_state.box_number->floor;
+    const auto zoneRef = loader::Box::getZoneRef(getLevel().roomsAreSwapped, creatureInfo->lot.fly, creatureInfo->lot.step);
     ModelItemNode::update();
     if ( m_state.triggerState == TriggerState::Activated )
     {
@@ -118,17 +106,17 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
     auto currentFloor = sector->box->floor;
 
     int nextFloor;
-    if ( lotInfo.nodes[sector->boxIndex].exit_box < 0 )
+    if ( lotInfo.nodes.find(sector->box)->second.exit_box == nullptr )
     {
         nextFloor = currentFloor;
     }
     else
     {
-        nextFloor = getLevel().m_boxes[lotInfo.nodes[sector->boxIndex].exit_box].floor;
+        nextFloor = lotInfo.nodes.find(sector->box)->second.exit_box->floor;
     }
 
     if ( sector->box == nullptr
-         || (*zoneData)[m_state.box_number] != (*zoneData)[sector->boxIndex]
+         || m_state.box_number->*zoneRef != sector->box->*zoneRef
          || boxFloor - currentFloor > lotInfo.step
          || boxFloor - currentFloor < lotInfo.drop )
     {
@@ -151,13 +139,13 @@ bool AIAgent::animateCreature(core::Angle angle, core::Angle tilt)
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 &room );
         currentFloor = sector->box->floor;
-        if( lotInfo.nodes[sector->boxIndex].exit_box < 0 )
+        if( lotInfo.nodes.find(sector->box)->second.exit_box == nullptr )
         {
             nextFloor = sector->box->floor;
         }
         else
         {
-            nextFloor = getLevel().m_boxes[lotInfo.nodes[sector->boxIndex].exit_box].floor;
+            nextFloor = lotInfo.nodes.find(sector->box)->second.exit_box->floor;
         }
     }
 
@@ -362,9 +350,9 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
-                 ItemNode::Characteristics characteristics,
+                 const ItemNode::Characteristics characteristics,
                  const loader::SkeletalModelType& animatedModel,
-                 int collisionRadius)
+                 const int collisionRadius)
         : ModelItemNode( level, name, room, item, true, characteristics, animatedModel )
         , m_collisionRadius{collisionRadius}
 {

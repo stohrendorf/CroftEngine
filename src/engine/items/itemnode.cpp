@@ -79,8 +79,8 @@ void ItemNode::applyTransform()
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
-                   bool hasProcessAnimCommandsOverride,
-                   Characteristics characteristics)
+                   const bool hasProcessAnimCommandsOverride,
+                   const Characteristics characteristics)
         : m_level{level}
         , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
         , m_characteristics{characteristics}
@@ -133,8 +133,8 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const std::string& name,
                              const gsl::not_null<const loader::Room*>& room,
                              const loader::Item& item,
-                             bool hasProcessAnimCommandsOverride,
-                             Characteristics characteristics,
+                             const bool hasProcessAnimCommandsOverride,
+                             const Characteristics characteristics,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{
             level,
@@ -287,7 +287,7 @@ void ItemNode::deactivate()
     m_isActive = false;
 }
 
-std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(int id)
+std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
 {
     auto handle = getLevel().playSound( id, getNode()->getTranslationWorld() );
     if( handle != nullptr )
@@ -348,7 +348,7 @@ bool InteractionLimits::canInteract(const ItemNode& item, const LaraNode& lara) 
     return distance.contains( core::TRCoordinates{tdist} );
 }
 
-void ModelItemNode::applyMovement(bool forLara)
+void ModelItemNode::applyMovement(const bool forLara)
 {
     if( m_state.falling )
     {
@@ -394,18 +394,6 @@ BoundingBox ModelItemNode::getBoundingBox() const
     return m_skeleton->getBoundingBox( m_state );
 }
 
-boost::optional<int16_t> ItemNode::getCurrentBox() const
-{
-    const auto sector = m_state.position.room->getInnerSectorByAbsolutePosition( m_state.position.position );
-    if( sector->box == nullptr )
-    {
-        BOOST_LOG_TRIVIAL( warning ) << "Not within a box: " << getNode()->getId();
-        return {};
-    }
-
-    return sector->boxIndex;
-}
-
 uint16_t ModelItemNode::getCurrentState() const
 {
     return m_state.current_anim_state;
@@ -415,8 +403,8 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,
                                const loader::Item& item,
-                               bool hasProcessAnimCommandsOverride,
-                               Characteristics characteristics,
+                               const bool hasProcessAnimCommandsOverride,
+                               const Characteristics characteristics,
                                const loader::Sprite& sprite,
                                const std::shared_ptr<gameplay::Material>& material,
                                const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
@@ -467,13 +455,12 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
            && z <= aFrame->bbox.maxZ + radius;
 }
 
-bool ItemState::stalkBox(const level::Level& lvl, int16_t boxNumber) const
+bool ItemState::stalkBox(const level::Level& lvl, const loader::Box* box) const
 {
-    BOOST_ASSERT( boxNumber >= 0 && boxNumber < lvl.m_boxes.size() );
-    const auto& box = lvl.m_boxes[boxNumber];
+    Expects(box != nullptr);
 
-    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
-    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    const auto laraToBoxDistX = (box->xmin + box->xmax) / 2 - lvl.m_lara->m_state.position.position.X;
+    const auto laraToBoxDistZ = (box->zmin + box->zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
 
     if( laraToBoxDistX > 3 * loader::SectorSize || laraToBoxDistX < -3 * loader::SectorSize
         || laraToBoxDistZ > 3 * loader::SectorSize ||
@@ -482,7 +469,7 @@ bool ItemState::stalkBox(const level::Level& lvl, int16_t boxNumber) const
         return false;
     }
 
-    auto laraAxisBack = *core::axisFromAngle( lvl.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
+    const auto laraAxisBack = *core::axisFromAngle( lvl.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
     core::Axis laraToBoxAxis;
     if( laraToBoxDistZ > 0 )
     {
@@ -556,29 +543,18 @@ bool ItemState::stalkBox(const level::Level& lvl, int16_t boxNumber) const
     BOOST_THROW_EXCEPTION( std::runtime_error( "Unreachable code reached" ) );
 }
 
-bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, int16_t boxNumber) const
+bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, const int16_t zoneId, const loader::Box* box) const
 {
-    BOOST_ASSERT( creatureInfo != nullptr );
-    const loader::ZoneData* zone;
-    if( creatureInfo->lot.fly != 0 )
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.flyZone : &lvl.m_baseZones.flyZone;
-    }
-    else if( creatureInfo->lot.step == loader::QuarterSectorSize )
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone1 : &lvl.m_baseZones.groundZone1;
-    }
-    else
-    {
-        zone = lvl.roomsAreSwapped ? &lvl.m_alternateZones.groundZone2 : &lvl.m_baseZones.groundZone2;
-    }
+    Expects( creatureInfo != nullptr );
+    Expects( box != nullptr );
+    
+    const auto zoneRef = loader::Box::getZoneRef(lvl.roomsAreSwapped, creatureInfo->lot.fly, creatureInfo->lot.step);
 
-    if( zoneId != (*zone)[boxNumber] )
+    if( zoneId != box->*zoneRef )
     {
         return false;
     }
 
-    const auto box = &lvl.m_boxes[boxNumber];
     if( creatureInfo->lot.block_mask & box->overlap_index )
     {
         return false;
@@ -595,12 +571,11 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId,
     return true;
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, int16_t boxNumber) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box* box) const
 {
-    Expects( boxNumber >= 0 && boxNumber < lvl.m_boxes.size() );
-    const auto& box = lvl.m_boxes[boxNumber];
-    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
-    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    Expects( box != nullptr );
+    const auto laraToBoxX = (box->xmin + box->xmax) / 2 - lvl.m_lara->m_state.position.position.X;
+    const auto laraToBoxZ = (box->zmin + box->zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
     if( laraToBoxX <= -5 * loader::SectorSize
         || laraToBoxX >= 5 * loader::SectorSize
         || laraToBoxZ <= -5 * loader::SectorSize
@@ -626,34 +601,18 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
 
 void ItemState::collectZoneBoxes(const level::Level& lvl)
 {
-    const loader::ZoneData* zone1 = nullptr;
-    const loader::ZoneData* zone2 = nullptr;
-    if( creatureInfo->lot.fly != 0 )
-    {
-        zone1 = &lvl.m_baseZones.flyZone;
-        zone2 = &lvl.m_alternateZones.flyZone;
-    }
-    else if( creatureInfo->lot.step == 256 )
-    {
-        zone1 = &lvl.m_baseZones.groundZone1;
-        zone2 = &lvl.m_alternateZones.groundZone1;
-    }
-    else
-    {
-        zone1 = &lvl.m_baseZones.groundZone2;
-        zone2 = &lvl.m_alternateZones.groundZone2;
-    }
+    const auto zoneRef1 = loader::Box::getZoneRef(false, creatureInfo->lot.fly, creatureInfo->lot.step);
+    const auto zoneRef2 = loader::Box::getZoneRef(true, creatureInfo->lot.fly, creatureInfo->lot.step);
 
-    box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->boxIndex;
-    const auto zoneData1 = (*zone1)[box_number];
-    const auto zoneData2 = (*zone2)[box_number];
-    creatureInfo->lot.zone_count = 0;
-    for( uint16_t i = 0; i < lvl.m_boxes.size(); ++i )
+    box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->box;
+    const auto zoneData1 = box_number->*zoneRef1;
+    const auto zoneData2 = box_number->*zoneRef2;
+    creatureInfo->lot.boxes.clear();
+    for( const auto& box : lvl.m_boxes )
     {
-        if( (*zone1)[i] == zoneData1 || (*zone2)[i] == zoneData2 )
+        if(box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
         {
-            creatureInfo->lot.nodes[creatureInfo->lot.zone_count].box_number = i;
-            ++creatureInfo->lot.zone_count;
+            creatureInfo->lot.boxes.emplace_back(&box);
         }
     }
 }

@@ -1309,4 +1309,20 @@ void Level::postProcessDataStructures()
             }
         }
     }
+
+    Expects(m_baseZones.flyZone.size() == m_boxes.size());
+    Expects(m_baseZones.groundZone1.size() == m_boxes.size());
+    Expects(m_baseZones.groundZone2.size() == m_boxes.size());
+    Expects(m_alternateZones.flyZone.size() == m_boxes.size());
+    Expects(m_alternateZones.groundZone1.size() == m_boxes.size());
+    Expects(m_alternateZones.groundZone2.size() == m_boxes.size());
+    for(size_t i=0; i<m_boxes.size(); ++i)
+    {
+        m_boxes[i].zoneFly = m_baseZones.flyZone[i];
+        m_boxes[i].zoneGround1 = m_baseZones.groundZone1[i];
+        m_boxes[i].zoneGround2 = m_baseZones.groundZone2[i];
+        m_boxes[i].zoneFlySwapped = m_alternateZones.flyZone[i];
+        m_boxes[i].zoneGround1Swapped = m_alternateZones.groundZone1[i];
+        m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
+    }
 }

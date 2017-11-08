@@ -100,7 +100,7 @@ namespace loader
         uint16_t floorDataIndex;
 
         int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
-        Box* box = nullptr;
+        const Box* box = nullptr;
         uint8_t roomIndexBelow; //!< The number of the room below this one (255 if none)
         Room* roomBelow = nullptr;
         int8_t floorHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
@@ -1334,6 +1334,8 @@ namespace loader
     };
 
 
+    using ZoneId = uint16_t;
+
     struct Box
     {
         int32_t zmin; // sectors (* 1024 units)
@@ -1347,7 +1349,7 @@ namespace loader
         //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
         //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
         //! @remark Mask @c 0x4000 possible marks closed doors.
-        uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
+        mutable uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
         // occurs in front of swinging doors and the like.
 
         static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
@@ -1374,10 +1376,33 @@ namespace loader
             box->overlap_index = reader.readU16();
             return box;
         }
+
+        ZoneId zoneFly = 0;
+        ZoneId zoneFlySwapped = 0;
+        ZoneId zoneGround1 = 0;
+        ZoneId zoneGround1Swapped = 0;
+        ZoneId zoneGround2 = 0;
+        ZoneId zoneGround2Swapped = 0;
+
+        static const ZoneId Box::* getZoneRef(bool swapped, int fly, int step)
+        {
+            if (fly != 0)
+            {
+                return swapped ? &Box::zoneFlySwapped : &Box::zoneFly;
+            }
+            else if (step == loader::QuarterSectorSize)
+            {
+                return swapped ? &Box::zoneGround1Swapped : &Box::zoneGround1;
+            }
+            else
+            {
+                return swapped ? &Box::zoneGround2Swapped : &Box::zoneGround2;
+            }
+        }
     };
 
 
-    using ZoneData = std::vector<uint16_t>;
+    using ZoneData = std::vector<ZoneId>;
 
 
     struct Zones
@@ -1416,7 +1441,7 @@ namespace loader
             //! @todo mutable flags
             mutable uint16_t flags;
 
-            uint16_t zoneId;
+            uint16_t box_index;
         };
 
 

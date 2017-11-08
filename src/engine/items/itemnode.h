@@ -76,7 +76,7 @@ struct ItemState final
     int16_t speed = 0;
     int16_t fallspeed = 0;
     int16_t health = 0;
-    int16_t box_number = 0;
+    const loader::Box* box_number = nullptr;
     int16_t timer = 0;
     floordata::ActivationState activationState;
     int16_t shade = 0;
@@ -148,11 +148,11 @@ struct ItemState final
         return false;
     }
 
-    bool stalkBox(const level::Level& lvl, int16_t boxNumber) const;
+    bool stalkBox(const level::Level& lvl, const loader::Box* box) const;
 
-    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, int16_t boxNumber) const;
+    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box* box) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, int16_t boxNumber) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box* box) const;
 
     void initCreatureInfo(const level::Level& lvl);
 
@@ -329,8 +329,6 @@ public:
         const auto r = target.m_state.rotation.toMatrix();
         move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
-
-    boost::optional<int16_t> getCurrentBox() const;
 
     void updateLighting()
     {
