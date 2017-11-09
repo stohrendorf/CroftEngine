@@ -161,7 +161,7 @@ struct UVCoordinates
 
     glm::vec2 toGl() const
     {
-        return glm::vec2{xpixel / 255.0f, ypixel / 255.0f};
+        return glm::vec2{(xpixel+0.5f) / 256.0f, (ypixel+0.5f) / 256.0f};
     }
 };
 
