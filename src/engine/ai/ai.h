@@ -39,9 +39,27 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 
 struct BoxNode
 {
+    /**
+     * @brief The next box on the path.
+     */
     const loader::Box* exit_box = nullptr;
     uint16_t search_number = 0;
     const loader::Box* next_expansion = nullptr;
+
+    void markBlocked()
+    {
+        search_number |= 0x8000u;
+    }
+
+    uint16_t getSearchVersion() const
+    {
+        return search_number & ~uint16_t(0x8000u);
+    }
+
+    bool isBlocked() const
+    {
+        return (search_number & 0x8000u) != 0;
+    }
 };
 
 
@@ -51,7 +69,7 @@ struct LotInfo
     std::vector<const loader::Box*> boxes;
     const loader::Box* head = nullptr;
     const loader::Box* tail = nullptr;
-    uint16_t search_number = 0;
+    uint16_t m_searchVersion = 0;
     //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
     uint16_t block_mask = 0x4000;
     //! @brief Movement limits
@@ -98,19 +116,19 @@ struct LotInfo
         if( required_box != nullptr && required_box != target_box )
         {
             target_box = required_box;
-            const auto expand = &nodes[target_box];
-            if( expand->next_expansion == nullptr && tail != target_box )
+            const auto targetNode = &nodes[target_box];
+            if( targetNode->next_expansion == nullptr && tail != target_box )
             {
-                expand->next_expansion = head;
+                targetNode->next_expansion = head;
                 if( head == nullptr )
                 {
                     tail = target_box;
                 }
                 head = target_box;
             }
-            ++search_number;
-            expand->exit_box = nullptr;
-            expand->search_number = search_number;
+            ++m_searchVersion;
+            targetNode->exit_box = nullptr;
+            targetNode->search_number = m_searchVersion;
         }
         searchPath( lvl, maxDepth );
     }
@@ -121,63 +139,60 @@ struct LotInfo
         const auto currentZone = head->*zoneRef;
         for( uint8_t i = 0; i < maxDepth; ++i )
         {
-            const auto box = head;
-            if( box == nullptr )
-            {
-                return;
-            }
-            const auto node = &this->nodes[box];
-            for( auto overlapBoxIdx : getOverlaps( lvl, box->overlap_index ) )
-            {
-                overlapBoxIdx &= 0x7FFFu;
+            if( head == nullptr )
+                break;
 
-                const auto* overlapBox = &lvl.m_boxes[overlapBoxIdx];
+            const auto currentNode = &this->nodes[head];
+            for( auto siblingBoxIdx : getOverlaps( lvl, head->overlap_index ) )
+            {
+                siblingBoxIdx &= 0x7FFFu;
 
-                if( currentZone != overlapBox->*zoneRef )
+                const auto* siblingBox = &lvl.m_boxes[siblingBoxIdx];
+
+                if( currentZone != siblingBox->*zoneRef )
                     continue;
 
-                const auto boxHeightDiff = overlapBox->floor - box->floor;
+                const auto boxHeightDiff = siblingBox->floor - head->floor;
                 if( boxHeightDiff > step || boxHeightDiff < drop )
                     continue;
 
-                const auto nextExpansion = &this->nodes[overlapBox];
-                const auto currentSearch = node->search_number & 0x7FFF;
-                const auto expandSearch = nextExpansion->search_number & 0x7FFF;
-                if( currentSearch < expandSearch )
+                const auto siblingNode = &this->nodes[siblingBox];
+                const auto currentSearch = currentNode->getSearchVersion();
+                const auto siblingSearch = siblingNode->getSearchVersion();
+                if( currentSearch < siblingSearch )
                     continue;
 
-                if( node->search_number & 0x8000 )
+                if( currentNode->isBlocked() )
                 {
-                    if( currentSearch == expandSearch )
+                    if( currentSearch == siblingSearch )
                     {
                         continue;
                     }
-                    nextExpansion->search_number = node->search_number;
+                    siblingNode->search_number = currentNode->search_number;
                 }
-                else if( currentSearch != expandSearch || (nextExpansion->search_number & 0x8000) )
+                else if( currentSearch != siblingSearch || siblingNode->isBlocked() )
                 {
-                    if( block_mask & overlapBox->overlap_index )
+                    siblingNode->search_number = currentNode->search_number;
+                    if( block_mask & siblingBox->overlap_index )
                     {
-                        nextExpansion->search_number = node->search_number | 0x8000u;
+                        siblingNode->markBlocked();
                     }
                     else
                     {
-                        nextExpansion->search_number = node->search_number;
-                        nextExpansion->exit_box = head;
+                        siblingNode->exit_box = head;
                     }
                 }
 
-                if( nextExpansion->next_expansion != nullptr )
+                if( siblingNode->next_expansion != nullptr )
                     continue;
 
-                if( overlapBox == tail )
+                if( siblingBox == tail )
                     continue;
 
-                this->nodes[tail].next_expansion = overlapBox;
-                tail = overlapBox;
+                this->nodes[tail].next_expansion = siblingBox;
+                tail = siblingBox;
             }
-            head = node->next_expansion;
-            node->next_expansion = nullptr;
+            head = std::exchange(currentNode->next_expansion, nullptr);
         }
     };
 };

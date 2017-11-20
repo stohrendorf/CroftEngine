@@ -241,7 +241,7 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if( creatureInfo.lot.nodes[item.box_number].search_number == (creatureInfo.lot.search_number | 0x8000) )
+    if( creatureInfo.lot.nodes[item.box_number].search_number == (creatureInfo.lot.m_searchVersion | 0x8000) )
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -436,7 +436,7 @@ AiInfo::AiInfo(const level::Level& lvl, engine::items::ItemState& item)
     enemy_zone = lvl.m_lara->m_state.box_number->*zoneRef;
     if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box_number->overlap_index)
         || item.creatureInfo->lot.nodes[item.box_number].search_number
-           == (item.creatureInfo->lot.search_number | 0x8000) )
+           == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
     }
