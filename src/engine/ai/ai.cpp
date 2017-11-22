@@ -289,7 +289,7 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
         }
         else
         {
-            switch( originalMood )
+            switch( creatureInfo.mood )
             {
                 case Mood::Bored:
                 case Mood::Stalk:
