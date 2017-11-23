@@ -96,17 +96,17 @@ struct LotInfo
     {
         Expects( box != nullptr );
         required_box = box;
-        const auto zSize = required_box->zmax - required_box->zmin - loader::SectorSize;
-        target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + required_box->zmin + loader::SectorSize / 2;
-        const auto xSize = required_box->xmax - required_box->xmin - loader::SectorSize;
-        target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + required_box->xmin + loader::SectorSize / 2;
+        const auto zSize = box->zmax - box->zmin - loader::SectorSize;
+        target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + box->zmin + loader::SectorSize / 2;
+        const auto xSize = box->xmax - box->xmin - loader::SectorSize;
+        target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + box->xmin + loader::SectorSize / 2;
         if( fly )
         {
-            target.Y = required_box->floor - 384;
+            target.Y = box->floor - 384;
         }
         else
         {
-            target.Y = required_box->floor;
+            target.Y = box->floor;
         }
     }
 
@@ -118,20 +118,21 @@ struct LotInfo
         {
             target_box = required_box;
             const auto targetNode = &nodes[target_box];
+            targetNode->exit_box = nullptr;
+            targetNode->search_number = ++m_searchVersion;
+            Expects(!targetNode->isBlocked());
+
             if( targetNode->next_expansion == nullptr && tail != target_box )
             {
-                targetNode->next_expansion = head;
-                if( head == nullptr )
+                targetNode->next_expansion = std::exchange(head, target_box);
+                if( targetNode->next_expansion == nullptr )
                 {
                     tail = target_box;
                 }
-                head = target_box;
             }
-            ++m_searchVersion;
-            targetNode->exit_box = nullptr;
-            targetNode->search_number = m_searchVersion;
-            Expects(!targetNode->isBlocked());
         }
+
+        Expects(target_box != nullptr);
         searchPath( lvl, maxDepth );
     }
 
@@ -167,16 +168,17 @@ struct LotInfo
                 if( parentNode->isBlocked() )
                 {
                     if( parentSearch == childSearch )
-                        continue;
+                        continue; // already visited; we don't care if the child is blocked or not
 
-                    // will also mark as blocked
+                    // mark as visited, will also mark as blocked
                     childNode->search_number = parentNode->search_number;
                 }
                 else
                 {
-                    if( childNode->search_number == parentNode->search_number )
+                    if(parentSearch == childSearch && !childNode->isBlocked())
                         continue; // already visited and reachable
 
+                    // mark as visited, and check if reachable
                     childNode->search_number = parentNode->search_number;
                     if( block_mask & childBox->overlap_index )
                         childNode->markBlocked(); // can't reach this box
@@ -184,7 +186,7 @@ struct LotInfo
                         childNode->exit_box = head; // success! connect both boxes
                 }
 
-                if( childNode->next_expansion == nullptr && childBox == tail )
+                if( childNode->next_expansion == nullptr && childBox != tail )
                     tail = this->nodes[tail].next_expansion = childBox; // enqueue for expansion
             }
             head = std::exchange( parentNode->next_expansion, nullptr ); // mark as expanded

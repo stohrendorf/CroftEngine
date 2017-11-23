@@ -241,7 +241,7 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if( creatureInfo.lot.nodes[item.box_number].search_number == (creatureInfo.lot.m_searchVersion | 0x8000) )
+    if( creatureInfo.lot.nodes[item.box_number].isBlocked() && creatureInfo.lot.nodes[item.box_number].getSearchVersion() == creatureInfo.lot.m_searchVersion )
     {
         creatureInfo.lot.required_box = nullptr;
     }
