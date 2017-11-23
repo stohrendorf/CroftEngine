@@ -527,6 +527,8 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
 
     BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.boneCount );
 
+    skeletalModel->getSkeleton()->updatePose(skeletalModel->m_state);
+
     return skeletalModel;
 }
 
