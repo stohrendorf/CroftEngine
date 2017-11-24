@@ -7,6 +7,7 @@
 
 #include <set>
 #include <scriptengine/lua/sol.hpp>
+#include <engine/collisioninfo.h>
 
 namespace loader
 {
@@ -26,7 +27,6 @@ namespace ai
 {
 struct CreatureInfo;
 }
-
 
 struct CollisionInfo;
 
@@ -160,8 +160,8 @@ struct ItemState final
 
     const loader::Sector* getCurrentSector() const
     {
-        Expects(position.room != nullptr);
-        return position.room->getSectorByAbsolutePosition(position.position);
+        Expects( position.room != nullptr );
+        return position.room->getSectorByAbsolutePosition( position.position );
     }
 
     static sol::usertype<ItemState> userType();
@@ -279,11 +279,6 @@ public:
 
     virtual void patchCeiling(const core::TRCoordinates& /*pos*/, int& /*y*/)
     {
-    }
-
-    virtual void onInteract(LaraNode& /*lara*/)
-    {
-        //BOOST_LOG_TRIVIAL(warning) << "Interaction not implemented: " << m_name;
     }
 
     void activate();
@@ -444,6 +439,10 @@ public:
 
     virtual BoundingBox getBoundingBox() const = 0;
 
+    virtual void collide(LaraNode& other, CollisionInfo& collisionInfo)
+    {
+    }
+
 protected:
     bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
                                const core::Angle& maxAngle)
@@ -560,6 +559,8 @@ public:
     BoundingBox getBoundingBox() const override;
 
     bool isNear(const ModelItemNode& other, int radius) const;
+
+    void enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 };
 
 

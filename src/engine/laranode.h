@@ -97,7 +97,7 @@ private:
 
     void handleLaraStateSwimming();
 
-    void testInteractions();
+    void testInteractions(CollisionInfo& collisionInfo);
 
     //! @brief If "none", we are not allowed to dive until the "Dive" action key is released
     //! @remarks This happens e.g. just after dive-to-swim transition, when players still
@@ -273,5 +273,28 @@ public:
     ai::LotInfo m_underwaterRoute;
 
     void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
+
+    boost::optional<core::Axis> hit_direction;
+    int hit_frame = 0;
+    int explosionStumblingDuration = 0;
+    const core::TRCoordinates* forceSourcePosition = nullptr;
+
+    void updateExplosionStumbling()
+    {
+        const auto v_rot = core::Angle::fromAtan(
+                forceSourcePosition->X - m_state.position.position.X,
+                forceSourcePosition->Z - m_state.position.position.Z) - 180_deg;
+        hit_direction = core::axisFromAngle(m_state.rotation.Y - v_rot, 45_deg);
+        Expects(hit_direction.is_initialized());
+        if ( hit_frame == 0 )
+        {
+            playSoundEffect(0x1b);
+        }
+        if ( ++hit_frame > 34 )
+        {
+            hit_frame = 34;
+        }
+        --explosionStumblingDuration;
+    }
 };
 }

@@ -8,36 +8,36 @@ namespace engine
 {
 namespace items
 {
-void Block::onInteract(LaraNode& lara)
+void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
 {
     if( !getLevel().m_inputHandler->getInputState().action || m_state.triggerState == TriggerState::Enabled
-        || m_state.falling || lara.m_state.position.position.Y != m_state.position.position.Y )
+        || m_state.falling || other.m_state.position.position.Y != m_state.position.position.Y )
     {
         return;
     }
 
     static const InteractionLimits limits{
-        core::BoundingBox{{-300, 0, -692},
-                          {200,  0, -512}},
-        {-10_deg, -30_deg, -10_deg},
-        {+10_deg, +30_deg, +10_deg}
+            core::BoundingBox{{-300, 0, -692},
+                              {200,  0, -512}},
+            {-10_deg, -30_deg, -10_deg},
+            {+10_deg, +30_deg, +10_deg}
     };
 
-    auto axis = core::axisFromAngle(lara.m_state.rotation.Y, 45_deg);
-    Expects(axis.is_initialized());
+    auto axis = core::axisFromAngle( other.m_state.rotation.Y, 45_deg );
+    Expects( axis.is_initialized() );
 
-    if( lara.getCurrentAnimState() == loader::LaraStateId::Stop )
+    if( other.getCurrentAnimState() == loader::LaraStateId::Stop )
     {
         if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null
-            || lara.getHandStatus() != 0 )
+            || other.getHandStatus() != 0 )
         {
             return;
         }
 
-        const core::Angle y = core::alignRotation(*axis);
+        const core::Angle y = core::alignRotation( *axis );
         m_state.rotation.Y = y;
 
-        if( !limits.canInteract(*this, lara) )
+        if( !limits.canInteract( *this, other ) )
         {
             return;
         }
@@ -46,71 +46,71 @@ void Block::onInteract(LaraNode& lara)
         {
             case core::Axis::PosZ:
             {
-                auto pos = lara.m_state.position.position;
+                auto pos = other.m_state.position.position;
                 pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 924;
-                lara.m_state.position.position = pos;
+                other.m_state.position.position = pos;
                 break;
             }
             case core::Axis::PosX:
             {
-                auto pos = lara.m_state.position.position;
+                auto pos = other.m_state.position.position;
                 pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 924;
-                lara.m_state.position.position = pos;
+                other.m_state.position.position = pos;
                 break;
             }
             case core::Axis::NegZ:
             {
-                auto pos = lara.m_state.position.position;
+                auto pos = other.m_state.position.position;
                 pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 100;
-                lara.m_state.position.position = pos;
+                other.m_state.position.position = pos;
                 break;
             }
             case core::Axis::NegX:
             {
-                auto pos = lara.m_state.position.position;
+                auto pos = other.m_state.position.position;
                 pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 100;
-                lara.m_state.position.position = pos;
+                other.m_state.position.position = pos;
                 break;
             }
             default:
                 break;
         }
 
-        lara.m_state.rotation.Y = y;
-        lara.setTargetState(loader::LaraStateId::PushableGrab);
-        lara.updateImpl();
-        if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
+        other.m_state.rotation.Y = y;
+        other.setTargetState( loader::LaraStateId::PushableGrab );
+        other.updateImpl();
+        if( other.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
         {
-            lara.setHandStatus(1);
+            other.setHandStatus( 1 );
         }
         return;
     }
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-        || lara.m_state.frame_number != 2091 || !limits.canInteract(*this, lara) )
+    if( other.getCurrentAnimState() != loader::LaraStateId::PushableGrab
+        || other.m_state.frame_number != 2091 || !limits.canInteract( *this, other ) )
     {
         return;
     }
 
     if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
     {
-        if( !canPushBlock(loader::SectorSize, *axis) )
+        if( !canPushBlock( loader::SectorSize, *axis ) )
         {
             return;
         }
 
         m_state.goal_anim_state = 2;
-        lara.setTargetState(loader::LaraStateId::PushablePush);
+        other.setTargetState( loader::LaraStateId::PushablePush );
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
-        if( !canPullBlock(loader::SectorSize, *axis) )
+        if( !canPullBlock( loader::SectorSize, *axis ) )
         {
             return;
         }
 
         m_state.goal_anim_state = 3;
-        lara.setTargetState(loader::LaraStateId::PushablePull);
+        other.setTargetState( loader::LaraStateId::PushablePull );
     }
     else
     {
@@ -118,7 +118,7 @@ void Block::onInteract(LaraNode& lara)
     }
 
     activate();
-    loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
+    loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
     m_state.triggerState = TriggerState::Enabled;
 
     ModelItemNode::update();
@@ -129,18 +129,18 @@ void Block::update()
 {
     if( m_state.activationState.isOneshot() )
     {
-        loader::Room::patchHeightsForBlock(*this, loader::SectorSize);
+        loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
         m_isActive = false;
-        m_state.activationState.setLocked(true);
+        m_state.activationState.setLocked( true );
         return;
     }
 
     ModelItemNode::update();
 
     auto pos = m_state.position;
-    auto sector = getLevel().findRealFloorSector(pos);
-    auto height = HeightInfo::fromFloor(sector, pos.position, getLevel().m_cameraController)
-        .distance;
+    auto sector = getLevel().findRealFloorSector( pos );
+    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_cameraController )
+            .distance;
     if( height > pos.position.Y )
     {
         m_state.falling = true;
@@ -154,11 +154,11 @@ void Block::update()
             m_state.falling = false;
             m_state.triggerState = TriggerState::Activated;
             //! @todo Shake camera
-            playSoundEffect(70);
+            playSoundEffect( 70 );
         }
     }
 
-    setCurrentRoom(pos.room);
+    setCurrentRoom( pos.room );
 
     if( m_state.triggerState != TriggerState::Activated )
     {
@@ -167,23 +167,23 @@ void Block::update()
 
     m_state.triggerState = TriggerState::Disabled;
     deactivate();
-    loader::Room::patchHeightsForBlock(*this, -loader::SectorSize);
+    loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     pos = m_state.position;
-    sector = getLevel().findRealFloorSector(pos);
-    HeightInfo hi = HeightInfo::fromFloor(sector, pos.position, getLevel().m_cameraController);
-    getLevel().m_lara->handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    sector = getLevel().findRealFloorSector( pos );
+    HeightInfo hi = HeightInfo::fromFloor( sector, pos.position, getLevel().m_cameraController );
+    getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(int height) const
 {
-    auto sector = getLevel().findRealFloorSector(m_state.position.position, m_state.position.room);
+    auto sector = getLevel().findRealFloorSector( m_state.position.position, m_state.position.room );
     return sector->floorHeight == -127
            || sector->floorHeight * loader::QuarterSectorSize == m_state.position.position.Y - height;
 }
 
 bool Block::canPushBlock(int height, core::Axis axis) const
 {
-    if( !isOnFloor(height) )
+    if( !isOnFloor( height ) )
     {
         return false;
     }
@@ -210,24 +210,25 @@ bool Block::canPushBlock(int height, core::Axis axis) const
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500;
-    if( tmp.checkStaticMeshCollisions(pos, 1000, getLevel()) )
+    if( tmp.checkStaticMeshCollisions( pos, 1000, getLevel() ) )
     {
         return false;
     }
 
-    auto targetSector = getLevel().findRealFloorSector(pos, m_state.position.room);
+    auto targetSector = getLevel().findRealFloorSector( pos, m_state.position.room );
     if( targetSector->floorHeight * loader::QuarterSectorSize != pos.Y )
     {
         return false;
     }
 
     pos.Y -= height;
-    return pos.Y >= getLevel().findRealFloorSector(pos, m_state.position.room)->ceilingHeight * loader::QuarterSectorSize;
+    return pos.Y
+           >= getLevel().findRealFloorSector( pos, m_state.position.room )->ceilingHeight * loader::QuarterSectorSize;
 }
 
 bool Block::canPullBlock(int height, core::Axis axis) const
 {
-    if( !isOnFloor(height) )
+    if( !isOnFloor( height ) )
     {
         return false;
     }
@@ -252,12 +253,12 @@ bool Block::canPullBlock(int height, core::Axis axis) const
     }
 
     const loader::Room* room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector(pos, &room);
+    auto sector = getLevel().findRealFloorSector( pos, &room );
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500;
-    if( tmp.checkStaticMeshCollisions(pos, 1000, getLevel()) )
+    if( tmp.checkStaticMeshCollisions( pos, 1000, getLevel() ) )
     {
         return false;
     }
@@ -269,7 +270,7 @@ bool Block::canPullBlock(int height, core::Axis axis) const
 
     auto topPos = pos;
     topPos.Y -= height;
-    auto topSector = getLevel().findRealFloorSector(topPos, m_state.position.room);
+    auto topSector = getLevel().findRealFloorSector( topPos, m_state.position.room );
     if( topPos.Y < topSector->ceilingHeight * loader::QuarterSectorSize )
     {
         return false;
@@ -294,14 +295,14 @@ bool Block::canPullBlock(int height, core::Axis axis) const
             break;
     }
 
-    sector = getLevel().findRealFloorSector(laraPos, &room);
+    sector = getLevel().findRealFloorSector( laraPos, &room );
     if( sector->floorHeight * loader::QuarterSectorSize != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::ScalpHeight;
-    sector = getLevel().findRealFloorSector(laraPos, &room);
+    sector = getLevel().findRealFloorSector( laraPos, &room );
     if( laraPos.Y < sector->ceilingHeight * loader::QuarterSectorSize )
     {
         return false;
@@ -331,7 +332,7 @@ bool Block::canPullBlock(int height, core::Axis axis) const
     }
     tmp.collisionRadius = core::DefaultCollisionRadius;
 
-    return !tmp.checkStaticMeshCollisions(laraPos, core::ScalpHeight, getLevel());
+    return !tmp.checkStaticMeshCollisions( laraPos, core::ScalpHeight, getLevel() );
 }
 }
 }

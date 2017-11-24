@@ -1,6 +1,7 @@
 #include "aiagent.h"
 #include "engine/heightinfo.h"
 #include "level/level.h"
+#include "engine/laranode.h"
 
 #include <boost/range/adaptors.hpp>
 
@@ -387,6 +388,25 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
     m_state.collidable = true;
     const core::Angle v = core::Angle( std::rand() % 65536 );
     m_state.rotation.Y += v;
+}
+
+void AIAgent::collide(LaraNode& other, CollisionInfo& collisionInfo)
+{
+    if( !m_state.isNear( other.m_state, collisionInfo.collisionRadius ) )
+        return;
+
+    if( !m_state.testBoneCollision( other.m_state ) )
+        return;
+
+    if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+        return;
+
+    bool enableSpaz = false;
+    if( m_state.health > 0 )
+    {
+        enableSpaz = (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
+    }
+    enemyPush( other, collisionInfo, enableSpaz, false );
 }
 }
 }

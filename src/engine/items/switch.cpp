@@ -7,19 +7,19 @@ namespace engine
 {
 namespace items
 {
-void Switch::onInteract(LaraNode& lara)
+void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
 {
     if( !getLevel().m_inputHandler->getInputState().action )
     {
         return;
     }
 
-    if( lara.getHandStatus() != 0 )
+    if( other.getHandStatus() != 0 )
     {
         return;
     }
 
-    if( lara.m_state.falling )
+    if( other.m_state.falling )
     {
         return;
     }
@@ -29,36 +29,36 @@ void Switch::onInteract(LaraNode& lara)
         return;
     }
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
+    if( other.getCurrentAnimState() != loader::LaraStateId::Stop )
     {
         return;
     }
 
     static const InteractionLimits limits{
-        core::BoundingBox{{-200, 0, 312},
-                          {+200, 0, 512}},
-        {-10_deg, -30_deg, -10_deg},
-        {+10_deg, +30_deg, +10_deg}
+            core::BoundingBox{{-200, 0, 312},
+                              {+200, 0, 512}},
+            {-10_deg, -30_deg, -10_deg},
+            {+10_deg, +30_deg, +10_deg}
     };
 
-    if( !limits.canInteract(*this, lara) )
+    if( !limits.canInteract( *this, other ) )
     {
         return;
     }
 
-    lara.m_state.rotation.Y = m_state.rotation.Y;
+    other.m_state.rotation.Y = m_state.rotation.Y;
 
     if( m_state.current_anim_state == 1 )
     {
-        BOOST_LOG_TRIVIAL(debug) << "Switch " << getNode()->getId() << ": pull down";
+        BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull down";
         do
         {
-            lara.setTargetState(loader::LaraStateId::SwitchDown);
-            lara.updateImpl();
-        } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
-        lara.setTargetState(loader::LaraStateId::Stop);
+            other.setTargetState( loader::LaraStateId::SwitchDown );
+            other.updateImpl();
+        } while( other.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
+        other.setTargetState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 0;
-        lara.setHandStatus(1);
+        other.setHandStatus( 1 );
     }
     else
     {
@@ -67,15 +67,15 @@ void Switch::onInteract(LaraNode& lara)
             return;
         }
 
-        BOOST_LOG_TRIVIAL(debug) << "Switch " << getNode()->getId() << ": pull up";
+        BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull up";
         do
         {
-            lara.setTargetState(loader::LaraStateId::SwitchUp);
-            lara.updateImpl();
-        } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
-        lara.setTargetState(loader::LaraStateId::Stop);
+            other.setTargetState( loader::LaraStateId::SwitchUp );
+            other.updateImpl();
+        } while( other.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
+        other.setTargetState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 1;
-        lara.setHandStatus(1);
+        other.setHandStatus( 1 );
     }
 
     m_state.triggerState = engine::items::TriggerState::Enabled;

@@ -154,7 +154,7 @@ void LaraNode::handleLaraStateOnLand()
 
     updateImpl();
 
-    testInteractions();
+    testInteractions(collisionInfo);
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
@@ -223,7 +223,7 @@ void LaraNode::handleLaraStateDiving()
         m_state.position.position = pos;
     }
 
-    testInteractions();
+    testInteractions(collisionInfo);
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
@@ -287,7 +287,7 @@ void LaraNode::handleLaraStateSwimming()
             getMovementAngle().cos() * m_state.fallspeed / 4
     );
 
-    testInteractions();
+    testInteractions(collisionInfo);
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
@@ -873,9 +873,10 @@ void LaraNode::setCameraOldMode(CameraMode k)
     getLevel().m_cameraController->setOldMode( k );
 }
 
-void LaraNode::testInteractions()
+void LaraNode::testInteractions(CollisionInfo& collisionInfo)
 {
     m_state.is_hit = false;
+    hit_direction.reset();
 
     if( m_health < 0 )
         return;
@@ -900,8 +901,18 @@ void LaraNode::testInteractions()
         if( std::abs( d.X ) >= 4096 || std::abs( d.Y ) >= 4096 || std::abs( d.Z ) >= 4096 )
             continue;
 
-        item->onInteract( *this );
+        item->collide( *this, collisionInfo );
     }
+
+    if ( getLevel().m_lara->explosionStumblingDuration != 0 )
+    {
+        getLevel().m_lara->updateExplosionStumbling();
+    }
+    if ( !getLevel().m_lara->hit_direction.is_initialized() )
+    {
+        getLevel().m_lara->hit_frame = 0;
+    }
+    // TODO selectedPuzzleKey = -1;
 }
 
 void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)

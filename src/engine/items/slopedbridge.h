@@ -25,7 +25,7 @@ namespace engine
             }
 
 
-            void onInteract(LaraNode& /*lara*/) override final
+            void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override final
             {
             }
 

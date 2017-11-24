@@ -23,11 +23,6 @@ namespace engine
             void update() override;
 
 
-            void onInteract(LaraNode& /*lara*/) override
-            {
-            }
-
-
             void patchFloor(const core::TRCoordinates& pos, int& y) override
             {
                 if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y )

@@ -137,12 +137,12 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const Characteristics characteristics,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{
-            level,
-            room,
-            item,
-            hasProcessAnimCommandsOverride,
-            characteristics
-        }
+        level,
+        room,
+        item,
+        hasProcessAnimCommandsOverride,
+        characteristics
+}
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
     m_skeleton->setAnimIdGlobal( m_state,
@@ -423,7 +423,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                             uniform.set( *texture );
                                         } );
     m_node->addMaterialParameterSetter( "u_baseLight", [darkness = item.darkness](const gameplay::Node& /*node*/,
-                                                                  gameplay::gl::Program::ActiveUniform& uniform) {
+                                                                                  gameplay::gl::Program::ActiveUniform& uniform) {
         uniform.set( (8192 - darkness) / 32.0f );
     } );
 }
@@ -450,9 +450,92 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
            && z <= aFrame->bbox.maxZ + radius;
 }
 
+void ModelItemNode::enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius)
+{
+    const auto dx = other.m_state.position.position.X - m_state.position.position.X;
+    const auto dz = other.m_state.position.position.Z - m_state.position.position.Z;
+    const auto c = m_state.rotation.Y.cos();
+    const auto s = m_state.rotation.Y.sin();
+    auto posX = c * dx - s * dz;
+    auto posZ = s * dx + c * dz;
+    const auto itemKeyFrame = m_skeleton->getInterpolationInfo( m_state ).getNearestFrame();
+    auto itemBBoxMinX = itemKeyFrame->bbox.minX;
+    auto itemBBoxMaxX = itemKeyFrame->bbox.maxX;
+    auto itemBBoxMaxZ = itemKeyFrame->bbox.maxZ;
+    auto itemBBoxMinZ = itemKeyFrame->bbox.minZ;
+    if( withXZCollRadius )
+    {
+        const auto r = collisionInfo.collisionRadius;
+        itemBBoxMinX -= r;
+        itemBBoxMaxX += r;
+        itemBBoxMinZ -= r;
+        itemBBoxMaxZ += r;
+    }
+    if( posX >= itemBBoxMinX && posX <= itemBBoxMaxX && posZ >= itemBBoxMinZ && posZ <= itemBBoxMaxZ )
+    {
+        const auto dxMin = posX - itemBBoxMinX;
+        const auto dxMax = itemBBoxMaxX - posX;
+        const auto dzMin = posZ - itemBBoxMinZ;
+        const auto dzMax = itemBBoxMaxZ - posZ;
+        if( posX - itemBBoxMinX <= itemBBoxMaxX - posX && dxMin <= dzMax && dxMin <= dzMin )
+        {
+            posX -= dxMin;
+        }
+        else if( dxMin >= dxMax && dxMax <= dzMax && dxMax <= dzMin )
+        {
+            posX = itemBBoxMaxX;
+        }
+        else if( dxMin < dzMax || dzMax > dxMax || dzMax > dzMin )
+        {
+            posZ -= dzMin;
+        }
+        else
+        {
+            posZ = itemBBoxMaxZ;
+        }
+        other.m_state.position.position.X = ((c * posX + s * posZ)) + m_state.position.position.X;
+        other.m_state.position.position.Z = ((c * posZ - s * posX)) + m_state.position.position.Z;
+        if( enableSpaz )
+        {
+            const auto midX = (itemKeyFrame->bbox.minX + itemKeyFrame->bbox.maxX) / 2;
+            const auto midZ = (itemKeyFrame->bbox.minZ + itemKeyFrame->bbox.maxZ) / 2;
+            const auto a = core::Angle::fromAtan( dx - ((midX * c + midZ * s)), dz - ((midZ * c - midX * s)) )
+                           - 180_deg;
+            getLevel().m_lara->hit_direction = core::axisFromAngle( other.m_state.rotation.Y - a, 45_deg ).get();
+            if( getLevel().m_lara->hit_frame == 0 )
+            {
+                other.playSoundEffect( 27 );
+            }
+            if( ++getLevel().m_lara->hit_frame > 34 )
+            {
+                getLevel().m_lara->hit_frame = 34;
+            }
+        }
+        collisionInfo.badPositiveDistance = 32512;
+        collisionInfo.badNegativeDistance = -384;
+        collisionInfo.badCeilingDistance = 0;
+        const auto facingAngle = collisionInfo.facingAngle;
+        collisionInfo.facingAngle = core::Angle::fromAtan(
+                other.m_state.position.position.X - collisionInfo.oldPosition.X,
+                other.m_state.position.position.Z - collisionInfo.oldPosition.Z );
+        collisionInfo.initHeightInfo( other.m_state.position.position, getLevel(), 762 );
+        collisionInfo.facingAngle = facingAngle;
+        if( collisionInfo.collisionType != CollisionInfo::AxisColl_None )
+        {
+            other.m_state.position.position.X = collisionInfo.oldPosition.X;
+            other.m_state.position.position.Z = collisionInfo.oldPosition.Z;
+        }
+        else
+        {
+            collisionInfo.oldPosition = other.m_state.position.position;
+            other.updateFloorHeight( -10 );
+        }
+    }
+}
+
 bool ItemState::stalkBox(const level::Level& lvl, const loader::Box* box) const
 {
-    Expects(box != nullptr);
+    Expects( box != nullptr );
 
     const auto laraToBoxDistX = (box->xmin + box->xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxDistZ = (box->zmin + box->zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
@@ -542,8 +625,8 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl, const int16_t z
 {
     Expects( creatureInfo != nullptr );
     Expects( box != nullptr );
-    
-    const auto zoneRef = loader::Box::getZoneRef(lvl.roomsAreSwapped, creatureInfo->lot.fly, creatureInfo->lot.step);
+
+    const auto zoneRef = loader::Box::getZoneRef( lvl.roomsAreSwapped, creatureInfo->lot.fly, creatureInfo->lot.step );
 
     if( zoneId != box->*zoneRef )
     {
@@ -590,14 +673,14 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>(lvl, this);
+    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, this );
     collectZoneBoxes( lvl );
 }
 
 void ItemState::collectZoneBoxes(const level::Level& lvl)
 {
-    const auto zoneRef1 = loader::Box::getZoneRef(false, creatureInfo->lot.fly, creatureInfo->lot.step);
-    const auto zoneRef2 = loader::Box::getZoneRef(true, creatureInfo->lot.fly, creatureInfo->lot.step);
+    const auto zoneRef1 = loader::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
+    const auto zoneRef2 = loader::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
 
     box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->box;
     const auto zoneData1 = box_number->*zoneRef1;
@@ -605,9 +688,9 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     creatureInfo->lot.boxes.clear();
     for( const auto& box : lvl.m_boxes )
     {
-        if(box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
+        if( box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
         {
-            creatureInfo->lot.boxes.emplace_back(&box);
+            creatureInfo->lot.boxes.emplace_back( &box );
         }
     }
 }
