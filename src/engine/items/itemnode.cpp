@@ -354,27 +354,23 @@ void ModelItemNode::applyMovement(const bool forLara)
     {
         if( m_state.fallspeed >= 128 )
         {
-            const int16_t spd = m_state.fallspeed + 1;
-            m_state.fallspeed = spd;
+            m_state.fallspeed += 1;
         }
         else
         {
-            const int16_t spd = m_state.fallspeed + 6;
-            m_state.fallspeed = spd;
+            m_state.fallspeed += 6;
         }
 
         if( forLara )
         {
             // we only add accelleration here
-            const int16_t speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0 )
-                                  - m_skeleton->calculateFloorSpeed( m_state, -1 );
-            m_state.speed = speed;
+            m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0 )
+                            - m_skeleton->calculateFloorSpeed( m_state, -1 );
         }
     }
     else
     {
-        const int16_t speed = m_skeleton->calculateFloorSpeed( m_state );
-        m_state.speed = speed;
+        m_state.speed = m_skeleton->calculateFloorSpeed( m_state );
     }
 
     move(

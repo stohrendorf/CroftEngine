@@ -311,7 +311,7 @@ bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
 }
 
 
-void SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, int16_t animId, int16_t frame)
+void SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, uint16_t animId, uint16_t frame)
 {
     BOOST_ASSERT( animId < m_level->m_animations.size() );
 

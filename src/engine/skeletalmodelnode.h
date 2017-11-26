@@ -56,7 +56,7 @@ public:
 
     void updatePose(engine::items::ItemState& state);
 
-    void setAnimIdGlobal(engine::items::ItemState& state, int16_t animId, int16_t frame);
+    void setAnimIdGlobal(engine::items::ItemState& state, uint16_t animId, uint16_t frame);
 
     int calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset = 0) const;
 
