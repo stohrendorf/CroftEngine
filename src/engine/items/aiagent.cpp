@@ -392,10 +392,10 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
 
 void AIAgent::collide(LaraNode& other, CollisionInfo& collisionInfo)
 {
-    if( !m_state.isNear( other.m_state, collisionInfo.collisionRadius ) )
+    if( !isNear( other, collisionInfo.collisionRadius ) )
         return;
 
-    if( !m_state.testBoneCollision( other.m_state ) )
+    if( !testBoneCollision( other ) )
         return;
 
     if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )

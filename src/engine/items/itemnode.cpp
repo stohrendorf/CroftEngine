@@ -3,6 +3,8 @@
 #include "engine/laranode.h"
 #include "level/level.h"
 
+#include <boost/range/adaptor/indexed.hpp>
+
 namespace engine
 {
 namespace items
@@ -529,6 +531,38 @@ void ModelItemNode::enemyPush(LaraNode& other, CollisionInfo& collisionInfo, boo
     }
 }
 
+bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
+{
+    m_state.touch_bits = 0;
+    const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
+            m_state,
+            *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
+            nullptr );
+    const auto laraCyls = other.m_skeleton->getBoneCollisionCylinders(
+            other.m_state,
+            *other.m_skeleton->getInterpolationInfo( other.m_state ).getNearestFrame(),
+            nullptr );
+    for( const auto& itemCyl : itemCyls | boost::adaptors::indexed( 0 ) )
+    {
+        if( itemCyl.value().radius <= 0 )
+            continue;
+
+        for( const auto& laraCyl : laraCyls )
+        {
+            if( laraCyl.radius <= 0 )
+                continue;
+            if( laraCyl.position.distanceTo( itemCyl.value().position )
+                >= util::square( itemCyl.value().radius + laraCyl.radius ) )
+                continue;
+
+            m_state.touch_bits |= 1 << itemCyl.index();
+            break;
+        }
+    }
+
+    return m_state.touch_bits != 0;
+}
+
 bool ItemState::stalkBox(const level::Level& lvl, const loader::Box* box) const
 {
     Expects( box != nullptr );
@@ -703,8 +737,6 @@ sol::usertype<ItemState> ItemState::userType()
             "activation_state", &ItemState::triggerState,
             "patch_heights", [](ItemState& self, int delta) { /* TODO */ },
             "health", &ItemState::health,
-            "is_near", &ItemState::isNear,
-            "test_bone_collision", &ItemState::testBoneCollision,
             "do_enemy_push", []() { /* TODO */ },
             "set_y_angle", [](ItemState& self, int16_t angle) { self.rotation.Y = core::Angle( angle ); },
             "set_collidable", [](ItemState& self, bool flag) { self.collidable = flag; },

@@ -136,18 +136,6 @@ struct ItemState final
         return !activationState.isInverted();
     }
 
-    bool isNear(const ItemState& other, int radius) const
-    {
-        // TODO
-        return false;
-    }
-
-    bool testBoneCollision(const ItemState& other) const
-    {
-        // TODO
-        return false;
-    }
-
     bool stalkBox(const level::Level& lvl, const loader::Box* box) const;
 
     bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box* box) const;
@@ -559,6 +547,7 @@ public:
     BoundingBox getBoundingBox() const override;
 
     bool isNear(const ModelItemNode& other, int radius) const;
+    bool testBoneCollision(const ModelItemNode& other);
 
     void enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 };

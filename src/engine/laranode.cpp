@@ -563,6 +563,30 @@ void LaraNode::updateImpl()
     getSkeleton()->resetPose();
     getSkeleton()->patchBone( 7, m_torsoRotation.toMatrix() );
     getSkeleton()->patchBone( 14, m_headRotation.toMatrix() );
+
+    if(!hit_direction.is_initialized())
+        return;
+
+    const int16_t* animFrameData = nullptr;
+    switch(*hit_direction)
+    {
+        case core::Axis::PosZ:
+            animFrameData = &getLevel().m_poseData[getLevel().m_animations[125].poseDataOffset / 2];
+            break;
+        case core::Axis::NegZ:
+            animFrameData = &getLevel().m_poseData[getLevel().m_animations[126].poseDataOffset / 2];
+            break;
+        case core::Axis::PosX:
+            animFrameData = &getLevel().m_poseData[getLevel().m_animations[127].poseDataOffset / 2];
+            break;
+        case core::Axis::NegX:
+            animFrameData = &getLevel().m_poseData[getLevel().m_animations[128].poseDataOffset / 2];
+            break;
+    }
+
+    SkeletalModelNode::InterpolationInfo interpolationInfo;
+    interpolationInfo.firstFrame = reinterpret_cast<const SkeletalModelNode::AnimFrame *>((animFrameData + (2 * getLevel().m_animatedModels[m_state.object_number]->boneCount + 10) * hit_frame));
+    getSkeleton()->updatePose(interpolationInfo);
 }
 
 void LaraNode::updateFloorHeight(int dy)

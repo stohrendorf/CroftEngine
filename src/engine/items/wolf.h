@@ -24,11 +24,6 @@ namespace engine
 
 
             void update() override;
-
-
-            void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override
-            {
-            }
         };
     }
 }

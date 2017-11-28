@@ -146,11 +146,8 @@ void SkeletalModelNode::updatePose(engine::items::ItemState& state)
     BOOST_ASSERT( getChildCount() > 0 );
     BOOST_ASSERT( getChildCount() == m_model.boneCount );
 
-    auto framePair = getInterpolationInfo(state);
-    if( framePair.bias == 0 || framePair.secondFrame == nullptr )
-        updatePoseKeyframe(framePair);
-    else
-        updatePoseInterpolated(framePair);
+    auto interpolationInfo = getInterpolationInfo(state);
+    updatePose(interpolationInfo);
 }
 
 
@@ -331,5 +328,65 @@ bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
     ++state.frame_number;
     handleStateTransitions(state);
     return state.frame_number >= getEndFrame(state);
+}
+
+std::vector<SkeletalModelNode::Cylinder> SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& state, const SkeletalModelNode::AnimFrame& frame, const glm::mat4* baseTransform)
+{
+    BOOST_ASSERT( frame.numValues > 0 );
+
+    if( m_bonePatches.empty() )
+        resetPose();
+    BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+
+    const auto angleData = frame.getAngleData();
+
+    std::stack<glm::mat4> transforms;
+
+    core::TRCoordinates pos;
+
+    if ( baseTransform == nullptr )
+    {
+        pos = state.position.position;
+        transforms.push(glm::mat4{1.0f});
+    }
+    else
+    {
+        pos = core::TRCoordinates(0, 0, 0);
+        transforms.push(*baseTransform * state.rotation.toMatrix());
+    }
+
+    transforms.top() = glm::translate(transforms.top(), frame.pos.toGl())
+                    * core::fromPackedAngles(angleData[0]) * m_bonePatches[0];
+
+    const auto* mesh = &m_level->m_meshes[m_model.firstMesh];
+
+    std::vector<Cylinder> result;
+    result.emplace_back(pos + core::TRCoordinates(glm::vec3(transforms.top()[3])), mesh->collision_size);
+    ++mesh;
+
+    const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
+    for( uint16_t i = 1; i < m_model.boneCount; ++i, ++positionData, ++mesh )
+    {
+        BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
+
+        if( positionData->flags & 0x01 )
+        {
+            transforms.pop();
+        }
+        if( positionData->flags & 0x02 )
+        {
+            transforms.push({transforms.top()}); // make sure to have a copy, not a reference
+        }
+
+        if( frame.numValues < i )
+            transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl()) * m_bonePatches[i];
+        else
+            transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl())
+                                * core::fromPackedAngles(angleData[i]) * m_bonePatches[i];
+
+        result.emplace_back(pos + core::TRCoordinates(glm::vec3(transforms.top()[3])), mesh->collision_size);
+    }
+
+    return result;
 }
 }
