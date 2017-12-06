@@ -281,10 +281,10 @@ public:
 
     void updateExplosionStumbling()
     {
-        const auto v_rot = core::Angle::fromAtan(
+        const auto rot = core::Angle::fromAtan(
                 forceSourcePosition->X - m_state.position.position.X,
                 forceSourcePosition->Z - m_state.position.position.Z) - 180_deg;
-        hit_direction = core::axisFromAngle(m_state.rotation.Y - v_rot, 45_deg);
+        hit_direction = core::axisFromAngle(m_state.rotation.Y - rot, 45_deg);
         Expects(hit_direction.is_initialized());
         if ( hit_frame == 0 )
         {
