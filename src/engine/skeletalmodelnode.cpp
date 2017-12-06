@@ -361,7 +361,7 @@ std::vector<SkeletalModelNode::Cylinder> SkeletalModelNode::getBoneCollisionCyli
     const auto* mesh = &m_level->m_meshes[m_model.firstMesh];
 
     std::vector<Cylinder> result;
-    result.emplace_back(pos + core::TRCoordinates(glm::vec3(transforms.top()[3])), mesh->collision_size);
+    result.emplace_back(pos + core::TRCoordinates(glm::vec3(glm::translate(transforms.top(), mesh->center.toRenderSystem())[3])), mesh->collision_size);
     ++mesh;
 
     const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.boneTreeIndex]);
@@ -384,7 +384,7 @@ std::vector<SkeletalModelNode::Cylinder> SkeletalModelNode::getBoneCollisionCyli
             transforms.top() *= glm::translate(glm::mat4{1.0f}, positionData->toGl())
                                 * core::fromPackedAngles(angleData[i]) * m_bonePatches[i];
 
-        result.emplace_back(pos + core::TRCoordinates(glm::vec3(transforms.top()[3])), mesh->collision_size);
+        result.emplace_back(pos + core::TRCoordinates(glm::vec3(glm::translate(transforms.top(), mesh->center.toRenderSystem())[3])), mesh->collision_size);
     }
 
     return result;

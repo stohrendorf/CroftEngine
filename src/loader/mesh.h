@@ -41,7 +41,7 @@ namespace loader
             mesh->center = readCoordinates16(reader);
             mesh->collision_size = reader.readI32();
 
-            reader.readVector(mesh->vertices, reader.readI16(), &io::readCoordinates16);
+            reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
 
             auto num_normals = reader.readI16();
             if( num_normals >= 0 )
