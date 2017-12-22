@@ -40,6 +40,16 @@ using namespace level;
 
 Level::~Level() = default;
 
+constexpr uint16_t TrackActionMusic = 13;
+// welcome to my home, I*ll take you on a guided tour
+constexpr uint16_t TrackWelcomeToMyHome = 29;
+// with the walk button down, I won't fall off, even if you try to make me. go on, try it.
+constexpr uint16_t TrackWalkWontFallOff = 37;
+// then let go
+constexpr uint16_t TrackThenLetGo = 49;
+// let's go for a swim
+constexpr uint16_t TrackLetsGoForASwim = 50;
+
 /// \brief reads the mesh data.
 void Level::readMeshData(loader::io::SDLReader& reader)
 {
@@ -928,9 +938,9 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 
             if( (col & 0x8000) != 0 )
             {
-                const uint8_t r = ((col & 0x00007c00) >> 7);
-                const uint8_t g = ((col & 0x000003e0) >> 2);
-                const uint8_t b = ((col & 0x0000001f) << 3);
+                const uint8_t r = static_cast<const uint8_t>((col & 0x00007c00) >> 7);
+                const uint8_t g = static_cast<const uint8_t>((col & 0x000003e0) >> 2);
+                const uint8_t b = static_cast<const uint8_t>((col & 0x0000001f) << 3);
                 dst.pixels[y][x] = {r, g, b, 1};
             }
             else
@@ -1039,7 +1049,7 @@ void Level::drawBars(gameplay::Game* game, const std::shared_ptr<gameplay::gl::I
 {
     if( m_lara->isInWater() )
     {
-        const int x0 = game->getViewport().width - 110;
+        const int x0 = static_cast<const int>(game->getViewport().width - 110);
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor() );
@@ -1084,7 +1094,7 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
     if( trackId < 1 || trackId >= 64 )
         return;
 
-    if( trackId < 28 )
+    if( trackId < 28 ) // music
     {
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
@@ -1094,25 +1104,25 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
     {
         if( m_cdTrackActivationStates[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
-            trackId = 29;
+            trackId = TrackWelcomeToMyHome;
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
-    if( trackId == 37 || trackId == 41 )
+    if( trackId == TrackWalkWontFallOff || trackId == 41 )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
-    if( trackId >= 29 && trackId <= 40 )
+    if( trackId >= TrackWelcomeToMyHome && trackId <= 40 )
     {
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
-    if( trackId >= 42 && trackId <= 48 )
+    if( trackId >= 42 && trackId <= 48 ) // gym tutorial voice lines
     {
         if( trackId == 42 && m_cdTrackActivationStates[42].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
@@ -1121,16 +1131,16 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
         return;
     }
 
-    if( trackId == 49 )
+    if( trackId == TrackThenLetGo )
     {
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
         return;
     }
 
-    if( trackId == 50 )
+    if( trackId == TrackLetsGoForASwim )
     {
-        if( m_cdTrackActivationStates[50].isOneshot() )
+        if( m_cdTrackActivationStates[TrackLetsGoForASwim].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
             {
@@ -1146,7 +1156,7 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
         return;
     }
 
-    if( trackId >= 51 && trackId <= 63 )
+    if( trackId >= 51 && trackId <= 63 ) // voice lines and SFX
     {
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
@@ -1181,7 +1191,7 @@ void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::Acti
 
 void Level::playCdTrack(uint16_t trackId)
 {
-    if( trackId == 13 )
+    if( trackId == TrackActionMusic )
     {
         m_lara->playSoundEffect( 173 );
         return;
@@ -1194,7 +1204,7 @@ void Level::playCdTrack(uint16_t trackId)
 
     if( m_activeCDTrack >= 26 && m_activeCDTrack <= 56 )
     {
-        stopSoundEffect( m_activeCDTrack + 148 );
+        stopSoundEffect( static_cast<uint16_t>(m_activeCDTrack + 148) );
     }
     else if( m_activeCDTrack > 0 )
     {
@@ -1216,7 +1226,7 @@ void Level::playCdTrack(uint16_t trackId)
     {
         trackId = 2;
     }
-    else if( trackId >= 22 && trackId <= 25 )
+    else if( trackId >= 22 && trackId <= 25 ) // non-ambient (cinematic) music
     {
         trackId -= 15;
     }
@@ -1246,7 +1256,7 @@ void Level::stopCdTrack(uint16_t trackId)
     }
     else
     {
-        stopSoundEffect( trackId + 148 );
+        stopSoundEffect( static_cast<uint16_t>(trackId + 148) );
     }
 
     m_activeCDTrack = 0;

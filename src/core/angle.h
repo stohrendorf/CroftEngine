@@ -98,7 +98,7 @@ public:
 
     constexpr int16_t toAU() const noexcept
     {
-        return m_value / Scale;
+        return static_cast<int16_t>(m_value / Scale);
     }
 
     Angle operator-(const Angle& rhs) const noexcept
@@ -361,7 +361,7 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
     auto getAngle = [angleData](uint8_t n) -> Angle {
         BOOST_ASSERT( n < 3 );
-        return Angle( ((angleData >> 10 * n) & 0x3ff) * 64 );
+        return Angle( static_cast<int16_t>(((angleData >> 10 * n) & 0x3ff) * 64) );
     };
 
     TRRotation r{getAngle( 2 ), getAngle( 1 ), getAngle( 0 )};
