@@ -148,8 +148,8 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
     m_skeleton->setAnimIdGlobal( m_state,
-                                 animatedModel.animationIndex,
-                                 getLevel().m_animations.at( animatedModel.animationIndex ).firstFrame );
+                                 animatedModel.anim_index,
+                                 getLevel().m_animations.at( animatedModel.anim_index ).firstFrame );
 }
 
 void ModelItemNode::update()
@@ -387,7 +387,7 @@ void ModelItemNode::applyMovement(const bool forLara)
     updateLighting();
 }
 
-BoundingBox ModelItemNode::getBoundingBox() const
+loader::BoundingBox ModelItemNode::getBoundingBox() const
 {
     return m_skeleton->getBoundingBox( m_state );
 }

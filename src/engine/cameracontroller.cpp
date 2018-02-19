@@ -171,12 +171,14 @@ void CameraController::tracePortals()
     }
 }
 
-bool CameraController::clampY(const core::TRCoordinates& target, core::TRCoordinates& current,
-                              gsl::not_null<const loader::Sector*> sector) const
+bool CameraController::clampY(const core::TRCoordinates& target,
+                              core::TRCoordinates& current,
+                              gsl::not_null<const loader::Sector*> sector,
+                              const level::Level& level)
 {
     const auto d = current - target;
-    const HeightInfo floor = HeightInfo::fromFloor( sector, current, this );
-    const HeightInfo ceiling = HeightInfo::fromCeiling( sector, current, this );
+    const HeightInfo floor = HeightInfo::fromFloor( sector, current, level.m_itemNodes, level.m_floorData );
+    const HeightInfo ceiling = HeightInfo::fromCeiling( sector, current, level.m_itemNodes, level.m_floorData );
     BOOST_ASSERT( ceiling.distance < floor.distance );
 
     if( floor.distance < current.Y && floor.distance > target.Y )
@@ -198,31 +200,31 @@ bool CameraController::clampY(const core::TRCoordinates& target, core::TRCoordin
     return true;
 }
 
-CameraController::ClampType CameraController::clampAlongX(core::RoomBoundPosition& current) const
+CameraController::ClampType CameraController::clampAlongX(core::RoomBoundPosition& current, const core::RoomBoundPosition& target, const level::Level& level)
 {
-    if( m_target.position.X == current.position.X )
+    if( target.position.X == current.position.X )
     {
         return ClampType::None;
     }
 
-    const auto d = current.position - m_target.position;
+    const auto d = current.position - target.position;
 
     const int sign = d.X < 0 ? -1 : 1;
 
     core::TRCoordinates testPos;
-    testPos.X = (m_target.position.X / loader::SectorSize) * loader::SectorSize;
+    testPos.X = (target.position.X / loader::SectorSize) * loader::SectorSize;
     if( sign > 0 )
         testPos.X += loader::SectorSize - 1;
 
-    testPos.Y = m_target.position.Y + (testPos.X - m_target.position.X) * d.Y / d.X;
-    testPos.Z = m_target.position.Z + (testPos.X - m_target.position.X) * d.Z / d.X;
+    testPos.Y = target.position.Y + (testPos.X - target.position.X) * d.Y / d.X;
+    testPos.Z = target.position.Z + (testPos.X - target.position.X) * d.Z / d.X;
 
     core::TRCoordinates step;
     step.X = sign * loader::SectorSize;
     step.Y = step.X * d.Y / d.X;
     step.Z = step.X * d.Z / d.X;
 
-    auto newRoom = m_target.room;
+    auto newRoom = target.room;
 
     while( true )
     {
@@ -240,9 +242,9 @@ CameraController::ClampType CameraController::clampAlongX(core::RoomBoundPositio
         core::TRCoordinates heightPos = testPos;
         BOOST_ASSERT(
                 heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1 );
-        auto sector = m_level->findRealFloorSector( heightPos, &newRoom );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, this ).distance
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, this ).distance )
+        auto sector = level.findRealFloorSector( heightPos, &newRoom );
+        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance
+            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance )
         {
             current.position = testPos;
             current.room = newRoom;
@@ -253,9 +255,9 @@ CameraController::ClampType CameraController::clampAlongX(core::RoomBoundPositio
         BOOST_ASSERT(
                 heightPos.X % loader::SectorSize == 0 || heightPos.X % loader::SectorSize == loader::SectorSize - 1 );
         const auto testRoom = newRoom;
-        sector = m_level->findRealFloorSector( heightPos, &newRoom );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, this ).distance
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, this ).distance )
+        sector = level.findRealFloorSector( heightPos, &newRoom );
+        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance
+            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance )
         {
             current.position = testPos;
             current.room = testRoom;
@@ -266,32 +268,32 @@ CameraController::ClampType CameraController::clampAlongX(core::RoomBoundPositio
     }
 }
 
-CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundPosition& current) const
+CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundPosition& current, const core::RoomBoundPosition& target, const level::Level& level)
 {
-    if( m_target.position.Z == current.position.Z )
+    if( target.position.Z == current.position.Z )
     {
         return ClampType::None;
     }
 
-    const auto d = current.position - m_target.position;
+    const auto d = current.position - target.position;
 
     const int sign = d.Z < 0 ? -1 : 1;
 
     core::TRCoordinates testPos;
-    testPos.Z = (m_target.position.Z / loader::SectorSize) * loader::SectorSize;
+    testPos.Z = (target.position.Z / loader::SectorSize) * loader::SectorSize;
 
     if( sign > 0 )
         testPos.Z += loader::SectorSize - 1;
 
-    testPos.X = m_target.position.X + (testPos.Z - m_target.position.Z) * d.X / d.Z;
-    testPos.Y = m_target.position.Y + (testPos.Z - m_target.position.Z) * d.Y / d.Z;
+    testPos.X = target.position.X + (testPos.Z - target.position.Z) * d.X / d.Z;
+    testPos.Y = target.position.Y + (testPos.Z - target.position.Z) * d.Y / d.Z;
 
     core::TRCoordinates step;
     step.Z = sign * loader::SectorSize;
     step.X = step.Z * d.X / d.Z;
     step.Y = step.Z * d.Y / d.Z;
 
-    auto newRoom = m_target.room;
+    auto newRoom = target.room;
 
     while( true )
     {
@@ -309,9 +311,9 @@ CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundPositio
         core::TRCoordinates heightPos = testPos;
         BOOST_ASSERT(
                 heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1 );
-        auto sector = m_level->findRealFloorSector( heightPos, &newRoom );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, this ).distance
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, this ).distance )
+        auto sector = level.findRealFloorSector( heightPos, &newRoom );
+        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance
+            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance )
         {
             current.position = testPos;
             current.room = newRoom;
@@ -322,9 +324,9 @@ CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundPositio
         BOOST_ASSERT(
                 heightPos.Z % loader::SectorSize == 0 || heightPos.Z % loader::SectorSize == loader::SectorSize - 1 );
         const auto testRoom = newRoom;
-        sector = m_level->findRealFloorSector( heightPos, &newRoom );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, this ).distance
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, this ).distance )
+        sector = level.findRealFloorSector( heightPos, &newRoom );
+        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance
+            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes, level.m_floorData ).distance )
         {
             current.position = testPos;
             current.room = testRoom;
@@ -335,21 +337,21 @@ CameraController::ClampType CameraController::clampAlongZ(core::RoomBoundPositio
     }
 }
 
-bool CameraController::clampPosition(core::RoomBoundPosition& current) const
+bool CameraController::clampPosition(core::RoomBoundPosition& current, const core::RoomBoundPosition& target, const level::Level& level)
 {
     //BOOST_ASSERT(m_target.room->isInnerPositionXZ(m_target.goalPosition));
 
     bool firstUnclamped;
     ClampType secondClamp;
-    if( std::abs( current.position.Z - m_target.position.Z ) <= std::abs( current.position.X - m_target.position.X ) )
+    if( std::abs( current.position.Z - target.position.Z ) <= std::abs( current.position.X - target.position.X ) )
     {
-        firstUnclamped = clampAlongZ( current ) == ClampType::None;
-        secondClamp = clampAlongX( current );
+        firstUnclamped = clampAlongZ( current, target, level ) == ClampType::None;
+        secondClamp = clampAlongX( current, target, level );
     }
     else
     {
-        firstUnclamped = clampAlongX( current ) == ClampType::None;
-        secondClamp = clampAlongZ( current );
+        firstUnclamped = clampAlongX( current, target, level ) == ClampType::None;
+        secondClamp = clampAlongZ( current, target, level );
     }
 
     if( secondClamp != ClampType::Horizontal )
@@ -357,8 +359,8 @@ bool CameraController::clampPosition(core::RoomBoundPosition& current) const
         return false;
     }
 
-    const auto sector = m_level->findRealFloorSector( current );
-    return clampY( m_target.position, current.position, sector ) && firstUnclamped && secondClamp == ClampType::None;
+    const auto sector = level.findRealFloorSector( current );
+    return clampY( target.position, current.position, sector, level ) && firstUnclamped && secondClamp == ClampType::None;
 }
 
 void CameraController::update()
@@ -471,7 +473,7 @@ void CameraController::update()
         }
 
         const auto sector = m_level->findRealFloorSector( m_target );
-        if( HeightInfo::fromFloor( sector, m_target.position, this ).distance < m_target.position.Y )
+        if( HeightInfo::fromFloor( sector, m_target.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance < m_target.position.Y )
             HeightInfo::skipSteepSlants = false;
 
         if( m_mode != CameraMode::Chase && m_oldMode != CameraMode::Combat )
@@ -526,7 +528,7 @@ void CameraController::handleCamOverride()
     core::RoomBoundPosition pos( &m_level->m_rooms[m_level->m_cameras[m_fixedCameraId].room] );
     pos.position = m_level->m_cameras[m_fixedCameraId].position;
 
-    if( !clampPosition( pos ) )
+    if( !clampPosition( pos, m_target, *m_level ) )
         moveIntoGeometry( pos, loader::QuarterSectorSize );
 
     m_tracking = true;
@@ -558,8 +560,8 @@ int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin)
              && isVerticallyOutsideRoom( pos.position + core::TRCoordinates( margin, 0, 0 ), pos.room ) )
         pos.position.X = sector->box->xmax - margin;
 
-    auto bottom = HeightInfo::fromFloor( sector, pos.position, this ).distance - margin;
-    auto top = HeightInfo::fromCeiling( sector, pos.position, this ).distance + margin;
+    auto bottom = HeightInfo::fromFloor( sector, pos.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance - margin;
+    auto top = HeightInfo::fromCeiling( sector, pos.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance + margin;
     if( bottom < top )
         top = bottom = (bottom + top) / 2;
 
@@ -574,8 +576,8 @@ bool CameraController::isVerticallyOutsideRoom(const core::TRCoordinates& pos,
                                                const gsl::not_null<const loader::Room*>& room) const
 {
     const gsl::not_null<const loader::Sector*> sector = m_level->findRealFloorSector( pos, room );
-    const auto floor = HeightInfo::fromFloor( sector, pos, this ).distance;
-    const auto ceiling = HeightInfo::fromCeiling( sector, pos, this ).distance;
+    const auto floor = HeightInfo::fromFloor( sector, pos, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance;
+    const auto ceiling = HeightInfo::fromCeiling( sector, pos, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance;
     return pos.Y > floor || pos.Y <= ceiling;
 }
 
@@ -585,15 +587,15 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goalPositio
     HeightInfo::skipSteepSlants = false;
     m_position.room = goalPosition.room;
     auto sector = m_level->findRealFloorSector( m_position );
-    auto floor = HeightInfo::fromFloor( sector, m_position.position, this ).distance - loader::QuarterSectorSize;
+    auto floor = HeightInfo::fromFloor( sector, m_position.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance - loader::QuarterSectorSize;
     if( floor <= m_position.position.Y && floor <= goalPosition.position.Y )
     {
-        clampPosition( m_position );
+        clampPosition( m_position, m_target, *m_level );
         sector = m_level->findRealFloorSector( m_position );
-        floor = HeightInfo::fromFloor( sector, m_position.position, this ).distance - loader::QuarterSectorSize;
+        floor = HeightInfo::fromFloor( sector, m_position.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance - loader::QuarterSectorSize;
     }
 
-    auto ceiling = HeightInfo::fromCeiling( sector, m_position.position, this ).distance + loader::QuarterSectorSize;
+    auto ceiling = HeightInfo::fromCeiling( sector, m_position.position, getLevel()->m_itemNodes, getLevel()->m_floorData ).distance + loader::QuarterSectorSize;
     if( floor < ceiling )
     {
         floor = ceiling = (floor + ceiling) / 2;
@@ -726,7 +728,7 @@ void CameraController::handleEnemy(const items::ItemNode& item)
 void
 CameraController::clampBox(core::RoomBoundPosition& goalPosition, const std::function<ClampCallback>& callback) const
 {
-    clampPosition( goalPosition );
+    clampPosition( goalPosition, m_target, *m_level );
     BOOST_ASSERT( m_target.room->getSectorByAbsolutePosition( m_target.position )->box != nullptr );
     auto clampBox = m_target.room->getSectorByAbsolutePosition( m_target.position )->box;
     BOOST_ASSERT( goalPosition.room->getSectorByAbsolutePosition( goalPosition.position ) != nullptr );

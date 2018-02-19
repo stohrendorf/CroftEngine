@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/magic.h"
+#include "loader/animation.h"
 
 #include <gsl/gsl>
 
@@ -22,29 +23,25 @@ namespace items
 struct ItemState;
 }
 
-struct BoundingBox
+#pragma pack(push, 1)
+
+
+struct BoneTreeEntry
 {
-    int16_t minX{0}, maxX{0};
-    int16_t minY{0}, maxY{0};
-    int16_t minZ{0}, maxZ{0};
+    uint32_t flags;
 
-    explicit BoundingBox() = default;
+    int32_t x, y, z;
 
-    BoundingBox(const BoundingBox& a, const BoundingBox& b, float bias)
-            : minX{static_cast<int16_t>(a.minX * (1 - bias) + b.minX * bias)}
-            , maxX{static_cast<int16_t>(a.maxX * (1 - bias) + b.maxX * bias)}
-            , minY{static_cast<int16_t>(a.minY * (1 - bias) + b.minY * bias)}
-            , maxY{static_cast<int16_t>(a.maxY * (1 - bias) + b.maxY * bias)}
-            , minZ{static_cast<int16_t>(a.minZ * (1 - bias) + b.minZ * bias)}
-            , maxZ{static_cast<int16_t>(a.maxZ * (1 - bias) + b.maxZ * bias)}
+    glm::vec3 toGl() const noexcept
     {
-    }
-
-    core::TRCoordinates getCenter() const
-    {
-        return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
+        return core::TRCoordinates( x, y, z ).toRenderSystem();
     }
 };
+
+
+#pragma pack(pop)
+
+static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16" );
 
 
 class SkeletalModelNode
@@ -63,7 +60,7 @@ public:
 
     int getAccelleration(const engine::items::ItemState& state) const;
 
-    BoundingBox getBoundingBox(const engine::items::ItemState& state) const;
+    loader::BoundingBox getBoundingBox(const engine::items::ItemState& state) const;
 
     void resetPose()
     {
@@ -88,44 +85,13 @@ public:
 
     bool advanceFrame(engine::items::ItemState& state);
 
-#pragma pack(push, 1)
-
-
-    struct AnimFrame
-    {
-        struct Vec
-        {
-            int16_t x, y, z;
-
-            glm::vec3 toGl() const noexcept
-            {
-                return glm::vec3( x, -y, -z );
-            }
-        };
-
-
-        BoundingBox bbox;
-        Vec pos;
-        uint16_t numValues;
-
-        gsl::span<const uint32_t> getAngleData() const noexcept
-        {
-            const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-            return gsl::make_span( begin, numValues );
-        }
-    };
-
-
-#pragma pack(pop)
-
-
     struct InterpolationInfo
     {
-        const AnimFrame* firstFrame = nullptr;
-        const AnimFrame* secondFrame = nullptr;
+        const loader::AnimFrame* firstFrame = nullptr;
+        const loader::AnimFrame* secondFrame = nullptr;
         float bias = 0;
 
-        const AnimFrame* getNearestFrame() const
+        const loader::AnimFrame* getNearestFrame() const
         {
             if( bias <= 0.5f )
             {
@@ -164,7 +130,8 @@ public:
     };
 
 
-    std::vector<Cylinder> getBoneCollisionCylinders(const engine::items::ItemState& state, const AnimFrame& frame,
+    std::vector<Cylinder> getBoneCollisionCylinders(const engine::items::ItemState& state,
+                                                    const loader::AnimFrame& frame,
                                                     const glm::mat4* baseTransform);
 
 protected:

@@ -66,7 +66,7 @@ public:
     loader::Zones m_baseZones;
     loader::Zones m_alternateZones;
     std::vector<loader::Item> m_items;
-    std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>> m_itemNodes;
+    engine::items::ItemList m_itemNodes;
     std::set<engine::items::ItemNode*> m_dynamicItems;
     std::set<engine::items::ItemNode*> m_scheduledDeletions;
     std::unique_ptr<loader::LightMap> m_lightmap;

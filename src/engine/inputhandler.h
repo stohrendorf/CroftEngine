@@ -87,6 +87,10 @@ namespace engine
             if(m_controllerLayout.isButtonPressed(ControllerButton::X, gsl::span<const uint8_t>{controllerButtons, controllerButtonCount}))
                 m_inputState.action = true;
 
+            // TODO also check gamepad
+            m_inputState.holster = glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS
+                                  || glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
+
             m_inputState.jump = glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS;
             if(m_controllerLayout.isButtonPressed(ControllerButton::A, gsl::span<const uint8_t>{controllerButtons, controllerButtonCount}))
                 m_inputState.jump = true;

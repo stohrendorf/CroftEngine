@@ -43,7 +43,7 @@ namespace engine
             auto sector = getLevel().findRealFloorSector( m_state.position.position, &room );
             setCurrentRoom( room );
 
-            HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_cameraController );
+            HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes, getLevel().m_floorData );
             m_state.floor = h.distance;
             if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.distance )
                 return;

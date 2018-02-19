@@ -9,7 +9,7 @@ namespace engine
     bool HeightInfo::skipSteepSlants = false;
 
 
-    HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
+    HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList, const engine::floordata::FloorData& floorData)
     {
         HeightInfo hi;
 
@@ -28,17 +28,17 @@ namespace engine
             return hi;
         }
 
-        const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
+        const uint16_t* fd = &floorData[roomSector->floorDataIndex];
         while( true )
         {
-            const floordata::FloorDataChunk chunkHeader{*floorData++};
+            const floordata::FloorDataChunk chunkHeader{*fd++};
             switch( chunkHeader.type )
             {
                 case floordata::FloorDataChunkType::FloorSlant:
                 {
-                    const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
+                    const int8_t xSlant = gsl::narrow_cast<int8_t>(*fd & 0xff);
                     const auto absX = std::abs(xSlant);
-                    const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
+                    const int8_t zSlant = gsl::narrow_cast<int8_t>((*fd >> 8) & 0xff);
                     const auto absZ = std::abs(zSlant);
                     if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                     {
@@ -76,28 +76,28 @@ namespace engine
                     // Fall-through
                 case floordata::FloorDataChunkType::CeilingSlant:
                 case floordata::FloorDataChunkType::PortalSector:
-                    ++floorData;
+                    ++fd;
                     break;
                 case floordata::FloorDataChunkType::Death:
-                    hi.lastCommandSequenceOrDeath = floorData - 1;
+                    hi.lastCommandSequenceOrDeath = fd - 1;
                     break;
                 case floordata::FloorDataChunkType::CommandSequence:
                     if( hi.lastCommandSequenceOrDeath == nullptr )
-                        hi.lastCommandSequenceOrDeath = floorData - 1;
-                    ++floorData;
+                        hi.lastCommandSequenceOrDeath = fd - 1;
+                    ++fd;
                     while( true )
                     {
-                        const floordata::Command command{*floorData++};
+                        const floordata::Command command{*fd++};
 
                         if( command.opcode == floordata::CommandOpcode::Activate )
                         {
-                            auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
-                            Expects(it != camera->getLevel()->m_itemNodes.end());
+                            auto it = itemList.find(command.parameter);
+                            Expects(it != itemList.end());
                             it->second->patchFloor(pos, hi.distance);
                         }
                         else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = floordata::CameraParameters{ *floorData++ }.isLast;
+                            command.isLast = floordata::CameraParameters{ *fd++ }.isLast;
                         }
 
                         if( command.isLast )
@@ -114,7 +114,7 @@ namespace engine
     }
 
 
-    HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera)
+    HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList, const engine::floordata::FloorData& floorData)
     {
         HeightInfo hi;
 
@@ -127,23 +127,23 @@ namespace engine
 
         if( roomSector->floorDataIndex != 0 )
         {
-            const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
-            floordata::FloorDataChunk chunkHeader{*floorData};
-            ++floorData;
+            const uint16_t* fd = &floorData[roomSector->floorDataIndex];
+            floordata::FloorDataChunk chunkHeader{*fd};
+            ++fd;
 
             if( chunkHeader.type == floordata::FloorDataChunkType::FloorSlant )
             {
-                ++floorData;
+                ++fd;
 
-                chunkHeader = floordata::FloorDataChunk{*floorData};
-                ++floorData;
+                chunkHeader = floordata::FloorDataChunk{*fd};
+                ++fd;
             }
 
             if( chunkHeader.type == floordata::FloorDataChunkType::CeilingSlant )
             {
-                const int8_t xSlant = gsl::narrow_cast<int8_t>(*floorData & 0xff);
+                const int8_t xSlant = gsl::narrow_cast<int8_t>(*fd & 0xff);
                 const auto absX = std::abs(xSlant);
-                const int8_t zSlant = gsl::narrow_cast<int8_t>((*floorData >> 8) & 0xff);
+                const int8_t zSlant = gsl::narrow_cast<int8_t>((*fd >> 8) & 0xff);
                 const auto absZ = std::abs(zSlant);
                 if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
@@ -183,35 +183,35 @@ namespace engine
         if( roomSector->floorDataIndex == 0 )
             return hi;
 
-        const uint16_t* floorData = &camera->getLevel()->m_floorData[roomSector->floorDataIndex];
+        const uint16_t* fd = &floorData[roomSector->floorDataIndex];
         while( true )
         {
-            floordata::FloorDataChunk chunkHeader{*floorData};
-            ++floorData;
+            floordata::FloorDataChunk chunkHeader{*fd};
+            ++fd;
             switch( chunkHeader.type )
             {
                 case floordata::FloorDataChunkType::CeilingSlant:
                 case floordata::FloorDataChunkType::FloorSlant:
                 case floordata::FloorDataChunkType::PortalSector:
-                    ++floorData;
+                    ++fd;
                     break;
                 case floordata::FloorDataChunkType::Death:
                     break;
                 case floordata::FloorDataChunkType::CommandSequence:
-                    ++floorData;
+                    ++fd;
                     while( true )
                     {
-                        const floordata::Command command{*floorData++};
+                        const floordata::Command command{*fd++};
 
                         if( command.opcode == floordata::CommandOpcode::Activate )
                         {
-                            auto it = camera->getLevel()->m_itemNodes.find(command.parameter);
-                            Expects(it != camera->getLevel()->m_itemNodes.end());
+                            auto it = itemList.find(command.parameter);
+                            Expects(it != itemList.end());
                             it->second->patchCeiling(pos, hi.distance);
                         }
                         else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                         {
-                            command.isLast = floordata::CameraParameters{ *floorData++ }.isLast;
+                            command.isLast = floordata::CameraParameters{ *fd++ }.isLast;
                         }
 
                         if( command.isLast )

@@ -31,7 +31,7 @@ namespace engine
                 if( room != m_state.position.room )
                     setCurrentRoom(room);
 
-                HeightInfo h = HeightInfo::fromFloor(sector, m_state.position.position, getLevel().m_cameraController);
+                HeightInfo h = HeightInfo::fromFloor(sector, m_state.position.position, getLevel().m_itemNodes, getLevel().m_floorData);
                 m_state.floor = h.distance;
 
                 if( m_state.position.position.Y < m_state.floor )

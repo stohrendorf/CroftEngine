@@ -366,16 +366,16 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
                                                                            item,
                                                                            model,
                                                                            objectInfo);
-                for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
+                for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
                 {
-                    BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
+                    BOOST_ASSERT( model.frame_number + boneIndex < m_meshIndices.size() );
                     auto node = std::make_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-                    node->setDrawable( m_models[m_meshIndices[model.firstMesh + boneIndex]] );
+                    node->setDrawable( m_models[m_meshIndices[model.frame_number + boneIndex]] );
                     modelNode->getNode()->addChild( node );
                 }
 
-                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model.boneCount );
+                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model.nmeshes );
             }
             else if( item.type == 7 )
             {
@@ -513,7 +513,7 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     BOOST_ASSERT( m_animatedModels[modelIdx] != nullptr );
     const auto& model = *m_animatedModels[modelIdx];
 
-    if( model.animationIndex == 0xffff )
+    if( model.anim_index == 0xffff )
     {
         BOOST_LOG_TRIVIAL( error ) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec
                                    << " has animationIndex==0xffff";
@@ -526,16 +526,16 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
                                               room,
                                               item,
                                               model );
-    for( size_t boneIndex = 0; boneIndex < model.boneCount; ++boneIndex )
+    for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
     {
-        BOOST_ASSERT( model.firstMesh + boneIndex < m_meshIndices.size() );
+        BOOST_ASSERT( model.frame_number + boneIndex < m_meshIndices.size() );
         auto node = std::make_shared<gameplay::Node>(
                 skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-        node->setDrawable( m_models[m_meshIndices[model.firstMesh + boneIndex]] );
+        node->setDrawable( m_models[m_meshIndices[model.frame_number + boneIndex]] );
         skeletalModel->getNode()->addChild( node );
     }
 
-    BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.boneCount );
+    BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.nmeshes );
 
     skeletalModel->getSkeleton()->updatePose(skeletalModel->m_state);
 
@@ -766,10 +766,10 @@ void Level::setUpRendering(gameplay::Game* game,
 
         for( const auto& trModel : m_animatedModels )
         {
-            for( size_t boneIndex = 0; boneIndex < trModel->boneCount; ++boneIndex )
+            for( size_t boneIndex = 0; boneIndex < trModel->nmeshes; ++boneIndex )
             {
-                BOOST_ASSERT( trModel->firstMesh + boneIndex < m_meshIndices.size() );
-                BOOST_ASSERT( m_meshIndices[trModel->firstMesh + boneIndex] < m_models.size() );
+                BOOST_ASSERT( trModel->frame_number + boneIndex < m_meshIndices.size() );
+                BOOST_ASSERT( m_meshIndices[trModel->frame_number + boneIndex] < m_models.size() );
 
                 std::string filename = "model_" + std::to_string( trModel->typeId ) + "_" + std::to_string( boneIndex )
                                        + ".dae";
@@ -777,7 +777,7 @@ void Level::setUpRendering(gameplay::Game* game,
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Saving model " << filename;
 
-                    const auto& model = m_models[m_meshIndices[trModel->firstMesh + boneIndex]];
+                    const auto& model = m_models[m_meshIndices[trModel->frame_number + boneIndex]];
                     objWriter.write( model, filename, materials, {}, glm::vec3( 0.8f ) );
                 }
 
@@ -787,7 +787,7 @@ void Level::setUpRendering(gameplay::Game* game,
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Loading override model " << filename;
 
-                    m_models[m_meshIndices[trModel->firstMesh + boneIndex]] = objWriter
+                    m_models[m_meshIndices[trModel->frame_number + boneIndex]] = objWriter
                             .readModel( filename, texturedShader, glm::vec3( 0.8f ) );
                 }
             }
@@ -1282,16 +1282,16 @@ void Level::playStream(uint16_t trackId)
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[0];
-    BOOST_ASSERT( base.boneCount == m_lara->getNode()->getChildCount() );
+    BOOST_ASSERT( base.nmeshes == m_lara->getNode()->getChildCount() );
 
     const auto& alternate = *m_animatedModels[5];
-    BOOST_ASSERT( alternate.boneCount == m_lara->getNode()->getChildCount() );
+    BOOST_ASSERT( alternate.nmeshes == m_lara->getNode()->getChildCount() );
 
     for( size_t i = 0; i < m_lara->getNode()->getChildCount(); ++i )
-        m_lara->getNode()->getChild( i )->setDrawable( m_models[m_meshIndices[alternate.firstMesh + i]] );
+        m_lara->getNode()->getChild( i )->setDrawable( m_models[m_meshIndices[alternate.frame_number + i]] );
 
     // Don't replace the head.
-    m_lara->getNode()->getChild( 14 )->setDrawable( m_models[m_meshIndices[base.firstMesh + 14]] );
+    m_lara->getNode()->getChild( 14 )->setDrawable( m_models[m_meshIndices[base.frame_number + 14]] );
 }
 
 void Level::postProcessDataStructures()
@@ -1336,5 +1336,31 @@ void Level::postProcessDataStructures()
         m_boxes[i].zoneFlySwapped = m_alternateZones.flyZone[i];
         m_boxes[i].zoneGround1Swapped = m_alternateZones.groundZone1[i];
         m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
+    }
+
+    for(const auto& model : m_animatedModels)
+    {
+        Expects(model->pose_data_offset % 2 == 0);
+
+        const auto idx = model->pose_data_offset / 2;
+        if(idx < 0 || idx >= m_poseData.size())
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Pose data index " << idx << " out of range 0.." << m_poseData.size()-1;
+            continue;
+        }
+        model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+    }
+
+    for(auto& anim : m_animations)
+    {
+        Expects(anim.poseDataOffset % 2 == 0);
+
+        const auto idx = anim.poseDataOffset / 2;
+        if(idx < 0 || idx >= m_poseData.size())
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Pose data index " << idx << " out of range 0.." << m_poseData.size()-1;
+            continue;
+        }
+        anim.poseData = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
     }
 }

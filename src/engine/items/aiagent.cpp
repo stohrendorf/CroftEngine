@@ -1,5 +1,4 @@
 #include "aiagent.h"
-#include "engine/heightinfo.h"
 #include "level/level.h"
 #include "engine/laranode.h"
 
@@ -299,7 +298,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                        lotInfo.fly );
         const auto floor = HeightInfo::fromFloor( sector, core::TRCoordinates{m_state.position.position.X, bboxMinY,
                                                                               m_state.position.position.Z},
-                                                  getLevel().m_cameraController ).distance;
+                                                  getLevel().m_itemNodes, getLevel().m_floorData ).distance;
         if( moveY + m_state.position.position.Y <= floor )
         {
             if( m_state.object_number == 11 )
@@ -337,7 +336,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
         m_state.floor = HeightInfo::fromFloor( sector, core::TRCoordinates{m_state.position.position.X, bboxMinY,
                                                                            m_state.position.position.Z},
-                                               getLevel().m_cameraController ).distance;
+                                               getLevel().m_itemNodes, getLevel().m_floorData ).distance;
         core::Angle yaw{0};
         if( m_state.speed != 0 )
             yaw = core::Angle::fromAtan( -moveY, m_state.speed );
@@ -370,7 +369,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     sector = getLevel().findRealFloorSector( m_state.position.position, &room );
     m_state.floor = HeightInfo::fromFloor(
             sector,
-            m_state.position.position, getLevel().m_cameraController ).distance;
+            m_state.position.position, getLevel().m_itemNodes, getLevel().m_floorData ).distance;
     setCurrentRoom( room );
     return true;
 }

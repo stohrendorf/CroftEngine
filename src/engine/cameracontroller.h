@@ -170,10 +170,11 @@ namespace engine
             return m_position.room;
         }
 
+        static bool clampPosition(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
 
     private:
         void tracePortals();
-        bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector) const;
+        static bool clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector, const level::Level& level);
 
 
         enum class ClampType
@@ -184,9 +185,8 @@ namespace engine
         };
 
 
-        ClampType clampAlongX(core::RoomBoundPosition& origin) const;
-        ClampType clampAlongZ(core::RoomBoundPosition& origin) const;
-        bool clampPosition(core::RoomBoundPosition& origin) const;
+        static ClampType clampAlongX(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
+        static ClampType clampAlongZ(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
 
         void handleCamOverride();
         int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;

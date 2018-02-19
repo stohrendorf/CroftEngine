@@ -139,7 +139,7 @@ void Block::update()
 
     auto pos = m_state.position;
     auto sector = getLevel().findRealFloorSector( pos );
-    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_cameraController )
+    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes, getLevel().m_floorData )
             .distance;
     if( height > pos.position.Y )
     {
@@ -170,7 +170,7 @@ void Block::update()
     loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     pos = m_state.position;
     sector = getLevel().findRealFloorSector( pos );
-    HeightInfo hi = HeightInfo::fromFloor( sector, pos.position, getLevel().m_cameraController );
+    HeightInfo hi = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes, getLevel().m_floorData );
     getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 }
 

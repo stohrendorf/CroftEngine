@@ -56,6 +56,97 @@ public:
         m_underwaterRoute.step = 20 * loader::SectorSize;
         m_underwaterRoute.drop = -20 * loader::SectorSize;
         m_underwaterRoute.fly = loader::QuarterSectorSize;
+
+        Weapon w;
+        weapons[WeaponId::None] = w;
+
+        w.sightAngleRange.y.min = -60_deg;
+        w.sightAngleRange.y.max = +60_deg;
+        w.sightAngleRange.x.min = -60_deg;
+        w.sightAngleRange.x.max = +60_deg;
+        w.targetingAngleRangeLeft.y.min = -170_deg;
+        w.targetingAngleRangeLeft.y.max = +60_deg;
+        w.targetingAngleRangeLeft.x.min = -80_deg;
+        w.targetingAngleRangeLeft.x.max = +80_deg;
+        w.targetingAngleRangeRight.y.min = -60_deg;
+        w.targetingAngleRangeRight.y.max = +170_deg;
+        w.targetingAngleRangeRight.x.min = -80_deg;
+        w.targetingAngleRangeRight.x.max = +80_deg;
+        w.rotationCone = +10_deg;
+        w.anglePrecision = +8_deg;
+        w.height = 650;
+        w.healthDamage = 1;
+        w.maxDistance = 8*loader::SectorSize;
+        w.field_28 = 9;
+        w.shootTimeout = 3;
+        w.fireSoundId = 8;
+        weapons[WeaponId::Pistols] = w;
+
+        w.sightAngleRange.y.min = -60_deg;
+        w.sightAngleRange.y.max = +60_deg;
+        w.sightAngleRange.x.min = -60_deg;
+        w.sightAngleRange.x.max = +60_deg;
+        w.targetingAngleRangeLeft.y.min = -170_deg;
+        w.targetingAngleRangeLeft.y.max = +60_deg;
+        w.targetingAngleRangeLeft.x.min = -80_deg;
+        w.targetingAngleRangeLeft.x.max = +80_deg;
+        w.targetingAngleRangeRight.y.min = -60_deg;
+        w.targetingAngleRangeRight.y.max = +170_deg;
+        w.targetingAngleRangeRight.x.min = -80_deg;
+        w.targetingAngleRangeRight.x.max = +80_deg;
+        w.rotationCone = +10_deg;
+        w.anglePrecision = +8_deg;
+        w.height = 650;
+        w.healthDamage = 2;
+        w.maxDistance = 8*loader::SectorSize;
+        w.field_28 = 9;
+        w.shootTimeout = 3;
+        w.fireSoundId = 44;
+        weapons[WeaponId::AutoPistols] = w;
+
+        w.sightAngleRange.y.min = -60_deg;
+        w.sightAngleRange.y.max = +60_deg;
+        w.sightAngleRange.x.min = -60_deg;
+        w.sightAngleRange.x.max = +60_deg;
+        w.targetingAngleRangeLeft.y.min = -170_deg;
+        w.targetingAngleRangeLeft.y.max = +60_deg;
+        w.targetingAngleRangeLeft.x.min = -80_deg;
+        w.targetingAngleRangeLeft.x.max = +80_deg;
+        w.targetingAngleRangeRight.y.min = -60_deg;
+        w.targetingAngleRangeRight.y.max = +170_deg;
+        w.targetingAngleRangeRight.x.min = -80_deg;
+        w.targetingAngleRangeRight.x.max = +80_deg;
+        w.rotationCone = +10_deg;
+        w.anglePrecision = +8_deg;
+        w.height = 650;
+        w.healthDamage = 1;
+        w.maxDistance = 8*loader::SectorSize;
+        w.field_28 = 3;
+        w.shootTimeout = 2;
+        w.fireSoundId = 43;
+        weapons[WeaponId::Uzi] = w;
+
+        w.sightAngleRange.y.min = -60_deg;
+        w.sightAngleRange.y.max = +60_deg;
+        w.sightAngleRange.x.min = -55_deg;
+        w.sightAngleRange.x.max = +55_deg;
+        w.targetingAngleRangeLeft.y.min = -80_deg;
+        w.targetingAngleRangeLeft.y.max = +80_deg;
+        w.targetingAngleRangeLeft.x.min = -65_deg;
+        w.targetingAngleRangeLeft.x.max = +65_deg;
+        w.targetingAngleRangeRight.y.min = -80_deg;
+        w.targetingAngleRangeRight.y.max = +80_deg;
+        w.targetingAngleRangeRight.x.min = -65_deg;
+        w.targetingAngleRangeRight.x.max = +65_deg;
+        w.rotationCone = +10_deg;
+        w.anglePrecision = 0_deg;
+        w.height = 500;
+        w.healthDamage = 4;
+        w.maxDistance = 8*loader::SectorSize;
+        w.field_28 = 9;
+        w.shootTimeout = 3;
+        w.fireSoundId = 45;
+        weapons[WeaponId::Shotgun] = w;
     }
 
     ~LaraNode() override;
@@ -296,5 +387,96 @@ public:
         }
         --explosionStumblingDuration;
     }
+
+    struct AimInfo
+    {
+        const loader::AnimFrame *weaponAnimData = nullptr;
+        int16_t frame = 0;
+        bool aiming = false;
+        core::TRRotation aimRotation{};
+        int16_t shootTimeout = 0;
+    };
+
+
+    enum class WeaponId {
+        None,
+        Pistols,
+        AutoPistols,
+        Uzi,
+        Shotgun
+    };
+
+    struct Ammo
+    {
+        int ammo = 0;
+        int hits = 0;
+        int misses = 0;
+    };
+
+    AimInfo leftArm;
+    AimInfo rightArm;
+
+    WeaponId gunType = WeaponId::None;
+    WeaponId requestedGunType = WeaponId::Pistols;
+
+    Ammo pistolsAmmo;
+    Ammo revolverAmmo;
+    Ammo uziAmmo;
+    Ammo shotgunAmmo;
+
+    std::shared_ptr<ModelItemNode> target{nullptr};
+
+    struct Range {
+        core::Angle min = 0_deg;
+        core::Angle max = 0_deg;
+    };
+
+    struct RangeXY {
+        Range x{};
+        Range y{};
+    };
+
+    struct Weapon {
+        RangeXY sightAngleRange{};
+        RangeXY targetingAngleRangeLeft{};
+        RangeXY targetingAngleRangeRight{};
+        core::Angle rotationCone = 0_deg;
+        core::Angle anglePrecision = 0_deg;
+        int32_t height = 0;
+        int32_t healthDamage = 0;
+        int32_t maxDistance = 0;
+        int16_t field_28 = 0;
+        int16_t shootTimeout = 0;
+        int16_t fireSoundId = 0;
+    };
+
+    std::unordered_map<WeaponId, Weapon> weapons;
+    core::TRRotationXY m_enemyLookRot;
+
+    void updateWeaponState();
+    void updateShotgun();
+    void updateNotShotgun(WeaponId weaponId);
+    void updateAimingState(const Weapon& weapon);
+    void unholsterReplaceMeshes();
+    core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelItemNode& item);
+    void unholsterDoubleWeapon(WeaponId weaponId);
+    void findTarget(const Weapon& weapon);
+    void initAimInfoPistol();
+    void initAimInfoShotgun();
+    void overrideLaraMeshesUnholsterBothLegs(WeaponId weaponId);
+    void overrideLaraMeshesUnholsterShotgun();
+    void unholsterShotgunAnimUpdate();
+    void updateAimAngles(Weapon& weapon, AimInfo& aimInfo);
+    void updateAnimShotgun();
+    void tryShootShotgun();
+    void playSingleShotShotgun();
+    void playSingleShot(WeaponId weaponId);
+    void updateAnimNotShotgun(WeaponId weaponId);
+    bool tryShoot(WeaponId weaponId, const std::shared_ptr<engine::items::ModelItemNode>& target, const ModelItemNode& gunHolder, const core::TRRotationXY& aimAngle);
+    void playShotMissed(const core::RoomBoundPosition& pos);
+    void enemyHit(ModelItemNode& item, const core::TRCoordinates& pos, int healthDamage);
+
+    void drawRoutine();
+    void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 };
 }

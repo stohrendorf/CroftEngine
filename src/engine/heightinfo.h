@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loader/datatypes.h"
+#include "engine/floordata/floordata.h"
 
 namespace engine
 {
@@ -21,9 +22,15 @@ namespace engine
 
         static bool skipSteepSlants;
 
-        static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera);
+        static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector,
+                                    const core::TRCoordinates& pos,
+                                    const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
+                                    const engine::floordata::FloorData& floorData);
 
-        static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos, const CameraController* camera);
+        static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
+                                      const core::TRCoordinates& pos,
+                                      const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
+                                      const engine::floordata::FloorData& floorData);
 
         HeightInfo() = default;
     };
@@ -33,13 +40,18 @@ namespace engine
         HeightInfo floor;
         HeightInfo ceiling;
 
-        void init(const loader::Sector* roomSector, const core::TRCoordinates& position, const CameraController* camera, int floorHeight, int scalpHeight)
+        void init(const loader::Sector* roomSector,
+                  const core::TRCoordinates& position,
+                  const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
+                  const engine::floordata::FloorData& floorData,
+                  int floorHeight,
+                  int scalpHeight)
         {
-            floor = HeightInfo::fromFloor(roomSector, position, camera);
+            floor = HeightInfo::fromFloor(roomSector, position, itemList, floorData);
             if( floor.distance != -loader::HeightLimit )
                 floor.distance -= floorHeight;
 
-            ceiling = HeightInfo::fromCeiling(roomSector, position, camera);
+            ceiling = HeightInfo::fromCeiling(roomSector, position, itemList, floorData);
             if( ceiling.distance != -loader::HeightLimit )
                 ceiling.distance -= floorHeight - scalpHeight;
         }

@@ -326,7 +326,7 @@ public:
         };
     }
 
-    glm::vec3 toSwizzledRadians() const
+    glm::vec3 toRenderSystem() const
     {
         return {
                 X.toRad(),
@@ -374,6 +374,20 @@ inline Angle abs(const Angle& v)
     return v.abs();
 }
 
+struct TRRotationXY {
+    core::Angle X;
+    core::Angle Y;
+};
+inline TRRotationXY anglesFromPosition(float dx, float dy, float dz)
+{
+    const Angle y = Angle::fromAtan(dx, dz);
+    const auto dxz = std::sqrtf(dz*dz + dx*dx);
+    Angle x = Angle::fromAtan(dy, dxz);
+    if(dy > 0 && x > 0_deg || dy < 0 && x < 0_deg)
+        x = -x;
+
+    return TRRotationXY{x, y};
+}
 }
 
 inline core::detail::UnsignedRawAngle operator "" _au(unsigned long long v) noexcept

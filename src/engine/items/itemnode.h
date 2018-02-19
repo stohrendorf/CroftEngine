@@ -156,6 +156,8 @@ struct ItemState final
 };
 
 
+using ItemList = std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>;
+
 class ItemNode
 {
     gsl::not_null<level::Level*> const m_level;
@@ -425,7 +427,7 @@ public:
         uniform.set( item->m_lighting.position );
     };
 
-    virtual BoundingBox getBoundingBox() const = 0;
+    virtual loader::BoundingBox getBoundingBox() const = 0;
 
     virtual void collide(LaraNode& other, CollisionInfo& collisionInfo)
     {
@@ -544,7 +546,7 @@ public:
 
     void applyMovement(bool forLara);
 
-    BoundingBox getBoundingBox() const override;
+    loader::BoundingBox getBoundingBox() const override;
 
     bool isNear(const ModelItemNode& other, int radius) const;
     bool testBoneCollision(const ModelItemNode& other);
@@ -586,9 +588,9 @@ public:
         // TODO
     }
 
-    BoundingBox getBoundingBox() const override
+    loader::BoundingBox getBoundingBox() const override
     {
-        BoundingBox bb;
+        loader::BoundingBox bb;
         bb.minX = bb.maxX = m_state.position.position.X;
         bb.minY = bb.maxY = m_state.position.position.Y;
         bb.minZ = bb.maxZ = m_state.position.position.Z;
