@@ -1,0 +1,14 @@
+diff --git a/assimp-config.cmake.in b/assimp-config.cmake.in
+index e06cc10e..46af1e42 100644
+--- a/assimp-config.cmake.in
++++ b/assimp-config.cmake.in
+@@ -47,8 +47,7 @@ endif()
+ set( ASSIMP_LINK_FLAGS "" )
+ set( ASSIMP_LIBRARY_DIRS "${ASSIMP_ROOT_DIR}/@ASSIMP_LIB_INSTALL_DIR@")
+ set( ASSIMP_INCLUDE_DIRS "${ASSIMP_ROOT_DIR}/@ASSIMP_INCLUDE_INSTALL_DIR@")
+-set( ASSIMP_LIBRARIES assimp${ASSIMP_LIBRARY_SUFFIX})
+-set( ASSIMP_LIBRARIES ${ASSIMP_LIBRARIES}@CMAKE_DEBUG_POSTFIX@)
++set( ASSIMP_LIBRARIES assimp${ASSIMP_LIBRARY_SUFFIX}@CMAKE_DEBUG_POSTFIX@ IrrXML@CMAKE_DEBUG_POSTFIX@)
+ 
+ # search for the boost version assimp was compiled with
+ #set(Boost_USE_MULTITHREAD ON)

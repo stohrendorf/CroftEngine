@@ -228,9 +228,9 @@ ExternalProject_Add(
         PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp"
         INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin"
         GIT_REPOSITORY https://github.com/assimp/assimp.git
-        GIT_TAG v3.3.1
+        GIT_TAG v4.1.0
         EXCLUDE_FROM_ALL 1
-        PATCH_COMMAND ${GIT_EXECUTABLE} apply --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-cygwin-patch.diff
+        PATCH_COMMAND ${GIT_EXECUTABLE} apply --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-irrxml.patch
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin
         -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
@@ -252,8 +252,8 @@ message(STATUS "Assimp Build directory is ${ASSIMP_BUILDDIR}")
 
 add_library(assimp-lib INTERFACE)
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin/lib/cmake/assimp-3.3/assimp-config.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin/lib/cmake/assimp-3.3/assimp-config.cmake)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin/lib/cmake/assimp-4.1/assimp-config.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp-bin/lib/cmake/assimp-4.1/assimp-config.cmake)
 
     target_include_directories(assimp-lib INTERFACE ${ASSIMP_INCLUDE_DIRS})
     target_link_libraries(assimp-lib INTERFACE ${ASSIMP_LIBRARIES})
