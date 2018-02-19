@@ -89,7 +89,7 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
         }
         else
         {
-            if( getLevel().m_inputHandler->getInputState().action && other.getHandStatus() == 0
+            if( getLevel().m_inputHandler->getInputState().action && other.getHandStatus() == HandStatus::None
                 && !other.m_state.falling &&
                 other.getCurrentAnimState() == LaraStateId::Stop )
             {
@@ -102,7 +102,7 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
                     other.updateImpl();
                 } while( other.getCurrentAnimState() != LaraStateId::PickUp );
                 other.setTargetState( LaraStateId::Stop );
-                other.setHandStatus( 1 );
+                other.setHandStatus( HandStatus::Grabbing );
             }
         }
     }

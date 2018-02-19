@@ -144,7 +144,7 @@ private:
         getLara().m_state.rotation.X = 0_deg;
         getLara().m_state.rotation.Y = *yRot;
         getLara().m_state.rotation.Z = 0_deg;
-        setHandStatus(1);
+        setHandStatus(HandStatus::Grabbing);
         setUnderwaterState(UnderwaterState::OnLand);
     }
 };

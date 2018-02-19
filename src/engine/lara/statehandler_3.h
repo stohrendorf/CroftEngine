@@ -27,12 +27,12 @@ public:
 
         if( getTargetState() != LaraStateId::Death && getTargetState() != LaraStateId::Stop )
         {
-            if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
+            if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
             {
                 setTargetState(LaraStateId::Reach);
             }
 
-            if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == 0 )
+            if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == HandStatus::None )
             {
                 setTargetState(LaraStateId::SwandiveBegin);
             }

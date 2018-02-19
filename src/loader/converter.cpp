@@ -70,7 +70,7 @@ void allocateElementMemory(const std::shared_ptr<gameplay::Mesh>& mesh, const gs
             if( attrib.first == VERTEX_ATTRIBUTE_POSITION_NAME )
             {
                 BOOST_ASSERT(outMesh->mVertices == nullptr && outMesh->mNumVertices == 0);
-                outMesh->mNumVertices = buffer->getVertexCount();
+                outMesh->mNumVertices = gsl::narrow<unsigned int>(buffer->getVertexCount());
                 outMesh->mVertices = new aiVector3D[buffer->getVertexCount()];
             }
             else if( attrib.first == VERTEX_ATTRIBUTE_NORMAL_NAME )
@@ -444,15 +444,15 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
             totalPartCount += mesh->getPartCount();
         }
 
-        scene->mNumMaterials = totalPartCount;
+        scene->mNumMaterials = gsl::narrow<unsigned int>(totalPartCount);
         scene->mMaterials = new aiMaterial*[totalPartCount];
         std::fill_n(scene->mMaterials, totalPartCount, nullptr);
 
-        scene->mNumMeshes = totalPartCount;
+        scene->mNumMeshes = gsl::narrow<unsigned int>(totalPartCount);
         scene->mMeshes = new aiMesh*[totalPartCount];
         std::fill_n(scene->mMeshes, totalPartCount, nullptr);
 
-        scene->mRootNode->mNumMeshes = totalPartCount;
+        scene->mRootNode->mNumMeshes = gsl::narrow<unsigned int>(totalPartCount);
         scene->mRootNode->mMeshes = new unsigned int[totalPartCount];
         for( size_t i = 0; i < totalPartCount; ++i )
             scene->mRootNode->mMeshes[i] = gsl::narrow<uint32_t>(i);

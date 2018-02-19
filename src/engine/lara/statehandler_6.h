@@ -25,7 +25,7 @@ public:
 
         addYRotationSpeed(2.25_deg);
 
-        if( getHandStatus() == 4 )
+        if( getHandStatus() == HandStatus::Combat )
         {
             setTargetState(LaraStateId::TurnFast);
         }

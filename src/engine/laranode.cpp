@@ -370,7 +370,7 @@ void LaraNode::update()
             m_state.rotation.X = 0_deg;
             m_state.rotation.Z = 0_deg;
             resetHeadTorsoRotation();
-            m_handStatus = 0;
+            m_handStatus = HandStatus::None;
 
             if( !waterSurfaceHeight
                 || std::abs( *waterSurfaceHeight - m_state.position.position.Y ) >= loader::QuarterSectorSize )
@@ -411,7 +411,7 @@ void LaraNode::update()
             const int16_t speed = m_state.speed / 5;
             m_state.speed = speed;
             m_state.falling = true;
-            m_handStatus = 0;
+            m_handStatus = HandStatus::None;
             m_state.rotation.X = 0_deg;
             m_state.rotation.Z = 0_deg;
             resetHeadTorsoRotation();
@@ -425,20 +425,20 @@ void LaraNode::update()
     }
     else if( m_underwaterState == UnderwaterState::Diving )
     {
-        if( m_health >= 0 )
+        if( m_state.health >= 0 )
         {
             --m_air;
             if( m_air < 0 )
             {
                 m_air = -1;
-                m_health -= 5;
+                m_state.health -= 5;
             }
         }
         handleLaraStateDiving();
     }
     else if( m_underwaterState == UnderwaterState::Swimming )
     {
-        if( m_health >= 0 )
+        if( m_state.health >= 0 )
         {
             m_air = std::min( m_air + 10, core::LaraAir );
         }
@@ -503,7 +503,7 @@ void LaraNode::updateImpl()
                         cmd += 2;
                         break;
                     case AnimCommandOpcode::EmptyHands:
-                        setHandStatus( 0 );
+                        setHandStatus( HandStatus::None );
                         break;
                     case AnimCommandOpcode::PlaySound:
                         cmd += 2;
@@ -555,7 +555,7 @@ void LaraNode::updateImpl()
                             m_state.rotation.Y += 180_deg;
                         }
                         else if( cmd[1] == 12 )
-                            setHandStatus( 0 );
+                            setHandStatus( HandStatus::None );
                         //! @todo Execute anim effect cmd[1]
                     }
                     cmd += 2;
@@ -657,7 +657,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             }
                 return;
             case floordata::SequenceCondition::LaraInCombatMode:
-                conditionFulfilled = getHandStatus() == 4;
+                conditionFulfilled = getHandStatus() == HandStatus::Combat;
                 break;
             case floordata::SequenceCondition::ItemIsHere:
             case floordata::SequenceCondition::Dummy:
@@ -884,7 +884,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     m_state.is_hit = false;
     hit_direction.reset();
 
-    if( m_health < 0 )
+    if( m_state.health < 0 )
         return;
 
     std::set<const loader::Room*> rooms;
@@ -979,15 +979,15 @@ void LaraNode::updateWeaponState()
         --rightArm.shootTimeout;
     }
     bool doHolster = false;
-    if( m_health <= 0 )
+    if( m_state.health <= 0 )
     {
-        m_handStatus = 0;
+        m_handStatus = HandStatus::None;
     }
     else
     {
         if( m_underwaterState != UnderwaterState::OnLand )
         {
-            if( m_handStatus == 4 )
+            if( m_handStatus == HandStatus::Combat )
             {
                 doHolster = true;
             }
@@ -999,14 +999,11 @@ void LaraNode::updateWeaponState()
                 doHolster = true;
             }
         }
-        else if( m_handStatus != 0 )
+        else if( m_handStatus == HandStatus::Combat )
         {
-            if( m_handStatus == 4 )
-            {
-                doHolster = true;
-            }
+            doHolster = true;
         }
-        else
+        else if( m_handStatus == HandStatus::None )
         {
             gunType = requestedGunType;
             unholsterReplaceMeshes();
@@ -1016,35 +1013,19 @@ void LaraNode::updateWeaponState()
 
     if( doHolster && gunType != WeaponId::None )
     {
-        if( gunType == WeaponId::Shotgun )
+        if( m_handStatus == HandStatus::None )
         {
-            if( m_handStatus == 0 )
-            {
-                rightArm.frame = 0;
-                leftArm.frame = 0;
-                m_handStatus = 2;
-            }
-            else if( m_handStatus == 4 )
-            {
-                m_handStatus = 3;
-            }
+            rightArm.frame = 0;
+            leftArm.frame = 0;
+            m_handStatus = HandStatus::Unholster;
         }
-        else
+        else if( m_handStatus == HandStatus::Combat )
         {
-            if( m_handStatus == 0 )
-            {
-                rightArm.frame = 0;
-                leftArm.frame = 0;
-                m_handStatus = 2;
-            }
-            else if( m_handStatus == 4 )
-            {
-                m_handStatus = 3;
-            }
+            m_handStatus = HandStatus::Holster;
         }
     }
 
-    if( m_handStatus == 2 )
+    if( m_handStatus == HandStatus::Unholster )
     {
         if( gunType >= WeaponId::Pistols )
         {
@@ -1068,7 +1049,7 @@ void LaraNode::updateWeaponState()
             }
         }
     }
-    else if( m_handStatus == 3 )
+    else if( m_handStatus == HandStatus::Holster )
     {
         {
             const auto& normalLara = *getLevel().m_animatedModels[0];
@@ -1089,7 +1070,7 @@ void LaraNode::updateWeaponState()
             }
         }
     }
-    else if( m_handStatus == 4 )
+    else if( m_handStatus == HandStatus::Combat )
     {
         {
             const auto& normalLara = *getLevel().m_animatedModels[0];
@@ -1332,7 +1313,7 @@ void LaraNode::unholsterReplaceMeshes()
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
 
-        if( m_handStatus != 0 )
+        if( m_handStatus != HandStatus::None )
         {
             overrideLaraMeshesUnholsterBothLegs( gunType );
         }
@@ -1344,7 +1325,7 @@ void LaraNode::unholsterReplaceMeshes()
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
 
-        if( m_handStatus != 0 )
+        if( m_handStatus != HandStatus::None )
         {
             overrideLaraMeshesUnholsterShotgun();
         }
@@ -1379,26 +1360,21 @@ core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item
 void LaraNode::unholsterDoubleWeapon(engine::LaraNode::WeaponId weaponId)
 {
     auto nextFrame = leftArm.frame + 1;
-    if( nextFrame >= 5 && nextFrame <= 23 )
-    {
-        if( nextFrame == 13 )
-        {
-            overrideLaraMeshesUnholsterBothLegs( weaponId );
-            getLevel().playSound( 6, getNode()->getTranslationWorld() );
-            leftArm.frame = 13;
-            rightArm.frame = 13;
-            return;
-        }
-        if( nextFrame == 23 )
-        {
-            initAimInfoPistol();
-            nextFrame = 0;
-        }
-    }
-    else
+    if( nextFrame < 5 || nextFrame > 23 )
     {
         nextFrame = 5;
     }
+    else if( nextFrame == 13 )
+    {
+        overrideLaraMeshesUnholsterBothLegs( weaponId );
+        getLevel().playSound( 6, getNode()->getTranslationWorld() );
+    }
+    else if( nextFrame == 23 )
+    {
+        initAimInfoPistol();
+        nextFrame = 0;
+    }
+
     leftArm.frame = nextFrame;
     rightArm.frame = nextFrame;
 }
@@ -1462,7 +1438,7 @@ void LaraNode::findTarget(const engine::LaraNode::Weapon& weapon)
 
 void LaraNode::initAimInfoPistol()
 {
-    m_handStatus = 4;
+    m_handStatus = HandStatus::Combat;
     leftArm.aimRotation.Z = 0_deg;
     leftArm.aimRotation.Y = 0_deg;
     leftArm.aimRotation.X = 0_deg;
@@ -1485,7 +1461,7 @@ void LaraNode::initAimInfoPistol()
 
 void LaraNode::initAimInfoShotgun()
 {
-    m_handStatus = 4;
+    m_handStatus = HandStatus::Combat;
     leftArm.aimRotation.Z = 0_deg;
     leftArm.aimRotation.Y = 0_deg;
     leftArm.aimRotation.X = 0_deg;
@@ -1841,7 +1817,7 @@ void LaraNode::playSingleShotShotgun()
         else if( leftArm.frame == 113 )
         {
             aimFrame = 0;
-            m_handStatus = 0;
+            m_handStatus = HandStatus::None;
             target = nullptr;
             rightArm.aiming = false;
             leftArm.aiming = false;
@@ -1951,7 +1927,7 @@ void LaraNode::playSingleShot(engine::LaraNode::WeaponId weaponId)
 
     if( leftArm.frame == 5 && rightArm.frame == 5 )
     {
-        m_handStatus = 0;
+        m_handStatus = HandStatus::None;
         leftArm.frame = 0;
         rightArm.frame = 0;
         target = nullptr;
@@ -2311,7 +2287,7 @@ void LaraNode::drawRoutine()
         renderMesh(14);
 
         WeaponId activeGunType = WeaponId::None;
-        if ( m_handStatus == 4 || m_handStatus == 2 || m_handStatus == 3 )
+        if ( m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::Unholster || m_handStatus == HandStatus::Holster )
         {
             activeGunType = gunType;
         }

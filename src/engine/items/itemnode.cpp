@@ -241,7 +241,7 @@ void ModelItemNode::update()
                     }
                     else if( cmd[1] == 12 )
                     {
-                        getLevel().m_lara->setHandStatus( 0 );
+                        getLevel().m_lara->setHandStatus( HandStatus::None );
                     }
                     //! @todo Execute anim effect cmd[1]
                 }
@@ -301,7 +301,7 @@ std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
 
 bool ItemNode::triggerKey()
 {
-    if( getLevel().m_lara->getHandStatus() != 0 )
+    if( getLevel().m_lara->getHandStatus() != HandStatus::None )
     {
         return false;
     }

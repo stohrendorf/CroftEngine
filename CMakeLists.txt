@@ -14,6 +14,8 @@ set(CMAKE_CXX_STANDARD 14)
 if (MSVC)
     # C4503: Name too long
     add_definitions(/wd4503)
+    # C4996: "Call to 'std::copy_n' with parameters that may be unsafe" etc...
+    add_definitions(/wd4996)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_definitions(/MP)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Ob1")

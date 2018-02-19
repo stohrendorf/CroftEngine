@@ -43,7 +43,7 @@ public:
     {
         getLara().m_state.health = -1;
         setAir(-1);
-        setHandStatus(1);
+        setHandStatus(HandStatus::Grabbing);
         auto h = getLara().getWaterSurfaceHeight();
         if( h.is_initialized() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius )
         {

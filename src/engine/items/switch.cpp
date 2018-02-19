@@ -14,7 +14,7 @@ void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         return;
     }
 
-    if( other.getHandStatus() != 0 )
+    if( other.getHandStatus() != HandStatus::None )
     {
         return;
     }
@@ -58,7 +58,7 @@ void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         } while( other.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
         other.setTargetState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 0;
-        other.setHandStatus( 1 );
+        other.setHandStatus( HandStatus::Grabbing );
     }
     else
     {
@@ -75,7 +75,7 @@ void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         } while( other.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
         other.setTargetState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 1;
-        other.setHandStatus( 1 );
+        other.setHandStatus( HandStatus::Grabbing );
     }
 
     m_state.triggerState = engine::items::TriggerState::Enabled;

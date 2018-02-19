@@ -25,7 +25,7 @@ public:
             setTargetState(LaraStateId::FreeFall);
         }
 
-        if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == 0 )
+        if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
         {
             setTargetState(LaraStateId::Reach);
         }

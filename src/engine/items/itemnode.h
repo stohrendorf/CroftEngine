@@ -168,13 +168,13 @@ class ItemNode
 
 public:
     using Characteristics = uint8_t;
-    static const constexpr Characteristics Intelligent = 0x02;
-    static const constexpr Characteristics NonLot = 0x04;
-    static const constexpr Characteristics SavePosition = 0x08;
-    static const constexpr Characteristics SaveHitpoints = 0x10;
-    static const constexpr Characteristics SaveFlags = 0x20;
-    static const constexpr Characteristics SaveAnim = 0x40;
-    static const constexpr Characteristics SemiTransparent = 0x40;
+    static const constexpr Characteristics Intelligent = 0x02u;
+    static const constexpr Characteristics NonLot = 0x04u;
+    static const constexpr Characteristics SavePosition = 0x08u;
+    static const constexpr Characteristics SaveHitpoints = 0x10u;
+    static const constexpr Characteristics SaveFlags = 0x20u;
+    static const constexpr Characteristics SaveAnim = 0x40u;
+    static const constexpr Characteristics SemiTransparent = 0x40u;
 
     ItemState m_state;
 

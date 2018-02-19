@@ -18,6 +18,7 @@ class LaraNode;
 
 struct InputState;
 enum class UnderwaterState;
+enum class HandStatus;
 
 namespace lara
 {
@@ -61,9 +62,9 @@ protected:
 
     core::Angle getMovementAngle() const noexcept;
 
-    int getHandStatus() const noexcept;
+    HandStatus getHandStatus() const noexcept;
 
-    void setHandStatus(int status) noexcept;
+    void setHandStatus(HandStatus status) noexcept;
 
     LaraStateId getCurrentAnimState() const;
 

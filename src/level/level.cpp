@@ -64,8 +64,8 @@ void Level::readMeshData(loader::io::SDLReader& reader)
 
     m_meshes.clear();
 
-    size_t meshDataPos = 0;
-    for( size_t i = 0; i < m_meshIndices.size(); i++ )
+    uint32_t meshDataPos = 0;
+    for( uint32_t i = 0; i < m_meshIndices.size(); i++ )
     {
         replace( m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i );
 
@@ -742,7 +742,7 @@ void Level::setUpRendering(gameplay::Game* game,
     }
 
     game->getScene()->setActiveCamera(
-            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10, 20480 ) );
+            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
     auto waterTexturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                         "shaders/textured_2.frag",

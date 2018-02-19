@@ -29,7 +29,7 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
     if( other.getCurrentAnimState() == loader::LaraStateId::Stop )
     {
         if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null
-            || other.getHandStatus() != 0 )
+            || other.getHandStatus() != HandStatus::None )
         {
             return;
         }
@@ -81,7 +81,7 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
         other.updateImpl();
         if( other.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
         {
-            other.setHandStatus( 1 );
+            other.setHandStatus( HandStatus::Grabbing );
         }
         return;
     }

@@ -196,12 +196,12 @@ core::Angle AbstractStateHandler::getMovementAngle() const noexcept
     return m_lara.getMovementAngle();
 }
 
-int AbstractStateHandler::getHandStatus() const noexcept
+HandStatus AbstractStateHandler::getHandStatus() const noexcept
 {
     return m_lara.getHandStatus();
 }
 
-void AbstractStateHandler::setHandStatus(int status) noexcept
+void AbstractStateHandler::setHandStatus(HandStatus status) noexcept
 {
     m_lara.setHandStatus( status );
 }
@@ -308,7 +308,7 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
+        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -365,7 +365,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     m_lara.m_state.rotation.Y = *alignedRotation;
     m_lara.m_state.falling = false;
     m_lara.m_state.fallspeed = 0;
-    setHandStatus( 1 );
+    setHandStatus( HandStatus::Grabbing );
     return true;
 }
 
@@ -390,7 +390,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
+        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -422,7 +422,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
         setTargetState( LaraStateId::Stop );
         setAnimIdGlobal( loader::AnimationId::CLIMB_2CLICK, 759 );
         m_lara.m_state.position.position.Y += 2 * loader::QuarterSectorSize + climbHeight;
-        setHandStatus( 1 );
+        setHandStatus( HandStatus::Grabbing );
     }
     else if( climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax )
     {
@@ -436,7 +436,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
         setTargetState( LaraStateId::Stop );
         setAnimIdGlobal( loader::AnimationId::CLIMB_3CLICK, 614 );
         m_lara.m_state.position.position.Y += 3 * loader::QuarterSectorSize + climbHeight;
-        setHandStatus( 1 );
+        setHandStatus( HandStatus::Grabbing );
     }
     else if( climbHeight >= -core::JumpReachableHeight && climbHeight <= -core::ClimbLimit3ClickMax )
     {
@@ -542,7 +542,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != 0 )
+        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -589,7 +589,7 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
     m_lara.m_state.speed = 0;
     m_lara.m_state.fallspeed = 0;
     m_lara.m_state.falling = false;
-    setHandStatus( 1 );
+    setHandStatus( HandStatus::Grabbing );
     m_lara.m_state.rotation.Y = *alignedRotation;
 
     return true;
@@ -729,7 +729,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     {
         setAnimIdGlobal( loader::AnimationId::TRY_HANG_VERTICAL, 448 );
         setTargetState( LaraStateId::JumpUp );
-        setHandStatus( 0 );
+        setHandStatus( HandStatus::None );
         const auto bbox = getBoundingBox();
         const auto hangDistance = collisionInfo.front.floor.distance - bbox.minY + 2;
         const core::TRCoordinates& pos = m_lara.m_state.position.position

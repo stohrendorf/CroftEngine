@@ -20,12 +20,21 @@ enum class UnderwaterState
 };
 
 
+enum class HandStatus
+{
+    None,
+    Grabbing,
+    Unholster,
+    Holster,
+    Combat
+};
+
+
 class LaraNode final : public items::ModelItemNode
 {
     using LaraStateId = loader::LaraStateId;
 
 private:
-    int m_health{core::LaraHealth};
     //! @brief Additional rotation per TR Engine Frame
     core::Angle m_yRotationSpeed{0};
     int m_fallSpeedOverride = 0;
@@ -33,7 +42,7 @@ private:
     int m_air{core::LaraAir};
     core::Angle m_currentSlideAngle{0};
 
-    int m_handStatus = 0;
+    HandStatus m_handStatus = HandStatus::None;
     //! @todo Move this to the Level.
     int m_uvAnimTime{0};
 
@@ -147,6 +156,8 @@ public:
         w.shootTimeout = 3;
         w.fireSoundId = 45;
         weapons[WeaponId::Shotgun] = w;
+
+        m_state.health = core::LaraHealth;
     }
 
     ~LaraNode() override;
@@ -213,12 +224,12 @@ public:
         return m_movementAngle;
     }
 
-    int getHandStatus() const noexcept
+    HandStatus getHandStatus() const noexcept
     {
         return m_handStatus;
     }
 
-    void setHandStatus(int status) noexcept
+    void setHandStatus(HandStatus status) noexcept
     {
         m_handStatus = status;
     }
@@ -304,22 +315,6 @@ public:
 
     void setCameraOldMode(CameraMode k);
 
-    void addHeadRotationXY(const core::Angle& x, const core::Angle& y)
-    {
-        m_headRotation.X += x;
-        m_headRotation.Y += y;
-    }
-
-    void setHeadRotationX(const core::Angle& v)
-    {
-        m_headRotation.X = v;
-    }
-
-    void setHeadRotationY(const core::Angle& v)
-    {
-        m_headRotation.Y = v;
-    }
-
     void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y,
                            const core::Angle& minY, const core::Angle& maxY)
     {
@@ -335,11 +330,6 @@ public:
     void setTorsoRotation(const core::TRRotation& r)
     {
         m_torsoRotation = r;
-    }
-
-    void setHeadRotation(const core::TRRotation& r)
-    {
-        m_headRotation = r;
     }
 
     const core::TRRotation& getTorsoRotation() const noexcept
