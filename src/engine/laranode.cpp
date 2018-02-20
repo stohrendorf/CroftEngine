@@ -166,8 +166,6 @@ void LaraNode::handleLaraStateOnLand()
 
     updateFloorHeight( -381 );
 
-    //! @todo updateWeaponState()
-
     updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 
@@ -235,7 +233,6 @@ void LaraNode::handleLaraStateDiving()
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
     updateFloorHeight( 0 );
-    //! @todo update weapon state
     updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
@@ -300,7 +297,6 @@ void LaraNode::handleLaraStateSwimming()
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
     updateFloorHeight( core::DefaultCollisionRadius );
-    //! @todo Update weapon state
     updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
