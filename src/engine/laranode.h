@@ -445,23 +445,23 @@ public:
 
     void updateLarasWeaponsStatus();
     void updateShotgun();
-    void updateNotShotgun(WeaponId weaponId);
+    void updateGuns(WeaponId weaponId);
     void updateAimingState(const Weapon& weapon);
-    void unholsterReplaceMeshes();
+    void unholster();
 
     static core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelItemNode& item);
-    void unholsterDoubleWeapon(WeaponId weaponId);
+    void unholsterGuns(WeaponId weaponId);
     void findTarget(const Weapon& weapon);
     void initAimInfoPistol();
     void initAimInfoShotgun();
-    void overrideLaraMeshesUnholsterBothLegs(WeaponId weaponId);
+    void overrideLaraMeshesUnholsterGuns(WeaponId weaponId);
     void overrideLaraMeshesUnholsterShotgun();
-    void unholsterShotgunAnimUpdate();
+    void unholsterShotgun();
     void updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const;
     void updateAnimShotgun();
     void tryShootShotgun();
-    void playSingleShotShotgun();
-    void playSingleShot(WeaponId weaponId);
+    void holsterShotgun();
+    void holsterGuns(WeaponId weaponId);
     void updateAnimNotShotgun(WeaponId weaponId);
     bool fireWeapon(WeaponId weaponId,
                     const std::shared_ptr<engine::items::ModelItemNode>& target,
