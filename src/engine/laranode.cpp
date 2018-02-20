@@ -24,11 +24,11 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // find any blocks in the original room and un-patch the floor heights
     for( const auto& child : orig.node->getChildren() )
     {
-        if( auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
         }
-        else if( auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
         }
@@ -47,11 +47,11 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // except for the heights.
     for( const auto& child : orig.node->getChildren() )
     {
-        if( auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
         }
-        else if( auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
         }
@@ -168,7 +168,7 @@ void LaraNode::handleLaraStateOnLand()
 
     //! @todo updateWeaponState()
 
-    updateWeaponState();
+    updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 
     applyTransform();
@@ -236,7 +236,7 @@ void LaraNode::handleLaraStateDiving()
 
     updateFloorHeight( 0 );
     //! @todo update weapon state
-    updateWeaponState();
+    updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
     lastUsedCollisionInfo = collisionInfo;
@@ -301,7 +301,7 @@ void LaraNode::handleLaraStateSwimming()
 
     updateFloorHeight( core::DefaultCollisionRadius );
     //! @todo Update weapon state
-    updateWeaponState();
+    updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
     lastUsedCollisionInfo = collisionInfo;
@@ -576,9 +576,9 @@ void LaraNode::updateFloorHeight(int dy)
     auto pos = m_state.position.position;
     pos.Y += dy;
     const loader::Room* room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector( pos, &room );
+    const auto sector = getLevel().findRealFloorSector( pos, &room );
     setCurrentRoom( room );
-    HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
+    const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
     m_state.floor = hi.distance;
 }
 
@@ -968,7 +968,7 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     collisionInfo.oldPosition = m_state.position.position;
 }
 
-void LaraNode::updateWeaponState()
+void LaraNode::updateLarasWeaponsStatus()
 {
     if( leftArm.shootTimeout > 0 )
     {
@@ -1191,7 +1191,7 @@ void LaraNode::updateShotgun()
 void LaraNode::updateNotShotgun(WeaponId weaponId)
 {
     BOOST_ASSERT( weapons.find( weaponId ) != weapons.end() );
-    auto weapon = &weapons[weaponId];
+    const auto weapon = &weapons[weaponId];
     if( getLevel().m_inputHandler->getInputState().action )
     {
         updateAimingState( *weapon );
@@ -1241,7 +1241,7 @@ void LaraNode::updateAimingState(const engine::LaraNode::Weapon& weapon)
     laraHead.position.Y = m_state.position.position.Y - 650;
     laraHead.position.Z = m_state.position.position.Z;
     laraHead.room = m_state.position.room;
-    auto enemyChestPos = getUpperThirdBBoxCtr( *target );
+    const auto enemyChestPos = getUpperThirdBBoxCtr( *target );
     auto sightAngle = anglesFromPosition( enemyChestPos.position - laraHead.position );
     sightAngle.Y -= m_state.rotation.Y;
     sightAngle.X -= m_state.rotation.X;
@@ -1250,27 +1250,27 @@ void LaraNode::updateAimingState(const engine::LaraNode::Weapon& weapon)
         rightArm.aiming = false;
         leftArm.aiming = false;
     }
-    else if( sightAngle.Y < weapon.sightAngleRange.y.min
-            || sightAngle.Y > weapon.sightAngleRange.y.max
-            || sightAngle.X < weapon.sightAngleRange.x.min
-            || sightAngle.X > weapon.sightAngleRange.x.max )
+    else if( sightAngle.Y < weapon.lockAngles.y.min
+            || sightAngle.Y > weapon.lockAngles.y.max
+            || sightAngle.X < weapon.lockAngles.x.min
+            || sightAngle.X > weapon.lockAngles.x.max )
     {
         if( leftArm.aiming )
         {
-            if( sightAngle.Y < weapon.targetingAngleRangeLeft.y.min
-                || sightAngle.Y > weapon.targetingAngleRangeLeft.y.max
-                || sightAngle.X < weapon.targetingAngleRangeLeft.x.min
-                || sightAngle.X > weapon.targetingAngleRangeLeft.x.max )
+            if( sightAngle.Y < weapon.leftAngles.y.min
+                || sightAngle.Y > weapon.leftAngles.y.max
+                || sightAngle.X < weapon.leftAngles.x.min
+                || sightAngle.X > weapon.leftAngles.x.max )
             {
                 leftArm.aiming = false;
             }
         }
         if( rightArm.aiming )
         {
-            if( sightAngle.Y < weapon.targetingAngleRangeRight.y.min
-                || sightAngle.Y > weapon.targetingAngleRangeRight.y.max
-                || sightAngle.X < weapon.targetingAngleRangeRight.x.min
-                || sightAngle.X > weapon.targetingAngleRangeRight.x.max )
+            if( sightAngle.Y < weapon.rightAngles.y.min
+                || sightAngle.Y > weapon.rightAngles.y.max
+                || sightAngle.X < weapon.rightAngles.x.min
+                || sightAngle.X > weapon.rightAngles.x.max )
             {
                 rightArm.aiming = false;
             }
@@ -1341,14 +1341,14 @@ void LaraNode::unholsterReplaceMeshes()
 
 core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item)
 {
-    auto kf = item.getSkeleton()->getInterpolationInfo( item.m_state ).getNearestFrame();
+    const auto kf = item.getSkeleton()->getInterpolationInfo( item.m_state ).getNearestFrame();
 
-    auto ctrX = (kf->bbox.minX + kf->bbox.maxX) / 2;
-    auto ctrZ = (kf->bbox.minZ + kf->bbox.maxZ) / 2;
-    auto ctrY3 = (kf->bbox.minY + kf->bbox.maxY) / 3 + kf->bbox.minY;
+    const auto ctrX = (kf->bbox.minX + kf->bbox.maxX) / 2;
+    const auto ctrZ = (kf->bbox.minZ + kf->bbox.maxZ) / 2;
+    const auto ctrY3 = (kf->bbox.maxY - kf->bbox.minY) / 3 + kf->bbox.minY;
 
-    auto cos = item.m_state.rotation.Y.cos();
-    auto sin = item.m_state.rotation.Y.sin();
+    const auto cos = item.m_state.rotation.Y.cos();
+    const auto sin = item.m_state.rotation.Y.sin();
 
     core::RoomBoundPosition result{item.m_state.position.room};
     result.position.X = ctrZ * sin + ctrX * cos + item.m_state.position.position.X;
@@ -1385,9 +1385,8 @@ void LaraNode::findTarget(const engine::LaraNode::Weapon& weapon)
     origin.position.Y -= 650;
     std::shared_ptr<ModelItemNode> bestEnemy = nullptr;
     core::Angle bestXAngle{std::numeric_limits<int16_t>::max()};
-    const auto maxDistanceSq = weapon.maxDistance * weapon.maxDistance;
-    for( const std::shared_ptr<engine::items::ItemNode>& currentEnemy : getLevel().m_itemNodes
-                                                                        | boost::adaptors::map_values )
+    for( const std::shared_ptr<engine::items::ItemNode>& currentEnemy
+            : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
         if( currentEnemy->m_state.health <= 0 )
             continue;
@@ -1399,33 +1398,33 @@ void LaraNode::findTarget(const engine::LaraNode::Weapon& weapon)
             continue;
         }
 
-        auto dx = currentEnemy->m_state.position.position.X - origin.position.X;
-        auto dy = currentEnemy->m_state.position.position.Y - origin.position.Y;
-        auto dz = currentEnemy->m_state.position.position.Z - origin.position.Z;
-        if( std::abs( dx ) > weapon.maxDistance )
+        const auto dx = currentEnemy->m_state.position.position.X - origin.position.X;
+        const auto dy = currentEnemy->m_state.position.position.Y - origin.position.Y;
+        const auto dz = currentEnemy->m_state.position.position.Z - origin.position.Z;
+        if( std::abs( dx ) > weapon.targetDist )
             continue;
 
-        if( std::abs( dy ) > weapon.maxDistance )
+        if( std::abs( dy ) > weapon.targetDist )
             continue;
 
-        if( std::abs( dz ) > weapon.maxDistance )
+        if( std::abs( dz ) > weapon.targetDist )
             continue;
 
-        if( dx * dx + dy * dy + dz * dz >= maxDistanceSq )
+        if( util::square(dx) + util::square(dy) + util::square(dz) >= util::square(weapon.targetDist) )
             continue;
 
-        auto target = getUpperThirdBBoxCtr( *std::dynamic_pointer_cast<const ModelItemNode>( currentEnemy ) );
-        if( !CameraController::clampPosition( origin, target, getLevel() ) )
+        const auto target = getUpperThirdBBoxCtr( *std::dynamic_pointer_cast<const ModelItemNode>( currentEnemy ) );
+        if( CameraController::clampPosition( origin, target, getLevel() ) )
             continue;
 
         auto aimAngle = anglesFromPosition( target.position - origin.position );
-        aimAngle.X -= m_torsoRotation.Y + m_state.rotation.Y;
-        aimAngle.Y -= m_torsoRotation.X + m_state.rotation.X;
-        if( aimAngle.Y < weapon.sightAngleRange.y.min || aimAngle.Y > weapon.sightAngleRange.y.max
-            || aimAngle.X < weapon.sightAngleRange.x.min || aimAngle.X > weapon.sightAngleRange.x.max )
+        aimAngle.Y -= m_torsoRotation.Y + m_state.rotation.Y;
+        aimAngle.X -= m_torsoRotation.X + m_state.rotation.X;
+        if( aimAngle.Y < weapon.lockAngles.y.min || aimAngle.Y > weapon.lockAngles.y.max
+            || aimAngle.X < weapon.lockAngles.x.min || aimAngle.X > weapon.lockAngles.x.max )
             continue;
 
-        auto absX = abs( aimAngle.X );
+        const auto absX = abs( aimAngle.X );
         if( absX >= bestXAngle )
             continue;
 
@@ -1553,7 +1552,7 @@ void LaraNode::unholsterShotgunAnimUpdate()
     rightArm.frame = nextFrame;
 }
 
-void LaraNode::updateAimAngles(engine::LaraNode::Weapon& weapon, engine::LaraNode::AimInfo& aimInfo)
+void LaraNode::updateAimAngles(const engine::LaraNode::Weapon& weapon, engine::LaraNode::AimInfo& aimInfo) const
 {
     core::Angle targetX = 0_deg;
     core::Angle targetY = 0_deg;
@@ -1563,30 +1562,30 @@ void LaraNode::updateAimAngles(engine::LaraNode::Weapon& weapon, engine::LaraNod
         targetY = m_enemyLookRot.Y;
     }
 
-    if( aimInfo.aimRotation.X >= targetX - weapon.rotationCone && aimInfo.aimRotation.X <= targetX + weapon.rotationCone )
+    if( aimInfo.aimRotation.X >= targetX - weapon.aimSpeed && aimInfo.aimRotation.X <= targetX + weapon.aimSpeed )
     {
         aimInfo.aimRotation.X = targetX;
     }
     else if( aimInfo.aimRotation.X >= targetX )
     {
-        aimInfo.aimRotation.X = aimInfo.aimRotation.X - weapon.rotationCone;
+        aimInfo.aimRotation.X = aimInfo.aimRotation.X - weapon.aimSpeed;
     }
     else
     {
-        aimInfo.aimRotation.X = aimInfo.aimRotation.X + weapon.rotationCone;
+        aimInfo.aimRotation.X = aimInfo.aimRotation.X + weapon.aimSpeed;
     }
 
-    if( aimInfo.aimRotation.Y >= targetY - weapon.rotationCone && aimInfo.aimRotation.Y <= weapon.rotationCone + targetY )
+    if( aimInfo.aimRotation.Y >= targetY - weapon.aimSpeed && aimInfo.aimRotation.Y <= weapon.aimSpeed + targetY )
     {
         aimInfo.aimRotation.Y = targetY;
     }
     else if( aimInfo.aimRotation.Y >= targetY )
     {
-        aimInfo.aimRotation.Y = aimInfo.aimRotation.Y - weapon.rotationCone;
+        aimInfo.aimRotation.Y = aimInfo.aimRotation.Y - weapon.aimSpeed;
     }
     else
     {
-        aimInfo.aimRotation.Y = aimInfo.aimRotation.Y + weapon.rotationCone;
+        aimInfo.aimRotation.Y = aimInfo.aimRotation.Y + weapon.aimSpeed;
     }
 
     aimInfo.aimRotation.Z = 0_deg;
@@ -1599,7 +1598,7 @@ void LaraNode::updateAnimShotgun()
     {
         if( leftArm.frame < 0 || leftArm.frame >= 13 )
         {
-            auto nextFrame = leftArm.frame + 1;
+            const auto nextFrame = leftArm.frame + 1;
             if( leftArm.frame == 47 )
             {
                 if( getLevel().m_inputHandler->getInputState().action )
@@ -1663,7 +1662,7 @@ void LaraNode::updateAnimShotgun()
 
     if( leftArm.frame <= 0 || leftArm.frame >= 13 )
     {
-        auto nextFrame = leftArm.frame + 1;
+        const auto nextFrame = leftArm.frame + 1;
         if( leftArm.frame == 47 )
         {
             if( getLevel().m_inputHandler->getInputState().action )
@@ -1740,19 +1739,19 @@ void LaraNode::tryShootShotgun()
     bool fireShotgun = false;
     for( int i = 0; i < 5; ++i )
     {
-        auto rand1 = (std::rand() & 0x7fff) - 0x4000;
+        const auto rand1 = (std::rand() & 0x7fff) - 0x4000;
         core::TRRotationXY aimAngle;
         aimAngle.X = (+20_deg * rand1 / 65536) + m_state.rotation.Y + leftArm.aimRotation.Y;
-        auto rand2 = (std::rand() & 0x7fff) - 0x4000;
+        const auto rand2 = (std::rand() & 0x7fff) - 0x4000;
         aimAngle.Y = (+20_deg * rand2 / 65536) + leftArm.aimRotation.X;
-        if( tryShoot( WeaponId::Shotgun, target, *this, aimAngle ) )
+        if( fireWeapon( WeaponId::Shotgun, target, *this, aimAngle ) )
         {
             fireShotgun = true;
         }
     }
     if( fireShotgun )
     {
-        getLevel().playSound( weapons[WeaponId::Shotgun].fireSoundId, getNode()->getTranslationWorld() );
+        getLevel().playSound( weapons[WeaponId::Shotgun].sampleNum, getNode()->getTranslationWorld() );
     }
 }
 
@@ -1965,17 +1964,17 @@ void LaraNode::updateAnimNotShotgun(engine::LaraNode::WeaponId weaponId)
         core::TRRotationXY aimAngle;
         aimAngle.Y = m_state.rotation.Y + rightArm.aimRotation.Y;
         aimAngle.X = rightArm.aimRotation.X;
-        if( tryShoot( weaponId, target, *this, aimAngle ) )
+        if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
-            rightArm.shootTimeout = weapon.shootTimeout;
-            getLevel().playSound( weapon.fireSoundId, getNode()->getTranslationWorld() );
+            rightArm.shootTimeout = weapon.flashTime;
+            getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
         }
         rightArm.frame = 24;
     }
     else if( rightArm.frame >= 24 )
     {
         ++rightArm.frame;
-        if( rightArm.frame == weapon.field_28 + 24 )
+        if( rightArm.frame == weapon.recoilFrame + 24 )
         {
             rightArm.frame = 4;
         }
@@ -2001,31 +2000,31 @@ void LaraNode::updateAnimNotShotgun(engine::LaraNode::WeaponId weaponId)
         core::TRRotationXY aimAngle;
         aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
         aimAngle.X = leftArm.aimRotation.X;
-        if( tryShoot( weaponId, target, *this, aimAngle ) )
+        if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
-            leftArm.shootTimeout = weapon.shootTimeout;
-            getLevel().playSound( weapon.fireSoundId, getNode()->getTranslationWorld() );
+            leftArm.shootTimeout = weapon.flashTime;
+            getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
         }
         leftArm.frame = 24;
     }
     else if( leftArm.frame >= 24 )
     {
         ++leftArm.frame;
-        if( leftArm.frame == weapon.field_28 + 24 )
+        if( leftArm.frame == weapon.recoilFrame + 24 )
         {
             leftArm.frame = 4;
         }
     }
 }
 
-bool LaraNode::tryShoot(engine::LaraNode::WeaponId weaponId,
-                        const std::shared_ptr<engine::items::ModelItemNode>& target,
-                        const engine::items::ModelItemNode& gunHolder,
-                        const core::TRRotationXY& aimAngle)
+bool LaraNode::fireWeapon(engine::LaraNode::WeaponId weaponId,
+                          const std::shared_ptr<engine::items::ModelItemNode>& target,
+                          const engine::items::ModelItemNode& gunHolder,
+                          const core::TRRotationXY& aimAngle)
 {
     Expects( weaponId != WeaponId::None );
 
-    Ammo* ammoPtr = nullptr;
+    Ammo* ammoPtr;
     if( weaponId == WeaponId::Pistols )
     {
         ammoPtr = &pistolsAmmo;
@@ -2069,12 +2068,12 @@ bool LaraNode::tryShoot(engine::LaraNode::WeaponId weaponId,
     }
 
     --ammoPtr->ammo;
-    auto weapon = &weapons[weaponId];
+    const auto weapon = &weapons[weaponId];
     core::TRCoordinates gunPosition = gunHolder.m_state.position.position;
-    gunPosition.Y -= weapon->height;
+    gunPosition.Y -= weapon->gunHeight;
     core::TRRotation shootVector{
-            weapon->anglePrecision * ((std::rand() & 0x7fff) - 0x4000) / 65536 + aimAngle.X,
-            weapon->anglePrecision * ((std::rand() & 0x7fff) - 0x4000) / 65536 + aimAngle.Y,
+            weapon->shotAccuracy * ((std::rand() & 0x7fff) - 0x4000) / 65536 + aimAngle.X,
+            weapon->shotAccuracy * ((std::rand() & 0x7fff) - 0x4000) / 65536 + aimAngle.Y,
             +0_deg
     };
     auto m = glm::translate( shootVector.toMatrix(), gunPosition.toRenderSystem() );
@@ -2124,16 +2123,18 @@ bool LaraNode::tryShoot(engine::LaraNode::WeaponId weaponId,
         core::RoomBoundPosition hitPos{gunHolder.m_state.position.room};
         static constexpr float VeryLargeDistanceProbablyClipping = 1 << 14;
         // FIXME this causes an assert to fail
-        hitPos.position = bulletPos.position + core::TRCoordinates{glm::vec3{m[3]} * VeryLargeDistanceProbablyClipping};
+        hitPos.position = bulletPos.position + core::TRCoordinates{ glm::vec3{m[3]} *VeryLargeDistanceProbablyClipping };
+#if 0
         CameraController::clampPosition( bulletPos, hitPos, getLevel() );
         playShotMissed( hitPos );
+#endif
     }
     else
     {
         ++ammoPtr->hits;
-        core::TRCoordinates hitPos{float( minD ) * glm::vec3{m[3]} + bulletPos.position.toRenderSystem()};
+        const core::TRCoordinates hitPos{float( minD ) * glm::vec3{m[3]} + bulletPos.position.toRenderSystem()};
         if(target != nullptr)
-            enemyHit( *target, hitPos, weapon->healthDamage );
+            hitTarget( *target, hitPos, weapon->damage );
     }
 
     return true;
@@ -2145,14 +2146,14 @@ void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
     getLevel().playSound(10, pos.position.toRenderSystem());
 }
 
-void LaraNode::enemyHit(engine::items::ModelItemNode& item, const core::TRCoordinates& pos, int healthDamage)
+void LaraNode::hitTarget(engine::items::ModelItemNode& item, const core::TRCoordinates& hitPos, int damage)
 {
-    if ( item.m_state.health > 0 && item.m_state.health <= healthDamage )
+    if ( item.m_state.health > 0 && item.m_state.health <= damage )
     {
         // TODO ++g_numKills;
     }
     item.m_state.is_hit = true;
-    item.m_state.health -= healthDamage;
+    item.m_state.health -= damage;
     // TODO emitBloodSplatterFx(pos.X, pos.Y, pos.Z, item.m_state.speed, item.m_state.rotation.Y, item.m_state.position.room);
     if( item.m_state.health <= 0 )
         return;
@@ -2196,7 +2197,7 @@ void LaraNode::drawRoutine()
     else
     {
         const auto& objInfo = *getLevel().m_animatedModels[m_state.object_number];
-        const loader::AnimFrame* frame = nullptr;
+        const loader::AnimFrame* frame;
         if ( !hit_direction.is_initialized() )
         {
             frame = interpolationInfo.firstFrame;
@@ -2243,7 +2244,7 @@ void LaraNode::drawRoutine()
         // render::calcMeshLighting(aLara, &v_frame->bbox);
         const auto* boneTree = reinterpret_cast<const BoneTreeEntry*>(&getLevel().m_boneTrees[objInfo.bone_index]);
         mTranslateXYZ(frame->pos.toGl());
-        auto angleData = frame->getAngleData();
+        const auto angleData = frame->getAngleData();
         mRotPackedYXZ(angleData[0]);
         renderMesh(0);
 
@@ -2420,4 +2421,3 @@ void LaraNode::drawRoutineInterpolated(const engine::SkeletalModelNode::Interpol
 
 }
 }
-                                 
