@@ -170,6 +170,15 @@ namespace engine
             return m_position.room;
         }
 
+        /**
+         * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
+         * @param[in,out] origin Starting point, moved towards @a target
+         * @param[in] target Destination of the movement, possibly never reached
+         * @param[in] level For accessing boxes and floordata
+         * @retval false if clamped
+         * 
+         * @warning Please be aware that the return value is reverted and not what you might expect...
+         */
         static bool clampPosition(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
 
     private:

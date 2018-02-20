@@ -20,6 +20,7 @@ namespace engine
                  const loader::SkeletalModelType& animatedModel)
                 : AIAgent(level, name, room, item, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, animatedModel, 384)
             {
+                m_state.health = 6;
             }
 
 

@@ -82,6 +82,12 @@ namespace
         drawText(font, 400, 220, boost::lexical_cast<std::string>("Need top:        ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.badNegativeDistance));
         drawText(font, 400, 240, boost::lexical_cast<std::string>("Need ceiling:    ") + std::to_string(lvl->m_lara->lastUsedCollisionInfo.badCeilingDistance));
 #endif
+
+        // weapons
+        drawText(font, 400, 280, std::string("L.aiming    ") + (lvl->m_lara->leftArm.aiming?"true":"false"));
+        drawText(font, 400, 300, std::string("L.aim       X=") + std::to_string(lvl->m_lara->leftArm.aimRotation.X.toDegrees()) + ", Y=" + std::to_string(lvl->m_lara->leftArm.aimRotation.Y.toDegrees()));
+        drawText(font, 400, 320, std::string("R.aiming    ") + (lvl->m_lara->rightArm.aiming?"true":"false"));
+        drawText(font, 400, 340, std::string("R.aim       X=") + std::to_string(lvl->m_lara->rightArm.aimRotation.X.toDegrees()) + ", Y=" + std::to_string(lvl->m_lara->rightArm.aimRotation.Y.toDegrees()));
     }
 }
 

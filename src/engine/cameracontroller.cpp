@@ -179,7 +179,7 @@ bool CameraController::clampY(const core::TRCoordinates& target,
     const auto d = current - target;
     const HeightInfo floor = HeightInfo::fromFloor( sector, current, level.m_itemNodes, level.m_floorData );
     const HeightInfo ceiling = HeightInfo::fromCeiling( sector, current, level.m_itemNodes, level.m_floorData );
-    BOOST_ASSERT( ceiling.distance < floor.distance );
+    BOOST_ASSERT( ceiling.distance <= floor.distance );
 
     if( floor.distance < current.Y && floor.distance > target.Y )
     {
@@ -354,7 +354,7 @@ bool CameraController::clampPosition(core::RoomBoundPosition& current, const cor
         secondClamp = clampAlongZ( current, target, level );
     }
 
-    if( secondClamp != ClampType::Horizontal )
+    if( secondClamp == ClampType::Horizontal )
     {
         return false;
     }

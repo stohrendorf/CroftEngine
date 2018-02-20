@@ -383,7 +383,7 @@ public:
         const loader::AnimFrame *weaponAnimData = nullptr;
         int16_t frame = 0;
         bool aiming = false;
-        core::TRRotation aimRotation{};
+        core::TRRotationXY aimRotation{};
         int16_t shootTimeout = 0;
     };
 
@@ -441,7 +441,7 @@ public:
     };
 
     std::unordered_map<WeaponId, Weapon> weapons;
-    core::TRRotationXY m_enemyLookRot;
+    core::TRRotationXY m_weaponTargetVector;
 
     void updateLarasWeaponsStatus();
     void updateShotgun();
