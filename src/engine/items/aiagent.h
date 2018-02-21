@@ -40,7 +40,7 @@ protected:
 
     int getHealth() const
     {
-        return m_health;
+        return m_state.health;
     }
 
 private:
@@ -51,7 +51,6 @@ private:
                               const ai::LotInfo& lotInfo) const;
 
     uint16_t m_requiredAnimState = 0;
-    int m_health{1000};
     const int m_collisionRadius;
 };
 }

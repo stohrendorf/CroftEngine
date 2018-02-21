@@ -7,6 +7,8 @@
 #include "items/block.h"
 #include "items/tallblock.h"
 
+#include <glm/gtx/norm.hpp>
+
 #include <boost/range/adaptors.hpp>
 #include <stack>
 
@@ -2057,7 +2059,7 @@ bool LaraNode::fireWeapon(engine::LaraNode::WeaponId weaponId,
             weapon->shotAccuracy * ((std::rand() & 0x7fff) - 0x4000) / 65536 + aimAngle.Y,
             +0_deg
     };
-    auto m = glm::translate( shootVector.toMatrix(), gunPosition.toRenderSystem() );
+
     // render::initViewMatrix(&v_sourcePosAngle);
     std::vector<SkeletalModelNode::Cylinder> cylinders;
     if(target != nullptr)
@@ -2069,26 +2071,33 @@ bool LaraNode::fireWeapon(engine::LaraNode::WeaponId weaponId,
                                                                       nullptr );
     }
     bool hasHit = false;
-    int minD = std::numeric_limits<int>::max();
+    glm::vec3 hitPos;
     if( !cylinders.empty() )
     {
+        const auto dir = glm::vec3(shootVector.toMatrix()[2]); // +Z is our shooting direction
+
+        const auto start = gunPosition.toRenderSystem();
+        const auto end = start + dir;
+
+        float minD = std::numeric_limits<float>::max();
         for( const auto& cylinder : cylinders )
         {
-            if( std::abs( cylinder.position.X ) >= cylinder.radius )
+            const float proj = glm::dot(cylinder.position.toRenderSystem() - start, dir) / glm::length2(dir);
+            if (proj < 0)
+                hitPos = start;
+            else if (proj > 1)
+                hitPos = end;
+            else
+                hitPos = (end * proj) + (start * (1.0f-proj));
+            const auto d = glm::length(hitPos - cylinder.position.toRenderSystem());
+
+            if( d >= cylinder.radius )
                 continue;
 
-            if( std::abs( cylinder.position.Y ) >= cylinder.radius )
+            if( d >= minD )
                 continue;
 
-            if( cylinder.radius >= cylinder.position.Z )
-                continue;
-
-            if( cylinder.position.Z - cylinder.radius >= minD )
-                continue;
-
-            const auto d = cylinder.position.Z - cylinder.radius;
-            if( util::square( cylinder.position.Y ) + util::square( cylinder.position.X )
-                > cylinder.radius * cylinder.radius )
+            if( util::square( d ) > util::square(cylinder.radius) )
                 continue;
 
             minD = d;
@@ -2104,18 +2113,17 @@ bool LaraNode::fireWeapon(engine::LaraNode::WeaponId weaponId,
         core::RoomBoundPosition hitPos{gunHolder.m_state.position.room};
         static constexpr float VeryLargeDistanceProbablyClipping = 1 << 14;
         // FIXME this causes an assert to fail
-        hitPos.position = bulletPos.position + core::TRCoordinates{ glm::vec3{m[3]} *VeryLargeDistanceProbablyClipping };
 #if 0
+        hitPos.position = bulletPos.position + core::TRCoordinates{ glm::vec3{m[3]} * VeryLargeDistanceProbablyClipping };
         CameraController::clampPosition( bulletPos, hitPos, getLevel() );
         playShotMissed( hitPos );
 #endif
     }
     else
     {
+        BOOST_ASSERT(target != nullptr);
         ++ammoPtr->hits;
-        const core::TRCoordinates hitPos{float( minD ) * glm::vec3{m[3]} + bulletPos.position.toRenderSystem()};
-        if(target != nullptr)
-            hitTarget( *target, hitPos, weapon->damage );
+        hitTarget( *target, core::TRCoordinates{hitPos}, weapon->damage );
     }
 
     return true;
@@ -2129,6 +2137,8 @@ void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
 
 void LaraNode::hitTarget(engine::items::ModelItemNode& item, const core::TRCoordinates& hitPos, int damage)
 {
+    BOOST_LOG_TRIVIAL(debug) << "Target " << item.getNode()->getId() << " is hit, health=" << item.m_state.health << ", damage=" << damage;
+
     if ( item.m_state.health > 0 && item.m_state.health <= damage )
     {
         // TODO ++g_numKills;
