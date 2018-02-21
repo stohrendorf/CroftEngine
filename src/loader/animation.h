@@ -61,14 +61,19 @@ struct AnimFrame
     {
         const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
         const auto end = begin + numValues;
-        return reinterpret_cast<const AnimFrame*>(end);
+        const auto next = reinterpret_cast<const AnimFrame*>(end);
+        BOOST_ASSERT(next->numValues == numValues);
+        return next;
     }
 
     const AnimFrame* next(size_t n) const
     {
         auto result = this;
-        while( n-- )
+        while (n--)
+        {
             result = result->next();
+            BOOST_ASSERT(result->numValues == numValues);
+        }
         return result;
     }
 };

@@ -275,6 +275,7 @@ void SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, uint16_
     BOOST_ASSERT( animId < m_level->m_animations.size() );
 
     const auto& anim = m_level->m_animations[animId];
+    BOOST_ASSERT(getChildCount() == 0 || anim.poseData->numValues == getChildCount());
 
     if( frame < anim.firstFrame || frame > anim.lastFrame )
         frame = anim.firstFrame;

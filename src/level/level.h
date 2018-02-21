@@ -51,7 +51,7 @@ public:
     std::vector<loader::Transitions> m_transitions;
     std::vector<loader::TransitionCase> m_transitionCases;
     std::vector<int16_t> m_animCommands;
-    std::vector<std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
+    std::map<uint32_t, std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
     std::vector<loader::StaticMesh> m_staticMeshes;
     std::vector<loader::TextureLayoutProxy> m_textureProxies;
     std::vector<uint16_t> m_animatedTextures;
@@ -110,7 +110,7 @@ public:
 
     int findStaticMeshIndexById(uint32_t object_id) const;
 
-    boost::optional<size_t> findAnimatedModelIndexForType(uint32_t type) const;
+    const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(uint32_t type) const;
 
     boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
 
@@ -135,8 +135,8 @@ public:
                                                         const core::TRCoordinates& position,
                                                         uint16_t activationState)
     {
-        const auto modelIdx = findAnimatedModelIndexForType( type );
-        if( !modelIdx )
+        const auto& model = findAnimatedModelForType( type );
+        if( model == nullptr )
             return nullptr;
 
         auto it = std::find_if(m_items.begin(), m_items.end(), [type](const loader::Item& item) { return item.type == type; });
@@ -147,7 +147,7 @@ public:
         item.position = position;
         item.activationState = activationState;
 
-        auto node = createSkeletalModel<T>( 99999, *modelIdx, room, item );
+        auto node = createSkeletalModel<T>( 99999, *model, room, item );
 
         m_dynamicItems.insert( node.get() );
         room->node->addChild( node->getNode() );
@@ -402,7 +402,7 @@ private:
 
     template<typename T>
     std::shared_ptr<T> createSkeletalModel(size_t id,
-                                           size_t modelIdx,
+                                           const loader::SkeletalModelType& model,
                                            const gsl::not_null<const loader::Room*>& room,
                                            const loader::Item& item);
 

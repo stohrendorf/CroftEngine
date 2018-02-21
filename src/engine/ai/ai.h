@@ -100,7 +100,7 @@ struct LotInfo
         target.Z = zSize * (std::rand() & 0x7fff) / 0x8000 + box->zmin + loader::SectorSize / 2;
         const auto xSize = box->xmax - box->xmin - loader::SectorSize;
         target.X = xSize * (std::rand() & 0x7fff) / 0x8000 + box->xmin + loader::SectorSize / 2;
-        if( fly )
+        if( fly != 0 )
         {
             target.Y = box->floor - 384;
         }

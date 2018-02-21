@@ -36,13 +36,13 @@ void Bat::update()
                 m_state.goal_anim_state = FlyingStraight;
                 break;
             case FlyingStraight:
-                if( false /** @fixme touch_bits != 0 */ )
+                if( m_state.touch_bits != 0 )
                 {
                     m_state.goal_anim_state = Biting;
                 }
                 break;
             case Biting:
-                if( false /** @fixme touch_bits != 0 */ )
+                if( m_state.touch_bits != 0 )
                 {
                     //! @fixme Show blood splatter FX
                     getLevel().m_lara->m_state.is_hit = true;

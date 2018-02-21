@@ -207,8 +207,9 @@ void Wolf::update()
     }
     else if( m_state.current_anim_state != Dying )
     {
-        getSkeleton()->setAnimIdGlobal( m_state, getLevel().m_animatedModels[m_state.object_number]->anim_index + 20
-                                                 + 3 * std::rand() / (RAND_MAX + 1), 0 );
+        const auto r = (std::rand() & 0x7fff) / 11000;
+        getSkeleton()->setAnimIdGlobal( m_state, getLevel().m_animatedModels[m_state.object_number]->anim_index + 20 + r, 0 );
+        BOOST_ASSERT(m_state.current_anim_state == Dying);
     }
     rotateCreatureTilt( roll );
     rotateCreatureHead( pitch );

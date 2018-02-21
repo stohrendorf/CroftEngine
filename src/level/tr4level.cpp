@@ -144,7 +144,17 @@ void TR4Level::loadFileData()
 
     newsrc.readVector(m_poseData, newsrc.readU32());
 
-    newsrc.readVector(m_animatedModels, newsrc.readU32(), loader::SkeletalModelType::readTr1);
+    {
+        const auto n = m_reader.readU32();
+        for (uint32_t i = 0; i<n; ++i)
+        {
+            auto m = loader::SkeletalModelType::readTr1(m_reader);
+            if (m_animatedModels.find(m->typeId) != m_animatedModels.end())
+                BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
+
+            m_animatedModels[m->typeId] = std::move(m);
+        }
+    }
 
     newsrc.readVector(m_staticMeshes, newsrc.readU32(), &loader::StaticMesh::read);
 

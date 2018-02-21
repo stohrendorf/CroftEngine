@@ -299,6 +299,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         const auto floor = HeightInfo::fromFloor( sector, core::TRCoordinates{m_state.position.position.X, bboxMinY,
                                                                               m_state.position.position.Z},
                                                   getLevel().m_itemNodes, getLevel().m_floorData ).distance;
+        const auto ceiling = HeightInfo::fromCeiling( sector, core::TRCoordinates{m_state.position.position.X, bboxMinY,
+                                                                                  m_state.position.position.Z},
+                                                      getLevel().m_itemNodes, getLevel().m_floorData ).distance;
         if( moveY + m_state.position.position.Y <= floor )
         {
             if( m_state.object_number == 11 )
@@ -306,9 +309,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                 bbox.minY = 0;
             }
 
-            if( m_state.position.position.Y + bbox.minY + moveY < floor )
+            if( m_state.position.position.Y + bbox.minY + moveY < ceiling)
             {
-                if( m_state.position.position.Y + bbox.minY >= floor )
+                if( m_state.position.position.Y + bbox.minY >= ceiling)
                 {
                     moveY = 0;
                 }

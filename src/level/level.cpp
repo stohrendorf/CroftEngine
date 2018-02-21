@@ -257,13 +257,14 @@ int Level::findStaticMeshIndexById(uint32_t meshId) const
     return -1;
 }
 
-boost::optional<size_t> Level::findAnimatedModelIndexForType(uint32_t type) const
+const std::unique_ptr<loader::SkeletalModelType>& Level::findAnimatedModelForType(uint32_t type) const
 {
-    for( size_t i = 0; i < m_animatedModels.size(); i++ )
-        if( m_animatedModels[i]->typeId == type )
-            return i;
+    const auto it = m_animatedModels.find(type);
+    if (it != m_animatedModels.end())
+        return it->second;
 
-    return boost::none;
+    static const std::unique_ptr<loader::SkeletalModelType> none;
+    return none;
 }
 
 boost::optional<size_t> Level::findSpriteSequenceForType(uint32_t type) const
@@ -342,104 +343,99 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
         BOOST_ASSERT( item.room < m_rooms.size() );
         loader::Room& room = m_rooms[item.room];
 
-        if( const auto modelIdx = findAnimatedModelIndexForType( item.type ) )
+        if( const auto& model = findAnimatedModelForType( item.type ) )
         {
             std::shared_ptr<engine::items::ItemNode> modelNode;
 
             if( item.type == 0 )
             {
-                modelNode = createSkeletalModel<engine::LaraNode>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::LaraNode>( id, *model, &room, item );
                 lara = static_cast<engine::LaraNode*>(modelNode.get());
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( item.type + 9999999 ) )
             {
                 BOOST_LOG_TRIVIAL(info) << "Instantiating scripted type " << item.type << "/id " << id;
 
-                BOOST_ASSERT( !m_animatedModels.empty() );
-                BOOST_ASSERT( *modelIdx < m_animatedModels.size() );
-                BOOST_ASSERT( m_animatedModels[*modelIdx] != nullptr );
-                const auto& model = *m_animatedModels[*modelIdx];
-
                 modelNode = std::make_shared<engine::items::ScriptedItem>( this,
                                                                            "skeleton:" + std::to_string( id ) + "(type:" + std::to_string( item.type ) + ")",
                                                                            &room,
                                                                            item,
-                                                                           model,
+                                                                           *model,
                                                                            objectInfo);
-                for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
+                for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
                 {
-                    BOOST_ASSERT( model.frame_number + boneIndex < m_meshIndices.size() );
+                    BOOST_ASSERT( model->frame_number + boneIndex < m_meshIndices.size() );
                     auto node = std::make_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-                    node->setDrawable( m_models[m_meshIndices[model.frame_number + boneIndex]] );
+                    node->setDrawable( m_models[m_meshIndices[model->frame_number + boneIndex]] );
                     modelNode->getNode()->addChild( node );
                 }
 
-                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model.nmeshes );
+                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model->nmeshes );
             }
             else if( item.type == 7 )
             {
-                modelNode = createSkeletalModel<engine::items::Wolf>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Wolf>( id, *model, &room, item );
             }
             else if( item.type == 9 )
             {
-                modelNode = createSkeletalModel<engine::items::Bat>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Bat>( id, *model, &room, item );
             }
             else if( item.type == 35 )
             {
-                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( id, *model, &room, item );
             }
             else if( item.type == 36 )
             {
-                modelNode = createSkeletalModel<engine::items::SwingingBlade>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::SwingingBlade>( id, *model, &room, item );
             }
             else if( item.type == 39 )
             {
-                modelNode = createSkeletalModel<engine::items::Dart>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Dart>( id, *model, &room, item );
             }
             else if( item.type == 40 )
             {
-                modelNode = createSkeletalModel<engine::items::DartGun>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::DartGun>( id, *model, &room, item );
             }
             else if( item.type == 41 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( id, *model, &room, item );
             }
             else if( item.type >= 48 && item.type <= 51 )
             {
-                modelNode = createSkeletalModel<engine::items::Block>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Block>( id, *model, &room, item );
             }
             else if( item.type == 52 )
             {
-                modelNode = createSkeletalModel<engine::items::TallBlock>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::TallBlock>( id, *model, &room, item );
             }
             else if( item.type == 55 )
             {
-                modelNode = createSkeletalModel<engine::items::Switch>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Switch>( id, *model, &room, item );
             }
             else if( item.type == 56 )
             {
-                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>( id, *model, &room, item );
             }
             else if( item.type >= 57 && item.type <= 64 )
             {
-                modelNode = createSkeletalModel<engine::items::Door>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::Door>( id, *model, &room, item );
             }
             else if( item.type >= 65 && item.type <= 66 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( id, *model, &room, item );
             }
             else if( item.type == 68 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeFlat>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::BridgeFlat>( id, *model, &room, item );
             }
             else if( item.type == 69 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( id, *model, &room, item );
             }
             else if( item.type == 70 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( id, *model, &room, item );
             }
             else if( item.type == 141 || item.type == 142 || item.type == 129 || item.type == 130 || item.type == 131
                      || item.type == 132 || item.type == 110 || item.type == 111 || item.type == 112 || item.type == 113
@@ -447,11 +443,11 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
                      || item.type == 89 || item.type == 90 || item.type == 91 || item.type == 92 || item.type == 93
                      || item.type == 94 || item.type == 144 || item.type == 126 )
             {
-                modelNode = createSkeletalModel<engine::items::PickupItem>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::PickupItem>( id, *model, &room, item );
             }
             else
             {
-                modelNode = createSkeletalModel<engine::items::StubItem>( id, *modelIdx, &room, item );
+                modelNode = createSkeletalModel<engine::items::StubItem>( id, *model, &room, item );
             }
 
             m_itemNodes[id] = modelNode;
@@ -465,7 +461,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
         if( const auto sequenceId = findSpriteSequenceForType( item.type ) )
         {
-            BOOST_ASSERT( !findAnimatedModelIndexForType( item.type ) );
+            BOOST_ASSERT( !findAnimatedModelForType( item.type ) );
             BOOST_ASSERT( *sequenceId < m_spriteSequences.size() );
             const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
 
@@ -502,16 +498,11 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 
 template<typename T>
 std::shared_ptr<T> Level::createSkeletalModel(size_t id,
-                                              size_t modelIdx,
+                                              const loader::SkeletalModelType& model,
                                               const gsl::not_null<const loader::Room*>& room,
                                               const loader::Item& item)
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from engine::ItemNode" );
-
-    BOOST_ASSERT( !m_animatedModels.empty() );
-    BOOST_ASSERT( modelIdx < m_animatedModels.size() );
-    BOOST_ASSERT( m_animatedModels[modelIdx] != nullptr );
-    const auto& model = *m_animatedModels[modelIdx];
 
     if( model.anim_index == 0xffff )
     {
@@ -764,7 +755,7 @@ void Level::setUpRendering(gameplay::Game* game,
             objWriter.write( m_textures[i].toImage( nullptr, {} ), i );
         }
 
-        for( const auto& trModel : m_animatedModels )
+        for( const auto& trModel : m_animatedModels | boost::adaptors::map_values )
         {
             for( size_t boneIndex = 0; boneIndex < trModel->nmeshes; ++boneIndex )
             {
@@ -1338,7 +1329,7 @@ void Level::postProcessDataStructures()
         m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
     }
 
-    for(const auto& model : m_animatedModels)
+    for(const auto& model : m_animatedModels | boost::adaptors::map_values)
     {
         Expects(model->pose_data_offset % 2 == 0);
 
