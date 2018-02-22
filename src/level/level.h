@@ -67,7 +67,7 @@ public:
     loader::Zones m_alternateZones;
     std::vector<loader::Item> m_items;
     engine::items::ItemList m_itemNodes;
-    std::set<engine::items::ItemNode*> m_dynamicItems;
+    std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;
     std::set<engine::items::ItemNode*> m_scheduledDeletions;
     std::unique_ptr<loader::LightMap> m_lightmap;
     std::vector<loader::AIObject> m_aiObjects;
@@ -139,17 +139,17 @@ public:
         if( model == nullptr )
             return nullptr;
 
-        auto it = std::find_if(m_items.begin(), m_items.end(), [type](const loader::Item& item) { return item.type == type; });
-        Expects(it != m_items.end());
-
-        loader::Item item = *it;
-        item.rotation = angle.toAU();
+        loader::Item item;
+        item.type = type;
+        item.room = -1;
         item.position = position;
+        item.rotation = angle.toAU();
+        item.darkness = 0;
         item.activationState = activationState;
 
         auto node = createSkeletalModel<T>( 99999, *model, room, item );
 
-        m_dynamicItems.insert( node.get() );
+        m_dynamicItems.insert( node );
         room->node->addChild( node->getNode() );
 
         return node;
@@ -371,11 +371,17 @@ public:
         if( m_scheduledDeletions.empty() )
             return;
 
-        auto old = std::move( m_dynamicItems );
-        BOOST_ASSERT( m_dynamicItems.empty() );
-        std::set_difference( old.begin(), old.end(),
-                             m_scheduledDeletions.begin(), m_scheduledDeletions.end(),
-                             std::inserter( m_dynamicItems, m_dynamicItems.begin() ) );
+        for(const auto& del : m_scheduledDeletions)
+        {
+            auto it = std::find_if(m_dynamicItems.begin(), m_dynamicItems.end(), [del](const std::shared_ptr<engine::items::ItemNode>& i)
+            {
+                return i.get() == del;
+            });
+            if (it == m_dynamicItems.end())
+                continue;
+            m_dynamicItems.erase(it);
+        }
+
         m_scheduledDeletions.clear();
     }
 

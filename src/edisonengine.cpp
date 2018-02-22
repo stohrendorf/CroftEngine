@@ -170,7 +170,7 @@ void update(const std::unique_ptr<level::Level>& lvl, bool godMode)
             ctrl->update();
     }
 
-    for( engine::items::ItemNode* ctrl : lvl->m_dynamicItems )
+    for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
     {
         if (ctrl->m_isActive)
             ctrl->update();
