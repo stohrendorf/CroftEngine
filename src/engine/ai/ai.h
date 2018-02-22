@@ -125,60 +125,70 @@ struct LotInfo
      */
     void updatePath(const level::Level& lvl, const uint8_t maxDepth)
     {
-        if( required_box != nullptr && required_box != target_box )
+        if (required_box != nullptr && required_box != target_box)
         {
             target_box = required_box;
-            const auto targetNode = &nodes[target_box];
-            targetNode->exit_box = nullptr;
-            targetNode->search_number = ++m_searchVersion;
-            Expects(!targetNode->isBlocked());
 
-            if( targetNode->next_expansion == nullptr && tail != target_box )
+            const auto targetNode = &nodes[target_box];
+            if (targetNode->next_expansion == nullptr && tail != target_box)
             {
-                targetNode->next_expansion = std::exchange(head, target_box);
-                if( targetNode->next_expansion == nullptr )
-                {
+                targetNode->next_expansion = head;
+
+                if (head == nullptr)
                     tail = target_box;
-                }
+
+                head = target_box;
             }
+
+            targetNode->search_number = ++m_searchVersion;
+            targetNode->exit_box = nullptr;
         }
 
         Expects(target_box != nullptr);
-        searchPath( lvl, maxDepth );
+        searchPath(lvl, maxDepth);
     }
 
     void searchPath(const level::Level& lvl, const uint8_t maxDepth)
     {
         if (head == nullptr)
-            return;
-
-        const auto zoneRef = loader::Box::getZoneRef( lvl.roomsAreSwapped, fly, step );
-        const auto validZone = head->*zoneRef;
-        for( uint8_t i = 0; head != nullptr && i < maxDepth; ++i )
         {
-            const auto parentNode = &this->nodes[head];
-            for( auto childBoxIdx : getOverlaps( lvl, head->overlap_index ) )
+            tail = nullptr;
+            return;
+        }
+
+        const auto zoneRef = loader::Box::getZoneRef(lvl.roomsAreSwapped, fly, step);
+        const auto searchZone = head->*zoneRef;
+
+        for (uint8_t i = 0; i < maxDepth; ++i)
+        {
+            if (head == nullptr)
+            {
+                tail = nullptr;
+                return;
+            }
+
+            const auto parentNode = &nodes[head];
+
+            for (auto childBoxIdx : getOverlaps(lvl, head->overlap_index))
             {
                 childBoxIdx &= 0x7FFFu;
-
                 const auto* childBox = &lvl.m_boxes[childBoxIdx];
 
-                if( validZone != childBox->*zoneRef )
+                if (searchZone != childBox->*zoneRef)
                     continue;
 
                 const auto boxHeightDiff = childBox->floor - head->floor;
-                if( boxHeightDiff > step || boxHeightDiff < drop )
+                if (boxHeightDiff > step || boxHeightDiff < drop)
                     continue; // can't reach from this box, but still maybe from another one
 
-                const auto childNode = &this->nodes[childBox];
-                const auto parentSearch = parentNode->getSearchVersion();
-                const auto childSearch = childNode->getSearchVersion();
-                if( parentSearch < childSearch )
+                auto childNode = &nodes[childBox];
+
+                if (parentNode->getSearchVersion() < childNode->getSearchVersion())
                     continue; // not yet checked if we can reach this box
 
-                if( parentNode->isBlocked() )
+                if (parentNode->isBlocked())
                 {
-                    if( parentSearch == childSearch )
+                    if (parentNode->getSearchVersion() == childNode->getSearchVersion())
                         continue; // already visited; we don't care if the child is blocked or not
 
                     // mark as visited, will also mark as blocked
@@ -186,23 +196,24 @@ struct LotInfo
                 }
                 else
                 {
-                    if(parentSearch == childSearch && !childNode->isBlocked())
+                    if (parentNode->getSearchVersion() == childNode->getSearchVersion() && !childNode->isBlocked())
                         continue; // already visited and reachable
 
                     // mark as visited, and check if reachable
                     childNode->search_number = parentNode->search_number;
-                    if( block_mask & childBox->overlap_index )
+                    if ((childBox->overlap_index & block_mask) != 0)
                         childNode->markBlocked(); // can't reach this box
                     else
                         childNode->exit_box = head; // success! connect both boxes
                 }
 
-                if( childNode->next_expansion == nullptr && childBox != tail )
-                    tail = this->nodes[tail].next_expansion = childBox; // enqueue for expansion
+                if (childNode->next_expansion == nullptr && childBox != tail)
+                    tail = nodes[tail].next_expansion = childBox; // enqueue for expansion
             }
-            head = std::exchange( parentNode->next_expansion, nullptr ); // mark as expanded
+
+            head = std::exchange(parentNode->next_expansion, nullptr);
         }
-    };
+    }
 };
 
 
