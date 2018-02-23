@@ -21,26 +21,17 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const ui
     return gsl::make_span( first, last + 1 );
 }
 
-bool
-LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, const engine::items::ItemState& item)
+bool LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, const items::ItemState& item)
 {
     updatePath( lvl, 5 );
+
     target = item.position.position;
+
     auto box = item.box_number;
     if( box == nullptr )
-    {
         return false;
-    }
 
-    constexpr auto NoClampXPos = 0x01;
-    constexpr auto NoClampXNeg = 0x02;
-    constexpr auto NoClampZPos = 0x04;
-    constexpr auto NoClampZNeg = 0x08;
-    constexpr auto ClampNone = NoClampXPos | NoClampXNeg | NoClampZPos | NoClampZNeg;
-    constexpr auto Flag10 = 0x10;
-    auto unclampedDirs = ClampNone;
-
-    int32_t minZ = box->zmin, maxZ = box->zmax, minX = box->xmin, maxX = box->xmax;
+    int minZ = 0, maxZ = 0, minX = 0, maxX = 0;
 
     auto clampX = [&minX, &maxX, &box]() {
         minX = std::max( minX, box->xmin );
@@ -52,21 +43,25 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
         maxZ = std::min( maxZ, box->zmax );
     };
 
+    constexpr auto NoClampXPos = 0x01;
+    constexpr auto NoClampXNeg = 0x02;
+    constexpr auto NoClampZPos = 0x04;
+    constexpr auto NoClampZNeg = 0x08;
+    constexpr auto ClampNone = NoClampXPos | NoClampXNeg | NoClampZPos | NoClampZNeg;
+    constexpr auto Flag10 = 0x10;
+
+    int unclampedDirs = ClampNone;
     while( true )
     {
         if( fly != 0 )
         {
             if( box->floor - loader::SectorSize < target.Y )
-            {
                 target.Y = box->floor - loader::SectorSize;
-            }
         }
         else
         {
             if( box->floor < target.Y )
-            {
                 target.Y = box->floor;
-            }
         }
 
         if( box->contains( item.position.position.X, item.position.position.Z ) )
@@ -82,14 +77,14 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
             {
                 if( (unclampedDirs & NoClampZNeg) && box->containsX( item.position.position.X ) )
                 {
-                    unclampedDirs = NoClampZNeg;
-
                     target.Z = std::max( target.Z, box->zmin + loader::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
 
                     clampX();
+
+                    unclampedDirs = NoClampZNeg;
                 }
                 else if( unclampedDirs != NoClampZNeg )
                 {
@@ -104,14 +99,14 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
             {
                 if( (unclampedDirs & NoClampZPos) && box->containsX( item.position.position.X ) )
                 {
-                    unclampedDirs = NoClampZPos;
-
                     target.Z = std::min( target.Z, box->zmax - loader::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
 
                     clampX();
+
+                    unclampedDirs = NoClampZPos;
                 }
                 else if( unclampedDirs != NoClampZPos )
                 {
@@ -127,14 +122,14 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
             {
                 if( (unclampedDirs & NoClampXNeg) && box->containsZ( item.position.position.Z ) )
                 {
-                    unclampedDirs = NoClampXNeg;
-
                     target.X = std::max( target.X, box->xmin + loader::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
 
                     clampZ();
+
+                    unclampedDirs = NoClampXNeg;
                 }
                 else if( unclampedDirs != NoClampXNeg )
                 {
@@ -149,14 +144,14 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
             {
                 if( (unclampedDirs & NoClampXPos) && box->containsZ( item.position.position.Z ) )
                 {
-                    unclampedDirs = NoClampXPos;
-
                     target.X = std::min( target.X, box->xmax - loader::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
 
                     clampZ();
+
+                    unclampedDirs = NoClampXPos;
                 }
                 else if( unclampedDirs != NoClampXPos )
                 {
@@ -169,7 +164,7 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
             }
         }
 
-        if( box == this->target_box )
+        if( box == target_box )
         {
             if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
             {
@@ -181,7 +176,6 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
                                         box->zmax - loader::SectorSize / 2 );
             }
 
-            target.Y = this->target.Y;
             if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
             {
                 target.X = this->target.X;
@@ -192,10 +186,13 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
                                         box->xmax - loader::SectorSize / 2 );
             }
 
+            target.Y = this->target.Y;
+
             return true;
         }
+
         const auto nextBox = this->nodes[box].exit_box;
-        if( nextBox == nullptr || (nextBox->overlap_index & this->block_mask) )
+        if( nextBox == nullptr || (nextBox->overlap_index & block_mask) )
             break;
 
         box = nextBox;
@@ -224,24 +221,22 @@ LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& target, c
         target.X = util::clamp( target.X, box->xmin + loader::SectorSize / 2, box->xmax - loader::SectorSize / 2 );
     }
 
-    if( this->fly != 0 )
-    {
+    if( fly != 0 )
         target.Y = box->floor - 384;
-    }
     else
-    {
         target.Y = box->floor;
-    }
+
     return false;
 }
 
-void updateMood(const level::Level& lvl, const engine::items::ItemState& item, const AiInfo& aiInfo, const bool violent)
+void updateMood(const level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if( creatureInfo.lot.nodes[item.box_number].isBlocked() && creatureInfo.lot.nodes[item.box_number].getSearchVersion() == creatureInfo.lot.m_searchVersion )
+    if( creatureInfo.lot.nodes[item.box_number].isBlocked()
+        && creatureInfo.lot.nodes[item.box_number].getSearchVersion() == creatureInfo.lot.m_searchVersion )
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -422,7 +417,7 @@ void updateMood(const level::Level& lvl, const engine::items::ItemState& item, c
     creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
 }
 
-AiInfo::AiInfo(const level::Level& lvl, engine::items::ItemState& item)
+AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
 {
     if( item.creatureInfo == nullptr )
         return;
