@@ -19,10 +19,9 @@ namespace gameplay
 
     class Game
     {
-        friend class ShutdownListener;
-
-
     public:
+        Game(const Game&) = delete;
+        Game(Game&&) = delete;
 
         explicit Game();
 
@@ -37,7 +36,7 @@ namespace gameplay
             return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
         }
 
-        int run();
+        void initialize();
 
         void frame();
 
@@ -53,40 +52,26 @@ namespace gameplay
 
         void clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
 
-        inline void setMultiSampling(unsigned samples);
-
-        inline unsigned getMultiSampling() const;
-
         bool loop()
         {
             glfwPollEvents();
 
-            return glfwWindowShouldClose( _window ) == GL_FALSE;
+            return glfwWindowShouldClose( m_window ) == GL_FALSE;
         }
 
         void swapBuffers();
 
         GLFWwindow* getWindow() const
         {
-            return _window;
+            return m_window;
         }
 
         const std::shared_ptr<Scene>& getScene() const
         {
-            return _scene;
+            return m_scene;
         }
 
-    protected:
-
-        virtual void render(bool wireframe = false);
-
     private:
-        Game(const Game& copy) = delete;
-
-        bool startup();
-
-        void shutdown();
-
         bool m_initialized = false; // If game has initialized yet.
         const std::chrono::high_resolution_clock::time_point m_constructionTime{
                 std::chrono::high_resolution_clock::now()};
@@ -102,14 +87,9 @@ namespace gameplay
 
         bool m_vsync = WINDOW_VSYNC;
 
-        unsigned _multiSampling = 0;
+        GLFWwindow* m_window = nullptr;
 
-        GLFWwindow* _window = nullptr;
-
-        std::shared_ptr<Scene> _scene;
-
-
-        friend class ScreenDisplayer;
+        std::shared_ptr<Scene> m_scene;
     };
 
 
@@ -126,16 +106,5 @@ namespace gameplay
     inline const Rectangle& Game::getViewport() const
     {
         return m_viewport;
-    }
-
-    inline void Game::setMultiSampling(unsigned samples)
-    {
-        //! @todo Really enable multisampling
-        _multiSampling = samples;
-    }
-
-    inline unsigned Game::getMultiSampling() const
-    {
-        return _multiSampling;
     }
 }

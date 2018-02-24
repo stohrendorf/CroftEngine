@@ -219,7 +219,7 @@ sol::state createScriptEngine()
 int main()
 {
     auto* game = new gameplay::Game();
-    game->run();
+    game->initialize();
 
     auto scriptEngine = createScriptEngine();
 
@@ -273,10 +273,10 @@ int main()
     auto font = std::make_unique<gameplay::gl::Font>("DroidSansMono.ttf", 12);
     font->setTarget(screenOverlay->getImage());
 
-    FullScreenFX depthDarknessFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"LENS_DISTORTION"}), gsl::narrow<GLint>(game->getMultiSampling())};
+    FullScreenFX depthDarknessFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"LENS_DISTORTION"})};
     depthDarknessFx.getMaterial()->getParameter("aspect_ratio")->set(game->getAspectRatio());
     depthDarknessFx.getMaterial()->getParameter("distortion_power")->set(-1.0f);
-    FullScreenFX depthDarknessWaterFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER", "LENS_DISTORTION"}), gsl::narrow<GLint>(game->getMultiSampling())};
+    FullScreenFX depthDarknessWaterFx{game, gameplay::ShaderProgram::createFromFile("shaders/fx_darkness.vert", "shaders/fx_darkness.frag", {"WATER", "LENS_DISTORTION"})};
     depthDarknessWaterFx.getMaterial()->getParameter("aspect_ratio")->set(game->getAspectRatio());
     depthDarknessWaterFx.getMaterial()->getParameter("distortion_power")->set(-2.0f);
     depthDarknessWaterFx.getMaterial()->getParameter("u_time")->bind(

@@ -240,7 +240,6 @@ struct CreatureInfo
     uint16_t flags = 0;
 
     engine::items::ItemState* item;
-    uint16_t frame_number;
     Mood mood = Mood::Bored;
     LotInfo lot;
     core::TRCoordinates target;
@@ -296,7 +295,6 @@ struct CreatureInfo
                 "maximum_turn", &CreatureInfo::maximum_turn,
                 "flags", &CreatureInfo::flags,
                 "item", sol::readonly( &CreatureInfo::item ),
-                "frame_number", &CreatureInfo::frame_number,
                 "mood", &CreatureInfo::mood,
                 "target", &CreatureInfo::target
         );

@@ -87,7 +87,7 @@ void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum seve
 namespace gameplay
 {
     Game::Game()
-            : _scene{std::make_shared<Scene>()}
+            : m_scene{std::make_shared<Scene>()}
     {
         glfwSetErrorCallback( &glErrorCallback );
 
@@ -105,7 +105,7 @@ namespace gameplay
 
         glfwWindowHint( GLFW_DOUBLEBUFFER, GL_TRUE );
         glfwWindowHint( GLFW_DEPTH_BITS, 24 );
-        glfwWindowHint( GLFW_SAMPLES, _multiSampling );
+        // glfwWindowHint( GLFW_SAMPLES, m_multiSampling );
         glfwWindowHint( GLFW_RED_BITS, 8 );
         glfwWindowHint( GLFW_GREEN_BITS, 8 );
         glfwWindowHint( GLFW_BLUE_BITS, 8 );
@@ -119,15 +119,15 @@ namespace gameplay
 #endif
 
         // Create the windows
-        _window = glfwCreateWindow( width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+        m_window = glfwCreateWindow( width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr,
                                     nullptr );
-        if( _window == nullptr )
+        if( m_window == nullptr )
         {
             BOOST_LOG_TRIVIAL( fatal ) << "Failed to create window";
             BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create window" ) );
         }
 
-        glfwMakeContextCurrent( _window );
+        glfwMakeContextCurrent( m_window );
 
         glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
         const auto err = glewInit();
@@ -144,7 +144,7 @@ namespace gameplay
 
         GL_ASSERT( glDebugMessageCallback( &debugCallback, nullptr ) );
 #else
-        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
     }
 
@@ -182,15 +182,6 @@ namespace gameplay
         };
     }
 
-    void Game::render(bool wireframe)
-    {
-        clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
-
-        RenderContext context{wireframe};
-        RenderVisitor visitor{context};
-        _scene->accept( visitor );
-    }
-
     void Game::setVsync(bool enable)
     {
         m_vsync = enable;
@@ -202,55 +193,30 @@ namespace gameplay
         return m_vsync;
     }
 
-    int Game::run()
+    void Game::initialize()
     {
         if( m_initialized )
         {
-            return -1;
+            return;
         }
 
-        GL_ASSERT( glfwGetWindowSize( _window, &m_width, &m_height ) );
+        GL_ASSERT( glfwGetWindowSize( m_window, &m_width, &m_height ) );
 
         // Start up game systems.
-        if( !startup() )
-        {
-            shutdown();
-            return -2;
-        }
-
-        return 0;
-    }
-
-    bool Game::startup()
-    {
-        if( m_initialized )
-        {
-            return false;
-        }
-
-        setViewport( Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)} );
+        setViewport(Rectangle{ 0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height) });
         RenderState::initialize();
 
         m_initialized = true;
-
-        return true;
-    }
-
-    void Game::shutdown()
-    {
-        // Call user finalization.
-        if( m_initialized )
-        {
-            RenderState::finalize();
-
-            m_initialized = false;
-        }
     }
 
     void Game::frame()
     {
         // Graphics Rendering.
-        render();
+        clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, { 0, 0, 0, 0 }, 1);
+
+        RenderContext context{ false };
+        RenderVisitor visitor{ context };
+        m_scene->accept(visitor);
 
         // Update FPS.
         ++m_frameCount;
@@ -264,7 +230,7 @@ namespace gameplay
 
     void Game::swapBuffers()
     {
-        glfwSwapBuffers( _window );
+        glfwSwapBuffers( m_window );
     }
 
     void Game::setViewport(const Rectangle& viewport)
