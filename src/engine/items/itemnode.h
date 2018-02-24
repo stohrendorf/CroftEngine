@@ -152,7 +152,7 @@ struct ItemState final
         return position.room->getSectorByAbsolutePosition( position.position );
     }
 
-    static sol::usertype<ItemState> userType();
+    static sol::usertype<ItemState>& userType();
 };
 
 

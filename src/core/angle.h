@@ -174,15 +174,16 @@ public:
         return Angle{std::abs(m_value), RawTag{}};
     }
 
-    static sol::usertype<Angle> userType()
+    static sol::usertype<Angle>& userType()
     {
-        return sol::usertype<Angle>(
+        static auto type = sol::usertype<Angle>(
             sol::meta_function::construct, sol::no_constructor,
             "sin", &Angle::sin,
             "cos", &Angle::cos,
             "abs", &Angle::abs,
             "get_au", &Angle::toAU
         );
+        return type;
     }
 };
 
@@ -357,14 +358,15 @@ public:
         return glm::yawPitchRoll(-Y.toRad(), X.toRad(), -Z.toRad());
     }
 
-    static sol::usertype<TRRotation> userType()
+    static sol::usertype<TRRotation>& userType()
     {
-        return sol::usertype<TRRotation>(
+        static auto type = sol::usertype<TRRotation>(
             sol::meta_function::construct, sol::no_constructor,
             "x", &TRRotation::X,
             "y", &TRRotation::Y,
             "z", &TRRotation::Z
         );
+        return type;
     }
 };
 

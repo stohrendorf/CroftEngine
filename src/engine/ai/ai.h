@@ -314,9 +314,9 @@ namespace engine
                 head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
             }
 
-            static sol::usertype<CreatureInfo> userType()
+            static sol::usertype<CreatureInfo>& userType()
             {
-                return sol::usertype<CreatureInfo>(
+                static auto type = sol::usertype<CreatureInfo>(
                     sol::meta_function::construct, sol::no_constructor,
                     "head_rotation", &CreatureInfo::head_rotation,
                     "neck_rotation", &CreatureInfo::neck_rotation,
@@ -326,6 +326,7 @@ namespace engine
                     "mood", &CreatureInfo::mood,
                     "target", &CreatureInfo::target
                 );
+                return type;
             }
         };
 

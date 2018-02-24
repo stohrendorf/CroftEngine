@@ -199,9 +199,9 @@ sol::state createScriptEngine()
     engine.set_usertype(engine::items::ItemState::userType());
 
     engine["ActivationState"] = engine.create_table_with(
-        "DISABLED", engine::items::TriggerState::Inactive,
-        "ENABLED", engine::items::TriggerState::Active,
-        "ACTIVATED", engine::items::TriggerState::Deactivated,
+        "INACTIVE", engine::items::TriggerState::Inactive,
+        "ACTIVE", engine::items::TriggerState::Active,
+        "DEACTIVATED", engine::items::TriggerState::Deactivated,
         "LOCKED", engine::items::TriggerState::Locked
     );
 
