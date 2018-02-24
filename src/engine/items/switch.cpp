@@ -24,7 +24,7 @@ void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         return;
     }
 
-    if( m_state.triggerState != engine::items::TriggerState::Disabled )
+    if( m_state.triggerState != engine::items::TriggerState::Inactive )
     {
         return;
     }
@@ -78,7 +78,7 @@ void Switch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         other.setHandStatus( HandStatus::Grabbing );
     }
 
-    m_state.triggerState = engine::items::TriggerState::Enabled;
+    m_state.triggerState = engine::items::TriggerState::Active;
 
     activate();
     ModelItemNode::update();

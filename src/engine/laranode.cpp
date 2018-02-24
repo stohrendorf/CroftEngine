@@ -708,15 +708,15 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
 
                 if( (item.m_characteristics & Intelligent) == 0 )
                 {
-                    item.m_state.triggerState = items::TriggerState::Enabled;
+                    item.m_state.triggerState = items::TriggerState::Active;
                     item.activate();
                     break;
                 }
 
-                if( item.m_state.triggerState == items::TriggerState::Disabled )
+                if( item.m_state.triggerState == items::TriggerState::Inactive )
                 {
                     //! @todo Implement baddie
-                    item.m_state.triggerState = items::TriggerState::Enabled;
+                    item.m_state.triggerState = items::TriggerState::Active;
                     item.activate();
                     break;
                 }
@@ -724,7 +724,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 if( item.m_state.triggerState != items::TriggerState::Locked )
                     break;
 
-                item.m_state.triggerState = items::TriggerState::Enabled;
+                item.m_state.triggerState = items::TriggerState::Active;
                 item.activate();
             }
                 break;

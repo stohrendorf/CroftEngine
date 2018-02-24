@@ -49,14 +49,14 @@ namespace
                 drawText(font, 10, y, item->getNode()->getId());
                 switch(item->m_state.triggerState)
                 {
-                    case engine::items::TriggerState::Disabled:
-                        drawText(font, 180, y, "disabled");
+                    case engine::items::TriggerState::Inactive:
+                        drawText(font, 180, y, "inactive");
                         break;
-                    case engine::items::TriggerState::Enabled:
-                        drawText(font, 180, y, "enabled");
+                    case engine::items::TriggerState::Active:
+                        drawText(font, 180, y, "active");
                         break;
-                    case engine::items::TriggerState::Activated:
-                        drawText(font, 180, y, "activated");
+                    case engine::items::TriggerState::Deactivated:
+                        drawText(font, 180, y, "deactivated");
                         break;
                     case engine::items::TriggerState::Locked:
                         drawText(font, 180, y, "locked");
@@ -199,9 +199,9 @@ sol::state createScriptEngine()
     engine.set_usertype(engine::items::ItemState::userType());
 
     engine["ActivationState"] = engine.create_table_with(
-        "DISABLED", engine::items::TriggerState::Disabled,
-        "ENABLED", engine::items::TriggerState::Enabled,
-        "ACTIVATED", engine::items::TriggerState::Activated,
+        "DISABLED", engine::items::TriggerState::Inactive,
+        "ENABLED", engine::items::TriggerState::Active,
+        "ACTIVATED", engine::items::TriggerState::Deactivated,
         "LOCKED", engine::items::TriggerState::Locked
     );
 

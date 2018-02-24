@@ -53,9 +53,9 @@ struct InteractionLimits
 
 enum class TriggerState
 {
-    Disabled,
-    Enabled,
-    Activated,
+    Inactive,
+    Active,
+    Deactivated,
     Locked
 };
 
@@ -80,7 +80,7 @@ struct ItemState final
     int16_t timer = 0;
     floordata::ActivationState activationState;
     int16_t shade = 0;
-    TriggerState triggerState = TriggerState::Disabled;
+    TriggerState triggerState = TriggerState::Inactive;
     union
     {
         uint16_t flags = 0;
@@ -286,7 +286,7 @@ public:
             return false;
         }
 
-        m_state.triggerState = TriggerState::Activated;
+        m_state.triggerState = TriggerState::Deactivated;
         return true;
     }
 
@@ -523,7 +523,7 @@ public:
 
     bool triggerSwitch(uint16_t arg) override
     {
-        if( m_state.triggerState != engine::items::TriggerState::Activated )
+        if( m_state.triggerState != engine::items::TriggerState::Deactivated )
         {
             return false;
         }
@@ -531,12 +531,12 @@ public:
         if( m_state.current_anim_state != 0 || engine::floordata::ActivationState{arg}.isLocked() )
         {
             deactivate();
-            m_state.triggerState = TriggerState::Disabled;
+            m_state.triggerState = TriggerState::Inactive;
         }
         else
         {
             m_state.timer = engine::floordata::ActivationState::extractTimeout( arg );
-            m_state.triggerState = TriggerState::Enabled;
+            m_state.triggerState = TriggerState::Active;
         }
 
         return true;

@@ -12,7 +12,7 @@ void Bat::update()
 {
     if( m_state.triggerState == TriggerState::Locked )
     {
-        m_state.triggerState = TriggerState::Enabled;
+        m_state.triggerState = TriggerState::Active;
     }
 
     m_state.initCreatureInfo(getLevel());
