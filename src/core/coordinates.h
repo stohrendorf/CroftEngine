@@ -97,14 +97,16 @@ struct TRCoordinates
         return static_cast<int>(sqrtf( dx * dx + dy * dy + dz * dz ));
     }
 
-    static sol::usertype<TRCoordinates> userType()
+    static sol::usertype<TRCoordinates>& userType()
     {
-        return sol::usertype<TRCoordinates>(
+        static sol::usertype<TRCoordinates> userType(
                 sol::meta_function::construct, sol::no_constructor,
                 "x", &TRCoordinates::X,
                 "y", &TRCoordinates::Y,
                 "z", &TRCoordinates::Z
         );
+
+        return userType;
     }
 };
 

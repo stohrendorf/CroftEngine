@@ -725,9 +725,9 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     }
 }
 
-sol::usertype<ItemState> ItemState::userType()
+sol::usertype<ItemState>& ItemState::userType()
 {
-    return sol::usertype<ItemState>(
+    static sol::usertype<ItemState> userType(
             sol::meta_function::construct, sol::no_constructor,
             "position", [](ItemState& self) { return self.position.position; },
             "rotation", [](ItemState& self) { return self.rotation; },
@@ -744,6 +744,8 @@ sol::usertype<ItemState> ItemState::userType()
             "enable_ai", &ItemState::initCreatureInfo,
             "creature_info", sol::readonly( &ItemState::creatureInfo )
     );
+
+    return userType;
 }
 
 ItemState::~ItemState() = default;
