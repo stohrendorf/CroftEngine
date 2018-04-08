@@ -429,7 +429,7 @@ public:
 
     virtual loader::BoundingBox getBoundingBox() const = 0;
 
-    virtual void collide(LaraNode& other, CollisionInfo& collisionInfo)
+    virtual void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/)
     {
     }
 
