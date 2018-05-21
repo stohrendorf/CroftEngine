@@ -158,6 +158,16 @@ public:
         weapons[WeaponId::Shotgun] = w;
 
         m_state.health = core::LaraHealth;
+
+        auto gunFlareModel = level->getModel(getLevel().m_meshIndices[getLevel().findAnimatedModelForType(166)->frame_number]);
+
+        m_gunFlareLeft = std::make_shared<gameplay::Node>("gun flare left");
+        m_gunFlareLeft->setDrawable(gunFlareModel);
+        m_gunFlareLeft->setVisible(false);
+
+        m_gunFlareRight = std::make_shared<gameplay::Node>("gun flare right");
+        m_gunFlareRight->setDrawable(gunFlareModel);
+        m_gunFlareRight->setVisible(false);
     }
 
     ~LaraNode() override;
@@ -384,7 +394,7 @@ public:
         int16_t frame = 0;
         bool aiming = false;
         core::TRRotationXY aimRotation{};
-        int16_t shootTimeout = 0;
+        int16_t flashTimeout = 0;
     };
 
 
@@ -442,6 +452,8 @@ public:
 
     std::unordered_map<WeaponId, Weapon> weapons;
     core::TRRotationXY m_weaponTargetVector;
+    std::shared_ptr<gameplay::Node> m_gunFlareLeft;
+    std::shared_ptr<gameplay::Node> m_gunFlareRight;
 
     void updateLarasWeaponsStatus();
     void updateShotgun();
@@ -470,7 +482,7 @@ public:
     void playShotMissed(const core::RoomBoundPosition& pos);
     void hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage);
 
-    void renderGunFlare(WeaponId weaponId, glm::mat4 m);
+    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode, bool visible);
 
     void drawRoutine();
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);

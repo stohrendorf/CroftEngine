@@ -969,13 +969,13 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 
 void LaraNode::updateLarasWeaponsStatus()
 {
-    if( leftArm.shootTimeout > 0 )
+    if( leftArm.flashTimeout > 0 )
     {
-        --leftArm.shootTimeout;
+        --leftArm.flashTimeout;
     }
-    if( rightArm.shootTimeout > 0 )
+    if( rightArm.flashTimeout > 0 )
     {
-        --rightArm.shootTimeout;
+        --rightArm.flashTimeout;
     }
     bool doHolsterUpdate = false;
     if( m_state.health <= 0 )
@@ -1290,8 +1290,8 @@ void LaraNode::unholster()
     rightArm.aimRotation.X = 0_deg;
     rightArm.aiming = false;
     leftArm.aiming = false;
-    rightArm.shootTimeout = 0;
-    leftArm.shootTimeout = 0;
+    rightArm.flashTimeout = 0;
+    leftArm.flashTimeout = 0;
     target = nullptr;
     if( gunType == WeaponId::None )
     {
@@ -1950,7 +1950,7 @@ void LaraNode::updateAnimNotShotgun(WeaponId weaponId)
         aimAngle.Y = m_state.rotation.Y + rightArm.aimRotation.Y;
         if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
-            rightArm.shootTimeout = weapon.flashTime;
+            rightArm.flashTimeout = weapon.flashTime;
             getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
         }
         rightArm.frame = 24;
@@ -1986,7 +1986,7 @@ void LaraNode::updateAnimNotShotgun(WeaponId weaponId)
         aimAngle.X = leftArm.aimRotation.X;
         if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
-            leftArm.shootTimeout = weapon.flashTime;
+            leftArm.flashTimeout = weapon.flashTime;
             getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
         }
         leftArm.frame = 24;
@@ -2091,7 +2091,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
                 hitPos = end;
             else
                 hitPos = (end * proj) + (start * (1.0f - proj));
-            const auto d = length( hitPos - cylinder.position.toRenderSystem() );
+            const auto d = glm::length( hitPos - cylinder.position.toRenderSystem() );
 
             if( d >= cylinder.radius )
                 continue;
@@ -2303,19 +2303,9 @@ public:
         m_stack2.pop();
     }
 
-    const glm::mat4& top1() const
-    {
-        return m_stack1.top();
-    }
-
-    const glm::mat4& top2() const
-    {
-        return m_stack2.top();
-    }
-
     glm::mat4 itop() const
     {
-        return glm::mix( top1(), top2(), m_bias );
+        return glm::mix( m_stack1.top(), m_stack2.top(), m_bias );
     }
 
     void rotate(const glm::mat4& m)
@@ -2390,10 +2380,12 @@ public:
 void LaraNode::drawRoutine()
 {
     auto interpolationInfo = getSkeleton()->getInterpolationInfo( m_state );
-    if( !hit_direction.is_initialized() && interpolationInfo.secondFrame != nullptr )
+    if( !hit_direction.is_initialized() && interpolationInfo.firstFrame != interpolationInfo.secondFrame )
     {
         drawRoutineInterpolated( interpolationInfo );
+        return;
     }
+
     const auto& objInfo = *getLevel().m_animatedModels[m_state.object_number];
     const loader::AnimFrame* frame;
     if( !hit_direction.is_initialized() )
@@ -2484,10 +2476,7 @@ void LaraNode::drawRoutine()
             matrixStack.transform( 9, boneTree, armAngleData, getSkeleton() );
             matrixStack.transform( 10, boneTree, armAngleData, getSkeleton() );
 
-            if( rightArm.shootTimeout != 0 )
-            {
-                renderGunFlare( activeGunType, matrixStack.top() );
-            }
+            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareRight, rightArm.flashTimeout != 0 );
             matrixStack.pop();
             matrixStack.push();
             matrixStack.translate( boneTree[10] );
@@ -2499,10 +2488,7 @@ void LaraNode::drawRoutine()
 
             matrixStack.transform( {12, 13}, boneTree, armAngleData, getSkeleton() );
 
-            if( leftArm.shootTimeout != 0 )
-            {
-                renderGunFlare( activeGunType, matrixStack.top() );
-            }
+            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
@@ -2588,10 +2574,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             matrixStack.transform( 9, boneTree, armAngleData, armAngleData, getSkeleton() );
             matrixStack.transform( 10, boneTree, armAngleData, armAngleData, getSkeleton() );
 
-            if( rightArm.shootTimeout != 0 )
-            {
-                renderGunFlare( activeGunType, matrixStack.itop() );
-            }
+            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareRight, rightArm.flashTimeout != 0 );
             matrixStack.pop();
             matrixStack.push();
             matrixStack.translate( boneTree[10] );
@@ -2603,10 +2586,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
 
             matrixStack.transform( {12, 13}, boneTree, armAngleData, armAngleData, getSkeleton() );
 
-            if( leftArm.shootTimeout != 0 )
-            {
-                renderGunFlare( activeGunType, matrixStack.itop() );
-            }
+            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
@@ -2623,8 +2603,14 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
     }
 }
 
-void LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m)
+void LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode, bool visible)
 {
+    if(!visible)
+    {
+        flareNode->setVisible(false);
+        return;
+    }
+
     uint16_t shade;
     int dy;
     switch( weaponId )
@@ -2649,8 +2635,11 @@ void LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m)
     }
 
     m = glm::translate( m, core::TRCoordinates{0, dy, 55}.toRenderSystem() );
-    m *= core::TRRotation( 0_deg, -90_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
+    m *= core::TRRotation( -90_deg, 0_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
+
+    flareNode->setVisible(true);
+    flareNode->setParent(getNode()->getParent().lock());
+    flareNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
     // calculateStaticMeshLight(shade);
-    // TODO render getLevel().m_meshes[getLevel().m_meshIndices[getLevel().findAnimatedModelForType(166)->frame_number]];
 }
 }
