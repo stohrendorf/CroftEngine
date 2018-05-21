@@ -18,11 +18,6 @@
 // Attributes
 attribute vec4 a_position;
 
-#if defined(SKINNING)
-  attribute vec4 a_blendWeights;
-  attribute vec4 a_blendIndices;
-#endif
-
 #if defined(LIGHTING)
   attribute vec3 a_normal;
 #endif
@@ -34,10 +29,6 @@ attribute vec4 a_position;
 ///////////////////////////////////////////////////////////
 // Uniforms
 uniform mat4 u_worldViewProjectionMatrix;
-
-#if defined(SKINNING)
-  uniform vec4 u_matrixPalette[SKINNING_JOINT_COUNT * 3];
-#endif
 
 #if defined(LIGHTING)
   uniform mat4 u_inverseTransposeWorldViewMatrix;
@@ -99,23 +90,17 @@ varying vec3 v_normalVector;
 
 #endif
 
-#if defined(SKINNING)
-  #include "skinning.vert"
-#else
-  #include "skinning-none.vert"
-#endif
-
 #if defined(CLIP_PLANE)
   varying float v_clipDistance;
 #endif
 
 void main()
 {
-  vec4 position = getPosition();
+  vec4 position = a_position;
   gl_Position = u_worldViewProjectionMatrix * position;
 
   #if defined (LIGHTING)
-    vec3 normal = getNormal();
+    vec3 normal = a_normal;
 
     // Transform normal to view space.
     mat3 inverseTransposeWorldViewMatrix = mat3(u_inverseTransposeWorldViewMatrix[0].xyz, u_inverseTransposeWorldViewMatrix[1].xyz, u_inverseTransposeWorldViewMatrix[2].xyz);
