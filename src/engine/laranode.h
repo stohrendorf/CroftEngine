@@ -470,6 +470,8 @@ public:
     void playShotMissed(const core::RoomBoundPosition& pos);
     void hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage);
 
+    void renderGunFlare(WeaponId weaponId, glm::mat4 m);
+
     void drawRoutine();
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 };

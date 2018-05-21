@@ -176,14 +176,15 @@ public:
 
     static sol::usertype<Angle>& userType()
     {
-        static auto type = sol::usertype<Angle>(
+        static sol::usertype<Angle> userType(
             sol::meta_function::construct, sol::no_constructor,
             "sin", &Angle::sin,
             "cos", &Angle::cos,
             "abs", &Angle::abs,
             "get_au", &Angle::toAU
         );
-        return type;
+
+        return userType;
     }
 };
 
@@ -360,13 +361,14 @@ public:
 
     static sol::usertype<TRRotation>& userType()
     {
-        static auto type = sol::usertype<TRRotation>(
+        static sol::usertype<TRRotation> userType(
             sol::meta_function::construct, sol::no_constructor,
             "x", &TRRotation::X,
             "y", &TRRotation::Y,
             "z", &TRRotation::Z
         );
-        return type;
+
+        return userType;
     }
 };
 
@@ -406,7 +408,7 @@ struct TRRotationXY
 inline TRRotationXY getVectorAngles(const float dx, const float dy, const float dz)
 {
     const auto y = Angle::fromAtan(dx, dz);
-    const auto dxz = std::sqrtf(dz * dz + dx * dx);
+    const auto dxz = std::sqrt(dz * dz + dx * dx);
     auto x = Angle::fromAtan(dy, dxz);
     if( std::signbit(dy) == std::signbit(x.toRad()) )
         x = -x;

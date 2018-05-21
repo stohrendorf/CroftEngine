@@ -884,7 +884,7 @@ void Level::setUpRendering(gameplay::Game* game,
         }
 
         BOOST_LOG_TRIVIAL( info ) << "Saving full level to _level.dae";
-        objWriter.write( m_rooms, m_boxes, "_level.dae", materials, waterMaterials );
+        objWriter.write( m_rooms, "_level.dae", materials, waterMaterials );
     }
 
     m_lara = createItems( textures );
@@ -1295,7 +1295,7 @@ void Level::postProcessDataStructures()
         {
             if(sector.boxIndex >= 0)
             {
-                Expects(sector.boxIndex < m_boxes.size());
+                Expects(static_cast<size_t>(sector.boxIndex) < m_boxes.size());
                 sector.box = &m_boxes[sector.boxIndex];
             }
 
@@ -1334,7 +1334,7 @@ void Level::postProcessDataStructures()
         Expects(model->pose_data_offset % 2 == 0);
 
         const auto idx = model->pose_data_offset / 2;
-        if(idx < 0 || idx >= m_poseData.size())
+        if(idx >= m_poseData.size())
         {
             BOOST_LOG_TRIVIAL(warning) << "Pose data index " << idx << " out of range 0.." << m_poseData.size()-1;
             continue;
@@ -1347,7 +1347,7 @@ void Level::postProcessDataStructures()
         Expects(anim.poseDataOffset % 2 == 0);
 
         const auto idx = anim.poseDataOffset / 2;
-        if(idx < 0 || idx >= m_poseData.size())
+        if(idx >= m_poseData.size())
         {
             BOOST_LOG_TRIVIAL(warning) << "Pose data index " << idx << " out of range 0.." << m_poseData.size()-1;
             continue;

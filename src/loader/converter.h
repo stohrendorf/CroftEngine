@@ -55,7 +55,6 @@ public:
                const glm::vec3& ambientColor) const;
 
     void write(const std::vector<Room>& rooms,
-               const std::vector<Box>& boxes,
                const std::string& baseName,
                const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const;
@@ -72,8 +71,7 @@ private:
                     const glm::vec3& ambientColor) const;
 
     aiNode* convert(aiScene& scene,
-                    const std::vector<Sector>& sectors,
-                    const std::vector<Box>& boxes) const;
+                    const std::vector<Sector>& sectors) const;
 
     void convert(aiScene& scene,
                  aiNode& outNode,

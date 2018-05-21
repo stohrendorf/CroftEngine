@@ -521,7 +521,6 @@ void Converter::write(const std::shared_ptr<gameplay::Model>& model,
 
 
 void Converter::write(const std::vector<Room>& rooms,
-                      const std::vector<Box>& boxes,
                       const std::string& baseName,
                       const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
                       const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const
@@ -571,7 +570,7 @@ void Converter::write(const std::vector<Room>& rooms,
             continue;
 
         append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, node);
-        append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, convert(*scene, room.sectors, boxes))->mName = room.node->getId() + ":boxes";
+        append(scene->mRootNode->mChildren, scene->mRootNode->mNumChildren, convert(*scene, room.sectors))->mName = room.node->getId() + ":boxes";
 
         size_t lightId = 0;
         for( const auto& light : room.lights )
@@ -714,7 +713,7 @@ std::string Converter::makeTextureName(size_t id)
 }
 
 
-aiNode* Converter::convert(aiScene& scene, const std::vector<Sector>& sectors, const std::vector<Box>& boxes) const
+aiNode* Converter::convert(aiScene& scene, const std::vector<Sector>& sectors) const
 {
     std::unique_ptr<aiNode> outNode = std::make_unique<aiNode>("boxes");
 
