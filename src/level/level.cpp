@@ -720,9 +720,6 @@ void Level::setUpRendering(gameplay::Game* game,
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
-    colorMaterial->getParameter( "u_baseLight" )->bind( &engine::items::ItemNode::lightBaseBinder );
-    colorMaterial->getParameter( "u_baseLightDiff" )->bind( &engine::items::ItemNode::lightBaseDiffBinder );
-    colorMaterial->getParameter( "u_lightPosition" )->bind( &engine::items::ItemNode::lightPositionBinder );
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures );
 

@@ -79,7 +79,7 @@ struct ItemState final
     const loader::Box* box_number = nullptr;
     int16_t timer = 0;
     floordata::ActivationState activationState;
-    int16_t shade = 0;
+    int16_t shade = -1;
     TriggerState triggerState = TriggerState::Inactive;
     union
     {
@@ -185,9 +185,9 @@ public:
 
     struct Lighting
     {
-        glm::vec3 position;
-        float base;
-        float baseDiff;
+        glm::vec3 position = glm::vec3{ std::numeric_limits<float>::quiet_NaN() };
+        float base = 0;
+        float baseDiff = 0;
     };
 
     Lighting m_lighting;
@@ -315,28 +315,42 @@ public:
         move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
+    void updateLightingUniforms()
+    {
+        getNode()->addMaterialParameterSetter("u_baseLight", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+        {
+            uniform.set(m_lighting.base);
+        });
+        getNode()->addMaterialParameterSetter("u_baseLightDiff", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+        {
+            uniform.set(m_lighting.baseDiff);
+        });
+        getNode()->addMaterialParameterSetter("u_lightPosition", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+        {
+            uniform.set(m_lighting.position);
+        });
+    }
+
     void updateLighting()
     {
         m_lighting.baseDiff = 0;
 
         if( m_state.shade >= 0 )
         {
-            m_lighting.base = (m_state.shade - 4096) / 8192.0f;
-            if( m_lighting.base == 0 )
-            {
-                m_lighting.base = 1;
-            }
+            // static mesh lighting
+            m_lighting.base = util::clamp((4096 - m_state.shade) / 8192.0f, 0.0f, 1.0f);
+            updateLightingUniforms();
             return;
         }
 
-        const auto roomAmbient = 1 - m_state.position.room->ambientDarkness / 8191.0f;
+        const auto roomAmbient = m_state.position.room->getAmbientBrightness();
         BOOST_ASSERT( roomAmbient >= 0 && roomAmbient <= 1 );
-        m_lighting.base = roomAmbient;
 
         if( m_state.position.room->lights.empty() )
         {
-            m_lighting.base = 1;
+            m_lighting.base = roomAmbient;
             m_lighting.baseDiff = 0;
+            updateLightingUniforms();
             return;
         }
 
@@ -344,13 +358,10 @@ public:
         const auto bboxCtr = m_state.position.position + getBoundingBox().getCenter();
         for( const auto& light : m_state.position.room->lights )
         {
-            auto radiusSq = light.radius / 4096.0f;
-            radiusSq *= radiusSq;
+            const auto r = util::square(light.radius / 4096.0f);
+            const auto d = util::square(bboxCtr.distanceTo( light.position ) / 4096.0f);
 
-            auto distanceSq = bboxCtr.distanceTo( light.position ) / 4096.0f;
-            distanceSq *= distanceSq;
-
-            const auto lightBrightness = roomAmbient + radiusSq * light.getBrightness() / (radiusSq + distanceSq);
+            const auto lightBrightness = roomAmbient + r * light.getBrightness() / (r + d) / 2;
             if( lightBrightness > maxBrightness )
             {
                 maxBrightness = lightBrightness;
@@ -358,74 +369,10 @@ public:
             }
         }
 
-        m_lighting.base = (roomAmbient + maxBrightness) / 2;
-        m_lighting.baseDiff = (maxBrightness - m_lighting.base);
-
-        if( m_lighting.base == 0 && m_lighting.baseDiff == 0 )
-        {
-            m_lighting.base = 1;
-        }
+        m_lighting.base = maxBrightness;
+        m_lighting.baseDiff = maxBrightness - roomAmbient;
+        updateLightingUniforms();
     }
-
-    static const ItemNode* findBaseItemNode(const gameplay::Node& node)
-    {
-        const ItemNode* item = nullptr;
-
-        auto n = &node;
-        while( true )
-        {
-            item = dynamic_cast<const ItemNode*>(n);
-
-            if( item != nullptr || n->getParent().expired() )
-            {
-                break;
-            }
-
-            n = n->getParent().lock().get();
-        }
-
-        return item;
-    }
-
-    static void lightBaseBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
-    {
-        const ItemNode* item = findBaseItemNode( node );
-
-        if( item == nullptr )
-        {
-            uniform.set( 1.0f );
-            return;
-        }
-
-        uniform.set( item->m_lighting.base );
-    };
-
-    static void lightBaseDiffBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
-    {
-        const ItemNode* item = findBaseItemNode( node );
-
-        if( item == nullptr )
-        {
-            uniform.set( 1.0f );
-            return;
-        }
-
-        uniform.set( item->m_lighting.baseDiff );
-    };
-
-    static void lightPositionBinder(const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
-    {
-        const ItemNode* item = findBaseItemNode( node );
-
-        if( item == nullptr )
-        {
-            static const glm::vec3 invalidPos{std::numeric_limits<float>::quiet_NaN()};
-            uniform.set( invalidPos );
-            return;
-        }
-
-        uniform.set( item->m_lighting.position );
-    };
 
     virtual loader::BoundingBox getBoundingBox() const = 0;
 

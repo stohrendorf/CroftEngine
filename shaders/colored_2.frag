@@ -4,16 +4,12 @@ varying vec3 v_color;
 
 out vec4 out_color;
 
-#ifdef GOUREAUD
-varying float v_shadeFactor;
-#else
 uniform vec3 u_lightPosition;
 uniform float u_baseLight;
 uniform float u_baseLightDiff;
 
 varying vec3 v_vertexPos;
 varying vec3 v_normal;
-#endif
 
 vec3 srgbEncode(in vec3 color){
    float r = color.r < 0.0031308 ? 12.92 * color.r : 1.055 * pow(color.r, 1.0/2.4) - 0.055;
@@ -38,13 +34,10 @@ void main()
     out_color.b = color.b * v_color.b;
     out_color.a = 1;
 
-    #ifdef GOUREAUD
-    out_color *= v_shadeFactor;
-#else
     float shadeFactor;
     if(isnan(u_lightPosition.x) || v_normal == vec3(0))
     {
-        shadeFactor = clamp(u_baseLight + u_baseLightDiff, 0, 1);
+        shadeFactor = clamp(u_baseLight, 0, 1);
     }
     else
     {
@@ -58,9 +51,8 @@ void main()
         vec3 viewDir = normalize(-v_vertexPos);
         vec3 reflectDir = reflect(-dir, v_normal);  
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularPower);
-        shadeFactor += specularStrength * spec; 
+        shadeFactor += specularStrength * spec;
     }
     out_color *= shadeFactor;
-#endif
     out_color.a = 1;
 }

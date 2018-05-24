@@ -561,7 +561,7 @@ struct Room
 
     float getAmbientBrightness() const
     {
-        return 1 - ambientDarkness / 8192.0f;
+        return 1 - ambientDarkness / 8191.0f;
     }
 
 

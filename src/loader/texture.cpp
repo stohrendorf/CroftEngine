@@ -22,14 +22,11 @@ std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gamepla
     // Set some defaults
     texture->set(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    result->initStateBlockDefaults();
     result->getParameter("u_diffuseTexture")->set(texture);
     result->getParameter("u_modelMatrix")->bindModelMatrix();
     result->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
     result->getParameter("u_projectionMatrix")->bindProjectionMatrix();
-    result->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
-    result->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
-    result->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
-    result->initStateBlockDefaults();
 
     switch( bmode )
     {

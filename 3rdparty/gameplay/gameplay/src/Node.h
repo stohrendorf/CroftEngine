@@ -8,169 +8,175 @@
 
 namespace gameplay
 {
-    class Drawable;
+class Drawable;
 
 
-    class Scene;
+class Scene;
 
 
-    class Node : public std::enable_shared_from_this<Node>
+class Node : public std::enable_shared_from_this<Node>
+{
+    friend class Scene;
+
+
+public:
+    Node(const Node& copy) = delete;
+
+    Node& operator=(const Node&) = delete;
+
+    using List = std::vector<std::shared_ptr<Node>>;
+
+    explicit Node(const std::string& id);
+
+    virtual ~Node();
+
+    const std::string& getId() const;
+
+    void addChild(const std::shared_ptr<Node>& child);
+
+    const std::weak_ptr<Node>& getParent() const;
+
+    size_t getChildCount() const;
+
+    virtual Scene* getScene() const;
+
+    void setVisible(bool enabled);
+
+    bool isVisible() const;
+
+    bool isVisibleInHierarchy() const;
+
+    virtual const glm::mat4& getModelMatrix() const;
+
+    glm::mat4 getModelViewMatrix() const;
+
+    const glm::mat4& getViewMatrix() const;
+
+    const glm::mat4& getInverseViewMatrix() const;
+
+    const glm::mat4& getProjectionMatrix() const;
+
+    const glm::mat4& getViewProjectionMatrix() const;
+
+    const glm::mat4& getInverseViewProjectionMatrix() const;
+
+    glm::vec3 getTranslationWorld() const;
+
+    const std::shared_ptr<Drawable>& getDrawable() const;
+
+    void setDrawable(const std::shared_ptr<Drawable>& drawable);
+
+    const List& getChildren() const
     {
-        friend class Scene;
+        return m_children;
+    }
 
+    const std::shared_ptr<Node>& getChild(size_t idx) const
+    {
+        BOOST_ASSERT( idx < m_children.size() );
+        return m_children[idx];
+    }
 
-    public:
-        Node(const Node& copy) = delete;
+    const glm::mat4& getLocalMatrix() const
+    {
+        return m_localMatrix;
+    }
 
-        Node& operator=(const Node&) = delete;
+    void setLocalMatrix(const glm::mat4& m)
+    {
+        m_localMatrix = m;
+        transformChanged();
+    }
 
-        using List = std::vector<std::shared_ptr<Node>>;
+    void accept(Visitor& visitor)
+    {
+        for( auto& node : m_children )
+            visitor.visit( *node );
+    }
 
-        explicit Node(const std::string& id);
-
-        virtual ~Node();
-
-        const std::string& getId() const;
-
-        void addChild(const std::shared_ptr<Node>& child);
-
-        const std::weak_ptr<Node>& getParent() const;
-
-        size_t getChildCount() const;
-
-        virtual Scene* getScene() const;
-
-        void setVisible(bool enabled);
-
-        bool isVisible() const;
-
-        bool isVisibleInHierarchy() const;
-
-        virtual const glm::mat4& getModelMatrix() const;
-
-        glm::mat4 getModelViewMatrix() const;
-
-        const glm::mat4& getViewMatrix() const;
-
-        const glm::mat4& getInverseViewMatrix() const;
-
-        const glm::mat4& getProjectionMatrix() const;
-
-        const glm::mat4& getViewProjectionMatrix() const;
-
-        const glm::mat4& getInverseViewProjectionMatrix() const;
-
-        glm::vec3 getTranslationWorld() const;
-
-        const std::shared_ptr<Drawable>& getDrawable() const;
-
-        void setDrawable(const std::shared_ptr<Drawable>& drawable);
-
-        const List& getChildren() const
+    void setParent(const std::shared_ptr<Node>& parent)
+    {
+        if( !m_parent.expired() )
         {
-            return m_children;
+            auto p = m_parent.lock();
+            auto it = find( p->m_children.begin(), p->m_children.end(), shared_from_this() );
+            BOOST_ASSERT( it != p->m_children.end() );
+            m_parent.lock()->m_children.erase( it );
         }
 
-        const std::shared_ptr<Node>& getChild(size_t idx) const
-        {
-            BOOST_ASSERT( idx < m_children.size() );
-            return m_children[idx];
-        }
+        m_parent = parent;
 
-        const glm::mat4& getLocalMatrix() const
-        {
-            return m_localMatrix;
-        }
+        if( parent != nullptr )
+            parent->m_children.push_back( shared_from_this() );
 
-        void setLocalMatrix(const glm::mat4& m)
-        {
-            m_localMatrix = m;
-            transformChanged();
-        }
+        transformChanged();
+    }
 
-        void accept(Visitor& visitor)
-        {
-            for( auto& node : m_children )
-                visitor.visit( *node );
-        }
+    void swapChildren(const std::shared_ptr<Node>& other)
+    {
+        auto otherChildren = other->m_children;
+        for( auto& child : otherChildren )
+            child->setParent( nullptr );
+        BOOST_ASSERT( other->m_children.empty() );
 
-        void setParent(const std::shared_ptr<Node>& parent)
-        {
-            if( !m_parent.expired() )
-            {
-                auto p = m_parent.lock();
-                auto it = find( p->m_children.begin(), p->m_children.end(), shared_from_this() );
-                BOOST_ASSERT( it != p->m_children.end() );
-                m_parent.lock()->m_children.erase( it );
-            }
+        auto thisChildren = m_children;
+        for( auto& child : thisChildren )
+            child->setParent( nullptr );
+        BOOST_ASSERT( m_children.empty() );
 
-            m_parent = parent;
+        for( auto& child : otherChildren )
+            child->setParent( shared_from_this() );
 
-            if( parent != nullptr )
-                parent->m_children.push_back( shared_from_this() );
+        for( auto& child : thisChildren )
+            child->setParent( other );
+    }
 
-            transformChanged();
-        }
+    void addMaterialParameterSetter(const std::string& name,
+                                    const std::function<MaterialParameter::UniformValueSetter>& setter)
+    {
+        m_materialParameterSetters[name] = setter;
+    }
 
-        void swapChildren(const std::shared_ptr<Node>& other)
-        {
-            auto otherChildren = other->m_children;
-            for( auto& child : otherChildren )
-                child->setParent( nullptr );
-            BOOST_ASSERT( other->m_children.empty() );
+    void addMaterialParameterSetter(const std::string& name,
+                                    std::function<MaterialParameter::UniformValueSetter>&& setter)
+    {
+        m_materialParameterSetters[name] = move( setter );
+    }
 
-            auto thisChildren = m_children;
-            for( auto& child : thisChildren )
-                child->setParent( nullptr );
-            BOOST_ASSERT( m_children.empty() );
+    const std::function<MaterialParameter::UniformValueSetter>* findMaterialParameterSetter(const std::string& name) const
+    {
+        auto it = m_materialParameterSetters.find( name );
+        if( it != m_materialParameterSetters.end() )
+            return &it->second;
 
-            for( auto& child : otherChildren )
-                child->setParent( shared_from_this() );
+        if( !m_parent.expired() )
+            return m_parent.lock()->findMaterialParameterSetter( name );
 
-            for( auto& child : thisChildren )
-                child->setParent( other );
-        }
+        return nullptr;
+    }
 
-        void addMaterialParameterSetter(const std::string& name,
-                                        const std::function<MaterialParameter::UniformValueSetter>& setter)
-        {
-            m_materialParameterSetters[name] = setter;
-        }
+protected:
+    void transformChanged();
 
-        void addMaterialParameterSetter(const std::string& name,
-                                        std::function<MaterialParameter::UniformValueSetter>&& setter)
-        {
-            m_materialParameterSetters[name] = move( setter );
-        }
+private:
+    Scene* m_scene = nullptr;
 
-        const std::map<std::string, std::function<MaterialParameter::UniformValueSetter>>&
-        getMaterialParameterSetters() const
-        {
-            return m_materialParameterSetters;
-        }
+    std::string m_id;
 
-    protected:
-        void transformChanged();
+    List m_children;
 
-    private:
-        Scene* m_scene = nullptr;
+    std::weak_ptr<Node> m_parent{};
 
-        std::string m_id;
+    bool m_visible = true;
 
-        List m_children;
+    std::shared_ptr<Drawable> m_drawable = nullptr;
 
-        std::weak_ptr<Node> m_parent{};
+    glm::mat4 m_localMatrix{1.0f};
 
-        bool m_visible = true;
+    mutable glm::mat4 m_modelMatrix{1.0f};
 
-        std::shared_ptr<Drawable> m_drawable = nullptr;
+    mutable bool m_dirty = false;
 
-        glm::mat4 m_localMatrix{1.0f};
-
-        mutable glm::mat4 m_modelMatrix{1.0f};
-
-        mutable bool m_dirty = false;
-
-        std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
-    };
+    std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
+};
 }

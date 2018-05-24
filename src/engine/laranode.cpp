@@ -2412,10 +2412,11 @@ void LaraNode::drawRoutine()
         frame = frame->next( hit_frame );
     }
 
+    updateLighting();
+
     MatrixStack matrixStack;
 
     matrixStack.push();
-    // render::calcMeshLighting(aLara, &v_frame->bbox);
     const auto* boneTree = reinterpret_cast<const BoneTreeEntry*>(&getLevel().m_boneTrees[objInfo.bone_index]);
     matrixStack.translate( frame->pos.toGl() );
     const auto angleData = frame->getAngleData();
@@ -2507,12 +2508,13 @@ void LaraNode::drawRoutine()
 
 void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo)
 {
+    updateLighting();
+
     const auto& objInfo = *getLevel().m_animatedModels[m_state.object_number];
 
     DualMatrixStack matrixStack{interpolationInfo.bias};
 
     matrixStack.push();
-    // render::calcMeshLighting(aLara, &v_frame->bbox);
     const auto* boneTree = reinterpret_cast<const BoneTreeEntry*>(&getLevel().m_boneTrees[objInfo.bone_index]);
     matrixStack.translate( interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl() );
     const auto angleDataA = interpolationInfo.firstFrame->getAngleData();

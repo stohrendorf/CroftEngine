@@ -13,6 +13,7 @@ namespace gameplay
     {
     }
 
+
     MaterialParameter::~MaterialParameter() = default;
 
     const std::string& MaterialParameter::getName() const
@@ -152,8 +153,8 @@ namespace gameplay
     {
         BOOST_ASSERT( shaderProgram );
 
-        const auto mpsIt = node.getMaterialParameterSetters().find( m_name );
-        if( !m_valueSetter && mpsIt == node.getMaterialParameterSetters().end() )
+        const auto mpsIt = node.findMaterialParameterSetter( m_name );
+        if( !m_valueSetter && mpsIt == nullptr )
         {
             if( (m_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
             {
@@ -169,8 +170,8 @@ namespace gameplay
         if( uniform == nullptr )
             return false;
 
-        if( mpsIt != node.getMaterialParameterSetters().end() )
-            mpsIt->second( node, *uniform );
+        if( mpsIt != nullptr )
+            (*mpsIt)( node, *uniform );
         else
             (*m_valueSetter)( node, *uniform );
 

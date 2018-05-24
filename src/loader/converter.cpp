@@ -299,14 +299,11 @@ std::shared_ptr<gameplay::Material> Converter::readMaterial(const boost::filesys
     texture->set(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     auto material = std::make_shared<gameplay::Material>(shaderProgram);
+    material->initStateBlockDefaults();
     material->getParameter("u_diffuseTexture")->set(texture);
     material->getParameter("u_modelMatrix")->bindModelMatrix();
     material->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
     material->getParameter("u_projectionMatrix")->bindProjectionMatrix();
-    material->getParameter("u_baseLight")->bind(&engine::items::ItemNode::lightBaseBinder);
-    material->getParameter("u_baseLightDiff")->bind(&engine::items::ItemNode::lightBaseDiffBinder);
-    material->getParameter("u_lightPosition")->bind(&engine::items::ItemNode::lightPositionBinder);
-    material->initStateBlockDefaults();
 
     return material;
 }
