@@ -248,9 +248,9 @@ CollisionInfo::collectTouchingRooms(const core::TRCoordinates& position, int rad
 bool
 CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, int height, const level::Level& level)
 {
-    auto rooms = collectTouchingRooms( position, collisionRadius + 50, height + 50, level );
+    const auto rooms = collectTouchingRooms( position, collisionRadius + 50, height + 50, level );
 
-    core::BoundingBox baseCollisionBox{
+    const core::BoundingBox inBox{
             {position.X - collisionRadius, position.Y - height, position.Z - collisionRadius},
             {position.X + collisionRadius, position.Y,          position.Z + collisionRadius}
     };
@@ -261,28 +261,38 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, in
     {
         for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
         {
-            gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById( rsm.meshId );
+            const gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById( rsm.meshId );
             if( sm->doNotCollide() )
                 continue;
 
-            core::BoundingBox meshCollisionBox = sm->getCollisionBox( rsm.position, core::Angle{rsm.rotation} );
+            const auto meshBox = sm->getCollisionBox( rsm.position, core::Angle{rsm.rotation} );
 
-            if( !meshCollisionBox.intersects( baseCollisionBox ) )
+            if( !meshBox.intersects( inBox ) )
                 continue;
 
-            auto dx = meshCollisionBox.max.X - baseCollisionBox.min.X;
-            if( baseCollisionBox.max.X - meshCollisionBox.min.X < dx )
-                dx = -(baseCollisionBox.max.X - meshCollisionBox.min.X);
-            auto dz = meshCollisionBox.max.Z - baseCollisionBox.min.Z;
-            if( baseCollisionBox.max.Z - meshCollisionBox.min.Z < dz )
-                dz = -(baseCollisionBox.max.Z - meshCollisionBox.min.Z);
+            int dx, dz;
+            {
+                auto left = inBox.max.X - meshBox.min.X;
+                auto right = meshBox.max.X - inBox.min.X;
+                if(left<right)
+                    dx = -left;
+                else
+                    dx = right;
+
+                left = inBox.max.Z - meshBox.min.Z;
+                right = meshBox.max.Z - inBox.min.Z;
+                if(left<right)
+                    dz = -left;
+                else
+                    dz = right;
+            }
 
             switch( facingAxis )
             {
                 case core::Axis::PosX:
                     if( std::abs( dz ) > collisionRadius )
                     {
-                        shift.X = dx - 1;
+                        shift.X = dx;
                         shift.Z = this->oldPosition.Z - position.Z;
                         collisionType = AxisColl_Front;
                     }
@@ -303,7 +313,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, in
                     if( std::abs( dx ) > collisionRadius )
                     {
                         shift.X = this->oldPosition.X - position.X;
-                        shift.Z = dz - 1;
+                        shift.Z = dz;
                         collisionType = AxisColl_Front;
                     }
                     else if( dx > 0 && dx <= collisionRadius )
@@ -322,7 +332,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, in
                 case core::Axis::NegX:
                     if( std::abs( dz ) > collisionRadius )
                     {
-                        shift.X = dx + 1;
+                        shift.X = dx;
                         shift.Z = this->oldPosition.Z - position.Z;
                         collisionType = AxisColl_Front;
                     }

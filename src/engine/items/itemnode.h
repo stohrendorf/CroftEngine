@@ -315,7 +315,7 @@ public:
         move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
-    void updateLightingUniforms()
+    void bindLightingUniforms()
     {
         getNode()->addMaterialParameterSetter("u_baseLight", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
         {
@@ -333,13 +333,14 @@ public:
 
     void updateLighting()
     {
+        bindLightingUniforms();
+
         m_lighting.baseDiff = 0;
 
         if( m_state.shade >= 0 )
         {
             // static mesh lighting
             m_lighting.base = util::clamp((4096 - m_state.shade) / 8192.0f, 0.0f, 1.0f);
-            updateLightingUniforms();
             return;
         }
 
@@ -350,7 +351,6 @@ public:
         {
             m_lighting.base = roomAmbient;
             m_lighting.baseDiff = 0;
-            updateLightingUniforms();
             return;
         }
 
@@ -371,7 +371,6 @@ public:
 
         m_lighting.base = maxBrightness;
         m_lighting.baseDiff = maxBrightness - roomAmbient;
-        updateLightingUniforms();
     }
 
     virtual loader::BoundingBox getBoundingBox() const = 0;

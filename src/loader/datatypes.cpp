@@ -332,22 +332,22 @@ namespace loader
                 // nothing to do
                 break;
             case core::Axis::PosX:
-                std::swap(result.min.X, result.min.Z);
-                result.min.Z *= -1;
-                std::swap(result.max.X, result.max.Z);
-                result.max.Z *= -1;
+                result.min.X = collision_box.min.Z;
+                result.max.X = collision_box.max.Z;
+                result.min.Z = -collision_box.max.X;
+                result.max.Z = -collision_box.min.X;
                 break;
             case core::Axis::NegZ:
-                result.min.X *= -1;
-                result.min.Z *= -1;
-                result.max.X *= -1;
-                result.max.Z *= -1;
+                result.min.X = -collision_box.max.X;
+                result.max.X = -collision_box.min.X;
+                result.min.Z = -collision_box.max.Z;
+                result.max.Z = -collision_box.min.Z;
                 break;
             case core::Axis::NegX:
-                std::swap(result.min.X, result.min.Z);
-                result.min.X *= -1;
-                std::swap(result.max.X, result.max.Z);
-                result.max.X *= -1;
+                result.min.X = -collision_box.max.Z;
+                result.max.X = -collision_box.min.Z;
+                result.min.Z = collision_box.min.X;
+                result.max.Z = collision_box.max.X;
                 break;
         }
 
