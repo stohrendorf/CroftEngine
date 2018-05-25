@@ -427,11 +427,6 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                                                              & uniform) {
                                             uniform.set( *texture );
                                         } );
-    m_node->addMaterialParameterSetter( "u_baseLight", [darkness = item.darkness](const gameplay::Node& /*node*/,
-                                                                                  gameplay::gl::Program::
-                                                                                  ActiveUniform& uniform) {
-        uniform.set( (8192 - darkness) / 32.0f );
-    } );
 }
 
 bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const

@@ -144,7 +144,6 @@ namespace loader
         spriteMaterial->initStateBlockDefaults();
         spriteMaterial->getStateBlock()->setCullFace(false);
 
-#if 1
         spriteMaterial->getParameter("u_modelViewMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
         {
             auto m = node.getModelViewMatrix();
@@ -155,9 +154,6 @@ namespace loader
 
             uniform.set(m);
         });
-#else
-        spriteMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
-#endif
 
         spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
         spriteMaterial->getParameter("u_projectionMatrix")->bindProjectionMatrix();
@@ -275,9 +271,7 @@ namespace loader
             subNode->setDrawable(staticMeshes[idx]);
             subNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem()) * glm::rotate(glm::mat4{1.0f}, util::auToRad(sm.rotation), glm::vec3{0,-1,0}));
 
-            float brightness = 1 - (sm.darkness - 4096) / 8192.0f;
-
-            subNode->addMaterialParameterSetter("u_baseLight", [brightness](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            subNode->addMaterialParameterSetter("u_baseLight", [brightness = sm.getBrightness()](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(brightness);
             });
@@ -307,12 +301,16 @@ namespace loader
 
             auto spriteNode = std::make_shared<gameplay::Node>("sprite");
             spriteNode->setDrawable(model);
-            spriteNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, vertices[spriteInstance.vertex].position.toRenderSystem()));
-            auto setter = [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            const RoomVertex& v = vertices[spriteInstance.vertex];
+            spriteNode->setLocalMatrix(glm::translate(glm::mat4{ 1.0f }, v.position.toRenderSystem()));
+            spriteNode->addMaterialParameterSetter("u_diffuseTexture", [texture = textures[sprite.texture]](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
             {
                 uniform.set(*texture);
-            };
-            spriteNode->addMaterialParameterSetter("u_diffuseTexture", setter);
+            });
+            spriteNode->addMaterialParameterSetter("u_baseLight", [brightness = v.getBrightness()](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
+            {
+                uniform.set(brightness);
+            });
 
             node->addChild(spriteNode);
         }

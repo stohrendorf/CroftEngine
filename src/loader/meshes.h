@@ -29,6 +29,11 @@ namespace loader
         uint16_t meshId; // which StaticMesh item to draw
         FloatColor tint; // extracted from intensity
 
+        float getBrightness() const
+        {
+            return 1.0f - (darkness - 4096) / 8191.0f;
+        }
+
         /** \brief reads a room staticmesh definition.
         *
         * rotation gets converted to float and scaled appropiatly.

@@ -124,7 +124,7 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     if(quad.vertices[i] < mesh.vertexDarknesses.size())
-                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8191.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     iv.uv = proxy.uvCoordinates[i].toGl();
@@ -148,7 +148,7 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[quad.vertices[i]].toRenderSystem();
                     if(quad.vertices[i] < mesh.vertexDarknesses.size())
-                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8192.0f);
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[quad.vertices[i]] / 8191.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     iv.uv = proxy.uvCoordinates[i].toGl();
@@ -171,7 +171,7 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     if(tri.vertices[i] < mesh.vertexDarknesses.size())
-                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8191.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     iv.uv = proxy.uvCoordinates[i].toGl();
@@ -193,7 +193,7 @@ namespace loader
                     RenderVertex iv;
                     iv.position = mesh.vertices[tri.vertices[i]].toRenderSystem();
                     if(tri.vertices[i] < mesh.vertexDarknesses.size())
-                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8192.0f);
+                        iv.color = glm::vec4(1 - mesh.vertexDarknesses[tri.vertices[i]] / 8191.0f);
                     else
                         iv.color = glm::vec4(1.0f);
                     iv.uv = proxy.uvCoordinates[i].toGl();

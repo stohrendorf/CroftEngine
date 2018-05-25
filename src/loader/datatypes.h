@@ -411,6 +411,11 @@ struct RoomVertex
 
     glm::vec4 color{0.0f};
 
+    float getBrightness() const
+    {
+        return 1.0f - darkness/8191.0f;
+    }
+
     /** \brief reads a room vertex definition.
       *
       * lighting1 gets converted, so it matches the 0-32768 range introduced in TR3.

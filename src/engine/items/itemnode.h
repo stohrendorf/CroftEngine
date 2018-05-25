@@ -340,7 +340,7 @@ public:
         if( m_state.shade >= 0 )
         {
             // static mesh lighting
-            m_lighting.base = util::clamp((4096 - m_state.shade) / 8192.0f, 0.0f, 1.0f);
+            m_lighting.base = util::clamp((4096 - m_state.shade) / 8191.0f, 0.0f, 1.0f);
             return;
         }
 
@@ -532,6 +532,7 @@ public:
     void update() override
     {
         // TODO
+        updateLighting();
     }
 
     loader::BoundingBox getBoundingBox() const override

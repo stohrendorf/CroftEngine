@@ -17,6 +17,10 @@ namespace loader
 
         uint16_t activationState = 0;
 
+        float getBrightness() const
+        {
+            return 1.0f - darkness/8191.0f;
+        }
 
         static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
         {

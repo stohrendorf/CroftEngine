@@ -876,7 +876,7 @@ void Level::setUpRendering(gameplay::Game* game,
             room.node->setDrawable( nullptr );
 
             auto model = objWriter.readModel( filename, room.isWaterRoom() ? waterTexturedShader : texturedShader,
-                                              glm::vec3( room.ambientDarkness / 8191.0f ) );
+                                              glm::vec3( room.getAmbientBrightness() ) );
             room.node->setDrawable( model );
         }
 
