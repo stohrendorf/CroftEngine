@@ -16,7 +16,6 @@ namespace engine
                     const std::string& name,
                     const gsl::not_null<const loader::Room*>& room,
                     const loader::Item& item,
-                    Characteristics characteristics,
                     const loader::SkeletalModelType& animatedModel,
                     int collisionRadius);
 

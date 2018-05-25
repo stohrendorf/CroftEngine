@@ -158,6 +158,7 @@ struct ItemState final
 
 using ItemList = std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>;
 
+
 class ItemNode
 {
     gsl::not_null<level::Level*> const m_level;
@@ -167,25 +168,15 @@ class ItemNode
     void updateSounds();
 
 public:
-    using Characteristics = uint8_t;
-    static const constexpr Characteristics Intelligent = 0x02u;
-    static const constexpr Characteristics NonLot = 0x04u;
-    static const constexpr Characteristics SavePosition = 0x08u;
-    static const constexpr Characteristics SaveHitpoints = 0x10u;
-    static const constexpr Characteristics SaveFlags = 0x20u;
-    static const constexpr Characteristics SaveAnim = 0x40u;
-    static const constexpr Characteristics SemiTransparent = 0x40u;
-
     ItemState m_state;
 
     bool m_isActive = false;
 
     const bool m_hasProcessAnimCommandsOverride;
-    const Characteristics m_characteristics;
 
     struct Lighting
     {
-        glm::vec3 position = glm::vec3{ std::numeric_limits<float>::quiet_NaN() };
+        glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
         float base = 0;
         float baseDiff = 0;
     };
@@ -207,8 +198,7 @@ public:
     ItemNode(const gsl::not_null<level::Level*>& level,
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
-             bool hasProcessAnimCommandsOverride,
-             Characteristics characteristics);
+             bool hasProcessAnimCommandsOverride);
 
     virtual ~ItemNode() = default;
 
@@ -317,18 +307,18 @@ public:
 
     void bindLightingUniforms()
     {
-        getNode()->addMaterialParameterSetter("u_baseLight", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
-        {
-            uniform.set(m_lighting.base);
-        });
-        getNode()->addMaterialParameterSetter("u_baseLightDiff", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
-        {
-            uniform.set(m_lighting.baseDiff);
-        });
-        getNode()->addMaterialParameterSetter("u_lightPosition", [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform)
-        {
-            uniform.set(m_lighting.position);
-        });
+        getNode()->addMaterialParameterSetter( "u_baseLight", [this](const gameplay::Node& /*node*/,
+                                                                     gameplay::gl::Program::ActiveUniform& uniform) {
+            uniform.set( m_lighting.base );
+        } );
+        getNode()->addMaterialParameterSetter( "u_baseLightDiff", [this](const gameplay::Node& /*node*/,
+                                                                         gameplay::gl::Program::ActiveUniform& uniform) {
+            uniform.set( m_lighting.baseDiff );
+        } );
+        getNode()->addMaterialParameterSetter( "u_lightPosition", [this](const gameplay::Node& /*node*/,
+                                                                         gameplay::gl::Program::ActiveUniform& uniform) {
+            uniform.set( m_lighting.position );
+        } );
     }
 
     void updateLighting()
@@ -340,7 +330,7 @@ public:
         if( m_state.shade >= 0 )
         {
             // static mesh lighting
-            m_lighting.base = util::clamp((4096 - m_state.shade) / 8191.0f, 0.0f, 1.0f);
+            m_lighting.base = util::clamp( (4096 - m_state.shade) / 8191.0f, 0.0f, 1.0f );
             return;
         }
 
@@ -358,8 +348,8 @@ public:
         const auto bboxCtr = m_state.position.position + getBoundingBox().getCenter();
         for( const auto& light : m_state.position.room->lights )
         {
-            const auto r = util::square(light.radius / 4096.0f);
-            const auto d = util::square(bboxCtr.distanceTo( light.position ) / 4096.0f);
+            const auto r = util::square( light.radius / 4096.0f );
+            const auto d = util::square( bboxCtr.distanceTo( light.position ) / 4096.0f );
 
             const auto lightBrightness = roomAmbient + r * light.getBrightness() / (r + d) / 2;
             if( lightBrightness > maxBrightness )
@@ -454,7 +444,6 @@ public:
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
-            Characteristics characteristics,
             const loader::SkeletalModelType& animatedModel);
 
     std::shared_ptr<gameplay::Node> getNode() const override
@@ -495,6 +484,7 @@ public:
     loader::BoundingBox getBoundingBox() const override;
 
     bool isNear(const ModelItemNode& other, int radius) const;
+
     bool testBoneCollision(const ModelItemNode& other);
 
     void enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
@@ -514,7 +504,6 @@ public:
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
-            Characteristics characteristics,
             const loader::Sprite& sprite,
             const std::shared_ptr<gameplay::Material>& material,
             const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);

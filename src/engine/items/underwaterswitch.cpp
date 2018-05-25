@@ -30,13 +30,13 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
     }
 
     static const InteractionLimits limits{
-        core::BoundingBox{{-1024, -1024, -1024},
-                          {1024,  1024,  512}},
-        {-80_deg, -80_deg, -80_deg},
-        {+80_deg, +80_deg, +80_deg}
+            core::BoundingBox{{-1024, -1024, -1024},
+                              {1024,  1024,  512}},
+            {-80_deg, -80_deg, -80_deg},
+            {+80_deg, +80_deg, +80_deg}
     };
 
-    if( !limits.canInteract(*this, other) )
+    if( !limits.canInteract( *this, other ) )
     {
         return;
     }
@@ -47,7 +47,7 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
     }
 
     static const glm::vec3 alignSpeed{0, 0, -108.0f};
-    if( !other.alignTransform(alignSpeed, *this) )
+    if( !other.alignTransform( alignSpeed, *this ) )
     {
         return;
     }
@@ -55,11 +55,11 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
     other.m_state.fallspeed = 0;
     do
     {
-        other.setTargetState(LaraStateId::SwitchDown);
+        other.setTargetState( LaraStateId::SwitchDown );
         other.updateImpl();
     } while( other.getCurrentAnimState() != LaraStateId::SwitchDown );
-    other.setTargetState(LaraStateId::UnderwaterStop);
-    other.setHandStatus(HandStatus::Grabbing);
+    other.setTargetState( LaraStateId::UnderwaterStop );
+    other.setHandStatus( HandStatus::Grabbing );
     m_state.triggerState = engine::items::TriggerState::Active;
 
     if( m_state.current_anim_state == 1 )

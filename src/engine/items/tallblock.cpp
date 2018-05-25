@@ -12,7 +12,7 @@ void TallBlock::update()
     {
         if( m_state.current_anim_state == 0 )
         {
-            loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+            loader::Room::patchHeightsForBlock( *this, 2 * loader::SectorSize );
             m_state.goal_anim_state = 1;
         }
     }
@@ -20,15 +20,15 @@ void TallBlock::update()
     {
         if( m_state.current_anim_state == 1 )
         {
-            loader::Room::patchHeightsForBlock(*this, 2 * loader::SectorSize);
+            loader::Room::patchHeightsForBlock( *this, 2 * loader::SectorSize );
             m_state.goal_anim_state = 0;
         }
     }
 
     ModelItemNode::update();
     const loader::Room* room = m_state.position.room;
-    getLevel().findRealFloorSector(m_state.position.position, &room);
-    setCurrentRoom(room);
+    getLevel().findRealFloorSector( m_state.position.position, &room );
+    setCurrentRoom( room );
 
     if( m_state.triggerState != engine::items::TriggerState::Deactivated )
     {
@@ -36,7 +36,7 @@ void TallBlock::update()
     }
 
     m_state.triggerState = engine::items::TriggerState::Active;
-    loader::Room::patchHeightsForBlock(*this, -2 * loader::SectorSize);
+    loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
     auto pos = m_state.position.position;
     pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
     pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;

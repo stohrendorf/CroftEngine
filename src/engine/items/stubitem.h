@@ -14,7 +14,7 @@ public:
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
              const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, item, false, 0, animatedModel )
+            : ModelItemNode( level, name, room, item, false, animatedModel )
     {
     }
 };
@@ -29,7 +29,7 @@ public:
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel,
                  const sol::table& objectInfo)
-            : ModelItemNode( level, name, room, item, false, objectInfo["flags"], animatedModel )
+            : ModelItemNode( level, name, room, item, false, animatedModel )
             , m_objectInfo( objectInfo )
     {
         auto initialise = objectInfo["initialise"];

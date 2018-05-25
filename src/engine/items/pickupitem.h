@@ -15,9 +15,10 @@ public:
                const loader::Item& item,
                const loader::SkeletalModelType& animatedModel,
                bool shotgun = false)
-            : ModelItemNode( level, name, room, item, true, SaveHitpoints | SaveFlags, animatedModel )
+            : ModelItemNode( level, name, room, item, true, animatedModel )
             , m_shotgun{shotgun}
     {
+        m_state.is_hit = true;
     }
 
     void update() override

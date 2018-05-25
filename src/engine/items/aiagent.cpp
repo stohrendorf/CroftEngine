@@ -412,10 +412,9 @@ namespace engine
                          const std::string& name,
                          const gsl::not_null<const loader::Room*>& room,
                          const loader::Item& item,
-                         const Characteristics characteristics,
                          const loader::SkeletalModelType& animatedModel,
                          const int collisionRadius)
-            : ModelItemNode(level, name, room, item, true, characteristics, animatedModel)
+            : ModelItemNode(level, name, room, item, true, animatedModel)
             , m_collisionRadius{collisionRadius}
         {
             m_state.collidable = true;

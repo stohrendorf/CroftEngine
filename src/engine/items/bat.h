@@ -4,32 +4,33 @@
 
 #include "engine/ai/ai.h"
 
-
 namespace engine
 {
-    namespace items
+namespace items
+{
+class Bat final
+        : public AIAgent
+{
+public:
+    Bat(const gsl::not_null<level::Level*>& level,
+        const std::string& name,
+        const gsl::not_null<const loader::Room*>& room,
+        const loader::Item& item,
+        const loader::SkeletalModelType& animatedModel)
+            : AIAgent( level, name, room, item,
+                       animatedModel, 0 )
     {
-        class Bat final
-            : public AIAgent
-        {
-        public:
-            Bat(const gsl::not_null<level::Level*>& level,
-                const std::string& name,
-                const gsl::not_null<const loader::Room*>& room,
-                const loader::Item& item,
-                const loader::SkeletalModelType& animatedModel)
-                : AIAgent(level, name, room, item, SaveHitpoints | SaveFlags | SavePosition | NonLot | Intelligent, animatedModel, 0)
-            {
-                m_state.health = 1;
-            }
-
-
-            void update() override;
-
-
-            void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override
-            {
-            }
-        };
+        m_state.health = 1;
+        m_state.is_hit = true;
+        m_state.collidable = true;
+        m_state.falling = true;
     }
+
+    void update() override;
+
+    void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override
+    {
+    }
+};
+}
 }

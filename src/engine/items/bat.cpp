@@ -15,7 +15,7 @@ void Bat::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo(getLevel());
+    m_state.initCreatureInfo( getLevel() );
 
     static constexpr const uint16_t StartingToFly = 1;
     static constexpr const uint16_t FlyingStraight = 2;
@@ -26,8 +26,8 @@ void Bat::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::AiInfo lookAhead(getLevel(), m_state);
-        ai::updateMood(getLevel(), m_state, lookAhead, false);
+        ai::AiInfo lookAhead( getLevel(), m_state );
+        ai::updateMood( getLevel(), m_state, lookAhead, false );
 
         rotationToMoveTarget = rotateTowardsTarget( 20_deg );
         switch( m_state.current_anim_state )
@@ -73,7 +73,7 @@ void Bat::update()
             m_state.falling = true;
         }
     }
-    animateCreature(rotationToMoveTarget, 0_deg);
+    animateCreature( rotationToMoveTarget, 0_deg );
 }
 }
 }

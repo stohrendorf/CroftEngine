@@ -82,11 +82,9 @@ void ItemNode::applyTransform()
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
-                   const bool hasProcessAnimCommandsOverride,
-                   const Characteristics characteristics)
+                   const bool hasProcessAnimCommandsOverride)
         : m_level{level}
         , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
-        , m_characteristics{characteristics}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
@@ -137,14 +135,12 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const gsl::not_null<const loader::Room*>& room,
                              const loader::Item& item,
                              const bool hasProcessAnimCommandsOverride,
-                             const Characteristics characteristics,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{
         level,
         room,
         item,
-        hasProcessAnimCommandsOverride,
-        characteristics
+        hasProcessAnimCommandsOverride
 }
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
@@ -403,7 +399,6 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const gsl::not_null<const loader::Room*>& room,
                                const loader::Item& item,
                                const bool hasProcessAnimCommandsOverride,
-                               const Characteristics characteristics,
                                const loader::Sprite& sprite,
                                const std::shared_ptr<gameplay::Material>& material,
                                const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
@@ -411,8 +406,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
         level,
         room,
         item,
-        hasProcessAnimCommandsOverride,
-        characteristics
+        hasProcessAnimCommandsOverride
 }
 {
     const auto spriteMesh = createSpriteMesh( sprite, material );

@@ -475,7 +475,6 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
                                                                          &room,
                                                                          item,
                                                                          true,
-                                                                         0,
                                                                          sprite,
                                                                          spriteMaterial,
                                                                          textures );

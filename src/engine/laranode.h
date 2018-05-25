@@ -54,8 +54,7 @@ public:
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
              const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, item, false,
-                             SaveHitpoints | SaveFlags | SavePosition | NonLot, animatedModel )
+            : ModelItemNode( level, name, room, item, false, animatedModel )
             , m_underwaterRoute{*level}
     {
         setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
@@ -158,6 +157,9 @@ public:
         weapons[WeaponId::Shotgun] = w;
 
         m_state.health = core::LaraHealth;
+        m_state.collidable = true;
+        m_state.is_hit = true;
+        m_state.falling = true;
 
         auto gunFlareModel = level->getModel(getLevel().m_meshIndices[getLevel().findAnimatedModelForType(166)->frame_number]);
 

@@ -707,7 +707,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 if( item.m_isActive )
                     break;
 
-                if( (item.m_characteristics & Intelligent) == 0 )
+                if( !item.m_state.intelligent )
                 {
                     item.m_state.triggerState = items::TriggerState::Active;
                     item.activate();

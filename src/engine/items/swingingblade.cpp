@@ -22,10 +22,11 @@ void SwingingBlade::update()
     }
 
     const loader::Room* room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector(m_state.position.position, &room);
-    setCurrentRoom(room);
-    const int h = HeightInfo::fromFloor(sector, m_state.position.position, getLevel().m_itemNodes, getLevel().m_floorData)
-        .distance;
+    auto sector = getLevel().findRealFloorSector( m_state.position.position, &room );
+    setCurrentRoom( room );
+    const int h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes,
+                                         getLevel().m_floorData )
+            .distance;
     m_state.floor = h;
 
     ModelItemNode::update();
