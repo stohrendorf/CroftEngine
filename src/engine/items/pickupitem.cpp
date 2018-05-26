@@ -40,7 +40,7 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
             {
                 // TODO: Remove item from room, handle pick up
 
-                m_state.triggerState = engine::items::TriggerState::Locked;
+                m_state.triggerState = engine::items::TriggerState::Invisible;
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action
@@ -82,7 +82,7 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
                          ->setDrawable( getLevel().getModel( getLevel().m_meshIndices[shotgunLara.frame_number + 7] ) );
                 }
 
-                m_state.triggerState = engine::items::TriggerState::Locked;
+                m_state.triggerState = engine::items::TriggerState::Invisible;
 
                 // TODO: Remove item from room, handle pick up
             }

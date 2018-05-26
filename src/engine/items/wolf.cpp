@@ -8,7 +8,7 @@ namespace items
 {
 void Wolf::update()
 {
-    if( m_state.triggerState == TriggerState::Locked )
+    if( m_state.triggerState == TriggerState::Invisible )
     {
         m_state.triggerState = TriggerState::Active;
     }

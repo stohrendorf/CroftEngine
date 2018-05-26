@@ -16,7 +16,7 @@ public:
           const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
-        if( m_state.triggerState != TriggerState::Locked )
+        if( m_state.triggerState != TriggerState::Invisible )
             loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
         m_state.is_hit = true;
         m_state.collidable = true;

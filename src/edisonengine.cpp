@@ -58,8 +58,8 @@ namespace
                     case engine::items::TriggerState::Deactivated:
                         drawText(font, 180, y, "deactivated");
                         break;
-                    case engine::items::TriggerState::Locked:
-                        drawText(font, 180, y, "locked");
+                    case engine::items::TriggerState::Invisible:
+                        drawText(font, 180, y, "invisible");
                         break;
                 }
                 drawText(font, 260, y, std::to_string(item->m_state.timer));
@@ -202,7 +202,7 @@ sol::state createScriptEngine()
         "INACTIVE", engine::items::TriggerState::Inactive,
         "ACTIVE", engine::items::TriggerState::Active,
         "DEACTIVATED", engine::items::TriggerState::Deactivated,
-        "LOCKED", engine::items::TriggerState::Locked
+        "INVISIBLE", engine::items::TriggerState::Invisible
     );
 
     engine["Mood"] = engine.create_table_with(

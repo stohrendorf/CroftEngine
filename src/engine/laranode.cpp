@@ -6,6 +6,7 @@
 
 #include "items/block.h"
 #include "items/tallblock.h"
+#include "items/aiagent.h"
 
 #include <glm/gtx/norm.hpp>
 
@@ -707,26 +708,15 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 if( item.m_isActive )
                     break;
 
-                if( !item.m_state.intelligent )
+                if( item.m_state.triggerState == items::TriggerState::Inactive
+                    || item.m_state.triggerState == items::TriggerState::Invisible
+                    || dynamic_cast<items::AIAgent*>(&item) == nullptr )
                 {
                     item.m_state.triggerState = items::TriggerState::Active;
+                    item.m_state.touch_bits = 0;
                     item.activate();
                     break;
                 }
-
-                if( item.m_state.triggerState == items::TriggerState::Inactive )
-                {
-                    //! @todo Implement baddie
-                    item.m_state.triggerState = items::TriggerState::Active;
-                    item.activate();
-                    break;
-                }
-
-                if( item.m_state.triggerState != items::TriggerState::Locked )
-                    break;
-
-                item.m_state.triggerState = items::TriggerState::Active;
-                item.activate();
             }
                 break;
             case floordata::CommandOpcode::SwitchCamera:
@@ -899,7 +889,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
         if( !item->m_state.collidable )
             continue;
 
-        if( item->m_state.triggerState == items::TriggerState::Locked )
+        if( item->m_state.triggerState == items::TriggerState::Invisible )
             continue;
 
         const auto d = m_state.position.position - item->m_state.position.position;
@@ -2605,11 +2595,13 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
     }
 }
 
-void LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode, bool visible)
+void
+LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode,
+                         bool visible)
 {
-    if(!visible)
+    if( !visible )
     {
-        flareNode->setVisible(false);
+        flareNode->setVisible( false );
         return;
     }
 
@@ -2639,9 +2631,9 @@ void LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const st
     m = glm::translate( m, core::TRCoordinates{0, dy, 55}.toRenderSystem() );
     m *= core::TRRotation( -90_deg, 0_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
 
-    flareNode->setVisible(true);
-    flareNode->setParent(getNode()->getParent().lock());
-    flareNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
+    flareNode->setVisible( true );
+    flareNode->setParent( getNode()->getParent().lock() );
+    flareNode->setLocalMatrix( getNode()->getLocalMatrix() * m );
     // calculateStaticMeshLight(shade);
 }
 }

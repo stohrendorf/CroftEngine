@@ -56,7 +56,7 @@ enum class TriggerState
     Inactive,
     Active,
     Deactivated,
-    Locked
+    Invisible
 };
 
 
@@ -88,10 +88,7 @@ struct ItemState final
         {
             bool loaded
                     : 1;
-            bool intelligent
-                    : 1;
-            bool non_lot
-                    : 1;
+            // This is handled by triggerState: uint8_t status : 2;
             bool falling
                     : 1;
             bool is_hit
@@ -271,7 +268,7 @@ public:
 
     bool triggerPickUp()
     {
-        if( m_state.triggerState != engine::items::TriggerState::Locked )
+        if( m_state.triggerState != engine::items::TriggerState::Invisible )
         {
             return false;
         }

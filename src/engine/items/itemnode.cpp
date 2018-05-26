@@ -99,7 +99,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     if( m_state.activationState.isOneshot() )
     {
         m_state.activationState.setOneshot( false );
-        m_state.triggerState = TriggerState::Locked;
+        m_state.triggerState = TriggerState::Invisible;
     }
 
     if( m_state.activationState.isFullyActivated() )
