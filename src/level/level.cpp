@@ -483,7 +483,6 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
             room.node->addChild( node->getNode() );
 
             node->applyTransform();
-            node->updateLighting();
 
             continue;
         }

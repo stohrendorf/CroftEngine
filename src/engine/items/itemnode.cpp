@@ -417,9 +417,23 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
     m_node->setDrawable( model );
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
                                         [texture = textures[sprite.texture]](const gameplay::Node& /*node*/,
-                                                                             gameplay::gl::Program::ActiveUniform
-                                                                             & uniform) {
+                                                                             gameplay::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( *texture );
+                                        } );
+    m_node->addMaterialParameterSetter( "u_baseLight",
+                                        [brightness = item.getBrightness()](const gameplay::Node& /*node*/,
+                                                                            gameplay::gl::Program::ActiveUniform& uniform) {
+                                            uniform.set( brightness );
+                                        } );
+    m_node->addMaterialParameterSetter( "u_baseLightDiff",
+                                        [](const gameplay::Node& /*node*/,
+                                           gameplay::gl::Program::ActiveUniform& uniform) {
+                                            uniform.set( 0.0f );
+                                        } );
+    m_node->addMaterialParameterSetter( "u_lightPosition",
+                                        [](const gameplay::Node& /*node*/,
+                                           gameplay::gl::Program::ActiveUniform& uniform) {
+                                            uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
                                         } );
 }
 

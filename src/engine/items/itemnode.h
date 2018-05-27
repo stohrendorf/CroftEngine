@@ -337,7 +337,6 @@ public:
         if( m_state.position.room->lights.empty() )
         {
             m_lighting.base = roomAmbient;
-            m_lighting.baseDiff = 0;
             return;
         }
 
@@ -518,7 +517,6 @@ public:
     void update() override
     {
         // TODO
-        updateLighting();
     }
 
     loader::BoundingBox getBoundingBox() const override

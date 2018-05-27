@@ -4,7 +4,6 @@ local DEFAULT_RADIUS = 10
 local DEFAULT_HIT_POINTS = -16384
 local DEFAULT_PIVOT_LENGTH = 0
 local DEFAULT_SHADOW_SIZE = 0
-local DEFAULT_FLAGS = 0
 
 ---------------------------------------------------------------------------
 -- Code Completion Stubs
@@ -42,8 +41,6 @@ infos[...] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     initialise = function(item)
@@ -89,8 +86,6 @@ infos[0] = {
     radius = DEFAULT_RADIUS,
     hit_points = 1000,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x3c,
     shadow_size = 160,
     target_update_chance = 0
 }
@@ -100,8 +95,6 @@ infos[6] = {
     radius = DEFAULT_RADIUS,
     hit_points = 1000,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x0c,
     shadow_size = 160,
     target_update_chance = 0
 }
@@ -111,8 +104,6 @@ infos[7] = {
     radius = 341,
     hit_points = 6,
     pivot_length = 375,
-    loaded = false, -- flags bit 0
-    flags = 0x3e,
     shadow_size = 128,
     target_update_chance = 0x2000,
     ---@param item Item
@@ -128,8 +119,6 @@ infos[8] = {
     radius = 341,
     hit_points = 20,
     pivot_length = 500,
-    loaded = false, -- flags bit 0
-    flags = 0x3e,
     shadow_size = 128,
     target_update_chance = 0x4000,
     initialise = baddie_init
@@ -141,8 +130,6 @@ infos[9] = {
     radius = 102,
     hit_points = 1,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x3e,
     shadow_size = 128,
     target_update_chance = 0x400,
     initialise = baddie_init
@@ -153,8 +140,6 @@ infos[35] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x34,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     ---@param item Item
@@ -198,8 +183,6 @@ infos[36] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x30,
     shadow_size = 128,
     target_update_chance = 0
 }
@@ -209,8 +192,6 @@ infos[39] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x10,
     shadow_size = 128,
     target_update_chance = 0
 }
@@ -220,8 +201,6 @@ infos[40] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0
 }
@@ -262,13 +241,11 @@ local function possibly_on_trapdoor_2(item, z, x)
     end
 end
 
--- Trapdoor
+-- Trapdoor (open upwards)
 infos[41] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x30,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     floor = function(item, x, y, z, base)
@@ -290,8 +267,6 @@ infos[48] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x34,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     initialise = function(item)
@@ -309,8 +284,6 @@ infos[55] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x30,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0
 }
@@ -320,8 +293,6 @@ infos[56] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x30,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0
 }
@@ -331,8 +302,6 @@ infos[57] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = 0x30,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     initialise = function(item)
@@ -352,8 +321,6 @@ infos[65] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     floor = function(item, x, y, z, base)
@@ -378,8 +345,6 @@ infos[68] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     floor = function(item, x, y, z, base)
@@ -417,19 +382,17 @@ infos[69] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     floor = function(item, x, y, z, base)
-        local tmp = item.position.y + (get_bridge_height(item, x, z) >> 2)
+        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
         if y <= tmp then
             return y
         end
         return base
     end,
     ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y + (get_bridge_height(item, x, z) >> 2)
+        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
         if y > tmp then
             return y + 256
         end
@@ -442,25 +405,34 @@ infos[70] = {
     radius = DEFAULT_RADIUS,
     hit_points = DEFAULT_HIT_POINTS,
     pivot_length = DEFAULT_PIVOT_LENGTH,
-    loaded = false, -- flags bit 0
-    flags = DEFAULT_FLAGS,
     shadow_size = DEFAULT_SHADOW_SIZE,
     target_update_chance = 0,
     floor = function(item, x, y, z, base)
-        local tmp = item.position.y + (get_bridge_height(item, x, z) >> 1)
+        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
         if y <= tmp then
             return y
         end
         return base
     end,
     ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y + (get_bridge_height(item, x, z) >> 1)
+        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
         if y > tmp then
             return y + 256
         end
         return base
     end
 }
+
+-- Simple animated entities
+infos[74] = {
+    radius = DEFAULT_RADIUS,
+    hit_points = DEFAULT_HIT_POINTS,
+    pivot_length = DEFAULT_PIVOT_LENGTH,
+    shadow_size = DEFAULT_SHADOW_SIZE,
+    target_update_chance = 0
+}
+infos[75] = infos[74]
+infos[76] = infos[74]
 
 local module = { object_infos = infos }
 return module
