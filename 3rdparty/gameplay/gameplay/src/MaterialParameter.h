@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <boost/optional.hpp>
+#include <gsl/gsl>
 
 namespace gameplay
 {
@@ -60,7 +61,7 @@ public:
 
     void bind(std::function<UniformValueSetter>&& setter)
     {
-        m_valueSetter = move( setter );
+        m_valueSetter = std::move( setter );
     }
 
     template<class ClassType, class ValueType>
@@ -81,13 +82,13 @@ public:
 
     void bindProjectionMatrix();
 
-    bool bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram);
+    bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
 private:
 
     MaterialParameter& operator=(const MaterialParameter&) = delete;
 
-    gl::Program::ActiveUniform* getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram);
+    gl::Program::ActiveUniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
     enum LOGGER_DIRTYBITS
     {

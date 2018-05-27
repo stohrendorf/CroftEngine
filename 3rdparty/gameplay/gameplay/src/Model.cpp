@@ -7,14 +7,10 @@ namespace gameplay
 {
 void Model::draw(RenderContext& context)
 {
-    for( const auto& mesh : m_meshes )
+    for( const std::shared_ptr<Mesh>& mesh : m_meshes )
     {
-        BOOST_ASSERT( mesh );
-
-        for( const auto& part : mesh->getParts() )
+        for( const std::shared_ptr<MeshPart>& part : mesh->getParts() )
         {
-            BOOST_ASSERT( part );
-
             part->draw( context );
         }
     }

@@ -24,7 +24,7 @@ public:
 
     Node& operator=(const Node&) = delete;
 
-    using List = std::vector<std::shared_ptr<Node>>;
+    using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
 
     explicit Node(const std::string& id);
 
@@ -71,7 +71,7 @@ public:
         return m_children;
     }
 
-    const std::shared_ptr<Node>& getChild(size_t idx) const
+    const gsl::not_null<std::shared_ptr<Node>>& getChild(size_t idx) const
     {
         BOOST_ASSERT( idx < m_children.size() );
         return m_children[idx];
@@ -99,7 +99,8 @@ public:
         if( !m_parent.expired() )
         {
             auto p = m_parent.lock();
-            auto it = find( p->m_children.begin(), p->m_children.end(), shared_from_this() );
+            gsl::not_null<std::shared_ptr<Node>> self = shared_from_this();
+            auto it = std::find( p->m_children.begin(), p->m_children.end(), self );
             BOOST_ASSERT( it != p->m_children.end() );
             m_parent.lock()->m_children.erase( it );
         }
@@ -107,12 +108,12 @@ public:
         m_parent = parent;
 
         if( parent != nullptr )
-            parent->m_children.push_back( shared_from_this() );
+            parent->m_children.emplace_back( shared_from_this() );
 
         transformChanged();
     }
 
-    void swapChildren(const std::shared_ptr<Node>& other)
+    void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& other)
     {
         auto otherChildren = other->m_children;
         for( auto& child : otherChildren )
@@ -140,7 +141,7 @@ public:
     void addMaterialParameterSetter(const std::string& name,
                                     std::function<MaterialParameter::UniformValueSetter>&& setter)
     {
-        m_materialParameterSetters[name] = move( setter );
+        m_materialParameterSetters[name] = std::move( setter );
     }
 
     const std::function<MaterialParameter::UniformValueSetter>*

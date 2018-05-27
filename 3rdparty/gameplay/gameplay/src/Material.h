@@ -3,6 +3,8 @@
 #include "RenderState.h"
 #include "ShaderProgram.h"
 
+#include <gsl/gsl>
+
 namespace gameplay
 {
 class Material : public RenderState
@@ -22,7 +24,7 @@ public:
 
     void bind(const Node& node);
 
-    std::shared_ptr<MaterialParameter> getParameter(const std::string& name) const;
+    gsl::not_null<std::shared_ptr<MaterialParameter>> getParameter(const std::string& name) const;
 
 private:
 
@@ -30,6 +32,6 @@ private:
 
     std::shared_ptr<ShaderProgram> m_shaderProgram;
 
-    mutable std::vector<std::shared_ptr<MaterialParameter>> m_parameters;
+    mutable std::vector<gsl::not_null<std::shared_ptr<MaterialParameter>>> m_parameters;
 };
 }

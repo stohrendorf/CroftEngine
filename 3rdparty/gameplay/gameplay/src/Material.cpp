@@ -15,7 +15,7 @@ Material::Material(const std::shared_ptr<ShaderProgram>& shaderProgram)
     BOOST_ASSERT( shaderProgram != nullptr );
 
     for( const auto& u : m_shaderProgram->getHandle().getActiveUniforms() )
-        m_parameters.push_back( std::make_shared<MaterialParameter>( u.getName() ) );
+        m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
 }
 
 Material::~Material() = default;
@@ -31,7 +31,7 @@ Material::Material(const std::string& vshPath, const std::string& fshPath, const
     }
 
     for( const auto& u : m_shaderProgram->getHandle().getActiveUniforms() )
-        m_parameters.push_back( std::make_shared<MaterialParameter>( u.getName() ) );
+        m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
 }
 
 void Material::bind(const Node& node)
@@ -40,7 +40,6 @@ void Material::bind(const Node& node)
 
     for( const auto& param : m_parameters )
     {
-        BOOST_ASSERT( param );
         const auto success = param->bind( node, m_shaderProgram );
 #ifndef NDEBUG
         if( !success )
@@ -55,12 +54,11 @@ void Material::bind(const Node& node)
     RenderState::bind();
 }
 
-std::shared_ptr<MaterialParameter> Material::getParameter(const std::string& name) const
+gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const std::string& name) const
 {
     // Search for an existing parameter with this name.
     for( const auto& param : m_parameters )
     {
-        BOOST_ASSERT( param );
         if( param->getName() == name )
         {
             return param;
@@ -69,7 +67,7 @@ std::shared_ptr<MaterialParameter> Material::getParameter(const std::string& nam
 
     // Create a new parameter and store it in our list.
     auto param = std::make_shared<MaterialParameter>( name );
-    m_parameters.push_back( param );
+    m_parameters.emplace_back( param );
     return param;
 }
 }

@@ -17,14 +17,17 @@ class Model;
 class Mesh
 {
 public:
-    explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic,
+    explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping,
+                  bool dynamic,
                   const std::string& label = {})
     {
         addBuffer( mapping, dynamic, label );
     }
 
-    static std::shared_ptr<Mesh>
-    createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
+    static std::shared_ptr<Mesh> createQuadFullscreen(float width,
+                                                      float height,
+                                                      const gl::Program& program,
+                                                      bool invertY = false);
 
     void addPart(const std::shared_ptr<MeshPart>& meshPart)
     {
@@ -67,11 +70,11 @@ public:
         return m_parts;
     }
 
-    std::size_t
-    addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping, bool dynamic, const std::string& label = {})
+    void addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping,
+                   bool dynamic,
+                   const std::string& label = {})
     {
         m_buffers.emplace_back( std::make_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
-        return m_buffers.size() - 1;
     }
 
 private:

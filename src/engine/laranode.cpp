@@ -27,11 +27,11 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // find any blocks in the original room and un-patch the floor heights
     for( const auto& child : orig.node->getChildren() )
     {
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
         }
@@ -50,11 +50,11 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // except for the heights.
     for( const auto& child : orig.node->getChildren() )
     {
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
         }

@@ -18,17 +18,15 @@ public:
 
     ~Scene() = default;
 
-    void addNode(const std::shared_ptr<Node>& node)
+    void addNode(const gsl::not_null<std::shared_ptr<Node>>& node)
     {
-        BOOST_ASSERT( node );
-
         if( node->m_scene == this )
         {
             // The node is already a member of this scene.
             return;
         }
 
-        m_nodes.push_back( node );
+        m_nodes.emplace_back( node );
         node->m_scene = this;
     }
 

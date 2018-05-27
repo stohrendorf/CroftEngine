@@ -117,12 +117,10 @@ public:
         auto part = m_mesh->getPart(0);
         part->setMaterial(std::make_shared<gameplay::Material>(shader));
 
-        if(auto tmp = part->getMaterial()->getParameter("u_depth"))
-            tmp->set(m_depthBuffer);
+        part->getMaterial()->getParameter("u_depth")->set(m_depthBuffer);
         part->getMaterial()->getParameter("u_projectionMatrix")->set(glm::ortho(vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f));
         part->getMaterial()->getParameter("u_projection")->bind(game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix);
-        if(auto tmp = part->getMaterial()->getParameter("u_texture"))
-            tmp->set(m_colorBuffer);
+        part->getMaterial()->getParameter("u_texture")->set(m_colorBuffer);
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh(m_mesh);

@@ -104,7 +104,7 @@ public:
 private:
     GLsizei m_indexCount = 0;
 
-    GLenum m_storageType = -1;
+    GLenum m_storageType = GL_NONE;
 };
 }
 }

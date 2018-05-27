@@ -8,8 +8,10 @@
 
 namespace gameplay
 {
-std::shared_ptr<Mesh>
-Mesh::createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY)
+std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width,
+                                                 float height,
+                                                 const gl::Program& program,
+                                                 bool invertY)
 {
     struct Vertex
     {
@@ -25,7 +27,7 @@ Mesh::createQuadFullscreen(float width, float height, const gl::Program& program
             {{0.0f,  height}, {0.0f, invertY ? 1.0f : 0.0f}}
     };
 
-    gl::StructuredVertexBuffer::AttributeMapping attribs{
+    static const gl::StructuredVertexBuffer::AttributeMapping attribs{
             {VERTEX_ATTRIBUTE_POSITION_NAME,        gl::VertexAttribute{&Vertex::pos}},
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
     };

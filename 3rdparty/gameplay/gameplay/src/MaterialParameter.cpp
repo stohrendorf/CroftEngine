@@ -130,7 +130,7 @@ void MaterialParameter::set(const std::vector<std::shared_ptr<gl::Texture>>& tex
     };
 }
 
-gl::Program::ActiveUniform* MaterialParameter::getUniform(const std::shared_ptr<ShaderProgram>& shaderProgram)
+gl::Program::ActiveUniform* MaterialParameter::getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
     auto uniform = shaderProgram->getUniform( m_name );
 
@@ -148,10 +148,8 @@ gl::Program::ActiveUniform* MaterialParameter::getUniform(const std::shared_ptr<
     return nullptr;
 }
 
-bool MaterialParameter::bind(const Node& node, const std::shared_ptr<ShaderProgram>& shaderProgram)
+bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-    BOOST_ASSERT( shaderProgram );
-
     const auto mpsIt = node.findMaterialParameterSetter( m_name );
     if( !m_valueSetter && mpsIt == nullptr )
     {
