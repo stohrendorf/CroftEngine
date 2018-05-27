@@ -4,54 +4,54 @@
 
 namespace gameplay
 {
-    class Node;
+class Node;
 
 
-    class Camera final
-    {
-        friend class Node;
+class Camera final
+{
+    friend class Node;
 
 
-    public:
-        Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
+public:
+    Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
-        ~Camera() = default;
+    ~Camera() = default;
 
-        float getFieldOfView() const;
+    float getFieldOfView() const;
 
-        void setFieldOfView(float fieldOfView);
+    void setFieldOfView(float fieldOfView);
 
-        float getAspectRatio() const;
+    float getAspectRatio() const;
 
-        float getNearPlane() const;
+    float getNearPlane() const;
 
-        float getFarPlane() const;
+    float getFarPlane() const;
 
-        const glm::mat4& getViewMatrix() const;
+    const glm::mat4& getViewMatrix() const;
 
-        void setViewMatrix(const glm::mat4& m);
+    void setViewMatrix(const glm::mat4& m);
 
-        const glm::mat4& getInverseViewMatrix() const;
+    const glm::mat4& getInverseViewMatrix() const;
 
-        const glm::mat4& getProjectionMatrix() const;
+    const glm::mat4& getProjectionMatrix() const;
 
-        const glm::mat4& getViewProjectionMatrix() const;
+    const glm::mat4& getViewProjectionMatrix() const;
 
-        const glm::mat4& getInverseViewProjectionMatrix() const;
+    const glm::mat4& getInverseViewProjectionMatrix() const;
 
-    private:
+private:
 
-        Camera& operator=(const Camera&) = delete;
+    Camera& operator=(const Camera&) = delete;
 
-        float _fieldOfView;
-        float _aspectRatio;
-        float _nearPlane;
-        float _farPlane;
-        mutable glm::mat4 _view;
-        mutable glm::mat4 _projection;
-        mutable glm::mat4 _viewProjection;
-        mutable glm::mat4 _inverseView;
-        mutable glm::mat4 _inverseViewProjection;
-        mutable int _bits;
-    };
+    float m_fieldOfView;
+    float m_aspectRatio;
+    float m_nearPlane;
+    float m_farPlane;
+    mutable glm::mat4 m_view;
+    mutable glm::mat4 m_projection;
+    mutable glm::mat4 m_viewProjection;
+    mutable glm::mat4 m_inverseView;
+    mutable glm::mat4 m_inverseViewProjection;
+    mutable int m_bits;
+};
 }

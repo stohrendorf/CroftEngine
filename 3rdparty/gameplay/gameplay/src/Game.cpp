@@ -86,195 +86,195 @@ void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum seve
 
 namespace gameplay
 {
-    Game::Game()
-            : m_scene{std::make_shared<Scene>()}
+Game::Game()
+        : m_scene{std::make_shared<Scene>()}
+{
+    glfwSetErrorCallback( &glErrorCallback );
+
+    if( glfwInit() != GL_TRUE )
     {
-        glfwSetErrorCallback( &glErrorCallback );
+        BOOST_LOG_TRIVIAL( fatal ) << "Failed to initialize GLFW";
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to initialize GLFW" ) );
+    }
 
-        if( glfwInit() != GL_TRUE )
-        {
-            BOOST_LOG_TRIVIAL( fatal ) << "Failed to initialize GLFW";
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to initialize GLFW" ) );
-        }
+    atexit( &glfwTerminate );
 
-        atexit( &glfwTerminate );
+    // Get the window configuration values
+    int width = 1280, height = 800;
+    bool fullscreen = false;
 
-        // Get the window configuration values
-        int width = 1280, height = 800;
-        bool fullscreen = false;
-
-        glfwWindowHint( GLFW_DOUBLEBUFFER, GL_TRUE );
-        glfwWindowHint( GLFW_DEPTH_BITS, 24 );
-        // glfwWindowHint( GLFW_SAMPLES, m_multiSampling );
-        glfwWindowHint( GLFW_RED_BITS, 8 );
-        glfwWindowHint( GLFW_GREEN_BITS, 8 );
-        glfwWindowHint( GLFW_BLUE_BITS, 8 );
-        glfwWindowHint( GLFW_ALPHA_BITS, 8 );
-        glfwWindowHint( GLFW_DECORATED, fullscreen ? GL_FALSE : GL_TRUE );
-        glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-        glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
-        glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1 );
+    glfwWindowHint( GLFW_DOUBLEBUFFER, GL_TRUE );
+    glfwWindowHint( GLFW_DEPTH_BITS, 24 );
+    // glfwWindowHint( GLFW_SAMPLES, m_multiSampling );
+    glfwWindowHint( GLFW_RED_BITS, 8 );
+    glfwWindowHint( GLFW_GREEN_BITS, 8 );
+    glfwWindowHint( GLFW_BLUE_BITS, 8 );
+    glfwWindowHint( GLFW_ALPHA_BITS, 8 );
+    glfwWindowHint( GLFW_DECORATED, fullscreen ? GL_FALSE : GL_TRUE );
+    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1 );
 #ifndef NDEBUG
-        glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
+    glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
 #endif
 
-        // Create the windows
-        m_window = glfwCreateWindow( width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr,
-                                    nullptr );
-        if( m_window == nullptr )
-        {
-            BOOST_LOG_TRIVIAL( fatal ) << "Failed to create window";
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create window" ) );
-        }
+    // Create the windows
+    m_window = glfwCreateWindow( width, height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+                                 nullptr );
+    if( m_window == nullptr )
+    {
+        BOOST_LOG_TRIVIAL( fatal ) << "Failed to create window";
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create window" ) );
+    }
 
-        glfwMakeContextCurrent( m_window );
+    glfwMakeContextCurrent( m_window );
 
-        glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
-        const auto err = glewInit();
-        if( err != GLEW_OK )
-        {
-            BOOST_LOG_TRIVIAL( error ) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString( err ));
-        }
+    glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
+    const auto err = glewInit();
+    if( err != GLEW_OK )
+    {
+        BOOST_LOG_TRIVIAL( error ) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString( err ));
+    }
 
-        glGetError(); // clear the error flag
+    glGetError(); // clear the error flag
 
 #ifndef NDEBUG
-        GL_ASSERT( glEnable( GL_DEBUG_OUTPUT ) );
-        GL_ASSERT( glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS ) );
+    GL_ASSERT( glEnable( GL_DEBUG_OUTPUT ) );
+    GL_ASSERT( glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS ) );
 
-        GL_ASSERT( glDebugMessageCallback( &debugCallback, nullptr ) );
+    GL_ASSERT( glDebugMessageCallback( &debugCallback, nullptr ) );
 #else
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
+}
+
+Game::~Game() = default;
+
+namespace
+{
+class RenderVisitor
+        : public Visitor
+{
+public:
+    explicit RenderVisitor(RenderContext& context)
+            : Visitor{context}
+    {
     }
 
-    Game::~Game() = default;
-
-    namespace
+    void visit(Node& node) override
     {
-        class RenderVisitor
-                : public Visitor
-        {
-        public:
-            explicit RenderVisitor(RenderContext& context)
-                    : Visitor{context}
-            {
-            }
-
-            void visit(Node& node) override
-            {
-                if( !node.isVisible() )
-                {
-                    return;
-                }
-
-                gl::DebugGroup debugGroup{node.getId()};
-
-                getContext().setCurrentNode( &node );
-
-                if( auto dr = node.getDrawable() )
-                {
-                    dr->draw( getContext() );
-                }
-
-                Visitor::visit( node );
-            }
-        };
-    }
-
-    void Game::setVsync(bool enable)
-    {
-        m_vsync = enable;
-        glfwSwapInterval( enable ? 1 : 0 );
-    }
-
-    bool Game::isVsync() const
-    {
-        return m_vsync;
-    }
-
-    void Game::initialize()
-    {
-        if( m_initialized )
+        if( !node.isVisible() )
         {
             return;
         }
 
-        GL_ASSERT( glfwGetWindowSize( m_window, &m_width, &m_height ) );
+        gl::DebugGroup debugGroup{node.getId()};
 
-        // Start up game systems.
-        setViewport(Rectangle{ 0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height) });
-        RenderState::initialize();
+        getContext().setCurrentNode( &node );
 
-        m_initialized = true;
-    }
-
-    void Game::frame()
-    {
-        // Graphics Rendering.
-        clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, { 0, 0, 0, 0 }, 1);
-
-        RenderContext context{ false };
-        RenderVisitor visitor{ context };
-        m_scene->accept(visitor);
-
-        // Update FPS.
-        ++m_frameCount;
-        if( (getGameTime() - m_frameLastFPS) >= std::chrono::seconds( 1 ) )
+        if( auto dr = node.getDrawable() )
         {
-            m_frameRate = m_frameCount;
-            m_frameCount = 0;
-            m_frameLastFPS = getGameTime();
-        }
-    }
-
-    void Game::swapBuffers()
-    {
-        glfwSwapBuffers( m_window );
-    }
-
-    void Game::setViewport(const Rectangle& viewport)
-    {
-        m_viewport = viewport;
-        GL_ASSERT( glViewport( static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y),
-                               static_cast<GLuint>(viewport.width),
-                               static_cast<GLuint>(viewport.height) ) );
-    }
-
-    void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)
-    {
-        GLbitfield bits = 0;
-        if( flags & GL_COLOR_BUFFER_BIT )
-        {
-            if( clearColor != m_clearColor )
-            {
-                glClearColor( clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f,
-                              clearColor.a / 255.0f );
-                m_clearColor = clearColor;
-            }
-            bits |= GL_COLOR_BUFFER_BIT;
+            dr->draw( getContext() );
         }
 
-        if( flags & GL_DEPTH_BUFFER_BIT )
-        {
-            if( clearDepth != m_clearDepth )
-            {
-                glClearDepth( clearDepth );
-                m_clearDepth = clearDepth;
-            }
-            bits |= GL_DEPTH_BUFFER_BIT;
-
-            // We need to explicitly call the static enableDepthWrite() method on StateBlock
-            // to ensure depth writing is enabled before clearing the depth buffer (and to
-            // update the global StateBlock render state to reflect this).
-            RenderState::StateBlock::enableDepthWrite();
-        }
-
-        glClear( bits );
+        Visitor::visit( node );
     }
+};
+}
 
-    void Game::clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
+void Game::setVsync(bool enable)
+{
+    m_vsync = enable;
+    glfwSwapInterval( enable ? 1 : 0 );
+}
+
+bool Game::isVsync() const
+{
+    return m_vsync;
+}
+
+void Game::initialize()
+{
+    if( m_initialized )
     {
-        clear( flags, gl::RGBA8{red, green, blue, alpha}, clearDepth );
+        return;
     }
+
+    GL_ASSERT( glfwGetWindowSize( m_window, &m_width, &m_height ) );
+
+    // Start up game systems.
+    setViewport( Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)} );
+    RenderState::initialize();
+
+    m_initialized = true;
+}
+
+void Game::frame()
+{
+    // Graphics Rendering.
+    clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+
+    RenderContext context{};
+    RenderVisitor visitor{context};
+    m_scene->accept( visitor );
+
+    // Update FPS.
+    ++m_frameCount;
+    if( (getGameTime() - m_frameLastFPS) >= std::chrono::seconds( 1 ) )
+    {
+        m_frameRate = m_frameCount;
+        m_frameCount = 0;
+        m_frameLastFPS = getGameTime();
+    }
+}
+
+void Game::swapBuffers()
+{
+    glfwSwapBuffers( m_window );
+}
+
+void Game::setViewport(const Rectangle& viewport)
+{
+    m_viewport = viewport;
+    GL_ASSERT( glViewport( static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y),
+                           static_cast<GLuint>(viewport.width),
+                           static_cast<GLuint>(viewport.height) ) );
+}
+
+void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)
+{
+    GLbitfield bits = 0;
+    if( flags & GL_COLOR_BUFFER_BIT )
+    {
+        if( clearColor != m_clearColor )
+        {
+            glClearColor( clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f,
+                          clearColor.a / 255.0f );
+            m_clearColor = clearColor;
+        }
+        bits |= GL_COLOR_BUFFER_BIT;
+    }
+
+    if( flags & GL_DEPTH_BUFFER_BIT )
+    {
+        if( clearDepth != m_clearDepth )
+        {
+            glClearDepth( clearDepth );
+            m_clearDepth = clearDepth;
+        }
+        bits |= GL_DEPTH_BUFFER_BIT;
+
+        // We need to explicitly call the static enableDepthWrite() method on StateBlock
+        // to ensure depth writing is enabled before clearing the depth buffer (and to
+        // update the global StateBlock render state to reflect this).
+        RenderState::StateBlock::enableDepthWrite();
+    }
+
+    glClear( bits );
+}
+
+void Game::clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
+{
+    clear( flags, gl::RGBA8{red, green, blue, alpha}, clearDepth );
+}
 }

@@ -12,96 +12,96 @@
 
 namespace gameplay
 {
-    Camera::Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
-            : _fieldOfView( fieldOfView )
-            , _aspectRatio( aspectRatio )
-            , _nearPlane( nearPlane )
-            , _farPlane( farPlane )
-            , _bits( CAMERA_DIRTY_ALL )
+Camera::Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
+        : m_fieldOfView( fieldOfView )
+        , m_aspectRatio( aspectRatio )
+        , m_nearPlane( nearPlane )
+        , m_farPlane( farPlane )
+        , m_bits( CAMERA_DIRTY_ALL )
+{
+}
+
+float Camera::getFieldOfView() const
+{
+    return m_fieldOfView;
+}
+
+void Camera::setFieldOfView(float fieldOfView)
+{
+    m_fieldOfView = fieldOfView;
+    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
+}
+
+float Camera::getAspectRatio() const
+{
+    return m_aspectRatio;
+}
+
+float Camera::getNearPlane() const
+{
+    return m_nearPlane;
+}
+
+float Camera::getFarPlane() const
+{
+    return m_farPlane;
+}
+
+const glm::mat4& Camera::getViewMatrix() const
+{
+    return m_view;
+}
+
+const glm::mat4& Camera::getInverseViewMatrix() const
+{
+    if( m_bits & CAMERA_DIRTY_INV_VIEW )
     {
+        m_inverseView = glm::inverse( m_view );
+
+        m_bits &= ~CAMERA_DIRTY_INV_VIEW;
     }
 
-    float Camera::getFieldOfView() const
+    return m_inverseView;
+}
+
+const glm::mat4& Camera::getProjectionMatrix() const
+{
+    if( m_bits & CAMERA_DIRTY_PROJ )
     {
-        return _fieldOfView;
+        m_projection = glm::perspective( m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane );
+        m_bits &= ~CAMERA_DIRTY_PROJ;
     }
 
-    void Camera::setFieldOfView(float fieldOfView)
+    return m_projection;
+}
+
+const glm::mat4& Camera::getViewProjectionMatrix() const
+{
+    if( m_bits & CAMERA_DIRTY_VIEW_PROJ )
     {
-        _fieldOfView = fieldOfView;
-        _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
+        m_viewProjection = getProjectionMatrix() * getViewMatrix();
+
+        m_bits &= ~CAMERA_DIRTY_VIEW_PROJ;
     }
 
-    float Camera::getAspectRatio() const
+    return m_viewProjection;
+}
+
+const glm::mat4& Camera::getInverseViewProjectionMatrix() const
+{
+    if( m_bits & CAMERA_DIRTY_INV_VIEW_PROJ )
     {
-        return _aspectRatio;
+        m_inverseViewProjection = glm::inverse( getViewProjectionMatrix() );
+
+        m_bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
     }
 
-    float Camera::getNearPlane() const
-    {
-        return _nearPlane;
-    }
+    return m_inverseViewProjection;
+}
 
-    float Camera::getFarPlane() const
-    {
-        return _farPlane;
-    }
-
-    const glm::mat4& Camera::getViewMatrix() const
-    {
-        return _view;
-    }
-
-    const glm::mat4& Camera::getInverseViewMatrix() const
-    {
-        if( _bits & CAMERA_DIRTY_INV_VIEW )
-        {
-            _inverseView = glm::inverse( _view );
-
-            _bits &= ~CAMERA_DIRTY_INV_VIEW;
-        }
-
-        return _inverseView;
-    }
-
-    const glm::mat4& Camera::getProjectionMatrix() const
-    {
-        if( _bits & CAMERA_DIRTY_PROJ )
-        {
-            _projection = glm::perspective( _fieldOfView, _aspectRatio, _nearPlane, _farPlane );
-            _bits &= ~CAMERA_DIRTY_PROJ;
-        }
-
-        return _projection;
-    }
-
-    const glm::mat4& Camera::getViewProjectionMatrix() const
-    {
-        if( _bits & CAMERA_DIRTY_VIEW_PROJ )
-        {
-            _viewProjection = getProjectionMatrix() * getViewMatrix();
-
-            _bits &= ~CAMERA_DIRTY_VIEW_PROJ;
-        }
-
-        return _viewProjection;
-    }
-
-    const glm::mat4& Camera::getInverseViewProjectionMatrix() const
-    {
-        if( _bits & CAMERA_DIRTY_INV_VIEW_PROJ )
-        {
-            _inverseViewProjection = glm::inverse( getViewProjectionMatrix() );
-
-            _bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
-        }
-
-        return _inverseViewProjection;
-    }
-
-    void Camera::setViewMatrix(const glm::mat4& m)
-    {
-        _view = m;
-        _bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW;
-    }
+void Camera::setViewMatrix(const glm::mat4& m)
+{
+    m_view = m;
+    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW;
+}
 }

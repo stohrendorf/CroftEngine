@@ -7,12 +7,12 @@
 
 namespace gameplay
 {
-    void Visitor::visit(Node& node)
-    {
-        gl::DebugGroup debugGroup{node.getId()};
+void Visitor::visit(Node& node)
+{
+    gl::DebugGroup debugGroup{node.getId()};
 
-        m_context.setCurrentNode( &node );
-        node.accept( *this );
-        m_context.setCurrentNode( nullptr );
-    }
+    m_context.setCurrentNode( &node );
+    node.accept( *this );
+    m_context.setCurrentNode( nullptr );
+}
 }

@@ -5,18 +5,18 @@
 
 namespace gameplay
 {
-    void Model::draw(RenderContext& context)
+void Model::draw(RenderContext& context)
+{
+    for( const auto& mesh : m_meshes )
     {
-        for( const auto& mesh : m_meshes )
+        BOOST_ASSERT( mesh );
+
+        for( const auto& part : mesh->getParts() )
         {
-            BOOST_ASSERT( mesh );
+            BOOST_ASSERT( part );
 
-            for( const auto& part : mesh->getParts() )
-            {
-                BOOST_ASSERT( part );
-
-                part->draw( context );
-            }
+            part->draw( context );
         }
     }
+}
 }

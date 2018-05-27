@@ -5,31 +5,31 @@
 
 namespace gameplay
 {
-    class Material : public RenderState
+class Material : public RenderState
+{
+public:
+    explicit Material(const std::shared_ptr<ShaderProgram>& shaderProgram);
+
+    ~Material();
+
+    explicit Material(const std::string& vshPath, const std::string& fshPath,
+                      const std::vector<std::string>& defines = {});
+
+    const std::shared_ptr<ShaderProgram>& getShaderProgram() const
     {
-    public:
-        explicit Material(const std::shared_ptr<ShaderProgram>& shaderProgram);
+        return m_shaderProgram;
+    }
 
-        ~Material();
+    void bind(const Node& node);
 
-        explicit Material(const std::string& vshPath, const std::string& fshPath,
-                          const std::vector<std::string>& defines = {});
+    std::shared_ptr<MaterialParameter> getParameter(const std::string& name) const;
 
-        const std::shared_ptr<ShaderProgram>& getShaderProgram() const
-        {
-            return m_shaderProgram;
-        }
+private:
 
-        void bind(const Node& node);
+    Material(const Material&) = delete;
 
-        std::shared_ptr<MaterialParameter> getParameter(const std::string& name) const;
+    std::shared_ptr<ShaderProgram> m_shaderProgram;
 
-    private:
-
-        Material(const Material&) = delete;
-
-        std::shared_ptr<ShaderProgram> m_shaderProgram;
-
-        mutable std::vector<std::shared_ptr<MaterialParameter>> m_parameters;
-    };
+    mutable std::vector<std::shared_ptr<MaterialParameter>> m_parameters;
+};
 }

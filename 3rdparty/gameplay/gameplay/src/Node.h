@@ -143,7 +143,8 @@ public:
         m_materialParameterSetters[name] = move( setter );
     }
 
-    const std::function<MaterialParameter::UniformValueSetter>* findMaterialParameterSetter(const std::string& name) const
+    const std::function<MaterialParameter::UniformValueSetter>*
+    findMaterialParameterSetter(const std::string& name) const
     {
         auto it = m_materialParameterSetters.find( name );
         if( it != m_materialParameterSetters.end() )

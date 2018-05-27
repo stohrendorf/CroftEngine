@@ -4,57 +4,57 @@
 
 namespace gameplay
 {
-    class Camera;
+class Camera;
 
 
-    class Scene final
+class Scene final
+{
+public:
+    Scene(const Scene& copy) = delete;
+
+    Scene& operator=(const Scene&) = delete;
+
+    explicit Scene() = default;
+
+    ~Scene() = default;
+
+    void addNode(const std::shared_ptr<Node>& node)
     {
-    public:
-        Scene(const Scene& copy) = delete;
+        BOOST_ASSERT( node );
 
-        Scene& operator=(const Scene&) = delete;
-
-        explicit Scene() = default;
-
-        ~Scene() = default;
-
-        void addNode(const std::shared_ptr<Node>& node)
+        if( node->m_scene == this )
         {
-            BOOST_ASSERT( node );
-
-            if( node->m_scene == this )
-            {
-                // The node is already a member of this scene.
-                return;
-            }
-
-            m_nodes.push_back( node );
-            node->m_scene = this;
+            // The node is already a member of this scene.
+            return;
         }
 
-        size_t getNodeCount() const
-        {
-            return m_nodes.size();
-        }
+        m_nodes.push_back( node );
+        node->m_scene = this;
+    }
 
-        const std::shared_ptr<Camera>& getActiveCamera() const
-        {
-            return m_activeCamera;
-        }
+    size_t getNodeCount() const
+    {
+        return m_nodes.size();
+    }
 
-        void setActiveCamera(const std::shared_ptr<Camera>& camera)
-        {
-            m_activeCamera = camera;
-        }
+    const std::shared_ptr<Camera>& getActiveCamera() const
+    {
+        return m_activeCamera;
+    }
 
-        void accept(Visitor& visitor)
-        {
-            for( auto& node : m_nodes )
-                visitor.visit( *node );
-        }
+    void setActiveCamera(const std::shared_ptr<Camera>& camera)
+    {
+        m_activeCamera = camera;
+    }
 
-    private:
-        std::shared_ptr<Camera> m_activeCamera = nullptr;
-        Node::List m_nodes;
-    };
+    void accept(Visitor& visitor)
+    {
+        for( auto& node : m_nodes )
+            visitor.visit( *node );
+    }
+
+private:
+    std::shared_ptr<Camera> m_activeCamera = nullptr;
+    Node::List m_nodes;
+};
 }

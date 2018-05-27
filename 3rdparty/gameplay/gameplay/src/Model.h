@@ -5,30 +5,30 @@
 
 namespace gameplay
 {
-    class Model : public Drawable
+class Model : public Drawable
+{
+public:
+    explicit Model() = default;
+
+    ~Model() = default;
+
+    const std::vector<std::shared_ptr<Mesh>>& getMeshes() const
     {
-    public:
-        explicit Model() = default;
+        return m_meshes;
+    }
 
-        ~Model() = default;
+    void addMesh(const std::shared_ptr<Mesh>& mesh)
+    {
+        BOOST_ASSERT( mesh != nullptr );
+        m_meshes.push_back( mesh );
+    }
 
-        const std::vector<std::shared_ptr<Mesh>>& getMeshes() const
-        {
-            return m_meshes;
-        }
+    void draw(RenderContext& context) override;
 
-        void addMesh(const std::shared_ptr<Mesh>& mesh)
-        {
-            BOOST_ASSERT( mesh != nullptr );
-            m_meshes.push_back( mesh );
-        }
+private:
 
-        void draw(RenderContext& context) override;
+    Model& operator=(const Model&) = delete;
 
-    private:
-
-        Model& operator=(const Model&) = delete;
-
-        std::vector<std::shared_ptr<Mesh>> m_meshes{};
-    };
+    std::vector<std::shared_ptr<Mesh>> m_meshes{};
+};
 }

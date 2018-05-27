@@ -2,33 +2,25 @@
 
 namespace gameplay
 {
-    class Node;
+class Node;
 
 
-    class RenderContext
+class RenderContext
+{
+public:
+    explicit RenderContext() = default;
+
+    Node* getCurrentNode() const noexcept
     {
-    public:
-        explicit RenderContext(bool wireframe = false)
-                : m_wireframe{wireframe}
-        {}
+        return m_currentNode;
+    }
 
-        Node* getCurrentNode() const noexcept
-        {
-            return m_currentNode;
-        }
+    void setCurrentNode(Node* n) noexcept
+    {
+        m_currentNode = n;
+    }
 
-        void setCurrentNode(Node* n) noexcept
-        {
-            m_currentNode = n;
-        }
-
-        bool isWireframe() const noexcept
-        {
-            return m_wireframe;
-        }
-
-    private:
-        Node* m_currentNode = nullptr;
-        const bool m_wireframe;
-    };
+private:
+    Node* m_currentNode = nullptr;
+};
 }

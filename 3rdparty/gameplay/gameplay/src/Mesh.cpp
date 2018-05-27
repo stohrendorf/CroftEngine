@@ -8,47 +8,47 @@
 
 namespace gameplay
 {
-    std::shared_ptr<Mesh>
-    Mesh::createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY)
+std::shared_ptr<Mesh>
+Mesh::createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY)
+{
+    struct Vertex
     {
-        struct Vertex
-        {
-            glm::vec2 pos;
+        glm::vec2 pos;
 
-            glm::vec2 uv;
-        };
+        glm::vec2 uv;
+    };
 
-        const Vertex vertices[]{
-                {{0.0f,  0.0f},   {0.0f, invertY ? 0.0f : 1.0f}},
-                {{width, 0.0f},   {1.0f, invertY ? 0.0f : 1.0f}},
-                {{width, height}, {1.0f, invertY ? 1.0f : 0.0f}},
-                {{0.0f,  height}, {0.0f, invertY ? 1.0f : 0.0f}}
-        };
+    const Vertex vertices[]{
+            {{0.0f,  0.0f},   {0.0f, invertY ? 0.0f : 1.0f}},
+            {{width, 0.0f},   {1.0f, invertY ? 0.0f : 1.0f}},
+            {{width, height}, {1.0f, invertY ? 1.0f : 0.0f}},
+            {{0.0f,  height}, {0.0f, invertY ? 1.0f : 0.0f}}
+    };
 
-        gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME,        gl::VertexAttribute{&Vertex::pos}},
-                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
-        };
+    gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME,        gl::VertexAttribute{&Vertex::pos}},
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
+    };
 
-        auto mesh = std::make_shared<Mesh>( attribs, false );
-        mesh->getBuffer( 0 )->assign<Vertex>( vertices, 4 );
+    auto mesh = std::make_shared<Mesh>( attribs, false );
+    mesh->getBuffer( 0 )->assign<Vertex>( vertices, 4 );
 
-        static const uint16_t indices[6] =
-                {
-                        0, 1, 2,
-                        0, 2, 3
-                };
+    static const uint16_t indices[6] =
+            {
+                    0, 1, 2,
+                    0, 2, 3
+            };
 
-        gl::VertexArrayBuilder builder;
+    gl::VertexArrayBuilder builder;
 
-        auto indexBuffer = std::make_shared<gl::IndexBuffer>();
-        indexBuffer->setData( indices, 6, false );
-        builder.attach( indexBuffer );
-        builder.attach( mesh->getBuffers() );
+    auto indexBuffer = std::make_shared<gl::IndexBuffer>();
+    indexBuffer->setData( indices, 6, false );
+    builder.attach( indexBuffer );
+    builder.attach( mesh->getBuffers() );
 
-        auto part = std::make_shared<MeshPart>( builder.build( program ) );
-        mesh->addPart( part );
+    auto part = std::make_shared<MeshPart>( builder.build( program ) );
+    mesh->addPart( part );
 
-        return mesh;
-    }
+    return mesh;
+}
 }

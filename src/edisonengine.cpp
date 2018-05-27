@@ -345,7 +345,7 @@ int main()
 #endif
         game->frame();
 
-        gameplay::RenderContext context{false};
+        gameplay::RenderContext context{};
         gameplay::Node dummyNode{""};
         context.setCurrentNode(&dummyNode);
 

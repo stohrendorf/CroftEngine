@@ -28,7 +28,6 @@ set( GAMEPLAY_SRC
      src/ScreenOverlay.h
      src/Visitor.h
      src/Visitor.cpp
-     src/RenderContext.h
      src/gl/util.h
      src/gl/shader.h
      src/gl/program.h
@@ -48,33 +47,33 @@ set( GAMEPLAY_SRC
      src/gl/image.h
      src/gl/structuredvertexbuffer.h
      src/gl/vertexattribute.h
-)
+     )
 
-find_package(OpenGL REQUIRED)
+find_package( OpenGL REQUIRED )
 
-add_library(gameplay STATIC
-    ${GAMEPLAY_SRC}
-)
-if(NOT MSVC)
-    target_compile_options(gameplay PRIVATE -Wall -Wextra)
+add_library( gameplay STATIC
+             ${GAMEPLAY_SRC}
+             )
+if( NOT MSVC )
+    target_compile_options( gameplay PRIVATE -Wall -Wextra )
 endif()
-target_include_directories(gameplay PUBLIC src)
+target_include_directories( gameplay PUBLIC src )
 
-set(GAMEPLAY_VERSION 3.0.0)
+set( GAMEPLAY_VERSION 3.0.0 )
 
 # debug
-if ( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
-    target_compile_definitions(gameplay PUBLIC -D_DEBUG -DNOMINMAX)
+if( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
+    target_compile_definitions( gameplay PUBLIC -D_DEBUG -DNOMINMAX )
 endif()
 
-target_compile_definitions(gameplay PUBLIC -DGLM_FORCE_RADIANS)
+target_compile_definitions( gameplay PUBLIC -DGLM_FORCE_RADIANS )
 
-target_link_libraries(gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype GSL)
+target_link_libraries( gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype GSL )
 
-set_target_properties(gameplay PROPERTIES
-    OUTPUT_NAME "gameplay"
-    CLEAN_DIRECT_OUTPUT 1
-    VERSION ${GAMEPLAY_VERSION}
-)
+set_target_properties( gameplay PROPERTIES
+                       OUTPUT_NAME "gameplay"
+                       CLEAN_DIRECT_OUTPUT 1
+                       VERSION ${GAMEPLAY_VERSION}
+                       )
 
-GROUP_FILES(${GAMEPLAY_SRC})
+GROUP_FILES( ${GAMEPLAY_SRC} )

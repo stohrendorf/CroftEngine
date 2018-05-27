@@ -2,16 +2,16 @@
 
 namespace gameplay
 {
-    class RenderContext;
+class RenderContext;
 
 
-    class Drawable
-    {
-    public:
-        explicit Drawable() = default;
+class Drawable
+{
+public:
+    explicit Drawable() = default;
 
-        virtual ~Drawable() = default;
+    virtual ~Drawable() = default;
 
-        virtual void draw(RenderContext& context) = 0;
-    };
+    virtual void draw(RenderContext& context) = 0;
+};
 }
