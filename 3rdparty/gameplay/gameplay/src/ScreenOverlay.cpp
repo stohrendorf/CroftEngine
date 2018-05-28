@@ -42,9 +42,6 @@ ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
     part->getMaterial()->getParameter( "u_texture" )->set( m_texture );
     part->getMaterial()->getParameter( "u_projectionMatrix" )
         ->set( glm::ortho( viewport.x, viewport.width, viewport.height, viewport.y, 0.0f, 1.0f ) );
-    part->getMaterial()->getStateBlock().setBlend( true );
-    part->getMaterial()->getStateBlock().setBlendSrc( GL_SRC_ALPHA );
-    part->getMaterial()->getStateBlock().setBlendDst( GL_ONE_MINUS_SRC_ALPHA );
 
     m_model = std::make_shared<Model>();
     m_model->addMesh( m_mesh );

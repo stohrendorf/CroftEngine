@@ -310,7 +310,7 @@ engine::LaraNode* Level::createItems(const std::vector<std::shared_ptr<gameplay:
 {
     auto spriteMaterial = std::make_shared<gameplay::Material>( "shaders/textured_2.vert",
                                                                 "shaders/textured_2.frag" );
-    spriteMaterial->getStateBlock().setCullFace( false );
+    spriteMaterial->setCullFace( false );
 
 #if 1
     spriteMaterial->getParameter( "u_modelViewMatrix" )

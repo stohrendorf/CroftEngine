@@ -4,23 +4,9 @@
 
 namespace gameplay
 {
-RenderState::StateBlock RenderState::StateBlock::m_currentState;
-
-RenderState::StateBlock& RenderState::getStateBlock()
-{
-    return m_state;
-}
+RenderState RenderState::m_currentState;
 
 void RenderState::bind()
-{
-    m_state.bind();
-}
-
-RenderState::StateBlock::StateBlock() = default;
-
-RenderState::StateBlock::~StateBlock() = default;
-
-void RenderState::StateBlock::bind()
 {
     // When the public bind() is called with no RenderState object passed in,
     // we assume we are being called to bind the state of a single StateBlock,
@@ -32,7 +18,7 @@ void RenderState::StateBlock::bind()
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void RenderState::StateBlock::bindNoRestore()
+void RenderState::bindNoRestore()
 {
     // Update any state that differs from m_currentState
     if( m_blendEnabled.is_initialized() && m_blendEnabled != m_currentState.m_blendEnabled )
@@ -101,7 +87,7 @@ void RenderState::StateBlock::bindNoRestore()
     }
 }
 
-void RenderState::StateBlock::restore(bool forceDefaults)
+void RenderState::restore(bool forceDefaults)
 {
     // Restore any state that is not overridden and is not default
     if( forceDefaults || !m_blendEnabled.get_value_or( true ) )
@@ -148,7 +134,7 @@ void RenderState::StateBlock::restore(bool forceDefaults)
     }
 }
 
-void RenderState::StateBlock::enableDepthWrite()
+void RenderState::enableDepthWrite()
 {
     // Internal method used by Game::clear() to restore depth writing before a
     // clear operation. This is necessary if the last code to draw before the
@@ -157,7 +143,7 @@ void RenderState::StateBlock::enableDepthWrite()
     m_currentState.m_depthWriteEnabled.reset();
 }
 
-void RenderState::StateBlock::setBlend(bool enabled)
+void RenderState::setBlend(bool enabled)
 {
     m_blendEnabled = enabled;
     if( enabled )
@@ -166,7 +152,7 @@ void RenderState::StateBlock::setBlend(bool enabled)
     }
 }
 
-void RenderState::StateBlock::setBlendSrc(GLenum blend)
+void RenderState::setBlendSrc(GLenum blend)
 {
     m_blendSrc = blend;
     if( blend == GL_SRC_ALPHA )
@@ -175,7 +161,7 @@ void RenderState::StateBlock::setBlendSrc(GLenum blend)
     }
 }
 
-void RenderState::StateBlock::setBlendDst(GLenum blend)
+void RenderState::setBlendDst(GLenum blend)
 {
     m_blendDst = blend;
     if( blend == GL_ONE_MINUS_SRC_ALPHA )
@@ -184,7 +170,7 @@ void RenderState::StateBlock::setBlendDst(GLenum blend)
     }
 }
 
-void RenderState::StateBlock::setCullFace(bool enabled)
+void RenderState::setCullFace(bool enabled)
 {
     m_cullFaceEnabled = enabled;
     if( enabled )
@@ -193,7 +179,7 @@ void RenderState::StateBlock::setCullFace(bool enabled)
     }
 }
 
-void RenderState::StateBlock::setCullFaceSide(GLenum side)
+void RenderState::setCullFaceSide(GLenum side)
 {
     m_cullFaceSide = side;
     if( side == GL_BACK )
@@ -202,7 +188,7 @@ void RenderState::StateBlock::setCullFaceSide(GLenum side)
     }
 }
 
-void RenderState::StateBlock::setFrontFace(GLenum winding)
+void RenderState::setFrontFace(GLenum winding)
 {
     m_frontFace = winding;
     if( winding == GL_CW )
@@ -211,7 +197,7 @@ void RenderState::StateBlock::setFrontFace(GLenum winding)
     }
 }
 
-void RenderState::StateBlock::setDepthTest(bool enabled)
+void RenderState::setDepthTest(bool enabled)
 {
     m_depthTestEnabled = enabled;
     if( enabled )
@@ -220,7 +206,7 @@ void RenderState::StateBlock::setDepthTest(bool enabled)
     }
 }
 
-void RenderState::StateBlock::setDepthWrite(bool enabled)
+void RenderState::setDepthWrite(bool enabled)
 {
     m_depthWriteEnabled = enabled;
     if( enabled )
@@ -229,7 +215,7 @@ void RenderState::StateBlock::setDepthWrite(bool enabled)
     }
 }
 
-void RenderState::StateBlock::setDepthFunction(GLenum func)
+void RenderState::setDepthFunction(GLenum func)
 {
     m_depthFunction = func;
     if( func == GL_LESS )

@@ -7,6 +7,12 @@
 
 namespace gameplay
 {
+class MaterialParameter;
+
+
+class Node;
+
+
 class Material : public RenderState
 {
 public:

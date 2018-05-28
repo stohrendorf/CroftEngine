@@ -204,7 +204,7 @@ void Game::initialize()
 
     // Start up game systems.
     setViewport( Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)} );
-    RenderState::StateBlock::initDefaults();
+    RenderState::initDefaults();
 
     m_initialized = true;
 }
@@ -267,7 +267,7 @@ void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth
         // We need to explicitly call the static enableDepthWrite() method on StateBlock
         // to ensure depth writing is enabled before clearing the depth buffer (and to
         // update the global StateBlock render state to reflect this).
-        RenderState::StateBlock::enableDepthWrite();
+        RenderState::enableDepthWrite();
     }
 
     glClear( bits );

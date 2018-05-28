@@ -141,7 +141,7 @@ namespace loader
     {
         auto spriteMaterial = std::make_shared<gameplay::Material>("shaders/textured_2.vert",
             "shaders/textured_2.frag");
-        spriteMaterial->getStateBlock().setCullFace(false);
+        spriteMaterial->setCullFace(false);
 
         spriteMaterial->getParameter("u_modelViewMatrix")->bind([](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform)
         {
