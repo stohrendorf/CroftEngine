@@ -2,64 +2,18 @@
 #include "RenderState.h"
 #include "Node.h"
 
-// Render state override bits
-#define RS_BLEND 1
-#define RS_BLEND_FUNC 2
-#define RS_CULL_FACE 4
-#define RS_DEPTH_TEST 8
-#define RS_DEPTH_WRITE 16
-#define RS_DEPTH_FUNC 32
-#define RS_CULL_FACE_SIDE 64
-#define RS_FRONT_FACE 2048
-
 namespace gameplay
 {
-std::shared_ptr<RenderState::StateBlock> RenderState::StateBlock::m_defaultState = nullptr;
+RenderState::StateBlock RenderState::StateBlock::m_currentState;
 
-void RenderState::initialize()
+RenderState::StateBlock& RenderState::getStateBlock()
 {
-    if( StateBlock::m_defaultState == nullptr )
-    {
-        StateBlock::m_defaultState = std::make_shared<StateBlock>();
-    }
-}
-
-void RenderState::finalize()
-{
-    StateBlock::m_defaultState.reset();
-}
-
-const std::shared_ptr<RenderState::StateBlock>& RenderState::getStateBlock() const
-{
-    if( m_state == nullptr )
-    {
-        m_state = std::make_shared<StateBlock>();
-    }
-
     return m_state;
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void RenderState::initStateBlockDefaults()
-{
-    getStateBlock(); // alloc if not done yet
-    m_state->setDepthTest( true );
-    m_state->setDepthFunction( GL_LESS );
-    m_state->setCullFace( true );
-    m_state->setFrontFace( GL_CW );
-    m_state->setBlend( true );
-    m_state->setBlendSrc( GL_SRC_ALPHA );
-    m_state->setBlendDst( GL_ONE_MINUS_SRC_ALPHA );
 }
 
 void RenderState::bind()
 {
-    StateBlock::restore( m_state ? m_state->m_bits : 0 );
-
-    if( m_state )
-    {
-        m_state->bindNoRestore();
-    }
+    m_state.bind();
 }
 
 RenderState::StateBlock::StateBlock() = default;
@@ -73,20 +27,17 @@ void RenderState::StateBlock::bind()
     // irrespective of whether it belongs to a hierarchy of RenderStates.
     // Therefore, we call restore() here with only this StateBlock's override
     // bits to restore state before applying the new state.
-    restore( m_bits );
-
+    restore();
     bindNoRestore();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void RenderState::StateBlock::bindNoRestore()
 {
-    BOOST_ASSERT( m_defaultState );
-
-    // Update any state that differs from m_defaultState and flip m_defaultState bits
-    if( (m_bits & RS_BLEND) && (m_blendEnabled != m_defaultState->m_blendEnabled) )
+    // Update any state that differs from m_currentState
+    if( m_blendEnabled.is_initialized() && m_blendEnabled != m_currentState.m_blendEnabled )
     {
-        if( m_blendEnabled )
+        if( *m_blendEnabled )
         {
             GL_ASSERT( glEnable( GL_BLEND ) );
         }
@@ -94,18 +45,19 @@ void RenderState::StateBlock::bindNoRestore()
         {
             GL_ASSERT( glDisable( GL_BLEND ) );
         }
-        m_defaultState->m_blendEnabled = m_blendEnabled;
+        m_currentState.m_blendEnabled = m_blendEnabled;
     }
-    if( (m_bits & RS_BLEND_FUNC)
-        && (m_blendSrc != m_defaultState->m_blendSrc || m_blendDst != m_defaultState->m_blendDst) )
+    if( (m_blendSrc.is_initialized() || m_blendDst.is_initialized())
+        && (m_blendSrc != m_currentState.m_blendSrc || m_blendDst != m_currentState.m_blendDst) )
     {
-        GL_ASSERT( glBlendFunc( m_blendSrc, m_blendDst ) );
-        m_defaultState->m_blendSrc = m_blendSrc;
-        m_defaultState->m_blendDst = m_blendDst;
+        GL_ASSERT( glBlendFunc( m_blendSrc.get_value_or( GL_SRC_ALPHA ),
+                                m_blendDst.get_value_or( GL_ONE_MINUS_SRC_ALPHA ) ) );
+        m_currentState.m_blendSrc = m_blendSrc;
+        m_currentState.m_blendDst = m_blendDst;
     }
-    if( (m_bits & RS_CULL_FACE) && (m_cullFaceEnabled != m_defaultState->m_cullFaceEnabled) )
+    if( m_cullFaceEnabled.is_initialized() && m_cullFaceEnabled != m_currentState.m_cullFaceEnabled )
     {
-        if( m_cullFaceEnabled )
+        if( *m_cullFaceEnabled )
         {
             GL_ASSERT( glEnable( GL_CULL_FACE ) );
         }
@@ -113,21 +65,21 @@ void RenderState::StateBlock::bindNoRestore()
         {
             GL_ASSERT( glDisable( GL_CULL_FACE ) );
         }
-        m_defaultState->m_cullFaceEnabled = m_cullFaceEnabled;
+        m_currentState.m_cullFaceEnabled = m_cullFaceEnabled;
     }
-    if( (m_bits & RS_CULL_FACE_SIDE) && (m_cullFaceSide != m_defaultState->m_cullFaceSide) )
+    if( m_cullFaceSide.is_initialized() && (m_cullFaceSide != m_currentState.m_cullFaceSide) )
     {
-        GL_ASSERT( glCullFace( m_cullFaceSide ) );
-        m_defaultState->m_cullFaceSide = m_cullFaceSide;
+        GL_ASSERT( glCullFace( *m_cullFaceSide ) );
+        m_currentState.m_cullFaceSide = m_cullFaceSide;
     }
-    if( (m_bits & RS_FRONT_FACE) && (m_frontFace != m_defaultState->m_frontFace) )
+    if( m_frontFace.is_initialized() && m_frontFace != m_currentState.m_frontFace )
     {
-        GL_ASSERT( glFrontFace( m_frontFace ) );
-        m_defaultState->m_frontFace = m_frontFace;
+        GL_ASSERT( glFrontFace( *m_frontFace ) );
+        m_currentState.m_frontFace = m_frontFace;
     }
-    if( (m_bits & RS_DEPTH_TEST) && (m_depthTestEnabled != m_defaultState->m_depthTestEnabled) )
+    if( m_depthTestEnabled.is_initialized() && (m_depthTestEnabled != m_currentState.m_depthTestEnabled) )
     {
-        if( m_depthTestEnabled )
+        if( *m_depthTestEnabled )
         {
             GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
         }
@@ -135,191 +87,136 @@ void RenderState::StateBlock::bindNoRestore()
         {
             GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
         }
-        m_defaultState->m_depthTestEnabled = m_depthTestEnabled;
+        m_currentState.m_depthTestEnabled = m_depthTestEnabled;
     }
-    if( (m_bits & RS_DEPTH_WRITE) && (m_depthWriteEnabled != m_defaultState->m_depthWriteEnabled) )
+    if( m_depthWriteEnabled.is_initialized() && (m_depthWriteEnabled != m_currentState.m_depthWriteEnabled) )
     {
-        GL_ASSERT( glDepthMask( m_depthWriteEnabled ? GL_TRUE : GL_FALSE ) );
-        m_defaultState->m_depthWriteEnabled = m_depthWriteEnabled;
+        GL_ASSERT( glDepthMask( *m_depthWriteEnabled ? GL_TRUE : GL_FALSE ) );
+        m_currentState.m_depthWriteEnabled = m_depthWriteEnabled;
     }
-    if( (m_bits & RS_DEPTH_FUNC) && (m_depthFunction != m_defaultState->m_depthFunction) )
+    if( m_depthFunction.is_initialized() && (m_depthFunction != m_currentState.m_depthFunction) )
     {
-        GL_ASSERT( glDepthFunc( m_depthFunction ) );
-        m_defaultState->m_depthFunction = m_depthFunction;
+        GL_ASSERT( glDepthFunc( *m_depthFunction ) );
+        m_currentState.m_depthFunction = m_depthFunction;
     }
-
-    m_defaultState->m_bits |= m_bits;
 }
 
-void RenderState::StateBlock::restore(long stateOverrideBits)
+void RenderState::StateBlock::restore(bool forceDefaults)
 {
-    BOOST_ASSERT( m_defaultState );
-
-    // If there is no state to restore (i.e. no non-default state), do nothing.
-    if( m_defaultState->m_bits == 0 )
-    {
-        return;
-    }
-
     // Restore any state that is not overridden and is not default
-    if( !(stateOverrideBits & RS_BLEND) && (m_defaultState->m_bits & RS_BLEND) )
+    if( forceDefaults || !m_blendEnabled.get_value_or( true ) )
     {
-        GL_ASSERT( glDisable( GL_BLEND ) );
-        m_defaultState->m_bits &= ~RS_BLEND;
-        m_defaultState->m_blendEnabled = false;
+        GL_ASSERT( glEnable( GL_BLEND ) );
+        m_currentState.m_blendEnabled.reset();
     }
-    if( !(stateOverrideBits & RS_BLEND_FUNC) && (m_defaultState->m_bits & RS_BLEND_FUNC) )
+    if( forceDefaults || m_blendSrc.get_value_or( GL_SRC_ALPHA ) != GL_SRC_ALPHA
+        || m_blendDst.get_value_or( GL_ONE_MINUS_SRC_ALPHA ) != GL_ONE_MINUS_SRC_ALPHA )
     {
-        GL_ASSERT( glBlendFunc( GL_ONE, GL_ZERO ) );
-        m_defaultState->m_bits &= ~RS_BLEND_FUNC;
-        m_defaultState->m_blendSrc = GL_ONE;
-        m_defaultState->m_blendDst = GL_ZERO;
+        GL_ASSERT( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) );
+        m_currentState.m_blendSrc.reset();
+        m_currentState.m_blendDst.reset();
     }
-    if( !(stateOverrideBits & RS_CULL_FACE) && (m_defaultState->m_bits & RS_CULL_FACE) )
+    if( forceDefaults || !m_cullFaceEnabled.get_value_or( true ) )
     {
-        GL_ASSERT( glDisable( GL_CULL_FACE ) );
-        m_defaultState->m_bits &= ~RS_CULL_FACE;
-        m_defaultState->m_cullFaceEnabled = false;
+        GL_ASSERT( glEnable( GL_CULL_FACE ) );
+        m_currentState.m_cullFaceEnabled.reset();
     }
-    if( !(stateOverrideBits & RS_CULL_FACE_SIDE) && (m_defaultState->m_bits & RS_CULL_FACE_SIDE) )
+    if( forceDefaults || m_cullFaceSide.get_value_or( GL_BACK ) != GL_BACK )
     {
         GL_ASSERT( glCullFace( GL_BACK ) );
-        m_defaultState->m_bits &= ~RS_CULL_FACE_SIDE;
-        m_defaultState->m_cullFaceSide = GL_BACK;
+        m_currentState.m_cullFaceSide.reset();
     }
-    if( !(stateOverrideBits & RS_FRONT_FACE) && (m_defaultState->m_bits & RS_FRONT_FACE) )
+    if( forceDefaults || m_frontFace.get_value_or( GL_CW ) != GL_CW )
     {
-        GL_ASSERT( glFrontFace( GL_CCW ) );
-        m_defaultState->m_bits &= ~RS_FRONT_FACE;
-        m_defaultState->m_frontFace = GL_CCW;
+        GL_ASSERT( glFrontFace( GL_CW ) );
+        m_currentState.m_frontFace.reset();
     }
-    if( !(stateOverrideBits & RS_DEPTH_TEST) && (m_defaultState->m_bits & RS_DEPTH_TEST) )
+    if( forceDefaults || !m_depthTestEnabled.get_value_or( true ) )
     {
-        GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
-        m_defaultState->m_bits &= ~RS_DEPTH_TEST;
-        m_defaultState->m_depthTestEnabled = false;
+        GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
+        m_currentState.m_depthTestEnabled.reset();
     }
-    if( !(stateOverrideBits & RS_DEPTH_WRITE) && (m_defaultState->m_bits & RS_DEPTH_WRITE) )
+    if( forceDefaults || !m_depthWriteEnabled.get_value_or( true ) )
     {
         GL_ASSERT( glDepthMask( GL_TRUE ) );
-        m_defaultState->m_bits &= ~RS_DEPTH_WRITE;
-        m_defaultState->m_depthWriteEnabled = true;
+        m_currentState.m_depthWriteEnabled.reset();
     }
-    if( !(stateOverrideBits & RS_DEPTH_FUNC) && (m_defaultState->m_bits & RS_DEPTH_FUNC) )
+    if( forceDefaults || m_depthFunction.get_value_or( GL_LESS ) != GL_LESS )
     {
         GL_ASSERT( glDepthFunc( GL_LESS ) );
-        m_defaultState->m_bits &= ~RS_DEPTH_FUNC;
-        m_defaultState->m_depthFunction = GL_LESS;
+        m_currentState.m_depthFunction.reset();
     }
 }
 
 void RenderState::StateBlock::enableDepthWrite()
 {
-    BOOST_ASSERT( m_defaultState );
-
     // Internal method used by Game::clear() to restore depth writing before a
     // clear operation. This is necessary if the last code to draw before the
     // next frame leaves depth writing disabled.
-    if( !m_defaultState->m_depthWriteEnabled )
-    {
-        GL_ASSERT( glDepthMask( GL_TRUE ) );
-        m_defaultState->m_bits &= ~RS_DEPTH_WRITE;
-        m_defaultState->m_depthWriteEnabled = true;
-    }
+    GL_ASSERT( glDepthMask( GL_TRUE ) );
+    m_currentState.m_depthWriteEnabled.reset();
 }
 
 void RenderState::StateBlock::setBlend(bool enabled)
 {
     m_blendEnabled = enabled;
-    if( !enabled )
+    if( enabled )
     {
-        m_bits &= ~RS_BLEND;
-    }
-    else
-    {
-        m_bits |= RS_BLEND;
+        m_blendEnabled.reset();
     }
 }
 
 void RenderState::StateBlock::setBlendSrc(GLenum blend)
 {
     m_blendSrc = blend;
-    if( m_blendSrc == GL_ONE && m_blendDst == GL_ZERO )
+    if( blend == GL_SRC_ALPHA )
     {
-        // Default blend func
-        m_bits &= ~RS_BLEND_FUNC;
-    }
-    else
-    {
-        m_bits |= RS_BLEND_FUNC;
+        m_blendSrc.reset();
     }
 }
 
 void RenderState::StateBlock::setBlendDst(GLenum blend)
 {
     m_blendDst = blend;
-    if( m_blendSrc == GL_ONE && m_blendDst == GL_ZERO )
+    if( blend == GL_ONE_MINUS_SRC_ALPHA )
     {
-        // Default blend func
-        m_bits &= ~RS_BLEND_FUNC;
-    }
-    else
-    {
-        m_bits |= RS_BLEND_FUNC;
+        m_blendDst.reset();
     }
 }
 
 void RenderState::StateBlock::setCullFace(bool enabled)
 {
     m_cullFaceEnabled = enabled;
-    if( !enabled )
+    if( enabled )
     {
-        m_bits &= ~RS_CULL_FACE;
-    }
-    else
-    {
-        m_bits |= RS_CULL_FACE;
+        m_cullFaceEnabled.reset();
     }
 }
 
 void RenderState::StateBlock::setCullFaceSide(GLenum side)
 {
     m_cullFaceSide = side;
-    if( m_cullFaceSide == GL_BACK )
+    if( side == GL_BACK )
     {
-        // Default cull side
-        m_bits &= ~RS_CULL_FACE_SIDE;
-    }
-    else
-    {
-        m_bits |= RS_CULL_FACE_SIDE;
+        m_cullFaceSide.reset();
     }
 }
 
 void RenderState::StateBlock::setFrontFace(GLenum winding)
 {
     m_frontFace = winding;
-    if( m_frontFace == GL_CCW )
+    if( winding == GL_CW )
     {
-        // Default front face
-        m_bits &= ~RS_FRONT_FACE;
-    }
-    else
-    {
-        m_bits |= RS_FRONT_FACE;
+        m_frontFace.reset();
     }
 }
 
 void RenderState::StateBlock::setDepthTest(bool enabled)
 {
     m_depthTestEnabled = enabled;
-    if( !enabled )
+    if( enabled )
     {
-        m_bits &= ~RS_DEPTH_TEST;
-    }
-    else
-    {
-        m_bits |= RS_DEPTH_TEST;
+        m_depthTestEnabled.reset();
     }
 }
 
@@ -328,25 +225,16 @@ void RenderState::StateBlock::setDepthWrite(bool enabled)
     m_depthWriteEnabled = enabled;
     if( enabled )
     {
-        m_bits &= ~RS_DEPTH_WRITE;
-    }
-    else
-    {
-        m_bits |= RS_DEPTH_WRITE;
+        m_depthWriteEnabled.reset();
     }
 }
 
 void RenderState::StateBlock::setDepthFunction(GLenum func)
 {
     m_depthFunction = func;
-    if( m_depthFunction == GL_LESS )
+    if( func == GL_LESS )
     {
-        // Default depth function
-        m_bits &= ~RS_DEPTH_FUNC;
-    }
-    else
-    {
-        m_bits |= RS_DEPTH_FUNC;
+        m_depthFunction.reset();
     }
 }
 }

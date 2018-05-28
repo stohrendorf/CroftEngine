@@ -204,7 +204,7 @@ void Game::initialize()
 
     // Start up game systems.
     setViewport( Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)} );
-    RenderState::initialize();
+    RenderState::StateBlock::initDefaults();
 
     m_initialized = true;
 }

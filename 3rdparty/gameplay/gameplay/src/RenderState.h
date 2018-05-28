@@ -52,7 +52,7 @@ public:
 
 
     public:
-        StateBlock(const StateBlock& copy) = delete;
+        StateBlock(const StateBlock&) = delete;
 
         explicit StateBlock();
 
@@ -78,41 +78,42 @@ public:
 
         void setDepthFunction(GLenum func);
 
+        static void initDefaults()
+        {
+            m_currentState.restore( true );
+        }
+
     private:
         void bindNoRestore();
 
-        static void restore(long stateOverrideBits);
+        void restore(bool forceDefaults = false);
 
         static void enableDepthWrite();
 
         // States
-        bool m_cullFaceEnabled = false;
+        boost::optional<bool> m_cullFaceEnabled;
 
-        bool m_depthTestEnabled = false;
+        boost::optional<bool> m_depthTestEnabled;
 
-        bool m_depthWriteEnabled = true;
+        boost::optional<bool> m_depthWriteEnabled;
 
-        GLenum m_depthFunction = GL_LESS;
+        boost::optional<GLenum> m_depthFunction;
 
-        bool m_blendEnabled = false;
+        boost::optional<bool> m_blendEnabled;
 
-        GLenum m_blendSrc = GL_ONE;
+        boost::optional<GLenum> m_blendSrc;
 
-        GLenum m_blendDst = GL_ZERO;
+        boost::optional<GLenum> m_blendDst;
 
-        GLenum m_cullFaceSide = GL_BACK;
+        boost::optional<GLenum> m_cullFaceSide;
 
-        GLenum m_frontFace = GL_CCW;
+        boost::optional<GLenum> m_frontFace;
 
-        long m_bits = 0;
-
-        static std::shared_ptr<StateBlock> m_defaultState;
+        static StateBlock m_currentState;
     };
 
 
-    const std::shared_ptr<StateBlock>& getStateBlock() const;
-
-    void initStateBlockDefaults();
+    StateBlock& getStateBlock();
 
 protected:
 
@@ -120,13 +121,9 @@ protected:
 
     virtual ~RenderState() = default;
 
-    static void initialize();
-
-    static void finalize();
-
     void bind();
 
 protected:
-    mutable std::shared_ptr<StateBlock> m_state = nullptr;
+    mutable StateBlock m_state{};
 };
 }
