@@ -1,63 +1,27 @@
+-- init defaults
 local infos = {}
-
-local DEFAULT_RADIUS = 10
-local DEFAULT_HIT_POINTS = -16384
-local DEFAULT_PIVOT_LENGTH = 0
-local DEFAULT_SHADOW_SIZE = 0
-
----------------------------------------------------------------------------
--- Code Completion Stubs
-
----@class Vector
----@field public x number
----@field public y number
----@field public y number
-local VectorClass = {}
-
---- @class Item
---- @field public position Vector
---- @field public rotation Vector
---- @field public health number
---- @field public current_anim_state number
-local ItemClass = {}
-
---- @param other Item
---- @param radius number
---- @return boolean
-function ItemClass:is_near(other, radius)
+for i = 0, 190 do
+    infos[i] = {
+        ai_agent = false,
+        radius = 10,
+        hit_points = -16384,
+        pivot_length = 0,
+        shadow_size = 0,
+        target_update_chance = 0,
+        initialise = nil,
+        collision = nil,
+        control = nil,
+        ceiling = nil,
+        floor = nil,
+        render = nil
+    }
 end
 
---- @param other Item
---- @return boolean
-function ItemClass:test_bone_collision(other)
-end
-
----------------------------------------------------------------------------
-
---[[
-Template for new object information structures:
-
-infos[...] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    initialise = function(item)
-    end
-}
-
-nmeshes, frame_number, bone_index, anim_index are filled from the level file
---]]
-
----@param item Item
 local function baddie_init(item)
     item:set_y_angle((math.random(0, 32767) - 16384) / 2)
     item:set_collidable(true)
 end
 
----@param baddie Item
----@param lara Item
 local function baddie_interact(baddie, lara, lara_state)
     if baddie:is_near(lara, lara_state.radius) then
         if baddie:test_bone_collision(lara) then
@@ -82,128 +46,71 @@ local function sector_local(x)
 end
 
 -- Lara
-infos[0] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = 1000,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = 160,
-    target_update_chance = 0
-}
+infos[0].hit_points = 1000
+infos[0].shadow_size = 160
 
 -- Lara Twin
-infos[6] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = 1000,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = 160,
-    target_update_chance = 0
-}
+infos[6].hit_points = 1000
+infos[6].shadow_size = 160
 
 -- Wolf
-infos[7] = {
-    radius = 341,
-    hit_points = 6,
-    pivot_length = 375,
-    shadow_size = 128,
-    target_update_chance = 0x2000,
-    ---@param item Item
-    initialise = function(item)
-        item.frame_number = 96
-        baddie_init(item)
-    end
-    -- TODO: bone #3 uses custom Y rotation
-}
+infos[7].ai_agent = true
+infos[7].radius = 341
+infos[7].hit_points = 6
+infos[7].pivot_length = 375
+infos[7].shadow_size = 128
+infos[7].target_update_chance = 0x2000
+infos[7].initialise = function(item)
+    item.frame_number = 96
+    baddie_init(item)
+end
+-- TODO: bone #3 uses custom Y rotation
 
 -- Bear
-infos[8] = {
-    radius = 341,
-    hit_points = 20,
-    pivot_length = 500,
-    shadow_size = 128,
-    target_update_chance = 0x4000,
-    initialise = baddie_init
-    -- TODO: bone #14 uses custom Y rotation
-}
+infos[8].radius = 341
+infos[8].hit_points = 20
+infos[8].pivot_length = 500
+infos[8].shadow_size = 128
+infos[8].target_update_chance = 0x4000
+infos[8].initialise = baddie_init
+-- TODO: bone #14 uses custom Y rotation
 
 -- Bat
-infos[9] = {
-    radius = 102,
-    hit_points = 1,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = 128,
-    target_update_chance = 0x400,
-    initialise = baddie_init
-}
+infos[9].radius = 102
+infos[9].hit_points = 1
+infos[9].shadow_size = 128
+infos[9].target_update_chance = 0x400
+infos[9].initialise = baddie_init
 
 -- Broken floor
-infos[35] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    ---@param item Item
-    ---@param x number
-    ---@param y number
-    ---@param z number
-    ---@param base number
-    ---@return number
-    floor = function(item, x, y, z, base)
-        local tmp = item.position.y - 512
-        if y <= tmp then
-            local state = item.current_anim_state
-            if state == 0 or state == 1 then
-                return tmp
-            end
+infos[35].floor = function(item, _, y, _, base)
+    local tmp = item.position.y - 512
+    if y <= tmp then
+        local state = item.current_anim_state
+        if state == 0 or state == 1 then
+            return tmp
         end
-
-        return base
-    end,
-    ---@param item Item
-    ---@param x number
-    ---@param y number
-    ---@param z number
-    ---@param base number
-    ---@return number
-    ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y - 512
-        if y > tmp then
-            local state = item.current_anim_state
-            if state == 0 or state == 1 then
-                return tmp + 256
-            end
-        end
-
-        return base
     end
-}
+
+    return base
+end
+infos[35].ceiling = function(item, _, y, _, base)
+    local tmp = item.position.y - 512
+    if y > tmp then
+        local state = item.current_anim_state
+        if state == 0 or state == 1 then
+            return tmp + 256
+        end
+    end
+
+    return base
+end
 
 -- Swinging blade
-infos[36] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = 128,
-    target_update_chance = 0
-}
+infos[36].shadow_size = 128
 
 -- Dart
-infos[39] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = 128,
-    target_update_chance = 0
-}
-
--- Dart emitter
-infos[40] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0
-}
+infos[39].shadow_size = 128
 
 local function possibly_on_trapdoor_1(item, z, x)
     local sector_z = sector_of(z)
@@ -242,72 +149,34 @@ local function possibly_on_trapdoor_2(item, z, x)
 end
 
 -- Trapdoor (open upwards)
-infos[41] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    floor = function(item, x, y, z, base)
-        if item.current_anim_state == 1 and possibly_on_trapdoor_1(item, z, x) and y <= item.position.y then
-            return item.position.y
-        end
-        return base
-    end,
-    ceiling = function(item, x, y, z, base)
-        if item.current_anim_state == 1 and possibly_on_trapdoor_1(item, z, x) and y > item.position.y then
-            return item.position.y + 256
-        end
-        return base
+infos[41].floor = function(item, x, y, z, base)
+    if item.current_anim_state == 1 and possibly_on_trapdoor_1(item, z, x) and y <= item.position.y then
+        return item.position.y
     end
-}
+    return base
+end
+infos[41].ceiling = function(item, x, y, z, base)
+    if item.current_anim_state == 1 and possibly_on_trapdoor_1(item, z, x) and y > item.position.y then
+        return item.position.y + 256
+    end
+    return base
+end
+
 
 -- Cubical blocks
-infos[48] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    initialise = function(item)
-        if item.activation_state ~= ActivationState.LOCKED then
-            item:patch_heights(-1024)
-        end
+infos[48].initialise = function(item)
+    if item.activation_state ~= ActivationState.LOCKED then
+        item:patch_heights(-1024)
     end
-}
+end
 infos[49] = infos[48]
 infos[50] = infos[48]
 infos[51] = infos[48]
 
--- Switch
-infos[55] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0
-}
-
--- Underwater switch
-infos[56] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0
-}
-
 -- Doors
-infos[57] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    initialise = function(item)
-        -- TODO
-    end
-}
+infos[57].initialise = function(item)
+    -- TODO
+end
 infos[58] = infos[57]
 infos[59] = infos[57]
 infos[60] = infos[57]
@@ -317,54 +186,38 @@ infos[63] = infos[57]
 infos[64] = infos[57]
 
 -- Trapdoors
-infos[65] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    floor = function(item, x, y, z, base)
-        local tmp = item.position.y
-        if possibly_on_trapdoor_2(item, z, x) and y <= tmp and item.current_anim_state == 0 and base > tmp then
-            return tmp
-        end
-        return base
-    end,
-    ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y
-        if possibly_on_trapdoor_2(item, z, x) and y > tmp and item.current_anim_state == 0 and base < tmp then
-            return tmp + 256
-        end
-        return base
+infos[65].floor = function(item, x, y, z, base)
+    local tmp = item.position.y
+    if possibly_on_trapdoor_2(item, z, x) and y <= tmp and item.current_anim_state == 0 and base > tmp then
+        return tmp
     end
-}
+    return base
+end
+infos[65].ceiling = function(item, x, y, z, base)
+    local tmp = item.position.y
+    if possibly_on_trapdoor_2(item, z, x) and y > tmp and item.current_anim_state == 0 and base < tmp then
+        return tmp + 256
+    end
+    return base
+end
 infos[66] = infos[65]
 
 -- Flat bridge
-infos[68] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    floor = function(item, x, y, z, base)
-        local tmp = item.position.y
-        if y <= tmp then
-            return y
-        end
-        return base
-    end,
-    ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y
-        if y > tmp then
-            return y + 256
-        end
-        return base
+infos[68].floor = function(item, _, y, _, base)
+    local tmp = item.position.y
+    if y <= tmp then
+        return y
     end
-}
---- @param bridge Item
---- @param x number
---- @param z number
+    return base
+end
+infos[68].ceiling = function(item, _, y, _, base)
+    local tmp = item.position.y
+    if y > tmp then
+        return y + 256
+    end
+    return base
+end
+
 local function get_bridge_height(bridge, x, z)
     if bridge.rotation.y == -0x8000 then
         return sector_local(x)
@@ -378,61 +231,36 @@ local function get_bridge_height(bridge, x, z)
 end
 
 -- Sloped bridge 1
-infos[69] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    floor = function(item, x, y, z, base)
-        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
-        if y <= tmp then
-            return y
-        end
-        return base
-    end,
-    ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
-        if y > tmp then
-            return y + 256
-        end
-        return base
+infos[69].floor = function(item, x, y, z, base)
+    local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
+    if y <= tmp then
+        return y
     end
-}
+    return base
+end
+infos[69].ceiling = function(item, x, y, z, base)
+    local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 4)
+    if y > tmp then
+        return y + 256
+    end
+    return base
+end
 
 -- Sloped bridge 2
-infos[70] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0,
-    floor = function(item, x, y, z, base)
-        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
-        if y <= tmp then
-            return y
-        end
-        return base
-    end,
-    ceiling = function(item, x, y, z, base)
-        local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
-        if y > tmp then
-            return y + 256
-        end
-        return base
+infos[70].floor = function(item, x, y, z, base)
+    local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
+    if y <= tmp then
+        return y
     end
-}
-
--- Simple animated entities
-infos[74] = {
-    radius = DEFAULT_RADIUS,
-    hit_points = DEFAULT_HIT_POINTS,
-    pivot_length = DEFAULT_PIVOT_LENGTH,
-    shadow_size = DEFAULT_SHADOW_SIZE,
-    target_update_chance = 0
-}
-infos[75] = infos[74]
-infos[76] = infos[74]
+    return base
+end
+infos[70].ceiling = function(item, x, y, z, base)
+    local tmp = item.position.y + math.floor(get_bridge_height(item, x, z) / 2)
+    if y > tmp then
+        return y + 256
+    end
+    return base
+end
 
 local module = { object_infos = infos }
 return module
