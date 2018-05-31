@@ -3,17 +3,16 @@
 #include "ShaderProgram.h"
 #include "Node.h"
 #include "MaterialParameter.h"
+#include "gsl_util.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string/join.hpp>
 
 namespace gameplay
 {
-Material::Material(const std::shared_ptr<ShaderProgram>& shaderProgram)
+Material::Material(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
         : m_shaderProgram{shaderProgram}
 {
-    BOOST_ASSERT( shaderProgram != nullptr );
-
     for( const auto& u : m_shaderProgram->getHandle().getActiveUniforms() )
         m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
 }
@@ -23,21 +22,12 @@ Material::~Material() = default;
 Material::Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
         : m_shaderProgram{ShaderProgram::createFromFile( vshPath, fshPath, defines )}
 {
-    if( m_shaderProgram == nullptr )
-    {
-        BOOST_LOG_TRIVIAL( fatal ) << "Failed to create shader. vertexShader = " << vshPath << ", fragmentShader = "
-                                   << fshPath << ", defines = " << boost::algorithm::join( defines, "; " );
-        BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create shader" ) );
-    }
-
     for( const auto& u : m_shaderProgram->getHandle().getActiveUniforms() )
         m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
 }
 
 void Material::bind(const Node& node)
 {
-    BOOST_ASSERT( m_shaderProgram != nullptr );
-
     for( const auto& param : m_parameters )
     {
         const auto success = param->bind( node, m_shaderProgram );
@@ -66,7 +56,7 @@ gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const s
     }
 
     // Create a new parameter and store it in our list.
-    auto param = std::make_shared<MaterialParameter>( name );
+    auto param = make_not_null_shared<MaterialParameter>( name );
     m_parameters.emplace_back( param );
     return param;
 }

@@ -113,19 +113,13 @@ struct TRCoordinates
 
 struct RoomBoundPosition
 {
-    const loader::Room* room;
+    gsl::not_null<const loader::Room*> room;
 
     TRCoordinates position;
 
     explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const TRCoordinates& pos = {})
             : room{r}
             , position{pos}
-    {
-    }
-
-    explicit RoomBoundPosition()
-            : room{nullptr}
-            , position{0, 0, 0}
     {
     }
 };

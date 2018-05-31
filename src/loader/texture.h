@@ -6,7 +6,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/path.hpp>
 
-
 namespace loader
 {
 namespace trx
@@ -14,16 +13,14 @@ namespace trx
 class Glidos;
 }
 
-
 struct ByteTexture
 {
     uint8_t pixels[256][256];
 
-
     static std::unique_ptr<ByteTexture> read(io::SDLReader& reader)
     {
         std::unique_ptr<ByteTexture> textile{new ByteTexture()};
-        reader.readBytes(reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256);
+        reader.readBytes( reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256 );
         return textile;
     }
 };
@@ -40,7 +37,6 @@ struct ByteTexture
 struct WordTexture
 {
     uint16_t pixels[256][256];
-
 
     static std::unique_ptr<WordTexture> read(io::SDLReader& reader)
     {
@@ -65,10 +61,9 @@ struct DWordTexture final
 
     std::string md5;
 
-
     static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
     {
-        std::unique_ptr<DWordTexture> textile{new DWordTexture()};
+        std::unique_ptr<DWordTexture> textile{std::make_unique<DWordTexture>()};
 
         for( auto& row : textile->pixels )
         {
@@ -86,15 +81,18 @@ struct DWordTexture final
         return textile;
     }
 
+    gsl::not_null<std::shared_ptr<gameplay::gl::Texture>> toTexture(
+            trx::Glidos* glidos,
+            const boost::filesystem::path& lvlName) const;
 
-    std::shared_ptr<gameplay::gl::Texture> toTexture(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
-
-    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> toImage(trx::Glidos* glidos, const boost::filesystem::path& lvlName) const;
+    gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>> toImage(
+            trx::Glidos* glidos,
+            const boost::filesystem::path& lvlName) const;
 };
 
 
 enum class BlendingMode
-    : uint16_t
+        : uint16_t
 {
     Solid,
     AlphaTransparency,
@@ -127,7 +125,6 @@ struct UVCoordinates
     int8_t ycoordinate; // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
     uint8_t ypixel;
 
-
     /// \brief reads object texture vertex definition.
     static UVCoordinates readTr1(io::SDLReader& reader)
     {
@@ -138,7 +135,6 @@ struct UVCoordinates
         vert.ypixel = reader.readU8();
         return vert;
     }
-
 
     static UVCoordinates readTr4(io::SDLReader& reader)
     {
@@ -158,17 +154,17 @@ struct UVCoordinates
         return vert;
     }
 
-
     glm::vec2 toGl() const
     {
-        return glm::vec2{(xpixel+0.5f) / 256.0f, (ypixel+0.5f) / 256.0f};
+        return glm::vec2{(xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f};
     }
 };
 
 
-extern std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::gl::Texture>& texture,
-                                                          BlendingMode bmode,
-                                                          const std::shared_ptr<gameplay::ShaderProgram>& shader);
+extern gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
+        const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
+        BlendingMode bmode,
+        const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
 
 struct TextureLayoutProxy
@@ -191,7 +187,6 @@ struct TextureLayoutProxy
 
         int colorId = -1;
 
-
         bool operator==(const TextureKey& rhs) const
         {
             return tileAndFlag == rhs.tileAndFlag
@@ -199,7 +194,6 @@ struct TextureLayoutProxy
                    && blendingMode == rhs.blendingMode
                    && colorId == rhs.colorId;
         }
-
 
         bool operator<(const TextureKey& rhs) const
         {
@@ -242,17 +236,17 @@ struct TextureLayoutProxy
         proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
         proxy->textureKey.tileAndFlag = reader.readU16();
         if( proxy->textureKey.tileAndFlag > 64 )
-        BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
+            BOOST_LOG_TRIVIAL( warning ) << "TR1 Object Texture: tileAndFlag > 64";
 
         if( (proxy->textureKey.tileAndFlag & (1 << 15)) != 0 )
-        BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
+            BOOST_LOG_TRIVIAL( warning ) << "TR1 Object Texture: tileAndFlag is flagged";
 
         // only in TR4
         proxy->textureKey.flags = 0;
-        proxy->uvCoordinates[0] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[1] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[2] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[3] = UVCoordinates::readTr1(reader);
+        proxy->uvCoordinates[0] = UVCoordinates::readTr1( reader );
+        proxy->uvCoordinates[1] = UVCoordinates::readTr1( reader );
+        proxy->uvCoordinates[2] = UVCoordinates::readTr1( reader );
+        proxy->uvCoordinates[3] = UVCoordinates::readTr1( reader );
         // only in TR4
         proxy->unknown1 = 0;
         proxy->unknown2 = 0;
@@ -261,20 +255,19 @@ struct TextureLayoutProxy
         return proxy;
     }
 
-
     static std::unique_ptr<TextureLayoutProxy> readTr4(io::SDLReader& reader)
     {
         std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
         proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
         proxy->textureKey.tileAndFlag = reader.readU16();
         if( (proxy->textureKey.tileAndFlag & 0x7FFF) > 128 )
-        BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
+            BOOST_LOG_TRIVIAL( warning ) << "TR4 Object Texture: tileAndFlag > 128";
 
         proxy->textureKey.flags = reader.readU16();
-        proxy->uvCoordinates[0] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[1] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[2] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[3] = UVCoordinates::readTr4(reader);
+        proxy->uvCoordinates[0] = UVCoordinates::readTr4( reader );
+        proxy->uvCoordinates[1] = UVCoordinates::readTr4( reader );
+        proxy->uvCoordinates[2] = UVCoordinates::readTr4( reader );
+        proxy->uvCoordinates[3] = UVCoordinates::readTr4( reader );
         proxy->unknown1 = reader.readU32();
         proxy->unknown2 = reader.readU32();
         proxy->x_size = reader.readU32();
@@ -282,22 +275,21 @@ struct TextureLayoutProxy
         return proxy;
     }
 
-
     static std::unique_ptr<TextureLayoutProxy> readTr5(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy = readTr4(reader);
+        std::unique_ptr<TextureLayoutProxy> proxy = readTr4( reader );
         if( reader.readU16() != 0 )
         {
-            BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Object Texture: unexpected value at end of structure";
         }
         return proxy;
     }
 
-
-    std::shared_ptr<gameplay::Material> createMaterial(const std::shared_ptr<gameplay::gl::Texture>& texture,
-                                                       const std::shared_ptr<gameplay::ShaderProgram>& shader) const
+    gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
+            const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
+            const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader) const
     {
-        return loader::createMaterial(texture, textureKey.blendingMode, shader);
+        return loader::createMaterial( texture, textureKey.blendingMode, shader );
     }
 };
 }

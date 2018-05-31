@@ -2,16 +2,17 @@
 #include "Mesh.h"
 #include "MeshPart.h"
 #include "Material.h"
+#include "gsl_util.h"
 
 #include <boost/log/trivial.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace gameplay
 {
-std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width,
-                                                 float height,
-                                                 const gl::Program& program,
-                                                 bool invertY)
+gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
+                                                                float height,
+                                                                const gl::Program& program,
+                                                                bool invertY)
 {
     struct Vertex
     {
@@ -32,8 +33,8 @@ std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width,
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
     };
 
-    auto mesh = std::make_shared<Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<Vertex>( vertices, 4 );
+    auto mesh = make_not_null_shared<Mesh>( attribs, false );
+    mesh->getBuffer( 0 )->assign<Vertex>( to_not_null( &vertices[0] ), 4 );
 
     static const uint16_t indices[6] =
             {
@@ -43,12 +44,12 @@ std::shared_ptr<Mesh> Mesh::createQuadFullscreen(float width,
 
     gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = std::make_shared<gl::IndexBuffer>();
+    auto indexBuffer = make_not_null_shared<gl::IndexBuffer>();
     indexBuffer->setData( indices, 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    auto part = std::make_shared<MeshPart>( builder.build( program ) );
+    auto part = make_not_null_shared<MeshPart>( builder.build( program ) );
     mesh->addPart( part );
 
     return mesh;

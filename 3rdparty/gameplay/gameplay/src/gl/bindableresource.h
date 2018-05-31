@@ -50,9 +50,9 @@ protected:
             , m_binder{binder}
             , m_deleter{deleter}
     {
-        BOOST_ASSERT( allocator != nullptr );
-        BOOST_ASSERT( binder != nullptr );
-        BOOST_ASSERT( deleter != nullptr );
+        BOOST_ASSERT( static_cast<bool>(allocator) );
+        BOOST_ASSERT( static_cast<bool>(binder) );
+        BOOST_ASSERT( static_cast<bool>(deleter) );
 
         m_allocator( 1, &m_handle );
         checkGlError();

@@ -62,6 +62,10 @@ enum class TriggerState
 
 struct ItemState final
 {
+    explicit ItemState(const gsl::not_null<const loader::Room*>& room)
+            : position{room}
+    {}
+
     ~ItemState();
 
     int32_t floor = 0;
@@ -158,7 +162,7 @@ using ItemList = std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>;
 
 class ItemNode
 {
-    gsl::not_null<level::Level*> const m_level;
+    const gsl::not_null<level::Level*> m_level;
 
     std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
 
@@ -203,7 +207,7 @@ public:
 
     virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
 
-    void setCurrentRoom(const loader::Room* newRoom);
+    void setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom);
 
     void applyTransform();
 
@@ -502,7 +506,7 @@ public:
             bool hasProcessAnimCommandsOverride,
             const loader::Sprite& sprite,
             const std::shared_ptr<gameplay::Material>& material,
-            const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures);
+            const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures);
 
     bool triggerSwitch(uint16_t) override
     {

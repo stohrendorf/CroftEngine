@@ -1,6 +1,7 @@
 // Core
 #include "Base.h"
 #include "Game.h"
+#include "gsl_util.h"
 
 // Math
 #include "Rectangle.h"

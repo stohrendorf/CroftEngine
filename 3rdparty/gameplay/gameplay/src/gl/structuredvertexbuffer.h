@@ -112,13 +112,13 @@ public:
     template<typename T>
     void assign(const std::vector<T>& data)
     {
-        assign<T>( data.data(), data.size() );
+        assign<T>( to_not_null( data.data() ), data.size() );
     }
 
     template<typename T>
     void assignRaw(const std::vector<T>& data, size_t vertexCount)
     {
-        assignRaw<T>( data.data(), vertexCount );
+        assignRaw<T>( to_not_null( data.data() ), vertexCount );
     }
 
     void reserve(size_t n)

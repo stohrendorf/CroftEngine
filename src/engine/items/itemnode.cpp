@@ -20,8 +20,8 @@ struct SpriteVertex
     glm::vec3 color{1.0f};
 };
 
-std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite,
-                                                 const std::shared_ptr<gameplay::Material>& material)
+gsl::not_null<std::shared_ptr<gameplay::Mesh>> createSpriteMesh(const loader::Sprite& sprite,
+                                                                const std::shared_ptr<gameplay::Material>& material)
 {
     const SpriteVertex vertices[]{
             {{sprite.left_side,  sprite.top_side,    0}, {sprite.t0.x, sprite.t1.y}},
@@ -36,8 +36,8 @@ std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite,
             {VERTEX_ATTRIBUTE_COLOR_NAME,           gameplay::gl::VertexAttribute{&SpriteVertex::color}}
     };
 
-    auto mesh = std::make_shared<gameplay::Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<SpriteVertex>( vertices, 4 );
+    auto mesh = make_not_null_shared<gameplay::Mesh>( attribs, false );
+    mesh->getBuffer( 0 )->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
 
     static const uint16_t indices[6] =
             {
@@ -47,13 +47,12 @@ std::shared_ptr<gameplay::Mesh> createSpriteMesh(const loader::Sprite& sprite,
 
     gameplay::gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+    auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
     indexBuffer->setData( indices, 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    auto part = std::make_shared<gameplay::MeshPart>(
-            builder.build( material->getShaderProgram()->getHandle() ) );
+    auto part = make_not_null_shared<gameplay::MeshPart>( builder.build( material->getShaderProgram()->getHandle() ) );
     mesh->addPart( part );
     part->setMaterial( material );
 
@@ -85,12 +84,12 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const bool hasProcessAnimCommandsOverride)
         : m_level{level}
         , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
+        , m_state{room}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
     m_state.object_number = item.type;
     m_state.position.position = item.position;
-    m_state.position.room = room;
     m_state.rotation.Y = core::Angle{item.rotation};
     m_state.shade = item.darkness;
     m_state.activationState = floordata::ActivationState( item.activationState );
@@ -111,7 +110,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     }
 }
 
-void ItemNode::setCurrentRoom(const loader::Room* newRoom)
+void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
 {
     if( newRoom == m_state.position.room )
     {
@@ -401,7 +400,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const bool hasProcessAnimCommandsOverride,
                                const loader::Sprite& sprite,
                                const std::shared_ptr<gameplay::Material>& material,
-                               const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures)
+                               const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures)
         : ItemNode{
         level,
         room,

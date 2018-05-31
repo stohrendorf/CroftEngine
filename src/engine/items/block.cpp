@@ -252,8 +252,8 @@ bool Block::canPullBlock(int height, core::Axis axis) const
             break;
     }
 
-    const loader::Room* room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector( pos, &room );
+    auto room = m_state.position.room;
+    auto sector = getLevel().findRealFloorSector( pos, to_not_null( &room ) );
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
@@ -295,14 +295,14 @@ bool Block::canPullBlock(int height, core::Axis axis) const
             break;
     }
 
-    sector = getLevel().findRealFloorSector( laraPos, &room );
+    sector = getLevel().findRealFloorSector( laraPos, to_not_null( &room ) );
     if( sector->floorHeight * loader::QuarterSectorSize != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::ScalpHeight;
-    sector = getLevel().findRealFloorSector( laraPos, &room );
+    sector = getLevel().findRealFloorSector( laraPos, to_not_null( &room ) );
     if( laraPos.Y < sector->ceilingHeight * loader::QuarterSectorSize )
     {
         return false;

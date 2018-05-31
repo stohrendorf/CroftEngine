@@ -25,8 +25,8 @@ public:
 
         ModelItemNode::update();
 
-        const loader::Room* room = m_state.position.room;
-        auto sector = getLevel().findRealFloorSector( m_state.position.position, &room );
+        auto room = m_state.position.room;
+        auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
         if( room != m_state.position.room )
             setCurrentRoom( room );
 

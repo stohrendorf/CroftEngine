@@ -602,7 +602,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    gsl::not_null<const loader::Sector*> sector = getLevel().findRealFloorSector( pos, m_lara.m_state.position.room );
+    auto sector = getLevel().findRealFloorSector( pos, m_lara.m_state.position.room );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
 

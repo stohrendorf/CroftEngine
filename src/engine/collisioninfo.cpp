@@ -28,9 +28,9 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     shift = {0, 0, 0};
     facingAxis = *axisFromAngle( facingAngle, 45_deg );
 
-    const loader::Room* room = level.m_lara->m_state.position.room;
+    auto room = level.m_lara->m_state.position.room;
     const auto refTestPos = laraPos - core::TRCoordinates( 0, height + core::ScalpToHandsHeight, 0 );
-    gsl::not_null<const loader::Sector*> currentSector = level.findRealFloorSector( refTestPos, &room );
+    auto currentSector = level.findRealFloorSector( refTestPos, to_not_null( &room ) );
 
     mid.init( currentSector, refTestPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
 
@@ -78,7 +78,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
 
     // Front
     auto testPos = refTestPos + core::TRCoordinates( frontX, 0, frontZ );
-    auto sector = level.findRealFloorSector( testPos, &room );
+    auto sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
     front.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
     if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
@@ -97,7 +97,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
 
     // Front left
     testPos = refTestPos + core::TRCoordinates( frontLeftX, 0, frontLeftZ );
-    sector = level.findRealFloorSector( testPos, &room );
+    sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
     frontLeft.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
@@ -118,7 +118,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
 
     // Front right
     testPos = refTestPos + core::TRCoordinates( frontRightX, 0, frontRightZ );
-    sector = level.findRealFloorSector( testPos, &room );
+    sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
     frontRight.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
@@ -225,23 +225,16 @@ CollisionInfo::collectTouchingRooms(const core::TRCoordinates& position, int rad
                                     const level::Level& level)
 {
     std::set<gsl::not_null<const loader::Room*>> result;
-    result.emplace( level.m_lara->m_state.position.room );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, -radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, -radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, -radius ),
-                                               level.m_lara->m_state.position.room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, -radius ),
-                                               level.m_lara->m_state.position.room ) );
+    auto room = level.m_lara->m_state.position.room;
+    result.emplace( room );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, -radius ), room ) );
     return result;
 }
 
@@ -261,7 +254,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, in
     {
         for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
         {
-            const gsl::not_null<const loader::StaticMesh*> sm = level.findStaticMeshById( rsm.meshId );
+            auto sm = to_not_null( level.findStaticMeshById( rsm.meshId ) );
             if( sm->doNotCollide() )
                 continue;
 
@@ -274,14 +267,14 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, in
             {
                 auto left = inBox.max.X - meshBox.min.X;
                 auto right = meshBox.max.X - inBox.min.X;
-                if(left<right)
+                if( left < right )
                     dx = -left;
                 else
                     dx = right;
 
                 left = inBox.max.Z - meshBox.min.Z;
                 right = meshBox.max.Z - inBox.min.Z;
-                if(left<right)
+                if( left < right )
                     dz = -left;
                 else
                     dz = right;

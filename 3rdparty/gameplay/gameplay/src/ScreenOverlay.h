@@ -24,18 +24,18 @@ public:
 
     void draw(RenderContext& context) override;
 
-    const std::shared_ptr<gl::Image<gl::RGBA8>>& getImage() const
+    const gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>>& getImage() const
     {
         return m_image;
     }
 
 private:
-    std::shared_ptr<gl::Image<gl::RGBA8>> m_image{nullptr};
+    gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> m_image;
 
-    std::shared_ptr<gl::Texture> m_texture{nullptr};
+    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};
 
     std::shared_ptr<Mesh> m_mesh{nullptr};
 
-    std::shared_ptr<Model> m_model{nullptr};
+    gsl::not_null<std::shared_ptr<Model>> m_model{std::make_shared<Model>()};
 };
 }

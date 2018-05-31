@@ -11,7 +11,6 @@ struct aiNode;
 
 struct aiScene;
 
-
 namespace loader
 {
 struct Box;
@@ -25,39 +24,39 @@ class Converter
 {
 public:
     explicit Converter(const boost::filesystem::path& basePath)
-        : m_basePath{basePath}
+            : m_basePath{basePath}
     {
-        create_directories(m_basePath);
+        create_directories( m_basePath );
     }
 
+    void write(const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& srcImg, size_t id) const;
 
-    void write(const std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>& srcImg, size_t id) const;
+    gsl::not_null<std::shared_ptr<gameplay::gl::Texture>> readTexture(const boost::filesystem::path& path) const;
 
-
-    std::shared_ptr<gameplay::gl::Texture> readTexture(const boost::filesystem::path& path) const;
-
-
-    std::shared_ptr<gameplay::Material> readMaterial(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram) const;
-
+    gsl::not_null<std::shared_ptr<gameplay::Material>> readMaterial(
+            const boost::filesystem::path& path,
+            const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shaderProgram) const;
 
     bool exists(const boost::filesystem::path& path) const
     {
-        return is_regular_file(m_basePath / path);
+        return is_regular_file( m_basePath / path );
     }
 
+    gsl::not_null<std::shared_ptr<gameplay::Model>> readModel(
+            const boost::filesystem::path& path,
+            const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shaderProgram,
+            const glm::vec3& ambientColor) const;
 
-    std::shared_ptr<gameplay::Model> readModel(const boost::filesystem::path& path, const std::shared_ptr<gameplay::ShaderProgram>& shaderProgram, const glm::vec3& ambientColor) const;
-
-    void write(const std::shared_ptr<gameplay::Model>& model,
+    void write(const gsl::not_null<std::shared_ptr<gameplay::Model>>& model,
                const std::string& baseName,
-               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+               const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap1,
+               const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap2,
                const glm::vec3& ambientColor) const;
 
     void write(const std::vector<Room>& rooms,
                const std::string& baseName,
-               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-               const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2) const;
+               const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap1,
+               const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap2) const;
 
     void write(const std::string& filename, const YAML::Node& tree) const;
 
@@ -66,8 +65,8 @@ private:
 
     aiNode* convert(aiScene& scene,
                     const gameplay::Node& sourceNode,
-                    const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                    const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                    const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap1,
+                    const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap2,
                     const glm::vec3& ambientColor) const;
 
     aiNode* convert(aiScene& scene,
@@ -75,13 +74,13 @@ private:
 
     void convert(aiScene& scene,
                  aiNode& outNode,
-                 const std::shared_ptr<gameplay::Model>& model,
-                 const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap1,
-                 const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& mtlMap2,
+                 const gsl::not_null<std::shared_ptr<gameplay::Model>>& model,
+                 const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap1,
+                 const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& mtlMap2,
                  const glm::vec3& ambientColor) const;
 
     const boost::filesystem::path m_basePath;
 
-    mutable std::map<boost::filesystem::path, std::shared_ptr<gameplay::gl::Texture>> m_textureCache;
+    mutable std::map<boost::filesystem::path, gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>> m_textureCache;
 };
 }

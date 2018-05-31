@@ -19,7 +19,6 @@ enum class UnderwaterState
     Swimming
 };
 
-
 enum class HandStatus
 {
     None,
@@ -84,7 +83,7 @@ public:
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650;
         w.damage = 1;
-        w.targetDist = 8*loader::SectorSize;
+        w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = 8;
@@ -106,7 +105,7 @@ public:
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650;
         w.damage = 2;
-        w.targetDist = 8*loader::SectorSize;
+        w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = 44;
@@ -128,7 +127,7 @@ public:
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650;
         w.damage = 1;
-        w.targetDist = 8*loader::SectorSize;
+        w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 3;
         w.flashTime = 2;
         w.sampleNum = 43;
@@ -150,7 +149,7 @@ public:
         w.shotAccuracy = 0_deg;
         w.gunHeight = 500;
         w.damage = 4;
-        w.targetDist = 8*loader::SectorSize;
+        w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = 45;
@@ -161,15 +160,16 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        auto gunFlareModel = level->getModel(getLevel().m_meshIndices[getLevel().findAnimatedModelForType(166)->frame_number]);
+        auto gunFlareModel = level
+                ->getModel( getLevel().m_meshIndices[getLevel().findAnimatedModelForType( 166 )->frame_number] );
 
-        m_gunFlareLeft = std::make_shared<gameplay::Node>("gun flare left");
-        m_gunFlareLeft->setDrawable(gunFlareModel);
-        m_gunFlareLeft->setVisible(false);
+        m_gunFlareLeft = std::make_shared<gameplay::Node>( "gun flare left" );
+        m_gunFlareLeft->setDrawable( gunFlareModel.get() );
+        m_gunFlareLeft->setVisible( false );
 
-        m_gunFlareRight = std::make_shared<gameplay::Node>("gun flare right");
-        m_gunFlareRight->setDrawable(gunFlareModel);
-        m_gunFlareRight->setVisible(false);
+        m_gunFlareRight = std::make_shared<gameplay::Node>( "gun flare right" );
+        m_gunFlareRight->setDrawable( gunFlareModel.get() );
+        m_gunFlareRight->setVisible( false );
     }
 
     ~LaraNode() override;
@@ -376,14 +376,14 @@ public:
     {
         const auto rot = core::Angle::fromAtan(
                 forceSourcePosition->X - m_state.position.position.X,
-                forceSourcePosition->Z - m_state.position.position.Z) - 180_deg;
-        hit_direction = core::axisFromAngle(m_state.rotation.Y - rot, 45_deg);
-        Expects(hit_direction.is_initialized());
-        if ( hit_frame == 0 )
+                forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
+        hit_direction = core::axisFromAngle( m_state.rotation.Y - rot, 45_deg );
+        Expects( hit_direction.is_initialized() );
+        if( hit_frame == 0 )
         {
-            playSoundEffect(0x1b);
+            playSoundEffect( 0x1b );
         }
-        if ( ++hit_frame > 34 )
+        if( ++hit_frame > 34 )
         {
             hit_frame = 34;
         }
@@ -392,15 +392,15 @@ public:
 
     struct AimInfo
     {
-        const loader::AnimFrame *weaponAnimData = nullptr;
+        const loader::AnimFrame* weaponAnimData = nullptr;
         int16_t frame = 0;
         bool aiming = false;
         core::TRRotationXY aimRotation{};
         int16_t flashTimeout = 0;
     };
 
-
-    enum class WeaponId {
+    enum class WeaponId
+    {
         None,
         Pistols,
         AutoPistols,
@@ -428,17 +428,20 @@ public:
 
     std::shared_ptr<ModelItemNode> target{nullptr};
 
-    struct Range {
+    struct Range
+    {
         core::Angle min = 0_deg;
         core::Angle max = 0_deg;
     };
 
-    struct RangeXY {
+    struct RangeXY
+    {
         Range x{};
         Range y{};
     };
 
-    struct Weapon {
+    struct Weapon
+    {
         RangeXY lockAngles{};
         RangeXY leftAngles{};
         RangeXY rightAngles{};
@@ -458,35 +461,56 @@ public:
     std::shared_ptr<gameplay::Node> m_gunFlareRight;
 
     void updateLarasWeaponsStatus();
+
     void updateShotgun();
+
     void updateGuns(WeaponId weaponId);
+
     void updateAimingState(const Weapon& weapon);
+
     void unholster();
 
     static core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelItemNode& item);
+
     void unholsterGuns(WeaponId weaponId);
+
     void findTarget(const Weapon& weapon);
+
     void initAimInfoPistol();
+
     void initAimInfoShotgun();
+
     void overrideLaraMeshesUnholsterGuns(WeaponId weaponId);
+
     void overrideLaraMeshesUnholsterShotgun();
+
     void unholsterShotgun();
+
     void updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const;
+
     void updateAnimShotgun();
+
     void tryShootShotgun();
+
     void holsterShotgun();
+
     void holsterGuns(WeaponId weaponId);
+
     void updateAnimNotShotgun(WeaponId weaponId);
+
     bool fireWeapon(WeaponId weaponId,
                     const std::shared_ptr<engine::items::ModelItemNode>& target,
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
+
     void playShotMissed(const core::RoomBoundPosition& pos);
+
     void hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage);
 
     void renderGunFlare(WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode, bool visible);
 
     void drawRoutine();
+
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 };
 }

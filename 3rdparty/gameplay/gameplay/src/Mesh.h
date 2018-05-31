@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gl/structuredvertexbuffer.h"
+#include "gsl_util.h"
 
 #include <gsl/gsl>
 
@@ -24,12 +25,12 @@ public:
         addBuffer( mapping, dynamic, label );
     }
 
-    static std::shared_ptr<Mesh> createQuadFullscreen(float width,
-                                                      float height,
-                                                      const gl::Program& program,
-                                                      bool invertY = false);
+    static gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
+                                                                     float height,
+                                                                     const gl::Program& program,
+                                                                     bool invertY = false);
 
-    void addPart(const std::shared_ptr<MeshPart>& meshPart)
+    void addPart(const gsl::not_null<std::shared_ptr<MeshPart>>& meshPart)
     {
         m_parts.emplace_back( meshPart );
     }
@@ -39,7 +40,7 @@ public:
         return m_parts.size();
     }
 
-    const std::shared_ptr<MeshPart>& getPart(std::size_t index)
+    const gsl::not_null<std::shared_ptr<MeshPart>>& getPart(std::size_t index)
     {
         BOOST_ASSERT( index < m_parts.size() );
 
@@ -48,24 +49,24 @@ public:
 
     virtual ~Mesh() = default;
 
-    const std::shared_ptr<gl::StructuredVertexBuffer>& getBuffer(std::size_t idx)
+    const gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffer(std::size_t idx)
     {
         BOOST_ASSERT( idx < m_buffers.size() );
 
         return m_buffers[idx];
     }
 
-    const std::vector<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffers() const
+    const std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers() const
     {
         return m_buffers;
     }
 
-    std::vector<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffers()
+    std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers()
     {
         return m_buffers;
     }
 
-    const std::vector<std::shared_ptr<MeshPart>>& getParts() const noexcept
+    const std::vector<gsl::not_null<std::shared_ptr<MeshPart>>>& getParts() const noexcept
     {
         return m_parts;
     }
@@ -74,7 +75,7 @@ public:
                    bool dynamic,
                    const std::string& label = {})
     {
-        m_buffers.emplace_back( std::make_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
+        m_buffers.emplace_back( make_not_null_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
     }
 
 private:
@@ -83,8 +84,8 @@ private:
 
     Mesh& operator=(const Mesh&) = delete;
 
-    std::vector<std::shared_ptr<MeshPart>> m_parts{};
+    std::vector<gsl::not_null<std::shared_ptr<MeshPart>>> m_parts{};
 
-    std::vector<std::shared_ptr<gl::StructuredVertexBuffer>> m_buffers{};
+    std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>> m_buffers{};
 };
 }

@@ -90,7 +90,7 @@ public:
 
     void accept(Visitor& visitor)
     {
-        for( auto& node : m_children )
+        for( const auto& node : m_children )
             visitor.visit( *node );
     }
 
@@ -99,7 +99,7 @@ public:
         if( !m_parent.expired() )
         {
             auto p = m_parent.lock();
-            gsl::not_null<std::shared_ptr<Node>> self = shared_from_this();
+            auto self = to_not_null(shared_from_this());
             auto it = std::find( p->m_children.begin(), p->m_children.end(), self );
             BOOST_ASSERT( it != p->m_children.end() );
             m_parent.lock()->m_children.erase( it );

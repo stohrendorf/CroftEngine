@@ -16,8 +16,8 @@ namespace gl
 class VertexArray : public BindableResource
 {
 public:
-    explicit VertexArray(const std::vector<std::shared_ptr<IndexBuffer>>& indexBuffers,
-                         const std::vector<std::shared_ptr<StructuredVertexBuffer>>& vertexBuffers,
+    explicit VertexArray(const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& indexBuffers,
+                         const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& vertexBuffers,
                          const Program& program,
                          const std::string& label = {})
             : BindableResource{glGenVertexArrays, glBindVertexArray, glDeleteVertexArrays, GL_VERTEX_ARRAY, label}
@@ -32,45 +32,45 @@ public:
         unbind();
     }
 
-    const std::vector<std::shared_ptr<IndexBuffer>>& getIndexBuffers() const
+    const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& getIndexBuffers() const
     {
         return m_indexBuffers;
     }
 
-    const std::vector<std::shared_ptr<StructuredVertexBuffer>>& getVertexBuffers() const
+    const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& getVertexBuffers() const
     {
         return m_vertexBuffers;
     }
 
 private:
-    std::vector<std::shared_ptr<IndexBuffer>> m_indexBuffers;
+    std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> m_indexBuffers;
 
-    std::vector<std::shared_ptr<StructuredVertexBuffer>> m_vertexBuffers;
+    std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
 };
 
 
 class VertexArrayBuilder final
 {
 public:
-    VertexArrayBuilder& attach(const std::shared_ptr<IndexBuffer>& buffer)
+    VertexArrayBuilder& attach(const gsl::not_null<std::shared_ptr<IndexBuffer>>& buffer)
     {
         m_indexBuffers.emplace_back( buffer );
         return *this;
     }
 
-    VertexArrayBuilder& attach(const std::vector<std::shared_ptr<IndexBuffer>>& buffers)
+    VertexArrayBuilder& attach(const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& buffers)
     {
         copy( buffers.begin(), buffers.end(), back_inserter( m_indexBuffers ) );
         return *this;
     }
 
-    VertexArrayBuilder& attach(const std::shared_ptr<StructuredVertexBuffer>& buffer)
+    VertexArrayBuilder& attach(const gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>& buffer)
     {
         m_vertexBuffers.emplace_back( buffer );
         return *this;
     }
 
-    VertexArrayBuilder& attach(const std::vector<std::shared_ptr<StructuredVertexBuffer>>& buffers)
+    VertexArrayBuilder& attach(const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& buffers)
     {
         copy( buffers.begin(), buffers.end(), back_inserter( m_vertexBuffers ) );
         return *this;
@@ -82,9 +82,9 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<IndexBuffer>> m_indexBuffers;
+    std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> m_indexBuffers;
 
-    std::vector<std::shared_ptr<StructuredVertexBuffer>> m_vertexBuffers;
+    std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
 };
 }
 }

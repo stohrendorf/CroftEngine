@@ -21,8 +21,8 @@ void SwingingBlade::update()
         m_state.goal_anim_state = 0;
     }
 
-    const loader::Room* room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector( m_state.position.position, &room );
+    auto room = m_state.position.room;
+    auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
     setCurrentRoom( room );
     const int h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes,
                                          getLevel().m_floorData )

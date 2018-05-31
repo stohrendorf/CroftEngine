@@ -144,7 +144,8 @@ ShaderProgram::~ShaderProgram()
     m_uniforms.clear();
 }
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath, const std::string& fshPath,
+std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath,
+                                                             const std::string& fshPath,
                                                              const std::vector<std::string>& defines)
 {
     // Search the effect cache for an identical effect that is already loaded.

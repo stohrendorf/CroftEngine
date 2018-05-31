@@ -413,7 +413,7 @@ struct RoomVertex
 
     float getBrightness() const
     {
-        return 1.0f - darkness/8191.0f;
+        return 1.0f - darkness / 8191.0f;
     }
 
     /** \brief reads a room vertex definition.
@@ -1091,12 +1091,14 @@ struct Room
         return room;
     }
 
-    std::shared_ptr<gameplay::Node> createSceneNode(size_t roomId, const level::Level& level,
-                                                    const std::vector<std::shared_ptr<gameplay::gl::Texture>>& textures,
-                                                    const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& materials,
-                                                    const std::map<TextureLayoutProxy::TextureKey, std::shared_ptr<gameplay::Material>>& waterMaterials,
-                                                    const std::vector<std::shared_ptr<gameplay::Model>>& staticMeshes,
-                                                    render::TextureAnimator& animator);
+    std::shared_ptr<gameplay::Node> createSceneNode(
+            size_t roomId,
+            const level::Level& level,
+            const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
+            const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+            const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
+            const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
+            render::TextureAnimator& animator);
 
     const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
     {
@@ -1153,7 +1155,7 @@ struct Room
     {
         dx = util::clamp( dx, 1, sectorCountX - 2 );
         dz = util::clamp( dz, 1, sectorCountZ - 2 );
-        return &sectors[sectorCountZ * dx + dz];
+        return to_not_null( &sectors[sectorCountZ * dx + dz] );
     }
 
     gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
@@ -1172,7 +1174,7 @@ struct Room
         {
             dx = util::clamp( dx, 0, sectorCountX - 1 );
         }
-        return getSectorByIndex( dx, dz );
+        return to_not_null( getSectorByIndex( dx, dz ) );
     }
 
     static void patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height);
