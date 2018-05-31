@@ -214,7 +214,7 @@ loader::LaraStateId AbstractStateHandler::getCurrentAnimState() const
 void AbstractStateHandler::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     m_lara.setAnimIdGlobal( anim, firstFrame );
-    m_lara.getSkeleton()->updatePose( m_lara.m_state );
+    m_lara.drawRoutine();
 }
 
 const level::Level& AbstractStateHandler::getLevel() const
