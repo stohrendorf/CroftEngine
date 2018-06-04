@@ -40,14 +40,13 @@ public:
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setData(const T* indexData, GLsizei indexCount, bool dynamic)
+    void setData(const gsl::not_null<const T*>& indexData, GLsizei indexCount, bool dynamic)
     {
-        Expects( indexData != nullptr );
         Expects( indexCount >= 0 );
 
         bind();
 
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLsizeiptr>( sizeof( T ) * indexCount ), indexData,
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLsizeiptr>( sizeof( T ) * indexCount ), indexData.get(),
                       dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
         checkGlError();
 
@@ -58,14 +57,13 @@ public:
     template<typename T>
     void setData(const std::vector<T>& data, bool dynamic)
     {
-        setData( data.data(), gsl::narrow<GLsizei>( data.size() ), dynamic );
+        setData( gsl::not_null<const T*>( data.data() ), gsl::narrow<GLsizei>( data.size() ), dynamic );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setSubData(const T* indexData, GLsizei indexStart, GLsizei indexCount)
+    void setSubData(const gsl::not_null<const T*>& indexData, GLsizei indexStart, GLsizei indexCount)
     {
-        Expects( indexData != nullptr );
         Expects( indexStart >= 0 );
         Expects( indexCount >= 0 );
         if( indexStart + indexCount > m_indexCount )
@@ -81,7 +79,7 @@ public:
         bind();
 
         glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLintptr>( indexStart * sizeof( T ) ),
-                         gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData );
+                         gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() );
         checkGlError();
     }
 

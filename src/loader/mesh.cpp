@@ -225,7 +225,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             for( auto j : {0, 1, 2, 0, 2, 3} )
             {
                 m_animator.registerVertex( quad.proxyId, m_mesh, j, firstVertex + j );
-                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
+                m_parts[partId].indices
+                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
             }
         }
         for( const QuadFace& quad : mesh.colored_rectangles )
@@ -245,7 +246,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             }
             for( auto j : {0, 1, 2, 0, 2, 3} )
             {
-                m_parts[partId].indices.emplace_back( firstVertex + j );
+                m_parts[partId].indices
+                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
             }
         }
         for( const Triangle& tri : mesh.textured_triangles )
@@ -261,7 +263,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( m_vertexCount );
+                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
                 append( iv );
             }
 
@@ -281,7 +283,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 iv.normal = mesh.normals[tri.vertices[i]].toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( m_vertexCount );
+                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
                 append( iv );
             }
         }

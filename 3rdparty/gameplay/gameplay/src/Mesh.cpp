@@ -45,7 +45,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
     gl::VertexArrayBuilder builder;
 
     auto indexBuffer = make_not_null_shared<gl::IndexBuffer>();
-    indexBuffer->setData( indices, 6, false );
+    indexBuffer->setData( to_not_null( &indices[0] ), 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
