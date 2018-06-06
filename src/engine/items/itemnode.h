@@ -85,26 +85,12 @@ struct ItemState final
     floordata::ActivationState activationState;
     int16_t shade = -1;
     TriggerState triggerState = TriggerState::Inactive;
-    union
-    {
-        uint16_t flags = 0;
-        struct
-        {
-            bool loaded
-                    : 1;
-            // This is handled by triggerState: uint8_t status : 2;
-            bool falling
-                    : 1;
-            bool is_hit
-                    : 1;
-            bool collidable
-                    : 1;
-            bool already_looked_at
-                    : 1;
-            bool dynamic_light
-                    : 1;
-        };
-    };
+
+    bool falling = false;
+    bool is_hit = false;
+    bool collidable = true;
+    bool already_looked_at = false;
+    bool dynamic_light = false;
 
     core::TRRotation rotation;
     core::RoomBoundPosition position;
@@ -331,7 +317,7 @@ public:
         if( m_state.shade >= 0 )
         {
             // static mesh lighting
-            m_lighting.base = util::clamp( (4096 - m_state.shade) / 8191.0f, 0.0f, 1.0f );
+            m_lighting.base = util::clamp( (8191 - m_state.shade) / 8191.0f, 0.0f, 1.0f );
             return;
         }
 

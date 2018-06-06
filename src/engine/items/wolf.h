@@ -20,8 +20,6 @@ public:
             : AIAgent( level, name, room, item, animatedModel, 384 )
     {
         m_state.health = 6;
-        m_state.collidable = true;
-        m_state.is_hit = true;
     }
 
     void update() override;

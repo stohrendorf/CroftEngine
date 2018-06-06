@@ -24,6 +24,8 @@ core::TRRotationXY getVectorAngles(const core::TRCoordinates& co)
 
 void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
 {
+    // FIXME These dynamic casts will never work.
+
     // find any blocks in the original room and un-patch the floor heights
     for( const auto& child : orig.node->getChildren() )
     {
@@ -876,10 +878,10 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     if( m_state.health < 0 )
         return;
 
-    std::set<const loader::Room*> rooms;
+    std::set<gsl::not_null<const loader::Room*>> rooms;
     rooms.insert( m_state.position.room );
     for( const loader::Portal& p : m_state.position.room->portals )
-        rooms.insert( &getLevel().m_rooms[p.adjoining_room] );
+        rooms.insert( to_not_null( &getLevel().m_rooms[p.adjoining_room] ) );
 
     for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
@@ -2640,6 +2642,15 @@ LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::sh
     flareNode->setVisible( true );
     flareNode->setParent( getNode()->getParent().lock() );
     flareNode->setLocalMatrix( getNode()->getLocalMatrix() * m );
-    // calculateStaticMeshLight(shade);
+
+    const auto brightness = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );
+    flareNode->addMaterialParameterSetter( "u_baseLight", [brightness](const gameplay::Node& /*node*/,
+                                                                       gameplay::gl::Program::ActiveUniform& uniform) {
+        uniform.set( brightness );
+    } );
+    flareNode->addMaterialParameterSetter( "u_baseLightDiff", [this](const gameplay::Node& /*node*/,
+                                                                     gameplay::gl::Program::ActiveUniform& uniform) {
+        uniform.set( 0.0f );
+    } );
 }
 }

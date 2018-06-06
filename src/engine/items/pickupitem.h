@@ -18,7 +18,6 @@ public:
             : ModelItemNode( level, name, room, item, true, animatedModel )
             , m_shotgun{shotgun}
     {
-        m_state.is_hit = true;
     }
 
     void update() override

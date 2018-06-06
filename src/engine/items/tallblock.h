@@ -17,8 +17,6 @@ public:
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
         loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
-        m_state.is_hit = true;
-        m_state.collidable = true;
     }
 
     void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override

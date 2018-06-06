@@ -16,8 +16,6 @@ public:
                      const loader::SkeletalModelType& animatedModel)
             : Switch( level, name, room, item, animatedModel )
     {
-        m_state.collidable = true;
-        m_state.is_hit = true;
     }
 
     void collide(LaraNode& other, CollisionInfo& collisionInfo) override;

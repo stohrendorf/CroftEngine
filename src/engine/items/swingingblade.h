@@ -16,8 +16,6 @@ public:
                   const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
-        m_state.is_hit = true;
-        m_state.collidable = true;
     }
 
     void update() override;

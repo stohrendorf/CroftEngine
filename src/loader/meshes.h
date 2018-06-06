@@ -31,7 +31,7 @@ namespace loader
 
         float getBrightness() const
         {
-            return 1.0f - (darkness - 4096) / 8191.0f;
+            return 2.0f - darkness / 8191.0f;
         }
 
         /** \brief reads a room staticmesh definition.

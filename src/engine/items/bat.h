@@ -21,9 +21,6 @@ public:
                        animatedModel, 0 )
     {
         m_state.health = 1;
-        m_state.is_hit = true;
-        m_state.collidable = true;
-        m_state.falling = true;
     }
 
     void update() override;

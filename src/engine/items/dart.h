@@ -16,7 +16,6 @@ public:
          const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
-        m_state.is_hit = true;
     }
 
     void update() override

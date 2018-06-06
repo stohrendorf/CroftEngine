@@ -18,8 +18,6 @@ public:
     {
         if( m_state.triggerState != TriggerState::Invisible )
             loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
-        m_state.is_hit = true;
-        m_state.collidable = true;
     }
 
     void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
