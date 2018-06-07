@@ -54,24 +54,72 @@ private:
 
     void restore(bool forceDefaults = false);
 
+
+    template<typename T, const T DefaultValue>
+    struct DefaultedOptional
+    {
+        static const constexpr T Default = DefaultValue;
+        boost::optional<T> value{};
+
+        bool isDefault() const
+        {
+            return get() == Default;
+        }
+
+        constexpr T getDefault() const noexcept
+        {
+            return Default;
+        }
+
+        T get() const
+        {
+            return value.get_value_or( Default );
+        }
+
+        void reset()
+        {
+            value.reset();
+        }
+
+        bool isInitialized() const
+        {
+            return value.is_initialized();
+        }
+
+        bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs)
+        {
+            return value != rhs.value;
+        }
+
+        DefaultedOptional<T, DefaultValue>& operator=(T rhs)
+        {
+            if( rhs == Default )
+                value.reset();
+            else
+                value = rhs;
+            return *this;
+        }
+    };
+
+
     // States
-    boost::optional<bool> m_cullFaceEnabled;
+    DefaultedOptional<bool, true> m_cullFaceEnabled;
 
-    boost::optional<bool> m_depthTestEnabled;
+    DefaultedOptional<bool, true> m_depthTestEnabled;
 
-    boost::optional<bool> m_depthWriteEnabled;
+    DefaultedOptional<bool, true> m_depthWriteEnabled;
 
-    boost::optional<GLenum> m_depthFunction;
+    DefaultedOptional<GLenum, GL_LESS> m_depthFunction;
 
-    boost::optional<bool> m_blendEnabled;
+    DefaultedOptional<bool, true> m_blendEnabled;
 
-    boost::optional<GLenum> m_blendSrc;
+    DefaultedOptional<GLenum, GL_SRC_ALPHA> m_blendSrc;
 
-    boost::optional<GLenum> m_blendDst;
+    DefaultedOptional<GLenum, GL_ONE_MINUS_SRC_ALPHA> m_blendDst;
 
-    boost::optional<GLenum> m_cullFaceSide;
+    DefaultedOptional<GLenum, GL_BACK> m_cullFaceSide;
 
-    boost::optional<GLenum> m_frontFace;
+    DefaultedOptional<GLenum, GL_CW> m_frontFace;
 
     static RenderState m_currentState;
 };

@@ -21,9 +21,9 @@ void RenderState::bind()
 void RenderState::bindNoRestore()
 {
     // Update any state that differs from m_currentState
-    if( m_blendEnabled.is_initialized() && m_blendEnabled != m_currentState.m_blendEnabled )
+    if( m_blendEnabled.isInitialized() && m_blendEnabled != m_currentState.m_blendEnabled )
     {
-        if( *m_blendEnabled )
+        if( m_blendEnabled.get() )
         {
             GL_ASSERT( glEnable( GL_BLEND ) );
         }
@@ -33,17 +33,16 @@ void RenderState::bindNoRestore()
         }
         m_currentState.m_blendEnabled = m_blendEnabled;
     }
-    if( (m_blendSrc.is_initialized() || m_blendDst.is_initialized())
+    if( (m_blendSrc.isInitialized() || m_blendDst.isInitialized())
         && (m_blendSrc != m_currentState.m_blendSrc || m_blendDst != m_currentState.m_blendDst) )
     {
-        GL_ASSERT( glBlendFunc( m_blendSrc.get_value_or( GL_SRC_ALPHA ),
-                                m_blendDst.get_value_or( GL_ONE_MINUS_SRC_ALPHA ) ) );
+        GL_ASSERT( glBlendFunc( m_blendSrc.get(), m_blendDst.get() ) );
         m_currentState.m_blendSrc = m_blendSrc;
         m_currentState.m_blendDst = m_blendDst;
     }
-    if( m_cullFaceEnabled.is_initialized() && m_cullFaceEnabled != m_currentState.m_cullFaceEnabled )
+    if( m_cullFaceEnabled.isInitialized() && m_cullFaceEnabled != m_currentState.m_cullFaceEnabled )
     {
-        if( *m_cullFaceEnabled )
+        if( m_cullFaceEnabled.get() )
         {
             GL_ASSERT( glEnable( GL_CULL_FACE ) );
         }
@@ -53,19 +52,19 @@ void RenderState::bindNoRestore()
         }
         m_currentState.m_cullFaceEnabled = m_cullFaceEnabled;
     }
-    if( m_cullFaceSide.is_initialized() && (m_cullFaceSide != m_currentState.m_cullFaceSide) )
+    if( m_cullFaceSide.isInitialized() && (m_cullFaceSide != m_currentState.m_cullFaceSide) )
     {
-        GL_ASSERT( glCullFace( *m_cullFaceSide ) );
+        GL_ASSERT( glCullFace( m_cullFaceSide.get() ) );
         m_currentState.m_cullFaceSide = m_cullFaceSide;
     }
-    if( m_frontFace.is_initialized() && m_frontFace != m_currentState.m_frontFace )
+    if( m_frontFace.isInitialized() && m_frontFace != m_currentState.m_frontFace )
     {
-        GL_ASSERT( glFrontFace( *m_frontFace ) );
+        GL_ASSERT( glFrontFace( m_frontFace.get() ) );
         m_currentState.m_frontFace = m_frontFace;
     }
-    if( m_depthTestEnabled.is_initialized() && (m_depthTestEnabled != m_currentState.m_depthTestEnabled) )
+    if( m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != m_currentState.m_depthTestEnabled) )
     {
-        if( *m_depthTestEnabled )
+        if( m_depthTestEnabled.get() )
         {
             GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
         }
@@ -75,14 +74,14 @@ void RenderState::bindNoRestore()
         }
         m_currentState.m_depthTestEnabled = m_depthTestEnabled;
     }
-    if( m_depthWriteEnabled.is_initialized() && (m_depthWriteEnabled != m_currentState.m_depthWriteEnabled) )
+    if( m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != m_currentState.m_depthWriteEnabled) )
     {
-        GL_ASSERT( glDepthMask( *m_depthWriteEnabled ? GL_TRUE : GL_FALSE ) );
+        GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? GL_TRUE : GL_FALSE ) );
         m_currentState.m_depthWriteEnabled = m_depthWriteEnabled;
     }
-    if( m_depthFunction.is_initialized() && (m_depthFunction != m_currentState.m_depthFunction) )
+    if( m_depthFunction.isInitialized() && (m_depthFunction != m_currentState.m_depthFunction) )
     {
-        GL_ASSERT( glDepthFunc( *m_depthFunction ) );
+        GL_ASSERT( glDepthFunc( m_depthFunction.get() ) );
         m_currentState.m_depthFunction = m_depthFunction;
     }
 }
@@ -90,46 +89,55 @@ void RenderState::bindNoRestore()
 void RenderState::restore(bool forceDefaults)
 {
     // Restore any state that is not overridden and is not default
-    if( forceDefaults || !m_blendEnabled.get_value_or( true ) )
+    if( forceDefaults || !m_blendEnabled.isDefault() )
     {
-        GL_ASSERT( glEnable( GL_BLEND ) );
+        if( m_blendEnabled.getDefault() )
+            GL_ASSERT( glEnable( GL_BLEND ) );
+        else
+            GL_ASSERT( glDisable( GL_BLEND ) );
+
         m_currentState.m_blendEnabled.reset();
     }
-    if( forceDefaults || m_blendSrc.get_value_or( GL_SRC_ALPHA ) != GL_SRC_ALPHA
-        || m_blendDst.get_value_or( GL_ONE_MINUS_SRC_ALPHA ) != GL_ONE_MINUS_SRC_ALPHA )
+    if( forceDefaults || !m_blendSrc.isDefault() || !m_blendDst.isDefault() )
     {
-        GL_ASSERT( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) );
+        GL_ASSERT( glBlendFunc( m_blendSrc.getDefault(), m_blendDst.getDefault() ) );
         m_currentState.m_blendSrc.reset();
         m_currentState.m_blendDst.reset();
     }
-    if( forceDefaults || !m_cullFaceEnabled.get_value_or( true ) )
+    if( forceDefaults || !m_cullFaceEnabled.isDefault() )
     {
-        GL_ASSERT( glEnable( GL_CULL_FACE ) );
+        if( m_cullFaceEnabled.getDefault() )
+            GL_ASSERT( glEnable( GL_CULL_FACE ) );
+        else
+            GL_ASSERT( glDisable( GL_CULL_FACE ) );
         m_currentState.m_cullFaceEnabled.reset();
     }
-    if( forceDefaults || m_cullFaceSide.get_value_or( GL_BACK ) != GL_BACK )
+    if( forceDefaults || !m_cullFaceSide.isDefault() )
     {
-        GL_ASSERT( glCullFace( GL_BACK ) );
+        GL_ASSERT( glCullFace( m_cullFaceSide.getDefault() ) );
         m_currentState.m_cullFaceSide.reset();
     }
-    if( forceDefaults || m_frontFace.get_value_or( GL_CW ) != GL_CW )
+    if( forceDefaults || !m_frontFace.isDefault() )
     {
-        GL_ASSERT( glFrontFace( GL_CW ) );
+        GL_ASSERT( glFrontFace( m_frontFace.getDefault() ) );
         m_currentState.m_frontFace.reset();
     }
-    if( forceDefaults || !m_depthTestEnabled.get_value_or( true ) )
+    if( forceDefaults || !m_depthTestEnabled.isDefault() )
     {
-        GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
+        if( m_depthTestEnabled.getDefault() )
+            GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
+        else
+            GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
         m_currentState.m_depthTestEnabled.reset();
     }
-    if( forceDefaults || !m_depthWriteEnabled.get_value_or( true ) )
+    if( forceDefaults || !m_depthWriteEnabled.isDefault() )
     {
-        GL_ASSERT( glDepthMask( GL_TRUE ) );
+        GL_ASSERT( glDepthMask( m_depthWriteEnabled.getDefault() ) );
         m_currentState.m_depthWriteEnabled.reset();
     }
-    if( forceDefaults || m_depthFunction.get_value_or( GL_LESS ) != GL_LESS )
+    if( forceDefaults || !m_depthFunction.isDefault() )
     {
-        GL_ASSERT( glDepthFunc( GL_LESS ) );
+        GL_ASSERT( glDepthFunc( m_depthFunction.getDefault() ) );
         m_currentState.m_depthFunction.reset();
     }
 }
@@ -146,81 +154,45 @@ void RenderState::enableDepthWrite()
 void RenderState::setBlend(bool enabled)
 {
     m_blendEnabled = enabled;
-    if( enabled )
-    {
-        m_blendEnabled.reset();
-    }
 }
 
 void RenderState::setBlendSrc(GLenum blend)
 {
     m_blendSrc = blend;
-    if( blend == GL_SRC_ALPHA )
-    {
-        m_blendSrc.reset();
-    }
 }
 
 void RenderState::setBlendDst(GLenum blend)
 {
     m_blendDst = blend;
-    if( blend == GL_ONE_MINUS_SRC_ALPHA )
-    {
-        m_blendDst.reset();
-    }
 }
 
 void RenderState::setCullFace(bool enabled)
 {
     m_cullFaceEnabled = enabled;
-    if( enabled )
-    {
-        m_cullFaceEnabled.reset();
-    }
 }
 
 void RenderState::setCullFaceSide(GLenum side)
 {
     m_cullFaceSide = side;
-    if( side == GL_BACK )
-    {
-        m_cullFaceSide.reset();
-    }
 }
 
 void RenderState::setFrontFace(GLenum winding)
 {
     m_frontFace = winding;
-    if( winding == GL_CW )
-    {
-        m_frontFace.reset();
-    }
 }
 
 void RenderState::setDepthTest(bool enabled)
 {
     m_depthTestEnabled = enabled;
-    if( enabled )
-    {
-        m_depthTestEnabled.reset();
-    }
 }
 
 void RenderState::setDepthWrite(bool enabled)
 {
     m_depthWriteEnabled = enabled;
-    if( enabled )
-    {
-        m_depthWriteEnabled.reset();
-    }
 }
 
 void RenderState::setDepthFunction(GLenum func)
 {
     m_depthFunction = func;
-    if( func == GL_LESS )
-    {
-        m_depthFunction.reset();
-    }
 }
 }
