@@ -310,34 +310,42 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( lotInfo.fly != 0 )
     {
-        auto moveY = util::clamp<int>( creatureInfo->target.Y - m_state.position.position.Y, -lotInfo.fly,
+        auto moveY = util::clamp<int>( creatureInfo->target.Y - m_state.position.position.Y,
+                                       -lotInfo.fly,
                                        lotInfo.fly );
 
-        currentFloor = HeightInfo::fromFloor( sector, core::TRCoordinates{
-                                                      m_state.position.position.X, bboxMinY,
+        currentFloor = HeightInfo::fromFloor( sector,
+                                              core::TRCoordinates{
+                                                      m_state.position.position.X,
+                                                      bboxMinY,
                                                       m_state.position.position.Z
                                               },
-                                              getLevel().m_itemNodes, getLevel().m_floorData ).distance;
+                                              getLevel().m_itemNodes,
+                                              getLevel().m_floorData ).distance;
 
         if( m_state.position.position.Y + moveY > currentFloor )
         {
+            // fly target is below floor
+
             if( m_state.position.position.Y > currentFloor )
             {
+                // we're already below the floor, so fix it
                 m_state.position.position.X = oldPosition.X;
                 m_state.position.position.Z = oldPosition.Z;
                 moveY = -lotInfo.fly;
             }
             else
             {
-                moveY = 0;
                 m_state.position.position.Y = currentFloor;
+                moveY = 0;
             }
         }
         else
         {
             const auto ceiling = HeightInfo::fromCeiling( sector,
                                                           core::TRCoordinates{
-                                                                  m_state.position.position.X, bboxMinY,
+                                                                  m_state.position.position.X,
+                                                                  bboxMinY,
                                                                   m_state.position.position.Z
                                                           },
                                                           getLevel().m_itemNodes,
@@ -362,11 +370,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         sector = getLevel().findRealFloorSector(
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 to_not_null( &room ) );
-        m_state.floor = HeightInfo::fromFloor( sector, core::TRCoordinates{
-                                                       m_state.position.position.X, bboxMinY,
+        m_state.floor = HeightInfo::fromFloor( sector,
+                                               core::TRCoordinates{
+                                                       m_state.position.position.X,
+                                                       bboxMinY,
                                                        m_state.position.position.Z
                                                },
-                                               getLevel().m_itemNodes, getLevel().m_floorData ).distance;
+                                               getLevel().m_itemNodes,
+                                               getLevel().m_floorData ).distance;
 
         core::Angle yaw{0};
         if( m_state.speed != 0 )
