@@ -135,7 +135,6 @@ struct ItemState final
 
     const loader::Sector* getCurrentSector() const
     {
-        Expects( position.room != nullptr );
         return position.room->getSectorByAbsolutePosition( position.position );
     }
 

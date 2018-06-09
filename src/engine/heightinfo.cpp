@@ -36,9 +36,9 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
         {
             case floordata::FloorDataChunkType::FloorSlant:
             {
-                const int8_t xSlant = gsl::narrow_cast<int8_t>( *fd & 0xff );
+                const auto xSlant = gsl::narrow_cast<int8_t>( *fd & 0xff );
                 const auto absX = std::abs( xSlant );
-                const int8_t zSlant = gsl::narrow_cast<int8_t>( (*fd >> 8) & 0xff );
+                const auto zSlant = gsl::narrow_cast<int8_t>( (*fd >> 8) & 0xff );
                 const auto absZ = std::abs( zSlant );
                 if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
                 {
@@ -142,9 +142,9 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
         if( chunkHeader.type == floordata::FloorDataChunkType::CeilingSlant )
         {
-            const int8_t xSlant = gsl::narrow_cast<int8_t>( *fd & 0xff );
+            const auto xSlant = gsl::narrow_cast<int8_t>( *fd & 0xff );
             const auto absX = std::abs( xSlant );
-            const int8_t zSlant = gsl::narrow_cast<int8_t>( (*fd >> 8) & 0xff );
+            const auto zSlant = gsl::narrow_cast<int8_t>( (*fd >> 8) & 0xff );
             const auto absZ = std::abs( zSlant );
             if( !skipSteepSlants || (absX <= 2 && absZ <= 2) )
             {
