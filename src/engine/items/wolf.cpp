@@ -214,8 +214,8 @@ void Wolf::update()
     }
     rotateCreatureTilt( roll );
     rotateCreatureHead( pitch );
+    getSkeleton()->patchBone(3, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix());
     animateCreature( rotationToMoveTarget, roll );
-    getSkeleton()->patchBone( 3, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
 }
 }
 }
