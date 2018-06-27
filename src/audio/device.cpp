@@ -10,6 +10,8 @@ Device::~Device()
         m_streamUpdater.join();
     }
 
+    m_underwaterFilter.reset();
+
     if( m_context != nullptr )
     {
         alcMakeContextCurrent( nullptr );
