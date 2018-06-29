@@ -45,10 +45,7 @@ void CollapsibleFloor::update()
     auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
     setCurrentRoom( room );
 
-    HeightInfo h = HeightInfo::fromFloor( sector,
-                                          m_state.position.position,
-                                          getLevel().m_itemNodes,
-                                          getLevel().m_floorData );
+    HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
     m_state.floor = h.distance;
     if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.distance )
         return;

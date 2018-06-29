@@ -581,7 +581,7 @@ void LaraNode::updateFloorHeight(int dy)
     const auto sector = getLevel()
             .findRealFloorSector( pos, to_not_null( &room ) );
     setCurrentRoom( room );
-    const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
+    const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     m_state.floor = hi.distance;
 }
 

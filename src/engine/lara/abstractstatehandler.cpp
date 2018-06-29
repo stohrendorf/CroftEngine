@@ -300,8 +300,8 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
 
     auto sector = getLevel()
             .findRealFloorSector( pos, m_lara.m_state.position.room );
-    HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
-    HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
+    HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
+    HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
 }
 
@@ -604,7 +604,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
 
     auto sector = getLevel().findRealFloorSector( pos, m_lara.m_state.position.room );
 
-    HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes, getLevel().m_floorData );
+    HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
     if( h.distance != -loader::HeightLimit )
     {
@@ -796,8 +796,7 @@ bool AbstractStateHandler::applyLandingDamage()
     HeightInfo h = HeightInfo::fromFloor( sector,
                                           m_lara.m_state.position.position
                                           - core::TRCoordinates{0, core::ScalpHeight, 0},
-                                          getLevel().m_itemNodes,
-                                          getLevel().m_floorData );
+                                          getLevel().m_itemNodes );
     m_lara.m_state.floor = h.distance;
     m_lara.handleCommandSequence( h.lastCommandSequenceOrDeath, false );
     auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;

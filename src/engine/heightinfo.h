@@ -26,13 +26,11 @@ struct HeightInfo
 
     static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector,
                                 const core::TRCoordinates& pos,
-                                const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
-                                const engine::floordata::FloorData& floorData);
+                                const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
 
     static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
                                   const core::TRCoordinates& pos,
-                                  const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
-                                  const engine::floordata::FloorData& floorData);
+                                  const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
 
     HeightInfo() = default;
 };
@@ -46,15 +44,14 @@ struct VerticalInfo
     void init(const gsl::not_null<const loader::Sector*>& roomSector,
               const core::TRCoordinates& position,
               const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
-              const engine::floordata::FloorData& floorData,
               int floorHeight,
               int scalpHeight)
     {
-        floor = HeightInfo::fromFloor( roomSector, position, itemList, floorData );
+        floor = HeightInfo::fromFloor( roomSector, position, itemList );
         if( floor.distance != -loader::HeightLimit )
             floor.distance -= floorHeight;
 
-        ceiling = HeightInfo::fromCeiling( roomSector, position, itemList, floorData );
+        ceiling = HeightInfo::fromCeiling( roomSector, position, itemList );
         if( ceiling.distance != -loader::HeightLimit )
             ceiling.distance -= floorHeight - scalpHeight;
     }

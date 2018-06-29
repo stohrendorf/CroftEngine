@@ -137,14 +137,18 @@ public:
 
         m_mesh = gameplay::Mesh::createQuadFullscreen( vp.width, vp.height, shader->getHandle() );
         auto part = m_mesh->getPart( 0 );
-        part->setMaterial( std::make_shared<gameplay::Material>( shader ) );
+        const auto material = std::make_shared<gameplay::Material>( shader );
+        part->setMaterial( material );
 
-        part->getMaterial()->getParameter( "u_depth" )->set( m_depthBuffer );
-        part->getMaterial()->getParameter( "u_projectionMatrix" )
-            ->set( glm::ortho( vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f ) );
-        part->getMaterial()->getParameter( "u_projection" )
-            ->bind( game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
-        part->getMaterial()->getParameter( "u_texture" )->set( m_colorBuffer );
+        material->getParameter( "u_depth" )->set( m_depthBuffer );
+        material->getParameter( "u_projectionMatrix" )
+                ->set( glm::ortho( vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f ) );
+        material->getParameter( "u_projection" )
+                ->bind( game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
+        material->getParameter( "u_texture" )->set( m_colorBuffer );
+
+        material->setDepthWrite( false );
+        material->setDepthTest( false );
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh( to_not_null( m_mesh ) );

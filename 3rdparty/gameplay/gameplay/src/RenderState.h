@@ -22,7 +22,7 @@ public:
 
     virtual ~RenderState() = default;
 
-    void bind();
+    void bind(bool force = false);
 
     void setBlend(bool enabled);
 
@@ -44,32 +44,17 @@ public:
 
     static void initDefaults()
     {
-        m_currentState.restore( true );
+        m_currentState.bind( true );
     }
 
     static void enableDepthWrite();
 
 private:
-    void bindNoRestore();
-
-    void restore(bool forceDefaults = false);
-
-
     template<typename T, const T DefaultValue>
     struct DefaultedOptional
     {
         static const constexpr T Default = DefaultValue;
         boost::optional<T> value{};
-
-        bool isDefault() const
-        {
-            return get() == Default;
-        }
-
-        constexpr T getDefault() const noexcept
-        {
-            return Default;
-        }
 
         T get() const
         {

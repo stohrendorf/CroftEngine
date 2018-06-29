@@ -320,8 +320,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                       bboxMinY,
                                                       m_state.position.position.Z
                                               },
-                                              getLevel().m_itemNodes,
-                                              getLevel().m_floorData ).distance;
+                                              getLevel().m_itemNodes ).distance;
 
         if( m_state.position.position.Y + moveY > currentFloor )
         {
@@ -348,8 +347,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                                   bboxMinY,
                                                                   m_state.position.position.Z
                                                           },
-                                                          getLevel().m_itemNodes,
-                                                          getLevel().m_floorData ).distance;
+                                                          getLevel().m_itemNodes ).distance;
 
             const auto y = m_state.object_number == 11 ? 0 : bbox.minY;
 
@@ -376,8 +374,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                        bboxMinY,
                                                        m_state.position.position.Z
                                                },
-                                               getLevel().m_itemNodes,
-                                               getLevel().m_floorData ).distance;
+                                               getLevel().m_itemNodes ).distance;
 
         core::Angle yaw{0};
         if( m_state.speed != 0 )
@@ -411,9 +408,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     m_state.rotation.X = 0_au;
 
     sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
-    m_state.floor = HeightInfo::fromFloor(
-            sector,
-            m_state.position.position, getLevel().m_itemNodes, getLevel().m_floorData ).distance;
+    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).distance;
 
     setCurrentRoom( room );
 

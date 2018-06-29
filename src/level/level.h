@@ -222,13 +222,12 @@ public:
 
         if( position.Y + loader::QuarterSectorSize * 2 < sector->floorHeight * loader::QuarterSectorSize )
             return zero;
-        if( sector->floorDataIndex == 0 )
+        if( sector->floorData == nullptr )
             return zero;
-        if( engine::floordata::FloorDataChunk{m_floorData[sector->floorDataIndex]}.type
-            != engine::floordata::FloorDataChunkType::FloorSlant )
+        if( engine::floordata::FloorDataChunk{*sector->floorData}.type != engine::floordata::FloorDataChunkType::FloorSlant )
             return zero;
 
-        auto fd = m_floorData[sector->floorDataIndex + 1];
+        auto fd = sector->floorData[1];
         return std::make_tuple( gsl::narrow_cast<int8_t>( fd & 0xff ), gsl::narrow_cast<int8_t>( fd >> 8 ) );
     }
 

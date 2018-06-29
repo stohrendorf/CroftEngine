@@ -96,6 +96,8 @@ struct Sector
      * @note If this is 0, no floor data is attached to this sector.
      */
     uint16_t floorDataIndex;
+    const uint16_t* floorData = nullptr;
+    Room* portalTarget = nullptr;
 
     int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
     const Box* box = nullptr;
@@ -116,6 +118,20 @@ struct Sector
         sector.roomIndexAbove = reader.readU8();
         sector.ceilingHeight = reader.readI8();
         return sector;
+    }
+
+    void reset()
+    {
+        floorDataIndex = 0;
+        floorData = nullptr;
+        boxIndex = -1;
+        box = nullptr;
+        roomIndexBelow = 255;
+        roomBelow = nullptr;
+        floorHeight = -127;
+        roomIndexAbove = 255;
+        roomAbove = nullptr;
+        ceilingHeight = -127;
     }
 };
 

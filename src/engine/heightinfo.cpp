@@ -8,8 +8,7 @@ namespace engine
 bool HeightInfo::skipSteepSlants = false;
 
 HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos,
-                                 const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
-                                 const engine::floordata::FloorData& floorData)
+                                 const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
 {
     HeightInfo hi;
 
@@ -23,12 +22,12 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
     hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;
     hi.lastCommandSequenceOrDeath = nullptr;
 
-    if( roomSector->floorDataIndex == 0 )
+    if( roomSector->floorData == nullptr )
     {
         return hi;
     }
 
-    const uint16_t* fd = &floorData[roomSector->floorDataIndex];
+    const uint16_t* fd = roomSector->floorData;
     while( true )
     {
         const floordata::FloorDataChunk chunkHeader{*fd++};
@@ -114,8 +113,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 }
 
 HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos,
-                                   const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
-                                   const engine::floordata::FloorData& floorData)
+                                   const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
 {
     HeightInfo hi;
 
@@ -126,9 +124,9 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
     hi.distance = roomSector->ceilingHeight * loader::QuarterSectorSize;
 
-    if( roomSector->floorDataIndex != 0 )
+    if( roomSector->floorData != nullptr )
     {
-        const uint16_t* fd = &floorData[roomSector->floorDataIndex];
+        const uint16_t* fd = roomSector->floorData;
         floordata::FloorDataChunk chunkHeader{*fd};
         ++fd;
 
@@ -181,10 +179,10 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
         roomSector = to_not_null( roomSector->roomBelow->getSectorByAbsolutePosition( pos ) );
     }
 
-    if( roomSector->floorDataIndex == 0 )
+    if( roomSector->floorData == nullptr )
         return hi;
 
-    const uint16_t* fd = &floorData[roomSector->floorDataIndex];
+    const uint16_t* fd = roomSector->floorData;
     while( true )
     {
         floordata::FloorDataChunk chunkHeader{*fd};

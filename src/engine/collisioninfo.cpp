@@ -32,7 +32,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     const auto refTestPos = laraPos - core::TRCoordinates( 0, height + core::ScalpToHandsHeight, 0 );
     auto currentSector = level.findRealFloorSector( refTestPos, to_not_null( &room ) );
 
-    mid.init( currentSector, refTestPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
+    mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
 
     std::tie( floorSlantX, floorSlantZ ) = level.getFloorSlantInfo( currentSector, laraPos );
 
@@ -79,7 +79,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     // Front
     auto testPos = refTestPos + core::TRCoordinates( frontX, 0, frontZ );
     auto sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
-    front.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
+    front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
     if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
     {
         front.floor.distance = -32767; // This is not a typo, it is really -32767
@@ -98,7 +98,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     // Front left
     testPos = refTestPos + core::TRCoordinates( frontLeftX, 0, frontLeftZ );
     sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
-    frontLeft.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
+    frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
         && frontLeft.floor.distance < 0 )
@@ -119,7 +119,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     // Front right
     testPos = refTestPos + core::TRCoordinates( frontRightX, 0, frontRightZ );
     sector = level.findRealFloorSector( testPos, to_not_null( &room ) );
-    frontRight.init( sector, testPos, level.m_itemNodes, level.m_floorData, laraPos.Y, height );
+    frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
         && frontRight.floor.distance < 0 )

@@ -941,14 +941,12 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
         sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / loader::SectorSize,
                                                            (position.Z - (*room)->position.Z) / loader::SectorSize );
         Expects( sector != nullptr );
-        const auto portalTarget = engine::floordata::getPortalTarget( m_floorData, sector->floorDataIndex );
-        if( !portalTarget )
+        if( sector->portalTarget == nullptr )
         {
             break;
         }
 
-        BOOST_ASSERT( *portalTarget != 0xff && *portalTarget < m_rooms.size() );
-        *room = to_not_null( &m_rooms[*portalTarget] );
+        *room = to_not_null( sector->portalTarget );
     }
 
     Expects( sector != nullptr );
@@ -984,14 +982,12 @@ Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<co
                 gsl::narrow_cast<int>( position.X - room->position.X ) / loader::SectorSize,
                 gsl::narrow_cast<int>( position.Z - room->position.Z ) / loader::SectorSize );
         Expects( sector != nullptr );
-        const auto portalTarget = engine::floordata::getPortalTarget( m_floorData, sector->floorDataIndex );
-        if( !portalTarget )
+        if( sector->portalTarget == nullptr )
         {
             break;
         }
 
-        BOOST_ASSERT( *portalTarget != 0xff && *portalTarget < m_rooms.size() );
-        room = to_not_null( &m_rooms[*portalTarget] );
+        room = to_not_null( sector->portalTarget );
     }
 
     Expects( sector != nullptr );
@@ -1300,6 +1296,18 @@ void Level::postProcessDataStructures()
             {
                 Expects( sector.roomIndexAbove < m_rooms.size() );
                 sector.roomAbove = &m_rooms[sector.roomIndexAbove];
+            }
+
+            if( sector.floorDataIndex != 0 )
+            {
+                sector.floorData = &m_floorData[sector.floorDataIndex];
+
+                const auto portalTarget = engine::floordata::getPortalTarget( sector.floorData );
+                if( portalTarget.is_initialized() )
+                {
+                    BOOST_ASSERT( *portalTarget != 0xff && *portalTarget < m_rooms.size() );
+                    sector.portalTarget = &m_rooms[*portalTarget];
+                }
             }
         }
     }

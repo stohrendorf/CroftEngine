@@ -23,8 +23,8 @@ ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
         BOOST_THROW_EXCEPTION( std::runtime_error( "Cannot create screen overlay because the viewport is empty" ) );
     }
 
-    auto screenOverlayProgram = to_not_null( ShaderProgram::createFromFile( "shaders/screenoverlay.vert",
-                                                                            "shaders/screenoverlay.frag", {} ) );
+    const auto screenOverlayProgram = to_not_null( ShaderProgram::createFromFile( "shaders/screenoverlay.vert",
+                                                                                  "shaders/screenoverlay.frag", {} ) );
 
     m_image->fill( {0, 0, 0, 0} );
 
@@ -33,8 +33,11 @@ ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
     m_texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
     m_mesh = Mesh::createQuadFullscreen( viewport.width, viewport.height, screenOverlayProgram->getHandle(), true );
-    auto part = m_mesh->getPart( 0 );
-    part->setMaterial( std::make_shared<Material>( screenOverlayProgram ) );
+    const auto part = m_mesh->getPart( 0 );
+    const auto material = std::make_shared<Material>( screenOverlayProgram );
+    material->setDepthWrite( false );
+    material->setDepthTest( false );
+    part->setMaterial( material );
     part->getMaterial()->getParameter( "u_texture" )->set( m_texture );
     part->getMaterial()->getParameter( "u_projectionMatrix" )
         ->set( glm::ortho( viewport.x, viewport.width, viewport.height, viewport.y, 0.0f, 1.0f ) );
