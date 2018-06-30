@@ -18,17 +18,7 @@ public:
     {
     }
 
-    void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
-
-    void update() override
-    {
-        if( !m_isActive )
-            return;
-
-        m_state.activationState.fullyActivate();
-
-        ModelItemNode::update();
-    }
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 };
 }
 }

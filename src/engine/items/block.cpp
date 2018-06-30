@@ -139,8 +139,7 @@ void Block::update()
 
     auto pos = m_state.position;
     auto sector = getLevel().findRealFloorSector( pos );
-    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes )
-            .distance;
+    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).distance;
     if( height > pos.position.Y )
     {
         m_state.falling = true;

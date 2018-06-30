@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
+void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
     if( !getLevel().m_inputHandler->getInputState().action )
     {
@@ -19,12 +19,12 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
         return;
     }
 
-    if( !other.isDiving() )
+    if( !lara.isDiving() )
     {
         return;
     }
 
-    if( other.getCurrentAnimState() != LaraStateId::UnderwaterStop )
+    if( lara.getCurrentAnimState() != LaraStateId::UnderwaterStop )
     {
         return;
     }
@@ -36,7 +36,7 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
             {+80_deg, +80_deg, +80_deg}
     };
 
-    if( !limits.canInteract( *this, other ) )
+    if( !limits.canInteract( *this, lara ) )
     {
         return;
     }
@@ -47,19 +47,19 @@ void UnderwaterSwitch::collide(LaraNode& other, CollisionInfo& collisionInfo)
     }
 
     static const glm::vec3 alignSpeed{0, 0, -108.0f};
-    if( !other.alignTransform( alignSpeed, *this ) )
+    if( !lara.alignTransform( alignSpeed, *this ) )
     {
         return;
     }
 
-    other.m_state.fallspeed = 0;
+    lara.m_state.fallspeed = 0;
     do
     {
-        other.setTargetState( LaraStateId::SwitchDown );
-        other.updateImpl();
-    } while( other.getCurrentAnimState() != LaraStateId::SwitchDown );
-    other.setTargetState( LaraStateId::UnderwaterStop );
-    other.setHandStatus( HandStatus::Grabbing );
+        lara.setTargetState( LaraStateId::SwitchDown );
+        lara.updateImpl();
+    } while( lara.getCurrentAnimState() != LaraStateId::SwitchDown );
+    lara.setTargetState( LaraStateId::UnderwaterStop );
+    lara.setHandStatus( HandStatus::Grabbing );
     m_state.triggerState = engine::items::TriggerState::Active;
 
     if( m_state.current_anim_state == 1 )

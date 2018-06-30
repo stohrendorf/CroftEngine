@@ -20,15 +20,14 @@ public:
 
     void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
 
-    void update() override
+    void update() final
     {
+        m_state.activationState.fullyActivate();
         if( !m_state.updateActivationTimeout() )
         {
             m_state.goal_anim_state = 1;
             m_state.timer = 0;
         }
-
-        m_state.activationState.fullyActivate();
 
         ModelItemNode::update();
     }
