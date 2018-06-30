@@ -1,13 +1,12 @@
 uniform vec3 u_diffuseColor;
-uniform vec3 u_lightPosition;
-uniform float u_baseLight;
-uniform float u_baseLightDiff;
 
 in vec3 v_color;
 in vec3 v_vertexPos;
 in vec3 v_normal;
 
 out vec4 out_color;
+
+#include "lighting.inc.frag"
 
 vec3 srgbEncode(in vec3 color){
    float r = color.r < 0.0031308 ? 12.92 * color.r : 1.055 * pow(color.r, 1.0/2.4) - 0.055;
@@ -30,27 +29,7 @@ void main()
     out_color.r = color.r * v_color.r;
     out_color.g = color.g * v_color.g;
     out_color.b = color.b * v_color.b;
-    out_color.a = 1;
 
-    float shadeFactor;
-    if(isnan(u_lightPosition.x) || v_normal == vec3(0))
-    {
-        shadeFactor = clamp(u_baseLight, 0, 1);
-    }
-    else
-    {
-        // diffuse
-        vec3 dir = normalize(vec4(u_lightPosition, 1).xyz - v_vertexPos);
-        shadeFactor = clamp(u_baseLight + dot(v_normal, dir) * u_baseLightDiff, 0, 1);
-
-        // specular
-        const float specularStrength = 0.5;
-        const float specularPower = 4;
-        vec3 viewDir = normalize(-v_vertexPos);
-        vec3 reflectDir = reflect(-dir, v_normal);  
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularPower);
-        shadeFactor += specularStrength * spec;
-    }
-    out_color *= shadeFactor;
+    out_color *= calcShadeFactor(v_normal, v_vertexPos);
     out_color.a = 1;
 }
