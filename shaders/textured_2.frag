@@ -1,14 +1,12 @@
 uniform sampler2D u_diffuseTexture;
-
-varying vec2 v_texCoord;
-varying vec3 v_color;
-
 uniform vec3 u_lightPosition;
 uniform float u_baseLight;
 uniform float u_baseLightDiff;
 
-varying vec3 v_vertexPos;
-varying vec3 v_normal;
+in vec2 v_texCoord;
+in vec3 v_color;
+in vec3 v_vertexPos;
+in vec3 v_normal;
 
 out vec4 out_color;
 

@@ -7,11 +7,10 @@ uniform mat4 u_modelMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat4 u_projectionMatrix;
 
-varying vec2 v_texCoord;
-varying vec3 v_color;
-
-varying vec3 v_vertexPos;
-varying vec3 v_normal;
+out vec2 v_texCoord;
+out vec3 v_color;
+out vec3 v_vertexPos;
+out vec3 v_normal;
 
 void main()
 {

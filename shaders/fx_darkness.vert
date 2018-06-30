@@ -4,8 +4,7 @@ attribute vec4 a_color;
 
 uniform mat4 u_projectionMatrix;
 
-varying vec2 v_texCoord;
-
+out vec2 v_texCoord;
 
 void main()
 {

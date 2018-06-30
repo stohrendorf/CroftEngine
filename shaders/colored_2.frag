@@ -1,15 +1,13 @@
 uniform vec3 u_diffuseColor;
-
-varying vec3 v_color;
-
-out vec4 out_color;
-
 uniform vec3 u_lightPosition;
 uniform float u_baseLight;
 uniform float u_baseLightDiff;
 
-varying vec3 v_vertexPos;
-varying vec3 v_normal;
+in vec3 v_color;
+in vec3 v_vertexPos;
+in vec3 v_normal;
+
+out vec4 out_color;
 
 vec3 srgbEncode(in vec3 color){
    float r = color.r < 0.0031308 ? 12.92 * color.r : 1.055 * pow(color.r, 1.0/2.4) - 0.055;

@@ -2,7 +2,7 @@ uniform sampler2D u_texture;
 uniform sampler2D u_depth;
 uniform mat4 u_projection;
 
-varying vec2 v_texCoord;
+in vec2 v_texCoord;
 
 out vec4 out_color;
 
