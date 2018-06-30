@@ -1339,6 +1339,9 @@ void Level::postProcessDataStructures()
             continue;
         }
         model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+
+        BOOST_ASSERT( model->frame_number >= 0 && model->frame_number < m_meshes.size() );
+        model->mesh = &m_meshes[model->frame_number];
     }
 
     for( auto& anim : m_animations )

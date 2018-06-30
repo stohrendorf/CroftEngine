@@ -323,7 +323,7 @@ SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& sta
     transforms.top() = glm::translate( transforms.top(), frame.pos.toGl() )
                        * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0];
 
-    const auto* mesh = &m_level->m_meshes[m_model.frame_number];
+    const auto* mesh = m_model.mesh;
 
     std::vector<Cylinder> result;
     result.emplace_back( pos + core::TRCoordinates(

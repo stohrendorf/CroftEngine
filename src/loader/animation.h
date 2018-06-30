@@ -219,6 +219,9 @@ struct TransitionCase
 };
 
 
+struct Mesh;
+
+
 struct SkeletalModelType
 {
     uint32_t typeId; // Item Identifier (matched in Items[])
@@ -227,6 +230,8 @@ struct SkeletalModelType
     uint32_t bone_index; // offset into MeshTree[]
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t anim_index; // offset into Animations[]
+
+    const Mesh* mesh = nullptr;
 
     const AnimFrame* frame_base = nullptr;
 

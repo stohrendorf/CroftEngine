@@ -48,10 +48,6 @@ public:
 
     std::vector<loader::Room> m_rooms;
 
-    engine::floordata::FloorData m_floorData;
-
-    std::vector<loader::Mesh> m_meshes;
-
     std::vector<uint32_t> m_meshIndices;
 
     std::vector<loader::Animation> m_animations;
@@ -64,11 +60,7 @@ public:
 
     std::map<uint32_t, std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
 
-    std::vector<loader::StaticMesh> m_staticMeshes;
-
     std::vector<loader::TextureLayoutProxy> m_textureProxies;
-
-    std::vector<uint16_t> m_animatedTextures;
 
     size_t m_animatedTexturesUvCount = 0;
 
@@ -430,6 +422,10 @@ public:
 
 protected:
     loader::io::SDLReader m_reader;
+    engine::floordata::FloorData m_floorData;
+    std::vector<loader::Mesh> m_meshes;
+    std::vector<loader::StaticMesh> m_staticMeshes;
+    std::vector<uint16_t> m_animatedTextures;
 
     bool m_demoOrUb = false;
 
