@@ -20,7 +20,7 @@ public:
             loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     }
 
-    void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
     void update() override;
 

@@ -127,6 +127,7 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
     newRoom->node->addChild( getNode() );
 
     m_state.position.room = newRoom;
+    applyTransform();
 }
 
 ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
@@ -331,6 +332,16 @@ void ItemNode::updateSounds()
         std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
         lockedHandle->setPosition( getNode()->getTranslationWorld() );
     }
+}
+
+void ItemNode::kill()
+{
+    if( this == getLevel().m_lara->target.get() )
+    {
+        getLevel().m_lara->target.reset();
+    }
+    getLevel().scheduleDeletion( this );
+    m_state.activationState.setLocked( true );
 }
 
 bool InteractionLimits::canInteract(const ItemNode& item, const LaraNode& lara) const

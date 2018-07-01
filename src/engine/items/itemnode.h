@@ -354,6 +354,8 @@ public:
     {
     }
 
+    void kill();
+
 protected:
     bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
                                const core::Angle& maxAngle)

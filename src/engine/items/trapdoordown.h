@@ -29,6 +29,8 @@ public:
         {
             m_state.goal_anim_state = 0;
         }
+
+        ModelItemNode::update();
     }
 
     void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override

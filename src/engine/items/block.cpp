@@ -8,10 +8,10 @@ namespace engine
 {
 namespace items
 {
-void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
+void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
     if( !getLevel().m_inputHandler->getInputState().action || m_state.triggerState == TriggerState::Active
-        || m_state.falling || other.m_state.position.position.Y != m_state.position.position.Y )
+        || m_state.falling || lara.m_state.position.position.Y != m_state.position.position.Y )
     {
         return;
     }
@@ -23,13 +23,13 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
             {+10_deg, +30_deg, +10_deg}
     };
 
-    auto axis = core::axisFromAngle( other.m_state.rotation.Y, 45_deg );
+    auto axis = core::axisFromAngle( lara.m_state.rotation.Y, 45_deg );
     Expects( axis.is_initialized() );
 
-    if( other.getCurrentAnimState() == loader::LaraStateId::Stop )
+    if( lara.getCurrentAnimState() == loader::LaraStateId::Stop )
     {
         if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null
-            || other.getHandStatus() != HandStatus::None )
+            || lara.getHandStatus() != HandStatus::None )
         {
             return;
         }
@@ -37,7 +37,7 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
         const core::Angle y = core::alignRotation( *axis );
         m_state.rotation.Y = y;
 
-        if( !limits.canInteract( *this, other ) )
+        if( !limits.canInteract( *this, lara ) )
         {
             return;
         }
@@ -46,48 +46,48 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
         {
             case core::Axis::PosZ:
             {
-                auto pos = other.m_state.position.position;
+                auto pos = lara.m_state.position.position;
                 pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 924;
-                other.m_state.position.position = pos;
+                lara.m_state.position.position = pos;
                 break;
             }
             case core::Axis::PosX:
             {
-                auto pos = other.m_state.position.position;
+                auto pos = lara.m_state.position.position;
                 pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 924;
-                other.m_state.position.position = pos;
+                lara.m_state.position.position = pos;
                 break;
             }
             case core::Axis::NegZ:
             {
-                auto pos = other.m_state.position.position;
+                auto pos = lara.m_state.position.position;
                 pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 100;
-                other.m_state.position.position = pos;
+                lara.m_state.position.position = pos;
                 break;
             }
             case core::Axis::NegX:
             {
-                auto pos = other.m_state.position.position;
+                auto pos = lara.m_state.position.position;
                 pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 100;
-                other.m_state.position.position = pos;
+                lara.m_state.position.position = pos;
                 break;
             }
             default:
                 break;
         }
 
-        other.m_state.rotation.Y = y;
-        other.setTargetState( loader::LaraStateId::PushableGrab );
-        other.updateImpl();
-        if( other.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
+        lara.m_state.rotation.Y = y;
+        lara.setTargetState( loader::LaraStateId::PushableGrab );
+        lara.updateImpl();
+        if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
         {
-            other.setHandStatus( HandStatus::Grabbing );
+            lara.setHandStatus( HandStatus::Grabbing );
         }
         return;
     }
 
-    if( other.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-        || other.m_state.frame_number != 2091 || !limits.canInteract( *this, other ) )
+    if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
+        || lara.m_state.frame_number != 2091 || !limits.canInteract( *this, lara ) )
     {
         return;
     }
@@ -100,7 +100,7 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
         }
 
         m_state.goal_anim_state = 2;
-        other.setTargetState( loader::LaraStateId::PushablePush );
+        lara.setTargetState( loader::LaraStateId::PushablePush );
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
@@ -110,7 +110,7 @@ void Block::collide(LaraNode& other, CollisionInfo& collisionInfo)
         }
 
         m_state.goal_anim_state = 3;
-        other.setTargetState( loader::LaraStateId::PushablePull );
+        lara.setTargetState( loader::LaraStateId::PushablePull );
     }
     else
     {
@@ -130,8 +130,7 @@ void Block::update()
     if( m_state.activationState.isOneshot() )
     {
         loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
-        m_isActive = false;
-        m_state.activationState.setLocked( true );
+        kill();
         return;
     }
 

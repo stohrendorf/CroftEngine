@@ -20,7 +20,13 @@ public:
 
     void update() override
     {
-        // TODO: check bone collisions
+        if( m_state.touch_bits != 0 )
+        {
+            getLevel().m_lara->m_state.health -= 50;
+            getLevel().m_lara->m_state.is_hit = true;
+
+            // TODO: show blood splatter
+        }
 
         ModelItemNode::update();
 
@@ -35,8 +41,7 @@ public:
         if( m_state.position.position.Y < m_state.floor )
             return;
 
-        getLevel().scheduleDeletion( this );
-        deactivate();
+        kill();
 
         // TODO: fx
     }

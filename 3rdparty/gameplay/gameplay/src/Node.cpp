@@ -68,23 +68,6 @@ bool Node::isVisible() const
     return m_visible;
 }
 
-bool Node::isVisibleInHierarchy() const
-{
-    if( !m_visible )
-        return false;
-
-    auto node = m_parent;
-    while( !node.expired() )
-    {
-        if( !node.lock()->m_visible )
-        {
-            return false;
-        }
-        node = node.lock()->m_parent;
-    }
-    return true;
-}
-
 const glm::mat4& Node::getModelMatrix() const
 {
     if( m_dirty )

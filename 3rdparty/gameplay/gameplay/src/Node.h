@@ -44,8 +44,6 @@ public:
 
     bool isVisible() const;
 
-    bool isVisibleInHierarchy() const;
-
     virtual const glm::mat4& getModelMatrix() const;
 
     glm::mat4 getModelViewMatrix() const;
