@@ -66,3 +66,88 @@ void engine::items::RollingBall::update()
         deactivate();
     }
 }
+
+void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
+{
+    if( !(m_state.triggerState == TriggerState::Active) )
+    {
+        if( m_state.triggerState != TriggerState::Invisible )
+        {
+            if( !isNear( lara, collisionInfo.collisionRadius ) )
+                return;
+
+            if( !testBoneCollision( lara ) )
+                return;
+
+            if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+                return;
+
+            enemyPush( lara, collisionInfo, false, true );
+        }
+        return;
+    }
+
+    if( !isNear( lara, collisionInfo.collisionRadius ) )
+        return;
+
+    if( !testBoneCollision( lara ) )
+        return;
+
+    if( !lara.m_state.falling )
+    {
+        lara.m_state.is_hit = true;
+        if( lara.m_state.health <= 0 )
+            return;
+
+        lara.m_state.health = -1;
+        lara.setCurrentRoom( m_state.position.room );
+        lara.setAnimIdGlobal( loader::AnimationId::SQUASH_BOULDER, 3561 );
+        getLevel().m_cameraController->setOldMode( CameraMode::Fixed );
+        getLevel().m_cameraController->setTargetRotation( -25_deg, 170_deg );
+        lara.m_state.rotation.X = 0_deg;
+        lara.m_state.rotation.Y = m_state.rotation.Y;
+        lara.m_state.rotation.Z = 0_deg;
+        lara.m_state
+            .goal_anim_state = static_cast<uint16_t>(loader::AnimationId::FLY_FORWARD_TRY_TO_HANG);
+        for( int i = 0; i < 15; ++i )
+        {
+            auto r = (util::rand15() - 16384) / 256;
+            const auto x = (util::rand15() - 16384) / 256 + lara.m_state.position.position.X;
+            const auto y = lara.m_state.position.position.Y - util::rand15() / 64;
+            const auto z = (util::rand15() - 16384) / 256 + lara.m_state.position.position.Z;
+            /* TODO: showBloodSplatter(
+                    x,
+                    y,
+                    z,
+                    2 * m_state.speed,
+                    core::Angle( gsl::narrow_cast<int16_t>((util::rand15() - 16384) / 8) ) + m_state.rotation.Y,
+                    m_state.position.room);
+                    */
+        }
+        return;
+    }
+
+    if( collisionInfo.policyFlags & engine::CollisionInfo::EnableBaddiePush )
+    {
+        enemyPush(
+                lara,
+                collisionInfo,
+                (collisionInfo.policyFlags & engine::CollisionInfo::EnableSpaz) != 0,
+                true );
+    }
+    lara.m_state.health -= 100;
+    const auto x = lara.m_state.position.position.X - m_state.position.position.X;
+    const auto y = lara.m_state.position.position.Y - 350
+                   - (m_state.position.position.Y - 2 * loader::QuarterSectorSize);
+    const auto z = lara.m_state.position.position.Z - m_state.position.position.Z;
+    const auto xyz = std::max( 2 * loader::QuarterSectorSize, gsl::narrow_cast<int>(
+            std::sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) ) );
+    /* TODO: showBloodSplatter(
+            x * loader::SectorSize / 2 / xyz + m_state.position.position.X,
+            y * loader::SectorSize / 2 / xyz + m_state.position.position.Y - 2*loader::QuarterSectorSize,
+            z*loader::SectorSize / 2 / xyz + m_state.position.position.Z,
+            m_state.speed,
+            m_state.rotation.Y,
+            m_state.position.room);
+            */
+}

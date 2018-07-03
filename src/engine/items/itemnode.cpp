@@ -470,11 +470,11 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
            && z <= aFrame->bbox.maxZ + radius;
 }
 
-void ModelItemNode::enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz,
+void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz,
                               bool withXZCollRadius)
 {
-    const auto dx = other.m_state.position.position.X - m_state.position.position.X;
-    const auto dz = other.m_state.position.position.Z - m_state.position.position.Z;
+    const auto dx = lara.m_state.position.position.X - m_state.position.position.X;
+    const auto dz = lara.m_state.position.position.Z - m_state.position.position.Z;
     const auto c = m_state.rotation.Y.cos();
     const auto s = m_state.rotation.Y.sin();
     auto posX = c * dx - s * dz;
@@ -514,18 +514,18 @@ void ModelItemNode::enemyPush(LaraNode& other, CollisionInfo& collisionInfo, boo
         {
             posZ = itemBBoxMaxZ;
         }
-        other.m_state.position.position.X = ((c * posX + s * posZ)) + m_state.position.position.X;
-        other.m_state.position.position.Z = ((c * posZ - s * posX)) + m_state.position.position.Z;
+        lara.m_state.position.position.X = ((c * posX + s * posZ)) + m_state.position.position.X;
+        lara.m_state.position.position.Z = ((c * posZ - s * posX)) + m_state.position.position.Z;
         if( enableSpaz )
         {
             const auto midX = (itemKeyFrame->bbox.minX + itemKeyFrame->bbox.maxX) / 2;
             const auto midZ = (itemKeyFrame->bbox.minZ + itemKeyFrame->bbox.maxZ) / 2;
             const auto a = core::Angle::fromAtan( dx - ((midX * c + midZ * s)), dz - ((midZ * c - midX * s)) )
                            - 180_deg;
-            getLevel().m_lara->hit_direction = axisFromAngle( other.m_state.rotation.Y - a, 45_deg ).get();
+            getLevel().m_lara->hit_direction = axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
             if( getLevel().m_lara->hit_frame == 0 )
             {
-                other.playSoundEffect( 27 );
+                lara.playSoundEffect( 27 );
             }
             if( ++getLevel().m_lara->hit_frame > 34 )
             {
@@ -537,19 +537,19 @@ void ModelItemNode::enemyPush(LaraNode& other, CollisionInfo& collisionInfo, boo
         collisionInfo.badCeilingDistance = 0;
         const auto facingAngle = collisionInfo.facingAngle;
         collisionInfo.facingAngle = core::Angle::fromAtan(
-                other.m_state.position.position.X - collisionInfo.oldPosition.X,
-                other.m_state.position.position.Z - collisionInfo.oldPosition.Z );
-        collisionInfo.initHeightInfo( other.m_state.position.position, getLevel(), 762 );
+                lara.m_state.position.position.X - collisionInfo.oldPosition.X,
+                lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
+        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), 762 );
         collisionInfo.facingAngle = facingAngle;
         if( collisionInfo.collisionType != CollisionInfo::AxisColl_None )
         {
-            other.m_state.position.position.X = collisionInfo.oldPosition.X;
-            other.m_state.position.position.Z = collisionInfo.oldPosition.Z;
+            lara.m_state.position.position.X = collisionInfo.oldPosition.X;
+            lara.m_state.position.position.Z = collisionInfo.oldPosition.Z;
         }
         else
         {
-            collisionInfo.oldPosition = other.m_state.position.position;
-            other.updateFloorHeight( -10 );
+            collisionInfo.oldPosition = lara.m_state.position.position;
+            lara.updateFloorHeight( -10 );
         }
     }
 }

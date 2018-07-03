@@ -159,6 +159,8 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
             return std::make_unique<StateHandler_44>( lara );
         case LaraStateId::RollForward:
             return std::make_unique<StateHandler_45>( lara );
+        case LaraStateId::BoulderDeath:
+            return std::make_unique<StateHandler_46>( lara );
         case LaraStateId::OnWaterBackward:
             return std::make_unique<StateHandler_47>( lara );
         case LaraStateId::OnWaterLeft:

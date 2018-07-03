@@ -22,9 +22,7 @@ public:
 
     void update() override;
 
-    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override
-    {
-    }
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
 private:
     core::RoomBoundPosition m_position;

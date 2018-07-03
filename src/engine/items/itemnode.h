@@ -474,7 +474,7 @@ public:
 
     bool testBoneCollision(const ModelItemNode& other);
 
-    void enemyPush(LaraNode& other, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
+    void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 };
 
 
