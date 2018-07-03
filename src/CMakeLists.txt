@@ -250,6 +250,8 @@ set( EDISONENGINE_SRCS
      engine/items/bat.h
      engine/items/block.cpp
      engine/items/block.h
+     engine/items/boulder.h
+     engine/items/boulder.cpp
      engine/items/bridgeflat.h
      engine/items/collapsiblefloor.cpp
      engine/items/collapsiblefloor.h

@@ -10,11 +10,13 @@
 
 #include "engine/items/bat.h"
 #include "engine/items/block.h"
+#include "engine/items/boulder.h"
 #include "engine/items/bridgeflat.h"
 #include "engine/items/collapsiblefloor.h"
 #include "engine/items/dart.h"
 #include "engine/items/dartgun.h"
 #include "engine/items/door.h"
+#include "engine/items/pickupitem.h"
 #include "engine/items/slopedbridge.h"
 #include "engine/items/stubitem.h"
 #include "engine/items/swingingblade.h"
@@ -22,7 +24,6 @@
 #include "engine/items/tallblock.h"
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
-#include "engine/items/pickupitem.h"
 #include "engine/items/underwaterswitch.h"
 #include "engine/items/wolf.h"
 
@@ -384,6 +385,10 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
             else if( item.type == 36 )
             {
                 modelNode = createSkeletalModel<engine::items::SwingingBlade>( id, *model, room, item );
+            }
+            else if( item.type == 38 )
+            {
+                modelNode = createSkeletalModel<engine::items::RollingBall>( id, *model, room, item );
             }
             else if( item.type == 39 )
             {
