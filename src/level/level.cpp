@@ -449,6 +449,9 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
             else
             {
                 modelNode = createSkeletalModel<engine::items::StubItem>( id, *model, room, item );
+                if( item.type == 128 || item.type == 169 || item.type == 170 || item.type == 177 || item.type == 179
+                    || item.type == 183 )
+                    modelNode->getNode()->setVisible( false );
             }
 
             m_itemNodes[id] = modelNode;
