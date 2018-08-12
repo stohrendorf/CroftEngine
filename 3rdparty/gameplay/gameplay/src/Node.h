@@ -20,7 +20,7 @@ class Node : public std::enable_shared_from_this<Node>
 
 
 public:
-    Node(const Node& copy) = delete;
+    Node(const Node&) = delete;
 
     Node& operator=(const Node&) = delete;
 

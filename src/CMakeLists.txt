@@ -100,6 +100,7 @@ wrap_enum(AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CM
 wrap_enum(LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateid_enum.h)
 wrap_enum(ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controlleraxis_enum.h)
 wrap_enum(ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h)
+wrap_enum(TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h)
 
 set( EDISONENGINE_SRCS
      edisonengine.cpp
@@ -109,10 +110,10 @@ set( EDISONENGINE_SRCS
      core/coordinates.h
      core/magic.h
 
-     engine/lara/abstractstatehandler.cpp
      engine/lara/abstractstatehandler.h
-     engine/cameracontroller.cpp
+     engine/lara/abstractstatehandler.cpp
      engine/cameracontroller.h
+     engine/cameracontroller.cpp
      engine/collisioninfo.cpp
      engine/collisioninfo.h
      engine/controlleraxis.h
@@ -122,10 +123,12 @@ set( EDISONENGINE_SRCS
      engine/heightinfo.h
      engine/inputhandler.h
      engine/inputstate.h
-     engine/laranode.cpp
      engine/laranode.h
-     engine/skeletalmodelnode.cpp
+     engine/laranode.cpp
+     engine/particle.h
+     engine/particle.cpp
      engine/skeletalmodelnode.h
+     engine/skeletalmodelnode.cpp
 
      level/game.h
      level/level.cpp

@@ -225,7 +225,7 @@ struct Mesh;
 struct SkeletalModelType
 {
     uint32_t typeId; // Item Identifier (matched in Items[])
-    uint16_t nmeshes; // number of meshes in this object
+    int16_t nmeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
     uint16_t frame_number; // starting mesh (offset into MeshPointers[])
     uint32_t bone_index; // offset into MeshTree[]
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
@@ -244,7 +244,7 @@ struct SkeletalModelType
     {
         std::unique_ptr<SkeletalModelType> moveable{new SkeletalModelType()};
         moveable->typeId = reader.readU32();
-        moveable->nmeshes = reader.readU16();
+        moveable->nmeshes = reader.readI16();
         moveable->frame_number = reader.readU16();
         moveable->bone_index = reader.readU32();
         moveable->pose_data_offset = reader.readU32();

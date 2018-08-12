@@ -19,7 +19,7 @@ void MeshPart::draw(RenderContext& context) const
     BOOST_ASSERT( context.getCurrentNode() != nullptr );
 
     for( const auto& mps : m_materialParameterSetters )
-        mps( *m_material );
+        mps( *context.getCurrentNode(), *m_material );
 
     m_material->bind( *context.getCurrentNode() );
 

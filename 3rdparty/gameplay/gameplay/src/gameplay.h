@@ -18,6 +18,7 @@
 #include "Node.h"
 #include "Scene.h"
 #include "ScreenOverlay.h"
+#include "Sprite.h"
 #include "MaterialParameter.h"
 
 #include "Visitor.h"

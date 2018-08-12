@@ -4,10 +4,12 @@
 #include "core/boundingbox.h"
 #include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/items_tr1.h"
+#include "scriptengine/lua/sol.hpp"
+#include "engine/collisioninfo.h"
+#include "engine/lighting.h"
 
 #include <set>
-#include <scriptengine/lua/sol.hpp>
-#include <engine/collisioninfo.h>
 
 namespace loader
 {
@@ -22,6 +24,9 @@ class Level;
 namespace engine
 {
 class LaraNode;
+
+
+class FX;
 
 namespace ai
 {
@@ -71,7 +76,7 @@ struct ItemState final
     int32_t floor = 0;
     int32_t touch_bits = 0;
     uint32_t mesh_bits = 0;
-    uint16_t object_number = 0;
+    engine::TR1ItemId object_number;
     uint16_t current_anim_state = 0;
     uint16_t goal_anim_state = 0;
     uint16_t required_anim_state = 0;
@@ -160,14 +165,7 @@ public:
 
     const bool m_hasProcessAnimCommandsOverride;
 
-    struct Lighting
-    {
-        glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
-        float base = 0;
-        float baseDiff = 0;
-    };
-
-    Lighting m_lighting;
+    engine::Lighting m_lighting;
 
     enum class AnimCommandOpcode
             : uint16_t
@@ -291,61 +289,12 @@ public:
         move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
-    void bindLightingUniforms()
-    {
-        getNode()->addMaterialParameterSetter( "u_baseLight", [this](const gameplay::Node& /*node*/,
-                                                                     gameplay::gl::Program::ActiveUniform& uniform) {
-            uniform.set( m_lighting.base );
-        } );
-        getNode()->addMaterialParameterSetter( "u_baseLightDiff", [this](const gameplay::Node& /*node*/,
-                                                                         gameplay::gl::Program::ActiveUniform& uniform) {
-            uniform.set( m_lighting.baseDiff );
-        } );
-        getNode()->addMaterialParameterSetter( "u_lightPosition", [this](const gameplay::Node& /*node*/,
-                                                                         gameplay::gl::Program::ActiveUniform& uniform) {
-            uniform.set( m_lighting.position );
-        } );
-    }
-
     void updateLighting()
     {
-        bindLightingUniforms();
-
-        m_lighting.baseDiff = 0;
-
-        if( m_state.shade >= 0 )
-        {
-            // static mesh lighting
-            m_lighting.base = util::clamp( (8191 - m_state.shade) / 8191.0f, 0.0f, 1.0f );
-            return;
-        }
-
-        const auto roomAmbient = m_state.position.room->getAmbientBrightness();
-        BOOST_ASSERT( roomAmbient >= 0 && roomAmbient <= 1 );
-
-        if( m_state.position.room->lights.empty() )
-        {
-            m_lighting.base = roomAmbient;
-            return;
-        }
-
-        float maxBrightness = 0;
-        const auto bboxCtr = m_state.position.position + getBoundingBox().getCenter();
-        for( const auto& light : m_state.position.room->lights )
-        {
-            const auto r = util::square( light.radius / 4096.0f );
-            const auto d = util::square( bboxCtr.distanceTo( light.position ) / 4096.0f );
-
-            const auto lightBrightness = roomAmbient + r * light.getBrightness() / (r + d) / 2;
-            if( lightBrightness > maxBrightness )
-            {
-                maxBrightness = lightBrightness;
-                m_lighting.position = light.position.toRenderSystem();
-            }
-        }
-
-        m_lighting.base = maxBrightness;
-        m_lighting.baseDiff = maxBrightness - roomAmbient;
+        m_lighting.bind( *getNode() );
+        auto tmp = m_state.position;
+        tmp.position += getBoundingBox().getCenter();
+        m_lighting.updateDynamic( m_state.shade, tmp );
     }
 
     virtual loader::BoundingBox getBoundingBox() const = 0;
@@ -475,6 +424,11 @@ public:
     bool testBoneCollision(const ModelItemNode& other);
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
+
+    void emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
+                      std::shared_ptr<engine::FX> (* generate)(const level::Level& level,
+                                                               const core::RoomBoundPosition& pos, int16_t speed,
+                                                               core::Angle angle));
 };
 
 
@@ -492,7 +446,7 @@ public:
             const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
             const loader::Sprite& sprite,
-            const std::shared_ptr<gameplay::Material>& material,
+            const gsl::not_null<std::shared_ptr<gameplay::Material>>& material,
             const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures);
 
     bool triggerSwitch(uint16_t) override

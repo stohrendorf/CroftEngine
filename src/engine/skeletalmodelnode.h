@@ -119,13 +119,18 @@ public:
 
     struct Cylinder
     {
-        const core::TRCoordinates position;
+        const glm::mat4 m;
         const int radius;
 
-        Cylinder(const core::TRCoordinates& position, int radius)
-                : position{position}
+        Cylinder(const glm::mat4& m, int radius)
+                : m{m}
                 , radius{radius}
         {
+        }
+
+        glm::vec3 getPosition() const
+        {
+            return glm::vec3( m[3] );
         }
     };
 

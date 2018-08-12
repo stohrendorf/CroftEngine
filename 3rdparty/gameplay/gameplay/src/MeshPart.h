@@ -12,7 +12,7 @@ class Material;
 class MeshPart
 {
 public:
-    using MaterialParameterSetter = void(Material& material);
+    using MaterialParameterSetter = void(const Node& node, Material& material);
 
     explicit MeshPart(const std::shared_ptr<gl::VertexArray>& vao);
 

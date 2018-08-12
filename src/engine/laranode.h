@@ -160,8 +160,8 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        auto gunFlareModel = level
-                ->getModel( getLevel().m_meshIndices[getLevel().findAnimatedModelForType( 166 )->frame_number] );
+        auto gunFlareModel = level->m_models2[getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )
+                                                       ->frame_number];
 
         m_gunFlareLeft = std::make_shared<gameplay::Node>( "gun flare left" );
         m_gunFlareLeft->setDrawable( gunFlareModel.get() );

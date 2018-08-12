@@ -4,7 +4,9 @@
 #include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
 #include "engine/inputhandler.h"
+#include "engine/particle.h"
 #include "engine/items/itemnode.h"
+#include "engine/items_tr1.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"
@@ -58,7 +60,7 @@ public:
 
     std::vector<int16_t> m_animCommands;
 
-    std::map<uint32_t, std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
+    std::map<engine::TR1ItemId, std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
 
     std::vector<loader::TextureLayoutProxy> m_textureProxies;
 
@@ -140,9 +142,9 @@ public:
 
     int findStaticMeshIndexById(uint32_t object_id) const;
 
-    const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(uint32_t type) const;
+    const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
 
-    boost::optional<size_t> findSpriteSequenceForType(uint32_t type) const;
+    boost::optional<size_t> findSpriteSequenceForType(engine::TR1ItemId type) const;
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>> createTextures(
             loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
@@ -159,7 +161,7 @@ public:
                         const std::unique_ptr<loader::trx::Glidos>& glidos);
 
     template<typename T>
-    std::shared_ptr<engine::items::ItemNode> createItem(uint32_t type,
+    std::shared_ptr<engine::items::ItemNode> createItem(engine::TR1ItemId type,
                                                         const gsl::not_null<const loader::Room*>& room,
                                                         const core::Angle& angle,
                                                         const core::TRCoordinates& position,
@@ -216,7 +218,8 @@ public:
             return zero;
         if( sector->floorData == nullptr )
             return zero;
-        if( engine::floordata::FloorDataChunk{*sector->floorData}.type != engine::floordata::FloorDataChunkType::FloorSlant )
+        if( engine::floordata::FloorDataChunk{*sector->floorData}.type
+            != engine::floordata::FloorDataChunkType::FloorSlant )
             return zero;
 
         auto fd = sector->floorData[1];
@@ -420,6 +423,10 @@ public:
 
     bool roomsAreSwapped = false;
 
+    std::vector<std::shared_ptr<engine::FX>> m_particles;
+
+    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models2;
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;
@@ -457,3 +464,4 @@ private:
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
 };
 }
+                                                                                                                                                                                                                                           

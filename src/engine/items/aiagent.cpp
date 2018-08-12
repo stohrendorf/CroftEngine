@@ -349,7 +349,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                           },
                                                           getLevel().m_itemNodes ).distance;
 
-            const auto y = m_state.object_number == 11 ? 0 : bbox.minY;
+            const auto y = m_state.object_number == engine::TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
 
             if( m_state.position.position.Y + y + moveY < ceiling )
             {

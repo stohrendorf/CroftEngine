@@ -25,7 +25,13 @@ public:
             getLevel().m_lara->m_state.health -= 50;
             getLevel().m_lara->m_state.is_hit = true;
 
-            // TODO: show blood splatter
+            auto fx = engine::createBloodSplat(
+                    getLevel(),
+                    m_state.position,
+                    m_state.speed,
+                    m_state.rotation.Y
+            );
+            getLevel().m_particles.emplace_back( fx );
         }
 
         ModelItemNode::update();
@@ -43,7 +49,12 @@ public:
 
         kill();
 
-        // TODO: fx
+        const auto fx = std::make_shared<FX>( "ricochet", m_state.position, getLevel() );
+        fx->angle = m_state.rotation;
+        fx->object_number = engine::TR1ItemId::Ricochet;
+        fx->negSpriteFrameId = -3 * util::rand15() / 32768;
+        fx->timePerSpriteFrame = 6;
+        getLevel().m_particles.emplace_back( fx );
     }
 };
 }

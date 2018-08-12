@@ -66,7 +66,7 @@ public:
         }
 
         auto dart = getLevel()
-                .createItem<Dart>( 39, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0 );
+                .createItem<Dart>( engine::TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0 );
         dart->activate();
         dart->m_state.triggerState = engine::items::TriggerState::Active;
 

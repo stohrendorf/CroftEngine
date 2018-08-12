@@ -39,7 +39,7 @@ gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
             break;
 
         default: // opaque animated textures case
-            BOOST_ASSERT( false ); // FIXME [irrlicht]
+            BOOST_ASSERT( false ); // FIXME
     }
 
     return result;

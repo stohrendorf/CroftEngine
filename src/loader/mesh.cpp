@@ -320,7 +320,7 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
         part->setMaterial( localPart.material );
         if( localPart.color.is_initialized() )
         {
-            part->registerMaterialParameterSetter( [color = *localPart.color](gameplay::Material& material) {
+            part->registerMaterialParameterSetter( [color = *localPart.color](const gameplay::Node& node, gameplay::Material& material) {
                 material.getParameter( "u_diffuseColor" )->set( color );
             } );
         }

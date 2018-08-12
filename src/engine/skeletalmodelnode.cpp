@@ -81,12 +81,12 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
     if( static_cast<size_t>(firstKeyframeIndex) == anim.getKeyframeCount() - 1u )
     {
-        result.firstFrame = anim.poseData->next(firstKeyframeIndex);
+        result.firstFrame = anim.poseData->next( firstKeyframeIndex );
         result.secondFrame = result.firstFrame;
         result.bias = 0;
         return result;
     }
-    result.firstFrame = anim.poseData->next(firstKeyframeIndex);
+    result.firstFrame = anim.poseData->next( firstKeyframeIndex );
     result.secondFrame = result.firstFrame->next();
 
     auto segmentDuration = anim.segmentLength;
@@ -118,6 +118,8 @@ void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
 {
+    BOOST_ASSERT( m_model.nmeshes > 0 );
+
     BOOST_ASSERT( framePair.bias > 0 );
     BOOST_ASSERT( framePair.secondFrame != nullptr );
 
@@ -147,7 +149,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
     const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.bone_index]);
 
-    for( uint16_t i = 1; i < m_model.nmeshes; ++i, ++positionData )
+    for( int i = 1; i < m_model.nmeshes; ++i, ++positionData )
     {
         if( positionData->flags & 0x01 )
         {
@@ -181,6 +183,8 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
 void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 {
+    BOOST_ASSERT( m_model.nmeshes > 0 );
+
     BOOST_ASSERT( framePair.firstFrame->numValues > 0 );
 
     if( m_bonePatches.empty() )
@@ -275,7 +279,7 @@ void SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, uint16_
     BOOST_ASSERT( animId < m_level->m_animations.size() );
 
     const auto& anim = m_level->m_animations[animId];
-    BOOST_ASSERT(getChildCount() == 0 || anim.poseData->numValues == getChildCount());
+    BOOST_ASSERT( getChildCount() == 0 || anim.poseData->numValues == getChildCount() );
 
     if( frame < anim.firstFrame || frame > anim.lastFrame )
         frame = anim.firstFrame;
@@ -298,6 +302,7 @@ SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& sta
                                              const glm::mat4* baseTransform)
 {
     BOOST_ASSERT( frame.numValues > 0 );
+    BOOST_ASSERT( m_model.nmeshes > 0 );
 
     if( m_bonePatches.empty() )
         resetPose();
@@ -326,12 +331,14 @@ SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& sta
     const auto* mesh = m_model.mesh;
 
     std::vector<Cylinder> result;
-    result.emplace_back( pos + core::TRCoordinates(
-            glm::vec3( glm::translate( transforms.top(), mesh->center.toRenderSystem() )[3] ) ), mesh->collision_size );
+    result.emplace_back(
+            glm::translate( glm::mat4{1.0f}, pos.toRenderSystem() )
+            + glm::translate( transforms.top(), mesh->center.toRenderSystem() ),
+            mesh->collision_size );
     ++mesh;
 
     const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.bone_index]);
-    for( uint16_t i = 1; i < m_model.nmeshes; ++i, ++positionData, ++mesh )
+    for( int i = 1; i < m_model.nmeshes; ++i, ++positionData, ++mesh )
     {
         BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
 
@@ -350,9 +357,9 @@ SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& sta
             transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
                                 * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
-        result.emplace_back( pos + core::TRCoordinates(
-                glm::vec3( glm::translate( transforms.top(), mesh->center.toRenderSystem() )[3] ) ),
-                             mesh->collision_size );
+        auto m = glm::translate( transforms.top(), mesh->center.toRenderSystem() );
+        m[3] += glm::vec4( pos.toRenderSystem(), 0 );
+        result.emplace_back( m, mesh->collision_size );
     }
 
     return result;

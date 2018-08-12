@@ -115,14 +115,13 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
             const auto x = (util::rand15() - 16384) / 256 + lara.m_state.position.position.X;
             const auto y = lara.m_state.position.position.Y - util::rand15() / 64;
             const auto z = (util::rand15() - 16384) / 256 + lara.m_state.position.position.Z;
-            /* TODO: showBloodSplatter(
-                    x,
-                    y,
-                    z,
+            auto fx = engine::createBloodSplat(
+                    getLevel(),
+                    core::RoomBoundPosition{m_state.position.room, core::TRCoordinates{x, y, z}},
                     2 * m_state.speed,
-                    core::Angle( gsl::narrow_cast<int16_t>((util::rand15() - 16384) / 8) ) + m_state.rotation.Y,
-                    m_state.position.room);
-                    */
+                    core::Angle( gsl::narrow_cast<int16_t>( (util::rand15() - 16384) / 8 ) ) + m_state.rotation.Y
+            );
+            getLevel().m_particles.emplace_back( fx );
         }
         return;
     }
@@ -142,12 +141,20 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
     const auto z = lara.m_state.position.position.Z - m_state.position.position.Z;
     const auto xyz = std::max( 2 * loader::QuarterSectorSize, gsl::narrow_cast<int>(
             std::sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) ) );
-    /* TODO: showBloodSplatter(
-            x * loader::SectorSize / 2 / xyz + m_state.position.position.X,
-            y * loader::SectorSize / 2 / xyz + m_state.position.position.Y - 2*loader::QuarterSectorSize,
-            z*loader::SectorSize / 2 / xyz + m_state.position.position.Z,
+
+    auto fx = engine::createBloodSplat(
+            getLevel(),
+            core::RoomBoundPosition{
+                    m_state.position.room,
+                    core::TRCoordinates{
+                            x * loader::SectorSize / 2 / xyz + m_state.position.position.X,
+                            y * loader::SectorSize / 2 / xyz + m_state.position.position.Y
+                            - 2 * loader::QuarterSectorSize,
+                            z * loader::SectorSize / 2 / xyz + m_state.position.position.Z
+                    }
+            },
             m_state.speed,
-            m_state.rotation.Y,
-            m_state.position.room);
-            */
+            m_state.rotation.Y
+    );
+    getLevel().m_particles.emplace_back( fx );
 }

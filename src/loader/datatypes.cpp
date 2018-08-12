@@ -91,45 +91,6 @@ struct SpriteVertex
 
     glm::vec3 color{1.0f};
 };
-
-gsl::not_null<std::shared_ptr<gameplay::Mesh>>
-createSpriteMesh(const loader::Sprite& sprite, const std::shared_ptr<gameplay::Material>& material)
-{
-    const SpriteVertex vertices[]{
-            {{sprite.left_side,  sprite.top_side,    0}, {sprite.t0.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.top_side,    0}, {sprite.t1.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t0.y}},
-            {{sprite.left_side,  sprite.bottom_side, 0}, {sprite.t0.x, sprite.t0.y}}
-    };
-
-    gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME,        gameplay::gl::VertexAttribute{&SpriteVertex::pos}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME,           gameplay::gl::VertexAttribute{&SpriteVertex::color}}
-    };
-
-    auto mesh = make_not_null_shared<gameplay::Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
-
-    static const uint16_t indices[6] =
-            {
-                    0, 1, 2,
-                    0, 2, 3
-            };
-
-    gameplay::gl::VertexArrayBuilder builder;
-
-    auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
-    indexBuffer->setData( to_not_null( &indices[0] ), 6, false );
-    builder.attach( indexBuffer );
-    builder.attach( mesh->getBuffers() );
-
-    auto part = make_not_null_shared<gameplay::MeshPart>( builder.build( material->getShaderProgram()->getHandle() ) );
-    part->setMaterial( material );
-    mesh->addPart( part );
-
-    return mesh;
-}
 }
 
 std::shared_ptr<gameplay::Node> Room::createSceneNode(
@@ -141,20 +102,9 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
         const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
         render::TextureAnimator& animator)
 {
-    auto spriteMaterial = std::make_shared<gameplay::Material>( "shaders/textured_2.vert",
-                                                                "shaders/textured_2.frag" );
+    auto spriteMaterial = make_not_null_shared<gameplay::Material>( "shaders/textured_2.vert",
+                                                                    "shaders/textured_2.frag" );
     spriteMaterial->setCullFace( false );
-
-    spriteMaterial->getParameter( "u_modelViewMatrix" )
-                  ->bind( [](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform) {
-                      auto m = node.getModelViewMatrix();
-                      // clear out rotation component
-                      for( int i : {0, 2} )
-                          for( int j = 0; j < 3; ++j )
-                              m[i][j] = i == j ? 1 : 0;
-
-                      uniform.set( m );
-                  } );
 
     spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
@@ -309,9 +259,14 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
         const Sprite& sprite = level.m_sprites[spriteInstance.id];
         BOOST_ASSERT( sprite.texture < textures.size() );
 
-        auto spriteMesh = createSpriteMesh( sprite, spriteMaterial );
-        auto model = std::make_shared<gameplay::Model>();
-        model->addMesh( spriteMesh );
+        const auto model = std::make_shared<gameplay::Sprite>( sprite.left_side,
+                                                               sprite.top_side,
+                                                               sprite.right_side - sprite.left_side,
+                                                               sprite.bottom_side - sprite.top_side,
+                                                               sprite.t0,
+                                                               sprite.t1,
+                                                               spriteMaterial,
+                                                               gameplay::Sprite::Axis::Y );
 
         auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
         spriteNode->setDrawable( model );

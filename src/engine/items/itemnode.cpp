@@ -19,45 +19,6 @@ struct SpriteVertex
 
     glm::vec3 color{1.0f};
 };
-
-gsl::not_null<std::shared_ptr<gameplay::Mesh>> createSpriteMesh(const loader::Sprite& sprite,
-                                                                const std::shared_ptr<gameplay::Material>& material)
-{
-    const SpriteVertex vertices[]{
-            {{sprite.left_side,  sprite.top_side,    0}, {sprite.t0.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.top_side,    0}, {sprite.t1.x, sprite.t1.y}},
-            {{sprite.right_side, sprite.bottom_side, 0}, {sprite.t1.x, sprite.t0.y}},
-            {{sprite.left_side,  sprite.bottom_side, 0}, {sprite.t0.x, sprite.t0.y}}
-    };
-
-    gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME,        gameplay::gl::VertexAttribute{&SpriteVertex::pos}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&SpriteVertex::uv}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME,           gameplay::gl::VertexAttribute{&SpriteVertex::color}}
-    };
-
-    auto mesh = make_not_null_shared<gameplay::Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
-
-    static const uint16_t indices[6] =
-            {
-                    0, 1, 2,
-                    0, 2, 3
-            };
-
-    gameplay::gl::VertexArrayBuilder builder;
-
-    auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
-    indexBuffer->setData( to_not_null( &indices[0] ), 6, false );
-    builder.attach( indexBuffer );
-    builder.attach( mesh->getBuffers() );
-
-    auto part = make_not_null_shared<gameplay::MeshPart>( builder.build( material->getShaderProgram()->getHandle() ) );
-    mesh->addPart( part );
-    part->setMaterial( material );
-
-    return mesh;
-}
 }
 
 void ItemNode::applyTransform()
@@ -410,7 +371,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const loader::Item& item,
                                const bool hasProcessAnimCommandsOverride,
                                const loader::Sprite& sprite,
-                               const std::shared_ptr<gameplay::Material>& material,
+                               const gsl::not_null<std::shared_ptr<gameplay::Material>>& material,
                                const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures)
         : ItemNode{
         level,
@@ -419,12 +380,17 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
         hasProcessAnimCommandsOverride
 }
 {
-    const auto spriteMesh = createSpriteMesh( sprite, material );
-    auto model = std::make_shared<gameplay::Model>();
-    model->addMesh( spriteMesh );
+    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.left_side,
+                                                               sprite.top_side,
+                                                               sprite.right_side - sprite.left_side,
+                                                               sprite.bottom_side - sprite.top_side,
+                                                               sprite.t0,
+                                                               sprite.t1,
+                                                               material,
+                                                               gameplay::Sprite::Axis::Y );
 
     m_node = std::make_shared<gameplay::Node>( name );
-    m_node->setDrawable( model );
+    m_node->setDrawable( model.get() );
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
                                         [texture = textures[sprite.texture]](const gameplay::Node& /*node*/,
                                                                              gameplay::gl::Program::ActiveUniform& uniform) {
@@ -574,7 +540,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
         {
             if( laraCyl.radius <= 0 )
                 continue;
-            if( laraCyl.position.distanceTo( itemCyl.value().position )
+            if( glm::distance( laraCyl.getPosition(), itemCyl.value().getPosition() )
                 >= util::square( itemCyl.value().radius + laraCyl.radius ) )
                 continue;
 
@@ -584,6 +550,26 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
     }
 
     return m_state.touch_bits != 0;
+}
+
+void ModelItemNode::emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
+                                 std::shared_ptr<FX> (* generate)(const level::Level& level,
+                                                                  const core::RoomBoundPosition&, int16_t, core::Angle))
+{
+    BOOST_ASSERT( generate != nullptr );
+    BOOST_ASSERT( boneIndex < m_skeleton->getChildCount() );
+
+    const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
+            m_state,
+            *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
+            nullptr );
+    BOOST_ASSERT( boneIndex < itemCyls.size() );
+
+    auto roomPos = m_state.position;
+    roomPos.position = core::TRCoordinates{
+            glm::vec3{glm::translate( itemCyls[boneIndex].m, pos.toRenderSystem() )[3]}};
+    auto fx = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
+    getLevel().m_particles.emplace_back( fx );
 }
 
 bool ItemState::stalkBox(const level::Level& lvl, const loader::Box* box) const

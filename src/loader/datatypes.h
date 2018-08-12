@@ -9,6 +9,7 @@
 #include "meshes.h"
 #include "texture.h"
 #include "audio.h"
+#include "engine/items_tr1.h"
 
 #include <gsl/gsl>
 
@@ -1197,14 +1198,6 @@ struct Room
 };
 
 
-enum class TimerState
-{
-    Active,
-    Idle,
-    Stopped
-};
-
-
 struct Sprite
 {
     uint16_t texture;
@@ -1235,14 +1228,14 @@ struct Sprite
             BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture: tile > 64";
         }
 
-        int tx = reader.readU8();
-        int ty = reader.readU8();
-        int tw = reader.readU16();
-        int th = reader.readU16();
-        int tleft = reader.readI16();
-        int ttop = reader.readI16();
-        int tright = reader.readI16();
-        int tbottom = reader.readI16();
+        const auto tx = reader.readU8();
+        const auto ty = reader.readU8();
+        const auto tw = reader.readU16();
+        const auto th = reader.readU16();
+        const auto tleft = reader.readI16();
+        const auto ttop = reader.readI16();
+        const auto tright = reader.readI16();
+        const auto tbottom = reader.readI16();
 
         float w = tw / 256.0f;
         float h = th / 256.0f;
@@ -1267,14 +1260,14 @@ struct Sprite
             BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture: tile > 128";
         }
 
-        int tx = reader.readU8();
-        int ty = reader.readU8();
-        int tw = reader.readU16();
-        int th = reader.readU16();
-        int tleft = reader.readI16();
-        int ttop = reader.readI16();
-        int tright = reader.readI16();
-        int tbottom = reader.readI16();
+        const auto tx = reader.readU8();
+        const auto ty = reader.readU8();
+        const auto tw = reader.readU16();
+        const auto th = reader.readU16();
+        const auto tleft = reader.readI16();
+        const auto ttop = reader.readI16();
+        const auto tright = reader.readI16();
+        const auto tbottom = reader.readI16();
 
         sprite_texture->t0.x = tleft / 255.0f;
         sprite_texture->t0.y = tright / 255.0f;
@@ -1292,35 +1285,36 @@ struct Sprite
 
 struct SpriteSequence
 {
-    uint32_t type; // Item identifier (matched in Items[])
+    engine::TR1ItemId type; // Item identifier (matched in Items[])
     int16_t length; // negative of "how many sprites are in this sequence"
     uint16_t offset; // where (in sprite texture list) this sequence starts
 
-    /** \brief reads sprite sequence definition.
-      *
-      * length is negative when read and thus gets negated.
-      */
     static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
-        sprite_sequence->type = reader.readU32();
+        sprite_sequence->type = static_cast<engine::TR1ItemId>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
 
-        if( sprite_sequence->type > 191 )
+        if( sprite_sequence->type >= engine::TR1ItemId::Plant1 )
         {
-            sprite_sequence->type -= 191;
             sprite_sequence->length = 0;
         }
+
+        BOOST_ASSERT( sprite_sequence->length <= 0 );
+
         return sprite_sequence;
     }
 
     static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
-        sprite_sequence->type = reader.readU32();
+        sprite_sequence->type = static_cast<engine::TR1ItemId>(reader.readU32());
         sprite_sequence->length = reader.readI16();
-        sprite_sequence->offset = reader.readI16();
+        sprite_sequence->offset = reader.readU16();
+
+        BOOST_ASSERT( sprite_sequence->length <= 0 );
+
         return sprite_sequence;
     }
 };

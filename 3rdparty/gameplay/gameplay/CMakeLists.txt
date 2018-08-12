@@ -26,6 +26,8 @@ set( GAMEPLAY_SRC
      src/Scene.h
      src/ScreenOverlay.cpp
      src/ScreenOverlay.h
+     src/Sprite.cpp
+     src/Sprite.h
      src/Visitor.h
      src/Visitor.cpp
      src/gl/util.h

@@ -12,7 +12,7 @@ class Model : public Drawable
 public:
     explicit Model() = default;
 
-    ~Model() = default;
+    ~Model() override = default;
 
     const std::vector<gsl::not_null<std::shared_ptr<Mesh>>>& getMeshes() const
     {

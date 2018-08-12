@@ -75,11 +75,11 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
             {
                 if( m_shotgun )
                 {
-                    const auto& shotgunLara = *getLevel().m_animatedModels[2];
+                    const auto& shotgunLara = *getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim];
                     BOOST_ASSERT( shotgunLara.nmeshes == other.getNode()->getChildCount() );
 
-                    other.getNode()->getChild( 7 )->setDrawable(
-                                 getLevel().getModel( getLevel().m_meshIndices[shotgunLara.frame_number + 7] ).get() );
+                    other.getNode()->getChild( 7 )
+                         ->setDrawable( getLevel().m_models2[shotgunLara.frame_number + 7].get() );
                 }
 
                 m_state.triggerState = engine::items::TriggerState::Invisible;
