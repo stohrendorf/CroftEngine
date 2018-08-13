@@ -264,13 +264,14 @@ const std::unique_ptr<loader::SkeletalModelType>& Level::findAnimatedModelForTyp
     return none;
 }
 
-boost::optional<size_t> Level::findSpriteSequenceForType(engine::TR1ItemId type) const
+const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(engine::TR1ItemId type) const
 {
-    for( size_t i = 0; i < m_spriteSequences.size(); i++ )
-        if( m_spriteSequences[i].type == type )
-            return i;
+    const auto it = m_spriteSequences.find( type );
+    if( it != m_spriteSequences.end() )
+        return it->second;
 
-    return boost::none;
+    static const std::unique_ptr<loader::SpriteSequence> none;
+    return none;
 }
 
 std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>
@@ -303,29 +304,8 @@ Level::createMaterials(const std::vector<gsl::not_null<std::shared_ptr<gameplay:
     return materials;
 }
 
-engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures)
+engine::LaraNode* Level::createItems()
 {
-    auto spriteMaterial = make_not_null_shared<gameplay::Material>( "shaders/textured_2.vert",
-                                                                    "shaders/textured_2.frag" );
-    spriteMaterial->setCullFace( false );
-
-    spriteMaterial->getParameter( "u_modelViewMatrix" )
-                  ->bind( [](const gameplay::Node& node, gameplay::gl::Program::ActiveUniform& uniform) {
-                      auto m = node.getModelViewMatrix();
-                      // clear out rotation component
-                      for( int i : {0, 2} )
-                          for( int j = 0; j < 3; ++j )
-                              m[i][j] = i == j ? 1 : 0;
-
-                      uniform.set( m );
-                  } );
-
-    spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
-    spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
-
-    spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
-    spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
-
     engine::LaraNode* lara = nullptr;
     int id = -1;
     for( loader::Item& item : m_items )
@@ -359,10 +339,10 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
                 for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
                 {
                     BOOST_ASSERT( model->frame_number + boneIndex < m_models2.size() );
-                    auto node = std::make_shared<gameplay::Node>(
+                    auto node = make_not_null_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
                     node->setDrawable( m_models2[model->frame_number + boneIndex].get() );
-                    modelNode->getNode()->addChild( node );
+                    addChild( to_not_null( modelNode->getNode() ), node );
                 }
 
                 BOOST_ASSERT( modelNode->getNode()->getChildCount() == model->nmeshes );
@@ -474,7 +454,7 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
             }
 
             m_itemNodes[id] = modelNode;
-            room->node->addChild( modelNode->getNode() );
+            addChild( to_not_null( room->node ), to_not_null( modelNode->getNode() ) );
 
             modelNode->applyTransform();
             modelNode->updateLighting();
@@ -482,15 +462,12 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
             continue;
         }
 
-        if( const auto sequenceId = findSpriteSequenceForType( item.type ) )
+        if( const auto& spriteSequence = findSpriteSequenceForType( item.type ) )
         {
             BOOST_ASSERT( !findAnimatedModelForType( item.type ) );
-            BOOST_ASSERT( *sequenceId < m_spriteSequences.size() );
-            const loader::SpriteSequence& spriteSequence = m_spriteSequences[*sequenceId];
+            BOOST_ASSERT( spriteSequence->offset < m_sprites.size() );
 
-            BOOST_ASSERT( spriteSequence.offset < m_sprites.size() );
-
-            const loader::Sprite& sprite = m_sprites[spriteSequence.offset];
+            const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
 
             auto node = std::make_shared<engine::items::SpriteItemNode>( to_not_null( this ),
                                                                          "sprite:" + std::to_string( id ) + "(type:"
@@ -499,11 +476,10 @@ engine::LaraNode* Level::createItems(const std::vector<gsl::not_null<std::shared
                                                                          item,
                                                                          true,
                                                                          sprite,
-                                                                         spriteMaterial,
-                                                                         textures );
+                                                                         to_not_null( m_spriteMaterial ) );
 
             m_itemNodes[id] = node;
-            room->node->addChild( node->getNode() );
+            addChild( to_not_null( room->node ), to_not_null( node->getNode() ) );
 
             node->applyTransform();
 
@@ -542,10 +518,10 @@ std::shared_ptr<T> Level::createSkeletalModel(size_t id,
     for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
     {
         BOOST_ASSERT( model.frame_number + boneIndex < m_models2.size() );
-        auto node = std::make_shared<gameplay::Node>(
+        auto node = make_not_null_shared<gameplay::Node>(
                 skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
         node->setDrawable( m_models2[model.frame_number + boneIndex].get() );
-        skeletalModel->getNode()->addChild( node );
+        addChild( to_not_null( skeletalModel->getNode() ), node );
     }
 
     BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.nmeshes );
@@ -731,6 +707,12 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 
     auto textures = createTextures( glidos.get(), lvlName );
 
+    for( auto& sprite : m_sprites )
+    {
+        BOOST_ASSERT( sprite.texture_id < textures.size() );
+        sprite.texture = textures[sprite.texture_id];
+    }
+
     auto texturedShader = to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                 "shaders/textured_2.frag" ) );
     auto materials = createMaterials( textures, texturedShader );
@@ -740,6 +722,16 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+
+    BOOST_ASSERT( m_spriteMaterial == nullptr );
+    m_spriteMaterial = make_not_null_shared<gameplay::Material>( "shaders/textured_2.vert", "shaders/textured_2.frag" );
+    m_spriteMaterial->setCullFace( false );
+
+    m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
+    m_spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+
+    m_spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
+    m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures );
 
@@ -765,7 +757,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode( i, *this, textures, materials, waterMaterials, m_models, *m_textureAnimator );
+        m_rooms[i].createSceneNode( i, *this, materials, waterMaterials, m_models, *m_textureAnimator );
         game->getScene()->addNode( to_not_null( m_rooms[i].node ) );
     }
 
@@ -783,8 +775,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
             {
                 BOOST_ASSERT( trModel->frame_number + boneIndex < m_models2.size() );
 
-                std::string filename = "model_" + std::to_string( trModel->typeId ) + "_" + std::to_string( boneIndex )
-                                       + ".dae";
+                std::string filename = "model_" + std::to_string( int( trModel->typeId ) ) + "_"
+                                       + std::to_string( boneIndex ) + ".dae";
                 if( !objWriter.exists( filename ) )
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Saving model " << filename;
@@ -793,8 +785,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                     objWriter.write( model, filename, materials, {}, glm::vec3( 0.8f ) );
                 }
 
-                filename = "model_override_" + std::to_string( trModel->typeId ) + "_" + std::to_string( boneIndex )
-                           + ".dae";
+                filename = "model_override_" + std::to_string( int( trModel->typeId ) ) + "_"
+                           + std::to_string( boneIndex ) + ".dae";
                 if( objWriter.exists( filename ) )
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Loading override model " << filename;
@@ -907,7 +899,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
         objWriter.write( m_rooms, "_level.dae", materials, waterMaterials );
     }
 
-    m_lara = createItems( textures );
+    m_lara = createItems();
     if( m_lara == nullptr )
         return;
 
@@ -1372,7 +1364,7 @@ void Level::postProcessDataStructures()
         }
         model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
 
-        BOOST_ASSERT( model->frame_number >= 0 && model->frame_number < m_meshes.size() );
+        BOOST_ASSERT( model->frame_number < m_meshes.size() );
         model->mesh = &m_meshes[model->frame_number];
     }
 

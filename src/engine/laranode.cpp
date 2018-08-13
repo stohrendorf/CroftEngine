@@ -29,6 +29,7 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // find any blocks in the original room and un-patch the floor heights
     for( const auto& child : orig.node->getChildren() )
     {
+        // FIXME these dynamic casts will never work
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
@@ -45,13 +46,14 @@ void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     alternate.alternateRoom = -1;
 
     // move all items over
-    orig.node->swapChildren( to_not_null( alternate.node ) );
+    swapChildren( to_not_null( orig.node ), to_not_null( alternate.node ) );
 
     // patch heights in the new room.
     // note that this is exactly the same code as above,
     // except for the heights.
     for( const auto& child : orig.node->getChildren() )
     {
+        // FIXME these dynamic casts will never work
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
@@ -365,14 +367,13 @@ void LaraNode::update()
         getLevel().playSound( 33, m_state.position.position.toRenderSystem() );
         for( int i = 0; i < 10; ++i )
         {
-            auto fx = std::make_shared<engine::FX>( "splash", room, getLevel() );
-            fx->pos.position.X = m_state.position.position.X;
-            fx->pos.position.Y = *waterSurfaceHeight;
-            fx->pos.position.Z = m_state.position.position.Z;
-            fx->angle.Y = core::Angle( 2 * (util::rand15() - 16384) );
-            fx->negSpriteFrameId = 0;
-            fx->object_number = engine::TR1ItemId::Splash;
-            fx->speed = util::rand15() * 7 / 8;
+            core::RoomBoundPosition pos{room};
+            pos.position.X = m_state.position.position.X;
+            pos.position.Y = *waterSurfaceHeight;
+            pos.position.Z = m_state.position.position.Z;
+
+            auto fx = make_not_null_shared<engine::SplashParticle>( pos, getLevel() );
+            gameplay::setParent( fx, pos.room->node );
             getLevel().m_particles.emplace_back( fx );
         }
     }
@@ -2111,10 +2112,8 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
 
 void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
-    const auto fx = std::make_shared<FX>( "ricochet", m_state.position, getLevel() );
-    fx->object_number = engine::TR1ItemId::Ricochet;
-    fx->negSpriteFrameId = -3 * util::rand15() / 32768;
-    fx->timePerSpriteFrame = 4;
+    const auto fx = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
+    gameplay::setParent( fx, m_state.position.room->node );
     getLevel().m_particles.emplace_back( fx );
     getLevel().playSound( 10, pos.position.toRenderSystem() );
 }
@@ -2592,7 +2591,9 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
 }
 
 void
-LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode,
+LaraNode::renderGunFlare(LaraNode::WeaponId weaponId,
+                         glm::mat4 m,
+                         const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
                          bool visible)
 {
     if( !visible )
@@ -2628,7 +2629,7 @@ LaraNode::renderGunFlare(LaraNode::WeaponId weaponId, glm::mat4 m, const std::sh
     m *= core::TRRotation( -90_deg, 0_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
 
     flareNode->setVisible( true );
-    flareNode->setParent( getNode()->getParent().lock() );
+    setParent( flareNode, getNode()->getParent().lock() );
     flareNode->setLocalMatrix( getNode()->getLocalMatrix() * m );
 
     const auto brightness = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );

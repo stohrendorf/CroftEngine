@@ -14,7 +14,7 @@ class Drawable;
 class Scene;
 
 
-class Node : public std::enable_shared_from_this<Node>
+class Node
 {
     friend class Scene;
 
@@ -31,8 +31,6 @@ public:
     virtual ~Node();
 
     const std::string& getId() const;
-
-    void addChild(const std::shared_ptr<Node>& child);
 
     const std::weak_ptr<Node>& getParent() const;
 
@@ -92,44 +90,6 @@ public:
             visitor.visit( *node );
     }
 
-    void setParent(const std::shared_ptr<Node>& parent)
-    {
-        if( !m_parent.expired() )
-        {
-            auto p = m_parent.lock();
-            auto self = to_not_null(shared_from_this());
-            auto it = std::find( p->m_children.begin(), p->m_children.end(), self );
-            BOOST_ASSERT( it != p->m_children.end() );
-            m_parent.lock()->m_children.erase( it );
-        }
-
-        m_parent = parent;
-
-        if( parent != nullptr )
-            parent->m_children.emplace_back( shared_from_this() );
-
-        transformChanged();
-    }
-
-    void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& other)
-    {
-        auto otherChildren = other->m_children;
-        for( auto& child : otherChildren )
-            child->setParent( nullptr );
-        BOOST_ASSERT( other->m_children.empty() );
-
-        auto thisChildren = m_children;
-        for( auto& child : thisChildren )
-            child->setParent( nullptr );
-        BOOST_ASSERT( m_children.empty() );
-
-        for( auto& child : otherChildren )
-            child->setParent( shared_from_this() );
-
-        for( auto& child : thisChildren )
-            child->setParent( other );
-    }
-
     void addMaterialParameterSetter(const std::string& name,
                                     const std::function<MaterialParameter::UniformValueSetter>& setter)
     {
@@ -178,5 +138,59 @@ private:
     mutable bool m_dirty = false;
 
     std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
+
+    friend void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent);
 };
+
+
+inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node,
+                      const std::shared_ptr<Node>& parent)
+{
+    if( !node->getParent().expired() )
+    {
+        auto p = node->getParent().lock();
+        auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
+        BOOST_ASSERT( it != p->m_children.end() );
+        node->getParent().lock()->m_children.erase( it );
+    }
+
+    node->m_parent = parent;
+
+    if( parent != nullptr )
+        parent->m_children.emplace_back( node );
+
+    node->transformChanged();
+}
+
+inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a,
+                         const gsl::not_null<std::shared_ptr<Node>>& b)
+{
+    auto aChildren = a->getChildren();
+    for( auto& child : aChildren )
+        setParent( child, nullptr );
+    BOOST_ASSERT( a->getChildren().empty() );
+
+    auto bChildren = b->getChildren();
+    for( auto& child : bChildren )
+        setParent( child, nullptr );
+    BOOST_ASSERT( b->getChildren().empty() );
+
+    for( auto& child : bChildren )
+        setParent( child, a );
+
+    for( auto& child : aChildren )
+        setParent( child, b );
+}
+
+inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
+                     const gsl::not_null<std::shared_ptr<Node>>& child)
+{
+    if( !child->getParent().expired() && child->getParent().lock() == node.get() )
+    {
+        // This node is already present in our hierarchy
+        return;
+    }
+
+    setParent( child, node );
+}
 }

@@ -55,6 +55,8 @@ public:
              const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, false, animatedModel )
             , m_underwaterRoute{*level}
+            , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
+            , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
     {
         setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
         setTargetState( LaraStateId::Stop );
@@ -161,13 +163,11 @@ public:
         m_state.falling = true;
 
         auto gunFlareModel = level->m_models2[getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )
-                                                       ->frame_number];
+                                                        ->frame_number];
 
-        m_gunFlareLeft = std::make_shared<gameplay::Node>( "gun flare left" );
         m_gunFlareLeft->setDrawable( gunFlareModel.get() );
         m_gunFlareLeft->setVisible( false );
 
-        m_gunFlareRight = std::make_shared<gameplay::Node>( "gun flare right" );
         m_gunFlareRight->setDrawable( gunFlareModel.get() );
         m_gunFlareRight->setVisible( false );
     }
@@ -457,8 +457,8 @@ public:
 
     std::unordered_map<WeaponId, Weapon> weapons;
     core::TRRotationXY m_weaponTargetVector;
-    std::shared_ptr<gameplay::Node> m_gunFlareLeft;
-    std::shared_ptr<gameplay::Node> m_gunFlareRight;
+    gsl::not_null<std::shared_ptr<gameplay::Node>> m_gunFlareLeft;
+    gsl::not_null<std::shared_ptr<gameplay::Node>> m_gunFlareRight;
 
     void updateLarasWeaponsStatus();
 
@@ -507,7 +507,8 @@ public:
 
     void hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage);
 
-    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const std::shared_ptr<gameplay::Node>& flareNode, bool visible);
+    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
+                        bool visible);
 
     void drawRoutine();
 

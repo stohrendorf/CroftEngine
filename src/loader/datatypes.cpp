@@ -96,23 +96,11 @@ struct SpriteVertex
 std::shared_ptr<gameplay::Node> Room::createSceneNode(
         size_t roomId,
         const level::Level& level,
-        const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
         const std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
         const std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
         const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
         render::TextureAnimator& animator)
 {
-    auto spriteMaterial = make_not_null_shared<gameplay::Material>( "shaders/textured_2.vert",
-                                                                    "shaders/textured_2.frag" );
-    spriteMaterial->setCullFace( false );
-
-    spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
-    spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
-
-    spriteMaterial->getParameter( "u_baseLight" )->set( 1.0f );
-    spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
-    spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
-
     RenderModel renderModel;
     std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
     std::vector<RenderVertex> vbuf;
@@ -229,7 +217,7 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
         auto idx = level.findStaticMeshIndexById( sm.meshId );
         BOOST_ASSERT( idx >= 0 );
         BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
-        auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
+        auto subNode = make_not_null_shared<gameplay::Node>( "staticMesh" );
         subNode->setDrawable( staticMeshes[idx].get() );
         subNode->setLocalMatrix( glm::translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
                                  * glm::rotate( glm::mat4{1.0f}, util::auToRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
@@ -247,7 +235,7 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
                                                                    gameplay::gl::Program::ActiveUniform& uniform) {
             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
         } );
-        node->addChild( subNode );
+        addChild( to_not_null( node ), subNode );
     }
     node->setLocalMatrix( glm::translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
 
@@ -257,7 +245,6 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
         BOOST_ASSERT( spriteInstance.id < level.m_sprites.size() );
 
         const Sprite& sprite = level.m_sprites[spriteInstance.id];
-        BOOST_ASSERT( sprite.texture < textures.size() );
 
         const auto model = std::make_shared<gameplay::Sprite>( sprite.left_side,
                                                                sprite.top_side,
@@ -265,16 +252,16 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
                                                                sprite.bottom_side - sprite.top_side,
                                                                sprite.t0,
                                                                sprite.t1,
-                                                               spriteMaterial,
+                                                               to_not_null( level.m_spriteMaterial ),
                                                                gameplay::Sprite::Axis::Y );
 
-        auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
+        auto spriteNode = make_not_null_shared<gameplay::Node>( "sprite" );
         spriteNode->setDrawable( model );
         const RoomVertex& v = vertices[spriteInstance.vertex];
         spriteNode->setLocalMatrix( glm::translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
         spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
-                                                [texture = textures[sprite.texture]](const gameplay::Node& /*node*/,
-                                                                                     gameplay::gl::Program::ActiveUniform& uniform) {
+                                                [texture = sprite.texture](const gameplay::Node& /*node*/,
+                                                                           gameplay::gl::Program::ActiveUniform& uniform) {
                                                     uniform.set( *texture );
                                                 } );
         spriteNode->addMaterialParameterSetter( "u_baseLight",
@@ -283,7 +270,7 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
                                                     uniform.set( brightness );
                                                 } );
 
-        node->addChild( spriteNode );
+        addChild( to_not_null( node ), spriteNode );
     }
 
     return node;

@@ -426,9 +426,10 @@ public:
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
     void emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
-                      std::shared_ptr<engine::FX> (* generate)(const level::Level& level,
-                                                               const core::RoomBoundPosition& pos, int16_t speed,
-                                                               core::Angle angle));
+                      gsl::not_null<std::shared_ptr<engine::FX>> (* generate)(const level::Level& level,
+                                                                              const core::RoomBoundPosition& pos,
+                                                                              int16_t speed,
+                                                                              core::Angle angle));
 };
 
 
@@ -446,8 +447,7 @@ public:
             const loader::Item& item,
             bool hasProcessAnimCommandsOverride,
             const loader::Sprite& sprite,
-            const gsl::not_null<std::shared_ptr<gameplay::Material>>& material,
-            const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures);
+            const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
 
     bool triggerSwitch(uint16_t) override
     {

@@ -1111,7 +1111,6 @@ struct Room
     std::shared_ptr<gameplay::Node> createSceneNode(
             size_t roomId,
             const level::Level& level,
-            const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
             const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
             const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
             const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
@@ -1200,7 +1199,9 @@ struct Room
 
 struct Sprite
 {
-    uint16_t texture;
+    uint16_t texture_id;
+
+    std::shared_ptr<gameplay::gl::Texture> texture{ nullptr };
 
     glm::vec2 t0;
 
@@ -1214,16 +1215,12 @@ struct Sprite
 
     int16_t bottom_side;
 
-    /** \brief reads sprite texture definition.
-      *
-      * some sanity checks get done and if they fail an exception gets thrown.
-      */
     static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite_texture{std::make_unique<Sprite>()};
+        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
 
-        sprite_texture->texture = reader.readU16();
-        if( sprite_texture->texture > 64 )
+        sprite->texture_id = reader.readU16();
+        if( sprite->texture_id > 64 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture: tile > 64";
         }
@@ -1239,23 +1236,23 @@ struct Sprite
 
         float w = tw / 256.0f;
         float h = th / 256.0f;
-        sprite_texture->t0.x = tx / 255.0f;
-        sprite_texture->t0.y = ty / 255.0f;
-        sprite_texture->t1.x = sprite_texture->t0.x + w / 255.0f;
-        sprite_texture->t1.y = sprite_texture->t0.y + h / 255.0f;
+        sprite->t0.x = tx / 255.0f;
+        sprite->t0.y = ty / 255.0f;
+        sprite->t1.x = sprite->t0.x + w / 255.0f;
+        sprite->t1.y = sprite->t0.y + h / 255.0f;
 
-        sprite_texture->left_side = tleft;
-        sprite_texture->right_side = tright;
-        sprite_texture->top_side = -tbottom;
-        sprite_texture->bottom_side = -ttop;
-        return sprite_texture;
+        sprite->left_side = tleft;
+        sprite->right_side = tright;
+        sprite->top_side = -tbottom;
+        sprite->bottom_side = -ttop;
+        return sprite;
     }
 
     static std::unique_ptr<Sprite> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite_texture{std::make_unique<Sprite>()};
-        sprite_texture->texture = reader.readU16();
-        if( sprite_texture->texture > 128 )
+        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
+        sprite->texture_id = reader.readU16();
+        if( sprite->texture_id > 128 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture: tile > 128";
         }
@@ -1269,16 +1266,16 @@ struct Sprite
         const auto tright = reader.readI16();
         const auto tbottom = reader.readI16();
 
-        sprite_texture->t0.x = tleft / 255.0f;
-        sprite_texture->t0.y = tright / 255.0f;
-        sprite_texture->t1.x = tbottom / 255.0f;
-        sprite_texture->t1.y = ttop / 255.0f;
+        sprite->t0.x = tleft / 255.0f;
+        sprite->t0.y = tright / 255.0f;
+        sprite->t1.x = tbottom / 255.0f;
+        sprite->t1.y = ttop / 255.0f;
 
-        sprite_texture->left_side = tx;
-        sprite_texture->right_side = tx + tw / 256;
-        sprite_texture->bottom_side = ty;
-        sprite_texture->top_side = ty + th / 256;
-        return sprite_texture;
+        sprite->left_side = tx;
+        sprite->right_side = tx + tw / 256;
+        sprite->bottom_side = ty;
+        sprite->top_side = ty + th / 256;
+        return sprite;
     }
 };
 

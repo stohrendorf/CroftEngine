@@ -18,7 +18,9 @@ class Material : public RenderState
 public:
     explicit Material(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
-    ~Material();
+    Material(const Material&) = delete;
+
+    ~Material() override;
 
     explicit Material(const std::string& vshPath, const std::string& fshPath,
                       const std::vector<std::string>& defines = {});
@@ -33,8 +35,6 @@ public:
     gsl::not_null<std::shared_ptr<MaterialParameter>> getParameter(const std::string& name) const;
 
 private:
-
-    Material(const Material&) = delete;
 
     gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 

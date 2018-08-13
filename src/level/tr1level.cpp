@@ -78,10 +78,10 @@ void TR1Level::loadFileData()
         for( uint32_t i = 0; i < n; ++i )
         {
             auto m = loader::SkeletalModelType::readTr1( m_reader );
-            if( m_animatedModels.find( static_cast<engine::TR1ItemId>(m->typeId) ) != m_animatedModels.end() )
+            if( m_animatedModels.find( m->typeId ) != m_animatedModels.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
 
-            m_animatedModels[static_cast<engine::TR1ItemId>(m->typeId)] = std::move( m );
+            m_animatedModels[m->typeId] = std::move( m );
         }
     }
 
@@ -95,7 +95,17 @@ void TR1Level::loadFileData()
     m_reader.readVector( m_sprites, m_reader.readU32(), &loader::Sprite::readTr1 );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading sprite sequences";
-    m_reader.readVector( m_spriteSequences, m_reader.readU32(), &loader::SpriteSequence::readTr1 );
+    {
+        const auto n = m_reader.readU32();
+        for( uint32_t i = 0; i < n; ++i )
+        {
+            auto m = loader::SpriteSequence::readTr1( m_reader );
+            if( m_spriteSequences.find( m->type ) != m_spriteSequences.end() )
+                BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
+
+            m_spriteSequences[m->type] = std::move( m );
+        }
+    }
 
     if( m_demoOrUb )
     {

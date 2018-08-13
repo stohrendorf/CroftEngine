@@ -23,17 +23,7 @@ struct SpriteVertex
 
 void ItemNode::applyTransform()
 {
-    glm::vec3 tr;
-
-    if( const auto parent = m_state.position.room )
-    {
-        tr = m_state.position.position.toRenderSystem() - parent->position.toRenderSystem();
-    }
-    else
-    {
-        tr = m_state.position.position.toRenderSystem();
-    }
-
+    glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
     getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
 
     updateSounds();
@@ -85,7 +75,7 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
     }
     BOOST_LOG_TRIVIAL( debug ) << "Room switch of " << getNode()->getId() << " to " << newRoom->node->getId();
 
-    newRoom->node->addChild( getNode() );
+    addChild( to_not_null( newRoom->node ), to_not_null( getNode() ) );
 
     m_state.position.room = newRoom;
     applyTransform();
@@ -371,8 +361,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const loader::Item& item,
                                const bool hasProcessAnimCommandsOverride,
                                const loader::Sprite& sprite,
-                               const gsl::not_null<std::shared_ptr<gameplay::Material>>& material,
-                               const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures)
+                               const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
         : ItemNode{
         level,
         room,
@@ -392,8 +381,8 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
     m_node = std::make_shared<gameplay::Node>( name );
     m_node->setDrawable( model.get() );
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
-                                        [texture = textures[sprite.texture]](const gameplay::Node& /*node*/,
-                                                                             gameplay::gl::Program::ActiveUniform& uniform) {
+                                        [texture = sprite.texture](const gameplay::Node& /*node*/,
+                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( *texture );
                                         } );
     m_node->addMaterialParameterSetter( "u_baseLight",
@@ -553,8 +542,9 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 }
 
 void ModelItemNode::emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
-                                 std::shared_ptr<FX> (* generate)(const level::Level& level,
-                                                                  const core::RoomBoundPosition&, int16_t, core::Angle))
+                                 gsl::not_null<std::shared_ptr<FX>> (* generate)(const level::Level& level,
+                                                                                 const core::RoomBoundPosition&,
+                                                                                 int16_t, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildCount() );

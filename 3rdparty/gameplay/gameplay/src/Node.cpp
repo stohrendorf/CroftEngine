@@ -12,25 +12,25 @@ Node::Node(const std::string& id)
 
 Node::~Node()
 {
-    setParent( nullptr );
+    if( !getParent().expired() )
+    {
+        auto p = getParent().lock();
+        auto it = std::find_if( p->m_children.begin(), p->m_children.end(),
+                                [this](const gsl::not_null<std::shared_ptr<Node>>& node) {
+                                    return node.get().get() == this;
+                                } );
+        BOOST_ASSERT( it != p->m_children.end() );
+        getParent().lock()->m_children.erase( it );
+    }
+
+    m_parent.reset();
+
+    transformChanged();
 }
 
 const std::string& Node::getId() const
 {
     return m_id;
-}
-
-void Node::addChild(const std::shared_ptr<Node>& child)
-{
-    BOOST_ASSERT( child );
-
-    if( !child->m_parent.expired() && child->m_parent.lock() == shared_from_this() )
-    {
-        // This node is already present in our hierarchy
-        return;
-    }
-
-    child->setParent( shared_from_this() );
 }
 
 const std::weak_ptr<Node>& Node::getParent() const

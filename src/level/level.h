@@ -68,7 +68,7 @@ public:
 
     std::vector<loader::Sprite> m_sprites;
 
-    std::vector<loader::SpriteSequence> m_spriteSequences;
+    std::map<engine::TR1ItemId, std::unique_ptr<loader::SpriteSequence>> m_spriteSequences;
 
     std::vector<loader::Camera> m_cameras;
 
@@ -144,7 +144,7 @@ public:
 
     const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
 
-    boost::optional<size_t> findSpriteSequenceForType(engine::TR1ItemId type) const;
+    const std::unique_ptr<loader::SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>> createTextures(
             loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
@@ -153,7 +153,7 @@ public:
     createMaterials(const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
                     const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
-    engine::LaraNode* createItems(const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures);
+    engine::LaraNode* createItems();
 
     void setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                         const boost::filesystem::path& assetPath,
@@ -182,7 +182,7 @@ public:
         auto node = createSkeletalModel<T>( 99999, *model, room, item );
 
         m_dynamicItems.insert( node );
-        room->node->addChild( node->getNode() );
+        addChild( to_not_null( room->node ), to_not_null( node->getNode() ) );
 
         return node;
     }
@@ -423,9 +423,11 @@ public:
 
     bool roomsAreSwapped = false;
 
-    std::vector<std::shared_ptr<engine::FX>> m_particles;
+    std::vector<gsl::not_null<std::shared_ptr<engine::FX>>> m_particles;
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models2;
+
+    std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 
 protected:
     loader::io::SDLReader m_reader;

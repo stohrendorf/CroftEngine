@@ -49,10 +49,9 @@ public:
 
         kill();
 
-        const auto fx = std::make_shared<FX>( "ricochet", m_state.position, getLevel() );
+        const auto fx = make_not_null_shared<engine::RicochetParticle>( m_state.position, getLevel() );
+        gameplay::setParent( fx, m_state.position.room->node );
         fx->angle = m_state.rotation;
-        fx->object_number = engine::TR1ItemId::Ricochet;
-        fx->negSpriteFrameId = -3 * util::rand15() / 32768;
         fx->timePerSpriteFrame = 6;
         getLevel().m_particles.emplace_back( fx );
     }
