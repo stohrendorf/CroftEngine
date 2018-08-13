@@ -26,7 +26,7 @@ void engine::items::RollingBall::update()
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+        auto sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
         setCurrentRoom( room );
         const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
         m_state.floor = hi.distance;
@@ -43,7 +43,7 @@ void engine::items::RollingBall::update()
                              + core::TRCoordinates( m_state.rotation.Y.sin() * loader::SectorSize / 2,
                                                     0,
                                                     m_state.rotation.Y.cos() * loader::SectorSize / 2 );
-        sector = getLevel().findRealFloorSector( testPos, room );
+        sector = to_not_null( getLevel().findRealFloorSector( testPos, room ) );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).distance < m_state.position.position.Y )
         {
             m_state.fallspeed = 0;

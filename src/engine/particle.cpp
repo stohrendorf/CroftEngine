@@ -5,7 +5,7 @@
 namespace engine
 {
 
-void FX::initDrawables(const level::Level& level)
+void Particle::initDrawables(const level::Level& level)
 {
     if( const auto& modelType = level.findAnimatedModelForType( object_number ) )
     {
@@ -55,27 +55,31 @@ void FX::initDrawables(const level::Level& level)
     m_lighting.bind( *this );
 }
 
-void BloodSplatterParticle::update(const level::Level& level)
+bool BloodSplatterParticle::update(const level::Level& level)
 {
     pos.position.X += speed * angle.Y.sin();
     pos.position.Z += speed * angle.Y.cos();
     ++timePerSpriteFrame;
     if( timePerSpriteFrame != 4 )
-        return;
+        return true;
 
     timePerSpriteFrame = 0;
     nextFrame();
     auto it = level.m_spriteSequences.find( object_number );
     BOOST_ASSERT( it != level.m_spriteSequences.end() );
+
+    BOOST_LOG_TRIVIAL( info ) << "NEG=" << negSpriteFrameId << " / LEN=" << it->second->length;
+
     if( negSpriteFrameId <= it->second->length )
     {
-        // FIXME KillEffect( this );
+        return false;
     }
 
     applyTransform();
+    return true;
 }
 
-void SplashParticle::update(const level::Level& level)
+bool SplashParticle::update(const level::Level& level)
 {
     auto it = level.m_spriteSequences.find( object_number );
     BOOST_ASSERT( it != level.m_spriteSequences.end() );
@@ -84,7 +88,7 @@ void SplashParticle::update(const level::Level& level)
 
     if( negSpriteFrameId <= it->second->length )
     {
-        // FIXME KillEffect( this );
+        return false;
     }
     else
     {
@@ -93,5 +97,31 @@ void SplashParticle::update(const level::Level& level)
     }
 
     applyTransform();
+    return true;
+}
+
+bool BubbleParticle::update(const level::Level& level)
+{
+    angle.X += 13_deg;
+    angle.Y += 9_deg;
+    core::TRCoordinates testPos{
+            static_cast<int>(11 * angle.Y.sin() + pos.position.X),
+            pos.position.Y - speed,
+            static_cast<int>((8 * angle.X.cos()) + pos.position.Z)
+    };
+    auto sector = level.findRealFloorSector( testPos, to_not_null( &pos.room ) );
+    if( sector == nullptr || !pos.room->isWaterRoom() )
+    {
+        return false;
+    }
+
+    auto ceiling = HeightInfo::fromCeiling( to_not_null( sector ), testPos, level.m_itemNodes ).distance;
+    if( ceiling == -loader::HeightLimit || testPos.Y <= ceiling )
+    {
+        return false;
+    }
+
+    pos.position = testPos;
+    return true;
 }
 }

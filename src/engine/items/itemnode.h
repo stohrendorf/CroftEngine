@@ -26,7 +26,7 @@ namespace engine
 class LaraNode;
 
 
-class FX;
+class Particle;
 
 namespace ai
 {
@@ -425,8 +425,9 @@ public:
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-    void emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
-                      gsl::not_null<std::shared_ptr<engine::FX>> (* generate)(const level::Level& level,
+    void emitParticle(const core::TRCoordinates& pos,
+                      size_t boneIndex,
+                      gsl::not_null<std::shared_ptr<engine::Particle>> (* generate)(const level::Level& level,
                                                                               const core::RoomBoundPosition& pos,
                                                                               int16_t speed,
                                                                               core::Angle angle));

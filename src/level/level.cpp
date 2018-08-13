@@ -956,15 +956,14 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
     }
 }
 
-gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCoordinates& position,
-                                                                const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const
+const loader::Sector* Level::findRealFloorSector(const core::TRCoordinates& position,
+                                                 const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
     {
         sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / loader::SectorSize,
                                                            (position.Z - (*room)->position.Z) / loader::SectorSize );
-        Expects( sector != nullptr );
         if( sector->portalTarget == nullptr )
         {
             break;
@@ -980,7 +979,8 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
         {
             *room = to_not_null( sector->roomAbove );
             sector = (*room)->getSectorByAbsolutePosition( position );
-            Expects( sector != nullptr );
+            if( sector == nullptr )
+                return nullptr;
         }
     }
     else
@@ -989,11 +989,12 @@ gsl::not_null<const loader::Sector*> Level::findRealFloorSector(const core::TRCo
         {
             *room = to_not_null( sector->roomBelow );
             sector = (*room)->getSectorByAbsolutePosition( position );
-            Expects( sector != nullptr );
+            if( sector == nullptr )
+                return nullptr;
         }
     }
 
-    return to_not_null( sector );
+    return sector;
 }
 
 gsl::not_null<const loader::Room*>

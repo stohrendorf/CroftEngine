@@ -300,8 +300,7 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
             break;
     }
 
-    auto sector = getLevel()
-            .findRealFloorSector( pos, m_lara.m_state.position.room );
+    auto sector = to_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
     HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
     return floor.distance != -loader::HeightLimit && floor.distance - pos.Y > 0 && ceil.distance - pos.Y < -400;
@@ -604,7 +603,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    auto sector = getLevel().findRealFloorSector( pos, m_lara.m_state.position.room );
+    auto sector = to_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
@@ -793,8 +792,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = getLevel()
-            .findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room );
+    auto sector = to_not_null(
+            getLevel().findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room ) );
     HeightInfo h = HeightInfo::fromFloor( sector,
                                           m_lara.m_state.position.position
                                           - core::TRCoordinates{0, core::ScalpHeight, 0},

@@ -22,7 +22,7 @@ void SwingingBlade::update()
     }
 
     auto room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+    auto sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
     setCurrentRoom( room );
     const int h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).distance;
     m_state.floor = h;

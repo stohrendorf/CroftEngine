@@ -199,11 +199,21 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
             ctrl->update();
     }
 
-    for( const std::shared_ptr<engine::FX>& ctrl : lvl->m_particles )
+    std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> particlesToKeep;
+    for( const gsl::not_null<std::shared_ptr<engine::Particle>>& particle : lvl->m_particles )
     {
-        ctrl->update( *lvl );
-        ctrl->updateLight();
+        if( particle->update( *lvl ) )
+        {
+            particlesToKeep.emplace_back( particle );
+            setParent( particle, particle->pos.room->node );
+            particle->updateLight();
+        }
+        else
+        {
+            setParent( particle, nullptr );
+        }
     }
+    lvl->m_particles = particlesToKeep;
 
     if( godMode )
         lvl->m_lara->m_state.health = core::LaraHealth;
@@ -271,7 +281,8 @@ int main()
 #endif
     }
 
-    sol::table levelInfo = scriptEngine["getLevelInfo"]();
+    sol::table
+    levelInfo = scriptEngine["getLevelInfo"]();
     const auto baseName = levelInfo.get<std::string>( "baseName" );
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );

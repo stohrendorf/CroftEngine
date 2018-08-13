@@ -1,6 +1,7 @@
 #pragma once
 
 #include "itemnode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -37,7 +38,7 @@ public:
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+        auto sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
         if( room != m_state.position.room )
             setCurrentRoom( room );
 
@@ -49,11 +50,11 @@ public:
 
         kill();
 
-        const auto fx = make_not_null_shared<engine::RicochetParticle>( m_state.position, getLevel() );
-        gameplay::setParent( fx, m_state.position.room->node );
-        fx->angle = m_state.rotation;
-        fx->timePerSpriteFrame = 6;
-        getLevel().m_particles.emplace_back( fx );
+        const auto particle = make_not_null_shared<engine::RicochetParticle>( m_state.position, getLevel() );
+        gameplay::setParent( particle, m_state.position.room->node );
+        particle->angle = m_state.rotation;
+        particle->timePerSpriteFrame = 6;
+        getLevel().m_particles.emplace_back( particle );
     }
 };
 }

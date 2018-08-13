@@ -372,9 +372,9 @@ void LaraNode::update()
             pos.position.Y = *waterSurfaceHeight;
             pos.position.Z = m_state.position.position.Z;
 
-            auto fx = make_not_null_shared<engine::SplashParticle>( pos, getLevel() );
-            gameplay::setParent( fx, pos.room->node );
-            getLevel().m_particles.emplace_back( fx );
+            auto particle = make_not_null_shared<engine::SplashParticle>( pos, getLevel() );
+            gameplay::setParent( particle, pos.room->node );
+            getLevel().m_particles.emplace_back( particle );
         }
     }
     else
@@ -569,6 +569,30 @@ void LaraNode::updateImpl()
                         {
                             m_state.rotation.Y += 180_deg;
                         }
+                        else if( cmd[1] == 3 )
+                        {
+                            auto bubbleCount = util::rand15() * 3 / 32768;
+                            if( bubbleCount != 0 )
+                            {
+                                playSoundEffect( 37 );
+
+                                const auto itemCyls = getSkeleton()->getBoneCollisionCylinders(
+                                        m_state,
+                                        *getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame(),
+                                        nullptr );
+                                auto position = core::TRCoordinates{
+                                        glm::vec3{glm::translate( itemCyls[14].m,
+                                                                  core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
+
+                                while( bubbleCount-- > 0 )
+                                {
+                                    auto particle = make_not_null_shared<engine::BubbleParticle>(
+                                            core::RoomBoundPosition{m_state.position.room, position}, getLevel() );
+                                    setParent( particle, m_state.position.room->node );
+                                    getLevel().m_particles.emplace_back( particle );
+                                }
+                            }
+                        }
                         else if( cmd[1] == 12 )
                             setHandStatus( HandStatus::None );
                         //! @todo Execute anim effect cmd[1]
@@ -591,8 +615,7 @@ void LaraNode::updateFloorHeight(int dy)
     auto pos = m_state.position.position;
     pos.Y += dy;
     auto room = m_state.position.room;
-    const auto sector = getLevel()
-            .findRealFloorSector( pos, to_not_null( &room ) );
+    const auto sector = to_not_null( getLevel().findRealFloorSector( pos, to_not_null( &room ) ) );
     setCurrentRoom( room );
     const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     m_state.floor = hi.distance;
@@ -2112,9 +2135,9 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
 
 void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
-    const auto fx = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
-    gameplay::setParent( fx, m_state.position.room->node );
-    getLevel().m_particles.emplace_back( fx );
+    const auto particle = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
+    gameplay::setParent( particle, m_state.position.room->node );
+    getLevel().m_particles.emplace_back( particle );
     getLevel().playSound( 10, pos.position.toRenderSystem() );
 }
 

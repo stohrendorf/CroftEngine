@@ -101,9 +101,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector(
+    auto sector = to_not_null( getLevel().findRealFloorSector(
             m_state.position.position + core::TRCoordinates{0, bbox.minY, 0},
-            to_not_null( &room ) );
+            to_not_null( &room ) ) );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
 
@@ -138,9 +138,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = oldPosition.Z | 0x3ff;
 
-        sector = getLevel().findRealFloorSector(
+        sector = to_not_null( getLevel().findRealFloorSector(
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                to_not_null( &room ) );
+                to_not_null( &room ) ) );
 
         currentFloor = sector->box->floor;
 
@@ -292,9 +292,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( moveX != 0 || moveZ != 0 )
     {
-        sector = getLevel().findRealFloorSector(
+        sector = to_not_null( getLevel().findRealFloorSector(
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                to_not_null( &room ) );
+                to_not_null( &room ) ) );
 
         m_state.rotation.Y += angle;
         m_state.rotation.Z += util::clamp(
@@ -365,9 +365,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
 
         m_state.position.position.Y += moveY;
-        sector = getLevel().findRealFloorSector(
+        sector = to_not_null( getLevel().findRealFloorSector(
                 core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                to_not_null( &room ) );
+                to_not_null( &room ) ) );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRCoordinates{
                                                        m_state.position.position.X,
@@ -407,7 +407,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     m_state.rotation.X = 0_au;
 
-    sector = getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+    sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
     m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).distance;
 
     setCurrentRoom( room );

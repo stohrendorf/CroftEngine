@@ -192,6 +192,30 @@ void ModelItemNode::update()
                     {
                         m_state.rotation.Y += 180_deg;
                     }
+                    else if( cmd[1] == 3 )
+                    {
+                        auto bubbleCount = util::rand15() * 3 / 32768;
+                        if( bubbleCount != 0 )
+                        {
+                            playSoundEffect( 37 );
+
+                            const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
+                                    m_state,
+                                    *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
+                                    nullptr );
+                            auto position = core::TRCoordinates{
+                                    glm::vec3{glm::translate( itemCyls[14].m,
+                                                              core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
+
+                            while( bubbleCount-- > 0 )
+                            {
+                                auto particle = make_not_null_shared<engine::BubbleParticle>(
+                                        core::RoomBoundPosition{m_state.position.room, position}, getLevel() );
+                                setParent( particle, m_state.position.room->node );
+                                getLevel().m_particles.emplace_back( particle );
+                            }
+                        }
+                    }
                     else if( cmd[1] == 12 )
                     {
                         getLevel().m_lara->setHandStatus( HandStatus::None );
@@ -487,7 +511,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool
                 getLevel().m_lara->hit_frame = 34;
             }
         }
-        collisionInfo.badPositiveDistance = 32512;
+        collisionInfo.badPositiveDistance = loader::HeightLimit;
         collisionInfo.badNegativeDistance = -384;
         collisionInfo.badCeilingDistance = 0;
         const auto facingAngle = collisionInfo.facingAngle;
@@ -541,10 +565,11 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
     return m_state.touch_bits != 0;
 }
 
-void ModelItemNode::emitParticle(const core::TRCoordinates& pos, size_t boneIndex,
-                                 gsl::not_null<std::shared_ptr<FX>> (* generate)(const level::Level& level,
-                                                                                 const core::RoomBoundPosition&,
-                                                                                 int16_t, core::Angle))
+void ModelItemNode::emitParticle(const core::TRCoordinates& pos,
+                                 size_t boneIndex,
+                                 gsl::not_null<std::shared_ptr<Particle>> (* generate)(const level::Level& level,
+                                                                                       const core::RoomBoundPosition&,
+                                                                                       int16_t, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildCount() );
@@ -558,8 +583,8 @@ void ModelItemNode::emitParticle(const core::TRCoordinates& pos, size_t boneInde
     auto roomPos = m_state.position;
     roomPos.position = core::TRCoordinates{
             glm::vec3{glm::translate( itemCyls[boneIndex].m, pos.toRenderSystem() )[3]}};
-    auto fx = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
-    getLevel().m_particles.emplace_back( fx );
+    auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
+    getLevel().m_particles.emplace_back( particle );
 }
 
 bool ItemState::stalkBox(const level::Level& lvl, const loader::Box* box) const

@@ -187,19 +187,19 @@ public:
         return node;
     }
 
-    gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position,
-                                                             gsl::not_null<const loader::Room*> room) const
+    const loader::Sector* findRealFloorSector(const core::TRCoordinates& position,
+                                              gsl::not_null<const loader::Room*> room) const
     {
         return findRealFloorSector( position, to_not_null( &room ) );
     }
 
-    gsl::not_null<const loader::Sector*> findRealFloorSector(core::RoomBoundPosition& rbs) const
+    const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs) const
     {
         return findRealFloorSector( rbs.position, to_not_null( &rbs.room ) );
     }
 
-    gsl::not_null<const loader::Sector*> findRealFloorSector(const core::TRCoordinates& position,
-                                                             const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const;
+    const loader::Sector* findRealFloorSector(const core::TRCoordinates& position,
+                                              const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const;
 
     gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRCoordinates& position,
                                                            gsl::not_null<const loader::Room*> room) const;
@@ -423,7 +423,7 @@ public:
 
     bool roomsAreSwapped = false;
 
-    std::vector<gsl::not_null<std::shared_ptr<engine::FX>>> m_particles;
+    std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> m_particles;
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models2;
 
