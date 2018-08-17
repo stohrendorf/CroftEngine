@@ -429,6 +429,8 @@ public:
 
     std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 
+    void floorShakeEffect(const engine::items::ItemState& state);
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;

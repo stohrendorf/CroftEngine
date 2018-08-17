@@ -151,7 +151,7 @@ void Block::update()
             m_state.position.position = pos.position;
             m_state.falling = false;
             m_state.triggerState = TriggerState::Deactivated;
-            //! @todo Shake camera
+            getLevel().floorShakeEffect(m_state);
             playSoundEffect( 70 );
         }
     }

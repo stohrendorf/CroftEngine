@@ -213,7 +213,7 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
             setParent( particle, nullptr );
         }
     }
-    lvl->m_particles = particlesToKeep;
+    lvl->m_particles = std::move( particlesToKeep );
 
     if( godMode )
         lvl->m_lara->m_state.health = core::LaraHealth;
@@ -282,7 +282,7 @@ int main()
     }
 
     sol::table
-    levelInfo = scriptEngine["getLevelInfo"]();
+            levelInfo = scriptEngine["getLevelInfo"]();
     const auto baseName = levelInfo.get<std::string>( "baseName" );
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );

@@ -61,6 +61,9 @@ private:
 
     // int frameCount
 
+    /**
+     * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
+     */
     int m_bounce = 0;
 
     // int underwater
@@ -180,6 +183,11 @@ public:
      */
     static bool
     clampPosition(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
+
+    void setBounce(int bounce)
+    {
+        m_bounce = bounce;
+    }
 
 private:
     void tracePortals();

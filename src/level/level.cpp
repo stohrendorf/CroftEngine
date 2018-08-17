@@ -37,6 +37,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
+#include <glm/gtx/norm.hpp>
+
 using namespace level;
 
 Level::~Level() = default;
@@ -1381,4 +1383,17 @@ void Level::postProcessDataStructures()
         }
         anim.poseData = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
     }
+}
+
+void Level::floorShakeEffect(const engine::items::ItemState& state)
+{
+    const auto d = state.position.position.toRenderSystem() - m_cameraController->getPosition();
+    const auto absD = glm::abs( d );
+
+    const auto MaxD = 16 * loader::SectorSize;
+    if( absD.x > MaxD || absD.y > MaxD || absD.z > MaxD )
+        return;
+
+    auto x = 1 - glm::length2(d) / util::square(MaxD);
+    m_cameraController->setBounce( 100 * x );
 }

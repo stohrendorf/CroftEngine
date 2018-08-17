@@ -619,11 +619,21 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goalPositio
     {
         if( m_bounce < 0 )
         {
-            //! @todo cam shake
+            auto tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            m_position.position.X += tmp;
+            m_target.position.X += tmp;
+            tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            m_position.position.Y += tmp;
+            m_target.position.Y += tmp;
+            tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            m_position.position.Z += tmp;
+            m_target.position.Z += tmp;
             m_bounce += 5;
         }
         else
         {
+            m_position.position.Y += m_bounce;
+            m_target.position.Y += m_bounce;
             m_bounce = 0;
         }
     }
