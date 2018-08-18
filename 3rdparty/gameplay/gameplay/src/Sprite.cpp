@@ -83,7 +83,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(float left,
                     }
 
                     for( int j = 0; j < 3; ++j )
-                        m[i][j] = i == j ? 1 : 0;
+                        m[i][j] = i == j ? 1.0f : 0.0f;
                 }
 
                 material.getParameter( "u_modelViewMatrix" )->set( m );

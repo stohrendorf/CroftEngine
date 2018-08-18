@@ -209,7 +209,7 @@ void Game::initialize()
     m_initialized = true;
 }
 
-void Game::frame()
+void Game::render()
 {
     // Graphics Rendering.
     clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );

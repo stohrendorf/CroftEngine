@@ -340,7 +340,7 @@ int main()
     auto lastTime = game->getGameTime();
     glEnable( GL_FRAMEBUFFER_SRGB );
     gameplay::gl::checkGlError();
-    while( game->loop() )
+    while( !game->windowShouldClose() )
     {
         screenOverlay->getImage()->fill( {0, 0, 0, 0} );
 
@@ -371,6 +371,7 @@ int main()
         update( lvl, bool( lvl->m_scriptEngine["cheats"]["godMode"] ) );
 
         lvl->m_cameraController->update();
+        lvl->doGlobalEffect();
 
         lvl->m_audioDev.setListenerTransform( lvl->m_cameraController->getPosition(),
                                               lvl->m_cameraController->getFrontVector(),
@@ -378,30 +379,22 @@ int main()
 
         lvl->drawBars( to_not_null( game.get() ), screenOverlay->getImage() );
 
-#define WITH_POSTFX
-
-#ifdef WITH_POSTFX
         if( lvl->m_cameraController->getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx.bind();
         else
             depthDarknessFx.bind();
-#else
-        gameplay::gl::FrameBuffer::unbindAll();
-#endif
-        game->frame();
+        game->render();
 
         gameplay::RenderContext context{};
         gameplay::Node dummyNode{""};
         context.setCurrentNode( &dummyNode );
 
-#ifdef WITH_POSTFX
         gameplay::gl::FrameBuffer::unbindAll();
 
         if( lvl->m_cameraController->getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx.render( context );
         else
             depthDarknessFx.render( context );
-#endif
 
         if( showDebugInfo )
             drawDebugInfo( font, lvl, game->getFrameRate() );
@@ -439,8 +432,6 @@ int main()
 
         game->swapBuffers();
     }
-
-    //device->drop();
 
     return EXIT_SUCCESS;
 }

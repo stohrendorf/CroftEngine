@@ -160,7 +160,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % loader::SectorSize;
     const auto inSectorZ = basePosZ % loader::SectorSize;
 
-    sol::table objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.object_number );
+    sol::table
+    objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.object_number );
     const int radius = objectInfo["radius"];
 
     int moveX = 0;

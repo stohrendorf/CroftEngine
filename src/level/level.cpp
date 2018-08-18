@@ -1149,7 +1149,7 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
         {
             if( ++m_cdTrack50time == 120 )
             {
-                //! @todo End level
+                m_levelFinished = true;
                 m_cdTrack50time = 0;
             }
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
@@ -1385,15 +1385,257 @@ void Level::postProcessDataStructures()
     }
 }
 
-void Level::floorShakeEffect(const engine::items::ItemState& state)
+void Level::floorShakeEffect(engine::items::ItemNode& node)
 {
-    const auto d = state.position.position.toRenderSystem() - m_cameraController->getPosition();
+    const auto d = node.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
     const auto absD = glm::abs( d );
 
     const auto MaxD = 16 * loader::SectorSize;
     if( absD.x > MaxD || absD.y > MaxD || absD.z > MaxD )
         return;
 
-    auto x = 1 - glm::length2(d) / util::square(MaxD);
+    auto x = 1 - glm::length2( d ) / util::square( MaxD );
     m_cameraController->setBounce( 100 * x );
+}
+
+void Level::turn180Effect(engine::items::ItemNode& node)
+{
+    node.m_state.rotation.Y += 180_deg;
+}
+
+void Level::laraNormalEffect(engine::items::ItemNode& node)
+{
+    node.m_state.current_anim_state = static_cast<uint16_t>(engine::LaraStateId::Stop);
+    node.m_state.required_anim_state = static_cast<uint16_t>(engine::LaraStateId::Unknown12);
+    node.m_state.anim_number = 185;
+    m_cameraController->setMode( engine::CameraMode::Chase );
+    m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
+}
+
+void Level::bubblesEffect(engine::items::ItemNode& node)
+{
+    auto modelNode = dynamic_cast<engine::items::ModelItemNode*>(&node);
+    if( modelNode == nullptr )
+        return;
+
+    auto bubbleCount = util::rand15() * 3 / 32768;
+    if( bubbleCount != 0 )
+    {
+        node.playSoundEffect( 37 );
+
+        const auto itemCyls = modelNode->getSkeleton()->getBoneCollisionCylinders(
+                node.m_state,
+                *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
+                nullptr );
+        auto position = core::TRCoordinates{
+                glm::vec3{glm::translate( itemCyls[14].m,
+                                          core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
+
+        while( bubbleCount-- > 0 )
+        {
+            auto particle = make_not_null_shared<engine::BubbleParticle>(
+                    core::RoomBoundPosition{node.m_state.position.room, position}, *this );
+            setParent( particle, node.m_state.position.room->node );
+            m_particles.emplace_back( particle );
+        }
+    }
+}
+
+void Level::finishLevelEffect()
+{
+    m_levelFinished = true;
+}
+
+void Level::trexCamShakeEffect()
+{
+    switch( m_effectTimer )
+    {
+        case 0:
+            playSound( 99, boost::none );
+            m_cameraController->setBounce( -250 );
+            break;
+        case 3:
+            playSound( 147, boost::none );
+            break;
+        case 35:
+            playSound( 99, boost::none );
+            break;
+        case 20:
+        case 50:
+        case 70:
+            playSound( 70, boost::none );
+            break;
+    }
+
+    ++m_effectTimer;
+    if( m_effectTimer == 105 )
+    {
+        m_activeEffect.reset();
+    }
+}
+
+void Level::floodEffect()
+{
+    if( m_effectTimer <= 120 )
+    {
+        auto pos = m_lara->m_state.position.position;
+        int mul;
+        if( m_effectTimer >= 30 )
+        {
+            mul = m_effectTimer - 30;
+        }
+        else
+        {
+            mul = 30 - m_effectTimer;
+        }
+        pos.Y = 100 * mul + m_cameraController->getTarget().position.Y;
+        playSound( 81, pos.toRenderSystem() );
+    }
+    else
+    {
+        m_activeEffect.reset();
+    }
+    ++m_effectTimer;
+}
+
+void Level::chandelierEffect()
+{
+    playSound( 117, boost::none );
+    m_activeEffect.reset();
+}
+
+void Level::clankEffect()
+{
+    if( m_effectTimer++ == 5 )
+    {
+        playSound( 119, boost::none );
+        m_activeEffect.reset();
+    }
+}
+
+void Level::doorSlamAirEffect()
+{
+    if( m_effectTimer <= 120 )
+    {
+        if( m_effectTimer == 0 )
+        {
+            playSound( 161, boost::none );
+        }
+        auto pos = m_cameraController->getTarget().position;
+        pos.Y += 100 * m_effectTimer;
+        playSound( 118, pos.toRenderSystem() );
+    }
+    else
+    {
+        m_activeEffect.reset();
+    }
+    ++m_effectTimer;
+}
+
+void Level::lowHumEffect()
+{
+    if( m_effectTimer <= 120 )
+    {
+        auto pos = m_cameraController->getTarget().position;
+        pos.Y += 100 * m_effectTimer;
+        playSound( 155, pos.toRenderSystem() );
+    }
+    else
+    {
+        m_activeEffect.reset();
+    }
+    ++m_effectTimer;
+}
+
+void Level::lowPitchedSettlingEffect()
+{
+    playSound( 170, boost::none );
+    m_cameraController->setBounce( -75 );
+    m_activeEffect.reset();
+}
+
+void Level::laraHandsFreeEffect()
+{
+    m_lara->setHandStatus( engine::HandStatus::None );
+}
+
+void Level::flipMapEffect()
+{
+    swapAllRooms();
+}
+
+void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
+{
+    const auto& src = *m_animatedModels[engine::TR1ItemId::LaraPistolsAnim];
+    BOOST_ASSERT( src.nmeshes == node.getNode()->getChildCount() );
+    node.getNode()->getChild( 10 )->setDrawable( m_models2[src.frame_number + 10].get() );
+}
+
+void Level::secretJumpWaterEffect()
+{
+    if( m_effectTimer == 0 )
+    {
+        playSound( 173, boost::none );
+    }
+    ++m_effectTimer;
+    if( m_effectTimer == 55 )
+    {
+        playSound( 33, boost::none );
+        m_activeEffect.reset();
+    }
+}
+
+void Level::delayedRoomSwapEffect()
+{
+    if( m_effectTimer > 125 )
+    {
+        swapAllRooms();
+        m_activeEffect.reset();
+    }
+    else if( m_effectTimer == 90 || m_effectTimer == 92 || m_effectTimer == 105 || m_effectTimer == 107 )
+    {
+        swapAllRooms();
+    }
+    ++m_effectTimer;
+}
+
+void level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
+{
+    // find any blocks in the original room and un-patch the floor heights
+    for( const auto& child : orig.node->getChildren() )
+    {
+        // FIXME these dynamic casts will never work
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
+        {
+            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
+        }
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
+        {
+            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
+        }
+    }
+
+    // now swap the rooms and patch the alternate room ids
+    std::swap( orig, alternate );
+    orig.alternateRoom = alternate.alternateRoom;
+    alternate.alternateRoom = -1;
+
+    // move all items over
+    swapChildren( to_not_null( orig.node ), to_not_null( alternate.node ) );
+
+    // patch heights in the new room.
+    // note that this is exactly the same code as above,
+    // except for the heights.
+    for( const auto& child : orig.node->getChildren() )
+    {
+        // FIXME these dynamic casts will never work
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
+        {
+            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
+        }
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
+        {
+            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
+        }
+    }
 }

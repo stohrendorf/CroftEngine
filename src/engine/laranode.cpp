@@ -21,63 +21,6 @@ core::TRRotationXY getVectorAngles(const core::TRCoordinates& co)
 {
     return core::getVectorAngles( co.X, co.Y, co.Z );
 }
-
-void swapWithAlternate(loader::Room& orig, loader::Room& alternate)
-{
-    // FIXME These dynamic casts will never work.
-
-    // find any blocks in the original room and un-patch the floor heights
-    for( const auto& child : orig.node->getChildren() )
-    {
-        // FIXME these dynamic casts will never work
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
-        {
-            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
-        }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
-        {
-            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
-        }
-    }
-
-    // now swap the rooms and patch the alternate room ids
-    std::swap( orig, alternate );
-    orig.alternateRoom = alternate.alternateRoom;
-    alternate.alternateRoom = -1;
-
-    // move all items over
-    swapChildren( to_not_null( orig.node ), to_not_null( alternate.node ) );
-
-    // patch heights in the new room.
-    // note that this is exactly the same code as above,
-    // except for the heights.
-    for( const auto& child : orig.node->getChildren() )
-    {
-        // FIXME these dynamic casts will never work
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
-        {
-            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
-        }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
-        {
-            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
-        }
-    }
-}
-
-void swapAllRooms(level::Level& level)
-{
-    for( auto& room : level.m_rooms )
-    {
-        if( room.alternateRoom < 0 )
-            continue;
-
-        BOOST_ASSERT( static_cast<size_t>(room.alternateRoom) < level.m_rooms.size() );
-        swapWithAlternate( room, level.m_rooms[room.alternateRoom] );
-    }
-
-    level.roomsAreSwapped = !level.roomsAreSwapped;
-}
 }
 
 namespace engine
@@ -565,37 +508,7 @@ void LaraNode::updateImpl()
                     if( m_state.frame_number == cmd[0] )
                     {
                         BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
-                        if( cmd[1] == 0 )
-                        {
-                            m_state.rotation.Y += 180_deg;
-                        }
-                        else if( cmd[1] == 3 )
-                        {
-                            auto bubbleCount = util::rand15() * 3 / 32768;
-                            if( bubbleCount != 0 )
-                            {
-                                playSoundEffect( 37 );
-
-                                const auto itemCyls = getSkeleton()->getBoneCollisionCylinders(
-                                        m_state,
-                                        *getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame(),
-                                        nullptr );
-                                auto position = core::TRCoordinates{
-                                        glm::vec3{glm::translate( itemCyls[14].m,
-                                                                  core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
-
-                                while( bubbleCount-- > 0 )
-                                {
-                                    auto particle = make_not_null_shared<engine::BubbleParticle>(
-                                            core::RoomBoundPosition{m_state.position.room, position}, getLevel() );
-                                    setParent( particle, m_state.position.room->node );
-                                    getLevel().m_particles.emplace_back( particle );
-                                }
-                            }
-                        }
-                        else if( cmd[1] == 12 )
-                            setHandStatus( HandStatus::None );
-                        //! @todo Execute anim effect cmd[1]
+                        getLevel().runEffect( cmd[1], this );
                     }
                     cmd += 2;
                     break;
@@ -715,6 +628,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
         return;
 
     bool swapRooms = false;
+    boost::optional<size_t> flipEffect;
     while( true )
     {
         const floordata::Command command{*floorData++};
@@ -820,10 +734,10 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                     swapRooms = true;
                 break;
             case floordata::CommandOpcode::FlipEffect:
-                //! @todo handle flip effect
+                flipEffect = command.parameter;
                 break;
             case floordata::CommandOpcode::EndLevel:
-                //! @todo handle level end
+                getLevel().m_levelFinished = true;
                 break;
             case floordata::CommandOpcode::PlayTrack:
                 getLevel().triggerCdTrack( command.parameter, activationRequest, chunkHeader.sequenceCondition );
@@ -847,8 +761,13 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             break;
     }
 
-    if( swapRooms )
-        swapAllRooms( getLevel() );
+    if( !swapRooms )
+        return;
+
+    getLevel().swapAllRooms();
+
+    if( flipEffect.is_initialized() )
+        getLevel().setGlobalEffect( *flipEffect );
 }
 
 boost::optional<int> LaraNode::getWaterSurfaceHeight() const
@@ -1261,7 +1180,7 @@ void LaraNode::updateAimingState(const Weapon& weapon)
 
     core::RoomBoundPosition gunPosition{m_state.position};
     gunPosition.position.Y -= weapon.gunHeight;
-    const auto enemyChestPos = getUpperThirdBBoxCtr( *target );
+    auto enemyChestPos = getUpperThirdBBoxCtr( *target );
     auto targetVector = getVectorAngles( enemyChestPos.position - gunPosition.position );
     targetVector.X -= m_state.rotation.X;
     targetVector.Y -= m_state.rotation.Y;
@@ -1429,7 +1348,7 @@ void LaraNode::findTarget(const Weapon& weapon)
         if( util::square( d.X ) + util::square( d.Y ) + util::square( d.Z ) >= util::square( weapon.targetDist ) )
             continue;
 
-        const auto target = getUpperThirdBBoxCtr( *std::dynamic_pointer_cast<const ModelItemNode>( currentEnemy ) );
+        auto target = getUpperThirdBBoxCtr( *std::dynamic_pointer_cast<const ModelItemNode>( currentEnemy ) );
         if( !CameraController::clampPosition( gunPosition, target, getLevel() ) )
             continue;
 
@@ -2064,7 +1983,6 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
             +0_deg
     };
 
-    // render::initViewMatrix(&v_sourcePosAngle);
     std::vector<SkeletalModelNode::Cylinder> cylinders;
     if( target != nullptr )
     {
@@ -2076,52 +1994,38 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
     }
     bool hasHit = false;
     glm::vec3 hitPos;
+    const auto bulletDir = glm::normalize( glm::vec3( shootVector.toMatrix()[2] ) ); // +Z is our shooting direction
     if( !cylinders.empty() )
     {
-        const auto dir = glm::vec3( shootVector.toMatrix()[2] ); // +Z is our shooting direction
-
-        const auto start = gunPosition.toRenderSystem();
-        const auto end = start + dir;
-
         float minD = std::numeric_limits<float>::max();
         for( const auto& cylinder : cylinders )
         {
-            const float proj = dot( cylinder.getPosition() - start, dir ) / length2( dir );
-            if( proj < 0 )
-                hitPos = start;
-            else if( proj > 1 )
-                hitPos = end;
-            else
-                hitPos = (end * proj) + (start * (1.0f - proj));
+            hitPos = gunPosition.toRenderSystem()
+                     + bulletDir * glm::dot( cylinder.getPosition() - gunPosition.toRenderSystem(), bulletDir );
+
             const auto d = glm::length( hitPos - cylinder.getPosition() );
-
-            if( d >= cylinder.radius )
-                continue;
-
-            if( d >= minD )
-                continue;
-
-            if( util::square( d ) > util::square( cylinder.radius ) )
+            if( d > cylinder.radius || d >= minD )
                 continue;
 
             minD = d;
             hasHit = true;
         }
     }
-    core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room};
-    bulletPos.position = gunPosition;
 
     if( !hasHit )
     {
         ++ammoPtr->misses;
-        core::RoomBoundPosition hitPos{gunHolder.m_state.position.room};
+
         static constexpr float VeryLargeDistanceProbablyClipping = 1 << 14;
-        // FIXME this causes an assert to fail
-#if 0
-        hitPos.position = bulletPos.position + core::TRCoordinates{ glm::vec3{m[3]} * VeryLargeDistanceProbablyClipping };
-        CameraController::clampPosition( bulletPos, hitPos, getLevel() );
-        playShotMissed( hitPos );
-#endif
+
+        core::RoomBoundPosition aimHitPos{
+                gunHolder.m_state.position.room,
+                gunPosition + core::TRCoordinates{-bulletDir * VeryLargeDistanceProbablyClipping}
+        };
+
+        core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
+        CameraController::clampPosition( bulletPos, aimHitPos, getLevel() );
+        playShotMissed( aimHitPos );
     }
     else
     {
@@ -2135,7 +2039,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
 
 void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
-    const auto particle = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
+    const auto particle = make_not_null_shared<RicochetParticle>( pos, getLevel() );
     gameplay::setParent( particle, m_state.position.room->node );
     getLevel().m_particles.emplace_back( particle );
     getLevel().playSound( 10, pos.position.toRenderSystem() );

@@ -153,6 +153,11 @@ public:
         return glm::vec3{m_camera->getInverseViewMatrix()[3]};
     }
 
+    const core::RoomBoundPosition& getTarget() const
+    {
+        return m_target;
+    }
+
     glm::vec3 getFrontVector() const
     {
         auto rs = m_camera->getInverseViewMatrix();
@@ -174,40 +179,45 @@ public:
 
     /**
      * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
-     * @param[in,out] origin Starting point, moved towards @a target
-     * @param[in] target Destination of the movement, possibly never reached
+     * @param[in] start Starting point
+     * @param[in] end Destination of the movement, clamped if necessary
      * @param[in] level For accessing boxes and floordata
      * @retval false if clamped
      *
      * @warning Please be aware that the return value is reverted and not what you might expect...
      */
     static bool
-    clampPosition(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
+    clampPosition(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
 
     void setBounce(int bounce)
     {
         m_bounce = bounce;
     }
 
+    const gsl::not_null<std::shared_ptr<gameplay::Camera>>& getCamera() const
+    {
+        return m_camera;
+    }
+
 private:
     void tracePortals();
 
     static bool
-    clampY(const core::TRCoordinates& lookAt, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector,
+    clampY(const core::TRCoordinates& start, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector,
            const level::Level& level);
 
     enum class ClampType
     {
-        Vertical,
-        Horizontal,
+        Ceiling,
+        Wall,
         None
     };
 
     static ClampType
-    clampAlongX(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
+    clampAlongX(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
 
     static ClampType
-    clampAlongZ(core::RoomBoundPosition& origin, const core::RoomBoundPosition& target, const level::Level& level);
+    clampAlongZ(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
 
     void handleCamOverride();
 
@@ -226,7 +236,7 @@ private:
     using ClampCallback = void(int& current1, int& current2, int target1, int target2, int lowLimit1, int lowLimit2,
                                int highLimit1, int highLimit2);
 
-    void clampBox(core::RoomBoundPosition& camTargetPos, const std::function<ClampCallback>& callback) const;
+    void clampBox(core::RoomBoundPosition& current, const std::function<ClampCallback>& callback) const;
 
     static void
     freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back,

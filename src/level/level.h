@@ -28,6 +28,9 @@ class Glidos;
 
 namespace level
 {
+extern void swapWithAlternate(loader::Room& orig, loader::Room& alternate);
+
+
 class Level
 {
 public:
@@ -429,7 +432,117 @@ public:
 
     std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 
-    void floorShakeEffect(const engine::items::ItemState& state);
+    void turn180Effect(engine::items::ItemNode& node);
+
+    void floorShakeEffect(engine::items::ItemNode& node);
+
+    void laraNormalEffect(engine::items::ItemNode& node);
+
+    void bubblesEffect(engine::items::ItemNode& node);
+
+    void finishLevelEffect();
+
+    void trexCamShakeEffect();
+
+    void floodEffect();
+
+    void chandelierEffect();
+
+    void clankEffect();
+
+    void doorSlamAirEffect();
+
+    void lowHumEffect();
+
+    void lowPitchedSettlingEffect();
+
+    void laraHandsFreeEffect();
+
+    void flipMapEffect();
+
+    void unholsterRightGunEffect(engine::items::ItemNode& node);
+
+    void secretJumpWaterEffect();
+
+    void delayedRoomSwapEffect();
+
+    void swapAllRooms()
+    {
+        for( auto& room : m_rooms )
+        {
+            if( room.alternateRoom < 0 )
+                continue;
+
+            BOOST_ASSERT( static_cast<size_t>(room.alternateRoom) < m_rooms.size() );
+            swapWithAlternate( room, m_rooms[room.alternateRoom] );
+        }
+
+        roomsAreSwapped = !roomsAreSwapped;
+    }
+
+    void setGlobalEffect(size_t fx)
+    {
+        m_activeEffect = fx;
+        m_effectTimer = 0;
+    }
+
+    void doGlobalEffect()
+    {
+        if( !m_activeEffect.is_initialized() )
+            return;
+
+        runEffect( *m_activeEffect, nullptr );
+    }
+
+    void runEffect(size_t id, engine::items::ModelItemNode* node)
+    {
+        switch( id )
+        {
+            case 0:
+                Expects( node != nullptr );
+                return turn180Effect( *node );
+            case 1:
+                Expects( node != nullptr );
+                return floorShakeEffect( *node );
+            case 2:
+                Expects( node != nullptr );
+                return laraNormalEffect( *node );
+            case 3:
+                Expects( node != nullptr );
+                return bubblesEffect( *node );
+            case 4:
+                return finishLevelEffect();
+            case 5:
+                return trexCamShakeEffect();
+            case 6:
+                return floodEffect();
+            case 7:
+                return chandelierEffect();
+            case 8:
+                return clankEffect();
+            case 9:
+                return doorSlamAirEffect();
+            case 10:
+                return lowHumEffect();
+            case 11:
+                return lowPitchedSettlingEffect();
+            case 12:
+                return laraHandsFreeEffect();
+            case 13:
+                return flipMapEffect();
+            case 14:
+                Expects( node != nullptr );
+                return unholsterRightGunEffect( *node );
+            case 15:
+                return secretJumpWaterEffect();
+            case 16:
+                return delayedRoomSwapEffect();
+            default:
+                BOOST_LOG_TRIVIAL( warning ) << "Unhandled effect: " << id;
+        }
+    }
+
+    bool m_levelFinished = false;
 
 protected:
     loader::io::SDLReader m_reader;
@@ -439,6 +552,9 @@ protected:
     std::vector<uint16_t> m_animatedTextures;
 
     bool m_demoOrUb = false;
+
+    int m_effectTimer = 0;
+    boost::optional<size_t> m_activeEffect{};
 
     void readMeshData(loader::io::SDLReader& reader);
 

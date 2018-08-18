@@ -188,39 +188,7 @@ void ModelItemNode::update()
                 if( m_state.frame_number == cmd[0] )
                 {
                     BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
-                    if( cmd[1] == 0 )
-                    {
-                        m_state.rotation.Y += 180_deg;
-                    }
-                    else if( cmd[1] == 3 )
-                    {
-                        auto bubbleCount = util::rand15() * 3 / 32768;
-                        if( bubbleCount != 0 )
-                        {
-                            playSoundEffect( 37 );
-
-                            const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
-                                    m_state,
-                                    *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
-                                    nullptr );
-                            auto position = core::TRCoordinates{
-                                    glm::vec3{glm::translate( itemCyls[14].m,
-                                                              core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
-
-                            while( bubbleCount-- > 0 )
-                            {
-                                auto particle = make_not_null_shared<engine::BubbleParticle>(
-                                        core::RoomBoundPosition{m_state.position.room, position}, getLevel() );
-                                setParent( particle, m_state.position.room->node );
-                                getLevel().m_particles.emplace_back( particle );
-                            }
-                        }
-                    }
-                    else if( cmd[1] == 12 )
-                    {
-                        getLevel().m_lara->setHandStatus( HandStatus::None );
-                    }
-                    //! @todo Execute anim effect cmd[1]
+                    getLevel().runEffect( cmd[1], this );
                 }
                 cmd += 2;
                 break;

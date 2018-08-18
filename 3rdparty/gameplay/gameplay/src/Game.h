@@ -39,7 +39,7 @@ public:
 
     void initialize();
 
-    void frame();
+    void render();
 
     inline unsigned int getFrameRate() const;
 
@@ -53,11 +53,11 @@ public:
 
     void clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
 
-    bool loop()
+    bool windowShouldClose()
     {
         glfwPollEvents();
 
-        return glfwWindowShouldClose( m_window ) == GL_FALSE;
+        return glfwWindowShouldClose( m_window ) == GL_TRUE;
     }
 
     void swapBuffers();
