@@ -111,15 +111,14 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
             .goal_anim_state = static_cast<uint16_t>(loader::AnimationId::FLY_FORWARD_TRY_TO_HANG);
         for( int i = 0; i < 15; ++i )
         {
-            auto r = (util::rand15() - 16384) / 256;
-            const auto x = (util::rand15() - 16384) / 256 + lara.m_state.position.position.X;
-            const auto y = lara.m_state.position.position.Y - util::rand15() / 64;
-            const auto z = (util::rand15() - 16384) / 256 + lara.m_state.position.position.Z;
+            const auto x = util::rand15s( 128 ) + lara.m_state.position.position.X;
+            const auto y = lara.m_state.position.position.Y - util::rand15s( 512 );
+            const auto z = util::rand15s( 128 ) + lara.m_state.position.position.Z;
             auto fx = engine::createBloodSplat(
                     getLevel(),
                     core::RoomBoundPosition{m_state.position.room, core::TRCoordinates{x, y, z}},
                     2 * m_state.speed,
-                    core::Angle( gsl::narrow_cast<int16_t>( (util::rand15() - 16384) / 8 ) ) + m_state.rotation.Y
+                    core::Angle( gsl::narrow_cast<int16_t>( util::rand15s(4096) ) ) + m_state.rotation.Y
             );
             getLevel().m_particles.emplace_back( fx );
         }

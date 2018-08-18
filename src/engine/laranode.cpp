@@ -1655,10 +1655,10 @@ void LaraNode::tryShootShotgun()
     bool fireShotgun = false;
     for( int i = 0; i < 5; ++i )
     {
-        const auto rand1 = util::rand15() - 0x4000;
+        const auto rand1 = util::rand15s();
         core::TRRotationXY aimAngle;
         aimAngle.Y = (+20_deg * rand1 / 65536) + m_state.rotation.Y + leftArm.aimRotation.Y;
-        const auto rand2 = util::rand15() - 0x4000;
+        const auto rand2 = util::rand15s();
         aimAngle.X = (+20_deg * rand2 / 65536) + leftArm.aimRotation.X;
         if( fireWeapon( WeaponId::Shotgun, target, *this, aimAngle ) )
         {
@@ -1978,33 +1978,33 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
     core::TRCoordinates gunPosition = gunHolder.m_state.position.position;
     gunPosition.Y -= weapon->gunHeight;
     core::TRRotation shootVector{
-            weapon->shotAccuracy * (util::rand15() - 0x4000) / 65536 + aimAngle.X,
-            weapon->shotAccuracy * (util::rand15() - 0x4000) / 65536 + aimAngle.Y,
+            util::rand15s( weapon->shotAccuracy / 2 ) + aimAngle.X,
+            util::rand15s( weapon->shotAccuracy / 2 ) + aimAngle.Y,
             +0_deg
     };
 
-    std::vector<SkeletalModelNode::Cylinder> cylinders;
+    std::vector<SkeletalModelNode::Sphere> spheres;
     if( target != nullptr )
     {
-        cylinders = target->getSkeleton()->getBoneCollisionCylinders( target->m_state,
-                                                                      *target->getSkeleton()
-                                                                             ->getInterpolationInfo( target->m_state )
-                                                                             .getNearestFrame(),
-                                                                      nullptr );
+        spheres = target->getSkeleton()->getBoneCollisionSpheres( target->m_state,
+                                                                  *target->getSkeleton()
+                                                                         ->getInterpolationInfo( target->m_state )
+                                                                         .getNearestFrame(),
+                                                                  nullptr );
     }
     bool hasHit = false;
     glm::vec3 hitPos;
     const auto bulletDir = glm::normalize( glm::vec3( shootVector.toMatrix()[2] ) ); // +Z is our shooting direction
-    if( !cylinders.empty() )
+    if( !spheres.empty() )
     {
         float minD = std::numeric_limits<float>::max();
-        for( const auto& cylinder : cylinders )
+        for( const auto& sphere : spheres )
         {
             hitPos = gunPosition.toRenderSystem()
-                     + bulletDir * glm::dot( cylinder.getPosition() - gunPosition.toRenderSystem(), bulletDir );
+                     + bulletDir * glm::dot( sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir );
 
-            const auto d = glm::length( hitPos - cylinder.getPosition() );
-            if( d > cylinder.radius || d >= minD )
+            const auto d = glm::length( hitPos - sphere.getPosition() );
+            if( d > sphere.radius || d >= minD )
                 continue;
 
             minD = d;

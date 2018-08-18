@@ -1418,17 +1418,18 @@ void Level::bubblesEffect(engine::items::ItemNode& node)
     if( modelNode == nullptr )
         return;
 
-    auto bubbleCount = util::rand15() * 3 / 32768;
+    auto bubbleCount = util::rand15( 3 );
     if( bubbleCount != 0 )
     {
         node.playSoundEffect( 37 );
 
-        const auto itemCyls = modelNode->getSkeleton()->getBoneCollisionCylinders(
+        const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
                 node.m_state,
                 *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
                 nullptr );
+
         auto position = core::TRCoordinates{
-                glm::vec3{glm::translate( itemCyls[14].m,
+                glm::vec3{glm::translate( itemSpheres[14].m,
                                           core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )

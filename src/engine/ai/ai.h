@@ -110,9 +110,9 @@ struct LotInfo
         Expects( box != nullptr );
         required_box = box;
         const auto zSize = box->zmax - box->zmin - loader::SectorSize;
-        target.Z = zSize * util::rand15() / 0x8000 + box->zmin + loader::SectorSize / 2;
+        target.Z = util::rand15(zSize) + box->zmin + loader::SectorSize / 2;
         const auto xSize = box->xmax - box->xmin - loader::SectorSize;
-        target.X = xSize * util::rand15() / 0x8000 + box->xmin + loader::SectorSize / 2;
+        target.X = util::rand15(xSize) + box->xmin + loader::SectorSize / 2;
         if( fly != 0 )
         {
             target.Y = box->floor - 384;

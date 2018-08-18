@@ -607,13 +607,13 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goalPositio
     {
         if( m_bounce < 0 )
         {
-            auto tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            auto tmp = util::rand15s(m_bounce);
             m_position.position.X += tmp;
             m_target.position.X += tmp;
-            tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            tmp = util::rand15s(m_bounce);
             m_position.position.Y += tmp;
             m_target.position.Y += tmp;
-            tmp = (util::rand15() - 0x4000) * m_bounce / 0x7FFF;
+            tmp = util::rand15s(m_bounce);
             m_position.position.Z += tmp;
             m_target.position.Z += tmp;
             m_bounce += 5;

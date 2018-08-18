@@ -85,6 +85,7 @@ public:
 
     bool advanceFrame(engine::items::ItemState& state);
 
+
     struct InterpolationInfo
     {
         const loader::AnimFrame* firstFrame = nullptr;
@@ -117,12 +118,12 @@ public:
     }
 
 
-    struct Cylinder
+    struct Sphere
     {
         const glm::mat4 m;
         const int radius;
 
-        Cylinder(const glm::mat4& m, int radius)
+        Sphere(const glm::mat4& m, int radius)
                 : m{m}
                 , radius{radius}
         {
@@ -135,9 +136,9 @@ public:
     };
 
 
-    std::vector<Cylinder> getBoneCollisionCylinders(const engine::items::ItemState& state,
-                                                    const loader::AnimFrame& frame,
-                                                    const glm::mat4* baseTransform);
+    std::vector<Sphere> getBoneCollisionSpheres(const engine::items::ItemState& state,
+                                                const loader::AnimFrame& frame,
+                                                const glm::mat4* baseTransform);
 
 protected:
     bool handleStateTransitions(engine::items::ItemState& state);

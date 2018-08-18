@@ -108,8 +108,8 @@ public:
                             const level::Level& level)
             : Particle{"splash", engine::TR1ItemId::Splash, pos, level}
     {
-        speed = util::rand15() / 8;
-        angle.Y = core::Angle( 2 * (util::rand15() - 16384) );
+        speed = util::rand15(128);
+        angle.Y = core::Angle( 2 * util::rand15s() );
     }
 
     bool update(const level::Level& level) override;
@@ -125,7 +125,7 @@ public:
     {
         timePerSpriteFrame = 4;
 
-        int n = 3 * util::rand15() / 32768;
+        int n = util::rand15(3);
         for( int i = 0; i < n; ++i )
             nextFrame();
     }
@@ -151,9 +151,9 @@ public:
                             const level::Level& level)
             : Particle{"bubble", engine::TR1ItemId::Bubbles, pos, level}
     {
-        speed = 10 + util::rand15() * 6 / 32768;
+        speed = 10 + util::rand15(6);
 
-        int n = 3 * util::rand15() / 32768;
+        int n = util::rand15(3);
         for( int i = 0; i < n; ++i )
             nextFrame();
     }

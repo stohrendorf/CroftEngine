@@ -504,28 +504,28 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool
 bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 {
     m_state.touch_bits = 0;
-    const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
+    const auto itemSpheres = m_skeleton->getBoneCollisionSpheres(
             m_state,
             *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
             nullptr );
-    const auto laraCyls = other.m_skeleton->getBoneCollisionCylinders(
+    const auto laraSpheres = other.m_skeleton->getBoneCollisionSpheres(
             other.m_state,
             *other.m_skeleton->getInterpolationInfo( other.m_state ).getNearestFrame(),
             nullptr );
-    for( const auto& itemCyl : itemCyls | boost::adaptors::indexed( 0 ) )
+    for( const auto& itemSphere : itemSpheres | boost::adaptors::indexed( 0 ) )
     {
-        if( itemCyl.value().radius <= 0 )
+        if( itemSphere.value().radius <= 0 )
             continue;
 
-        for( const auto& laraCyl : laraCyls )
+        for( const auto& laraSphere : laraSpheres )
         {
-            if( laraCyl.radius <= 0 )
+            if( laraSphere.radius <= 0 )
                 continue;
-            if( glm::distance( laraCyl.getPosition(), itemCyl.value().getPosition() )
-                >= util::square( itemCyl.value().radius + laraCyl.radius ) )
+            if( glm::distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
+                >= util::square( itemSphere.value().radius + laraSphere.radius ) )
                 continue;
 
-            m_state.touch_bits |= 1 << itemCyl.index();
+            m_state.touch_bits |= 1 << itemSphere.index();
             break;
         }
     }
@@ -542,15 +542,15 @@ void ModelItemNode::emitParticle(const core::TRCoordinates& pos,
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildCount() );
 
-    const auto itemCyls = m_skeleton->getBoneCollisionCylinders(
+    const auto itemSpheres = m_skeleton->getBoneCollisionSpheres(
             m_state,
             *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
             nullptr );
-    BOOST_ASSERT( boneIndex < itemCyls.size() );
+    BOOST_ASSERT( boneIndex < itemSpheres.size() );
 
     auto roomPos = m_state.position;
     roomPos.position = core::TRCoordinates{
-            glm::vec3{glm::translate( itemCyls[boneIndex].m, pos.toRenderSystem() )[3]}};
+            glm::vec3{glm::translate( itemSpheres[boneIndex].m, pos.toRenderSystem() )[3]}};
     auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
     getLevel().m_particles.emplace_back( particle );
 }

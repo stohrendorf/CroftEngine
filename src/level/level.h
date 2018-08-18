@@ -288,7 +288,7 @@ public:
 
         size_t sample = details.sample;
         if( details.getSampleCount() > 1 )
-            sample += util::rand15() % details.getSampleCount();
+            sample += util::rand15(details.getSampleCount());
         BOOST_ASSERT( sample < m_sampleIndices.size() );
 
         float pitch = 1;

@@ -203,8 +203,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& targ
     if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
     {
         const auto center = box->zmax - box->zmin - loader::SectorSize;
-        const auto r = util::rand15();
-        target.Z = (r * center / 0x8000) + box->zmin + loader::SectorSize / 2;
+        target.Z = util::rand15(center) + box->zmin + loader::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -215,8 +214,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRCoordinates& targ
     if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
     {
         const auto center = box->xmax - box->xmin - loader::SectorSize;
-        const auto r = util::rand15();
-        target.X = (r * center / 0x8000) + box->xmin + loader::SectorSize / 2;
+        target.X = util::rand15(center) + box->xmin + loader::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -356,7 +354,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
             break;
         case Mood::Bored:
         {
-            const auto box = creatureInfo.lot.boxes[util::rand15() % creatureInfo.lot.boxes.size()];
+            const auto box = creatureInfo.lot.boxes[util::rand15(creatureInfo.lot.boxes.size())];
             if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box ) )
                 break;
 
@@ -376,7 +374,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
             if( creatureInfo.lot.required_box != nullptr && item.stalkBox( lvl, creatureInfo.lot.required_box ) )
                 break;
 
-            const auto box = creatureInfo.lot.boxes[util::rand15() % creatureInfo.lot.boxes.size()];
+            const auto box = creatureInfo.lot.boxes[util::rand15(creatureInfo.lot.boxes.size())];
             if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box ) )
                 break;
 
@@ -396,7 +394,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
         }
         case Mood::Escape:
         {
-            const auto box = creatureInfo.lot.boxes[util::rand15() % creatureInfo.lot.boxes.size()];
+            const auto box = creatureInfo.lot.boxes[util::rand15(creatureInfo.lot.boxes.size())];
             if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, box )
                 || creatureInfo.lot.required_box != nullptr )
                 break;

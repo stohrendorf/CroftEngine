@@ -296,10 +296,10 @@ bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
     return state.frame_number >= getEndFrame( state );
 }
 
-std::vector<SkeletalModelNode::Cylinder>
-SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& state,
-                                             const loader::AnimFrame& frame,
-                                             const glm::mat4* baseTransform)
+std::vector<SkeletalModelNode::Sphere>
+SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state,
+                                           const loader::AnimFrame& frame,
+                                           const glm::mat4* baseTransform)
 {
     BOOST_ASSERT( frame.numValues > 0 );
     BOOST_ASSERT( m_model.nmeshes > 0 );
@@ -330,7 +330,7 @@ SkeletalModelNode::getBoneCollisionCylinders(const engine::items::ItemState& sta
 
     const auto* mesh = m_model.mesh;
 
-    std::vector<Cylinder> result;
+    std::vector<Sphere> result;
     result.emplace_back(
             glm::translate( glm::mat4{1.0f}, pos.toRenderSystem() )
             + glm::translate( transforms.top(), mesh->center.toRenderSystem() ),
