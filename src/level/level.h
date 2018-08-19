@@ -28,8 +28,6 @@ class Glidos;
 
 namespace level
 {
-extern void swapWithAlternate(loader::Room& orig, loader::Room& alternate);
-
 
 class Level
 {
@@ -543,6 +541,8 @@ public:
     }
 
     bool m_levelFinished = false;
+
+    void swapWithAlternate(loader::Room& orig, loader::Room& alternate);
 
 protected:
     loader::io::SDLReader m_reader;

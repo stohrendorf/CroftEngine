@@ -1600,17 +1600,20 @@ void Level::flickerEffect()
     ++m_effectTimer;
 }
 
-void level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
+void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
 {
     // find any blocks in the original room and un-patch the floor heights
-    for( const auto& child : orig.node->getChildren() )
+
+    for( const std::shared_ptr<engine::items::ItemNode>& item : m_itemNodes | boost::adaptors::map_values )
     {
-        // FIXME these dynamic casts will never work
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
+        if( item->m_state.position.room != &orig )
+            continue;
+
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
         }
@@ -1624,19 +1627,40 @@ void level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // move all items over
     swapChildren( to_not_null( orig.node ), to_not_null( alternate.node ) );
 
-    // patch heights in the new room.
+    // patch heights in the new room, and swap item ownerships.
     // note that this is exactly the same code as above,
     // except for the heights.
-    for( const auto& child : orig.node->getChildren() )
+    for( const std::shared_ptr<engine::items::ItemNode>& item : m_itemNodes | boost::adaptors::map_values )
     {
-        // FIXME these dynamic casts will never work
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( child.get() ) )
+        if( item->m_state.position.room == &orig )
+        {
+            item->m_state.position.room = to_not_null( &alternate );
+        }
+        else if( item->m_state.position.room == &alternate )
+        {
+            item->m_state.position.room = to_not_null( &orig );
+            continue;
+        }
+
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( child.get() ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
+        }
+    }
+
+    for( const std::shared_ptr<engine::items::ItemNode>& item : m_dynamicItems )
+    {
+        if( item->m_state.position.room == &orig )
+        {
+            item->m_state.position.room = to_not_null( &alternate );
+        }
+        else if( item->m_state.position.room == &alternate )
+        {
+            item->m_state.position.room = to_not_null( &orig );
         }
     }
 }
