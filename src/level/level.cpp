@@ -1385,7 +1385,7 @@ void Level::postProcessDataStructures()
     }
 }
 
-void Level::floorShakeEffect(engine::items::ItemNode& node)
+void Level::dinoStompEffect(engine::items::ItemNode& node)
 {
     const auto d = node.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
     const auto absD = glm::abs( d );
@@ -1412,7 +1412,7 @@ void Level::laraNormalEffect(engine::items::ItemNode& node)
     m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
 }
 
-void Level::bubblesEffect(engine::items::ItemNode& node)
+void Level::laraBubblesEffect(engine::items::ItemNode& node)
 {
     auto modelNode = dynamic_cast<engine::items::ModelItemNode*>(&node);
     if( modelNode == nullptr )
@@ -1447,7 +1447,7 @@ void Level::finishLevelEffect()
     m_levelFinished = true;
 }
 
-void Level::trexCamShakeEffect()
+void Level::earthquakeEffect()
 {
     switch( m_effectTimer )
     {
@@ -1505,7 +1505,7 @@ void Level::chandelierEffect()
     m_activeEffect.reset();
 }
 
-void Level::clankEffect()
+void Level::raisingBlockEffect()
 {
     if( m_effectTimer++ == 5 )
     {
@@ -1514,7 +1514,7 @@ void Level::clankEffect()
     }
 }
 
-void Level::doorSlamAirEffect()
+void Level::stairsToSlopeEffect()
 {
     if( m_effectTimer <= 120 )
     {
@@ -1533,7 +1533,7 @@ void Level::doorSlamAirEffect()
     ++m_effectTimer;
 }
 
-void Level::lowHumEffect()
+void Level::sandEffect()
 {
     if( m_effectTimer <= 120 )
     {
@@ -1548,7 +1548,7 @@ void Level::lowHumEffect()
     ++m_effectTimer;
 }
 
-void Level::lowPitchedSettlingEffect()
+void Level::explosionEffect()
 {
     playSound( 170, boost::none );
     m_cameraController->setBounce( -75 );
@@ -1572,7 +1572,7 @@ void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
     node.getNode()->getChild( 10 )->setDrawable( m_models2[src.frame_number + 10].get() );
 }
 
-void Level::secretJumpWaterEffect()
+void Level::chainBlockEffect()
 {
     if( m_effectTimer == 0 )
     {
@@ -1586,7 +1586,7 @@ void Level::secretJumpWaterEffect()
     }
 }
 
-void Level::delayedRoomSwapEffect()
+void Level::flickerEffect()
 {
     if( m_effectTimer > 125 )
     {

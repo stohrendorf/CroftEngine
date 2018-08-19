@@ -288,7 +288,7 @@ public:
 
         size_t sample = details.sample;
         if( details.getSampleCount() > 1 )
-            sample += util::rand15(details.getSampleCount());
+            sample += util::rand15( details.getSampleCount() );
         BOOST_ASSERT( sample < m_sampleIndices.size() );
 
         float pitch = 1;
@@ -434,27 +434,27 @@ public:
 
     void turn180Effect(engine::items::ItemNode& node);
 
-    void floorShakeEffect(engine::items::ItemNode& node);
+    void dinoStompEffect(engine::items::ItemNode& node);
 
     void laraNormalEffect(engine::items::ItemNode& node);
 
-    void bubblesEffect(engine::items::ItemNode& node);
+    void laraBubblesEffect(engine::items::ItemNode& node);
 
     void finishLevelEffect();
 
-    void trexCamShakeEffect();
+    void earthquakeEffect();
 
     void floodEffect();
 
     void chandelierEffect();
 
-    void clankEffect();
+    void raisingBlockEffect();
 
-    void doorSlamAirEffect();
+    void stairsToSlopeEffect();
 
-    void lowHumEffect();
+    void sandEffect();
 
-    void lowPitchedSettlingEffect();
+    void explosionEffect();
 
     void laraHandsFreeEffect();
 
@@ -462,9 +462,9 @@ public:
 
     void unholsterRightGunEffect(engine::items::ItemNode& node);
 
-    void secretJumpWaterEffect();
+    void chainBlockEffect();
 
-    void delayedRoomSwapEffect();
+    void flickerEffect();
 
     void swapAllRooms()
     {
@@ -503,29 +503,29 @@ public:
                 return turn180Effect( *node );
             case 1:
                 Expects( node != nullptr );
-                return floorShakeEffect( *node );
+                return dinoStompEffect( *node );
             case 2:
                 Expects( node != nullptr );
                 return laraNormalEffect( *node );
             case 3:
                 Expects( node != nullptr );
-                return bubblesEffect( *node );
+                return laraBubblesEffect( *node );
             case 4:
                 return finishLevelEffect();
             case 5:
-                return trexCamShakeEffect();
+                return earthquakeEffect();
             case 6:
                 return floodEffect();
             case 7:
                 return chandelierEffect();
             case 8:
-                return clankEffect();
+                return raisingBlockEffect();
             case 9:
-                return doorSlamAirEffect();
+                return stairsToSlopeEffect();
             case 10:
-                return lowHumEffect();
+                return sandEffect();
             case 11:
-                return lowPitchedSettlingEffect();
+                return explosionEffect();
             case 12:
                 return laraHandsFreeEffect();
             case 13:
@@ -534,9 +534,9 @@ public:
                 Expects( node != nullptr );
                 return unholsterRightGunEffect( *node );
             case 15:
-                return secretJumpWaterEffect();
+                return chainBlockEffect();
             case 16:
-                return delayedRoomSwapEffect();
+                return flickerEffect();
             default:
                 BOOST_LOG_TRIVIAL( warning ) << "Unhandled effect: " << id;
         }

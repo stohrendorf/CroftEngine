@@ -151,7 +151,7 @@ void Block::update()
             m_state.position.position = pos.position;
             m_state.falling = false;
             m_state.triggerState = TriggerState::Deactivated;
-            getLevel().floorShakeEffect( *this );
+            getLevel().dinoStompEffect( *this );
             playSoundEffect( 70 );
         }
     }
