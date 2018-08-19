@@ -1,7 +1,9 @@
 #pragma once
 
-#include <level/level.h>
+#include "level/level.h"
 #include "engine/items/itemnode.h"
+
+#include <unordered_map>
 
 namespace engine
 {
@@ -110,9 +112,9 @@ struct LotInfo
         Expects( box != nullptr );
         required_box = box;
         const auto zSize = box->zmax - box->zmin - loader::SectorSize;
-        target.Z = util::rand15(zSize) + box->zmin + loader::SectorSize / 2;
+        target.Z = util::rand15( zSize ) + box->zmin + loader::SectorSize / 2;
         const auto xSize = box->xmax - box->xmin - loader::SectorSize;
-        target.X = util::rand15(xSize) + box->xmin + loader::SectorSize / 2;
+        target.X = util::rand15( xSize ) + box->xmin + loader::SectorSize / 2;
         if( fly != 0 )
         {
             target.Y = box->floor - 384;
