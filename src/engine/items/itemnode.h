@@ -52,7 +52,7 @@ struct InteractionLimits
         distance.makeValid();
     }
 
-    bool canInteract(const ItemNode& item, const LaraNode& lara) const;
+    bool canInteract(const ItemState& item, const ItemState& lara) const;
 };
 
 

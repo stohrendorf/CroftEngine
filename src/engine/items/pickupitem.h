@@ -6,17 +6,16 @@ namespace engine
 {
 namespace items
 {
-class PickupItem final : public ModelItemNode
+class PickupItem final : public SpriteItemNode
 {
 public:
     PickupItem(const gsl::not_null<level::Level*>& level,
                const std::string& name,
                const gsl::not_null<const loader::Room*>& room,
                const loader::Item& item,
-               const loader::SkeletalModelType& animatedModel,
-               bool shotgun = false)
-            : ModelItemNode( level, name, room, item, true, animatedModel )
-            , m_shotgun{shotgun}
+               const loader::Sprite& sprite,
+               const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
+            : SpriteItemNode( level, name, room, item, true, sprite, material )
     {
     }
 
@@ -25,10 +24,7 @@ public:
         updateLighting();
     }
 
-    void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
-
-private:
-    const bool m_shotgun;
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 };
 }
 }

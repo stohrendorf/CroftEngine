@@ -7,15 +7,15 @@ namespace engine
 {
 namespace items
 {
-void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
+void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
-    const core::Angle y = other.m_state.rotation.Y;
+    const core::Angle y = lara.m_state.rotation.Y;
     m_state.rotation.Y = y;
     m_state.rotation.Z = 0_deg;
 
-    if( other.isInWater() )
+    if( lara.isInWater() )
     {
-        if( !other.isDiving() )
+        if( !lara.isDiving() )
         {
             return;
         }
@@ -27,32 +27,33 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
                 {+45_deg, +45_deg, +45_deg}
         };
 
-        if( !limits.canInteract( *this, other ) )
+        if( !limits.canInteract( m_state, lara.m_state ) )
         {
             return;
         }
 
         static const glm::vec3 aimSpeed{0, -200.0f, -350.0f};
 
-        if( other.getCurrentAnimState() == LaraStateId::PickUp )
+        if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
-            if( other.m_state.frame_number == 2970 )
+            if( lara.m_state.frame_number == 2970 )
             {
-                // TODO: Remove item from room, handle pick up
-
                 m_state.triggerState = engine::items::TriggerState::Invisible;
+                getNode()->setVisible( false );
+
+                // TODO: update inventory
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action
-                 && other.getCurrentAnimState() == LaraStateId::UnderwaterStop &&
-                 other.alignTransform( aimSpeed, *this ) )
+                 && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop &&
+                 lara.alignTransform( aimSpeed, *this ) )
         {
             do
             {
-                other.setTargetState( LaraStateId::PickUp );
-                other.updateImpl();
-            } while( other.getCurrentAnimState() != LaraStateId::PickUp );
-            other.setTargetState( LaraStateId::UnderwaterStop );
+                lara.setTargetState( LaraStateId::PickUp );
+                lara.updateImpl();
+            } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
+            lara.setTargetState( LaraStateId::UnderwaterStop );
         }
     }
     else
@@ -64,45 +65,45 @@ void PickupItem::collide(LaraNode& other, CollisionInfo& collisionInfo)
                 {+10_deg, 0_deg, 0_deg}
         };
 
-        if( !limits.canInteract( *this, other ) )
+        if( !limits.canInteract( m_state, lara.m_state ) )
         {
             return;
         }
 
-        if( other.getCurrentAnimState() == LaraStateId::PickUp )
+        if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
-            if( other.m_state.frame_number == 3443 )
+            if( lara.m_state.frame_number == 3443 )
             {
-                if( m_shotgun )
+                if( m_state.object_number == engine::TR1ItemId::ShotgunSprite )
                 {
                     const auto& shotgunLara = *getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim];
-                    BOOST_ASSERT( shotgunLara.nmeshes == other.getNode()->getChildCount() );
+                    BOOST_ASSERT( shotgunLara.nmeshes == lara.getNode()->getChildCount() );
 
-                    other.getNode()->getChild( 7 )
-                         ->setDrawable( getLevel().m_models2[shotgunLara.frame_number + 7].get() );
+                    lara.getNode()->getChild( 7 )
+                        ->setDrawable( getLevel().m_models2[shotgunLara.frame_number + 7].get() );
                 }
 
                 m_state.triggerState = engine::items::TriggerState::Invisible;
+                getNode()->setVisible( false );
 
-                // TODO: Remove item from room, handle pick up
+                // TODO: update inventory
             }
         }
         else
         {
-            if( getLevel().m_inputHandler->getInputState().action && other.getHandStatus() == HandStatus::None
-                && !other.m_state.falling &&
-                other.getCurrentAnimState() == LaraStateId::Stop )
+            if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == HandStatus::None
+                && !lara.m_state.falling &&
+                lara.getCurrentAnimState() == LaraStateId::Stop )
             {
-                other.setRelativeOrientedPosition( core::TRCoordinates{0, 0, -100}, *this );
+                lara.alignForInteraction( core::TRCoordinates{0, 0, -100}, m_state );
 
-                // TODO: position Lara
                 do
                 {
-                    other.setTargetState( LaraStateId::PickUp );
-                    other.updateImpl();
-                } while( other.getCurrentAnimState() != LaraStateId::PickUp );
-                other.setTargetState( LaraStateId::Stop );
-                other.setHandStatus( HandStatus::Grabbing );
+                    lara.setTargetState( LaraStateId::PickUp );
+                    lara.updateImpl();
+                } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
+                lara.setTargetState( LaraStateId::Stop );
+                lara.setHandStatus( HandStatus::Grabbing );
             }
         }
     }

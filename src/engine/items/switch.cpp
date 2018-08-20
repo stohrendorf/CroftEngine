@@ -41,7 +41,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             {+10_deg, +30_deg, +10_deg}
     };
 
-    if( !limits.canInteract( *this, lara ) )
+    if( !limits.canInteract( m_state, lara.m_state ) )
     {
         return;
     }

@@ -417,32 +417,6 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::BridgeSlope2>( id, *model, room, item );
             }
-            else if( item.type == engine::TR1ItemId::Item141
-                     || item.type == engine::TR1ItemId::Item142
-                     || item.type == engine::TR1ItemId::Key1Sprite
-                     || item.type == engine::TR1ItemId::Key2Sprite
-                     || item.type == engine::TR1ItemId::Key3Sprite
-                     || item.type == engine::TR1ItemId::Key4Sprite
-                     || item.type == engine::TR1ItemId::Puzzle1Sprite
-                     || item.type == engine::TR1ItemId::Puzzle2Sprite
-                     || item.type == engine::TR1ItemId::Puzzle3Sprite
-                     || item.type == engine::TR1ItemId::Puzzle4Sprite
-                     || item.type == engine::TR1ItemId::PistolsSprite
-                     || item.type == engine::TR1ItemId::ShotgunSprite
-                     || item.type == engine::TR1ItemId::MagnumsSprite
-                     || item.type == engine::TR1ItemId::UzisSprite
-                     || item.type == engine::TR1ItemId::PistolAmmoSprite
-                     || item.type == engine::TR1ItemId::ShotgunAmmoSprite
-                     || item.type == engine::TR1ItemId::MagnumAmmoSprite
-                     || item.type == engine::TR1ItemId::UziAmmoSprite
-                     || item.type == engine::TR1ItemId::ExplosiveSprite
-                     || item.type == engine::TR1ItemId::SmallMedipackSprite
-                     || item.type == engine::TR1ItemId::LargeMedipackSprite
-                     || item.type == engine::TR1ItemId::Item144
-                     || item.type == engine::TR1ItemId::LeadBarSprite )
-            {
-                modelNode = createSkeletalModel<engine::items::PickupItem>( id, *model, room, item );
-            }
             else
             {
                 modelNode = createSkeletalModel<engine::items::StubItem>( id, *model, room, item );
@@ -470,15 +444,51 @@ engine::LaraNode* Level::createItems()
             BOOST_ASSERT( spriteSequence->offset < m_sprites.size() );
 
             const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
+            std::shared_ptr<engine::items::ItemNode> node;
 
-            auto node = std::make_shared<engine::items::SpriteItemNode>( to_not_null( this ),
-                                                                         "sprite:" + std::to_string( id ) + "(type:"
-                                                                         + engine::toString( item.type ) + ")",
-                                                                         room,
-                                                                         item,
-                                                                         true,
-                                                                         sprite,
-                                                                         to_not_null( m_spriteMaterial ) );
+            if( item.type == engine::TR1ItemId::Item141
+                || item.type == engine::TR1ItemId::Item142
+                || item.type == engine::TR1ItemId::Key1Sprite
+                || item.type == engine::TR1ItemId::Key2Sprite
+                || item.type == engine::TR1ItemId::Key3Sprite
+                || item.type == engine::TR1ItemId::Key4Sprite
+                || item.type == engine::TR1ItemId::Puzzle1Sprite
+                || item.type == engine::TR1ItemId::Puzzle2Sprite
+                || item.type == engine::TR1ItemId::Puzzle3Sprite
+                || item.type == engine::TR1ItemId::Puzzle4Sprite
+                || item.type == engine::TR1ItemId::PistolsSprite
+                || item.type == engine::TR1ItemId::ShotgunSprite
+                || item.type == engine::TR1ItemId::MagnumsSprite
+                || item.type == engine::TR1ItemId::UzisSprite
+                || item.type == engine::TR1ItemId::PistolAmmoSprite
+                || item.type == engine::TR1ItemId::ShotgunAmmoSprite
+                || item.type == engine::TR1ItemId::MagnumAmmoSprite
+                || item.type == engine::TR1ItemId::UziAmmoSprite
+                || item.type == engine::TR1ItemId::ExplosiveSprite
+                || item.type == engine::TR1ItemId::SmallMedipackSprite
+                || item.type == engine::TR1ItemId::LargeMedipackSprite
+                || item.type == engine::TR1ItemId::Item144
+                || item.type == engine::TR1ItemId::LeadBarSprite )
+            {
+                node = std::make_shared<engine::items::PickupItem>( to_not_null( this ),
+                                                                    "sprite:" + std::to_string( id ) + "(type:"
+                                                                    + engine::toString( item.type ) + ")",
+                                                                    room,
+                                                                    item,
+                                                                    sprite,
+                                                                    to_not_null( m_spriteMaterial ) );
+            }
+            else
+            {
+                node = std::make_shared<engine::items::SpriteItemNode>( to_not_null( this ),
+                                                                        "sprite:" + std::to_string( id ) + "(type:"
+                                                                        + engine::toString( item.type ) + ")",
+                                                                        room,
+                                                                        item,
+                                                                        true,
+                                                                        sprite,
+                                                                        to_not_null( m_spriteMaterial ) );
+            }
 
             m_itemNodes[id] = node;
             addChild( to_not_null( room->node ), to_not_null( node->getNode() ) );

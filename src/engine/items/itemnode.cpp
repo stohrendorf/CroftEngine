@@ -287,9 +287,9 @@ void ItemNode::kill()
     m_state.activationState.setLocked( true );
 }
 
-bool InteractionLimits::canInteract(const ItemNode& item, const LaraNode& lara) const
+bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara) const
 {
-    const auto angle = lara.m_state.rotation - item.m_state.rotation;
+    const auto angle = lara.rotation - item.rotation;
     if( angle.X < minAngle.X || angle.X > maxAngle.X
         || angle.Y < minAngle.Y || angle.Y > maxAngle.Y
         || angle.Z < minAngle.Z || angle.Z > maxAngle.Z )
@@ -297,12 +297,9 @@ bool InteractionLimits::canInteract(const ItemNode& item, const LaraNode& lara) 
         return false;
     }
 
-    const auto dist =
-            glm::vec4{(lara.m_state.position.position - item.m_state.position.position).toRenderSystem(), 1.0f}
-            * item.m_state.rotation.toMatrix();
-    const glm::vec3 tdist{dist};
-
-    return distance.contains( core::TRCoordinates{tdist} );
+    const auto dist = item.rotation.toMatrix()
+                      * glm::vec4{(lara.position.position - item.position.position).toRenderSystem(), 1.0f};
+    return distance.contains( core::TRCoordinates{glm::vec3{dist}} );
 }
 
 void ModelItemNode::applyMovement(const bool forLara)

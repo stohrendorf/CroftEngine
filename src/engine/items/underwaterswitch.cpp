@@ -36,7 +36,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             {+80_deg, +80_deg, +80_deg}
     };
 
-    if( !limits.canInteract( *this, lara ) )
+    if( !limits.canInteract( m_state, lara.m_state ) )
     {
         return;
     }

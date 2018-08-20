@@ -75,22 +75,23 @@ void LaraNode::handleLaraStateOnLand()
     // "slowly" revert rotations to zero
     if( m_state.rotation.Z < -1_deg )
     {
-        m_state.rotation.Z += +1_deg;
+        m_state.rotation.Z += 1_deg;
         if( m_state.rotation.Z >= 0_deg )
+        {
+            m_state.rotation.Z = 0_deg;
+        }
+    }
+    else if( m_state.rotation.Z > 1_deg )
+    {
+        m_state.rotation.Z -= 1_deg;
+        if( m_state.rotation.Z <= 0_deg )
         {
             m_state.rotation.Z = 0_deg;
         }
     }
     else
     {
-        if( m_state.rotation.Z > 1_deg )
-        {
-            m_state.rotation.Z += -1_deg;
-            if( m_state.rotation.Z <= 0_deg )
-            {
-                m_state.rotation.Z = 0_deg;
-            }
-        }
+        m_state.rotation.Z = 0_deg;
     }
 
     if( m_yRotationSpeed > 2_deg )

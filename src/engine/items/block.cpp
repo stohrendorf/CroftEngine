@@ -37,7 +37,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         const core::Angle y = core::alignRotation( *axis );
         m_state.rotation.Y = y;
 
-        if( !limits.canInteract( *this, lara ) )
+        if( !limits.canInteract( m_state, lara.m_state ) )
         {
             return;
         }
@@ -87,7 +87,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     }
 
     if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-        || lara.m_state.frame_number != 2091 || !limits.canInteract( *this, lara ) )
+        || lara.m_state.frame_number != 2091 || !limits.canInteract( m_state, lara.m_state ) )
     {
         return;
     }

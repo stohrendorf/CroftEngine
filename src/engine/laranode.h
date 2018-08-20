@@ -513,5 +513,12 @@ public:
     void drawRoutine();
 
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
+
+    void alignForInteraction(const core::TRCoordinates& offset, const engine::items::ItemState& state)
+    {
+        auto v = glm::translate( state.rotation.toMatrix(), offset.toRenderSystem() )
+                 * glm::vec4{offset.toRenderSystem(), 1.0f};
+        m_state.position.position = state.position.position + core::TRCoordinates{glm::vec3{v}};
+    }
 };
 }
