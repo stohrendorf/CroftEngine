@@ -167,6 +167,10 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
             return std::make_unique<StateHandler_48>( lara );
         case LaraStateId::OnWaterRight:
             return std::make_unique<StateHandler_49>( lara );
+        case LaraStateId::UseMidas:
+            return std::make_unique<StateHandler_50>( lara );
+        case LaraStateId::MidasDeath:
+            return std::make_unique<StateHandler_51>( lara );
         case LaraStateId::SwandiveBegin:
             return std::make_unique<StateHandler_52>( lara );
         case LaraStateId::SwandiveEnd:

@@ -56,6 +56,11 @@ protected:
         setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * angle.toMatrix() );
     }
 
+    size_t getLength() const
+    {
+        return m_drawables.size();
+    }
+
 public:
     explicit Particle(const std::string& id,
                       engine::TR1ItemId objectNumber,
@@ -108,7 +113,7 @@ public:
                             const level::Level& level)
             : Particle{"splash", engine::TR1ItemId::Splash, pos, level}
     {
-        speed = util::rand15(128);
+        speed = util::rand15( 128 );
         angle.Y = core::Angle( 2 * util::rand15s() );
     }
 
@@ -125,7 +130,7 @@ public:
     {
         timePerSpriteFrame = 4;
 
-        int n = util::rand15(3);
+        int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )
             nextFrame();
     }
@@ -151,14 +156,38 @@ public:
                             const level::Level& level)
             : Particle{"bubble", engine::TR1ItemId::Bubbles, pos, level}
     {
-        speed = 10 + util::rand15(6);
+        speed = 10 + util::rand15( 6 );
 
-        int n = util::rand15(3);
+        int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )
             nextFrame();
     }
 
     bool update(const level::Level& level) override;
+};
+
+
+class SparkleParticle : public Particle
+{
+public:
+    explicit SparkleParticle(const core::RoomBoundPosition& pos,
+                             const level::Level& level)
+            : Particle{"sparkles", engine::TR1ItemId::Sparkles, pos, level}
+    {
+        timePerSpriteFrame = 0;
+        negSpriteFrameId = 0;
+    }
+
+    bool update(const level::Level& level) override
+    {
+        ++timePerSpriteFrame;
+        if( timePerSpriteFrame != 1 )
+            return true;
+
+        --negSpriteFrameId;
+        timePerSpriteFrame = 0;
+        return -negSpriteFrameId < getLength();
+    }
 };
 
 
