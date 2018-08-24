@@ -919,9 +919,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
         || collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
     {
         setTargetState( LaraStateId::FreeFall );
-        //! @todo Check formula
-        int speed = m_lara.m_state.speed * 0.2f;
-        m_lara.m_state.speed = speed;
+        m_lara.m_state.speed /= 4;
         setMovementAngle( getMovementAngle() - 180_deg );
         setAnimIdGlobal( loader::AnimationId::SMASH_JUMP, 481 );
         if( m_lara.m_state.fallspeed <= 0 )

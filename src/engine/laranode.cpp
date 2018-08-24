@@ -283,8 +283,7 @@ void LaraNode::update()
             m_state.rotation.X = -45_deg;
             setTargetState( LaraStateId::UnderwaterDiving );
             updateImpl();
-            const int16_t spd = m_state.fallspeed * 2;
-            m_state.fallspeed = spd;
+            m_state.fallspeed *= 2;
         }
         else if( getCurrentAnimState() == LaraStateId::SwandiveEnd )
         {
@@ -298,7 +297,6 @@ void LaraNode::update()
             m_state.rotation.X = -45_deg;
             setAnimIdGlobal( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
             setTargetState( LaraStateId::UnderwaterForward );
-            //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::UnderwaterDiving, *this);
             m_state.fallspeed += m_state.fallspeed / 2;
         }
 
@@ -321,59 +319,50 @@ void LaraNode::update()
             getLevel().m_particles.emplace_back( particle );
         }
     }
-    else
+    else if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
     {
-        if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
-        {
-            auto waterSurfaceHeight = getWaterSurfaceHeight();
-            m_state.fallspeed = 0;
-            m_state.rotation.X = 0_deg;
-            m_state.rotation.Z = 0_deg;
-            resetHeadTorsoRotation();
-            m_handStatus = HandStatus::None;
+        auto waterSurfaceHeight = getWaterSurfaceHeight();
+        m_state.fallspeed = 0;
+        m_state.rotation.X = 0_deg;
+        m_state.rotation.Z = 0_deg;
+        resetHeadTorsoRotation();
+        m_handStatus = HandStatus::None;
 
-            if( !waterSurfaceHeight
-                || std::abs( *waterSurfaceHeight - m_state.position.position.Y ) >= loader::QuarterSectorSize )
-            {
-                m_underwaterState = UnderwaterState::OnLand;
-                setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
-                setTargetState( LaraStateId::JumpForward );
-                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-                //! @todo Check formula
-                m_state.speed /= 4;
-                m_state.falling = true;
-            }
-            else
-            {
-                m_underwaterState = UnderwaterState::Swimming;
-                setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
-                setTargetState( LaraStateId::OnWaterStop );
-                //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::OnWaterStop, *this);
-                {
-                    auto pos = m_state.position.position;
-                    pos.Y = *waterSurfaceHeight + 1;
-                    m_state.position.position = pos;
-                }
-                m_swimToDiveKeypressDuration = 11;
-                updateFloorHeight( -381 );
-                playSoundEffect( 36 );
-            }
-        }
-        else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
+        if( !waterSurfaceHeight
+            || std::abs( *waterSurfaceHeight - m_state.position.position.Y ) >= loader::QuarterSectorSize )
         {
             m_underwaterState = UnderwaterState::OnLand;
             setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setTargetState( LaraStateId::JumpForward );
-            //m_currentStateHandler = lara::AbstractStateHandler::create(LaraStateId::JumpForward, *this);
-            m_state.fallspeed = 0;
-            //! @todo Check formula
-            m_state.speed /= 4;
+            m_state.speed = std::exchange(m_state.fallspeed, 0) / 4;
             m_state.falling = true;
-            m_handStatus = HandStatus::None;
-            m_state.rotation.X = 0_deg;
-            m_state.rotation.Z = 0_deg;
-            resetHeadTorsoRotation();
         }
+        else
+        {
+            m_underwaterState = UnderwaterState::Swimming;
+            setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
+            setTargetState( LaraStateId::OnWaterStop );
+            {
+                auto pos = m_state.position.position;
+                pos.Y = *waterSurfaceHeight + 1;
+                m_state.position.position = pos;
+            }
+            m_swimToDiveKeypressDuration = 11;
+            updateFloorHeight( -381 );
+            playSoundEffect( 36 );
+        }
+    }
+    else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
+    {
+        m_underwaterState = UnderwaterState::OnLand;
+        setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+        setTargetState( LaraStateId::JumpForward );
+        m_state.speed = std::exchange(m_state.fallspeed, 0) / 4;
+        m_state.falling = true;
+        m_handStatus = HandStatus::None;
+        m_state.rotation.X = 0_deg;
+        m_state.rotation.Z = 0_deg;
+        resetHeadTorsoRotation();
     }
 
     if( m_underwaterState == UnderwaterState::OnLand )

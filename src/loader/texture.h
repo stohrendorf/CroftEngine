@@ -63,9 +63,9 @@ struct DWordTexture final
 
     static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
     {
-        std::unique_ptr<DWordTexture> textile{std::make_unique<DWordTexture>()};
+        std::unique_ptr<DWordTexture> texture{std::make_unique<DWordTexture>()};
 
-        for( auto& row : textile->pixels )
+        for( auto& row : texture->pixels )
         {
             for( int j = 0; j < 256; j++ )
             {
@@ -78,7 +78,7 @@ struct DWordTexture final
             }
         }
 
-        return textile;
+        return texture;
     }
 
     gsl::not_null<std::shared_ptr<gameplay::gl::Texture>> toTexture(

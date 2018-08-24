@@ -457,7 +457,6 @@ void CameraController::update()
         if( m_tracking == tracking )
         {
             m_tracking = false;
-            //! @todo check formula
             m_target.position.Y += (trackedY - m_target.position.Y) / 4;
         }
         else
@@ -529,8 +528,7 @@ void CameraController::handleCamOverride()
     m_tracking = true;
     updatePosition( pos, m_trackingSmoothness );
 
-    //! @todo Check condition
-    if( m_camOverrideTimeout > 1 )
+    if( m_camOverrideTimeout > 0 )
         --m_camOverrideTimeout;
     else
         m_camOverrideTimeout = -1;
