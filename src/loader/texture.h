@@ -58,6 +58,8 @@ struct WordTexture
 struct DWordTexture final
 {
     gameplay::gl::RGBA8 pixels[256][256];
+    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image;
+    std::shared_ptr<gameplay::gl::Texture> texture;
 
     std::string md5;
 
@@ -81,13 +83,13 @@ struct DWordTexture final
         return texture;
     }
 
-    gsl::not_null<std::shared_ptr<gameplay::gl::Texture>> toTexture(
+    void toTexture(
             trx::Glidos* glidos,
-            const boost::filesystem::path& lvlName) const;
+            const boost::filesystem::path& lvlName);
 
-    gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>> toImage(
+    void toImage(
             trx::Glidos* glidos,
-            const boost::filesystem::path& lvlName) const;
+            const boost::filesystem::path& lvlName);
 };
 
 

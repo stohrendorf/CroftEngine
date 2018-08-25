@@ -131,7 +131,7 @@ struct Mesh
                 m_texBuffers[tk] = m_parts.size();
                 m_parts.emplace_back();
                 m_parts.back().material = m_colorMaterial;
-                m_parts.back().color = glm::vec3( m_palette.color[tk.colorId].toGLColor() );
+                m_parts.back().color = glm::vec3( m_palette.colors[tk.colorId].toGLColor() );
             }
 
             return m_texBuffers[tk];

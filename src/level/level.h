@@ -147,12 +147,10 @@ public:
 
     const std::unique_ptr<loader::SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
 
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>> createTextures(
-            loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
+    void createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
 
     std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
-    createMaterials(const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
-                    const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
+    createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
     engine::LaraNode* createItems();
 

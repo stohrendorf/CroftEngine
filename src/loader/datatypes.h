@@ -1201,7 +1201,8 @@ struct Sprite
 {
     uint16_t texture_id;
 
-    std::shared_ptr<gameplay::gl::Texture> texture{ nullptr };
+    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image{nullptr};
+    std::shared_ptr<gameplay::gl::Texture> texture{nullptr};
 
     glm::vec2 t0;
 
@@ -1222,7 +1223,7 @@ struct Sprite
         sprite->texture_id = reader.readU16();
         if( sprite->texture_id > 64 )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture: tile > 64";
+            BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture ID > 64";
         }
 
         const auto tx = reader.readU8();
@@ -1254,7 +1255,7 @@ struct Sprite
         sprite->texture_id = reader.readU16();
         if( sprite->texture_id > 128 )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture: tile > 128";
+            BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture ID > 128";
         }
 
         const auto tx = reader.readU8();

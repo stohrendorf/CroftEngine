@@ -61,12 +61,19 @@ public:
         return m_data[y * m_width + x];
     }
 
-    void set(GLint x, GLint y, const StorageType& pixel)
+    void set(GLint x, GLint y, const StorageType& pixel, bool blend = false)
     {
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
             return;
 
-        m_data[y * m_width + x] = pixel;
+        if( !blend )
+        {
+            m_data[y * m_width + x] = pixel;
+        }
+        else
+        {
+            m_data[y * m_width + x] = mixAlpha( m_data[y * m_width + x], pixel );
+        }
     }
 
     const StorageType& at(GLint x, GLint y) const
@@ -89,7 +96,7 @@ public:
         std::fill_n( m_data.data(), m_data.size(), color );
     }
 
-    void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color)
+    void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color, bool blend = false)
     {
         // shamelessly copied from wikipedia
         const GLint dx = abs( x1 - x0 );
@@ -101,7 +108,7 @@ public:
 
         while( true )
         {
-            set( x0, y0, color );
+            set( x0, y0, color, blend );
 
             if( x0 == x1 && y0 == y1 )
                 break;

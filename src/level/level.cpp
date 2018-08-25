@@ -276,21 +276,16 @@ const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(
     return none;
 }
 
-std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>
-Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
+void Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
 {
-    BOOST_ASSERT( !m_textures.empty() );
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>> textures;
     for( auto& texture : m_textures )
     {
-        textures.emplace_back( texture.toTexture( glidos, lvlName ) );
+        texture.toTexture( glidos, lvlName );
     }
-    return textures;
 }
 
 std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
-Level::createMaterials(const std::vector<gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>>& textures,
-                       const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
 {
     const auto texMask = gameToEngine( m_gameVersion ) == Engine::TR4 ? loader::TextureIndexMaskTr4
                                                                       : loader::TextureIndexMask;
@@ -301,7 +296,8 @@ Level::createMaterials(const std::vector<gsl::not_null<std::shared_ptr<gameplay:
         if( materials.find( key ) != materials.end() )
             continue;
 
-        materials.emplace( std::make_pair( key, proxy.createMaterial( textures[key.tileAndFlag & texMask], shader ) ) );
+        materials.emplace( std::make_pair( key, proxy.createMaterial(
+                to_not_null( m_textures[key.tileAndFlag & texMask].texture ), shader ) ) );
     }
     return materials;
 }
@@ -717,17 +713,18 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 {
     m_inputHandler = std::make_unique<engine::InputHandler>( to_not_null( game->getWindow() ) );
 
-    auto textures = createTextures( glidos.get(), lvlName );
+    createTextures( glidos.get(), lvlName );
 
     for( auto& sprite : m_sprites )
     {
-        BOOST_ASSERT( sprite.texture_id < textures.size() );
-        sprite.texture = textures[sprite.texture_id];
+        BOOST_ASSERT( sprite.texture_id < m_textures.size() );
+        sprite.texture = m_textures[sprite.texture_id].texture;
+        sprite.image = m_textures[sprite.texture_id].image;
     }
 
     auto texturedShader = to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                 "shaders/textured_2.frag" ) );
-    auto materials = createMaterials( textures, texturedShader );
+    auto materials = createMaterials( texturedShader );
 
     auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
                                                                    "shaders/colored_2.frag" );
@@ -765,7 +762,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     auto waterTexturedShader = to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                      "shaders/textured_2.frag",
                                                                                      {"WATER"} ) );
-    auto waterMaterials = createMaterials( textures, waterTexturedShader );
+    auto waterMaterials = createMaterials( waterTexturedShader );
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
@@ -778,7 +775,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {
-            objWriter.write( m_textures[i].toImage( nullptr, {} ), i );
+            m_textures[i].toImage( nullptr, {} );
+            objWriter.write( to_not_null( m_textures[i].image ), i );
         }
 
         for( const auto& trModel : m_animatedModels | boost::adaptors::map_values )
@@ -936,7 +934,7 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
             int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x] = {pal.color[col].r, pal.color[col].g, pal.color[col].b, 255};
+                dst.pixels[y][x] = {pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255};
             else
                 dst.pixels[y][x] = {0, 0, 0, 0};
         }
@@ -1067,39 +1065,39 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
         const int x0 = static_cast<const int>(game->getViewport().width - 110);
 
         for( int i = 7; i <= 13; ++i )
-            image->line( x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor() );
-        image->line( x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor() );
-        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor() );
-        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor() );
-        image->line( x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor() );
+            image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );
+        image->line( x0 - 2, 14, x0 + 102, 14, m_palette->colors[17].toTextureColor() );
+        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->colors[17].toTextureColor() );
+        image->line( x0 + 102, 6, x0 + 102, 14, m_palette->colors[19].toTextureColor() );
+        image->line( x0 - 2, 6, x0 - 2, 14, m_palette->colors[19].toTextureColor() );
 
         const int p = util::clamp( m_lara->getAir() * 100 / core::LaraAir, 0, 100 );
         if( p > 0 )
         {
-            image->line( x0, 8, x0 + p, 8, m_palette->color[32].toTextureColor() );
-            image->line( x0, 9, x0 + p, 9, m_palette->color[41].toTextureColor() );
-            image->line( x0, 10, x0 + p, 10, m_palette->color[32].toTextureColor() );
-            image->line( x0, 11, x0 + p, 11, m_palette->color[19].toTextureColor() );
-            image->line( x0, 12, x0 + p, 12, m_palette->color[21].toTextureColor() );
+            image->line( x0, 8, x0 + p, 8, m_palette->colors[32].toTextureColor() );
+            image->line( x0, 9, x0 + p, 9, m_palette->colors[41].toTextureColor() );
+            image->line( x0, 10, x0 + p, 10, m_palette->colors[32].toTextureColor() );
+            image->line( x0, 11, x0 + p, 11, m_palette->colors[19].toTextureColor() );
+            image->line( x0, 12, x0 + p, 12, m_palette->colors[21].toTextureColor() );
         }
     }
 
     const int x0 = 8;
     for( int i = 7; i <= 13; ++i )
-        image->line( x0 - 1, i, x0 + 101, i, m_palette->color[0].toTextureColor() );
-    image->line( x0 - 2, 14, x0 + 102, 14, m_palette->color[17].toTextureColor() );
-    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[17].toTextureColor() );
-    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->color[19].toTextureColor() );
-    image->line( x0 - 2, 6, x0 - 2, 14, m_palette->color[19].toTextureColor() );
+        image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );
+    image->line( x0 - 2, 14, x0 + 102, 14, m_palette->colors[17].toTextureColor() );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->colors[17].toTextureColor() );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_palette->colors[19].toTextureColor() );
+    image->line( x0 - 2, 6, x0 - 2, 14, m_palette->colors[19].toTextureColor() );
 
     const int p = util::clamp( m_lara->m_state.health * 100 / core::LaraHealth, 0, 100 );
     if( p > 0 )
     {
-        image->line( x0, 8, x0 + p, 8, m_palette->color[8].toTextureColor() );
-        image->line( x0, 9, x0 + p, 9, m_palette->color[11].toTextureColor() );
-        image->line( x0, 10, x0 + p, 10, m_palette->color[8].toTextureColor() );
-        image->line( x0, 11, x0 + p, 11, m_palette->color[6].toTextureColor() );
-        image->line( x0, 12, x0 + p, 12, m_palette->color[24].toTextureColor() );
+        image->line( x0, 8, x0 + p, 8, m_palette->colors[8].toTextureColor() );
+        image->line( x0, 9, x0 + p, 9, m_palette->colors[11].toTextureColor() );
+        image->line( x0, 10, x0 + p, 10, m_palette->colors[8].toTextureColor() );
+        image->line( x0, 11, x0 + p, 11, m_palette->colors[6].toTextureColor() );
+        image->line( x0, 12, x0 + p, 12, m_palette->colors[24].toTextureColor() );
     }
 }
 

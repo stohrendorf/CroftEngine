@@ -85,13 +85,13 @@ namespace loader
 
     struct Palette
     {
-        ByteColor color[256];
+        ByteColor colors[256];
 
         /// \brief reads the 256 colour palette values.
         static std::unique_ptr<Palette> readTr1(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::span<ByteColor>(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->colors) )
                 c = ByteColor::readTr1(reader);
             return palette;
         }
@@ -100,7 +100,7 @@ namespace loader
         static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
         {
             std::unique_ptr<Palette> palette{new Palette()};
-            for( auto& c : gsl::span<ByteColor>(palette->color) )
+            for( auto& c : gsl::span<ByteColor>(palette->colors) )
                 c = ByteColor::readTr2(reader);
             return palette;
         }

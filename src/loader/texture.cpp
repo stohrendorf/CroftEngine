@@ -45,13 +45,14 @@ gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
     return result;
 }
 
-gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>> DWordTexture::toImage(
+void DWordTexture::toImage(
         trx::Glidos* glidos,
-        const boost::filesystem::path& lvlName) const
+        const boost::filesystem::path& lvlName)
 {
     if( glidos == nullptr )
     {
-        return make_not_null_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>( 256, 256, &pixels[0][0] );
+        image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>( 256, 256, &pixels[0][0] );
+        return;
     }
 
     BOOST_LOG_TRIVIAL( info ) << "Upgrading texture " << md5 << "...";
@@ -86,9 +87,10 @@ gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>> DWordTe
         // interleave
         cacheImage.permute_axes( "cxyz" );
 
-        return make_not_null_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
+        image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
                 w, h,
                 reinterpret_cast<const gameplay::gl::RGBA8*>(cacheImage.data()) );
+        return;
     }
 
     cimg_library::CImg<uint8_t> original( &pixels[0][0].r, 4, 256, 256, 1, false );
@@ -148,19 +150,18 @@ gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>> DWordTe
     // interleave
     original.permute_axes( "cxyz" );
 
-    return make_not_null_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
+    image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
             Resolution, Resolution,
             reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()) );
 }
 
-gsl::not_null<std::shared_ptr<gameplay::gl::Texture>> DWordTexture::toTexture(
+void DWordTexture::toTexture(
         trx::Glidos* glidos,
-        const boost::filesystem::path& lvlName) const
+        const boost::filesystem::path& lvlName)
 {
-    auto texture = make_not_null_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+    texture = make_not_null_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
     texture->setLabel( md5 );
-    auto img = toImage( glidos, lvlName );
-    texture->image2D( img->getWidth(), img->getHeight(), img->getData(), true );
-    return texture;
+    toImage( glidos, lvlName );
+    texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );
 }
 }

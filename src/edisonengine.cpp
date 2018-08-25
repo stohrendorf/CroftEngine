@@ -5,6 +5,8 @@
 #include "gl/framebuffer.h"
 #include "gl/font.h"
 
+#include "render/label.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -281,10 +283,10 @@ int main()
 #endif
     }
 
-    sol::table
-            levelInfo = scriptEngine["getLevelInfo"]();
+    sol::table levelInfo = scriptEngine["getLevelInfo"]();
     const auto baseName = levelInfo.get<std::string>( "baseName" );
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
+    const std::string levelName = levelInfo["name"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
     levelInfo = sol::table(); // do not keep a reference to the engine
 
@@ -343,6 +345,15 @@ int main()
     while( !game->windowShouldClose() )
     {
         screenOverlay->getImage()->fill( {0, 0, 0, 0} );
+
+        {
+            render::Label tmp{0, -50, levelName};
+            tmp.alignX = render::Label::Alignment::Center;
+            tmp.alignY = render::Label::Alignment::Bottom;
+            tmp.outline = true;
+            tmp.addBackground( 0, 0, 0, 0 );
+            tmp.draw( *screenOverlay->getImage(), *lvl );
+        }
 
         lvl->m_audioDev.update();
         lvl->m_inputHandler->update();

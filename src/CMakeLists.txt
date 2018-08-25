@@ -288,6 +288,8 @@ set( EDISONENGINE_SRCS
      engine/ai/ai.cpp
 
      scriptengine/lua/sol.hpp
+
+     render/label.cpp
 )
 
 add_definitions(

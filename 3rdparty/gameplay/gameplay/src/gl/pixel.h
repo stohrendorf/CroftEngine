@@ -56,6 +56,18 @@ constexpr bool operator!=(const RGBA<T>& lhs, const RGBA<T>& rhs)
     return !(lhs == rhs);
 }
 
+template<typename T>
+inline RGBA<T> mixAlpha(const RGBA<T>& lhs, const RGBA<T>& rhs)
+{
+    const float bias = float( rhs.a ) / std::numeric_limits<T>::max();
+    return {
+            static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
+            static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
+            static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
+            static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)
+    };
+}
+
 using RGBA8 = RGBA<GLubyte>;
 
 

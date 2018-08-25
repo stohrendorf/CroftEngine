@@ -111,9 +111,9 @@ void TR1Level::loadFileData()
     {
         BOOST_LOG_TRIVIAL( debug ) << "Reading palette";
         m_palette = loader::Palette::readTr1( m_reader );
-        m_palette->color[0].r = 0;
-        m_palette->color[0].g = 0;
-        m_palette->color[0].b = 0;
+        m_palette->colors[0].r = 0;
+        m_palette->colors[0].g = 0;
+        m_palette->colors[0].b = 0;
     }
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading cameras";
@@ -146,9 +146,9 @@ void TR1Level::loadFileData()
     {
         BOOST_LOG_TRIVIAL( debug ) << "Reading palette";
         m_palette = loader::Palette::readTr1( m_reader );
-        m_palette->color[0].r = 0;
-        m_palette->color[0].g = 0;
-        m_palette->color[0].b = 0;
+        m_palette->colors[0].r = 0;
+        m_palette->colors[0].g = 0;
+        m_palette->colors[0].b = 0;
     }
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading cinematic frames";
