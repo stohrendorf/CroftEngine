@@ -516,8 +516,9 @@ public:
 
     void alignForInteraction(const core::TRCoordinates& offset, const engine::items::ItemState& item)
     {
-        const auto v = glm::vec4{offset.toRenderSystem(), 1.0f} * item.rotation.toMatrix();
-        m_state.position.position = item.position.position + core::TRCoordinates{glm::vec3{v}};
+        const auto v = item.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
+        const auto p = core::TRCoordinates{glm::vec3{v}};
+        m_state.position.position = item.position.position + p;
     }
 };
 }
