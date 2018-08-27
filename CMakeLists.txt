@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
 HunterGate(
-        URL "https://github.com/stohrendorf/hunter/archive/fffd84f558e2fa582f679c754406770712d26a7d.tar.gz"
-        SHA1 "e3372fcf2607e22c9710ed6386de647adf4f96c4"
+        URL "https://github.com/stohrendorf/hunter/archive/048954880e9e8d6609779b56cd68509cd5baedb2.tar.gz"
+        SHA1 "79343878df0b1c622f2bfa46582a613b26aaaf4f"
 )
 
 project(EdisonEngine)
@@ -142,7 +142,8 @@ target_include_directories(PNG INTERFACE ${PNG_INCLUDE_DIR})
 # Dependency: SndFile
 ot_find_dependency(OGG)
 ot_find_dependency(Vorbis) # requires OGG
-ot_find_dependency(SndFile) # requires OGG and Vorbis
+find_package(SndFile REQUIRED) # requires OGG and Vorbis
+add_library(SndFile INTERFACE)
 target_include_directories(SndFile INTERFACE ${SNDFILE_INCLUDE_DIR})
 target_link_libraries(SndFile INTERFACE ${SNDFILE_LIBRARIES} ${OGG_LIBRARIES} ${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES})
 
