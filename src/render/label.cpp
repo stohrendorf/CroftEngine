@@ -171,7 +171,7 @@ void Label::draw(gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Lev
     }
 
     auto bgndX = bgndOffX + x - 2;
-    auto bgndY = bgndOffY + y - 2;
+    const auto bgndY = bgndOffY + y + 1;
 
     int bgndWidth = 0;
     int bgndHeight = 0;

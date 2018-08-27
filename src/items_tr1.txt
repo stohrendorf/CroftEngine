@@ -191,3 +191,5 @@ Pottery6 = 239
 Item141 = 141
 Item142 = 142
 Item144 = 144
+Item148 = 148
+Item149 = 149

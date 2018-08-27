@@ -542,6 +542,36 @@ public:
 
     void swapWithAlternate(loader::Room& orig, loader::Room& alternate);
 
+    void addInventoryItem(engine::TR1ItemId id, size_t quantity = 1);
+
+    bool takeInventoryItem(engine::TR1ItemId id, size_t quantity = 1)
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Taking item " << toString(id) << " from inventory";
+
+        auto it = m_inventory.find( id );
+        if( it == m_inventory.end() )
+            return false;
+
+        if( it->second < quantity )
+            return false;
+
+        if( it->second == quantity )
+            m_inventory.erase( it );
+        else
+            m_inventory[id] -= quantity;
+
+        return true;
+    }
+
+    size_t countInventoryItem(engine::TR1ItemId id) const
+    {
+        auto it = m_inventory.find( id );
+        if( it == m_inventory.end() )
+            return 0;
+
+        return it->second;
+    }
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;
@@ -580,6 +610,8 @@ private:
     int m_cdTrack50time = 0;
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
+
+    std::map<engine::TR1ItemId, size_t> m_inventory;
 };
 }
                                                                                                                                                                                                                                            

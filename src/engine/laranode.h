@@ -514,11 +514,10 @@ public:
 
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 
-    void alignForInteraction(const core::TRCoordinates& offset, const engine::items::ItemState& state)
+    void alignForInteraction(const core::TRCoordinates& offset, const engine::items::ItemState& item)
     {
-        auto v = glm::translate( state.rotation.toMatrix(), offset.toRenderSystem() )
-                 * glm::vec4{offset.toRenderSystem(), 1.0f};
-        m_state.position.position = state.position.position + core::TRCoordinates{glm::vec3{v}};
+        const auto v = glm::vec4{offset.toRenderSystem(), 1.0f} * item.rotation.toMatrix();
+        m_state.position.position = item.position.position + core::TRCoordinates{glm::vec3{v}};
     }
 };
 }

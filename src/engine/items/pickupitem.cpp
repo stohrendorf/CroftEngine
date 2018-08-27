@@ -40,8 +40,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             {
                 m_state.triggerState = engine::items::TriggerState::Invisible;
                 getNode()->setVisible( false );
-
-                // TODO: update inventory
+                getLevel().addInventoryItem( m_state.object_number );
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action
@@ -85,15 +84,15 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
                 m_state.triggerState = engine::items::TriggerState::Invisible;
                 getNode()->setVisible( false );
-
-                // TODO: update inventory
+                getLevel().addInventoryItem( m_state.object_number );
             }
         }
         else
         {
-            if( getLevel().m_inputHandler->getInputState().action && lara.getHandStatus() == HandStatus::None
-                && !lara.m_state.falling &&
-                lara.getCurrentAnimState() == LaraStateId::Stop )
+            if( getLevel().m_inputHandler->getInputState().action
+                && lara.getHandStatus() == HandStatus::None
+                && !lara.m_state.falling
+                && lara.getCurrentAnimState() == LaraStateId::Stop )
             {
                 lara.alignForInteraction( core::TRCoordinates{0, 0, -100}, m_state );
 

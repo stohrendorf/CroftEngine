@@ -32,9 +32,9 @@ void ItemNode::applyTransform()
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
-                   const bool hasProcessAnimCommandsOverride)
+                   const bool hasUpdateFunction)
         : m_level{level}
-        , m_hasProcessAnimCommandsOverride{hasProcessAnimCommandsOverride}
+        , m_hasUpdateFunction{hasUpdateFunction}
         , m_state{room}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
@@ -202,7 +202,7 @@ void ModelItemNode::update()
 
 void ItemNode::activate()
 {
-    if( !m_hasProcessAnimCommandsOverride )
+    if( !m_hasUpdateFunction )
     {
         m_state.triggerState = TriggerState::Inactive;
         return;
@@ -297,8 +297,8 @@ bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara
         return false;
     }
 
-    const auto dist = item.rotation.toMatrix()
-                      * glm::vec4{(lara.position.position - item.position.position).toRenderSystem(), 1.0f};
+    const auto offs = lara.position.position - item.position.position;
+    const auto dist = glm::vec4{offs.toRenderSystem(), 1.0f} * item.rotation.toMatrix();
     return distance.contains( core::TRCoordinates{glm::vec3{dist}} );
 }
 
@@ -317,7 +317,7 @@ void ModelItemNode::applyMovement(const bool forLara)
 
         if( forLara )
         {
-            // we only add accelleration here
+            // we only add acceleration here
             m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0 )
                             - m_skeleton->calculateFloorSpeed( m_state, -1 );
         }

@@ -263,6 +263,8 @@ set( EDISONENGINE_SRCS
      engine/items/door.h
      engine/items/itemnode.cpp
      engine/items/itemnode.h
+     engine/items/keyhole.cpp
+     engine/items/keyhole.h
      engine/items/pickupitem.h
      engine/items/pickupitem.cpp
      engine/items/slopedbridge.h

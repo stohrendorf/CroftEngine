@@ -236,7 +236,7 @@ private:
     using ClampCallback = void(int& current1, int& current2, int target1, int target2, int lowLimit1, int lowLimit2,
                                int highLimit1, int highLimit2);
 
-    void clampBox(core::RoomBoundPosition& current, const std::function<ClampCallback>& callback) const;
+    void clampBox(core::RoomBoundPosition& idealPos, const std::function<ClampCallback>& callback) const;
 
     static void
     freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back,

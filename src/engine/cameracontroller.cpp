@@ -470,10 +470,10 @@ void CameraController::update()
         if( HeightInfo::fromFloor( sector, m_target.position, getLevel()->m_itemNodes ).distance < m_target.position.Y )
             HeightInfo::skipSteepSlants = false;
 
-        if( m_mode != CameraMode::Chase && m_oldMode != CameraMode::Combat )
-            handleCamOverride();
-        else
+        if( m_mode == CameraMode::Chase || m_oldMode == CameraMode::Combat )
             doUsualMovement( to_not_null( trackedItem ) );
+        else
+            handleCamOverride();
     }
     else
     {
@@ -605,13 +605,13 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goalPositio
     {
         if( m_bounce < 0 )
         {
-            auto tmp = util::rand15s(m_bounce);
+            auto tmp = util::rand15s( m_bounce );
             m_position.position.X += tmp;
             m_target.position.X += tmp;
-            tmp = util::rand15s(m_bounce);
+            tmp = util::rand15s( m_bounce );
             m_position.position.Y += tmp;
             m_target.position.Y += tmp;
-            tmp = util::rand15s(m_bounce);
+            tmp = util::rand15s( m_bounce );
             m_position.position.Z += tmp;
             m_target.position.Z += tmp;
             m_bounce += 5;
@@ -652,17 +652,17 @@ void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode
     const auto dist = m_currentRotation.X.cos() * m_targetDistance;
     m_targetDistanceSq = gsl::narrow_cast<int>( dist * dist );
 
-    core::RoomBoundPosition targetPos( m_position.room );
-    targetPos.position.Y = m_targetDistance * m_currentRotation.X.sin() + m_target.position.Y;
+    core::RoomBoundPosition idealPos( m_position.room );
+    idealPos.position.Y = m_targetDistance * m_currentRotation.X.sin() + m_target.position.Y;
 
     core::Angle y = m_currentRotation.Y + item->m_state.rotation.Y;
-    targetPos.position.X = m_target.position.X - dist * y.sin();
-    targetPos.position.Z = m_target.position.Z - dist * y.cos();
-    clampBox( targetPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
+    idealPos.position.X = m_target.position.X - dist * y.sin();
+    idealPos.position.Z = m_target.position.Z - dist * y.cos();
+    clampBox( idealPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
         clampToCorners( m_targetDistanceSq, a, b, c, d, e, f, g, h );
     } );
 
-    updatePosition( targetPos, m_tracking ? m_trackingSmoothness : 12 );
+    updatePosition( idealPos, m_tracking ? m_trackingSmoothness : 12 );
 }
 
 void CameraController::handleFreeLook(const items::ItemNode& item)
@@ -735,85 +735,85 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     updatePosition( tmp, m_trackingSmoothness );
 }
 
-void
-CameraController::clampBox(core::RoomBoundPosition& current, const std::function<ClampCallback>& callback) const
+void CameraController::clampBox(core::RoomBoundPosition& idealPos, const std::function<ClampCallback>& callback) const
 {
-    clampPosition( m_target, current, *m_level );
-    BOOST_ASSERT( m_target.room->getSectorByAbsolutePosition( m_target.position )->box != nullptr );
+    clampPosition( m_target, idealPos, *m_level );
+    BOOST_ASSERT( m_target.room->getSectorByAbsolutePosition( m_target.position ) != nullptr );
     auto clampBox = m_target.room->getSectorByAbsolutePosition( m_target.position )->box;
-    BOOST_ASSERT( current.room->getSectorByAbsolutePosition( current.position ) != nullptr );
-    if( current.room->getSectorByAbsolutePosition( current.position )->box != nullptr )
+    BOOST_ASSERT( clampBox != nullptr );
+    BOOST_ASSERT( idealPos.room->getSectorByAbsolutePosition( idealPos.position ) != nullptr );
+    if( auto idealBox = idealPos.room->getSectorByAbsolutePosition( idealPos.position )->box )
     {
-        if( !clampBox->contains( current.position.X, current.position.Z ) )
-            clampBox = current.room->getSectorByAbsolutePosition( current.position )->box;
+        if( !clampBox->contains( idealPos.position.X, idealPos.position.Z ) )
+            clampBox = idealBox;
     }
 
-    core::TRCoordinates testPos = current.position;
+    core::TRCoordinates testPos = idealPos.position;
     testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
     BOOST_ASSERT( testPos.Z % loader::SectorSize == loader::SectorSize - 1
-                  && std::abs( testPos.Z - current.position.Z ) <= loader::SectorSize );
+                  && std::abs( testPos.Z - idealPos.position.Z ) <= loader::SectorSize );
 
     auto clampZMin = clampBox->zmin;
-    const bool negZverticalOutside = isVerticallyOutsideRoom( testPos, current.room );
-    if( !negZverticalOutside && m_level->findRealFloorSector( testPos, current.room )->box != nullptr )
+    const bool negZverticalOutside = isVerticallyOutsideRoom( testPos, idealPos.room );
+    if( !negZverticalOutside && m_level->findRealFloorSector( testPos, idealPos.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, current.room )->box;
+        const auto testBox = m_level->findRealFloorSector( testPos, idealPos.room )->box;
         if( testBox->zmin < clampZMin )
             clampZMin = testBox->zmin;
     }
     clampZMin += loader::QuarterSectorSize;
 
-    testPos = current.position;
+    testPos = idealPos.position;
     testPos.Z = (testPos.Z / loader::SectorSize + 1) * loader::SectorSize;
     BOOST_ASSERT( testPos.Z % loader::SectorSize == 0
-                  && std::abs( testPos.Z - current.position.Z ) <= loader::SectorSize );
+                  && std::abs( testPos.Z - idealPos.position.Z ) <= loader::SectorSize );
 
     auto clampZMax = clampBox->zmax;
-    const bool posZverticalOutside = isVerticallyOutsideRoom( testPos, current.room );
-    if( !posZverticalOutside && m_level->findRealFloorSector( testPos, current.room )->box != nullptr )
+    const bool posZverticalOutside = isVerticallyOutsideRoom( testPos, idealPos.room );
+    if( !posZverticalOutside && m_level->findRealFloorSector( testPos, idealPos.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, current.room )->box;
+        const auto testBox = m_level->findRealFloorSector( testPos, idealPos.room )->box;
         if( testBox->zmax > clampZMax )
             clampZMax = testBox->zmax;
     }
     clampZMax -= loader::QuarterSectorSize;
 
-    testPos = current.position;
+    testPos = idealPos.position;
     testPos.X = (testPos.X / loader::SectorSize) * loader::SectorSize - 1;
     BOOST_ASSERT( testPos.X % loader::SectorSize == loader::SectorSize - 1
-                  && std::abs( testPos.X - current.position.X ) <= loader::SectorSize );
+                  && std::abs( testPos.X - idealPos.position.X ) <= loader::SectorSize );
 
     auto clampXMin = clampBox->xmin;
-    const bool negXverticalOutside = isVerticallyOutsideRoom( testPos, current.room );
-    if( !negXverticalOutside && m_level->findRealFloorSector( testPos, current.room )->box != nullptr )
+    const bool negXverticalOutside = isVerticallyOutsideRoom( testPos, idealPos.room );
+    if( !negXverticalOutside && m_level->findRealFloorSector( testPos, idealPos.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, current.room )->box;
+        const auto testBox = m_level->findRealFloorSector( testPos, idealPos.room )->box;
         if( testBox->xmin < clampXMin )
             clampXMin = testBox->xmin;
     }
     clampXMin += loader::QuarterSectorSize;
 
-    testPos = current.position;
+    testPos = idealPos.position;
     testPos.X = (testPos.X / loader::SectorSize + 1) * loader::SectorSize;
     BOOST_ASSERT( testPos.X % loader::SectorSize == 0
-                  && std::abs( testPos.X - current.position.X ) <= loader::SectorSize );
+                  && std::abs( testPos.X - idealPos.position.X ) <= loader::SectorSize );
 
     auto clampXMax = clampBox->xmax;
-    const bool posXverticalOutside = isVerticallyOutsideRoom( testPos, current.room );
-    if( !posXverticalOutside && m_level->findRealFloorSector( testPos, current.room )->box != nullptr )
+    const bool posXverticalOutside = isVerticallyOutsideRoom( testPos, idealPos.room );
+    if( !posXverticalOutside && m_level->findRealFloorSector( testPos, idealPos.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, current.room )->box;
+        const auto testBox = m_level->findRealFloorSector( testPos, idealPos.room )->box;
         if( testBox->xmax > clampXMax )
             clampXMax = testBox->xmax;
     }
     clampXMax -= loader::QuarterSectorSize;
 
     bool skipRoomPatch = true;
-    if( negZverticalOutside && current.position.Z < clampZMin )
+    if( negZverticalOutside && idealPos.position.Z < clampZMin )
     {
         skipRoomPatch = false;
         int left, right;
-        if( current.position.X >= m_target.position.X )
+        if( idealPos.position.X >= m_target.position.X )
         {
             left = clampXMin;
             right = clampXMax;
@@ -823,15 +823,14 @@ CameraController::clampBox(core::RoomBoundPosition& current, const std::function
             left = clampXMax;
             right = clampXMin;
         }
-        callback( current.position.Z, current.position.X, m_target.position.Z, m_target.position.X, clampZMin,
+        callback( idealPos.position.Z, idealPos.position.X, m_target.position.Z, m_target.position.X, clampZMin,
                   right, clampZMax, left );
-        // BOOST_ASSERT(m_target.current.distanceTo(current.current) <= 2 * m_targetDistance); // sanity check
     }
-    else if( posZverticalOutside && current.position.Z > clampZMax )
+    else if( posZverticalOutside && idealPos.position.Z > clampZMax )
     {
         skipRoomPatch = false;
         int left, right;
-        if( current.position.X >= m_target.position.X )
+        if( idealPos.position.X >= m_target.position.X )
         {
             left = clampXMin;
             right = clampXMax;
@@ -841,22 +840,21 @@ CameraController::clampBox(core::RoomBoundPosition& current, const std::function
             left = clampXMax;
             right = clampXMin;
         }
-        callback( current.position.Z, current.position.X, m_target.position.Z, m_target.position.X, clampZMax,
+        callback( idealPos.position.Z, idealPos.position.X, m_target.position.Z, m_target.position.X, clampZMax,
                   right, clampZMin, left );
-        // BOOST_ASSERT(m_target.current.distanceTo(current.current) <= 2 * m_targetDistance); // sanity check
     }
 
     if( !skipRoomPatch )
     {
-        m_level->findRealFloorSector( current );
+        m_level->findRealFloorSector( idealPos );
         return;
     }
 
-    if( negXverticalOutside && current.position.X < clampXMin )
+    if( negXverticalOutside && idealPos.position.X < clampXMin )
     {
         skipRoomPatch = false;
         int left, right;
-        if( current.position.Z >= m_target.position.Z )
+        if( idealPos.position.Z >= m_target.position.Z )
         {
             left = clampZMin;
             right = clampZMax;
@@ -866,15 +864,14 @@ CameraController::clampBox(core::RoomBoundPosition& current, const std::function
             left = clampZMax;
             right = clampZMin;
         }
-        callback( current.position.X, current.position.Z, m_target.position.X, m_target.position.Z, clampXMin,
+        callback( idealPos.position.X, idealPos.position.Z, m_target.position.X, m_target.position.Z, clampXMin,
                   right, clampXMax, left );
-        // BOOST_ASSERT(m_target.current.distanceTo(current.current) <= 2 * m_targetDistance); // sanity check
     }
-    else if( posXverticalOutside && current.position.X > clampXMax )
+    else if( posXverticalOutside && idealPos.position.X > clampXMax )
     {
         skipRoomPatch = false;
         int left, right;
-        if( current.position.Z >= m_target.position.Z )
+        if( idealPos.position.Z >= m_target.position.Z )
         {
             left = clampZMin;
             right = clampZMax;
@@ -884,20 +881,24 @@ CameraController::clampBox(core::RoomBoundPosition& current, const std::function
             left = clampZMax;
             right = clampZMin;
         }
-        callback( current.position.X, current.position.Z, m_target.position.X, m_target.position.Z, clampXMax,
+        callback( idealPos.position.X, idealPos.position.Z, m_target.position.X, m_target.position.Z, clampXMax,
                   right, clampXMin, left );
-        // BOOST_ASSERT(m_target.current.distanceTo(current.current) <= 2 * m_targetDistance); // sanity check
     }
 
     if( !skipRoomPatch )
     {
-        m_level->findRealFloorSector( current );
+        m_level->findRealFloorSector( idealPos );
     }
 }
 
-void
-CameraController::freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight,
-                                int back, int right, int front, int left)
+void CameraController::freeLookClamp(int& currentFrontBack,
+                                     int& currentLeftRight,
+                                     int targetFrontBack,
+                                     int targetLeftRight,
+                                     int back,
+                                     int right,
+                                     int front,
+                                     int left)
 {
     if( (front > back) != (targetFrontBack < back) )
     {
@@ -914,8 +915,14 @@ CameraController::freeLookClamp(int& currentFrontBack, int& currentLeftRight, in
     }
 }
 
-void CameraController::clampToCorners(const int pivotDistanceSq, int& currentFrontBack, int& currentLeftRight,
-                                      int targetFrontBack, int targetLeftRight, int back, int right, int front,
+void CameraController::clampToCorners(const int pivotDistanceSq,
+                                      int& currentFrontBack,
+                                      int& currentLeftRight,
+                                      int targetFrontBack,
+                                      int targetLeftRight,
+                                      int back,
+                                      int right,
+                                      int front,
                                       int left)
 {
     const auto targetRightDistSq = (targetLeftRight - right) * (targetLeftRight - right);

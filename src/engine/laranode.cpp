@@ -587,8 +587,10 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 ItemNode& key = *getLevel().m_itemNodes[command.parameter];
                 if( key.triggerKey() )
                     conditionFulfilled = true;
+                else
+                    return;
             }
-                return;
+                break;
             case floordata::SequenceCondition::ItemPickedUp:
             {
                 const floordata::Command command{*floorData++};
@@ -596,8 +598,10 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 ItemNode& pickup = *getLevel().m_itemNodes[command.parameter];
                 if( pickup.triggerPickUp() )
                     conditionFulfilled = true;
+                else
+                    return;
             }
-                return;
+                break;
             case floordata::SequenceCondition::LaraInCombatMode:
                 conditionFulfilled = getHandStatus() == HandStatus::Combat;
                 break;

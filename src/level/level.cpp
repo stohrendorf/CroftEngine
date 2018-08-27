@@ -16,6 +16,7 @@
 #include "engine/items/dart.h"
 #include "engine/items/dartgun.h"
 #include "engine/items/door.h"
+#include "engine/items/keyhole.h"
 #include "engine/items/pickupitem.h"
 #include "engine/items/slopedbridge.h"
 #include "engine/items/stubitem.h"
@@ -413,6 +414,10 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::BridgeSlope2>( id, *model, room, item );
             }
+            else if( item.type >= engine::TR1ItemId::Keyhole1 && item.type <= engine::TR1ItemId::Keyhole4 )
+            {
+                modelNode = createSkeletalModel<engine::items::KeyHole>( id, *model, room, item );
+            }
             else
             {
                 modelNode = createSkeletalModel<engine::items::StubItem>( id, *model, room, item );
@@ -497,6 +502,11 @@ engine::LaraNode* Level::createItems()
         BOOST_LOG_TRIVIAL( error ) << "Failed to find an appropriate animated model for item " << id << "/type "
                                    << int( item.type );
     }
+
+    addInventoryItem( engine::TR1ItemId::Key1Sprite );
+    addInventoryItem( engine::TR1ItemId::Key2Sprite );
+    addInventoryItem( engine::TR1ItemId::Key3Sprite );
+    addInventoryItem( engine::TR1ItemId::Key4Sprite );
 
     return lara;
 }
@@ -985,7 +995,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRCoordinates& posi
     Expects( sector != nullptr );
     if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize >= position.Y && sector->roomAbove != nullptr )
+        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
         {
             *room = to_not_null( sector->roomAbove );
             sector = (*room)->getSectorByAbsolutePosition( position );
@@ -995,7 +1005,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRCoordinates& posi
     }
     else
     {
-        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != nullptr )
+        while( sector->floorHeight * loader::QuarterSectorSize < position.Y && sector->roomBelow != nullptr )
         {
             *room = to_not_null( sector->roomBelow );
             sector = (*room)->getSectorByAbsolutePosition( position );
@@ -1670,5 +1680,132 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
         {
             item->m_state.position.room = to_not_null( &orig );
         }
+    }
+}
+
+void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
+{
+    BOOST_LOG_TRIVIAL( debug ) << "Item " << toString( id ) << " added to inventory";
+
+    switch( id )
+    {
+        case engine::TR1ItemId::PistolsSprite:
+        case engine::TR1ItemId::Pistols:
+            m_inventory[engine::TR1ItemId::Pistols] += quantity;
+            break;
+        case engine::TR1ItemId::ShotgunSprite:
+        case engine::TR1ItemId::Shotgun:
+            if( auto clips = countInventoryItem( engine::TR1ItemId::ShotgunAmmoSprite ) )
+            {
+                takeInventoryItem( engine::TR1ItemId::ShotgunAmmoSprite, clips );
+                m_lara->shotgunAmmo.ammo += 12 * clips;
+            }
+            m_lara->shotgunAmmo.ammo += 12 * quantity;
+            // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
+            m_inventory[engine::TR1ItemId::Shotgun] = 1;
+            break;
+        case engine::TR1ItemId::MagnumsSprite:
+        case engine::TR1ItemId::Magnums:
+            if( auto clips = countInventoryItem( engine::TR1ItemId::MagnumAmmoSprite ) )
+            {
+                takeInventoryItem( engine::TR1ItemId::MagnumAmmoSprite, clips );
+                m_lara->revolverAmmo.ammo += 50 * clips;
+            }
+            m_lara->revolverAmmo.ammo += 50 * quantity;
+            // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
+            m_inventory[engine::TR1ItemId::Magnums] = 1;
+            break;
+        case engine::TR1ItemId::UzisSprite:
+        case engine::TR1ItemId::Uzis:
+            if( auto clips = countInventoryItem( engine::TR1ItemId::UziAmmoSprite ) )
+            {
+                takeInventoryItem( engine::TR1ItemId::UziAmmoSprite, clips );
+                m_lara->uziAmmo.ammo += 100 * clips;
+            }
+            m_lara->uziAmmo.ammo += 100 * quantity;
+            // TODO replaceItems( UzisSprite, UziAmmoSprite );
+            m_inventory[engine::TR1ItemId::Uzis] = 1;
+            break;
+        case engine::TR1ItemId::ShotgunAmmoSprite:
+        case engine::TR1ItemId::ShotgunAmmo:
+            if( countInventoryItem( engine::TR1ItemId::ShotgunSprite ) > 0 )
+                m_lara->shotgunAmmo.ammo += 12;
+            else
+                m_inventory[engine::TR1ItemId::ShotgunAmmo] += quantity;
+            break;
+        case engine::TR1ItemId::MagnumAmmoSprite:
+        case engine::TR1ItemId::MagnumAmmo:
+            if( countInventoryItem( engine::TR1ItemId::MagnumsSprite ) > 0 )
+                m_lara->revolverAmmo.ammo += 50;
+            else
+                m_inventory[engine::TR1ItemId::MagnumAmmo] += quantity;
+            break;
+        case engine::TR1ItemId::UziAmmoSprite:
+        case engine::TR1ItemId::UziAmmo:
+            if( countInventoryItem( engine::TR1ItemId::UzisSprite ) > 0 )
+                m_lara->uziAmmo.ammo += 100;
+            else
+                m_inventory[engine::TR1ItemId::UziAmmo] += quantity;
+            break;
+        case engine::TR1ItemId::SmallMedipackSprite:
+        case engine::TR1ItemId::SmallMedipack:
+            m_inventory[engine::TR1ItemId::SmallMedipack] += quantity;
+            break;
+        case engine::TR1ItemId::LargeMedipackSprite:
+        case engine::TR1ItemId::LargeMedipack:
+            m_inventory[engine::TR1ItemId::LargeMedipack] += quantity;
+            break;
+        case engine::TR1ItemId::Puzzle1Sprite:
+        case engine::TR1ItemId::Puzzle1:
+            m_inventory[engine::TR1ItemId::Puzzle1] += quantity;
+            break;
+        case engine::TR1ItemId::Puzzle2Sprite:
+        case engine::TR1ItemId::Puzzle2:
+            m_inventory[engine::TR1ItemId::Puzzle2] += quantity;
+            break;
+        case engine::TR1ItemId::Puzzle3Sprite:
+        case engine::TR1ItemId::Puzzle3:
+            m_inventory[engine::TR1ItemId::Puzzle3] += quantity;
+            break;
+        case engine::TR1ItemId::Puzzle4Sprite:
+        case engine::TR1ItemId::Puzzle4:
+            m_inventory[engine::TR1ItemId::Puzzle4] += quantity;
+            break;
+        case engine::TR1ItemId::LeadBarSprite:
+        case engine::TR1ItemId::LeadBar:
+            m_inventory[engine::TR1ItemId::LeadBar] += quantity;
+            break;
+        case engine::TR1ItemId::Key1Sprite:
+        case engine::TR1ItemId::Key1:
+            m_inventory[engine::TR1ItemId::Key1] += quantity;
+            break;
+        case engine::TR1ItemId::Key2Sprite:
+        case engine::TR1ItemId::Key2:
+            m_inventory[engine::TR1ItemId::Key2] += quantity;
+            break;
+        case engine::TR1ItemId::Key3Sprite:
+        case engine::TR1ItemId::Key3:
+            m_inventory[engine::TR1ItemId::Key3] += quantity;
+            break;
+        case engine::TR1ItemId::Key4Sprite:
+        case engine::TR1ItemId::Key4:
+            m_inventory[engine::TR1ItemId::Key4] += quantity;
+            break;
+        case engine::TR1ItemId::Item141:
+        case engine::TR1ItemId::Item148:
+            m_inventory[engine::TR1ItemId::Item148] += quantity;
+            break;
+        case engine::TR1ItemId::Item142:
+        case engine::TR1ItemId::Item149:
+            m_inventory[engine::TR1ItemId::Item149] += quantity;
+            break;
+        case engine::TR1ItemId::ScionPiece:
+        case engine::TR1ItemId::Item144:
+        case engine::TR1ItemId::ScionPiece2:
+            m_inventory[engine::TR1ItemId::ScionPiece2] += quantity;
+            break;
+        default:
+            BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id ) << " to inventory";
+            return;
     }
 }

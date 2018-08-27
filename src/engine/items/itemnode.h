@@ -163,7 +163,7 @@ public:
 
     bool m_isActive = false;
 
-    const bool m_hasProcessAnimCommandsOverride;
+    const bool m_hasUpdateFunction;
 
     engine::Lighting m_lighting;
 
@@ -182,7 +182,7 @@ public:
     ItemNode(const gsl::not_null<level::Level*>& level,
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
-             bool hasProcessAnimCommandsOverride);
+             bool hasUpdateFunction);
 
     virtual ~ItemNode() = default;
 
@@ -279,14 +279,6 @@ public:
         targetPos += glm::vec3( glm::vec4( speed, 0 ) * targetRot );
 
         return alignTransformClamped( targetPos, target.m_state.rotation, 16, 364_au );
-    }
-
-    void setRelativeOrientedPosition(const core::TRCoordinates& offset, const ItemNode& target)
-    {
-        m_state.rotation = target.m_state.rotation;
-
-        const auto r = target.m_state.rotation.toMatrix();
-        move( glm::vec3( glm::vec4( offset.toRenderSystem(), 0 ) * r ) );
     }
 
     void updateLighting()
