@@ -258,6 +258,7 @@ set( EDISONENGINE_SRCS
      engine/items/collapsiblefloor.cpp
      engine/items/collapsiblefloor.h
      engine/items/dart.h
+     engine/items/dart.cpp
      engine/items/dartgun.h
      engine/items/door.h
      engine/items/itemnode.cpp

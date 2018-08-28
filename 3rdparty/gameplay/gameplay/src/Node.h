@@ -154,6 +154,14 @@ inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node,
         node->getParent().lock()->m_children.erase( it );
     }
 
+    if( !node->m_parent.expired() )
+    {
+        auto p = node->m_parent.lock();
+        const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
+        if( it != p->m_children.end() )
+            p->m_children.erase( it );
+    }
+
     node->m_parent = parent;
 
     if( parent != nullptr )

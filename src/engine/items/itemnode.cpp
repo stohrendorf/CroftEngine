@@ -105,6 +105,7 @@ void ModelItemNode::update()
     const auto endOfAnim = m_skeleton->advanceFrame( m_state );
 
     m_state.is_hit = false;
+    m_state.touch_bits = 0;
 
     if( endOfAnim )
     {
@@ -394,10 +395,9 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
 bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
 {
     const auto aFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
-    const auto bFrame = other.getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
-    if( other.m_state.position.position.Y + bFrame->bbox.minY >= aFrame->bbox.maxY + m_state.position.position.Y
-        || m_state.position.position.Y + aFrame->bbox.minY >= other.m_state.position.position.Y + bFrame
-                ->bbox.maxY )
+    const auto bFrame = other.getSkeleton()->getInterpolationInfo( other.m_state ).getNearestFrame();
+    if(    other.m_state.position.position.Y + bFrame->bbox.minY >=       m_state.position.position.Y + aFrame->bbox.maxY
+        ||       m_state.position.position.Y + aFrame->bbox.minY >= other.m_state.position.position.Y + bFrame->bbox.maxY )
     {
         return false;
     }

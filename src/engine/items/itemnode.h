@@ -374,6 +374,14 @@ public:
             bool hasProcessAnimCommandsOverride,
             const loader::SkeletalModelType& animatedModel);
 
+    ~ModelItemNode() override
+    {
+        if( m_skeleton != nullptr )
+        {
+            setParent( to_not_null( m_skeleton ), nullptr );
+        }
+    }
+
     std::shared_ptr<gameplay::Node> getNode() const override
     {
         return m_skeleton;
@@ -420,9 +428,9 @@ public:
     void emitParticle(const core::TRCoordinates& pos,
                       size_t boneIndex,
                       gsl::not_null<std::shared_ptr<engine::Particle>> (* generate)(const level::Level& level,
-                                                                              const core::RoomBoundPosition& pos,
-                                                                              int16_t speed,
-                                                                              core::Angle angle));
+                                                                                    const core::RoomBoundPosition& pos,
+                                                                                    int16_t speed,
+                                                                                    core::Angle angle));
 };
 
 
@@ -441,6 +449,14 @@ public:
             bool hasProcessAnimCommandsOverride,
             const loader::Sprite& sprite,
             const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
+
+    ~SpriteItemNode() override
+    {
+        if( m_node != nullptr )
+        {
+            setParent( to_not_null( m_node ), nullptr );
+        }
+    }
 
     bool triggerSwitch(uint16_t) override
     {

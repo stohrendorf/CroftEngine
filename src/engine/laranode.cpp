@@ -850,6 +850,24 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
         item->collide( *this, collisionInfo );
     }
 
+    for( const std::shared_ptr<ItemNode>& item : getLevel().m_dynamicItems )
+    {
+        if( rooms.find( item->m_state.position.room ) == rooms.end() )
+            continue;
+
+        if( !item->m_state.collidable )
+            continue;
+
+        if( item->m_state.triggerState == items::TriggerState::Invisible )
+            continue;
+
+        const auto d = m_state.position.position - item->m_state.position.position;
+        if( std::abs( d.X ) >= 4096 || std::abs( d.Y ) >= 4096 || std::abs( d.Z ) >= 4096 )
+            continue;
+
+        item->collide( *this, collisionInfo );
+    }
+
     if( getLevel().m_lara->explosionStumblingDuration != 0 )
     {
         getLevel().m_lara->updateExplosionStumbling();
