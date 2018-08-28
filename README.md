@@ -54,3 +54,6 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * freetype
 * yaml-cpp
 * assimp
+
+...or use this, and adjust the triplet:
+> `vcpkg install --triplet x64-windows boost glfw3 glew ms-gsl libpng openal-soft opengl lua glm zlib libsndfile freetype yaml-cpp assimp`
