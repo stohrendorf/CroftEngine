@@ -181,7 +181,6 @@ set( EDISONENGINE_SRCS
      audio/sndfile/helpers.h
 
      util/helpers.h
-     util/vmath.h
      util/md5.h
      util/md5.cpp
 
@@ -314,16 +313,19 @@ endif ()
 
 target_link_libraries(
         edisonengine
-        Boost
+        PRIVATE
+        Boost::boost
         gameplay
         ZLIB
-        OpenAL
-        SndFile
-        CImg
-        assimp-lib
-        yaml-cpp-lib
-        GSL
+        OpenAL::OpenAL
+        sndfile-shared
+        CImg::CImg
         Lua
+        yaml-cpp
+        GLEW::GLEW
+        glfw
+        Assimp
+        PNG::PNG
 )
 
 if (LINUX OR UNIX)

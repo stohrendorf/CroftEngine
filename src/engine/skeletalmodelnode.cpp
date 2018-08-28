@@ -142,7 +142,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
     BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
 
-    getChildren()[0]->setLocalMatrix( glm::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
+    getChildren()[0]->setLocalMatrix( util::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
 
     if( m_model.nmeshes <= 1 )
         return;
@@ -165,19 +165,21 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
         BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
 
         if( framePair.firstFrame->numValues < i )
-            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
+            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+                                     * m_bonePatches[i];
         else
             transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
                                      * core::fromPackedAngles( angleDataFirst[i] ) * m_bonePatches[i];
 
         if( framePair.firstFrame->numValues < i )
-            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
+            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+                                      * m_bonePatches[i];
         else
             transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
                                       * core::fromPackedAngles( angleDataSecond[i] ) * m_bonePatches[i];
 
         getChildren()[i]
-                ->setLocalMatrix( glm::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
+                ->setLocalMatrix( util::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
     }
 }
 

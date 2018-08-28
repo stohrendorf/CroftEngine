@@ -4,7 +4,7 @@
 #include "sourcehandle.h"
 #include "stream.h"
 
-#include <alc.h>
+#include <AL/alc.h>
 #include <gsl/gsl>
 #include <set>
 #include <thread>

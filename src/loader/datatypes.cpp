@@ -2,7 +2,7 @@
 
 #include "level/level.h"
 #include "render/textureanimator.h"
-#include "util/vmath.h"
+#include "util/helpers.h"
 
 #include <glm/gtc/type_ptr.hpp>
 

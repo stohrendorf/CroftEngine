@@ -1,4 +1,6 @@
-#include <al.h>
+#include "utils.h"
+
+#include <AL/al.h>
 
 #include <boost/log/trivial.hpp>
 

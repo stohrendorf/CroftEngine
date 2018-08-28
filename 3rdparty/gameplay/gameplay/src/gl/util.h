@@ -1,7 +1,6 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN
-#define GLEW_STATIC
 
 #include <GL/glew.h>
 

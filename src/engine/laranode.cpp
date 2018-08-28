@@ -2211,7 +2211,7 @@ public:
 
     glm::mat4 itop() const
     {
-        return glm::mix( m_stack1.top(), m_stack2.top(), m_bias );
+        return util::mix( m_stack1.top(), m_stack2.top(), m_bias );
     }
 
     void rotate(const glm::mat4& m)

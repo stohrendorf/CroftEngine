@@ -5,22 +5,7 @@ EdisonEngine — an open-source Tomb Raider 1-5 engine remake
 ------------
 
 EdisonEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of
-the source code must be open-source as well. Hence, all used libraries and bundled resources must
-be open-source with GPL-compatible licenses. Here is the list of used libraries, resources and
-their licenses:
-
-* OpenGL — does not need licensing (http://opengl3.org/about/licensing/)
-* GLEW — GLEW BSD
-* OpenAL Soft — LGPL
-* libsndfile — LGPL
-* libogg/libvorbis — Xiph BSD
-* SDL / SDL Image — zlib
-* Bullet — zlib
-* Freetype — GPL
-* Lua — MIT
-* zlib — zlib
-
-* Droid Sans Mono, Roboto Condensed Regular and Roboto Regular fonts — Apache
+the source code must be open-source as well.
     
 2. Credits
 ----------
@@ -45,3 +30,27 @@ godmodder (general help), jack9267 (vt loader optimization), meta2tr (testing an
 shabtronic (renderer fix-ups), Tonttu (console patch) and xythobuz (additional Mac patches).
 
 Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaze Raider (Spanish).
+
+
+3. Building
+-----------
+EdisonEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage,
+but the only thing you need is to call cmake with
+`-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
+
+This is the list of the required libraries to be installed with `vcpkg install` (remember to
+set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
+* boost
+* glfw3
+* glew
+* ms-gsl
+* libpng
+* openal-soft
+* opengl
+* lua
+* glm
+* zlib
+* libsndfile
+* freetype
+* yaml-cpp
+* assimp

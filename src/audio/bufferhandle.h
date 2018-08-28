@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "sndfile/helpers.h"
 
-#include <al.h>
+#include <AL/al.h>
 #include <boost/noncopyable.hpp>
 #include <boost/log/trivial.hpp>
 

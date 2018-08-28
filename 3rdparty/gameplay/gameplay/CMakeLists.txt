@@ -51,31 +51,12 @@ set( GAMEPLAY_SRC
      src/gl/vertexattribute.h
      src/gsl_util.h )
 
-find_package( OpenGL REQUIRED )
-
-add_library( gameplay STATIC
-             ${GAMEPLAY_SRC}
-             )
+add_library( gameplay STATIC ${GAMEPLAY_SRC} )
 if( NOT MSVC )
     target_compile_options( gameplay PRIVATE -Wall -Wextra )
 endif()
 target_include_directories( gameplay PUBLIC src )
 
-set( GAMEPLAY_VERSION 3.0.0 )
-
-# debug
-if( "${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG" )
-    target_compile_definitions( gameplay PUBLIC -D_DEBUG -DNOMINMAX )
-endif()
-
-target_compile_definitions( gameplay PUBLIC -DGLM_FORCE_RADIANS )
-
-target_link_libraries( gameplay PUBLIC GLEW GLFW Boost OpenGL glm freetype GSL )
-
-set_target_properties( gameplay PROPERTIES
-                       OUTPUT_NAME "gameplay"
-                       CLEAN_DIRECT_OUTPUT 1
-                       VERSION ${GAMEPLAY_VERSION}
-                       )
+target_link_libraries( gameplay PUBLIC GLEW::GLEW glfw Boost::boost OpenGL glm Freetype::Freetype )
 
 GROUP_FILES( ${GAMEPLAY_SRC} )
