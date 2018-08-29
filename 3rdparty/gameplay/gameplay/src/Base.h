@@ -18,7 +18,7 @@
 #define VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME       "a_texCoord"
 
 #ifdef NDEBUG
-#define GL_ASSERT( gl_code ) do { gl_code } while(false)
+#define GL_ASSERT( gl_code ) do { gl_code; } while(false)
 #else
 #define GL_ASSERT(gl_code) \
     do { \
