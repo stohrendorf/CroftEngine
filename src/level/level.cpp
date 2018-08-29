@@ -9,6 +9,7 @@
 #include "tr5level.h"
 
 #include "engine/items/bat.h"
+#include "engine/items/bear.h"
 #include "engine/items/block.h"
 #include "engine/items/boulder.h"
 #include "engine/items/bridgeflat.h"
@@ -350,6 +351,10 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::Wolf>( id, *model, room, item );
             }
+            else if( item.type == engine::TR1ItemId::Bear )
+            {
+                modelNode = createSkeletalModel<engine::items::Bear>( id, *model, room, item );
+            }
             else if( item.type == engine::TR1ItemId::Bat )
             {
                 modelNode = createSkeletalModel<engine::items::Bat>( id, *model, room, item );
@@ -427,7 +432,13 @@ engine::LaraNode* Level::createItems()
                     || item.type == engine::TR1ItemId::LavaParticleEmitter
                     || item.type == engine::TR1ItemId::FlameEmitter
                     || item.type == engine::TR1ItemId::Earthquake )
+                {
                     modelNode->getNode()->setVisible( false );
+                }
+                else
+                {
+                    BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
+                }
             }
 
             m_itemNodes[id] = modelNode;
@@ -481,6 +492,7 @@ engine::LaraNode* Level::createItems()
             }
             else
             {
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
                 node = std::make_shared<engine::items::SpriteItemNode>( to_not_null( this ),
                                                                         "sprite:" + std::to_string( id ) + "(type:"
                                                                         + engine::toString( item.type ) + ")",

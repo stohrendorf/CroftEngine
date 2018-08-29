@@ -8,18 +8,18 @@ namespace engine
 {
 namespace items
 {
-class Bat final
+class Bear final
         : public AIAgent
 {
 public:
-    Bat(const gsl::not_null<level::Level*>& level,
+    Bear(const gsl::not_null<level::Level*>& level,
         const std::string& name,
         const gsl::not_null<const loader::Room*>& room,
         const loader::Item& item,
         const loader::SkeletalModelType& animatedModel)
             : AIAgent( level, name, room, item, animatedModel, 0 )
     {
-        m_state.health = 1;
+        m_state.health = 20;
     }
 
     void update() override;
