@@ -68,8 +68,6 @@ bool BloodSplatterParticle::update(const level::Level& level)
     auto it = level.m_spriteSequences.find( object_number );
     BOOST_ASSERT( it != level.m_spriteSequences.end() );
 
-    BOOST_LOG_TRIVIAL( info ) << "NEG=" << negSpriteFrameId << " / LEN=" << it->second->length;
-
     if( negSpriteFrameId <= it->second->length )
     {
         return false;
