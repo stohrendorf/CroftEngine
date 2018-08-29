@@ -32,7 +32,7 @@ void Wolf::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::AiInfo aiInfo( getLevel(), m_state );
+        ai::AiInfo aiInfo{getLevel(), m_state};
 
         if( aiInfo.ahead )
         {
@@ -185,7 +185,7 @@ void Wolf::update()
                 roll = rotationToMoveTarget;
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) )
                 {
-                    emitParticle(core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat);
+                    emitParticle( core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 50;
                     m_state.required_anim_state = Jumping;
@@ -195,7 +195,7 @@ void Wolf::update()
             case Biting:
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
                 {
-                    emitParticle(core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat);
+                    emitParticle( core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = PrepareToStrike;
@@ -207,14 +207,14 @@ void Wolf::update()
     }
     else if( m_state.current_anim_state != Dying )
     {
-        const auto r = util::rand15(3);
+        const auto r = util::rand15( 3 );
         getSkeleton()->setAnimIdGlobal(
                 m_state, getLevel().m_animatedModels[m_state.object_number]->anim_index + 20 + r, 0 );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }
     rotateCreatureTilt( roll );
     rotateCreatureHead( pitch );
-    getSkeleton()->patchBone(3, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix());
+    getSkeleton()->patchBone( 3, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
     animateCreature( rotationToMoveTarget, roll );
 }
 }

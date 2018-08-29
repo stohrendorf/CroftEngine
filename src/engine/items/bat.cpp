@@ -26,8 +26,8 @@ void Bat::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::AiInfo lookAhead( getLevel(), m_state );
-        ai::updateMood( getLevel(), m_state, lookAhead, false );
+        ai::AiInfo aiInfo{getLevel(), m_state};
+        ai::updateMood( getLevel(), m_state, aiInfo, false );
 
         rotationToMoveTarget = rotateTowardsTarget( 20_deg );
         switch( m_state.current_anim_state )
@@ -44,7 +44,7 @@ void Bat::update()
             case Biting:
                 if( m_state.touch_bits != 0 )
                 {
-                    emitParticle(core::TRCoordinates{0, 16, 45}, 4, &engine::createBloodSplat);
+                    emitParticle( core::TRCoordinates{0, 16, 45}, 4, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 2;
                 }

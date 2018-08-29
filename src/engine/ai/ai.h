@@ -72,7 +72,7 @@ struct LotInfo
 {
     std::unordered_map<const loader::Box*, SearchNode> nodes;
 
-    std::vector<const loader::Box*> boxes;
+    std::vector<gsl::not_null<const loader::Box*>> boxes;
 
     const loader::Box* head = nullptr;
 
@@ -107,9 +107,8 @@ struct LotInfo
 
     static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
 
-    void setRandomSearchTarget(const loader::Box* box)
+    void setRandomSearchTarget(const gsl::not_null<const loader::Box*>& box)
     {
-        Expects( box != nullptr );
         required_box = box;
         const auto zSize = box->zmax - box->zmin - loader::SectorSize;
         target.Z = util::rand15( zSize ) + box->zmin + loader::SectorSize / 2;
@@ -271,41 +270,7 @@ struct CreatureInfo
 
     core::TRCoordinates target;
 
-    CreatureInfo(const level::Level& lvl, items::ItemState* item)
-            : item{item}
-            , lot{lvl}
-    {
-        Expects( item != nullptr );
-
-        switch( item->object_number )
-        {
-            case 7:
-            case 12:
-            case 13:
-            case 14:
-                lot.drop = -loader::SectorSize;
-                break;
-
-            case 9:
-            case 11:
-            case 26:
-                lot.step = 20 * loader::SectorSize;
-                lot.drop = -20 * loader::SectorSize;
-                lot.fly = 16;
-                break;
-
-            case 15:
-                lot.step = loader::SectorSize / 2;
-                lot.drop = -loader::SectorSize;
-                break;
-
-            case 18:
-            case 20:
-            case 23:
-                lot.block_mask = 0x8000;
-                break;
-        }
-    }
+    CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item);
 
     void rotateHead(const core::Angle& angle)
     {

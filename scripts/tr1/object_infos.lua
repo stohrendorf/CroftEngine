@@ -64,7 +64,6 @@ infos[7].initialise = function(item)
     item.frame_number = 96
     baddie_init(item)
 end
--- TODO: bone #3 uses custom Y rotation
 
 -- Bear
 infos[8].radius = 341
@@ -73,7 +72,6 @@ infos[8].pivot_length = 500
 infos[8].shadow_size = 128
 infos[8].target_update_chance = 0x4000
 infos[8].initialise = baddie_init
--- TODO: bone #14 uses custom Y rotation
 
 -- Bat
 infos[9].radius = 102

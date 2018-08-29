@@ -18,8 +18,8 @@ void Bear::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::AiInfo lookAhead( getLevel(), m_state );
-        ai::updateMood( getLevel(), m_state, lookAhead, false );
+        ai::AiInfo aiInfo{getLevel(), m_state};
+        ai::updateMood( getLevel(), m_state, aiInfo, true );
 
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.is_hit )
@@ -29,7 +29,7 @@ void Bear::update()
         {
             case 0: // walking
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( getHealth() <= 0 && (m_state.touch_bits & 0x2406c) && lookAhead.ahead )
+                if( getHealth() <= 0 && (m_state.touch_bits & 0x2406c) != 0 && aiInfo.ahead )
                 {
                     m_state.goal_anim_state = 1;
                 }
@@ -50,7 +50,7 @@ void Bear::update()
             case 1: // getting down again
                 if( getHealth() <= 0 )
                 {
-                    if( lookAhead.bite && lookAhead.distance < 0x90000 )
+                    if( aiInfo.bite && aiInfo.distance < 0x90000 )
                     {
                         m_state.goal_anim_state = 8;
                     }
@@ -81,7 +81,7 @@ void Bear::update()
                     m_state.required_anim_state = 0;
                     m_state.goal_anim_state = 4;
                 }
-                else if( lookAhead.ahead && (m_state.touch_bits & 0x2406c) != 0 )
+                else if( aiInfo.ahead && (m_state.touch_bits & 0x2406c) != 0 )
                 {
                     m_state.goal_anim_state = 4;
                 }
@@ -92,7 +92,7 @@ void Bear::update()
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Bored && util::rand15() >= 80 )
                 {
-                    if( lookAhead.distance > 0x400000 || util::rand15() < 1536 )
+                    if( aiInfo.distance > 0x400000 || util::rand15() < 1536 )
                     {
                         m_state.required_anim_state = 1;
                         m_state.goal_anim_state = 4;
@@ -115,14 +115,14 @@ void Bear::update()
                 {
                     m_state.goal_anim_state = 1;
                 }
-                else if( lookAhead.ahead && m_state.required_anim_state == 0 )
+                else if( aiInfo.ahead && m_state.required_anim_state == 0 )
                 {
-                    if( m_state.creatureInfo->flags == 0 && lookAhead.distance < 0x400000 && util::rand15() < 768 )
+                    if( m_state.creatureInfo->flags == 0 && aiInfo.distance < 0x400000 && util::rand15() < 768 )
                     {
                         m_state.required_anim_state = 4;
                         m_state.goal_anim_state = 1;
                     }
-                    else if( lookAhead.distance < 0x100000 )
+                    else if( aiInfo.distance < 0x100000 )
                     {
                         m_state.goal_anim_state = 6;
                     }
@@ -145,7 +145,7 @@ void Bear::update()
                     {
                         m_state.goal_anim_state = 1;
                     }
-                    else if( lookAhead.bite && lookAhead.distance < 360000 )
+                    else if( aiInfo.bite && aiInfo.distance < 360000 )
                     {
                         m_state.goal_anim_state = 7;
                     }
@@ -175,7 +175,7 @@ void Bear::update()
             default:
                 break;
         }
-        rotateCreatureHead( lookAhead.angle );
+        rotateCreatureHead( aiInfo.angle );
     }
     else
     {
@@ -210,6 +210,7 @@ void Bear::update()
         }
         rotateCreatureHead( 0_deg );
     }
+    getSkeleton()->patchBone( 14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
     animateCreature( rotationToMoveTarget, 0_deg );
 }
 }

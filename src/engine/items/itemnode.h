@@ -128,9 +128,9 @@ struct ItemState final
         return !activationState.isInverted();
     }
 
-    bool stalkBox(const level::Level& lvl, const loader::Box* box) const;
+    bool stalkBox(const level::Level& lvl, const loader::Box& box) const;
 
-    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box* box) const;
+    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box& box) const;
 
     bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box* box) const;
 
