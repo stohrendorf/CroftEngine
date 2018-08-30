@@ -179,7 +179,6 @@ bool CameraController::clampY(const core::TRCoordinates& start,
 {
     const HeightInfo floor = HeightInfo::fromFloor( sector, end, level.m_itemNodes );
     const HeightInfo ceiling = HeightInfo::fromCeiling( sector, end, level.m_itemNodes );
-    BOOST_ASSERT( ceiling.distance <= floor.distance );
 
     const auto d = end - start;
     if( floor.distance < end.Y && floor.distance > start.Y )

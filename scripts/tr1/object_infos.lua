@@ -66,6 +66,7 @@ infos[7].initialise = function(item)
 end
 
 -- Bear
+infos[8].ai_agent = true
 infos[8].radius = 341
 infos[8].hit_points = 20
 infos[8].pivot_length = 500
@@ -74,6 +75,7 @@ infos[8].target_update_chance = 0x4000
 infos[8].initialise = baddie_init
 
 -- Bat
+infos[9].ai_agent = true
 infos[9].radius = 102
 infos[9].hit_points = 1
 infos[9].shadow_size = 128

@@ -61,11 +61,7 @@ target_compile_definitions(Boost::boost INTERFACE -DBOOST_ALL_NO_LIB)
 target_include_directories(Boost::boost INTERFACE ${Boost_INCLUDE_DIR})
 target_link_libraries(Boost::boost INTERFACE ${Boost_LIBRARIES})
 
-find_path(ZLIB_INCLUDE_DIR zlib.h)
-find_library(ZLIB_LIBRARIES zlib)
-add_library(ZLIB INTERFACE)
-target_link_libraries(ZLIB INTERFACE ${ZLIB_LIBRARIES})
-target_include_directories(ZLIB INTERFACE ${ZLIB_INCLUDE_DIR})
+find_package(ZLIB REQUIRED)
 
 find_package(PNG REQUIRED)
 
@@ -79,6 +75,8 @@ find_package(glfw3 REQUIRED)
 
 find_package(CImg REQUIRED)
 target_compile_definitions(CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png)
+
+find_package(sol2 CONFIG REQUIRED)
 
 find_package(Git REQUIRED)
 execute_process(

@@ -291,8 +291,6 @@ set( EDISONENGINE_SRCS
      engine/ai/ai.h
      engine/ai/ai.cpp
 
-     scriptengine/lua/sol.hpp
-
      render/label.cpp
 )
 
@@ -319,7 +317,7 @@ target_link_libraries(
         PRIVATE
         Boost::boost
         gameplay
-        ZLIB
+        ZLIB::ZLIB
         OpenAL::OpenAL
         sndfile-shared
         CImg::CImg
@@ -329,6 +327,7 @@ target_link_libraries(
         glfw
         Assimp
         PNG::PNG
+        sol2
 )
 
 if (LINUX OR UNIX)

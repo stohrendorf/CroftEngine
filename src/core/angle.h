@@ -8,7 +8,7 @@
 #include <glm/gtx/euler_angles.hpp>
 
 #include <boost/optional.hpp>
-#include <scriptengine/lua/sol.hpp>
+#include <sol.hpp>
 
 namespace core
 {

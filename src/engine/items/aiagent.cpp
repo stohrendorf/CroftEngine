@@ -419,14 +419,14 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
                  const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
-                 const loader::SkeletalModelType& animatedModel,
-                 const int collisionRadius)
+                 const loader::SkeletalModelType& animatedModel)
         : ModelItemNode( level, name, room, item, true, animatedModel )
-        , m_collisionRadius{collisionRadius}
+        , m_collisionRadius{level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["radius"]}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
+    m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["hit_points"];
 }
 
 void AIAgent::collide(LaraNode& other, CollisionInfo& collisionInfo)

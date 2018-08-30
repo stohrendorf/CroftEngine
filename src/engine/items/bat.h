@@ -17,9 +17,8 @@ public:
         const gsl::not_null<const loader::Room*>& room,
         const loader::Item& item,
         const loader::SkeletalModelType& animatedModel)
-            : AIAgent( level, name, room, item, animatedModel, 0 )
+            : AIAgent( level, name, room, item, animatedModel )
     {
-        m_state.health = 1;
     }
 
     void update() override;

@@ -5,7 +5,7 @@
 #include <gsl/gsl>
 
 #include <cmath>
-#include <scriptengine/lua/sol.hpp>
+#include <sol.hpp>
 
 namespace loader
 {

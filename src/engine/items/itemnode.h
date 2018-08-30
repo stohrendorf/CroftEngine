@@ -5,11 +5,12 @@
 #include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/items_tr1.h"
-#include "scriptengine/lua/sol.hpp"
 #include "engine/collisioninfo.h"
 #include "engine/lighting.h"
 
 #include <set>
+
+#include <sol.hpp>
 
 namespace loader
 {
