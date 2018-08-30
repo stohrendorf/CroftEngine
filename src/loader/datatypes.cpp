@@ -197,6 +197,15 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
     mesh->getBuffer( 1 )->assign( uvCoords );
 
     auto resModel = renderModel.toModel( mesh );
+
+    for(const auto& m : resModel->getMeshes())
+    {
+        for(const auto& p : m->getParts())
+        {
+
+        }
+    }
+
     node = std::make_shared<gameplay::Node>( "Room:" + std::to_string( roomId ) );
     node->setDrawable( resModel );
     node->addMaterialParameterSetter( "u_lightPosition", [](const gameplay::Node& /*node*/,

@@ -4,12 +4,14 @@
 
 namespace gameplay
 {
-RenderState RenderState::m_currentState;
+RenderState RenderState::s_currentState;
 
 void RenderState::bind(bool force)
 {
-    // Update any state that differs from m_currentState
-    if( force || (m_blendEnabled.isInitialized() && m_blendEnabled != m_currentState.m_blendEnabled) )
+    // Update any state if...
+    //   - it is forced
+    //   - or it is explicitly set and different than the current state
+    if( force || (m_blendEnabled.isInitialized() && m_blendEnabled != s_currentState.m_blendEnabled) )
     {
         if( m_blendEnabled.get() )
         {
@@ -19,16 +21,16 @@ void RenderState::bind(bool force)
         {
             GL_ASSERT( glDisable( GL_BLEND ) );
         }
-        m_currentState.m_blendEnabled = m_blendEnabled;
+        s_currentState.m_blendEnabled = m_blendEnabled;
     }
     if( force || ((m_blendSrc.isInitialized() || m_blendDst.isInitialized())
-                  && (m_blendSrc != m_currentState.m_blendSrc || m_blendDst != m_currentState.m_blendDst)) )
+                  && (m_blendSrc != s_currentState.m_blendSrc || m_blendDst != s_currentState.m_blendDst)) )
     {
         GL_ASSERT( glBlendFunc( m_blendSrc.get(), m_blendDst.get() ) );
-        m_currentState.m_blendSrc = m_blendSrc;
-        m_currentState.m_blendDst = m_blendDst;
+        s_currentState.m_blendSrc = m_blendSrc;
+        s_currentState.m_blendDst = m_blendDst;
     }
-    if( force || (m_cullFaceEnabled.isInitialized() && m_cullFaceEnabled != m_currentState.m_cullFaceEnabled) )
+    if( force || (m_cullFaceEnabled.isInitialized() && m_cullFaceEnabled != s_currentState.m_cullFaceEnabled) )
     {
         if( m_cullFaceEnabled.get() )
         {
@@ -38,19 +40,19 @@ void RenderState::bind(bool force)
         {
             GL_ASSERT( glDisable( GL_CULL_FACE ) );
         }
-        m_currentState.m_cullFaceEnabled = m_cullFaceEnabled;
+        s_currentState.m_cullFaceEnabled = m_cullFaceEnabled;
     }
-    if( force || (m_cullFaceSide.isInitialized() && (m_cullFaceSide != m_currentState.m_cullFaceSide)) )
+    if( force || (m_cullFaceSide.isInitialized() && (m_cullFaceSide != s_currentState.m_cullFaceSide)) )
     {
         GL_ASSERT( glCullFace( m_cullFaceSide.get() ) );
-        m_currentState.m_cullFaceSide = m_cullFaceSide;
+        s_currentState.m_cullFaceSide = m_cullFaceSide;
     }
-    if( force || (m_frontFace.isInitialized() && m_frontFace != m_currentState.m_frontFace) )
+    if( force || (m_frontFace.isInitialized() && m_frontFace != s_currentState.m_frontFace) )
     {
         GL_ASSERT( glFrontFace( m_frontFace.get() ) );
-        m_currentState.m_frontFace = m_frontFace;
+        s_currentState.m_frontFace = m_frontFace;
     }
-    if( force || (m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != m_currentState.m_depthTestEnabled)) )
+    if( force || (m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != s_currentState.m_depthTestEnabled)) )
     {
         if( m_depthTestEnabled.get() )
         {
@@ -60,17 +62,17 @@ void RenderState::bind(bool force)
         {
             GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
         }
-        m_currentState.m_depthTestEnabled = m_depthTestEnabled;
+        s_currentState.m_depthTestEnabled = m_depthTestEnabled;
     }
-    if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != m_currentState.m_depthWriteEnabled)) )
+    if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != s_currentState.m_depthWriteEnabled)) )
     {
         GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? GL_TRUE : GL_FALSE ) );
-        m_currentState.m_depthWriteEnabled = m_depthWriteEnabled;
+        s_currentState.m_depthWriteEnabled = m_depthWriteEnabled;
     }
-    if( force || (m_depthFunction.isInitialized() && (m_depthFunction != m_currentState.m_depthFunction)) )
+    if( force || (m_depthFunction.isInitialized() && (m_depthFunction != s_currentState.m_depthFunction)) )
     {
         GL_ASSERT( glDepthFunc( m_depthFunction.get() ) );
-        m_currentState.m_depthFunction = m_depthFunction;
+        s_currentState.m_depthFunction = m_depthFunction;
     }
 }
 
@@ -80,9 +82,9 @@ void RenderState::enableDepthWrite()
     // clear operation. This is necessary if the last code to draw before the
     // next frame leaves depth writing disabled.
     GL_ASSERT( glDepthMask( GL_TRUE ) );
-    m_currentState.m_depthWriteEnabled = true;
+    s_currentState.m_depthWriteEnabled = true;
     GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
-    m_currentState.m_depthTestEnabled = true;
+    s_currentState.m_depthTestEnabled = true;
 }
 
 void RenderState::setBlend(bool enabled)

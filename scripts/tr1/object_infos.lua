@@ -18,23 +18,17 @@ for i = 0, 190 do
 end
 
 local function baddie_init(item)
-    item:set_y_angle((math.random(0, 32767) - 16384) / 2)
+    item:set_y_angle((math.random(0, 32767) - 16384) * 2)
     item:set_collidable(true)
 end
 
-local function baddie_interact(baddie, lara, lara_state)
-    if baddie:is_near(lara, lara_state.radius) then
-        if baddie:test_bone_collision(lara) then
-            if lara_state:get_policy_flags().enable_baddie_push then
-                local enable_spaz = false
-                if baddie.health > 0 then
-                    -- << 3 >> 7
-                    enable_spaz = lara_state:get_policy_flags().enable_spaz
-                end
-                baddie:do_enemy_push(lara, lara_state, enable_spaz, false);
-            end
-        end
-    end
+local function baddie_interact(item, lara, coll_info)
+    if not item:is_near(lara, coll_info.radius) then return; end
+    if not item:test_bone_collision(lara) then return; end
+    if not coll_info:get_policy_flags().enable_baddie_push then return; end
+
+    local enable_spaz = (item.health > 0) and coll_info:get_policy_flags().enable_spaz
+    item:do_enemy_push(lara, coll_info, enable_spaz, false);
 end
 
 local function sector_of(x)
@@ -64,6 +58,7 @@ infos[7].initialise = function(item)
     item.frame_number = 96
     baddie_init(item)
 end
+infos[7].collison = baddie_interact
 
 -- Bear
 infos[8].ai_agent = true
@@ -73,6 +68,7 @@ infos[8].pivot_length = 500
 infos[8].shadow_size = 128
 infos[8].target_update_chance = 0x4000
 infos[8].initialise = baddie_init
+infos[8].collison = baddie_interact
 
 -- Bat
 infos[9].ai_agent = true
@@ -81,6 +77,7 @@ infos[9].hit_points = 1
 infos[9].shadow_size = 128
 infos[9].target_update_chance = 0x400
 infos[9].initialise = baddie_init
+infos[9].collison = baddie_interact
 
 -- Broken floor
 infos[35].floor = function(item, _, y, _, base)

@@ -44,7 +44,7 @@ public:
 
     static void initDefaults()
     {
-        m_currentState.bind( true );
+        s_currentState.bind( true );
     }
 
     static void enableDepthWrite();
@@ -106,6 +106,6 @@ private:
 
     DefaultedOptional<GLenum, GL_CW> m_frontFace;
 
-    static RenderState m_currentState;
+    static RenderState s_currentState;
 };
 }

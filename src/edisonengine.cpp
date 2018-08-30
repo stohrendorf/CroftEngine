@@ -151,6 +151,7 @@ public:
 
         material->setDepthWrite( false );
         material->setDepthTest( false );
+        material->setCullFace( false );
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh( to_not_null( m_mesh ) );

@@ -747,6 +747,13 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     auto texturedShader = to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                 "shaders/textured_2.frag" ) );
     auto materials = createMaterials( texturedShader );
+    auto roomMaterials = createMaterials( texturedShader );
+
+    for( const auto& m : roomMaterials | boost::adaptors::map_values )
+    {
+        m->setCullFace( true );
+        m->setCullFaceSide( GL_BACK );
+    }
 
     auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
                                                                    "shaders/colored_2.frag" );
@@ -785,10 +792,15 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                                                                                      "shaders/textured_2.frag",
                                                                                      {"WATER"} ) );
     auto waterMaterials = createMaterials( waterTexturedShader );
+    for( const auto& m : waterMaterials | boost::adaptors::map_values )
+    {
+        m->setCullFace( true );
+        m->setCullFaceSide( GL_BACK );
+    }
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
-        m_rooms[i].createSceneNode( i, *this, materials, waterMaterials, m_models, *m_textureAnimator );
+        m_rooms[i].createSceneNode( i, *this, roomMaterials, waterMaterials, m_models, *m_textureAnimator );
         game->getScene()->addNode( to_not_null( m_rooms[i].node ) );
     }
 

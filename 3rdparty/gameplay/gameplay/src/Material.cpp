@@ -41,7 +41,7 @@ void Material::bind(const Node& node)
 
     m_shaderProgram->bind();
 
-    RenderState::bind();
+    RenderState::bind( true );
 }
 
 gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const std::string& name) const

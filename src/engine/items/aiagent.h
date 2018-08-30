@@ -17,7 +17,7 @@ public:
             const loader::Item& item,
             const loader::SkeletalModelType& animatedModel);
 
-    void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
 protected:
     void rotateCreatureTilt(core::Angle angle)

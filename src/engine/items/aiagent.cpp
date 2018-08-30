@@ -429,23 +429,19 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
     m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["hit_points"];
 }
 
-void AIAgent::collide(LaraNode& other, CollisionInfo& collisionInfo)
+void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
-    if( !isNear( other, collisionInfo.collisionRadius ) )
+    if( !isNear( lara, collisionInfo.collisionRadius ) )
         return;
 
-    if( !testBoneCollision( other ) )
+    if( !testBoneCollision( lara ) )
         return;
 
     if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
         return;
 
-    bool enableSpaz = false;
-    if( m_state.health > 0 )
-    {
-        enableSpaz = (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
-    }
-    enemyPush( other, collisionInfo, enableSpaz, false );
+    const bool enableSpaz = m_state.health > 0 && (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
+    enemyPush( lara, collisionInfo, enableSpaz, false );
 }
 }
 }
