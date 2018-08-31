@@ -75,7 +75,7 @@ struct ItemState final
     ~ItemState();
 
     int32_t floor = 0;
-    int32_t touch_bits = 0;
+    uint32_t touch_bits = 0;
     uint32_t mesh_bits = 0;
     engine::TR1ItemId object_number;
     uint16_t current_anim_state = 0;

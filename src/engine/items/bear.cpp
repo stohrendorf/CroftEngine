@@ -45,13 +45,13 @@ void Bear::update()
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
-                else if( m_state.creatureInfo->mood == ai::Mood::Escape )
-                {
-                    m_state.required_anim_state = 0;
-                }
                 else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
                     m_state.goal_anim_state = GettingDown;
+                    if( m_state.creatureInfo->mood == ai::Mood::Escape )
+                    {
+                        m_state.required_anim_state = 0;
+                    }
                 }
                 else if( util::rand15() < 80 )
                 {
@@ -62,7 +62,7 @@ void Bear::update()
             case GettingDown:
                 if( getLevel().m_lara->m_state.health <= 0 )
                 {
-                    if( aiInfo.bite && aiInfo.distance < 0x90000 )
+                    if( aiInfo.bite && aiInfo.distance < util::square( 768 ) )
                     {
                         m_state.goal_anim_state = Biting;
                     }
@@ -104,7 +104,7 @@ void Bear::update()
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Bored && util::rand15() >= 80 )
                 {
-                    if( aiInfo.distance > 0x400000 || util::rand15() < 1536 )
+                    if( aiInfo.distance > util::square( 2048 ) || util::rand15() < 1536 )
                     {
                         m_state.required_anim_state = GettingDown;
                         m_state.goal_anim_state = RoaringStanding;
@@ -129,12 +129,13 @@ void Bear::update()
                 }
                 else if( aiInfo.ahead && m_state.required_anim_state == 0 )
                 {
-                    if( m_state.creatureInfo->flags == 0 && aiInfo.distance < 0x400000 && util::rand15() < 768 )
+                    if( m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square( 2048 )
+                        && util::rand15() < 768 )
                     {
                         m_state.required_anim_state = RoaringStanding;
                         m_state.goal_anim_state = GettingDown;
                     }
-                    else if( aiInfo.distance < 0x100000 )
+                    else if( aiInfo.distance < util::square( 1024 ) )
                     {
                         m_state.goal_anim_state = RunningAttack;
                     }
@@ -155,7 +156,7 @@ void Bear::update()
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
-                else if( aiInfo.bite && aiInfo.distance < 360000 )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 600 ) )
                 {
                     m_state.goal_anim_state = Standing;
                 }
@@ -165,7 +166,7 @@ void Bear::update()
                 }
                 break;
             case RunningAttack:
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406C) )
+                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
                 {
                     emitParticle( core::TRCoordinates{0, 96, 335}, 14, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
@@ -174,7 +175,7 @@ void Bear::update()
                 }
                 break;
             case Standing:
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406C) )
+                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
                 {
                     getLevel().m_lara->m_state.health -= 400;
                     getLevel().m_lara->m_state.is_hit = true;
@@ -207,7 +208,7 @@ void Bear::update()
                 m_state.goal_anim_state = Dying;
                 break;
             case Dying:
-                if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits & 0x2406C) != 0 )
+                if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits & 0x2406c) != 0 )
                 {
                     getLevel().m_lara->m_state.health -= 200;
                     getLevel().m_lara->m_state.is_hit = true;
