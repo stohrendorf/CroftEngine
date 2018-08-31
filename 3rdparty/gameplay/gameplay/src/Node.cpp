@@ -19,8 +19,8 @@ Node::~Node()
                                 [this](const gsl::not_null<std::shared_ptr<Node>>& node) {
                                     return node.get().get() == this;
                                 } );
-        BOOST_ASSERT( it != p->m_children.end() );
-        getParent().lock()->m_children.erase( it );
+        if( it != p->m_children.end() )
+            getParent().lock()->m_children.erase( it );
     }
 
     m_parent.reset();

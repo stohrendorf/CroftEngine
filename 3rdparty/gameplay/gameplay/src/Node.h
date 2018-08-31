@@ -67,6 +67,11 @@ public:
         return m_children;
     }
 
+    void removeAllChildren()
+    {
+        m_children.clear();
+    }
+
     const gsl::not_null<std::shared_ptr<Node>>& getChild(size_t idx) const
     {
         BOOST_ASSERT( idx < m_children.size() );

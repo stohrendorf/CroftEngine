@@ -178,7 +178,7 @@ public:
         item.darkness = 0;
         item.activationState = activationState;
 
-        auto node = createSkeletalModel<T>( 99999, *model, room, item );
+        auto node = createSkeletalModel<T>( *model, room, item );
 
         m_dynamicItems.insert( node );
         addChild( to_not_null( room->node ), to_not_null( node->getNode() ) );
@@ -600,8 +600,7 @@ private:
                  sol::state&& scriptEngine);
 
     template<typename T>
-    std::shared_ptr<T> createSkeletalModel(size_t id,
-                                           const loader::SkeletalModelType& model,
+    std::shared_ptr<T> createSkeletalModel(const loader::SkeletalModelType& model,
                                            const gsl::not_null<const loader::Room*>& room,
                                            const loader::Item& item);
 
