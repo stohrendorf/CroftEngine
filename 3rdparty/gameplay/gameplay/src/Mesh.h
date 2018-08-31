@@ -1,5 +1,8 @@
 #pragma once
 
+#include "RenderState.h"
+#include "Drawable.h"
+
 #include "gl/structuredvertexbuffer.h"
 #include "gsl_util.h"
 
@@ -15,7 +18,7 @@ class MeshPart;
 class Model;
 
 
-class Mesh
+class Mesh : public Drawable
 {
 public:
     explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping,
@@ -24,6 +27,10 @@ public:
     {
         addBuffer( mapping, dynamic, label );
     }
+
+    Mesh(const Mesh&) = delete;
+
+    Mesh& operator=(const Mesh&) = delete;
 
     static gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
                                                                      float height,
@@ -47,7 +54,7 @@ public:
         return m_parts[index];
     }
 
-    virtual ~Mesh() = default;
+    ~Mesh() override = default;
 
     const gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffer(std::size_t idx)
     {
@@ -78,11 +85,15 @@ public:
         m_buffers.emplace_back( make_not_null_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
     }
 
+    RenderState& getRenderState() override
+    {
+        return m_renderState;
+    }
+
+    virtual void draw(RenderContext& context);
+
 private:
-
-    Mesh(const Mesh& copy) = delete;
-
-    Mesh& operator=(const Mesh&) = delete;
+    RenderState m_renderState{};
 
     std::vector<gsl::not_null<std::shared_ptr<MeshPart>>> m_parts{};
 

@@ -140,8 +140,6 @@ public:
         m_mesh = gameplay::Mesh::createQuadFullscreen( vp.width, vp.height, shader->getHandle() );
         auto part = m_mesh->getPart( 0 );
         const auto material = std::make_shared<gameplay::Material>( shader );
-        part->setMaterial( material );
-
         material->getParameter( "u_depth" )->set( m_depthBuffer );
         material->getParameter( "u_projectionMatrix" )
                 ->set( glm::ortho( vp.x, vp.width, vp.height, vp.y, 0.0f, 1.0f ) );
@@ -149,12 +147,14 @@ public:
                 ->bind( game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
         material->getParameter( "u_texture" )->set( m_colorBuffer );
 
-        material->setDepthWrite( false );
-        material->setDepthTest( false );
-        material->setCullFace( false );
+        part->setMaterial( material );
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh( to_not_null( m_mesh ) );
+
+        m_model->getRenderState().setDepthWrite( false );
+        m_model->getRenderState().setDepthTest( false );
+        m_model->getRenderState().setCullFace( false );
 
         m_colorBuffer->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
         m_colorBuffer->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );

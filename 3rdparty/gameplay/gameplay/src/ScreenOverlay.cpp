@@ -34,22 +34,24 @@ ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
 
     m_mesh = Mesh::createQuadFullscreen( viewport.width, viewport.height, screenOverlayProgram->getHandle(), true );
     const auto part = m_mesh->getPart( 0 );
-    const auto material = std::make_shared<Material>( screenOverlayProgram );
-    material->setDepthWrite( false );
-    material->setDepthTest( false );
-    part->setMaterial( material );
+    part->setMaterial( std::make_shared<Material>( screenOverlayProgram ) );
     part->getMaterial()->getParameter( "u_texture" )->set( m_texture );
     part->getMaterial()->getParameter( "u_projectionMatrix" )
         ->set( glm::ortho( viewport.x, viewport.width, viewport.height, viewport.y, 0.0f, 1.0f ) );
 
     m_model->addMesh( to_not_null( m_mesh ) );
+
+    m_model->getRenderState().setDepthWrite( false );
+    m_model->getRenderState().setDepthTest( false );
 }
 
 ScreenOverlay::~ScreenOverlay() = default;
 
 void ScreenOverlay::draw(RenderContext& context)
 {
+    context.pushState( m_renderState );
     m_texture->subImage2D( m_image->getData() );
     m_model->draw( context );
+    context.popState();
 }
 }

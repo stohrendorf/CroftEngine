@@ -29,7 +29,14 @@ public:
         return m_image;
     }
 
+    RenderState& getRenderState() override
+    {
+        return m_renderState;
+    }
+
 private:
+    RenderState m_renderState;
+
     gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> m_image;
 
     gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};

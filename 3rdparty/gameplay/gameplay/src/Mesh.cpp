@@ -54,4 +54,14 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
 
     return mesh;
 }
+
+void Mesh::draw(RenderContext& context)
+{
+    context.pushState( m_renderState );
+    for( const auto& part : m_parts )
+    {
+        part->draw( context );
+    }
+    context.popState();
+}
 }

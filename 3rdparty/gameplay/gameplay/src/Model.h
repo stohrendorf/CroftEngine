@@ -14,6 +14,8 @@ public:
 
     ~Model() override = default;
 
+    Model& operator=(const Model&) = delete;
+
     const std::vector<gsl::not_null<std::shared_ptr<Mesh>>>& getMeshes() const
     {
         return m_meshes;
@@ -26,9 +28,13 @@ public:
 
     void draw(RenderContext& context) override;
 
-private:
+    RenderState& getRenderState() override
+    {
+        return m_renderState;
+    }
 
-    Model& operator=(const Model&) = delete;
+private:
+    RenderState m_renderState{};
 
     std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };

@@ -6,7 +6,7 @@ namespace gameplay
 {
 RenderState RenderState::s_currentState;
 
-void RenderState::bind(bool force)
+void RenderState::bindState(bool force) const
 {
     // Update any state if...
     //   - it is forced
@@ -130,5 +130,34 @@ void RenderState::setDepthWrite(bool enabled)
 void RenderState::setDepthFunction(GLenum func)
 {
     m_depthFunction = func;
+}
+
+void RenderState::initDefaults()
+{
+    s_currentState.m_cullFaceEnabled.setDefault();
+    s_currentState.m_depthTestEnabled.setDefault();
+    s_currentState.m_depthWriteEnabled.setDefault();
+    s_currentState.m_depthFunction.setDefault();
+    s_currentState.m_blendEnabled.setDefault();
+    s_currentState.m_blendSrc.setDefault();
+    s_currentState.m_blendDst.setDefault();
+    s_currentState.m_cullFaceSide.setDefault();
+    s_currentState.m_frontFace.setDefault();
+    s_currentState.bindState( true );
+}
+
+void RenderState::merge(const RenderState& other)
+{
+#define MERGE_OPT(n) n.merge(other.n)
+    MERGE_OPT( m_cullFaceEnabled );
+    MERGE_OPT( m_depthTestEnabled );
+    MERGE_OPT( m_depthWriteEnabled );
+    MERGE_OPT( m_depthFunction );
+    MERGE_OPT( m_blendEnabled );
+    MERGE_OPT( m_blendSrc );
+    MERGE_OPT( m_blendDst );
+    MERGE_OPT( m_cullFaceSide );
+    MERGE_OPT( m_frontFace );
+#undef MERGE_OPT
 }
 }

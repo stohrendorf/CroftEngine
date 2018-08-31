@@ -36,6 +36,11 @@ public:
 
     void draw(RenderContext& context) override;
 
+    RenderState& getRenderState() override
+    {
+        return m_renderState;
+    }
+
 private:
     static gsl::not_null<std::shared_ptr<Mesh>> createMesh(float left,
                                                            float bottom,
@@ -45,6 +50,8 @@ private:
                                                            const glm::vec2& uvBottomRight,
                                                            const gsl::not_null<std::shared_ptr<Material>>& material,
                                                            const Axis pole);
+
+    RenderState m_renderState;
 
     gsl::not_null<std::shared_ptr<Mesh>> m_mesh;
 };

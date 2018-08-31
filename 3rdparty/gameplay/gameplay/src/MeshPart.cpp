@@ -21,6 +21,10 @@ void MeshPart::draw(RenderContext& context) const
     for( const auto& mps : m_materialParameterSetters )
         mps( *context.getCurrentNode(), *m_material );
 
+    context.pushState( m_renderState );
+    context.pushState( m_material->getRenderState() );
+    context.bindState();
+
     m_material->bind( *context.getCurrentNode() );
 
     m_vao->bind();
@@ -31,5 +35,7 @@ void MeshPart::draw(RenderContext& context) const
     }
 
     m_vao->unbind();
+    context.popState();
+    context.popState();
 }
 }

@@ -13,14 +13,14 @@ class MaterialParameter;
 class Node;
 
 
-class Material : public RenderState
+class Material final
 {
 public:
     explicit Material(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
     Material(const Material&) = delete;
 
-    ~Material() override;
+    ~Material();
 
     explicit Material(const std::string& vshPath, const std::string& fshPath,
                       const std::vector<std::string>& defines = {});
@@ -34,10 +34,17 @@ public:
 
     gsl::not_null<std::shared_ptr<MaterialParameter>> getParameter(const std::string& name) const;
 
+    RenderState& getRenderState()
+    {
+        return m_renderState;
+    }
+
 private:
 
     gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
     mutable std::vector<gsl::not_null<std::shared_ptr<MaterialParameter>>> m_parameters;
+
+    RenderState m_renderState{};
 };
 }

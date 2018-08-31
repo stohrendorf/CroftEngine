@@ -7,12 +7,11 @@ namespace gameplay
 {
 void Model::draw(RenderContext& context)
 {
+    context.pushState( m_renderState );
     for( const std::shared_ptr<Mesh>& mesh : m_meshes )
     {
-        for( const std::shared_ptr<MeshPart>& part : mesh->getParts() )
-        {
-            part->draw( context );
-        }
+        mesh->draw(context);
     }
+    context.popState();
 }
 }

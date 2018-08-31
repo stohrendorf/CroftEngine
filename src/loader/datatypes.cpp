@@ -81,19 +81,9 @@ struct RenderModel
         return model;
     }
 };
-
-
-struct SpriteVertex
-{
-    glm::vec3 pos;
-
-    glm::vec2 uv;
-
-    glm::vec3 color{1.0f};
-};
 }
 
-std::shared_ptr<gameplay::Node> Room::createSceneNode(
+void Room::createSceneNode(
         size_t roomId,
         const level::Level& level,
         const std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
@@ -197,14 +187,8 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
     mesh->getBuffer( 1 )->assign( uvCoords );
 
     auto resModel = renderModel.toModel( mesh );
-
-    for(const auto& m : resModel->getMeshes())
-    {
-        for(const auto& p : m->getParts())
-        {
-
-        }
-    }
+    resModel->getRenderState().setCullFace( true );
+    resModel->getRenderState().setCullFaceSide( GL_BACK );
 
     node = std::make_shared<gameplay::Node>( "Room:" + std::to_string( roomId ) );
     node->setDrawable( resModel );
@@ -281,8 +265,6 @@ std::shared_ptr<gameplay::Node> Room::createSceneNode(
 
         addChild( to_not_null( node ), spriteNode );
     }
-
-    return node;
 }
 
 core::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const

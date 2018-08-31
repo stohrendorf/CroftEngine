@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderContext.h"
+#include "RenderState.h"
 
 #include "gl/vertexarray.h"
 
@@ -17,6 +18,8 @@ public:
     explicit MeshPart(const std::shared_ptr<gl::VertexArray>& vao);
 
     ~MeshPart();
+
+    MeshPart(const MeshPart& copy) = delete;
 
     void setMaterial(const std::shared_ptr<Material>& material)
     {
@@ -40,8 +43,13 @@ public:
         return m_vao;
     }
 
+    RenderState& getRenderState()
+    {
+        return m_renderState;
+    }
+
 private:
-    MeshPart(const MeshPart& copy) = delete;
+    RenderState m_renderState{};
 
     std::shared_ptr<Material> m_material;
 

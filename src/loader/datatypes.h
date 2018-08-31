@@ -1108,7 +1108,7 @@ struct Room
         return room;
     }
 
-    std::shared_ptr<gameplay::Node> createSceneNode(
+    void createSceneNode(
             size_t roomId,
             const level::Level& level,
             const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,

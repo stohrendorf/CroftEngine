@@ -5,6 +5,9 @@ namespace gameplay
 class RenderContext;
 
 
+class RenderState;
+
+
 class Drawable
 {
 public:
@@ -13,5 +16,7 @@ public:
     virtual ~Drawable() = default;
 
     virtual void draw(RenderContext& context) = 0;
+
+    virtual RenderState& getRenderState() = 0;
 };
 }

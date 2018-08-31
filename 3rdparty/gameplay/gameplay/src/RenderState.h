@@ -11,18 +11,18 @@
 
 namespace gameplay
 {
-class RenderState
+class RenderState final
 {
 public:
-    RenderState(const RenderState&) = delete;
+    RenderState(const RenderState&) = default;
 
     RenderState& operator=(const RenderState&) = delete;
 
     explicit RenderState() = default;
 
-    virtual ~RenderState() = default;
+    ~RenderState() = default;
 
-    void bind(bool force = false);
+    void bindState(bool force = false) const;
 
     void setBlend(bool enabled);
 
@@ -42,12 +42,11 @@ public:
 
     void setDepthFunction(GLenum func);
 
-    static void initDefaults()
-    {
-        s_currentState.bind( true );
-    }
+    static void initDefaults();
 
     static void enableDepthWrite();
+
+    void merge(const RenderState& other);
 
 private:
     template<typename T, const T DefaultValue>
@@ -66,29 +65,37 @@ private:
             value.reset();
         }
 
+        void setDefault()
+        {
+            value = Default;
+        }
+
         bool isInitialized() const
         {
             return value.is_initialized();
         }
 
-        bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs)
+        bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const
         {
             return value != rhs.value;
         }
 
         DefaultedOptional<T, DefaultValue>& operator=(T rhs)
         {
-            if( rhs == Default )
-                value.reset();
-            else
-                value = rhs;
+            value = rhs;
             return *this;
+        }
+
+        void merge(const DefaultedOptional<T, DefaultValue>& other)
+        {
+            if( other.isInitialized() )
+                *this = other;
         }
     };
 
 
     // States
-    DefaultedOptional<bool, true> m_cullFaceEnabled;
+    DefaultedOptional<bool, false> m_cullFaceEnabled;
 
     DefaultedOptional<bool, true> m_depthTestEnabled;
 
