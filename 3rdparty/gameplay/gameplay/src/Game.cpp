@@ -205,18 +205,19 @@ void Game::initialize()
     m_initialized = true;
 }
 
-void Game::updateWindowSize()
+bool Game::updateWindowSize()
 {
     int tmpW, tmpH;
     GL_ASSERT( glfwGetFramebufferSize( m_window, &tmpW, &tmpH ) );
 
     if( tmpW == m_viewport.x && tmpH == m_viewport.y )
-        return;
+        return false;
 
     m_viewport.x = static_cast<float>(tmpW);
     m_viewport.y = static_cast<float>(tmpH);
 
     setViewport( m_viewport );
+    return true;
 }
 
 void Game::render()

@@ -37,6 +37,12 @@ float Camera::getAspectRatio() const
     return m_aspectRatio;
 }
 
+void Camera::setAspectRatio(float aspectRatio)
+{
+    m_aspectRatio = aspectRatio;
+    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
+}
+
 float Camera::getNearPlane() const
 {
     return m_nearPlane;

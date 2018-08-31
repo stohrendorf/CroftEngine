@@ -20,13 +20,15 @@ public:
 
     explicit ScreenOverlay(const Point& viewport);
 
+    void init(const Point& viewport);
+
     ~ScreenOverlay() override;
 
     void draw(RenderContext& context) override;
 
-    const gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>>& getImage() const
+    gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> getImage() const
     {
-        return m_image;
+        return to_not_null( m_image );
     }
 
     RenderState& getRenderState() override
@@ -37,7 +39,7 @@ public:
 private:
     RenderState m_renderState;
 
-    gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> m_image;
+    std::shared_ptr<gl::Image<gl::RGBA8>> m_image;
 
     gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};
 

@@ -14,9 +14,24 @@
 namespace gameplay
 {
 ScreenOverlay::ScreenOverlay(const Point& viewport)
-        : m_image{std::make_shared<gl::Image<gl::RGBA8>>( static_cast<GLint>(viewport.x),
-                                                          static_cast<GLint>(viewport.y) )}
 {
+    init( viewport );
+}
+
+ScreenOverlay::~ScreenOverlay() = default;
+
+void ScreenOverlay::draw(RenderContext& context)
+{
+    context.pushState( m_renderState );
+    m_texture->subImage2D( m_image->getData() );
+    m_model->draw( context );
+    context.popState();
+}
+
+void ScreenOverlay::init(const Point& viewport)
+{
+    m_image = std::make_shared<gl::Image<gl::RGBA8>>( static_cast<GLint>(viewport.x),
+                                                      static_cast<GLint>(viewport.y) );
     // Update the projection matrix for our batch to match the current viewport
     if( viewport.x <= 0 || viewport.y <= 0 )
     {
@@ -43,15 +58,5 @@ ScreenOverlay::ScreenOverlay(const Point& viewport)
 
     m_model->getRenderState().setDepthWrite( false );
     m_model->getRenderState().setDepthTest( false );
-}
-
-ScreenOverlay::~ScreenOverlay() = default;
-
-void ScreenOverlay::draw(RenderContext& context)
-{
-    context.pushState( m_renderState );
-    m_texture->subImage2D( m_image->getData() );
-    m_model->draw( context );
-    context.popState();
 }
 }

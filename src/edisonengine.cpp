@@ -117,13 +117,23 @@ class FullScreenFX
 {
     std::shared_ptr<gameplay::gl::Texture> m_depthBuffer{nullptr};
     std::shared_ptr<gameplay::gl::Texture> m_colorBuffer{nullptr};
+    const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>> m_shader;
+    const gsl::not_null<std::shared_ptr<gameplay::Material>> m_material;
 
 public:
-    explicit FullScreenFX(const gsl::not_null<gameplay::Game*>& game,
-                          const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader, GLint multisample = 0)
+    explicit FullScreenFX(const gameplay::Game& game,
+                          const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader,
+                          GLint multisample = 0)
             : m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
+            , m_shader{shader}
+            , m_material{make_not_null_shared<gameplay::Material>( m_shader )}
     {
-        auto vp = game->getViewport();
+        init( game, multisample );
+    }
+
+    void init(const gameplay::Game& game, GLint multisample)
+    {
+        const auto vp = game.getViewport();
 
         m_colorBuffer = std::make_shared<gameplay::gl::Texture>(
                 multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D );
@@ -137,17 +147,15 @@ public:
 
         BOOST_ASSERT( m_fb->isComplete() );
 
-        m_mesh = gameplay::Mesh::createQuadFullscreen( vp.x, vp.y, shader->getHandle() );
-        auto part = m_mesh->getPart( 0 );
-        const auto material = std::make_shared<gameplay::Material>( shader );
-        material->getParameter( "u_depth" )->set( m_depthBuffer );
-        material->getParameter( "u_projectionMatrix" )
-                ->set( glm::ortho( 0.0f, vp.x, vp.y, 0.0f, 0.0f, 1.0f ) );
-        material->getParameter( "u_projection" )
-                ->bind( game->getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
-        material->getParameter( "u_texture" )->set( m_colorBuffer );
+        m_mesh = gameplay::Mesh::createQuadFullscreen( vp.x, vp.y, m_shader->getHandle() );
+        m_material->getParameter( "u_depth" )->set( m_depthBuffer );
+        m_material->getParameter( "u_projectionMatrix" )
+                  ->set( glm::ortho( 0.0f, vp.x, vp.y, 0.0f, 0.0f, 1.0f ) );
+        m_material->getParameter( "u_projection" )
+                  ->bind( game.getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
+        m_material->getParameter( "u_texture" )->set( m_colorBuffer );
 
-        part->setMaterial( material );
+        m_mesh->getPart( 0 )->setMaterial( m_material );
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh( to_not_null( m_mesh ) );
@@ -173,9 +181,9 @@ public:
         m_model->draw( context );
     }
 
-    const std::shared_ptr<gameplay::Material>& getMaterial() const
+    const gsl::not_null<std::shared_ptr<gameplay::Material>>& getMaterial() const
     {
-        return m_mesh->getPart( 0 )->getMaterial();
+        return m_material;
     }
 
 private:
@@ -314,18 +322,24 @@ int main()
     auto font = make_not_null_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
-    FullScreenFX depthDarknessFx{to_not_null( game.get() ),
+    FullScreenFX depthDarknessFx{*game,
                                  to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
                                                                                        "shaders/fx_darkness.frag",
                                                                                        {"LENS_DISTORTION"} ) )};
-    depthDarknessFx.getMaterial()->getParameter( "aspect_ratio" )->set( game->getAspectRatio() );
+    depthDarknessFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
+            [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+                uniform.set( game->getAspectRatio() );
+            } );
     depthDarknessFx.getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
-    FullScreenFX depthDarknessWaterFx{to_not_null( game.get() ),
+    FullScreenFX depthDarknessWaterFx{*game,
                                       to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
                                                                                             "shaders/fx_darkness.frag",
                                                                                             {"WATER",
                                                                                              "LENS_DISTORTION"} ) )};
-    depthDarknessWaterFx.getMaterial()->getParameter( "aspect_ratio" )->set( game->getAspectRatio() );
+    depthDarknessWaterFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
+            [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+                uniform.set( game->getAspectRatio() );
+            } );
     depthDarknessWaterFx.getMaterial()->getParameter( "distortion_power" )->set( -2.0f );
     depthDarknessWaterFx.getMaterial()->getParameter( "u_time" )->bind(
             [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
@@ -381,6 +395,14 @@ int main()
         lastTime = game->getGameTime();
 
         update( lvl, bool( lvl->m_scriptEngine["cheats"]["godMode"] ) );
+
+        if( game->updateWindowSize() )
+        {
+            game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
+            depthDarknessFx.init( *game, 0 );
+            depthDarknessWaterFx.init( *game, 0 );
+            screenOverlay->init( game->getViewport() );
+        }
 
         lvl->m_cameraController->update();
         lvl->doGlobalEffect();

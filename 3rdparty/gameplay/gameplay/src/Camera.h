@@ -23,6 +23,8 @@ public:
 
     float getAspectRatio() const;
 
+    void setAspectRatio(float aspectRatio);
+
     float getNearPlane() const;
 
     float getFarPlane() const;
