@@ -13,12 +13,12 @@
 
 namespace gameplay
 {
-ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
-        : m_image{std::make_shared<gl::Image<gl::RGBA8>>( static_cast<GLint>(viewport.width),
-                                                          static_cast<GLint>(viewport.height) )}
+ScreenOverlay::ScreenOverlay(const Point& viewport)
+        : m_image{std::make_shared<gl::Image<gl::RGBA8>>( static_cast<GLint>(viewport.x),
+                                                          static_cast<GLint>(viewport.y) )}
 {
     // Update the projection matrix for our batch to match the current viewport
-    if( viewport.isEmpty() )
+    if( viewport.x <= 0 || viewport.y <= 0 )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Cannot create screen overlay because the viewport is empty" ) );
     }
@@ -32,12 +32,12 @@ ScreenOverlay::ScreenOverlay(const Rectangle& viewport)
     m_texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     m_texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
-    m_mesh = Mesh::createQuadFullscreen( viewport.width, viewport.height, screenOverlayProgram->getHandle(), true );
+    m_mesh = Mesh::createQuadFullscreen( viewport.x, viewport.y, screenOverlayProgram->getHandle(), true );
     const auto part = m_mesh->getPart( 0 );
     part->setMaterial( std::make_shared<Material>( screenOverlayProgram ) );
     part->getMaterial()->getParameter( "u_texture" )->set( m_texture );
     part->getMaterial()->getParameter( "u_projectionMatrix" )
-        ->set( glm::ortho( viewport.x, viewport.width, viewport.height, viewport.y, 0.0f, 1.0f ) );
+        ->set( glm::ortho( 0.0f, viewport.x, viewport.y, 0.0f, 0.0f, 1.0f ) );
 
     m_model->addMesh( to_not_null( m_mesh ) );
 

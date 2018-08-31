@@ -1084,7 +1084,7 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
 {
     if( m_lara->isInWater() )
     {
-        const int x0 = static_cast<const int>(game->getViewport().width - 110);
+        const int x0 = static_cast<const int>(game->getViewport().x - 110);
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );

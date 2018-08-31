@@ -18,7 +18,7 @@ public:
 
     ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-    explicit ScreenOverlay(const Rectangle& viewport);
+    explicit ScreenOverlay(const Point& viewport);
 
     ~ScreenOverlay() override;
 

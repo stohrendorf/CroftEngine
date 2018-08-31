@@ -39,15 +39,26 @@ public:
 
     void initialize();
 
+    void updateWindowSize();
+
     void render();
 
-    inline unsigned int getFrameRate() const;
+    unsigned int getFrameRate() const
+    {
+        return m_frameRate;
+    }
 
-    inline float getAspectRatio() const;
+    float getAspectRatio() const
+    {
+        return m_viewport.x / m_viewport.y;
+    }
 
-    inline const Rectangle& getViewport() const;
+    const Point& getViewport() const
+    {
+        return m_viewport;
+    }
 
-    void setViewport(const Rectangle& viewport);
+    void setViewport(const Point& viewport);
 
     void clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth);
 
@@ -80,9 +91,7 @@ private:
     std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
     unsigned int m_frameCount = 0; // The current frame count.
     unsigned int m_frameRate = 0; // The current frame rate.
-    int m_width = 0; // The game's display width.
-    int m_height = 0; // The game's display height.
-    Rectangle m_viewport; // the games's current viewport.
+    Point m_viewport; // the games's current viewport.
     gl::RGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
     float m_clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
@@ -92,20 +101,4 @@ private:
 
     std::shared_ptr<Scene> m_scene;
 };
-
-
-inline unsigned int Game::getFrameRate() const
-{
-    return m_frameRate;
-}
-
-inline float Game::getAspectRatio() const
-{
-    return static_cast<float>(m_width) / static_cast<float>(m_height);
-}
-
-inline const Rectangle& Game::getViewport() const
-{
-    return m_viewport;
-}
 }

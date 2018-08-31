@@ -200,13 +200,23 @@ void Game::initialize()
         return;
     }
 
-    GL_ASSERT( glfwGetWindowSize( m_window, &m_width, &m_height ) );
-
-    // Start up game systems.
-    setViewport( Rectangle{0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height)} );
+    updateWindowSize();
     RenderState::initDefaults();
-
     m_initialized = true;
+}
+
+void Game::updateWindowSize()
+{
+    int tmpW, tmpH;
+    GL_ASSERT( glfwGetFramebufferSize( m_window, &tmpW, &tmpH ) );
+
+    if( tmpW == m_viewport.x && tmpH == m_viewport.y )
+        return;
+
+    m_viewport.x = static_cast<float>(tmpW);
+    m_viewport.y = static_cast<float>(tmpH);
+
+    setViewport( m_viewport );
 }
 
 void Game::render()
@@ -233,12 +243,12 @@ void Game::swapBuffers()
     glfwSwapBuffers( m_window );
 }
 
-void Game::setViewport(const Rectangle& viewport)
+void Game::setViewport(const Point& viewport)
 {
     m_viewport = viewport;
-    GL_ASSERT( glViewport( static_cast<GLuint>(viewport.x), static_cast<GLuint>(viewport.y),
-                           static_cast<GLuint>(viewport.width),
-                           static_cast<GLuint>(viewport.height) ) );
+    GL_ASSERT( glViewport( 0, 0,
+                           static_cast<GLuint>(viewport.x),
+                           static_cast<GLuint>(viewport.y) ) );
 }
 
 void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)

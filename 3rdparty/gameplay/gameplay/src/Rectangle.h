@@ -2,6 +2,13 @@
 
 namespace gameplay
 {
+struct Point
+{
+    float x = 0;
+    float y = 0;
+};
+
+
 class Rectangle
 {
 public:
