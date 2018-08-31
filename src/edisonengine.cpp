@@ -402,6 +402,7 @@ int main()
             depthDarknessFx.init( *game, 0 );
             depthDarknessWaterFx.init( *game, 0 );
             screenOverlay->init( game->getViewport() );
+            font->setTarget( screenOverlay->getImage() );
         }
 
         lvl->m_cameraController->update();
