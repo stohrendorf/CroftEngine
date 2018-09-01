@@ -102,6 +102,10 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
 
         const auto& model = getLevel().findAnimatedModelForType( completeId );
         Expects( model != nullptr );
+
+        const auto parent = to_not_null( m_skeleton->getParent().lock() );
+        setParent( to_not_null( m_skeleton ), nullptr );
+
         m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), to_not_null( &getLevel() ), *model );
         m_skeleton->setAnimIdGlobal( m_state,
                                      model->anim_index,
@@ -113,6 +117,8 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
             node->setDrawable( getLevel().m_models2[model->model_base_index + boneIndex].get() );
             addChild( to_not_null( getNode() ), node );
         }
+
+        setParent( to_not_null( m_skeleton ), parent );
 
         m_state.object_number = completeId;
         ModelItemNode::update();
