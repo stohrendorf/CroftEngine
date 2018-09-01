@@ -79,7 +79,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
                     BOOST_ASSERT( shotgunLara.nmeshes == lara.getNode()->getChildCount() );
 
                     lara.getNode()->getChild( 7 )
-                        ->setDrawable( getLevel().m_models2[shotgunLara.frame_number + 7].get() );
+                        ->setDrawable( getLevel().m_models2[shotgunLara.model_base_index + 7].get() );
                 }
 
                 m_state.triggerState = engine::items::TriggerState::Invisible;

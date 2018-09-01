@@ -26,7 +26,7 @@ public:
 
     using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
 
-    explicit Node(const std::string& id);
+    explicit Node(std::string id);
 
     virtual ~Node();
 
@@ -69,7 +69,8 @@ public:
 
     void removeAllChildren()
     {
-        m_children.clear();
+        while( !m_children.empty() )
+            setParent( m_children[0], nullptr );
     }
 
     const gsl::not_null<std::shared_ptr<Node>>& getChild(size_t idx) const
@@ -144,11 +145,11 @@ private:
 
     std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
 
-    friend void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent);
+    friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
 };
 
 
-inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node,
+inline void setParent(gsl::not_null<std::shared_ptr<Node>> node,
                       const std::shared_ptr<Node>& parent)
 {
     if( !node->getParent().expired() )

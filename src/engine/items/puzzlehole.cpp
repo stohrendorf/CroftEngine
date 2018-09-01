@@ -102,16 +102,20 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
 
         const auto& model = getLevel().findAnimatedModelForType( completeId );
         Expects( model != nullptr );
-        getNode()->removeAllChildren();
+        m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), to_not_null( &getLevel() ), *model );
+        m_skeleton->setAnimIdGlobal( m_state,
+                                     model->anim_index,
+                                     getLevel().m_animations.at( model->anim_index ).firstFrame );
         for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
         {
-            BOOST_ASSERT( model->frame_number + boneIndex < getLevel().m_models2.size() );
+            BOOST_ASSERT( model->model_base_index + boneIndex < getLevel().m_models2.size() );
             auto node = make_not_null_shared<gameplay::Node>( "bone:" + std::to_string( boneIndex ) );
-            node->setDrawable( getLevel().m_models2[model->frame_number + boneIndex].get() );
+            node->setDrawable( getLevel().m_models2[model->model_base_index + boneIndex].get() );
             addChild( to_not_null( getNode() ), node );
         }
 
         m_state.object_number = completeId;
+        ModelItemNode::update();
     }
 }
 }

@@ -364,6 +364,7 @@ protected:
 class ModelItemNode
         : public ItemNode
 {
+protected:
     std::shared_ptr<SkeletalModelNode> m_skeleton;
 
 public:

@@ -163,7 +163,7 @@ public:
         m_state.falling = true;
 
         auto gunFlareModel = level->m_models2[getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )
-                                                        ->frame_number];
+                                                        ->model_base_index];
 
         m_gunFlareLeft->setDrawable( gunFlareModel.get() );
         m_gunFlareLeft->setVisible( false );

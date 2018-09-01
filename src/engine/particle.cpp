@@ -9,10 +9,10 @@ void Particle::initDrawables(const level::Level& level)
 {
     if( const auto& modelType = level.findAnimatedModelForType( object_number ) )
     {
-        BOOST_ASSERT( modelType->frame_number + modelType->nmeshes <= level.m_sprites.size() );
+        BOOST_ASSERT( modelType->model_base_index + modelType->nmeshes <= level.m_sprites.size() );
         for( int i = 0; i < modelType->nmeshes; ++i )
         {
-            auto model = level.m_models2[modelType->frame_number + i].get();
+            auto model = level.m_models2[modelType->model_base_index + i].get();
             m_drawables.emplace_back( model );
         }
     }

@@ -2,6 +2,8 @@
 
 #include "itemnode.h"
 
+// #define NO_DOOR_BLOCK
+
 namespace engine
 {
 namespace items
@@ -16,6 +18,7 @@ public:
          const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
+#ifndef NO_DOOR_BLOCK
         int dx = 0, dz = 0;
         if( m_state.rotation.Y == 0_au )
         {
@@ -150,7 +153,7 @@ public:
                 m_targetBox->overlap_index |= 0x4000u;
             }
         }
-        if( m_alternateTargetSector )
+        if( m_alternateTargetSector != nullptr )
         {
             m_alternateTargetSector->reset();
             if( m_alternateTargetBox != nullptr )
@@ -158,6 +161,7 @@ public:
                 m_alternateTargetBox->overlap_index |= 0x4000u;
             }
         }
+#endif
     }
 
     void update() override
@@ -166,6 +170,7 @@ public:
         {
             if( m_state.current_anim_state != 0 )
             {
+#ifndef NO_DOOR_BLOCK
                 if( m_sector )
                 {
                     *m_sector = m_sectorData;
@@ -196,25 +201,22 @@ public:
                     if( m_alternateTargetBox != nullptr )
                     {
                         m_alternateTargetBox->overlap_index &= ~0x4000u;
-                        ModelItemNode::update();
-                        return;
                     }
                 }
+#endif
             }
             else
             {
                 m_state.goal_anim_state = 1;
             }
         }
+        else if( m_state.current_anim_state == 1 )
+        {
+            m_state.goal_anim_state = 0;
+        }
         else
         {
-            if( m_state.current_anim_state == 1 )
-            {
-                m_state.goal_anim_state = 0;
-                ModelItemNode::update();
-                return;
-            }
-
+#ifndef NO_DOOR_BLOCK
             if( m_sector )
             {
                 m_sector->reset();
@@ -247,6 +249,7 @@ public:
                     m_alternateTargetBox->overlap_index |= 0x4000u;
                 }
             }
+#endif
         }
 
         ModelItemNode::update();
@@ -254,6 +257,7 @@ public:
 
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override
     {
+#ifndef NO_DOOR_BLOCK
         if( !isNear( lara, collisionInfo.collisionRadius ) )
             return;
 
@@ -272,9 +276,11 @@ public:
             const auto enableSpaz = (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
             enemyPush( lara, collisionInfo, enableSpaz, true );
         }
+#endif
     }
 
 private:
+#ifndef NO_DOOR_BLOCK
     loader::Sector* m_sector{nullptr};
     loader::Sector m_sectorData;
     loader::Box* m_box{nullptr};
@@ -287,6 +293,7 @@ private:
     loader::Sector* m_alternateTargetSector{nullptr};
     loader::Sector m_alternateTargetSectorData;
     loader::Box* m_alternateTargetBox{nullptr};
+#endif
 };
 }
 }
