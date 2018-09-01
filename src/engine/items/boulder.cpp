@@ -69,7 +69,7 @@ void engine::items::RollingBall::update()
 
 void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
 {
-    if( !(m_state.triggerState == TriggerState::Active) )
+    if( m_state.triggerState != TriggerState::Active )
     {
         if( m_state.triggerState != TriggerState::Invisible )
         {

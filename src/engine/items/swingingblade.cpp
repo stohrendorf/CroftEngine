@@ -50,5 +50,25 @@ void SwingingBlade::update()
 
     ModelItemNode::update();
 }
+
+void SwingingBlade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+{
+    if( m_state.triggerState == TriggerState::Active )
+    {
+        if( isNear( lara, collisionInfo.collisionRadius ) )
+        {
+            testBoneCollision( lara );
+        }
+    }
+    else if( m_state.triggerState != TriggerState::Invisible
+             && isNear( lara, collisionInfo.collisionRadius )
+             && testBoneCollision( lara ) )
+    {
+        if( (collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) != 0 )
+        {
+            enemyPush( lara, collisionInfo, false, true );
+        }
+    }
+}
 }
 }
