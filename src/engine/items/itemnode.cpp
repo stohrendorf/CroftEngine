@@ -96,8 +96,8 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
     m_skeleton->setAnimIdGlobal( m_state,
-                                 animatedModel.anim_index,
-                                 getLevel().m_animations.at( animatedModel.anim_index ).firstFrame );
+                                 to_not_null( animatedModel.animation ),
+                                 animatedModel.animation->firstFrame );
 }
 
 void ModelItemNode::update()
@@ -109,14 +109,13 @@ void ModelItemNode::update()
 
     if( endOfAnim )
     {
-        const loader::Animation& animation = m_skeleton->getCurrentAnimData( m_state );
         BOOST_ASSERT(
-                animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size() );
-        const auto* cmd = animation.animCommandCount == 0
+                m_state.anim->animCommandCount == 0
+                || m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
+        const auto* cmd = m_state.anim->animCommandCount == 0
                           ? nullptr
-                          : &getLevel().m_animCommands[animation
-                        .animCommandIndex];
-        for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+                          : &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+        for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
         {
             BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
             const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -153,19 +152,16 @@ void ModelItemNode::update()
             }
         }
 
-        const loader::Animation& currentAnim = m_skeleton->getCurrentAnimData( m_state );
-        m_skeleton->setAnimIdGlobal( m_state, currentAnim.nextAnimation, currentAnim.nextFrame );
+        m_skeleton->setAnimIdGlobal( m_state, to_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
         m_state.goal_anim_state = m_state.current_anim_state;
     }
 
-    const loader::Animation& animation = m_skeleton->getCurrentAnimData( m_state );
-    BOOST_ASSERT( animation.animCommandCount == 0 || animation.animCommandIndex < getLevel().m_animCommands.size
-            () );
-    const auto* cmd = animation.animCommandCount == 0
+    BOOST_ASSERT(
+            m_state.anim->animCommandCount == 0 || m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
+    const auto* cmd = m_state.anim->animCommandCount == 0
                       ? nullptr
-                      : &getLevel().m_animCommands[animation
-                    .animCommandIndex];
-    for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+                      : &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+    for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
     {
         BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -687,7 +683,7 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, to_not_null(this) );
+    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, to_not_null( this ) );
     collectZoneBoxes( lvl );
 }
 

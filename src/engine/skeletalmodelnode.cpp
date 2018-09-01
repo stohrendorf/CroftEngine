@@ -18,29 +18,20 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 
 int SkeletalModelNode::getEndFrame(const engine::items::ItemState& state) const
 {
-    return m_level->m_animations[state.anim_number].lastFrame + 1;
-}
-
-const loader::Animation& SkeletalModelNode::getCurrentAnimData(const engine::items::ItemState& state) const
-{
-    if( state.anim_number >= m_level->m_animations.size() )
-        BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid animation id" ) );
-
-    return m_level->m_animations[state.anim_number];
+    Expects( state.anim != nullptr );
+    return state.anim->lastFrame + 1;
 }
 
 int SkeletalModelNode::calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset) const
 {
-    const loader::Animation& currentAnim = getCurrentAnimData( state );
-    const auto scaled = currentAnim.speed
-                        + currentAnim.accelleration * (state.frame_number - currentAnim.firstFrame + frameOffset);
+    const auto scaled = state.anim->speed
+                        + state.anim->accelleration * (state.frame_number - state.anim->firstFrame + frameOffset);
     return scaled / (1 << 16);
 }
 
 int SkeletalModelNode::getAccelleration(const engine::items::ItemState& state) const
 {
-    const loader::Animation& currentAnim = getCurrentAnimData( state );
-    return currentAnim.accelleration / (1 << 16);
+    return state.anim->accelleration / (1 << 16);
 }
 
 SkeletalModelNode::InterpolationInfo
@@ -59,37 +50,36 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
      */
     InterpolationInfo result;
 
-    BOOST_ASSERT( state.anim_number < m_level->m_animations.size() );
-    const auto& anim = m_level->m_animations[state.anim_number];
-    BOOST_ASSERT( anim.segmentLength > 0 );
+    Expects( state.anim != nullptr );
+    BOOST_ASSERT( state.anim->segmentLength > 0 );
 
-    if( anim.firstFrame == anim.lastFrame )
+    if( state.anim->firstFrame == state.anim->lastFrame )
     {
-        result.firstFrame = anim.poseData;
-        result.secondFrame = anim.poseData;
+        result.firstFrame = state.anim->poseData;
+        result.secondFrame = state.anim->poseData;
         return result;
     }
 
-    const uint16_t startFrame = anim.firstFrame;
-    const uint16_t endFrame = anim.lastFrame + 1;
+    const uint16_t startFrame = state.anim->firstFrame;
+    const uint16_t endFrame = state.anim->lastFrame + 1;
 
     //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
     const auto animationFrame = util::clamp( state.frame_number, startFrame, endFrame ) - startFrame;
-    int firstKeyframeIndex = animationFrame / anim.segmentLength;
+    int firstKeyframeIndex = animationFrame / state.anim->segmentLength;
     BOOST_ASSERT( firstKeyframeIndex >= 0 );
-    BOOST_ASSERT( static_cast<size_t>(firstKeyframeIndex) < anim.getKeyframeCount() );
+    BOOST_ASSERT( static_cast<size_t>(firstKeyframeIndex) < state.anim->getKeyframeCount() );
 
-    if( static_cast<size_t>(firstKeyframeIndex) == anim.getKeyframeCount() - 1u )
+    if( static_cast<size_t>(firstKeyframeIndex) == state.anim->getKeyframeCount() - 1u )
     {
-        result.firstFrame = anim.poseData->next( firstKeyframeIndex );
+        result.firstFrame = state.anim->poseData->next( firstKeyframeIndex );
         result.secondFrame = result.firstFrame;
         result.bias = 0;
         return result;
     }
-    result.firstFrame = anim.poseData->next( firstKeyframeIndex );
+    result.firstFrame = state.anim->poseData->next( firstKeyframeIndex );
     result.secondFrame = result.firstFrame->next();
 
-    auto segmentDuration = anim.segmentLength;
+    auto segmentDuration = state.anim->segmentLength;
     auto segmentFrame = animationFrame % segmentDuration;
 
     // If we are interpolating the last two keyframes, the real animation may be shorter
@@ -243,31 +233,20 @@ loader::BoundingBox SkeletalModelNode::getBoundingBox(const engine::items::ItemS
 
 bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
 {
-    if( m_level->m_animations[state.anim_number].state_id == state.goal_anim_state )
+    Expects( state.anim != nullptr );
+    if( state.anim->state_id == state.goal_anim_state )
         return false;
 
-    const loader::Animation& currentAnim = getCurrentAnimData( state );
-
-    for( size_t i = 0; i < currentAnim.transitionsCount; ++i )
+    for( const loader::Transitions& tr : state.anim->transitions )
     {
-        auto tIdx = currentAnim.transitionsIndex + i;
-        BOOST_ASSERT( tIdx < m_level->m_transitions.size() );
-        const loader::Transitions& tr = m_level->m_transitions[tIdx];
         if( tr.stateId != state.goal_anim_state )
             continue;
 
-        for( auto j = tr.firstTransitionCase; j < tr.firstTransitionCase + tr.transitionCaseCount; ++j )
+        for( const loader::TransitionCase& trc : tr.transitionCases )
         {
-            BOOST_ASSERT( j < m_level->m_transitionCases.size() );
-            const loader::TransitionCase& trc = m_level->m_transitionCases[j];
-
             if( state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame )
             {
-                BOOST_LOG_TRIVIAL( debug ) << getId() << " -- found transition from state "
-                                           << m_level->m_animations[state.anim_number].state_id <<
-                                           " to state " << state.goal_anim_state
-                                           << ", new animation " << trc.targetAnimation << "/frame " << trc.targetFrame;
-                setAnimIdGlobal( state, trc.targetAnimation, trc.targetFrame );
+                setAnimIdGlobal( state, to_not_null( trc.targetAnimation ), trc.targetFrame );
                 return true;
             }
         }
@@ -276,19 +255,18 @@ bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
     return false;
 }
 
-void SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, uint16_t animId, uint16_t frame)
+void
+SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation,
+                                   uint16_t frame)
 {
-    BOOST_ASSERT( animId < m_level->m_animations.size() );
+    BOOST_ASSERT( getChildCount() == 0 || animation->poseData->numValues == getChildCount() );
 
-    const auto& anim = m_level->m_animations[animId];
-    BOOST_ASSERT( getChildCount() == 0 || anim.poseData->numValues == getChildCount() );
+    if( frame < animation->firstFrame || frame > animation->lastFrame )
+        frame = animation->firstFrame;
 
-    if( frame < anim.firstFrame || frame > anim.lastFrame )
-        frame = anim.firstFrame;
-
-    state.anim_number = animId;
+    state.anim = animation;
     state.frame_number = frame;
-    state.current_anim_state = m_level->m_animations[state.anim_number].state_id;
+    state.current_anim_state = state.anim->state_id;
 }
 
 bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
@@ -330,7 +308,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
     transforms.top() = glm::translate( transforms.top(), frame.pos.toGl() )
                        * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0];
 
-    const auto* mesh = m_model.mesh;
+    const auto* mesh = m_model.meshes;
 
     std::vector<Sphere> result;
     result.emplace_back(

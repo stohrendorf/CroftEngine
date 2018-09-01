@@ -41,8 +41,6 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
               std::string( "current/anim    " ) + loader::toString( lvl->m_lara->getCurrentAnimState() ) );
     drawText( font, 10, 100, std::string( "target          " ) + loader::toString( lvl->m_lara->getTargetState() ) );
     drawText( font, 10, 120, std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
-    drawText( font, 10, 140, std::string( "anim            " )
-                             + toString( static_cast<loader::AnimationId>(lvl->m_lara->m_state.anim_number) ) );
 
     // triggers
     {

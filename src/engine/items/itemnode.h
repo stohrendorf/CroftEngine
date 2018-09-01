@@ -81,7 +81,7 @@ struct ItemState final
     uint16_t current_anim_state = 0;
     uint16_t goal_anim_state = 0;
     uint16_t required_anim_state = 0;
-    uint16_t anim_number = 0;
+    const loader::Animation* anim = nullptr;
     uint16_t frame_number = 0;
     int16_t speed = 0;
     int16_t fallspeed = 0;

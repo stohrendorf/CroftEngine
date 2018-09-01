@@ -545,10 +545,10 @@ std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& m
 {
     static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from ItemNode" );
 
-    if( model.anim_index == 0xffff )
+    if( model.animation == nullptr )
     {
         BOOST_LOG_TRIVIAL( error ) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec
-                                   << " has animationIndex==0xffff";
+                                   << " has no associated animation";
         return nullptr;
     }
 
@@ -1409,8 +1409,11 @@ void Level::postProcessDataStructures()
         }
         model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
 
-        BOOST_ASSERT( model->model_base_index < m_meshes.size() );
-        model->mesh = &m_meshes[model->model_base_index];
+        Expects( model->model_base_index + model->nmeshes < m_meshIndices.size() );
+        model->meshes = &m_meshes[m_meshIndices[model->model_base_index]];
+        Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );
+        if( model->animation_index != 0xffff )
+            model->animation = &m_animations[model->animation_index];
     }
 
     for( auto& anim : m_animations )
@@ -1421,9 +1424,36 @@ void Level::postProcessDataStructures()
         if( idx >= m_poseData.size() )
         {
             BOOST_LOG_TRIVIAL( warning ) << "Pose data index " << idx << " out of range 0.." << m_poseData.size() - 1;
-            continue;
         }
-        anim.poseData = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+        else
+        {
+            anim.poseData = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+        }
+
+        Expects( anim.nextAnimationIndex < m_animations.size() );
+        anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
+
+        Expects( anim.animCommandIndex + anim.animCommandCount <= m_animCommands.size() );
+
+        Expects( anim.transitionsIndex + anim.transitionsCount <= m_transitions.size() );
+        if( anim.transitionsCount > 0 )
+            anim.transitions = gsl::make_span( &m_transitions[anim.transitionsIndex],
+                                               anim.transitionsCount );
+    }
+
+    for( auto& transitionCase : m_transitionCases )
+    {
+        Expects( transitionCase.targetAnimationIndex < m_animations.size() );
+        transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
+    }
+
+    for( auto& transition : m_transitions )
+    {
+        Expects( transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size() );
+        if( transition.transitionCaseCount > 0 )
+            transition.transitionCases = gsl::make_span(
+                    &m_transitionCases[transition.firstTransitionCase],
+                    transition.transitionCaseCount );
     }
 }
 
@@ -1449,7 +1479,8 @@ void Level::laraNormalEffect(engine::items::ItemNode& node)
 {
     node.m_state.current_anim_state = static_cast<uint16_t>(engine::LaraStateId::Stop);
     node.m_state.required_anim_state = static_cast<uint16_t>(engine::LaraStateId::Unknown12);
-    node.m_state.anim_number = 185;
+    node.m_state.anim = &m_animations[static_cast<int>(loader::AnimationId::STAY_SOLID)];
+    node.m_state.frame_number = 185;
     m_cameraController->setMode( engine::CameraMode::Chase );
     m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
 }

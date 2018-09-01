@@ -60,7 +60,9 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimIdGlobal( m_state, getLevel().m_animatedModels[m_state.object_number]->anim_index, 0 );
+        getSkeleton()->setAnimIdGlobal( m_state,
+                                        to_not_null( getLevel().m_animatedModels[m_state.object_number]->animation ),
+                                        0 );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0;
         deactivate();
@@ -118,7 +120,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
                     getLevel(),
                     core::RoomBoundPosition{m_state.position.room, core::TRCoordinates{x, y, z}},
                     2 * m_state.speed,
-                    core::Angle( gsl::narrow_cast<int16_t>( util::rand15s(4096) ) ) + m_state.rotation.Y
+                    core::Angle( gsl::narrow_cast<int16_t>( util::rand15s( 4096 ) ) ) + m_state.rotation.Y
             );
             getLevel().m_particles.emplace_back( fx );
         }

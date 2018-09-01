@@ -54,7 +54,8 @@ public:
 
     void updatePose(engine::items::ItemState& state);
 
-    void setAnimIdGlobal(engine::items::ItemState& state, uint16_t animId, uint16_t frame);
+    void
+    setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation, uint16_t frame);
 
     int calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset = 0) const;
 
@@ -80,8 +81,6 @@ public:
 
         m_bonePatches[idx] = m;
     }
-
-    const loader::Animation& getCurrentAnimData(const engine::items::ItemState& state) const;
 
     bool advanceFrame(engine::items::ItemState& state);
 

@@ -28,8 +28,7 @@ public:
 
         const auto& alternateLara = *it->second;
 
-        auto frameOffs = getLara().m_state.frame_number
-                         - getLevel().m_animations[getLara().m_state.anim_number].firstFrame;
+        auto frameOffs = getLara().m_state.frame_number - getLara().m_state.anim->firstFrame;
         switch( frameOffs )
         {
             case 5:

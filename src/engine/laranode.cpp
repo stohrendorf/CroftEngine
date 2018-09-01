@@ -37,7 +37,9 @@ loader::LaraStateId LaraNode::getTargetState() const
 
 void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
-    getSkeleton()->setAnimIdGlobal( m_state, static_cast<uint16_t>(anim), firstFrame.get_value_or( 0 ) );
+    getSkeleton()->setAnimIdGlobal( m_state,
+                                    to_not_null( &getLevel().m_animations.at( static_cast<uint16_t>(anim) ) ),
+                                    firstFrame.get_value_or( 0 ) );
 }
 
 void LaraNode::handleLaraStateOnLand()
@@ -334,7 +336,7 @@ void LaraNode::update()
             m_underwaterState = UnderwaterState::OnLand;
             setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setTargetState( LaraStateId::JumpForward );
-            m_state.speed = std::exchange(m_state.fallspeed, 0) / 4;
+            m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
             m_state.falling = true;
         }
         else
@@ -357,7 +359,7 @@ void LaraNode::update()
         m_underwaterState = UnderwaterState::OnLand;
         setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
         setTargetState( LaraStateId::JumpForward );
-        m_state.speed = std::exchange(m_state.fallspeed, 0) / 4;
+        m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
         m_state.falling = true;
         m_handStatus = HandStatus::None;
         m_state.rotation.X = 0_deg;
@@ -409,14 +411,14 @@ void LaraNode::updateImpl()
 
     const auto endOfAnim = getSkeleton()->advanceFrame( m_state );
 
+    Expects( m_state.anim != nullptr );
     if( endOfAnim )
     {
-        const loader::Animation& animation = getLevel().m_animations[m_state.anim_number];
-        if( animation.animCommandCount > 0 )
+        if( m_state.anim->animCommandCount > 0 )
         {
-            BOOST_ASSERT( animation.animCommandIndex < getLevel().m_animCommands.size() );
-            const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
-            for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+            BOOST_ASSERT( m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
+            const auto* cmd = &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+            for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
             {
                 BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
                 const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -465,16 +467,14 @@ void LaraNode::updateImpl()
             }
         }
 
-        const loader::Animation& currentAnim = getSkeleton()->getCurrentAnimData( m_state );
-        getSkeleton()->setAnimIdGlobal( m_state, currentAnim.nextAnimation, currentAnim.nextFrame );
+        getSkeleton()->setAnimIdGlobal( m_state, to_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
     }
 
-    const loader::Animation& animation = getLevel().m_animations[m_state.anim_number];
-    if( animation.animCommandCount > 0 )
+    if( m_state.anim->animCommandCount > 0 )
     {
-        BOOST_ASSERT( animation.animCommandIndex < getLevel().m_animCommands.size() );
-        const auto* cmd = &getLevel().m_animCommands[animation.animCommandIndex];
-        for( uint16_t i = 0; i < animation.animCommandCount; ++i )
+        BOOST_ASSERT( m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
+        const auto* cmd = &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+        for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
         {
             BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
             const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -2321,16 +2321,16 @@ void LaraNode::drawRoutine()
         switch( *hit_direction )
         {
             case core::Axis::PosX:
-                frame = getLevel().m_animations[127].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_LEFT)].poseData;
                 break;
             case core::Axis::NegZ:
-                frame = getLevel().m_animations[126].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_BACKWARD)].poseData;
                 break;
             case core::Axis::NegX:
-                frame = getLevel().m_animations[128].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_RIGHT)].poseData;
                 break;
             default:
-                frame = getLevel().m_animations[125].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].poseData;
                 break;
         }
         frame = frame->next( hit_frame );

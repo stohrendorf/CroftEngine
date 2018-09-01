@@ -108,8 +108,8 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
 
         m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), to_not_null( &getLevel() ), *model );
         m_skeleton->setAnimIdGlobal( m_state,
-                                     model->anim_index,
-                                     getLevel().m_animations.at( model->anim_index ).firstFrame );
+                                     to_not_null( model->animation ),
+                                     model->animation->firstFrame );
         for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
         {
             BOOST_ASSERT( model->model_base_index + boneIndex < getLevel().m_models2.size() );

@@ -85,6 +85,8 @@ static_assert( sizeof( AnimFrame ) == 20, "AnimFrame has wrong size" );
 
 #pragma pack(pop)
 
+struct Transitions;
+
 
 struct Animation
 {
@@ -104,13 +106,16 @@ struct Animation
 
     uint16_t firstFrame; // first frame in this animation
     uint16_t lastFrame; // last frame in this animation (numframes = (End - Start) + 1)
-    uint16_t nextAnimation;
+    uint16_t nextAnimationIndex;
     uint16_t nextFrame;
 
     uint16_t transitionsCount;
     uint16_t transitionsIndex; // offset into StateChanges[]
     uint16_t animCommandCount; // How many of them to use.
     uint16_t animCommandIndex; // offset into AnimCommand[]
+
+    const Animation* nextAnimation = nullptr;
+    gsl::span<const Transitions> transitions{};
 
     constexpr size_t getKeyframeCount() const
     {
@@ -158,7 +163,7 @@ private:
 
         animation->firstFrame = reader.readU16();
         animation->lastFrame = reader.readU16();
-        animation->nextAnimation = reader.readU16();
+        animation->nextAnimationIndex = reader.readU16();
         animation->nextFrame = reader.readU16();
 
         animation->transitionsCount = reader.readU16();
@@ -170,11 +175,16 @@ private:
 };
 
 
+struct TransitionCase;
+
+
 struct Transitions
 {
     uint16_t stateId;
     uint16_t transitionCaseCount; // number of ranges (seems to always be 1..5)
     uint16_t firstTransitionCase; // Offset into AnimDispatches[]
+
+    gsl::span<const TransitionCase> transitionCases{};
 
     /// \brief reads an animation state change.
     static std::unique_ptr<Transitions> read(io::SDLReader& reader)
@@ -192,17 +202,19 @@ struct TransitionCase
 {
     uint16_t firstFrame; // Lowest frame that uses this range
     uint16_t lastFrame; // Highest frame (+1?) that uses this range
-    uint16_t targetAnimation; // Animation to dispatch to
+    uint16_t targetAnimationIndex; // Animation to dispatch to
     uint16_t targetFrame; // Frame offset to dispatch to
+
+    const Animation* targetAnimation = nullptr;
 
     static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
     {
-        std::unique_ptr<TransitionCase> anim_dispatch{new TransitionCase()};
-        anim_dispatch->firstFrame = reader.readU16();
-        anim_dispatch->lastFrame = reader.readU16();
-        anim_dispatch->targetAnimation = reader.readU16();
-        anim_dispatch->targetFrame = reader.readU16();
-        return anim_dispatch;
+        std::unique_ptr<TransitionCase> transition{new TransitionCase()};
+        transition->firstFrame = reader.readU16();
+        transition->lastFrame = reader.readU16();
+        transition->targetAnimationIndex = reader.readU16();
+        transition->targetFrame = reader.readU16();
+        return transition;
     }
 };
 
@@ -217,11 +229,13 @@ struct SkeletalModelType
     uint16_t model_base_index; // starting mesh (offset into MeshPointers[])
     uint32_t bone_index; // offset into MeshTree[]
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
-    uint16_t anim_index; // offset into Animations[]
+    uint16_t animation_index; // offset into Animations[]
 
-    const Mesh* mesh = nullptr;
+    const Mesh* meshes = nullptr;
 
     const AnimFrame* frame_base = nullptr;
+
+    const Animation* animation = nullptr;
 
     static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
     {
@@ -231,7 +245,7 @@ struct SkeletalModelType
         moveable->model_base_index = reader.readU16();
         moveable->bone_index = reader.readU32();
         moveable->pose_data_offset = reader.readU32();
-        moveable->anim_index = reader.readU16();
+        moveable->animation_index = reader.readU16();
         return moveable;
     }
 

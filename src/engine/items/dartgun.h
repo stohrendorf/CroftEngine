@@ -32,11 +32,7 @@ public:
             m_state.goal_anim_state = 0;
         }
 
-        if(/*frameChangeType == FrameChangeType::EndOfAnim ||*/ m_state.current_anim_state != 1 || m_state.frame_number
-                                                                                                   != getLevel()
-                                                                                                           .m_animations[m_state
-                                                                                                           .anim_number]
-                                                                                                           .firstFrame )
+        if( m_state.current_anim_state != 1 || m_state.frame_number != m_state.anim->firstFrame )
         {
             ModelItemNode::update();
             return;
@@ -66,7 +62,8 @@ public:
         }
 
         auto dart = getLevel()
-                .createItem<Dart>( engine::TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0 );
+                .createItem<Dart>( engine::TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y,
+                                   m_state.position.position - d, 0 );
         dart->activate();
         dart->m_state.triggerState = engine::items::TriggerState::Active;
 

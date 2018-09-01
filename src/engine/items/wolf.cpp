@@ -209,7 +209,9 @@ void Wolf::update()
     {
         const auto r = util::rand15( 3 );
         getSkeleton()->setAnimIdGlobal(
-                m_state, getLevel().m_animatedModels[m_state.object_number]->anim_index + 20 + r, 0 );
+                m_state,
+                to_not_null( &getLevel().m_animatedModels[m_state.object_number]->animation[20 + r] ),
+                0 );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }
     rotateCreatureTilt( roll );
