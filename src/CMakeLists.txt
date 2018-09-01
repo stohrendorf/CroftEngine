@@ -248,6 +248,8 @@ set( EDISONENGINE_SRCS
      engine/lara/statehandler_turnslow.h
      engine/lara/statehandler_underwater.h
 
+     engine/items/animating.cpp
+     engine/items/animating.h
      engine/items/bear.cpp
      engine/items/bear.h
      engine/items/bat.cpp

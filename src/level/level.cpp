@@ -8,6 +8,7 @@
 #include "tr4level.h"
 #include "tr5level.h"
 
+#include "engine/items/animating.h"
 #include "engine/items/bat.h"
 #include "engine/items/bear.h"
 #include "engine/items/block.h"
@@ -428,6 +429,10 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::PuzzleHole>( *model, room, item );
             }
+            else if( item.type >= engine::TR1ItemId::Animating1 && item.type <= engine::TR1ItemId::Animating3 )
+            {
+                modelNode = createSkeletalModel<engine::items::Animating>( *model, room, item );
+            }
             else
             {
                 modelNode = createSkeletalModel<engine::items::StubItem>( *model, room, item );
@@ -520,15 +525,15 @@ engine::LaraNode* Level::createItems()
                                    << int( item.type );
     }
 
-    addInventoryItem( engine::TR1ItemId::Key1Sprite );
-    addInventoryItem( engine::TR1ItemId::Key2Sprite );
-    addInventoryItem( engine::TR1ItemId::Key3Sprite );
-    addInventoryItem( engine::TR1ItemId::Key4Sprite );
+    addInventoryItem( engine::TR1ItemId::Key1Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Key2Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Key3Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Key4Sprite, 10 );
 
-    addInventoryItem( engine::TR1ItemId::Puzzle1Sprite );
-    addInventoryItem( engine::TR1ItemId::Puzzle2Sprite );
-    addInventoryItem( engine::TR1ItemId::Puzzle3Sprite );
-    addInventoryItem( engine::TR1ItemId::Puzzle4Sprite );
+    addInventoryItem( engine::TR1ItemId::Puzzle1Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Puzzle2Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Puzzle3Sprite, 10 );
+    addInventoryItem( engine::TR1ItemId::Puzzle4Sprite, 10 );
 
     return lara;
 }
