@@ -1237,10 +1237,10 @@ struct Sprite
 
         float w = tw / 256.0f;
         float h = th / 256.0f;
-        sprite->t0.x = tx / 255.0f;
-        sprite->t0.y = ty / 255.0f;
-        sprite->t1.x = sprite->t0.x + w / 255.0f;
-        sprite->t1.y = sprite->t0.y + h / 255.0f;
+        sprite->t0.x = tx / 256.0f;
+        sprite->t0.y = ty / 256.0f;
+        sprite->t1.x = sprite->t0.x + w / 256.0f;
+        sprite->t1.y = sprite->t0.y + h / 256.0f;
 
         sprite->left_side = tleft;
         sprite->right_side = tright;

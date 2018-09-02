@@ -6,7 +6,7 @@
 #undef _X
 #endif
 
-#include "CImg.h"
+#include <CImg.h>
 
 namespace render
 {
@@ -61,12 +61,10 @@ void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int s
 {
     BOOST_ASSERT( sprite.image != nullptr );
 
-    const auto w = (sprite.t1.x - sprite.t0.x) * 256 * scaleX / 0x10000;
-    const auto h = (sprite.t1.y - sprite.t0.y) * 256 * scaleY / 0x10000;
-    const auto x2 = x + w;
-    const auto y2 = y + h;
+    const auto dstW = (sprite.t1.x - sprite.t0.x) * 256 * scaleX / 0x10000;
+    const auto dstH = (sprite.t1.y - sprite.t0.y) * 256 * scaleY / 0x10000;
 
-    if( x < 0 || y < 0 || x2 >= img.getWidth() || y2 >= img.getHeight() )
+    if( x < 0 || y < 0 || x + dstW >= img.getWidth() || y + dstH >= img.getHeight() )
         return;
 
     const cimg_library::CImg<uint8_t> src(
@@ -76,26 +74,22 @@ void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int s
 
     cimg_library::CImg<uint8_t> tmp = src.get_crop(
             0,
-            sprite.t0.x * sprite.image->getWidth(),
-            sprite.t0.y * sprite.image->getHeight(),
+            sprite.t0.x * sprite.image->getWidth() - 1,
+            sprite.t0.y * sprite.image->getHeight() - 1,
             0,
             3,
-            sprite.t1.x * sprite.image->getWidth(),
-            sprite.t1.y * sprite.image->getHeight(),
+            sprite.t1.x * sprite.image->getWidth() - 1,
+            sprite.t1.y * sprite.image->getHeight() - 1,
             0 );
-    tmp.permute_axes( "yzcx" );
-    BOOST_ASSERT( tmp.depth() == 1 );
-    BOOST_ASSERT( tmp.spectrum() == 4 );
-    tmp.resize( w, h, 1, 4 );
+    BOOST_ASSERT( tmp.width() == 4 );
+    BOOST_ASSERT( tmp.spectrum() == 1 );
+    tmp.resize( 4, dstW, dstH, 1, 6 /*lanzcos*/ );
 
-    for( int dy = 0; dy < h; ++dy )
+    cimg_forYZ(tmp, dx, dy)
     {
-        for( int dx = 0; dx < w; ++dx )
-        {
-            img.set( x + dx, y + dy,
-                     {tmp( dx, dy, 0, 0 ), tmp( dx, dy, 0, 1 ), tmp( dx, dy, 0, 2 ), tmp( dx, dy, 0, 3 )},
-                     true );
-        }
+        img.set( x + dx, y + dy,
+                 {tmp( 0, dx, dy, 0 ), tmp( 1, dx, dy, 0 ), tmp( 2, dx, dy, 0 ), tmp( 3, dx, dy, 0 )},
+                 true );
     }
 }
 }
