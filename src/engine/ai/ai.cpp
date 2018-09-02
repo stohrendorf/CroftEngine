@@ -242,6 +242,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
     {
         creatureInfo.lot.required_box = nullptr;
     }
+
     if( creatureInfo.mood != Mood::Attack
         && creatureInfo.lot.required_box != nullptr
         && !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, *creatureInfo.lot.target_box ) )
@@ -411,6 +412,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
             break;
         }
     }
+
     if( creatureInfo.lot.target_box == nullptr )
     {
         Expects( item.box_number != nullptr );
