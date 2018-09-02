@@ -178,6 +178,7 @@ set( EDISONENGINE_SRCS
      audio/sourcehandle.h
      audio/streamsource.h
      audio/stream.h
+     audio/stream.cpp
      audio/sndfile/helpers.h
 
      util/helpers.h

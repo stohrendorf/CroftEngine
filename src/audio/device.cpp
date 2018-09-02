@@ -5,25 +5,23 @@ namespace audio
 Device::~Device()
 {
     m_shutdown = true;
-    if( m_streamUpdater.joinable() )
-    {
-        m_streamUpdater.join();
-    }
+    m_streamUpdater.join();
 
     m_underwaterFilter.reset();
+
+    m_sources.clear();
+    m_streams.clear();
+    m_buffers.clear();
 
     if( m_context != nullptr )
     {
         alcMakeContextCurrent( nullptr );
-        DEBUG_CHECK_AL_ERROR();
         alcDestroyContext( m_context );
-        DEBUG_CHECK_AL_ERROR();
     }
 
     if( m_device != nullptr )
     {
         alcCloseDevice( m_device );
-        DEBUG_CHECK_AL_ERROR();
     }
 }
 
@@ -140,7 +138,5 @@ Device::Device()
                 }
             }
     };
-
-    m_streamUpdater.detach();
 }
 }

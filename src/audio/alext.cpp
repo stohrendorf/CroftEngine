@@ -47,50 +47,50 @@ LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv = nullptr;
 void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
 {
     static bool isLoaded = false;
-    if(isLoaded)
+    if( isLoaded )
         return;
 
-    BOOST_LOG_TRIVIAL(info) << "OpenAL device extensions: " << alcGetString(device, ALC_EXTENSIONS);
-    BOOST_ASSERT(alcIsExtensionPresent(device, ALC_EXT_EFX_NAME) == ALC_TRUE);
+    BOOST_LOG_TRIVIAL( info ) << "OpenAL device extensions: " << alcGetString( device, ALC_EXTENSIONS );
+    BOOST_ASSERT( alcIsExtensionPresent( device, ALC_EXT_EFX_NAME ) == ALC_TRUE );
 
 #define GETPROC(type, name) \
     name = reinterpret_cast<type>(alGetProcAddress(#name)); \
     DEBUG_CHECK_AL_ERROR(); \
     Expects(name != nullptr)
 
-    GETPROC(LPALGENEFFECTS, alGenEffects);
-    GETPROC(LPALDELETEEFFECTS, alDeleteEffects);
-    GETPROC(LPALISEFFECT, alIsEffect);
-    GETPROC(LPALEFFECTI, alEffecti);
-    GETPROC(LPALEFFECTIV, alEffectiv);
-    GETPROC(LPALEFFECTF, alEffectf);
-    GETPROC(LPALEFFECTFV, alEffectfv);
-    GETPROC(LPALGETEFFECTI, alGetEffecti);
-    GETPROC(LPALGETEFFECTIV, alGetEffectiv);
-    GETPROC(LPALGETEFFECTF, alGetEffectf);
-    GETPROC(LPALGETEFFECTFV, alGetEffectfv);
-    GETPROC(LPALGENFILTERS, alGenFilters);
-    GETPROC(LPALDELETEFILTERS, alDeleteFilters);
-    GETPROC(LPALISFILTER, alIsFilter);
-    GETPROC(LPALFILTERI, alFilteri);
-    GETPROC(LPALFILTERIV, alFilteriv);
-    GETPROC(LPALFILTERF, alFilterf);
-    GETPROC(LPALFILTERFV, alFilterfv);
-    GETPROC(LPALGETFILTERI, alGetFilteri);
-    GETPROC(LPALGETFILTERIV, alGetFilteriv);
-    GETPROC(LPALGETFILTERF, alGetFilterf);
-    GETPROC(LPALGETFILTERFV, alGetFilterfv);
-    GETPROC(LPALGENAUXILIARYEFFECTSLOTS, alGenAuxiliaryEffectSlots);
-    GETPROC(LPALDELETEAUXILIARYEFFECTSLOTS, alDeleteAuxiliaryEffectSlots);
-    GETPROC(LPALISAUXILIARYEFFECTSLOT, alIsAuxiliaryEffectSlot);
-    GETPROC(LPALAUXILIARYEFFECTSLOTI, alAuxiliaryEffectSloti);
-    GETPROC(LPALAUXILIARYEFFECTSLOTIV, alAuxiliaryEffectSlotiv);
-    GETPROC(LPALAUXILIARYEFFECTSLOTF, alAuxiliaryEffectSlotf);
-    GETPROC(LPALAUXILIARYEFFECTSLOTFV, alAuxiliaryEffectSlotfv);
-    GETPROC(LPALGETAUXILIARYEFFECTSLOTI, alGetAuxiliaryEffectSloti);
-    GETPROC(LPALGETAUXILIARYEFFECTSLOTIV, alGetAuxiliaryEffectSlotiv);
-    GETPROC(LPALGETAUXILIARYEFFECTSLOTF, alGetAuxiliaryEffectSlotf);
-    GETPROC(LPALGETAUXILIARYEFFECTSLOTFV, alGetAuxiliaryEffectSlotfv);
+    GETPROC( LPALGENEFFECTS, alGenEffects );
+    GETPROC( LPALDELETEEFFECTS, alDeleteEffects );
+    GETPROC( LPALISEFFECT, alIsEffect );
+    GETPROC( LPALEFFECTI, alEffecti );
+    GETPROC( LPALEFFECTIV, alEffectiv );
+    GETPROC( LPALEFFECTF, alEffectf );
+    GETPROC( LPALEFFECTFV, alEffectfv );
+    GETPROC( LPALGETEFFECTI, alGetEffecti );
+    GETPROC( LPALGETEFFECTIV, alGetEffectiv );
+    GETPROC( LPALGETEFFECTF, alGetEffectf );
+    GETPROC( LPALGETEFFECTFV, alGetEffectfv );
+    GETPROC( LPALGENFILTERS, alGenFilters );
+    GETPROC( LPALDELETEFILTERS, alDeleteFilters );
+    GETPROC( LPALISFILTER, alIsFilter );
+    GETPROC( LPALFILTERI, alFilteri );
+    GETPROC( LPALFILTERIV, alFilteriv );
+    GETPROC( LPALFILTERF, alFilterf );
+    GETPROC( LPALFILTERFV, alFilterfv );
+    GETPROC( LPALGETFILTERI, alGetFilteri );
+    GETPROC( LPALGETFILTERIV, alGetFilteriv );
+    GETPROC( LPALGETFILTERF, alGetFilterf );
+    GETPROC( LPALGETFILTERFV, alGetFilterfv );
+    GETPROC( LPALGENAUXILIARYEFFECTSLOTS, alGenAuxiliaryEffectSlots );
+    GETPROC( LPALDELETEAUXILIARYEFFECTSLOTS, alDeleteAuxiliaryEffectSlots );
+    GETPROC( LPALISAUXILIARYEFFECTSLOT, alIsAuxiliaryEffectSlot );
+    GETPROC( LPALAUXILIARYEFFECTSLOTI, alAuxiliaryEffectSloti );
+    GETPROC( LPALAUXILIARYEFFECTSLOTIV, alAuxiliaryEffectSlotiv );
+    GETPROC( LPALAUXILIARYEFFECTSLOTF, alAuxiliaryEffectSlotf );
+    GETPROC( LPALAUXILIARYEFFECTSLOTFV, alAuxiliaryEffectSlotfv );
+    GETPROC( LPALGETAUXILIARYEFFECTSLOTI, alGetAuxiliaryEffectSloti );
+    GETPROC( LPALGETAUXILIARYEFFECTSLOTIV, alGetAuxiliaryEffectSlotiv );
+    GETPROC( LPALGETAUXILIARYEFFECTSLOTF, alGetAuxiliaryEffectSlotf );
+    GETPROC( LPALGETAUXILIARYEFFECTSLOTFV, alGetAuxiliaryEffectSlotfv );
 
 #undef GETPROC
 

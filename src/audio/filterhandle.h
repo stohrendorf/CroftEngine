@@ -8,36 +8,36 @@
 
 namespace audio
 {
-    class FilterHandle final : public boost::noncopyable
+class FilterHandle final : public boost::noncopyable
+{
+    const ALuint m_handle;
+
+    static ALuint createHandle()
     {
-        const ALuint m_handle;
+        ALuint handle;
+        alGenFilters( 1, &handle );
+        DEBUG_CHECK_AL_ERROR();
 
-        static ALuint createHandle()
-        {
-            ALuint handle;
-            alGenFilters(1, &handle);
-            DEBUG_CHECK_AL_ERROR();
+        Expects( alIsFilter( handle ) );
 
-            Expects(alIsFilter(handle));
+        return handle;
+    }
 
-            return handle;
-        }
+public:
+    explicit FilterHandle()
+            : m_handle( createHandle() )
+    {
+    }
 
-    public:
-        explicit FilterHandle()
-            : m_handle(createHandle())
-        {
-        }
+    ~FilterHandle()
+    {
+        alDeleteFilters( 1, &m_handle );
+        DEBUG_CHECK_AL_ERROR();
+    }
 
-        ~FilterHandle()
-        {
-            alDeleteFilters(1, &m_handle);
-            DEBUG_CHECK_AL_ERROR();
-        }
-
-        ALuint get() const noexcept
-        {
-            return m_handle;
-        }
-    };
+    ALuint get() const noexcept
+    {
+        return m_handle;
+    }
+};
 }

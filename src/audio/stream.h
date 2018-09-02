@@ -1,87 +1,38 @@
 #pragma once
 
 #include "streamsource.h"
+#include "sourcehandle.h"
 
 namespace audio
 {
-    class Stream : public boost::noncopyable
+class Device;
+
+class Stream : public boost::noncopyable
+{
+private:
+    std::unique_ptr<AbstractStreamSource> m_stream;
+    std::weak_ptr<SourceHandle> m_source;
+    gsl::not_null<std::shared_ptr<BufferHandle>> m_buffers[2];
+    std::vector<int16_t> m_sampleBuffer;
+
+public:
+    explicit Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize);
+
+    void update();
+
+    const std::weak_ptr<SourceHandle>& getSource() const noexcept
     {
-    private:
-        std::unique_ptr<AbstractStreamSource> m_stream;
-        SourceHandle m_source;
-        BufferHandle m_buffers[2];
-        std::vector<int16_t> m_sampleBuffer;
+        return m_source;
+    }
 
-    public:
-        explicit Stream(std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize)
-            : m_stream(std::move(src))
-            , m_sampleBuffer(bufferSize * 2)
-        {
-            init();
+    std::weak_ptr<SourceHandle>& getSource() noexcept
+    {
+        return m_source;
+    }
 
-            m_source.play();
-        }
+private:
+    void init();
 
-        void update()
-        {
-            ALint processed = 0;
-            alGetSourcei(m_source.get(), AL_BUFFERS_PROCESSED, &processed);
-            DEBUG_CHECK_AL_ERROR();
-            if( processed == 0 )
-                return;
-
-            ALuint bufId;
-            alSourceUnqueueBuffers(m_source.get(), 1, &bufId);
-            DEBUG_CHECK_AL_ERROR();
-
-            if(bufId == m_buffers[0].get())
-            {
-                fillBuffer(m_buffers[0]);
-            }
-            else if(bufId == m_buffers[1].get())
-            {
-                fillBuffer(m_buffers[1]);
-            }
-            else
-            {
-                BOOST_LOG_TRIVIAL(error) << "Stream buffer torn, re-init";
-                init();
-                return;
-            }
-
-            alSourceQueueBuffers(m_source.get(), 1, &bufId);
-            DEBUG_CHECK_AL_ERROR();
-        }
-
-        const SourceHandle& getSource() const noexcept
-        {
-            return m_source;
-        }
-
-        SourceHandle& getSource() noexcept
-        {
-            return m_source;
-        }
-
-    private:
-        void init()
-        {
-            fillBuffer(m_buffers[0]);
-            fillBuffer(m_buffers[1]);
-
-            auto tmp = m_buffers[0].get();
-            alSourceQueueBuffers(m_source.get(), 1, &tmp);
-            DEBUG_CHECK_AL_ERROR();
-            tmp = m_buffers[1].get();
-            alSourceQueueBuffers(m_source.get(), 1, &tmp);
-            DEBUG_CHECK_AL_ERROR();
-        }
-
-
-        void fillBuffer(BufferHandle& buffer)
-        {
-            const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2);
-            buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
-        }
-    };
+    void fillBuffer(BufferHandle& buffer);
+};
 }

@@ -363,18 +363,18 @@ void CameraController::update()
 
     if( m_position.room->isWaterRoom() )
     {
-        if( m_level->m_cdStream != nullptr )
-            m_level->m_cdStream->getSource().setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
-        if( m_underwaterAmbience == nullptr )
+        if( !m_level->m_cdStream.expired() )
+            m_level->m_cdStream.lock()->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
+        if( !m_underwaterAmbience.expired() )
         {
             m_underwaterAmbience = m_level->playSound( 60, boost::none );
-            m_underwaterAmbience->setLooping( true );
+            m_underwaterAmbience.lock()->setLooping( true );
         }
     }
-    else if( m_underwaterAmbience != nullptr )
+    else if( !m_underwaterAmbience.expired() )
     {
-        if( m_level->m_cdStream != nullptr )
-            m_level->m_cdStream->getSource().setDirectFilter( nullptr );
+        if( !m_level->m_cdStream.expired() )
+            m_level->m_cdStream.lock()->getSource().lock()->setDirectFilter( nullptr );
         m_level->stopSoundEffect( 60 );
         m_underwaterAmbience.reset();
     }

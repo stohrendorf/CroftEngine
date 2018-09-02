@@ -247,12 +247,12 @@ public:
         pitch = util::clamp( pitch, 0.5f, 2.0f );
         volume = util::clamp( volume, 0.0f, 1.0f );
 
-        auto buf = make_not_null_shared<audio::BufferHandle>();
+        auto buf = m_audioDev.createBuffer();
         const auto offset = m_sampleIndices[sample];
         BOOST_ASSERT( offset < m_samplesData.size() );
         buf->fillFromWav( &m_samplesData[offset] );
 
-        auto src = make_not_null_shared<audio::SourceHandle>();
+        auto src = m_audioDev.createSource();
         src->setBuffer( buf );
         src->setPitch( pitch );
         src->setGain( volume );
@@ -261,7 +261,6 @@ public:
 
         src->play();
 
-        m_audioDev.registerSource( src );
         m_samples[sample] = src.get();
 
         return src;
@@ -334,7 +333,7 @@ public:
     std::shared_ptr<audio::SourceHandle> findSample(size_t sample) const
     {
         auto it = m_samples.find( sample );
-        if( it == m_samples.end() )
+        if( it == m_samples.end() || it->second.expired() )
             return nullptr;
 
         return it->second.lock();
@@ -383,7 +382,7 @@ public:
         return false;
     }
 
-    std::shared_ptr<audio::Stream> m_cdStream;
+    std::weak_ptr<audio::Stream> m_cdStream;
 
     int m_activeCDTrack = 0;
 

@@ -972,7 +972,6 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     {
         auto handle = to_not_null( playSound( src.sound_id, src.position.toRenderSystem() ) );
         handle->setLooping( true );
-        m_audioDev.registerSource( handle );
     }
 }
 
@@ -1272,8 +1271,8 @@ void Level::playCdTrack(uint16_t trackId)
     }
     else if( m_activeCDTrack > 0 )
     {
-        m_audioDev.removeStream( m_cdStream );
-        m_cdStream.reset();
+        if( !m_cdStream.expired() )
+            m_audioDev.removeStream( m_cdStream.lock() );
     }
     m_activeCDTrack = 0;
 
@@ -1315,8 +1314,8 @@ void Level::stopCdTrack(uint16_t trackId)
 
     if( m_activeCDTrack < 26 || m_activeCDTrack > 56 )
     {
-        m_audioDev.removeStream( m_cdStream );
-        m_cdStream.reset();
+        if( !m_cdStream.expired() )
+            m_audioDev.removeStream( m_cdStream.lock() );
     }
     else
     {
@@ -1330,17 +1329,18 @@ void Level::playStream(uint16_t trackId)
 {
     static constexpr size_t DefaultBufferSize = 16384;
 
-    m_audioDev.removeStream( m_cdStream );
-    m_cdStream.reset();
+    if( !m_cdStream.expired() )
+        m_audioDev.removeStream( m_cdStream.lock() );
 
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
-        m_cdStream = std::make_unique<audio::Stream>(
-                std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ), DefaultBufferSize );
+        m_cdStream = m_audioDev.createStream(
+                std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
+                DefaultBufferSize ).get();
     else
-        m_cdStream = std::make_unique<audio::Stream>( std::make_unique<audio::SndfileStreamSource>(
-                (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ), DefaultBufferSize );
-
-    m_audioDev.registerStream( to_not_null( m_cdStream ) );
+        m_cdStream = m_audioDev.createStream(
+                std::make_unique<audio::SndfileStreamSource>(
+                        (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
+                DefaultBufferSize ).get();
 }
 
 void Level::useAlternativeLaraAppearance()

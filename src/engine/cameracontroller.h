@@ -89,7 +89,7 @@ private:
     int m_currentFixedCameraId = -1;
     int m_camOverrideTimeout{-1};
 
-    std::shared_ptr<audio::SourceHandle> m_underwaterAmbience;
+    std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 
 public:
     explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraNode*> laraController,
