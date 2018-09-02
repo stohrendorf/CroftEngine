@@ -200,12 +200,16 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
 
         if( ctrl->m_isActive )
             ctrl->update();
+
+        ctrl->getNode()->setVisible(ctrl->m_state.triggerState != engine::items::TriggerState::Invisible);
     }
 
     for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
     {
         if( ctrl->m_isActive )
             ctrl->update();
+
+        ctrl->getNode()->setVisible(ctrl->m_state.triggerState != engine::items::TriggerState::Invisible);
     }
 
     std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> particlesToKeep;

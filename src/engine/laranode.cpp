@@ -1341,6 +1341,9 @@ void LaraNode::findTarget(const Weapon& weapon)
             continue;
         }
 
+        if( !modelEnemy->getNode()->isVisible() )
+            continue;
+
         const auto d = currentEnemy->m_state.position.position - gunPosition.position;
         if( std::abs( d.X ) > weapon.targetDist )
             continue;
