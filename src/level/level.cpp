@@ -457,7 +457,8 @@ engine::LaraNode* Level::createItems()
                     || item.type == engine::TR1ItemId::FlameEmitter
                     || item.type == engine::TR1ItemId::Earthquake )
                 {
-                    modelNode->getNode()->setVisible( false );
+                    modelNode->getNode()->setDrawable( nullptr );
+                    modelNode->getNode()->removeAllChildren();
                 }
                 else
                 {
