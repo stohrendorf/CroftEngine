@@ -162,8 +162,7 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        auto gunFlareModel = level->m_models2[getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )
-                                                        ->model_base_index];
+        const auto gunFlareModel = getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )->models[0];
 
         m_gunFlareLeft->setDrawable( gunFlareModel.get() );
         m_gunFlareLeft->setVisible( false );

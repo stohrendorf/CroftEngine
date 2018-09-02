@@ -112,9 +112,8 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
                                      model->animation->firstFrame );
         for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
         {
-            BOOST_ASSERT( model->model_base_index + boneIndex < getLevel().m_models2.size() );
             auto node = make_not_null_shared<gameplay::Node>( "bone:" + std::to_string( boneIndex ) );
-            node->setDrawable( getLevel().m_models2[model->model_base_index + boneIndex].get() );
+            node->setDrawable( model->models[boneIndex].get() );
             addChild( to_not_null( getNode() ), node );
         }
 

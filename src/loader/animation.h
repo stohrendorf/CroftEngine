@@ -226,12 +226,13 @@ struct SkeletalModelType
 {
     engine::TR1ItemId typeId; // Item Identifier (matched in Items[])
     int16_t nmeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
-    uint16_t model_base_index; // starting mesh (offset into MeshPointers[])
+    uint16_t mesh_base_index; // starting mesh (offset into MeshPointers[])
     uint32_t bone_index; // offset into MeshTree[]
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t animation_index; // offset into Animations[]
 
     const Mesh* meshes = nullptr;
+    gsl::span<gsl::not_null<std::shared_ptr<gameplay::Model>>> models{};
 
     const AnimFrame* frame_base = nullptr;
 
@@ -242,7 +243,7 @@ struct SkeletalModelType
         std::unique_ptr<SkeletalModelType> moveable{new SkeletalModelType()};
         moveable->typeId = static_cast<engine::TR1ItemId>(reader.readU32());
         moveable->nmeshes = reader.readI16();
-        moveable->model_base_index = reader.readU16();
+        moveable->mesh_base_index = reader.readU16();
         moveable->bone_index = reader.readU32();
         moveable->pose_data_offset = reader.readU32();
         moveable->animation_index = reader.readU16();

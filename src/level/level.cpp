@@ -340,10 +340,9 @@ engine::LaraNode* Level::createItems()
                                                                            objectInfo );
                 for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
                 {
-                    BOOST_ASSERT( model->model_base_index + boneIndex < m_models2.size() );
                     auto node = make_not_null_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-                    node->setDrawable( m_models2[model->model_base_index + boneIndex].get() );
+                    node->setDrawable( model->models[boneIndex].get() );
                     addChild( to_not_null( modelNode->getNode() ), node );
                 }
 
@@ -559,10 +558,9 @@ std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& m
                                               model );
     for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
     {
-        BOOST_ASSERT( model.model_base_index + boneIndex < m_models2.size() );
         auto node = make_not_null_shared<gameplay::Node>(
                 skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-        node->setDrawable( m_models2[model.model_base_index + boneIndex].get() );
+        node->setDrawable( model.models[boneIndex].get() );
         addChild( to_not_null( skeletalModel->getNode() ), node );
     }
 
@@ -790,6 +788,13 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
         m_models2.emplace_back( m_models[idx] );
     }
 
+    for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
+    {
+        Expects( model->mesh_base_index + model->nmeshes <= m_models2.size() );
+        if( model->nmeshes > 0 )
+            model->models = gsl::make_span( &m_models2[model->mesh_base_index], model->nmeshes );
+    }
+
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
@@ -817,16 +822,12 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
         {
             for( size_t boneIndex = 0; boneIndex < trModel->nmeshes; ++boneIndex )
             {
-                BOOST_ASSERT( trModel->model_base_index + boneIndex < m_models2.size() );
-
                 std::string filename = "model_" + std::to_string( int( trModel->typeId ) ) + "_"
                                        + std::to_string( boneIndex ) + ".dae";
                 if( !objWriter.exists( filename ) )
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Saving model " << filename;
-
-                    const auto& model = m_models2[trModel->model_base_index + boneIndex];
-                    objWriter.write( model, filename, materials, {}, glm::vec3( 0.8f ) );
+                    objWriter.write( trModel->models[boneIndex], filename, materials, {}, glm::vec3( 0.8f ) );
                 }
 
                 filename = "model_override_" + std::to_string( int( trModel->typeId ) ) + "_"
@@ -835,7 +836,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                 {
                     BOOST_LOG_TRIVIAL( info ) << "Loading override model " << filename;
 
-                    m_models2[trModel->model_base_index + boneIndex] = objWriter
+                    m_models2[trModel->mesh_base_index + boneIndex] = objWriter
                             .readModel( filename, texturedShader, glm::vec3( 0.8f ) );
                 }
             }
@@ -1335,10 +1336,10 @@ void Level::useAlternativeLaraAppearance()
     BOOST_ASSERT( alternate.nmeshes == m_lara->getNode()->getChildCount() );
 
     for( size_t i = 0; i < m_lara->getNode()->getChildCount(); ++i )
-        m_lara->getNode()->getChild( i )->setDrawable( m_models2[alternate.model_base_index + i].get() );
+        m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
 
     // Don't replace the head.
-    m_lara->getNode()->getChild( 14 )->setDrawable( m_models2[base.model_base_index + 14].get() );
+    m_lara->getNode()->getChild( 14 )->setDrawable( base.models[14].get() );
 }
 
 void Level::postProcessDataStructures()
@@ -1397,7 +1398,7 @@ void Level::postProcessDataStructures()
         m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
     }
 
-    for( const auto& model : m_animatedModels | boost::adaptors::map_values )
+    for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
         Expects( model->pose_data_offset % 2 == 0 );
 
@@ -1409,14 +1410,15 @@ void Level::postProcessDataStructures()
         }
         model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
 
-        Expects( model->model_base_index + model->nmeshes < m_meshIndices.size() );
-        model->meshes = &m_meshes[m_meshIndices[model->model_base_index]];
+        Expects( model->mesh_base_index + model->nmeshes < m_meshIndices.size() );
+        model->meshes = &m_meshes[m_meshIndices[model->mesh_base_index]];
+
         Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );
         if( model->animation_index != 0xffff )
             model->animation = &m_animations[model->animation_index];
     }
 
-    for( auto& anim : m_animations )
+    for( loader::Animation& anim : m_animations )
     {
         Expects( anim.poseDataOffset % 2 == 0 );
 
@@ -1441,13 +1443,13 @@ void Level::postProcessDataStructures()
                                                anim.transitionsCount );
     }
 
-    for( auto& transitionCase : m_transitionCases )
+    for( loader::TransitionCase& transitionCase : m_transitionCases )
     {
         Expects( transitionCase.targetAnimationIndex < m_animations.size() );
         transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
     }
 
-    for( auto& transition : m_transitions )
+    for( loader::Transitions& transition : m_transitions )
     {
         Expects( transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size() );
         if( transition.transitionCaseCount > 0 )
@@ -1642,7 +1644,7 @@ void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
 {
     const auto& src = *m_animatedModels[engine::TR1ItemId::LaraPistolsAnim];
     BOOST_ASSERT( src.nmeshes == node.getNode()->getChildCount() );
-    node.getNode()->getChild( 10 )->setDrawable( m_models2[src.model_base_index + 10].get() );
+    node.getNode()->getChild( 10 )->setDrawable( src.models[10].get() );
 }
 
 void Level::chainBlockEffect()
