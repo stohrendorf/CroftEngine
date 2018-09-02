@@ -273,6 +273,8 @@ set( EDISONENGINE_SRCS
      engine/items/pickupitem.cpp
      engine/items/puzzlehole.h
      engine/items/puzzlehole.cpp
+     engine/items/raptor.h
+     engine/items/raptor.cpp
      engine/items/slopedbridge.h
      engine/items/stubitem.h
      engine/items/swingingblade.cpp

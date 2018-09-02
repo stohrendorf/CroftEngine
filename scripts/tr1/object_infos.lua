@@ -79,6 +79,16 @@ infos[9].target_update_chance = 0x400
 infos[9].initialise = baddie_init
 infos[9].collison = baddie_interact
 
+-- Raptor
+infos[19].ai_agent = true
+infos[19].radius = 341
+infos[19].hit_points = 20
+infos[19].pivot_length = 400
+infos[19].shadow_size = 128
+infos[19].target_update_chance = 0x4000
+infos[19].initialise = baddie_init
+infos[19].collison = baddie_interact
+
 -- Broken floor
 infos[35].floor = function(item, _, y, _, base)
     local tmp = item.position.y - 512

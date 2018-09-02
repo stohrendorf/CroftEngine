@@ -21,6 +21,7 @@
 #include "engine/items/keyhole.h"
 #include "engine/items/pickupitem.h"
 #include "engine/items/puzzlehole.h"
+#include "engine/items/raptor.h"
 #include "engine/items/slopedbridge.h"
 #include "engine/items/stubitem.h"
 #include "engine/items/swingingblade.h"
@@ -436,6 +437,10 @@ engine::LaraNode* Level::createItems()
             else if( item.type == engine::TR1ItemId::TeethSpikes )
             {
                 modelNode = createSkeletalModel<engine::items::TeethSpikes>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::Raptor )
+            {
+                modelNode = createSkeletalModel<engine::items::Raptor>( *model, room, item );
             }
             else
             {
