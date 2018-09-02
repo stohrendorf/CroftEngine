@@ -10,8 +10,10 @@ namespace items
 {
 void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
-    if( !getLevel().m_inputHandler->getInputState().action || m_state.triggerState == TriggerState::Active
-        || m_state.falling || lara.m_state.position.position.Y != m_state.position.position.Y )
+    if( !getLevel().m_inputHandler->getInputState().action
+        || m_state.triggerState == TriggerState::Active
+        || lara.m_state.falling
+        || lara.m_state.position.position.Y != m_state.position.position.Y )
     {
         return;
     }
@@ -42,41 +44,35 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             return;
         }
 
+        lara.m_state.rotation.Y = y;
+
+        int32_t core::TRCoordinates::*vp;
+        int d = 0;
         switch( *axis )
         {
             case core::Axis::PosZ:
-            {
-                auto pos = lara.m_state.position.position;
-                pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 924;
-                lara.m_state.position.position = pos;
+                d = loader::SectorSize - 100;
+                vp = &core::TRCoordinates::Z;
                 break;
-            }
             case core::Axis::PosX:
-            {
-                auto pos = lara.m_state.position.position;
-                pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 924;
-                lara.m_state.position.position = pos;
+                d = loader::SectorSize - 100;
+                vp = &core::TRCoordinates::X;
                 break;
-            }
             case core::Axis::NegZ:
-            {
-                auto pos = lara.m_state.position.position;
-                pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + 100;
-                lara.m_state.position.position = pos;
+                d = 100;
+                vp = &core::TRCoordinates::Z;
                 break;
-            }
             case core::Axis::NegX:
-            {
-                auto pos = lara.m_state.position.position;
-                pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + 100;
-                lara.m_state.position.position = pos;
+                d = 100;
+                vp = &core::TRCoordinates::X;
                 break;
-            }
             default:
-                break;
+                Expects( false );
         }
 
-        lara.m_state.rotation.Y = y;
+        lara.m_state.position.position.*vp =
+                (lara.m_state.position.position.*vp / loader::SectorSize) * loader::SectorSize + d;
+
         lara.setTargetState( loader::LaraStateId::PushableGrab );
         lara.updateImpl();
         if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
@@ -87,7 +83,8 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     }
 
     if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-        || lara.m_state.frame_number != 2091 || !limits.canInteract( m_state, lara.m_state ) )
+        || lara.m_state.frame_number != 2091
+        || !limits.canInteract( m_state, lara.m_state ) )
     {
         return;
     }
@@ -138,22 +135,19 @@ void Block::update()
 
     auto pos = m_state.position;
     auto sector = to_not_null( getLevel().findRealFloorSector( pos ) );
-    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).distance;
+    auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).y;
     if( height > pos.position.Y )
     {
         m_state.falling = true;
     }
-    else
+    else if( m_state.falling )
     {
-        if( m_state.falling )
-        {
-            pos.position.Y = height;
-            m_state.position.position = pos.position;
-            m_state.falling = false;
-            m_state.triggerState = TriggerState::Deactivated;
-            getLevel().dinoStompEffect( *this );
-            playSoundEffect( 70 );
-        }
+        pos.position.Y = height;
+        m_state.position.position = pos.position;
+        m_state.falling = false;
+        m_state.triggerState = TriggerState::Deactivated;
+        getLevel().dinoStompEffect( *this );
+        playSoundEffect( 70 );
     }
 
     setCurrentRoom( pos.room );
@@ -168,8 +162,8 @@ void Block::update()
     loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     pos = m_state.position;
     sector = to_not_null( getLevel().findRealFloorSector( pos ) );
-    HeightInfo hi = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes );
-    getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
+    getLevel().m_lara->handleCommandSequence(
+            HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(int height) const

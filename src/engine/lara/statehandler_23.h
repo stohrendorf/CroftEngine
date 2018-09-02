@@ -41,7 +41,7 @@ public:
             return;
         }
 
-        if( collisionInfo.mid.floor.distance <= 200 )
+        if( collisionInfo.mid.floor.y <= 200 )
         {
             applyShift(collisionInfo);
             placeOnFloor(collisionInfo);

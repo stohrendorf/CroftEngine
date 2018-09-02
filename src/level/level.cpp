@@ -1716,6 +1716,10 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
             item->m_state.position.room = to_not_null( &orig );
             continue;
         }
+        else
+        {
+            continue;
+        }
 
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item ) )
         {

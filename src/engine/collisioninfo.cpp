@@ -80,11 +80,11 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     auto testPos = refTestPos + core::TRCoordinates( frontX, 0, frontZ );
     auto sector = to_not_null( level.findRealFloorSector( testPos, to_not_null( &room ) ) );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
-    if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.distance < 0 )
+    if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.y < 0 )
     {
-        front.floor.distance = -32767; // This is not a typo, it is really -32767
+        front.floor.y = -32767; // This is not a typo, it is really -32767
     }
-    else if( front.floor.distance > 0
+    else if( front.floor.y > 0
              && (
                      ((policyFlags & SlopesArePits) != 0 && front.floor.slantClass == SlantClass::Steep)
                      || ((policyFlags & LavaIsPit) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr
@@ -92,7 +92,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        front.floor.distance = 2 * loader::QuarterSectorSize;
+        front.floor.y = 2 * loader::QuarterSectorSize;
     }
 
     // Front left
@@ -101,11 +101,11 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
-        && frontLeft.floor.distance < 0 )
+        && frontLeft.floor.y < 0 )
     {
-        frontLeft.floor.distance = -32767; // This is not a typo, it is really -32767
+        frontLeft.floor.y = -32767; // This is not a typo, it is really -32767
     }
-    else if( frontLeft.floor.distance > 0
+    else if( frontLeft.floor.y > 0
              && (
                      ((policyFlags & SlopesArePits) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
                      || ((policyFlags & LavaIsPit) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr
@@ -113,7 +113,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        frontLeft.floor.distance = 2 * loader::QuarterSectorSize;
+        frontLeft.floor.y = 2 * loader::QuarterSectorSize;
     }
 
     // Front right
@@ -122,11 +122,11 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
-        && frontRight.floor.distance < 0 )
+        && frontRight.floor.y < 0 )
     {
-        frontRight.floor.distance = -32767; // This is not a typo, it is really -32767
+        frontRight.floor.y = -32767; // This is not a typo, it is really -32767
     }
-    else if( frontRight.floor.distance > 0
+    else if( frontRight.floor.y > 0
              && (
                      ((policyFlags & SlopesArePits) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
                      || ((policyFlags & LavaIsPit) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr
@@ -134,33 +134,33 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        frontRight.floor.distance = 2 * loader::QuarterSectorSize;
+        frontRight.floor.y = 2 * loader::QuarterSectorSize;
     }
 
     checkStaticMeshCollisions( laraPos, height, level );
 
-    if( mid.floor.distance == -loader::HeightLimit )
+    if( mid.floor.y == -loader::HeightLimit )
     {
         shift = oldPosition - laraPos;
         collisionType = AxisColl_Front;
         return;
     }
 
-    if( mid.floor.distance <= mid.ceiling.distance )
+    if( mid.floor.y <= mid.ceiling.y )
     {
         collisionType = AxisColl_TopFront;
         shift = oldPosition - laraPos;
         return;
     }
 
-    if( mid.ceiling.distance >= 0 )
+    if( mid.ceiling.y >= 0 )
     {
         collisionType = AxisColl_Top;
-        shift.Y = mid.ceiling.distance;
+        shift.Y = mid.ceiling.y;
     }
 
-    if( front.floor.distance > badPositiveDistance || front.floor.distance < badNegativeDistance
-        || front.ceiling.distance > badCeilingDistance )
+    if( front.floor.y > badPositiveDistance || front.floor.y < badNegativeDistance
+        || front.ceiling.y > badCeilingDistance )
     {
         collisionType = AxisColl_Front;
         switch( facingAxis )
@@ -179,14 +179,14 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
         return;
     }
 
-    if( front.ceiling.distance >= badCeilingDistance )
+    if( front.ceiling.y >= badCeilingDistance )
     {
         collisionType = AxisColl_TopBottom;
         shift = oldPosition - laraPos;
         return;
     }
 
-    if( frontLeft.floor.distance > badPositiveDistance || frontLeft.floor.distance < badNegativeDistance )
+    if( frontLeft.floor.y > badPositiveDistance || frontLeft.floor.y < badNegativeDistance )
     {
         collisionType = AxisColl_Left;
         switch( facingAxis )
@@ -203,7 +203,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
         return;
     }
 
-    if( frontRight.floor.distance > badPositiveDistance || frontRight.floor.distance < badNegativeDistance )
+    if( frontRight.floor.y > badPositiveDistance || frontRight.floor.y < badNegativeDistance )
     {
         collisionType = AxisColl_Right;
         switch( facingAxis )

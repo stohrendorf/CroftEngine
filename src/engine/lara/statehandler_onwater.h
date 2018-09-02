@@ -26,7 +26,7 @@ protected:
         collisionInfo.facingAngle = getMovementAngle();
         collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRCoordinates(0, 700, 0), getLevel(), 700);
         applyShift(collisionInfo);
-        if( collisionInfo.mid.floor.distance < 0
+        if( collisionInfo.mid.floor.y < 0
             || (collisionInfo.collisionType &
                 (CollisionInfo::AxisColl_TopFront | CollisionInfo::AxisColl_TopBottom | CollisionInfo::AxisColl_Top | CollisionInfo::AxisColl_Front)) != 0
             )
@@ -78,28 +78,28 @@ private:
             return;
         }
 
-        const auto gradient = std::abs(collisionInfo.frontLeft.floor.distance - collisionInfo.frontRight.floor.distance);
+        const auto gradient = std::abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
         if( gradient >= core::MaxGrabbableGradient )
         {
             return;
         }
 
-        if( collisionInfo.front.ceiling.distance > 0 )
+        if( collisionInfo.front.ceiling.y > 0 )
         {
             return;
         }
 
-        if( collisionInfo.mid.ceiling.distance > -core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin )
         {
             return;
         }
 
-        if( collisionInfo.front.floor.distance + 700 <= -2 * loader::QuarterSectorSize )
+        if( collisionInfo.front.floor.y + 700 <= -2 * loader::QuarterSectorSize )
         {
             return;
         }
 
-        if( collisionInfo.front.floor.distance + 700 > core::DefaultCollisionRadius )
+        if( collisionInfo.front.floor.y + 700 > core::DefaultCollisionRadius )
         {
             return;
         }
@@ -110,7 +110,7 @@ private:
             return;
         }
 
-        getLara().m_state.position.position += core::TRCoordinates(0, 695 + collisionInfo.front.floor.distance, 0);
+        getLara().m_state.position.position += core::TRCoordinates(0, 695 + collisionInfo.front.floor.y, 0);
         getLara().updateFloorHeight(-381);
         core::TRCoordinates d = getLara().m_state.position.position;
         if( *yRot == 0_deg )

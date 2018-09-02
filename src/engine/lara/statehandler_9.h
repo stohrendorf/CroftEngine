@@ -36,7 +36,7 @@ public:
         getLara().m_state.falling = true;
         collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
         jumpAgainstWall(collisionInfo);
-        if( collisionInfo.mid.floor.distance > 0 )
+        if( collisionInfo.mid.floor.y > 0 )
         {
             return;
         }

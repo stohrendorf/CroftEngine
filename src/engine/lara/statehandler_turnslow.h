@@ -29,7 +29,7 @@ public:
         collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
         collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
 
-        if( collisionInfo.mid.floor.distance <= core::DefaultCollisionRadius )
+        if( collisionInfo.mid.floor.y <= core::DefaultCollisionRadius )
         {
             if( !tryStartSlide(collisionInfo) )
             {

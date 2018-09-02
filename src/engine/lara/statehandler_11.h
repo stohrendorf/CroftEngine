@@ -41,7 +41,7 @@ public:
         }
 
         jumpAgainstWall(collisionInfo);
-        if( getLara().m_state.fallspeed <= 0 || collisionInfo.mid.floor.distance > 0 )
+        if( getLara().m_state.fallspeed <= 0 || collisionInfo.mid.floor.y > 0 )
         {
             return;
         }

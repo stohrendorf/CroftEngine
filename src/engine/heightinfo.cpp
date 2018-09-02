@@ -19,7 +19,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
         roomSector = to_not_null( roomSector->roomBelow->getSectorByAbsolutePosition( pos ) );
     }
 
-    hi.distance = roomSector->floorHeight * loader::QuarterSectorSize;
+    hi.y = roomSector->floorHeight * loader::QuarterSectorSize;
     hi.lastCommandSequenceOrDeath = nullptr;
 
     if( roomSector->floorData == nullptr )
@@ -52,23 +52,23 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
                     if( zSlant > 0 ) // lower edge at -Z
                     {
                         auto dist = loader::SectorSize - localZ;
-                        hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                        hi.y += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( zSlant < 0 ) // lower edge at +Z
                     {
                         auto dist = localZ;
-                        hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                        hi.y -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
 
                     if( xSlant > 0 ) // lower edge at -X
                     {
                         auto dist = loader::SectorSize - localX;
-                        hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                        hi.y += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( xSlant < 0 ) // lower edge at +X
                     {
                         auto dist = localX;
-                        hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                        hi.y -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                 }
             }
@@ -92,7 +92,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
                     {
                         auto it = itemList.find( command.parameter );
                         Expects( it != itemList.end() );
-                        it->second->patchFloor( pos, hi.distance );
+                        it->second->patchFloor( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {
@@ -122,7 +122,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
         roomSector = to_not_null( roomSector->roomAbove->getSectorByAbsolutePosition( pos ) );
     }
 
-    hi.distance = roomSector->ceilingHeight * loader::QuarterSectorSize;
+    hi.y = roomSector->ceilingHeight * loader::QuarterSectorSize;
 
     if( roomSector->floorData != nullptr )
     {
@@ -152,23 +152,23 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
                 if( zSlant > 0 ) // lower edge at -Z
                 {
                     auto dist = loader::SectorSize - localZ;
-                    hi.distance -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    hi.y -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
                 else if( zSlant < 0 ) // lower edge at +Z
                 {
                     auto dist = localZ;
-                    hi.distance += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    hi.y += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
 
                 if( xSlant > 0 ) // lower edge at -X
                 {
                     auto dist = localX;
-                    hi.distance -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    hi.y -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
                 else if( xSlant < 0 ) // lower edge at +X
                 {
                     auto dist = loader::SectorSize - localX;
-                    hi.distance += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
+                    hi.y += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
             }
         }
@@ -206,7 +206,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
                     {
                         auto it = itemList.find( command.parameter );
                         Expects( it != itemList.end() );
-                        it->second->patchCeiling( pos, hi.distance );
+                        it->second->patchCeiling( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {

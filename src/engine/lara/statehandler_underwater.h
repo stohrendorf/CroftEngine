@@ -76,7 +76,7 @@ public:
                 break;
         }
 
-        if( collisionInfo.mid.floor.distance >= 0 )
+        if( collisionInfo.mid.floor.y >= 0 )
         {
             return;
         }

@@ -111,7 +111,7 @@ bool BubbleParticle::update(const level::Level& level)
         return false;
     }
 
-    auto ceiling = HeightInfo::fromCeiling( to_not_null( sector ), testPos, level.m_itemNodes ).distance;
+    auto ceiling = HeightInfo::fromCeiling( to_not_null( sector ), testPos, level.m_itemNodes ).y;
     if( ceiling == -loader::HeightLimit || testPos.Y <= ceiling )
     {
         return false;

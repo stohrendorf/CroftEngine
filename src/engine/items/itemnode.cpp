@@ -68,13 +68,6 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
         return;
     }
 
-    if( newRoom == nullptr )
-    {
-        BOOST_LOG_TRIVIAL( fatal ) << "No room to switch to.";
-        return;
-    }
-    BOOST_LOG_TRIVIAL( debug ) << "Room switch of " << getNode()->getId() << " to " << newRoom->node->getId();
-
     addChild( to_not_null( newRoom->node ), to_not_null( getNode() ) );
 
     m_state.position.room = newRoom;

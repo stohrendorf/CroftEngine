@@ -48,7 +48,7 @@ public:
             return;
         }
 
-        if( collisionInfo.mid.floor.distance > 200 )
+        if( collisionInfo.mid.floor.y > 200 )
         {
             setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
             setTargetState(LaraStateId::FallBackward);

@@ -282,13 +282,13 @@ inline Angle alignRotation(const Axis& axis)
     switch( axis )
     {
         case Axis::PosZ:
-            return Angle( 0_deg );
+            return 0_deg;
         case Axis::PosX:
-            return Angle( 90_deg );
+            return 90_deg;
         case Axis::NegZ:
-            return Angle( -180_deg );
+            return -180_deg;
         case Axis::NegX:
-            return Angle( -90_deg );
+            return -90_deg;
         default:
             return 0_deg;
     }

@@ -93,7 +93,7 @@ public:
         {
             getLara().m_state.rotation.Z = 0_deg;
             if( collisionInfo.front.floor.slantClass == SlantClass::None
-                && collisionInfo.front.floor.distance < -core::ClimbLimit2ClickMax )
+                && collisionInfo.front.floor.y < -core::ClimbLimit2ClickMax )
             {
                 if( getLara().m_state.frame_number < 10 )
                 {
@@ -110,7 +110,7 @@ public:
             setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
         }
 
-        if( collisionInfo.mid.floor.distance > core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin )
         {
             setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
@@ -119,8 +119,8 @@ public:
             return;
         }
 
-        if( collisionInfo.mid.floor.distance >= -core::ClimbLimit2ClickMin
-            && collisionInfo.mid.floor.distance < -core::SteppableHeight )
+        if( collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin
+            && collisionInfo.mid.floor.y < -core::SteppableHeight )
         {
             if( getLara().m_state.frame_number >= 3 && getLara().m_state.frame_number <= 14 )
             {
@@ -134,7 +134,7 @@ public:
 
         if( !tryStartSlide(collisionInfo) )
         {
-            int d = std::min(collisionInfo.mid.floor.distance, 50);
+            int d = std::min(collisionInfo.mid.floor.y, 50);
             getLara().m_state.position.position.Y += d;
         }
     }

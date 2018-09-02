@@ -320,7 +320,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                       bboxMinY,
                                                       m_state.position.position.Z
                                               },
-                                              getLevel().m_itemNodes ).distance;
+                                              getLevel().m_itemNodes ).y;
 
         if( m_state.position.position.Y + moveY > currentFloor )
         {
@@ -347,7 +347,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                                   bboxMinY,
                                                                   m_state.position.position.Z
                                                           },
-                                                          getLevel().m_itemNodes ).distance;
+                                                          getLevel().m_itemNodes ).y;
 
             const auto y = m_state.object_number == engine::TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
 
@@ -374,7 +374,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                        bboxMinY,
                                                        m_state.position.position.Z
                                                },
-                                               getLevel().m_itemNodes ).distance;
+                                               getLevel().m_itemNodes ).y;
 
         core::Angle yaw{0};
         if( m_state.speed != 0 )
@@ -408,7 +408,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     m_state.rotation.X = 0_au;
 
     sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
-    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).distance;
+    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
 
     setCurrentRoom( room );
 

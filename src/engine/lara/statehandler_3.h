@@ -63,7 +63,7 @@ public:
         collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
         checkJumpWallSmash(collisionInfo);
 
-        if( collisionInfo.mid.floor.distance > 0 || getLara().m_state.fallspeed <= 0 )
+        if( collisionInfo.mid.floor.y > 0 || getLara().m_state.fallspeed <= 0 )
         {
             return;
         }

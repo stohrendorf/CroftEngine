@@ -259,7 +259,7 @@ void LaraNode::handleLaraStateSwimming()
 
 void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
 {
-    m_state.position.position.Y += collisionInfo.mid.floor.distance;
+    m_state.position.position.Y += collisionInfo.mid.floor.y;
 }
 
 loader::LaraStateId LaraNode::getCurrentAnimState() const
@@ -521,7 +521,7 @@ void LaraNode::updateFloorHeight(int dy)
     const auto sector = to_not_null( getLevel().findRealFloorSector( pos, to_not_null( &room ) ) );
     setCurrentRoom( room );
     const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
-    m_state.floor = hi.distance;
+    m_state.floor = hi.y;
 }
 
 void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
@@ -917,9 +917,9 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
         m_state.rotation.Y -= 5_deg;
 
-    if( collisionInfo.mid.floor.distance < 0 )
+    if( collisionInfo.mid.floor.y < 0 )
     {
-        m_state.position.position.Y += collisionInfo.mid.floor.distance;
+        m_state.position.position.Y += collisionInfo.mid.floor.y;
         m_state.rotation.X += 2_deg;
     }
     applyShift( collisionInfo );

@@ -40,7 +40,7 @@ public:
         setMovementAngle(collisionInfo.facingAngle);
         collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), 870); //! @todo MAGICK 870
         checkJumpWallSmash(collisionInfo);
-        if( collisionInfo.mid.floor.distance > 0 || getLara().m_state.fallspeed <= 0 )
+        if( collisionInfo.mid.floor.y > 0 || getLara().m_state.fallspeed <= 0 )
         {
             return;
         }

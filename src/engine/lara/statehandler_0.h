@@ -93,7 +93,7 @@ public:
             }
         }
 
-        if( collisionInfo.mid.floor.distance > core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin )
         {
             setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
             setTargetState(LaraStateId::JumpForward);
@@ -101,7 +101,7 @@ public:
             getLara().m_state.falling = true;
         }
 
-        if( collisionInfo.mid.floor.distance > core::SteppableHeight )
+        if( collisionInfo.mid.floor.y > core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
             if( fr < 28 || fr > 45 )
@@ -114,7 +114,7 @@ public:
             }
         }
 
-        if( collisionInfo.mid.floor.distance >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.distance < -core::SteppableHeight )
+        if( collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.y < -core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
             if( fr < 27 || fr > 44 )

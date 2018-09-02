@@ -64,7 +64,7 @@ public:
         collisionInfo.facingAngle = getMovementAngle();
         collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
 
-        if( collisionInfo.mid.ceiling.distance <= -core::DefaultCollisionRadius )
+        if( collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius )
         {
             return;
         }

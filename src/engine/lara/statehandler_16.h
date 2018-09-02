@@ -67,7 +67,7 @@ public:
             setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
         }
 
-        if( collisionInfo.mid.floor.distance > loader::QuarterSectorSize && collisionInfo.mid.floor.distance < core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floor.y > loader::QuarterSectorSize && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
         {
             if( getLara().m_state.frame_number < 964 || getLara().m_state.frame_number > 993 )
             {

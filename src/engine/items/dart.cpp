@@ -44,7 +44,7 @@ void Dart::update()
         setCurrentRoom( room );
 
     HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
-    m_state.floor = h.distance;
+    m_state.floor = h.y;
 
     if( m_state.position.position.Y < m_state.floor )
         return;

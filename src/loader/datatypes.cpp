@@ -302,29 +302,30 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, co
     return result;
 }
 
-void Room::patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height)
+void Room::patchHeightsForBlock(const engine::items::ItemNode& item, int height)
 {
-    core::RoomBoundPosition pos = ctrl.m_state.position;
+    auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
-    auto groundSector = const_cast<loader::Sector*>(ctrl.getLevel().findRealFloorSector( pos ));
+    auto groundSector = const_cast<loader::Sector*>(item.getLevel().findRealFloorSector( item.m_state.position.position,
+                                                                                         to_not_null( &room ) ));
     BOOST_ASSERT( groundSector != nullptr );
-    pos.position.Y += height - loader::SectorSize;
-    const auto topSector = ctrl.getLevel().findRealFloorSector( pos );
+    const auto topSector = item.getLevel().findRealFloorSector(
+            item.m_state.position.position + core::TRCoordinates{0, height - loader::SectorSize, 0},
+            to_not_null( &room ) );
 
     const auto q = height / loader::QuarterSectorSize;
     if( groundSector->floorHeight == -127 )
     {
-        groundSector->floorHeight = topSector->ceilingHeight + q;
+        groundSector->floorHeight = gsl::narrow<int8_t>(topSector->ceilingHeight + q);
     }
     else
     {
-        groundSector->floorHeight += q;
+        groundSector->floorHeight = gsl::narrow<int8_t>(topSector->floorHeight + q);
         if( groundSector->floorHeight == topSector->ceilingHeight )
             groundSector->floorHeight = -127;
     }
 
-    if( groundSector->box == nullptr )
-        return;
+    Expects( groundSector->box != nullptr );
 
     if( (groundSector->box->overlap_index & 0x8000) == 0 )
         return;

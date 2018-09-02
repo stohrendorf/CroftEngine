@@ -18,7 +18,7 @@ enum class SlantClass
 
 struct HeightInfo
 {
-    int distance = 0;
+    int y = 0;
     SlantClass slantClass = SlantClass::None;
     const uint16_t* lastCommandSequenceOrDeath = nullptr;
 
@@ -48,12 +48,12 @@ struct VerticalInfo
               int scalpHeight)
     {
         floor = HeightInfo::fromFloor( roomSector, position, itemList );
-        if( floor.distance != -loader::HeightLimit )
-            floor.distance -= floorHeight;
+        if( floor.y != -loader::HeightLimit )
+            floor.y -= floorHeight;
 
         ceiling = HeightInfo::fromCeiling( roomSector, position, itemList );
-        if( ceiling.distance != -loader::HeightLimit )
-            ceiling.distance -= floorHeight - scalpHeight;
+        if( ceiling.y != -loader::HeightLimit )
+            ceiling.y -= floorHeight - scalpHeight;
     }
 };
 }

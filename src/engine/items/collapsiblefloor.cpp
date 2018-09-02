@@ -46,8 +46,8 @@ void CollapsibleFloor::update()
     setCurrentRoom( room );
 
     HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
-    m_state.floor = h.distance;
-    if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.distance )
+    m_state.floor = h.y;
+    if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.y )
         return;
 
     // settle

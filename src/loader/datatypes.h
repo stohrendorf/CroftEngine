@@ -1193,7 +1193,7 @@ struct Room
         return to_not_null( getSectorByIndex( dx, dz ) );
     }
 
-    static void patchHeightsForBlock(const engine::items::ItemNode& ctrl, int height);
+    static void patchHeightsForBlock(const engine::items::ItemNode& item, int height);
 };
 
 
