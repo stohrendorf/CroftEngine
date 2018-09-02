@@ -373,7 +373,7 @@ public:
             const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
-            bool hasProcessAnimCommandsOverride,
+            bool hasUpdateFunction,
             const loader::SkeletalModelType& animatedModel);
 
     ~ModelItemNode() override
@@ -448,7 +448,7 @@ public:
             const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
-            bool hasProcessAnimCommandsOverride,
+            bool hasUpdateFunction,
             const loader::Sprite& sprite,
             const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
 

@@ -26,6 +26,7 @@
 #include "engine/items/stubitem.h"
 #include "engine/items/swingingblade.h"
 #include "engine/items/switch.h"
+#include "engine/items/swordofdamocles.h"
 #include "engine/items/tallblock.h"
 #include "engine/items/teethspikes.h"
 #include "engine/items/trapdoordown.h"
@@ -441,6 +442,10 @@ engine::LaraNode* Level::createItems()
             else if( item.type == engine::TR1ItemId::Raptor )
             {
                 modelNode = createSkeletalModel<engine::items::Raptor>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::SwordOfDamocles || item.type == engine::TR1ItemId::FallingCeiling )
+            {
+                modelNode = createSkeletalModel<engine::items::SwordOfDamocles>( *model, room, item );
             }
             else
             {

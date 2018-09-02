@@ -281,6 +281,8 @@ set( EDISONENGINE_SRCS
      engine/items/swingingblade.h
      engine/items/switch.cpp
      engine/items/switch.h
+     engine/items/swordofdamocles.cpp
+     engine/items/swordofdamocles.h
      engine/items/tallblock.cpp
      engine/items/tallblock.h
      engine/items/teethspikes.cpp

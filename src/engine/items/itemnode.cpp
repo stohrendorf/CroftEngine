@@ -78,13 +78,13 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const std::string& name,
                              const gsl::not_null<const loader::Room*>& room,
                              const loader::Item& item,
-                             const bool hasProcessAnimCommandsOverride,
+                             const bool hasUpdateFunction,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{
         level,
         room,
         item,
-        hasProcessAnimCommandsOverride
+        hasUpdateFunction
 }
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
@@ -338,15 +338,10 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::Room*>& room,
                                const loader::Item& item,
-                               const bool hasProcessAnimCommandsOverride,
+                               const bool hasUpdateFunction,
                                const loader::Sprite& sprite,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
-        : ItemNode{
-        level,
-        room,
-        item,
-        hasProcessAnimCommandsOverride
-}
+        : ItemNode{level, room, item, hasUpdateFunction}
 {
     const auto model = make_not_null_shared<gameplay::Sprite>( sprite.left_side,
                                                                sprite.top_side,
