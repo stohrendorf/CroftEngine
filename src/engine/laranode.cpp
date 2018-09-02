@@ -344,11 +344,7 @@ void LaraNode::update()
             m_underwaterState = UnderwaterState::Swimming;
             setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
             setTargetState( LaraStateId::OnWaterStop );
-            {
-                auto pos = m_state.position.position;
-                pos.Y = *waterSurfaceHeight + 1;
-                m_state.position.position = pos;
-            }
+            m_state.position.position.Y = *waterSurfaceHeight + 1;
             m_swimToDiveKeypressDuration = 11;
             updateFloorHeight( -381 );
             playSoundEffect( 36 );

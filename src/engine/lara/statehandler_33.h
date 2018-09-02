@@ -83,10 +83,11 @@ public:
         }
 
         addSwimToDiveKeypressDuration(1);
-        if( getSwimToDiveKeypressDuration() < 10 )
+        if( getSwimToDiveKeypressDuration() != 10 )
         {
+            // not yet allowed to dive; not that the keypress duration is always >10 when coming up from diving
             return;
-        } // not yet allowed to dive
+        }
 
         setTargetState(LaraStateId::UnderwaterForward);
         setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
