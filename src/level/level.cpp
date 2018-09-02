@@ -26,6 +26,7 @@
 #include "engine/items/swingingblade.h"
 #include "engine/items/switch.h"
 #include "engine/items/tallblock.h"
+#include "engine/items/teethspikes.h"
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
 #include "engine/items/underwaterswitch.h"
@@ -431,6 +432,10 @@ engine::LaraNode* Level::createItems()
             else if( item.type >= engine::TR1ItemId::Animating1 && item.type <= engine::TR1ItemId::Animating3 )
             {
                 modelNode = createSkeletalModel<engine::items::Animating>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::TeethSpikes )
+            {
+                modelNode = createSkeletalModel<engine::items::TeethSpikes>( *model, room, item );
             }
             else
             {

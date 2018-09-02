@@ -6,10 +6,10 @@ namespace engine
 {
 namespace items
 {
-class Animating final : public ModelItemNode
+class TeethSpikes final : public ModelItemNode
 {
 public:
-    Animating(const gsl::not_null<level::Level*>& level,
+    TeethSpikes(const gsl::not_null<level::Level*>& level,
               const std::string& name,
               const gsl::not_null<const loader::Room*>& room,
               const loader::Item& item,
@@ -18,7 +18,7 @@ public:
     {
     }
 
-    void update() override;
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 };
 }
 }

@@ -281,6 +281,8 @@ set( EDISONENGINE_SRCS
      engine/items/switch.h
      engine/items/tallblock.cpp
      engine/items/tallblock.h
+     engine/items/teethspikes.cpp
+     engine/items/teethspikes.h
      engine/items/trapdoordown.h
      engine/items/trapdoorup.cpp
      engine/items/trapdoorup.h
