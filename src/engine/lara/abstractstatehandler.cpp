@@ -334,9 +334,6 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     const auto bbox = getBoundingBox();
     int spaceToReach = collisionInfo.front.floor.y - bbox.minY;
 
-    BOOST_LOG_TRIVIAL( debug ) << "spaceToReach = " << spaceToReach << ", getFallSpeed() + spaceToReach = "
-                               << (m_lara.m_state.fallspeed + spaceToReach);
-
     if( spaceToReach < 0 && m_lara.m_state.fallspeed + spaceToReach < 0 )
     {
         return false;

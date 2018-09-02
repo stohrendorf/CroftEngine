@@ -198,29 +198,11 @@ void ItemNode::activate()
         return;
     }
 
-    if( m_isActive )
-    {
-        //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already active";
-    }
-    else
-    {
-        BOOST_LOG_TRIVIAL( trace ) << "Activating item controller";
-    }
-
     m_isActive = true;
 }
 
 void ItemNode::deactivate()
 {
-    if( !m_isActive )
-    {
-        //BOOST_LOG_TRIVIAL(warning) << "Item controller " << getId() << " already inactive";
-    }
-    else
-    {
-        BOOST_LOG_TRIVIAL( trace ) << "Deactivating item controller " << getNode()->getId();
-    }
-
     m_isActive = false;
 }
 

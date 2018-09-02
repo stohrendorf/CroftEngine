@@ -434,11 +434,6 @@ void LaraNode::updateImpl()
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::StartFalling:
-                        BOOST_LOG_TRIVIAL( debug ) << getNode()->getId() <<
-                                                   " -- end of animation velocity: override "
-                                                   << m_fallSpeedOverride
-                                                   << ", anim fall speed " << cmd[0] << ", anim horizontal speed "
-                                                   << cmd[1];
                         if( m_fallSpeedOverride != 0 )
                         {
                             m_state.fallspeed = m_fallSpeedOverride;
@@ -2056,9 +2051,6 @@ void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
 
 void LaraNode::hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage)
 {
-    BOOST_LOG_TRIVIAL( debug ) << "Target " << item.getNode()->getId() << " is hit, health=" << item.m_state.health <<
-                               ", damage=" << damage;
-
     if( item.m_state.health > 0 && item.m_state.health <= damage )
     {
         // TODO ++g_numKills;

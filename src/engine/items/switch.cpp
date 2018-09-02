@@ -50,7 +50,6 @@ void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
     if( m_state.current_anim_state == 1 )
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull down";
         do
         {
             lara.setTargetState( loader::LaraStateId::SwitchDown );
@@ -67,7 +66,6 @@ void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             return;
         }
 
-        BOOST_LOG_TRIVIAL( debug ) << "Switch " << getNode()->getId() << ": pull up";
         do
         {
             lara.setTargetState( loader::LaraStateId::SwitchUp );
