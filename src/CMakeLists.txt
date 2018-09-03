@@ -305,6 +305,10 @@ set( EDISONENGINE_SRCS
      render/label.cpp
 )
 
+if(MSVC)
+    list(APPEND EDISONENGINE_SRCS edisonengine.rc)
+endif()
+
 add_definitions(
         -DSOL_USE_BOOST
         -DSOL_SAFE_USERTYPE
