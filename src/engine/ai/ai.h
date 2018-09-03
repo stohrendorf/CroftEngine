@@ -148,10 +148,8 @@ struct LotInfo
             {
                 targetNode->next_expansion = head;
 
-                if( head == nullptr )
+                if( std::exchange( head, target_box ) == nullptr )
                     tail = target_box;
-
-                head = target_box;
             }
 
             targetNode->search_number = ++m_searchVersion;
@@ -166,7 +164,6 @@ struct LotInfo
     {
         if( head == nullptr )
         {
-            tail = nullptr;
             return;
         }
 
@@ -177,56 +174,55 @@ struct LotInfo
         {
             if( head == nullptr )
             {
-                tail = nullptr;
                 return;
             }
 
-            const auto parentNode = &nodes[head];
+            const auto headNode = &nodes[head];
 
-            for( auto childBoxIdx : getOverlaps( lvl, head->overlap_index ) )
+            for( auto overlapBoxIdx : getOverlaps( lvl, head->overlap_index ) )
             {
-                childBoxIdx &= 0x7FFFu;
-                const auto* childBox = &lvl.m_boxes[childBoxIdx];
+                overlapBoxIdx &= 0x7FFFu;
+                const auto* overlapBox = &lvl.m_boxes[overlapBoxIdx];
 
-                if( searchZone != childBox->*zoneRef )
+                if( searchZone != overlapBox->*zoneRef )
                     continue;
 
-                const auto boxHeightDiff = childBox->floor - head->floor;
+                const auto boxHeightDiff = overlapBox->floor - head->floor;
                 if( boxHeightDiff > step || boxHeightDiff < drop )
                     continue; // can't reach from this box, but still maybe from another one
 
-                auto childNode = &nodes[childBox];
+                auto overlapNode = &nodes[overlapBox];
 
-                if( parentNode->getSearchVersion() < childNode->getSearchVersion() )
+                if( headNode->getSearchVersion() < overlapNode->getSearchVersion() )
                     continue; // not yet checked if we can reach this box
 
-                if( parentNode->isBlocked() )
+                if( headNode->isBlocked() )
                 {
-                    if( parentNode->getSearchVersion() == childNode->getSearchVersion() )
+                    if( headNode->getSearchVersion() == overlapNode->getSearchVersion() )
                         continue; // already visited; we don't care if the child is blocked or not
 
                     // mark as visited, will also mark as blocked
-                    childNode->search_number = parentNode->search_number;
+                    overlapNode->search_number = headNode->search_number;
                 }
                 else
                 {
-                    if( parentNode->getSearchVersion() == childNode->getSearchVersion() && !childNode->
-                                                                                                             isBlocked() )
+                    if( headNode->getSearchVersion() == overlapNode->getSearchVersion()
+                        && !overlapNode->isBlocked() )
                         continue; // already visited and reachable
 
                     // mark as visited, and check if reachable
-                    childNode->search_number = parentNode->search_number;
-                    if( (childBox->overlap_index & block_mask) != 0 )
-                        childNode->markBlocked(); // can't reach this box
+                    overlapNode->search_number = headNode->search_number;
+                    if( (overlapBox->overlap_index & block_mask) != 0 )
+                        overlapNode->markBlocked(); // can't reach this box
                     else
-                        childNode->exit_box = head; // success! connect both boxes
+                        overlapNode->exit_box = head; // success! connect both boxes
                 }
 
-                if( childNode->next_expansion == nullptr && childBox != tail )
-                    tail = nodes[tail].next_expansion = childBox; // enqueue for expansion
+                if( overlapNode->next_expansion == nullptr && overlapBox != tail )
+                    tail = nodes[tail].next_expansion = overlapBox; // enqueue for expansion
             }
 
-            head = std::exchange( parentNode->next_expansion, nullptr );
+            head = std::exchange( headNode->next_expansion, nullptr );
         }
     }
 };
