@@ -22,10 +22,6 @@ public:
     }
 
     void update() override;
-
-    void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override
-    {
-    }
 };
 }
 }
