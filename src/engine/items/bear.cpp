@@ -102,17 +102,14 @@ void Bear::update()
                     m_state.required_anim_state = 0;
                     m_state.goal_anim_state = RoaringStanding;
                 }
-                else if( m_state.creatureInfo->mood != ai::Mood::Bored && util::rand15() >= 80 )
-                {
-                    if( aiInfo.distance > util::square( 2048 ) || util::rand15() < 1536 )
-                    {
-                        m_state.required_anim_state = GettingDown;
-                        m_state.goal_anim_state = RoaringStanding;
-                    }
-                }
-                else
+                else if( m_state.creatureInfo->mood == ai::Mood::Bored || util::rand15() < 80 )
                 {
                     m_state.required_anim_state = Growling;
+                    m_state.goal_anim_state = RoaringStanding;
+                }
+                else if( aiInfo.distance > util::square( 2048 ) || util::rand15() < 1536 )
+                {
+                    m_state.required_anim_state = GettingDown;
                     m_state.goal_anim_state = RoaringStanding;
                 }
                 break;

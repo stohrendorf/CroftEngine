@@ -147,6 +147,8 @@ void ModelItemNode::update()
 
         m_skeleton->setAnimIdGlobal( m_state, to_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
         m_state.goal_anim_state = m_state.current_anim_state;
+        if( m_state.current_anim_state == m_state.required_anim_state )
+            m_state.required_anim_state = 0;
     }
 
     BOOST_ASSERT(
@@ -523,7 +525,7 @@ bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
     const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
 
-    if( std::abs(laraToBoxDistX) > 3 * loader::SectorSize || std::abs(laraToBoxDistZ) > 3 * loader::SectorSize )
+    if( std::abs( laraToBoxDistX ) > 3 * loader::SectorSize || std::abs( laraToBoxDistZ ) > 3 * loader::SectorSize )
     {
         return false;
     }

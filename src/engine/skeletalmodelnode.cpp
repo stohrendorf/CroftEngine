@@ -16,12 +16,6 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
     //setAnimId(mdl.animationIndex);
 }
 
-int SkeletalModelNode::getEndFrame(const engine::items::ItemState& state) const
-{
-    Expects( state.anim != nullptr );
-    return state.anim->lastFrame + 1;
-}
-
 int SkeletalModelNode::calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset) const
 {
     const auto scaled = state.anim->speed
@@ -272,8 +266,14 @@ SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_nul
 bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
 {
     ++state.frame_number;
-    handleStateTransitions( state );
-    return state.frame_number >= getEndFrame( state );
+    if( handleStateTransitions( state ) )
+    {
+        state.current_anim_state = state.anim->state_id;
+        if( state.current_anim_state == state.required_anim_state )
+            state.required_anim_state = 0;
+    }
+
+    return state.frame_number > state.anim->lastFrame;
 }
 
 std::vector<SkeletalModelNode::Sphere>

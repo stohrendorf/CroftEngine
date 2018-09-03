@@ -150,7 +150,5 @@ private:
     void updatePoseKeyframe(const InterpolationInfo& framepair);
 
     void updatePoseInterpolated(const InterpolationInfo& framepair);
-
-    int getEndFrame(const engine::items::ItemState& state) const;
 };
 }
