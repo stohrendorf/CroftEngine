@@ -132,7 +132,7 @@ levelInfos = {
 }
 
 cheats = {
-    godMode = true,
+    godMode = false,
     inventory = {
         Key1 = 10,
         Key2 = 10,

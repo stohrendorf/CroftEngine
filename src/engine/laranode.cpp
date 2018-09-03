@@ -271,6 +271,19 @@ LaraNode::~LaraNode() = default;
 
 void LaraNode::update()
 {
+    if( getLevel().m_inputHandler->getInputState()._1 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::Pistols );
+    else if( getLevel().m_inputHandler->getInputState()._2 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::Shotgun );
+    else if( getLevel().m_inputHandler->getInputState()._3 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::Uzis );
+    else if( getLevel().m_inputHandler->getInputState()._4 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::Magnums );
+    else if( getLevel().m_inputHandler->getInputState()._5 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::SmallMedipack );
+    else if( getLevel().m_inputHandler->getInputState()._6 )
+        getLevel().tryUseInventoryItem( engine::TR1ItemId::LargeMedipack );
+
     if( m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom() )
     {
         m_air = core::LaraAir;

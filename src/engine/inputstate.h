@@ -5,64 +5,71 @@
 
 namespace engine
 {
-    namespace
+namespace
+{
+const core::Angle FreeLookMouseMovementScale{50_deg};
+}
+
+enum class AxisMovement
+{
+    Positive,
+    Right = Positive,
+    Forward = Positive,
+    Null,
+    Negative,
+    Left = Negative,
+    Backward = Negative
+};
+
+
+struct InputState
+{
+    AxisMovement xMovement = AxisMovement::Null;
+    AxisMovement zMovement = AxisMovement::Null;
+    AxisMovement stepMovement = AxisMovement::Null;
+    bool jump = false;
+    bool moveSlow = false;
+    bool roll = false;
+    bool action = false;
+    bool freeLook = false;
+    bool debug = false;
+    bool holster = false;
+    bool _1 = false;
+    bool _2 = false;
+    bool _3 = false;
+    bool _4 = false;
+    bool _5 = false;
+    bool _6 = false;
+    glm::vec2 mouseMovement;
+
+    void setXAxisMovement(bool left, bool right)
     {
-        const core::Angle FreeLookMouseMovementScale{50_deg};
+        if( left < right )
+            xMovement = AxisMovement::Right;
+        else if( left > right )
+            xMovement = AxisMovement::Left;
+        else
+            xMovement = AxisMovement::Null;
     }
 
-    enum class AxisMovement
+    void setStepMovement(bool left, bool right)
     {
-        Positive,
-        Right = Positive,
-        Forward = Positive,
-        Null,
-        Negative,
-        Left = Negative,
-        Backward = Negative
-    };
+        if( left < right )
+            stepMovement = AxisMovement::Right;
+        else if( left > right )
+            stepMovement = AxisMovement::Left;
+        else
+            stepMovement = AxisMovement::Null;
+    }
 
-    struct InputState
+    void setZAxisMovement(bool back, bool forward)
     {
-        AxisMovement xMovement = AxisMovement::Null;
-        AxisMovement zMovement = AxisMovement::Null;
-        AxisMovement stepMovement = AxisMovement::Null;
-        bool jump = false;
-        bool moveSlow = false;
-        bool roll = false;
-        bool action = false;
-        bool freeLook = false;
-        bool debug = false;
-        bool holster = false;
-        glm::vec2 mouseMovement;
-
-        void setXAxisMovement(bool left, bool right)
-        {
-            if( left < right )
-                xMovement = AxisMovement::Right;
-            else if( left > right )
-                xMovement = AxisMovement::Left;
-            else
-                xMovement = AxisMovement::Null;
-        }
-
-        void setStepMovement(bool left, bool right)
-        {
-            if( left < right )
-                stepMovement = AxisMovement::Right;
-            else if( left > right )
-                stepMovement = AxisMovement::Left;
-            else
-                stepMovement = AxisMovement::Null;
-        }
-
-        void setZAxisMovement(bool back, bool forward)
-        {
-            if( back < forward )
-                zMovement = AxisMovement::Forward;
-            else if( back > forward )
-                zMovement = AxisMovement::Backward;
-            else
-                zMovement = AxisMovement::Null;
-        }
-    };
+        if( back < forward )
+            zMovement = AxisMovement::Forward;
+        else if( back > forward )
+            zMovement = AxisMovement::Backward;
+        else
+            zMovement = AxisMovement::Null;
+    }
+};
 }
