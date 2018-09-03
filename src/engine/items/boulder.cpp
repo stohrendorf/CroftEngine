@@ -40,7 +40,7 @@ void engine::items::RollingBall::update()
 
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position
-                             + core::TRCoordinates( m_state.rotation.Y.sin() * loader::SectorSize / 2,
+                             + core::TRVec( m_state.rotation.Y.sin() * loader::SectorSize / 2,
                                                     0,
                                                     m_state.rotation.Y.cos() * loader::SectorSize / 2 );
         sector = to_not_null( getLevel().findRealFloorSector( testPos, room ) );
@@ -118,7 +118,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
             const auto z = util::rand15s( 128 ) + lara.m_state.position.position.Z;
             auto fx = engine::createBloodSplat(
                     getLevel(),
-                    core::RoomBoundPosition{m_state.position.room, core::TRCoordinates{x, y, z}},
+                    core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
                     2 * m_state.speed,
                     core::Angle( gsl::narrow_cast<int16_t>( util::rand15s( 4096 ) ) ) + m_state.rotation.Y
             );
@@ -147,7 +147,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
             getLevel(),
             core::RoomBoundPosition{
                     m_state.position.room,
-                    core::TRCoordinates{
+                    core::TRVec{
                             x * loader::SectorSize / 2 / xyz + m_state.position.position.X,
                             y * loader::SectorSize / 2 / xyz + m_state.position.position.Y
                             - 2 * loader::QuarterSectorSize,

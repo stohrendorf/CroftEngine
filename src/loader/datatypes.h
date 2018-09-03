@@ -3,7 +3,7 @@
 #include "io/sdlreader.h"
 #include "util/helpers.h"
 #include "core/angle.h"
-#include "core/coordinates.h"
+#include "core/vec.h"
 #include "color.h"
 #include "primitives.h"
 #include "meshes.h"
@@ -61,18 +61,18 @@ constexpr int HeightLimit = 127 * QuarterSectorSize;
 struct Portal
 {
     uint16_t adjoining_room; ///< \brief which room this portal leads to.
-    core::TRCoordinates normal; /**< \brief which way the portal faces.
+    core::TRVec normal; /**< \brief which way the portal faces.
                                    * the normal points away from the adjacent room->
                                    * to be seen through, it must point toward the viewpoint.
                                    */
-    core::TRCoordinates vertices[4]; /**< \brief the corners of this portal.
+    core::TRVec vertices[4]; /**< \brief the corners of this portal.
                                    * the right-hand rule applies with respect to the normal.
                                    * if the right-hand-rule is not followed, the portal will
                                    * contain visual artifacts instead of a viewport to
                                    * Adjoiningroom->
                                    */
 
-    static Portal read(io::SDLReader& reader, const core::TRCoordinates& offset)
+    static Portal read(io::SDLReader& reader, const core::TRVec& offset)
     {
         Portal portal;
         portal.adjoining_room = reader.readU16();
@@ -152,7 +152,7 @@ enum class LightType : uint8_t
 
 struct Light
 {
-    core::TRCoordinates position; // world coords
+    core::TRVec position; // world coords
     ByteColor color; // three bytes rgb values
     int16_t intensity; // Light intensity
     uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
@@ -168,9 +168,9 @@ struct Light
 
     int cutoff;
 
-    core::TRCoordinates dir; // direction
-    core::TRCoordinates pos2; // world coords
-    core::TRCoordinates dir2; // direction
+    core::TRVec dir; // direction
+    core::TRVec pos2; // world coords
+    core::TRVec dir2; // direction
 
     float getBrightness() const
     {
@@ -413,7 +413,7 @@ struct Layer
 
 struct RoomVertex
 {
-    core::TRCoordinates position; // where this vertex lies (relative to tr2_room_info::x/z)
+    core::TRVec position; // where this vertex lies (relative to tr2_room_info::x/z)
     int16_t darkness;
 
     uint16_t attributes; // A set of flags for special rendering effects [absent from TR1 data files]
@@ -424,7 +424,7 @@ struct RoomVertex
     // 0x0010 "normal"
     int16_t lighting2; // Almost always equal to Lighting1 [absent from TR1 data files]
     // TR5 -->
-    core::TRCoordinates normal;
+    core::TRVec normal;
 
     glm::vec4 color{0.0f};
 
@@ -549,7 +549,7 @@ struct Room
     static constexpr uint16_t TR_ROOM_FLAG_DAMAGE = 0x0800; ///< @FIXME: Is it really damage (D)?
     static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
-    core::TRCoordinates position;
+    core::TRVec position;
 
     int lowestHeight;
 
@@ -1116,33 +1116,33 @@ struct Room
             const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
             render::TextureAnimator& animator);
 
-    const Sector* getSectorByAbsolutePosition(core::TRCoordinates position) const
+    const Sector* getSectorByAbsolutePosition(core::TRVec position) const
     {
         position -= this->position;
         return getSectorByIndex( position.X / SectorSize, position.Z / SectorSize );
     }
 
-    gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRCoordinates position) const
+    gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec position) const
     {
         position -= this->position;
         return getInnerSectorByIndex( position.X / SectorSize, position.Z / SectorSize );
     }
 
-    bool isInnerPositionX(core::TRCoordinates position) const
+    bool isInnerPositionX(core::TRVec position) const
     {
         position -= this->position;
         int sx = position.X / SectorSize;
         return sx > 0 && sx < sectorCountX - 1;
     }
 
-    bool isInnerPositionZ(core::TRCoordinates position) const
+    bool isInnerPositionZ(core::TRVec position) const
     {
         position -= this->position;
         int sz = position.Z / SectorSize;
         return sz > 0 && sz < sectorCountZ - 1;
     }
 
-    bool isInnerPositionXZ(core::TRCoordinates position) const
+    bool isInnerPositionXZ(core::TRVec position) const
     {
         position -= this->position;
         int sx = position.X / SectorSize;
@@ -1422,7 +1422,7 @@ struct Zones
 
 struct Camera
 {
-    core::TRCoordinates position;
+    core::TRVec position;
 
     union
     {

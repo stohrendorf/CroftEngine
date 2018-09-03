@@ -29,7 +29,7 @@ void engine::items::TeethSpikes::collide(engine::LaraNode& lara, engine::Collisi
             auto fx = createBloodSplat( getLevel(),
                                         core::RoomBoundPosition{
                                                 lara.m_state.position.room,
-                                                lara.m_state.position.position + core::TRCoordinates{
+                                                lara.m_state.position.position + core::TRVec{
                                                         util::rand15s( 128 ),
                                                         -util::rand15( 512 ),
                                                         util::rand15s( 128 )

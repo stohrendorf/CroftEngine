@@ -27,14 +27,14 @@ public:
     {
     }
 
-    void patchFloor(const core::TRCoordinates& pos, int& y) override final
+    void patchFloor(const core::TRVec& pos, int& y) override final
     {
         auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
         if( pos.Y <= tmp )
             y = tmp;
     }
 
-    void patchCeiling(const core::TRCoordinates& pos, int& y) override final
+    void patchCeiling(const core::TRVec& pos, int& y) override final
     {
         auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
         if( pos.Y <= tmp )
@@ -44,7 +44,7 @@ public:
     }
 
 private:
-    int getBridgeSlopeHeight(const core::TRCoordinates& pos) const
+    int getBridgeSlopeHeight(const core::TRVec& pos) const
     {
         auto axis = axisFromAngle( m_state.rotation.Y, 1_deg );
         Expects( axis.is_initialized() );

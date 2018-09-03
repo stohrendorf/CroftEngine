@@ -46,25 +46,25 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
         lara.m_state.rotation.Y = y;
 
-        int32_t core::TRCoordinates::*vp;
+        int32_t core::TRVec::*vp;
         int d = 0;
         switch( *axis )
         {
             case core::Axis::PosZ:
                 d = loader::SectorSize - 100;
-                vp = &core::TRCoordinates::Z;
+                vp = &core::TRVec::Z;
                 break;
             case core::Axis::PosX:
                 d = loader::SectorSize - 100;
-                vp = &core::TRCoordinates::X;
+                vp = &core::TRVec::X;
                 break;
             case core::Axis::NegZ:
                 d = 100;
-                vp = &core::TRCoordinates::Z;
+                vp = &core::TRVec::Z;
                 break;
             case core::Axis::NegX:
                 d = 100;
-                vp = &core::TRCoordinates::X;
+                vp = &core::TRVec::X;
                 break;
             default:
                 Expects( false );

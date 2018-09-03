@@ -45,7 +45,7 @@ private:
 
     bool anyMovingEnabledItemInReach() const;
 
-    bool isPositionOutOfReach(const core::TRCoordinates& testPosition, int currentBoxFloor, int nextBoxFloor,
+    bool isPositionOutOfReach(const core::TRVec& testPosition, int currentBoxFloor, int nextBoxFloor,
                               const ai::LotInfo& lotInfo) const;
 
     uint16_t m_requiredAnimState = 0;

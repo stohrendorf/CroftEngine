@@ -17,7 +17,7 @@ namespace
 {
 std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
-core::TRRotationXY getVectorAngles(const core::TRCoordinates& co)
+core::TRRotationXY getVectorAngles(const core::TRVec& co)
 {
     return core::getVectorAngles( co.X, co.Y, co.Z );
 }
@@ -276,7 +276,7 @@ void LaraNode::update()
         m_air = core::LaraAir;
         m_underwaterState = UnderwaterState::Diving;
         m_state.falling = false;
-        const core::TRCoordinates& pos = m_state.position.position + core::TRCoordinates( 0, 100, 0 );
+        const core::TRVec& pos = m_state.position.position + core::TRVec( 0, 100, 0 );
         m_state.position.position = pos;
         updateFloorHeight( 0 );
         getLevel().stopSoundEffect( 30 );
@@ -873,7 +873,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
 void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 {
     m_state.box_number = m_state.getCurrentSector()->box;
-    core::TRCoordinates targetPos;
+    core::TRVec targetPos;
     if( !m_underwaterRoute.calculateTarget( getLevel(), targetPos, m_state ) )
         return;
 
@@ -891,7 +891,7 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
             m_state.position.position.Z - collisionInfo.oldPosition.Z
     );
 
-    collisionInfo.initHeightInfo( m_state.position.position + core::TRCoordinates{0, 200, 0}, getLevel(), 400 );
+    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0, 200, 0}, getLevel(), 400 );
     if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front )
     {
         if( m_state.rotation.X > 35_deg )
@@ -1975,7 +1975,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
 
     --ammoPtr->ammo;
     const auto weapon = &weapons[weaponId];
-    core::TRCoordinates gunPosition = gunHolder.m_state.position.position;
+    core::TRVec gunPosition = gunHolder.m_state.position.position;
     gunPosition.Y -= weapon->gunHeight;
     core::TRRotation shootVector{
             util::rand15s( weapon->shotAccuracy / 2 ) + aimAngle.X,
@@ -2020,7 +2020,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
 
         core::RoomBoundPosition aimHitPos{
                 gunHolder.m_state.position.room,
-                gunPosition + core::TRCoordinates{-bulletDir * VeryLargeDistanceProbablyClipping}
+                gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}
         };
 
         core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
@@ -2031,7 +2031,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
     {
         BOOST_ASSERT( target != nullptr );
         ++ammoPtr->hits;
-        hitTarget( *target, core::TRCoordinates{hitPos}, weapon->damage );
+        hitTarget( *target, core::TRVec{hitPos}, weapon->damage );
     }
 
     return true;
@@ -2045,7 +2045,7 @@ void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
     getLevel().playSound( 10, pos.position.toRenderSystem() );
 }
 
-void LaraNode::hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage)
+void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int damage)
 {
     if( item.m_state.health > 0 && item.m_state.health <= damage )
     {
@@ -2549,7 +2549,7 @@ LaraNode::renderGunFlare(LaraNode::WeaponId weaponId,
             break;
     }
 
-    m = glm::translate( m, core::TRCoordinates{0, dy, 55}.toRenderSystem() );
+    m = glm::translate( m, core::TRVec{0, dy, 55}.toRenderSystem() );
     m *= core::TRRotation( -90_deg, 0_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
 
     flareNode->setVisible( true );

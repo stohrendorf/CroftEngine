@@ -1,7 +1,7 @@
 #pragma once
 
 #include "util/helpers.h"
-#include "core/coordinates.h"
+#include "core/vec.h"
 #include "loader/datatypes.h"
 
 namespace engine

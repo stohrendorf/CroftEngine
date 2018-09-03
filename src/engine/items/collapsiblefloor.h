@@ -24,7 +24,7 @@ public:
     {
     }
 
-    void patchFloor(const core::TRCoordinates& pos, int& y) override
+    void patchFloor(const core::TRVec& pos, int& y) override
     {
         if( pos.Y > m_state.position.position.Y - 512 )
             return;
@@ -35,7 +35,7 @@ public:
         y = m_state.position.position.Y - 512;
     }
 
-    void patchCeiling(const core::TRCoordinates& pos, int& y) override
+    void patchCeiling(const core::TRVec& pos, int& y) override
     {
         if( pos.Y <= m_state.position.position.Y - 512 )
             return;

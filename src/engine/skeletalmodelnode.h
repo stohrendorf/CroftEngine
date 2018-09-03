@@ -34,7 +34,7 @@ struct BoneTreeEntry
 
     glm::vec3 toGl() const noexcept
     {
-        return core::TRCoordinates( x, y, z ).toRenderSystem();
+        return core::TRVec( x, y, z ).toRenderSystem();
     }
 };
 

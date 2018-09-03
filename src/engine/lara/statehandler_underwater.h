@@ -26,7 +26,7 @@ public:
             collisionInfo.facingAngle += 180_deg;
         }
         setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRCoordinates{0, 200, 0}, getLevel(), core::LaraHeightUnderwater);
+        collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRVec{0, 200, 0}, getLevel(), core::LaraHeightUnderwater);
 
         applyShift(collisionInfo);
 

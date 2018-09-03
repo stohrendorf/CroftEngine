@@ -20,7 +20,7 @@ public:
 
     void update() override;
 
-    void patchFloor(const core::TRCoordinates& pos, int& y) override
+    void patchFloor(const core::TRVec& pos, int& y) override
     {
         if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y )
             return;
@@ -28,7 +28,7 @@ public:
         y = m_state.position.position.Y;
     }
 
-    void patchCeiling(const core::TRCoordinates& pos, int& y) override
+    void patchCeiling(const core::TRVec& pos, int& y) override
     {
         if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y )
             return;
@@ -37,7 +37,7 @@ public:
     }
 
 private:
-    bool possiblyOnTrapdoor(const core::TRCoordinates& pos) const
+    bool possiblyOnTrapdoor(const core::TRVec& pos) const
     {
         auto trapdoorSectorX = m_state.position.position.X / loader::SectorSize;
         auto trapdoorSectorZ = m_state.position.position.Z / loader::SectorSize;

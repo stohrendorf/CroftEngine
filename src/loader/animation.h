@@ -2,7 +2,7 @@
 
 #include "io/sdlreader.h"
 #include "engine/items_tr1.h"
-#include "core/coordinates.h"
+#include "core/vec.h"
 
 #include <gsl/gsl>
 
@@ -29,7 +29,7 @@ struct BoundingBox
     {
     }
 
-    core::TRCoordinates getCenter() const
+    core::TRVec getCenter() const
     {
         return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
     }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/angle.h"
-#include "core/coordinates.h"
+#include "core/vec.h"
 #include "items_tr1.h"
 #include "Node.h"
 #include "level/level.h"

@@ -97,7 +97,7 @@ struct LotInfo
 
     const loader::Box* required_box = nullptr;
 
-    core::TRCoordinates target;
+    core::TRVec target;
 
     explicit LotInfo(const level::Level& lvl)
     {
@@ -124,7 +124,7 @@ struct LotInfo
         }
     }
 
-    bool calculateTarget(const level::Level& lvl, core::TRCoordinates& target, const items::ItemState& item);
+    bool calculateTarget(const level::Level& lvl, core::TRVec& target, const items::ItemState& item);
 
     /**
      * @brief Incrementally calculate all pathes to a specific box.
@@ -268,7 +268,7 @@ struct CreatureInfo
 
     LotInfo lot;
 
-    core::TRCoordinates target;
+    core::TRVec target;
 
     CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item);
 

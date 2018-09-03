@@ -168,7 +168,7 @@ void Bear::update()
             case RunningAttack:
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
                 {
-                    emitParticle( core::TRCoordinates{0, 96, 335}, 14, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, 96, 335}, 14, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = GettingDown;

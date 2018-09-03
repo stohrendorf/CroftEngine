@@ -22,14 +22,14 @@ int reflectAtSectorBoundary(int target, int current)
 }
 }
 
-void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const level::Level& level, int height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Level& level, int height)
 {
     collisionType = AxisColl_None;
     shift = {0, 0, 0};
     facingAxis = *axisFromAngle( facingAngle, 45_deg );
 
     auto room = level.m_lara->m_state.position.room;
-    const auto refTestPos = laraPos - core::TRCoordinates( 0, height + core::ScalpToHandsHeight, 0 );
+    const auto refTestPos = laraPos - core::TRVec( 0, height + core::ScalpToHandsHeight, 0 );
     auto currentSector = to_not_null( level.findRealFloorSector( refTestPos, to_not_null( &room ) ) );
 
     mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
@@ -77,7 +77,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     }
 
     // Front
-    auto testPos = refTestPos + core::TRCoordinates( frontX, 0, frontZ );
+    auto testPos = refTestPos + core::TRVec( frontX, 0, frontZ );
     auto sector = to_not_null( level.findRealFloorSector( testPos, to_not_null( &room ) ) );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
     if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.y < 0 )
@@ -96,7 +96,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     }
 
     // Front left
-    testPos = refTestPos + core::TRCoordinates( frontLeftX, 0, frontLeftZ );
+    testPos = refTestPos + core::TRVec( frontLeftX, 0, frontLeftZ );
     sector = to_not_null( level.findRealFloorSector( testPos, to_not_null( &room ) ) );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
@@ -117,7 +117,7 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
     }
 
     // Front right
-    testPos = refTestPos + core::TRCoordinates( frontRightX, 0, frontRightZ );
+    testPos = refTestPos + core::TRVec( frontRightX, 0, frontRightZ );
     sector = to_not_null( level.findRealFloorSector( testPos, to_not_null( &room ) ) );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
@@ -221,25 +221,25 @@ void CollisionInfo::initHeightInfo(const core::TRCoordinates& laraPos, const lev
 }
 
 std::set<gsl::not_null<const loader::Room*>>
-CollisionInfo::collectTouchingRooms(const core::TRCoordinates& position, int radius, int height,
+CollisionInfo::collectTouchingRooms(const core::TRVec& position, int radius, int height,
                                     const level::Level& level)
 {
     std::set<gsl::not_null<const loader::Room*>> result;
     auto room = level.m_lara->m_state.position.room;
     result.emplace( room );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, 0, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, 0, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( radius, -height, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRCoordinates( -radius, -height, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, 0, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, 0, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, 0, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, 0, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, -height, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, -height, radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, -height, -radius ), room ) );
+    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, -height, -radius ), room ) );
     return result;
 }
 
 bool
-CollisionInfo::checkStaticMeshCollisions(const core::TRCoordinates& position, int height, const level::Level& level)
+CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, int height, const level::Level& level)
 {
     const auto rooms = collectTouchingRooms( position, collisionRadius + 50, height + 50, level );
 

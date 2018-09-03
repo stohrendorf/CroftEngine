@@ -10,7 +10,7 @@ namespace loader
     {
         engine::TR1ItemId type; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
         uint16_t room; //!< Owning room
-        core::TRCoordinates position; //!< world coords
+        core::TRVec position; //!< world coords
         int16_t rotation; //!< ((0xc000 >> 14) * 90) degrees around Y axis
         int16_t darkness; //!< (constant lighting; -1 means use mesh lighting)
         int16_t intensity2 = 0; //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]

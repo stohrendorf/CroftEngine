@@ -369,7 +369,7 @@ public:
     boost::optional<core::Axis> hit_direction;
     int hit_frame = 0;
     int explosionStumblingDuration = 0;
-    const core::TRCoordinates* forceSourcePosition = nullptr;
+    const core::TRVec* forceSourcePosition = nullptr;
 
     void updateExplosionStumbling()
     {
@@ -504,7 +504,7 @@ public:
 
     void playShotMissed(const core::RoomBoundPosition& pos);
 
-    void hitTarget(ModelItemNode& item, const core::TRCoordinates& hitPos, int damage);
+    void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int damage);
 
     void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
                         bool visible);
@@ -513,10 +513,10 @@ public:
 
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 
-    void alignForInteraction(const core::TRCoordinates& offset, const engine::items::ItemState& item)
+    void alignForInteraction(const core::TRVec& offset, const engine::items::ItemState& item)
     {
         const auto v = item.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
-        const auto p = core::TRCoordinates{glm::vec3{v}};
+        const auto p = core::TRVec{glm::vec3{v}};
         m_state.position.position = item.position.position + p;
     }
 };

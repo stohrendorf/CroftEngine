@@ -271,7 +271,7 @@ bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara
 
     const auto offs = lara.position.position - item.position.position;
     const auto dist = glm::vec4{offs.toRenderSystem(), 1.0f} * item.rotation.toMatrix();
-    return distance.contains( core::TRCoordinates{glm::vec3{dist}} );
+    return distance.contains( core::TRVec{glm::vec3{dist}} );
 }
 
 void ModelItemNode::applyMovement(const bool forLara)
@@ -496,7 +496,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
     return m_state.touch_bits != 0;
 }
 
-void ModelItemNode::emitParticle(const core::TRCoordinates& pos,
+void ModelItemNode::emitParticle(const core::TRVec& pos,
                                  size_t boneIndex,
                                  gsl::not_null<std::shared_ptr<Particle>> (* generate)(const level::Level& level,
                                                                                        const core::RoomBoundPosition&,
@@ -512,7 +512,7 @@ void ModelItemNode::emitParticle(const core::TRCoordinates& pos,
     BOOST_ASSERT( boneIndex < itemSpheres.size() );
 
     auto roomPos = m_state.position;
-    roomPos.position = core::TRCoordinates{
+    roomPos.position = core::TRVec{
             glm::vec3{glm::translate( itemSpheres[boneIndex].m, pos.toRenderSystem() )[3]}};
     auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
     getLevel().m_particles.emplace_back( particle );

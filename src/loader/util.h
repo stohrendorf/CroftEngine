@@ -1,15 +1,15 @@
 #pragma once
 
-#include "core/coordinates.h"
+#include "core/vec.h"
 #include "io/sdlreader.h"
 
 namespace loader
 {
     namespace io
     {
-        inline core::TRCoordinates readCoordinates16(io::SDLReader& reader)
+        inline core::TRVec readCoordinates16(io::SDLReader& reader)
         {
-            core::TRCoordinates vertex;
+            core::TRVec vertex;
             // read vertex and change coordinate system
             vertex.X = reader.readI16();
             vertex.Y = reader.readI16();
@@ -17,9 +17,9 @@ namespace loader
             return vertex;
         }
 
-        inline core::TRCoordinates readCoordinates32(io::SDLReader& reader)
+        inline core::TRVec readCoordinates32(io::SDLReader& reader)
         {
-            core::TRCoordinates vertex;
+            core::TRVec vertex;
             // read vertex and change coordinate system
             vertex.X = reader.readI32();
             vertex.Y = reader.readI32();
@@ -27,9 +27,9 @@ namespace loader
             return vertex;
         }
 
-        inline core::TRCoordinates readCoordinatesF(io::SDLReader& reader)
+        inline core::TRVec readCoordinatesF(io::SDLReader& reader)
         {
-            core::TRCoordinates vertex;
+            core::TRVec vertex;
             vertex.X = std::lround(reader.readF());
             vertex.Y = std::lround(reader.readF());
             vertex.Z = std::lround(reader.readF());

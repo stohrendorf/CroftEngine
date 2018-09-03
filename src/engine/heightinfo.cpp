@@ -7,7 +7,7 @@ namespace engine
 {
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos,
+HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRVec& pos,
                                  const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
 {
     HeightInfo hi;
@@ -112,7 +112,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
     return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRCoordinates& pos,
+HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRVec& pos,
                                    const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
 {
     HeightInfo hi;

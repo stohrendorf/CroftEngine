@@ -100,7 +100,7 @@ bool BubbleParticle::update(const level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
-    core::TRCoordinates testPos{
+    core::TRVec testPos{
             static_cast<int>(11 * angle.Y.sin() + pos.position.X),
             pos.position.Y - speed,
             static_cast<int>((8 * angle.X.cos()) + pos.position.Z)

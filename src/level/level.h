@@ -163,7 +163,7 @@ public:
     std::shared_ptr<engine::items::ItemNode> createItem(engine::TR1ItemId type,
                                                         const gsl::not_null<const loader::Room*>& room,
                                                         const core::Angle& angle,
-                                                        const core::TRCoordinates& position,
+                                                        const core::TRVec& position,
                                                         uint16_t activationState)
     {
         const auto& model = findAnimatedModelForType( type );
@@ -186,7 +186,7 @@ public:
         return node;
     }
 
-    const loader::Sector* findRealFloorSector(const core::TRCoordinates& position,
+    const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                               gsl::not_null<const loader::Room*> room) const
     {
         return findRealFloorSector( position, to_not_null( &room ) );
@@ -197,14 +197,14 @@ public:
         return findRealFloorSector( rbs.position, to_not_null( &rbs.room ) );
     }
 
-    const loader::Sector* findRealFloorSector(const core::TRCoordinates& position,
+    const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                               const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const;
 
-    gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRCoordinates& position,
+    gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRVec& position,
                                                            gsl::not_null<const loader::Room*> room) const;
 
     std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::Sector*> sector,
-                                                 const core::TRCoordinates& position) const
+                                                 const core::TRVec& position) const
     {
         while( sector->roomBelow != nullptr )
         {

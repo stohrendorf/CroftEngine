@@ -211,7 +211,7 @@ public:
 
     void move(const glm::vec3& d)
     {
-        m_state.position.position += core::TRCoordinates( d );
+        m_state.position.position += core::TRVec( d );
     }
 
     void moveLocal(const int dx, const int dy, const int dz)
@@ -238,11 +238,11 @@ public:
         m_state.speed -= m_state.speed * f;
     }
 
-    virtual void patchFloor(const core::TRCoordinates& /*pos*/, int& /*y*/)
+    virtual void patchFloor(const core::TRVec& /*pos*/, int& /*y*/)
     {
     }
 
-    virtual void patchCeiling(const core::TRCoordinates& /*pos*/, int& /*y*/)
+    virtual void patchCeiling(const core::TRVec& /*pos*/, int& /*y*/)
     {
     }
 
@@ -310,7 +310,7 @@ protected:
         }
         else
         {
-            const core::TRCoordinates& pos = core::TRCoordinates( targetPos );
+            const core::TRVec& pos = core::TRVec( targetPos );
             m_state.position.position = pos;
         }
 
@@ -427,7 +427,7 @@ public:
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-    void emitParticle(const core::TRCoordinates& pos,
+    void emitParticle(const core::TRVec& pos,
                       size_t boneIndex,
                       gsl::not_null<std::shared_ptr<engine::Particle>> (* generate)(const level::Level& level,
                                                                                     const core::RoomBoundPosition& pos,

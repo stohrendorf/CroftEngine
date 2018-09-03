@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "coordinates.h"
+#include "vec.h"
 
 namespace core
 {
@@ -8,7 +8,7 @@ struct BoundingBox final
 {
     explicit BoundingBox() = default;
 
-    explicit BoundingBox(const TRCoordinates& min_, const TRCoordinates& max_)
+    explicit BoundingBox(const TRVec& min_, const TRVec& max_)
             : min{min_}
             , max{max_}
     {
@@ -36,15 +36,15 @@ struct BoundingBox final
                  || min.Z > box.max.Z || max.Z < box.min.Z);
     }
 
-    bool contains(const TRCoordinates& v) const noexcept
+    bool contains(const TRVec& v) const noexcept
     {
         return v.X >= min.X && v.X <= max.X
                && v.Y >= min.Y && v.Y <= max.Y
                && v.Z >= min.Z && v.Z <= max.Z;
     }
 
-    TRCoordinates min{0, 0, 0};
+    TRVec min{0, 0, 0};
 
-    TRCoordinates max{0, 0, 0};
+    TRVec max{0, 0, 0};
 };
 }

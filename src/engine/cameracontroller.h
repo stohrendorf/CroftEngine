@@ -203,7 +203,7 @@ private:
     void tracePortals();
 
     static bool
-    clampY(const core::TRCoordinates& start, core::TRCoordinates& origin, gsl::not_null<const loader::Sector*> sector,
+    clampY(const core::TRVec& start, core::TRVec& origin, gsl::not_null<const loader::Sector*> sector,
            const level::Level& level);
 
     enum class ClampType
@@ -223,7 +223,7 @@ private:
 
     int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
 
-    bool isVerticallyOutsideRoom(const core::TRCoordinates& pos, const gsl::not_null<const loader::Room*>& room) const;
+    bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::Room*>& room) const;
 
     void updatePosition(const core::RoomBoundPosition& position, int smoothFactor);
 

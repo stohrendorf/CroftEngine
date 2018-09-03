@@ -22,7 +22,7 @@ namespace loader
 {
     struct RoomStaticMesh
     {
-        core::TRCoordinates position; // world coords
+        core::TRVec position; // world coords
         int16_t rotation;
         int16_t darkness; // Constant lighting; -1 means use mesh lighting
         int16_t intensity2; // Like Intensity 1, and almost always the same value [absent from TR1 data files]
@@ -131,7 +131,7 @@ namespace loader
         }
 
 
-        core::BoundingBox getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const;
+        core::BoundingBox getCollisionBox(const core::TRVec& pos, core::Angle angle) const;
 
 
         static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)

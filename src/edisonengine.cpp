@@ -245,7 +245,7 @@ sol::state createScriptEngine()
 
     engine.set_usertype( core::Angle::userType() );
     engine.set_usertype( core::TRRotation::userType() );
-    engine.set_usertype( core::TRCoordinates::userType() );
+    engine.set_usertype( core::TRVec::userType() );
     engine.set_usertype( engine::ai::CreatureInfo::userType() );
     engine.set_usertype( engine::items::ItemState::userType() );
 

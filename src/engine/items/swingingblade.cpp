@@ -30,7 +30,7 @@ void SwingingBlade::update()
         getLevel().m_lara->m_state.is_hit = true;
         getLevel().m_lara->m_state.health -= 100;
 
-        core::TRCoordinates splatPos{
+        core::TRVec splatPos{
                 getLevel().m_lara->m_state.position.position.X + util::rand15s() / 256,
                 getLevel().m_lara->m_state.position.position.Y - util::rand15() / 44,
                 getLevel().m_lara->m_state.position.position.Z + util::rand15s() / 256

@@ -54,7 +54,7 @@ void KeyHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionIn
         return;
     }
 
-    lara.alignForInteraction( core::TRCoordinates{0, 0, 362}, m_state );
+    lara.alignForInteraction( core::TRVec{0, 0, 362}, m_state );
 
     do
     {

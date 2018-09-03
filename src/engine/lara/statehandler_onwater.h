@@ -24,7 +24,7 @@ protected:
     void commonOnWaterHandling(CollisionInfo& collisionInfo)
     {
         collisionInfo.facingAngle = getMovementAngle();
-        collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRCoordinates(0, 700, 0), getLevel(), 700);
+        collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRVec(0, 700, 0), getLevel(), 700);
         applyShift(collisionInfo);
         if( collisionInfo.mid.floor.y < 0
             || (collisionInfo.collisionType &
@@ -110,9 +110,9 @@ private:
             return;
         }
 
-        getLara().m_state.position.position += core::TRCoordinates(0, 695 + collisionInfo.front.floor.y, 0);
+        getLara().m_state.position.position += core::TRVec(0, 695 + collisionInfo.front.floor.y, 0);
         getLara().updateFloorHeight(-381);
-        core::TRCoordinates d = getLara().m_state.position.position;
+        core::TRVec d = getLara().m_state.position.position;
         if( *yRot == 0_deg )
         {
             d.Z = (getLara().m_state.position.position.Z / loader::SectorSize + 1) * loader::SectorSize + core::DefaultCollisionRadius;

@@ -65,7 +65,7 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
             return;
         }
 
-        lara.alignForInteraction( core::TRCoordinates{0, 0, 327}, m_state );
+        lara.alignForInteraction( core::TRVec{0, 0, 327}, m_state );
 
         do
         {

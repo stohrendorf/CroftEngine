@@ -18,13 +18,13 @@ public:
     {
     }
 
-    void patchFloor(const core::TRCoordinates& pos, int& y) override
+    void patchFloor(const core::TRVec& pos, int& y) override
     {
         if( pos.Y <= m_state.position.position.Y )
             y = m_state.position.position.Y;
     }
 
-    void patchCeiling(const core::TRCoordinates& pos, int& y) override
+    void patchCeiling(const core::TRVec& pos, int& y) override
     {
         if( pos.Y <= m_state.position.position.Y )
             return;

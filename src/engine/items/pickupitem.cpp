@@ -93,7 +93,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
                 && !lara.m_state.falling
                 && lara.getCurrentAnimState() == LaraStateId::Stop )
             {
-                lara.alignForInteraction( core::TRCoordinates{0, 0, -100}, m_state );
+                lara.alignForInteraction( core::TRVec{0, 0, -100}, m_state );
 
                 do
                 {

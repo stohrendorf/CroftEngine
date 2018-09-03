@@ -22,7 +22,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const ui
 }
 
 bool LotInfo::calculateTarget(const level::Level& lvl,
-                              core::TRCoordinates& target,
+                              core::TRVec& target,
                               const items::ItemState& item)
 {
     updatePath( lvl, 5 );

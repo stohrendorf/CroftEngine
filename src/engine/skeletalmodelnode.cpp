@@ -292,7 +292,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
 
     std::stack<glm::mat4> transforms;
 
-    core::TRCoordinates pos;
+    core::TRVec pos;
 
     if( baseTransform == nullptr )
     {
@@ -301,7 +301,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
     }
     else
     {
-        pos = core::TRCoordinates( 0, 0, 0 );
+        pos = core::TRVec( 0, 0, 0 );
         transforms.push( *baseTransform * state.rotation.toMatrix() );
     }
 

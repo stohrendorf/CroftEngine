@@ -25,11 +25,11 @@ struct HeightInfo
     static bool skipSteepSlants;
 
     static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector,
-                                const core::TRCoordinates& pos,
+                                const core::TRVec& pos,
                                 const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
 
     static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
-                                  const core::TRCoordinates& pos,
+                                  const core::TRVec& pos,
                                   const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
 
     HeightInfo() = default;
@@ -42,7 +42,7 @@ struct VerticalInfo
     HeightInfo ceiling;
 
     void init(const gsl::not_null<const loader::Sector*>& roomSector,
-              const core::TRCoordinates& position,
+              const core::TRVec& position,
               const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
               int floorHeight,
               int scalpHeight)

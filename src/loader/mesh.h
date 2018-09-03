@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/coordinates.h"
+#include "core/vec.h"
 #include "color.h"
 #include "primitives.h"
 #include "texture.h"
@@ -17,10 +17,10 @@ namespace loader
 {
 struct Mesh
 {
-    core::TRCoordinates center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
+    core::TRVec center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
     int32_t collision_size; // This appears to be the radius of that aforementioned collisional sphere.
-    std::vector<core::TRCoordinates> vertices; //[NumVertices]; // list of vertices (relative coordinates)
-    std::vector<core::TRCoordinates> normals; //[NumNormals]; // list of normals (if NumNormals is positive)
+    std::vector<core::TRVec> vertices; //[NumVertices]; // list of vertices (relative coordinates)
+    std::vector<core::TRVec> normals; //[NumNormals]; // list of normals (if NumNormals is positive)
     std::vector<int16_t> vertexDarknesses; //[-NumNormals]; // list of light values (if NumNormals is negative), 0..8191
     std::vector<QuadFace> textured_rectangles; //[NumTexturedRectangles]; // list of textured rectangles
     std::vector<Triangle> textured_triangles; //[NumTexturedTriangles]; // list of textured triangles

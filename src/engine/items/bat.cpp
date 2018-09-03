@@ -44,7 +44,7 @@ void Bat::update()
             case Biting:
                 if( m_state.touch_bits != 0 )
                 {
-                    emitParticle( core::TRCoordinates{0, 16, 45}, 4, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, 16, 45}, 4, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 2;
                 }

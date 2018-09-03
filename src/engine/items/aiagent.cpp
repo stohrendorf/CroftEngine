@@ -34,7 +34,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     return turnAngle;
 }
 
-bool AIAgent::isPositionOutOfReach(const core::TRCoordinates& testPosition,
+bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const int currentBoxFloor,
                                    const int nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
@@ -102,7 +102,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     auto room = m_state.position.room;
     auto sector = to_not_null( getLevel().findRealFloorSector(
-            m_state.position.position + core::TRCoordinates{0, bbox.minY, 0},
+            m_state.position.position + core::TRVec{0, bbox.minY, 0},
             to_not_null( &room ) ) );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
@@ -139,7 +139,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
             m_state.position.position.Z = oldPosition.Z | 0x3ff;
 
         sector = to_not_null( getLevel().findRealFloorSector(
-                core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 to_not_null( &room ) ) );
 
         currentFloor = sector->box->floor;
@@ -168,7 +168,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( radius > inSectorZ )
     {
-        if( isPositionOutOfReach( core::TRCoordinates{basePosX, bboxMinY, basePosZ - radius}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{basePosX, bboxMinY, basePosZ - radius}, currentFloor,
                                   nextFloor,
                                   lotInfo ) )
         {
@@ -177,14 +177,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         if( radius > inSectorX )
         {
-            if( isPositionOutOfReach( core::TRCoordinates{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = radius - inSectorX;
             }
             else if( moveZ == 0
                      && isPositionOutOfReach(
-                             core::TRCoordinates{basePosX - radius, bboxMinY, basePosZ - radius},
+                             core::TRVec{basePosX - radius, bboxMinY, basePosZ - radius},
                              currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y > -135_deg && m_state.rotation.Y < 45_deg )
@@ -195,14 +195,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
         else if( loader::SectorSize - radius < inSectorX )
         {
-            if( isPositionOutOfReach( core::TRCoordinates{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = loader::SectorSize - radius - inSectorX;
             }
             else if( moveZ == 0
                      && isPositionOutOfReach(
-                             core::TRCoordinates{radius + basePosX, bboxMinY, basePosZ - radius},
+                             core::TRVec{radius + basePosX, bboxMinY, basePosZ - radius},
                              currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y > -45_deg && m_state.rotation.Y < 135_deg )
@@ -218,7 +218,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( loader::SectorSize - radius < inSectorZ )
     {
-        if( isPositionOutOfReach( core::TRCoordinates{basePosX, bboxMinY, basePosZ + radius}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{basePosX, bboxMinY, basePosZ + radius}, currentFloor,
                                   nextFloor,
                                   lotInfo ) )
         {
@@ -227,14 +227,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         if( radius > inSectorX )
         {
-            if( isPositionOutOfReach( core::TRCoordinates{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = radius - inSectorX;
             }
             else if( moveZ == 0
                      && isPositionOutOfReach(
-                             core::TRCoordinates{basePosX - radius, bboxMinY, basePosZ + radius},
+                             core::TRVec{basePosX - radius, bboxMinY, basePosZ + radius},
                              currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y < 135_deg && m_state.rotation.Y > -45_deg )
@@ -249,14 +249,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
         else if( loader::SectorSize - radius < inSectorX )
         {
-            if( isPositionOutOfReach( core::TRCoordinates{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = loader::SectorSize - radius - inSectorX;
             }
             else if( moveZ == 0
                      && isPositionOutOfReach(
-                             core::TRCoordinates{radius + basePosX, bboxMinY, basePosZ + radius},
+                             core::TRVec{radius + basePosX, bboxMinY, basePosZ + radius},
                              currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y < 45_deg && m_state.rotation.Y > -135_deg )
@@ -272,7 +272,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( radius > inSectorX )
     {
-        if( isPositionOutOfReach( core::TRCoordinates{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
                                   nextFloor, lotInfo ) )
         {
             moveX = radius - inSectorX;
@@ -280,7 +280,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( inSectorX > loader::SectorSize - radius )
     {
-        if( isPositionOutOfReach( core::TRCoordinates{basePosX + radius, bboxMinY, basePosZ}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{basePosX + radius, bboxMinY, basePosZ}, currentFloor,
                                   nextFloor, lotInfo ) )
         {
             moveX = loader::SectorSize - radius - inSectorX;
@@ -293,7 +293,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     if( moveX != 0 || moveZ != 0 )
     {
         sector = to_not_null( getLevel().findRealFloorSector(
-                core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 to_not_null( &room ) ) );
 
         m_state.rotation.Y += angle;
@@ -315,7 +315,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                        lotInfo.fly );
 
         currentFloor = HeightInfo::fromFloor( sector,
-                                              core::TRCoordinates{
+                                              core::TRVec{
                                                       m_state.position.position.X,
                                                       bboxMinY,
                                                       m_state.position.position.Z
@@ -342,7 +342,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else
         {
             const auto ceiling = HeightInfo::fromCeiling( sector,
-                                                          core::TRCoordinates{
+                                                          core::TRVec{
                                                                   m_state.position.position.X,
                                                                   bboxMinY,
                                                                   m_state.position.position.Z
@@ -366,10 +366,10 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         m_state.position.position.Y += moveY;
         sector = to_not_null( getLevel().findRealFloorSector(
-                core::TRCoordinates{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                 to_not_null( &room ) ) );
         m_state.floor = HeightInfo::fromFloor( sector,
-                                               core::TRCoordinates{
+                                               core::TRVec{
                                                        m_state.position.position.X,
                                                        bboxMinY,
                                                        m_state.position.position.Z

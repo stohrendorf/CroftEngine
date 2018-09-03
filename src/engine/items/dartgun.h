@@ -41,7 +41,7 @@ public:
         auto axis = core::axisFromAngle( m_state.rotation.Y, 45_deg );
         BOOST_ASSERT( axis.is_initialized() );
 
-        core::TRCoordinates d( 0, 512, 0 );
+        core::TRVec d( 0, 512, 0 );
 
         switch( *axis )
         {

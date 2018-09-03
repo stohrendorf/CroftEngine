@@ -33,7 +33,7 @@ namespace loader
     */
     struct SoundSource
     {
-        core::TRCoordinates position;
+        core::TRVec position;
         uint16_t sound_id; // internal sound index
         uint16_t flags; // 0x40, 0x80, or 0xc0
 

@@ -107,7 +107,7 @@ set( EDISONENGINE_SRCS
 
      core/angle.h
      core/boundingbox.h
-     core/coordinates.h
+     core/vec.h
      core/magic.h
 
      engine/lara/abstractstatehandler.h

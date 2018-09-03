@@ -185,7 +185,7 @@ void Wolf::update()
                 roll = rotationToMoveTarget;
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) )
                 {
-                    emitParticle( core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, -14, 174}, 6, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 50;
                     m_state.required_anim_state = Jumping;
@@ -195,7 +195,7 @@ void Wolf::update()
             case Biting:
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
                 {
-                    emitParticle( core::TRCoordinates{0, -14, 174}, 6, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, -14, 174}, 6, &engine::createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = PrepareToStrike;

@@ -267,7 +267,7 @@ void Room::createSceneNode(
     }
 }
 
-core::BoundingBox StaticMesh::getCollisionBox(const core::TRCoordinates& pos, core::Angle angle) const
+core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, core::Angle angle) const
 {
     auto result = collision_box;
 
@@ -310,7 +310,7 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, int height)
                                                                                          to_not_null( &room ) ));
     BOOST_ASSERT( groundSector != nullptr );
     const auto topSector = item.getLevel().findRealFloorSector(
-            item.m_state.position.position + core::TRCoordinates{0, height - loader::SectorSize, 0},
+            item.m_state.position.position + core::TRVec{0, height - loader::SectorSize, 0},
             to_not_null( &room ) );
 
     const auto q = height / loader::QuarterSectorSize;

@@ -1016,7 +1016,7 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
     }
 }
 
-const loader::Sector* Level::findRealFloorSector(const core::TRCoordinates& position,
+const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
                                                  const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const
 {
     const loader::Sector* sector = nullptr;
@@ -1058,7 +1058,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRCoordinates& posi
 }
 
 gsl::not_null<const loader::Room*>
-Level::findRoomForPosition(const core::TRCoordinates& position, gsl::not_null<const loader::Room*> room) const
+Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const loader::Room*> room) const
 {
     const loader::Sector* sector = nullptr;
     while( true )
@@ -1519,9 +1519,9 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
                 *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
                 nullptr );
 
-        auto position = core::TRCoordinates{
+        auto position = core::TRVec{
                 glm::vec3{glm::translate( itemSpheres[14].m,
-                                          core::TRCoordinates{0, 0, 50}.toRenderSystem() )[3]}};
+                                          core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )
         {

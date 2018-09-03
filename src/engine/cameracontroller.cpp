@@ -172,8 +172,8 @@ void CameraController::tracePortals()
     }
 }
 
-bool CameraController::clampY(const core::TRCoordinates& start,
-                              core::TRCoordinates& end,
+bool CameraController::clampY(const core::TRVec& start,
+                              core::TRVec& end,
                               gsl::not_null<const loader::Sector*> sector,
                               const level::Level& level)
 {
@@ -213,7 +213,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
 
     const int sign = d.X < 0 ? -1 : 1;
 
-    core::TRCoordinates testPos;
+    core::TRVec testPos;
     testPos.X = (start.position.X / loader::SectorSize) * loader::SectorSize;
     if( sign > 0 )
         testPos.X += loader::SectorSize - 1;
@@ -221,7 +221,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     testPos.Y = start.position.Y + (testPos.X - start.position.X) * d.Y / d.X;
     testPos.Z = start.position.Z + (testPos.X - start.position.X) * d.Z / d.X;
 
-    core::TRCoordinates step;
+    core::TRVec step;
     step.X = sign * loader::SectorSize;
     step.Y = step.X * d.Y / d.X;
     step.Z = step.X * d.Z / d.X;
@@ -241,7 +241,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
             return ClampType::None;
         }
 
-        core::TRCoordinates heightPos = testPos;
+        core::TRVec heightPos = testPos;
         auto sector = to_not_null( level.findRealFloorSector( heightPos, to_not_null( &room ) ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
@@ -278,7 +278,7 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
 
     const int sign = d.Z < 0 ? -1 : 1;
 
-    core::TRCoordinates testPos;
+    core::TRVec testPos;
     testPos.Z = (start.position.Z / loader::SectorSize) * loader::SectorSize;
 
     if( sign > 0 )
@@ -287,7 +287,7 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     testPos.X = start.position.X + (testPos.Z - start.position.Z) * d.X / d.Z;
     testPos.Y = start.position.Y + (testPos.Z - start.position.Z) * d.Y / d.Z;
 
-    core::TRCoordinates step;
+    core::TRVec step;
     step.Z = sign * loader::SectorSize;
     step.X = step.Z * d.X / d.Z;
     step.Y = step.Z * d.Y / d.Z;
@@ -307,7 +307,7 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
             return ClampType::None;
         }
 
-        core::TRCoordinates heightPos = testPos;
+        core::TRVec heightPos = testPos;
         auto sector = to_not_null( level.findRealFloorSector( heightPos, to_not_null( &room ) ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
@@ -541,17 +541,17 @@ int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin)
     auto room = pos.room;
 
     if( sector->box->zmin + margin > pos.position.Z
-        && isVerticallyOutsideRoom( pos.position - core::TRCoordinates( 0, 0, margin ), room ) )
+        && isVerticallyOutsideRoom( pos.position - core::TRVec( 0, 0, margin ), room ) )
         pos.position.Z = sector->box->zmin + margin;
     else if( sector->box->zmax - margin > pos.position.Z
-             && isVerticallyOutsideRoom( pos.position + core::TRCoordinates( 0, 0, margin ), room ) )
+             && isVerticallyOutsideRoom( pos.position + core::TRVec( 0, 0, margin ), room ) )
         pos.position.Z = sector->box->zmax - margin;
 
     if( sector->box->xmin + margin > pos.position.X
-        && isVerticallyOutsideRoom( pos.position - core::TRCoordinates( margin, 0, 0 ), room ) )
+        && isVerticallyOutsideRoom( pos.position - core::TRVec( margin, 0, 0 ), room ) )
         pos.position.X = sector->box->xmin + margin;
     else if( sector->box->xmax - margin > pos.position.X
-             && isVerticallyOutsideRoom( pos.position + core::TRCoordinates( margin, 0, 0 ), room ) )
+             && isVerticallyOutsideRoom( pos.position + core::TRVec( margin, 0, 0 ), room ) )
         pos.position.X = sector->box->xmax - margin;
 
     auto bottom = HeightInfo::fromFloor( sector, pos.position, getLevel()->m_itemNodes ).y - margin;
@@ -566,7 +566,7 @@ int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin)
     return 0;
 }
 
-bool CameraController::isVerticallyOutsideRoom(const core::TRCoordinates& pos,
+bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::Room*>& room) const
 {
     auto sector = to_not_null( m_level->findRealFloorSector( pos, room ) );
@@ -747,7 +747,7 @@ void CameraController::clampBox(core::RoomBoundPosition& idealPos, const std::fu
             clampBox = idealBox;
     }
 
-    core::TRCoordinates testPos = idealPos.position;
+    core::TRVec testPos = idealPos.position;
     testPos.Z = (testPos.Z / loader::SectorSize) * loader::SectorSize - 1;
     BOOST_ASSERT( testPos.Z % loader::SectorSize == loader::SectorSize - 1
                   && std::abs( testPos.Z - idealPos.position.Z ) <= loader::SectorSize );

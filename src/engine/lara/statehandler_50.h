@@ -49,7 +49,7 @@ public:
                 continue;
 
             const auto r = spheres[i].radius;
-            auto p = core::TRCoordinates{spheres[i].getPosition()};
+            auto p = core::TRVec{spheres[i].getPosition()};
             p.X += util::rand15s( r );
             p.Y += util::rand15s( r );
             p.Z += util::rand15s( r );

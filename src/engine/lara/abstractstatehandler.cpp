@@ -359,8 +359,8 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     }
 
     setTargetState( LaraStateId::Hang );
-    const core::TRCoordinates& pos = m_lara.m_state.position.position
-                                     + core::TRCoordinates( collisionInfo.shift.X, spaceToReach,
+    const core::TRVec& pos = m_lara.m_state.position.position
+                                     + core::TRVec( collisionInfo.shift.X, spaceToReach,
                                                             collisionInfo.shift.Z );
     m_lara.m_state.position.position = pos;
     m_lara.m_state.speed = 0;
@@ -585,7 +585,7 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
     bbox = getBoundingBox();
     spaceToReach = collisionInfo.front.floor.y - bbox.minY;
 
-    const core::TRCoordinates& pos = m_lara.m_state.position.position + core::TRCoordinates( 0, spaceToReach, 0 );
+    const core::TRVec& pos = m_lara.m_state.position.position + core::TRVec( 0, spaceToReach, 0 );
     m_lara.m_state.position.position = pos;
     applyShift( collisionInfo );
     m_lara.m_state.speed = 0;
@@ -698,25 +698,25 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     {
         case core::Axis::PosZ:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position + core::TRCoordinates( 0, 0, 2 );
+            const core::TRVec& pos = m_lara.m_state.position.position + core::TRVec( 0, 0, 2 );
             m_lara.m_state.position.position = pos;
         }
             break;
         case core::Axis::PosX:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position + core::TRCoordinates( 2, 0, 0 );
+            const core::TRVec& pos = m_lara.m_state.position.position + core::TRVec( 2, 0, 0 );
             m_lara.m_state.position.position = pos;
         }
             break;
         case core::Axis::NegZ:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position - core::TRCoordinates( 0, 0, 2 );
+            const core::TRVec& pos = m_lara.m_state.position.position - core::TRVec( 0, 0, 2 );
             m_lara.m_state.position.position = pos;
         }
             break;
         case core::Axis::NegX:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position - core::TRCoordinates( 2, 0, 0 );
+            const core::TRVec& pos = m_lara.m_state.position.position - core::TRVec( 2, 0, 0 );
             m_lara.m_state.position.position = pos;
         }
             break;
@@ -734,8 +734,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         setHandStatus( HandStatus::None );
         const auto bbox = getBoundingBox();
         const auto hangDistance = collisionInfo.front.floor.y - bbox.minY + 2;
-        const core::TRCoordinates& pos = m_lara.m_state.position.position
-                                         + core::TRCoordinates( collisionInfo.shift.X, hangDistance,
+        const core::TRVec& pos = m_lara.m_state.position.position
+                                         + core::TRVec( collisionInfo.shift.X, hangDistance,
                                                                 collisionInfo.shift.Z );
         m_lara.m_state.position.position = pos;
         m_lara.m_state.speed = 2;
@@ -766,16 +766,16 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         case core::Axis::PosZ:
         case core::Axis::NegZ:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position
-                                             + core::TRCoordinates( 0, 0, collisionInfo.shift.Z );
+            const core::TRVec& pos = m_lara.m_state.position.position
+                                             + core::TRVec( 0, 0, collisionInfo.shift.Z );
             m_lara.m_state.position.position = pos;
         }
             break;
         case core::Axis::PosX:
         case core::Axis::NegX:
         {
-            const core::TRCoordinates& pos = m_lara.m_state.position.position
-                                             + core::TRCoordinates( collisionInfo.shift.X, 0, 0 );
+            const core::TRVec& pos = m_lara.m_state.position.position
+                                             + core::TRVec( collisionInfo.shift.X, 0, 0 );
             m_lara.m_state.position.position = pos;
         }
             break;
@@ -786,7 +786,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 
     if( spaceToReach >= -loader::QuarterSectorSize && spaceToReach <= loader::QuarterSectorSize )
     {
-        const core::TRCoordinates& pos = m_lara.m_state.position.position + core::TRCoordinates( 0, spaceToReach, 0 );
+        const core::TRVec& pos = m_lara.m_state.position.position + core::TRVec( 0, spaceToReach, 0 );
         m_lara.m_state.position.position = pos;
     }
 }
@@ -797,7 +797,7 @@ bool AbstractStateHandler::applyLandingDamage()
             getLevel().findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room ) );
     HeightInfo h = HeightInfo::fromFloor( sector,
                                           m_lara.m_state.position.position
-                                          - core::TRCoordinates{0, core::ScalpHeight, 0},
+                                          - core::TRVec{0, core::ScalpHeight, 0},
                                           getLevel().m_itemNodes );
     m_lara.m_state.floor = h.y;
     m_lara.handleCommandSequence( h.lastCommandSequenceOrDeath, false );
