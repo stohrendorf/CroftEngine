@@ -808,6 +808,15 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                                                                                      "shaders/textured_2.frag",
                                                                                      {"WATER"} ) );
     auto waterMaterials = createMaterials( waterTexturedShader );
+    for( const auto& m : waterMaterials | boost::adaptors::map_values )
+    {
+        m->getParameter( "u_time" )->bind(
+                [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+                    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
+                    uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
+                }
+        );
+    }
 
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
