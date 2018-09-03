@@ -562,6 +562,8 @@ public:
         return true;
     }
 
+    bool tryUseInventoryItem(engine::TR1ItemId id);
+
     size_t countInventoryItem(engine::TR1ItemId id) const
     {
         auto it = m_inventory.find( id );

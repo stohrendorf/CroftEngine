@@ -540,16 +540,6 @@ engine::LaraNode* Level::createItems()
                                    << int( item.type );
     }
 
-    addInventoryItem( engine::TR1ItemId::Key1Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Key2Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Key3Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Key4Sprite, 10 );
-
-    addInventoryItem( engine::TR1ItemId::Puzzle1Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Puzzle2Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Puzzle3Sprite, 10 );
-    addInventoryItem( engine::TR1ItemId::Puzzle4Sprite, 10 );
-
     return lara;
 }
 
@@ -1885,4 +1875,90 @@ void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
             BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id ) << " to inventory";
             return;
     }
+}
+
+bool Level::tryUseInventoryItem(engine::TR1ItemId id)
+{
+    if( id == engine::TR1ItemId::Shotgun || id == engine::TR1ItemId::ShotgunSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::Shotgun ) == 0 )
+            return false;
+
+        m_lara->requestedGunType = engine::LaraNode::WeaponId::Shotgun;
+        if( m_lara->getHandStatus() == engine::HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
+        {
+            m_lara->gunType = engine::LaraNode::WeaponId::None;
+        }
+    }
+    else if( id == engine::TR1ItemId::Pistols || id == engine::TR1ItemId::PistolsSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::Pistols ) == 0 )
+            return false;
+
+        m_lara->requestedGunType = engine::LaraNode::WeaponId::Pistols;
+        if( m_lara->getHandStatus() == engine::HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
+        {
+            m_lara->gunType = engine::LaraNode::WeaponId::None;
+        }
+    }
+    else if( id == engine::TR1ItemId::Magnums || id == engine::TR1ItemId::MagnumsSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::Magnums ) == 0 )
+            return false;
+
+        m_lara->requestedGunType = engine::LaraNode::WeaponId::AutoPistols;
+        if( m_lara->getHandStatus() == engine::HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
+        {
+            m_lara->gunType = engine::LaraNode::WeaponId::None;
+        }
+    }
+    else if( id == engine::TR1ItemId::Uzis || id == engine::TR1ItemId::UzisSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::Uzis ) == 0 )
+            return false;
+
+        m_lara->requestedGunType = engine::LaraNode::WeaponId::Uzi;
+        if( m_lara->getHandStatus() == engine::HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
+        {
+            m_lara->gunType = engine::LaraNode::WeaponId::None;
+        }
+    }
+    else if( id == engine::TR1ItemId::LargeMedipack || id == engine::TR1ItemId::LargeMedipackSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::LargeMedipack ) == 0 )
+            return false;
+
+        if( m_lara->m_state.health <= 0 || m_lara->m_state.health >= core::LaraHealth )
+        {
+            return false;
+        }
+
+        m_lara->m_state.health += 1000;
+        if( m_lara->m_state.health > core::LaraHealth )
+        {
+            m_lara->m_state.health = core::LaraHealth;
+        }
+        takeInventoryItem( engine::TR1ItemId::LargeMedipackSprite );
+        playSound( 116, m_lara->m_state.position.position.toRenderSystem() );
+    }
+    else if( id == engine::TR1ItemId::SmallMedipack || id == engine::TR1ItemId::SmallMedipackSprite )
+    {
+        if( countInventoryItem( engine::TR1ItemId::SmallMedipack ) == 0 )
+            return false;
+
+        if( m_lara->m_state.health <= 0 || m_lara->m_state.health >= core::LaraHealth )
+        {
+            return false;
+        }
+
+        m_lara->m_state.health += 500;
+        if( m_lara->m_state.health > core::LaraHealth )
+        {
+            m_lara->m_state.health = core::LaraHealth;
+        }
+        takeInventoryItem( engine::TR1ItemId::SmallMedipackSprite );
+        playSound( 116, m_lara->m_state.position.position.toRenderSystem() );
+    }
+
+    return true;
 }

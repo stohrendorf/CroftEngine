@@ -162,12 +162,16 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        const auto gunFlareModel = getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare )->models[0];
+        const auto& gunFlareModel = getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare );
+        if( gunFlareModel == nullptr )
+            return;
 
-        m_gunFlareLeft->setDrawable( gunFlareModel.get() );
+        const auto& mdl = gunFlareModel->models[0];
+
+        m_gunFlareLeft->setDrawable( mdl.get() );
         m_gunFlareLeft->setVisible( false );
 
-        m_gunFlareRight->setDrawable( gunFlareModel.get() );
+        m_gunFlareRight->setDrawable( mdl.get() );
         m_gunFlareRight->setVisible( false );
     }
 
@@ -418,7 +422,7 @@ public:
     AimInfo rightArm;
 
     WeaponId gunType = WeaponId::None;
-    WeaponId requestedGunType = WeaponId::Pistols;
+    WeaponId requestedGunType = WeaponId::None;
 
     Ammo pistolsAmmo;
     Ammo revolverAmmo;

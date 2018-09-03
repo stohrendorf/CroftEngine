@@ -201,7 +201,7 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
         if( ctrl->m_isActive )
             ctrl->update();
 
-        ctrl->getNode()->setVisible(ctrl->m_state.triggerState != engine::items::TriggerState::Invisible);
+        ctrl->getNode()->setVisible( ctrl->m_state.triggerState != engine::items::TriggerState::Invisible );
     }
 
     for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
@@ -209,7 +209,7 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
         if( ctrl->m_isActive )
             ctrl->update();
 
-        ctrl->getNode()->setVisible(ctrl->m_state.triggerState != engine::items::TriggerState::Invisible);
+        ctrl->getNode()->setVisible( ctrl->m_state.triggerState != engine::items::TriggerState::Invisible );
     }
 
     std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> particlesToKeep;
@@ -299,7 +299,22 @@ int main()
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
     const std::string levelName = levelInfo["name"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
-    levelInfo = sol::table(); // do not keep a reference to the engine
+
+    std::map<engine::TR1ItemId, size_t> initInv;
+
+    if( sol::optional<sol::table> tbl = levelInfo["inventory"] )
+    {
+        for( const auto& kv : *tbl )
+            initInv[engine::EnumUtil<engine::TR1ItemId>::fromString( kv.first.as<std::string>() )]
+                    += kv.second.as<size_t>();
+    }
+
+    if( sol::optional<sol::table> tbl = scriptEngine["cheats"]["inventory"] )
+    {
+        for( const auto& kv : *tbl )
+            initInv[engine::EnumUtil<engine::TR1ItemId>::fromString( kv.first.as<std::string>() )]
+                    += kv.second.as<size_t>();
+    }
 
     auto lvl = to_not_null( level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
                                                         std::move( scriptEngine ) ) );
@@ -313,7 +328,8 @@ int main()
         lvl->useAlternativeLaraAppearance();
     }
 
-    // device->setWindowCaption("EdisonEngine");
+    for( const auto& item : initInv )
+        lvl->addInventoryItem( item.first, item.second );
 
     if( trackToPlay )
     {
