@@ -28,27 +28,15 @@ const float Z_max = 20480;
 const float dof_sensor_size = 200.0 / Z_max;
 const float dof_center_size = 80.0 / Z_max;
 const float dof_focal = 1536.0 / Z_max;
-
-const float dof_threshold = 0.2;
-const float dof_gain = 30.0;
 #else
 const float dof_sensor_size = 20.0 / Z_max;
 const float dof_center_size = 20.0 / Z_max;
 const float dof_focal = 1536.0 / Z_max;
-
-const float dof_threshold = 0.8;
-const float dof_gain = 3.0;
 #endif
 
-// get an over-exposed pixel
 vec3 dofColor(in vec2 uv, in float depth)
 {
-    vec3 col = texture2D(u_texture, uv).rgb * (1-depth);
-    
-    const vec3 luminance_factor = vec3(0.299, 0.587, 0.114);
-    float luminance = dot(col, luminance_factor);
-    float exposure = 1 + max((luminance-dof_threshold)*dof_gain, 0.0);
-    return col * exposure;
+    return texture2D(u_texture, uv).rgb * (1-depth);
 }
 
 // get a random 2D-vector, each component within -1..1

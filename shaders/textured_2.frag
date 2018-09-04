@@ -1,5 +1,7 @@
 uniform sampler2D u_diffuseTexture;
+#ifdef WATER
 uniform float u_time;
+#endif
 
 in vec2 v_texCoord;
 in vec3 v_color;
@@ -10,6 +12,7 @@ out vec4 out_color;
 
 #include "lighting.inc.frag"
 
+#ifdef WATER
 float cellnoise(in vec3 p)
 {
     return fract(sin(dot(p, vec3(12.9898,78.233, 54.849))) * 43758.5453) * 2 - 1;
@@ -57,6 +60,7 @@ float voronoi(in vec3 p)
 
     return pow(m_dist, 2);
 }
+#endif
 
 void main()
 {
@@ -76,9 +80,9 @@ void main()
     out_color *= WaterColor;
 
     const float Scale1 = 0.003;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale1))*1.2+0.1, 0, 1.2);
+    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale1))*1.2+0.2, 0, 1.2);
     const float Scale2 = 0.0011;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale2))*1.2+0.1, 0, 1.2);
+    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale2))*1.2+0.2, 0, 1.2);
 #endif
 
     out_color *= calcShadeFactor(v_normal, v_vertexPos);
