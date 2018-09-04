@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "shader.h"
 
+#include <gsl/gsl>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace gameplay
@@ -91,12 +92,12 @@ public:
         return length;
     }
 
-    GLint getActiveUniformCount() const
+    GLuint getActiveUniformCount() const
     {
         GLint activeAttributes = 0;
         glGetProgramiv( getHandle(), GL_ACTIVE_UNIFORMS, &activeAttributes );
         checkGlError();
-        return activeAttributes;
+        return gsl::narrow<GLuint>( activeAttributes );
     }
 
     GLint getActiveUniformMaxLength() const
@@ -111,9 +112,9 @@ public:
     class ActiveAttribute
     {
     public:
-        explicit ActiveAttribute(GLuint program, GLint index, GLint maxLength)
+        explicit ActiveAttribute(GLuint program, GLuint index, GLint maxLength)
         {
-            GLchar* attribName = new GLchar[maxLength + 1];
+            auto* attribName = new GLchar[maxLength + 1];
             glGetActiveAttrib( program, index, maxLength, nullptr, &m_size, &m_type, attribName );
             attribName[maxLength] = '\0';
             m_name = attribName;
@@ -148,10 +149,10 @@ public:
     class ActiveUniform
     {
     public:
-        explicit ActiveUniform(GLuint program, GLint index, GLint maxLength, GLint& samplerIndex)
+        explicit ActiveUniform(GLuint program, GLuint index, GLint maxLength, GLint& samplerIndex)
                 : m_program{program}
         {
-            GLchar* uniformName = new GLchar[maxLength + 1];
+            auto* uniformName = new GLchar[maxLength + 1];
             glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName );
             uniformName[maxLength] = '\0';
             if( auto chr = strrchr( uniformName, '[' ) )
@@ -291,7 +292,7 @@ public:
         {
             BOOST_ASSERT( m_samplerIndex >= 0 );
 
-            glActiveTexture( GL_TEXTURE0 + m_samplerIndex );
+            glActiveTexture( gsl::narrow<GLenum>( GL_TEXTURE0 + m_samplerIndex ) );
             checkGlError();
 
             // Bind the sampler - this binds the texture and applies sampler state
@@ -344,7 +345,7 @@ public:
     };
 
 
-    ActiveAttribute getActiveAttribute(GLint index) const
+    ActiveAttribute getActiveAttribute(GLuint index) const
     {
         return ActiveAttribute{getHandle(), index, getActiveAttributeMaxLength()};
     }
@@ -359,7 +360,7 @@ public:
         return attribs;
     }
 
-    ActiveUniform getActiveUniform(GLint index, GLint& samplerIndex) const
+    ActiveUniform getActiveUniform(GLuint index, GLint& samplerIndex) const
     {
         return ActiveUniform{getHandle(), index, getActiveUniformMaxLength(), samplerIndex};
     }

@@ -2,6 +2,8 @@
 
 #include "gl/program.h"
 
+#include <boost/container/flat_map.hpp>
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -49,7 +51,7 @@ private:
 
     gl::Program m_handle;
 
-    std::map<std::string, gl::Program::ActiveAttribute> m_vertexAttributes;
+    boost::container::flat_map<std::string, gl::Program::ActiveAttribute> m_vertexAttributes;
 
     mutable std::map<std::string, gl::Program::ActiveUniform> m_uniforms;
 };

@@ -6,6 +6,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <boost/container/flat_map.hpp>
+
 namespace gameplay
 {
 class Drawable;
@@ -143,7 +145,7 @@ private:
 
     mutable bool m_dirty = false;
 
-    std::map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
+    boost::container::flat_map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
 
     friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
 };

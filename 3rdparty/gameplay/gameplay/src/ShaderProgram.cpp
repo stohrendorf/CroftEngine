@@ -283,7 +283,7 @@ ShaderProgram::createFromSource(const std::string& vshPath, const std::string& v
 
     for( auto&& uniform : shaderProgram->m_handle.getActiveUniforms() )
     {
-        shaderProgram->m_uniforms.insert( make_pair( uniform.getName(), std::move( uniform ) ) );
+        shaderProgram->m_uniforms.emplace( make_pair( uniform.getName(), std::move( uniform ) ) );
     }
 
     return shaderProgram;
