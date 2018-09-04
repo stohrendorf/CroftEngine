@@ -309,6 +309,8 @@ int main()
                     += kv.second.as<size_t>();
     }
 
+    levelInfo = sol::table();
+
     if( sol::optional<sol::table> tbl = scriptEngine["cheats"]["inventory"] )
     {
         for( const auto& kv : *tbl )
