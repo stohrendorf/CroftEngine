@@ -244,8 +244,6 @@ public:
                                                     const boost::optional<glm::vec3>& pos)
     {
         Expects( sample < m_sampleIndices.size() );
-        pitch = util::clamp( pitch, 0.5f, 2.0f );
-        volume = util::clamp( volume, 0.0f, 1.0f );
 
         auto buf = m_audioDev.createBuffer();
         const auto offset = m_sampleIndices[sample];
@@ -307,6 +305,10 @@ public:
             handle = findSample( sample );
             if( handle != nullptr )
             {
+                handle->setPitch( pitch );
+                handle->setGain( volume );
+                if( position.is_initialized() )
+                    handle->setPosition( *position );
                 handle->play();
             }
             else
@@ -545,7 +547,7 @@ public:
 
     bool takeInventoryItem(engine::TR1ItemId id, size_t quantity = 1)
     {
-        BOOST_LOG_TRIVIAL(debug) << "Taking item " << toString(id) << " from inventory";
+        BOOST_LOG_TRIVIAL( debug ) << "Taking item " << toString( id ) << " from inventory";
 
         auto it = m_inventory.find( id );
         if( it == m_inventory.end() )

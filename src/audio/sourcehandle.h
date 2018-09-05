@@ -12,7 +12,6 @@ class SourceHandle final : public boost::noncopyable
 {
     const ALuint m_handle;
     std::shared_ptr<BufferHandle> m_buffer;
-    mutable bool m_alreadyStarted = false;
 
     static ALuint createHandle()
     {
@@ -118,10 +117,7 @@ public:
         alGetSourcei( m_handle, AL_SOURCE_STATE, &state );
         DEBUG_CHECK_AL_ERROR();
 
-        if( state != AL_STOPPED )
-            m_alreadyStarted = true;
-
-        return m_alreadyStarted && state == AL_STOPPED;
+        return state == AL_STOPPED;
     }
 
     void setLooping(bool is_looping)

@@ -321,7 +321,7 @@ void LaraNode::update()
         BOOST_ASSERT( waterSurfaceHeight.is_initialized() );
         auto room = m_state.position.room;
         getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
-        getLevel().playSound( 33, m_state.position.position.toRenderSystem() );
+        playSoundEffect( 33 );
         for( int i = 0; i < 10; ++i )
         {
             core::RoomBoundPosition pos{room};
@@ -1314,7 +1314,7 @@ void LaraNode::unholsterGuns(WeaponId weaponId)
     else if( nextFrame == 13 )
     {
         overrideLaraMeshesUnholsterGuns( weaponId );
-        getLevel().playSound( 6, getNode()->getTranslationWorld() );
+        playSoundEffect( 6 );
     }
     else if( nextFrame == 23 )
     {
@@ -1473,7 +1473,7 @@ void LaraNode::unholsterShotgun()
     {
         overrideLaraMeshesUnholsterShotgun();
 
-        getLevel().playSound( 6, getNode()->getTranslationWorld() );
+        playSoundEffect( 6 );
     }
     else if( nextFrame == 47 )
     {
@@ -1562,7 +1562,7 @@ void LaraNode::updateAnimShotgun()
                 }
                 if( nextFrame == 57 )
                 {
-                    getLevel().playSound( 9, getNode()->getTranslationWorld() );
+                    playSoundEffect( 9 );
                     rightArm.frame = aimingFrame;
                     leftArm.frame = aimingFrame;
                     return;
@@ -1634,7 +1634,7 @@ void LaraNode::updateAnimShotgun()
             }
             if( nextFrame == 57 )
             {
-                getLevel().playSound( 9, getNode()->getTranslationWorld() );
+                playSoundEffect( 9 );
                 rightArm.frame = aimingFrame;
                 leftArm.frame = aimingFrame;
                 return;
@@ -1680,7 +1680,7 @@ void LaraNode::tryShootShotgun()
     }
     if( fireShotgun )
     {
-        getLevel().playSound( weapons[WeaponId::Shotgun].sampleNum, getNode()->getTranslationWorld() );
+        playSoundEffect( weapons[WeaponId::Shotgun].sampleNum );
     }
 }
 
@@ -1736,7 +1736,7 @@ void LaraNode::holsterShotgun()
             getNode()->getChild( 10 )->setDrawable( normalLara.models[10].get() );
             getNode()->getChild( 13 )->setDrawable( normalLara.models[13].get() );
 
-            getLevel().playSound( 6, getNode()->getTranslationWorld() );
+            playSoundEffect( 6 );
         }
         else if( leftArm.frame == 113 )
         {
@@ -1797,7 +1797,7 @@ void LaraNode::holsterGuns(WeaponId weaponId)
             getNode()->getChild( 1 )->setDrawable( src.models[1].get() );
             getNode()->getChild( 13 )->setDrawable( normalLara.models[13].get() );
 
-            getLevel().playSound( 7, getNode()->getTranslationWorld() );
+            playSoundEffect( 7 );
         }
     }
 
@@ -1839,7 +1839,7 @@ void LaraNode::holsterGuns(WeaponId weaponId)
             getNode()->getChild( 4 )->setDrawable( src.models[4].get() );
             getNode()->getChild( 10 )->setDrawable( normalLara.models[10].get() );
 
-            getLevel().playSound( 7, getNode()->getTranslationWorld() );
+            playSoundEffect( 7 );
         }
     }
 
@@ -1886,7 +1886,7 @@ void LaraNode::updateAnimNotShotgun(WeaponId weaponId)
         if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
             rightArm.flashTimeout = weapon.flashTime;
-            getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
+            playSoundEffect( weapon.sampleNum );
         }
         rightArm.frame = 24;
     }
@@ -1922,7 +1922,7 @@ void LaraNode::updateAnimNotShotgun(WeaponId weaponId)
         if( fireWeapon( weaponId, target, *this, aimAngle ) )
         {
             leftArm.flashTimeout = weapon.flashTime;
-            getLevel().playSound( weapon.sampleNum, getNode()->getTranslationWorld() );
+            playSoundEffect( weapon.sampleNum );
         }
         leftArm.frame = 24;
     }
@@ -1981,7 +1981,7 @@ bool LaraNode::fireWeapon(WeaponId weaponId,
     if( ammoPtr->ammo <= 0 )
     {
         ammoPtr->ammo = 0;
-        getLevel().playSound( 48, gunHolder.getNode()->getTranslationWorld() );
+        playSoundEffect( 48 );
         requestedGunType = WeaponId::Pistols;
         return false;
     }
@@ -2100,7 +2100,7 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int dam
             return;
     }
 
-    getLevel().playSound( soundId, item.m_state.position.position.toRenderSystem() );
+    playSoundEffect( soundId );
 }
 
 namespace

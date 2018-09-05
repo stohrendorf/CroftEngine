@@ -210,7 +210,7 @@ void ItemNode::deactivate()
 
 std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
 {
-    auto handle = getLevel().playSound( id, getNode()->getTranslationWorld() );
+    auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
     if( handle != nullptr )
     {
         m_sounds.emplace( handle );
@@ -247,7 +247,7 @@ void ItemNode::updateSounds()
     for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
     {
         std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-        lockedHandle->setPosition( getNode()->getTranslationWorld() );
+        lockedHandle->setPosition( m_state.position.position.toRenderSystem() );
     }
 }
 
