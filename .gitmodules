@@ -1,9 +1,3 @@
-[submodule "3rdparty/LuaState"]
-	path = 3rdparty/LuaState
-	url = https://github.com/stohrendorf/LuaState.git
-[submodule "3rdparty/GSL"]
-	path = 3rdparty/GSL
-	url = https://github.com/Microsoft/GSL.git
 [submodule "3rdparty/controller-data"]
 	path = 3rdparty/controller-data
 	url = https://github.com/sriharshachilakapati/GLFW-Controller-Database.git
