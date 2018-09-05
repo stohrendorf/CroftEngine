@@ -30,18 +30,18 @@ constexpr T square(T v)
 
 inline int16_t rand15()
 {
-    return std::rand() & 0x7fff;
+    return std::rand() & ((1 << 15) - 1);
 }
 
 template<typename T>
 inline T rand15(T max)
 {
-    return max * rand15() / 32768;
+    return max * rand15() / (1 << 15);
 }
 
 inline int16_t rand15s()
 {
-    return static_cast<int16_t>(rand15() - 16384);
+    return static_cast<int16_t>(rand15() - (1 << 14));
 }
 
 template<typename T>

@@ -1156,70 +1156,72 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
     if( trackId < 1 || trackId >= 64 )
         return;
 
-    if( trackId < 28 ) // music
+    if( trackId < 28 )
     {
+        // 1..27
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
     }
-
-    if( trackId == 28 )
+    else if( trackId == 28 )
     {
+        // 28
         if( m_cdTrackActivationStates[trackId].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
-            trackId = TrackWelcomeToMyHome;
+        {
+            trackId = 29;
+        }
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
     }
-
-    if( trackId == TrackWalkWontFallOff || trackId == 41 )
+    else if( trackId < 41 )
     {
+        // 29..40
+        if( trackId != 37 )
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
+    }
+    else if( trackId == 41 )
+    {
+        // 41
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
     }
-
-    if( trackId >= TrackWelcomeToMyHome && trackId <= 40 )
+    else if( trackId == 42 )
     {
+        // 42
+        if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
+            triggerNormalCdTrack( 43, activationRequest, triggerType );
+        else
+            triggerNormalCdTrack( trackId, activationRequest, triggerType );
+    }
+    else if( trackId < 49 )
+    {
+        // 43..48
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
     }
-
-    if( trackId >= 42 && trackId <= 48 ) // gym tutorial voice lines
+    else if( trackId == 49 )
     {
-        if( trackId == 42 && m_cdTrackActivationStates[42].isOneshot()
-            && m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
-            trackId = 43;
-        triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
-    }
-
-    if( trackId == TrackThenLetGo )
-    {
+        // 49
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
     }
-
-    if( trackId == TrackLetsGoForASwim )
+    else if( trackId == 50 )
     {
-        if( m_cdTrackActivationStates[TrackLetsGoForASwim].isOneshot() )
+        // 50
+        if( m_cdTrackActivationStates[trackId].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
             {
                 m_levelFinished = true;
                 m_cdTrack50time = 0;
+                triggerNormalCdTrack( trackId, activationRequest, triggerType );
             }
-            triggerNormalCdTrack( trackId, activationRequest, triggerType );
-            return;
         }
-
-        if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit )
+        else if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterExit )
+        {
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
-        return;
+        }
     }
-
-    if( trackId >= 51 && trackId <= 63 ) // voice lines and SFX
+    else
     {
+        // 51..64
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
 }
@@ -1255,7 +1257,7 @@ void Level::playCdTrack(uint16_t trackId)
 {
     if( trackId == TrackActionMusic )
     {
-        m_lara->playSoundEffect( 173 );
+        playSound( 173, boost::none );
         return;
     }
 
@@ -1266,7 +1268,7 @@ void Level::playCdTrack(uint16_t trackId)
 
     if( m_activeCDTrack >= 26 && m_activeCDTrack <= 56 )
     {
-        stopSoundEffect( static_cast<uint16_t>(m_activeCDTrack + 148) );
+        stopSoundEffect( gsl::narrow<uint16_t>( m_activeCDTrack + 148 ) );
     }
     else if( m_activeCDTrack > 0 )
     {
@@ -1280,29 +1282,25 @@ void Level::playCdTrack(uint16_t trackId)
     if( trackId >= 26 && trackId <= 56 )
     {
         m_lara->playSoundEffect( trackId + 148 );
-        m_activeCDTrack = trackId;
-        return;
-    }
-
-    if( trackId == 2 )
-    {
-        trackId = 2;
     }
     else if( trackId >= 22 && trackId <= 25 ) // non-ambient (cinematic) music
     {
-        trackId -= 15;
+        playStream( trackId - 15 );
     }
-    else
+    else if( trackId != 2 )
     {
         if( trackId <= 56 )
         {
             m_activeCDTrack = trackId;
             return;
         }
-        trackId -= 54;
+        playStream( trackId - 54 );
+    }
+    else
+    {
+        playStream( trackId );
     }
 
-    playStream( trackId );
     m_activeCDTrack = trackId;
 }
 

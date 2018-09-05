@@ -240,8 +240,11 @@ public:
 
     std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
 
-    std::shared_ptr<audio::SourceHandle> playSample(size_t sample, float pitch, float volume,
-                                                    const boost::optional<glm::vec3>& pos)
+    gsl::not_null<std::shared_ptr<audio::SourceHandle>> playSample(
+            size_t sample,
+            float pitch,
+            float volume,
+            const boost::optional<glm::vec3>& pos)
     {
         Expects( sample < m_sampleIndices.size() );
 
@@ -290,7 +293,7 @@ public:
 
         float volume = util::clamp( static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f );
         if( details.useRandomVolume() )
-            volume -= 0.25f * util::rand15() / 0x8000;
+            volume -= util::rand15(0.25f);
         if( volume <= 0 )
             return nullptr;
 
