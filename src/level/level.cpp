@@ -1283,22 +1283,20 @@ void Level::playCdTrack(uint16_t trackId)
     {
         m_lara->playSoundEffect( trackId + 148 );
     }
-    else if( trackId >= 22 && trackId <= 25 ) // non-ambient (cinematic) music
+    else if( trackId >= 22 && trackId <= 25 )
     {
+        // 22..25 -> 7..10: cinematic music
         playStream( trackId - 15 );
     }
-    else if( trackId != 2 )
+    else if( trackId == 2 )
     {
-        if( trackId <= 56 )
-        {
-            m_activeCDTrack = trackId;
-            return;
-        }
-        playStream( trackId - 54 );
-    }
-    else
-    {
+        // 2: title music
         playStream( trackId );
+    }
+    else if( trackId > 56 )
+    {
+        // 57..60 -> 3..6: ambient+cinematic music
+        playStream( trackId - 54 );
     }
 
     m_activeCDTrack = trackId;

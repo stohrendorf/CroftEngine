@@ -146,7 +146,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[2]
+    return levelInfos[1]
 end
 
 function getGlidosPack()
