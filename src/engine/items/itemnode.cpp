@@ -213,7 +213,6 @@ std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
     auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
     if( handle != nullptr )
     {
-        BOOST_LOG_TRIVIAL( debug ) << toString( m_state.object_number ) << ": playing sound effect #" << id;
         m_sounds.emplace_back( handle );
     }
     return handle;
