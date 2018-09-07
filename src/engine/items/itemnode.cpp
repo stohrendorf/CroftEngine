@@ -213,7 +213,8 @@ std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
     auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
     if( handle != nullptr )
     {
-        m_sounds.emplace( handle );
+        BOOST_LOG_TRIVIAL( debug ) << toString( m_state.object_number ) << ": playing sound effect #" << id;
+        m_sounds.emplace_back( handle );
     }
     return handle;
 }
@@ -236,13 +237,14 @@ bool ItemNode::triggerKey()
 
 void ItemNode::updateSounds()
 {
-    decltype( m_sounds ) cleaned;
-    std::copy_if( m_sounds.begin(), m_sounds.end(), inserter( cleaned, cleaned.end() ),
-                  [](const std::weak_ptr<audio::SourceHandle>& h) {
-                      return h.expired();
-                  } );
+    if( m_sounds.empty() )
+        return;
 
-    m_sounds = std::move( cleaned );
+    auto old = std::move( m_sounds );
+    std::copy_if( old.begin(), old.end(), std::back_inserter( m_sounds ),
+                  [](const std::weak_ptr<audio::SourceHandle>& h) {
+                      return !h.expired();
+                  } );
 
     for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
     {

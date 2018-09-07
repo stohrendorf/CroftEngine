@@ -155,7 +155,7 @@ class ItemNode
 {
     const gsl::not_null<level::Level*> m_level;
 
-    std::set<std::weak_ptr<audio::SourceHandle>, audio::WeakSourceHandleLessComparator> m_sounds;
+    std::vector<std::weak_ptr<audio::SourceHandle>> m_sounds;
 
     void updateSounds();
 

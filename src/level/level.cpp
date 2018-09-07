@@ -1239,18 +1239,17 @@ void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::Acti
     else
         m_cdTrackActivationStates[trackId] |= activationRequest.getActivationSet();
 
-    if( m_cdTrackActivationStates[trackId].isFullyActivated() )
-    {
-        if( activationRequest.isOneshot() )
-            m_cdTrackActivationStates[trackId].setOneshot( true );
-
-        if( m_activeCDTrack != trackId )
-            playCdTrack( trackId );
-    }
-    else
+    if( !m_cdTrackActivationStates[trackId].isFullyActivated() )
     {
         stopCdTrack( trackId );
+        return;
     }
+
+    if( activationRequest.isOneshot() )
+        m_cdTrackActivationStates[trackId].setOneshot( true );
+
+    if( m_activeCDTrack != trackId )
+        playCdTrack( trackId );
 }
 
 void Level::playCdTrack(uint16_t trackId)
