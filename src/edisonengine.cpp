@@ -403,13 +403,13 @@ int main()
             }
     );
 
-    static const auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
+    static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
                                   / core::FrameRate;
 
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;
 
-    auto lastTime = game->getGameTime();
+    auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
     glEnable( GL_FRAMEBUFFER_SRGB );
     gameplay::gl::checkGlError();
     while( !game->windowShouldClose() )
@@ -444,14 +444,10 @@ int main()
 
         {
             // frame rate throttling
-
-            const auto sinceLastFrame = game->getGameTime() - lastTime;
-            if( sinceLastFrame < frameTime )
-            {
-                std::this_thread::sleep_for( frameTime - sinceLastFrame );
-            }
-
-            lastTime = game->getGameTime();
+            // TODO this assumes that the frame rate capacity (the processing power so to speak)
+            // is faster than 30 FPS.
+            std::this_thread::sleep_until( nextFrameTime );
+            nextFrameTime += frameDuration;
         }
 
         update( lvl, bool( lvl->m_scriptEngine["cheats"]["godMode"] ) );
