@@ -259,18 +259,18 @@ sol::state createScriptEngine()
     engine.set_usertype( engine::ai::CreatureInfo::userType() );
     engine.set_usertype( engine::items::ItemState::userType() );
 
-    engine["ActivationState"] = engine.create_table_with(
-            "INACTIVE", engine::items::TriggerState::Inactive,
-            "ACTIVE", engine::items::TriggerState::Active,
-            "DEACTIVATED", engine::items::TriggerState::Deactivated,
-            "INVISIBLE", engine::items::TriggerState::Invisible
+    engine.new_enum( "ActivationState",
+                     "INACTIVE", engine::items::TriggerState::Inactive,
+                     "ACTIVE", engine::items::TriggerState::Active,
+                     "DEACTIVATED", engine::items::TriggerState::Deactivated,
+                     "INVISIBLE", engine::items::TriggerState::Invisible
     );
 
-    engine["Mood"] = engine.create_table_with(
-            "BORED", engine::ai::Mood::Bored,
-            "ATTACK", engine::ai::Mood::Attack,
-            "ESCAPE", engine::ai::Mood::Escape,
-            "STALK", engine::ai::Mood::Stalk
+    engine.new_enum( "Mood",
+                     "BORED", engine::ai::Mood::Bored,
+                     "ATTACK", engine::ai::Mood::Attack,
+                     "ESCAPE", engine::ai::Mood::Escape,
+                     "STALK", engine::ai::Mood::Stalk
     );
 
     return engine;
@@ -404,7 +404,7 @@ int main()
     );
 
     static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
-                                  / core::FrameRate;
+                                      / core::FrameRate;
 
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;
