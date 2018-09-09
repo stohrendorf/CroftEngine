@@ -988,7 +988,6 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
             if( item.type == engine::TR1ItemId::CutsceneActor1 )
             {
                 m_cameraController->setPosition( item.position );
-                m_cameraController->setTargetRotation( 0_deg, 0_deg );
             }
         }
     }
@@ -1486,8 +1485,10 @@ void Level::postProcessDataStructures()
 
     for( loader::TransitionCase& transitionCase : m_transitionCases )
     {
-        Expects( transitionCase.targetAnimationIndex < m_animations.size() );
-        transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
+        if( transitionCase.targetAnimationIndex < m_animations.size() )
+            transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
+        else
+            BOOST_LOG_TRIVIAL( warning ) << "Animation index " << transitionCase.targetAnimationIndex << " not less than " << m_animations.size();
     }
 
     for( loader::Transitions& transition : m_transitions )

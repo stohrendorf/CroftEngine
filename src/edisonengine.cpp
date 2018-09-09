@@ -355,7 +355,7 @@ int main()
     if( !cutsceneName.empty() )
     {
         lvl->m_cameraController
-           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( float( levelInfo["cameraRot"] ) ) );
+           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>("cameraRot") ) );
         auto pos = lvl->m_cameraController->getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
             pos.X = x;
@@ -370,7 +370,7 @@ int main()
             lvl->swapAllRooms();
 
         for( auto& room : lvl->m_rooms )
-            room.node->setVisible( true );
+            room.node->setVisible( room.alternateRoom < 0 );
     }
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );

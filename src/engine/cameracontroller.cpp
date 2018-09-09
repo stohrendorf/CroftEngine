@@ -1021,9 +1021,9 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         target.X = m_cinematicPos.X + (s * frame.lookAt.Z + c * frame.lookAt.X);
         target.Y = m_cinematicPos.Y + frame.lookAt.Y;
         target.Z = m_cinematicPos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
-        pos.X = m_cinematicPos.X + (c * frame.pos.X + s * frame.pos.Y);
+        pos.X = m_cinematicPos.X + (s * frame.pos.Z + c * frame.pos.X);
         pos.Y = m_cinematicPos.Y + frame.pos.Y;
-        pos.Z = m_cinematicPos.Z + (c * frame.pos.Y - s * frame.pos.X);
+        pos.Z = m_cinematicPos.Z + (c * frame.pos.Z - s * frame.pos.X);
 
         m_target.position = target;
         m_position.position = pos;
@@ -1050,9 +1050,9 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         target.Y = pos.Y + frame.lookAt.Y;
         target.Z = pos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
 
-        pos.X += (c * frame.pos.X + s * frame.pos.Y);
+        pos.X += (s * frame.pos.Z + c * frame.pos.X);
         pos.Y += frame.pos.Y;
-        pos.Z += (c * frame.pos.Y - s * frame.pos.X);
+        pos.Z += (c * frame.pos.Z - s * frame.pos.X);
 
         auto m = glm::inverse( glm::lookAt(
                 {0, 0, 0},

@@ -73,7 +73,7 @@ public:
 
     static Angle fromDegrees(float val)
     {
-        auto result = Angle{gsl::narrow_cast<int32_t>( std::lround( val * Scale ) ), RawTag()};
+        auto result = Angle{gsl::narrow_cast<int32_t>( std::lround( val / 360 * 65536 * Scale ) ), RawTag()};
         return result;
     }
 

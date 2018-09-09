@@ -146,6 +146,11 @@ private:
         projVertex = camera.getProjectionMatrix() * projVertex;
         projVertex /= projVertex.w;
 
+        if( !glm::isfinite(projVertex.x) )
+            projVertex.x = glm::sign( projVertex.x );
+        if( !glm::isfinite(projVertex.y))
+            projVertex.y = glm::sign( projVertex.y );
+
         return {glm::clamp( projVertex.x, -1.0f, 1.0f ), glm::clamp( projVertex.y, -1.0f, 1.0f ), projVertex.z};
     }
 };
