@@ -24,23 +24,29 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
 {
     drawText( font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string( fps ) );
 
-    // position/rotation
-    drawText( font, 10, 40, lvl->m_lara->m_state.position.room->node->getId() );
+    if( lvl->m_lara != nullptr )
+    {
+        // position/rotation
+        drawText( font, 10, 40, lvl->m_lara->m_state.position.room->node->getId() );
 
-    drawText( font, 300, 20, std::to_string( std::lround( lvl->m_lara->m_state.rotation.Y.toDegrees() ) ) + " deg" );
-    drawText( font, 300, 40, "x=" + std::to_string( lvl->m_lara->m_state.position.position.X ) );
-    drawText( font, 300, 60, "y=" + std::to_string( lvl->m_lara->m_state.position.position.Y ) );
-    drawText( font, 300, 80, "z=" + std::to_string( lvl->m_lara->m_state.position.position.Z ) );
+        drawText( font, 300, 20,
+                  std::to_string( std::lround( lvl->m_lara->m_state.rotation.Y.toDegrees() ) ) + " deg" );
+        drawText( font, 300, 40, "x=" + std::to_string( lvl->m_lara->m_state.position.position.X ) );
+        drawText( font, 300, 60, "y=" + std::to_string( lvl->m_lara->m_state.position.position.Y ) );
+        drawText( font, 300, 80, "z=" + std::to_string( lvl->m_lara->m_state.position.position.Z ) );
 
-    // physics
-    drawText( font, 300, 100, "grav " + std::to_string( lvl->m_lara->m_state.fallspeed ) );
-    drawText( font, 300, 120, "fwd  " + std::to_string( lvl->m_lara->m_state.speed ) );
+        // physics
+        drawText( font, 300, 100, "grav " + std::to_string( lvl->m_lara->m_state.fallspeed ) );
+        drawText( font, 300, 120, "fwd  " + std::to_string( lvl->m_lara->m_state.speed ) );
 
-    // animation
-    drawText( font, 10, 60,
-              std::string( "current/anim    " ) + loader::toString( lvl->m_lara->getCurrentAnimState() ) );
-    drawText( font, 10, 100, std::string( "target          " ) + loader::toString( lvl->m_lara->getTargetState() ) );
-    drawText( font, 10, 120, std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
+        // animation
+        drawText( font, 10, 60,
+                  std::string( "current/anim    " ) + loader::toString( lvl->m_lara->getCurrentAnimState() ) );
+        drawText( font, 10, 100,
+                  std::string( "target          " ) + loader::toString( lvl->m_lara->getTargetState() ) );
+        drawText( font, 10, 120,
+                  std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
+    }
 
     // triggers
     {
@@ -72,6 +78,9 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
     }
 
 #ifndef NDEBUG
+    if( lvl->m_lara == nullptr )
+        return;
+
     // collision
     drawText( font, 400, 20, boost::lexical_cast<std::string>( "AxisColl: " )
                              + std::to_string( lvl->m_lara->lastUsedCollisionInfo.collisionType ) );
@@ -231,7 +240,8 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
     if( godMode )
         lvl->m_lara->m_state.health = core::LaraHealth;
 
-    lvl->m_lara->update();
+    if( lvl->m_lara != nullptr )
+        lvl->m_lara->update();
 
     lvl->applyScheduledDeletions();
 }
@@ -295,7 +305,13 @@ int main()
     }
 
     sol::table levelInfo = scriptEngine["getLevelInfo"]();
-    const auto baseName = levelInfo.get<std::string>( "baseName" );
+    if( !levelInfo.get<std::string>( "video" ).empty() )
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Videos not yet supported" ) );
+
+    const auto cutsceneName = levelInfo.get<std::string>( "cutscene" );
+
+    const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>( "baseName" ) : cutsceneName;
+    Expects( !baseName.empty() );
     sol::optional<uint32_t> trackToPlay = levelInfo["track"];
     const std::string levelName = levelInfo["name"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
@@ -308,8 +324,6 @@ int main()
             initInv[engine::EnumUtil<engine::TR1ItemId>::fromString( kv.first.as<std::string>() )]
                     += kv.second.as<size_t>();
     }
-
-    levelInfo = sol::table();
 
     if( sol::optional<sol::table> tbl = scriptEngine["cheats"]["inventory"] )
     {
@@ -336,6 +350,27 @@ int main()
     if( trackToPlay )
     {
         lvl->playCdTrack( trackToPlay.value() );
+    }
+
+    if( !cutsceneName.empty() )
+    {
+        lvl->m_cameraController
+           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( float( levelInfo["cameraRot"] ) ) );
+        auto pos = lvl->m_cameraController->getTRPosition().position;
+        if( auto x = levelInfo["cameraPosX"] )
+            pos.X = x;
+        if( auto y = levelInfo["cameraPosY"] )
+            pos.Y = y;
+        if( auto z = levelInfo["cameraPosZ"] )
+            pos.Z = z;
+
+        lvl->m_cameraController->setPosition( pos );
+
+        if( bool(levelInfo["flipRooms"]) )
+            lvl->swapAllRooms();
+
+        for( auto& room : lvl->m_rooms )
+            room.node->setVisible( true );
     }
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
@@ -381,6 +416,7 @@ int main()
     {
         screenOverlay->getImage()->fill( {0, 0, 0, 0} );
 
+        if( !levelName.empty() )
         {
             render::Label tmp{0, -50, levelName};
             tmp.alignX = render::Label::Alignment::Center;
@@ -406,13 +442,17 @@ int main()
             showDebugInfoToggled = false;
         }
 
-        auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>( game->getGameTime() - lastTime );
-        if( deltaTime < frameTime )
         {
-            std::this_thread::sleep_for( frameTime - deltaTime );
-        }
+            // frame rate throttling
 
-        lastTime = game->getGameTime();
+            const auto sinceLastFrame = game->getGameTime() - lastTime;
+            if( sinceLastFrame < frameTime )
+            {
+                std::this_thread::sleep_for( frameTime - sinceLastFrame );
+            }
+
+            lastTime = game->getGameTime();
+        }
 
         update( lvl, bool( lvl->m_scriptEngine["cheats"]["godMode"] ) );
 
@@ -425,14 +465,26 @@ int main()
             font->setTarget( screenOverlay->getImage() );
         }
 
-        lvl->m_cameraController->update();
+        if( cutsceneName.empty() )
+        {
+            lvl->m_cameraController->update();
+        }
+        else
+        {
+            if( ++lvl->m_cameraController->m_cinematicFrame >= lvl->m_cinematicFrames.size() )
+                break;
+
+            lvl->m_cameraController
+               ->updateCinematic( lvl->m_cinematicFrames[lvl->m_cameraController->m_cinematicFrame], false );
+        }
         lvl->doGlobalEffect();
 
         lvl->m_audioDev.setListenerTransform( lvl->m_cameraController->getPosition(),
                                               lvl->m_cameraController->getFrontVector(),
                                               lvl->m_cameraController->getUpVector() );
 
-        lvl->drawBars( to_not_null( game.get() ), screenOverlay->getImage() );
+        if( lvl->m_lara != nullptr )
+            lvl->drawBars( to_not_null( game.get() ), screenOverlay->getImage() );
 
         if( lvl->m_cameraController->getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx.bind();
@@ -452,41 +504,44 @@ int main()
             depthDarknessFx.render( context );
 
         if( showDebugInfo )
+        {
             drawDebugInfo( font, lvl, game->getFrameRate() );
 
-        for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
-        {
-            auto vertex = glm::vec3( game->getScene()->getActiveCamera()->getViewMatrix()
-                                     * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 ) );
-
-            if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
+            for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
             {
-                continue;
-            }
-            else if( vertex.z < -game->getScene()->getActiveCamera()->getFarPlane() )
-            {
-                continue;
-            }
+                auto vertex = glm::vec3( game->getScene()->getActiveCamera()->getViewMatrix()
+                                         * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 ) );
 
-            glm::vec4 projVertex{vertex, 1};
-            projVertex = game->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
-            projVertex /= projVertex.w;
+                if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
+                {
+                    continue;
+                }
+                else if( vertex.z < -game->getScene()->getActiveCamera()->getFarPlane() )
+                {
+                    continue;
+                }
 
-            if( std::abs( projVertex.x ) > 1 || std::abs( projVertex.y ) > 1 )
-                continue;
+                glm::vec4 projVertex{vertex, 1};
+                projVertex = game->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+                projVertex /= projVertex.w;
 
-            projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().x;
-            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().y;
+                if( std::abs( projVertex.x ) > 1 || std::abs( projVertex.y ) > 1 )
+                    continue;
 
-            if( showDebugInfo )
+                projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().x;
+                projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().y;
+
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
                                 gameplay::gl::RGBA8{255} );
+            }
         }
 
         screenOverlay->draw( context );
 
         game->swapBuffers();
     }
+
+    levelInfo = sol::table();
 
     return EXIT_SUCCESS;
 }

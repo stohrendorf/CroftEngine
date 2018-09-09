@@ -44,7 +44,6 @@ private:
 
     // For interactions
     level::Level* m_level;
-    LaraNode* m_laraController;
 
     //! @brief Global camera position.
     core::RoomBoundPosition m_position;
@@ -71,7 +70,7 @@ private:
     //! @brief Goal distance between the pivot point and the camera.
     int m_targetDistance = 1536;
     //! @brief Floor-projected pivot distance, squared.
-    int m_targetDistanceSq = 0;
+    int m_targetHorizontalDistanceSq = 0;
 
     core::TRRotation m_targetRotation;
 
@@ -92,8 +91,12 @@ private:
     std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 
 public:
-    explicit CameraController(gsl::not_null<level::Level*> level, gsl::not_null<LaraNode*> laraController,
+    explicit CameraController(gsl::not_null<level::Level*> level,
                               const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
+
+    explicit CameraController(gsl::not_null<level::Level*> level,
+                              const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera,
+                              bool noLaraTag);
 
     const level::Level* getLevel() const noexcept
     {
@@ -110,6 +113,11 @@ public:
     {
         m_targetRotation.X = x;
         m_targetRotation.Y = y;
+    }
+
+    const core::TRRotation& getTargetRotation() const
+    {
+        return m_targetRotation;
     }
 
     void setTargetDistance(int d)
@@ -177,6 +185,21 @@ public:
         return m_position.room;
     }
 
+    void setPosition(const core::TRVec& p)
+    {
+        m_position.position = p;
+    }
+
+    const core::RoomBoundPosition& getTRPosition() const
+    {
+        return m_position;
+    }
+
+    void setPosition(const core::RoomBoundPosition& p)
+    {
+        m_position = p;
+    }
+
     /**
      * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
      * @param[in] start Starting point
@@ -198,6 +221,12 @@ public:
     {
         return m_camera;
     }
+
+    void updateCinematic(const loader::CinematicFrame& frame, bool ingame);
+
+    size_t m_cinematicFrame = 0;
+    core::TRVec m_cinematicPos{0, 0, 0};
+    core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
 
 private:
     void tracePortals();
@@ -243,7 +272,8 @@ private:
                   int right, int front, int left);
 
     static void
-    clampToCorners(const int lookAtDistanceSq, int& currentFrontBack, int& currentLeftRight, int targetFrontBack,
+    clampToCorners(const int targetHorizontalDistanceSq, int& currentFrontBack, int& currentLeftRight,
+                   int targetFrontBack,
                    int targetLeftRight, int back, int right, int front, int left);
 };
 }

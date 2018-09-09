@@ -9,15 +9,15 @@
 namespace engine
 {
 CameraController::CameraController(gsl::not_null<level::Level*> level,
-                                   gsl::not_null<LaraNode*> laraController,
                                    const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
         : m_camera{camera}
         , m_level{level}
-        , m_laraController{laraController}
-        , m_position{laraController->m_state.position.room}
-        , m_target{laraController->m_state.position.room, m_laraController->m_state.position.position}
-        , m_cameraYOffset{laraController->m_state.position.position.Y - loader::SectorSize}
+        , m_position{level->m_lara->m_state.position.room}
+        , m_target{level->m_lara->m_state.position.room, level->m_lara->m_state.position.position}
+        , m_cameraYOffset{level->m_lara->m_state.position.position.Y - loader::SectorSize}
 {
+    Expects( level->m_lara != nullptr );
+
     m_target.position.Y -= m_cameraYOffset;
     m_position = m_target;
     m_position.position.Z -= 100;
@@ -364,7 +364,8 @@ void CameraController::update()
     if( m_position.room->isWaterRoom() )
     {
         if( !m_level->m_cdStream.expired() )
-            m_level->m_cdStream.lock()->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
+            m_level->m_cdStream.lock()->getSource().lock()
+                   ->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
         if( !m_underwaterAmbience.expired() )
         {
             m_underwaterAmbience = m_level->playSound( 60, boost::none );
@@ -381,7 +382,13 @@ void CameraController::update()
 
     if( m_mode == CameraMode::Cinematic )
     {
-        //! @todo nextCinematicFrame();
+        if( ++m_cinematicFrame >= m_level->m_cinematicFrames.size() )
+        {
+            m_cinematicFrame = m_level->m_cinematicFrames.size() - 1;
+        }
+
+        const auto* frame = &m_level->m_cinematicFrames[m_cinematicFrame];
+        updateCinematic( *frame, true );
         return;
     }
 
@@ -390,7 +397,7 @@ void CameraController::update()
 
     const bool tracking = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
-    items::ItemNode* trackedItem = tracking ? m_item : m_laraController;
+    items::ItemNode* trackedItem = tracking ? m_item : m_level->m_lara;
     auto trackedBBox = trackedItem->getBoundingBox();
     int trackedY = trackedItem->m_state.position.position.Y;
     if( tracking )
@@ -416,23 +423,23 @@ void CameraController::update()
 
         if( trackAngleY < 50_deg && trackAngleY > -50_deg && trackAngleX < 85_deg && trackAngleX > -85_deg )
         {
-            trackAngleY -= m_laraController->m_headRotation.Y;
+            trackAngleY -= m_level->m_lara->m_headRotation.Y;
             if( trackAngleY > 4_deg )
-                m_laraController->m_headRotation.Y += 4_deg;
+                m_level->m_lara->m_headRotation.Y += 4_deg;
             else if( trackAngleY < -4_deg )
-                m_laraController->m_headRotation.Y -= 4_deg;
+                m_level->m_lara->m_headRotation.Y -= 4_deg;
             else
-                m_laraController->m_headRotation.Y += trackAngleY;
-            m_laraController->m_torsoRotation.Y = m_laraController->m_headRotation.Y;
+                m_level->m_lara->m_headRotation.Y += trackAngleY;
+            m_level->m_lara->m_torsoRotation.Y = m_level->m_lara->m_headRotation.Y;
 
-            trackAngleX -= m_laraController->m_headRotation.X;
+            trackAngleX -= m_level->m_lara->m_headRotation.X;
             if( trackAngleX > 4_deg )
-                m_laraController->m_headRotation.X += 4_deg;
+                m_level->m_lara->m_headRotation.X += 4_deg;
             else if( trackAngleX < -4_deg )
-                m_laraController->m_headRotation.X -= 4_deg;
+                m_level->m_lara->m_headRotation.X -= 4_deg;
             else
-                m_laraController->m_headRotation.X += trackAngleX;
-            m_laraController->m_torsoRotation.X = m_laraController->m_headRotation.X;
+                m_level->m_lara->m_headRotation.X += trackAngleX;
+            m_level->m_lara->m_torsoRotation.X = m_level->m_lara->m_headRotation.X;
 
             m_mode = CameraMode::FreeLook;
             m_item->m_state.already_looked_at = true;
@@ -649,7 +656,7 @@ void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode
         m_currentRotation.X = -85_deg;
 
     const auto dist = m_currentRotation.X.cos() * m_targetDistance;
-    m_targetDistanceSq = gsl::narrow_cast<int>( dist * dist );
+    m_targetHorizontalDistanceSq = gsl::narrow_cast<int>( util::square( dist ) );
 
     core::RoomBoundPosition idealPos( m_position.room );
     idealPos.position.Y = m_targetDistance * m_currentRotation.X.sin() + m_target.position.Y;
@@ -658,7 +665,7 @@ void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode
     idealPos.position.X = m_target.position.X - dist * y.sin();
     idealPos.position.Z = m_target.position.Z - dist * y.cos();
     clampBox( idealPos, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
-        clampToCorners( m_targetDistanceSq, a, b, c, d, e, f, g, h );
+        clampToCorners( m_targetHorizontalDistanceSq, a, b, c, d, e, f, g, h );
     } );
 
     updatePosition( idealPos, m_tracking ? m_trackingSmoothness : 12 );
@@ -669,9 +676,9 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     const auto originalPivotPosition = m_target.position;
     m_target.position.X = item.m_state.position.position.X;
     m_target.position.Z = item.m_state.position.position.Z;
-    m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X
+    m_currentRotation.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
                           + item.m_state.rotation.X;
-    m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y
+    m_currentRotation.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
                           + item.m_state.rotation.Y;
     m_targetDistance = 1536;
     m_cameraYOffset = gsl::narrow_cast<int>( -2 * loader::QuarterSectorSize * m_currentRotation.Y.sin() );
@@ -714,9 +721,9 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     }
     else
     {
-        m_currentRotation.X = m_laraController->m_torsoRotation.X + m_laraController->m_headRotation.X
+        m_currentRotation.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
                               + item.m_state.rotation.X;
-        m_currentRotation.Y = m_laraController->m_torsoRotation.Y + m_laraController->m_headRotation.Y
+        m_currentRotation.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
                               + item.m_state.rotation.Y;
     }
 
@@ -729,7 +736,7 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     tmp.room = m_position.room;
 
     clampBox( tmp, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
-        clampToCorners( m_targetDistanceSq, a, b, c, d, e, f, g, h );
+        clampToCorners( m_targetHorizontalDistanceSq, a, b, c, d, e, f, g, h );
     } );
     updatePosition( tmp, m_trackingSmoothness );
 }
@@ -914,7 +921,7 @@ void CameraController::freeLookClamp(int& currentFrontBack,
     }
 }
 
-void CameraController::clampToCorners(const int pivotDistanceSq,
+void CameraController::clampToCorners(const int targetHorizontalDistanceSq,
                                       int& currentFrontBack,
                                       int& currentLeftRight,
                                       int targetFrontBack,
@@ -924,19 +931,19 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
                                       int front,
                                       int left)
 {
-    const auto targetRightDistSq = (targetLeftRight - right) * (targetLeftRight - right);
-    const auto targetBackDistSq = (targetFrontBack - back) * (targetFrontBack - back);
+    const auto targetRightDistSq = util::square( targetLeftRight - right );
+    const auto targetBackDistSq = util::square( targetFrontBack - back );
 
     // back right
     const auto backRightDistSq = targetBackDistSq + targetRightDistSq;
-    if( backRightDistSq > pivotDistanceSq )
+    if( backRightDistSq > targetHorizontalDistanceSq )
     {
         //BOOST_LOG_TRIVIAL(debug) << "Clamp back right: " << currentFrontBack << " => " << back;
         //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
-        if( pivotDistanceSq >= targetBackDistSq )
+        if( targetHorizontalDistanceSq >= targetBackDistSq )
         {
-            auto tmp = std::sqrt( pivotDistanceSq - targetBackDistSq );
+            auto tmp = std::sqrt( targetHorizontalDistanceSq - targetBackDistSq );
             if( right < left )
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
@@ -944,7 +951,7 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
         return;
     }
 
-    if( backRightDistSq > loader::QuarterSectorSize * loader::QuarterSectorSize )
+    if( backRightDistSq > util::square( loader::QuarterSectorSize ) )
     {
         currentFrontBack = back;
         currentLeftRight = right;
@@ -954,14 +961,14 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
     // back left
     const auto targetLeftDistSq = (targetLeftRight - left) * (targetLeftRight - left);
     const auto targetBackLeftDistSq = targetBackDistSq + targetLeftDistSq;
-    if( targetBackLeftDistSq > pivotDistanceSq )
+    if( targetBackLeftDistSq > targetHorizontalDistanceSq )
     {
         //BOOST_LOG_TRIVIAL(debug) << "Clamp back left: " << currentFrontBack << " => " << back;
         //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
-        if( pivotDistanceSq >= targetBackDistSq )
+        if( targetHorizontalDistanceSq >= targetBackDistSq )
         {
-            auto tmp = std::sqrt( pivotDistanceSq - targetBackDistSq );
+            auto tmp = std::sqrt( targetHorizontalDistanceSq - targetBackDistSq );
             if( right >= left )
                 tmp = -tmp;
             currentLeftRight = tmp + targetLeftRight;
@@ -969,7 +976,7 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
         return;
     }
 
-    if( targetBackLeftDistSq > loader::QuarterSectorSize * loader::QuarterSectorSize )
+    if( targetBackLeftDistSq > util::square( loader::QuarterSectorSize ) )
     {
         currentFrontBack = back;
         currentLeftRight = left;
@@ -977,17 +984,17 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
     }
 
     // front right
-    const auto targetFrontDistSq = (targetFrontBack - front) * (targetFrontBack - front);
+    const auto targetFrontDistSq = util::square( targetFrontBack - front );
     const auto targetFrontRightDistSq = targetFrontDistSq + targetRightDistSq;
 
-    if( targetFrontRightDistSq > pivotDistanceSq )
+    if( targetFrontRightDistSq > targetHorizontalDistanceSq )
     {
         //BOOST_LOG_TRIVIAL(debug) << "Clamp front right";
         //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
-        if( pivotDistanceSq >= targetRightDistSq )
+        if( targetHorizontalDistanceSq >= targetRightDistSq )
         {
             currentLeftRight = right;
-            auto tmp = std::sqrt( pivotDistanceSq - targetRightDistSq );
+            auto tmp = std::sqrt( targetHorizontalDistanceSq - targetRightDistSq );
             if( back >= front )
                 tmp = -tmp;
             currentFrontBack = tmp + targetFrontBack;
@@ -999,5 +1006,73 @@ void CameraController::clampToCorners(const int pivotDistanceSq,
     //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
     currentFrontBack = front;
     currentLeftRight = right;
+}
+
+void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool ingame)
+{
+    if( ingame )
+    {
+        const auto c = m_cinematicRot.Y.cos();
+        const auto s = m_cinematicRot.Y.sin();
+
+        auto target = m_target.position;
+        auto pos = m_position.position;
+
+        target.X = m_cinematicPos.X + (s * frame.lookAt.Z + c * frame.lookAt.X);
+        target.Y = m_cinematicPos.Y + frame.lookAt.Y;
+        target.Z = m_cinematicPos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
+        pos.X = m_cinematicPos.X + (c * frame.pos.X + s * frame.pos.Y);
+        pos.Y = m_cinematicPos.Y + frame.pos.Y;
+        pos.Z = m_cinematicPos.Z + (c * frame.pos.Y - s * frame.pos.X);
+
+        m_target.position = target;
+        m_position.position = pos;
+
+        auto m = glm::inverse( glm::lookAt(
+                {0, 0, 0},
+                target.toRenderSystem() - pos.toRenderSystem(),
+                {0, 1, 0} ) );
+        m = glm::rotate( m, frame.rotZ.toRad(), {0, 0, 1} );
+        m[3] += glm::vec4{pos.toRenderSystem(), 0};
+        m_camera->setViewMatrix( glm::inverse( m ) );
+        m_camera->setFieldOfView( frame.fov.toRad() );
+        m_level->findRealFloorSector( pos, to_not_null( &m_position.room ) );
+    }
+    else
+    {
+        const auto c = m_targetRotation.Y.cos();
+        const auto s = m_targetRotation.Y.sin();
+
+        auto pos = m_position.position;
+
+        core::TRVec target;
+        target.X = pos.X + (s * frame.lookAt.Z + c * frame.lookAt.X);
+        target.Y = pos.Y + frame.lookAt.Y;
+        target.Z = pos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
+
+        pos.X += (c * frame.pos.X + s * frame.pos.Y);
+        pos.Y += frame.pos.Y;
+        pos.Z += (c * frame.pos.Y - s * frame.pos.X);
+
+        auto m = glm::inverse( glm::lookAt(
+                {0, 0, 0},
+                target.toRenderSystem() - pos.toRenderSystem(),
+                {0, 1, 0} ) );
+        m = glm::rotate( m, frame.rotZ.toRad(), {0, 0, 1} );
+        m[3] += glm::vec4{pos.toRenderSystem(), 0};
+        m_camera->setViewMatrix( glm::inverse( m ) );
+        m_camera->setFieldOfView( frame.fov.toRad() );
+    }
+}
+
+CameraController::CameraController(gsl::not_null<level::Level*> level,
+                                   const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera,
+                                   bool noLaraTag)
+        : m_camera{camera}
+        , m_level{level}
+        , m_position{to_not_null( &level->m_rooms[0] )}
+        , m_target{to_not_null( &level->m_rooms[0] )}
+        , m_cameraYOffset{0}
+{
 }
 }

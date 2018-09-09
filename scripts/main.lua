@@ -10,6 +10,9 @@ levelInfos = {
         inventory = {}
     },
     {
+        video = "SNOW"
+    },
+    {
         -- 2
         baseName = "LEVEL1",
         name = "Caves",
@@ -40,6 +43,16 @@ levelInfos = {
         track = 57,
         secrets = 3,
         inventory = { Pistols = 1 }
+    },
+    {
+        cutscene = "CUT1",
+        track = 23,
+        cameraPosX = 36668,
+        cameraPosZ = 63180,
+        cameraRot = -128
+    },
+    {
+        video = "LIFT"
     },
     {
         -- 6
@@ -74,12 +87,22 @@ levelInfos = {
         inventory = { Pistols = 1 }
     },
     {
+        cutscene = "CUT2",
+        track = 25,
+        cameraPosX = 51962,
+        cameraPosZ = 53760,
+        cameraRot = 90
+    },
+    {
         -- 10
         baseName = "LEVEL7B",
         name = "Tomb of Tihocan",
         track = 58,
         secrets = 2,
         inventory = { Pistols = 1 }
+    },
+    {
+        video = "VISION"
     },
     {
         -- 11
@@ -106,6 +129,15 @@ levelInfos = {
         inventory = { Pistols = 1 }
     },
     {
+        cutscene = "CUT3",
+        track = 24,
+        flipRooms = true,
+        cameraRot = 90
+    },
+    {
+        video = "CANYON"
+    },
+    {
         -- 14
         baseName = "LEVEL10A",
         name = "Natla's Mines",
@@ -114,12 +146,23 @@ levelInfos = {
         inventory = { Pistols = 1 }
     },
     {
+        cutscene = "CUT4",
+        track = 22,
+        cameraRot = 90
+    },
+    {
+        video = "PYRAMID"
+    },
+    {
         -- 15
         baseName = "LEVEL10B",
         name = "Atlantis",
         track = 60,
         secrets = 3,
         inventory = { Pistols = 1 }
+    },
+    {
+        video = "PRISON"
     },
     {
         -- 16
@@ -146,7 +189,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[1]
+    return levelInfos[7]
 end
 
 function getGlidosPack()

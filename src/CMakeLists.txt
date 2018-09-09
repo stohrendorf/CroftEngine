@@ -262,6 +262,8 @@ set( EDISONENGINE_SRCS
      engine/items/bridgeflat.h
      engine/items/collapsiblefloor.cpp
      engine/items/collapsiblefloor.h
+     engine/items/cutsceneactors.cpp
+     engine/items/cutsceneactors.h
      engine/items/dart.h
      engine/items/dart.cpp
      engine/items/dartgun.h

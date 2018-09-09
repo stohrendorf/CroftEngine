@@ -105,7 +105,7 @@ struct TRVec
     static sol::usertype<TRVec>& userType()
     {
         static sol::usertype<TRVec> userType(
-                sol::meta_function::construct, sol::no_constructor,
+                sol::constructors<TRVec(), TRVec(Scalar, Scalar, Scalar)>(),
                 "x", &TRVec::X,
                 "y", &TRVec::Y,
                 "z", &TRVec::Z

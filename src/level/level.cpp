@@ -15,6 +15,7 @@
 #include "engine/items/boulder.h"
 #include "engine/items/bridgeflat.h"
 #include "engine/items/collapsiblefloor.h"
+#include "engine/items/cutsceneactors.h"
 #include "engine/items/dart.h"
 #include "engine/items/dartgun.h"
 #include "engine/items/door.h"
@@ -446,6 +447,22 @@ engine::LaraNode* Level::createItems()
             else if( item.type == engine::TR1ItemId::SwordOfDamocles || item.type == engine::TR1ItemId::FallingCeiling )
             {
                 modelNode = createSkeletalModel<engine::items::SwordOfDamocles>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::CutsceneActor1 )
+            {
+                modelNode = createSkeletalModel<engine::items::CutsceneActor1>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::CutsceneActor2 )
+            {
+                modelNode = createSkeletalModel<engine::items::CutsceneActor2>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::CutsceneActor3 )
+            {
+                modelNode = createSkeletalModel<engine::items::CutsceneActor3>( *model, room, item );
+            }
+            else if( item.type == engine::TR1ItemId::CutsceneActor4 )
+            {
+                modelNode = createSkeletalModel<engine::items::CutsceneActor4>( *model, room, item );
             }
             else
             {
@@ -961,11 +978,25 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 
     m_lara = createItems();
     if( m_lara == nullptr )
-        return;
+    {
+        m_cameraController = new engine::CameraController( to_not_null( this ),
+                                                           to_not_null( game->getScene()->getActiveCamera() ),
+                                                           true );
 
-    m_cameraController = new engine::CameraController( to_not_null( this ),
-                                                       to_not_null( m_lara ),
-                                                       to_not_null( game->getScene()->getActiveCamera() ) );
+        for( const auto& item : m_items )
+        {
+            if( item.type == engine::TR1ItemId::CutsceneActor1 )
+            {
+                m_cameraController->setPosition( item.position );
+                m_cameraController->setTargetRotation( 0_deg, 0_deg );
+            }
+        }
+    }
+    else
+    {
+        m_cameraController = new engine::CameraController( to_not_null( this ),
+                                                           to_not_null( game->getScene()->getActiveCamera() ) );
+    }
 
     for( const loader::SoundSource& src : m_soundSources )
     {
@@ -1420,7 +1451,7 @@ void Level::postProcessDataStructures()
         }
         model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
 
-        Expects( model->mesh_base_index + model->nmeshes < m_meshIndices.size() );
+        Expects( model->mesh_base_index + model->nmeshes <= m_meshIndices.size() );
         model->meshes = &m_meshes[m_meshIndices[model->mesh_base_index]];
 
         Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );

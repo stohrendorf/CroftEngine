@@ -1555,31 +1555,22 @@ struct AIObject
 
 struct CinematicFrame
 {
-    int16_t roty; // rotation about Y axis, +/- 32767 == +/- 180 degrees
-    int16_t rotz; // rotation about Z axis, +/- 32767 == +/- 180 degrees
-    int16_t rotz2; // seems to work a lot like rotZ;  I haven't yet been able to
-    // differentiate them
-    int16_t posz; // camera position relative to something (target? Lara? room
-    // origin?).  pos* are _not_ in world coordinates.
-    int16_t posy; // camera position relative to something (see posZ)
-    int16_t posx; // camera position relative to something (see posZ)
-    int16_t unknown; // changing this can cause a runtime error
-    int16_t rotx; // rotation about X axis, +/- 32767 == +/- 180 degrees
+    core::TRVec lookAt;
+    core::TRVec pos;
+    core::Angle fov;
+    core::Angle rotZ;
 
-    /// \brief reads a cinematic frame
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
         std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
-        cf->roty = reader.readI16(); // rotation about Y axis, +/- 32767 == +/- 180 degrees
-        cf->rotz = reader.readI16(); // rotation about Z axis, +/- 32767 == +/- 180 degrees
-        cf->rotz2 = reader.readI16(); // seems to work a lot like rotZ;  I haven't yet been able to
-        // differentiate them
-        cf->posz = reader.readI16(); // camera position relative to something (target? Lara? room
-        // origin?).  pos* are _not_ in world coordinates.
-        cf->posy = reader.readI16(); // camera position relative to something (see posZ)
-        cf->posx = reader.readI16(); // camera position relative to something (see posZ)
-        cf->unknown = reader.readI16(); // changing this can cause a runtime error
-        cf->rotx = reader.readI16(); // rotation about X axis, +/- 32767 == +/- 180 degrees
+        cf->lookAt.X = reader.readI16();
+        cf->lookAt.Y = reader.readI16();
+        cf->lookAt.Z = reader.readI16();
+        cf->pos.Z = reader.readI16();
+        cf->pos.Y = reader.readI16();
+        cf->pos.X = reader.readI16();
+        cf->fov = core::Angle{reader.readI16()};
+        cf->rotZ = core::Angle{reader.readI16()};
         return cf;
     }
 };
