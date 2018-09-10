@@ -244,6 +244,7 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMod
         lvl->m_lara->update();
 
     lvl->applyScheduledDeletions();
+    lvl->animateUV();
 }
 
 sol::state createScriptEngine()

@@ -406,18 +406,6 @@ void LaraNode::update()
 
 void LaraNode::updateImpl()
 {
-    // >>>>>>>>>>>>>>>>>
-    //! @todo Move UV anim code to the level.
-    static constexpr auto UVAnimTime = 10;
-
-    ++m_uvAnimTime;
-    if( m_uvAnimTime >= UVAnimTime )
-    {
-        getLevel().m_textureAnimator->updateCoordinates( getLevel().m_textureProxies );
-        m_uvAnimTime -= UVAnimTime;
-    }
-    // <<<<<<<<<<<<<<<<<
-
     const auto endOfAnim = getSkeleton()->advanceFrame( m_state );
 
     Expects( m_state.anim != nullptr );

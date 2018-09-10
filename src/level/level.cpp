@@ -2001,3 +2001,15 @@ bool Level::tryUseInventoryItem(engine::TR1ItemId id)
 
     return true;
 }
+
+void Level::animateUV()
+{
+    static constexpr auto UVAnimTime = 10;
+
+    ++m_uvAnimTime;
+    if( m_uvAnimTime >= UVAnimTime )
+    {
+        m_textureAnimator->updateCoordinates( m_textureProxies );
+        m_uvAnimTime -= UVAnimTime;
+    }
+}

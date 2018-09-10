@@ -578,6 +578,8 @@ public:
         return it->second;
     }
 
+    void animateUV();
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;
@@ -617,6 +619,8 @@ private:
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
 
     std::map<engine::TR1ItemId, size_t> m_inventory;
+
+    int m_uvAnimTime{0};
 };
 }
                                                                                                                                                                                                                                            

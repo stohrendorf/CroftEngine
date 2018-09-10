@@ -42,8 +42,6 @@ private:
     core::Angle m_currentSlideAngle{0};
 
     HandStatus m_handStatus = HandStatus::None;
-    //! @todo Move this to the Level.
-    int m_uvAnimTime{0};
 
     UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
