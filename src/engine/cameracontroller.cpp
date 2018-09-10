@@ -1015,25 +1015,20 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         const auto c = m_cinematicRot.Y.cos();
         const auto s = m_cinematicRot.Y.sin();
 
-        auto target = m_target.position;
-        auto pos = m_position.position;
-
-        target.X = m_cinematicPos.X + (s * frame.lookAt.Z + c * frame.lookAt.X);
-        target.Y = m_cinematicPos.Y + frame.lookAt.Y;
-        target.Z = m_cinematicPos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
-        pos.X = m_cinematicPos.X + (s * frame.pos.Z + c * frame.pos.X);
-        pos.Y = m_cinematicPos.Y + frame.pos.Y;
-        pos.Z = m_cinematicPos.Z + (c * frame.pos.Z - s * frame.pos.X);
-
+        core::TRVec target = m_cinematicPos;
+        target.X += (s * frame.lookAt.Z + c * frame.lookAt.X);
+        target.Y += frame.lookAt.Y;
+        target.Z += (c * frame.lookAt.Z - s * frame.lookAt.X);
         m_target.position = target;
+
+        core::TRVec pos = m_cinematicPos;
+        pos.X += (s * frame.pos.Z + c * frame.pos.X);
+        pos.Y += frame.pos.Y;
+        pos.Z += (c * frame.pos.Z - s * frame.pos.X);
         m_position.position = pos;
 
-        auto m = glm::inverse( glm::lookAt(
-                {0, 0, 0},
-                target.toRenderSystem() - pos.toRenderSystem(),
-                {0, 1, 0} ) );
-        m = glm::rotate( m, frame.rotZ.toRad(), {0, 0, 1} );
-        m[3] += glm::vec4{pos.toRenderSystem(), 0};
+        auto m = glm::lookAt( pos.toRenderSystem(), target.toRenderSystem(), {0, 1, 0} );
+        m = glm::rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
         m_camera->setViewMatrix( glm::inverse( m ) );
         m_camera->setFieldOfView( frame.fov.toRad() );
         m_level->findRealFloorSector( pos, to_not_null( &m_position.room ) );
@@ -1043,24 +1038,19 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         const auto c = m_targetRotation.Y.cos();
         const auto s = m_targetRotation.Y.sin();
 
-        auto pos = m_position.position;
+        core::TRVec target = m_position.position;
+        target.X += (s * frame.lookAt.Z + c * frame.lookAt.X);
+        target.Y += frame.lookAt.Y;
+        target.Z += (c * frame.lookAt.Z - s * frame.lookAt.X);
 
-        core::TRVec target;
-        target.X = pos.X + (s * frame.lookAt.Z + c * frame.lookAt.X);
-        target.Y = pos.Y + frame.lookAt.Y;
-        target.Z = pos.Z + (c * frame.lookAt.Z - s * frame.lookAt.X);
-
+        core::TRVec pos = m_position.position;
         pos.X += (s * frame.pos.Z + c * frame.pos.X);
         pos.Y += frame.pos.Y;
         pos.Z += (c * frame.pos.Z - s * frame.pos.X);
 
-        auto m = glm::inverse( glm::lookAt(
-                {0, 0, 0},
-                target.toRenderSystem() - pos.toRenderSystem(),
-                {0, 1, 0} ) );
-        m = glm::rotate( m, frame.rotZ.toRad(), {0, 0, 1} );
-        m[3] += glm::vec4{pos.toRenderSystem(), 0};
-        m_camera->setViewMatrix( glm::inverse( m ) );
+        auto m = glm::lookAt( pos.toRenderSystem(), target.toRenderSystem(), {0, 1, 0} );
+        m = glm::rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
+        m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( frame.fov.toRad() );
     }
 }

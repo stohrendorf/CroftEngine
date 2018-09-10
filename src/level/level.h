@@ -132,7 +132,7 @@ public:
      */
     uint16_t m_weatherType = 0;
 
-    engine::CameraController* m_cameraController = nullptr;
+    std::unique_ptr<engine::CameraController> m_cameraController = nullptr;
 
     static std::shared_ptr<Level> createLoader(const std::string& filename, Game gameVersion,
                                                sol::state&& scriptEngine);

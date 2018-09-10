@@ -20,7 +20,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        auto camera = getLevel().m_cameraController;
+        const auto& camera = getLevel().m_cameraController;
         camera->setOldMode( CameraMode::Fixed );
         camera->setTargetRotation( -25_deg, 170_deg );
     }

@@ -1563,12 +1563,8 @@ struct CinematicFrame
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
         std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
-        cf->lookAt.X = reader.readI16();
-        cf->lookAt.Y = reader.readI16();
-        cf->lookAt.Z = reader.readI16();
-        cf->pos.Z = reader.readI16();
-        cf->pos.Y = reader.readI16();
-        cf->pos.X = reader.readI16();
+        cf->lookAt = io::readCoordinates16( reader );
+        cf->pos = io::readCoordinates16( reader );
         cf->fov = core::Angle{reader.readI16()};
         cf->rotZ = core::Angle{reader.readI16()};
         return cf;

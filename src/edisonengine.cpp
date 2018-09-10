@@ -355,7 +355,7 @@ int main()
     if( !cutsceneName.empty() )
     {
         lvl->m_cameraController
-           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>("cameraRot") ) );
+           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
         auto pos = lvl->m_cameraController->getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
             pos.X = x;
@@ -371,6 +371,20 @@ int main()
 
         for( auto& room : lvl->m_rooms )
             room.node->setVisible( room.alternateRoom < 0 );
+
+        if( bool(levelInfo["gunSwap"]) )
+        {
+            const auto& laraPistol = lvl->findAnimatedModelForType( engine::TR1ItemId::LaraPistolsAnim );
+            Expects( laraPistol != nullptr );
+            for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
+            {
+                if( item->m_state.object_number != engine::TR1ItemId::CutsceneActor1 )
+                    continue;
+
+                item->getNode()->getChild( 1 )->setDrawable( laraPistol->models[1].get() );
+                item->getNode()->getChild( 4 )->setDrawable( laraPistol->models[4].get() );
+            }
+        }
     }
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );

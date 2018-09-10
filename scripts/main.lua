@@ -91,7 +91,8 @@ levelInfos = {
         track = 25,
         cameraPosX = 51962,
         cameraPosZ = 53760,
-        cameraRot = 90
+        cameraRot = 90,
+        gunSwap = true
     },
     {
         -- 10
@@ -148,7 +149,8 @@ levelInfos = {
     {
         cutscene = "CUT4",
         track = 22,
-        cameraRot = 90
+        cameraRot = 90,
+        gunSwap = true
     },
     {
         video = "PYRAMID"
@@ -189,7 +191,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[7]
+    return levelInfos[22]
 end
 
 function getGlidosPack()

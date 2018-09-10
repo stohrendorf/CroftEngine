@@ -89,12 +89,12 @@ public:
 
     float sin() const noexcept
     {
-        return std::sin( toRad() );
+        return glm::sin( toRad() );
     }
 
     float cos() const noexcept
     {
-        return std::cos( toRad() );
+        return glm::cos( toRad() );
     }
 
     constexpr int16_t toAU() const noexcept
@@ -165,7 +165,7 @@ public:
 
     Angle abs() const noexcept
     {
-        return Angle{std::abs( m_value ), RawTag{}};
+        return Angle{glm::abs( m_value ), RawTag{}};
     }
 
     static sol::usertype<Angle>& userType()
@@ -398,7 +398,7 @@ struct TRRotationXY
 inline TRRotationXY getVectorAngles(const float dx, const float dy, const float dz)
 {
     const auto y = Angle::fromAtan( dx, dz );
-    const auto dxz = std::sqrt( dz * dz + dx * dx );
+    const auto dxz = glm::sqrt( dz * dz + dx * dx );
     auto x = Angle::fromAtan( dy, dxz );
     if( std::signbit( dy ) == std::signbit( x.toRad() ) )
         x = -x;

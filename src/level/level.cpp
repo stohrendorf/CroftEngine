@@ -979,9 +979,10 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     m_lara = createItems();
     if( m_lara == nullptr )
     {
-        m_cameraController = new engine::CameraController( to_not_null( this ),
-                                                           to_not_null( game->getScene()->getActiveCamera() ),
-                                                           true );
+        m_cameraController = std::make_unique<engine::CameraController>(
+                to_not_null( this ),
+                to_not_null( game->getScene()->getActiveCamera() ),
+                true );
 
         for( const auto& item : m_items )
         {
@@ -993,8 +994,9 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     }
     else
     {
-        m_cameraController = new engine::CameraController( to_not_null( this ),
-                                                           to_not_null( game->getScene()->getActiveCamera() ) );
+        m_cameraController = std::make_unique<engine::CameraController>(
+                to_not_null( this ),
+                to_not_null( game->getScene()->getActiveCamera() ) );
     }
 
     for( const loader::SoundSource& src : m_soundSources )
@@ -1488,7 +1490,8 @@ void Level::postProcessDataStructures()
         if( transitionCase.targetAnimationIndex < m_animations.size() )
             transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
         else
-            BOOST_LOG_TRIVIAL( warning ) << "Animation index " << transitionCase.targetAnimationIndex << " not less than " << m_animations.size();
+            BOOST_LOG_TRIVIAL( warning ) << "Animation index " << transitionCase.targetAnimationIndex
+                                         << " not less than " << m_animations.size();
     }
 
     for( loader::Transitions& transition : m_transitions )

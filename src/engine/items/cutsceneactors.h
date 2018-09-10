@@ -26,7 +26,9 @@ public:
                    const std::string& name,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
-                   const loader::SkeletalModelType& animatedModel);
+                   const loader::SkeletalModelType& animatedModel)
+            : CutsceneActor( level, name, room, item, animatedModel )
+    {}
 };
 
 
