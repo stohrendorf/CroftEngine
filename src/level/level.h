@@ -289,7 +289,7 @@ public:
 
         float pitch = 1;
         if( details.useRandomPitch() )
-            pitch = 0.9f + 0.2f * util::rand15() / 0x8000;
+            pitch = 0.9f + util::rand15(0.2f);
 
         float volume = util::clamp( static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f );
         if( details.useRandomVolume() )

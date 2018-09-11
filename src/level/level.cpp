@@ -51,16 +51,6 @@ using namespace level;
 
 Level::~Level() = default;
 
-constexpr uint16_t TrackActionMusic = 13;
-// welcome to my home, I*ll take you on a guided tour
-constexpr uint16_t TrackWelcomeToMyHome = 29;
-// with the walk button down, I won't fall off, even if you try to make me. go on, try it.
-constexpr uint16_t TrackWalkWontFallOff = 37;
-// then let go
-constexpr uint16_t TrackThenLetGo = 49;
-// let's go for a swim
-constexpr uint16_t TrackLetsGoForASwim = 50;
-
 /// \brief reads the mesh data.
 void Level::readMeshData(loader::io::SDLReader& reader)
 {
@@ -1286,7 +1276,7 @@ void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::Acti
 
 void Level::playCdTrack(uint16_t trackId)
 {
-    if( trackId == TrackActionMusic )
+    if( trackId == 13 )
     {
         playSound( 173, boost::none );
         return;
