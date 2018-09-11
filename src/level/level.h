@@ -258,7 +258,15 @@ public:
         src->setPitch( pitch );
         src->setGain( volume );
         if( pos.is_initialized() )
+        {
             src->setPosition( *pos );
+        }
+        else
+        {
+            src->set( AL_SOURCE_RELATIVE, AL_TRUE );
+            src->set( AL_POSITION, 0, 0, 0 );
+            src->set( AL_VELOCITY, 0, 0, 0 );
+        }
 
         src->play();
 
@@ -289,11 +297,11 @@ public:
 
         float pitch = 1;
         if( details.useRandomPitch() )
-            pitch = 0.9f + util::rand15(0.2f);
+            pitch = 0.9f + util::rand15( 0.2f );
 
         float volume = util::clamp( static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f );
         if( details.useRandomVolume() )
-            volume -= util::rand15(0.25f);
+            volume -= util::rand15( 0.25f );
         if( volume <= 0 )
             return nullptr;
 
