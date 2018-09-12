@@ -147,7 +147,7 @@ public:
 
     const std::unique_ptr<loader::SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
 
-    void createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName);
+    void createTextures(const loader::trx::Glidos* glidos);
 
     std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
     createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);

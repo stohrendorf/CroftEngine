@@ -274,11 +274,11 @@ const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(
     return none;
 }
 
-void Level::createTextures(loader::trx::Glidos* glidos, const boost::filesystem::path& lvlName)
+void Level::createTextures(const loader::trx::Glidos* glidos)
 {
     for( auto& texture : m_textures )
     {
-        texture.toTexture( glidos, lvlName );
+        texture.toTexture( glidos );
     }
 }
 
@@ -758,7 +758,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 {
     m_inputHandler = std::make_unique<engine::InputHandler>( to_not_null( game->getWindow() ) );
 
-    createTextures( glidos.get(), lvlName );
+    createTextures( glidos.get() );
 
     for( auto& sprite : m_sprites )
     {
@@ -836,7 +836,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
 
         for( size_t i = 0; i < m_textures.size(); ++i )
         {
-            m_textures[i].toImage( nullptr, {} );
+            m_textures[i].toImage( nullptr );
             objWriter.write( to_not_null( m_textures[i].image ), i );
         }
 

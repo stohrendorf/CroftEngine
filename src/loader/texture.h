@@ -83,13 +83,9 @@ struct DWordTexture final
         return texture;
     }
 
-    void toTexture(
-            trx::Glidos* glidos,
-            const boost::filesystem::path& lvlName);
+    void toTexture(const trx::Glidos* glidos);
 
-    void toImage(
-            trx::Glidos* glidos,
-            const boost::filesystem::path& lvlName);
+    void toImage(const trx::Glidos* glidos);
 };
 
 

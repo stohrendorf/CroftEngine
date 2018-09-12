@@ -45,9 +45,7 @@ gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
     return result;
 }
 
-void DWordTexture::toImage(
-        trx::Glidos* glidos,
-        const boost::filesystem::path& lvlName)
+void DWordTexture::toImage(const trx::Glidos* glidos)
 {
     if( glidos == nullptr )
     {
@@ -61,7 +59,7 @@ void DWordTexture::toImage(
     constexpr int Scale = Resolution / 256;
 
     auto mapping = glidos->getMappingsForTexture( md5 );
-    const auto cacheName =  mapping.baseDir / "_edisonengine" / lvlName / (md5 + ".png");
+    const auto cacheName =  mapping.baseDir / "_edisonengine" / (md5 + ".png");
 
     if( is_regular_file( cacheName ) &&
         std::chrono::system_clock::from_time_t( last_write_time( cacheName ) ) > mapping.newestSource )
@@ -155,13 +153,11 @@ void DWordTexture::toImage(
             reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()) );
 }
 
-void DWordTexture::toTexture(
-        trx::Glidos* glidos,
-        const boost::filesystem::path& lvlName)
+void DWordTexture::toTexture(const trx::Glidos* glidos)
 {
     texture = make_not_null_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
     texture->setLabel( md5 );
-    toImage( glidos, lvlName );
+    toImage( glidos );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );
 }
 }
