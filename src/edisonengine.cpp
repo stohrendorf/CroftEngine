@@ -297,7 +297,7 @@ int main()
     const sol::optional<std::string> glidosPack = scriptEngine["getGlidosPack"]();
 
     std::unique_ptr<loader::trx::Glidos> glidos;
-    if( glidosPack && boost::filesystem::is_regular_file( glidosPack.value() ) )
+    if( glidosPack && boost::filesystem::is_directory( glidosPack.value() ) )
     {
         glidos = std::make_unique<loader::trx::Glidos>( glidosPack.value() );
 #ifndef NDEBUG

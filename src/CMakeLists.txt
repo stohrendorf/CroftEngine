@@ -163,6 +163,7 @@ set( EDISONENGINE_SRCS
      loader/util.h
      loader/io/sdlreader.h
      loader/trx/trx.h
+     loader/trx/trx.cpp
 
      render/portaltracer.h
      render/textureanimator.h

@@ -191,11 +191,12 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[22]
+    return levelInfos[13]
 end
 
 function getGlidosPack()
-    return nil -- "assets/trx/1SilverlokAllVers/silverlok/silverlok.txt"
+    -- return "assets/trx/1SilverlokAllVers/silverlok/"
+    return "assets/trx/JC levels 1-12/Textures/JC/"
 end
 
 function getObjectInfo(id)

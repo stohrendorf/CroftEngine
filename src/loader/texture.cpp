@@ -61,7 +61,7 @@ void DWordTexture::toImage(
     constexpr int Scale = Resolution / 256;
 
     auto mapping = glidos->getMappingsForTexture( md5 );
-    const auto cacheName = mapping.baseDir / "_edisonengine" / lvlName / (md5 + ".png");
+    const auto cacheName =  mapping.baseDir / "_edisonengine" / lvlName / (md5 + ".png");
 
     if( is_regular_file( cacheName ) &&
         std::chrono::system_clock::from_time_t( last_write_time( cacheName ) ) > mapping.newestSource )
