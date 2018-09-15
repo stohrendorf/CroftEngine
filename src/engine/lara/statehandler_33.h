@@ -23,7 +23,7 @@ public:
 
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::WaterDeath);
+            setGoalAnimState( LaraStateId::WaterDeath );
             return;
         }
 
@@ -60,20 +60,20 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
         {
-            setTargetState(LaraStateId::OnWaterForward);
+            setGoalAnimState( LaraStateId::OnWaterForward );
         }
         else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
         {
-            setTargetState(LaraStateId::OnWaterBackward);
+            setGoalAnimState( LaraStateId::OnWaterBackward );
         }
 
         if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
         {
-            setTargetState(LaraStateId::OnWaterLeft);
+            setGoalAnimState( LaraStateId::OnWaterLeft );
         }
         else if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
         {
-            setTargetState(LaraStateId::OnWaterRight);
+            setGoalAnimState( LaraStateId::OnWaterRight );
         }
 
         if( !getLevel().m_inputHandler->getInputState().jump )
@@ -89,7 +89,7 @@ public:
             return;
         }
 
-        setTargetState(LaraStateId::UnderwaterForward);
+        setGoalAnimState( LaraStateId::UnderwaterForward );
         setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
         getLara().m_state.rotation.X = -45_deg;
         getLara().m_state.fallspeed = 80;

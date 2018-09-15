@@ -24,7 +24,7 @@ public:
         setCameraCurrentRotationY(75_deg);
         if( !getLevel().m_inputHandler->getInputState().action )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
     }
 };

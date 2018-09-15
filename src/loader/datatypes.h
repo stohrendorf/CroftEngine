@@ -1555,16 +1555,16 @@ struct AIObject
 
 struct CinematicFrame
 {
-    core::TRVec lookAt;
-    core::TRVec pos;
+    core::TRVec center;
+    core::TRVec eye;
     core::Angle fov;
     core::Angle rotZ;
 
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
         std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
-        cf->lookAt = io::readCoordinates16( reader );
-        cf->pos = io::readCoordinates16( reader );
+        cf->center = io::readCoordinates16( reader );
+        cf->eye = io::readCoordinates16( reader );
         cf->fov = core::Angle{reader.readI16()};
         cf->rotZ = core::Angle{reader.readI16()};
         return cf;

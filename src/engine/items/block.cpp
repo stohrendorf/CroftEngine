@@ -73,7 +73,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         lara.m_state.position.position.*vp =
                 (lara.m_state.position.position.*vp / loader::SectorSize) * loader::SectorSize + d;
 
-        lara.setTargetState( loader::LaraStateId::PushableGrab );
+        lara.setGoalAnimState( loader::LaraStateId::PushableGrab );
         lara.updateImpl();
         if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
         {
@@ -97,7 +97,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         }
 
         m_state.goal_anim_state = 2;
-        lara.setTargetState( loader::LaraStateId::PushablePush );
+        lara.setGoalAnimState( loader::LaraStateId::PushablePush );
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
@@ -107,7 +107,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         }
 
         m_state.goal_anim_state = 3;
-        lara.setTargetState( loader::LaraStateId::PushablePull );
+        lara.setGoalAnimState( loader::LaraStateId::PushablePull );
     }
     else
     {

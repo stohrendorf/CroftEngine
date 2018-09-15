@@ -25,12 +25,12 @@ public:
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left ||
             getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
         {
-            setTargetState(LaraStateId::ShimmyLeft);
+            setGoalAnimState( LaraStateId::ShimmyLeft );
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right ||
                  getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
         {
-            setTargetState(LaraStateId::ShimmyRight);
+            setGoalAnimState( LaraStateId::ShimmyRight );
         }
     }
 
@@ -38,7 +38,7 @@ public:
     {
         commonEdgeHangHandling(collisionInfo);
 
-        if( getTargetState() != LaraStateId::Hang )
+        if( getGoalAnimState() != LaraStateId::Hang )
         {
             return;
         }
@@ -59,11 +59,11 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().moveSlow )
         {
-            setTargetState(LaraStateId::Handstand);
+            setGoalAnimState( LaraStateId::Handstand );
         }
         else
         {
-            setTargetState(LaraStateId::Climbing);
+            setGoalAnimState( LaraStateId::Climbing );
         }
     }
 };

@@ -444,7 +444,7 @@ public:
 
     void dinoStompEffect(engine::items::ItemNode& node);
 
-    void laraNormalEffect(engine::items::ItemNode& node);
+    void laraNormalEffect();
 
     void laraBubblesEffect(engine::items::ItemNode& node);
 
@@ -513,8 +513,7 @@ public:
                 Expects( node != nullptr );
                 return dinoStompEffect( *node );
             case 2:
-                Expects( node != nullptr );
-                return laraNormalEffect( *node );
+                return laraNormalEffect();
             case 3:
                 Expects( node != nullptr );
                 return laraBubblesEffect( *node );

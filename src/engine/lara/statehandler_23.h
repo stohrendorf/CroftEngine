@@ -49,7 +49,7 @@ public:
         }
 
         setAnimIdGlobal(loader::AnimationId::FREE_FALL_BACK, 1473);
-        setTargetState(LaraStateId::FallBackward);
+        setGoalAnimState( LaraStateId::FallBackward );
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = true;
     }

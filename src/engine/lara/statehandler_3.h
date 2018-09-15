@@ -20,26 +20,26 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getTargetState() == LaraStateId::SwandiveBegin || getTargetState() == LaraStateId::Reach )
+        if( getGoalAnimState() == LaraStateId::SwandiveBegin || getGoalAnimState() == LaraStateId::Reach )
         {
-            setTargetState(LaraStateId::JumpForward);
+            setGoalAnimState( LaraStateId::JumpForward );
         }
 
-        if( getTargetState() != LaraStateId::Death && getTargetState() != LaraStateId::Stop )
+        if( getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop )
         {
             if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
             {
-                setTargetState(LaraStateId::Reach);
+                setGoalAnimState( LaraStateId::Reach );
             }
 
             if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == HandStatus::None )
             {
-                setTargetState(LaraStateId::SwandiveBegin);
+                setGoalAnimState( LaraStateId::SwandiveBegin );
             }
 
             if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
             {
-                setTargetState(LaraStateId::FreeFall);
+                setGoalAnimState( LaraStateId::FreeFall );
             }
         }
 
@@ -70,15 +70,15 @@ public:
 
         if( applyLandingDamage() )
         {
-            setTargetState(LaraStateId::Death);
+            setGoalAnimState( LaraStateId::Death );
         }
         else if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward || getLevel().m_inputHandler->getInputState().moveSlow )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
         else
         {
-            setTargetState(LaraStateId::RunForward);
+            setGoalAnimState( LaraStateId::RunForward );
         }
 
         getLara().m_state.fallspeed = 0;

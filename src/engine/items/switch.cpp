@@ -52,10 +52,10 @@ void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     {
         do
         {
-            lara.setTargetState( loader::LaraStateId::SwitchDown );
+            lara.setGoalAnimState( loader::LaraStateId::SwitchDown );
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
-        lara.setTargetState( loader::LaraStateId::Stop );
+        lara.setGoalAnimState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 0;
         lara.setHandStatus( HandStatus::Grabbing );
     }
@@ -68,10 +68,10 @@ void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
         do
         {
-            lara.setTargetState( loader::LaraStateId::SwitchUp );
+            lara.setGoalAnimState( loader::LaraStateId::SwitchUp );
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
-        lara.setTargetState( loader::LaraStateId::Stop );
+        lara.setGoalAnimState( loader::LaraStateId::Stop );
         m_state.goal_anim_state = 1;
         lara.setHandStatus( HandStatus::Grabbing );
     }

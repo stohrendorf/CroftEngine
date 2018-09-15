@@ -23,6 +23,7 @@
 #include "engine/items/pickupitem.h"
 #include "engine/items/puzzlehole.h"
 #include "engine/items/raptor.h"
+#include "engine/items/scionpiece.h"
 #include "engine/items/slopedbridge.h"
 #include "engine/items/stubitem.h"
 #include "engine/items/swingingblade.h"
@@ -490,29 +491,39 @@ engine::LaraNode* Level::createItems()
             const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
             std::shared_ptr<engine::items::ItemNode> node;
 
-            if( item.type == engine::TR1ItemId::Item141
-                || item.type == engine::TR1ItemId::Item142
-                || item.type == engine::TR1ItemId::Key1Sprite
-                || item.type == engine::TR1ItemId::Key2Sprite
-                || item.type == engine::TR1ItemId::Key3Sprite
-                || item.type == engine::TR1ItemId::Key4Sprite
-                || item.type == engine::TR1ItemId::Puzzle1Sprite
-                || item.type == engine::TR1ItemId::Puzzle2Sprite
-                || item.type == engine::TR1ItemId::Puzzle3Sprite
-                || item.type == engine::TR1ItemId::Puzzle4Sprite
-                || item.type == engine::TR1ItemId::PistolsSprite
-                || item.type == engine::TR1ItemId::ShotgunSprite
-                || item.type == engine::TR1ItemId::MagnumsSprite
-                || item.type == engine::TR1ItemId::UzisSprite
-                || item.type == engine::TR1ItemId::PistolAmmoSprite
-                || item.type == engine::TR1ItemId::ShotgunAmmoSprite
-                || item.type == engine::TR1ItemId::MagnumAmmoSprite
-                || item.type == engine::TR1ItemId::UziAmmoSprite
-                || item.type == engine::TR1ItemId::ExplosiveSprite
-                || item.type == engine::TR1ItemId::SmallMedipackSprite
-                || item.type == engine::TR1ItemId::LargeMedipackSprite
-                || item.type == engine::TR1ItemId::Item144
-                || item.type == engine::TR1ItemId::LeadBarSprite )
+            if( item.type == engine::TR1ItemId::ScionPiece )
+            {
+                node = std::make_shared<engine::items::ScionPieceItem>( to_not_null( this ),
+                                                                        std::string( "sprite(type:" )
+                                                                        + engine::toString( item.type ) + ")",
+                                                                        room,
+                                                                        item,
+                                                                        sprite,
+                                                                        to_not_null( m_spriteMaterial ) );
+            }
+            else if( item.type == engine::TR1ItemId::Item141
+                     || item.type == engine::TR1ItemId::Item142
+                     || item.type == engine::TR1ItemId::Key1Sprite
+                     || item.type == engine::TR1ItemId::Key2Sprite
+                     || item.type == engine::TR1ItemId::Key3Sprite
+                     || item.type == engine::TR1ItemId::Key4Sprite
+                     || item.type == engine::TR1ItemId::Puzzle1Sprite
+                     || item.type == engine::TR1ItemId::Puzzle2Sprite
+                     || item.type == engine::TR1ItemId::Puzzle3Sprite
+                     || item.type == engine::TR1ItemId::Puzzle4Sprite
+                     || item.type == engine::TR1ItemId::PistolsSprite
+                     || item.type == engine::TR1ItemId::ShotgunSprite
+                     || item.type == engine::TR1ItemId::MagnumsSprite
+                     || item.type == engine::TR1ItemId::UzisSprite
+                     || item.type == engine::TR1ItemId::PistolAmmoSprite
+                     || item.type == engine::TR1ItemId::ShotgunAmmoSprite
+                     || item.type == engine::TR1ItemId::MagnumAmmoSprite
+                     || item.type == engine::TR1ItemId::UziAmmoSprite
+                     || item.type == engine::TR1ItemId::ExplosiveSprite
+                     || item.type == engine::TR1ItemId::SmallMedipackSprite
+                     || item.type == engine::TR1ItemId::LargeMedipackSprite
+                     || item.type == engine::TR1ItemId::Item144
+                     || item.type == engine::TR1ItemId::LeadBarSprite )
             {
                 node = std::make_shared<engine::items::PickupItem>( to_not_null( this ),
                                                                     std::string( "sprite(type:" )
@@ -1512,12 +1523,13 @@ void Level::turn180Effect(engine::items::ItemNode& node)
     node.m_state.rotation.Y += 180_deg;
 }
 
-void Level::laraNormalEffect(engine::items::ItemNode& node)
+void Level::laraNormalEffect()
 {
-    node.m_state.current_anim_state = static_cast<uint16_t>(engine::LaraStateId::Stop);
-    node.m_state.required_anim_state = static_cast<uint16_t>(engine::LaraStateId::Unknown12);
-    node.m_state.anim = &m_animations[static_cast<int>(loader::AnimationId::STAY_SOLID)];
-    node.m_state.frame_number = 185;
+    Expects( m_lara != nullptr );
+    m_lara->setCurrentAnimState( engine::LaraStateId::Stop );
+    m_lara->setRequiredAnimState( engine::LaraStateId::Unknown12 );
+    m_lara->m_state.anim = &m_animations[static_cast<int>(loader::AnimationId::STAY_SOLID)];
+    m_lara->m_state.frame_number = 185;
     m_cameraController->setMode( engine::CameraMode::Chase );
     m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
 }
@@ -1599,7 +1611,7 @@ void Level::floodEffect()
         {
             mul = 30 - m_effectTimer;
         }
-        pos.Y = 100 * mul + m_cameraController->getTarget().position.Y;
+        pos.Y = 100 * mul + m_cameraController->getCenter().position.Y;
         playSound( 81, pos.toRenderSystem() );
     }
     else
@@ -1632,7 +1644,7 @@ void Level::stairsToSlopeEffect()
         {
             playSound( 161, boost::none );
         }
-        auto pos = m_cameraController->getTarget().position;
+        auto pos = m_cameraController->getCenter().position;
         pos.Y += 100 * m_effectTimer;
         playSound( 118, pos.toRenderSystem() );
     }
@@ -1647,7 +1659,7 @@ void Level::sandEffect()
 {
     if( m_effectTimer <= 120 )
     {
-        auto pos = m_cameraController->getTarget().position;
+        auto pos = m_cameraController->getCenter().position;
         pos.Y += 100 * m_effectTimer;
         playSound( 155, pos.toRenderSystem() );
     }

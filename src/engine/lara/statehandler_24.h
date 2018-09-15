@@ -24,7 +24,7 @@ public:
         setCameraCurrentRotationX(-45_deg);
         if( getLevel().m_inputHandler->getInputState().jump )
         {
-            setTargetState(LaraStateId::JumpForward);
+            setGoalAnimState( LaraStateId::JumpForward );
         }
     }
 

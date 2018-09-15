@@ -22,7 +22,7 @@ public:
     {
         const auto& camera = getLevel().m_cameraController;
         camera->setOldMode( CameraMode::Fixed );
-        camera->setTargetRotation( -25_deg, 170_deg );
+        camera->setEyeRotation( -25_deg, 170_deg );
     }
 
     void postprocessFrame(CollisionInfo& /*collisionInfo*/) override

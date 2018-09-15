@@ -22,12 +22,12 @@ public:
     {
         if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
         {
-            setTargetState(LaraStateId::FreeFall);
+            setGoalAnimState( LaraStateId::FreeFall );
         }
 
         if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
         {
-            setTargetState(LaraStateId::Reach);
+            setGoalAnimState( LaraStateId::Reach );
         }
     }
 
@@ -47,11 +47,11 @@ public:
 
         if( applyLandingDamage() )
         {
-            setTargetState(LaraStateId::Death);
+            setGoalAnimState( LaraStateId::Death );
         }
         else
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
 
         getLara().m_state.fallspeed = 0;

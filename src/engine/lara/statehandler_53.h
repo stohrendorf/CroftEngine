@@ -40,11 +40,11 @@ public:
 
         if( getLara().m_state.fallspeed <= 133 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
         else
         {
-            setTargetState(LaraStateId::Death);
+            setGoalAnimState( LaraStateId::Death );
         }
 
         getLara().m_state.fallspeed = 0;

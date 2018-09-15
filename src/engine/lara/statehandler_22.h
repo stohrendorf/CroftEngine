@@ -22,13 +22,13 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
         if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
@@ -61,7 +61,7 @@ public:
         if( checkWallCollision(collisionInfo) )
         {
             setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
 
         if( !tryStartSlide(collisionInfo) )

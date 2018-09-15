@@ -19,7 +19,7 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
@@ -40,7 +40,7 @@ public:
             }
         }
 
-        setTargetState(LaraStateId::Stop);
+        setGoalAnimState( LaraStateId::Stop );
     }
 };
 }

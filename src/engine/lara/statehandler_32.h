@@ -22,7 +22,7 @@ public:
     {
         if( getLevel().m_inputHandler->getInputState().jump )
         {
-            setTargetState(LaraStateId::JumpBack);
+            setGoalAnimState( LaraStateId::JumpBack );
         }
     }
 

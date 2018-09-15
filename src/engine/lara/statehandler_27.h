@@ -20,7 +20,7 @@ public:
     {
         if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
         {
-            setTargetState(LaraStateId::FreeFall);
+            setGoalAnimState( LaraStateId::FreeFall );
         }
     }
 

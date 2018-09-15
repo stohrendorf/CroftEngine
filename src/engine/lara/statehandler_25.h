@@ -21,7 +21,7 @@ public:
         setCameraCurrentRotationY(135_deg);
         if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
         {
-            setTargetState(LaraStateId::FreeFall);
+            setGoalAnimState( LaraStateId::FreeFall );
         }
     }
 

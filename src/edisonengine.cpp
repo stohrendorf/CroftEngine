@@ -43,7 +43,7 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
         drawText( font, 10, 60,
                   std::string( "current/anim    " ) + loader::toString( lvl->m_lara->getCurrentAnimState() ) );
         drawText( font, 10, 100,
-                  std::string( "target          " ) + loader::toString( lvl->m_lara->getTargetState() ) );
+                  std::string( "target          " ) + loader::toString( lvl->m_lara->getGoalAnimState() ) );
         drawText( font, 10, 120,
                   std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
     }
@@ -356,7 +356,7 @@ int main()
     if( !cutsceneName.empty() )
     {
         lvl->m_cameraController
-           ->setTargetRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
+           ->setEyeRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
         auto pos = lvl->m_cameraController->getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
             pos.X = x;

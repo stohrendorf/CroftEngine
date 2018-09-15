@@ -19,7 +19,7 @@ CutsceneActor::CutsceneActor(const gsl::not_null<level::Level*>& level,
 
 void CutsceneActor::update()
 {
-    m_state.rotation.Y = getLevel().m_cameraController->getTargetRotation().Y;
+    m_state.rotation.Y = getLevel().m_cameraController->getEyeRotation().Y;
     m_state.position.position = getLevel().m_cameraController->getTRPosition().position;
     ModelItemNode::update();
 }

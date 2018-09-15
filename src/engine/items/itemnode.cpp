@@ -273,7 +273,7 @@ bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara
     }
 
     const auto offs = lara.position.position - item.position.position;
-    const auto dist = glm::vec4{offs.toRenderSystem(), 1.0f} * item.rotation.toMatrix();
+    const auto dist = glm::vec4{offs.toRenderSystem(), 0.0f} * item.rotation.toMatrix();
     return distance.contains( core::TRVec{glm::vec3{dist}} );
 }
 

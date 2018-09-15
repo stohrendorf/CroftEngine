@@ -57,7 +57,7 @@ public:
             , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
     {
         setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
-        setTargetState( LaraStateId::Stop );
+        setGoalAnimState( LaraStateId::Stop );
         setMovementAngle( m_state.rotation.Y );
 
         m_underwaterRoute.step = 20 * loader::SectorSize;
@@ -284,11 +284,30 @@ public:
         m_currentSlideAngle = a;
     }
 
-    LaraStateId getTargetState() const;
+    loader::LaraStateId getGoalAnimState() const
+    {
+        return static_cast<LaraStateId>(m_state.goal_anim_state);
+    }
 
-    void setTargetState(loader::LaraStateId st);
+    void setGoalAnimState(LaraStateId st)
+    {
+        m_state.goal_anim_state = static_cast<uint16_t>(st);
+    }
 
-    loader::LaraStateId getCurrentAnimState() const;
+    loader::LaraStateId getCurrentAnimState() const
+    {
+        return static_cast<loader::LaraStateId>(m_state.current_anim_state);
+    }
+
+    void setCurrentAnimState(LaraStateId st)
+    {
+        m_state.current_anim_state = static_cast<uint16_t>(st);
+    }
+
+    void setRequiredAnimState(LaraStateId st)
+    {
+        m_state.required_anim_state = static_cast<uint16_t>(st);
+    }
 
     void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
@@ -324,7 +343,7 @@ public:
 
     void setCameraCurrentRotationY(core::Angle y);
 
-    void setCameraTargetDistance(int d);
+    void setCameraEyeCenterDistance(int d);
 
     void setCameraOldMode(CameraMode k);
 

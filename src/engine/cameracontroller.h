@@ -46,9 +46,9 @@ private:
     level::Level* m_level;
 
     //! @brief Global camera position.
-    core::RoomBoundPosition m_position;
+    core::RoomBoundPosition m_eye;
     //! @brief The point the camera moves around.
-    core::RoomBoundPosition m_target;
+    core::RoomBoundPosition m_center;
     CameraMode m_mode = CameraMode::Chase;
 
     //! @brief Additional height of the camera above the real position.
@@ -68,11 +68,11 @@ private:
     // int underwater
 
     //! @brief Goal distance between the pivot point and the camera.
-    int m_targetDistance = 1536;
+    int m_eyeCenterDistance = 1536;
     //! @brief Floor-projected pivot distance, squared.
-    int m_targetHorizontalDistanceSq = 0;
+    int m_eyeCenterHorizontalDistanceSq = 0;
 
-    core::TRRotation m_targetRotation;
+    core::TRRotation m_eyeRotation;
 
     //! @brief Global camera rotation.
     core::TRRotation m_currentRotation;
@@ -109,20 +109,20 @@ public:
 
     void setCurrentRotationY(core::Angle y);
 
-    void setTargetRotation(core::Angle x, core::Angle y)
+    void setEyeRotation(core::Angle x, core::Angle y)
     {
-        m_targetRotation.X = x;
-        m_targetRotation.Y = y;
+        m_eyeRotation.X = x;
+        m_eyeRotation.Y = y;
     }
 
-    const core::TRRotation& getTargetRotation() const
+    const core::TRRotation& getEyeRotation() const
     {
-        return m_targetRotation;
+        return m_eyeRotation;
     }
 
-    void setTargetDistance(int d)
+    void setEyeCenterDistance(int d)
     {
-        m_targetDistance = d;
+        m_eyeCenterDistance = d;
     }
 
     void setOldMode(CameraMode k)
@@ -161,9 +161,9 @@ public:
         return glm::vec3{m_camera->getInverseViewMatrix()[3]};
     }
 
-    const core::RoomBoundPosition& getTarget() const
+    const core::RoomBoundPosition& getCenter() const
     {
-        return m_target;
+        return m_center;
     }
 
     glm::vec3 getFrontVector() const
@@ -182,22 +182,22 @@ public:
 
     const loader::Room* getCurrentRoom() const
     {
-        return m_position.room;
+        return m_eye.room;
     }
 
     void setPosition(const core::TRVec& p)
     {
-        m_position.position = p;
+        m_eye.position = p;
     }
 
     const core::RoomBoundPosition& getTRPosition() const
     {
-        return m_position;
+        return m_eye;
     }
 
     void setPosition(const core::RoomBoundPosition& p)
     {
-        m_position = p;
+        m_eye = p;
     }
 
     /**
@@ -254,7 +254,7 @@ private:
 
     bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::Room*>& room) const;
 
-    void updatePosition(const core::RoomBoundPosition& position, int smoothFactor);
+    void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 
     void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item);
 
@@ -265,7 +265,7 @@ private:
     using ClampCallback = void(int& current1, int& current2, int target1, int target2, int lowLimit1, int lowLimit2,
                                int highLimit1, int highLimit2);
 
-    void clampBox(core::RoomBoundPosition& idealPos, const std::function<ClampCallback>& callback) const;
+    void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
 
     static void
     freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back,

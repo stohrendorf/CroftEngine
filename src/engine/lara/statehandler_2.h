@@ -21,18 +21,18 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Death);
+            setGoalAnimState( LaraStateId::Death );
             return;
         }
 
         if( getLevel().m_inputHandler->getInputState().roll )
         {
             setAnimIdGlobal(loader::AnimationId::ROLL_BEGIN);
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
-        setTargetState(LaraStateId::Stop);
+        setGoalAnimState( LaraStateId::Stop );
 
         if( getLevel().m_inputHandler->getInputState().freeLook )
         {
@@ -53,25 +53,25 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
         {
-            setTargetState(LaraStateId::StepLeft);
+            setGoalAnimState( LaraStateId::StepLeft );
         }
         else if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
         {
-            setTargetState(LaraStateId::StepRight);
+            setGoalAnimState( LaraStateId::StepRight );
         }
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
-            setTargetState(LaraStateId::TurnLeftSlow);
+            setGoalAnimState( LaraStateId::TurnLeftSlow );
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
-            setTargetState(LaraStateId::TurnRightSlow);
+            setGoalAnimState( LaraStateId::TurnRightSlow );
         }
 
         if( getLevel().m_inputHandler->getInputState().jump )
         {
-            setTargetState(LaraStateId::JumpPrepare);
+            setGoalAnimState( LaraStateId::JumpPrepare );
         }
         else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
         {
@@ -92,7 +92,7 @@ public:
             }
             else
             {
-                setTargetState(LaraStateId::RunBack);
+                setGoalAnimState( LaraStateId::RunBack );
             }
         }
     }

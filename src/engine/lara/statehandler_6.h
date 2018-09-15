@@ -19,7 +19,7 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
@@ -27,7 +27,7 @@ public:
 
         if( getHandStatus() == HandStatus::Combat )
         {
-            setTargetState(LaraStateId::TurnFast);
+            setGoalAnimState( LaraStateId::TurnFast );
         }
         else if( getYRotationSpeed() > 4_deg )
         {
@@ -37,7 +37,7 @@ public:
             }
             else
             {
-                setTargetState(LaraStateId::TurnFast);
+                setGoalAnimState( LaraStateId::TurnFast );
             }
         }
 
@@ -45,18 +45,18 @@ public:
         {
             if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right )
             {
-                setTargetState(LaraStateId::Stop);
+                setGoalAnimState( LaraStateId::Stop );
             }
             return;
         }
 
         if( getLevel().m_inputHandler->getInputState().moveSlow )
         {
-            setTargetState(LaraStateId::WalkForward);
+            setGoalAnimState( LaraStateId::WalkForward );
         }
         else
         {
-            setTargetState(LaraStateId::RunForward);
+            setGoalAnimState( LaraStateId::RunForward );
         }
     }
 };

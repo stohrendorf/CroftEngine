@@ -24,7 +24,7 @@ public:
             getRelativeHeightAtDirection(getLara().m_state.rotation.Y, 256) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle(getLara().m_state.rotation.Y);
-            setTargetState(LaraStateId::JumpForward);
+            setGoalAnimState( LaraStateId::JumpForward );
         }
         else
         {
@@ -32,25 +32,25 @@ public:
                 getLara().m_state.rotation.Y - 90_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
-                setTargetState(LaraStateId::JumpRight);
+                setGoalAnimState( LaraStateId::JumpRight );
             }
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right &&
                      getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 90_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
-                setTargetState(LaraStateId::JumpLeft);
+                setGoalAnimState( LaraStateId::JumpLeft );
             }
             else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward &&
                      getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 180_deg, 256) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
-                setTargetState(LaraStateId::JumpBack);
+                setGoalAnimState( LaraStateId::JumpBack );
             }
         }
 
         if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
         {
-            setTargetState(LaraStateId::FreeFall);
+            setGoalAnimState( LaraStateId::FreeFall );
         }
     }
 
@@ -70,7 +70,7 @@ public:
         }
 
         setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
-        setTargetState(LaraStateId::Stop);
+        setGoalAnimState( LaraStateId::Stop );
         getLara().m_state.speed = 0;
         getLara().m_state.position.position = collisionInfo.oldPosition;
     }

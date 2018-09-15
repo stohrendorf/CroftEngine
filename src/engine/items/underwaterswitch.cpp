@@ -55,10 +55,10 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     lara.m_state.fallspeed = 0;
     do
     {
-        lara.setTargetState( LaraStateId::SwitchDown );
+        lara.setGoalAnimState( LaraStateId::SwitchDown );
         lara.updateImpl();
     } while( lara.getCurrentAnimState() != LaraStateId::SwitchDown );
-    lara.setTargetState( LaraStateId::UnderwaterStop );
+    lara.setGoalAnimState( LaraStateId::UnderwaterStop );
     lara.setHandStatus( HandStatus::Grabbing );
     m_state.triggerState = engine::items::TriggerState::Active;
 

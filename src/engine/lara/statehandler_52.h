@@ -22,7 +22,7 @@ public:
         collisionInfo.policyFlags |= CollisionInfo::EnableBaddiePush;
         if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
         {
-            setTargetState(LaraStateId::SwandiveEnd);
+            setGoalAnimState( LaraStateId::SwandiveEnd );
         }
     }
 
@@ -40,7 +40,7 @@ public:
             return;
         }
 
-        setTargetState(LaraStateId::Stop);
+        setGoalAnimState( LaraStateId::Stop );
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = false;
         placeOnFloor(collisionInfo);

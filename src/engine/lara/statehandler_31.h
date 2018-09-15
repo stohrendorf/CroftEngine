@@ -25,7 +25,7 @@ public:
         if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Right &&
             getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
         {
-            setTargetState(LaraStateId::Hang);
+            setGoalAnimState( LaraStateId::Hang );
         }
     }
 

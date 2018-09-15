@@ -24,7 +24,7 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
@@ -41,16 +41,16 @@ public:
         {
             if( getLevel().m_inputHandler->getInputState().moveSlow )
             {
-                setTargetState(LaraStateId::WalkForward);
+                setGoalAnimState( LaraStateId::WalkForward );
             }
             else
             {
-                setTargetState(LaraStateId::RunForward);
+                setGoalAnimState( LaraStateId::RunForward );
             }
         }
         else
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
     }
 
@@ -96,7 +96,7 @@ public:
         if( collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin )
         {
             setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
-            setTargetState(LaraStateId::JumpForward);
+            setGoalAnimState( LaraStateId::JumpForward );
             getLara().m_state.fallspeed = 0;
             getLara().m_state.falling = true;
         }

@@ -92,9 +92,9 @@ protected:
 
     void setCurrentSlideAngle(core::Angle a) noexcept;
 
-    void setTargetState(LaraStateId state);
+    void setGoalAnimState(LaraStateId state);
 
-    LaraStateId getTargetState() const;
+    LaraStateId getGoalAnimState() const;
 
     bool stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
 

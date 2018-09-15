@@ -49,10 +49,10 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         {
             do
             {
-                lara.setTargetState( LaraStateId::PickUp );
+                lara.setGoalAnimState( LaraStateId::PickUp );
                 lara.updateImpl();
             } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
-            lara.setTargetState( LaraStateId::UnderwaterStop );
+            lara.setGoalAnimState( LaraStateId::UnderwaterStop );
         }
     }
     else
@@ -97,10 +97,10 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
                 do
                 {
-                    lara.setTargetState( LaraStateId::PickUp );
+                    lara.setGoalAnimState( LaraStateId::PickUp );
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
-                lara.setTargetState( LaraStateId::Stop );
+                lara.setGoalAnimState( LaraStateId::Stop );
                 lara.setHandStatus( HandStatus::Grabbing );
             }
         }

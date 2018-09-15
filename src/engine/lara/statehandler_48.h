@@ -19,7 +19,7 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::WaterDeath);
+            setGoalAnimState( LaraStateId::WaterDeath );
             return;
         }
 
@@ -36,7 +36,7 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
         {
-            setTargetState(LaraStateId::OnWaterStop);
+            setGoalAnimState( LaraStateId::OnWaterStop );
         }
 
         int spd = std::min(60, getLara().m_state.fallspeed + 8);

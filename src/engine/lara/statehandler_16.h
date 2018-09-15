@@ -22,17 +22,17 @@ public:
     {
         if( getLara().m_state.health <= 0 )
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
         if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward && getLevel().m_inputHandler->getInputState().moveSlow )
         {
-            setTargetState(LaraStateId::WalkBackward);
+            setGoalAnimState( LaraStateId::WalkBackward );
         }
         else
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
         }
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )

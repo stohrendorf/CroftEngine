@@ -41,8 +41,8 @@ void engine::items::RollingBall::update()
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position
                              + core::TRVec( m_state.rotation.Y.sin() * loader::SectorSize / 2,
-                                                    0,
-                                                    m_state.rotation.Y.cos() * loader::SectorSize / 2 );
+                                            0,
+                                            m_state.rotation.Y.cos() * loader::SectorSize / 2 );
         sector = to_not_null( getLevel().findRealFloorSector( testPos, room ) );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
@@ -105,12 +105,11 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
         lara.setCurrentRoom( m_state.position.room );
         lara.setAnimIdGlobal( loader::AnimationId::SQUASH_BOULDER, 3561 );
         getLevel().m_cameraController->setOldMode( CameraMode::Fixed );
-        getLevel().m_cameraController->setTargetRotation( -25_deg, 170_deg );
+        getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
-        lara.m_state
-            .goal_anim_state = static_cast<uint16_t>(loader::AnimationId::FLY_FORWARD_TRY_TO_HANG);
+        lara.setGoalAnimState( loader::LaraStateId::BoulderDeath );
         for( int i = 0; i < 15; ++i )
         {
             const auto x = util::rand15s( 128 ) + lara.m_state.position.position.X;

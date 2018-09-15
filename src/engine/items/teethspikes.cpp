@@ -42,8 +42,8 @@ void engine::items::TeethSpikes::collide(engine::LaraNode& lara, engine::Collisi
         {
             lara.m_state.anim = &getLevel().m_animations[static_cast<int>(loader::AnimationId::SPIKED)];
             lara.m_state.frame_number = 3887;
-            lara.m_state.current_anim_state = static_cast<int>(loader::LaraStateId::Death);
-            lara.m_state.goal_anim_state = static_cast<int>(loader::LaraStateId::Death);
+            lara.setCurrentAnimState( loader::LaraStateId::Death );
+            lara.setGoalAnimState( loader::LaraStateId::Death );
             lara.m_state.falling = false;
             lara.m_state.position.position.Y = m_state.position.position.Y;
         }

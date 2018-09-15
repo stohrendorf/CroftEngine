@@ -25,16 +25,6 @@ core::TRRotationXY getVectorAngles(const core::TRVec& co)
 
 namespace engine
 {
-void LaraNode::setTargetState(LaraStateId st)
-{
-    m_state.goal_anim_state = static_cast<uint16_t>(st);
-}
-
-loader::LaraStateId LaraNode::getTargetState() const
-{
-    return static_cast<LaraStateId>(m_state.goal_anim_state);
-}
-
 void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     getSkeleton()->setAnimIdGlobal( m_state,
@@ -262,11 +252,6 @@ void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
     m_state.position.position.Y += collisionInfo.mid.floor.y;
 }
 
-loader::LaraStateId LaraNode::getCurrentAnimState() const
-{
-    return static_cast<loader::LaraStateId>(m_state.current_anim_state);
-}
-
 LaraNode::~LaraNode() = default;
 
 void LaraNode::update()
@@ -296,14 +281,14 @@ void LaraNode::update()
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
         {
             m_state.rotation.X = -45_deg;
-            setTargetState( LaraStateId::UnderwaterDiving );
+            setGoalAnimState( LaraStateId::UnderwaterDiving );
             updateImpl();
             m_state.fallspeed *= 2;
         }
         else if( getCurrentAnimState() == LaraStateId::SwandiveEnd )
         {
             m_state.rotation.X = -85_deg;
-            setTargetState( LaraStateId::UnderwaterDiving );
+            setGoalAnimState( LaraStateId::UnderwaterDiving );
             updateImpl();
             m_state.fallspeed *= 2;
         }
@@ -311,7 +296,7 @@ void LaraNode::update()
         {
             m_state.rotation.X = -45_deg;
             setAnimIdGlobal( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
-            setTargetState( LaraStateId::UnderwaterForward );
+            setGoalAnimState( LaraStateId::UnderwaterForward );
             m_state.fallspeed += m_state.fallspeed / 2;
         }
 
@@ -348,7 +333,7 @@ void LaraNode::update()
         {
             m_underwaterState = UnderwaterState::OnLand;
             setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
-            setTargetState( LaraStateId::JumpForward );
+            setGoalAnimState( LaraStateId::JumpForward );
             m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
             m_state.falling = true;
         }
@@ -356,7 +341,7 @@ void LaraNode::update()
         {
             m_underwaterState = UnderwaterState::Swimming;
             setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
-            setTargetState( LaraStateId::OnWaterStop );
+            setGoalAnimState( LaraStateId::OnWaterStop );
             m_state.position.position.Y = *waterSurfaceHeight + 1;
             m_swimToDiveKeypressDuration = 11;
             updateFloorHeight( -381 );
@@ -367,7 +352,7 @@ void LaraNode::update()
     {
         m_underwaterState = UnderwaterState::OnLand;
         setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
-        setTargetState( LaraStateId::JumpForward );
+        setGoalAnimState( LaraStateId::JumpForward );
         m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
         m_state.falling = true;
         m_handStatus = HandStatus::None;
@@ -801,9 +786,9 @@ void LaraNode::setCameraCurrentRotationX(core::Angle x)
     getLevel().m_cameraController->setCurrentRotationX( x );
 }
 
-void LaraNode::setCameraTargetDistance(int d)
+void LaraNode::setCameraEyeCenterDistance(int d)
 {
-    getLevel().m_cameraController->setTargetDistance( d );
+    getLevel().m_cameraController->setEyeCenterDistance( d );
 }
 
 void LaraNode::setCameraOldMode(CameraMode k)

@@ -58,11 +58,11 @@ void KeyHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionIn
 
     do
     {
-        lara.setTargetState( LaraStateId::InsertKey );
+        lara.setGoalAnimState( LaraStateId::InsertKey );
         lara.updateImpl();
     } while( lara.getCurrentAnimState() != LaraStateId::InsertKey );
 
-    lara.setTargetState( loader::LaraStateId::Stop );
+    lara.setGoalAnimState( loader::LaraStateId::Stop );
     lara.setHandStatus( engine::HandStatus::Grabbing );
     m_state.triggerState = engine::items::TriggerState::Active;
 }

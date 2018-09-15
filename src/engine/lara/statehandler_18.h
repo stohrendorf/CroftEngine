@@ -19,7 +19,7 @@ public:
     {
         if( getLara().m_state.health < 0 )
         {
-            setTargetState(LaraStateId::WaterDeath);
+            setGoalAnimState( LaraStateId::WaterDeath );
             return;
         }
 
@@ -27,14 +27,14 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().jump )
         {
-            setTargetState(LaraStateId::UnderwaterForward);
+            setGoalAnimState( LaraStateId::UnderwaterForward );
         }
 
         int spd = std::max(0, getLara().m_state.fallspeed - 6);
         getLara().m_state.fallspeed = spd;
         if( getLara().m_state.fallspeed <= 133 )
         {
-            setTargetState(LaraStateId::UnderwaterStop);
+            setGoalAnimState( LaraStateId::UnderwaterStop );
         }
     }
 };

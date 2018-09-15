@@ -69,11 +69,11 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisio
 
         do
         {
-            lara.setTargetState( LaraStateId::InsertPuzzle );
+            lara.setGoalAnimState( LaraStateId::InsertPuzzle );
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != LaraStateId::InsertPuzzle );
 
-        lara.setTargetState( loader::LaraStateId::Stop );
+        lara.setGoalAnimState( loader::LaraStateId::Stop );
         lara.setHandStatus( engine::HandStatus::Grabbing );
         m_state.triggerState = engine::items::TriggerState::Active;
     }

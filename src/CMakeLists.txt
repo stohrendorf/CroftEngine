@@ -279,6 +279,8 @@ set( EDISONENGINE_SRCS
      engine/items/puzzlehole.cpp
      engine/items/raptor.h
      engine/items/raptor.cpp
+     engine/items/scionpiece.h
+     engine/items/scionpiece.cpp
      engine/items/slopedbridge.h
      engine/items/stubitem.h
      engine/items/swingingblade.cpp

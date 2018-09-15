@@ -43,11 +43,11 @@ public:
 
         if( applyLandingDamage() )
         {
-            setTargetState(LaraStateId::Death);
+            setGoalAnimState( LaraStateId::Death );
         }
         else
         {
-            setTargetState(LaraStateId::Stop);
+            setGoalAnimState( LaraStateId::Stop );
             setAnimIdGlobal(loader::AnimationId::LANDING_HARD, 358);
         }
         getLevel().stopSoundEffect(30);
