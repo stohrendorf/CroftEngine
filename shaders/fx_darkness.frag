@@ -8,6 +8,7 @@ out vec4 out_color;
 
 const float PI = 3.14159265;
 const float Z_max = 20480;
+const float depth_darkness_near = 12.0 / 20;
 
 #ifdef WATER
     const float Frq1 = 12.6;
@@ -21,23 +22,42 @@ const float Z_max = 20480;
     uniform float u_time;
 #endif
 
+float depthAt(in vec2 uv)
+{
+    vec4 clipSpaceLocation;
+    clipSpaceLocation.xy = uv * 2 - 1;
+    clipSpaceLocation.z = texture2D(u_depth, uv).r * 2 - 1;
+    clipSpaceLocation.w = 1;
+    vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
+    float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
+    d /= Z_max;
+    return clamp(d, 0, 1);
+}
+
+// autofocus
+float dof_focal = depthAt(vec2(0.5, 0.5));
+
+float darkness(in float depth)
+{
+    float f = clamp((depth - depth_darkness_near) / (1 - depth_darkness_near), 0, 1);
+    return 1 - f * f * (3 - 2 * f);
+}
+
+vec3 darkness_texel(in vec2 uv, in float depth)
+{
+    return texture2D(u_texture, uv).rgb * darkness(depth);
+}
+
 #define DOF
 
 #ifdef DOF
 #ifdef WATER
 const float dof_sensor_size = 200.0 / Z_max;
 const float dof_center_size = 80.0 / Z_max;
-const float dof_focal = 1536.0 / Z_max;
 #else
-const float dof_sensor_size = 20.0 / Z_max;
+const float dof_sensor_size = 40.0 / Z_max;
 const float dof_center_size = 20.0 / Z_max;
-const float dof_focal = 1536.0 / Z_max;
 #endif
-
-vec3 dofColor(in vec2 uv, in float depth)
-{
-    return texture2D(u_texture, uv).rgb * (1-depth);
-}
 
 // get a random 2D-vector, each component within -1..1
 vec2 dofRand(in vec2 uv)
@@ -84,21 +104,7 @@ vec2 antiFisheye(in vec2 polar, in float stationary_radius) {
     float power = abs(distortion_power);
     return normalize(polar) * atan(polar_dist * power) * stationary_radius / atan(stationary_radius * power);
 }
-#endif
 
-float depthAt(in vec2 uv)
-{
-    vec4 clipSpaceLocation;
-    clipSpaceLocation.xy = uv * 2 - 1;
-    clipSpaceLocation.z = texture2D(u_depth, uv).r * 2 - 1;
-    clipSpaceLocation.w = 1;
-    vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
-    float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
-    d /= Z_max;
-    return clamp(pow(d, 0.5), 0, 1);
-}
-
-#ifdef LENS_DISTORTION
 void doLensDistortion(inout vec2 uv)
 {
     // normalized center coords
@@ -143,10 +149,8 @@ void doDof(in vec2 uv)
     const float angle_step = PI*2.0 / dof_blends;
     float dist_step = blurRadius / dof_rings;
 
-    // avoid DOF effect in-bleeding
-    float center_weight = 1.0 - calcDofFactor(depth);
-    vec3 sample_color = dofColor(uv, depth) * center_weight;
-    float sample_weight_sum = center_weight;
+    vec3 sample_color = darkness_texel(uv, depth);
+    float sample_weight_sum = 1;
     for (int i = 1; i <= dof_blends; i += 1)
     {   
         for (int j = 0; j < dof_rings; j += 1)   
@@ -157,8 +161,8 @@ void doDof(in vec2 uv)
             vec2 r = dofRand(uv + p) * dist_step / 2;
             vec2 peek = uv + p + r;
             depth = depthAt(peek);
-            float localWeight = (1.0-center_weight) * (1.0 - smoothstep(j + 1, 0, dof_rings));
-            sample_color += dofColor(peek, depth) * localWeight;
+            float localWeight = 1.0 - smoothstep(j + 1, 0, dof_rings);
+            sample_color += darkness_texel(peek, depth) * localWeight;
             sample_weight_sum += localWeight;
         }
     }
@@ -180,7 +184,7 @@ void main()
 #endif
 
 #ifndef DOF
-    out_color = texture(u_texture, uv) * (1-depthAt(uv));
+    out_color = darkness_texel(uv, darkness(depthAt(uv)));
 #else
     doDof(uv);
 #endif
