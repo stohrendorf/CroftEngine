@@ -46,6 +46,8 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     m_state.activationState = floordata::ActivationState( item.activationState );
     m_state.timer = floordata::ActivationState::extractTimeout( item.activationState );
 
+    m_state.floor = room->getSectorByAbsolutePosition( item.position )->floorHeight * loader::QuarterSectorSize;
+
     if( m_state.activationState.isOneshot() )
     {
         m_state.activationState.setOneshot( false );
