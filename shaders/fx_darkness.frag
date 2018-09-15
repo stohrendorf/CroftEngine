@@ -95,7 +95,7 @@ float depthAt(in vec2 uv)
     vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
     d /= Z_max;
-    return clamp(pow(d, 0.9), 0, 1);
+    return clamp(pow(d, 0.5), 0, 1);
 }
 
 #ifdef LENS_DISTORTION
