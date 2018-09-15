@@ -2,7 +2,7 @@
 
 #include "itemnode.h"
 
-#define NO_DOOR_BLOCK
+// #define NO_DOOR_BLOCK
 
 namespace engine
 {
