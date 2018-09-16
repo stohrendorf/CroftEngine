@@ -8,7 +8,6 @@ out vec4 out_color;
 
 const float PI = 3.14159265;
 const float Z_max = 20480;
-const float depth_darkness_near = 12.0 / 20;
 
 #ifdef WATER
     const float Frq1 = 12.6;
@@ -22,135 +21,116 @@ const float depth_darkness_near = 12.0 / 20;
     uniform float u_time;
 #endif
 
-float depthAt(in vec2 uv)
+#ifdef LENS_DISTORTION
+    uniform float aspect_ratio;
+    uniform float distortion_power;
+#endif
+
+float depth_at(in vec2 uv)
 {
     vec4 clipSpaceLocation;
-    clipSpaceLocation.xy = uv * 2 - 1;
-    clipSpaceLocation.z = texture2D(u_depth, uv).r * 2 - 1;
+    clipSpaceLocation.xy = uv * 2 - vec2(1); // normalized device coordinates
+    clipSpaceLocation.z = texture2D(u_depth, uv).r * 2.0 - 1.0;
     clipSpaceLocation.w = 1;
     vec4 camSpaceLocation = inverse(u_projection) * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
     d /= Z_max;
-    return clamp(d, 0, 1);
+    return clamp(d, 0.0, 1.0);
 }
 
 // autofocus
-float dof_focal = depthAt(vec2(0.5, 0.5));
+float dof_focal_depth = depth_at(vec2(0.5, 0.5));
 
-float darkness(in float depth)
+float brightness(in float depth)
 {
-    float f = clamp((depth - depth_darkness_near) / (1 - depth_darkness_near), 0, 1);
-    return 1 - f * f * (3 - 2 * f);
+    return 1.0 - depth;
 }
 
-vec3 darkness_texel(in vec2 uv, in float depth)
+vec3 shaded_texel(in vec2 uv, in float depth)
 {
-    return texture2D(u_texture, uv).rgb * darkness(depth);
+    return texture2D(u_texture, uv).rgb * brightness(depth);
 }
 
 #define DOF
 
 #ifdef DOF
 #ifdef WATER
-const float dof_sensor_size = 200.0 / Z_max;
-const float dof_center_size = 80.0 / Z_max;
+const float dof_scale = 200.0 / Z_max;
+const float dof_offset = 80.0 / Z_max;
 #else
-const float dof_sensor_size = 40.0 / Z_max;
-const float dof_center_size = 20.0 / Z_max;
+const float dof_scale = 40.0 / Z_max;
+const float dof_offset = 20.0 / Z_max;
 #endif
 
 // get a random 2D-vector, each component within -1..1
-vec2 dofRand(in vec2 uv)
+vec2 rand2(in vec2 uv)
 {
-    float noiseX = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)    )) * 43758.5453), 0.0, 1.0)*2.0-1.0;
-    float noiseY = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)*2.0)) * 43758.5453), 0.0, 1.0)*2.0-1.0;
-    return vec2(noiseX, noiseY);
+    float noise_x = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)    )) * 43758.5453), 0.0, 1.0)*2.0-1.0;
+    float noise_y = clamp(fract(sin(dot(uv, vec2(12.9898,78.233)*2.0)) * 43758.5453), 0.0, 1.0)*2.0-1.0;
+    return vec2(noise_x, noise_y);
 }
 
-float calcDofFactor(in float depth)
+float dof_focal_point_distance(in float depth)
 {
-    return clamp(abs(depth - dof_focal) / dof_focal, 0.0, 1.0);
+    return clamp(abs(depth - dof_focal_depth) / dof_focal_depth, 0.0, 1.0);
 }
 
-float calcDofBlurRadius(in float depth) {
-    float d = calcDofFactor(depth);
-    return d * dof_sensor_size + dof_center_size;
+float dof_blur_radius(in float depth) {
+    return dof_focal_point_distance(depth) * dof_scale + dof_offset;
 }
 #endif
 
 #ifdef LENS_DISTORTION
-    uniform float aspect_ratio;
-    uniform float distortion_power;
-
-float getStationaryRadius(in vec2 ctr) {
-    if (distortion_power > 0.0)
-        return length(ctr);
-
-    if (aspect_ratio < 1.0)
-        return ctr.x;
-    else
-        return ctr.y;
-}
-
 vec2 fisheye(in vec2 polar, in float stationary_radius) {
-    float polar_dist = length(polar);
     float power = abs(distortion_power);
-    return normalize(polar) * tan(polar_dist * power) * stationary_radius / tan(stationary_radius * power);
+    return normalize(polar) * tan(length(polar) * power) * stationary_radius / tan(stationary_radius * power);
 }
 
 // same as fisheye, except that atan is used instead of tan
-vec2 antiFisheye(in vec2 polar, in float stationary_radius) {
-    float polar_dist = length(polar);
+vec2 anti_fisheye(in vec2 polar, in float stationary_radius) {
     float power = abs(distortion_power);
-    return normalize(polar) * atan(polar_dist * power) * stationary_radius / atan(stationary_radius * power);
+    return normalize(polar) * atan(length(polar) * power) * stationary_radius / atan(stationary_radius * power);
 }
 
-void doLensDistortion(inout vec2 uv)
+void do_lens_distortion(inout vec2 uv)
 {
-    // normalized center coords
-    vec2 norm_ctr = vec2(0.5, 0.5 / aspect_ratio);
-    
-    vec2 polar = uv - norm_ctr;
-    float polar_dist = length(polar);
-
-    float stationary_radius = getStationaryRadius(norm_ctr);
+    float stationary_radius = max(0.5, 0.5 / aspect_ratio);
 
     if (distortion_power > 0.0)
-        uv = norm_ctr + fisheye(polar, stationary_radius);
+        uv = vec2(0.5, 0.5) + fisheye(uv - vec2(0.5, 0.5), stationary_radius);
     else if (distortion_power < 0.0)
-        uv = norm_ctr + antiFisheye(polar, stationary_radius);
+        uv = vec2(0.5, 0.5) + anti_fisheye(uv - vec2(0.5, 0.5), stationary_radius);
 }
 #endif
 
 #ifdef WATER
-void doWaterFrq(inout vec2 uv, in float timeMult, in float frq, in float amplitude)
+void do_water_distortion_frq(inout vec2 uv, in float timeMult, in float frq, in float amplitude)
 {
     vec2 phase = vec2(u_time * timeMult) + uv * frq;
     
     uv += vec2(sin(phase.x), sin(phase.y)) * amplitude;
 }
 
-void doWater(inout vec2 uv)
+void do_water_distortion(inout vec2 uv)
 {
-    doWaterFrq(uv, TimeMult1, Frq1, Amplitude1);
-    doWaterFrq(uv, TimeMult2, Frq2, Amplitude2);
+    do_water_distortion_frq(uv, TimeMult1, Frq1, Amplitude1);
+    do_water_distortion_frq(uv, TimeMult2, Frq2, Amplitude2);
 }
 #endif
 
 #ifdef DOF
-void doDof(in vec2 uv)
+vec3 do_dof(in vec2 uv)
 {
-    float depth = depthAt(uv);
-    float blurRadius = calcDofBlurRadius(depth);
-    
+    float depth = depth_at(uv);
+
     const int dof_blends = 6;
     const int dof_rings = 6;
-    
     const float angle_step = PI*2.0 / dof_blends;
-    float dist_step = blurRadius / dof_rings;
 
-    vec3 sample_color = darkness_texel(uv, depth);
-    float sample_weight_sum = 1;
+    float dist_step = dof_blur_radius(depth) / dof_rings;
+
+    vec3 sample_color = shaded_texel(uv, depth);
+    float sample_weight_sum = 1.0;
     for (int i = 1; i <= dof_blends; i += 1)
     {   
         for (int j = 0; j < dof_rings; j += 1)   
@@ -158,16 +138,15 @@ void doDof(in vec2 uv)
             vec2 p;
             p.x = sin(i*angle_step) * dist_step * j;
             p.y = cos(i*angle_step) * dist_step * j;
-            vec2 r = dofRand(uv + p) * dist_step / 2;
+            vec2 r = rand2(uv + p) * dist_step / 2.0;
             vec2 peek = uv + p + r;
-            depth = depthAt(peek);
-            float localWeight = 1.0 - smoothstep(j + 1, 0, dof_rings);
-            sample_color += darkness_texel(peek, depth) * localWeight;
-            sample_weight_sum += localWeight;
+            float local_weight = 1.0 - smoothstep(j + 1.0, 0.0, dof_rings);
+            sample_color += shaded_texel(peek, depth_at(peek)) * local_weight;
+            sample_weight_sum += local_weight;
         }
     }
     sample_color /= sample_weight_sum;
-    out_color = vec4(sample_color, 1.0);
+    return sample_color;
 }
 #endif
 
@@ -176,16 +155,17 @@ void main()
     vec2 uv = v_texCoord;
 
 #ifdef LENS_DISTORTION
-    doLensDistortion(uv);
+    do_lens_distortion(uv);
 #endif
 
 #ifdef WATER
-    doWater(uv);
+    do_water_distortion(uv);
 #endif
 
 #ifndef DOF
-    out_color = darkness_texel(uv, darkness(depthAt(uv)));
+    out_color.rgb = shaded_texel(uv, depth_at(uv));
 #else
-    doDof(uv);
+    out_color.rgb = do_dof(uv);
 #endif
+    out_color.a = 1;
 }
