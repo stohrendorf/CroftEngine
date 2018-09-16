@@ -79,7 +79,7 @@ void CImgWrapper::resize(int width, int height)
     if( !m_interleaved )
         m_image->resize( width, height, 1, 4, 6 );
     else
-        m_image->resize( 1, width, height, 4, 6 );
+        m_image->resize( 4, width, height, 1, 6 );
 }
 
 void CImgWrapper::crop(int x0, int y0, int x1, int y1)
@@ -96,6 +96,8 @@ void CImgWrapper::crop(int x0, int y0, int x1, int y1)
 
 uint8_t& CImgWrapper::operator()(int x, int y, int c)
 {
+    BOOST_ASSERT( x >= 0 && x < width() );
+    BOOST_ASSERT( y >= 0 && y < height() );
     if( !m_interleaved )
         return (*m_image)( x, y, 0, c );
     else
@@ -115,8 +117,9 @@ const uint8_t* CImgWrapper::data() const
     return m_image->data();
 }
 
-void CImgWrapper::savePng(const std::string& filename) const
+void CImgWrapper::savePng(const std::string& filename)
 {
+    deinterleave();
     m_image->save_png( filename.c_str(), 1 );
 }
 }

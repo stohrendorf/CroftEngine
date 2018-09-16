@@ -46,6 +46,6 @@ public:
 
     const uint8_t* data() const;
 
-    void savePng(const std::string& filename) const;
+    void savePng(const std::string& filename);
 };
 }

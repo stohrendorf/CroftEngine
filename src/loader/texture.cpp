@@ -70,6 +70,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
     }
 
     util::CImgWrapper original{&pixels[0][0].r, 256, 256, false};
+    original.deinterleave();
     original.resize( Resolution, Resolution );
 
     for( const auto& tile : mapping.tiles )
@@ -94,8 +95,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
 
                 for( int c = 0; c < 4; ++c )
                 {
-                    const auto pixel = srcImage( x, y, c );
-                    original( x + x0, y + y0, c ) = pixel;
+                    original( x + x0, y + y0, c ) = srcImage( x, y, c );
                 }
             }
         }

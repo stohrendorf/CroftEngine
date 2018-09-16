@@ -288,24 +288,31 @@ int main()
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
-    util::CImgWrapper splashImage{ "splash.png" };
-    // scale splash image so that its aspect ratio is preserved, but the boundaries match
-    const float splashScale = std::max(
-            game->getViewport().x / splashImage.width(),
-            game->getViewport().y / splashImage.height()
-    );
-    splashImage.resize( splashImage.width() * splashScale, splashImage.height() * splashScale );
-    // crop to boundaries
-    const auto centerX = splashImage.width() / 2;
-    const auto centerY = splashImage.height() / 2;
-    splashImage.crop(
-            centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2,
-            centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1
-    );
-    Expects( splashImage.width() == game->getViewport().x );
-    Expects( splashImage.height() == game->getViewport().y );
+    const util::CImgWrapper splashImage{"splash.png"};
+    util::CImgWrapper splashImageScaled{splashImage};
 
-    splashImage.interleave();
+    const auto scaleSplashImage = [&]() {
+        splashImageScaled = splashImage;
+        // scale splash image so that its aspect ratio is preserved, but the boundaries match
+        const float splashScale = std::max(
+                game->getViewport().x / splashImageScaled.width(),
+                game->getViewport().y / splashImageScaled.height()
+        );
+        splashImageScaled.resize( splashImageScaled.width() * splashScale, splashImageScaled.height() * splashScale );
+        // crop to boundaries
+        const auto centerX = splashImageScaled.width() / 2;
+        const auto centerY = splashImageScaled.height() / 2;
+        splashImageScaled.crop(
+                centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2,
+                centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1
+        );
+        Expects( splashImageScaled.width() == game->getViewport().x );
+        Expects( splashImageScaled.height() == game->getViewport().y );
+
+        splashImageScaled.interleave();
+    };
+
+    scaleSplashImage();
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
 
@@ -319,9 +326,11 @@ int main()
             game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
             screenOverlay->init( game->getViewport() );
             abibasFont->setTarget( screenOverlay->getImage() );
+
+            scaleSplashImage();
         }
         screenOverlay->getImage()->assign(
-                reinterpret_cast<const gameplay::gl::RGBA8*>(splashImage.data()),
+                reinterpret_cast<const gameplay::gl::RGBA8*>(splashImageScaled.data()),
                 game->getViewport().x * game->getViewport().y
         );
         abibasFont->drawText( state, 40, game->getViewport().y - 100, 255, 255, 255, 255 );
@@ -410,7 +419,7 @@ int main()
         lvl->m_textures[i].toTexture( glidos.get() );
     }
 
-    drawLoadingScreen( "Setting up rendering" );
+    drawLoadingScreen( "Preparing the game" );
 
     lvl->setUpRendering( to_not_null( game.get() ), "assets/tr1", baseName, glidos );
 
