@@ -259,8 +259,8 @@ void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth
     {
         if( clearColor != m_clearColor )
         {
-            glClearColor( clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f,
-                          clearColor.a / 255.0f );
+            GL_ASSERT( glClearColor( clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f,
+                                     clearColor.a / 255.0f ) );
             m_clearColor = clearColor;
         }
         bits |= GL_COLOR_BUFFER_BIT;
@@ -270,7 +270,7 @@ void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth
     {
         if( clearDepth != m_clearDepth )
         {
-            glClearDepth( clearDepth );
+            GL_ASSERT( glClearDepth( clearDepth ) );
             m_clearDepth = clearDepth;
         }
         bits |= GL_DEPTH_BUFFER_BIT;
@@ -281,7 +281,7 @@ void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth
         RenderState::enableDepthWrite();
     }
 
-    glClear( bits );
+    GL_ASSERT( glClear( bits ) );
 }
 
 void Game::clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)

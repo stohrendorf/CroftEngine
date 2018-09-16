@@ -9,13 +9,17 @@ namespace gl
 {
 class FrameBuffer : public BindableResource
 {
+private:
+    const GLenum m_type;
+
 public:
-    explicit FrameBuffer(const std::string& label = {})
+    explicit FrameBuffer(const std::string& label = {}, GLenum type = GL_FRAMEBUFFER)
             : BindableResource{glGenFramebuffers,
-                               [](GLuint handle) { glBindFramebuffer( GL_FRAMEBUFFER, handle ); },
+                               [type](GLuint handle) { glBindFramebuffer( type, handle ); },
                                glDeleteFramebuffers,
-                               GL_FRAMEBUFFER,
+                               type,
                                label}
+            , m_type{type}
     {
     }
 
@@ -23,7 +27,7 @@ public:
     void attachTexture1D(GLenum attachment, const Texture& texture, GLint level = 0)
     {
         bind();
-        glFramebufferTexture1D( GL_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level );
+        glFramebufferTexture1D( m_type, attachment, texture.getType(), texture.getHandle(), level );
         checkGlError();
     }
 
@@ -31,7 +35,7 @@ public:
     void attachTexture2D(GLenum attachment, const Texture& texture, GLint level = 0)
     {
         bind();
-        glFramebufferTexture2D( GL_FRAMEBUFFER, attachment, texture.getType(), texture.getHandle(), level );
+        glFramebufferTexture2D( m_type, attachment, texture.getType(), texture.getHandle(), level );
         checkGlError();
     }
 
@@ -39,7 +43,7 @@ public:
     void attachTextureLayer(GLenum attachment, const Texture& texture, GLint level = 0, GLint layer = 0)
     {
         bind();
-        glFramebufferTextureLayer( GL_FRAMEBUFFER, attachment, texture.getHandle(), level, layer );
+        glFramebufferTextureLayer( m_type, attachment, texture.getHandle(), level, layer );
         checkGlError();
     }
 
@@ -51,11 +55,23 @@ public:
         checkGlError();
     }
 
+    void blit(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+              GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+              GLbitfield mask = GL_COLOR_BUFFER_BIT,
+              GLenum filter = GL_LINEAR)
+    {
+        bind();
+        glBlitFramebuffer( srcX0, srcY0, srcX1, srcY1,
+                           dstX0, dstY0, dstX1, dstY1,
+                           mask, filter );
+        checkGlError();
+    }
+
     bool isComplete() const
     {
         bind();
 
-        auto result = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+        auto result = glCheckFramebufferStatus( m_type );
         checkGlError();
 
 #ifndef NDEBUG
@@ -104,9 +120,9 @@ public:
         return result == GL_FRAMEBUFFER_COMPLETE;
     }
 
-    static void unbindAll()
+    static void unbindAll(GLenum type = GL_FRAMEBUFFER)
     {
-        glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+        glBindFramebuffer( type, 0 );
         checkGlError();
     }
 };

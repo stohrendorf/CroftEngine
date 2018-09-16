@@ -36,6 +36,24 @@ public:
         return m_data;
     }
 
+    void assign(const std::vector<StorageType>& data)
+    {
+        Expects( m_data.size() == data.size() );
+        m_data = data;
+    }
+
+    void assign(const StorageType* data, size_t size)
+    {
+        Expects( m_data.size() == size );
+        m_data.assign( data + 0, data + size );
+    }
+
+    void assign(std::vector<StorageType>&& data)
+    {
+        Expects( m_data.size() == data.size() );
+        m_data = std::move( data );
+    }
+
     GLint getHeight() const
     {
         return m_height;

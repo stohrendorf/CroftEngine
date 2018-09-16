@@ -275,14 +275,6 @@ const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(
     return none;
 }
 
-void Level::createTextures(const loader::trx::Glidos* glidos)
-{
-    for( auto& texture : m_textures )
-    {
-        texture.toTexture( glidos );
-    }
-}
-
 std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
 Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
 {
@@ -768,8 +760,6 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
                            const std::unique_ptr<loader::trx::Glidos>& glidos)
 {
     m_inputHandler = std::make_unique<engine::InputHandler>( to_not_null( game->getWindow() ) );
-
-    createTextures( glidos.get() );
 
     for( auto& sprite : m_sprites )
     {

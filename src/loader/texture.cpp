@@ -71,7 +71,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
         {
             cacheImage.channels( 0, 3 );
             BOOST_ASSERT( cacheImage.spectrum() == 4 );
-            cacheImage.get_shared_channel( 3 ).fill( 1 );
+            cacheImage.get_shared_channel( 3 ).fill( 255 );
         }
 
         if( cacheImage.spectrum() != 4 )

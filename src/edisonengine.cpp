@@ -7,6 +7,12 @@
 
 #include "render/label.h"
 
+#ifdef _X
+#undef _X
+#endif
+
+#include "CImg.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -281,6 +287,72 @@ int main()
 {
     auto game = std::make_unique<gameplay::Game>();
     game->initialize();
+    glEnable( GL_FRAMEBUFFER_SRGB );
+    gameplay::gl::checkGlError();
+    game->getScene()->setActiveCamera(
+            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
+
+    cimg_library::CImg<uint8_t> splashImage( "splash.png" );
+    if( splashImage.spectrum() == 3 )
+    {
+        splashImage.channels( 0, 3 );
+        BOOST_ASSERT( splashImage.spectrum() == 4 );
+        splashImage.get_shared_channel( 3 ).fill( 255 );
+    }
+
+    // scale splash image so that its aspect ratio is preserved, but the boundaries match
+    const float splashScale = std::max(
+            game->getViewport().x / splashImage.width(),
+            game->getViewport().y / splashImage.height()
+    );
+    splashImage.resize( splashImage.width() * splashScale, splashImage.height() * splashScale, 1, 4, 6 );
+    // crop to boundaries
+    const auto centerX = splashImage.width() / 2;
+    const auto centerY = splashImage.height() / 2;
+    splashImage.crop(
+            centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2, 0, 0,
+            centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1, 0, 3
+    );
+    Expects( splashImage.width() == game->getViewport().x );
+    Expects( splashImage.height() == game->getViewport().y );
+    Expects( splashImage.depth() == 1 );
+    Expects( splashImage.spectrum() == 4 );
+
+    splashImage.permute_axes( "cxyz" );
+
+    auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
+
+    auto abibasFont = make_not_null_shared<gameplay::gl::Font>( "abibas.ttf", 64 );
+    abibasFont->setTarget( screenOverlay->getImage() );
+
+    auto drawLoadingScreen = [&](const std::string& state) {
+        glfwPollEvents();
+        if( game->updateWindowSize() )
+        {
+            game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
+            screenOverlay->init( game->getViewport() );
+            abibasFont->setTarget( screenOverlay->getImage() );
+        }
+        screenOverlay->getImage()->assign(
+                reinterpret_cast<const gameplay::gl::RGBA8*>(splashImage.data()),
+                game->getViewport().x * game->getViewport().y
+        );
+        abibasFont->drawText( state, 40, game->getViewport().y - 100, 255, 255, 255, 255 );
+
+        gameplay::gl::FrameBuffer::unbindAll();
+
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        gameplay::gl::checkGlError();
+
+        game->clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+        gameplay::RenderContext context{};
+        gameplay::Node dummyNode{""};
+        context.setCurrentNode( &dummyNode );
+        screenOverlay->draw( context );
+        game->swapBuffers();
+    };
+
+    drawLoadingScreen( "Booting" );
 
     auto scriptEngine = createScriptEngine();
 
@@ -299,10 +371,8 @@ int main()
     std::unique_ptr<loader::trx::Glidos> glidos;
     if( glidosPack && boost::filesystem::is_directory( glidosPack.value() ) )
     {
+        drawLoadingScreen( "Loading Glidos texture pack" );
         glidos = std::make_unique<loader::trx::Glidos>( glidosPack.value() );
-#ifndef NDEBUG
-        glidos->dump();
-#endif
     }
 
     sol::table levelInfo = scriptEngine["getLevelInfo"]();
@@ -333,10 +403,27 @@ int main()
                     += kv.second.as<size_t>();
     }
 
+    drawLoadingScreen( "Preparing to load " + baseName );
+
     auto lvl = to_not_null( level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
                                                         std::move( scriptEngine ) ) );
 
+    drawLoadingScreen( "Loading " + baseName );
+
     lvl->loadFileData();
+
+    for( size_t i = 0; i < lvl->m_textures.size(); ++i )
+    {
+        if( glidos != nullptr )
+            drawLoadingScreen( "Upgrading texture " + std::to_string( i + 1 ) + " of "
+                               + std::to_string( lvl->m_textures.size() ) );
+        else
+            drawLoadingScreen(
+                    "Loading texture " + std::to_string( i + 1 ) + " of " + std::to_string( lvl->m_textures.size() ) );
+        lvl->m_textures[i].toTexture( glidos.get() );
+    }
+
+    drawLoadingScreen( "Setting up rendering" );
 
     lvl->setUpRendering( to_not_null( game.get() ), "assets/tr1", baseName, glidos );
 
@@ -388,10 +475,6 @@ int main()
         }
     }
 
-    auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
-    auto font = make_not_null_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
-    font->setTarget( screenOverlay->getImage() );
-
     FullScreenFX depthDarknessFx{*game,
                                  to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
                                                                                        "shaders/fx_darkness.frag",
@@ -424,9 +507,10 @@ int main()
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;
 
+    auto font = make_not_null_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
+    font->setTarget( screenOverlay->getImage() );
+
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
-    glEnable( GL_FRAMEBUFFER_SRGB );
-    gameplay::gl::checkGlError();
     while( !game->windowShouldClose() )
     {
         screenOverlay->getImage()->fill( {0, 0, 0, 0} );
