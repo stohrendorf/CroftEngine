@@ -26,8 +26,3 @@ src/engine/items_tr1_enum.h
 *.user
 
 shaders/*.err
-
-3rdparty/yaml-cpp
-3rdparty/yaml-cpp-bin
-3rdparty/assimp
-3rdparty/assimp-bin

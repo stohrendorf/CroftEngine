@@ -155,8 +155,6 @@ set( EDISONENGINE_SRCS
      loader/meshes.h
      loader/mesh.cpp
      loader/mesh.h
-     loader/converter.h
-     loader/converter.cpp
      loader/primitives.h
      loader/texture.h
      loader/texture.cpp
@@ -347,7 +345,6 @@ target_link_libraries(
         yaml-cpp
         GLEW::GLEW
         glfw
-        Assimp
         PNG::PNG
         sol2
 )

@@ -89,10 +89,5 @@ add_definitions(-DGIT_SHA="${GIT_SHA}")
 
 find_package(yaml-cpp REQUIRED)
 
-find_package(assimp REQUIRED)
-add_library(Assimp INTERFACE)
-target_include_directories(Assimp INTERFACE ${ASSIMP_INCLUDE_DIRS})
-target_link_libraries(Assimp INTERFACE ${ASSIMP_LIBRARIES})
-
 add_subdirectory(3rdparty/gameplay)
 add_subdirectory(src)
