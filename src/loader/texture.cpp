@@ -2,14 +2,9 @@
 
 #include "engine/items/itemnode.h"
 #include "loader/trx/trx.h"
+#include "util/cimgwrapper.h"
 
 #include <glm/gtc/type_ptr.hpp>
-
-#ifdef _X
-#undef _X
-#endif
-
-#include "CImg.h"
 
 namespace loader
 {
@@ -59,45 +54,23 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
     constexpr int Scale = Resolution / 256;
 
     auto mapping = glidos->getMappingsForTexture( md5 );
-    const auto cacheName =  mapping.baseDir / "_edisonengine" / (md5 + ".png");
+    const auto cacheName = mapping.baseDir / "_edisonengine" / (md5 + ".png");
 
     if( is_regular_file( cacheName ) &&
         std::chrono::system_clock::from_time_t( last_write_time( cacheName ) ) > mapping.newestSource )
     {
         BOOST_LOG_TRIVIAL( info ) << "Loading cached texture " << cacheName << "...";
-        cimg_library::CImg<uint8_t> cacheImage( cacheName.string().c_str() );
+        util::CImgWrapper cacheImage{cacheName.string()};
 
-        if( cacheImage.spectrum() == 3 )
-        {
-            cacheImage.channels( 0, 3 );
-            BOOST_ASSERT( cacheImage.spectrum() == 4 );
-            cacheImage.get_shared_channel( 3 ).fill( 255 );
-        }
-
-        if( cacheImage.spectrum() != 4 )
-        {
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Can only use RGB and RGBA images" ) );
-        }
-
-        const auto w = cacheImage.width();
-        const auto h = cacheImage.height();
-
-        // interleave
-        cacheImage.permute_axes( "cxyz" );
-
+        cacheImage.interleave();
         image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
-                w, h,
+                cacheImage.width(), cacheImage.height(),
                 reinterpret_cast<const gameplay::gl::RGBA8*>(cacheImage.data()) );
         return;
     }
 
-    cimg_library::CImg<uint8_t> original( &pixels[0][0].r, 4, 256, 256, 1, false );
-    // un-interleave
-    original.permute_axes( "yzcx" );
-    BOOST_ASSERT( original.width() == 256 && original.height() == 256 && original.spectrum() == 4 );
-    original.resize( Resolution, Resolution, 1, 4, 6 );
-    original.min( uint8_t( 255 ) ).max( uint8_t( 0 ) ); // interpolation may produce values outside the range 0..255
-    BOOST_ASSERT( original.width() == Resolution && original.height() == Resolution && original.spectrum() == 4 );
+    util::CImgWrapper original{&pixels[0][0].r, 256, 256, false};
+    original.resize( Resolution, Resolution );
 
     for( const auto& tile : mapping.tiles )
     {
@@ -108,21 +81,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
             continue;
         }
 
-        cimg_library::CImg<uint8_t> srcImage( tile.second.string().c_str() );
-
-        if( srcImage.spectrum() == 3 )
-        {
-            srcImage.channels( 0, 3 );
-            BOOST_ASSERT( srcImage.spectrum() == 4 );
-            srcImage.get_shared_channel( 3 ).fill( 255 );
-        }
-
-        if( srcImage.spectrum() != 4 )
-        {
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Can only use RGB and RGBA images" ) );
-        }
-
-        srcImage.resize( tile.first.getWidth() * Scale, tile.first.getHeight() * Scale, 1, 4, 6 );
+        util::CImgWrapper srcImage{tile.second.string()};
+        srcImage.resize( tile.first.getWidth() * Scale, tile.first.getHeight() * Scale );
         const auto x0 = tile.first.getX0() * Scale;
         const auto y0 = tile.first.getY0() * Scale;
         for( int x = 0; x < srcImage.width(); ++x )
@@ -134,8 +94,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
 
                 for( int c = 0; c < 4; ++c )
                 {
-                    const auto pixel = srcImage( x, y, 0, c );
-                    original( x + x0, y + y0, 0, c ) = pixel;
+                    const auto pixel = srcImage( x, y, c );
+                    original( x + x0, y + y0, c ) = pixel;
                 }
             }
         }
@@ -143,11 +103,9 @@ void DWordTexture::toImage(const trx::Glidos* glidos)
 
     BOOST_LOG_TRIVIAL( info ) << "Writing texture cache " << cacheName << "...";
     boost::filesystem::create_directories( cacheName.parent_path() );
-    original.save_png( cacheName.string().c_str(), 1 );
+    original.savePng( cacheName.string() );
 
-    // interleave
-    original.permute_axes( "cxyz" );
-
+    original.interleave();
     image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
             Resolution, Resolution,
             reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()) );

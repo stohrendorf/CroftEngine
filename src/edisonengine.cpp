@@ -7,11 +7,7 @@
 
 #include "render/label.h"
 
-#ifdef _X
-#undef _X
-#endif
-
-#include "CImg.h"
+#include "util/cimgwrapper.h"
 
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -292,33 +288,24 @@ int main()
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
-    cimg_library::CImg<uint8_t> splashImage( "splash.png" );
-    if( splashImage.spectrum() == 3 )
-    {
-        splashImage.channels( 0, 3 );
-        BOOST_ASSERT( splashImage.spectrum() == 4 );
-        splashImage.get_shared_channel( 3 ).fill( 255 );
-    }
-
+    util::CImgWrapper splashImage{ "splash.png" };
     // scale splash image so that its aspect ratio is preserved, but the boundaries match
     const float splashScale = std::max(
             game->getViewport().x / splashImage.width(),
             game->getViewport().y / splashImage.height()
     );
-    splashImage.resize( splashImage.width() * splashScale, splashImage.height() * splashScale, 1, 4, 6 );
+    splashImage.resize( splashImage.width() * splashScale, splashImage.height() * splashScale );
     // crop to boundaries
     const auto centerX = splashImage.width() / 2;
     const auto centerY = splashImage.height() / 2;
     splashImage.crop(
-            centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2, 0, 0,
-            centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1, 0, 3
+            centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2,
+            centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1
     );
     Expects( splashImage.width() == game->getViewport().x );
     Expects( splashImage.height() == game->getViewport().y );
-    Expects( splashImage.depth() == 1 );
-    Expects( splashImage.spectrum() == 4 );
 
-    splashImage.permute_axes( "cxyz" );
+    splashImage.interleave();
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
 

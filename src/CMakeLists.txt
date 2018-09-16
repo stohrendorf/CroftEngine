@@ -185,6 +185,8 @@ set( EDISONENGINE_SRCS
      util/helpers.h
      util/md5.h
      util/md5.cpp
+     util/cimgwrapper.h
+     util/cimgwrapper.cpp
 
      engine/lara/abstractstatehandler.cpp
      engine/lara/abstractstatehandler.h
