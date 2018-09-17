@@ -38,11 +38,6 @@ const std::weak_ptr<Node>& Node::getParent() const
     return m_parent;
 }
 
-size_t Node::getChildCount() const
-{
-    return m_children.size();
-}
-
 Scene* Node::getScene() const
 {
     if( m_scene )

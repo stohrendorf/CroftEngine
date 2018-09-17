@@ -60,9 +60,8 @@ std::string replaceDefines(const std::vector<std::string>& defines)
 void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
 {
     // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
-    std::string str = source;
     size_t headPos = 0;
-    const auto fileLen = str.length();
+    const auto fileLen = source.length();
     const auto tailPos = fileLen;
     while( headPos < fileLen )
     {
@@ -70,22 +69,22 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
         if( headPos == 0 )
         {
             // find the first "#include"
-            headPos = str.find( "#include" );
+            headPos = source.find( "#include" );
         }
         else
         {
             // find the next "#include"
-            headPos = str.find( "#include", headPos + 1 );
+            headPos = source.find( "#include", headPos + 1 );
         }
 
         // If "#include" is found
         if( headPos != std::string::npos )
         {
             // append from our last position for the legth (head - last position)
-            out.append( str.substr( lastPos, headPos - lastPos ) );
+            out.append( source.substr( lastPos, headPos - lastPos ) );
 
             // find the start quote "
-            size_t startQuote = str.find( "\"", headPos ) + 1;
+            size_t startQuote = source.find( '"', headPos ) + 1;
             if( startQuote == std::string::npos )
             {
                 // We have started an "#include" but missing the leading quote "
@@ -94,7 +93,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
                 return;
             }
             // find the end quote "
-            size_t endQuote = str.find( "\"", startQuote );
+            size_t endQuote = source.find( '"', startQuote );
             if( endQuote == std::string::npos )
             {
                 // We have a start quote but missing the trailing quote "
@@ -110,7 +109,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
             std::string filepathStr = filepath;
             std::string directoryPath = filepathStr.substr( 0, filepathStr.rfind( '/' ) + 1 );
             size_t len = endQuote - startQuote;
-            std::string includeStr = str.substr( startQuote, len );
+            std::string includeStr = source.substr( startQuote, len );
             directoryPath.append( includeStr );
             std::string includedSource = readAll( directoryPath );
             if( includedSource.empty() )
@@ -125,7 +124,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
         else
         {
             // Append the remaining
-            out.append( str, lastPos, tailPos );
+            out.append( source, lastPos, tailPos );
         }
     }
 }
@@ -258,7 +257,6 @@ ShaderProgram::createFromSource(const std::string& vshPath, const std::string& v
     shaderProgram->m_handle.attach( fragmentShader );
     shaderProgram->m_handle.link( vshPath + ";" + fshPath + ";" + boost::algorithm::join( defines, ";" ) );
 
-    // Check link status.
     if( !shaderProgram->m_handle.getLinkStatus() )
     {
         BOOST_LOG_TRIVIAL( error ) << "Linking program failed (" << (vshPath.empty() ? "<none>" : vshPath) << ","
@@ -267,14 +265,6 @@ ShaderProgram::createFromSource(const std::string& vshPath, const std::string& v
 
         return nullptr;
     }
-
-    // Query and store vertex attribute meta-data from the program.
-    // NOTE: Rather than using glBindAttribLocation to explicitly specify our own
-    // preferred attribute locations, we're going to query the locations that were
-    // automatically bound by the GPU. While it can sometimes be convenient to use
-    // glBindAttribLocation, some vendors actually reserve certain attribute indices
-    // and therefore using this function can create compatibility issues between
-    // different hardware vendors.
 
     for( auto&& attrib : shaderProgram->m_handle.getActiveAttributes() )
     {

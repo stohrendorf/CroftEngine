@@ -218,11 +218,11 @@ bool Game::updateWindowSize()
     int tmpW, tmpH;
     GL_ASSERT( glfwGetFramebufferSize( m_window, &tmpW, &tmpH ) );
 
-    if( tmpW == m_viewport.x && tmpH == m_viewport.y )
+    if( tmpW == m_viewport.width && tmpH == m_viewport.height )
         return false;
 
-    m_viewport.x = static_cast<float>(tmpW);
-    m_viewport.y = static_cast<float>(tmpH);
+    m_viewport.width = gsl::narrow<size_t>( tmpW );
+    m_viewport.height = gsl::narrow<size_t>( tmpH );
 
     setViewport( m_viewport );
     return true;
@@ -252,12 +252,12 @@ void Game::swapBuffers()
     glfwSwapBuffers( m_window );
 }
 
-void Game::setViewport(const Point& viewport)
+void Game::setViewport(const Dimension2<size_t>& viewport)
 {
     m_viewport = viewport;
     GL_ASSERT( glViewport( 0, 0,
-                           static_cast<GLuint>(viewport.x),
-                           static_cast<GLuint>(viewport.y) ) );
+                           gsl::narrow<GLuint>( viewport.width ),
+                           gsl::narrow<GLuint>( viewport.height ) ) );
 }
 
 void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)

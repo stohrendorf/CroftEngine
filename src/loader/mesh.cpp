@@ -81,10 +81,10 @@ void Mesh::ModelBuilder::append(const RenderVertex& v)
 {
     static_assert( sizeof( RenderVertex ) % sizeof( float ) == 0, "Invalid vertex structure" );
     Expects( !m_hasNormals );
-    Expects( sizeof( v ) == m_mesh->getBuffer( 0 )->getVertexSize() );
+    Expects( sizeof( v ) == m_mesh->getBuffers()[0]->getVertexSize() );
 
     const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_mesh->getBuffer( 0 )->getVertexSize() / sizeof( float );
+    const auto n = m_mesh->getBuffers()[0]->getVertexSize() / sizeof( float );
     std::copy_n( data, n, std::back_inserter( m_vbuf ) );
     ++m_vertexCount;
 }
@@ -93,11 +93,11 @@ void Mesh::ModelBuilder::append(const RenderVertexWithNormal& v)
 {
     static_assert( sizeof( RenderVertexWithNormal ) % sizeof( float ) == 0, "Invalid vertex structure" );
     Expects( m_hasNormals );
-    Expects( sizeof( v ) == m_mesh->getBuffer( 0 )->getVertexSize() );
-    Expects( m_mesh->getBuffer( 0 )->getVertexSize() % sizeof( float ) == 0 );
+    Expects( sizeof( v ) == m_mesh->getBuffers()[0]->getVertexSize() );
+    Expects( m_mesh->getBuffers()[0]->getVertexSize() % sizeof( float ) == 0 );
 
     const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_mesh->getBuffer( 0 )->getVertexSize() / sizeof( float );
+    const auto n = m_mesh->getBuffers()[0]->getVertexSize() / sizeof( float );
     std::copy_n( data, n, std::back_inserter( m_vbuf ) );
     ++m_vertexCount;
 }
@@ -292,9 +292,9 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
 gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
 {
-    Expects( m_vbuf.size() * sizeof( m_vbuf[0] ) == m_vertexCount * m_mesh->getBuffer( 0 )->getVertexSize() );
+    Expects( m_vbuf.size() * sizeof( m_vbuf[0] ) == m_vertexCount * m_mesh->getBuffers()[0]->getVertexSize() );
 
-    m_mesh->getBuffer( 0 )->assignRaw( m_vbuf, m_vertexCount );
+    m_mesh->getBuffers()[0]->assignRaw( m_vbuf, m_vertexCount );
 
     for( const MeshPart& localPart : m_parts )
     {

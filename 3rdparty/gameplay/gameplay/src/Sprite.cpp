@@ -29,14 +29,14 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(float left,
             {{left,         bottom + height, 0}, {uvTopLeft.x,     uvTopLeft.y}}
     };
 
-    gl::StructuredVertexBuffer::AttributeMapping attribs{
+    gl::StructuredVertexBuffer::AttributeMapping layout{
             {VERTEX_ATTRIBUTE_POSITION_NAME,        gl::VertexAttribute{&SpriteVertex::pos}},
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&SpriteVertex::uv}},
             {VERTEX_ATTRIBUTE_COLOR_NAME,           gl::VertexAttribute{&SpriteVertex::color}}
     };
 
-    auto mesh = make_not_null_shared<Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
+    auto mesh = make_not_null_shared<Mesh>( layout, false );
+    mesh->getBuffers()[0]->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
 
     static const uint16_t indices[6] =
             {

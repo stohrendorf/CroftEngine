@@ -19,6 +19,8 @@ public:
 
     ~MaterialParameter();
 
+    MaterialParameter& operator=(const MaterialParameter&) = delete;
+
     const std::string& getName() const;
 
     void set(float value);
@@ -85,9 +87,6 @@ public:
     bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
 private:
-
-    MaterialParameter& operator=(const MaterialParameter&) = delete;
-
     gl::Program::ActiveUniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
     enum LOGGER_DIRTYBITS

@@ -17,6 +17,8 @@ public:
 
     ~Camera() = default;
 
+    Camera& operator=(const Camera&) = delete;
+
     float getFieldOfView() const;
 
     void setFieldOfView(float fieldOfView);
@@ -42,9 +44,6 @@ public:
     const glm::mat4& getInverseViewProjectionMatrix() const;
 
 private:
-
-    Camera& operator=(const Camera&) = delete;
-
     float m_fieldOfView;
     float m_aspectRatio;
     float m_nearPlane;

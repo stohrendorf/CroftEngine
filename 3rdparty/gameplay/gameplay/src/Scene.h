@@ -30,11 +30,6 @@ public:
         node->m_scene = this;
     }
 
-    size_t getNodeCount() const
-    {
-        return m_nodes.size();
-    }
-
     const std::shared_ptr<Camera>& getActiveCamera() const
     {
         return m_activeCamera;

@@ -49,7 +49,7 @@ private:
                                                            const glm::vec2& uvTopLeft,
                                                            const glm::vec2& uvBottomRight,
                                                            const gsl::not_null<std::shared_ptr<Material>>& material,
-                                                           const Axis pole);
+                                                           Axis pole);
 
     RenderState m_renderState;
 

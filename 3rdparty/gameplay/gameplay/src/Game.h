@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rectangle.h"
+#include "Dimension.h"
 #include "RenderState.h"
 
 #include "gl/pixel.h"
@@ -50,15 +50,15 @@ public:
 
     float getAspectRatio() const
     {
-        return m_viewport.x / m_viewport.y;
+        return static_cast<float>(m_viewport.width) / m_viewport.height;
     }
 
-    const Point& getViewport() const
+    const Dimension2<size_t>& getViewport() const
     {
         return m_viewport;
     }
 
-    void setViewport(const Point& viewport);
+    void setViewport(const Dimension2<size_t>& viewport);
 
     void clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth);
 
@@ -91,7 +91,7 @@ private:
     std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
     unsigned int m_frameCount = 0; // The current frame count.
     unsigned int m_frameRate = 0; // The current frame rate.
-    Point m_viewport; // the games's current viewport.
+    Dimension2<size_t> m_viewport; // the games's current viewport.
     gl::RGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
     float m_clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 

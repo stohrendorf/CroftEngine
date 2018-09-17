@@ -38,11 +38,6 @@ public:
         m_materialParameterSetters.emplace_back( setter );
     }
 
-    const std::shared_ptr<gl::VertexArray>& getVao() const
-    {
-        return m_vao;
-    }
-
     RenderState& getRenderState()
     {
         return m_renderState;

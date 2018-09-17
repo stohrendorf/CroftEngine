@@ -508,7 +508,7 @@ void ModelItemNode::emitParticle(const core::TRVec& pos,
                                                                                        int16_t, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
-    BOOST_ASSERT( boneIndex < m_skeleton->getChildCount() );
+    BOOST_ASSERT( boneIndex < m_skeleton->getChildren().size() );
 
     const auto itemSpheres = m_skeleton->getBoneCollisionSpheres(
             m_state,

@@ -18,9 +18,9 @@ public:
 
     ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-    explicit ScreenOverlay(const Point& viewport);
+    explicit ScreenOverlay(const Dimension2<size_t>& viewport);
 
-    void init(const Point& viewport);
+    void init(const Dimension2<size_t>& viewport);
 
     ~ScreenOverlay() override;
 

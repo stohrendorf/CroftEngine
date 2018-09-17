@@ -58,7 +58,7 @@ struct RenderModel
 #ifndef NDEBUG
             for( auto idx : localPart.indices )
             {
-                BOOST_ASSERT( idx < mesh->getBuffer( 0 )->getVertexCount() );
+                BOOST_ASSERT( idx < mesh->getBuffers()[0]->getVertexCount() );
             }
 #endif
             gameplay::gl::VertexArrayBuilder builder;
@@ -176,7 +176,7 @@ void Room::createSceneNode(
                                    .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
     }
 
-    mesh->getBuffer( 0 )->assign( vbuf );
+    mesh->getBuffers()[0]->assign( vbuf );
 
     static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{
@@ -184,7 +184,7 @@ void Room::createSceneNode(
     };
 
     mesh->addBuffer( attribs, true );
-    mesh->getBuffer( 1 )->assign( uvCoords );
+    mesh->getBuffers()[1]->assign( uvCoords );
 
     auto resModel = renderModel.toModel( mesh );
     resModel->getRenderState().setCullFace( true );

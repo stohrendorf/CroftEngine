@@ -146,25 +146,28 @@ public:
 
         m_colorBuffer = std::make_shared<gameplay::gl::Texture>(
                 multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D );
-        m_colorBuffer->image2D<gameplay::gl::RGBA8>( vp.x, vp.y, false, multisample );
+        m_colorBuffer->image2D<gameplay::gl::RGBA8>(
+                gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), false, multisample );
         m_fb->attachTexture2D( GL_COLOR_ATTACHMENT0, *m_colorBuffer );
 
         m_depthBuffer = std::make_shared<gameplay::gl::Texture>(
                 multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D );
-        m_depthBuffer->depthImage2D( vp.x, vp.y, multisample );
+        m_depthBuffer->depthImage2D( gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), multisample );
         m_fb->attachTexture2D( GL_DEPTH_ATTACHMENT, *m_depthBuffer );
 
         BOOST_ASSERT( m_fb->isComplete() );
 
-        m_mesh = gameplay::Mesh::createQuadFullscreen( vp.x, vp.y, m_shader->getHandle() );
+        m_mesh = gameplay::Mesh::createQuadFullscreen( gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ),
+                                                       m_shader->getHandle() );
         m_material->getParameter( "u_depth" )->set( m_depthBuffer );
         m_material->getParameter( "u_projectionMatrix" )
-                  ->set( glm::ortho( 0.0f, vp.x, vp.y, 0.0f, 0.0f, 1.0f ) );
+                  ->set( glm::ortho( 0.0f, gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ), 0.0f, 0.0f,
+                                     1.0f ) );
         m_material->getParameter( "u_projection" )
                   ->bind( game.getScene()->getActiveCamera().get(), &gameplay::Camera::getProjectionMatrix );
         m_material->getParameter( "u_texture" )->set( m_colorBuffer );
 
-        m_mesh->getPart( 0 )->setMaterial( m_material );
+        m_mesh->getParts()[0]->setMaterial( m_material );
 
         m_model = std::make_shared<gameplay::Model>();
         m_model->addMesh( to_not_null( m_mesh ) );
@@ -293,19 +296,21 @@ int main()
         splashImageScaled = splashImage;
         // scale splash image so that its aspect ratio is preserved, but the boundaries match
         const float splashScale = std::max(
-                game->getViewport().x / splashImageScaled.width(),
-                game->getViewport().y / splashImageScaled.height()
+                gsl::narrow<float>( game->getViewport().width ) / splashImageScaled.width(),
+                gsl::narrow<float>( game->getViewport().height ) / splashImageScaled.height()
         );
         splashImageScaled.resize( splashImageScaled.width() * splashScale, splashImageScaled.height() * splashScale );
         // crop to boundaries
         const auto centerX = splashImageScaled.width() / 2;
         const auto centerY = splashImageScaled.height() / 2;
         splashImageScaled.crop(
-                centerX - game->getViewport().x / 2, centerY - game->getViewport().y / 2,
-                centerX + game->getViewport().x / 2 - 1, centerY + game->getViewport().y / 2 - 1
+                gsl::narrow<int>( centerX - game->getViewport().width / 2 ),
+                gsl::narrow<int>( centerY - game->getViewport().height / 2 ),
+                gsl::narrow<int>( centerX - game->getViewport().width / 2 + game->getViewport().width - 1 ),
+                gsl::narrow<int>( centerY - game->getViewport().height / 2 + game->getViewport().height - 1 )
         );
-        Expects( splashImageScaled.width() == game->getViewport().x );
-        Expects( splashImageScaled.height() == game->getViewport().y );
+        Expects( splashImageScaled.width() == game->getViewport().width );
+        Expects( splashImageScaled.height() == game->getViewport().height );
 
         splashImageScaled.interleave();
     };
@@ -329,9 +334,9 @@ int main()
         }
         screenOverlay->getImage()->assign(
                 reinterpret_cast<const gameplay::gl::RGBA8*>(splashImageScaled.data()),
-                game->getViewport().x * game->getViewport().y
+                game->getViewport().width * game->getViewport().height
         );
-        abibasFont->drawText( state, 40, game->getViewport().y - 100, 255, 255, 255, 255 );
+        abibasFont->drawText( state, 40, gsl::narrow<int>( game->getViewport().height - 100 ), 255, 255, 255, 128 );
 
         gameplay::gl::FrameBuffer::unbindAll();
 
@@ -617,8 +622,8 @@ int main()
                 if( std::abs( projVertex.x ) > 1 || std::abs( projVertex.y ) > 1 )
                     continue;
 
-                projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().x;
-                projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().y;
+                projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().width;
+                projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
 
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
                                 gameplay::gl::RGBA8{255} );

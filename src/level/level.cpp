@@ -329,7 +329,7 @@ engine::LaraNode* Level::createItems()
                     addChild( to_not_null( modelNode->getNode() ), node );
                 }
 
-                BOOST_ASSERT( modelNode->getNode()->getChildCount() == model->nmeshes );
+                BOOST_ASSERT( modelNode->getNode()->getChildren().size() == model->nmeshes );
             }
             else if( item.type == engine::TR1ItemId::Wolf )
             {
@@ -576,7 +576,7 @@ std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& m
         addChild( to_not_null( skeletalModel->getNode() ), node );
     }
 
-    BOOST_ASSERT( skeletalModel->getNode()->getChildCount() == model.nmeshes );
+    BOOST_ASSERT( skeletalModel->getNode()->getChildren().size() == model.nmeshes );
 
     skeletalModel->getSkeleton()->updatePose( skeletalModel->m_state );
 
@@ -828,7 +828,7 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
 {
     if( m_lara->isInWater() )
     {
-        const int x0 = static_cast<const int>(game->getViewport().x - 110);
+        const GLint x0 = gsl::narrow<GLint>(game->getViewport().width - 110);
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );
@@ -1057,12 +1057,12 @@ void Level::playStream(uint16_t trackId)
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[engine::TR1ItemId::Lara];
-    BOOST_ASSERT( base.nmeshes == m_lara->getNode()->getChildCount() );
+    BOOST_ASSERT( base.nmeshes == m_lara->getNode()->getChildren().size() );
 
     const auto& alternate = *m_animatedModels[engine::TR1ItemId::AlternativeLara];
-    BOOST_ASSERT( alternate.nmeshes == m_lara->getNode()->getChildCount() );
+    BOOST_ASSERT( alternate.nmeshes == m_lara->getNode()->getChildren().size() );
 
-    for( size_t i = 0; i < m_lara->getNode()->getChildCount(); ++i )
+    for( size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i )
         m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
 
     // Don't replace the head.
@@ -1374,7 +1374,7 @@ void Level::flipMapEffect()
 void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
 {
     const auto& src = *m_animatedModels[engine::TR1ItemId::LaraPistolsAnim];
-    BOOST_ASSERT( src.nmeshes == node.getNode()->getChildCount() );
+    BOOST_ASSERT( src.nmeshes == node.getNode()->getChildren().size() );
     node.getNode()->getChild( 10 )->setDrawable( src.models[10].get() );
 }
 

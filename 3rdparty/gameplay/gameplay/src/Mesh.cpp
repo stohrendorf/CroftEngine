@@ -34,7 +34,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
     };
 
     auto mesh = make_not_null_shared<Mesh>( attribs, false );
-    mesh->getBuffer( 0 )->assign<Vertex>( to_not_null( &vertices[0] ), 4 );
+    mesh->getBuffers()[0]->assign<Vertex>( to_not_null( &vertices[0] ), 4 );
 
     static const uint16_t indices[6] =
             {

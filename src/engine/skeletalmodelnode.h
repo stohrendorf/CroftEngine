@@ -66,7 +66,7 @@ public:
     void resetPose()
     {
         m_bonePatches.clear();
-        m_bonePatches.resize( getChildCount(), glm::mat4{1.0f} );
+        m_bonePatches.resize( getChildren().size(), glm::mat4{1.0f} );
     }
 
     void patchBone(size_t idx, const glm::mat4& m)
@@ -76,7 +76,7 @@ public:
             resetPose();
         }
 
-        BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+        BOOST_ASSERT( m_bonePatches.size() == getChildren().size() );
         BOOST_ASSERT( idx < m_bonePatches.size() );
 
         m_bonePatches[idx] = m;

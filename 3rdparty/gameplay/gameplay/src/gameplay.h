@@ -4,7 +4,7 @@
 #include "gsl_util.h"
 
 // Math
-#include "Rectangle.h"
+#include "Dimension.h"
 
 // Graphics
 #include "Mesh.h"

@@ -37,46 +37,7 @@ public:
                                                                      const gl::Program& program,
                                                                      bool invertY = false);
 
-    void addPart(const gsl::not_null<std::shared_ptr<MeshPart>>& meshPart)
-    {
-        m_parts.emplace_back( meshPart );
-    }
-
-    std::size_t getPartCount() const
-    {
-        return m_parts.size();
-    }
-
-    const gsl::not_null<std::shared_ptr<MeshPart>>& getPart(std::size_t index)
-    {
-        BOOST_ASSERT( index < m_parts.size() );
-
-        return m_parts[index];
-    }
-
     ~Mesh() override = default;
-
-    const gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>& getBuffer(std::size_t idx)
-    {
-        BOOST_ASSERT( idx < m_buffers.size() );
-
-        return m_buffers[idx];
-    }
-
-    const std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers() const
-    {
-        return m_buffers;
-    }
-
-    std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers()
-    {
-        return m_buffers;
-    }
-
-    const std::vector<gsl::not_null<std::shared_ptr<MeshPart>>>& getParts() const noexcept
-    {
-        return m_parts;
-    }
 
     void addBuffer(const gl::StructuredVertexBuffer::AttributeMapping& mapping,
                    bool dynamic,
@@ -85,12 +46,27 @@ public:
         m_buffers.emplace_back( make_not_null_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
     }
 
+    const std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers() const
+    {
+        return m_buffers;
+    }
+
+    void addPart(const gsl::not_null<std::shared_ptr<MeshPart>>& meshPart)
+    {
+        m_parts.emplace_back( meshPart );
+    }
+
+    const std::vector<gsl::not_null<std::shared_ptr<MeshPart>>>& getParts() const noexcept
+    {
+        return m_parts;
+    }
+
     RenderState& getRenderState() override
     {
         return m_renderState;
     }
 
-    virtual void draw(RenderContext& context);
+    void draw(RenderContext& context) override;
 
 private:
     RenderState m_renderState{};

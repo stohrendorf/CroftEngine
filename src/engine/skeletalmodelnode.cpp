@@ -93,8 +93,8 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
 void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 {
-    BOOST_ASSERT( getChildCount() > 0 );
-    BOOST_ASSERT( getChildCount() == m_model.nmeshes );
+    BOOST_ASSERT( getChildren().size() > 0 );
+    BOOST_ASSERT( getChildren().size() == m_model.nmeshes );
 
     auto interpolationInfo = getInterpolationInfo( state );
     updatePose( interpolationInfo );
@@ -112,7 +112,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
     if( m_bonePatches.empty() )
         resetPose();
-    BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+    BOOST_ASSERT( m_bonePatches.size() == getChildren().size() );
 
     const auto angleDataFirst = framePair.firstFrame->getAngleData();
     std::stack<glm::mat4> transformsFirst;
@@ -175,7 +175,7 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 
     if( m_bonePatches.empty() )
         resetPose();
-    BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+    BOOST_ASSERT( m_bonePatches.size() == getChildren().size() );
 
     const auto angleData = framePair.firstFrame->getAngleData();
 
@@ -253,7 +253,7 @@ void
 SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation,
                                    uint16_t frame)
 {
-    BOOST_ASSERT( getChildCount() == 0 || animation->poseData->numValues == getChildCount() );
+    BOOST_ASSERT( getChildren().size() == 0 || animation->poseData->numValues == getChildren().size() );
 
     if( frame < animation->firstFrame || frame > animation->lastFrame )
         frame = animation->firstFrame;
@@ -286,7 +286,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
 
     if( m_bonePatches.empty() )
         resetPose();
-    BOOST_ASSERT( m_bonePatches.size() == getChildCount() );
+    BOOST_ASSERT( m_bonePatches.size() == getChildren().size() );
 
     const auto angleData = frame.getAngleData();
 

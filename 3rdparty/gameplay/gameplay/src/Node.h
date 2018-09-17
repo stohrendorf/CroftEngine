@@ -36,8 +36,6 @@ public:
 
     const std::weak_ptr<Node>& getParent() const;
 
-    size_t getChildCount() const;
-
     virtual Scene* getScene() const;
 
     void setVisible(bool enabled);
