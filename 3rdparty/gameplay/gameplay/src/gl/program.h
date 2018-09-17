@@ -114,7 +114,8 @@ public:
     public:
         explicit ActiveAttribute(GLuint program, GLuint index, GLint maxLength)
         {
-            auto* attribName = new GLchar[maxLength + 1];
+            Expects( maxLength >= 0 );
+            auto* attribName = new GLchar[gsl::narrow_cast<size_t>( maxLength ) + 1];
             glGetActiveAttrib( program, index, maxLength, nullptr, &m_size, &m_type, attribName );
             attribName[maxLength] = '\0';
             m_name = attribName;

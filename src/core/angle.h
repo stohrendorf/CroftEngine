@@ -35,7 +35,7 @@ class Angle final
 {
     friend struct detail::UnsignedRawAngle;
 
-    int32_t m_value;
+    int32_t m_value = 0;
 
     static const int32_t Scale = 1 << 16;
 

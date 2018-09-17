@@ -283,8 +283,6 @@ int main()
 {
     auto game = std::make_unique<gameplay::Game>();
     game->initialize();
-    glEnable( GL_FRAMEBUFFER_SRGB );
-    gameplay::gl::checkGlError();
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 

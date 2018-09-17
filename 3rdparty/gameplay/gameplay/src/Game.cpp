@@ -5,6 +5,8 @@
 
 #include "gl/debuggroup.h"
 
+namespace
+{
 void glErrorCallback(int err, const char* msg)
 {
     BOOST_LOG_TRIVIAL( error ) << "glfw Error " << err << ": " << msg;
@@ -83,6 +85,7 @@ void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum seve
                                << glDebugTypeToString( type ) << ", source " << glDebugSourceToString( source ) << ": "
                                << message;
 }
+}
 
 namespace gameplay
 {
@@ -134,6 +137,7 @@ Game::Game()
     if( err != GLEW_OK )
     {
         BOOST_LOG_TRIVIAL( error ) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString( err ));
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to initialize GLEW" ) );
     }
 
     glGetError(); // clear the error flag
@@ -202,6 +206,10 @@ void Game::initialize()
 
     updateWindowSize();
     RenderState::initDefaults();
+
+    glEnable( GL_FRAMEBUFFER_SRGB );
+    gl::checkGlError();
+
     m_initialized = true;
 }
 

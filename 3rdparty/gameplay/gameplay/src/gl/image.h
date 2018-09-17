@@ -21,12 +21,13 @@ public:
             , m_width{width}
             , m_height{height}
     {
-        BOOST_ASSERT( width > 0 && height > 0 );
+        Expects( width > 0 && height > 0 );
 
+        const auto dataSize = static_cast<size_t>(width * height);
         if( data == nullptr )
-            m_data.resize( width * height );
+            m_data.resize( dataSize );
         else
-            m_data.assign( data, data + width * height );
+            m_data.assign( data, data + dataSize );
     }
 
     ~Image() = default;
@@ -84,13 +85,15 @@ public:
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
             return;
 
+        const auto o = gsl::narrow_cast<size_t>( y * m_width + x );
+
         if( !blend )
         {
-            m_data[y * m_width + x] = pixel;
+            m_data[o] = pixel;
         }
         else
         {
-            m_data[y * m_width + x] = mixAlpha( m_data[y * m_width + x], pixel );
+            m_data[o] = mixAlpha( m_data[o], pixel );
         }
     }
 

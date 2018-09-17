@@ -15,6 +15,10 @@ class ShaderProgram
 public:
     explicit ShaderProgram();
 
+    ShaderProgram(const ShaderProgram&) = delete;
+
+    ShaderProgram& operator=(const ShaderProgram&) = delete;
+
     ~ShaderProgram();
 
     static std::shared_ptr<ShaderProgram> createFromFile(const std::string& vshPath,
@@ -35,10 +39,6 @@ public:
     }
 
 private:
-
-    ShaderProgram(const ShaderProgram&) = delete;
-
-    ShaderProgram& operator=(const ShaderProgram&) = delete;
 
     static std::shared_ptr<ShaderProgram>
     createFromSource(const std::string& vshPath,
