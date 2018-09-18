@@ -628,14 +628,18 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game,
     for( auto idx : m_meshIndices )
     {
         Expects( idx < m_models.size() );
-        m_models2.emplace_back( m_models[idx] );
+        m_modelsDirect.emplace_back( m_models[idx] );
+        m_meshesDirect.emplace_back( &m_meshes[idx] );
     }
 
     for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
-        Expects( model->mesh_base_index + model->nmeshes <= m_models2.size() );
+        Expects( model->mesh_base_index + model->nmeshes <= m_modelsDirect.size() );
         if( model->nmeshes > 0 )
-            model->models = gsl::make_span( &m_models2[model->mesh_base_index], model->nmeshes );
+        {
+            model->models = gsl::make_span( &m_modelsDirect[model->mesh_base_index], model->nmeshes );
+            model->meshes = gsl::make_span( &m_meshesDirect[model->mesh_base_index], model->nmeshes );
+        }
     }
 
     game->getScene()->setActiveCamera(
@@ -828,7 +832,7 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
 {
     if( m_lara->isInWater() )
     {
-        const GLint x0 = gsl::narrow<GLint>(game->getViewport().width - 110);
+        const GLint x0 = gsl::narrow<GLint>( game->getViewport().width - 110 );
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );
@@ -1132,13 +1136,17 @@ void Level::postProcessDataStructures()
         const auto idx = model->pose_data_offset / 2;
         if( idx >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.." << m_poseFrames.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.."
+                                         << m_poseFrames.size() - 1;
             continue;
         }
         model->frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
-
-        Expects( model->mesh_base_index + model->nmeshes <= m_meshIndices.size() );
-        model->meshes = &m_meshes[m_meshIndices[model->mesh_base_index]];
+        if( model->nmeshes > 1 )
+        {
+            model->boneTree = gsl::make_span(
+                    reinterpret_cast<const loader::BoneTreeEntry*>(&m_boneTrees[model->bone_index]),
+                    model->nmeshes - 1 );
+        }
 
         Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );
         if( model->animation_index != 0xffff )
@@ -1152,7 +1160,8 @@ void Level::postProcessDataStructures()
         const auto idx = anim.poseDataOffset / 2;
         if( idx >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.." << m_poseFrames.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.."
+                                         << m_poseFrames.size() - 1;
         }
         else
         {

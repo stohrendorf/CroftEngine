@@ -221,6 +221,26 @@ struct TransitionCase
 
 struct Mesh;
 
+#pragma pack(push, 1)
+
+
+struct BoneTreeEntry
+{
+    uint32_t flags;
+
+    int32_t x, y, z;
+
+    glm::vec3 toGl() const noexcept
+    {
+        return core::TRVec( x, y, z ).toRenderSystem();
+    }
+};
+
+
+#pragma pack(pop)
+
+static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16" );
+
 
 struct SkeletalModelType
 {
@@ -231,8 +251,9 @@ struct SkeletalModelType
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t animation_index; // offset into Animations[]
 
-    const Mesh* meshes = nullptr;
+    gsl::span<gsl::not_null<const loader::Mesh*>> meshes{};
     gsl::span<gsl::not_null<std::shared_ptr<gameplay::Model>>> models{};
+    gsl::span<const BoneTreeEntry> boneTree{};
 
     const AnimFrame* frames = nullptr;
 

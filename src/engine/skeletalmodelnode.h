@@ -22,28 +22,6 @@ namespace items
 {
 struct ItemState;
 }
-
-#pragma pack(push, 1)
-
-
-struct BoneTreeEntry
-{
-    uint32_t flags;
-
-    int32_t x, y, z;
-
-    glm::vec3 toGl() const noexcept
-    {
-        return core::TRVec( x, y, z ).toRenderSystem();
-    }
-};
-
-
-#pragma pack(pop)
-
-static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16" );
-
-
 class SkeletalModelNode
         : public gameplay::Node
 {

@@ -135,35 +135,33 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
     if( m_model.nmeshes <= 1 )
         return;
 
-    const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.bone_index]);
-
-    for( int i = 1; i < m_model.nmeshes; ++i, ++positionData )
+    for( int i = 1; i < m_model.nmeshes; ++i )
     {
-        if( positionData->flags & 0x01 )
+        if( m_model.boneTree[i - 1].flags & 0x01 )
         {
             transformsFirst.pop();
             transformsSecond.pop();
         }
-        if( positionData->flags & 0x02 )
+        if( m_model.boneTree[i - 1].flags & 0x02 )
         {
             transformsFirst.push( {transformsFirst.top()} ); // make sure to have a copy, not a reference
             transformsSecond.push( {transformsSecond.top()} ); // make sure to have a copy, not a reference
         }
 
-        BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
+        BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
         if( framePair.firstFrame->numValues < i )
-            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                      * m_bonePatches[i];
         else
-            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                      * core::fromPackedAngles( angleDataFirst[i] ) * m_bonePatches[i];
 
         if( framePair.firstFrame->numValues < i )
-            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                       * m_bonePatches[i];
         else
-            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                       * core::fromPackedAngles( angleDataSecond[i] ) * m_bonePatches[i];
 
         getChildren()[i]
@@ -192,25 +190,23 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     if( m_model.nmeshes <= 1 )
         return;
 
-    const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.bone_index]);
-
-    for( uint16_t i = 1; i < m_model.nmeshes; ++i, ++positionData )
+    for( uint16_t i = 1; i < m_model.nmeshes; ++i )
     {
-        BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
+        BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
-        if( positionData->flags & 0x01 )
+        if( m_model.boneTree[i - 1].flags & 0x01 )
         {
             transforms.pop();
         }
-        if( positionData->flags & 0x02 )
+        if( m_model.boneTree[i - 1].flags & 0x02 )
         {
             transforms.push( {transforms.top()} ); // make sure to have a copy, not a reference
         }
 
         if( framePair.firstFrame->numValues < i )
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
+            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
         else
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                 * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
         getChildren()[i]->setLocalMatrix( transforms.top() );
@@ -312,38 +308,34 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
     transforms.top() = glm::translate( transforms.top(), frame.pos.toGl() )
                        * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0];
 
-    const auto* mesh = m_model.meshes;
-
     std::vector<Sphere> result;
     result.emplace_back(
             glm::translate( glm::mat4{1.0f}, pos.toRenderSystem() )
-            + glm::translate( transforms.top(), mesh->center.toRenderSystem() ),
-            mesh->collision_size );
-    ++mesh;
+            + glm::translate( transforms.top(), m_model.meshes[0]->center.toRenderSystem() ),
+            m_model.meshes[0]->collision_size );
 
-    const auto* positionData = reinterpret_cast<const BoneTreeEntry*>(&m_level->m_boneTrees[m_model.bone_index]);
-    for( int i = 1; i < m_model.nmeshes; ++i, ++positionData, ++mesh )
+    for( int i = 1; i < m_model.nmeshes; ++i )
     {
-        BOOST_ASSERT( (positionData->flags & 0x1c) == 0 );
+        BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
-        if( positionData->flags & 0x01 )
+        if( m_model.boneTree[i - 1].flags & 0x01 )
         {
             transforms.pop();
         }
-        if( positionData->flags & 0x02 )
+        if( m_model.boneTree[i - 1].flags & 0x02 )
         {
             transforms.push( {transforms.top()} ); // make sure to have a copy, not a reference
         }
 
         if( frame.numValues < i )
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() ) * m_bonePatches[i];
+            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
         else
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, positionData->toGl() )
+            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                 * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
-        auto m = glm::translate( transforms.top(), mesh->center.toRenderSystem() );
+        auto m = glm::translate( transforms.top(), m_model.meshes[i]->center.toRenderSystem() );
         m[3] += glm::vec4( pos.toRenderSystem(), 0 );
-        result.emplace_back( m, mesh->collision_size );
+        result.emplace_back( m, m_model.meshes[i]->collision_size );
     }
 
     return result;

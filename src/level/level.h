@@ -434,7 +434,9 @@ public:
 
     std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> m_particles;
 
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models2;
+    // list of meshes and models, resolved through m_meshIndices
+    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_modelsDirect;
+    std::vector<gsl::not_null<const loader::Mesh*>> m_meshesDirect;
 
     std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 

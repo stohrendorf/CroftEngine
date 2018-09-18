@@ -2141,13 +2141,13 @@ public:
         m_stack.top() = glm::translate( m_stack.top(), c );
     }
 
-    void translate(const BoneTreeEntry& bte)
+    void translate(const loader::BoneTreeEntry& bte)
     {
         translate( bte.toGl() );
     }
 
     void transform(const std::initializer_list<size_t>& indices,
-                   const BoneTreeEntry* boneTree,
+                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
     {
@@ -2156,7 +2156,7 @@ public:
     }
 
     void transform(size_t idx,
-                   const BoneTreeEntry* boneTree,
+                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
     {
@@ -2237,13 +2237,13 @@ public:
         m_stack2.top() = glm::translate( m_stack2.top(), v2 );
     }
 
-    void translate(const BoneTreeEntry& bte)
+    void translate(const loader::BoneTreeEntry& bte)
     {
         translate( bte.toGl(), bte.toGl() );
     }
 
     void transform(const std::initializer_list<size_t>& indices,
-                   const BoneTreeEntry* boneTree,
+                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData1,
                    const gsl::span<const uint32_t>& angleData2,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -2253,7 +2253,7 @@ public:
     }
 
     void transform(size_t idx,
-                   const BoneTreeEntry* boneTree,
+                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData1,
                    const gsl::span<const uint32_t>& angleData2,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -2312,27 +2312,26 @@ void LaraNode::drawRoutine()
     MatrixStack matrixStack;
 
     matrixStack.push();
-    const auto* boneTree = reinterpret_cast<const BoneTreeEntry*>(&getLevel().m_boneTrees[objInfo.bone_index]);
     matrixStack.translate( frame->pos.toGl() );
     const auto angleData = frame->getAngleData();
     matrixStack.rotate( angleData[0] );
     matrixStack.apply( getSkeleton(), 0 );
 
     matrixStack.push();
-    matrixStack.transform( {1, 2, 3}, boneTree, angleData, getSkeleton() );
+    matrixStack.transform( {1, 2, 3}, objInfo.boneTree, angleData, getSkeleton() );
 
     matrixStack.pop();
     matrixStack.push();
-    matrixStack.transform( {4, 5, 6}, boneTree, angleData, getSkeleton() );
+    matrixStack.transform( {4, 5, 6}, objInfo.boneTree, angleData, getSkeleton() );
 
     matrixStack.pop();
-    matrixStack.translate( boneTree[6] );
+    matrixStack.translate( objInfo.boneTree[6] );
     matrixStack.rotate( angleData[7] );
     matrixStack.rotate( m_torsoRotation );
     matrixStack.apply( getSkeleton(), 7 );
 
     matrixStack.push();
-    matrixStack.translate( boneTree[13] );
+    matrixStack.translate( objInfo.boneTree[13] );
     matrixStack.rotate( angleData[14] );
     matrixStack.rotate( m_headRotation );
     matrixStack.apply( getSkeleton(), 14 );
@@ -2351,17 +2350,17 @@ void LaraNode::drawRoutine()
     {
         case WeaponId::None:
             matrixStack.push();
-            matrixStack.transform( {8, 9, 10}, boneTree, angleData, getSkeleton() );
+            matrixStack.transform( {8, 9, 10}, objInfo.boneTree, angleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            matrixStack.transform( {11, 12, 13}, boneTree, angleData, getSkeleton() );
+            matrixStack.transform( {11, 12, 13}, objInfo.boneTree, angleData, getSkeleton() );
             break;
         case WeaponId::Pistols:
         case WeaponId::AutoPistols:
         case WeaponId::Uzi:
             matrixStack.push();
-            matrixStack.translate( boneTree[7] );
+            matrixStack.translate( objInfo.boneTree[7] );
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
@@ -2369,32 +2368,32 @@ void LaraNode::drawRoutine()
             matrixStack.rotate( armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
-            matrixStack.transform( 9, boneTree, armAngleData, getSkeleton() );
-            matrixStack.transform( 10, boneTree, armAngleData, getSkeleton() );
+            matrixStack.transform( 9, objInfo.boneTree, armAngleData, getSkeleton() );
+            matrixStack.transform( 10, objInfo.boneTree, armAngleData, getSkeleton() );
 
             renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareRight, rightArm.flashTimeout != 0 );
             matrixStack.pop();
             matrixStack.push();
-            matrixStack.translate( boneTree[10] );
+            matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
             armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
             matrixStack.rotate( armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
-            matrixStack.transform( {12, 13}, boneTree, armAngleData, getSkeleton() );
+            matrixStack.transform( {12, 13}, objInfo.boneTree, armAngleData, getSkeleton() );
 
             renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
             armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
-            matrixStack.transform( {8, 9, 10}, boneTree, armAngleData, getSkeleton() );
+            matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
             armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
-            matrixStack.transform( {11, 12, 13}, boneTree, armAngleData, getSkeleton() );
+            matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, getSkeleton() );
             break;
         default:
             break;
@@ -2410,7 +2409,6 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
     DualMatrixStack matrixStack{interpolationInfo.bias};
 
     matrixStack.push();
-    const auto* boneTree = reinterpret_cast<const BoneTreeEntry*>(&getLevel().m_boneTrees[objInfo.bone_index]);
     matrixStack.translate( interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl() );
     const auto angleDataA = interpolationInfo.firstFrame->getAngleData();
     const auto angleDataB = interpolationInfo.secondFrame->getAngleData();
@@ -2418,20 +2416,20 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
     matrixStack.apply( getSkeleton(), 0 );
 
     matrixStack.push();
-    matrixStack.transform( {1, 2, 3}, boneTree, angleDataA, angleDataB, getSkeleton() );
+    matrixStack.transform( {1, 2, 3}, objInfo.boneTree, angleDataA, angleDataB, getSkeleton() );
 
     matrixStack.pop();
     matrixStack.push();
-    matrixStack.transform( {4, 5, 6}, boneTree, angleDataA, angleDataB, getSkeleton() );
+    matrixStack.transform( {4, 5, 6}, objInfo.boneTree, angleDataA, angleDataB, getSkeleton() );
 
     matrixStack.pop();
-    matrixStack.translate( boneTree[6] );
+    matrixStack.translate( objInfo.boneTree[6] );
     matrixStack.rotate( angleDataA[7], angleDataB[7] );
     matrixStack.rotate( m_torsoRotation );
     matrixStack.apply( getSkeleton(), 7 );
 
     matrixStack.push();
-    matrixStack.translate( boneTree[13] );
+    matrixStack.translate( objInfo.boneTree[13] );
     matrixStack.rotate( angleDataA[14], angleDataB[14] );
     matrixStack.rotate( m_headRotation );
     matrixStack.apply( getSkeleton(), 14 );
@@ -2450,17 +2448,17 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
     {
         case WeaponId::None:
             matrixStack.push();
-            matrixStack.transform( {8, 9, 10}, boneTree, angleDataA, angleDataB, getSkeleton() );
+            matrixStack.transform( {8, 9, 10}, objInfo.boneTree, angleDataA, angleDataB, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            matrixStack.transform( {11, 12, 13}, boneTree, angleDataA, angleDataB, getSkeleton() );
+            matrixStack.transform( {11, 12, 13}, objInfo.boneTree, angleDataA, angleDataB, getSkeleton() );
             break;
         case WeaponId::Pistols:
         case WeaponId::AutoPistols:
         case WeaponId::Uzi:
             matrixStack.push();
-            matrixStack.translate( boneTree[7] );
+            matrixStack.translate( objInfo.boneTree[7] );
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
@@ -2468,32 +2466,32 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             matrixStack.rotate( armAngleData[8], armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
-            matrixStack.transform( 9, boneTree, armAngleData, armAngleData, getSkeleton() );
-            matrixStack.transform( 10, boneTree, armAngleData, armAngleData, getSkeleton() );
+            matrixStack.transform( 9, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
+            matrixStack.transform( 10, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
             renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareRight, rightArm.flashTimeout != 0 );
             matrixStack.pop();
             matrixStack.push();
-            matrixStack.translate( boneTree[10] );
+            matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
             armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
             matrixStack.rotate( armAngleData[11], armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
-            matrixStack.transform( {12, 13}, boneTree, armAngleData, armAngleData, getSkeleton() );
+            matrixStack.transform( {12, 13}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
             renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
             armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
-            matrixStack.transform( {8, 9, 10}, boneTree, armAngleData, armAngleData, getSkeleton() );
+            matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
             armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
-            matrixStack.transform( {11, 12, 13}, boneTree, armAngleData, armAngleData, getSkeleton() );
+            matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
             break;
         default:
             break;
