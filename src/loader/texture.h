@@ -83,9 +83,9 @@ struct DWordTexture final
         return texture;
     }
 
-    void toTexture(const trx::Glidos* glidos);
+    void toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 
-    void toImage(const trx::Glidos* glidos);
+    void toImage(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 };
 
 

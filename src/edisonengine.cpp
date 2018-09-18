@@ -319,10 +319,10 @@ int main()
 
     auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
 
-    auto abibasFont = make_not_null_shared<gameplay::gl::Font>( "abibas.ttf", 64 );
+    auto abibasFont = make_not_null_shared<gameplay::gl::Font>( "abibas.ttf", 48 );
     abibasFont->setTarget( screenOverlay->getImage() );
 
-    auto drawLoadingScreen = [&](const std::string& state) {
+    auto drawLoadingScreen = [&](const std::string& state) -> void {
         glfwPollEvents();
         if( game->updateWindowSize() )
         {
@@ -336,7 +336,7 @@ int main()
                 reinterpret_cast<const gameplay::gl::RGBA8*>(splashImageScaled.data()),
                 game->getViewport().width * game->getViewport().height
         );
-        abibasFont->drawText( state, 40, gsl::narrow<int>( game->getViewport().height - 100 ), 255, 255, 255, 128 );
+        abibasFont->drawText( state, 40, gsl::narrow<int>( game->getViewport().height - 100 ), 255, 255, 255, 192 );
 
         gameplay::gl::FrameBuffer::unbindAll();
 
@@ -371,7 +371,7 @@ int main()
     if( glidosPack && boost::filesystem::is_directory( glidosPack.value() ) )
     {
         drawLoadingScreen( "Loading Glidos texture pack" );
-        glidos = std::make_unique<loader::trx::Glidos>( glidosPack.value() );
+        glidos = std::make_unique<loader::trx::Glidos>( glidosPack.value(), drawLoadingScreen );
     }
 
     sol::table levelInfo = scriptEngine["getLevelInfo"]();
@@ -419,7 +419,7 @@ int main()
         else
             drawLoadingScreen(
                     "Loading texture " + std::to_string( i + 1 ) + " of " + std::to_string( lvl->m_textures.size() ) );
-        lvl->m_textures[i].toTexture( glidos.get() );
+        lvl->m_textures[i].toTexture( glidos.get(), drawLoadingScreen );
     }
 
     drawLoadingScreen( "Preparing the game" );

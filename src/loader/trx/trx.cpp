@@ -128,9 +128,17 @@ Equiv::Equiv(const boost::filesystem::path& filename)
 void Equiv::resolve(const boost::filesystem::path& root,
                     std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
                     std::chrono::system_clock::time_point& rootTimestamp,
-                    std::map<TexturePart, boost::filesystem::path>& filesByPart) const
+                    std::map<TexturePart, boost::filesystem::path>& filesByPart,
+                    const std::function<void(const std::string&)>& statusCallback) const
 {
     BOOST_LOG_TRIVIAL( info ) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
+
+    auto resolved = std::count_if( m_equivalentSets.begin(), m_equivalentSets.end(), [](const EquivalenceSet& set) {
+        return set.isResolved();
+    } );
+
+    statusCallback( "Glidos - Resolving maps (" + std::to_string( resolved * 100 / m_equivalentSets.size() ) + "%)" );
+
     for( const auto& set : m_equivalentSets )
     {
         if( set.isResolved() )
@@ -179,6 +187,14 @@ void Equiv::resolve(const boost::filesystem::path& root,
             existing = linked;
         }
         set.markResolved();
+
+        ++resolved;
+        // avoid too many draw calls
+        if( resolved % 10 == 0 )
+        {
+            statusCallback(
+                    "Glidos - Resolving maps (" + std::to_string( resolved * 100 / m_equivalentSets.size() ) + "%)" );
+        }
     }
 }
 
@@ -294,7 +310,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
     }
 }
 
-Glidos::Glidos(const boost::filesystem::path& baseDir)
+Glidos::Glidos(const boost::filesystem::path& baseDir, const std::function<void(const std::string&)>& statusCallback)
         : m_baseDir{baseDir}
 {
     if( !boost::filesystem::is_directory( m_baseDir ) )
@@ -305,6 +321,8 @@ Glidos::Glidos(const boost::filesystem::path& baseDir)
     m_rootTimestamp = std::chrono::system_clock::from_time_t(
             boost::filesystem::last_write_time( m_baseDir / "equiv.txt" )
     );
+
+    statusCallback( "Glidos - Loading equiv.txt" );
 
     BOOST_LOG_TRIVIAL( debug ) << "Loading equiv.txt";
     Equiv equiv{m_baseDir / "equiv.txt"};
@@ -320,6 +338,7 @@ Glidos::Glidos(const boost::filesystem::path& baseDir)
         if( it->path().filename() == "equiv.txt" )
             continue;
 
+        statusCallback( "Glidos - Loading " + it->path().filename().string() );
         BOOST_LOG_TRIVIAL( debug ) << "Loading part map " << it->path();
         maps.emplace_back( it->path(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart );
     }
@@ -330,8 +349,10 @@ Glidos::Glidos(const boost::filesystem::path& baseDir)
         equiv.resolve( map.getRoot(),
                        m_newestTextureSourceTimestamps,
                        m_rootTimestamp,
-                       m_filesByPart );
+                       m_filesByPart,
+                       statusCallback );
     }
+    statusCallback( "Glidos - Resolving maps (100%)" );
 }
 
 void Glidos::dump() const

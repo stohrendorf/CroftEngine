@@ -149,7 +149,8 @@ public:
     void resolve(const boost::filesystem::path& root,
                  std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
                  std::chrono::system_clock::time_point& rootTimestamp,
-                 std::map<TexturePart, boost::filesystem::path>& filesByPart) const;
+                 std::map<TexturePart, boost::filesystem::path>& filesByPart,
+                 const std::function<void(const std::string&)>& statusCallback) const;
 
 private:
     std::vector<EquivalenceSet> m_equivalentSets;
@@ -177,7 +178,8 @@ private:
 class Glidos
 {
 public:
-    explicit Glidos(const boost::filesystem::path& baseDir);
+    explicit Glidos(const boost::filesystem::path& baseDir,
+                    const std::function<void(const std::string&)>& statusCallback);
 
     void dump() const;
 
