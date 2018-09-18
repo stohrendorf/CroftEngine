@@ -97,7 +97,7 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
 void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 {
-    BOOST_ASSERT( getChildren().size() > 0 );
+    BOOST_ASSERT( !getChildren().empty() );
     BOOST_ASSERT( getChildren().size() == m_model.nmeshes );
 
     auto interpolationInfo = getInterpolationInfo( state );
@@ -257,7 +257,7 @@ void
 SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation,
                                    uint16_t frame)
 {
-    BOOST_ASSERT( getChildren().size() == 0 || animation->frames->numValues == getChildren().size() );
+    BOOST_ASSERT( getChildren().empty() || animation->frames->numValues == getChildren().size() );
 
     if( frame < animation->firstFrame || frame > animation->lastFrame )
         frame = animation->firstFrame;
