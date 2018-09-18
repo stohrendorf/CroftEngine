@@ -1221,14 +1221,14 @@ void LaraNode::unholster()
     target = nullptr;
     if( gunType == WeaponId::None )
     {
-        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::Lara]->frame_base;
+        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::Lara]->frames;
 
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
     }
     else if( gunType == WeaponId::Pistols || gunType == WeaponId::AutoPistols || gunType == WeaponId::Uzi )
     {
-        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::LaraPistolsAnim]->frame_base;
+        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::LaraPistolsAnim]->frames;
 
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
@@ -1240,7 +1240,7 @@ void LaraNode::unholster()
     }
     else if( gunType == WeaponId::Shotgun )
     {
-        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim]->frame_base;
+        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim]->frames;
 
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
@@ -1252,7 +1252,7 @@ void LaraNode::unholster()
     }
     else
     {
-        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::Lara]->frame_base;
+        const auto* positionData = getLevel().m_animatedModels[engine::TR1ItemId::Lara]->frames;
 
         rightArm.weaponAnimData = positionData;
         leftArm.weaponAnimData = positionData;
@@ -1373,7 +1373,7 @@ void LaraNode::initAimInfoPistol()
     m_headRotation.X = 0_deg;
     target = nullptr;
 
-    rightArm.weaponAnimData = getLevel().m_animatedModels[engine::TR1ItemId::LaraPistolsAnim]->frame_base;
+    rightArm.weaponAnimData = getLevel().m_animatedModels[engine::TR1ItemId::LaraPistolsAnim]->frames;
     leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
@@ -1394,7 +1394,7 @@ void LaraNode::initAimInfoShotgun()
     m_headRotation.X = 0_deg;
     target = nullptr;
 
-    rightArm.weaponAnimData = getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim]->frame_base;
+    rightArm.weaponAnimData = getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim]->frames;
     leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
@@ -2292,16 +2292,16 @@ void LaraNode::drawRoutine()
         switch( *hit_direction )
         {
             case core::Axis::PosX:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_LEFT)].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_LEFT)].frames;
                 break;
             case core::Axis::NegZ:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_BACKWARD)].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_BACKWARD)].frames;
                 break;
             case core::Axis::NegX:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_RIGHT)].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_RIGHT)].frames;
                 break;
             default:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].poseData;
+                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].frames;
                 break;
         }
         frame = frame->next( hit_frame );

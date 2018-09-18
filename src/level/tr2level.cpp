@@ -61,7 +61,7 @@ void TR2Level::loadFileData()
 
     m_reader.readVector( m_boneTrees, m_reader.readU32() );
 
-    m_reader.readVector( m_poseData, m_reader.readU32() );
+    m_reader.readVector( m_poseFrames, m_reader.readU32() );
 
     {
         const auto n = m_reader.readU32();

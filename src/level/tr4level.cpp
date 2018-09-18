@@ -142,7 +142,7 @@ void TR4Level::loadFileData()
 
     newsrc.readVector( m_boneTrees, newsrc.readU32() );
 
-    newsrc.readVector( m_poseData, newsrc.readU32() );
+    newsrc.readVector( m_poseFrames, newsrc.readU32() );
 
     {
         const auto n = m_reader.readU32();

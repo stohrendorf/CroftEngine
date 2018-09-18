@@ -44,8 +44,8 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action
-                 && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop &&
-                 lara.alignTransform( aimSpeed, *this ) )
+                 && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
+                 && lara.alignTransform( aimSpeed, *this ) )
         {
             do
             {

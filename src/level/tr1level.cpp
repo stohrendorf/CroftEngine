@@ -69,8 +69,8 @@ void TR1Level::loadFileData()
     BOOST_LOG_TRIVIAL( debug ) << "Reading bone trees";
     m_reader.readVector( m_boneTrees, m_reader.readU32() );
 
-    BOOST_LOG_TRIVIAL( debug ) << "Reading pose data";
-    m_reader.readVector( m_poseData, m_reader.readU32() );
+    BOOST_LOG_TRIVIAL( debug ) << "Reading pose frame data";
+    m_reader.readVector( m_poseFrames, m_reader.readU32() );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading skeletal model types";
     {

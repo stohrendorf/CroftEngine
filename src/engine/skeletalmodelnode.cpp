@@ -49,44 +49,48 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
     if( state.anim->firstFrame == state.anim->lastFrame )
     {
-        result.firstFrame = state.anim->poseData;
-        result.secondFrame = state.anim->poseData;
+        // empty animation
+        result.firstFrame = state.anim->frames;
+        result.secondFrame = state.anim->frames;
         return result;
     }
 
-    const uint16_t startFrame = state.anim->firstFrame;
-    const uint16_t endFrame = state.anim->lastFrame + 1;
-
     //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
-    const auto animationFrame = util::clamp( state.frame_number, startFrame, endFrame ) - startFrame;
-    int firstKeyframeIndex = animationFrame / state.anim->segmentLength;
-    BOOST_ASSERT( firstKeyframeIndex >= 0 );
-    BOOST_ASSERT( static_cast<size_t>(firstKeyframeIndex) < state.anim->getKeyframeCount() );
+    Expects( state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame );
+    size_t firstKeyframeIndex = gsl::narrow<size_t>( state.frame_number - state.anim->firstFrame )
+                                / state.anim->segmentLength;
+    Expects( firstKeyframeIndex < state.anim->getKeyframeCount() );
 
-    if( static_cast<size_t>(firstKeyframeIndex) == state.anim->getKeyframeCount() - 1u )
+    result.firstFrame = state.anim->frames->next( firstKeyframeIndex );
+
+    if( firstKeyframeIndex == state.anim->getKeyframeCount() - 1u )
     {
-        result.firstFrame = state.anim->poseData->next( firstKeyframeIndex );
+        // last keyframe
         result.secondFrame = result.firstFrame;
         result.bias = 0;
         return result;
     }
-    result.firstFrame = state.anim->poseData->next( firstKeyframeIndex );
+
     result.secondFrame = result.firstFrame->next();
 
     auto segmentDuration = state.anim->segmentLength;
-    auto segmentFrame = animationFrame % segmentDuration;
+    auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
+
+    if( segmentFrame == 0 )
+    {
+        result.bias = 0;
+        return result;
+    }
 
     // If we are interpolating the last two keyframes, the real animation may be shorter
     // than the position of the last keyframe.  E.g., with a stretch factor of 10 and a length of 12,
-    // the last segment would only be 2 frames long.  Fame 1 is interpolated with a bias of 0.1, but
+    // the last segment would only be 2 frames long.  Frame 1 is interpolated with a bias of 0.1, but
     // frame 11 must be interpolated with a bias of 0.5 to compensate the shorter segment length.
-    if( segmentDuration * (firstKeyframeIndex + 1) >= endFrame )
-        segmentDuration = endFrame - segmentDuration * firstKeyframeIndex;
+    if( segmentDuration * (firstKeyframeIndex + 1) > state.anim->lastFrame )
+        segmentDuration = gsl::narrow<uint8_t>( state.anim->lastFrame - segmentDuration * firstKeyframeIndex );
 
-    BOOST_ASSERT( segmentFrame <= segmentDuration );
-
-    result.bias += static_cast<float>(segmentFrame) / segmentDuration;
-    BOOST_ASSERT( result.bias >= 0 && result.bias <= 2 );
+    result.bias = static_cast<float>(segmentFrame) / segmentDuration;
+    BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
     return result;
 }
@@ -253,7 +257,7 @@ void
 SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation,
                                    uint16_t frame)
 {
-    BOOST_ASSERT( getChildren().size() == 0 || animation->poseData->numValues == getChildren().size() );
+    BOOST_ASSERT( getChildren().size() == 0 || animation->frames->numValues == getChildren().size() );
 
     if( frame < animation->firstFrame || frame > animation->lastFrame )
         frame = animation->firstFrame;

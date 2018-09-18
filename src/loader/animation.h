@@ -64,7 +64,7 @@ struct AnimFrame
         const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
         const auto end = begin + numValues;
         const auto next = reinterpret_cast<const AnimFrame*>(end);
-        BOOST_ASSERT( next->numValues == numValues );
+        Expects( next->numValues == numValues );
         return next;
     }
 
@@ -92,7 +92,7 @@ struct Animation
 {
     uint32_t poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
 
-    const AnimFrame* poseData = nullptr;
+    const AnimFrame* frames = nullptr;
 
     uint8_t segmentLength; // Slowdown factor of this animation
     uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
@@ -234,7 +234,7 @@ struct SkeletalModelType
     const Mesh* meshes = nullptr;
     gsl::span<gsl::not_null<std::shared_ptr<gameplay::Model>>> models{};
 
-    const AnimFrame* frame_base = nullptr;
+    const AnimFrame* frames = nullptr;
 
     const Animation* animation = nullptr;
 

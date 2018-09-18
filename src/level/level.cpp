@@ -1130,12 +1130,12 @@ void Level::postProcessDataStructures()
         Expects( model->pose_data_offset % 2 == 0 );
 
         const auto idx = model->pose_data_offset / 2;
-        if( idx >= m_poseData.size() )
+        if( idx >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose data index " << idx << " out of range 0.." << m_poseData.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.." << m_poseFrames.size() - 1;
             continue;
         }
-        model->frame_base = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+        model->frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
 
         Expects( model->mesh_base_index + model->nmeshes <= m_meshIndices.size() );
         model->meshes = &m_meshes[m_meshIndices[model->mesh_base_index]];
@@ -1150,13 +1150,13 @@ void Level::postProcessDataStructures()
         Expects( anim.poseDataOffset % 2 == 0 );
 
         const auto idx = anim.poseDataOffset / 2;
-        if( idx >= m_poseData.size() )
+        if( idx >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose data index " << idx << " out of range 0.." << m_poseData.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.." << m_poseFrames.size() - 1;
         }
         else
         {
-            anim.poseData = reinterpret_cast<const loader::AnimFrame*>(&m_poseData[idx]);
+            anim.frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
         }
 
         Expects( anim.nextAnimationIndex < m_animations.size() );
