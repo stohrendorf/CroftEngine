@@ -5,6 +5,7 @@
 #include "gl/shader.h"
 
 #include <fstream>
+#include <set>
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
@@ -57,8 +58,11 @@ std::string replaceDefines(const std::vector<std::string>& defines)
     return out;
 }
 
-void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out)
+void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out,
+                     std::set<std::string>& included)
 {
+    included.emplace( filepath );
+
     // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
     size_t headPos = 0;
     const auto fileLen = source.length();
@@ -111,6 +115,11 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
             size_t len = endQuote - startQuote;
             std::string includeStr = source.substr( startQuote, len );
             directoryPath.append( includeStr );
+            if( included.count( directoryPath ) > 0 )
+            {
+                continue;
+            }
+
             std::string includedSource = readAll( directoryPath );
             if( includedSource.empty() )
             {
@@ -119,7 +128,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
                 return;
             }
             // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
-            replaceIncludes( directoryPath, includedSource, out );
+            replaceIncludes( directoryPath, includedSource, out, included );
         }
         else
         {
@@ -203,7 +212,8 @@ ShaderProgram::createFromSource(const std::string& vshPath, const std::string& v
     if( !vshPath.empty() )
     {
         // Replace the #include "xxxxx.xxx" with the sources that come from file paths
-        replaceIncludes( vshPath, vshSource, vshSourceStr );
+        std::set<std::string> included;
+        replaceIncludes( vshPath, vshSource, vshSourceStr, included );
         if( !vshSource.empty() )
             vshSourceStr += "\n";
     }
@@ -229,7 +239,8 @@ ShaderProgram::createFromSource(const std::string& vshPath, const std::string& v
     if( !fshPath.empty() )
     {
         // Replace the #include "xxxxx.xxx" with the sources that come from file paths
-        replaceIncludes( fshPath, fshSource, fshSourceStr );
+        std::set<std::string> included;
+        replaceIncludes( fshPath, fshSource, fshSourceStr, included );
         if( !fshSource.empty() )
             fshSourceStr += "\n";
     }

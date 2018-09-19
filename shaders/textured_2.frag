@@ -10,7 +10,7 @@ in vec3 v_normal;
 
 out vec4 out_color;
 
-#include "lighting.inc.frag"
+#include "lighting.glsl"
 
 #ifdef WATER
 float cellnoise(in vec3 p)
@@ -85,6 +85,6 @@ void main()
     out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale2))*1.2+0.2, 0, 1.2);
 #endif
 
-    out_color *= calcShadeFactor(v_normal, v_vertexPos);
+    out_color *= calc_positional_lighting(v_normal, v_vertexPos);
     out_color.a = 1;
 }

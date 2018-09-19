@@ -6,7 +6,7 @@ uniform float u_baseLightDiff;
  * @param normal is the surface normal in world space
  * @param pos is the surface position in world space
  */
-float calcShadeFactor(in vec3 normal, in vec3 pos)
+float calc_positional_lighting(in vec3 normal, in vec3 pos)
 {
     if(isnan(u_lightPosition.x) || normal == vec3(0))
     {
