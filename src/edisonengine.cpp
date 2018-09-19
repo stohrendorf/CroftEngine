@@ -633,6 +633,13 @@ int main()
         screenOverlay->draw( context );
 
         game->swapBuffers();
+
+        if( lvl->m_inputHandler->getInputState().save )
+        {
+            std::ofstream file{"quicksave.yaml", std::ios::out | std::ios::trunc};
+            Expects( file.is_open() );
+            file << lvl->save();
+        }
     }
 
     levelInfo = sol::table();

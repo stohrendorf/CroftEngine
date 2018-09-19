@@ -587,6 +587,8 @@ public:
 
     void animateUV();
 
+    YAML::Node save() const;
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;

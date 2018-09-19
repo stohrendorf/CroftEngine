@@ -1708,3 +1708,101 @@ void Level::animateUV()
         m_uvAnimTime -= UVAnimTime;
     }
 }
+
+YAML::Node Level::save() const
+{
+    YAML::Node result;
+
+    YAML::Node inventory;
+    YAML::Node ammo;
+
+    const auto addInventory = [&](engine::TR1ItemId id) {
+        inventory[engine::toString( id )] = countInventoryItem( id );
+    };
+
+    addInventory( engine::TR1ItemId::Pistols );
+    addInventory( engine::TR1ItemId::Magnums );
+    addInventory( engine::TR1ItemId::MagnumAmmo );
+    addInventory( engine::TR1ItemId::Uzis );
+    addInventory( engine::TR1ItemId::UziAmmo );
+    addInventory( engine::TR1ItemId::Shotgun );
+    addInventory( engine::TR1ItemId::ShotgunAmmo );
+
+    ammo["Magnums"] = m_lara->revolverAmmo.ammo;
+    ammo["Uzis"] = m_lara->uziAmmo.ammo;
+    ammo["Shotgun"] = m_lara->shotgunAmmo.ammo;
+
+    addInventory( engine::TR1ItemId::SmallMedipack );
+    addInventory( engine::TR1ItemId::LargeMedipack );
+    addInventory( engine::TR1ItemId::ScionPiece );
+    addInventory( engine::TR1ItemId::Item141 );
+    addInventory( engine::TR1ItemId::Item142 );
+    addInventory( engine::TR1ItemId::Item142 );
+    addInventory( engine::TR1ItemId::Puzzle1 );
+    addInventory( engine::TR1ItemId::Puzzle2 );
+    addInventory( engine::TR1ItemId::Puzzle3 );
+    addInventory( engine::TR1ItemId::Puzzle4 );
+    addInventory( engine::TR1ItemId::Key1 );
+    addInventory( engine::TR1ItemId::Key2 );
+    addInventory( engine::TR1ItemId::Key3 );
+    addInventory( engine::TR1ItemId::Key4 );
+    addInventory( engine::TR1ItemId::LeadBar );
+
+    YAML::Node lara;
+    switch( m_lara->gunType )
+    {
+        case engine::LaraNode::WeaponId::None:
+            lara["gun"] = "none";
+            break;
+        case engine::LaraNode::WeaponId::Pistols:
+            lara["gun"] = "pistols";
+            break;
+        case engine::LaraNode::WeaponId::AutoPistols:
+            lara["gun"] = "autoPistols";
+            break;
+        case engine::LaraNode::WeaponId::Uzi:
+            lara["gun"] = "uzis";
+            break;
+        case engine::LaraNode::WeaponId::Shotgun:
+            lara["gun"] = "shotgun";
+            break;
+    }
+
+    lara["combatMode"] = m_lara->getHandStatus() == engine::HandStatus::Combat;
+
+    YAML::Node flipStatus;
+    for( const auto& state : engine::mapFlipActivationStates )
+    {
+        flipStatus.push_back( state.save() );
+    }
+    result["flipStatus"] = flipStatus;
+
+    YAML::Node cameraFlags;
+    for( const auto& camera : m_cameras )
+    {
+        cameraFlags.push_back( camera.flags );
+    }
+    result["cameraFlags"] = cameraFlags;
+
+    if( m_activeEffect.is_initialized() )
+        result["flipEffect"] = *m_activeEffect;
+    result["flipEffectTimer"] = m_effectTimer;
+
+    lara["inventory"] = inventory;
+    lara["ammo"] = ammo;
+
+    result["lara"] = lara;
+
+    for( const auto& item : m_itemNodes | boost::adaptors::map_values )
+    {
+        YAML::Node node;
+        node["type"] = engine::toString( item->m_state.object_number );
+        node["position"] = item->savePosition();
+        node["animation"] = item->saveAnimation();
+        node["health"] = item->saveHealth();
+        node["triggerInfo"] = item->saveTriggerInfo();
+        result["items"].push_back( node );
+    }
+
+    return result;
+}

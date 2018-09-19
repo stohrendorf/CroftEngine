@@ -121,6 +121,9 @@ public:
         m_inputState._5 = glfwGetKey( m_window, GLFW_KEY_5 ) == GLFW_PRESS;
         m_inputState._6 = glfwGetKey( m_window, GLFW_KEY_6 ) == GLFW_PRESS;
 
+        m_inputState.save = glfwGetKey( m_window, GLFW_KEY_F5 ) == GLFW_PRESS;
+        m_inputState.load = glfwGetKey( m_window, GLFW_KEY_F6 ) == GLFW_PRESS;
+
         double x, y;
         glfwGetCursorPos( m_window, &x, &y );
 

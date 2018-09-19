@@ -264,6 +264,64 @@ void ItemNode::kill()
     m_state.activationState.setLocked( true );
 }
 
+YAML::Node ItemNode::savePosition() const
+{
+    YAML::Node node;
+    node["position"]["x"] = m_state.position.position.X;
+    node["position"]["y"] = m_state.position.position.Y;
+    node["position"]["z"] = m_state.position.position.Z;
+    node["position"]["room"] = std::distance( &getLevel().m_rooms[0], m_state.position.room.get() );
+    node["rotation"]["x"] = m_state.rotation.X.toDegrees();
+    node["rotation"]["y"] = m_state.rotation.Y.toDegrees();
+    node["rotation"]["z"] = m_state.rotation.Z.toDegrees();
+    node["speed"] = m_state.speed;
+    node["fallSpeed"] = m_state.fallspeed;
+    return node;
+}
+
+YAML::Node ItemNode::saveAnimation() const
+{
+    YAML::Node node;
+    node["state"] = m_state.current_anim_state;
+    node["goal"] = m_state.goal_anim_state;
+    node["required"] = m_state.required_anim_state;
+    node["id"] = std::distance(&getLevel().m_animations[0], m_state.anim);
+    node["frame"] = m_state.frame_number;
+    return node;
+}
+
+YAML::Node ItemNode::saveHealth() const
+{
+    YAML::Node node;
+    node["value"] = m_state.health;
+    return node;
+}
+
+YAML::Node ItemNode::saveTriggerInfo() const
+{
+    YAML::Node node;
+    switch(m_state.triggerState)
+    {
+        case TriggerState::Inactive:
+            node["triggerState"] = "inactive";
+            break;
+        case TriggerState::Active:
+            node["triggerState"] = "active";
+            break;
+        case TriggerState::Deactivated:
+            node["triggerState"] = "deactivated";
+            break;
+        case TriggerState::Invisible:
+            node["triggerState"] = "invisible";
+            break;
+    }
+    node["isHit"] = m_state.is_hit;
+    node["timer"] = m_state.timer;
+    node["active"] = m_isActive;
+    node["activationState"] = m_state.activationState.save();
+    return node;
+}
+
 bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara) const
 {
     const auto angle = lara.rotation - item.rotation;

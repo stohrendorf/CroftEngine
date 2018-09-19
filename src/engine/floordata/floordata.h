@@ -5,6 +5,7 @@
 #include <boost/assert.hpp>
 #include <boost/optional.hpp>
 #include <gsl/gsl>
+#include <yaml-cpp/yaml.h>
 
 #include <bitset>
 #include <vector>
@@ -219,6 +220,17 @@ public:
             return gsl::narrow<int16_t>( seconds * core::FrameRate );
         else
             return seconds;
+    }
+
+    YAML::Node save() const
+    {
+        YAML::Node node;
+        node["oneshot"] = m_oneshot;
+        node["inverted"] = m_inverted;
+        node["locked"] = m_locked;
+        for( size_t i = 0; i < m_activationSet.size(); ++i )
+            node["activationSet"].push_back( m_activationSet[i] );
+        return node;
     }
 
 private:

@@ -52,15 +52,8 @@ function(wrap_enum name type source dest)
         if (_ename STREQUAL "")
             continue()
         endif ()
-        if (_val MATCHES ".+=.+")
-            # extract value of "= 123" part
-            string(REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}")
-            # emit: case Enum::Value: return "Value(IntValue)";
-            file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}(${_eval})\";\n")
-        else ()
-            # emit: case Enum::Value: return "Value";
-            file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}\";\n")
-        endif ()
+        # emit: case Enum::Value: return "Value";
+        file(APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}\";\n")
     endforeach ()
     file(APPEND "${dest}" "        default: return nullptr;\n")
     file(APPEND "${dest}" "    }\n")

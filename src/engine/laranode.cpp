@@ -15,8 +15,6 @@
 
 namespace
 {
-std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
-
 core::TRRotationXY getVectorAngles(const core::TRVec& co)
 {
     return core::getVectorAngles( co.X, co.Y, co.Z );
@@ -25,6 +23,8 @@ core::TRRotationXY getVectorAngles(const core::TRVec& co)
 
 namespace engine
 {
+std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
+
 void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     getSkeleton()->setAnimIdGlobal( m_state,

@@ -10,6 +10,8 @@
 
 namespace engine
 {
+extern std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
+
 struct CollisionInfo;
 
 enum class UnderwaterState

@@ -40,6 +40,8 @@ struct InputState
     bool _4 = false;
     bool _5 = false;
     bool _6 = false;
+    bool save = false;
+    bool load = false;
     glm::vec2 mouseMovement;
 
     void setXAxisMovement(bool left, bool right)

@@ -298,6 +298,15 @@ public:
 
     void kill();
 
+    YAML::Node savePosition() const;
+
+    YAML::Node saveAnimation() const;
+
+    YAML::Node saveHealth() const;
+
+    // TODO: save AI-specific info
+    virtual YAML::Node saveTriggerInfo() const;
+
 protected:
     bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
                                const core::Angle& maxAngle)
