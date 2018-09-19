@@ -1,15 +1,89 @@
 #pragma once
 
 #include "util.h"
-
-#include <vector>
+#include "pixel.h"
 
 #include <gsl/gsl>
+
+#include <vector>
 
 namespace gameplay
 {
 namespace gl
 {
+namespace detail
+{
+template<typename T, size_t N>
+struct FastFill
+{
+    static_assert( sizeof( T ) == N, "Type size mismatch" );
+
+    static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+    {
+        std::fill_n( data.get(), n, value );
+    }
+};
+
+
+template<typename T>
+struct FastFill<T, 1>
+{
+    static_assert( sizeof( T ) == 1, "Type size mismatch" );
+
+    static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+    {
+        std::memset( data.get(), value, n );
+    }
+};
+
+
+template<typename T>
+struct FastFill<T, 2>
+{
+    static_assert( sizeof( T ) == 2, "Type size mismatch" );
+
+    static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+    {
+        std::wmemset( data.get(), value, n );
+    }
+};
+
+
+template<typename T>
+struct FastFill<T, 4>
+{
+    static_assert( sizeof( T ) == 2, "Type size mismatch" );
+
+    static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+    {
+        std::wmemset( data.get(), value, n );
+    }
+};
+
+
+template<>
+struct FastFill<RGBA8, 4>
+{
+    static_assert( sizeof( RGBA8 ) == 4, "Type size mismatch" );
+
+    static inline void fill(const gsl::not_null<RGBA8*>& data, size_t n, const RGBA8& value)
+    {
+        const auto scalar = value.r;
+        if( scalar == value.g && scalar == value.b && scalar == value.a )
+            std::memset( data.get(), scalar, n * 4u );
+        else
+            std::fill_n( data.get(), n, value );
+    }
+};
+
+
+template<typename T>
+inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+{
+    detail::FastFill<T, sizeof( T )>::fill( data, n, value );
+}
+}
+
 template<typename TStorage>
 class Image
 {
@@ -114,7 +188,8 @@ public:
 
     void fill(const StorageType& color)
     {
-        std::fill_n( m_data.data(), m_data.size(), color );
+        if( !m_data.empty() )
+            detail::fill( to_not_null( m_data.data() ), m_data.size(), color );
     }
 
     void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color, bool blend = false)
