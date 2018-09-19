@@ -135,7 +135,7 @@ public:
             nextFrame();
     }
 
-    bool update(const level::Level& level) override
+    bool update(const level::Level& /*level*/) override
     {
         --timePerSpriteFrame;
         if( timePerSpriteFrame == 0 )
@@ -178,7 +178,7 @@ public:
         negSpriteFrameId = 0;
     }
 
-    bool update(const level::Level& level) override
+    bool update(const level::Level& /*level*/) override
     {
         ++timePerSpriteFrame;
         if( timePerSpriteFrame != 1 )
@@ -186,7 +186,7 @@ public:
 
         --negSpriteFrameId;
         timePerSpriteFrame = 0;
-        return -negSpriteFrameId < getLength();
+        return std::abs( negSpriteFrameId ) < getLength();
     }
 };
 
@@ -200,5 +200,4 @@ inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(const level::Le
     gameplay::setParent( particle, pos.room->node );
     return particle;
 }
-
 }

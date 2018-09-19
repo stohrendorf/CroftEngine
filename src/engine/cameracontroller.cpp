@@ -1054,7 +1054,7 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
 
 CameraController::CameraController(gsl::not_null<level::Level*> level,
                                    const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera,
-                                   bool noLaraTag)
+                                   bool /*noLaraTag*/)
         : m_camera{camera}
         , m_level{level}
         , m_eye{to_not_null( &level->m_rooms[0] )}

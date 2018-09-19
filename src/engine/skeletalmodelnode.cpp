@@ -98,7 +98,7 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 {
     BOOST_ASSERT( !getChildren().empty() );
-    BOOST_ASSERT( getChildren().size() == m_model.nmeshes );
+    BOOST_ASSERT( getChildren().size() == m_model.meshes.size() );
 
     auto interpolationInfo = getInterpolationInfo( state );
     updatePose( interpolationInfo );
@@ -106,7 +106,7 @@ void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
 {
-    BOOST_ASSERT( m_model.nmeshes > 0 );
+    BOOST_ASSERT( !m_model.meshes.empty() );
 
     BOOST_ASSERT( framePair.bias > 0 );
     BOOST_ASSERT( framePair.secondFrame != nullptr );
@@ -132,10 +132,10 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
     getChildren()[0]->setLocalMatrix( util::mix( transformsFirst.top(), transformsSecond.top(), framePair.bias ) );
 
-    if( m_model.nmeshes <= 1 )
+    if( m_model.meshes.size() <= 1 )
         return;
 
-    for( int i = 1; i < m_model.nmeshes; ++i )
+    for( int i = 1; i < m_model.meshes.size(); ++i )
     {
         if( m_model.boneTree[i - 1].flags & 0x01 )
         {
@@ -171,7 +171,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
 void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 {
-    BOOST_ASSERT( m_model.nmeshes > 0 );
+    BOOST_ASSERT( !m_model.meshes.empty() );
 
     BOOST_ASSERT( framePair.firstFrame->numValues > 0 );
 
@@ -187,10 +187,10 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 
     getChildren()[0]->setLocalMatrix( transforms.top() );
 
-    if( m_model.nmeshes <= 1 )
+    if( m_model.meshes.size() <= 1 )
         return;
 
-    for( uint16_t i = 1; i < m_model.nmeshes; ++i )
+    for( uint16_t i = 1; i < m_model.meshes.size(); ++i )
     {
         BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
@@ -282,7 +282,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
                                            const glm::mat4* baseTransform)
 {
     BOOST_ASSERT( frame.numValues > 0 );
-    BOOST_ASSERT( m_model.nmeshes > 0 );
+    BOOST_ASSERT( !m_model.meshes.empty() );
 
     if( m_bonePatches.empty() )
         resetPose();
@@ -314,7 +314,7 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
             + glm::translate( transforms.top(), m_model.meshes[0]->center.toRenderSystem() ),
             m_model.meshes[0]->collision_size );
 
-    for( int i = 1; i < m_model.nmeshes; ++i )
+    for( int i = 1; i < m_model.meshes.size(); ++i )
     {
         BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 

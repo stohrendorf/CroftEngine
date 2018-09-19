@@ -76,7 +76,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
                 if( m_state.object_number == engine::TR1ItemId::ShotgunSprite )
                 {
                     const auto& shotgunLara = *getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim];
-                    BOOST_ASSERT( shotgunLara.nmeshes == lara.getNode()->getChildren().size() );
+                    BOOST_ASSERT( shotgunLara.meshes.size() == lara.getNode()->getChildren().size() );
 
                     lara.getNode()->getChild( 7 )->setDrawable( shotgunLara.models[7].get() );
                 }

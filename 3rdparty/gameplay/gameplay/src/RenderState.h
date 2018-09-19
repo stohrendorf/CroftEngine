@@ -52,12 +52,11 @@ private:
     template<typename T, const T DefaultValue>
     struct DefaultedOptional
     {
-        static const constexpr T Default = DefaultValue;
         boost::optional<T> value{};
 
         T get() const
         {
-            return value.get_value_or( Default );
+            return value.get_value_or( DefaultValue );
         }
 
         void reset()
@@ -67,7 +66,7 @@ private:
 
         void setDefault()
         {
-            value = Default;
+            value = DefaultValue;
         }
 
         bool isInitialized() const

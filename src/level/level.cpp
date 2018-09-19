@@ -321,7 +321,7 @@ engine::LaraNode* Level::createItems()
                                                                            item,
                                                                            *model,
                                                                            objectInfo );
-                for( size_t boneIndex = 0; boneIndex < model->nmeshes; ++boneIndex )
+                for( size_t boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
                 {
                     auto node = make_not_null_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
@@ -329,7 +329,7 @@ engine::LaraNode* Level::createItems()
                     addChild( to_not_null( modelNode->getNode() ), node );
                 }
 
-                BOOST_ASSERT( modelNode->getNode()->getChildren().size() == model->nmeshes );
+                BOOST_ASSERT( modelNode->getNode()->getChildren().size() == model->meshes.size() );
             }
             else if( item.type == engine::TR1ItemId::Wolf )
             {
@@ -568,7 +568,7 @@ std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& m
                                               room,
                                               item,
                                               model );
-    for( size_t boneIndex = 0; boneIndex < model.nmeshes; ++boneIndex )
+    for( size_t boneIndex = 0; boneIndex < model.meshes.size(); ++boneIndex )
     {
         auto node = make_not_null_shared<gameplay::Node>(
                 skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
@@ -576,7 +576,7 @@ std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& m
         addChild( to_not_null( skeletalModel->getNode() ), node );
     }
 
-    BOOST_ASSERT( skeletalModel->getNode()->getChildren().size() == model.nmeshes );
+    BOOST_ASSERT( skeletalModel->getNode()->getChildren().size() == model.meshes.size() );
 
     skeletalModel->getSkeleton()->updatePose( skeletalModel->m_state );
 
@@ -1061,10 +1061,10 @@ void Level::playStream(uint16_t trackId)
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[engine::TR1ItemId::Lara];
-    BOOST_ASSERT( base.nmeshes == m_lara->getNode()->getChildren().size() );
+    BOOST_ASSERT( base.models.size() == m_lara->getNode()->getChildren().size() );
 
     const auto& alternate = *m_animatedModels[engine::TR1ItemId::AlternativeLara];
-    BOOST_ASSERT( alternate.nmeshes == m_lara->getNode()->getChildren().size() );
+    BOOST_ASSERT( alternate.models.size() == m_lara->getNode()->getChildren().size() );
 
     for( size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i )
         m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
@@ -1383,7 +1383,7 @@ void Level::flipMapEffect()
 void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
 {
     const auto& src = *m_animatedModels[engine::TR1ItemId::LaraPistolsAnim];
-    BOOST_ASSERT( src.nmeshes == node.getNode()->getChildren().size() );
+    BOOST_ASSERT( src.models.size() == node.getNode()->getChildren().size() );
     node.getNode()->getChild( 10 )->setDrawable( src.models[10].get() );
 }
 

@@ -133,9 +133,9 @@ public:
     explicit FullScreenFX(const gameplay::Game& game,
                           const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader,
                           GLint multisample = 0)
-            : m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
-            , m_shader{shader}
+            : m_shader{shader}
             , m_material{make_not_null_shared<gameplay::Material>( m_shader )}
+            , m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
     {
         init( game, multisample );
     }
