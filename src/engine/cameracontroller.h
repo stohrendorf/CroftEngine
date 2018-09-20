@@ -224,6 +224,10 @@ public:
 
     void updateCinematic(const loader::CinematicFrame& frame, bool ingame);
 
+    YAML::Node save() const;
+
+    void load(const YAML::Node& n);
+
     size_t m_cinematicFrame = 0;
     core::TRVec m_cinematicPos{0, 0, 0};
     core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};

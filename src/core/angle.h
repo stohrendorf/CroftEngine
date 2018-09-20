@@ -9,6 +9,7 @@
 
 #include <boost/optional.hpp>
 #include <sol.hpp>
+#include <yaml-cpp/yaml.h>
 
 namespace core
 {
@@ -360,6 +361,29 @@ public:
         );
 
         return userType;
+    }
+
+    YAML::Node save() const
+    {
+        YAML::Node n;
+        n["x"] = X.toDegrees();
+        n["y"] = Y.toDegrees();
+        n["z"] = Z.toDegrees();
+        return n;
+    }
+
+    void load(const YAML::Node& n)
+    {
+        if( !n["x"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::X is not a scalar value" ) );
+        if( !n["y"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::Y is not a scalar value" ) );
+        if( !n["z"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::Z is not a scalar value" ) );
+
+        X = Angle::fromDegrees( n["x"].as<float>() );
+        Y = Angle::fromDegrees( n["y"].as<float>() );
+        Z = Angle::fromDegrees( n["z"].as<float>() );
     }
 };
 

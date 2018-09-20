@@ -11,14 +11,65 @@ namespace items
 {
 namespace
 {
-struct SpriteVertex
+const char* toString(TriggerState s)
 {
-    glm::vec3 pos;
+    switch( s )
+    {
+        case TriggerState::Inactive:
+            return "Inactive";
+        case TriggerState::Active:
+            return "Active";
+        case TriggerState::Deactivated:
+            return "Deactivated";
+        case TriggerState::Invisible:
+            return "Invisible";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid TriggerState" ) );
+    }
+}
 
-    glm::vec2 uv;
+TriggerState parseTriggerState(const std::string& s)
+{
+    if( s == "Inactive" )
+        return TriggerState::Inactive;
+    if( s == "Active" )
+        return TriggerState::Active;
+    if( s == "Deactivated" )
+        return TriggerState::Deactivated;
+    if( s == "Invisible" )
+        return TriggerState::Invisible;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid TriggerState" ) );
+}
 
-    glm::vec3 color{1.0f};
-};
+const char* toString(ai::Mood m)
+{
+    switch( m )
+    {
+        case ai::Mood::Bored:
+            return "Bored";
+        case ai::Mood::Attack:
+            return "Attack";
+        case ai::Mood::Escape:
+            return "Escape";
+        case ai::Mood::Stalk:
+            return "Stalk";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
+    }
+}
+
+ai::Mood parseMood(const std::string& s)
+{
+    if( s == "Bored" )
+        return ai::Mood::Bored;
+    if( s == "Attack" )
+        return ai::Mood::Attack;
+    if( s == "Escape" )
+        return ai::Mood::Escape;
+    if( s == "Stalk" )
+        return ai::Mood::Stalk;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
+}
 }
 
 void ItemNode::applyTransform()
@@ -267,16 +318,24 @@ void ItemNode::kill()
 YAML::Node ItemNode::savePosition() const
 {
     YAML::Node node;
-    node["position"]["x"] = m_state.position.position.X;
-    node["position"]["y"] = m_state.position.position.Y;
-    node["position"]["z"] = m_state.position.position.Z;
+    node["position"] = m_state.position.position.save();
     node["position"]["room"] = std::distance( &getLevel().m_rooms[0], m_state.position.room.get() );
-    node["rotation"]["x"] = m_state.rotation.X.toDegrees();
-    node["rotation"]["y"] = m_state.rotation.Y.toDegrees();
-    node["rotation"]["z"] = m_state.rotation.Z.toDegrees();
+    node["rotation"] = m_state.rotation.save();
     node["speed"] = m_state.speed;
     node["fallSpeed"] = m_state.fallspeed;
     return node;
+}
+
+void ItemNode::loadPosition(const YAML::Node& n)
+{
+    m_state.position.position.load( n["position"] );
+    m_state.position.room = to_not_null( &getLevel().m_rooms.at( n["position"]["room"].as<size_t>() ) );
+    m_state.rotation.load( n["rotation"] );
+    m_state.speed = n["speed"].as<int16_t>();
+    m_state.fallspeed = n["fallSpeed"].as<int16_t>();
+
+    addChild( to_not_null( m_state.position.room->node ), to_not_null( getNode() ) );
+    applyTransform();
 }
 
 YAML::Node ItemNode::saveAnimation() const
@@ -285,9 +344,22 @@ YAML::Node ItemNode::saveAnimation() const
     node["state"] = m_state.current_anim_state;
     node["goal"] = m_state.goal_anim_state;
     node["required"] = m_state.required_anim_state;
-    node["id"] = std::distance(&getLevel().m_animations[0], m_state.anim);
+    if( m_state.anim != nullptr )
+        node["id"] = std::distance( &getLevel().m_animations[0], m_state.anim );
     node["frame"] = m_state.frame_number;
     return node;
+}
+
+void ItemNode::loadAnimation(const YAML::Node& n)
+{
+    m_state.current_anim_state = n["state"].as<uint16_t>();
+    m_state.goal_anim_state = n["goal"].as<uint16_t>();
+    m_state.required_anim_state = n["required"].as<uint16_t>();
+    if( !n["id"].IsDefined() )
+        m_state.anim = nullptr;
+    else
+        m_state.anim = &getLevel().m_animations.at( n["id"].as<size_t>() );
+    m_state.frame_number = n["frame"].as<uint16_t>();
 }
 
 YAML::Node ItemNode::saveHealth() const
@@ -297,29 +369,53 @@ YAML::Node ItemNode::saveHealth() const
     return node;
 }
 
+void ItemNode::loadHealth(const YAML::Node& n)
+{
+    m_state.health = n["value"].as<int16_t>();
+}
+
 YAML::Node ItemNode::saveTriggerInfo() const
 {
     YAML::Node node;
-    switch(m_state.triggerState)
-    {
-        case TriggerState::Inactive:
-            node["triggerState"] = "inactive";
-            break;
-        case TriggerState::Active:
-            node["triggerState"] = "active";
-            break;
-        case TriggerState::Deactivated:
-            node["triggerState"] = "deactivated";
-            break;
-        case TriggerState::Invisible:
-            node["triggerState"] = "invisible";
-            break;
-    }
+    node["triggerState"] = toString( m_state.triggerState );
     node["isHit"] = m_state.is_hit;
     node["timer"] = m_state.timer;
     node["active"] = m_isActive;
     node["activationState"] = m_state.activationState.save();
+
+    if( m_state.creatureInfo != nullptr )
+    {
+        node["ai"]["neck"] = m_state.creatureInfo->neck_rotation.toDegrees();
+        node["ai"]["head"] = m_state.creatureInfo->head_rotation.toDegrees();
+        node["ai"]["maxTurn"] = m_state.creatureInfo->maximum_turn.toDegrees();
+        node["ai"]["flags"] = m_state.creatureInfo->flags;
+        node["ai"]["mood"] = toString( m_state.creatureInfo->mood );
+    }
+
     return node;
+}
+
+void ItemNode::loadTriggerInfo(const YAML::Node& n)
+{
+    m_state.triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
+    m_state.is_hit = n["isHit"].as<bool>();
+    m_state.timer = n["timer"].as<int16_t>();
+    m_isActive = n["active"].as<bool>();
+    m_state.activationState.load( n["activationState"] );
+
+    if( !n["ai"].IsDefined() )
+    {
+        m_state.creatureInfo = nullptr;
+    }
+    else
+    {
+        m_state.creatureInfo = std::make_shared<ai::CreatureInfo>( getLevel(), to_not_null( &m_state ) );
+        m_state.creatureInfo->neck_rotation = core::Angle::fromDegrees( n["ai"]["neck"].as<float>() );
+        m_state.creatureInfo->head_rotation = core::Angle::fromDegrees( n["ai"]["head"].as<float>() );
+        m_state.creatureInfo->maximum_turn = core::Angle::fromDegrees( n["ai"]["maxTurn"].as<float>() );
+        m_state.creatureInfo->flags = n["ai"]["flags"].as<uint16_t>();
+        m_state.creatureInfo->mood = parseMood( n["ai"]["mood"].as<std::string>() );
+    }
 }
 
 bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara) const

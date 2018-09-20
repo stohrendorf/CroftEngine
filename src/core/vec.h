@@ -3,8 +3,8 @@
 #include "gameplay.h"
 
 #include <gsl/gsl>
-
 #include <sol.hpp>
+#include <yaml-cpp/yaml.h>
 
 namespace loader
 {
@@ -112,6 +112,29 @@ struct TRVec
         );
 
         return userType;
+    }
+
+    YAML::Node save() const
+    {
+        YAML::Node n;
+        n["x"] = X;
+        n["y"] = Y;
+        n["z"] = Z;
+        return n;
+    }
+
+    void load(const YAML::Node& n)
+    {
+        if( !n["x"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::X is not a scalar value" ) );
+        if( !n["y"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::Y is not a scalar value" ) );
+        if( !n["z"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::Z is not a scalar value" ) );
+
+        X = n["x"].as<Scalar>();
+        Y = n["y"].as<Scalar>();
+        Z = n["z"].as<Scalar>();
     }
 };
 

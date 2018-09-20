@@ -8,6 +8,48 @@
 
 namespace engine
 {
+namespace
+{
+const char* toString(CameraMode mode)
+{
+    switch( mode )
+    {
+
+        case CameraMode::Chase:
+            return "Chase";
+        case CameraMode::Fixed:
+            return "Fixed";
+        case CameraMode::FreeLook:
+            return "FreeLook";
+        case CameraMode::Combat:
+            return "Combat";
+        case CameraMode::Cinematic:
+            return "Cinematic";
+        case CameraMode::Heavy:
+            return "Heavy";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraMode" ) );
+    }
+}
+
+CameraMode parseCameraMode(const std::string& m)
+{
+    if( m == "Chase" )
+        return CameraMode::Chase;
+    if( m == "Fixed" )
+        return CameraMode::Fixed;
+    if( m == "FreeLook" )
+        return CameraMode::FreeLook;
+    if( m == "Combat" )
+        return CameraMode::Combat;
+    if( m == "Cinematic" )
+        return CameraMode::Cinematic;
+    if( m == "Heavy" )
+        return CameraMode::Heavy;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraMode" ) );
+}
+}
+
 CameraController::CameraController(gsl::not_null<level::Level*> level,
                                    const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
         : m_camera{camera}
@@ -738,7 +780,8 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     updatePosition( eye, m_trackingSmoothness );
 }
 
-void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const
+void
+CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const
 {
     clampPosition( m_center, eyePositionGoal, *m_level );
     BOOST_ASSERT( m_center.room->getSectorByAbsolutePosition( m_center.position ) != nullptr );
@@ -826,7 +869,8 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const 
             left = clampXMax;
             right = clampXMin;
         }
-        callback( eyePositionGoal.position.Z, eyePositionGoal.position.X, m_center.position.Z, m_center.position.X, clampZMin,
+        callback( eyePositionGoal.position.Z, eyePositionGoal.position.X, m_center.position.Z, m_center.position.X,
+                  clampZMin,
                   right, clampZMax, left );
     }
     else if( posZverticalOutside && eyePositionGoal.position.Z > clampZMax )
@@ -843,7 +887,8 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const 
             left = clampXMax;
             right = clampXMin;
         }
-        callback( eyePositionGoal.position.Z, eyePositionGoal.position.X, m_center.position.Z, m_center.position.X, clampZMax,
+        callback( eyePositionGoal.position.Z, eyePositionGoal.position.X, m_center.position.Z, m_center.position.X,
+                  clampZMax,
                   right, clampZMin, left );
     }
 
@@ -867,7 +912,8 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const 
             left = clampZMax;
             right = clampZMin;
         }
-        callback( eyePositionGoal.position.X, eyePositionGoal.position.Z, m_center.position.X, m_center.position.Z, clampXMin,
+        callback( eyePositionGoal.position.X, eyePositionGoal.position.Z, m_center.position.X, m_center.position.Z,
+                  clampXMin,
                   right, clampXMax, left );
     }
     else if( posXverticalOutside && eyePositionGoal.position.X > clampXMax )
@@ -884,7 +930,8 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const 
             left = clampZMax;
             right = clampZMin;
         }
-        callback( eyePositionGoal.position.X, eyePositionGoal.position.Z, m_center.position.X, m_center.position.Z, clampXMax,
+        callback( eyePositionGoal.position.X, eyePositionGoal.position.Z, m_center.position.X, m_center.position.Z,
+                  clampXMax,
                   right, clampXMin, left );
     }
 
@@ -1061,5 +1108,110 @@ CameraController::CameraController(gsl::not_null<level::Level*> level,
         , m_center{to_not_null( &level->m_rooms[0] )}
         , m_cameraYOffset{0}
 {
+}
+
+YAML::Node CameraController::save() const
+{
+    YAML::Node result;
+    result["eye"]["position"] = m_eye.position.save();
+    result["eye"]["room"] = std::distance( const_cast<const loader::Room*>(&m_level->m_rooms[0]), m_eye.room.get() );
+    result["center"]["position"] = m_center.position.save();
+    result["center"]["room"] = std::distance( const_cast<const loader::Room*>(&m_level->m_rooms[0]),
+                                              m_center.room.get() );
+    result["mode"] = toString( m_mode );
+    result["oldMode"] = toString( m_oldMode );
+    result["tracking"] = m_tracking;
+    if( m_item != nullptr )
+    {
+        result["item"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
+                                       [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                           return entry.second.get() == m_item;
+                                       } )->first;
+    }
+    if( m_lastItem != nullptr )
+    {
+        result["lastItem"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
+                                           [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                               return entry.second.get() == m_lastItem;
+                                           } )->first;
+    }
+    if( m_enemy != nullptr )
+    {
+        result["enemy"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
+                                        [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                            return entry.second.get() == m_enemy;
+                                        } )->first;
+    }
+    result["yOffset"] = m_cameraYOffset;
+    result["bounce"] = m_bounce;
+    result["eyeCenterDistance"] = m_eyeCenterDistance;
+    result["eyeCenterHorizontalDistanceSq"] = m_eyeCenterHorizontalDistanceSq;
+    result["eyeRotation"] = m_eyeRotation.save();
+    result["currentRotation"] = m_currentRotation.save();
+    result["trackingSmoothness"] = m_trackingSmoothness;
+    result["fixedCameraId"] = m_fixedCameraId;
+    result["currentFixedCameraId"] = m_currentFixedCameraId;
+    result["camOverrideTimeout"] = m_camOverrideTimeout;
+    result["cinematicFrame"] = m_cinematicFrame;
+    result["cinematicPos"] = m_cinematicPos.save();
+    result["cinematicRot"] = m_cinematicRot.save();
+    return result;
+}
+
+void CameraController::load(const YAML::Node& n)
+{
+    m_eye.position.load( n["eye"]["position"] );
+    m_eye.room = to_not_null( &m_level->m_rooms[n["eye"]["room"].as<size_t>()] );
+    m_center.position.load( n["center"]["position"] );
+    m_center.room = to_not_null( &m_level->m_rooms[n["center"]["room"].as<size_t>()] );
+    m_mode = parseCameraMode( n["mode"].as<std::string>() );
+    m_oldMode = parseCameraMode( n["oldMode"].as<std::string>() );
+    m_tracking = n["tracking"].as<bool>();
+    if( !n["item"].IsDefined() )
+    {
+        m_item = nullptr;
+    }
+    else
+    {
+        const auto it = m_level->m_itemNodes.find( n["item"].as<uint16_t>() );
+        if( it == m_level->m_itemNodes.end() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
+        m_item = it->second.get();
+    }
+    if( !n["lastItem"].IsDefined() )
+    {
+        m_lastItem = nullptr;
+    }
+    else
+    {
+        const auto it = m_level->m_itemNodes.find( n["lastItem"].as<uint16_t>() );
+        if( it == m_level->m_itemNodes.end() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
+        m_lastItem = it->second.get();
+    }
+    if( !n["enemy"].IsDefined() )
+    {
+        m_enemy = nullptr;
+    }
+    else
+    {
+        const auto it = m_level->m_itemNodes.find( n["enemy"].as<uint16_t>() );
+        if( it == m_level->m_itemNodes.end() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
+        m_enemy = it->second.get();
+    }
+    m_cameraYOffset = n["yOffset"].as<int>();
+    m_bounce = n["bounce"].as<int>();
+    m_eyeCenterDistance = n["eyeCenterDistance"].as<int>();
+    m_eyeCenterHorizontalDistanceSq = n["eyeCenterHorizontalDistanceSq"].as<int>();
+    m_eyeRotation.load( n["eyeRotation"] );
+    m_currentRotation.load( n["currentRotation"] );
+    m_trackingSmoothness = n["trackingSmoothness"].as<int>();
+    m_fixedCameraId = n["fixedCameraId"].as<int>();
+    m_currentFixedCameraId = n["currentFixedCameraId"].as<int>();
+    m_camOverrideTimeout = n["camOverrideTimeout"].as<int>();
+    m_cinematicFrame = n["cinematicFrame"].as<size_t>();
+    m_cinematicPos.load( n["cinematicPos"] );
+    m_cinematicRot.load( n["cinematicRot"] );
 }
 }

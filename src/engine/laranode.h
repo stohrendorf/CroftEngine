@@ -430,12 +430,37 @@ public:
         Shotgun
     };
 
+
     struct Ammo
     {
         int ammo = 0;
         int hits = 0;
         int misses = 0;
+
+        YAML::Node save() const
+        {
+            YAML::Node n;
+            n["ammo"] = ammo;
+            n["hits"] = hits;
+            n["misses"] = misses;
+            return n;
+        }
+
+        void load(const YAML::Node& n)
+        {
+            if( !n["ammo"].IsScalar() )
+                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::ammo is not a scalar value" ) );
+            if( !n["hits"].IsScalar() )
+                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::hits is not a scalar value" ) );
+            if( !n["misses"].IsScalar() )
+                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::misses is not a scalar value" ) );
+
+            ammo = n["ammo"].as<int>();
+            hits = n["hits"].as<int>();
+            misses = n["misses"].as<int>();
+        }
     };
+
 
     AimInfo leftArm;
     AimInfo rightArm;
@@ -542,5 +567,9 @@ public:
         const auto p = core::TRVec{glm::vec3{v}};
         m_state.position.position = item.position.position + p;
     }
+
+    YAML::Node save() const;
+
+    void load(const YAML::Node& n);
 };
 }

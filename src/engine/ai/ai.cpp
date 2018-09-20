@@ -465,8 +465,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
 }
 
 CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item)
-        : item{item}
-        , lot{lvl}
+        : lot{lvl}
 {
     switch( item->object_number )
     {

@@ -258,8 +258,6 @@ struct CreatureInfo
 
     uint16_t flags = 0;
 
-    items::ItemState* item;
-
     Mood mood = Mood::Bored;
 
     LotInfo lot;
@@ -282,7 +280,6 @@ struct CreatureInfo
                 "neck_rotation", &CreatureInfo::neck_rotation,
                 "maximum_turn", &CreatureInfo::maximum_turn,
                 "flags", &CreatureInfo::flags,
-                "item", sol::readonly( &CreatureInfo::item ),
                 "mood", &CreatureInfo::mood,
                 "target", &CreatureInfo::target
         );

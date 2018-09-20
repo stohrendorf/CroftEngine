@@ -233,6 +233,24 @@ public:
         return node;
     }
 
+    void load(const YAML::Node& node)
+    {
+        if( !node["oneshot"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::oneshot is not scalar" ) );
+        if( !node["inverted"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::inverted is not scalar" ) );
+        if( !node["locked"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::locked is not scalar" ) );
+        if( !node["activationSet"].IsSequence() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::activationSet is not a sequence" ) );
+
+        m_oneshot = node["oneshot"].as<bool>();
+        m_inverted = node["inverted"].as<bool>();
+        m_locked = node["locked"].as<bool>();
+        for( size_t i = 0; i < m_activationSet.size(); ++i )
+            m_activationSet[i] = node["activationSet"][i].as<bool>();
+    }
+
 private:
     static ActivationSet extractActivationSet(FloorData::value_type fd)
     {

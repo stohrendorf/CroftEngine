@@ -588,6 +588,7 @@ public:
     void animateUV();
 
     YAML::Node save() const;
+    void load(const YAML::Node& node);
 
 protected:
     loader::io::SDLReader m_reader;

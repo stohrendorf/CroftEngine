@@ -636,9 +636,15 @@ int main()
 
         if( lvl->m_inputHandler->getInputState().save )
         {
+            BOOST_LOG_TRIVIAL( info ) << "Save";
             std::ofstream file{"quicksave.yaml", std::ios::out | std::ios::trunc};
             Expects( file.is_open() );
             file << lvl->save();
+        }
+        else if( lvl->m_inputHandler->getInputState().load )
+        {
+            BOOST_LOG_TRIVIAL( info ) << "Load";
+            lvl->load( YAML::LoadFile( "quicksave.yaml" ) );
         }
     }
 

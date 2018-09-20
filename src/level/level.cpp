@@ -1714,7 +1714,6 @@ YAML::Node Level::save() const
     YAML::Node result;
 
     YAML::Node inventory;
-    YAML::Node ammo;
 
     const auto addInventory = [&](engine::TR1ItemId id) {
         inventory[engine::toString( id )] = countInventoryItem( id );
@@ -1727,11 +1726,6 @@ YAML::Node Level::save() const
     addInventory( engine::TR1ItemId::UziAmmo );
     addInventory( engine::TR1ItemId::Shotgun );
     addInventory( engine::TR1ItemId::ShotgunAmmo );
-
-    ammo["Magnums"] = m_lara->revolverAmmo.ammo;
-    ammo["Uzis"] = m_lara->uziAmmo.ammo;
-    ammo["Shotgun"] = m_lara->shotgunAmmo.ammo;
-
     addInventory( engine::TR1ItemId::SmallMedipack );
     addInventory( engine::TR1ItemId::LargeMedipack );
     addInventory( engine::TR1ItemId::ScionPiece );
@@ -1748,27 +1742,9 @@ YAML::Node Level::save() const
     addInventory( engine::TR1ItemId::Key4 );
     addInventory( engine::TR1ItemId::LeadBar );
 
-    YAML::Node lara;
-    switch( m_lara->gunType )
-    {
-        case engine::LaraNode::WeaponId::None:
-            lara["gun"] = "none";
-            break;
-        case engine::LaraNode::WeaponId::Pistols:
-            lara["gun"] = "pistols";
-            break;
-        case engine::LaraNode::WeaponId::AutoPistols:
-            lara["gun"] = "autoPistols";
-            break;
-        case engine::LaraNode::WeaponId::Uzi:
-            lara["gun"] = "uzis";
-            break;
-        case engine::LaraNode::WeaponId::Shotgun:
-            lara["gun"] = "shotgun";
-            break;
-    }
-
-    lara["combatMode"] = m_lara->getHandStatus() == engine::HandStatus::Combat;
+    YAML::Node lara = m_lara->save();
+    lara["inventory"] = inventory;
+    result["lara"] = lara;
 
     YAML::Node flipStatus;
     for( const auto& state : engine::mapFlipActivationStates )
@@ -1788,21 +1764,67 @@ YAML::Node Level::save() const
         result["flipEffect"] = *m_activeEffect;
     result["flipEffectTimer"] = m_effectTimer;
 
-    lara["inventory"] = inventory;
-    lara["ammo"] = ammo;
-
-    result["lara"] = lara;
-
-    for( const auto& item : m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : m_itemNodes )
     {
         YAML::Node node;
-        node["type"] = engine::toString( item->m_state.object_number );
-        node["position"] = item->savePosition();
-        node["animation"] = item->saveAnimation();
-        node["health"] = item->saveHealth();
-        node["triggerInfo"] = item->saveTriggerInfo();
-        result["items"].push_back( node );
+        node["type"] = engine::toString( item.second->m_state.object_number );
+        node["position"] = item.second->savePosition();
+        node["animation"] = item.second->saveAnimation();
+        node["health"] = item.second->saveHealth();
+        node["triggerInfo"] = item.second->saveTriggerInfo();
+        result["items"][item.first] = node;
     }
 
+    result["camera"] = m_cameraController->save();
+
     return result;
+}
+
+void Level::load(const YAML::Node& node)
+{
+    m_inventory.clear();
+
+    for( const auto& entry : node["lara"]["inventory"] )
+        addInventoryItem(
+                engine::EnumUtil<engine::TR1ItemId>::fromString( entry.first.as<std::string>() ),
+                entry.second.as<size_t>() );
+
+    m_lara->load( node["lara"] );
+
+    for( size_t i = 0; i < engine::mapFlipActivationStates.size(); ++i )
+    {
+        engine::mapFlipActivationStates[i].load( node["flipStatus"][i] );
+    }
+
+    if( !node["cameraFlags"].IsSequence() || node["cameraFlags"].size() != m_cameras.size() )
+        BOOST_THROW_EXCEPTION( std::domain_error( "Camera flag sequence is invalid" ) );
+
+    for( size_t i = 0; i < m_cameras.size(); ++i )
+        for( const auto& camera : m_cameras )
+        {
+            m_cameras[i].flags = node["cameraFlags"][i].as<uint16_t>();
+        }
+
+    if( !node["flipEffect"].IsDefined() )
+        m_activeEffect.reset();
+    else
+        m_activeEffect = node["flipEffect"].as<size_t>();
+
+    m_effectTimer = node["flipEffectTimer"].as<int>();
+
+    for( const auto& item : m_itemNodes )
+    {
+        const auto n = node["items"][item.first];
+        if( !n.IsDefined() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "Item data is not saved" ) );
+        if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() )
+            != item.second->m_state.object_number )
+            BOOST_THROW_EXCEPTION( std::domain_error( "Item data has wrong type" ) );
+        item.second->loadPosition( n["position"] );
+        item.second->loadAnimation( n["animation"] );
+        item.second->loadHealth( n["health"] );
+        item.second->loadTriggerInfo( n["triggerInfo"] );
+    }
+
+    m_cameraController->load( node["camera"] );
 }

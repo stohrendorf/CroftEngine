@@ -23,6 +23,135 @@ core::TRRotationXY getVectorAngles(const core::TRVec& co)
 
 namespace engine
 {
+namespace
+{
+const char* toString(HandStatus s)
+{
+    switch( s )
+    {
+        case HandStatus::None:
+            return "None";
+        case HandStatus::Grabbing:
+            return "Grabbing";
+        case HandStatus::Unholster:
+            return "Unholster";
+        case HandStatus::Holster:
+            return "Holster";
+        case HandStatus::Combat:
+            return "Combat";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid HandStatus" ) );
+    }
+}
+
+HandStatus parseHandStatus(const std::string& s)
+{
+    if( s == "None" )
+        return HandStatus::None;
+    if( s == "Grabbing" )
+        return HandStatus::Grabbing;
+    if( s == "Unholster" )
+        return HandStatus::Unholster;
+    if( s == "Holster" )
+        return HandStatus::Holster;
+    if( s == "Combat" )
+        return HandStatus::Combat;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid HandStatus" ) );
+}
+
+const char* toString(UnderwaterState s)
+{
+    switch( s )
+    {
+        case UnderwaterState::OnLand:
+            return "OnLand";
+        case UnderwaterState::Diving:
+            return "Diving";
+        case UnderwaterState::Swimming:
+            return "Swimming";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid UnderwaterState" ) );
+    }
+}
+
+UnderwaterState parseUnderwaterState(const std::string& s)
+{
+    if( s == "OnLand" )
+        return UnderwaterState::OnLand;
+    if( s == "Diving" )
+        return UnderwaterState::Diving;
+    if( s == "Swimming" )
+        return UnderwaterState::Swimming;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid UnderwaterState" ) );
+}
+
+const char* toString(core::Axis a)
+{
+    switch( a )
+    {
+        case core::Axis::PosZ:
+            return "+Z";
+        case core::Axis::PosX:
+            return "+X";
+        case core::Axis::NegZ:
+            return "-Z";
+        case core::Axis::NegX:
+            return "-X";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Axis" ) );
+    }
+}
+
+core::Axis parseAxis(const std::string& s)
+{
+    if( s == "+Z" )
+        return core::Axis::PosZ;
+    if( s == "+X" )
+        return core::Axis::PosX;
+    if( s == "-Z" )
+        return core::Axis::NegZ;
+    if( s == "-X" )
+        return core::Axis::NegX;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Axis" ) );
+}
+
+const char* toString(LaraNode::WeaponId id)
+{
+    switch( id )
+    {
+
+        case LaraNode::WeaponId::None:
+            return "None";
+        case LaraNode::WeaponId::Pistols:
+            return "Pistols";
+        case LaraNode::WeaponId::AutoPistols:
+            return "AutoPistols";
+        case LaraNode::WeaponId::Uzi:
+            return "Uzi";
+        case LaraNode::WeaponId::Shotgun:
+            return "Shotgun";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid WeaponId" ) );
+    }
+}
+
+LaraNode::WeaponId parseWeaponId(const std::string& s)
+{
+    if( s == "None" )
+        return LaraNode::WeaponId::None;
+    if( s == "Pistols" )
+        return LaraNode::WeaponId::Pistols;
+    if( s == "AutoPistols" )
+        return LaraNode::WeaponId::AutoPistols;
+    if( s == "Uzi" )
+        return LaraNode::WeaponId::Uzi;
+    if( s == "Shotgun" )
+        return LaraNode::WeaponId::Shotgun;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid WeaponId" ) );
+}
+
+}
+
 std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
 void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
@@ -2550,4 +2679,76 @@ LaraNode::renderGunFlare(LaraNode::WeaponId weaponId,
         uniform.set( 0.0f );
     } );
 }
+
+YAML::Node LaraNode::save() const
+{
+    YAML::Node node;
+    node["gun"] = toString( gunType );
+    node["requestedGun"] = toString( requestedGunType );
+    node["handStatus"] = toString( m_handStatus );
+    node["underwater"] = toString( m_underwaterState );
+    node["hitFrame"] = hit_frame;
+    if( hit_direction.is_initialized() )
+    {
+        node["hitDir"] = toString( *hit_direction );
+    }
+
+    node["air"] = m_air;
+    node["swimToDiveKeypressDuration"] = m_swimToDiveKeypressDuration;
+    node["explosionStumblingDuration"] = explosionStumblingDuration;
+    if( forceSourcePosition != nullptr )
+    {
+        node["forceSource"] = forceSourcePosition->save();
+    }
+
+    node["yRotationSpeed"] = m_yRotationSpeed.toDegrees();
+    node["movementAngle"] = m_movementAngle.toDegrees();
+    node["headRot"] = m_headRotation.save();
+    node["torsoRot"] = m_torsoRotation.save();
+
+    node["ammo"]["pistols"] = pistolsAmmo.save();
+    node["ammo"]["magnums"] = revolverAmmo.save();
+    node["ammo"]["uzis"] = uziAmmo.save();
+    node["ammo"]["shotgun"] = shotgunAmmo.save();
+
+    node["underwaterCurrentStrength"] = m_underwaterCurrentStrength;
+    // TODO: save detailed information about the current underwater route
+
+    return node;
+}
+
+void LaraNode::load(const YAML::Node& n)
+{
+    gunType = parseWeaponId( n["gun"].as<std::string>() );
+    requestedGunType = parseWeaponId( n["requestedGun"].as<std::string>() );
+    m_handStatus = parseHandStatus( n["handStatus"].as<std::string>() );
+    m_underwaterState = parseUnderwaterState( n["underwater"].as<std::string>() );
+    hit_frame = n["hitFrame"].as<int>();
+    if( !n["hitDir"].IsDefined() )
+        hit_direction.reset();
+    else
+        hit_direction = parseAxis( n["hitDir"].as<std::string>() );
+
+    m_air = n["air"].as<int>();
+    m_swimToDiveKeypressDuration = n["swimToDiveKeypressDuration"].as<int>();
+    explosionStumblingDuration = n["explosionStumblingDuration"].as<int>();
+    if( !n["forceSource"].IsDefined() )
+        forceSourcePosition = nullptr;
+    else
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Cannot load forceSourcePosition yet" ) ); // FIXME
+
+    m_yRotationSpeed = core::Angle::fromDegrees( n["yRotationSpeed"].as<float>() );
+    m_movementAngle = core::Angle::fromDegrees( n["movementAngle"].as<float>() );
+    m_headRotation.load( n["headRot"] );
+    m_torsoRotation.load( n["torsoRot"] );
+
+    pistolsAmmo.load( n["ammo"]["pistols"] );
+    revolverAmmo.load( n["ammo"]["magnums"] );
+    uziAmmo.load( n["ammo"]["uzis"] );
+    shotgunAmmo.load( n["ammo"]["shotgun"] );
+
+    m_underwaterCurrentStrength = n["underwaterCurrentStrength"].as<int>();
+    // TODO: load detailed information about the current underwater route
+}
+
 }
