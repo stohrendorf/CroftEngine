@@ -636,6 +636,8 @@ int main()
 
         if( lvl->m_inputHandler->getInputState().save )
         {
+            scaleSplashImage();
+            abibasFont->setTarget( screenOverlay->getImage() );
             drawLoadingScreen( "Saving..." );
 
             BOOST_LOG_TRIVIAL( info ) << "Save";
@@ -647,6 +649,8 @@ int main()
         }
         else if( lvl->m_inputHandler->getInputState().load )
         {
+            scaleSplashImage();
+            abibasFont->setTarget( screenOverlay->getImage() );
             drawLoadingScreen( "Loading..." );
 
             BOOST_LOG_TRIVIAL( info ) << "Load";
