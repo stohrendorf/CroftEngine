@@ -2712,7 +2712,14 @@ YAML::Node LaraNode::save() const
     node["ammo"]["shotgun"] = shotgunAmmo.save();
 
     node["underwaterCurrentStrength"] = m_underwaterCurrentStrength;
-    // TODO: save detailed information about the current underwater route
+    node["underwaterRoute"] = m_underwaterRoute.save( getLevel() );
+
+    for( const auto& child : getNode()->getChildren() )
+        node["meshes"].push_back( getLevel().indexOfModel( child->getDrawable() ) );
+
+    node["leftArm"] = leftArm.save( getLevel() );
+    node["rightArm"] = rightArm.save( getLevel() );
+    node["weaponTargetVector"] = m_weaponTargetVector.save();
 
     return node;
 }
@@ -2748,7 +2755,40 @@ void LaraNode::load(const YAML::Node& n)
     shotgunAmmo.load( n["ammo"]["shotgun"] );
 
     m_underwaterCurrentStrength = n["underwaterCurrentStrength"].as<int>();
-    // TODO: load detailed information about the current underwater route
+    m_underwaterRoute.load( n["underwaterRoute"], getLevel() );
+
+    Expects( n["meshes"].size() == getNode()->getChildren().size() );
+    for( size_t i = 0; i < getNode()->getChildren().size(); ++i )
+    {
+        getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
+    }
+
+    leftArm.load( n["leftArm"], getLevel() );
+    rightArm.load( n["rightArm"], getLevel() );
+    m_weaponTargetVector.load( n["weaponTargetVector"] );
 }
 
+YAML::Node LaraNode::AimInfo::save(const level::Level& lvl) const
+{
+    YAML::Node node;
+    if( weaponAnimData != nullptr )
+        node["animData"] = std::distance( &lvl.m_poseFrames[0], reinterpret_cast<const int16_t*>(weaponAnimData) );
+    node["frame"] = frame;
+    node["aiming"] = aiming;
+    node["aimRotation"] = aimRotation.save();
+    node["flashTimeout"] = flashTimeout;
+    return node;
+}
+
+void LaraNode::AimInfo::load(const YAML::Node& n, const level::Level& lvl)
+{
+    if( !n["animData"].IsDefined() )
+        weaponAnimData = nullptr;
+    else
+        weaponAnimData = reinterpret_cast<const loader::AnimFrame*>(&lvl.m_poseFrames.at( n["animData"].as<size_t>() ));
+    frame = n["frame"].as<int16_t>();
+    aiming = n["aiming"].as<bool>();
+    aimRotation.load( n["aimRotation"] );
+    flashTimeout = n["flashTimeout"].as<int16_t>();
+}
 }

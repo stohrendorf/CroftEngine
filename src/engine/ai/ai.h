@@ -47,24 +47,28 @@ struct SearchNode
      */
     const loader::Box* exit_box = nullptr;
 
-    uint16_t search_number = 0;
+    uint16_t search_version = 0;
 
     const loader::Box* next_expansion = nullptr;
 
     void markBlocked()
     {
-        search_number |= 0x8000u;
+        search_version |= 0x8000u;
     }
 
     uint16_t getSearchVersion() const
     {
-        return search_number & ~uint16_t( 0x8000u );
+        return search_version & ~uint16_t( 0x8000u );
     }
 
     bool isBlocked() const
     {
-        return (search_number & 0x8000u) != 0;
+        return (search_version & 0x8000u) != 0;
     }
+
+    YAML::Node save(const level::Level& lvl) const;
+
+    void load(const YAML::Node& n, const level::Level& lvl);
 };
 
 
@@ -152,7 +156,7 @@ struct LotInfo
                     tail = target_box;
             }
 
-            targetNode->search_number = ++m_searchVersion;
+            targetNode->search_version = ++m_searchVersion;
             targetNode->exit_box = nullptr;
         }
 
@@ -202,7 +206,7 @@ struct LotInfo
                         continue; // already visited; we don't care if the child is blocked or not
 
                     // mark as visited, will also mark as blocked
-                    overlapNode->search_number = headNode->search_number;
+                    overlapNode->search_version = headNode->search_version;
                 }
                 else
                 {
@@ -211,7 +215,7 @@ struct LotInfo
                         continue; // already visited and reachable
 
                     // mark as visited, and check if reachable
-                    overlapNode->search_number = headNode->search_number;
+                    overlapNode->search_version = headNode->search_version;
                     if( (overlapBox->overlap_index & block_mask) != 0 )
                         overlapNode->markBlocked(); // can't reach this box
                     else
@@ -225,6 +229,10 @@ struct LotInfo
             head = std::exchange( headNode->next_expansion, nullptr );
         }
     }
+
+    YAML::Node save(const level::Level& lvl) const;
+
+    void load(const YAML::Node& n, const level::Level& lvl);
 };
 
 
@@ -285,6 +293,10 @@ struct CreatureInfo
         );
         return type;
     }
+
+    YAML::Node save(const level::Level& lvl) const;
+
+    void load(const YAML::Node& n, const level::Level& lvl);
 };
 
 

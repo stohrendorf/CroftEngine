@@ -416,6 +416,25 @@ struct TRRotationXY
     {
         return glm::yawPitchRoll( -Y.toRad(), X.toRad(), 0.0f );
     }
+
+    YAML::Node save() const
+    {
+        YAML::Node n;
+        n["x"] = X.toDegrees();
+        n["y"] = Y.toDegrees();
+        return n;
+    }
+
+    void load(const YAML::Node& n)
+    {
+        if( !n["x"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotationXY::X is not a scalar value" ) );
+        if( !n["y"].IsScalar() )
+            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotationXY::Y is not a scalar value" ) );
+
+        X = Angle::fromDegrees( n["x"].as<float>() );
+        Y = Angle::fromDegrees( n["y"].as<float>() );
+    }
 };
 
 

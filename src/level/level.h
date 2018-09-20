@@ -588,7 +588,17 @@ public:
     void animateUV();
 
     YAML::Node save() const;
+
     void load(const YAML::Node& node);
+
+    size_t indexOfModel(const std::shared_ptr<gameplay::Drawable>& m) const
+    {
+        for( size_t i = 0; i < m_models.size(); ++i )
+            if( m_models[i].get() == m )
+                return i;
+
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Model not found" ) );
+    }
 
 protected:
     loader::io::SDLReader m_reader;

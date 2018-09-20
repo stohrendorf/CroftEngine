@@ -636,15 +636,23 @@ int main()
 
         if( lvl->m_inputHandler->getInputState().save )
         {
+            drawLoadingScreen( "Saving..." );
+
             BOOST_LOG_TRIVIAL( info ) << "Save";
             std::ofstream file{"quicksave.yaml", std::ios::out | std::ios::trunc};
             Expects( file.is_open() );
             file << lvl->save();
+
+            nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
         }
         else if( lvl->m_inputHandler->getInputState().load )
         {
+            drawLoadingScreen( "Loading..." );
+
             BOOST_LOG_TRIVIAL( info ) << "Load";
             lvl->load( YAML::LoadFile( "quicksave.yaml" ) );
+
+            nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
         }
     }
 

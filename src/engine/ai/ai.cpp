@@ -7,6 +7,39 @@ namespace engine
 {
 namespace ai
 {
+namespace
+{
+const char* toString(Mood m)
+{
+    switch( m )
+    {
+        case Mood::Bored:
+            return "Bored";
+        case Mood::Attack:
+            return "Attack";
+        case Mood::Escape:
+            return "Escape";
+        case Mood::Stalk:
+            return "Stalk";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
+    }
+}
+
+Mood parseMood(const std::string& s)
+{
+    if( s == "Bored" )
+        return Mood::Bored;
+    if( s == "Attack" )
+        return Mood::Attack;
+    if( s == "Escape" )
+        return Mood::Escape;
+    if( s == "Stalk" )
+        return Mood::Stalk;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
+}
+}
+
 gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const uint16_t idx)
 {
     const auto first = &lvl.m_overlaps[idx & 0x3fff];
@@ -231,6 +264,63 @@ bool LotInfo::calculateTarget(const level::Level& lvl,
     return false;
 }
 
+YAML::Node LotInfo::save(const level::Level& lvl) const
+{
+    YAML::Node node;
+    for( const auto& entry : nodes )
+        node["nodes"][std::distance( &lvl.m_boxes[0], entry.first )] = entry.second.save( lvl );
+    for( const auto& box : boxes )
+        node["boxes"].push_back( std::distance( &lvl.m_boxes[0], box.get() ) );
+    if( head != nullptr )
+        node["head"] = std::distance( &lvl.m_boxes[0], head );
+    if( tail != nullptr )
+        node["tail"] = std::distance( &lvl.m_boxes[0], tail );
+    node["searchVersion"] = m_searchVersion;
+    node["blockMask"] = block_mask;
+    node["step"] = step;
+    node["drop"] = drop;
+    node["fly"] = fly;
+    if( target_box != nullptr )
+        node["targetBox"] = std::distance( &lvl.m_boxes[0], target_box );
+    if( required_box != nullptr )
+        node["requiredBox"] = std::distance( &lvl.m_boxes[0], required_box );
+    node["target"] = target.save();
+
+    return node;
+}
+
+void LotInfo::load(const YAML::Node& n, const level::Level& lvl)
+{
+    nodes.clear();
+    for( const auto& entry : n["nodes"] )
+        nodes[&lvl.m_boxes.at( entry.first.as<size_t>() )].load( entry.second, lvl );
+    boxes.clear();
+    for( const auto& entry : n["boxes"] )
+        boxes.emplace_back( &lvl.m_boxes.at( entry.as<size_t>() ) );
+    if( !n["head"].IsDefined() )
+        head = nullptr;
+    else
+        head = &lvl.m_boxes.at( n["head"].as<size_t>() );
+    if( !n["tail"].IsDefined() )
+        tail = nullptr;
+    else
+        tail = &lvl.m_boxes.at( n["tail"].as<size_t>() );
+    m_searchVersion = n["searchVersion"].as<uint16_t>();
+    block_mask = n["blockMask"].as<uint16_t>();
+    step = n["step"].as<int16_t>();
+    drop = n["drop"].as<int16_t>();
+    fly = n["fly"].as<int16_t>();
+    if( !n["targetBox"].IsDefined() )
+        target_box = nullptr;
+    else
+        target_box = &lvl.m_boxes.at( n["targetBox"].as<size_t>() );
+    if( !n["requiredBox"].IsDefined() )
+        required_box = nullptr;
+    else
+        required_box = &lvl.m_boxes.at( n["requiredBox"].as<size_t>() );
+    target.load( n["target"] );
+}
+
 void updateMood(const level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
@@ -435,7 +525,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     lvl.m_lara->m_state.box_number = lvl.m_lara->m_state.getCurrentSector()->box;
     enemy_zone = lvl.m_lara->m_state.box_number->*zoneRef;
     if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box_number->overlap_index)
-        || item.creatureInfo->lot.nodes[item.box_number].search_number
+        || item.creatureInfo->lot.nodes[item.box_number].search_version
            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
@@ -495,6 +585,54 @@ CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::I
             lot.block_mask = 0x8000;
             break;
     }
+}
+
+YAML::Node CreatureInfo::save(const level::Level& lvl) const
+{
+    YAML::Node node;
+    node["headRot"] = head_rotation.toDegrees();
+    node["neckRot"] = neck_rotation.toDegrees();
+    node["maxTurn"] = maximum_turn.toDegrees();
+    node["flags"] = flags;
+    node["mood"] = toString( mood );
+    node["lot"] = lot.save( lvl );
+    node["target"] = target.save();
+    return node;
+}
+
+void CreatureInfo::load(const YAML::Node& n, const level::Level& lvl)
+{
+    head_rotation = core::Angle::fromDegrees( n["headRot"].as<float>() );
+    neck_rotation = core::Angle::fromDegrees( n["neckRot"].as<float>() );
+    maximum_turn = core::Angle::fromDegrees( n["maxTurn"].as<float>() );
+    flags = n["flags"].as<uint16_t>();
+    mood = parseMood( n["mood"].as<std::string>() );
+    lot.load( n["lot"], lvl );
+    target.load( n["target"] );
+}
+
+YAML::Node SearchNode::save(const level::Level& lvl) const
+{
+    YAML::Node node;
+    node["searchVersion"] = search_version;
+    if( exit_box != nullptr )
+        node["exitBox"] = std::distance( &lvl.m_boxes[0], exit_box );
+    if( next_expansion != nullptr )
+        node["nextExpansion"] = std::distance( &lvl.m_boxes[0], next_expansion );
+    return node;
+}
+
+void SearchNode::load(const YAML::Node& n, const level::Level& lvl)
+{
+    search_version = n["searchVersion"].as<uint16_t>();
+    if( !n["exitBox"].IsDefined() )
+        exit_box = nullptr;
+    else
+        exit_box = &lvl.m_boxes.at( n["exitBox"].as<size_t>() );
+    if( !n["nextExpansion"].IsDefined() )
+        next_expansion = nullptr;
+    else
+        next_expansion = &lvl.m_boxes.at( n["nextExpansion"].as<size_t>() );
 }
 }
 }

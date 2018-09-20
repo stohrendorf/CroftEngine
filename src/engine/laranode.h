@@ -412,6 +412,7 @@ public:
         --explosionStumblingDuration;
     }
 
+
     struct AimInfo
     {
         const loader::AnimFrame* weaponAnimData = nullptr;
@@ -419,7 +420,12 @@ public:
         bool aiming = false;
         core::TRRotationXY aimRotation{};
         int16_t flashTimeout = 0;
+
+        YAML::Node save(const level::Level& lvl) const;
+
+        void load(const YAML::Node& n, const level::Level& lvl);
     };
+
 
     enum class WeaponId
     {

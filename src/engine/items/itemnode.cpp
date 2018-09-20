@@ -40,36 +40,6 @@ TriggerState parseTriggerState(const std::string& s)
         return TriggerState::Invisible;
     BOOST_THROW_EXCEPTION( std::domain_error( "Invalid TriggerState" ) );
 }
-
-const char* toString(ai::Mood m)
-{
-    switch( m )
-    {
-        case ai::Mood::Bored:
-            return "Bored";
-        case ai::Mood::Attack:
-            return "Attack";
-        case ai::Mood::Escape:
-            return "Escape";
-        case ai::Mood::Stalk:
-            return "Stalk";
-        default:
-            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
-    }
-}
-
-ai::Mood parseMood(const std::string& s)
-{
-    if( s == "Bored" )
-        return ai::Mood::Bored;
-    if( s == "Attack" )
-        return ai::Mood::Attack;
-    if( s == "Escape" )
-        return ai::Mood::Escape;
-    if( s == "Stalk" )
-        return ai::Mood::Stalk;
-    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
-}
 }
 
 void ItemNode::applyTransform()
@@ -385,11 +355,7 @@ YAML::Node ItemNode::saveTriggerInfo() const
 
     if( m_state.creatureInfo != nullptr )
     {
-        node["ai"]["neck"] = m_state.creatureInfo->neck_rotation.toDegrees();
-        node["ai"]["head"] = m_state.creatureInfo->head_rotation.toDegrees();
-        node["ai"]["maxTurn"] = m_state.creatureInfo->maximum_turn.toDegrees();
-        node["ai"]["flags"] = m_state.creatureInfo->flags;
-        node["ai"]["mood"] = toString( m_state.creatureInfo->mood );
+        node["ai"] = m_state.creatureInfo->save( getLevel() );
     }
 
     return node;
@@ -410,11 +376,7 @@ void ItemNode::loadTriggerInfo(const YAML::Node& n)
     else
     {
         m_state.creatureInfo = std::make_shared<ai::CreatureInfo>( getLevel(), to_not_null( &m_state ) );
-        m_state.creatureInfo->neck_rotation = core::Angle::fromDegrees( n["ai"]["neck"].as<float>() );
-        m_state.creatureInfo->head_rotation = core::Angle::fromDegrees( n["ai"]["head"].as<float>() );
-        m_state.creatureInfo->maximum_turn = core::Angle::fromDegrees( n["ai"]["maxTurn"].as<float>() );
-        m_state.creatureInfo->flags = n["ai"]["flags"].as<uint16_t>();
-        m_state.creatureInfo->mood = parseMood( n["ai"]["mood"].as<std::string>() );
+        m_state.creatureInfo->load( n["ai"], getLevel() );
     }
 }
 
