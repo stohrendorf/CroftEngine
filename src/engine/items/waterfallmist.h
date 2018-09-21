@@ -16,15 +16,12 @@ public:
                   const loader::SkeletalModelType& animatedModel)
             : ModelItemNode( level, name, room, item, true, animatedModel )
     {
-        getNode()->setDrawable( nullptr );
-        getNode()->removeAllChildren();
     }
 
     void update() override;
 
-    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override
+    void collide(LaraNode& /*lara*/, CollisionInfo& /*collisionInfo*/) override
     {
-
     }
 };
 }

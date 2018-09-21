@@ -28,7 +28,7 @@ void Particle::initDrawables(const level::Level& level)
                     spr.left_side,
                     spr.bottom_side,
                     spr.right_side - spr.left_side,
-                    spr.top_side - spr.bottom_side,
+                    spr.bottom_side - spr.top_side,
                     spr.t0,
                     spr.t1,
                     gsl::make_not_null( level.m_spriteMaterial ),

@@ -1244,8 +1244,8 @@ struct Sprite
 
         sprite->left_side = tleft;
         sprite->right_side = tright;
-        sprite->top_side = -tbottom;
-        sprite->bottom_side = -ttop;
+        sprite->top_side = ttop;
+        sprite->bottom_side = tbottom;
         return sprite;
     }
 
